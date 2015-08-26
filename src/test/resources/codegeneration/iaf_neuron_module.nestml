@@ -31,6 +31,7 @@ package codegeneration.iaf_neuron_module:
             alias  V_reset mV = delta_V_reset + E_L [V_reset >= Theta]
         end
 
+
         internal:
             h   ms   = resolution()
             P11 real = exp(-h / tau_syn)
