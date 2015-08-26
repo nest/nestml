@@ -1,0 +1,15 @@
+package org.nest.nestml.cocos.useComponents.invalidUsage:
+
+  import org.nest.nestml.parsing.iaf_neuron.iaf_neuron
+
+  neuron UsesNeuron:
+      use iaf_neuron as blaa
+
+      dynamics timestep(t ms):
+      end
+  end
+
+  component UsesUnit:
+     use integer as blub
+  end
+end

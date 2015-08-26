@@ -1,0 +1,13 @@
+package org.nest.nestml.cocos.codeAfterReturn:
+
+    component Simple:
+        
+        
+        function foo() real:
+            return 15.5
+            
+            Logger.info("me is after return")
+        end
+    end
+
+end

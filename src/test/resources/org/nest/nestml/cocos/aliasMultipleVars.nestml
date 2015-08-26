@@ -1,0 +1,18 @@
+package org.nest.nestml.cocos.aliasMultipleVars:
+
+    component AliasSetter:
+        parameter:
+            x integer = 5
+            alias y, g integer = -x
+            alias z real = x * y
+        end
+        
+        function set_y(v real):
+            x = -v
+        end
+        
+        function set_z():
+        end
+        
+    end
+end

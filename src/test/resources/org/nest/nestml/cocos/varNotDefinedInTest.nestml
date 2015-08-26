@@ -1,0 +1,10 @@
+package notDefined:
+
+    neuron NeuronInTest:
+        function foo():
+            if x:
+            end
+        end
+    end
+    
+end

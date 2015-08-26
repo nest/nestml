@@ -1,0 +1,25 @@
+package functionWithWrongReturns:
+    import nestml.*
+    import units.unitless.*
+    component WrongReturns:
+        function foo1():
+            return 3
+        end
+        
+        function foo2() real:
+            return 
+        end
+        
+        function foo3() string:
+            return 4
+        end
+        
+        function foo4() boolean:
+            return "hi"
+        end
+        
+        function foo5() integer:
+            return 3.5
+        end
+    end
+end

@@ -1,0 +1,13 @@
+package org.nest.nestml.cocos.varDefinedMultipleTimes:
+
+    neuron NeuronInTest:
+        state:
+            x mV
+        end
+        
+        parameter:
+            x real = x * 2
+        end
+    end
+    
+end

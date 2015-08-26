@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
+package org.nest;
+
+grammar NESTML extends org.nest.SPL {
+
+  /** ASTNESTMLCompilationUnit represents the complete entire file with neuron and component models.
+    @attribute packageName      The qualified name to artifact
+    @attribute Import           List of imported elements
+    @attribute Neuron           The neuron representation
+    @attribute Component        The component representation
+  */
+  NESTMLCompilationUnit = "package" packageName:QualifiedName
+    BLOCK_OPEN
+    (Import | NEWLINE)*
+    (Neuron | Component | NEWLINE)*
+    BLOCK_CLOSE;
+
+  /** ASTImport represents the import line. Can be the qualified name oder a wirldcard import.
+    @attribute qualifiedName    The qualified name to artifact
+    @attribute star             Optional wildcard
+  */
+  Import = "import" QualifiedName ([star:".*"])? (";")?;
+
+  Neuron = "neuron" Name Body;
+
+  Component = "component" Name Body;
+
+  interface BodyElement;
+
+  Body = BLOCK_OPEN ( NEWLINE | BodyElement)* BLOCK_CLOSE;
+
+  USE_Stmt implements BodyElement = "use" name:QualifiedName "as" alias:Name;
+
+  Var_Block implements BodyElement =
+    (["state"]|["parameter"]|["internal"])
+    BLOCK_OPEN
+      (AliasDecl (";" AliasDecl)* (";")? | NEWLINE)*
+    BLOCK_CLOSE;
+
+  AliasDecl = ([hide:"-"])? (["alias"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
+
+  Input implements BodyElement = "input"
+    BLOCK_OPEN
+      (InputLine | NEWLINE)*
+    BLOCK_CLOSE;
+
+  InputLine =
+    Name
+    ("<" sizeParameter:Name ">")?
+    "<-" InputType*
+    (["spike"] | ["current"]);
+
+  InputType = (["inhibitory"] | ["excitatory"]);
+
+  Output implements BodyElement =
+                  "output" BLOCK_OPEN (["spike"] | ["current"]) ;
+
+  Structure implements BodyElement = "structure"
+              BLOCK_OPEN
+                  (StructureLine | NEWLINE)*
+              BLOCK_CLOSE;
+
+  StructureLine = compartments:QualifiedName ("-" compartments:QualifiedName)*;
+
+  // TODO model it better
+  Function implements BodyElement =
+          "function" Name "(" Parameters? ")" (returnType:QualifiedName | PrimitiveType)?
+             BLOCK_OPEN
+             Block
+             BLOCK_CLOSE;
+
+   // e.g. first: current time, second: min delay in ms
+   // e.g. first: current time, second: timestep in ms
+  Dynamics implements BodyElement = "dynamics" (MinDelay | TimeStep)
+                                    "(" Parameters? ")"
+                                        BLOCK_OPEN // Todo remove me. It is not the way for modular extension
+                                        Block
+                                    BLOCK_CLOSE;
+
+
+  MinDelay = "minDelay";
+
+  TimeStep = "timestep";
+
+  Parameters = Parameter ("," Parameter)*;
+
+  Parameter = Name type:QualifiedName;
+
+}

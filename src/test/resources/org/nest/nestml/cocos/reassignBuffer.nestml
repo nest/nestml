@@ -1,0 +1,11 @@
+package useAliasInNonAliasDecl.nestml.reassignBuffer:
+    neuron ReassignBuffer:
+        input:
+            testBuffer <- spike
+        end
+        
+        dynamics timestep(t ms):
+            testBuffer = 15
+        end
+    end
+end

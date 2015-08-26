@@ -1,0 +1,14 @@
+package org.nest.nestml.parsing.emptyNeuron:
+
+    neuron EmptyNeuron:
+        dynamics minDelay(t ms):
+        end
+        input:
+          spikeBuffer   <- inhibitory excitatory spike
+          currentBuffer <- current
+        end
+
+        output: spike
+    end
+    
+end

@@ -1,0 +1,31 @@
+package org.nest.nestml.cocos.splInFunctions.validMethod:
+
+    neuron testNeuron:
+        state:
+            test1 real = 1.0
+        end
+
+        parameter:
+        end
+
+        internal:
+        end
+
+        input:
+        end
+
+        output: spike
+
+        dynamics timestep(t ms):
+
+            multipleSigns integer = 2
+            random()
+            return
+        end
+
+        function random() integer:
+        end
+
+    end
+end
+

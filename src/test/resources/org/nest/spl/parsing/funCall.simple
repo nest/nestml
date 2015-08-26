@@ -1,0 +1,7 @@
+module org.nest.spl.parsing.funCall
+
+a, b real = 0
+
+println(); pow(a, b)
+
+Logger.info("" + 3+4*6) # TODO Logger.info("" + 3+4**6) should work

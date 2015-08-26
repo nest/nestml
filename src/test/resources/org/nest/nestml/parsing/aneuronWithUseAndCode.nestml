@@ -1,0 +1,23 @@
+package org.nest.nestml.parsing.aneuronWithUseAndCode:
+
+    import empty.*
+
+    neuron Neuron1234:
+    
+        function foobar():
+            EmptyFunctionNeuron.empty()
+        end
+        
+        dynamics timestep(t ms):
+        end
+
+        input:
+          spikeBuffer   <- inhibitory excitatory spike
+          currentBuffer <- current
+        end
+
+        output: spike
+        
+    end
+    
+end

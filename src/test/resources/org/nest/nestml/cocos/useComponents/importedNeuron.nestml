@@ -1,0 +1,9 @@
+package org.nest.nestml.cocos.useComponents.importedNeuron:
+
+  neuron ImportedNeuron:
+    function testFunction():
+    end
+  end
+
+end
+

@@ -1,0 +1,29 @@
+package org.nest.nestml.cocos.undefinedVariables.validModelUndefinedValues:
+
+    neuron testNeuron:
+        state:
+            test1 real = 1 [test1 > parameterVar1]
+        end
+
+        parameter:
+            parameterVar1 real = 1
+            parameterVar2 real = parameterVar1
+        end
+
+        internal:
+        end
+
+        input:
+            spikeBuffer   <- inhibitory excitatory spike
+            currentBuffer <- current
+        end
+
+        output: spike
+
+        dynamics timestep(t ms):
+            
+        end
+
+    end
+end
+

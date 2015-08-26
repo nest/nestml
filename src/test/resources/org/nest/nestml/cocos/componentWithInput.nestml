@@ -1,0 +1,9 @@
+package org.nest.nestml.cocos.componentWithInput:
+
+    component ComponentWithInput:
+        input:
+            buff <- spike
+        end
+    end
+    
+end

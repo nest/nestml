@@ -1,0 +1,11 @@
+package notDefined:
+
+    import units.unitless.*
+
+    neuron EmptyNeuron:
+        state:
+            x real = 3 * y
+        end
+    end
+    
+end

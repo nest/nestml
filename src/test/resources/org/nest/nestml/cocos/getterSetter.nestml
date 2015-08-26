@@ -1,0 +1,33 @@
+package org.nest.nestml.cocos.getterSetter:
+
+    component GetSet:
+        internal:
+            a mV
+            alias b integer
+        end
+        
+        function get_a() mV: # error
+        end
+        
+        function set_a(x real): # error
+        end
+        
+        function set_a(): # no error
+        end
+        
+        function get_b(): # error
+        end
+        
+        function get_b(x mV, bs integer): # no error
+        end
+        
+        function set_b(): # no error
+        end
+        
+        function set_b(x mV): # no error
+        end
+        
+        function get_instance():
+        end
+    end
+end

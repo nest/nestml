@@ -1,0 +1,7 @@
+module org.nest.spl.cocos.codeAfterReturn
+
+a integer = 15
+
+return a
+
+a = a + 12

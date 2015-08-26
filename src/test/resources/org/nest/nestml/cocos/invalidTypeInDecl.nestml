@@ -1,0 +1,23 @@
+package org.nest.nestml.cocos.invalidTypeInDecl:
+    
+    component Test:
+    end
+
+    component InvalidTypes:
+        use Test as TestRef
+        
+        state:
+            a Test # error 1
+            alias b TestRef # error 2
+            c boolean
+            d string
+            l Logger # TODO better error description
+        end
+        
+        function foo(bar Test) TestRef: # error 3, 4
+            n org.nest.nestml.parsing.iaf_neuron.iaf_neuron
+            
+        end
+    end
+
+end

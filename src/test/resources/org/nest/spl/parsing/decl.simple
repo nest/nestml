@@ -1,0 +1,9 @@
+module org.nest.spl.parsing.decl
+
+wahr boolean = true
+
+x real = 3; y real = 4; z real = 16.8
+
+f real = -2e12
+
+a, b, c real

@@ -1,0 +1,11 @@
+package notDefined:
+
+    component NeuronLocalVarNotDefinedYet:
+        function foo():
+            y real = 5 * x
+            x = 13
+            x real = 2 * x
+        end
+    end
+    
+end

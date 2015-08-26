@@ -1,0 +1,12 @@
+module org.nest.spl.cocos.codeAfterReturningIf
+x integer = 12
+
+if 12 == 3:
+    return 13
+elif 12 <> 3:
+    return true
+else:
+    return false
+end
+
+print("x = " + x)

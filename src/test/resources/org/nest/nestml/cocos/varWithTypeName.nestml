@@ -1,0 +1,12 @@
+package org.nest.nestml.cocos.varWithTypeName:
+
+    component B:
+        state:
+            real real = 15.0
+        end
+
+        dynamics timestep (t ms):
+            string string = "a"
+        end
+    end
+end

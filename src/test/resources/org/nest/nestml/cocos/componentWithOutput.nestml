@@ -1,0 +1,5 @@
+package org.nest.nestml.cocos.componentWithOutput:
+    component CompWithOutput:
+        output: spike
+    end
+end

@@ -1,0 +1,20 @@
+package org.nest.nestml.parsing.typenameAsVarName:
+
+    neuron iaf_neuron:
+        state:
+            integer    integer = 1
+        end
+
+        input:
+            spikeBuffer   <- inhibitory excitatory spike
+            currentBuffer <- current
+        end
+
+        output: spike
+
+        dynamics timestep(t ms):
+        end
+
+    end
+end
+

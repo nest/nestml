@@ -1,0 +1,33 @@
+package org.nest.nestml.cocos.multipleFunctionDeclarations:
+    
+    neuron MultipleFunctionsNeuron:
+        
+        function empty1() :
+        
+        end
+        
+        function empty1() :
+        
+        end
+        
+        function empty1(x mV) :
+        
+        end
+        
+        function empty1(x pA) :
+        
+        end
+        
+        function empty1(x pA, y mV) :
+        
+        end
+        
+        function empty1(x mV, y pA) :
+        
+        end
+        
+        dynamics timestep(t ms):
+        end
+    end
+    
+end

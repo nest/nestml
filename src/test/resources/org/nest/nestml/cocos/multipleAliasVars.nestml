@@ -1,0 +1,11 @@
+package aliasP:
+
+    import units.unitless.*
+
+    neuron EmptyNeuron:
+        state:
+            alias x, y , z real = 3
+        end
+    end
+    
+end

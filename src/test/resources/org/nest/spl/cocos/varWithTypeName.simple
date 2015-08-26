@@ -1,0 +1,3 @@
+module org.nest.spl.cocos.varWithTypeName
+real real = 15
+v integer = 11

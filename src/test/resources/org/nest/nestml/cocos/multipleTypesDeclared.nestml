@@ -1,0 +1,11 @@
+package org.nest.nestml.cocos.multipleTypesDeclared:
+
+    neuron Foo:
+        dynamics timestep(t ms):
+        end
+    end
+
+    component Foo:
+    end
+
+end

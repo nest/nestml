@@ -1,0 +1,3 @@
+module org.nest.spl.parsing.declAndAssign
+
+x real = 4

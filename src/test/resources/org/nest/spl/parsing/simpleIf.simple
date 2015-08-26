@@ -1,0 +1,7 @@
+module org.nest.spl.parsing.simpleIf
+if 2 < 3 :
+end
+
+if 2 < 3 :
+
+end

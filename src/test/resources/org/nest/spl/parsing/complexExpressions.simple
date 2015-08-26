@@ -1,0 +1,8 @@
+module org.nest.spl.parsing.complexExpressions
+C_m pF = 250.0
+tau_m ms = 10.0
+tau_syn_ex ms = 2.0
+#P11ex real = E ** (-h / tau_syn_ex) TODO
+# TODO P21ex real = tau_m / (C_m * (1.0 - tau_m / tau_syn_ex)) * P11ex * (1.0 - pow(E, (h * (1.0 / tau_syn_ex - 1.0 / tau_m))))
+t_ref    ms = 2 s
+RefractoryCounts integer = Time.steps(t_ref)

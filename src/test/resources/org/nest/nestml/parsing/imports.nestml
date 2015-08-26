@@ -1,0 +1,7 @@
+package org.nest.nestml.parsing.imports:
+
+    import empty.EmptyNeuron
+    import empty.EmptyComponent;
+    import header.*
+
+end

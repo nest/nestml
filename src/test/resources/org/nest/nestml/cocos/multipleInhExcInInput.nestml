@@ -1,0 +1,12 @@
+package org.nest.nestml.cocos.multipleInhExcInInput:
+    neuron MultipleInhExc:
+        input:
+            inhBuffer   <- inhibitory inhibitory spike
+            excBuffer   <- excitatory excitatory excitatory spike
+            inhExcBuffer   <- inhibitory excitatory inhibitory excitatory spike
+        end
+        
+        dynamics timestep(t ms):
+        end
+    end
+end

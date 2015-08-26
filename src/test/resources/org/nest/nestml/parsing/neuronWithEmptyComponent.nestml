@@ -1,0 +1,20 @@
+package org.nest.nestml.parsing.neuronWithEmptyComponent:
+    
+    component SomaComonent:
+    end
+
+    neuron SomaNeuron:
+        
+        use SomaComonent as soma
+        
+        dynamics timestep(t ms):
+        end
+        input:
+          spikeBuffer   <- inhibitory excitatory spike
+          currentBuffer <- current
+        end
+
+        output: spike
+    end
+    
+end

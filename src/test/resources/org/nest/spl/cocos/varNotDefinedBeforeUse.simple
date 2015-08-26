@@ -1,0 +1,13 @@
+module org.nest.spl.cocos.varNotDefinedBeforeUse
+y real = 5 * x
+
+x = 13
+
+for x in 1 ... 10 step 1:
+# blaa
+end
+
+x = 2;
+
+x real = 2 * x
+

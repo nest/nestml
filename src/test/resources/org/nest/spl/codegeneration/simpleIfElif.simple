@@ -1,0 +1,11 @@
+module org.nest.spl.parsing.simpleIfElif
+
+if 2 < 3 :
+elif 4 >= 6 :
+end
+
+if 2 <= 3 :
+
+elif 4<>6 :
+
+end

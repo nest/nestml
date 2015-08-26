@@ -1,0 +1,18 @@
+package org.nest.nestml.parsing.emptyFunction:
+
+    neuron EmptyFunctionNeuron:
+        function empty() :
+        
+        end
+        
+        dynamics timestep(t ms):
+        end
+        input:
+          spikeBuffer   <- inhibitory excitatory spike
+          currentBuffer <- current
+        end
+
+        output: spike
+    end
+    
+end
