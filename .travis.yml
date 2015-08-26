@@ -14,4 +14,4 @@ install:
   - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings settings.xml
 
 script: 
-  - mvn test
+  - mvn surefire:test --settings settings.xml
