@@ -10,7 +10,8 @@ branches:
   only:
     - master
 
-before_script:
+install:
+  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings settings.xml
 
 script: 
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings settings.xml
+  - mvn test
