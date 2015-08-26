@@ -10,4 +10,7 @@ branches:
   only:
     - master
 
-script: echo "Hello World!"
+before_script:
+
+script: 
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings settings.xml
