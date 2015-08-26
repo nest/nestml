@@ -1,0 +1,13 @@
+language: java
+
+os:
+  - linux
+
+jdk:
+  - oraclejdk8
+
+branches:
+  only:
+    - master
+
+script: echo "Hello World!"
