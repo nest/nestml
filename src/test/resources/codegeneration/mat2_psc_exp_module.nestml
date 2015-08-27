@@ -1,6 +1,6 @@
 package codegeneration.mat2_psc_exp_module:
 
-  neuron iaf_mat2_exp_neuron:
+  neuron mat2_exp_neuron:
     state:
       # synaptic dc input current, variable 0
       i_0 real = 0.0
