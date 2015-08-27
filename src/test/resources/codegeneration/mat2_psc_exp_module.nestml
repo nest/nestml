@@ -15,7 +15,7 @@ package codegeneration.mat2_psc_exp_module:
       # long time adaptive threshold (related to tau_2_), variable 2
       V_th_2 real = 0.0
       # total refractory counter (no spikes can be generated)
-      r integer = 0
+      -r integer = 0
     end
 
     parameter:
