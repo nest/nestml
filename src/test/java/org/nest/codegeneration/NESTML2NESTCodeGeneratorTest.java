@@ -23,12 +23,13 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
 
   private final List<String> nestmlModels = Lists.newArrayList(
       /*"src/test/resources/codegeneration/iaf_neuron_module.nestml",
-      // TODO "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml",
+      "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml",
       "src/test/resources/codegeneration/iaf_tum_2000_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp_module.nestml",
-      "src/test/resources/codegeneration/iaf_psc_delta_module.nestml",*/
-      "src/test/resources/codegeneration/iaf_psc_exp_multisynapse_module.nestml"
+      "src/test/resources/codegeneration/iaf_psc_delta_module.nestml",
+      "src/test/resources/codegeneration/iaf_psc_exp_multisynapse_module.nestml",*/
+      "src/test/resources/codegeneration/mat2_psc_exp_module.nestml"
   );
 
   @Override
