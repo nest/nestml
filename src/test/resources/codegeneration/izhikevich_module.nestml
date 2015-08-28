@@ -1,0 +1,66 @@
+package codegeneration.izhikevich_module:
+
+  neuron izhikevich_neuron:
+    state:
+      v mV = -65.0 # membrane potential
+      u mV = 0.0   # membrane recovery variable
+      I pA = 0.0   # input current
+    end
+
+    parameter:
+      a real = 0.02 # a
+      b real = 0.2  # b
+      c real =  -65.0  # c without unit
+      d real = 8.0 # d
+      I_e pA =  0. # pA
+      V_th mV = 30.0
+      V_min mV = -inf # mV
+      consistent_integration boolean = true
+    end
+
+    internal:
+      h     ms   = resolution()
+    end
+
+    input:
+      spikes <- spike
+      currents  <- current
+    end
+
+    output: spike
+
+    dynamics timestep(t ms):
+      v_old, u_old real
+      # neuron is never refractory
+      # use standard forward Euler numerics in this case
+      if consistent_integration:
+        v_old = v;
+        u_old = u;
+        v = v + h *( 0.04*v_old*v_old + 5.0*v_old + 140.0 - u_old + I + I_e) +  spikes.getSum()
+        u = u + h * a * (b * v_old - u_old)
+      else: # use numerics published in Izhikevich (2003) in this case (not recommended)
+        v = v + h/2.0 * (0.04*v*v + 5.0*v + 140.0 - u + I + I_e) + spikes.getSum()
+        v = v + h/2.0 * (0.04*v*v + 5.0*v + 140.0 - u + I + I_e) + spikes.getSum()
+        u = u + h * a * (b*v - u)
+      end
+
+      # lower bound of membrane potential
+      if v < V_min:
+        v = V_min
+      end
+      # threshold crossing
+      if v >= V_th:
+        v = c
+        u = u + d
+
+        emitSpike()
+      end
+
+      I = currents.getSum()
+
+    end
+
+  end
+
+end
+
