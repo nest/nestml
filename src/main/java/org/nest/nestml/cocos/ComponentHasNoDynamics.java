@@ -1,7 +1,9 @@
 package org.nest.nestml.cocos;
 
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
+
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
@@ -17,10 +19,7 @@ public class ComponentHasNoDynamics implements NESTMLASTComponentCoCo {
 
       if (!bodyDecorator.getDynamics().isEmpty()) {
         final String msg = "Components do not have dynamics function.";
-        CoCoLog.error(
-            ERROR_CODE,
-            msg,
-            comp.get_SourcePositionStart());
+        error(ERROR_CODE + ":" + msg, comp.get_SourcePositionStart());
       }
 
     }

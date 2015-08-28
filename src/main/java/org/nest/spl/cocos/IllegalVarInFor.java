@@ -6,8 +6,9 @@
 package org.nest.spl.cocos;
 
 import com.google.common.base.Preconditions;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTFOR_Stmt;
 import org.nest.spl._cocos.SPLASTFOR_StmtCoCo;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
@@ -47,9 +48,7 @@ public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
     Preconditions.checkState(iter.isPresent());
     TypeChecker tc = new TypeChecker(predefinedTypesFactory);
     if (!tc.checkNumber(iter.get().getType())) {
-      CoCoLog.error(
-          ERROR_CODE,
-          String.format(ERROR_MSG_FORMAT, iter.get().getType()),
+      Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, iter.get().getType()),
           astfor.get_SourcePositionEnd());
     }
 

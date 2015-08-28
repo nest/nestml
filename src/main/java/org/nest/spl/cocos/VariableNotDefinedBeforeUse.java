@@ -1,14 +1,12 @@
 package org.nest.spl.cocos;
 
-
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
-import de.monticore.cocos.CoCoLog;
 import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
-import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTFOR_Stmt;
@@ -21,6 +19,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static de.se_rwth.commons.Names.getQualifiedName;
+import static de.se_rwth.commons.logging.Log.error;
 
 public class VariableNotDefinedBeforeUse implements
     SPLASTAssignmentCoCo,
@@ -38,7 +38,7 @@ public class VariableNotDefinedBeforeUse implements
 
   @Override
   public void check(final ASTAssignment assignment) {
-      String fullName = Names.getQualifiedName(assignment.getVariableName().getParts());
+      String fullName = getQualifiedName(assignment.getVariableName().getParts());
       check(fullName, assignment);
   }
 
@@ -51,22 +51,17 @@ public class VariableNotDefinedBeforeUse implements
       // check, if variable of the left side is used in the right side, e.g. in decl-vars
       // e.g. x real = 2 * x
       for (ASTQualifiedName variableName: variablesNamesRHS) {
-        final String varRHS = Names.getQualifiedName(variableName.getParts());
+        final String varRHS = getQualifiedName(variableName.getParts());
         if (varsOfCurrentDecl.contains(varRHS)) {
           final String logMsg = "Cannot use variable '%s' in the assignment of its own declaration.";
-          CoCoLog.error(
-              ERROR_CODE,
-              String.format(logMsg, varRHS),
+          error(ERROR_CODE + ":" + String.format(logMsg, varRHS),
               decl.get_SourcePositionStart());
         }
         else if (variableName.get_SourcePositionStart().compareTo(decl.get_SourcePositionStart()) > 0) {
           // y real = 5 * x
           // x integer = 1
-          final String logMsg = "Cannot use variable '%s' before its usage" +
-              ".";
-          CoCoLog.error(
-              ERROR_CODE,
-              String.format(logMsg, Names.getQualifiedName(variableName.getParts())),
+          final String logMsg = "Cannot use variable '%s' before its usage.";
+          error(ERROR_CODE + ":" + String.format(logMsg, getQualifiedName(variableName.getParts())),
               decl.get_SourcePositionStart());
         }
 
@@ -84,10 +79,9 @@ public class VariableNotDefinedBeforeUse implements
     Preconditions.checkState(varOptional.isPresent(), "Variable " + varName + " couldn't be resolved.");
     // exists
     if (node.get_SourcePositionStart().compareTo(varOptional.get().getSourcePosition()) < 0) {
-      CoCoLog.error(
-              ERROR_CODE,
-              String.format(ERROR_MSG_FORMAT, varName, varOptional.get().getSourcePosition().getLine()),
-              node.get_SourcePositionEnd());
+      Log.error(ERROR_CODE + ":" +
+          String.format(ERROR_MSG_FORMAT, varName, varOptional.get().getSourcePosition().getLine()),
+          node.get_SourcePositionEnd());
     }
 
   }

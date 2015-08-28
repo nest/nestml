@@ -5,7 +5,11 @@
  */
 package org.nest.nestml.symboltable;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
+import static de.se_rwth.commons.logging.Log.error;
+import static org.nest.utils.LogHelper.getErrorsByPrefix;
+
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,13 +22,13 @@ import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.utils.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.nest.utils.LogHelper.getFindingsByPrefix;
 
 /**
  * Iterates through good models and checks that there is no errors in log.
@@ -58,7 +62,7 @@ public class NESTMLCoCosManagerTest {
 
   @Before
   public void setup() {
-    CoCoLog.getFindings().clear();
+    Log.getFindings().clear();
   }
 
 
@@ -87,7 +91,7 @@ public class NESTMLCoCosManagerTest {
 
     }
 
-    Collection<String> nestmlErrorFindings = getFindingsByPrefix("NESTML_", CoCoLog.getFindings());
+    Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
     nestmlErrorFindings.forEach(System.out::println);
     Assert.assertTrue("Models contain unexpected errors: " + nestmlErrorFindings.size(),
         nestmlErrorFindings.isEmpty());
@@ -100,33 +104,28 @@ public class NESTMLCoCosManagerTest {
     final NESTMLCoCoChecker checker = nestmlCoCosManager.createDefaultChecker();
     checker.checkAll(root.get());
 
-    Collection<String> nestmlErrorFindings = getFindingsByPrefix("NESTML_",
-        CoCoLog.getFindings());
+    Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
     nestmlErrorFindings.forEach(System.out::println);
-    Assert.assertTrue(
-        "The model: " + file.getPath() + "Models contain unexpected errors: " + nestmlErrorFindings
-            .size(),
-        nestmlErrorFindings.isEmpty());
+    final String msg = "The model: " + file.getPath() + "Models contain unexpected errors: " + nestmlErrorFindings.size();
+    Assert.assertTrue(msg, nestmlErrorFindings.isEmpty());
   }
 
   public void checkNESTMLWithSPLCocos(
       final File file,
       final Optional<ASTNESTMLCompilationUnit> root,
       final NESTMLScopeCreator nestmlScopeCreator) {
+
     final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager(root.get(),
         nestmlScopeCreator.getTypesFactory());
     final NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
     checker.checkAll(root.get());
 
-    Collection<String> nestmlErrorFindings = getFindingsByPrefix("NESTML_",
-        CoCoLog.getFindings());
+    Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
     final StringBuilder errorDetailsBuilder = new StringBuilder();
     nestmlErrorFindings.forEach(error -> errorDetailsBuilder.append(error).append("\n"));
     final String msg = "The model: " + file.getPath() + "Models contain unexpected errors: " +
         nestmlErrorFindings.size();
-    Assert.assertTrue(
-        msg,
-        nestmlErrorFindings.isEmpty());
+    Assert.assertTrue(msg, nestmlErrorFindings.isEmpty());
   }
 
   /**

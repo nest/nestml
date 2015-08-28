@@ -7,7 +7,6 @@ package org.nest.symboltable;
 
 import de.monticore.symboltable.GlobalScope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.spl.symboltable.SPLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedFunctionFactory;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.predefined.PredefinedVariablesFactory;

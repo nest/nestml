@@ -1,7 +1,7 @@
 package org.nest.cli;
 
 import com.google.common.collect.Lists;
-import de.monticore.cocos.CoCoLog;
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
@@ -106,21 +106,21 @@ public class CLIConfigurationExecutor {
     final NESTMLCoCoChecker cocosChecker = nestmlCoCosManager.createDefaultChecker();
 
     checkNESTMLCocos(root, cocosChecker);
-    evaluateCocosLog(modelName, LogHelper.getFindingsByPrefix("NESTML_", CoCoLog.getFindings()));
+    evaluateCocosLog(modelName, LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
   }
 
   private void checkNESTMLCocos(Optional<ASTNESTMLCompilationUnit> root, NESTMLCoCoChecker cocosChecker) {
-    CoCoLog.getFindings().clear();
+    Log.getFindings().clear();
     cocosChecker.checkAll(root.get());
   }
 
-  private void evaluateCocosLog(String modelName, Collection<String> nestmlErrorFindings) {
+  private void evaluateCocosLog(String modelName, Collection<Finding> nestmlErrorFindings) {
     if (nestmlErrorFindings.isEmpty()) {
       Log.info(modelName + " contains no errors", LOG_NAME);
     }
     else {
-      Log.warn(modelName + " contains the following errors: ");
-      nestmlErrorFindings.forEach(Log::warn);
+      Log.error(modelName + " contains the following errors: ");
+      nestmlErrorFindings.forEach(finding -> Log.warn(finding.toString()));
     }
   }
 

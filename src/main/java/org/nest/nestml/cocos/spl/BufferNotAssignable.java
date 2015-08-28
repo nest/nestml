@@ -1,9 +1,11 @@
 package org.nest.nestml.cocos.spl;
 
 import com.google.common.base.Preconditions;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
@@ -28,7 +30,7 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
     else if (var.get().getBlockType() == NESTMLVariableSymbol.BlockType.BUFFER) {
 
       final String msg = "Buffer '" + var.get().getName() + "' cannot be reassigned.";
-      CoCoLog.error(ERROR_CODE, msg, assignment.get_SourcePositionStart());
+     error(ERROR_CODE + ":" +  msg, assignment.get_SourcePositionStart());
     }
 
   }

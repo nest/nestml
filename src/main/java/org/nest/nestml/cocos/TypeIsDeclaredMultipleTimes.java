@@ -2,7 +2,7 @@ package org.nest.nestml.cocos;
 
 
 import de.monticore.ast.ASTCNode;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import org.nest.nestml._ast.ASTComponent;
@@ -38,7 +38,7 @@ public class TypeIsDeclaredMultipleTimes implements NESTMLASTComponentCoCo, NEST
     }
     catch (ResolvedSeveralEntriesException e) {
       final String msg = "The type '" + name + "' is defined multiple times.";
-      CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionEnd());
+     error(ERROR_CODE + ":" +  msg, node.get_SourcePositionEnd());
     }
 
   }

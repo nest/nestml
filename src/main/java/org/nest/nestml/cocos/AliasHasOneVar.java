@@ -1,7 +1,7 @@
 package org.nest.nestml.cocos;
 
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 
@@ -15,7 +15,7 @@ public class AliasHasOneVar implements NESTMLASTAliasDeclCoCo {
       if (decl.getDeclaration().getVars().size() != 1) {
         final String msg = "'alias' declarations must only declare one variable.";
 
-        CoCoLog.error(ERROR_CODE, msg, decl.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, decl.get_SourcePositionStart());
       }
 
     }

@@ -5,10 +5,9 @@
  */
 package org.nest.spl.symboltable.typechecking;
 
-import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.symbols.NESTMLTypeSymbol;
 
 /**
  * Helper routine to calculate the category of the particular type.
@@ -27,14 +26,14 @@ public class TypeChecker {
   /**
    * Checks that the {@code type} is a numeric type {@code Integer} or {@code Real}.
    */
-  public boolean checkNumber(NESTMLTypeSymbol type) {
+  public boolean checkNumber(final NESTMLTypeSymbol type) {
     return checkInteger(type) || checkReal(type);
   }
 
   /**
    * Checks that the {@code type} is an {@code Integer}.
    */
-  public boolean checkInteger(NESTMLTypeSymbol u) {
+  public boolean checkInteger(final NESTMLTypeSymbol u) {
     if (u != null) {
       return u.getName().equals(predefinedTypesFactory.getIntegerType().getName());
     }
@@ -44,36 +43,36 @@ public class TypeChecker {
   /**
    * Checks that the {@code type} is an {@code real}.
    */
-  public boolean checkReal(NESTMLTypeSymbol u) {
+  public boolean checkReal(final NESTMLTypeSymbol u) {
     if (u != null) {
       return u.getName().equals(predefinedTypesFactory.getRealType().getName());
     }
     return false;
   }
 
-  public boolean checkVoid(NESTMLTypeSymbol type) {
+  public boolean checkVoid(final NESTMLTypeSymbol type) {
     if (type != null) {
       return type.getName().equals(predefinedTypesFactory.getVoidType().getName());
     }
     return false;
   }
 
-  public boolean checkString(NESTMLTypeSymbol type) {
+  public boolean checkString(final NESTMLTypeSymbol type) {
     if (type != null) {
       return type.getName().equals(predefinedTypesFactory.getStringType().getName());
     }
     return false;
   }
 
-  public boolean checkBoolean(NESTMLTypeSymbol type) {
+  public boolean checkBoolean(final NESTMLTypeSymbol type) {
     if (type != null) {
       return type.getName().equals(predefinedTypesFactory.getBooleanType().getName());
     }
     return false;
   }
 
-  public boolean checkUnit(NESTMLTypeSymbol rType) {
-    Log.warn("!!!!!!!! boolean checkUnit(NESTMLTypeSymbol rType) unimplemented");
+  public boolean checkUnit(final NESTMLTypeSymbol rType) {
+    Log.warn("!!!!!!!! boolean checkUnit(NESTMLTypeSymbol rType) unimplemented: " + rType);
     return false;
   }
 

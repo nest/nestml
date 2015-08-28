@@ -7,9 +7,10 @@ package org.nest.spl.cocos;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.spl._ast.ASTFunctionCall;
 import org.nest.spl._cocos.SPLASTFunctionCallCoCo;
@@ -62,10 +63,9 @@ public class FunctionDoesntExist implements SPLASTFunctionCallCoCo {
         = NESTMLSymbols.resolveMethod(scope, methodName, argTypeNames);
 
     if (!method.isPresent()) {
-      CoCoLog.error(
-          ERROR_CODE,
-          String.format(ERROR_MSG_FORMAT, methodName)
-          + " with the signature '" + Joiner.on(",").join(argTypeNames)+ "'",
+      Log.error(
+          ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, methodName)
+              + " with the signature '" + Joiner.on(",").join(argTypeNames) + "'",
           funcall.get_SourcePositionStart());
     }
 

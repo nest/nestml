@@ -1,6 +1,6 @@
 package org.nest.nestml.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTOutput;
@@ -19,7 +19,7 @@ public class NeuronWithoutOutput implements NESTMLASTNeuronCoCo {
 
     if (inputs.isEmpty()) {
       final String msg = "Neurons need some outputs.";
-      CoCoLog.error(ERROR_CODE, msg, neuron.get_SourcePositionStart());
+     error(ERROR_CODE + ":" +  msg, neuron.get_SourcePositionStart());
     }
 
   }
