@@ -4,6 +4,8 @@ import de.monticore.antlr4.MCConcreteParser;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import de.se_rwth.commons.Names;
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
 import org.junit.BeforeClass;

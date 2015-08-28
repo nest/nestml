@@ -1,6 +1,8 @@
 package org.nest.cli;
 
 import com.google.common.base.Joiner;
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
 
@@ -115,7 +117,8 @@ public class NESTMLFrontend {
   public boolean interpretRunningModeArgument(final CommandLine cmd) {
     boolean isCheckCocos = false;
     if (cmd.hasOption(RUNNING_MODE)) {
-      Log.info("'" + RUNNING_MODE + "' option is set to: " + cmd.getOptionValue(RUNNING_MODE), LOGGER_NAME);
+      Log.info("'" + RUNNING_MODE + "' option is set to: " + cmd.getOptionValue(RUNNING_MODE),
+          LOGGER_NAME);
       if (cmd.getOptionValue(RUNNING_MODE).equals("parseAndCheck")) {
         Log.info("NESTML models will be parsed and checked.", LOGGER_NAME);
         isCheckCocos = true;

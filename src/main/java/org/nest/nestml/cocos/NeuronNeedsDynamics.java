@@ -1,7 +1,7 @@
 package org.nest.nestml.cocos;
 
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
@@ -16,12 +16,12 @@ public class NeuronNeedsDynamics implements NESTMLASTNeuronCoCo {
 
     if (bodyDecorator.getDynamics().isEmpty()) {
       final String msg = "Neurons need at least one dynamics function.";
-      CoCoLog.error(ERROR_CODE, msg, neuron.get_SourcePositionStart());
+     error(ERROR_CODE + ":" +  msg, neuron.get_SourcePositionStart());
     }
 
     if (bodyDecorator.getDynamics().size() > 1) {
       final String msg = "Neurons need at most one dynamics function.";
-      CoCoLog.error(ERROR_CODE, msg, neuron.get_SourcePositionStart());
+     error(ERROR_CODE + ":" +  msg, neuron.get_SourcePositionStart());
     }
 
   }

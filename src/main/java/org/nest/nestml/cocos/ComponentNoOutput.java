@@ -1,6 +1,6 @@
 package org.nest.nestml.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
@@ -16,7 +16,7 @@ public class ComponentNoOutput implements NESTMLASTComponentCoCo {
       if (bodyDecorator.getOutputs() != null) {
         if (!bodyDecorator.getOutputs().isEmpty()) {
           final String msg = "Components do not have outputs, only neurons have outputs.";
-          CoCoLog.error(ERROR_CODE, msg, comp.get_SourcePositionStart());
+         error(ERROR_CODE + ":" +  msg, comp.get_SourcePositionStart());
         }
 
       }

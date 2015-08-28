@@ -2,9 +2,10 @@ package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTNode;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
@@ -54,10 +55,7 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
         final String msg = "Function '" + fun.getName()
                 + "' must return a result of type '"
                 + fun.getReturnType().get().toString();
-        CoCoLog.error(
-            ERROR_CODE,
-            msg,
-            fun.get_SourcePositionStart());
+        Log.error(ERROR_CODE + ":" + msg, fun.get_SourcePositionStart());
       }
 
     }

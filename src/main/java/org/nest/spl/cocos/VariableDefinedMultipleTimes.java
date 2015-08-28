@@ -6,8 +6,9 @@
 package org.nest.spl.cocos;
 
 import com.google.common.collect.Maps;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.SourcePosition;
+import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTSmall_Stmt;
 import org.nest.spl._ast.ASTStmt;
@@ -69,10 +70,7 @@ public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
 
   protected void addVariable(String name, SourcePosition sourcePosition, Map<String, SourcePosition> names) {
     if (names.containsKey(name)) {
-      CoCoLog.error(
-          ERROR_CODE, // TODO better error message
-          String.format(ERROR_MSG_FORMAT, name),
-          sourcePosition);
+      Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, name), sourcePosition);
 
     } else {
       names.put(name, sourcePosition);

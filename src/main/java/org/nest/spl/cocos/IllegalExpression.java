@@ -6,7 +6,7 @@
 package org.nest.spl.cocos;
 
 import com.google.common.base.Preconditions;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.Names;
@@ -81,13 +81,13 @@ public class IllegalExpression implements
           final String msg = "Cannot initialize variable with an expression of type: " +
               varNameFromDeclaration + " with the type " + initializerExpressionType +
               node.get_SourcePositionStart();
-          CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionStart());
+         error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
         }
       }
       catch (RuntimeException e) {
         final String msg = "Cannot determine the type of the initializer expression at " +
             node.get_SourcePositionStart() + " Reason: " + e.getMessage();
-        CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
       }
 
     }
@@ -112,13 +112,13 @@ public class IllegalExpression implements
       if (!typeCalculator.computeType(node.getExpr()).equals(predefinedTypesFactory.getBooleanType())) {
         final String msg = "Cannot use non boolean expression in an if statement " +
             "@" + node.get_SourcePositionStart();
-        CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
       }
     }
     catch (RuntimeException e) {
       final String msg = "Cannot initialize variable with an expression of type: " +
           "@" + node.get_SourcePositionStart();
-      CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionStart());
+     error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
     }
   }
 
@@ -133,13 +133,13 @@ public class IllegalExpression implements
       if (!typeCalculator.computeType(node.getExpr()).equals(predefinedTypesFactory.getBooleanType())) {
         final String msg = "Cannot use non boolean expression in an if statement " +
             "@" + node.get_SourcePositionStart();
-        CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
       }
     }
     catch (RuntimeException e) {
       final String msg = "Cannot use the expression in the if clause. " + e.getMessage() +
           "@" + node.get_SourcePositionStart();
-      CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionStart());
+     error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
     }
 
   }
@@ -150,13 +150,13 @@ public class IllegalExpression implements
       if (!typeCalculator.computeType(node.getExpr()).equals(predefinedTypesFactory.getBooleanType())) {
         final String msg = "Cannot use non boolean expression in a while statement " +
             "@" + node.get_SourcePositionStart();
-        CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
       }
     }
     catch (RuntimeException e) {
       final String msg = "Cannot initialize variable with an expression of type: " +
           "@" + node.get_SourcePositionStart();
-      CoCoLog.error(ERROR_CODE, msg, node.get_SourcePositionStart());
+     error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
     }
 
 

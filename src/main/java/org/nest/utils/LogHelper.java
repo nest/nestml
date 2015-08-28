@@ -5,17 +5,16 @@
  */
 package org.nest.utils;
 
-import com.google.common.collect.Lists;
-import de.monticore.cocos.CoCoFinding;
-import de.monticore.cocos.CoCoLog;
+import de.se_rwth.commons.logging.Finding;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides convenient method to work with error messages coming from {@code Log}.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
+ * @author plotnikov
  * @since 0.0.1
  */
 public class LogHelper {
@@ -23,38 +22,14 @@ public class LogHelper {
    *
    * @return Number of {@code errorCode}s occurrences in {@code findings}
    */
-  public static Integer countOccurrences(String errorCode, Collection<CoCoFinding> findings) {
-    Long occurrences = findings.stream().filter(error -> error.getCode().equals(errorCode)).count();
+  public static Integer countErrorsByPrefix(String errorCode, Collection<Finding> findings) {
+
+    Long occurrences = findings.stream()
+        .filter(error -> error.getType().equals(Finding.Type.ERROR))
+        .filter(error -> error.getMsg().startsWith(errorCode))
+        .count();
     // it is unlikely that the number of issues is greater than the domain of int!    Integer result = 0;
     return safeLongToInt(occurrences);
-
-  }
-
-  /**
-   *
-   * @return Number of {@code errorCode}s occurrences in {@code findings}
-   */
-  public static Integer countOccurrencesByPrefix(String errorCode, Collection<CoCoFinding> findings) {
-    Long occurrences = findings.stream().filter(error -> error.getCode().startsWith(errorCode)).count();
-    // it is unlikely that the number of issues is greater than the domain of int!    Integer result = 0;
-    return safeLongToInt(occurrences);
-
-  }
-
-
-  /**
-   *
-   * @return Number of {@code errorCode}s occurrences in {@code findings}
-   */
-  public static Collection<String> getFindingsByPrefix(String prefix, Collection<CoCoFinding> findings) {
-    final Collection<String> result = Lists.newArrayList();
-    findings.forEach(e -> {
-      if (e.getCode().startsWith(prefix)) {
-        result.add(e.getCode() + ":" + e.getMsg() + ":" + e.getSourcePosition());
-      }
-    });
-    // it is unlikely that the number of issues is greater than the domain of int!    Integer result = 0;
-    return result;
 
   }
 
@@ -70,4 +45,13 @@ public class LogHelper {
     }
     return (int) l;
   }
+
+  public static Collection<Finding> getErrorsByPrefix(
+      final String prefix,
+      final List<Finding> findings) {
+    return findings.stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.ERROR) && finding.getMsg().startsWith(prefix))
+        .collect(Collectors.toList());
+  }
+
 }

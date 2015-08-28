@@ -6,8 +6,9 @@
 package org.nest.spl.cocos;
 
 import de.monticore.ast.ASTNode;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.SourcePosition;
+import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.*;
 import org.nest.spl._cocos.SPLASTBlockCoCo;
 
@@ -118,7 +119,7 @@ public class CodeAfterReturn implements SPLASTBlockCoCo {
     return allReturn ? ifStmt : null;
   }
 
-  private void addReport(String s, SourcePosition sourcePositionStart) {
-    CoCoLog.error(ERROR_CODE, s, sourcePositionStart);
+  private void addReport(final String errorMessage, final SourcePosition sourcePositionStart) {
+    Log.error(ERROR_CODE + ":" + errorMessage, sourcePositionStart);
   }
 }

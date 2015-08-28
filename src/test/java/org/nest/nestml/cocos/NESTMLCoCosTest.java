@@ -5,8 +5,9 @@
  */
 package org.nest.nestml.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,10 +25,11 @@ import org.nest.utils.LogHelper;
 
 import java.util.Optional;
 
+import static de.se_rwth.commons.logging.Log.getFindings;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.nest.nestml._symboltable.NESTMLRootCreator.getAstRoot;
-import static org.nest.utils.LogHelper.countOccurrences;
+import static org.nest.utils.LogHelper.countErrorsByPrefix;
 
 /**
  * Test every context context conditions. For each implemented context condition there is one model that contains exactly one tested error.
@@ -50,19 +52,19 @@ public class NESTMLCoCosTest {
 
   @BeforeClass
   public static void initLog() {
-    CoCoLog.setDelegateToLog(false);
+    Log.enableFailQuick(false);
   }
 
   @Before
   public void setup() {
-    CoCoLog.getFindings().clear();
+    getFindings().clear();
     nestmlCoCoChecker = new NESTMLCoCoChecker();
 
   }
 
   @After
   public void printErrorMessage() {
-    CoCoLog.getFindings().forEach(e -> System.out.println("Error found: " + e));
+    getFindings().forEach(e -> System.out.println("Error found: " + e));
   }
 
   @Test
@@ -87,12 +89,12 @@ public class NESTMLCoCosTest {
 
     scopeCreator.runSymbolTableCreator(root.get());
 
-    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter(root.get());
+    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
     nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
     nestmlCoCoChecker.checkAll(root.get());
 
-    Integer errorsFound = countOccurrences(AliasHasNoSetter.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(AliasHasNoSetter.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
   }
 
@@ -105,7 +107,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(aliasHasOneVar);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(AliasHasOneVar.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(AliasHasOneVar.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -121,7 +123,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) aliasInNonAliasDecl);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(AliasInNonAliasDecl.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(AliasInNonAliasDecl.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -134,7 +136,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(componentHasNoDynamics);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(ComponentHasNoDynamics.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(ComponentHasNoDynamics.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -147,7 +150,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(componentNoInput);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(ComponentNoInput.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(ComponentNoInput.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -160,7 +163,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(componentNoOutput);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(ComponentNoOutput.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(ComponentNoOutput.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -177,8 +180,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(correctReturnValues);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(CorrectReturnValues.ERROR_CODE, CoCoLog.getFindings());
-    CoCoLog.getFindings().forEach(f -> System.out.println(f.getCode() + ":" + f.getMsg()));
+    Integer errorsFound = countErrorsByPrefix(CorrectReturnValues.ERROR_CODE, getFindings());
+    getFindings().forEach(System.out::println);
     // TODO check if this does make sense?
     assertEquals(Integer.valueOf(10), errorsFound);
   }
@@ -193,8 +196,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(currentInputIsNotInhExc);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(CurrentInputIsNotInhExc.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(CurrentInputIsNotInhExc.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
@@ -208,8 +211,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(dynamicsTimeStepParameter);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(DynamicsTimeStepParameter.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(DynamicsTimeStepParameter.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
@@ -224,8 +227,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(functionHasReturnStatement);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(FunctionHasReturnStatement.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(FunctionHasReturnStatement.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -242,7 +245,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) invalidTypesInDeclaration);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(InvalidTypesInDeclaration.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(InvalidTypesInDeclaration.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(6), errorsFound);
   }
 
@@ -258,8 +262,8 @@ public class NESTMLCoCosTest {
 
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(MemberVariableDefinedMultipleTimes.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(MemberVariableDefinedMultipleTimes.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -274,8 +278,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(memberVariablesInitialisedInCorrectOrder);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(MemberVariablesInitialisedInCorrectOrder.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(MemberVariablesInitialisedInCorrectOrder.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
@@ -291,8 +295,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) multipleFunctionDeclarations);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(MultipleFunctionDeclarations.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(MultipleFunctionDeclarations.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(6), errorsFound);
   }
 
@@ -305,7 +309,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(multipleInhExcInput);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(MultipleInhExcInput.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(MultipleInhExcInput.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(4), errorsFound);
   }
 
@@ -318,7 +322,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(multipleOutputs);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(MultipleOutputs.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(MultipleOutputs.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -331,8 +335,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(functionNameChecker);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(NESTFunctionNameChecker.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(NESTFunctionNameChecker.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(9), errorsFound);
   }
 
@@ -346,8 +350,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(nestGetterSetterFunctionNames);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(NESTGetterSetterFunctionNames.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(NESTGetterSetterFunctionNames.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(4), errorsFound);
   }
 
@@ -360,7 +364,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(neuronNeedsDynamics);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(NeuronNeedsDynamics.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(NeuronNeedsDynamics.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -373,7 +377,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(neuronNeedsDynamics);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(NeuronNeedsDynamics.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(NeuronNeedsDynamics.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -386,7 +390,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(neuronNeedsDynamics);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(NeuronWithoutInput.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(NeuronWithoutInput.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -399,7 +403,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(neuronWithoutOutput);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(NeuronWithoutOutput.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(NeuronWithoutOutput.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -414,8 +418,8 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) typeIsDeclaredMultipleTimes);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(TypeIsDeclaredMultipleTimes.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(TypeIsDeclaredMultipleTimes.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
   }
 
@@ -450,7 +454,7 @@ public class NESTMLCoCosTest {
     nestmlCoCoChecker.addCoCo(bufferNotAssignable);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(BufferNotAssignable.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(BufferNotAssignable.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -485,7 +489,7 @@ public class NESTMLCoCosTest {
 
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(VarHasTypeName.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(VarHasTypeName.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
   }
 
@@ -562,7 +566,7 @@ public class NESTMLCoCosTest {
 
     nestmlCoCoChecker.checkAll(ast.get());
 
-    int errorsFound = LogHelper.countOccurrencesByPrefix(expectedErrorCode, CoCoLog.getFindings());
+    int errorsFound = countErrorsByPrefix(expectedErrorCode, getFindings());
     assertEquals(0, errorsFound);
 
   }
@@ -578,8 +582,7 @@ public class NESTMLCoCosTest {
 
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = LogHelper.countOccurrencesByPrefix(expectedErrorCode,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(expectedErrorCode, getFindings());
     assertEquals(expectedNumberCount, errorsFound);
 
   }

@@ -1,5 +1,7 @@
 package org.nest.nestml.prettyprinter;
 
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Test;

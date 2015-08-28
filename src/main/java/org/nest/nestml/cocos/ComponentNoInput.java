@@ -1,9 +1,11 @@
 package org.nest.nestml.cocos;
 
-import de.monticore.cocos.CoCoLog;
+
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 public class ComponentNoInput implements NESTMLASTComponentCoCo {
 
@@ -16,7 +18,7 @@ public class ComponentNoInput implements NESTMLASTComponentCoCo {
     if (bodyDecorator.getInputLines() != null) { // TODO null check makes no sense
       if (!bodyDecorator.getInputLines().isEmpty()) {
         final String msg = "Components cannot have inputs, since they are no elements of a neuronal network.";
-        CoCoLog.error(ERROR_CODE, msg, comp.get_SourcePositionStart());
+       error(ERROR_CODE + ":" + msg, comp.get_SourcePositionStart());
       }
 
     }

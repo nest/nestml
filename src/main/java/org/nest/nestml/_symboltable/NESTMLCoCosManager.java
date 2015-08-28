@@ -38,7 +38,7 @@ public class NESTMLCoCosManager {
   public NESTMLCoCoChecker createDefaultChecker() {
     final NESTMLCoCoChecker nestmlCoCoChecker = new NESTMLCoCoChecker();
 
-    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter(astNestmlCompilationUnit);
+    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
     nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
 
     final AliasHasOneVar aliasHasOneVar = new AliasHasOneVar();

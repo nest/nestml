@@ -5,8 +5,11 @@
  */
 package org.nest.codegeneration;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
+import static de.se_rwth.commons.logging.Log.error;
+
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -26,6 +29,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
+import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 /**
  * Base class for the NEST generator tests.
@@ -48,7 +52,7 @@ public abstract class GenerationTestBase {
   @Before
   public void setup() {
     Log.enableFailQuick(false);
-    CoCoLog.getFindings().clear();
+    Log.getFindings().clear();
   }
 
   protected void generateHeader(final String modelPath) {
@@ -139,9 +143,8 @@ public abstract class GenerationTestBase {
           createNESTMLCheckerWithSPLCocos();
       checker.checkAll(root.get());
 
-      Collection<String> errorFindings
-          = LogHelper.getFindingsByPrefix("NESTML_", CoCoLog.getFindings());
-      errorFindings.addAll(LogHelper.getFindingsByPrefix("SPL_", CoCoLog.getFindings()));
+      Collection<Finding> errorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
+      errorFindings.addAll(getErrorsByPrefix("SPL_", Log.getFindings()));
       errorFindings.forEach(System.out::println);
       // TODO reactivate me
       assertTrue("Models contain unexpected errors: " + errorFindings.size(),

@@ -5,8 +5,9 @@
  */
 package org.nest.spl.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;
@@ -37,9 +38,7 @@ public class VarHasTypeName implements SPLASTDeclarationCoCo {
 
       // could resolve type as variable, report an error
       if (res.isPresent()) {
-        CoCoLog.error(
-            ERROR_CODE,
-            String.format(ERROR_MSG_FORMAT, var),
+        Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, var),
             astDeclaration.get_SourcePositionEnd());
       }
 

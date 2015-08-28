@@ -7,11 +7,14 @@ package org.nest.spl.cocos;
 
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTCNode;
-import de.monticore.cocos.CoCoLog;
+
+import static de.se_rwth.commons.logging.Log.*;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.*;
 import org.nest.spl._cocos.*;
 import org.nest.symboltable.symbols.NESTMLMethodSymbol;
@@ -63,10 +66,9 @@ public class VariableDoesNotExist implements
         final Optional<NESTMLMethodSymbol> functionSymbol
             = scope.resolve(variableName, NESTMLMethodSymbol.KIND);
         if (!variableSymbol.isPresent() && !functionSymbol.isPresent()) {
-          CoCoLog.error(
-              ERROR_CODE,
-              String.format(ERROR_MSG_FORMAT, variableName, scope.getName().orElse("")),
-              variable.get_SourcePositionStart());
+          final String errorMsg = ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, variableName,
+              scope.getName().orElse(""));
+          error(errorMsg, variable.get_SourcePositionStart());
         }
 
       }
@@ -102,8 +104,7 @@ public class VariableDoesNotExist implements
     final Scope scope = node.getEnclosingScope().get();
     Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(fqn, NESTMLVariableSymbol.KIND);
     if (!variableSymbol.isPresent()) {
-      CoCoLog.error(
-          ERROR_CODE,
+      error(ERROR_CODE + ":" +
           String.format(ERROR_MSG_FORMAT, fqn, scope.getName().orElse("")),
           node.get_SourcePositionStart());
     }

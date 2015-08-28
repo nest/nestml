@@ -1,10 +1,12 @@
 package org.nest.nestml.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.Names;
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
@@ -16,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.error;
 
 public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasDeclCoCo {
 
@@ -112,7 +115,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
               + rhsSymbol.getName()
               + "' must be declared before it can be used in declaration of '"
               + lhsSymbol.getName() + "'.";
-          CoCoLog.error(ERROR_CODE, msg, rhsSymbol.getSourcePosition());
+          error(ERROR_CODE + ": " + msg, rhsSymbol.getSourcePosition());
 
         }
       }
@@ -122,7 +125,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
             + rhsSymbol.getName()
             + "' must be declared in the parameter block to be used at this place. '"
             + lhsSymbol.getName() + "'.";
-        CoCoLog.error(ERROR_CODE, msg, rhsSymbol.getSourcePosition());
+       error(ERROR_CODE + ":" + msg, rhsSymbol.getSourcePosition());
       }
 
     }

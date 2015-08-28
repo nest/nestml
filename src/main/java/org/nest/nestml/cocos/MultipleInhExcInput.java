@@ -1,7 +1,7 @@
 package org.nest.nestml.cocos;
 
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
 import org.nest.nestml._cocos.NESTMLASTInputLineCoCo;
@@ -25,12 +25,12 @@ public class MultipleInhExcInput implements NESTMLASTInputLineCoCo {
 
       if (inh > 1) {
         final String msg =  "Multiple occurrences of the keyword 'inhibitory' are not allowed.";
-        CoCoLog.error(ERROR_CODE, msg, inputLine.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, inputLine.get_SourcePositionStart());
       }
 
       if (exc > 1) {
         final String msg =  "Multiple occurrences of the keyword 'excitatory' are not allowed.";
-        CoCoLog.error(ERROR_CODE, msg, inputLine.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, inputLine.get_SourcePositionStart());
       }
 
     }

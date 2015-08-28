@@ -1,9 +1,10 @@
 package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTDynamics;
 import org.nest.nestml._ast.ASTParameter;
 import org.nest.nestml._cocos.NESTMLASTDynamicsCoCo;
@@ -26,10 +27,7 @@ public class DynamicsTimeStepParameter implements NESTMLASTDynamicsCoCo {
 
         if (dyn.getParameters().get().getParameters().size() != 1) {
           final String msg = "Timestep-dynamics need exactly 1 parameter of type <fillme>.";
-          CoCoLog.error(
-              ERROR_CODE,
-              msg,
-              dyn.get_SourcePositionStart());
+          Log.error(ERROR_CODE + ":" + msg, dyn.get_SourcePositionStart());
 
         } else { // 1 parameters
           // start time: ms or ms
@@ -42,7 +40,7 @@ public class DynamicsTimeStepParameter implements NESTMLASTDynamicsCoCo {
           // TODO fix the implicit type. its fqn contains the artifact fqn prefix
           if (!type.get().getName().endsWith("ms")) {
             final String msg = "The timestep-dynamics parameter needs to be of type <ms>";
-            CoCoLog.error(ERROR_CODE, msg, first.get_SourcePositionStart());
+           error(ERROR_CODE + ":" +  msg, first.get_SourcePositionStart());
 
           }
 
@@ -52,7 +50,7 @@ public class DynamicsTimeStepParameter implements NESTMLASTDynamicsCoCo {
       }
       else {
         final String msg = "Timestep-dynamics need exactly 1 parameter of type <fillme>.";
-        CoCoLog.error(ERROR_CODE, msg, dyn.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, dyn.get_SourcePositionStart());
       }
 
     }
