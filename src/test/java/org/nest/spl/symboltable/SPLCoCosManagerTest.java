@@ -1,6 +1,10 @@
 package org.nest.spl.symboltable;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
+import static de.se_rwth.commons.logging.Log.error;
+import static org.nest.utils.LogHelper.getErrorsByPrefix;
+
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
 import org.junit.Before;
@@ -33,7 +37,7 @@ public class SPLCoCosManagerTest {
 
   @Before
   public void setup() {
-    CoCoLog.getFindings().clear();
+    Log.getFindings().clear();
   }
 
   @Test
@@ -49,16 +53,14 @@ public class SPLCoCosManagerTest {
       final SPLCoCosManager splCoCosManager = new SPLCoCosManager(scopeCreator.getTypesFactory());
       final SPLCoCoChecker checker = splCoCosManager.createDefaultChecker();
       checker.checkAll(root);
-      Collection<String> splErrorFindings = LogHelper.getFindingsByPrefix("NESTML_", CoCoLog.getFindings());
+      Collection<Finding> splErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
       final StringBuilder errors = new StringBuilder();
 
-      splErrorFindings.forEach(e -> {
-        errors.append(e + "\n");
-      });
+      splErrorFindings.forEach(e -> errors.append(e + "\n"));
 
       final String errorDescription = "Model contain unexpected errors: " + splErrorFindings.size()
           + " The model: " + file.getPath() + " The errors are: " + errors;
-      Assert.assertTrue(errorDescription, splErrorFindings.isEmpty() );
+      Assert.assertTrue(errorDescription, splErrorFindings.isEmpty());
 
     }
 

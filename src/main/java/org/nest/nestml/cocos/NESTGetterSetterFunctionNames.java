@@ -2,7 +2,7 @@ package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._ast.ASTFunction;
@@ -36,7 +36,7 @@ public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
       final String msg = "The function '"
               + funName
               + "' is going to be generated. Please use another name.";
-      CoCoLog.error(ERROR_CODE, msg, fun.get_SourcePositionStart());
+     error(ERROR_CODE + ":" +  msg, fun.get_SourcePositionStart());
       return;
     }
 
@@ -54,7 +54,7 @@ public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
                   + "' is going to be generated, since"
                   + " there is a variable called '" + varName
                   + "'.";
-          CoCoLog.error(ERROR_CODE, msg, fun.get_SourcePositionStart());
+         error(ERROR_CODE + ":" +  msg, fun.get_SourcePositionStart());
         }
 
         if (funName.startsWith("get_")
@@ -63,7 +63,7 @@ public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
                   + "' is going to be generated, since"
                   + " there is a variable called '" + varName
                   + "'.";
-          CoCoLog.error(ERROR_CODE, msg, fun.get_SourcePositionStart());
+         error(ERROR_CODE + ":" +  msg, fun.get_SourcePositionStart());
         }
 
       }

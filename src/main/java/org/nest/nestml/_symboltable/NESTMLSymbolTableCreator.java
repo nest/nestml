@@ -7,7 +7,7 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;

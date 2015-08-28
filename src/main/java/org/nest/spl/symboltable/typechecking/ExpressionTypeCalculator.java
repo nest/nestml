@@ -6,11 +6,13 @@
 package org.nest.spl.symboltable.typechecking;
 
 import com.google.common.base.Preconditions;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.literals.literals._ast.ASTDoubleLiteral;
 import de.monticore.literals.literals._ast.ASTIntLiteral;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinterFactory;
@@ -91,9 +93,7 @@ public class ExpressionTypeCalculator {
 
       if (new TypeChecker(typesFactory).checkVoid(methodSymbol.get().getReturnType())) {
         final String errorMsg = "Function '%s' with returntype 'Void' cannot be used in expressions.";
-        CoCoLog.error(
-            ERROR_CODE,
-            String.format(errorMsg, functionName),
+        Log.error(ERROR_CODE + ":"+ String.format(errorMsg, functionName),
             expr.get_SourcePositionEnd());
       }
 

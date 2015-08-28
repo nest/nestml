@@ -2,7 +2,7 @@ package org.nest.nestml.cocos;
 
 
 import com.google.common.collect.Maps;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTBody;
@@ -53,7 +53,7 @@ public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo,
         final String msg = "Variable '" + var + "' defined previously defined i line: "
                 + names.get(var).getLine() + ":" + names.get(var).getColumn();
 
-        CoCoLog.error(ERROR_CODE, msg, decl.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, decl.get_SourcePositionStart());
 
       }
       else {

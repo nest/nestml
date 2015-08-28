@@ -5,6 +5,8 @@
  */
 package org.nest.spl.parsing;
 
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.spl._ast.ASTSPLFile;

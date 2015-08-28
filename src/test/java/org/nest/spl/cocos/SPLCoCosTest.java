@@ -5,7 +5,9 @@
  */
 package org.nest.spl.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
+
+import de.se_rwth.commons.logging.Log;
 import org.junit.*;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.*;
@@ -13,14 +15,14 @@ import org.nest.spl._parser.SPLFileMCParser;
 import org.nest.spl._parser.SPLParserFactory;
 import org.nest.spl.symboltable.SPLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.utils.LogHelper;
 
 import java.io.IOException;
 import java.util.Optional;
 
+import static de.se_rwth.commons.logging.Log.getFindings;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.nest.utils.LogHelper.countOccurrences;
+import static org.nest.utils.LogHelper.countErrorsByPrefix;
 
 /**
  * Test every context context conditions. For each implemented context condition there is one model that contains exactly one tested error.
@@ -53,18 +55,18 @@ public class SPLCoCosTest {
 
   @BeforeClass
   public static void initLog() {
-    CoCoLog.setDelegateToLog(false);
+    Log.enableFailQuick(false);
   }
 
   @Before
   public void setup() {
-    CoCoLog.getFindings().clear();
+    getFindings().clear();
     splCoCoChecker = new SPLCoCoChecker();
   }
 
   @After
   public void printErrorMessage() {
-    CoCoLog.getFindings().forEach(e -> System.out.println("Error found: " + e));
+    getFindings().forEach(e -> System.out.println("Error found: " + e));
   }
 
   @Test
@@ -82,7 +84,8 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(VariableDoesNotExist.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
   }
 
@@ -101,8 +104,8 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    final Integer errorsFound = countOccurrences(VariableDoesNotExist.ERROR_CODE,
-        CoCoLog.getFindings());
+    final Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
   }
 
@@ -116,8 +119,8 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(VariableDefinedMultipleTimes.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(VariableDefinedMultipleTimes.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -132,7 +135,7 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(VarHasTypeName.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(VarHasTypeName.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -150,8 +153,8 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(VariableNotDefinedBeforeUse.ERROR_CODE,
-        CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(VariableNotDefinedBeforeUse.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(5), errorsFound);
   }
 
@@ -166,7 +169,7 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countOccurrences(IllegalVarInFor.ERROR_CODE, CoCoLog.getFindings());
+    Integer errorsFound = countErrorsByPrefix(IllegalVarInFor.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -185,9 +188,8 @@ public class SPLCoCosTest {
     splCoCoChecker.addCoCo((SPLASTWHILE_StmtCoCo) illegalExpression);
     splCoCoChecker.checkAll(ast.get());
 
-    final Integer errorsFound = countOccurrences(IllegalExpression.ERROR_CODE,
-        CoCoLog.getFindings());
-    CoCoLog.getFindings().forEach(f -> System.out.println("DEBUG: " + f.getCode() + ":" + f.getMsg()) );
+    final Integer errorsFound = countErrorsByPrefix(IllegalExpression.ERROR_CODE, getFindings());
+    getFindings().forEach(f -> System.out.println("DEBUG: " + f.toString()) );
     // TODO must be 14
     assertEquals(Integer.valueOf(10), errorsFound);
   }
@@ -202,7 +204,7 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    final Integer errorsFound = countOccurrences(CodeAfterReturn.ERROR_CODE, CoCoLog.getFindings());
+    final Integer errorsFound = countErrorsByPrefix(CodeAfterReturn.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(1), errorsFound);
   }
 
@@ -218,8 +220,7 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    final Integer errorsFound = countOccurrences(FunctionDoesntExist.ERROR_CODE,
-        CoCoLog.getFindings());
+    final Integer errorsFound = countErrorsByPrefix(FunctionDoesntExist.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
@@ -235,8 +236,9 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast.get());
 
-    final Integer errorsFound = countOccurrences(CheckMultipleSignsBeforeFactor.ERROR_CODE,
-        CoCoLog.getFindings());
+    final Integer errorsFound = countErrorsByPrefix(
+        CheckMultipleSignsBeforeFactor.ERROR_CODE,
+        getFindings());
     assertEquals(Integer.valueOf(4), errorsFound);
   }
 

@@ -10,7 +10,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTCList;
 import de.monticore.ast.ASTCNode;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.spl._cocos.SPLASTBlockCoCo;

@@ -4,9 +4,10 @@ package org.nest.nestml.cocos;
 import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTCNode;
 import de.monticore.ast.ASTNode;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
@@ -79,9 +80,7 @@ public class InvalidTypesInDeclaration implements
     if (!type.isPresent() || type.isPresent() && type.get().getName().endsWith("Logger")) {
       final String msgPredefined = "The type '%s' is a neuron/component. No neurons/components allowed " +
           "in this place. Use the use-statement.";
-      CoCoLog.error(
-          ERROR_CODE,
-          String.format(msgPredefined, typeName),
+      Log.error(ERROR_CODE + ":" + String.format(msgPredefined, typeName),
           decl.get_SourcePositionStart());
     }
   }
@@ -90,15 +89,15 @@ public class InvalidTypesInDeclaration implements
   public void check(ASTUSE_Stmt astUseStmt) {
     String typeName = Names.getQualifiedName(astUseStmt.getName().getParts());
     Optional<? extends Scope> enclosingScope = astUseStmt.getEnclosingScope();
-    checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node at: " + astUseStmt.get_SourcePositionStart());
-    Optional<NESTMLNeuronSymbol> type = enclosingScope.get().resolve(typeName, NESTMLNeuronSymbol.KIND);
+    checkState(enclosingScope.isPresent(),
+        "There is no scope assigned to the AST node at: " + astUseStmt.get_SourcePositionStart());
+    final Optional<NESTMLNeuronSymbol> type = enclosingScope.get().resolve(
+        typeName, NESTMLNeuronSymbol.KIND);
 
     if (!type.isPresent()) {
       final String msgPredefined = "The type '%s' is a neuron/component. No neurons/components allowed " +
           "in this place. Use the use-statement.";
-      CoCoLog.error(
-          ERROR_CODE,
-          String.format(msgPredefined, typeName),
+      Log.error(ERROR_CODE + String.format(msgPredefined, typeName),
           astUseStmt.get_SourcePositionStart());
     }
 

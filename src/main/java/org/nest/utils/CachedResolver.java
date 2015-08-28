@@ -2,6 +2,8 @@ package org.nest.utils;
 
 import com.google.common.collect.Maps;
 import de.monticore.symboltable.Scope;
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Log;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;
 

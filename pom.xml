@@ -17,8 +17,8 @@
 
     <!-- Monticore versions and dependencies -->
     <antlr.version>4.5</antlr.version>
-    <monticore.runtime>4.1.6</monticore.runtime>
-    <mc4.maven.generator>4.1.6</mc4.maven.generator>
+    <monticore.runtime>4.1.7</monticore.runtime>
+    <mc4.maven.generator>4.1.7</mc4.maven.generator>
 
     <!-- .. Plugins ....................................................... -->
     <compiler.plugin>3.2</compiler.plugin>

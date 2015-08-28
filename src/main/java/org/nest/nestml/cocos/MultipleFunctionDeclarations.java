@@ -1,7 +1,8 @@
 package org.nest.nestml.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTFunction;
@@ -63,10 +64,7 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
       final String msg = "The function '" + funname + "' with "
           + params.length
           + " parameter(s) is defined multiple times.";
-      CoCoLog.error(
-          ERROR_CODE,
-          msg,
-          astFunction.get_SourcePositionStart());
+      error(ERROR_CODE + ":" + msg, astFunction.get_SourcePositionStart());
     }
   }
 

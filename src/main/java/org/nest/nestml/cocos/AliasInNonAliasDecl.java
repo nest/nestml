@@ -1,8 +1,9 @@
 package org.nest.nestml.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTComponent;
@@ -82,10 +83,7 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
           final String msg = "Alias variable '"
                   + used.get().getName()
                   + "' cannot be used in default-value declaration of non-alias variables.";
-          CoCoLog.error(
-              ERROR_CODE,
-              msg,
-              decl.get_SourcePositionStart());
+          error(ERROR_CODE + ":" + msg, decl.get_SourcePositionStart());
         }
 
       }

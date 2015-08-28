@@ -1,7 +1,7 @@
 package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
@@ -47,7 +47,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
         final String msg = "Function '" + fun.getName()
             + "' must return a result of type "
             + functionReturnType.getName() + ".";
-        CoCoLog.error(ERROR_CODE, msg, r.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
 
       }
 
@@ -61,7 +61,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
           final String msg = "Function '" + fun.getName()
               + "' must not return a result."
               + functionReturnType.getName() + ".";
-          CoCoLog.error(ERROR_CODE, msg, r.get_SourcePositionStart());
+         error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
         }
         // same type is ok (e.g. string, boolean,integer, real,...)
         if (tc.checkString(functionReturnType) && !tc.checkString(returnExpressionType)) {
@@ -69,21 +69,21 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
           final String msg = "Function '" + fun.getName()
               + "' must return a result of type "
               + functionReturnType.getName() + ".";
-          CoCoLog.error(ERROR_CODE, msg, r.get_SourcePositionStart());
+         error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
         }
         if (tc.checkBoolean(functionReturnType) && !tc.checkBoolean(returnExpressionType)) {
           // should return bool, but does not
           final String msg = "Function '" + fun.getName()
               + "' must return a result of type "
               + functionReturnType.getName() + ".";
-          CoCoLog.error(ERROR_CODE, msg, r.get_SourcePositionStart());
+         error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
         }
         if (tc.checkUnit(functionReturnType) && !tc.checkUnit(returnExpressionType)) {
           // should return numeric, but does not
           final String msg = "Function '" + fun.getName()
               + "' must return a result of type "
               + functionReturnType.getName() + ".";
-          CoCoLog.error(ERROR_CODE, msg, r.get_SourcePositionStart());
+         error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
         }
         // real rType and integer eType is ok, since more general
         // integer rType and real eType is not ok
@@ -94,7 +94,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
             + " (return type), since the first is real "
             + "domain and the second is in the integer domain "
             + "and conversion reduces the precision.";
-        CoCoLog.error(ERROR_CODE, msg, r.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
       }
 
     }

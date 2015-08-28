@@ -1,7 +1,7 @@
 package org.nest.nestml.cocos;
 
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._cocos.NESTMLASTInputLineCoCo;
 
@@ -15,7 +15,7 @@ public class CurrentInputIsNotInhExc implements NESTMLASTInputLineCoCo {
             && inputLine.getInputTypes() != null) {
       if (!inputLine.getInputTypes().isEmpty()) {
         final String msg = "Current input can neither be inhibitory nor excitatory.";
-        CoCoLog.error(ERROR_CODE, msg, inputLine.get_SourcePositionStart());
+       error(ERROR_CODE + ":" +  msg, inputLine.get_SourcePositionStart());
       }
 
     }

@@ -5,7 +5,9 @@
  */
 package org.nest.nestml.cocos;
 
-import de.monticore.cocos.CoCoLog;
+import static de.se_rwth.commons.logging.Log.error;
+
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTExpr;
@@ -40,10 +42,7 @@ public class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
       if (!expressionType.equals(predefinedTypesFactory.getBooleanType())) {
         final String msg = "The type of the invariant expression must be boolean and not: " +
             expressionType;
-        CoCoLog.error(
-            ERROR_CODE,
-            msg,
-            invariantExpr.get_SourcePositionStart());
+        Log.error(ERROR_CODE + ":" + msg, invariantExpr.get_SourcePositionStart());
       }
 
     }
