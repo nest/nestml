@@ -160,13 +160,14 @@ grammar NESTML extends org.nest.SPL {
 
    // e.g. first: current time, second: min delay in ms
    // e.g. first: current time, second: timestep in ms
-   /** ASTDynamics a dynamics definition:
-         dynamics timestep(t ms):
+   /** ASTFunction a function definition:
+         function set_V_m(v mV):
+           y3 = v - E_L
          end
-       @attribute minDelay true iff. the dynamics is midDelay.
-       @attribute timeStem true iff. the dynamics is timeStep.
+       @attribute minDelay iff. the dynamics is midDelay.
+       @attribute timeStem iff. the dynamics is timeStep.
        @attribute parameters List with function parameters.
-       @attribute block Implementation of the dynamics.
+       @attribute block Implementation of the function.
      */
   Dynamics implements BodyElement = "dynamics" (MinDelay | TimeStep)
                                     "(" Parameters? ")"
@@ -188,9 +189,9 @@ grammar NESTML extends org.nest.SPL {
   */
   Parameters = Parameter ("," Parameter)*;
 
-  /** ASTParameter represents single function parameter.
-    @attribute name Name of the parameter.
-    @attribute type Type of the parameter
+  /** ASTParameter represents singe:
+      output: spike
+    @attribute compartments Lists with compartments.
   */
   Parameter = Name type:QualifiedName;
 

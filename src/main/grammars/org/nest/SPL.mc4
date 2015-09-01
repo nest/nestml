@@ -28,17 +28,23 @@ grammar SPL extends org.nest.commons.Commons {
              | OdeDeclaration;
 
    OdeDeclaration  =
-   "ODE" BLOCK_OPEN (NEWLINE)*
-     Eq (NEWLINE)*
-     ODE (NEWLINE)*
-     BLOCK_CLOSE;
+     "ODE" BLOCK_OPEN (NEWLINE)*
+       Eq (NEWLINE)*
+       ODE (NEWLINE)*
+       BLOCK_CLOSE;
 
   Eq = lhsVariable:Name "===" rhs:Expr;
   ODE = "d/dt" lhsVariable:Name "===" rhs:Expr;
 
-  Assignment = variableName:QualifiedName "=" Expr;
+  Assignment = variableName:QualifiedName
+    (assignment:["="] |
+     compoundSum:["+="] |
+     compoundMinus:["-="] |
+     compoundProduct:["*="] |
+     compoundQuotient:["/="]) Expr;
 
-  // inherited PrimitiveType must be used here because otherwise the parser cannot distinguish between fqn: boolean and "keyword" boolean
+  // inherited PrimitiveType must be used here because otherwise the parser cannot distinguish
+  // between fqn: boolean and "keyword" boolean
   Declaration =
     vars:Name ("," vars:Name)*
     (type:QualifiedName | primitiveType:PrimitiveType)
@@ -70,7 +76,13 @@ grammar SPL extends org.nest.commons.Commons {
          | left:Expr bitAnd:["&"] right:Expr
          | left:Expr bitOr:["|"] right:Expr
          | left:Expr bitXor:["^"]  right:Expr
-         | left:Expr (lt:["<"] | le:["<="] | eq:["=="] | ne:["!="] | ne2:["<>"] | ge:[">="] | gt:[">"]) right:Expr
+         | left:Expr (lt:["<"] |
+                      le:["<="] |
+                      eq:["=="] |
+                      ne:["!="] |
+                      ne2:["<>"] |
+                      ge:[">="] |
+                      gt:[">"]) right:Expr
          | left:Expr logicalAnd:["and"] right:Expr
          | left:Expr logicalOr:["or"] right:Expr
          | FunctionCall

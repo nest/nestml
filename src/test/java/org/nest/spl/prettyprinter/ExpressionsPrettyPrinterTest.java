@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.spl.prettyprinter;
 
 import org.junit.Test;
@@ -13,7 +18,10 @@ import java.util.Optional;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by user on 02.06.15.
+ * Tests prettyprinter on the most available models in test resources.
+ *
+ * @author (last commit) plotnikov
+ * @since 0.0.1
  */
 public class ExpressionsPrettyPrinterTest {
   private final SPLFileMCParser splFileParser = SPLParserFactory.createSPLFileMCParser();
