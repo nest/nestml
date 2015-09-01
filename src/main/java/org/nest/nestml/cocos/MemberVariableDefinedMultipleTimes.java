@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
-
 
 import com.google.common.collect.Maps;
 import static de.se_rwth.commons.logging.Log.error;
@@ -24,7 +28,7 @@ import java.util.Map;
  *   parameter: x real end
  * end
  *
- * @author Tammo Ippen
+ * @author ippen, plotnikov
  */
 public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo,
     NESTMLASTComponentCoCo {
