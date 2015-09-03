@@ -60,7 +60,7 @@ package codegeneration.iaf_psc_alpha_multisynapse_module:
       #P33_;
 
       RefractoryCounts integer = 0
-      PSCInitialValues_ real<num_of_receptors> = steps(t_ref)
+      #PSCInitialValues real<num_of_receptors> = steps(t_ref)
     end
 
     input:
@@ -71,28 +71,7 @@ package codegeneration.iaf_psc_alpha_multisynapse_module:
     output: spike
 
     dynamics timestep(t ms):
-      if r_ref == 0: # neuron not refractory, so evolve V
-        V_m = V_m * P22 + (I_e + i_0) * P20 # not sure about this
-        currentValue = 0.0
-        V_m = V_m + P21_syn*i_syn
-        currentValue = currentValue + i_syn # not sure about this
-      else:
-        r_ref = r_ref - 1 # neuron is absolute refractory
-      end
 
-      i_syn = i_syn * P11_syn;
-      # collect spikes
-      i_syn = i_syn + spikeBufferInh.getSum() # not sure about this
-
-      if V_m >= Theta:  # threshold crossing
-        r_ref = RefractoryCounts
-        V_m = V_reset
-
-        emitSpike()
-      end
-
-      # set new input current
-      i_0 = currentBuffer.getSum()
 
     end
 
