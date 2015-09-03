@@ -19,7 +19,7 @@ grammar SPL extends org.nest.commons.Commons {
                 | FOR_Stmt
                 | WHILE_Stmt;
 
-  Simple_Stmt = Small_Stmt (";" Small_Stmt)* (";")?;
+  Simple_Stmt = Small_Stmt (";" Small_Stmt)* (";")? NEWLINE?;
 
   Small_Stmt = Assignment
              | FunctionCall
