@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.spl.prettyprinter;
 
 import de.monticore.prettyprint.IndentPrinter;
@@ -12,11 +17,11 @@ import org.nest.spl._ast.ASTFunctionCall;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Converts SPL expression sublanguage to the executable platform dependent code.
+ * Converts SPL expressions to the executable platform dependent code. By using different
+ * referenceConverters
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since TODO
+ * @author plotnikov
+ * @since 0.0.2
  */
 public class ExpressionsPrettyPrinter {
 
@@ -96,7 +101,13 @@ public class ExpressionsPrettyPrinter {
       return expression.toString();
     }
     // left:Expr (lt:["<"] | le:["<="] | eq:["=="] | ne:["!="] | ne2:["<>"] | ge:[">="] | gt:[">"]) right:Expr
-    else if (expr.isLt() || expr.isLe() || expr.isEq() || expr.isNe() || expr.isNe2() || expr.isGe() || expr.isGt()) {
+    else if (expr.isLt() ||
+        expr.isLe() ||
+        expr.isEq() ||
+        expr.isNe() ||
+        expr.isNe2() ||
+        expr.isGe() ||
+        expr.isGt()) {
       final StringBuilder expression = new StringBuilder();
       final String leftOperand = print(expr.getLeft().get());
       final String rightOperand = print(expr.getRight().get());
@@ -112,6 +123,7 @@ public class ExpressionsPrettyPrinter {
       expression.append("(").append(rightOperand).append(")");
       return expression.toString();
     }
+
     else if (expr.isLogicalAnd()) {
       final StringBuilder expression = new StringBuilder();
       final String leftOperand = print(expr.getLeft().get());

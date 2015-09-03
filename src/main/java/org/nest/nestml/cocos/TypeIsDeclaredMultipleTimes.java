@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
-
 
 import de.monticore.ast.ASTCNode;
 import static de.se_rwth.commons.logging.Log.error;
@@ -14,6 +18,12 @@ import org.nest.symboltable.symbols.NESTMLTypeSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+/**
+ * Neuron or component is defined several times.
+ *
+ * @author (last commit) ippen, plotnikov
+ * @since 0.0.1
+ */
 public class TypeIsDeclaredMultipleTimes implements NESTMLASTComponentCoCo, NESTMLASTNeuronCoCo {
 
   public static final String ERROR_CODE = "NESTML_TYPES_DECLARED_MULTIPLE_TIMES";

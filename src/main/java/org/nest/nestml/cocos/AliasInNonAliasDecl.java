@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
 
 import static de.se_rwth.commons.logging.Log.error;
@@ -26,7 +31,7 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
   public static final String ERROR_CODE = "NESTML_ALIAS_IN_NON_ALIAS_DECL";
 
   @Override
-  public void check(ASTComponent astComponent) {
+  public void check(final ASTComponent astComponent) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astComponent.getBody());
     final Optional<NESTMLNeuronSymbol> componentSymbol
         = (Optional<NESTMLNeuronSymbol>) astComponent.getSymbol();
@@ -36,7 +41,7 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
 
 
   @Override
-  public void check(ASTNeuron astNeuron) {
+  public void check(final ASTNeuron astNeuron) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
     final Optional<NESTMLNeuronSymbol> neuronSymbol
         = (Optional<NESTMLNeuronSymbol>) astNeuron.getSymbol();
@@ -47,12 +52,9 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
   public void checkAllAliasesInNeuron(
       final ASTBodyDecorator astBodyDecorator,
       final NESTMLNeuronSymbol neuronSymbol) {
-    astBodyDecorator.getInternals().forEach(astFunction -> checkAlias(astFunction,
-        neuronSymbol));
-    astBodyDecorator.getStates().forEach(astFunction -> checkAlias(astFunction,
-        neuronSymbol));
-    astBodyDecorator.getParameters().forEach(astFunction -> checkAlias(astFunction,
-        neuronSymbol));
+    astBodyDecorator.getInternals().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
+    astBodyDecorator.getStates().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
+    astBodyDecorator.getParameters().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
   }
 
   public void checkAlias(final ASTAliasDecl alias, final NESTMLNeuronSymbol neuronSymbol) {

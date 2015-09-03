@@ -1,10 +1,14 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTDeclaration;
@@ -16,6 +20,12 @@ import java.util.Optional;
 
 import static de.se_rwth.commons.logging.Log.error;
 
+/**
+ * Every alias variable must be backed by a corresponding setter
+ *
+ * @author (last commit) ippen, plotnikov
+ * @since 0.0.1
+ */
 public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
 
 

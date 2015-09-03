@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
 
-
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
@@ -13,8 +16,13 @@ import org.nest.symboltable.symbols.NESTMLTypeSymbol;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
+/**
+ * For use statement only components ara allowed.
+ *
+ * @author (last commit) ippen, plotnikov
+ * @since 0.0.1
+ */
 public class UsesOnlyComponents implements NESTMLASTUSE_StmtCoCo {
 
   public final static String ERROR_CODE = "NESTML_USES_ONLY_COMPONENTS";

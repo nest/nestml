@@ -1,6 +1,13 @@
-package org.nest.nestml.cocos.spl;
+
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */package org.nest.nestml.cocos.spl;
 
 import com.google.common.base.Preconditions;
+
+import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
@@ -19,18 +26,18 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
 
   public void check(final ASTAssignment assignment) {
     final Optional<? extends Scope> enclosingScope = assignment.getEnclosingScope();
-    Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + assignment);
+    checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + assignment);
     final String varName = Names.getQualifiedName(assignment.getVariableName().getParts());
 
-    Optional<NESTMLVariableSymbol> var = enclosingScope.get().resolve(varName, NESTMLVariableSymbol.KIND);
+    final Optional<NESTMLVariableSymbol> var = enclosingScope.get()
+        .resolve(varName, NESTMLVariableSymbol.KIND);
 
     if (!var.isPresent()) {
       Log.warn("Cannot resolve the variable: " + varName + " . Thereofore, the coco is skipped.");
     }
     else if (var.get().getBlockType() == NESTMLVariableSymbol.BlockType.BUFFER) {
-
       final String msg = "Buffer '" + var.get().getName() + "' cannot be reassigned.";
-     error(ERROR_CODE + ":" +  msg, assignment.get_SourcePositionStart());
+      error(ERROR_CODE + ":" +  msg, assignment.get_SourcePositionStart());
     }
 
   }
