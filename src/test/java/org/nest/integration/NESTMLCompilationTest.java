@@ -7,6 +7,8 @@ package org.nest.integration;
 
 import org.junit.Test;
 
+import java.io.IOException;
+
 /**
  * Runs the codegenerator and compiles the resulting code. Afterthat, check is the make commomand
  * run successfully.
@@ -17,8 +19,10 @@ import org.junit.Test;
 public class NESTMLCompilationTest {
 
   @Test
-  public void testCompilationOfTheGeneratedCode() {
+  public void testCompilationOfTheGeneratedCode() throws IOException {
     final String compilationCommand = "make";
+    final Runtime runtime = Runtime.getRuntime();
+    runtime.exec(compilationCommand);
   }
 
 }

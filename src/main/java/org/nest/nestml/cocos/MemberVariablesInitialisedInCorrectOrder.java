@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
 
 import static de.se_rwth.commons.logging.Log.error;
@@ -20,6 +25,13 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 
+/**
+ * Variables in a block must be defined before used. Only variables from parameters are allowed
+ * to be used
+ *
+ * @author (last commit) ippen, plotnikov
+ * @since 0.0.1
+ */
 public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasDeclCoCo {
 
   public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
@@ -28,7 +40,6 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
    * AliasDecl = ([hide:"-"])? ([alias:"alias"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
    * Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
    *
-   * @param alias
    */
   public void check(final ASTAliasDecl alias) {
     final Optional<? extends Scope> enclosingScope = alias.getEnclosingScope();

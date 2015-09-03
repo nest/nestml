@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
-
 
 import com.google.common.collect.ImmutableSet;
 import static de.se_rwth.commons.logging.Log.error;
@@ -10,6 +14,12 @@ import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
 
 import java.util.Set;
 
+/**
+ * Checks collisions with generated functions.
+ *
+ * @author (last commit) ippen, plotnikov
+ * @since 0.0.1
+ */
 public class NESTFunctionNameChecker implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "NESTML_F";

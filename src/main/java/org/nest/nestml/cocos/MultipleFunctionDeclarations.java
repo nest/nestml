@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
 
 import static de.se_rwth.commons.logging.Log.error;
@@ -16,12 +21,18 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 
+/**
+ * Methods must be unique. If there are two methods with same name, than they must have
+ * different argument types.
+ * @author (last commit) ippen, plotnikov
+ * @since 0.0.1
+ */
 public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTMLASTComponentCoCo {
 
   public static final String ERROR_CODE = "NESTML_MULTIPLE_FUNCTIONS_DECLARATIONS";
 
 
-  @Override public void check(ASTComponent astComponent) {
+  @Override public void check(final ASTComponent astComponent) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astComponent.getBody());
     final Optional<NESTMLNeuronSymbol> componentSymbol
         = (Optional<NESTMLNeuronSymbol>) astComponent.getSymbol();
@@ -31,7 +42,7 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
   }
 
 
-  @Override public void check(ASTNeuron astNeuron) {
+  @Override public void check(final ASTNeuron astNeuron) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
     final Optional<NESTMLNeuronSymbol> neuronSymbol
         = (Optional<NESTMLNeuronSymbol>) astNeuron.getSymbol();

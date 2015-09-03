@@ -5,8 +5,6 @@
  */
 package org.nest.nestml.cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
@@ -16,10 +14,9 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;
 
 /**
- * Frontend for the Simple Programming Language (SPL)
+ * Invariants expressions must be of the type boolea.
  *
- * @author (last commit) plotnikov
- * @version $$Revision$$, 06.07.2015
+ * @author (last commit) ippen, plotnikov
  * @since 0.0.2
  */
 public class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {

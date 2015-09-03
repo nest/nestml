@@ -10,11 +10,11 @@ ${assignmentHelper.printVariableName(ast)} = ${tc.include("org.nest.spl.expr.Exp
 <#else>
 
   <#if assignmentHelper.isVector(ast) || declarations.isVectorLHS(ast)>
-  for (size_t i=0; i < get_num_of_receptors(); i++) {
+  for (size_t i=0; i < declarations.printSizeParameter(ast); i++) {
     <#if declarations.isVectorLHS(ast)>
-    ${assignmentHelper.printGetterName(ast)}()[i] = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
+      ${assignmentHelper.printGetterName(ast)}()[i] = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
     <#else>
-    ${assignmentHelper.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+      ${assignmentHelper.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
     </#if>
 
   }

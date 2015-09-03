@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
@@ -16,6 +21,12 @@ import org.nest.utils.ASTNodes;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The type of the return expression must conform to the declaration type.
+ *
+ * @author (last commit) ippen, plotnikov
+ * @since 0.0.1
+ */
 public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "SPL_CORRECT_RETURN_VALUES";
@@ -44,8 +55,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
       // no return expression
       if (r.getExpr().isPresent() && !tc.checkVoid(functionReturnType)) {
         // void return value
-        final String msg = "Function '" + fun.getName()
-            + "' must return a result of type "
+        final String msg = "Function '" + fun.getName() + "' must return a result of type "
             + functionReturnType.getName() + ".";
        error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
 
@@ -66,34 +76,28 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
         // same type is ok (e.g. string, boolean,integer, real,...)
         if (tc.checkString(functionReturnType) && !tc.checkString(returnExpressionType)) {
           // should return string, but does not
-          final String msg = "Function '" + fun.getName()
-              + "' must return a result of type "
+          final String msg = "Function '" + fun.getName() + "' must return a result of type "
               + functionReturnType.getName() + ".";
          error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
         }
         if (tc.checkBoolean(functionReturnType) && !tc.checkBoolean(returnExpressionType)) {
           // should return bool, but does not
-          final String msg = "Function '" + fun.getName()
-              + "' must return a result of type "
+          final String msg = "Function '" + fun.getName() + "' must return a result of type "
               + functionReturnType.getName() + ".";
          error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
         }
         if (tc.checkUnit(functionReturnType) && !tc.checkUnit(returnExpressionType)) {
           // should return numeric, but does not
-          final String msg = "Function '" + fun.getName()
-              + "' must return a result of type "
+          final String msg = "Function '" + fun.getName() + "' must return a result of type "
               + functionReturnType.getName() + ".";
          error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
         }
         // real rType and integer eType is ok, since more general
         // integer rType and real eType is not ok
-        final String msg = "Cannot convert from "
-            + returnExpressionType.getName()
-            + " (type of return expression) to "
-            + functionReturnType.getName()
-            + " (return type), since the first is real "
-            + "domain and the second is in the integer domain "
-            + "and conversion reduces the precision.";
+        final String msg = "Cannot convert from " + returnExpressionType.getName()
+            + " (type of return expression) to " + functionReturnType.getName()
+            + " (return type), since the first is real domain and the second is in the integer "
+            + "domain and conversion reduces the precision.";
        error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
       }
 
