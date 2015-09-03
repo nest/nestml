@@ -25,69 +25,174 @@ grammar NESTML extends org.nest.SPL {
   */
   Import = "import" QualifiedName ([star:".*"])? (";")?;
 
+  /** ASTNeuron represents neuron.
+    @attribute Name    The name of the neuron
+    @attribute Body    The body of the neuron, e.g. internal, state, parameter...
+  */
   Neuron = "neuron" Name Body;
 
+  /** ASTComponent represents neuron.
+    @attribute Name    The name of the component
+    @attribute Body    The body of the component, e.g. internal, state, parameter...
+  */
   Component = "component" Name Body;
 
+  /** ASTBodyElement represents a single entry in the neuron or component: e.g. internal, state,
+      parameter... The interface is used to enable language extension.
+  */
   interface BodyElement;
 
-  Body = BLOCK_OPEN ( NEWLINE | BodyElement)* BLOCK_CLOSE;
+  /** ASTBody The body of the neuron, e.g. internal, state, parameter...
+  */
+  Body = BLOCK_OPEN
+           (NEWLINE | BodyElement)*
+         BLOCK_CLOSE;
 
+  /** ASTUSE_Stmt represent a reference to an another neuron or component. E.g.:
+    neuron AliasNeuron:
+            use nest.EmptyComponent as Soma
+    end
+
+    @attribute Name     The name of the referenced component
+    @attribute alias    The name under which the referenced component can be used.
+  */
   USE_Stmt implements BodyElement = "use" name:QualifiedName "as" alias:Name;
 
+  /** ASTVar_Block represent a block with variables, e.g.:
+    state:
+      - y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
+    end
+
+    @attribute state true if the varblock ist a state.
+    @attribute parameter true if the varblock ist a parameter.
+    @attribute internal true if the varblock ist a state internal.
+    @attribute AliasDecl a list with variable declarations.
+  */
   Var_Block implements BodyElement =
     (["state"]|["parameter"]|["internal"])
     BLOCK_OPEN
       (AliasDecl (";" AliasDecl)* (";")? | NEWLINE)*
     BLOCK_CLOSE;
 
-  AliasDecl = ([hide:"-"])? (["alias"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
+  /** ASTVar_Block represents a block with variables, e.g.:
 
+    @attribute hide is true iff. declaration is not trackable.
+    @attribute alias is true iff. declaration is an alias.
+    @attribute declaration embeds the SPL variable declaration.
+    @attribute invariants List with optional invariants.
+  */
+  AliasDecl =
+    ([hide:"-"])? (["alias"])?
+    Declaration
+    ("[" invariants:Expr (";" invariants:Expr)* "]")?;
+
+  /** ASTInput represents the input block:
+    input:
+      spikeBuffer   <- inhibitory excitatory spike
+      currentBuffer <- current
+    end
+
+    @attribute inputLine set of input lines.
+  */
   Input implements BodyElement = "input"
     BLOCK_OPEN
       (InputLine | NEWLINE)*
     BLOCK_CLOSE;
 
+  /** ASTInputLine represents a single line form the input, e.g.:
+      spikeBuffer   <- inhibitory excitatory spike
+
+    @attribute sizeParameter Optional parameter representing  multisynapse neuron.
+    @attribute sizeParameter Type of the inputchannel: e.g. inhibitory or excitatory (or both).
+    @attribute spike true iff the neuron is a spike.
+    @attribute current true iff. the neuron is a current.
+  */
   InputLine =
     Name
     ("<" sizeParameter:Name ">")?
     "<-" InputType*
     (["spike"] | ["current"]);
 
+  /** ASTInputType represents the type of the inputline e.g.: inhibitory or excitatory:
+    @attribute inhibitory true iff the neuron is a inhibitory.
+    @attribute excitatory true iff. the neuron is a excitatory.
+  */
   InputType = (["inhibitory"] | ["excitatory"]);
 
-  Output implements BodyElement =
-                  "output" BLOCK_OPEN (["spike"] | ["current"]) ;
+  /** ASTOutput represents the output block of the neuron:
+        output: spike
+      @attribute spike true iff the neuron has a spike output.
+      @attribute current true iff. the neuron is a current output.
+    */
+  Output implements BodyElement = "output" BLOCK_OPEN (["spike"] | ["current"]) ;
 
+  /** ASTStructure TODO
+        output: spike
+      @attribute StructureLine List of structure lines.
+    */
   Structure implements BodyElement = "structure"
               BLOCK_OPEN
                   (StructureLine | NEWLINE)*
               BLOCK_CLOSE;
 
+  /** ASTStructureLine represents the output block of the neuron:
+        output: spike
+      @attribute compartments Lists with compartments.
+   */
   StructureLine = compartments:QualifiedName ("-" compartments:QualifiedName)*;
 
-  // TODO model it better
+  // Move it to SPL
+  /** ASTFunction a function definition:
+      function set_V_m(v mV):
+        y3 = v - E_L
+      end
+    @attribute name Functionname.
+    @attribute parameters List with function parameters.
+    @attribute returnType Complex return type, e.g. String
+    @attribute primitiveType Primitive return type, e.g. int
+    @attribute block Implementation of the function.
+  */
   Function implements BodyElement =
           "function" Name "(" Parameters? ")" (returnType:QualifiedName | PrimitiveType)?
-             BLOCK_OPEN
+           BLOCK_OPEN
              Block
-             BLOCK_CLOSE;
+           BLOCK_CLOSE;
 
    // e.g. first: current time, second: min delay in ms
    // e.g. first: current time, second: timestep in ms
+   /** ASTFunction a function definition:
+         function set_V_m(v mV):
+           y3 = v - E_L
+         end
+       @attribute minDelay iff. the dynamics is midDelay.
+       @attribute timeStem iff. the dynamics is timeStep.
+       @attribute parameters List with function parameters.
+       @attribute block Implementation of the function.
+     */
   Dynamics implements BodyElement = "dynamics" (MinDelay | TimeStep)
                                     "(" Parameters? ")"
-                                        BLOCK_OPEN // Todo remove me. It is not the way for modular extension
-                                        Block
+                                    BLOCK_OPEN
+                                      Block
                                     BLOCK_CLOSE;
 
 
+  /** ASTMinDelay represents minDelay dynamics.
+  */
   MinDelay = "minDelay";
 
+  /** ASTTimeStep represents timestep dynamics.
+  */
   TimeStep = "timestep";
 
+  /** ASTParameters models parameter list in function declaration.
+    @attribute parameters List with parameters.
+  */
   Parameters = Parameter ("," Parameter)*;
 
+  /** ASTParameter represents singe:
+      output: spike
+    @attribute compartments Lists with compartments.
+  */
   Parameter = Name type:QualifiedName;
 
 }

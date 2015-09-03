@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
@@ -21,7 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * the return statements of its block have the correct type is checked with
  * another coco.
  *
- * @author Tammo Ippen
+ * @author ippen, plotnikov
  */
 public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
 

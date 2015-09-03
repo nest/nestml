@@ -1,5 +1,9 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml.cocos;
-
 
 import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTCNode;
@@ -22,6 +26,12 @@ import java.util.Optional;
 
 import static org.abego.treelayout.internal.util.Contract.checkState;
 
+/**
+ * Only predefined types must be used in a declaration.
+ *
+ * @author (last commit) ippen, plotnikov
+ * @since 0.0.1
+ */
 public class InvalidTypesInDeclaration implements
     NESTMLASTUSE_StmtCoCo,
     SPLASTDeclarationCoCo,
@@ -31,44 +41,44 @@ public class InvalidTypesInDeclaration implements
 
 
   @Override
-  public void check(ASTDeclaration decl) {
+  public void check(final ASTDeclaration astDeclaration) {
 
-    if (decl.getType().isPresent()) {
-      String typeName = Names.getQualifiedName(decl.getType().get().getParts());
+    if (astDeclaration.getType().isPresent()) {
+      String typeName = Names.getQualifiedName(astDeclaration.getType().get().getParts());
 
-      final Optional<? extends Scope> enclosingScope = decl.getEnclosingScope();
-      Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + decl);
+      final Optional<? extends Scope> enclosingScope = astDeclaration.getEnclosingScope();
+      Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astDeclaration);
       Optional<NESTMLTypeSymbol> type = enclosingScope.get().resolve(typeName, NESTMLTypeSymbol.KIND);
-      checkIfValidType(decl, typeName, type);
+      checkIfValidType(astDeclaration, typeName, type);
 
     }
 
   }
 
   @Override
-  public void check(ASTFunction fun) {
+  public void check(final ASTFunction astFunction) {
     String typeName;
     // check parameter types
-    if (fun.getParameters().isPresent()) {
-      for (ASTParameter par : fun.getParameters().get().getParameters()) {
+    if (astFunction.getParameters().isPresent()) {
+      for (ASTParameter par : astFunction.getParameters().get().getParameters()) {
         typeName = Names.getQualifiedName(par.getType().getParts());
 
-        Optional<? extends Scope> enclosingScope = fun.getEnclosingScope();
-        Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + fun);
+        Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
+        Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
         Optional<NESTMLTypeSymbol> type = enclosingScope.get().resolve(typeName, NESTMLTypeSymbol.KIND);
 
-        checkIfValidType(fun, typeName, type);
+        checkIfValidType(astFunction, typeName, type);
 
       }
 
       // check return type
-      if (fun.getReturnType().isPresent()) {
-        typeName = Names.getQualifiedName(fun.getReturnType().get().getParts());
+      if (astFunction.getReturnType().isPresent()) {
+        typeName = Names.getQualifiedName(astFunction.getReturnType().get().getParts());
 
-        final Optional<? extends Scope> enclosingScope = fun.getEnclosingScope();
-        Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + fun);
+        final Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
+        Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
         final Optional<NESTMLTypeSymbol> type = enclosingScope.get().resolve(typeName, NESTMLTypeSymbol.KIND);
-        checkIfValidType(fun, typeName, type);
+        checkIfValidType(astFunction, typeName, type);
 
         //doCheck(type.get(), fun.getReturnType().get(), true);
       }
@@ -76,12 +86,12 @@ public class InvalidTypesInDeclaration implements
 
   }
 
-  public void checkIfValidType(ASTNode decl, String typeName, Optional<NESTMLTypeSymbol> type) {
+  public void checkIfValidType(ASTNode astNode, String typeName, Optional<NESTMLTypeSymbol> type) {
     if (!type.isPresent() || type.isPresent() && type.get().getName().endsWith("Logger")) {
       final String msgPredefined = "The type '%s' is a neuron/component. No neurons/components allowed " +
           "in this place. Use the use-statement.";
       Log.error(ERROR_CODE + ":" + String.format(msgPredefined, typeName),
-          decl.get_SourcePositionStart());
+          astNode.get_SourcePositionStart());
     }
   }
 

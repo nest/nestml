@@ -9,7 +9,7 @@
 -->
 <#list declarations.getVariables(ast) as var>
 <#if declarations.isVectorType(ast)>
-for (size_t i=0; i < get_num_of_receptors(); i++) {
+for (size_t i=0; i < declarations.printSizeParameter(ast); i++) {
   get_${var.getName()}()[i] =
     <#if ast.getDeclaration().getExpr().isPresent()>
     ${tc.include("org.nest.spl.expr.Expr", ast.getDeclaration().getExpr().get())}

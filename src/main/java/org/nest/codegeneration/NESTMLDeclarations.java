@@ -194,5 +194,17 @@ public class NESTMLDeclarations {
     return lhsVarSymbol.get().getArraySizeParameter().isPresent();
   }
 
+  public String printSizeParameter(final ASTAssignment astAssignment) {
+    checkArgument(astAssignment.getEnclosingScope().isPresent(),
+        "No scope. Run symbol table creator");
+    final Scope scope = astAssignment.getEnclosingScope().get();
+    final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
+    final Optional<NESTMLVariableSymbol> lhsVarSymbol
+        = scope.resolve(lhsVarName, NESTMLVariableSymbol.KIND);
+
+    checkState(lhsVarSymbol.isPresent(), "Cannot resolve the name: " + lhsVarName);
+    checkState(lhsVarSymbol.get().getArraySizeParameter().isPresent());
+    return lhsVarSymbol.get().getArraySizeParameter().get();
+  }
 
 }

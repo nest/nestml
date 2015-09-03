@@ -5,8 +5,6 @@
  */
 package org.nest.nestml.parsing;
 
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -15,13 +13,11 @@ import org.nest.nestml._parser.NESTMLParserFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
 
-/**
+/**e
  * Tests whether the nestml model can be parsed
  */
 public class NESTMLParsingTest {

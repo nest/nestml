@@ -98,3 +98,7 @@ end
 
 zz real = pow(x, -1)
 
+zz += 1
+zz -= 1
+zz *= 1
+zz /= 1
