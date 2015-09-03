@@ -2,13 +2,13 @@ package codegeneration.iaf_psc_alpha_multisynapse_module:
   neuron iaf_psc_alpha_multisynapse_neuron:
 
     state:
-      y0 = 0.0 # !< Constant current
+      y0 real = 0.0 # !< Constant current
       y1_syn real<num_of_receptors> = 0.0
       y2_syn real<num_of_receptors> = 0.0
       y3_ real = 0 # This is the membrane potential RELATIVE TO RESTING POTENTIAL.
       currentValue real = 0 # This is the current in a time step. This is only here to allow logging
 
-      - r integer = # Number of refractory steps remaining
+      - r integer = 0 # Number of refractory steps remaining
     end
 
     parameter:
@@ -37,17 +37,17 @@ package codegeneration.iaf_psc_alpha_multisynapse_module:
         Theta = v - U0
     end
 
-    std::vector<double_t> PSCInitialValues_;
-    int_t       RefractoryCounts_;
+    #std::vector<double_t> PSCInitialValues_;
+    #int_t       RefractoryCounts_;
 
-    std::vector<double_t> P11_syn_;
-    std::vector<double_t> P21_syn_;
-    std::vector<double_t> P22_syn_;
-    std::vector<double_t> P31_syn_;
-    std::vector<double_t> P32_syn_;
+    #std::vector<double_t> P11_syn_;
+    #std::vector<double_t> P21_syn_;
+    #std::vector<double_t> P22_syn_;
+    #std::vector<double_t> P31_syn_;
+    #std::vector<double_t> P32_syn_;
 
-    double_t P30_;
-    double_t P33_;
+    #double_t P30_;
+    #double_t P33_;
 
     internal:
       h   ms   = resolution()
@@ -56,10 +56,10 @@ package codegeneration.iaf_psc_alpha_multisynapse_module:
       P20 real = exp(-h/Tau)
       P22 real = Tau/C*(1.0 - P22);
 
-      P30_;
-      P33_;
+      #P30_;
+      #P33_;
 
-      RefractoryCounts integer =
+      RefractoryCounts integer = 0
       PSCInitialValues_ real<num_of_receptors> = steps(t_ref)
     end
 
