@@ -22,16 +22,16 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 
   private final List<String> nestmlModels = Lists.newArrayList(
-      /*"src/test/resources/codegeneration/iaf_neuron_module.nestml",
+      "src/test/resources/codegeneration/iaf_neuron_module.nestml",
       "src/test/resources/codegeneration/iaf_tum_2000_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_delta_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp_multisynapse_module.nestml",
       "src/test/resources/codegeneration/mat2_psc_exp_module.nestml",
-      "src/test/resources/codegeneration/izhikevich_module.nestml",*/
+      "src/test/resources/codegeneration/izhikevich_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse_module.nestml"
-
+      //"src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
   );
 
   @Override
@@ -41,8 +41,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
 
   @Test
   public void checkCocosOnModels() throws IOException {
-    // TODO: filters ode model that uses undefined variables
-    nestmlModels.stream().forEach(this::checkCocos);
+    nestmlModels.forEach(this::checkCocos);
   }
 
   @Test
