@@ -1,4 +1,4 @@
-package org.nest.ode;
+package org.nest.codegeneration.ode;
 
 import static de.se_rwth.commons.logging.Log.error;
 

@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.ode;
+package org.nest.codegeneration.ode;
 
 import com.google.common.collect.Lists;
 import de.monticore.generating.GeneratorEngine;
@@ -52,7 +52,7 @@ public class ODE2SympyCodeGenerator {
 
     // TODO: how do I find out the call was successful?
     generator.generate(
-            "org.nest.ode.SympySolver",
+            "org.nest.codegeneration.ode.SympySolver",
             solverFilePath,
             odeDeclaration);
   }
