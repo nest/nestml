@@ -1,4 +1,4 @@
-package org.nest.ode;
+package org.nest.codegeneration.ode;
 
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.NESTMLNodeFactory;

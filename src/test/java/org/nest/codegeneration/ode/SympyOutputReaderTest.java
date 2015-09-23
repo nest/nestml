@@ -1,4 +1,4 @@
-package org.nest.ode;
+package org.nest.codegeneration.ode;
 
 import org.junit.Test;
 
@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
  * Created by user on 20.05.15.
  */
 public class SympyOutputReaderTest {
-  private final static String GENERATED_MATRIX_PATH = "src/test/resources/org/nest/ode/solution.matrix.tmp";
+  private final static String GENERATED_MATRIX_PATH = "src/test/resources/ode/solution.matrix.tmp";
 
   @Test
   public void testReadMatrixEntriesFromFile() throws Exception {
