@@ -7,6 +7,7 @@ package org.nest.codegeneration.ode;
 
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -16,11 +17,12 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Path;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
+import static org.nest.nestml._parser.NESTMLParserFactory.*;
 
 /**
  * TODO
@@ -41,28 +43,67 @@ public class ODE2SympyCodeGeneratorTest {
   @Test
   public void generateSympyScript() throws IOException {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory
-        .createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p =
+        createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(MODEL_FILE_PATH);
 
     assertTrue(root.isPresent());
-    final String packageName = Names.getQualifiedName(root.get().getPackageName().getParts());
+    final File outputFolder = new File(OUTPUT_FOLDER);
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
         TEST_MODEL_PATH, typesFactory);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
-    final File outputFolder = new File(OUTPUT_FOLDER + File.separator + Names.getPathFromPackage(packageName));
+    final Optional<Path> generatedScript = ODE2SympyCodeGenerator.generateSympyODEAnalyzer(
+        glex,
+        root.get(),
+        root.get().getNeurons().get(0),
+        outputFolder);
 
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.get().getNeurons().get(0).getBody());
-    final Optional<ASTOdeDeclaration> odeDeclaration = astBodyDecorator.getOdeDefinition();
+    assertTrue(generatedScript.isPresent());
+  }
 
-    assertTrue(odeDeclaration.isPresent());
-    ODE2SympyCodeGenerator.generateSympyODEAnalyzer(glex, odeDeclaration.get(), outputFolder, "iaf_neuron");
+  @Ignore
+  @Test
+  public void executePythonScript() throws IOException {
+    final GlobalExtensionManagement glex = createGLEXConfiguration();
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
+    final Optional<ASTNESTMLCompilationUnit> root = p.parse(MODEL_FILE_PATH);
+
+    assertTrue(root.isPresent());
+    final File outputFolder = new File(OUTPUT_FOLDER);
+
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
+        TEST_MODEL_PATH, typesFactory);
+    nestmlScopeCreator.runSymbolTableCreator(root.get());
+
+    final Optional<Path> generatedScript = ODE2SympyCodeGenerator.generateSympyODEAnalyzer(
+        glex,
+        root.get(),
+        root.get().getNeurons().get(0),
+        outputFolder);
+
+    assertTrue(generatedScript.isPresent());
+    final Process res = Runtime.getRuntime().exec(
+        "python iaf_neuron_ode_neuronSolver.py",
+        new String[0],
+        new File(generatedScript.get().getParent().toString()));
+
+    printInputStream("input: ", res.getInputStream());
+    printInputStream("error: ", res.getErrorStream());
+
   }
 
   private GlobalExtensionManagement createGLEXConfiguration() {
     return new GlobalExtensionManagement();
+  }
+
+  private void printInputStream(final String prefix, final InputStream inputStream) throws IOException {
+    final BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+    String line;
+    while ((line = in.readLine()) != null) {
+      System.out.println(prefix + ": " + line);
+    }
   }
 
 }
