@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
+import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 /**
@@ -57,8 +58,7 @@ public abstract class GenerationTestBase {
 
   protected void generateHeader(final String modelPath) {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory
-        .createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(modelPath);
@@ -77,7 +77,7 @@ public abstract class GenerationTestBase {
 
   protected void generateClassImplementation(final String MODEL_FILE_PATH) {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(MODEL_FILE_PATH);
@@ -99,7 +99,7 @@ public abstract class GenerationTestBase {
 
   protected void generateCodeForModelIntegrationInNest(final String modelFile) {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(modelFile);
@@ -131,7 +131,7 @@ public abstract class GenerationTestBase {
   }
 
   public void checkCocos(String modelFilePath) {
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(modelFilePath);

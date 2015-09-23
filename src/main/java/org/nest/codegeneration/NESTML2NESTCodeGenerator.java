@@ -21,6 +21,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static de.se_rwth.commons.Names.getPathFromPackage;
+
 /**
  * Wrapps the logic how to generateSympyODEAnalyzer C++ implementation from a NESTML model?
  * @author plotnikov
@@ -41,7 +43,7 @@ public class NESTML2NESTCodeGenerator {
 
     for (ASTNeuron neuron : compilationUnit.getNeurons()) {
       setNeuronGenerationParameter(glex, typesFactory, neuron, moduleName);
-      final Path outputFile = Paths.get(Names.getPathFromPackage(moduleName), neuron.getName() + ".h");
+      final Path outputFile = Paths.get(getPathFromPackage(moduleName), neuron.getName() + ".h");
 
       // TODO: how do I find out the call was successful?
       generator.generate("org.nest.nestml.neuron.NeuronHeader", outputFile, neuron);
@@ -64,7 +66,7 @@ public class NESTML2NESTCodeGenerator {
     final ASTNeuronList neurons = compilationUnit.getNeurons();
     for (ASTNeuron neuron : neurons) {
       setNeuronGenerationParameter(glex, typesFactory, neuron, moduleName);
-      final Path classImplementationFile = Paths.get(Names.getPathFromPackage(moduleName), neuron.getName() + ".cpp");
+      final Path classImplementationFile = Paths.get(getPathFromPackage(moduleName), neuron.getName() + ".cpp");
       // TODO: how do I find out the call was successful?
       generator.generate(
           "org.nest.nestml.neuron.NeuronClass",
@@ -97,37 +99,37 @@ public class NESTML2NESTCodeGenerator {
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
-    final Path makefileFile = Paths.get(Names.getPathFromPackage(fullName), "Makefile.am");
+    final Path makefileFile = Paths.get(getPathFromPackage(fullName), "Makefile.am");
     generator.generate(
         "org.nest.nestml.module.Makefile",
         makefileFile,
         compilationUnit);
 
-    final Path bootstrappingFile = Paths.get(Names.getPathFromPackage(fullName), "bootstrap.sh");
+    final Path bootstrappingFile = Paths.get(getPathFromPackage(fullName), "bootstrap.sh");
     generator.generate(
         "org.nest.nestml.module.Bootstrap",
         bootstrappingFile,
         compilationUnit);
 
-    final Path configureFile = Paths.get(Names.getPathFromPackage(fullName), "configure.ac");
+    final Path configureFile = Paths.get(getPathFromPackage(fullName), "configure.ac");
     generator.generate(
         "org.nest.nestml.module.Configure",
         configureFile,
         compilationUnit);
 
-    final Path moduleClass = Paths.get(Names.getPathFromPackage(fullName), moduleName + "Config.cpp");
+    final Path moduleClass = Paths.get(getPathFromPackage(fullName), moduleName + "Config.cpp");
     generator.generate(
         "org.nest.nestml.module.ModuleClass",
         moduleClass,
         compilationUnit);
 
-    final Path moduleHeader = Paths.get(Names.getPathFromPackage(fullName), moduleName + "Config.h");
+    final Path moduleHeader = Paths.get(getPathFromPackage(fullName), moduleName + "Config.h");
     generator.generate(
         "org.nest.nestml.module.ModuleHeader",
         moduleHeader,
         compilationUnit);
 
-    final Path sliInitFile = Paths.get(Names.getPathFromPackage(fullName), "sli", moduleName.toLowerCase() + "-init");
+    final Path sliInitFile = Paths.get(getPathFromPackage(fullName), "sli", moduleName.toLowerCase() + "-init");
     generator.generate(
         "org.nest.nestml.module.SLI_Init",
         sliInitFile,

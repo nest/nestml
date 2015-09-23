@@ -1,4 +1,4 @@
-package codegeneration.iaf_psc_alpha_module:
+package codegeneration.iaf_cond_alpha_module:
 
   neuron iaf_cond_alpha_neuron:
 
