@@ -19,9 +19,8 @@ import java.util.List;
  * @since 0.0.1
  */
 public class GenerateNESTModelsTest extends GenerationTestBase {
-  private static final String INTEGRATION_MODEL_PATH = "src/test/resources/integration";
-
-  private static final String OUTPUT_FOLDER = "target";
+  private static final String INTEGRATION_MODEL_PATH =
+      "src/test/resources/integration";
 
   private final List<String> nestmlModels = Lists.newArrayList(
       "src/test/resources/integration/nest.nestml");
