@@ -1,39 +1,32 @@
 package org.nest.spl.symboltable;
 
-import static de.se_rwth.commons.logging.Log.error;
-import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.utils.LogHelper.getErrorsByPrefix;
-
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.DisableFailQuickMixin;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.SPLCoCoChecker;
 import org.nest.spl._parser.SPLFileMCParser;
 import org.nest.spl._parser.SPLParserFactory;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.utils.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
+import static org.nest.utils.LogHelper.getErrorsByPrefix;
+
 /**
  * Created by user on 16.06.15.
  */
-public class SPLCoCosManagerTest {
+public class SPLCoCosManagerTest extends DisableFailQuickMixin {
   public static final String TEST_MODEL_PATH = "src/test/resources/";
 
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
   private final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH, typesFactory);
-  @BeforeClass
-  public static void initLog() {
-    Log.enableFailQuick(false);
-  }
 
   @Before
   public void setup() {
@@ -44,7 +37,7 @@ public class SPLCoCosManagerTest {
   public void testSPLGoodModels() throws IOException {
     final File modelsFolder = new File(TEST_MODEL_PATH + "/org/nest/spl/parsing");
 
-
+    Assert.assertNotNull(modelsFolder);
     for (File file : modelsFolder.listFiles()) {
       System.out.println("SPLCoCosManagerTest.testGoodModels: " + file.getName());
       final ASTSPLFile root = getAstRoot(file.getPath());
@@ -55,8 +48,7 @@ public class SPLCoCosManagerTest {
       checker.checkAll(root);
       Collection<Finding> splErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
       final StringBuilder errors = new StringBuilder();
-
-      splErrorFindings.forEach(e -> errors.append(e + "\n"));
+      splErrorFindings.forEach(e -> errors.append(e).append("\n"));
 
       final String errorDescription = "Model contain unexpected errors: " + splErrorFindings.size()
           + " The model: " + file.getPath() + " The errors are: " + errors;

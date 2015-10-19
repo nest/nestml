@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration.ode;
+package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
 import de.monticore.generating.GeneratorEngine;
@@ -29,15 +29,20 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 /**
- * Wrapps the logic how to generateSympyODEAnalyzer C++ implementation from a NESTML model?
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since 0.0.1
+ * Wrapps the logic how to generate and evaluate SympyODEAnalyzer C++ implementation from a NESTML
+ * model.
+ * @author plotnikov
  */
-public class ODE2SympyCodeGenerator {
+public class ODE2SymPyCodeGenerator {
 
+  /**
+   * Runs code generation for the sympy script, if the particular neuron contains an ODE definition.
+   * @param astNestmlCompilationUnit Model root
+   * @param neuron Neuron from the nestml model (must be part of the root)
+   * @param outputDirectory Base directory for the output
+   * @return Path to the generated script of @code{empty()} if there is no ODE definition.
+   */
   public static Optional<Path> generateSympyODEAnalyzer(
-      final GlobalExtensionManagement glex,
       final ASTNESTMLCompilationUnit astNestmlCompilationUnit,
       final ASTNeuron neuron,
       final File outputDirectory) {
@@ -47,12 +52,12 @@ public class ODE2SympyCodeGenerator {
     final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getOdeDefinition();
 
     if (odeDefinition.isPresent()) {
-      final Path generatedScriptFile =
-              generateSolverScript(glex,
-              astNestmlCompilationUnit,
-              neuron,
-              odeDefinition.get(),
-              setup);
+      final Path generatedScriptFile = generateSolverScript(
+          createGLEXConfiguration(),
+          astNestmlCompilationUnit,
+          neuron,
+          odeDefinition.get(),
+          setup);
       return of(generatedScriptFile);
     }
 
@@ -86,7 +91,7 @@ public class ODE2SympyCodeGenerator {
 
     // TODO: how do I find out the call was successful?
     generator.generate(
-        "org.nest.codegeneration.ode.SympySolver",
+        "org.nest.codegeneration.sympy.SympySolver",
         solverFile,
         astOdeDeclaration);
     
@@ -103,6 +108,10 @@ public class ODE2SympyCodeGenerator {
         .collect(Collectors.toList()));
 
     return result;
+  }
+
+  private static GlobalExtensionManagement createGLEXConfiguration() {
+    return new GlobalExtensionManagement();
   }
 
 }

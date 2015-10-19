@@ -16,7 +16,6 @@ import java.util.List;
  * Generates entire NEST implementation for several NESTML models.
  *
  * @author plotnikov
- * @since 0.0.1
  */
 public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   private static final String TEST_MODEL_PATH = "src/test/resources/";

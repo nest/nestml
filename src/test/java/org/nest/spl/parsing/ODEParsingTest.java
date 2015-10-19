@@ -1,12 +1,9 @@
-package org.nest.codegeneration.ode.parsing;
+package org.nest.spl.parsing;
 
 import de.monticore.antlr4.MCConcreteParser;
-import static de.se_rwth.commons.logging.Log.error;
-
-import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.DisableFailQuickMixin;
 import org.nest.nestml._parser.EqMCParser;
 import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._parser.ODEMCParser;
@@ -21,36 +18,14 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
 
-public class ODEParsingTest {
-
-  @BeforeClass
-  public static void disableFailQuick() {
-    Log.enableFailQuick(false);
-  }
-
-  public Optional<ASTODE> parseOde(String input) throws RecognitionException, IOException {
-    ODEMCParser parser = NESTMLParserFactory.createODEMCParser();
-
-    parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    Optional<ASTODE> res = parser.parse(new StringReader(input));
-    return res;
-  }
-
-  public Optional<ASTEq> parseEq(String input) throws RecognitionException, IOException {
-    EqMCParser parser = NESTMLParserFactory.createEqMCParser();
-
-    parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    Optional<ASTEq> res = parser.parse(new StringReader(input));
-    return res;
-  }
-
-
-  public Optional<ASTOdeDeclaration> parseOdeDeclaration(String input) throws RecognitionException, IOException {
-    OdeDeclarationMCParser parser = NESTMLParserFactory.createOdeDeclarationMCParser();
-
-    parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    return parser.parse(new StringReader(input));
-  }
+/**
+ * TODO
+ *
+ * @author (last commit) $$Author$$
+ * @version $$Revision$$, $$Date$$
+ * @since 0.0.1
+ */
+public class ODEParsingTest extends DisableFailQuickMixin {
 
   @Test
   public void testOdeDefinition() throws IOException {
@@ -77,5 +52,26 @@ public class ODEParsingTest {
 
   }
 
+  public Optional<ASTODE> parseOde(String input) throws RecognitionException, IOException {
+    ODEMCParser parser = NESTMLParserFactory.createODEMCParser();
+
+    parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
+    return parser.parse(new StringReader(input));
+  }
+
+  public Optional<ASTEq> parseEq(String input) throws RecognitionException, IOException {
+    EqMCParser parser = NESTMLParserFactory.createEqMCParser();
+
+    parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
+    return parser.parse(new StringReader(input));
+  }
+
+
+  public Optional<ASTOdeDeclaration> parseOdeDeclaration(String input) throws RecognitionException, IOException {
+    OdeDeclarationMCParser parser = NESTMLParserFactory.createOdeDeclarationMCParser();
+
+    parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
+    return parser.parse(new StringReader(input));
+  }
 
 }

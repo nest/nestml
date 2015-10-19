@@ -5,6 +5,7 @@ import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.DisableFailQuickMixin;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._parser.NESTMLParserFactory;
@@ -21,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Created by user on 29.05.15.
  */
-public class NESTMLPrettyPrinterTest {
+public class NESTMLPrettyPrinterTest extends DisableFailQuickMixin {
   private final NESTMLCompilationUnitMCParser nestmlParser = NESTMLParserFactory
       .createNESTMLCompilationUnitMCParser();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
@@ -30,11 +31,6 @@ public class NESTMLPrettyPrinterTest {
   private Optional<ASTNESTMLCompilationUnit> parseStringAsSPLFile(final String fileAsString) throws IOException {
 
     return nestmlParser.parse(new StringReader(fileAsString));
-  }
-
-  @BeforeClass
-  public static void BeforeTestsuite() {
-    Log.enableFailQuick(false);
   }
 
   @Test

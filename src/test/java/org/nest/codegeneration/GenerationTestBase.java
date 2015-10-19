@@ -5,23 +5,19 @@
  */
 package org.nest.codegeneration;
 
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
+import org.nest.DisableFailQuickMixin;
+import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.utils.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +36,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public abstract class GenerationTestBase {
+public abstract class GenerationTestBase extends DisableFailQuickMixin{
 
   private static final String OUTPUT_FOLDER = "target";
 
@@ -50,9 +46,9 @@ public abstract class GenerationTestBase {
       = new NESTMLScopeCreator(getModelPath(), typesFactory); // must be called in order to build the symbol table
 
   protected abstract String getModelPath();
+
   @Before
   public void setup() {
-    Log.enableFailQuick(false);
     Log.getFindings().clear();
   }
 

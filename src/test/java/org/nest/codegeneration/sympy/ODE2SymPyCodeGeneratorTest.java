@@ -3,35 +3,31 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration.ode;
+package org.nest.codegeneration.sympy;
 
-import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
-import static org.nest.nestml._parser.NESTMLParserFactory.*;
+import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
- * TODO
+ * Test the overall script generation and evaluation of the generated scripts
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
-public class ODE2SympyCodeGeneratorTest {
+public class ODE2SymPyCodeGeneratorTest {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 
   public static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
@@ -42,7 +38,6 @@ public class ODE2SympyCodeGeneratorTest {
 
   @Test
   public void generateSympyScript() throws IOException {
-    final GlobalExtensionManagement glex = createGLEXConfiguration();
     final NESTMLCompilationUnitMCParser p =
         createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(MODEL_FILE_PATH);
@@ -54,8 +49,7 @@ public class ODE2SympyCodeGeneratorTest {
         TEST_MODEL_PATH, typesFactory);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
-    final Optional<Path> generatedScript = ODE2SympyCodeGenerator.generateSympyODEAnalyzer(
-        glex,
+    final Optional<Path> generatedScript = ODE2SymPyCodeGenerator.generateSympyODEAnalyzer(
         root.get(),
         root.get().getNeurons().get(0),
         outputFolder);
@@ -65,8 +59,7 @@ public class ODE2SympyCodeGeneratorTest {
 
   @Ignore
   @Test
-  public void executePythonScript() throws IOException {
-    final GlobalExtensionManagement glex = createGLEXConfiguration();
+  public void generateAndExecuteSympyScript() throws IOException {
     final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(MODEL_FILE_PATH);
 
@@ -77,33 +70,31 @@ public class ODE2SympyCodeGeneratorTest {
         TEST_MODEL_PATH, typesFactory);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
-    final Optional<Path> generatedScript = ODE2SympyCodeGenerator.generateSympyODEAnalyzer(
-        glex,
+    final Optional<Path> generatedScript = ODE2SymPyCodeGenerator.generateSympyODEAnalyzer(
         root.get(),
         root.get().getNeurons().get(0),
         outputFolder);
 
     assertTrue(generatedScript.isPresent());
+    Log.info("Begins long running script evaluation...", "TODO Logger");
     final Process res = Runtime.getRuntime().exec(
         "python iaf_neuron_ode_neuronSolver.py",
         new String[0],
         new File(generatedScript.get().getParent().toString()));
+    Log.info("Successfully evaluated the symby script", "TODO Logger");
 
-    printInputStream("input: ", res.getInputStream());
-    printInputStream("error: ", res.getErrorStream());
-
+    // TODO should be extracted into error handling
+    printInputStream(res.getInputStream())
+        .forEach(outputLine -> System.out.printf("Output: " + outputLine));
+    printInputStream(res.getErrorStream())
+        .forEach(errorLine -> System.out.println("Error: " + errorLine));
+    // Read generated matrix entries
   }
 
-  private void printInputStream(final String prefix, final InputStream inputStream) throws IOException {
+  private List<String> printInputStream(final InputStream inputStream) throws IOException {
     final BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-    String line;
-    while ((line = in.readLine()) != null) {
-      System.out.println(prefix + ": " + line);
-    }
+    return in.lines().collect(Collectors.toList());
   }
 
-  private GlobalExtensionManagement createGLEXConfiguration() {
-    return new GlobalExtensionManagement();
-  }
 
 }
