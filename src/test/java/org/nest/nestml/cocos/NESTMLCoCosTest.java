@@ -12,6 +12,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.DisableFailQuickMixin;
 import org.nest.nestml.cocos.spl.BufferNotAssignable;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
@@ -38,7 +39,7 @@ import static org.nest.utils.LogHelper.countErrorsByPrefix;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class NESTMLCoCosTest {
+public class NESTMLCoCosTest extends DisableFailQuickMixin {
 
   public static final String TEST_MODEL_PATH = "src/test/resources/";
 
@@ -50,21 +51,10 @@ public class NESTMLCoCosTest {
 
   private NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
 
-  @BeforeClass
-  public static void initLog() {
-    Log.enableFailQuick(false);
-  }
-
   @Before
   public void setup() {
     getFindings().clear();
     nestmlCoCoChecker = new NESTMLCoCoChecker();
-
-  }
-
-  @After
-  public void printErrorMessage() {
-    getFindings().forEach(e -> System.out.println("Error found: " + e));
   }
 
   @Test

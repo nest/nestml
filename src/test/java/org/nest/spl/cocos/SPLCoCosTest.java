@@ -5,10 +5,11 @@
  */
 package org.nest.spl.cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
-
-import de.se_rwth.commons.logging.Log;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.nest.DisableFailQuickMixin;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.*;
 import org.nest.spl._parser.SPLFileMCParser;
@@ -31,7 +32,7 @@ import static org.nest.utils.LogHelper.countErrorsByPrefix;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class SPLCoCosTest {
+public class SPLCoCosTest extends DisableFailQuickMixin {
 
   public static final String TEST_MODEL_PATH = "src/test/resources/";
 
@@ -51,11 +52,6 @@ public class SPLCoCosTest {
     Optional<ASTSPLFile> ast = p.parse(modelPath);
     assertTrue(ast.isPresent());
     return ast;
-  }
-
-  @BeforeClass
-  public static void initLog() {
-    Log.enableFailQuick(false);
   }
 
   @Before

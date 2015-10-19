@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.DisableFailQuickMixin;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
@@ -37,16 +38,12 @@ import java.util.Optional;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class NESTMLCoCosManagerTest {
+public class NESTMLCoCosManagerTest extends DisableFailQuickMixin {
 
   public static final String TEST_MODEL_PATH = "src/test/resources/";
 
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
-  @BeforeClass
-  public static void initLog() {
-    Log.enableFailQuick(false);
-  }
 
   /**
    * Parses the model and returns ast.

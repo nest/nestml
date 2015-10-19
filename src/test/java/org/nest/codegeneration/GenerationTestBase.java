@@ -12,6 +12,7 @@ import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
+import org.nest.DisableFailQuickMixin;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
@@ -40,7 +41,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public abstract class GenerationTestBase {
+public abstract class GenerationTestBase extends DisableFailQuickMixin{
 
   private static final String OUTPUT_FOLDER = "target";
 
@@ -50,9 +51,9 @@ public abstract class GenerationTestBase {
       = new NESTMLScopeCreator(getModelPath(), typesFactory); // must be called in order to build the symbol table
 
   protected abstract String getModelPath();
+
   @Before
   public void setup() {
-    Log.enableFailQuick(false);
     Log.getFindings().clear();
   }
 

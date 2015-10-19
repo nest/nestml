@@ -10,6 +10,7 @@ import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.DisableFailQuickMixin;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -34,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class ModelConverterTest {
+public class ModelConverterTest extends DisableFailQuickMixin {
   private final static String GENERATED_MATRIX_PATH = "src/test/resources/ode/solution.matrix.tmp";
 
   private static final String TEST_MODEL_PATH = "src/test/resources/";
@@ -42,12 +43,6 @@ public class ModelConverterTest {
   private static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-
-  @BeforeClass
-  public static void initLog() {
-    Log.enableFailQuick(false);
-
-  }
 
   @Test
   public void testResolvingProblem() throws Exception {

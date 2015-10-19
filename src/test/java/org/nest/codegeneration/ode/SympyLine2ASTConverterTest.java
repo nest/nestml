@@ -1,21 +1,13 @@
 package org.nest.codegeneration.ode;
 
-import static de.se_rwth.commons.logging.Log.error;
-
-import de.se_rwth.commons.logging.Log;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.DisableFailQuickMixin;
 import org.nest.spl._ast.ASTDeclaration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class SympyLine2ASTConverterTest {
-
-  @BeforeClass
-  public static void disableFailQuick() {
-    Log.enableFailQuick(false);
-  }
+public class SympyLine2ASTConverterTest extends DisableFailQuickMixin {
 
   @Test
   public void testConvertLine2AST() {
