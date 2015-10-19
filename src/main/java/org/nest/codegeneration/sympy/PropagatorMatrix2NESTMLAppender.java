@@ -1,15 +1,18 @@
-package org.nest.codegeneration.ode;
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
+package org.nest.codegeneration.sympy;
 
 import org.apache.commons.io.FileUtils;
-import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,17 +20,15 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by user on 12.06.15.
+ * Test the overall script generation and evaluation of the generated scripts
+ *
+ * @author plotnikov
  */
-public class ModelConverter {
-
-  public static final String TEST_MODEL_PATH = "src/test/resources/";
-
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
+public class PropagatorMatrix2NESTMLAppender {
 
   final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
 
-  final Sympy2NESTMLConverter sympy2NESTMLConverter = new Sympy2NESTMLConverter();
+  final SymPyOutput2NESTMLConverter symPyOutput2NESTMLConverter = new SymPyOutput2NESTMLConverter();
 
   public void addPropagatorMatrixAndPrint(
       final String pathToModel,
@@ -35,13 +36,11 @@ public class ModelConverter {
       final String outputPath) {
     final Optional<ASTNESTMLCompilationUnit> root = parseModel(pathToModel);
 
-    final List<ASTAliasDecl> propagatorMatrix = sympy2NESTMLConverter.convertMatrixFile2NESTML(pathToMatrix);
+    final List<ASTAliasDecl> propagatorMatrix = symPyOutput2NESTMLConverter
+        .createDeclarationASTs(pathToMatrix);
 
     addVariablesToInternalBlock(root, propagatorMatrix);
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
-        TEST_MODEL_PATH, typesFactory);
-    nestmlScopeCreator.runSymbolTableCreator(root.get());
     printModelToFile(root.get(), outputPath);
   }
 
@@ -62,7 +61,8 @@ public class ModelConverter {
 
   private void addVariablesToInternalBlock(Optional<ASTNESTMLCompilationUnit> root,
       List<ASTAliasDecl> propagatorMatrix) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.get().getNeurons().get(0).getBody());
+    final ASTBodyDecorator astBodyDecorator
+        = new ASTBodyDecorator(root.get().getNeurons().get(0).getBody());
     propagatorMatrix.forEach(astBodyDecorator::addToInternalBlock);
   }
 

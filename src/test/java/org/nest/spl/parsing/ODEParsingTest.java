@@ -1,4 +1,4 @@
-package org.nest.codegeneration.ode;
+package org.nest.spl.parsing;
 
 import de.monticore.antlr4.MCConcreteParser;
 import org.antlr.v4.runtime.RecognitionException;
