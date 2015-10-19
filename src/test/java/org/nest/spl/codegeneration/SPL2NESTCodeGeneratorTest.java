@@ -6,7 +6,9 @@
 package org.nest.spl.codegeneration;
 
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
+import de.se_rwth.commons.Names;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.codegeneration.NESTMLDeclarations;
 import org.nest.codegeneration.SPL2NESTCodeGenerator;
@@ -25,8 +27,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import static de.se_rwth.commons.Names.getPathFromQualifiedName;
+import static de.se_rwth.commons.Names.getSimpleName;
 import static org.junit.Assert.assertTrue;
 
+@Ignore
 public class SPL2NESTCodeGeneratorTest {
 
   private static final String TEST_MODEL_PATH = "src/test/resources/";
@@ -47,9 +52,14 @@ public class SPL2NESTCodeGeneratorTest {
     final String packageName = "org.nest.spl.codegeneration";
     final String modelName = "decl";
     final String fullQualifiedModelname = packageName + "." + modelName;
-    final Path outputFile = Paths.get(fullQualifiedModelname.replaceAll("\\.", File.separator));
+    final Path outputFile = Paths.get(fullQualifiedModelname);
 
-    Optional<ASTSPLFile> root = p.parse(TEST_MODEL_PATH + File.separator + fullQualifiedModelname.replaceAll("\\.", File.separator) + ".simple");
+    final String pathToModel = Paths.get(
+        TEST_MODEL_PATH,
+        getPathFromQualifiedName(fullQualifiedModelname),
+        getSimpleName(fullQualifiedModelname) + ".simple").toString();
+
+    final Optional<ASTSPLFile> root = p.parse(pathToModel);
     Assert.assertTrue(root.isPresent());
 
     final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH, typesFactory);

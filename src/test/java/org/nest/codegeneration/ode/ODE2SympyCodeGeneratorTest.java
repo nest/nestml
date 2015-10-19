@@ -94,16 +94,16 @@ public class ODE2SympyCodeGeneratorTest {
 
   }
 
-  private GlobalExtensionManagement createGLEXConfiguration() {
-    return new GlobalExtensionManagement();
-  }
-
   private void printInputStream(final String prefix, final InputStream inputStream) throws IOException {
     final BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
     String line;
     while ((line = in.readLine()) != null) {
       System.out.println(prefix + ": " + line);
     }
+  }
+
+  private GlobalExtensionManagement createGLEXConfiguration() {
+    return new GlobalExtensionManagement();
   }
 
 }
