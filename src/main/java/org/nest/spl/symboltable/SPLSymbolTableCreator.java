@@ -53,7 +53,11 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
     final String packageName = Names.getQualifier(fullName);
     final String modelName = Names.getSimpleName(fullName);
 
-    final MutableScope artifactScope = new ArtifactScope(Optional.empty(), packageName + "." + modelName, new ArrayList<>());
+    final MutableScope artifactScope = new ArtifactScope(
+        Optional.empty(),
+        packageName + "." + modelName,
+        new ArrayList<>());
+
     putOnStack(artifactScope);
     ast.setEnclosingScope(artifactScope);
 
@@ -90,7 +94,7 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
       variable.setType(getTypesFactory().getType(typeName)); // if exists better choice?
 
       // handle ST infrastructure
-      putInScopeAndLinkWithAst(variable, astDeclaration);
+      addToScopeAndLinkWithNode(variable, astDeclaration);
 
       Log.info("Creates a variable: " + variableName + " with the type: " + typeName, LOGGER_NAME);
     }

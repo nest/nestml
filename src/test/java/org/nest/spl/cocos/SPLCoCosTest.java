@@ -86,26 +86,6 @@ public class SPLCoCosTest extends DisableFailQuickMixin {
   }
 
   @Test
-  public void testVarNotDefinedInTest() throws IOException {
-    final Optional<ASTSPLFile> ast = getAstRoot(TEST_MODELS_FOLDER + "varNotDefinedInTest.simple");
-    Assert.assertTrue(ast.isPresent());
-    splScopeCreator.runSymbolTableCreator(ast.get());
-
-    final VariableDoesNotExist variableExists = new VariableDoesNotExist();
-    splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-
-    splCoCoChecker.checkAll(ast.get());
-
-    final Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
-        getFindings());
-    assertEquals(Integer.valueOf(2), errorsFound);
-  }
-
-  @Test
   public void testVarDefinedMultipleTimes() throws IOException {
     final Optional<ASTSPLFile> ast = getAstRoot(TEST_MODELS_FOLDER + "varDefinedMultipleTimes.simple");
     Assert.assertTrue(ast.isPresent());
@@ -220,7 +200,7 @@ public class SPLCoCosTest extends DisableFailQuickMixin {
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
-  // TODO
+  // TODO test must check the right number of signs
   //@Test
   public void testCheckMultipleSignsBeforeFactor() throws IOException {
     final Optional<ASTSPLFile> ast = getAstRoot(TEST_MODELS_FOLDER + "multipleSigns.simple");

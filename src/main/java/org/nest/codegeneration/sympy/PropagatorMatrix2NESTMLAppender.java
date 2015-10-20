@@ -26,22 +26,19 @@ import java.util.Optional;
  */
 public class PropagatorMatrix2NESTMLAppender {
 
-  final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
-
   final SymPyOutput2NESTMLConverter symPyOutput2NESTMLConverter = new SymPyOutput2NESTMLConverter();
 
   public void addPropagatorMatrixAndPrint(
-      final String pathToModel,
+      final ASTNESTMLCompilationUnit root,
       final String pathToMatrix,
       final String outputPath) {
-    final Optional<ASTNESTMLCompilationUnit> root = parseModel(pathToModel);
 
     final List<ASTAliasDecl> propagatorMatrix = symPyOutput2NESTMLConverter
         .createDeclarationASTs(pathToMatrix);
 
     addVariablesToInternalBlock(root, propagatorMatrix);
 
-    printModelToFile(root.get(), outputPath);
+    printModelToFile(root, outputPath);
   }
 
   private void printModelToFile(
@@ -59,21 +56,12 @@ public class PropagatorMatrix2NESTMLAppender {
     }
   }
 
-  private void addVariablesToInternalBlock(Optional<ASTNESTMLCompilationUnit> root,
-      List<ASTAliasDecl> propagatorMatrix) {
+  private void addVariablesToInternalBlock(
+      final ASTNESTMLCompilationUnit root,
+      final List<ASTAliasDecl> propagatorMatrix) {
     final ASTBodyDecorator astBodyDecorator
-        = new ASTBodyDecorator(root.get().getNeurons().get(0).getBody());
+        = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
     propagatorMatrix.forEach(astBodyDecorator::addToInternalBlock);
-  }
-
-  private Optional<ASTNESTMLCompilationUnit> parseModel(String pathToModel)  {
-    try {
-      return p.parse(pathToModel);
-    }
-    catch (final IOException e) {
-      throw new RuntimeException("Cannot parse the NESTML model: " + pathToModel, e);
-    }
-
   }
 
 }
