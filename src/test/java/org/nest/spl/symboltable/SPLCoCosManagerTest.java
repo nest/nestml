@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.spl.symboltable;
 
 import de.se_rwth.commons.logging.Finding;
@@ -20,7 +25,9 @@ import java.util.Optional;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 /**
- * Created by user on 16.06.15.
+ * Runs all SPL cocos from the manager.
+ *
+ * @author plotnikov
  */
 public class SPLCoCosManagerTest extends DisableFailQuickMixin {
   public static final String TEST_MODEL_PATH = "src/test/resources/";

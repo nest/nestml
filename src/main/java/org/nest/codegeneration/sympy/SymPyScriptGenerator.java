@@ -10,6 +10,7 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -33,8 +34,8 @@ import static java.util.Optional.of;
  * model.
  * @author plotnikov
  */
-public class ODE2SymPyCodeGenerator {
-
+public class SymPyScriptGenerator {
+  private final static String LOG_NAME = SymPyScriptGenerator.class.getName();
   /**
    * Runs code generation for the sympy script, if the particular neuron contains an ODE definition.
    * @param astNestmlCompilationUnit Model root
@@ -58,8 +59,20 @@ public class ODE2SymPyCodeGenerator {
           neuron,
           odeDefinition.get(),
           setup);
+
+      final String msg = String.format(
+          "Successfully generated solver script for neuron %s under %s",
+          neuron.getName(),
+          generatedScriptFile.toString());
+      Log.info(msg, LOG_NAME);
+
       return of(generatedScriptFile);
     }
+
+    final String msg = String.format(
+        "The neuron %s doesn't contain an ODE. The script generation is skipped.",
+        neuron.getName());
+    Log.warn(msg);
 
     return empty();
   }

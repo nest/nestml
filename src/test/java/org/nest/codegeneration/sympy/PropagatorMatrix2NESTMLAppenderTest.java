@@ -5,21 +5,20 @@
  */
 package org.nest.codegeneration.sympy;
 
-import static de.se_rwth.commons.logging.Log.error;
-
 import org.junit.Test;
 import org.nest.DisableFailQuickMixin;
-import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,9 +29,7 @@ import static org.junit.Assert.assertTrue;
  * Tests how the Python output is transformed into the NESTML AST that can be appended to the
  * NESTML model.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plonikov
  */
 public class PropagatorMatrix2NESTMLAppenderTest extends DisableFailQuickMixin {
   private final static String GENERATED_MATRIX_PATH = "src/test/resources/sympy/solution.matrix.tmp";
@@ -84,7 +81,7 @@ public class PropagatorMatrix2NESTMLAppenderTest extends DisableFailQuickMixin {
     final PropagatorMatrix2NESTMLAppender propagatorMatrix2NESTMLAppender = new PropagatorMatrix2NESTMLAppender();
     // false abstraction level
     propagatorMatrix2NESTMLAppender.addPropagatorMatrixAndPrint(
-        MODEL_FILE_PATH,
+        parseModel(MODEL_FILE_PATH),
         GENERATED_MATRIX_PATH,
         "target/tmp.nestml");
   }
@@ -93,6 +90,18 @@ public class PropagatorMatrix2NESTMLAppenderTest extends DisableFailQuickMixin {
     final NESTMLPrettyPrinter nestmlPrettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
     root.get().accept(nestmlPrettyPrinter);
     return nestmlPrettyPrinter.getResult();
+  }
+
+  private ASTNESTMLCompilationUnit parseModel(String pathToModel)  {
+    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+
+    try {
+      return p.parse(pathToModel).get();
+    }
+    catch (final IOException e) {
+      throw new RuntimeException("Cannot parse the NESTML model: " + pathToModel, e);
+    }
+
   }
 
 }
