@@ -23,7 +23,9 @@ import static org.junit.Assert.assertTrue;
 /**
  * Test resolving of variables and functions from a SPL program.
  *
- * @author plotnikov
+ * @author (last commit) $$Author$$
+ * @version $$Revision$$, $$Date$$
+ * @since 0.0.1
  */
 public class SPLSymbolTableTest {
   public static final String TEST_MODEL_PATH = "src/test/resources/";

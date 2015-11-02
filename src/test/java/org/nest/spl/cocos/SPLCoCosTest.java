@@ -5,11 +5,10 @@
  */
 package org.nest.spl.cocos;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.nest.DisableFailQuickMixin;
+import static de.se_rwth.commons.logging.Log.error;
+
+import de.se_rwth.commons.logging.Log;
+import org.junit.*;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.*;
 import org.nest.spl._parser.SPLFileMCParser;
@@ -32,7 +31,7 @@ import static org.nest.utils.LogHelper.countErrorsByPrefix;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class SPLCoCosTest extends DisableFailQuickMixin {
+public class SPLCoCosTest {
 
   public static final String TEST_MODEL_PATH = "src/test/resources/";
 
@@ -52,6 +51,11 @@ public class SPLCoCosTest extends DisableFailQuickMixin {
     Optional<ASTSPLFile> ast = p.parse(modelPath);
     assertTrue(ast.isPresent());
     return ast;
+  }
+
+  @BeforeClass
+  public static void initLog() {
+    Log.enableFailQuick(false);
   }
 
   @Before
@@ -81,6 +85,26 @@ public class SPLCoCosTest extends DisableFailQuickMixin {
     splCoCoChecker.checkAll(ast.get());
 
     Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
+        getFindings());
+    assertEquals(Integer.valueOf(2), errorsFound);
+  }
+
+  @Test
+  public void testVarNotDefinedInTest() throws IOException {
+    final Optional<ASTSPLFile> ast = getAstRoot(TEST_MODELS_FOLDER + "varNotDefinedInTest.simple");
+    Assert.assertTrue(ast.isPresent());
+    splScopeCreator.runSymbolTableCreator(ast.get());
+
+    final VariableDoesNotExist variableExists = new VariableDoesNotExist();
+    splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
+    splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
+    splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
+    splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
+    splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
+
+    splCoCoChecker.checkAll(ast.get());
+
+    final Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
         getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
   }
@@ -200,7 +224,7 @@ public class SPLCoCosTest extends DisableFailQuickMixin {
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
-  // TODO test must check the right number of signs
+  // TODO
   //@Test
   public void testCheckMultipleSignsBeforeFactor() throws IOException {
     final Optional<ASTSPLFile> ast = getAstRoot(TEST_MODELS_FOLDER + "multipleSigns.simple");

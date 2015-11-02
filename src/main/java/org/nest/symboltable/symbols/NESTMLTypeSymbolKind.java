@@ -14,7 +14,7 @@ import de.monticore.symboltable.SymbolKind;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class NESTMLTypeSymbolKind implements SymbolKind {
+public class NESTMLTypeSymbolKind extends SymbolKind {
 
   protected NESTMLTypeSymbolKind() {
   }

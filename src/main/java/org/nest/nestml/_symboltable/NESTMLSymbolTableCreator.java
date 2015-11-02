@@ -7,11 +7,12 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
+import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
+import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NESTMLNeuronSymbolReference;
 import org.nest.symboltable.symbols.references.NESTMLTypeSymbolReference;
@@ -111,7 +112,8 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     info("Processes the neuron:  " + neuronAst.getName(), LOGGER_NAME);
 
     final NESTMLNeuronSymbol neuronSymbol = new NESTMLNeuronSymbol(neuronAst.getName(), NEURON);
-    addToScopeAndLinkWithNode(neuronSymbol, neuronAst);
+
+    putInScopeAndLinkWithAst(neuronSymbol, neuronAst);
 
     info("Adds a neuron symbol: " + neuronSymbol.getFullName(), LOGGER_NAME);
   }
@@ -125,7 +127,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     info("Processes the component:  " + componentAst.getName(), LOGGER_NAME);
     final NESTMLNeuronSymbol componentSymbol = new NESTMLNeuronSymbol(componentAst.getName(), COMPONENT);
 
-    addToScopeAndLinkWithNode(componentSymbol, componentAst);
+    putInScopeAndLinkWithAst(componentSymbol, componentAst);
 
     info("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
   }
@@ -164,7 +166,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         = new NESTMLNeuronSymbolReference(referencedTypeName, NEURON, this.currentScope().get());
     referencedType.setAstNode(useAst);
     final NESTMLUsageSymbol usageSymbol = new NESTMLUsageSymbol(aliasFqn, referencedType);
-    addToScope(usageSymbol);
+    putInScope(usageSymbol);
 
     info("Handles an use statement: use " + referencedTypeName + " as " + aliasFqn, LOGGER_NAME);
   }
@@ -247,7 +249,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
       var.setArraySizeParameter(inputLineAst.getSizeParameter().get());
     }
 
-    addToScopeAndLinkWithNode(var, inputLineAst);
+    putInScopeAndLinkWithAst(var, inputLineAst);
     info("Creates new symbol for the input buffer: " + var, LOGGER_NAME);
   }
 
@@ -266,7 +268,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     methodSymbol.setMinDelay(false);
     methodSymbol.setTimeStep(false);
 
-    addToScopeAndLinkWithNode(methodSymbol, funcAst);
+    putInScopeAndLinkWithAst(methodSymbol, funcAst);
 
     // Parameters
     if (funcAst.getParameters().isPresent()) {
@@ -286,7 +288,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         var.setHidden(false);
         var.setDeclaringType(null);
         var.setBlockType(NESTMLVariableSymbol.BlockType.LOCAL);
-        addToScopeAndLinkWithNode(var, p);
+        putInScopeAndLinkWithAst(var, p);
 
       }
 
@@ -323,7 +325,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     methodEntry.setMinDelay(dynamicsAst.getMinDelay().isPresent());
     methodEntry.setTimeStep(dynamicsAst.getTimeStep().isPresent());
 
-    addToScopeAndLinkWithNode(methodEntry, dynamicsAst);
+    putInScopeAndLinkWithAst(methodEntry, dynamicsAst);
 
     // Parameters
     if (dynamicsAst.getParameters().isPresent()) {
@@ -343,7 +345,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         var.setHidden(false);
         var.setDeclaringType(null); // TODO set to optional
         var.setBlockType(NESTMLVariableSymbol.BlockType.LOCAL);
-        addToScopeAndLinkWithNode(var, p);
+        putInScopeAndLinkWithAst(var, p);
       }
 
     }
@@ -475,7 +477,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         }
 
         var.setBlockType(blockType);
-        addToScopeAndLinkWithNode(var, astDeclaration);
+        putInScopeAndLinkWithAst(var, astDeclaration);
 
         info("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
       }
