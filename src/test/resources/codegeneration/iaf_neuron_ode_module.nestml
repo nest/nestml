@@ -3,7 +3,7 @@ package codegeneration.iaf_neuron_ode_module:
     neuron iaf_neuron_ode_neuron:
 
         state:
-            - y0, y1, y2, V mV [y1 > 0; y2 > 0] # TODO - sollen nicht getrackt werden
+            - V mV
             - r  integer
             # Membrane potential.
             alias V_m mV = V + E_L
@@ -11,12 +11,11 @@ package codegeneration.iaf_neuron_ode_module:
 
         parameter:
             # Capacity of the membrane
-
-            C_m       pF = 250pF [C_m  > 0]
+            C_m       pF = 250 pF
             # Membrane time constant.
-            Tau     ms = 10 [Tau > 0]
+            Tau     ms = 10
             # Time constant of synaptic current.
-            tau_in ms = 2
+            tau_syn ms = 2
             # Refractory period.
             t_ref    ms = 2 s
             # Resting potential.
@@ -37,9 +36,8 @@ package codegeneration.iaf_neuron_ode_module:
 
         internal:
             h   ms   = resolution()
-            P30 real = 1 / C_m * (1 - P22) * tau_in
 
-            PSCInitialValue  mV = 1 * E / tau_in
+            PSCInitialValue  mV = 1 * E / tau_syn
             RefractoryCounts integer = steps(t_ref)
         end
 
@@ -54,27 +52,27 @@ package codegeneration.iaf_neuron_ode_module:
 
             if r == 0: # not refractory
                 ODE:
-                    I_shape === w * (E/tau_in) * t * exp(-1/tau_in*t)
-                    d/dt V === -1/Tau * V + 1/C_m*I_shape
+                    G === w * (E/tau_syn) * t * exp(-1/tau_syn*t)
+                    d/dt V === -1/Tau * V + 1/C_m * G
                 end
-                V = P30 * (y0 + I_e) + P20 * y1 + P21 * y2 + P22 * V
+                # P30 * (y0 + I_e)
+                # SYMPY V = P30 * (y0 + I_e) + P20 * y1 + P21 * y2 + P22 * V
             else:
                 r = r - 1
             end
 
             # alpha shape PSCs
-            y2 = P10 * y1 + P11 * y2
-            y1 = y1 * P00
+            #SYMPY y2 = P10 * y1 + P11 * y2
+            #SYMPY y1 = y1 * P00
 
             # Apply spikes delivered in this step: The spikes arriving at T+1 have an
             # immediate effect on the state of the neuron
-            y1 = y1 + PSCInitialValue * spikeBuffer.getSum(t)
+            #SYMPY y1 = y1 + PSCInitialValue * spikeBuffer.getSum(t)
 
             # threshold crossing
             if V >= Theta:
                 r = RefractoryCounts
                 V = delta_V_reset
-
                 emitSpike()
             end
 
