@@ -55,6 +55,7 @@ public class SolverScriptEvaluatorTest extends DisableFailQuickMixin {
 
     assertTrue(generatedScript.isPresent());
     final SolverScriptEvaluator evaluator = new SolverScriptEvaluator();
+
     assertTrue(evaluator.execute(generatedScript.get()));
   }
 

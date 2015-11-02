@@ -51,7 +51,7 @@ public class SolverScriptEvaluator {
       // Read generated matrix entries
     }
     catch (IOException | InterruptedException e) {
-      error("Cannot evaluate SymPy script: " + generatedScript.toString(), e);
+      error("Cannot evaluate the SymPy script: " + generatedScript.toString(), e);
       return false;
     }
 
