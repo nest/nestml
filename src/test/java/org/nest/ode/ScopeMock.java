@@ -61,10 +61,6 @@ public class ScopeMock implements Scope {
     return 0;
   }
 
-  @Override public boolean definesNameSpace() {
-    return false;
-  }
-
   @Override public boolean isShadowingScope() {
     return false;
   }
