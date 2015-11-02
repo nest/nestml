@@ -5,19 +5,23 @@
  */
 package org.nest.codegeneration;
 
+import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
+import static de.se_rwth.commons.logging.Log.error;
+
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
-import org.nest.DisableFailQuickMixin;
-import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
+import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.utils.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +29,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
-import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 /**
@@ -36,7 +39,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public abstract class GenerationTestBase extends DisableFailQuickMixin{
+public abstract class GenerationTestBase {
 
   private static final String OUTPUT_FOLDER = "target";
 
@@ -46,15 +49,16 @@ public abstract class GenerationTestBase extends DisableFailQuickMixin{
       = new NESTMLScopeCreator(getModelPath(), typesFactory); // must be called in order to build the symbol table
 
   protected abstract String getModelPath();
-
   @Before
   public void setup() {
+    Log.enableFailQuick(false);
     Log.getFindings().clear();
   }
 
   protected void generateHeader(final String modelPath) {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory
+        .createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(modelPath);
@@ -73,7 +77,7 @@ public abstract class GenerationTestBase extends DisableFailQuickMixin{
 
   protected void generateClassImplementation(final String MODEL_FILE_PATH) {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(MODEL_FILE_PATH);
@@ -95,7 +99,7 @@ public abstract class GenerationTestBase extends DisableFailQuickMixin{
 
   protected void generateCodeForModelIntegrationInNest(final String modelFile) {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(modelFile);
@@ -127,7 +131,7 @@ public abstract class GenerationTestBase extends DisableFailQuickMixin{
   }
 
   public void checkCocos(String modelFilePath) {
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(modelFilePath);

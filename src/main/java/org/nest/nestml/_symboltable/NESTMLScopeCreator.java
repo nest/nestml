@@ -67,4 +67,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     return symbolTableCreator.createFromAST(compilationUnit);
   }
 
+
+
+
 }

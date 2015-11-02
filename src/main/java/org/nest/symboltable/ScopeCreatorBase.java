@@ -12,9 +12,11 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.predefined.PredefinedVariablesFactory;
 
 /**
- * Creates scope for the DSLs and adds predefined types to them.
+ * TODO
  *
- * @author plotnikov
+ * @author (last commit) $$Author$$
+ * @version $$Revision$$, $$Date$$
+ * @since TODO
  */
 public abstract class ScopeCreatorBase {
 
@@ -37,8 +39,7 @@ public abstract class ScopeCreatorBase {
   public void addPredefinedTypes(final GlobalScope globalScope) {
     typesFactory.getTypes().forEach(
         type -> {
-
-          globalScope.add(type);
+          globalScope.define(type);
           final String typeLogMsg = "Adds new implicit type declaration: %s";
           Log.info(String.format(typeLogMsg, type.getName()), getLogger());
         }
@@ -49,7 +50,7 @@ public abstract class ScopeCreatorBase {
 
     functionFactory.getMethodSymbols().forEach(
         method -> {
-          globalScope.add(method);
+          globalScope.define(method);
           final String methodLogMsg = String
               .format("Adds new implicit method declaration: %s", method.getName());
           Log.info(methodLogMsg, getLogger());
@@ -61,7 +62,7 @@ public abstract class ScopeCreatorBase {
 
     variablesFactory.gerVariables().forEach(
         variable -> {
-          globalScope.add(variable);
+          globalScope.define(variable);
           final String methodLogMsg = String
               .format("Adds new implicit variable declaration: %s", variable.getName());
           Log.info(methodLogMsg, getLogger());

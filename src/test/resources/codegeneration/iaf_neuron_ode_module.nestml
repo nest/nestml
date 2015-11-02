@@ -3,7 +3,7 @@ package codegeneration.iaf_neuron_ode_module:
     neuron iaf_neuron_ode_neuron:
 
         state:
-            - y0, y1, y2, V mV [y1 > 0; y2 > 0]
+            - y0, y1, y2, V mV [y1 > 0; y2 > 0] # TODO - sollen nicht getrackt werden
             - r  integer
             # Membrane potential.
             alias V_m mV = V + E_L
