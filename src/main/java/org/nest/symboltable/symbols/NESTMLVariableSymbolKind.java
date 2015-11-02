@@ -14,7 +14,7 @@ import de.monticore.symboltable.SymbolKind;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class NESTMLVariableSymbolKind extends SymbolKind {
+public class NESTMLVariableSymbolKind implements SymbolKind {
 
   protected NESTMLVariableSymbolKind() {
   }
