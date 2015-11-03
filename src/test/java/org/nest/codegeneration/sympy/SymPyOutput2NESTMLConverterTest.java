@@ -7,7 +7,6 @@ package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
 import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.sympy.SymPyOutput2NESTMLConverter;
 import org.nest.spl._ast.ASTDeclaration;
 
 import java.util.List;
@@ -22,7 +21,7 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class SymPyOutput2NESTMLConverterTest {
-  private final static String GENERATED_MATRIX_PATH = "src/test/resources/sympy/solution.matrix.tmp";
+  private final static String GENERATED_MATRIX_PATH = "src/test/resources/codegeneration.sympy/solution.matrix.tmp";
 
   @Test
   public void testConvertMatrixFile() throws Exception {

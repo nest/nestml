@@ -1,4 +1,4 @@
-package org.nest.sympy;
+package org.nest.codegeneration.sympy;
 
 import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;

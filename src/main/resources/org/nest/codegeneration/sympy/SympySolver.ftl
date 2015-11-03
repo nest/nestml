@@ -1,5 +1,5 @@
-from sympy import *
-from sympy.matrices import zeros
+from codegeneration.sympy import *
+from codegeneration.sympy.matrices import zeros
 import numpy
 from numpy.random import randint
 

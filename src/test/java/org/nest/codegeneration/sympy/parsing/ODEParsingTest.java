@@ -1,4 +1,4 @@
-package org.nest.sympy.parsing;
+package org.nest.codegeneration.sympy.parsing;
 
 import de.monticore.antlr4.MCConcreteParser;
 import static de.se_rwth.commons.logging.Log.error;

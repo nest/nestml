@@ -1,32 +1,36 @@
-package org.nest.sympy;
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
+package org.nest.codegeneration.sympy;
 
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.NESTMLNodeFactory;
+import org.nest.nestml._parser.DeclarationMCParser;
+import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.SPLNodeFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by user on 20.05.15.
+ * Reads entries from the python output stored in the file and creates corresponding NESTML ASTs.
+ *
+ * @author plotnikov
  */
-public class Sympy2NESTMLConverter {
+public class SymPyOutput2NESTMLConverter {
+  final DeclarationMCParser declarationParser = NESTMLParserFactory.createDeclarationMCParser();
 
-
-  private final SympyLine2ASTConverter line2ASTConverter;
-
-  public Sympy2NESTMLConverter() {
-    this.line2ASTConverter = new SympyLine2ASTConverter();
-  }
-
-  public List<ASTAliasDecl> convertMatrixFile2NESTML(final String filename) {
+  public List<ASTAliasDecl> createDeclarationASTs(final String filename) {
     final List<String> linesAsStrings = readMatrixElementsFromFile(filename);
     final List<ASTDeclaration> propagationElements
-        = linesAsStrings.stream().map(line2ASTConverter::convert).collect(Collectors.toList());
+        = linesAsStrings.stream().map(this::convert).collect(Collectors.toList());
 
     return propagationElements.stream().map(this::convertToAlias).collect(Collectors.toList());
   }
@@ -40,6 +44,18 @@ public class Sympy2NESTMLConverter {
     astAliasDecl.setInvariants(SPLNodeFactory.createASTExprList());
 
     return astAliasDecl;
+  }
+
+  public ASTDeclaration convert(String sympyExpression) {
+
+    try {
+
+      return declarationParser.parse(new StringReader(sympyExpression)).get();
+    }
+    catch (IOException e) {
+      throw new RuntimeException("Cannot parse the line: " + sympyExpression);
+    }
+
   }
 
   public List<String> readMatrixElementsFromFile(final String filename) {

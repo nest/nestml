@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration;
+package org.nest.codegeneration.sympy;
 
 import de.se_rwth.commons.logging.Log;
 

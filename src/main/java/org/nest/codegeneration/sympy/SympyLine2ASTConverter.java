@@ -1,4 +1,4 @@
-package org.nest.sympy;
+package org.nest.codegeneration.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;
 import org.nest.nestml._parser.DeclarationMCParser;

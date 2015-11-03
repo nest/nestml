@@ -1,4 +1,4 @@
-package org.nest.sympy;
+package org.nest.codegeneration.sympy;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.*;

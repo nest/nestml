@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration;
+package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
 import de.monticore.generating.GeneratorEngine;
@@ -37,7 +37,7 @@ import static java.util.Optional.of;
 public class SymPyScriptGenerator {
   private final static String LOG_NAME = SymPyScriptGenerator.class.getName();
   /**
-   * Runs code generation for the sympy script, if the particular neuron contains an ODE definition.
+   * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
    * @param astNestmlCompilationUnit Model root
    * @param neuron Neuron from the nestml model (must be part of the root)
    * @param outputDirectory Base directory for the output
@@ -86,7 +86,7 @@ public class SymPyScriptGenerator {
     final String fullName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
 
     final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
-    glex.setGlobalValue("sympy", astOdeDeclaration.getODEs());
+    glex.setGlobalValue("ode", astOdeDeclaration.getODEs());
     glex.setGlobalValue("eq", astOdeDeclaration.getEq());
     glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
 
@@ -104,7 +104,7 @@ public class SymPyScriptGenerator {
 
     // TODO: how do I find out the call was successful?
     generator.generate(
-        "org.nest.sympy.SympySolver",
+        "org.nest.codegeneration.sympy.SympySolver",
         solverFile,
         astOdeDeclaration);
     

@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.sympy;
+package org.nest.codegeneration.sympy;
 
 import org.apache.commons.io.FileUtils;
 import org.nest.nestml._ast.ASTAliasDecl;
@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author plotnikov
  */
-public class PropagatorMatrix2NESTMLAppender {
+public class ExactSolutionTransformator {
 
   final SymPyOutput2NESTMLConverter symPyOutput2NESTMLConverter = new SymPyOutput2NESTMLConverter();
 
