@@ -1,10 +1,13 @@
-package org.nest.ode;
+package org.nest.sympy;
 
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.NESTMLNodeFactory;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.SPLNodeFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,17 +16,15 @@ import java.util.stream.Collectors;
  */
 public class Sympy2NESTMLConverter {
 
-  private final SympyOutputReader sympyOutputReader;
 
   private final SympyLine2ASTConverter line2ASTConverter;
 
   public Sympy2NESTMLConverter() {
-    this.sympyOutputReader = new SympyOutputReader();
     this.line2ASTConverter = new SympyLine2ASTConverter();
   }
 
   public List<ASTAliasDecl> convertMatrixFile2NESTML(final String filename) {
-    final List<String> linesAsStrings = sympyOutputReader.readMatrixElementsFromFile(filename);
+    final List<String> linesAsStrings = readMatrixElementsFromFile(filename);
     final List<ASTDeclaration> propagationElements
         = linesAsStrings.stream().map(line2ASTConverter::convert).collect(Collectors.toList());
 
@@ -39,6 +40,20 @@ public class Sympy2NESTMLConverter {
     astAliasDecl.setInvariants(SPLNodeFactory.createASTExprList());
 
     return astAliasDecl;
+  }
+
+  public List<String> readMatrixElementsFromFile(final String filename) {
+    List<String> matrixElements;
+    try {
+      matrixElements = Files.lines(new File(filename).toPath())
+          .filter(line -> !line.isEmpty())
+          .collect(Collectors.toList());
+      return matrixElements;
+    }
+    catch (IOException e) {
+      throw new RuntimeException("Cannot find or read the file with propagator matrix.", e);
+    }
+
   }
 
 }

@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.ode;
+package org.nest.sympy;
 
 import com.google.common.collect.Lists;
 import de.monticore.generating.GeneratorEngine;
@@ -34,7 +34,7 @@ public class ODE2SympyCodeGenerator {
     final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
 
     final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
-    glex.setGlobalValue("ode", odeDeclaration.getODEs());
+    glex.setGlobalValue("sympy", odeDeclaration.getODEs());
     glex.setGlobalValue("eq", odeDeclaration.getEq());
     glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
     expressionsPrettyPrinter.print(odeDeclaration.getODEs().getRhs());
@@ -52,7 +52,7 @@ public class ODE2SympyCodeGenerator {
 
     // TODO: how do I find out the call was successful?
     generator.generate(
-            "org.nest.ode.SympySolver",
+            "org.nest.sympy.SympySolver",
             solverFilePath,
             odeDeclaration);
   }

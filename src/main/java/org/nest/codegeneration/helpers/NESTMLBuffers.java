@@ -3,9 +3,10 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration;
+package org.nest.codegeneration.helpers;
 
 import de.monticore.symboltable.Scope;
+import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;

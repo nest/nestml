@@ -8,7 +8,7 @@ package org.nest.spl.codegeneration;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import org.junit.Assert;
 import org.junit.Test;
-import org.nest.codegeneration.NESTMLDeclarations;
+import org.nest.codegeneration.helpers.NESTMLDeclarations;
 import org.nest.codegeneration.SPL2NESTCodeGenerator;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;

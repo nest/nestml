@@ -1,4 +1,4 @@
-package org.nest.ode;
+package org.nest.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;
 import org.nest.nestml._parser.DeclarationMCParser;

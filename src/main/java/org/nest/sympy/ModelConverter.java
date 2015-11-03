@@ -1,4 +1,4 @@
-package org.nest.ode;
+package org.nest.sympy;
 
 import org.apache.commons.io.FileUtils;
 import org.nest.nestml._ast.ASTBodyDecorator;

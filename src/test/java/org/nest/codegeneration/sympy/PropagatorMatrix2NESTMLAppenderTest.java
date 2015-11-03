@@ -15,6 +15,8 @@ import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
+import org.nest.sympy.PropagatorMatrix2NESTMLAppender;
+import org.nest.sympy.SymPyOutput2NESTMLConverter;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 

@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.ode;
+package org.nest.sympy;
 
 import static de.se_rwth.commons.logging.Log.error;
 
@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
  * @since 0.0.1
  */
 public class ModelConverterTest {
-  private final static String GENERATED_MATRIX_PATH = "src/test/resources/org/nest/ode/solution.matrix.tmp";
+  private final static String GENERATED_MATRIX_PATH = "src/test/resources/org/nest/sympy/solution.matrix.tmp";
 
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 

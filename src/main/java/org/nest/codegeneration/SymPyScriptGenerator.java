@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration.sympy;
+package org.nest.codegeneration;
 
 import com.google.common.collect.Lists;
 import de.monticore.generating.GeneratorEngine;
@@ -86,7 +86,7 @@ public class SymPyScriptGenerator {
     final String fullName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
 
     final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
-    glex.setGlobalValue("ode", astOdeDeclaration.getODEs());
+    glex.setGlobalValue("sympy", astOdeDeclaration.getODEs());
     glex.setGlobalValue("eq", astOdeDeclaration.getEq());
     glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
 
@@ -104,7 +104,7 @@ public class SymPyScriptGenerator {
 
     // TODO: how do I find out the call was successful?
     generator.generate(
-        "org.nest.ode.SympySolver",
+        "org.nest.sympy.SympySolver",
         solverFile,
         astOdeDeclaration);
     

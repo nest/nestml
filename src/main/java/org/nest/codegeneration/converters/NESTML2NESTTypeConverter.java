@@ -1,5 +1,5 @@
 
-package org.nest.codegeneration;
+package org.nest.codegeneration.converters;
 
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;

@@ -7,6 +7,7 @@ package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
 import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.sympy.SymPyOutput2NESTMLConverter;
 import org.nest.spl._ast.ASTDeclaration;
 
 import java.util.List;

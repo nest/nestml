@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration.sympy;
+package org.nest.sympy;
 
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.NESTMLNodeFactory;

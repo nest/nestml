@@ -1,4 +1,4 @@
-package org.nest.ode;
+package org.nest.sympy;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.*;

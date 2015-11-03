@@ -8,6 +8,8 @@ package org.nest.codegeneration.sympy;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.DisableFailQuickMixin;
+import org.nest.codegeneration.SolverScriptEvaluator;
+import org.nest.codegeneration.SymPyScriptGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;

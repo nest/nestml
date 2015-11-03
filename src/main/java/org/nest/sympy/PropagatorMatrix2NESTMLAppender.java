@@ -3,21 +3,18 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration.sympy;
+package org.nest.sympy;
 
 import org.apache.commons.io.FileUtils;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Test the overall script generation and evaluation of the generated scripts

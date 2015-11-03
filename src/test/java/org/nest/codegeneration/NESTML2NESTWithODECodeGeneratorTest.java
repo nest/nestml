@@ -18,7 +18,7 @@ public class NESTML2NESTWithODECodeGeneratorTest extends GenerationTestBase {
 
   private static final String OUTPUT_FOLDER = "target";
 
-  private final static String GENERATED_MATRIX_PATH = "src/test/resources/org/nest/ode/solution.matrix.tmp";
+  private final static String GENERATED_MATRIX_PATH = "src/test/resources/org/nest/sympy/solution.matrix.tmp";
 
   @Override
   protected String getModelPath() {
