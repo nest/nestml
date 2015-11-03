@@ -5,8 +5,8 @@ package codegeneration.iaf_neuron_ode_module:
         state:
             - V mV
             - r  integer
-            # Membrane potential.
-            alias V_m mV = V + E_L
+
+            alias V_m mV = V + E_L # Membrane potential.
         end
 
         parameter:

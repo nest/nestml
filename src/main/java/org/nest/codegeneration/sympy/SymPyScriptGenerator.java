@@ -104,7 +104,7 @@ public class SymPyScriptGenerator {
 
     // TODO: how do I find out the call was successful?
     generator.generate(
-        "org.nest.codegeneration.sympy.SympySolver",
+        "org.nest.ode.SympySolver",
         solverFile,
         astOdeDeclaration);
     
