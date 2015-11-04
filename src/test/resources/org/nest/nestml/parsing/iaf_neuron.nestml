@@ -9,8 +9,7 @@ package org.nest.nestml.parsing.iaf_neuron:
         end
 
         parameter:
-            /* Capacity of the
-            membrane.*/
+            /* Capacity of the membrane.*/
 
             C_m       pF = 250pF * 20 uF [C_m  > 0]
             # Membrane time constant.
@@ -25,13 +24,10 @@ package org.nest.nestml.parsing.iaf_neuron:
             -Theta   mV = -55 - E_L
             # External current.
             I_e     pA = 0
-
-            # some aliases
-            # Threshold.
+            # some aliases threshold.
             alias V_th mV = Theta + E_L
             # Reset value of the membrane potential.
             alias  V_reset mV = delta_V_reset + E_L
-            # TODO: invariant V_reset >= Theta
         end
 
         internal:
@@ -66,10 +62,6 @@ package org.nest.nestml.parsing.iaf_neuron:
             y2 = P21 * y1 + P22 * y2
             y1 = y1 * P11
 
-            # Apply spikes delivered in this step: The spikes arriving at T+1 have an
-            # immediate effect on the state of the neuron
-            y1 = y1 + PSCInitialValue * spikeBuffer.getSum(t)
-
             # threshold crossing
             if y3 >= Theta:
                 r = RefractoryCounts
@@ -78,6 +70,9 @@ package org.nest.nestml.parsing.iaf_neuron:
                 Spiking.emitSpike()
             end
 
+            # Apply spikes delivered in this step: The spikes arriving at T+1 have an
+            # immediate effect on the state of the neuron
+            y1 = y1 + PSCInitialValue * spikeBuffer.getSum(t)
             # set new input current
             y0 = currentBuffer.getSum(t);
         end

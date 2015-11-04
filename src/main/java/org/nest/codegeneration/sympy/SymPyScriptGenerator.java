@@ -37,7 +37,7 @@ import static java.util.Optional.of;
 public class SymPyScriptGenerator {
   private final static String LOG_NAME = SymPyScriptGenerator.class.getName();
   /**
-   * Runs code generation for the sympy script, if the particular neuron contains an ODE definition.
+   * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
    * @param astNestmlCompilationUnit Model root
    * @param neuron Neuron from the nestml model (must be part of the root)
    * @param outputDirectory Base directory for the output

@@ -1,4 +1,4 @@
-package org.nest.codegeneration;
+package org.nest.codegeneration.helpers;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;

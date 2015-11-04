@@ -5,8 +5,6 @@
  */
 package org.nest.codegeneration.sympy;
 
-import de.se_rwth.commons.logging.Log;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
@@ -15,9 +13,7 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertTrue;
 import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;

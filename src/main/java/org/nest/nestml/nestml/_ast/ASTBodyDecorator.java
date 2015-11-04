@@ -141,6 +141,18 @@ public class ASTBodyDecorator extends ASTBody {
 
   }
 
+  public void addToParameterBlock(final ASTAliasDecl astAliasDecl) {
+    body.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
+
+      ASTVar_Block block = (ASTVar_Block) be;
+
+      if (block.isInternal()) {
+        block.getAliasDecls().add(astAliasDecl);
+      }
+
+    });
+
+  }
   private static class OdeDefinitionCollector implements NESTMLInheritanceVisitor {
 
     private Optional<ASTOdeDeclaration> astOdeDeclaration = Optional.empty();
