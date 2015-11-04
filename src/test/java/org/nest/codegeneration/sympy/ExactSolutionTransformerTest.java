@@ -5,25 +5,25 @@
  */
 package org.nest.codegeneration.sympy;
 
+import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import org.junit.Test;
 import org.nest.DisableFailQuickMixin;
-import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
  * Tests how the Python output is transformed into the NESTML AST that can be appended to the
@@ -32,7 +32,11 @@ import static org.junit.Assert.assertTrue;
  * @author plonikov
  */
 public class ExactSolutionTransformerTest extends DisableFailQuickMixin {
-  private final static String GENERATED_MATRIX_PATH = "src/test/resources/codegeneration.sympy/solution.matrix.tmp";
+  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH, new PredefinedTypesFactory());
+  private final static String P00_FILE = "src/test/resources/codegeneration/sympy/P00.mat";
+  private final static String PSC_INITIAL_VALUE_FILE = "src/test/resources/codegeneration/sympy/pscInitialValue.mat";
+  private final static String STATE_VECTOR_FILE = "src/test/resources/codegeneration/sympy/state.vector.mat";
+  private final static String UPDATE_STEP_FILE = "src/test/resources/codegeneration/sympy/update.step.mat";
 
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 
@@ -41,60 +45,46 @@ public class ExactSolutionTransformerTest extends DisableFailQuickMixin {
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
   @Test
-  public void testResolvingProblem() throws Exception {
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory
-        .createNESTMLCompilationUnitMCParser();
-    final Optional<ASTNESTMLCompilationUnit> root = p.parse(MODEL_FILE_PATH);
-    assertTrue(root.isPresent());
+  public void testAddingP00Value() {
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    // false abstraction level
+    exactSolutionTransformer.addP00(
+        parseModel(MODEL_FILE_PATH),
+        P00_FILE,
+        "target/tmp.nestml");
+    ASTNESTMLCompilationUnit testant = parseModel("target/tmp.nestml");
 
-    final SymPyOutput2NESTMLConverter symPyOutput2NESTMLConverter = new SymPyOutput2NESTMLConverter();
-    final List<ASTAliasDecl> testant = symPyOutput2NESTMLConverter.createDeclarationASTs(GENERATED_MATRIX_PATH);
-    assertEquals(9, testant.size());
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.get()
-        .getNeurons()
-        .get(0)
-        .getBody());
+    final Scope scope = scopeCreator.runSymbolTableCreator(testant);
+    Optional<NESTMLNeuronSymbol> symbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
 
-    testant.forEach(astBodyDecorator::addToInternalBlock);
+    final Optional<NESTMLVariableSymbol> p00Symbol = symbol.get().getVariableByName("P00");
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
-        TEST_MODEL_PATH, typesFactory);
-    nestmlScopeCreator.runSymbolTableCreator(root.get());
-
-    System.out.println("Printed model:\n" + prettyPrint(root));
-
-    // todo
-    Optional<NESTMLVariableSymbol> p30 = astBodyDecorator
-        .getInternals().get(0)
-        .getEnclosingScope().get()
-        .resolve("P30", NESTMLVariableSymbol.KIND);
-    //assertTrue(p30.isPresent());
-
-    Optional<NESTMLVariableSymbol> p01 = astBodyDecorator
-        .getInternals().get(0)
-        .getEnclosingScope().get()
-        .resolve("P01", NESTMLVariableSymbol.KIND);
-    assertTrue(p01.isPresent());
+    assertTrue(p00Symbol.isPresent());
+    assertTrue(p00Symbol.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.INTERNAL));
   }
 
   @Test
-  public void testAddingPropagatorMatrix() {
-    final ExactSolutionTransformator exactSolutionTransformator = new ExactSolutionTransformator();
+  public void testAddingPSCInitialValue() {
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
-    exactSolutionTransformator.addPropagatorMatrixAndPrint(
+    exactSolutionTransformer.addPSCInitialValue(
         parseModel(MODEL_FILE_PATH),
-        GENERATED_MATRIX_PATH,
+        PSC_INITIAL_VALUE_FILE,
         "target/tmp.nestml");
-  }
+    ASTNESTMLCompilationUnit testant = parseModel("target/tmp.nestml");
 
-  private String prettyPrint(final Optional<ASTNESTMLCompilationUnit> root) {
-    final NESTMLPrettyPrinter nestmlPrettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
-    root.get().accept(nestmlPrettyPrinter);
-    return nestmlPrettyPrinter.getResult();
+    final Scope scope = scopeCreator.runSymbolTableCreator(testant);
+
+    Optional<NESTMLNeuronSymbol> symbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+
+    final Optional<NESTMLVariableSymbol> pscInitialValue = symbol.get().getVariableByName("PSCInitialValue");
+
+    assertTrue(pscInitialValue.isPresent());
+    assertTrue(pscInitialValue.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.INTERNAL));
   }
 
   private ASTNESTMLCompilationUnit parseModel(String pathToModel)  {
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
 
     try {
       return p.parse(pathToModel).get();

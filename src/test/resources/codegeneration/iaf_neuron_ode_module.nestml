@@ -37,7 +37,7 @@ package codegeneration.iaf_neuron_ode_module:
         internal:
             h   ms   = resolution()
 
-            PSCInitialValue  mV = 1 * E / tau_syn
+            # SYMPY PSCInitialValue  mV = 1 * E / tau_syn
             RefractoryCounts integer = steps(t_ref)
         end
 

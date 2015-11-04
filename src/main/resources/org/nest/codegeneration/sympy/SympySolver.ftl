@@ -101,16 +101,16 @@ if secondDev == 0:
     f = open('state.vector.mat', 'w')
     f.write("Order=" + str(order) + "\n")
     for i in range(0, order):
-        f.write(str(simplify(propagatorMatrix*y_vector)[i]) + "#" + stateVariables[i] + "\n")
+        f.write(str(simplify(propagatorMatrix*y_vector)[i]) + "#" + stateVariables[i])
 
     f = open('update.step.mat', 'w')
-    f.write("V = " + str(simplify(propagatorMatrix*y_vector)[order]) + "\n")
+    f.write("V = " + str(simplify(propagatorMatrix*y_vector)[order]))
 
     f = open('pscInitialValue.mat', 'w')
-    f.write("PSCInitialValue = " + str(simplify(X[0, 1])) + "\n")
+    f.write("PSCInitialValue real = " + str(simplify(X[0, 1])) + "# PSCInitial value")
 
     f = open('P00.mat', 'w')
-    f.write("P00 = " + str(simplify(c2/c1*(exp(h*c1)-1))) + "\n")
+    f.write("P00 real = " + str(simplify(c2/c1*(exp(h*c1)-1))) + "# P00 expression")
 
 else:
     print 'Not a linear differential equation'
