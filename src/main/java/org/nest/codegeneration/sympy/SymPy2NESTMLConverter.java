@@ -30,6 +30,7 @@ public class SymPy2NESTMLConverter {
 
   final DeclarationMCParser declarationParser = createDeclarationMCParser();
   final DeclarationMCParser declarationStringParser = createDeclarationMCParser();
+  final AssignmentMCParser assignmentParser = createAssignmentMCParser();
   final AssignmentMCParser assignmentStringParser = createAssignmentMCParser();
 
   public SymPy2NESTMLConverter() {
@@ -75,12 +76,21 @@ public class SymPy2NESTMLConverter {
     return astAliasDecl;
   }
 
+  public ASTAssignment convertToAssignment(final String assignmentPath) {
+    try {
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return assignmentStringParser.parse(assignmentPath).get();
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+  }
+
   public ASTAssignment convertStringToAssignment(final String assignmentAsString) {
     try {
-      final ASTAssignment astAssignment = assignmentStringParser
-          .parse(new StringReader(assignmentAsString)).get();
       // it is ok to call get, since otherwise it is an error in the file structure
-      return astAssignment;
+      return assignmentStringParser.parse(new StringReader(assignmentAsString)).get();
     }
     catch (IOException e) {
       final String msg = "Cannot parse assignment statement.";

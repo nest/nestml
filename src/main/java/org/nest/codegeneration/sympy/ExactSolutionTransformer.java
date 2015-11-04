@@ -6,21 +6,27 @@
 package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
+import de.monticore.ast.ASTNode;
 import org.apache.commons.io.FileUtils;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNESTMLNode;
+import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.spl._ast.*;
+import org.nest.spl._visitor.SPLVisitor;
 import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -36,9 +42,6 @@ public class ExactSolutionTransformer {
 
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
-   * @param root
-   * @param pathToP00File
-   * @param outputModelFile
    */
   public void addP00(
       final ASTNESTMLCompilationUnit root,
@@ -54,9 +57,6 @@ public class ExactSolutionTransformer {
 
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
-   * @param root
-   * @param pathPSCInitialValueFile
-   * @param outputModelFile
    */
   public void addPSCInitialValue(
       final ASTNESTMLCompilationUnit root,
@@ -124,6 +124,44 @@ public class ExactSolutionTransformer {
     }
   }
 
+  private class ODECollector implements NESTMLVisitor {
+    private Optional<ASTOdeDeclaration> foundOde = Optional.empty();
+
+    public void startVisitor(ASTNESTMLNode node) {
+      node.accept(this);
+    }
+
+    @Override
+    public void visit(final ASTOdeDeclaration astOdeDeclaration) {
+      foundOde = Optional.of(astOdeDeclaration);
+    }
+
+    public Optional<ASTOdeDeclaration> getFoundOde() {
+      return foundOde;
+    }
+
+  }
+
+  public void replaceODE(
+      final ASTNESTMLCompilationUnit root,
+      final String updateStepFile,
+      final String outputModelFile) {
+    final ASTAssignment stateUpdate = converter2NESTML.convertToAssignment(updateStepFile);
+
+    ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    final ODECollector odeCollector = new ODECollector();
+    odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
+    checkState(odeCollector.getFoundOde().isPresent());
+
+    final Optional<ASTNode> parent = ASTNodes.getParent(odeCollector.getFoundOde().get(), root);
+    checkState(parent.isPresent());
+    checkState(parent.get() instanceof ASTSmall_Stmt);
+    final ASTSmall_Stmt castedParent = (ASTSmall_Stmt) parent.get();
+    castedParent.setAssignment(stateUpdate);
+
+    printModelToFile(root, outputModelFile);
+  }
+
   private void addAssignmentToDynamics(ASTBodyDecorator astBodyDecorator,
       ASTAssignment yVarAssignment) {
     final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
@@ -143,10 +181,10 @@ public class ExactSolutionTransformer {
 
   // TODO: replace it with return root call
   private void printModelToFile(
-      final ASTNESTMLCompilationUnit astNestmlCompilationUnit,
+      final ASTNESTMLCompilationUnit root,
       final String outputModelFile) {
     final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
-    astNestmlCompilationUnit.accept(prettyPrinter);
+    root.accept(prettyPrinter);
 
     final File prettyPrintedModelFile = new File(outputModelFile);
     try {

@@ -63,6 +63,17 @@ public class ExactSolutionTransformerTest extends DisableFailQuickMixin {
   }
 
   @Test
+  public void testReplaceODEThroughMatrixMultiplication() {
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    // false abstraction level
+    exactSolutionTransformer.replaceODE(
+        parseModel(MODEL_FILE_PATH),
+        UPDATE_STEP_FILE,
+        TARGET_TMP_MODEL_PATH);
+    ASTNESTMLCompilationUnit testant = parseModel(TARGET_TMP_MODEL_PATH);
+  }
+
+  @Test
   public void testAddingPSCInitialValue() {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
