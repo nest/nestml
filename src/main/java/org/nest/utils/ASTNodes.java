@@ -6,7 +6,10 @@
 package org.nest.utils;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Queues;
+import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.Util;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
@@ -14,19 +17,43 @@ import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;
 
-import java.util.Collection;
+import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Helper class containing common operations concerning ASTNodes
  * 
- * @author Sebastian Oberhoff
+ * @author plotnikov, oberhoff
  */
 public final class ASTNodes {
   
   private ASTNodes() {
     // noninstantiable
   }
+  /**
+   * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the right order
+   * @param queryNode The node direct parent of the given node
+   * @param root The node that is an ancestor of the {@code queryNode}
+   *
+   * @return Parent of the queryNode or an Absent value if the parent was not found
+   */
+  public static Optional<ASTNode> getParent(ASTNode queryNode, ASTNode root) {
+
+    final Deque<ASTNode> successors = Queues.newArrayDeque();
+
+    final Iterable<ASTNode> tmp = Util.preOrder(root, ASTNode::get_Children);
+
+    successors.add(root);
+    for (ASTNode parentCandidate:tmp) {
+      if (parentCandidate.get_Children().contains(queryNode)) {
+        return Optional.of(parentCandidate);
+      }
+    }
+
+    return Optional.empty();
+  }
+
 
   public static List<String> getVariablesNamesFromAst(final ASTSPLNode astNode) {
     final FQNCollector fqnCollector = new FQNCollector();

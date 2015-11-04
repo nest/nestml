@@ -44,8 +44,10 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   public List<ASTDynamics> getDynamics() {
-    List<ASTDynamics> result = body.getBodyElements().stream().filter(be -> be instanceof ASTDynamics)
-        .map(be -> (ASTDynamics) be).collect(Collectors.toList());
+    List<ASTDynamics> result = body.getBodyElements().stream()
+        .filter(be -> be instanceof ASTDynamics)
+        .map(be -> (ASTDynamics) be)
+        .collect(Collectors.toList());
 
     return ImmutableList.copyOf(result);
   }
@@ -141,12 +143,12 @@ public class ASTBodyDecorator extends ASTBody {
 
   }
 
-  public void addToParameterBlock(final ASTAliasDecl astAliasDecl) {
+  public void addToStateBlock(final ASTAliasDecl astAliasDecl) {
     body.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
 
       ASTVar_Block block = (ASTVar_Block) be;
 
-      if (block.isInternal()) {
+      if (block.isState()) {
         block.getAliasDecls().add(astAliasDecl);
       }
 

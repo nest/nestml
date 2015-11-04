@@ -11,8 +11,12 @@ import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.Symbol;
 import org.nest.nestml._symboltable.NESTMLMethodSignaturePredicate;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.nest.symboltable.symbols.NESTMLVariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
 
 /**
  * Represents the entire neuron, e.g. iaf_neuron.
@@ -47,6 +51,14 @@ public class NESTMLNeuronSymbol extends CommonScopeSpanningSymbol {
 
   public Optional<NESTMLMethodSymbol> getMethodByName(String methodName) {
     return getMethodByName(methodName, Lists.newArrayList());
+  }
+
+  public List<NESTMLVariableSymbol> getCurrentBuffers() {
+    final Collection<NESTMLVariableSymbol> variableSymbols
+        = spannedScope.resolveLocally(NESTMLVariableSymbol.KIND);
+    return variableSymbols.stream()
+        .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_CURRENT))
+        .collect(Collectors.toList());
   }
 
   @SuppressWarnings("unchecked") // Resolving filter does the type checking

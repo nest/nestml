@@ -1,1 +1,1 @@
-P00 real = Tau/C_m - Tau*exp(-h/Tau)/C_m # P00
+P00 real = Tau/C_m - Tau*exp(-h/Tau)/C_m# P00 expression
