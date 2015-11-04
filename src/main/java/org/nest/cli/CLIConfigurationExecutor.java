@@ -40,6 +40,7 @@ public class CLIConfigurationExecutor {
     List<String> filenames = Lists.newArrayList();
     try {
       Files.list(new File(inputPath).toPath())
+          .filter(file -> !Files.isDirectory(file))
           .forEach(file -> filenames.add(file.getFileName().toString()));
     }
     catch (IOException e) {

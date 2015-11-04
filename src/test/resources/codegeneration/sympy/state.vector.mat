@@ -1,0 +1,3 @@
+Order=2
+y1*exp(-h/tau_syn)#y1
+(h*y1 + y2)*exp(-h/tau_syn)#y2

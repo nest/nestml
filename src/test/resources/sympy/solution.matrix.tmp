@@ -1,9 +1,0 @@
-P00 real = exp(-h/tau_in)# P00
-P01 real = 0# P01
-P02 real = 0# P02
-P10 real = h*exp(-h/tau_in)# P10
-P11 real = exp(-h/tau_in)# P11
-P12 real = 0# P12
-P20 real = -Tau*tau_in*(Tau*h*exp(h/Tau) + Tau*tau_in*exp(h/Tau) - Tau*tau_in*exp(h/tau_in) - h*tau_in*exp(h/Tau))*exp(-h/tau_in - h/Tau)/(C_m*(Tau**2 - 2*Tau*tau_in + tau_in**2))# P20
-P21 real = -Tau*tau_in*(exp(h/Tau) - exp(h/tau_in))*exp(-h/tau_in - h/Tau)/(C_m*(Tau - tau_in))# P21
-P22 real = exp(-h/Tau)# P22

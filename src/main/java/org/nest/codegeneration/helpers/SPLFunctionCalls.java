@@ -1,4 +1,4 @@
-package org.nest.codegeneration;
+package org.nest.codegeneration.helpers;
 
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;

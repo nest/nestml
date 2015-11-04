@@ -3,12 +3,12 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration;
+package org.nest.codegeneration.helpers;
 
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.Names;
+import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;

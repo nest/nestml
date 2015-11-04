@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration;
+package org.nest.codegeneration.helpers;
 
 import de.monticore.ast.ASTNode;
 import org.nest.nestml._ast.ASTBodyDecorator;

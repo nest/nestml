@@ -1,4 +1,4 @@
-package org.nest.codegeneration;
+package org.nest.codegeneration.helpers;
 
 import de.monticore.literals.literals._ast.ASTSignedNumericLiteral;
 import de.monticore.prettyprint.IndentPrinter;

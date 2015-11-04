@@ -68,7 +68,7 @@ grammar SPL extends org.nest.commons.Commons {
   WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
 
   Expr =   (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
-         | "not" Expr // TODO not explicit?
+         | "not" Expr
          | base:Expr pow:["**"] exponent:Expr // TODO make right assoc keyword asap
          | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
          | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
