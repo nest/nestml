@@ -113,7 +113,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
     final NESTMLNeuronSymbol neuronSymbol = new NESTMLNeuronSymbol(neuronAst.getName(), NEURON);
 
-    putInScopeAndLinkWithAst(neuronSymbol, neuronAst);
+    addToScopeAndLinkWithNode(neuronSymbol, neuronAst);
 
     info("Adds a neuron symbol: " + neuronSymbol.getFullName(), LOGGER_NAME);
   }
@@ -127,7 +127,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     info("Processes the component:  " + componentAst.getName(), LOGGER_NAME);
     final NESTMLNeuronSymbol componentSymbol = new NESTMLNeuronSymbol(componentAst.getName(), COMPONENT);
 
-    putInScopeAndLinkWithAst(componentSymbol, componentAst);
+    addToScopeAndLinkWithNode(componentSymbol, componentAst);
 
     info("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
   }
@@ -232,7 +232,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
   default void visit(final ASTInputLine inputLineAst) {
     checkState(this.currentScope().isPresent());
     final Optional<NESTMLNeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
-    checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
+    checkState(currentTypeSymbol.isPresent());
 
     final NESTMLTypeSymbol bufferType = getPredefinedTypesFactory().getBufferType();
 
@@ -243,16 +243,20 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     var.setAlias(false);
     var.setHidden(false);
 
-    var.setBlockType(NESTMLVariableSymbol.BlockType.BUFFER);
+    if (inputLineAst.isCurrent()) {
+      var.setBlockType(NESTMLVariableSymbol.BlockType.INPUT_BUFFER_CURRENT);
+    }
+    else {
+      var.setBlockType(NESTMLVariableSymbol.BlockType.INPUT_BUFFER_SPIKE);
+    }
 
     if (inputLineAst.getSizeParameter().isPresent()) {
       var.setArraySizeParameter(inputLineAst.getSizeParameter().get());
     }
 
-    putInScopeAndLinkWithAst(var, inputLineAst);
+    addToScopeAndLinkWithNode(var, inputLineAst);
     info("Creates new symbol for the input buffer: " + var, LOGGER_NAME);
   }
-
 
   default void visit(final ASTFunction funcAst) {
     checkState(this.currentScope().isPresent());
@@ -268,7 +272,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     methodSymbol.setMinDelay(false);
     methodSymbol.setTimeStep(false);
 
-    putInScopeAndLinkWithAst(methodSymbol, funcAst);
+    addToScopeAndLinkWithNode(methodSymbol, funcAst);
 
     // Parameters
     if (funcAst.getParameters().isPresent()) {
@@ -288,7 +292,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         var.setHidden(false);
         var.setDeclaringType(null);
         var.setBlockType(NESTMLVariableSymbol.BlockType.LOCAL);
-        putInScopeAndLinkWithAst(var, p);
+        addToScopeAndLinkWithNode(var, p);
 
       }
 
@@ -325,7 +329,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     methodEntry.setMinDelay(dynamicsAst.getMinDelay().isPresent());
     methodEntry.setTimeStep(dynamicsAst.getTimeStep().isPresent());
 
-    putInScopeAndLinkWithAst(methodEntry, dynamicsAst);
+    addToScopeAndLinkWithNode(methodEntry, dynamicsAst);
 
     // Parameters
     if (dynamicsAst.getParameters().isPresent()) {
@@ -345,7 +349,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         var.setHidden(false);
         var.setDeclaringType(null); // TODO set to optional
         var.setBlockType(NESTMLVariableSymbol.BlockType.LOCAL);
-        putInScopeAndLinkWithAst(var, p);
+        addToScopeAndLinkWithNode(var, p);
       }
 
     }
@@ -477,7 +481,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         }
 
         var.setBlockType(blockType);
-        putInScopeAndLinkWithAst(var, astDeclaration);
+        addToScopeAndLinkWithNode(var, astDeclaration);
 
         info("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
       }

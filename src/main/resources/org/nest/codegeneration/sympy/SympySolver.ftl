@@ -99,9 +99,9 @@ if secondDev == 0:
     y_vector[order] = V
 
     f = open('state.vector.mat', 'w')
-    f.write("Order=" + str(order) + "\n")
+    f.write(str(order) + "\n")
     for i in range(0, order):
-        f.write(stateVariables[i] + " = " + str(simplify(propagatorMatrix*y_vector)[i]) + "# Update")
+        f.write(stateVariables[i] + " = " + str(simplify(propagatorMatrix*y_vector)[i]) + "# Update\n")
 
     f = open('update.step.mat', 'w')
     f.write("V = " + str(simplify(propagatorMatrix*y_vector)[order]))

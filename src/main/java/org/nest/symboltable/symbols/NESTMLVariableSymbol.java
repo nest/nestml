@@ -20,7 +20,7 @@ import static java.util.Optional.empty;
  */
 public class NESTMLVariableSymbol extends CommonSymbol {
 
-  public enum BlockType {STATE, PARAMETER, INTERNAL, LOCAL, BUFFER}
+  public enum BlockType {STATE, PARAMETER, INTERNAL, LOCAL, INPUT_BUFFER_CURRENT, INPUT_BUFFER_SPIKE}
 
   public static final NESTMLVariableSymbolKind KIND = new NESTMLVariableSymbolKind();
 

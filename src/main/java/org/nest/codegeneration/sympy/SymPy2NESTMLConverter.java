@@ -1,0 +1,90 @@
+package org.nest.codegeneration.sympy;
+
+import de.monticore.antlr4.MCConcreteParser;
+import de.monticore.types.types._ast.TypesNodeFactory;
+import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.nestml._ast.NESTMLNodeFactory;
+import org.nest.nestml._parser.AssignmentMCParser;
+import org.nest.nestml._parser.DeclarationMCParser;
+import org.nest.nestml._parser.ExprMCParser;
+import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.spl._ast.ASTAssignment;
+import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._ast.ASTExpr;
+import org.nest.spl._ast.SPLNodeFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.nest.nestml._parser.NESTMLParserFactory.createAssignmentMCParser;
+import static org.nest.nestml._parser.NESTMLParserFactory.createDeclarationMCParser;
+
+/**
+ * Created by user on 20.05.15.
+ */
+public class SymPy2NESTMLConverter {
+
+  final DeclarationMCParser declarationParser = createDeclarationMCParser();
+  final DeclarationMCParser declarationStringParser = createDeclarationMCParser();
+  final AssignmentMCParser assignmentStringParser = createAssignmentMCParser();
+
+  public SymPy2NESTMLConverter() {
+    declarationStringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
+    assignmentStringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
+  }
+
+  public ASTAliasDecl convertToAlias(String declarationFile) {
+    try {
+      final ASTDeclaration declaration = declarationParser.parse(declarationFile).get();
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return convertToAlias(declaration);
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse declaration statement.";
+      throw new RuntimeException(msg, e);
+    }
+
+  }
+
+  public ASTAliasDecl convertStringToAlias(String declarationAsString) {
+    try {
+      final ASTDeclaration declaration = declarationStringParser
+          .parse(new StringReader(declarationAsString)).get();
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return convertToAlias(declaration);
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse declaration statement.";
+      throw new RuntimeException(msg, e);
+    }
+
+  }
+
+  public ASTAliasDecl convertToAlias(final ASTDeclaration astDeclaration) {
+    final ASTAliasDecl astAliasDecl = NESTMLNodeFactory.createASTAliasDecl();
+
+    astAliasDecl.setDeclaration(astDeclaration);
+    astAliasDecl.setAlias(false);
+    astAliasDecl.setHide(false);
+    astAliasDecl.setInvariants(SPLNodeFactory.createASTExprList());
+
+    return astAliasDecl;
+  }
+
+  public ASTAssignment convertStringToAssignment(final String assignmentAsString) {
+    try {
+      final ASTAssignment astAssignment = assignmentStringParser
+          .parse(new StringReader(assignmentAsString)).get();
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return astAssignment;
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+  }
+}
