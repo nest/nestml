@@ -5,13 +5,13 @@
  * http://www.se-rwth.de/
  */package org.nest.nestml.cocos.spl;
 
-import com.google.common.base.Preconditions;
-
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import static de.se_rwth.commons.logging.Log.error;
+import static org.nest.symboltable.symbols.NESTMLVariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
+import static org.nest.symboltable.symbols.NESTMLVariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTAssignment;
@@ -35,7 +35,8 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
     if (!var.isPresent()) {
       Log.warn("Cannot resolve the variable: " + varName + " . Thereofore, the coco is skipped.");
     }
-    else if (var.get().getBlockType() == NESTMLVariableSymbol.BlockType.BUFFER) {
+    else if (var.get().getBlockType() == INPUT_BUFFER_CURRENT ||
+        var.get().getBlockType() == INPUT_BUFFER_SPIKE) {
       final String msg = "Buffer '" + var.get().getName() + "' cannot be reassigned.";
       error(ERROR_CODE + ":" +  msg, assignment.get_SourcePositionStart());
     }

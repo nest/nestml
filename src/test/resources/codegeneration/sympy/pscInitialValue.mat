@@ -1,1 +1,1 @@
-PSCInitialValue real = E*w/tau_syn
+PSCInitialValue real = E*w/tau_syn# PSCInitial value
