@@ -6,15 +6,19 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.nest.DisableFailQuickMixin;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -27,7 +31,7 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
  *
  * @author plonikov
  */
-public class ExactSolutionTransformerTest extends DisableFailQuickMixin {
+public class SymPySolutionTransformerTest extends DisableFailQuickMixin {
 
   public static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
@@ -44,13 +48,52 @@ public class ExactSolutionTransformerTest extends DisableFailQuickMixin {
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
   @Test
+  public void testExactSolutionTransformation() {
+    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
+    final ASTNESTMLCompilationUnit modelRoot = parseModel(MODEL_FILE_PATH);
+    scopeCreator.runSymbolTableCreator(modelRoot);
+    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer
+        .replaceODEWithSymPySolution(
+            modelRoot,
+            P00_FILE,
+            PSC_INITIAL_VALUE_FILE,
+            STATE_VECTOR_FILE,
+            UPDATE_STEP_FILE);
+
+    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+
+    ASTNESTMLCompilationUnit testant = parseModel(TARGET_TMP_MODEL_PATH);
+
+    final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
+    final Scope scope = scopeCreator2.runSymbolTableCreator(testant);
+    Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+
+    final Optional<NESTMLVariableSymbol> p00Symbol = neuronSymbol.get().getVariableByName("P00");
+    assertTrue(p00Symbol.isPresent());
+    assertTrue(p00Symbol.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.INTERNAL));
+
+    final Optional<NESTMLVariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("PSCInitialValue");
+    assertTrue(pscInitialValue.isPresent());
+    assertTrue(pscInitialValue.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.INTERNAL));
+
+    final Optional<NESTMLVariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
+    assertTrue(y0.isPresent());
+    assertTrue(y0.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
+
+    final Optional<NESTMLVariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
+    assertTrue(y1.isPresent());
+    assertTrue(y1.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
+  }
+
+  @Test
   public void testAddingP00Value() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
     // false abstraction level
-    exactSolutionTransformer.addP00(
+    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer.addP00(
         parseModel(MODEL_FILE_PATH),
-        P00_FILE,
-        TARGET_TMP_MODEL_PATH);
+        P00_FILE);
+    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+
     ASTNESTMLCompilationUnit testant = parseModel(TARGET_TMP_MODEL_PATH);
 
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
@@ -64,23 +107,25 @@ public class ExactSolutionTransformerTest extends DisableFailQuickMixin {
 
   @Test
   public void testReplaceODEThroughMatrixMultiplication() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
     // false abstraction level
-    exactSolutionTransformer.replaceODE(
+    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer.replaceODE(
         parseModel(MODEL_FILE_PATH),
-        UPDATE_STEP_FILE,
-        TARGET_TMP_MODEL_PATH);
-    ASTNESTMLCompilationUnit testant = parseModel(TARGET_TMP_MODEL_PATH);
+        UPDATE_STEP_FILE);
+    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+
+    parseModel(TARGET_TMP_MODEL_PATH);
   }
 
   @Test
   public void testAddingPSCInitialValue() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
     // false abstraction level
-    exactSolutionTransformer.addPSCInitialValue(
+    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer.addPSCInitialValue(
         parseModel(MODEL_FILE_PATH),
-        PSC_INITIAL_VALUE_FILE,
-        TARGET_TMP_MODEL_PATH);
+        PSC_INITIAL_VALUE_FILE);
+    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+
     ASTNESTMLCompilationUnit testant = parseModel(TARGET_TMP_MODEL_PATH);
 
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
@@ -95,14 +140,13 @@ public class ExactSolutionTransformerTest extends DisableFailQuickMixin {
 
   @Test
   public void testAddingStateVariables() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
 
-    exactSolutionTransformer.addStateVariablesAndUpdateStatements(
-        modelRoot,
-        STATE_VECTOR_FILE,
-        TARGET_TMP_MODEL_PATH);
+    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer
+        .addStateVariablesAndUpdateStatements(modelRoot, STATE_VECTOR_FILE);
+    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseModel(TARGET_TMP_MODEL_PATH);
 
@@ -131,6 +175,22 @@ public class ExactSolutionTransformerTest extends DisableFailQuickMixin {
       throw new RuntimeException("Cannot parse the NESTML model: " + pathToModel, e);
     }
 
+  }
+
+  // TODO: replace it with return root call
+  private void printModelToFile(
+      final ASTNESTMLCompilationUnit root,
+      final String outputModelFile) {
+    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
+    root.accept(prettyPrinter);
+
+    final File prettyPrintedModelFile = new File(outputModelFile);
+    try {
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
+    }
+    catch (IOException e) {
+      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
+    }
   }
 
 }

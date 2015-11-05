@@ -32,48 +32,57 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Manages the overall script generation and evaluation of the generated scripts
+ * Takes SymPy result and the source AST. Produces an altered AST with the integrated solution.
  *
  * @author plotnikov
  */
-public class ExactSolutionTransformer {
+public class SymPySolutionTransformer {
 
   final SymPy2NESTMLConverter converter2NESTML = new SymPy2NESTMLConverter();
+
+  public ASTNESTMLCompilationUnit replaceODEWithSymPySolution(
+      ASTNESTMLCompilationUnit root,
+      final String pathToP00File,
+      final String PSCInitialValueFile,
+      final String stateVectorFile,
+      final String updateStepFile) {
+    root = addP00(root, pathToP00File);
+    root = addPSCInitialValue(root, PSCInitialValueFile);
+    root = addStateVariablesAndUpdateStatements(root, stateVectorFile);
+    root = replaceODE(root, updateStepFile);
+
+    return root;
+  }
 
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  public void addP00(
+  public ASTNESTMLCompilationUnit addP00(
       final ASTNESTMLCompilationUnit root,
-      final String pathToP00File,
-      final String outputModelFile) {
+      final String pathToP00File) {
 
     final ASTAliasDecl p00Declaration = converter2NESTML.convertToAlias(pathToP00File);
 
     addToInternalBlock(root, p00Declaration);
-
-    printModelToFile(root, outputModelFile);
+    return root;
   }
 
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  public void addPSCInitialValue(
+  public ASTNESTMLCompilationUnit addPSCInitialValue(
       final ASTNESTMLCompilationUnit root,
-      final String pathPSCInitialValueFile,
-      final String outputModelFile) {
+      final String pathPSCInitialValueFile) {
 
     final ASTAliasDecl pscInitialValue = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
 
     addToInternalBlock(root, pscInitialValue);
-
-    printModelToFile(root, outputModelFile);
+    return root;
   }
 
-  public void addStateVariablesAndUpdateStatements(
+  public ASTNESTMLCompilationUnit addStateVariablesAndUpdateStatements(
       final ASTNESTMLCompilationUnit root,
-      final String stateVectorFile,
-      final String outputModelFile) {
+      final String stateVectorFile) {
     try {
       final List<String> stateVectorLines = Files.lines(Paths.get(stateVectorFile))
               .collect(Collectors.toList());
@@ -116,12 +125,32 @@ public class ExactSolutionTransformer {
             .convertStringToAssignment("y0 = " + currentBuffer.getName() + ".getSum(t)");
         addAssignmentToDynamics(astBodyDecorator, y0Assignment);
       }
-
-      printModelToFile(root, outputModelFile);
+      return root;
     }
     catch (IOException e) {
       throw new RuntimeException("Cannot process stateVector output from the SymPy solver", e);
     }
+  }
+
+  public ASTNESTMLCompilationUnit replaceODE(
+      final ASTNESTMLCompilationUnit root,
+      final String updateStepFile) {
+    final ASTAssignment stateUpdate = converter2NESTML.convertToAssignment(updateStepFile);
+
+    ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    final ODECollector odeCollector = new ODECollector();
+    odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
+    checkState(odeCollector.getFoundOde().isPresent());
+
+    final Optional<ASTNode> parent = ASTNodes.getParent(odeCollector.getFoundOde().get(), root);
+    checkState(parent.isPresent());
+    checkState(parent.get() instanceof ASTSmall_Stmt);
+
+    final ASTSmall_Stmt castedParent = (ASTSmall_Stmt) parent.get();
+    castedParent.setOdeDeclaration(null);
+    castedParent.setAssignment(stateUpdate);
+
+    return root;
   }
 
   private class ODECollector implements NESTMLVisitor {
@@ -142,26 +171,6 @@ public class ExactSolutionTransformer {
 
   }
 
-  public void replaceODE(
-      final ASTNESTMLCompilationUnit root,
-      final String updateStepFile,
-      final String outputModelFile) {
-    final ASTAssignment stateUpdate = converter2NESTML.convertToAssignment(updateStepFile);
-
-    ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
-    final ODECollector odeCollector = new ODECollector();
-    odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
-    checkState(odeCollector.getFoundOde().isPresent());
-
-    final Optional<ASTNode> parent = ASTNodes.getParent(odeCollector.getFoundOde().get(), root);
-    checkState(parent.isPresent());
-    checkState(parent.get() instanceof ASTSmall_Stmt);
-    final ASTSmall_Stmt castedParent = (ASTSmall_Stmt) parent.get();
-    castedParent.setAssignment(stateUpdate);
-
-    printModelToFile(root, outputModelFile);
-  }
-
   private void addAssignmentToDynamics(ASTBodyDecorator astBodyDecorator,
       ASTAssignment yVarAssignment) {
     final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
@@ -179,23 +188,7 @@ public class ExactSolutionTransformer {
     astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }
 
-  // TODO: replace it with return root call
-  private void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
-      final String outputModelFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
-    root.accept(prettyPrinter);
-
-    final File prettyPrintedModelFile = new File(outputModelFile);
-    try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
-    }
-    catch (IOException e) {
-     throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
-    }
-  }
-
-  // TODO do I need functions?
+  // TODO do I need functions? Try to express it as lambda
   private void addToInternalBlock(
       final ASTNESTMLCompilationUnit root,
       final ASTAliasDecl declaration) {

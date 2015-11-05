@@ -12,8 +12,8 @@ rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
 ${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
 
 
-firstDev = diff(rhs, V)
-secondDev = diff(firstDev, V)
+firstDev = diff(rhs, ${ode.getLhsVariable()})
+secondDev = diff(firstDev, ${ode.getLhsVariable()})
 
 if secondDev == 0:
     print 'We have a linear differential equation!'
@@ -59,7 +59,7 @@ if secondDev == 0:
         print 'We have a problem'
         exit(1)
 
-    c1 = diff(rhs, V)
+    c1 = diff(rhs, ${ode.getLhsVariable()})
     ${eq.getLhsVariable()} = symbols("${eq.getLhsVariable()}")
     c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${eq.getLhsVariable()})
 
@@ -96,7 +96,7 @@ if secondDev == 0:
 
     for i in range(0, order):
         y_vector[i] = eval(stateVariables[i])
-    y_vector[order] = V
+    y_vector[order] = ${ode.getLhsVariable()}
 
     f = open('state.vector.mat', 'w')
     f.write(str(order) + "\n")
@@ -104,7 +104,8 @@ if secondDev == 0:
         f.write(stateVariables[i] + " = " + str(simplify(propagatorMatrix*y_vector)[i]) + "# Update\n")
 
     f = open('update.step.mat', 'w')
-    f.write("V = " + str(simplify(propagatorMatrix*y_vector)[order]))
+    # TODO it is a hack
+    f.write("V = P30 * (y0 + I_e) + " + str(simplify(propagatorMatrix*y_vector)[order]))
 
     f = open('pscInitialValue.mat', 'w')
     f.write("PSCInitialValue real = " + str(simplify(X[0, 1])) + "# PSCInitial value")

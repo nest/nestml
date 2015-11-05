@@ -30,8 +30,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
 /**
- * Wrapps the logic how to generate and evaluate SympyODEAnalyzer C++ implementation from a NESTML
- * model.
+ * Wrapps the logic how to extract and generate SymPy script..
  * @author plotnikov
  */
 public class SymPyScriptGenerator {

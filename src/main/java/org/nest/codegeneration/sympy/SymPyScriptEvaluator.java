@@ -22,9 +22,9 @@ import static de.se_rwth.commons.logging.Log.info;
  *
  * @author plotnikov
  */
-public class SolverScriptEvaluator {
+public class SymPyScriptEvaluator {
 
-  final private static String LOG_NAME = SolverScriptEvaluator.class.getName();
+  final private static String LOG_NAME = SymPyScriptEvaluator.class.getName();
 
   public boolean execute(final Path generatedScript) {
 
@@ -47,7 +47,6 @@ public class SolverScriptEvaluator {
       if (getListFromStream(res.getErrorStream()).size() > 0) {
         return false;
       }
-
       // Read generated matrix entries
     }
     catch (IOException | InterruptedException e) {

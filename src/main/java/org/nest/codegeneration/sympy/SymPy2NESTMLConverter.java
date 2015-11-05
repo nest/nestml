@@ -1,3 +1,8 @@
+/*
+ * Copyright (c)  RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.codegeneration.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;
@@ -24,13 +29,14 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createAssignmentMCPars
 import static org.nest.nestml._parser.NESTMLParserFactory.createDeclarationMCParser;
 
 /**
- * Created by user on 20.05.15.
+ * Takes output from the SymPy script and converts into the NESTML ASTs.
+ *
+ * @author plotnikov
  */
 public class SymPy2NESTMLConverter {
 
   final DeclarationMCParser declarationParser = createDeclarationMCParser();
   final DeclarationMCParser declarationStringParser = createDeclarationMCParser();
-  final AssignmentMCParser assignmentParser = createAssignmentMCParser();
   final AssignmentMCParser assignmentStringParser = createAssignmentMCParser();
 
   public SymPy2NESTMLConverter() {
@@ -96,5 +102,7 @@ public class SymPy2NESTMLConverter {
       final String msg = "Cannot parse assignment statement.";
       throw new RuntimeException(msg, e);
     }
+
   }
+
 }

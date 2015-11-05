@@ -21,10 +21,8 @@ import java.io.File;
 import java.nio.file.Path;
 
 /**
- * TODO
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since 0.0.1
+ * Code-Generator for the SPL sublanguage. Templates are reused in the NESTML generator.
+ * @author plotnikov
  */
 public class SPL2NESTCodeGenerator {
   public static final String DECLARATION_TEMPLATE = "org.nest.spl.Declaration";
