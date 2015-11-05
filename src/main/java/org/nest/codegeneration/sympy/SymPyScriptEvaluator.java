@@ -47,7 +47,6 @@ public class SymPyScriptEvaluator {
       if (getListFromStream(res.getErrorStream()).size() > 0) {
         return false;
       }
-
       // Read generated matrix entries
     }
     catch (IOException | InterruptedException e) {

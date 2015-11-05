@@ -12,8 +12,8 @@ rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
 ${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
 
 
-firstDev = diff(rhs, V)
-secondDev = diff(firstDev, V)
+firstDev = diff(rhs, ${ode.getLhsVariable()})
+secondDev = diff(firstDev, ${ode.getLhsVariable()})
 
 if secondDev == 0:
     print 'We have a linear differential equation!'
@@ -59,7 +59,7 @@ if secondDev == 0:
         print 'We have a problem'
         exit(1)
 
-    c1 = diff(rhs, V)
+    c1 = diff(rhs, ${ode.getLhsVariable()})
     ${eq.getLhsVariable()} = symbols("${eq.getLhsVariable()}")
     c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${eq.getLhsVariable()})
 
@@ -96,7 +96,7 @@ if secondDev == 0:
 
     for i in range(0, order):
         y_vector[i] = eval(stateVariables[i])
-    y_vector[order] = V
+    y_vector[order] = ${ode.getLhsVariable()}
 
     f = open('state.vector.mat', 'w')
     f.write(str(order) + "\n")
