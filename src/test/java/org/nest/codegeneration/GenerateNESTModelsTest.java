@@ -14,9 +14,7 @@ import java.util.List;
 /**
  * Generates entire NEST implementation for several NESTML models.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class GenerateNESTModelsTest extends GenerationTestBase {
   private static final String INTEGRATION_MODEL_PATH = "src/test/resources/integration";
