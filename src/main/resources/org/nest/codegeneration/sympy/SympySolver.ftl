@@ -104,7 +104,8 @@ if secondDev == 0:
         f.write(stateVariables[i] + " = " + str(simplify(propagatorMatrix*y_vector)[i]) + "# Update\n")
 
     f = open('update.step.mat', 'w')
-    f.write("V = " + str(simplify(propagatorMatrix*y_vector)[order]))
+    # TODO it is a hack
+    f.write("V = P30 * (y0 + I_e) + " + str(simplify(propagatorMatrix*y_vector)[order]))
 
     f = open('pscInitialValue.mat', 'w')
     f.write("PSCInitialValue real = " + str(simplify(X[0, 1])) + "# PSCInitial value")
