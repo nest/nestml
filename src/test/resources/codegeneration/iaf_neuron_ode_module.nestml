@@ -55,7 +55,6 @@ package codegeneration.iaf_neuron_ode_module:
                     G === w * (E/tau_syn) * t * exp(-1/tau_syn*t)
                     d/dt V === -1/Tau * V + 1/C_m * G
                 end
-                # P30 * (y0 + I_e)
                 # SYMPY V = P30 * (y0 + I_e) + P20 * y1 + P21 * y2 + P22 * V
             else:
                 r = r - 1

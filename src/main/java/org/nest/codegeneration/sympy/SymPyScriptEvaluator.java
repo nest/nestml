@@ -22,9 +22,9 @@ import static de.se_rwth.commons.logging.Log.info;
  *
  * @author plotnikov
  */
-public class SolverScriptEvaluator {
+public class SymPyScriptEvaluator {
 
-  final private static String LOG_NAME = SolverScriptEvaluator.class.getName();
+  final private static String LOG_NAME = SymPyScriptEvaluator.class.getName();
 
   public boolean execute(final Path generatedScript) {
 
