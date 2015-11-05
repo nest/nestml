@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Takes sympy result and the source AST. Produces an altered AST with integrated solution.
+ * Takes SymPy result and the source AST. Produces an altered AST with integrated solution.
  *
  * @author plotnikov
  */

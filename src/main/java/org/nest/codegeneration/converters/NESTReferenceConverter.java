@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
@@ -17,11 +22,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * TODO
+ * Converts constants, names and functions the NEST equivalents.
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since TODO
+ * @author plotnikov
  */
 public class NESTReferenceConverter implements IReferenceConverter {
 

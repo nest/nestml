@@ -30,7 +30,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @author plotnikov
  * @since 0.0.1
  */
-@SuppressWarnings("unused") // class is used from templates
+@SuppressWarnings("unused") // class is used in templates
 public class NESTMLFunctionPrinter {
 
   private final PredefinedTypesFactory typesFactory;

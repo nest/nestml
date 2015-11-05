@@ -21,12 +21,11 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Prints the dynamics function.
+ * Prints the dynamics function for the Freemarker templates.
  *
  * @author plotnikov
- * @since 0.0.1
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("unused") // it is used in freemarker templates.
 public class NESTMLDynamicsPrinter {
 
   public static final String DEFAULT_DYNAMICS_NAME = "dynamics";

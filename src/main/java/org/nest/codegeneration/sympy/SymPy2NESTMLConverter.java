@@ -1,3 +1,8 @@
+/*
+ * Copyright (c)  RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.codegeneration.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;

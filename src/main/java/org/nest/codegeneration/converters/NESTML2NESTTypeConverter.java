@@ -8,7 +8,6 @@ import org.nest.symboltable.symbols.NESTMLTypeSymbol;
  * Converts NESTML types to the
  *
  * @author plotnikov
- * @since 0.0.1
  */
 public class NESTML2NESTTypeConverter {
   final PredefinedTypesFactory typesFactory;
