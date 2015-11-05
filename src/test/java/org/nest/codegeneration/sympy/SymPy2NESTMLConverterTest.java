@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
@@ -8,7 +13,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by user on 20.05.15.
+ * Tests how the plain text is converted into the NESTML ast
+ *
+ * @author plotnikov
  */
 public class SymPy2NESTMLConverterTest {
   private final static String P00_FILE = "src/test/resources/codegeneration/sympy/P00.mat";

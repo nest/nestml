@@ -25,7 +25,6 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
  *
  * @author plonikov
  */
-
 public class SymPyScriptEvaluatorTest extends DisableFailQuickMixin {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 

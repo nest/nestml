@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
 import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
- * Test the overall script generation and evaluation of the generated scripts
+ * Tests that the solver script is generated from an ODE based model.
  *
  * @author plotnikov
  */
