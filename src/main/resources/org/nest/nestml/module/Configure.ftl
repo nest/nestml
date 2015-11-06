@@ -1,23 +1,16 @@
 <#assign lowerModuleName = moduleName?lower_case>
 <#assign upperModuleName = moduleName?upper_case>
 AC_PREREQ(2.52)
-
-
-AC_INIT(${lowerModuleName}, 1.0, nest_user@nest-initiative.org)
-
-# These variables are exported to include/config.h
-${upperModuleName}_MAJOR=1
-${upperModuleName}_MINOR=0
-${upperModuleName}_PATCHLEVEL=0
+AC_INIT([${moduleName}], [1.0], [nest_user@nest-initiative.org])
 
 # Exporting source and build directories requires full path names.
 # Thus we have to expand.
 # Here, we are in top build dir, since source dir must exist, we can just
 # move there and call pwd
 if test "x$srcdir" = x ; then
-PKGSRCDIR=`pwd`
+  PKGSRCDIR=`pwd`
 else
-PKGSRCDIR=`cd $srcdir && pwd`
+  PKGSRCDIR=`cd $srcdir && pwd`
 fi
 PKGBUILDDIR=`pwd`
 
@@ -25,7 +18,7 @@ PKGBUILDDIR=`pwd`
 # moritz, 06-26-06
 AC_CONFIG_AUX_DIR(.)
 
-AM_INIT_AUTOMAKE(nest, $${upperModuleName}_VERSION)
+AM_INIT_AUTOMAKE([tar-ustar])
 
 # obtain host system type; HEP 2004-12-20
 AC_CANONICAL_HOST
@@ -41,14 +34,29 @@ AC_CANONICAL_HOST
 
 # nest-config
 NEST_CONFIG=`which nest-config`
-AC_ARG_WITH(nest,[  --with-nest=script  nest-config script including path],
+AC_ARG_WITH(nest,[  --with-nest=script	nest-config script including path],
 [
-if test "$withval" != yes; then
-NEST_CONFIG=$withval
-else
-AC_MSG_ERROR([--with-nest-config expects the nest-config script as argument. See README for details.])
-fi
+  if test "$withval" != yes; then
+    NEST_CONFIG=$withval
+  else
+    AC_MSG_ERROR([--with-nest-config expects the nest-config script as argument. See README for details.])
+  fi
 ])
+
+# ---------------------------------------------------------------
+# Do not build dynamic libraries for user models if on BlueGene
+# ---------------------------------------------------------------
+
+configure_bluegene=`$NEST_CONFIG --configure-bluegene`
+AM_CONDITIONAL(BUILD_DYNAMIC_USER_MODULES, test x$configure_bluegene = xno)
+
+if test x$configure_bluegene = xyes ; then
+  AC_DISABLE_SHARED
+  AC_ENABLE_STATIC
+else
+  AC_DISABLE_STATIC
+  AC_ENABLE_SHARED
+fi
 
 # -------------------------------------------
 # END Handle options
@@ -58,7 +66,7 @@ fi
 # does nest-config work
 AC_MSG_CHECKING([for nest-config ])
 AC_CHECK_FILE($NEST_CONFIG, HAVE_NEST=yes,
-AC_MSG_ERROR([No usable nest-config was found. You may want to use --with-nest-config.]))
+              AC_MSG_ERROR([No usable nest-config was found. You may want to use --with-nest-config.]))
 AC_MSG_RESULT(found)
 
 # the following will crash if nest-config does not run
@@ -96,8 +104,8 @@ AC_AIX
 AC_PROG_CXX([ $NEST_COMPILER ])
 
 # the following is makeshift, should have the macro set proper
-# MYMODULE_SET_CXXFLAGS
-AM_CXXFLAGS=$${upperModuleName}_SAVE_CXXFLAGS
+# M${upperModuleName}_SET_CXXFLAGS
+AM_CXXFLAGS=${"$"}${upperModuleName}_SAVE_CXXFLAGS
 CXXFLAGS=
 
 ## Configure C environment
@@ -105,8 +113,8 @@ CXXFLAGS=
 AC_PROG_LD
 AC_PROG_INSTALL
 
-AC_LIBLTDL_CONVENIENCE     ## put libltdl into a convenience library
-AC_PROG_LIBTOOL        ## use libtool
+AC_LIBLTDL_CONVENIENCE	   ## put libltdl into a convenience library
+AC_PROG_LIBTOOL		   ## use libtool
 AC_CONFIG_SUBDIRS(libltdl) ## also configure subdir containing libltdl
 
 #-- Set the language to C++
@@ -116,6 +124,7 @@ AC_LANG_CPLUSPLUS
 AC_PROG_CXXCPP
 AM_PROG_LIBTOOL
 AC_PATH_PROGS([MAKE],[gmake make],[make])
+
 
 # ---------------------------------------------------------------
 # Configure directories to be built
@@ -159,7 +168,7 @@ AC_SUBST(MAKE_FLAGS)
 AC_SUBST(INCLTDL)
 AC_SUBST(LIBLTDL)
 
-AM_CONFIG_HEADER(${lowerModuleName}_config.h:${lowerModuleName}_config.h.in)
+AC_CONFIG_HEADER(${lowerModuleName}_config.h:${lowerModuleName}_config.h.in)
 AC_CONFIG_FILES(Makefile)
 
 # -----------------------------------------------
@@ -183,11 +192,11 @@ echo "C++ compiler        : $CXX"
 echo "C++ compiler flags  : $AM_CXXFLAGS"
 echo "NEST compiler flags : $NEST_CPPFLAGS"
 
-# these variables will still contain '${"$" + "{prefix}"}'
+# these variables will still contain '${"$"}{prefix}'
 # we want to have the versions where this is resolved, too:
-eval eval eval  PKGDOCDIR_AS_CONFIGURED=$PKGDOCDIR
-eval eval eval  PKGDATADIR_AS_CONFIGURED=$PKGDATADIR
-
+eval eval eval PKGDOCDIR_AS_CONFIGURED=$PKGDOCDIR
+eval eval eval PKGDATADIR_AS_CONFIGURED=$PKGDATADIR
+eval eval eval LIBDIR_AS_CONFIGURED=$libdir
 echo
 echo "-------------------------------------------------------"
 echo
@@ -195,6 +204,5 @@ echo "You can build and install ${moduleName} now, using"
 echo "  make"
 echo "  make install"
 echo
-echo "${moduleName} will be installed to:"
-echo -n "  "; eval eval echo "$libdir"
+echo "${moduleName} will be installed to: $LIBDIR_AS_CONFIGURED"
 echo

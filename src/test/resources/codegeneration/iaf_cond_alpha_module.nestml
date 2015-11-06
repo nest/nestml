@@ -49,14 +49,13 @@ package codegeneration.iaf_cond_alpha_module:
       if r == 0: # not refractory
         ODE:
           # Explicit
-          G === w * (E/tau_synE) * t * exp(-1/tau_synI*t)
+          G === (E/tau_synE) * t * exp(-1/tau_synI*t)
           d/dt V_m === -1/Tau * V_m + 1/C_m * G * (V_m-V_reset)
 
           # Implicit
           # d/dt y_1 === y_1/t_syn
           # d/dt y_2 === y1 - y_2/t_syn
           # d/dt V_m === -1/Tau * V_m + 1/C_m * y_2 * (V_m-V_reset)
-
 
         end
 

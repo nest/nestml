@@ -1,6 +1,5 @@
-<#assign lowerModuleName = moduleName?lower_case>
 /*
-*  ${lowerModuleName}-init.sli
+*  ${moduleName}-init.sli
 *
 *  This file is part of NEST.
 *
@@ -22,8 +21,8 @@
 */
 
 /*
-* Initialization file for ${moduleName}.
-* Run automatically when ${moduleName} is loaded.
+* Initialization file for MyModule.
+* Run automatically when MyModule is loaded.
 */
 
-M_DEBUG (${lowerModuleName}.sli) (Initializing SLI support for ${moduleName}.) message
+M_DEBUG (${moduleName}.sli) (Initializing SLI support for MyModule.) message
