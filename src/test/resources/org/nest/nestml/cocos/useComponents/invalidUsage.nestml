@@ -1,6 +1,6 @@
 package org.nest.nestml.cocos.useComponents.invalidUsage:
 
-  import org.nest.nestml.parsing.iaf_neuron.iaf_neuron
+  import org.nest.nestml.symboltable.iaf_neuron.iaf_neuron
 
   neuron UsesNeuron:
       use iaf_neuron as blaa

@@ -18,31 +18,31 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class SymPy2NESTMLConverterTest {
-  private final static String P00_FILE = "src/test/resources/codegeneration/sympy/P00.mat";
-  private final static String PSC_INITIAL_VALUE_FILE = "src/test/resources/codegeneration/sympy/pscInitialValue.mat";
-  private final static String STATE_VECTOR_FILE = "src/test/resources/codegeneration/sympy/state.vector.mat";
-  private final static String UPDATE_STEP_FILE = "src/test/resources/codegeneration/sympy/update.step.mat";
+
+  public static final String P_30 = "P30";
+
+  private final static String P30_FILE = "src/test/resources/codegeneration/sympy/P30.mat";
 
   final SymPy2NESTMLConverter symPy2NESTMLConverter = new SymPy2NESTMLConverter();
 
   @Test
-  public void testP00() throws Exception {
+  public void testConvertToDeclaration() throws Exception {
 
-    final ASTAliasDecl testant = symPy2NESTMLConverter.convertToAlias(P00_FILE);
-    assertEquals(testant.getDeclaration().getVars().get(0), "P00");
+    final ASTAliasDecl testant = symPy2NESTMLConverter.convertToAlias(P30_FILE);
+    assertEquals(testant.getDeclaration().getVars().get(0), P_30);
     assertTrue(testant.getDeclaration().getExpr().isPresent());
 
   }
 
   @Test
   public void testConvertString2Alias() {
-    final String testExpr = "P00 real = -Tau*tau_in*(Tau*h*exp(h/Tau) + Tau*tau_in*exp(h/Tau) - Tau*tau_in*exp"
+    final String testExpr = "P30 real = -Tau*tau_in*(Tau*h*exp(h/Tau) + Tau*tau_in*exp(h/Tau) - Tau*tau_in*exp"
         + "(h/tau_in) - "
         + "h*tau_in*exp(h/Tau))*exp(-h/tau_in - h/Tau)/(C*(Tau**2 - 2*Tau*tau_in + tau_in**2)) # PXX";
     final ASTAliasDecl testant = symPy2NESTMLConverter.convertStringToAlias(testExpr);
     assertNotNull(testant);
     assertEquals(1, testant.getDeclaration().getVars().size());
-    assertEquals("P00", testant.getDeclaration().getVars().get(0));
+    assertEquals(P_30, testant.getDeclaration().getVars().get(0));
   }
 
 }

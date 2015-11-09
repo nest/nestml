@@ -33,10 +33,10 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
  */
 public class SymPySolutionTransformerTest extends DisableFailQuickMixin {
 
+  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
+      TEST_MODEL_PATH, new PredefinedTypesFactory());
   public static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
-
-  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH, new PredefinedTypesFactory());
-  private final static String P00_FILE = "src/test/resources/codegeneration/sympy/P00.mat";
+  private final static String P30_FILE = "src/test/resources/codegeneration/sympy/P30.mat";
   private final static String PSC_INITIAL_VALUE_FILE = "src/test/resources/codegeneration/sympy/pscInitialValue.mat";
   private final static String STATE_VECTOR_FILE = "src/test/resources/codegeneration/sympy/state.vector.mat";
   private final static String UPDATE_STEP_FILE = "src/test/resources/codegeneration/sympy/update.step.mat";
@@ -55,7 +55,7 @@ public class SymPySolutionTransformerTest extends DisableFailQuickMixin {
     final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer
         .replaceODEWithSymPySolution(
             modelRoot,
-            P00_FILE,
+            P30_FILE,
             PSC_INITIAL_VALUE_FILE,
             STATE_VECTOR_FILE,
             UPDATE_STEP_FILE);
@@ -68,9 +68,9 @@ public class SymPySolutionTransformerTest extends DisableFailQuickMixin {
     final Scope scope = scopeCreator2.runSymbolTableCreator(testant);
     Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
 
-    final Optional<NESTMLVariableSymbol> p00Symbol = neuronSymbol.get().getVariableByName("P00");
-    assertTrue(p00Symbol.isPresent());
-    assertTrue(p00Symbol.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.INTERNAL));
+    final Optional<NESTMLVariableSymbol> p30Symbol = neuronSymbol.get().getVariableByName("P30");
+    assertTrue(p30Symbol.isPresent());
+    assertTrue(p30Symbol.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.INTERNAL));
 
     final Optional<NESTMLVariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("PSCInitialValue");
     assertTrue(pscInitialValue.isPresent());
@@ -89,9 +89,9 @@ public class SymPySolutionTransformerTest extends DisableFailQuickMixin {
   public void testAddingP00Value() {
     final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer.addP00(
+    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer.addP30(
         parseModel(MODEL_FILE_PATH),
-        P00_FILE);
+        P30_FILE);
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseModel(TARGET_TMP_MODEL_PATH);
@@ -99,7 +99,7 @@ public class SymPySolutionTransformerTest extends DisableFailQuickMixin {
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
     Optional<NESTMLNeuronSymbol> symbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
 
-    final Optional<NESTMLVariableSymbol> p00Symbol = symbol.get().getVariableByName("P00");
+    final Optional<NESTMLVariableSymbol> p00Symbol = symbol.get().getVariableByName("P30");
 
     assertTrue(p00Symbol.isPresent());
     assertTrue(p00Symbol.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.INTERNAL));
