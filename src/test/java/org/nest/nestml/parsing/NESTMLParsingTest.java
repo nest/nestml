@@ -13,8 +13,12 @@ import org.nest.nestml._parser.NESTMLParserFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Optional;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**e
@@ -22,6 +26,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class NESTMLParsingTest {
 
+  private final static  String CODEGENERATION_FOLDER = "src/test/resources/codegeneration";
   private final static  String PARSABLE_MODELS_FOLDER = "src/test/resources/org/nest/nestml/parsing";
   private final static  String COCOS_MODELS_FOLDER = "src/test/resources/org/nest/nestml/cocos";
   private final static  String LOG_NAME = NESTMLParsingTest.class.getName();
@@ -34,33 +39,44 @@ public class NESTMLParsingTest {
   @Test
   public void testParsableModels() throws IOException {
 
-    for (File file: new File(PARSABLE_MODELS_FOLDER).listFiles()) {
-      Log.trace(String.format("Processes the following file: %s", file.getAbsolutePath()), LOG_NAME);
-
-      Optional<ASTNESTMLCompilationUnit> ast = parser.parse(file.getAbsolutePath());
-      assertTrue(ast.isPresent());
-    }
+    parseAllModelsInFolder(PARSABLE_MODELS_FOLDER);
 
   }
 
   @Test
   public void testModelsForCocos() throws IOException {
-    for (File file : new File(COCOS_MODELS_FOLDER).listFiles()) {
-      if (!file.isDirectory()) {
-        Log.trace(String.format("Processes the following file: %s", file.getAbsolutePath()), LOG_NAME);
+    parseAllModelsInFolder(COCOS_MODELS_FOLDER);
+  }
 
-        Optional<ASTNESTMLCompilationUnit> ast = parser.parse(file.getAbsolutePath());
-        assertTrue(ast.isPresent());
-
-      }
-    }
-
+  @Test
+  public void testModelsForCodegeneration() throws IOException {
+    parseAllModelsInFolder(CODEGENERATION_FOLDER);
   }
 
   @Test
   public void testModelWithODE() throws IOException {
     Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/codegeneration/iaf_neuron_ode_module.nestml");
     assertTrue(ast.isPresent());
+  }
+
+  private void parseAllModelsInFolder(final String pathToFolder) throws IOException {
+    final File path = new File(pathToFolder);
+    assertNotNull(path);
+    Arrays.stream(path.listFiles())
+        .filter(file -> !file.isDirectory())
+        .forEach(file -> {
+          Log.trace(String.format("Processes the following file: %s", file.getAbsolutePath()), LOG_NAME);
+
+          Optional<ASTNESTMLCompilationUnit> ast = null;
+          try {
+            ast = parser.parse(file.getAbsolutePath());
+          }
+          catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          assertTrue(ast.isPresent());
+        });
+
   }
 
 }
