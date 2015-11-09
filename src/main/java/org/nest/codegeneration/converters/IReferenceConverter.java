@@ -10,6 +10,8 @@ import org.nest.spl._ast.ASTFunctionCall;
 
 public interface IReferenceConverter {
 
+  String  convertBinaryOperator(final String binaryOperator);
+
   String convertFunctionCall(final ASTFunctionCall astFunctionCall);
 
   String convertNameReference(final ASTQualifiedName astQualifiedName);

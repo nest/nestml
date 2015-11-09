@@ -7,21 +7,16 @@ package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
-import org.apache.commons.io.FileUtils;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.spl._ast.*;
-import org.nest.spl._visitor.SPLVisitor;
 import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 import org.nest.utils.ASTNodes;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -46,7 +41,7 @@ public class SymPySolutionTransformer {
       final String PSCInitialValueFile,
       final String stateVectorFile,
       final String updateStepFile) {
-    root = addP00(root, pathToP00File);
+    root = addP30(root, pathToP00File);
     root = addPSCInitialValue(root, PSCInitialValueFile);
     root = addStateVariablesAndUpdateStatements(root, stateVectorFile);
     root = replaceODE(root, updateStepFile);
@@ -57,7 +52,7 @@ public class SymPySolutionTransformer {
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  public ASTNESTMLCompilationUnit addP00(
+  public ASTNESTMLCompilationUnit addP30(
       final ASTNESTMLCompilationUnit root,
       final String pathToP00File) {
 

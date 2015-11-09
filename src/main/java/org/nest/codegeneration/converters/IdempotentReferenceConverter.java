@@ -17,6 +17,11 @@ import org.nest.spl._ast.ASTFunctionCall;
 public class IdempotentReferenceConverter implements IReferenceConverter {
 
   @Override
+  public String convertBinaryOperator(String binaryOperator) {
+    return "(%s)" + binaryOperator + "(%s)";
+  }
+
+  @Override
   public String convertFunctionCall(
       final ASTFunctionCall astFunctionCall) {
     final StringBuilder result = new StringBuilder();

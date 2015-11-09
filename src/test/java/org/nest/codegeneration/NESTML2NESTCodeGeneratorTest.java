@@ -22,8 +22,8 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 
   private final List<String> nestmlModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron_module.nestml",
-      //"src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
+      "src/test/resources/codegeneration/iaf_neuron_module.nestml"
+      /*"src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
       "src/test/resources/codegeneration/iaf_tum_2000_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp_module.nestml",
@@ -32,7 +32,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
       "src/test/resources/codegeneration/mat2_psc_exp_module.nestml",
       "src/test/resources/codegeneration/izhikevich_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse_module.nestml",
-      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
+      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"*/
   );
 
   @Override

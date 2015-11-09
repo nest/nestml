@@ -35,6 +35,21 @@ public class NESTReferenceConverter implements IReferenceConverter {
   }
 
   @Override
+  public String convertBinaryOperator(String binaryOperator) {
+    if (binaryOperator.equals("**")) {
+      return "pow(%s, %s)";
+    }
+    if (binaryOperator.equals("and")) {
+      return "(%s) && (%s)";
+    }
+    if (binaryOperator.equals("or")) {
+      return "(%s) || (%s)";
+    }
+
+    return "(%s)" + binaryOperator + "(%s)";
+  }
+
+  @Override
   public String convertFunctionCall(
       final ASTFunctionCall astFunctionCall) {
     checkState(astFunctionCall.getEnclosingScope().isPresent(), "No scope assigned. Run SymbolTable creator.");

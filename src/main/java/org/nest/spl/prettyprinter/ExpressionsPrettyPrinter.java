@@ -83,8 +83,9 @@ public class ExpressionsPrettyPrinter {
       final StringBuilder expression = new StringBuilder();
       final String leftOperand = print(expr.getBase().get());
       final String rightOperand = print(expr.getExponent().get());
-      expression.append(leftOperand).append("**").append(rightOperand);
-      return expression.toString();
+
+      final String powTemplate = referenceConverter.convertBinaryOperator("**");
+      return String.format(powTemplate, leftOperand, rightOperand);
     }
     else if (expr.isShiftLeft() ||
         expr.isShiftRight() ||
@@ -114,25 +115,21 @@ public class ExpressionsPrettyPrinter {
       expression.append(leftOperand).append(printComparisonOperator(expr)).append(rightOperand);
       return expression.toString();
     }
-    else if (expr.isLogicalOr()) {
-      final StringBuilder expression = new StringBuilder();
+    else if (expr.isLogicalOr() || expr.isLogicalAnd()) {
       final String leftOperand = print(expr.getLeft().get());
       final String rightOperand = print(expr.getRight().get());
-      expression.append("(").append(leftOperand).append(")");
-      expression.append(" or ");
-      expression.append("(").append(rightOperand).append(")");
-      return expression.toString();
+
+      if (expr.isLogicalAnd()) {
+        final String operatorTemplate = referenceConverter.convertBinaryOperator("and");
+        return String.format(operatorTemplate, leftOperand, rightOperand);
+      }
+      else { // it is an or-operator
+        final String operatorTemplate = referenceConverter.convertBinaryOperator("or");
+        return String.format(operatorTemplate, leftOperand, rightOperand);
+      }
+
     }
 
-    else if (expr.isLogicalAnd()) {
-      final StringBuilder expression = new StringBuilder();
-      final String leftOperand = print(expr.getLeft().get());
-      final String rightOperand = print(expr.getRight().get());
-      expression.append("(").append(leftOperand).append(")");
-      expression.append(" and ");
-      expression.append("(").append(rightOperand).append(")");
-      return expression.toString();
-    }
     final String errorMsg = "Cannot determine the type of the Expression-Node @{" + expr.get_SourcePositionStart() +
         ", " + expr.get_SourcePositionEnd() + "}";
 

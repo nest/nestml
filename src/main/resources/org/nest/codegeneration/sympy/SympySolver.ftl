@@ -110,8 +110,8 @@ if secondDev == 0:
     f = open('pscInitialValue.mat', 'w')
     f.write("PSCInitialValue real = " + str(simplify(X[0, 1])) + "# PSCInitial value")
 
-    f = open('P00.mat', 'w')
-    f.write("P00 real = " + str(simplify(c2/c1*(exp(h*c1)-1))) + "# P00 expression")
+    f = open('P30.mat', 'w')
+    f.write("P30 real = " + str(simplify(c2/c1*(exp(h*c1)-1))) + "# P00 expression")
 
 else:
     print 'Not a linear differential equation'

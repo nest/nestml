@@ -28,7 +28,7 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
 public class SymPyScriptEvaluatorTest extends DisableFailQuickMixin {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 
-  public static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iiaf_cond_alpha_neuron.nestml";
+  public static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 
   private static final String OUTPUT_FOLDER = "target";
 
