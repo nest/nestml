@@ -6,4 +6,3 @@ package org.nest.nestml.cocos.multipleDynamicsNeuron:
         dynamics minDelay(t ms):
         end
     end
-end

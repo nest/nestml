@@ -9,4 +9,3 @@ package org.nest.nestml.cocos.varWithTypeName:
             string string = "a"
         end
     end
-end

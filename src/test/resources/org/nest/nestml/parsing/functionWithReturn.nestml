@@ -24,5 +24,3 @@ package org.nest.nestml.parsing.functionWithReturn:
         end
         
     end
-    
-end

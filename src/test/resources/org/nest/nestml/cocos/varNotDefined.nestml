@@ -7,5 +7,3 @@ package notDefined:
             x real = 3 * y
         end
     end
-    
-end

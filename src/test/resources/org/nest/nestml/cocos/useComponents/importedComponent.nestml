@@ -4,6 +4,3 @@ package org.nest.nestml.cocos.useComponents.importedComponent:
     function testFunction():
     end
   end
-
-end
-

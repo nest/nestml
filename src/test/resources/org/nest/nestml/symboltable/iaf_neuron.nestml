@@ -117,5 +117,3 @@ package org.nest.nestml.symboltable.iaf_neuron:
             end
         end
     end
-end
-

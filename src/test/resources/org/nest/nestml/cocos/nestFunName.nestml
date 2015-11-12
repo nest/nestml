@@ -27,4 +27,3 @@ package org.nest.nestml.cocos.nestFunName:
         function init_buffers_():
         end
     end
-end

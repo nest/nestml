@@ -3,4 +3,3 @@ package org.nest.nestml.cocos.componentWithDynamics:
         dynamics timestep (t ms):
         end
     end
-end

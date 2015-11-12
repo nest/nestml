@@ -38,5 +38,3 @@ package illegalExpression:
             return 0
         end
     end
-    
-end

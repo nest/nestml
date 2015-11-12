@@ -1,132 +1,129 @@
 package codegeneration.iaf_psc_alpha_module:
 
-    neuron iaf_psc_alpha_neuron:
+neuron iaf_psc_alpha_neuron:
 
-        state:
-          y0, y1_ex, y2_ex, y1_in, y2_in, y3 real = 0;
-          alias V_m real = y3 + U0
-          - r integer = 0;
-        end
+  state:
+    y0, y1_ex, y2_ex, y1_in, y2_in, y3 real = 0;
+    alias V_m real = y3 + U0
+    - r integer = 0;
+  end
 
-        function set_V_m(v real):
-            y3 = v + U0
-        end
+  function set_V_m(v real):
+      y3 = v + U0
+  end
 
-        parameter:
-          # Membrane time constant in ms
-          Tau ms = 10
-          # Membrane capacitance in pF
-          C pF = 250
-          # Refractory period in ms
-          TauR ms = 2
-          # Resting potential in mV.
-          U0 mV = -70
-          # External current in pA
-          I_e pA = 0;
-          # Reset value of the membrane potential
-          alias V_reset real = -70 - U0;
-          # Threshold, RELATIVE TO RESTING POTENTIAL(!).
-          #    I.e. the real threshold is (U0_+Theta_)
-          alias Theta real = -55 - U0;
-          # Lower bound, RELATIVE TO RESTING POTENTIAL(!).
-          #    I.e. the real lower bound is (LowerBound_+U0_).
-          LowerBound real = inf;
-          # Time constant of excitatory synaptic current in ms.
-          tau_ex ms = 2;
-          # Time constant of inhibitory synaptic current in ms.
-          tau_in ms = 2;
-        end
+  parameter:
+    # Membrane time constant in ms
+    Tau ms = 10
+    # Membrane capacitance in pF
+    C pF = 250
+    # Refractory period in ms
+    TauR ms = 2
+    # Resting potential in mV.
+    U0 mV = -70
+    # External current in pA
+    I_e pA = 0;
+    # Reset value of the membrane potential
+    alias V_reset real = -70 - U0;
+    # Threshold, RELATIVE TO RESTING POTENTIAL(!).
+    #    I.e. the real threshold is (U0_+Theta_)
+    alias Theta real = -55 - U0;
+    # Lower bound, RELATIVE TO RESTING POTENTIAL(!).
+    #    I.e. the real lower bound is (LowerBound_+U0_).
+    LowerBound real = inf;
+    # Time constant of excitatory synaptic current in ms.
+    tau_ex ms = 2;
+    # Time constant of inhibitory synaptic current in ms.
+    tau_in ms = 2;
+  end
 
-        function set_V_reset(v real):
-            V_reset = v - U0
-        end
+  function set_V_reset(v real):
+      V_reset = v - U0
+  end
 
-        function set_Theta(v real):
-            Theta = v - U0
-        end
+  function set_Theta(v real):
+      Theta = v - U0
+  end
 
-        internal:
-          h   ms   = resolution()
+  internal:
+    h   ms   = resolution()
 
-          EPSCInitialValue real = 1.0 * E/tau_ex;
-          IPSCInitialValue real = 1.0 * E/tau_in;
-          RefractoryCounts integer = steps(TauR)
+    EPSCInitialValue real = 1.0 * E/tau_ex;
+    IPSCInitialValue real = 1.0 * E/tau_in;
+    RefractoryCounts integer = steps(TauR)
 
-          P30 real = -Tau/C * expm1(-h / Tau)
-          P33 real = pow(E, -h/Tau)
+    P30 real = -Tau/C * expm1(-h / Tau)
+    P33 real = pow(E, -h/Tau)
 
-          P11_ex real = pow(E, -h/tau_ex)
-          P21_ex real = h * P11_ex
-          P22_ex real = h * P11_ex
-          P31_ex real = 1/C * ((P11_ex - P33)/(-1/tau_ex - -1/Tau)-  h*P11_ex) /(-1/Tau - -1/tau_ex);
-          P32_ex real = 1 / C * (P33 - P11_ex)/(-1/Tau - -1/tau_ex)
-          P11_in real = pow(E, -h/tau_in)
-          P21_in real = h * P11_in
-          P22_in real = pow(E, -h/tau_in)
-          P31_in real = 1/C * ((P11_in - P33)/(-1/tau_in- -1/Tau)- h*P11_in)/(-1/Tau - -1/tau_in);
-          P32_in real = 1/C*(P33 - P11_in)/(-1/Tau - -1/tau_in);
+    P11_ex real = pow(E, -h/tau_ex)
+    P21_ex real = h * P11_ex
+    P22_ex real = h * P11_ex
+    P31_ex real = 1/C * ((P11_ex - P33)/(-1/tau_ex - -1/Tau)-  h*P11_ex) /(-1/Tau - -1/tau_ex);
+    P32_ex real = 1 / C * (P33 - P11_ex)/(-1/Tau - -1/tau_ex)
+    P11_in real = pow(E, -h/tau_in)
+    P21_in real = h * P11_in
+    P22_in real = pow(E, -h/tau_in)
+    P31_in real = 1/C * ((P11_in - P33)/(-1/tau_in- -1/Tau)- h*P11_in)/(-1/Tau - -1/tau_in);
+    P32_in real = 1/C*(P33 - P11_in)/(-1/Tau - -1/tau_in);
 
-          expm1_tau_m real = expm1(-h/Tau);
+    expm1_tau_m real = expm1(-h/Tau);
 
-          weighted_spikes_ex real;
-          weighted_spikes_in real;
-        end
+    weighted_spikes_ex real;
+    weighted_spikes_in real;
+  end
 
-        input:
-            spikeBufferInh   <- inhibitory spike
-            spikeBufferExc   <- excitatory spike
-            currentBuffer <- current
-        end
+  input:
+      spikeBufferInh   <- inhibitory spike
+      spikeBufferExc   <- excitatory spike
+      currentBuffer <- current
+  end
 
-        output: spike
+  output: spike
 
-        dynamics timestep(t ms):
-            if r == 0:
-                # neuron not refractory
-                y3 = P30*(y0 + I_e) + P31_ex * y1_ex + P32_ex * y2_ex + P31_in * y1_in + P32_in * y2_in + expm1_tau_m * y3 + y3;
+  dynamics timestep(t ms):
+      if r == 0:
+          # neuron not refractory
+          y3 = P30*(y0 + I_e) + P31_ex * y1_ex + P32_ex * y2_ex + P31_in * y1_in + P32_in * y2_in + expm1_tau_m * y3 + y3;
 
-                # lower bound of membrane potential
-                if y3 < LowerBound:
-                    y3 =  LowerBound
-                end
-            else: # neuron is absolute refractory
-               r = r - 1;
-            end
-            # alpha shape EPSCs
-            y2_ex = P21_ex * y1_ex + P22_ex * y2_ex;
-            y1_ex = y1_ex * P11_ex;
+          # lower bound of membrane potential
+          if y3 < LowerBound:
+              y3 =  LowerBound
+          end
+      else: # neuron is absolute refractory
+         r = r - 1;
+      end
+      # alpha shape EPSCs
+      y2_ex = P21_ex * y1_ex + P22_ex * y2_ex;
+      y1_ex = y1_ex * P11_ex;
 
-            # Apply spikes delivered in this step; spikes arriving at T+1 have
-            # an immediate effect on the state of the neuron
-            weighted_spikes_ex = spikeBufferExc.getSum();
-            y1_ex = y1_ex + EPSCInitialValue * weighted_spikes_ex;
+      # Apply spikes delivered in this step; spikes arriving at T+1 have
+      # an immediate effect on the state of the neuron
+      weighted_spikes_ex = spikeBufferExc.getSum();
+      y1_ex = y1_ex + EPSCInitialValue * weighted_spikes_ex;
 
-            # alpha shape EPSCs
-            y2_in = P21_in * y1_in + P22_in * y2_in;
-            y1_in = y1_in * P11_in;
+      # alpha shape EPSCs
+      y2_in = P21_in * y1_in + P22_in * y2_in;
+      y1_in = y1_in * P11_in;
 
-            # Apply spikes delivered in this step; spikes arriving at T+1 have
-            # an immediate effect on the state of the neuron
-            weighted_spikes_in = spikeBufferInh.getSum();
-            y1_in = y1_in + IPSCInitialValue * weighted_spikes_in;
+      # Apply spikes delivered in this step; spikes arriving at T+1 have
+      # an immediate effect on the state of the neuron
+      weighted_spikes_in = spikeBufferInh.getSum();
+      y1_in = y1_in + IPSCInitialValue * weighted_spikes_in;
 
-            # threshold crossing
-            if y3 >= Theta:
-                r  = RefractoryCounts;
-                y3 = V_reset;
-                # A supra-threshold membrane potential should never be observable.
-                # The reset at the time of threshold crossing enables accurate integration
-                # independent of the computation step size, see [2,3] for details.
-                # TODO why does it work iaf_neuron and not in this
-                emitSpike()
-            end
+      # threshold crossing
+      if y3 >= Theta:
+          r  = RefractoryCounts;
+          y3 = V_reset;
+          # A supra-threshold membrane potential should never be observable.
+          # The reset at the time of threshold crossing enables accurate integration
+          # independent of the computation step size, see [2,3] for details.
+          # TODO why does it work iaf_neuron and not in this
+          emitSpike()
+      end
 
-            # set new input current
-            y0 = currentBuffer.getSum(t);
+      # set new input current
+      y0 = currentBuffer.getSum(t);
 
-        end
-
-    end
+  end
 
 end
-

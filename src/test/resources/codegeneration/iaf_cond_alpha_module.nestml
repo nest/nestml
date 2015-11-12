@@ -1,69 +1,67 @@
 package codegeneration.iaf_cond_alpha_module:
 
-  neuron iaf_cond_alpha_neuron:
+neuron iaf_cond_alpha_neuron:
 
-    state:
-      V_m real = 0
-      - r integer
-    end
+  state:
+    V_m real = 0
+    - r integer
+  end
 
-    parameter:
-     V_th mV = -55.0      # Threshold Potential in mV
-     V_reset mV = -60.0   # Reset Potential in mV
-     t_ref ms = 2.0       # Refractory period in ms
-     g_L ms = 16.6667     # Leak Conductance in nS
-     C_m pF = 250.0       # Membrane Capacitance in pF
-     E_ex mV = 0          # Excitatory reversal Potential in mV
-     E_in mV = -85.0      # Inhibitory reversal Potential in mV
-     E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
-     tau_synE ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
-     tau_synI ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
-     I_e pA = 0           # Constant Current in pA
-    end
+  parameter:
+   V_th mV = -55.0      # Threshold Potential in mV
+   V_reset mV = -60.0   # Reset Potential in mV
+   t_ref ms = 2.0       # Refractory period in ms
+   g_L ms = 16.6667     # Leak Conductance in nS
+   C_m pF = 250.0       # Membrane Capacitance in pF
+   E_ex mV = 0          # Excitatory reversal Potential in mV
+   E_in mV = -85.0      # Inhibitory reversal Potential in mV
+   E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
+   tau_synE ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
+   tau_synI ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+   I_e pA = 0           # Constant Current in pA
+  end
 
-    internal:
-      h   ms   = resolution()
+  internal:
+    h   ms   = resolution()
 
-      # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-      # conductance excursion.
-      PSConInit_E real = 1.0 * E/tau_synE
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_E real = 1.0 * E/tau_synE
 
-      # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-      # conductance excursion.
-      PSConInit_I real = 1.0 * E / tau_synI
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_I real = 1.0 * E / tau_synI
 
-      # refractory time in steps
-      RefractoryCounts integer = steps(t_ref)
-    end
+    # refractory time in steps
+    RefractoryCounts integer = steps(t_ref)
+  end
 
-    input:
-        spikeInh   <- inhibitory spike
-        spikeExc   <- excitatory spike
-        currents <- current
-    end
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
 
-    output: spike
+  output: spike
 
-    dynamics timestep(t ms):
+  dynamics timestep(t ms):
 
-      if r == 0: # not refractory
-        ODE:
-          # Explicit
-          G === (E/tau_synE) * t * exp(-1/tau_synI*t)
-          d/dt V_m === -1/Tau * V_m + 1/C_m * G * (V_m-V_reset)
+    if r == 0: # not refractory
+      ODE:
+        # Explicit
+        G === (E/tau_synE) * t * exp(-1/tau_synI*t)
+        d/dt V_m === -1/Tau * V_m + 1/C_m * G * (V_m-V_reset)
 
-          # Implicit
-          # d/dt y_1 === y_1/t_syn
-          # d/dt y_2 === y1 - y_2/t_syn
-          # d/dt V_m === -1/Tau * V_m + 1/C_m * y_2 * (V_m-V_reset)
+        # Implicit
+        # d/dt y1 === y_1/t_syn
+        # d/dt y2 === y1 - y_2/t_syn
+        # d/dt V_m === -1/Tau * V_m + 1/C_m * y_2 * (V_m-V_reset)
 
-        end
-
-      else:
-        r = r - 1
       end
-    end
 
+    else:
+      r = r - 1
+    end
   end
 
 end

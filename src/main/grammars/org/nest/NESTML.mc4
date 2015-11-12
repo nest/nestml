@@ -17,7 +17,7 @@ grammar NESTML extends org.nest.SPL {
     BLOCK_OPEN
     (Import | NEWLINE)*
     (Neuron | Component | NEWLINE)*
-    BLOCK_CLOSE;
+    EOF;
 
   /** ASTImport represents the import line. Can be the qualified name oder a wirldcard import.
     @attribute qualifiedName    The qualified name to artifact

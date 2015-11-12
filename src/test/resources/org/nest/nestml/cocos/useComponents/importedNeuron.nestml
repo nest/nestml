@@ -4,6 +4,3 @@ package org.nest.nestml.cocos.useComponents.importedNeuron:
     function testFunction():
     end
   end
-
-end
-

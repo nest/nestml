@@ -1,4 +1,3 @@
 package org.nest.nestml.cocos.emptyNeuron:
     neuron EmptyNeuron:
     end
-end

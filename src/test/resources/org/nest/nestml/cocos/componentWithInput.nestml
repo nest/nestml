@@ -5,5 +5,3 @@ package org.nest.nestml.cocos.componentWithInput:
             buff <- spike
         end
     end
-    
-end

@@ -7,5 +7,3 @@ package org.nest.nestml.cocos.multipleTypesDeclared:
 
     component Foo:
     end
-
-end

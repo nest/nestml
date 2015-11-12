@@ -19,5 +19,3 @@ package org.nest.nestml.parsing.aneuronWithUseAndCode:
         output: spike
         
     end
-    
-end

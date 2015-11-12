@@ -29,5 +29,3 @@ package org.nest.nestml.cocos.multipleFunctionDeclarations:
         dynamics timestep(t ms):
         end
     end
-    
-end
