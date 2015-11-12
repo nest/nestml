@@ -108,5 +108,3 @@ package org.nest.nestml.parsing.iaf_tum_2000:
             delta_V_m = v - E_L
         end
     end
-
-end

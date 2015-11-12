@@ -15,4 +15,3 @@ package reassign:
             a = 10 | 2
         end
     end
-end

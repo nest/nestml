@@ -8,4 +8,3 @@ package useAliasInNonAliasDecl.nestml.reassignBuffer:
             testBuffer = 15
         end
     end
-end

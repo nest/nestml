@@ -9,4 +9,3 @@ package org.nest.nestml.cocos.multipleInhExcInInput:
         dynamics timestep(t ms):
         end
     end
-end

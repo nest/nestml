@@ -4,4 +4,3 @@ package validImports:
     
     component ValidNeuron:
     end
-end

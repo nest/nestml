@@ -15,4 +15,3 @@ package org.nest.nestml.cocos.memberVarDefinedInWrongOrder:
             P2 real = 2 * P1 + P2 # P3 is undefined at this place
         end
     end
-end

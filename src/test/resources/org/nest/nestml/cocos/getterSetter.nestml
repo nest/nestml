@@ -30,4 +30,3 @@ package org.nest.nestml.cocos.getterSetter:
         function get_instance():
         end
     end
-end

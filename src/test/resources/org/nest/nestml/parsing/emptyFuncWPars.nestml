@@ -24,4 +24,3 @@ package org.nest.nestml.parsing.emptyFuncWPars:
         output: spike
     end
     
-end

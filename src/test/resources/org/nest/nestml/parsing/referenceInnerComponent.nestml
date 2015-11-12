@@ -29,4 +29,3 @@ package org.nest.nestml.parsing.referenceInnerComponent:
 
         output: spike
     end
-end

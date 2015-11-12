@@ -19,5 +19,3 @@ package org.nest.nestml.cocos.invalidTypeInDecl:
             
         end
     end
-
-end

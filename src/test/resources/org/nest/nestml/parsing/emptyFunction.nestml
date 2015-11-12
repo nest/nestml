@@ -15,4 +15,3 @@ package org.nest.nestml.parsing.emptyFunction:
         output: spike
     end
     
-end

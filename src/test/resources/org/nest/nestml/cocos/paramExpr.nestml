@@ -14,4 +14,3 @@ package paras:
             foo("Hallo Welt!", 23, "Hallo Welt!")
         end
     end
-end

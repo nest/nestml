@@ -22,4 +22,3 @@ package functionWithWrongReturns:
             return 3.5
         end
     end
-end

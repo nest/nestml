@@ -18,5 +18,3 @@ package org.nest.nestml.parsing.neuronWithUse:
 
         output: spike
     end
-    
-end

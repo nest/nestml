@@ -8,4 +8,3 @@ package org.nest.nestml.cocos.multipleOutputs:
         output: spike
         output: current
     end
-end

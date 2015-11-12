@@ -9,5 +9,3 @@ package org.nest.nestml.cocos.codeAfterReturn:
             Logger.info("me is after return")
         end
     end
-
-end

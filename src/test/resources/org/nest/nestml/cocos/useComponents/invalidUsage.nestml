@@ -12,4 +12,3 @@ package org.nest.nestml.cocos.useComponents.invalidUsage:
   component UsesUnit:
      use integer as blub
   end
-end

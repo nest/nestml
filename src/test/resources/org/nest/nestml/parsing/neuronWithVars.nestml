@@ -30,5 +30,3 @@ package org.nest.nestml.parsing.neuronWithVars:
 
         output: spike
     end
-    
-end

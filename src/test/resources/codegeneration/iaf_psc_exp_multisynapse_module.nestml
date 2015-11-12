@@ -92,6 +92,3 @@ package codegeneration.iaf_psc_exp_multisynapse_module:
     end
 
   end
-
-end
-

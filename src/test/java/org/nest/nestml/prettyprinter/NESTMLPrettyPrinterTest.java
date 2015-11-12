@@ -65,6 +65,7 @@ public class NESTMLPrettyPrinterTest {
 
     for (File splModelFile : parserModelsFolder.listFiles()) {
       if (!splModelFile.isDirectory()) {
+        System.out.println("Current model: " +  splModelFile.getName());
         parseAndCheckNestmlModel(splModelFile.getPath());
 
       }
