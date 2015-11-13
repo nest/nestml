@@ -7,7 +7,7 @@ package org.nest.codegeneration.sympy;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.DisableFailQuickMixin;
+import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -25,7 +25,7 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
  *
  * @author plonikov
  */
-public class SymPyScriptEvaluatorTest extends DisableFailQuickMixin {
+public class SymPyScriptEvaluatorTest extends ModelTestBase {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 
   public static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
