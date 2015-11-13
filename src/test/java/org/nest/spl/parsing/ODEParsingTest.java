@@ -3,7 +3,7 @@ package org.nest.spl.parsing;
 import de.monticore.antlr4.MCConcreteParser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Test;
-import org.nest.DisableFailQuickMixin;
+import org.nest.ModelTestBase;
 import org.nest.nestml._parser.EqMCParser;
 import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._parser.ODEMCParser;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class ODEParsingTest extends DisableFailQuickMixin {
+public class ODEParsingTest extends ModelTestBase {
 
   @Test
   public void testOdeDefinition() throws IOException {

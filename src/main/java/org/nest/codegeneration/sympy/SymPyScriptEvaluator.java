@@ -24,7 +24,12 @@ import static de.se_rwth.commons.logging.Log.info;
  */
 public class SymPyScriptEvaluator {
 
-  final private static String LOG_NAME = SymPyScriptEvaluator.class.getName();
+  private final static String LOG_NAME = SymPyScriptEvaluator.class.getName();
+
+  public final static String P30_FILE = "P30.mat";
+  public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValue.mat";
+  public final static String STATE_VECTOR_FILE = "state.vector.mat";
+  public final static String UPDATE_STEP_FILE = "update.step.mat";
 
   public boolean execute(final Path generatedScript) {
 
