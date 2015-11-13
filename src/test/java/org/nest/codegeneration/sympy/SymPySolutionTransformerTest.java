@@ -40,9 +40,8 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
       = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.STATE_VECTOR_FILE;
   private final static String UPDATE_STEP_FILE
       = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.UPDATE_STEP_FILE;
-
-  private static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
-
+  private static final String MODEL_FILE_PATH
+      = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 
   @Test
   public void testExactSolutionTransformation() {
