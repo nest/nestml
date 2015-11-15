@@ -6,6 +6,7 @@
 package org.nest.codegeneration;
 
 import com.google.common.collect.Lists;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -21,9 +22,12 @@ import java.util.List;
 public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 
+  private final List<String> nestmlModelsWithOde = Lists.newArrayList(
+      "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
+  );
+
   private final List<String> nestmlModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron_module.nestml"
-      /*"src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
+      "src/test/resources/codegeneration/iaf_neuron_module.nestml",
       "src/test/resources/codegeneration/iaf_tum_2000_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp_module.nestml",
@@ -31,14 +35,10 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
       "src/test/resources/codegeneration/iaf_psc_exp_multisynapse_module.nestml",
       "src/test/resources/codegeneration/mat2_psc_exp_module.nestml",
       "src/test/resources/codegeneration/izhikevich_module.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse_module.nestml",
-      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"*/
+      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse_module.nestml"
+      //"src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
   );
 
-  @Override
-  protected String getModelPath() {
-    return TEST_MODEL_PATH;
-  }
 
   @Test
   public void checkCocosOnModels() throws IOException {
@@ -60,5 +60,10 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
     nestmlModels.forEach(this::generateCodeForModelIntegrationInNest);
   }
 
+  @Ignore
+  @Test
+  public void testModelsWithOde() {
+    nestmlModelsWithOde.forEach(this::generateCodeForNESTMLWithODE);
+  }
 
 }

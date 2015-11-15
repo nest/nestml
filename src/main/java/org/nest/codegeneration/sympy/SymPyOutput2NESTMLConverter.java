@@ -33,13 +33,13 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createDeclarationMCPar
  *
  * @author plotnikov
  */
-public class SymPy2NESTMLConverter {
+public class SymPyOutput2NESTMLConverter {
 
   final DeclarationMCParser declarationParser = createDeclarationMCParser();
   final DeclarationMCParser declarationStringParser = createDeclarationMCParser();
   final AssignmentMCParser assignmentStringParser = createAssignmentMCParser();
 
-  public SymPy2NESTMLConverter() {
+  public SymPyOutput2NESTMLConverter() {
     declarationStringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
     assignmentStringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }

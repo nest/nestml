@@ -12,10 +12,12 @@ import de.se_rwth.commons.Names;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTMLDynamicsPrinter;
 import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
+import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTNeuronList;
+import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.File;
@@ -31,15 +33,26 @@ import static de.se_rwth.commons.Names.getPathFromPackage;
  * @author plotnikov
  */
 public class NESTML2NESTCodeGenerator {
-  
+
+  private static ODEProcessor odeProcessor = new ODEProcessor();
+
+  public static ASTNESTMLCompilationUnit transformOdeToSolution(
+      final ASTNESTMLCompilationUnit root,
+      final NESTMLScopeCreator scopeCreator,
+      final File outputFolder) {
+    final ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, outputFolder);
+    scopeCreator.runSymbolTableCreator(withSolvedOde);
+    return withSolvedOde;
+  }
+
   public static void generateHeader(
       final GlobalExtensionManagement glex,
       final ASTNESTMLCompilationUnit compilationUnit,
       final PredefinedTypesFactory typesFactory,
-      final File outputDirectory) {
+      final File outputFolder) {
     final String moduleName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
 
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+    final GeneratorSetup setup = new GeneratorSetup(outputFolder);
     setup.setGlex(glex);
 
     final GeneratorEngine generator = new GeneratorEngine(setup);

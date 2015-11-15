@@ -1,0 +1,3 @@
+2
+y1 = y1*exp(-h/tau_syn)# Update
+y2 = (h*y1 + y2)*exp(-h/tau_syn)# Update

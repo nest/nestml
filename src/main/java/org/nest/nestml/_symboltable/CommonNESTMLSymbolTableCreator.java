@@ -27,11 +27,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class CommonNESTMLSymbolTableCreator extends CommonSymbolTableCreator implements
-    NESTMLSymbolTableCreator {
+public class CommonNESTMLSymbolTableCreator
+    extends CommonSymbolTableCreator
+    implements NESTMLSymbolTableCreator {
+  private final PredefinedTypesFactory predefinedTypesFactory;
   private String packageName = "";
   private ASTNESTMLCompilationUnit root;
-  private final PredefinedTypesFactory predefinedTypesFactory;
   private Optional<ASTAliasDecl> astAliasDeclaration = Optional.empty();
   private Optional<ASTVar_Block> astVariableBlockType = Optional.empty();
 

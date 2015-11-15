@@ -40,9 +40,8 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
       = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.STATE_VECTOR_FILE;
   private final static String UPDATE_STEP_FILE
       = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.UPDATE_STEP_FILE;
-
-  private static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
-
+  private static final String MODEL_FILE_PATH
+      = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 
   @Test
   public void testExactSolutionTransformation() {
@@ -148,8 +147,7 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 
     // TODO: why do I need new instance?
-    NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
-    final Scope scope = scopeCreator2.runSymbolTableCreator(testant);
+    final Scope scope = scopeCreator.runSymbolTableCreator(testant);
 
     Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
 
@@ -162,22 +160,5 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
     assertTrue(y1.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
   }
 
-
-
-  // TODO: replace it with return root call
-  private void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
-      final String outputModelFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
-    root.accept(prettyPrinter);
-
-    final File prettyPrintedModelFile = new File(outputModelFile);
-    try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
-    }
-  }
 
 }

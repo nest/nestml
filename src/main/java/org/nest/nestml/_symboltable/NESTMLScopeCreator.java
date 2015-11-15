@@ -25,8 +25,6 @@ import java.nio.file.Paths;
 public class NESTMLScopeCreator extends ScopeCreatorBase {
   final static String LOG_NAME = NESTMLScopeCreator.class.getName();
 
-  private final NESTMLSymbolTableCreator symbolTableCreator;
-
   @Override
   public String getLogger() {
     return LOG_NAME;
@@ -41,6 +39,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   }
 
   final GlobalScope globalScope;
+  final ResolverConfiguration resolverConfiguration;
 
   public   NESTMLScopeCreator(
       final String modelPathAsString,
@@ -51,19 +50,24 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
 
     final NESTMLLanguage nestmlLanguages = new NESTMLLanguage(typesFactory);
 
-    final ResolverConfiguration resolverConfiguration = new ResolverConfiguration();
+    resolverConfiguration = new ResolverConfiguration();
     resolverConfiguration.addTopScopeResolvers(nestmlLanguages.getResolvers());
 
-    globalScope = new GlobalScope(modelPath, nestmlLanguages.getModelLoader(), resolverConfiguration);
+    globalScope = new GlobalScope(
+        modelPath,
+        nestmlLanguages.getModelLoader(),
+        resolverConfiguration);
     addPredefinedTypes(globalScope);
     addPredefinedFunctions(globalScope);
     addPredefinedVariables(globalScope);
 
-    symbolTableCreator = new CommonNESTMLSymbolTableCreator(resolverConfiguration, globalScope, typesFactory);
 
   }
 
   public Scope runSymbolTableCreator(final ASTNESTMLCompilationUnit compilationUnit) {
+    final NESTMLSymbolTableCreator symbolTableCreator = new CommonNESTMLSymbolTableCreator(
+        resolverConfiguration, globalScope, typesFactory);
+
     return symbolTableCreator.createFromAST(compilationUnit);
   }
 

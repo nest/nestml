@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class SymPySolutionTransformer {
 
-  final SymPy2NESTMLConverter converter2NESTML = new SymPy2NESTMLConverter();
+  final SymPyOutput2NESTMLConverter converter2NESTML = new SymPyOutput2NESTMLConverter();
 
   public ASTNESTMLCompilationUnit replaceODEWithSymPySolution(
       ASTNESTMLCompilationUnit root,

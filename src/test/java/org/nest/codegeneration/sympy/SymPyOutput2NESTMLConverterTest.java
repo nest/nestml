@@ -17,18 +17,18 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class SymPy2NESTMLConverterTest {
+public class SymPyOutput2NESTMLConverterTest {
 
   public static final String P_30 = "P30";
 
   private final static String P30_FILE = "src/test/resources/codegeneration/sympy/P30.mat";
 
-  final SymPy2NESTMLConverter symPy2NESTMLConverter = new SymPy2NESTMLConverter();
+  final SymPyOutput2NESTMLConverter converter = new SymPyOutput2NESTMLConverter();
 
   @Test
   public void testConvertToDeclaration() throws Exception {
 
-    final ASTAliasDecl testant = symPy2NESTMLConverter.convertToAlias(P30_FILE);
+    final ASTAliasDecl testant = converter.convertToAlias(P30_FILE);
     assertEquals(testant.getDeclaration().getVars().get(0), P_30);
     assertTrue(testant.getDeclaration().getExpr().isPresent());
 
@@ -39,7 +39,7 @@ public class SymPy2NESTMLConverterTest {
     final String testExpr = "P30 real = -Tau*tau_in*(Tau*h*exp(h/Tau) + Tau*tau_in*exp(h/Tau) - Tau*tau_in*exp"
         + "(h/tau_in) - "
         + "h*tau_in*exp(h/Tau))*exp(-h/tau_in - h/Tau)/(C*(Tau**2 - 2*Tau*tau_in + tau_in**2)) # PXX";
-    final ASTAliasDecl testant = symPy2NESTMLConverter.convertStringToAlias(testExpr);
+    final ASTAliasDecl testant = converter.convertStringToAlias(testExpr);
     assertNotNull(testant);
     assertEquals(1, testant.getDeclaration().getVars().size());
     assertEquals(P_30, testant.getDeclaration().getVars().get(0));
