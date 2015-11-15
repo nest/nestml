@@ -45,8 +45,7 @@ public class ODEProcessorTest extends ModelTestBase {
     final ASTNESTMLCompilationUnit explicitSolution = testant
         .process(modelRoot, new File(Paths.get(OUTPUT_FOLDER, modelFolder).toString()));
 
-    final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
-    final Scope scope = scopeCreator2.runSymbolTableCreator(explicitSolution);
+    final Scope scope = scopeCreator.runSymbolTableCreator(explicitSolution);
 
     final Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
 

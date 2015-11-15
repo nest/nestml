@@ -5,23 +5,17 @@
  */
 package org.nest.codegeneration;
 
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.junit.Before;
+import org.nest.ModelTestBase;
+import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.utils.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,25 +29,9 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * Base class for the NEST generator tests.
  * Provides the methods to generate header, cpp implementation and boostraping.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
-public abstract class GenerationTestBase {
-
-  private static final String OUTPUT_FOLDER = "target";
-
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-
-  private final NESTMLScopeCreator nestmlScopeCreator
-      = new NESTMLScopeCreator(getModelPath(), typesFactory); // must be called in order to build the symbol table
-
-  protected abstract String getModelPath();
-  @Before
-  public void setup() {
-    Log.enableFailQuick(false);
-    Log.getFindings().clear();
-  }
+public abstract class GenerationTestBase extends ModelTestBase {
 
   protected void generateHeader(final String modelPath) {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
@@ -63,11 +41,11 @@ public abstract class GenerationTestBase {
     try {
       root = p.parse(modelPath);
       assertTrue(root.isPresent());
-      nestmlScopeCreator.runSymbolTableCreator(root.get());
+      scopeCreator.runSymbolTableCreator(root.get());
       final File outputFolder = new File(OUTPUT_FOLDER);
 
       NESTML2NESTCodeGenerator.generateHeader(glex, root.get(),
-          nestmlScopeCreator.getTypesFactory(), outputFolder);
+          scopeCreator.getTypesFactory(), outputFolder);
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);
@@ -84,12 +62,12 @@ public abstract class GenerationTestBase {
 
       assertTrue(root.isPresent());
 
-      nestmlScopeCreator.runSymbolTableCreator(root.get());
+      scopeCreator.runSymbolTableCreator(root.get());
 
       final File outputFolder = new File(OUTPUT_FOLDER);
 
       NESTML2NESTCodeGenerator.generateClassImplementation(glex,
-          nestmlScopeCreator.getTypesFactory(), root.get(), outputFolder);
+          scopeCreator.getTypesFactory(), root.get(), outputFolder);
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);
@@ -105,11 +83,77 @@ public abstract class GenerationTestBase {
       root = p.parse(modelFile);
       assertTrue(root.isPresent());
 
-      nestmlScopeCreator.runSymbolTableCreator(root.get());
+      scopeCreator.runSymbolTableCreator(root.get());
 
       final File outputFolder = new File(OUTPUT_FOLDER);
 
       NESTML2NESTCodeGenerator.generateCodeForModelIntegrationInNest(glex, root.get(), outputFolder);
+    }
+    catch (IOException e) { // lambda functions doesn't support checked exceptions
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  protected void generateCodeForNESTMLWithODE(final String modelFilePath) {
+    final GlobalExtensionManagement glex = createGLEXConfiguration();
+    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+    final Optional<ASTNESTMLCompilationUnit> root;
+    try {
+      root = p.parse(modelFilePath);
+
+      assertTrue(root.isPresent());
+
+      scopeCreator.runSymbolTableCreator(root.get());
+
+      final File outputFolder = new File(OUTPUT_FOLDER);
+      final ASTNESTMLCompilationUnit explicitSolutionRoot =
+          NESTML2NESTCodeGenerator.transformOdeToSolution(
+              root.get(),
+              scopeCreator,
+              outputFolder);
+      NESTML2NESTCodeGenerator.generateClassImplementation(
+          glex,
+          scopeCreator.getTypesFactory(),
+          explicitSolutionRoot,
+          outputFolder);
+      NESTML2NESTCodeGenerator.generateHeader(
+          glex,
+          explicitSolutionRoot,
+          scopeCreator.getTypesFactory(),
+          outputFolder);
+      NESTML2NESTCodeGenerator.generateClassImplementation(
+          glex,
+          scopeCreator.getTypesFactory(),
+          explicitSolutionRoot,
+          outputFolder);
+    }
+    catch (IOException e) { // lambda functions doesn't support checked exceptions
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  public void checkCocos(String modelFilePath) {
+    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+    final Optional<ASTNESTMLCompilationUnit> root;
+    try {
+      root = p.parse(modelFilePath);
+      assertTrue(root.isPresent());
+
+      scopeCreator.runSymbolTableCreator(root.get());
+      final NESTMLCoCoChecker checker
+          = new NESTMLCoCosManager(root.get(), scopeCreator.getTypesFactory()).
+          createNESTMLCheckerWithSPLCocos();
+      checker.checkAll(root.get());
+
+      Collection<Finding> errorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
+      errorFindings.addAll(getErrorsByPrefix("SPL_", Log.getFindings()));
+      errorFindings.forEach(System.out::println);
+      // TODO reactivate me
+      assertTrue("Models contain unexpected errors: " + errorFindings.size(),
+          errorFindings.isEmpty());
+
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);
@@ -128,32 +172,5 @@ public abstract class GenerationTestBase {
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter); // TODO better name
     return glex;
-  }
-
-  public void checkCocos(String modelFilePath) {
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
-    final Optional<ASTNESTMLCompilationUnit> root;
-    try {
-      root = p.parse(modelFilePath);
-      assertTrue(root.isPresent());
-
-      nestmlScopeCreator.runSymbolTableCreator(root.get());
-      final NESTMLCoCoChecker checker
-          = new NESTMLCoCosManager(root.get(), nestmlScopeCreator.getTypesFactory()).
-          createNESTMLCheckerWithSPLCocos();
-      checker.checkAll(root.get());
-
-      Collection<Finding> errorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
-      errorFindings.addAll(getErrorsByPrefix("SPL_", Log.getFindings()));
-      errorFindings.forEach(System.out::println);
-      // TODO reactivate me
-      assertTrue("Models contain unexpected errors: " + errorFindings.size(),
-          errorFindings.isEmpty());
-
-    }
-    catch (IOException e) { // lambda functions doesn't support checked exceptions
-      throw new RuntimeException(e);
-    }
-
   }
 }

@@ -7,6 +7,7 @@ package org.nest;
 
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
@@ -38,6 +39,11 @@ public class ModelTestBase {
   @BeforeClass
   public static void disableFailQuick() {
     Log.enableFailQuick(false);
+  }
+
+  @Before
+  public void clearLog() {
+    Log.getFindings().clear();
   }
 
   public ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
