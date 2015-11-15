@@ -35,8 +35,8 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
       "src/test/resources/codegeneration/iaf_psc_exp_multisynapse_module.nestml",
       "src/test/resources/codegeneration/mat2_psc_exp_module.nestml",
       "src/test/resources/codegeneration/izhikevich_module.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse_module.nestml",
-      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
+      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse_module.nestml"
+      //"src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
   );
 
 
