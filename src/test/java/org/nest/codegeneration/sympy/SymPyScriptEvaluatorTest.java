@@ -30,8 +30,6 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
 
   public static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 
-  private static final String OUTPUT_FOLDER = "target";
-
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
   @Ignore // takes long time, therefore, enabled only for the manual execution

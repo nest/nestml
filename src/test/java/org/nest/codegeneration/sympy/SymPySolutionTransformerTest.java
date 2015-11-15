@@ -162,21 +162,4 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
   }
 
 
-
-  // TODO: replace it with return root call
-  private void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
-      final String outputModelFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
-    root.accept(prettyPrinter);
-
-    final File prettyPrintedModelFile = new File(outputModelFile);
-    try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
-    }
-  }
-
 }
