@@ -13,9 +13,13 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
+import static de.se_rwth.commons.Names.getPathFromPackage;
+import static de.se_rwth.commons.Names.getQualifiedName;
 import static org.junit.Assert.assertTrue;
+import static org.nest.codegeneration.sympy.SymPyScriptGenerator.generateSympyODEAnalyzer;
 import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
@@ -39,13 +43,14 @@ public class SymPyScriptGeneratorTest {
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(MODEL_FILE_PATH);
 
     assertTrue(root.isPresent());
-    final File outputFolder = new File(OUTPUT_FOLDER);
+    final String fullName = getQualifiedName(root.get().getPackageName().getParts());
+    final File outputFolder = new File(Paths.get(OUTPUT_FOLDER, getPathFromPackage(fullName)).toString());
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
         TEST_MODEL_PATH, typesFactory);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
-    final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
+    final Optional<Path> generatedScript = generateSympyODEAnalyzer(
         root.get(),
         root.get().getNeurons().get(0),
         outputFolder);

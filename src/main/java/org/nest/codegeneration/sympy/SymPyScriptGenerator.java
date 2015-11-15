@@ -94,7 +94,7 @@ public class SymPyScriptGenerator {
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
-    final Path solverFile= Paths.get(getPathFromPackage(fullName), neuron.getName() + "Solver.py");
+    final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
 
     // TODO: filter out E
     final List<String> variables = filterConstantVariables(
@@ -104,11 +104,11 @@ public class SymPyScriptGenerator {
     // TODO: how do I find out the call was successful?
     generator.generate(
         "org.nest.sympy.SympySolver",
-        solverFile,
+        solverSubPath,
         astOdeDeclaration);
     
 
-    return Paths.get(setup.getOutputDirectory().getPath(), solverFile.toString());
+    return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
   }
 
   /**
