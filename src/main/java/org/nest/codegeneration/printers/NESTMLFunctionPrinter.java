@@ -15,7 +15,6 @@ import org.nest.nestml._ast.ASTParameter;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLMethodSymbol;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.utils.CachedResolver;
 import org.nest.utils.NESTMLSymbols;
 
 import java.util.List;
@@ -42,14 +41,13 @@ public class NESTMLFunctionPrinter {
   public String printFunctionDeclaration(final ASTFunction astFunction) {
     checkArgument(astFunction.getEnclosingScope().isPresent(), "Function: " + astFunction.getName() + " has no scope.");
     final Scope scope = astFunction.getEnclosingScope().get();
-    final CachedResolver cachedResolver = new CachedResolver();
 
     // TODO names and concept is misleading
     List<String> parameterNestmlTypes = Lists.newArrayList();
     List<String> parameterNestTypes = Lists.newArrayList();
     for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
       String parameterTypeFqn = Names.getQualifiedName(astFunction.getParameters().get().getParameters().get(i).getType().getParts());
-      Optional<NESTMLTypeSymbol> parameterType = cachedResolver.resolveAndCache(scope, parameterTypeFqn);
+      Optional<NESTMLTypeSymbol> parameterType = scope.resolve(parameterTypeFqn, NESTMLTypeSymbol.KIND);
       checkState(parameterType.isPresent(),
           "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
               .getName());
@@ -79,7 +77,6 @@ public class NESTMLFunctionPrinter {
   public String printFunctionDefinition(final ASTFunction astFunction, final String namespace) {
     checkArgument(astFunction.getEnclosingScope().isPresent(), "Function: " + astFunction.getName() + " has no scope.");
     final Scope scope = astFunction.getEnclosingScope().get();
-    final CachedResolver cachedResolver = new CachedResolver();
 
     // TODO names and concept is misleading
     List<String> parameterNestmlTypes = Lists.newArrayList();
@@ -87,7 +84,7 @@ public class NESTMLFunctionPrinter {
     for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
       final ASTParameter functionParameter = astFunction.getParameters().get().getParameters().get(i);
       String parameterTypeFqn = Names.getQualifiedName(functionParameter.getType().getParts());
-      Optional<NESTMLTypeSymbol> parameterType = cachedResolver.resolveAndCache(scope, parameterTypeFqn);
+      Optional<NESTMLTypeSymbol> parameterType = scope.resolve(parameterTypeFqn, NESTMLTypeSymbol.KIND);
       checkState(parameterType.isPresent(),
           "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
               .getName());

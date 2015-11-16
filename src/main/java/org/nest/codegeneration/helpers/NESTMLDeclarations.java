@@ -15,7 +15,6 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
-import org.nest.utils.CachedResolver;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +33,6 @@ import static com.google.common.base.Preconditions.checkState;
 public class NESTMLDeclarations {
   private final PredefinedTypesFactory typesFactory;
 
-  final private CachedResolver cachedResolver = new CachedResolver();
-
   private final NESTML2NESTTypeConverter nestml2NESTTypeConverter;
 
   private final NESTML2NESTTypeConverter typeConverter;
@@ -52,7 +49,7 @@ public class NESTMLDeclarations {
     final Scope scope = astDeclaration.getEnclosingScope().get();
     final String declarationTypeName = printDeclarationTypeName(astDeclaration);
 
-    Optional<NESTMLTypeSymbol> declarationTypeSymbol = cachedResolver.resolveAndCache(scope, declarationTypeName);
+    Optional<NESTMLTypeSymbol> declarationTypeSymbol = scope.resolve(declarationTypeName, NESTMLTypeSymbol.KIND);
     checkState(declarationTypeSymbol.isPresent(), "Cannot resolve the NESTML type: " + declarationTypeName);
 
     return new NESTML2NESTTypeConverter(typesFactory).convert(declarationTypeSymbol.get());
@@ -116,7 +113,7 @@ public class NESTMLDeclarations {
     final ASTDeclaration decl = astAliasDecl.getDeclaration();
 
     final String typeName = Names.getQualifiedName(decl.getType().get().getParts());
-    final Optional<NESTMLTypeSymbol> type = cachedResolver.resolveAndCache(scope, typeName);
+    final Optional<NESTMLTypeSymbol> type = scope.resolve(typeName, NESTMLTypeSymbol.KIND);
     if (type.isPresent()) {
       final List<NESTMLVariableSymbol> variables = Lists.newArrayList();
 
@@ -139,7 +136,7 @@ public class NESTMLDeclarations {
     final Scope scope = astAliasDecl.getEnclosingScope().get();
     final ASTDeclaration decl = astAliasDecl.getDeclaration();
     final String typeName = Names.getQualifiedName(decl.getType().get().getParts());
-    final Optional<NESTMLTypeSymbol> type = cachedResolver.resolveAndCache(scope, typeName);
+    final Optional<NESTMLTypeSymbol> type = scope.resolve(typeName, NESTMLTypeSymbol.KIND);
     if (type.isPresent()) {
       final List<NESTMLVariableSymbol> variables = Lists.newArrayList();
 
