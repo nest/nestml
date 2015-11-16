@@ -103,21 +103,6 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  protected void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
-      final String outputModelFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
-    root.accept(prettyPrinter);
-
-    final File prettyPrintedModelFile = new File(outputModelFile);
-    try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
-    }
-  }
-
   protected void generateCodeForNESTMLWithODE(final String modelFilePath) {
     final GlobalExtensionManagement glex = createGLEXConfiguration();
     final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
@@ -202,12 +187,26 @@ public abstract class GenerationTestBase extends ModelTestBase {
     final GlobalExtensionManagement glex = new GlobalExtensionManagement();
 
     final NESTReferenceConverter converter = new NESTReferenceConverter(typesFactory);
-
     // TODO resolve this circular dependency
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
 
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter); // TODO better name
     return glex;
+  }
+
+  protected void printModelToFile(
+      final ASTNESTMLCompilationUnit root,
+      final String outputModelFile) {
+    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
+    root.accept(prettyPrinter);
+
+    final File prettyPrintedModelFile = new File(outputModelFile);
+    try {
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
+    }
+    catch (IOException e) {
+      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
+    }
   }
 }

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.Names.getPathFromPackage;
+import static de.se_rwth.commons.Names.getPathFromQualifiedName;
 
 /**
  * Generates C++ Implementation and model integration code for NEST.
@@ -39,8 +40,12 @@ public class NESTML2NESTCodeGenerator {
   public static ASTNESTMLCompilationUnit transformOdeToSolution(
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
-      final File outputFolder) {
-    final ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, outputFolder);
+      final File outputBase) {
+    final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
+    final Path modulePath = Paths.get(outputBase.getPath(), getPathFromQualifiedName(moduleName));
+
+    final ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, new File(modulePath.toString()));
+
     scopeCreator.runSymbolTableCreator(withSolvedOde);
     return withSolvedOde;
   }

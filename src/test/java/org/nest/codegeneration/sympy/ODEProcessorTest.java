@@ -34,7 +34,7 @@ public class ODEProcessorTest extends ModelTestBase {
 
   final ODEProcessor testant = new ODEProcessor();
 
-  @Ignore
+  //@Ignore
   @Test
   public void testProcess() throws Exception {
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);

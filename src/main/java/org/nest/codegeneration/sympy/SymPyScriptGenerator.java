@@ -106,7 +106,6 @@ public class SymPyScriptGenerator {
         "org.nest.sympy.SympySolver",
         solverSubPath,
         astOdeDeclaration);
-    
 
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
   }
