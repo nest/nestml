@@ -29,9 +29,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class ODEProcessorTest extends ModelTestBase {
 
-  private static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
-
-  public static final String TMP_NESTML_MODEL = "tmpNestml.nestml";
+  private static final String MODEL_FILE_PATH
+      = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 
   final ODEProcessor testant = new ODEProcessor();
 
@@ -47,7 +46,9 @@ public class ODEProcessorTest extends ModelTestBase {
 
     final Scope scope = scopeCreator.runSymbolTableCreator(explicitSolution);
 
-    final Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+    final Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve(
+        "iaf_neuron_ode_neuron",
+        NESTMLNeuronSymbol.KIND);
 
     final Optional<NESTMLVariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
     assertTrue(y0.isPresent());

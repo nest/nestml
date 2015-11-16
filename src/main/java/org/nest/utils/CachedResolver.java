@@ -23,7 +23,6 @@ public class CachedResolver {
 
   /**
    * Resolves the symbol by name if not already resolved.
-   * @return
    */
   public Optional<NESTMLTypeSymbol> resolveAndCache(Scope scope, String typeName) {
     if (cache.containsKey(typeName)) {

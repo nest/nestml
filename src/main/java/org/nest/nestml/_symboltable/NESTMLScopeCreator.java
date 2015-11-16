@@ -66,7 +66,9 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
 
   public Scope runSymbolTableCreator(final ASTNESTMLCompilationUnit compilationUnit) {
     final NESTMLSymbolTableCreator symbolTableCreator = new CommonNESTMLSymbolTableCreator(
-        resolverConfiguration, globalScope, typesFactory);
+        resolverConfiguration,
+        globalScope,
+        typesFactory);
 
     return symbolTableCreator.createFromAST(compilationUnit);
   }
