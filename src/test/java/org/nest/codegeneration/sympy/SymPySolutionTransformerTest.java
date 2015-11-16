@@ -146,7 +146,6 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 
-    // TODO: why do I need new instance?
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
 
     Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);

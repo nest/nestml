@@ -28,12 +28,12 @@ public class ODEProcessor {
 
   public ASTNESTMLCompilationUnit process(
       final ASTNESTMLCompilationUnit root,
-      final File outputFolder) {
+      final File outputBase) {
     checkState(root.getNeurons().size() > 0);
     final ASTNeuron neuron = root.getNeurons().get(0);
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
     if (astBodyDecorator.getOdeDefinition().isPresent()) {
-      return handleNeuronWithODE(root, outputFolder);
+      return handleNeuronWithODE(root, outputBase);
     }
     else {
       return root;
@@ -43,8 +43,9 @@ public class ODEProcessor {
 
   private ASTNESTMLCompilationUnit handleNeuronWithODE(
       final ASTNESTMLCompilationUnit root,
-      final File outputFolder) {
+      final File outputBase) {
 
+    final File outputFolder = new File(Paths.get(outputBase.getPath(), root.getNeurons().get(0).getName()).toString());
     final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
         root,
         root.getNeurons().get(0),

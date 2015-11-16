@@ -17,10 +17,8 @@ import java.util.List;
  * Generates entire NEST implementation for several NESTML models.
  *
  * @author plotnikov
- * @since 0.0.1
  */
 public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
-  private static final String TEST_MODEL_PATH = "src/test/resources/";
 
   private final List<String> nestmlModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"

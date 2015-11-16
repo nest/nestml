@@ -14,9 +14,7 @@ import org.nest.symboltable.predefined.PredefinedVariablesFactory;
 /**
  * TODO
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since TODO
+ * @author plotnikov
  */
 public abstract class ScopeCreatorBase {
 
@@ -39,7 +37,7 @@ public abstract class ScopeCreatorBase {
   public void addPredefinedTypes(final GlobalScope globalScope) {
     typesFactory.getTypes().forEach(
         type -> {
-          globalScope.define(type);
+          globalScope.add(type);
           final String typeLogMsg = "Adds new implicit type declaration: %s";
           Log.info(String.format(typeLogMsg, type.getName()), getLogger());
         }
@@ -50,7 +48,7 @@ public abstract class ScopeCreatorBase {
 
     functionFactory.getMethodSymbols().forEach(
         method -> {
-          globalScope.define(method);
+          globalScope.add(method);
           final String methodLogMsg = String
               .format("Adds new implicit method declaration: %s", method.getName());
           Log.info(methodLogMsg, getLogger());
@@ -62,7 +60,7 @@ public abstract class ScopeCreatorBase {
 
     variablesFactory.gerVariables().forEach(
         variable -> {
-          globalScope.define(variable);
+          globalScope.add(variable);
           final String methodLogMsg = String
               .format("Adds new implicit variable declaration: %s", variable.getName());
           Log.info(methodLogMsg, getLogger());

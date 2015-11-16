@@ -6,8 +6,10 @@
 package org.nest.codegeneration;
 
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
+import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
+import org.apache.commons.io.FileUtils;
 import org.nest.ModelTestBase;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -15,10 +17,16 @@ import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
+import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -101,17 +109,31 @@ public abstract class GenerationTestBase extends ModelTestBase {
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(modelFilePath);
-
       assertTrue(root.isPresent());
 
       scopeCreator.runSymbolTableCreator(root.get());
 
       final File outputFolder = new File(OUTPUT_FOLDER);
-      final ASTNESTMLCompilationUnit explicitSolutionRoot =
+      ASTNESTMLCompilationUnit explicitSolutionRoot =
           NESTML2NESTCodeGenerator.transformOdeToSolution(
               root.get(),
               scopeCreator,
               outputFolder);
+      final Path tmpModelPath = Paths.get(OUTPUT_FOLDER, "tmp.nestml");
+      printModelToFile(explicitSolutionRoot, tmpModelPath.toString());
+      explicitSolutionRoot = parseNESTMLModel(tmpModelPath.toString());
+      final Scope scope = scopeCreator.runSymbolTableCreator(explicitSolutionRoot);
+
+      Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+
+      final Optional<NESTMLVariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
+      assertTrue(y0.isPresent());
+      assertTrue(y0.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
+
+      final Optional<NESTMLVariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
+      assertTrue(y1.isPresent());
+      assertTrue(y1.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
+
       NESTML2NESTCodeGenerator.generateClassImplementation(
           glex,
           scopeCreator.getTypesFactory(),
@@ -165,12 +187,26 @@ public abstract class GenerationTestBase extends ModelTestBase {
     final GlobalExtensionManagement glex = new GlobalExtensionManagement();
 
     final NESTReferenceConverter converter = new NESTReferenceConverter(typesFactory);
-
     // TODO resolve this circular dependency
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
 
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter); // TODO better name
     return glex;
+  }
+
+  protected void printModelToFile(
+      final ASTNESTMLCompilationUnit root,
+      final String outputModelFile) {
+    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
+    root.accept(prettyPrinter);
+
+    final File prettyPrintedModelFile = new File(outputModelFile);
+    try {
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
+    }
+    catch (IOException e) {
+      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
+    }
   }
 }
