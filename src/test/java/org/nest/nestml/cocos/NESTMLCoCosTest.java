@@ -5,23 +5,21 @@
  */
 package org.nest.nestml.cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nest.nestml.cocos.spl.BufferNotAssignable;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.spl.cocos.VarHasTypeName;
+import org.nest.nestml.cocos.spl.BufferNotAssignable;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
+import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.utils.LogHelper;
 
 import java.util.Optional;
 

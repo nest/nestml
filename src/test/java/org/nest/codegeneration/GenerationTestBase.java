@@ -5,55 +5,50 @@
  */
 package org.nest.codegeneration;
 
-import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.apache.commons.io.FileUtils;
 import org.nest.ModelTestBase;
-import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
+import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 /**
- * Base class for the NEST generator tests.
- * Provides the methods to generate header, cpp implementation and boostraping.
+ * Base class for the NEST generator tests. Provides the methods to generate header, cpp
+ * implementation and boostraping.
  *
  * @author plotnikov
  */
 public abstract class GenerationTestBase extends ModelTestBase {
+  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
+      TEST_MODEL_PATH, typesFactory);
+  private final NESTML2NESTCodeGenerator generator = new NESTML2NESTCodeGenerator(
+      typesFactory, scopeCreator);
 
-  protected void generateHeader(final String modelPath) {
-    final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory
-        .createNESTMLCompilationUnitMCParser();
+  protected void invokeCodeGenerator(final String pathToModel) {
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
+
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
-      root = p.parse(modelPath);
+      root = p.parse(pathToModel);
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
-      final File outputFolder = new File(OUTPUT_FOLDER);
 
-      NESTML2NESTCodeGenerator.generateHeader(glex, root.get(),
-          scopeCreator.getTypesFactory(), outputFolder);
+      generator.generateNESTCode(root.get(), Paths.get(OUTPUT_FOLDER));
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);
@@ -61,70 +56,25 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  protected void generateClassImplementation(final String MODEL_FILE_PATH) {
-    final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+  protected void generateCodeForNESTMLWithODE(final String pathToModel) {
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
-      root = p.parse(MODEL_FILE_PATH);
-
+      root = p.parse(pathToModel);
       assertTrue(root.isPresent());
 
       scopeCreator.runSymbolTableCreator(root.get());
 
       final File outputFolder = new File(OUTPUT_FOLDER);
 
-      NESTML2NESTCodeGenerator.generateClassImplementation(glex,
-          scopeCreator.getTypesFactory(), root.get(), outputFolder);
-    }
-    catch (IOException e) { // lambda functions doesn't support checked exceptions
-      throw new RuntimeException(e);
-    }
-
-  }
-
-  protected void generateCodeForModelIntegrationInNest(final String modelFile) {
-    final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
-    final Optional<ASTNESTMLCompilationUnit> root;
-    try {
-      root = p.parse(modelFile);
-      assertTrue(root.isPresent());
-
-      scopeCreator.runSymbolTableCreator(root.get());
-
-      final File outputFolder = new File(OUTPUT_FOLDER);
-
-      NESTML2NESTCodeGenerator.generateCodeForModelIntegrationInNest(glex, root.get(), outputFolder);
-    }
-    catch (IOException e) { // lambda functions doesn't support checked exceptions
-      throw new RuntimeException(e);
-    }
-
-  }
-
-  protected void generateCodeForNESTMLWithODE(final String modelFilePath) {
-    final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
-    final Optional<ASTNESTMLCompilationUnit> root;
-    try {
-      root = p.parse(modelFilePath);
-      assertTrue(root.isPresent());
-
-      scopeCreator.runSymbolTableCreator(root.get());
-
-      final File outputFolder = new File(OUTPUT_FOLDER);
       ASTNESTMLCompilationUnit explicitSolutionRoot =
-          NESTML2NESTCodeGenerator.transformOdeToSolution(
-              root.get(),
-              scopeCreator,
-              outputFolder);
-      final Path tmpModelPath = Paths.get(OUTPUT_FOLDER, "tmp.nestml");
-      printModelToFile(explicitSolutionRoot, tmpModelPath.toString());
-      explicitSolutionRoot = parseNESTMLModel(tmpModelPath.toString());
-      final Scope scope = scopeCreator.runSymbolTableCreator(explicitSolutionRoot);
+          generator.transformOdeToSolution(root.get(), scopeCreator, outputFolder);
 
-      Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+      final Scope scope = scopeCreator.getGlobalScope();
+
+      Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve(
+          "codegeneration.iaf_neuron_ode_module.iaf_neuron_ode_neuron",
+          NESTMLNeuronSymbol.KIND);
 
       final Optional<NESTMLVariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
       assertTrue(y0.isPresent());
@@ -134,19 +84,13 @@ public abstract class GenerationTestBase extends ModelTestBase {
       assertTrue(y1.isPresent());
       assertTrue(y1.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
 
-      NESTML2NESTCodeGenerator.generateClassImplementation(
-          glex,
-          scopeCreator.getTypesFactory(),
+      generator.generateClassImplementation(
           explicitSolutionRoot,
           outputFolder);
-      NESTML2NESTCodeGenerator.generateHeader(
-          glex,
+      generator.generateHeader(
           explicitSolutionRoot,
-          scopeCreator.getTypesFactory(),
           outputFolder);
-      NESTML2NESTCodeGenerator.generateClassImplementation(
-          glex,
-          scopeCreator.getTypesFactory(),
+      generator.generateNestModuleCode(
           explicitSolutionRoot,
           outputFolder);
     }
@@ -156,11 +100,11 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  public void checkCocos(String modelFilePath) {
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+  public void checkCocos(String pathToModel) {
+    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
-      root = p.parse(modelFilePath);
+      root = p.parse(pathToModel);
       assertTrue(root.isPresent());
 
       scopeCreator.runSymbolTableCreator(root.get());
@@ -183,30 +127,4 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  protected GlobalExtensionManagement createGLEXConfiguration() {
-    final GlobalExtensionManagement glex = new GlobalExtensionManagement();
-
-    final NESTReferenceConverter converter = new NESTReferenceConverter(typesFactory);
-    // TODO resolve this circular dependency
-    final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
-
-    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
-    glex.setGlobalValue("functionCallConverter", converter); // TODO better name
-    return glex;
-  }
-
-  protected void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
-      final String outputModelFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
-    root.accept(prettyPrinter);
-
-    final File prettyPrintedModelFile = new File(outputModelFile);
-    try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
-    }
-  }
 }
