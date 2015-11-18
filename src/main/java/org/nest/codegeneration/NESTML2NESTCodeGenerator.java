@@ -9,6 +9,8 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
+import org.apache.commons.io.FileUtils;
+import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTMLDynamicsPrinter;
 import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
@@ -17,10 +19,15 @@ import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTNeuronList;
+import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
+import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -28,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.Names.getPathFromPackage;
 import static de.se_rwth.commons.Names.getPathFromQualifiedName;
+import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
  * Generates C++ Implementation and model integration code for NEST.
@@ -35,29 +43,83 @@ import static de.se_rwth.commons.Names.getPathFromQualifiedName;
  */
 public class NESTML2NESTCodeGenerator {
 
-  private static ODEProcessor odeProcessor = new ODEProcessor();
+  private final ODEProcessor odeProcessor = new ODEProcessor();
+  private final NESTReferenceConverter converter;
+  private final ExpressionsPrettyPrinter expressionsPrinter;
+  private final PredefinedTypesFactory typesFactory;
+  private final NESTMLScopeCreator scopeCreator;
 
-  public static ASTNESTMLCompilationUnit transformOdeToSolution(
+  public NESTML2NESTCodeGenerator(
+      final PredefinedTypesFactory typesFactory,
+      final NESTMLScopeCreator scopeCreator) {
+    this.scopeCreator = scopeCreator;
+    this.typesFactory = typesFactory;
+    converter = new NESTReferenceConverter(typesFactory);
+    expressionsPrinter = new ExpressionsPrettyPrinter(converter);
+
+  }
+
+  public void generateNESTCode(
+      final ASTNESTMLCompilationUnit root,
+      final Path outputBase) {
+    transformOdeToSolution(root, scopeCreator, new File(outputBase.toString()));
+    generateHeader(root, new File(outputBase.toString()));
+    generateClassImplementation(root, new File(outputBase.toString()));
+    generateNestModuleCode(root, new File(outputBase.toString()));
+  }
+
+  public GlobalExtensionManagement getGlexConfiguration() {
+    final GlobalExtensionManagement glex = new GlobalExtensionManagement();
+    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
+    glex.setGlobalValue("functionCallConverter", converter);
+    return glex;
+  }
+
+  public ASTNESTMLCompilationUnit transformOdeToSolution(
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
       final File outputBase) {
     final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
     final Path modulePath = Paths.get(outputBase.getPath(), getPathFromQualifiedName(moduleName));
 
-    final ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, new File(modulePath.toString()));
-
+    ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, new File(modulePath.toString()));
+    final Path outputTmpPath = Paths.get(outputBase.getPath(), "tmp.nestml");
+    printModelToFile(
+        withSolvedOde,
+        outputTmpPath.toString());
+    try {
+      withSolvedOde = createNESTMLCompilationUnitMCParser().parse(outputTmpPath.toString()).get();
+    }
+    catch (IOException e) {
+      throw  new RuntimeException(e);
+    }
     scopeCreator.runSymbolTableCreator(withSolvedOde);
     return withSolvedOde;
   }
 
-  public static void generateHeader(
-      final GlobalExtensionManagement glex,
+  protected void printModelToFile(
+      final ASTNESTMLCompilationUnit root,
+      final String outputModelFile) {
+    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
+    root.accept(prettyPrinter);
+
+    final File prettyPrintedModelFile = new File(outputModelFile);
+    try {
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
+    }
+    catch (IOException e) {
+      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
+    }
+
+  }
+
+  public void generateHeader(
       final ASTNESTMLCompilationUnit compilationUnit,
-      final PredefinedTypesFactory typesFactory,
       final File outputFolder) {
     final String moduleName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
 
     final GeneratorSetup setup = new GeneratorSetup(outputFolder);
+    final GlobalExtensionManagement glex = getGlexConfiguration();
     setup.setGlex(glex);
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
@@ -72,13 +134,13 @@ public class NESTML2NESTCodeGenerator {
     
   }
 
-  public static void generateClassImplementation(final GlobalExtensionManagement glex,
-                                                 final PredefinedTypesFactory typesFactory,
-                                                 final ASTNESTMLCompilationUnit compilationUnit,
-                                                 final File outputDirectory) {
+  public void generateClassImplementation(
+      final ASTNESTMLCompilationUnit compilationUnit,
+      final File outputDirectory) {
     final String moduleName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
 
     final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+    final GlobalExtensionManagement glex = getGlexConfiguration();
     setup.setGlex(glex);
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
@@ -97,8 +159,7 @@ public class NESTML2NESTCodeGenerator {
 
   }
 
-  public static void generateCodeForModelIntegrationInNest(
-      final GlobalExtensionManagement glex,
+  public void generateNestModuleCode(
       final ASTNESTMLCompilationUnit compilationUnit,
       final File outputDirectory) {
     final String fullName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
@@ -113,6 +174,7 @@ public class NESTML2NESTCodeGenerator {
     final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
     setup.setTracing(false);
 
+    final GlobalExtensionManagement glex = getGlexConfiguration();
     glex.setGlobalValue("moduleName", moduleName);
     glex.setGlobalValue("packageName", fullName);
     glex.setGlobalValue("neuronModelNames", neuronModelNames);
@@ -195,4 +257,3 @@ public class NESTML2NESTCodeGenerator {
   }
 
 }
-

@@ -44,18 +44,8 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   }
 
   @Test
-  public void testHeaderGenerator() throws IOException {
-    nestmlModels.forEach(this::generateHeader);
-  }
-
-  @Test
-  public void testImplementationGenerator() throws IOException {
-    nestmlModels.forEach(this::generateClassImplementation);
-  }
-
-  @Test
-  public void testGenerateCodeForModelIntegrationInNest() throws IOException {
-    nestmlModels.forEach(this::generateCodeForModelIntegrationInNest);
+  public void testGenerator() throws IOException {
+    nestmlModels.forEach(this::invokeCodeGenerator);
   }
 
   @Ignore
