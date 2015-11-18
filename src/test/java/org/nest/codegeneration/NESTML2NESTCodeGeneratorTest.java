@@ -24,7 +24,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
       "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
   );
 
-  private final List<String> nestmlModels = Lists.newArrayList(
+  private final List<String> nestmlPSCModels = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_module.nestml",
       "src/test/resources/codegeneration/iaf_tum_2000_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_module.nestml",
@@ -34,24 +34,34 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
       "src/test/resources/codegeneration/mat2_psc_exp_module.nestml",
       "src/test/resources/codegeneration/izhikevich_module.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse_module.nestml"
-      //"src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
+  );
+
+  private final List<String> nestmlCondModels = Lists.newArrayList(
+      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
   );
 
 
   @Test
   public void checkCocosOnModels() throws IOException {
-    nestmlModels.forEach(this::checkCocos);
+    nestmlPSCModels.forEach(this::checkCocos);
+    nestmlCondModels.forEach(this::checkCocos);
   }
 
   @Test
   public void testGenerator() throws IOException {
-    nestmlModels.forEach(this::invokeCodeGenerator);
+    nestmlPSCModels.forEach(this::invokeCodeGenerator);
   }
 
   @Ignore
   @Test
   public void testModelsWithOde() {
     nestmlModelsWithOde.forEach(this::generateCodeForNESTMLWithODE);
+  }
+
+  @Ignore
+  @Test
+  public void testCondModel() {
+    nestmlCondModels.forEach(this::handleCondModel);
   }
 
 }

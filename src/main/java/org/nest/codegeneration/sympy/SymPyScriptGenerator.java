@@ -82,11 +82,10 @@ public class SymPyScriptGenerator {
       final ASTNeuron neuron,
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
-    final String fullName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
 
     final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
-    glex.setGlobalValue("ode", astOdeDeclaration.getODEs());
-    glex.setGlobalValue("eq", astOdeDeclaration.getEq());
+    glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));
+    glex.setGlobalValue("eq", astOdeDeclaration.getEqs().get(0));
     glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
 
     setup.setGlex(glex);

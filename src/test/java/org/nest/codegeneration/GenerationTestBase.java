@@ -34,6 +34,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @author plotnikov
  */
 public abstract class GenerationTestBase extends ModelTestBase {
+  final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
       TEST_MODEL_PATH, typesFactory);
   private final NESTML2NESTCodeGenerator generator = new NESTML2NESTCodeGenerator(
@@ -56,11 +57,22 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  protected void generateCodeForNESTMLWithODE(final String pathToModel) {
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
-    final Optional<ASTNESTMLCompilationUnit> root;
+  protected void handleCondModel(final String pathToModel) {
     try {
-      root = p.parse(pathToModel);
+      final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
+      assertTrue(root.isPresent());
+      scopeCreator.runSymbolTableCreator(root.get());
+      generator.generateNESTCode(root.get(), Paths.get(OUTPUT_FOLDER));
+    }
+    catch (IOException e) { // lambda functions doesn't support checked exceptions
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  protected void generateCodeForNESTMLWithODE(final String pathToModel) {
+    try {
+      final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
       assertTrue(root.isPresent());
 
       scopeCreator.runSymbolTableCreator(root.get());
