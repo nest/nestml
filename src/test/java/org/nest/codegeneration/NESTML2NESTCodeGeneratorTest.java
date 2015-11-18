@@ -48,7 +48,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
     nestmlModels.forEach(this::invokeCodeGenerator);
   }
 
-  //@Ignore
+  @Ignore
   @Test
   public void testModelsWithOde() {
     nestmlModelsWithOde.forEach(this::generateCodeForNESTMLWithODE);
