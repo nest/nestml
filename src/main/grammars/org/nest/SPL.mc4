@@ -29,8 +29,8 @@ grammar SPL extends org.nest.commons.Commons {
 
    OdeDeclaration  =
      "ODE" BLOCK_OPEN (NEWLINE)*
-       Eq (NEWLINE)*
-       ODE (NEWLINE)*
+       (Eq (NEWLINE)*)*
+       (ODE (NEWLINE)*)+
        BLOCK_CLOSE;
 
   Eq = lhsVariable:Name "===" rhs:Expr;

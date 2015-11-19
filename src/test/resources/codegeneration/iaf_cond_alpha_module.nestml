@@ -12,14 +12,19 @@ neuron iaf_cond_alpha_neuron:
    V_reset mV = -60.0   # Reset Potential in mV
    t_ref ms = 2.0       # Refractory period in ms
    g_L ms = 16.6667     # Leak Conductance in nS
-   alias Tau ms = (1 / g_L) * C_m #
    C_m pF = 250.0       # Membrane Capacitance in pF
+
+   alias Tau ms = (1 / g_L) * C_m
+
    E_ex mV = 0          # Excitatory reversal Potential in mV
    E_in mV = -85.0      # Inhibitory reversal Potential in mV
    E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
    tau_synE ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
    tau_synI ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
    I_e pA = 0           # Constant Current in pA
+  end
+
+  function set_Tau(v ms):
   end
 
   internal:
@@ -51,16 +56,16 @@ neuron iaf_cond_alpha_neuron:
       ODE:
         # Explicit
 
-        GI === (E/Tau) * t * exp(-1/tau_synI*t)
+        #GI === (E/Tau) * t * exp(-1/tau_synI*t)
         #GE === (E/Tau) * t * exp(-1/tau_synE*t)
-        d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reverseI)+ GE * (V_m-V_reverseE)
+        #d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reverseI)+ GE * (V_m-V_reverseE)
 
         # Implicit
-        # d/dt DGI === DG/tau_synI
-        # d/dt GI === DG - G/tau_synI
-        # d/dt DGE === DG/tau_synE
-        # d/dt GE === DG - G/tau_synE
-        # d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reverseI)+ GE * (V_m-V_reverseE)
+        d/dt DGI === DG/tau_synI
+        d/dt GI === DG - G/tau_synI
+        d/dt DGE === DG/tau_synE
+        d/dt GE === DG - G/tau_synE
+        d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reverseI)+ GE * (V_m-V_reverseE)
 
       end
 

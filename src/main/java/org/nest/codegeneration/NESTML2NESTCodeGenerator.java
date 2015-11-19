@@ -62,10 +62,11 @@ public class NESTML2NESTCodeGenerator {
   public void generateNESTCode(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    transformOdeToSolution(root, scopeCreator, new File(outputBase.toString()));
-    generateHeader(root, new File(outputBase.toString()));
-    generateClassImplementation(root, new File(outputBase.toString()));
-    generateNestModuleCode(root, new File(outputBase.toString()));
+    ASTNESTMLCompilationUnit workingVersion = root;
+    workingVersion = transformOdeToSolution(root, scopeCreator, new File(outputBase.toString()));
+    generateHeader(workingVersion, new File(outputBase.toString()));
+    generateClassImplementation(workingVersion, new File(outputBase.toString()));
+    generateNestModuleCode(workingVersion, new File(outputBase.toString()));
   }
 
   public GlobalExtensionManagement getGlexConfiguration() {
