@@ -11,13 +11,13 @@ neuron iaf_neuron_ode_neuron:
 
   parameter:
     # Capacity of the membrane
-    C_m       pF = 250 pF
+    C_m       pF = 250pF
     # Membrane time constant.
     Tau     ms = 10
     # Time constant of synaptic current.
     tau_syn ms = 2
     # Refractory period.
-    t_ref    ms = 2 s
+    t_ref    ms = 2
     # Resting potential.
     E_L      mV = -70
     -delta_V_reset mV = -70 - E_L

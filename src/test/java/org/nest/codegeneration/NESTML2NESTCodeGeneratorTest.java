@@ -44,6 +44,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   @Test
   public void checkCocosOnModels() throws IOException {
     nestmlPSCModels.forEach(this::checkCocos);
+    nestmlModelsWithOde.forEach(this::checkCocos);
     nestmlCondModels.forEach(this::checkCocos);
   }
 
