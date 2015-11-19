@@ -68,9 +68,9 @@ neuron iaf_neuron_ode_neuron:
 
     # threshold crossing
     if V >= Theta:
-        r = RefractoryCounts
-        V = delta_V_reset
-        emitSpike()
+        #r = RefractoryCounts
+        #V = delta_V_reset
+        #emitSpike()
     end
 
     # set new input current
