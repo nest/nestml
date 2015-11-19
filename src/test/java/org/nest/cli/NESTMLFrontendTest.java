@@ -6,6 +6,7 @@
 package org.nest.cli;
 
 import org.apache.commons.cli.CommandLine;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -99,6 +100,7 @@ public class NESTMLFrontendTest {
 
   }
 
+  @Ignore // CI doesn't have sympy
   @Test
   public void testRun() {
 
