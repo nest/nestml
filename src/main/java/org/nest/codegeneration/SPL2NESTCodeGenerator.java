@@ -29,16 +29,14 @@ public class SPL2NESTCodeGenerator {
   public static final String ASSIGNMENT_TEMPLATE = "org.nest.spl.Assignment";
   public static final String BLOCK_TEMPLATE = "org.nest.spl.Block";
 
-  final private GlobalExtensionManagement glex;
-  private final GeneratorSetup setup;
   private final GeneratorEngine generator;
 
   public SPL2NESTCodeGenerator(
       final GlobalExtensionManagement glex,
       final PredefinedTypesFactory typesFactory,
       final File outputDirectory) {
-    this.glex = glex;
-    this.setup = new GeneratorSetup(outputDirectory);
+    GlobalExtensionManagement glex1 = glex;
+    GeneratorSetup setup = new GeneratorSetup(outputDirectory);
 
     final ExpressionsPrettyPrinter prettyPrinter = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("assignmentHelper", new SPLVariableGetterSetterHelper());

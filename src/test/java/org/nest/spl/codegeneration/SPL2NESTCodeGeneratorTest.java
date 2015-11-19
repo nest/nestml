@@ -6,6 +6,7 @@
 package org.nest.spl.codegeneration;
 
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
+import de.se_rwth.commons.Names;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nest.codegeneration.helpers.NESTMLDeclarations;
@@ -47,8 +48,8 @@ public class SPL2NESTCodeGeneratorTest {
     final String packageName = "org.nest.spl.codegeneration";
     final String modelName = "decl";
     final String fullQualifiedModelname = packageName + "." + modelName;
-    final Path outputFile = Paths.get(fullQualifiedModelname.replaceAll("\\.", File.separator));
 
+    final Path outputFile = Paths.get(fullQualifiedModelname.replaceAll("\\.", File.separator));
     Optional<ASTSPLFile> root = p.parse(TEST_MODEL_PATH + File.separator + fullQualifiedModelname.replaceAll("\\.", File.separator) + ".simple");
     Assert.assertTrue(root.isPresent());
 
