@@ -36,13 +36,11 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
 
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
-  //@Ignore // takes long time, therefore, enabled only for the manual execution
   @Test
   public void generateAndExecuteSympyScriptForPSC() throws IOException {
     generateAndEvaluate(PSC_MODEL_FILE);
   }
 
-  //@Ignore // takes long time, therefore, enabled only for the manual execution
   @Test
   public void generateAndExecuteSympyScriptForCOND() throws IOException {
     generateAndEvaluate(COND_MODEL_FILE);

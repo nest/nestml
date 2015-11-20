@@ -35,9 +35,9 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  */
 public abstract class GenerationTestBase extends ModelTestBase {
   final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
-  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
+  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
       TEST_MODEL_PATH, typesFactory);
-  private final NESTML2NESTCodeGenerator generator = new NESTML2NESTCodeGenerator(
+  protected final NESTML2NESTCodeGenerator generator = new NESTML2NESTCodeGenerator(
       typesFactory, scopeCreator);
 
   protected void invokeCodeGenerator(final String pathToModel) {
@@ -57,7 +57,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  protected void handleCondModel(final String pathToModel) {
+  protected void generateNESTMLImplementation(final String pathToModel) {
     try {
       final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
       assertTrue(root.isPresent());
@@ -70,7 +70,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  protected void generateCodeForNESTMLWithODE(final String pathToModel) {
+  protected void generateCodeForPSCModel(final String pathToModel) {
     try {
       final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
       assertTrue(root.isPresent());
@@ -127,6 +127,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
       Collection<Finding> errorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
       errorFindings.addAll(getErrorsByPrefix("SPL_", Log.getFindings()));
+
       errorFindings.forEach(System.out::println);
       // TODO reactivate me
       assertTrue("Models contain unexpected errors: " + errorFindings.size(),
