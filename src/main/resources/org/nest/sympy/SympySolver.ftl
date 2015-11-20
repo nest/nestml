@@ -8,24 +8,27 @@ a, h = symbols('a, h')
     var('<#list variables as variable> ${variable} </#list>')
 </#compress>
 
+<#list EQs as eq>
+${EQs[0].getLhsVariable()} = ${expressionsPrettyPrinter.print(EQs[0].getRhs())}
+</#list>
 rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
-${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
 
 
-firstDev = diff(rhs, ${ode.getLhsVariable()})
-secondDev = diff(firstDev, ${ode.getLhsVariable()})
+dev${ode.getLhsVariable()} = diff(rhs, ${ode.getLhsVariable()})
+dev_t_dev${ode.getLhsVariable()} = diff(dev${ode.getLhsVariable()}, t)
 
-if secondDev == 0:
+
+if dev_t_dev${ode.getLhsVariable()} == 0:
     print 'We have a linear differential equation!'
     order = None
-    tmp_diffs = [ ${eq.getLhsVariable()}, diff( ${eq.getLhsVariable()},t)]
-    a_1 = solve(tmp_diffs[1] - a* ${eq.getLhsVariable()}, a)
-    SUM = tmp_diffs[1] - a_1[0] *  ${eq.getLhsVariable()}
+    tmp_diffs = [ ${EQs[0].getLhsVariable()}, diff( ${EQs[0].getLhsVariable()},t)]
+    a_1 = solve(tmp_diffs[1] - a* ${EQs[0].getLhsVariable()}, a)
+    SUM = tmp_diffs[1] - a_1[0] *  ${EQs[0].getLhsVariable()}
     if SUM == 0:
         order = 1
     else:
         for n in range(2, 10):
-            tmp_diffs.append(diff( ${eq.getLhsVariable()}, t, n))
+            tmp_diffs.append(diff( ${EQs[0].getLhsVariable()}, t, n))
             X = zeros(n)
             Y = zeros(n, 1)
             found = False
@@ -48,7 +51,7 @@ if secondDev == 0:
             VecA = X.inv() * Y
             SUM = 0
             for k in range(0, n):
-                SUM += VecA[k]*diff( ${eq.getLhsVariable()}, t, k)
+                SUM += VecA[k]*diff( ${EQs[0].getLhsVariable()}, t, k)
             SUM -= tmp_diffs[n]
             print "SUM = " + str(simplify(SUM))
             if simplify(SUM) == sympify(0):
@@ -60,8 +63,8 @@ if secondDev == 0:
         exit(1)
 
     c1 = diff(rhs, ${ode.getLhsVariable()})
-    ${eq.getLhsVariable()} = symbols("${eq.getLhsVariable()}")
-    c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${eq.getLhsVariable()})
+    ${EQs[0].getLhsVariable()} = symbols("${EQs[0].getLhsVariable()}")
+    c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${EQs[0].getLhsVariable()})
 
     if order == 1:
         A = Matrix([[a_1[0], 0],
