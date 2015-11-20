@@ -37,7 +37,6 @@ public class ODEProcessorTest extends ModelTestBase {
 
   final ODEProcessor testant = new ODEProcessor();
 
-  @Ignore
   @Test
   public void testProcess() throws Exception {
     final Scope scope = processModel(PSC_MODEL_FILE);
@@ -55,7 +54,7 @@ public class ODEProcessorTest extends ModelTestBase {
     assertTrue(y1.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
   }
 
-  @Ignore
+  @Ignore// doesn't work at the moment.
   @Test
   public void testCondModel() throws Exception {
     final Scope scope = processModel(COND_MODEL_FILE);

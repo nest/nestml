@@ -95,7 +95,6 @@ public class NESTMLFrontendTest {
 
   }
 
-  @Ignore // CI doesn't have sympy
   @Test
   public void testRun() {
 

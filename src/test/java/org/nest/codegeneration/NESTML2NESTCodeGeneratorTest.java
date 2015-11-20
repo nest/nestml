@@ -40,6 +40,10 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
       "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
   );
 
+  private final List<String> nestmlCondModelExplicit = Lists.newArrayList(
+      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
+  );
+
 
   @Test
   public void checkCocosOnModels() throws IOException {
@@ -53,16 +57,21 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
     nestmlPSCModels.forEach(this::invokeCodeGenerator);
   }
 
-  @Ignore
   @Test
   public void testModelsWithOde() {
-    nestmlModelsWithOde.forEach(this::generateCodeForNESTMLWithODE);
+    nestmlModelsWithOde.forEach(this::generateCodeForPSCModel);
   }
 
   @Ignore
   @Test
   public void testCondModel() {
-    nestmlCondModels.forEach(this::handleCondModel);
+    nestmlCondModels.forEach(this::generateNESTMLImplementation);
+  }
+
+  @Ignore
+  @Test
+  public void testImplicitForm() {
+    nestmlCondModelExplicit.forEach(this::generateNESTMLImplementation);
   }
 
 }

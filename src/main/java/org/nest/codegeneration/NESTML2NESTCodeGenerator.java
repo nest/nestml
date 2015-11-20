@@ -62,18 +62,11 @@ public class NESTML2NESTCodeGenerator {
   public void generateNESTCode(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    ASTNESTMLCompilationUnit workingVersion = root;
+    ASTNESTMLCompilationUnit workingVersion;
     workingVersion = transformOdeToSolution(root, scopeCreator, new File(outputBase.toString()));
     generateHeader(workingVersion, new File(outputBase.toString()));
     generateClassImplementation(workingVersion, new File(outputBase.toString()));
     generateNestModuleCode(workingVersion, new File(outputBase.toString()));
-  }
-
-  public GlobalExtensionManagement getGlexConfiguration() {
-    final GlobalExtensionManagement glex = new GlobalExtensionManagement();
-    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
-    glex.setGlobalValue("functionCallConverter", converter);
-    return glex;
   }
 
   public ASTNESTMLCompilationUnit transformOdeToSolution(
@@ -256,5 +249,13 @@ public class NESTML2NESTCodeGenerator {
   private static String convertToCppNamespaceConvention(String fqnName) {
     return fqnName.replace(".", "::");
   }
+
+  public GlobalExtensionManagement getGlexConfiguration() {
+    final GlobalExtensionManagement glex = new GlobalExtensionManagement();
+    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
+    glex.setGlobalValue("functionCallConverter", converter);
+    return glex;
+  }
+
 
 }
