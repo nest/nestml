@@ -36,7 +36,7 @@ public class SymPyScriptEvaluator {
     try {
       info("Begins long running SymPy script evaluation...", LOG_NAME);
       final Process res = Runtime.getRuntime().exec(
-          "python iaf_neuron_ode_neuronSolver.py",
+          "python " + generatedScript.getFileName(),
           new String[0],
           new File(generatedScript.getParent().toString()));
       res.waitFor();

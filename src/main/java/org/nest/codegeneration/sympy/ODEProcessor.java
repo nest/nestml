@@ -47,7 +47,6 @@ public class ODEProcessor {
 
     final File outputFolder = new File(Paths.get(outputBase.getPath(), root.getNeurons().get(0).getName()).toString());
     final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
-        root,
         root.getNeurons().get(0),
         outputFolder);
 

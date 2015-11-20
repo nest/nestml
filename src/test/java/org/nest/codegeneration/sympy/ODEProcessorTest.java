@@ -29,22 +29,18 @@ import static org.junit.Assert.assertTrue;
  */
 public class ODEProcessorTest extends ModelTestBase {
 
-  private static final String MODEL_FILE_PATH
+  private static final String COND_MODEL_FILE
+      = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
+  private static final String PSC_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
+
 
   final ODEProcessor testant = new ODEProcessor();
 
   @Ignore
   @Test
   public void testProcess() throws Exception {
-    final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    scopeCreator.runSymbolTableCreator(modelRoot);
-    String modelFolder = getPathFromPackage(
-        getQualifiedName(modelRoot.getPackageName().getParts()));
-    final ASTNESTMLCompilationUnit explicitSolution = testant
-        .process(modelRoot, new File(Paths.get(OUTPUT_FOLDER, modelFolder).toString()));
-
-    final Scope scope = scopeCreator.runSymbolTableCreator(explicitSolution);
+    final Scope scope = processModel(PSC_MODEL_FILE);
 
     final Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve(
         "iaf_neuron_ode_neuron",
@@ -57,6 +53,24 @@ public class ODEProcessorTest extends ModelTestBase {
     final Optional<NESTMLVariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
     assertTrue(y1.isPresent());
     assertTrue(y1.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
+  }
+
+  @Ignore
+  @Test
+  public void testCondModel() throws Exception {
+    final Scope scope = processModel(COND_MODEL_FILE);
+
+  }
+
+  private Scope processModel(final String pathToModel) {
+    final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(pathToModel);
+    scopeCreator.runSymbolTableCreator(modelRoot);
+    String modelFolder = getPathFromPackage(
+        getQualifiedName(modelRoot.getPackageName().getParts()));
+    final ASTNESTMLCompilationUnit explicitSolution = testant
+        .process(modelRoot, new File(Paths.get(OUTPUT_FOLDER, modelFolder).toString()));
+
+    return scopeCreator.runSymbolTableCreator(explicitSolution);
   }
 
 }

@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.Names.getPathFromPackage;
+import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 
@@ -37,13 +39,11 @@ public class SymPyScriptGenerator {
   private final static String LOG_NAME = SymPyScriptGenerator.class.getName();
   /**
    * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
-   * @param astNestmlCompilationUnit Model root
    * @param neuron Neuron from the nestml model (must be part of the root)
    * @param outputDirectory Base directory for the output
    * @return Path to the generated script of @code{empty()} if there is no ODE definition.
    */
   public static Optional<Path> generateSympyODEAnalyzer(
-      final ASTNESTMLCompilationUnit astNestmlCompilationUnit,
       final ASTNeuron neuron,
       final File outputDirectory) {
     final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
@@ -54,7 +54,6 @@ public class SymPyScriptGenerator {
     if (odeDefinition.isPresent()) {
       final Path generatedScriptFile = generateSolverScript(
           createGLEXConfiguration(),
-          astNestmlCompilationUnit,
           neuron,
           odeDefinition.get(),
           setup);
@@ -63,7 +62,7 @@ public class SymPyScriptGenerator {
           "Successfully generated solver script for neuron %s under %s",
           neuron.getName(),
           generatedScriptFile.toString());
-      Log.info(msg, LOG_NAME);
+      info(msg, LOG_NAME);
 
       return of(generatedScriptFile);
     }
@@ -78,14 +77,14 @@ public class SymPyScriptGenerator {
 
   private static Path generateSolverScript(
       final GlobalExtensionManagement glex,
-      final ASTNESTMLCompilationUnit compilationUnit,
       final ASTNeuron neuron,
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
 
     final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
+    checkState(astOdeDeclaration.getODEs().size() == 1, "It works only for a single ODE.");
     glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));
-    glex.setGlobalValue("eq", astOdeDeclaration.getEqs().get(0));
+    glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
     glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
 
     setup.setGlex(glex);

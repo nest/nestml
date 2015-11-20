@@ -6,6 +6,7 @@
 package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
+import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -27,36 +28,39 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
  *
  * @author plotnikov
  */
-public class SymPyScriptGeneratorTest {
-  private static final String TEST_MODEL_PATH = "src/test/resources/";
-
-  public static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
-
+public class SymPyScriptGeneratorTest extends ModelTestBase {
+  public static final String PATH_TO_PSC_MODEL
+      = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
+  public static final String PATH_TO_COND_MODEL
+      = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
   private static final String OUTPUT_FOLDER = "target";
 
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
+  @Test
+  public void generateSymPySolverForPSCModel() throws IOException {
+    generateScriptForModel(PATH_TO_PSC_MODEL);
+  }
 
   @Test
-  public void generateSympyScript() throws IOException {
+  public void generateSymPySolverForCondModel() throws IOException {
+    generateScriptForModel(PATH_TO_COND_MODEL);
+  }
+
+  private void generateScriptForModel(final String pathToModel) throws IOException {
     final NESTMLCompilationUnitMCParser p =
         createNESTMLCompilationUnitMCParser();
-    final Optional<ASTNESTMLCompilationUnit> root = p.parse(MODEL_FILE_PATH);
+    final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
 
     assertTrue(root.isPresent());
-    final String fullName = getQualifiedName(root.get().getPackageName().getParts());
-    final File outputFolder = new File(Paths.get(OUTPUT_FOLDER, getPathFromPackage(fullName)).toString());
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
         TEST_MODEL_PATH, typesFactory);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(
-        root.get(),
         root.get().getNeurons().get(0),
-        outputFolder);
+        new File(OUTPUT_FOLDER));
 
     assertTrue(generatedScript.isPresent());
   }
-
 
 }

@@ -26,17 +26,30 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
  * @author plonikov
  */
 public class SymPyScriptEvaluatorTest extends ModelTestBase {
+  private final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
+  private static final String PSC_MODEL_FILE
+      = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
+  private static final String COND_MODEL_FILE
+      = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
 
-  public static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
   @Ignore // takes long time, therefore, enabled only for the manual execution
   @Test
-  public void generateAndExecuteSympyScript() throws IOException {
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
-    final Optional<ASTNESTMLCompilationUnit> root = p.parse(MODEL_FILE_PATH);
+  public void generateAndExecuteSympyScriptForPSC() throws IOException {
+    generateAndEvaluate(PSC_MODEL_FILE);
+  }
+
+  @Ignore // takes long time, therefore, enabled only for the manual execution
+  @Test
+  public void generateAndExecuteSympyScriptForCOND() throws IOException {
+    generateAndEvaluate(COND_MODEL_FILE);
+  }
+
+  private void generateAndEvaluate(final String pathToModel) throws IOException {
+    final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
 
     assertTrue(root.isPresent());
     final File outputFolder = new File(OUTPUT_FOLDER);
@@ -46,7 +59,6 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
-        root.get(),
         root.get().getNeurons().get(0),
         outputFolder);
 

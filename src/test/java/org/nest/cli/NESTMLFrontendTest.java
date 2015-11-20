@@ -9,6 +9,8 @@ import org.apache.commons.cli.CommandLine;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import java.nio.file.Paths;
+
 import static org.junit.Assert.*;
 
 /**
@@ -40,16 +42,6 @@ public class NESTMLFrontendTest {
     assertEquals(targetPath, testant.getTargetPath());
   }
 
-  //@Test TODO
-  public void testInvokeFrontendViaMain() throws Exception {
-    NESTMLFrontend.main(new String[]{"--runningMode", "parseAndCheck", ""});
-  }
-
-  //@Test
-  public void testHelpMessageViaCLI() throws Exception {
-    NESTMLFrontend.main(new String[]{"--help"});
-  }
-
   @Test(expected = RuntimeException.class)
   public void testInvalidOptions() {
     CommandLine cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--runningMode"});
@@ -76,7 +68,8 @@ public class NESTMLFrontendTest {
   @Test
   public void testInputModelPath() throws Exception {
     final String inputModelsPath = "./testModels";
-    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--input",  inputModelsPath});
+    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(
+        new String[] { "--input",  inputModelsPath});
     final String testant = nestmlFrontend.interpretInputModelsPathArgument(cliArguments);
     assertEquals(inputModelsPath, testant);
 
@@ -85,7 +78,8 @@ public class NESTMLFrontendTest {
   @Test
   public void testModelPath() throws Exception {
     final String inputModelsPath = "./testModelPath";
-    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--modelPath",  inputModelsPath});
+    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(
+        new String[] { "--modelPath",  inputModelsPath});
     final String testant = nestmlFrontend.interpretModelPathArgument(cliArguments);
     assertEquals(inputModelsPath, testant);
 
@@ -94,7 +88,8 @@ public class NESTMLFrontendTest {
   @Test
   public void testInputPath() throws Exception {
     final String inputModelsPath = "./testTargetPath";
-    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--target",  inputModelsPath});
+    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(
+        new String[] { "--target",  inputModelsPath});
     final String testant = nestmlFrontend.interpretTargetPathArgument(cliArguments);
     assertEquals(inputModelsPath, testant);
 
@@ -106,7 +101,10 @@ public class NESTMLFrontendTest {
 
     nestmlFrontend.handleCLIArguments(new String[]{
         "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml",
-        "--target", "tmpOutput"});
+        "--target", Paths.get("target","tmpOutput").toString()});
+
+    nestmlFrontend.handleCLIArguments(new String[]{
+        "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"});
   }
 
 }
