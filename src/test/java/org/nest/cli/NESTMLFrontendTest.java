@@ -101,9 +101,6 @@ public class NESTMLFrontendTest {
     nestmlFrontend.handleCLIArguments(new String[]{
         "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml",
         "--target", Paths.get("target","tmpOutput").toString()});
-
-    nestmlFrontend.handleCLIArguments(new String[]{
-        "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"});
   }
 
 }
