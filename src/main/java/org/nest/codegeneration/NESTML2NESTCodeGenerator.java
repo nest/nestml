@@ -23,6 +23,8 @@ import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
+import org.nest.spl._ast.ASTODE;
+import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
@@ -91,22 +93,6 @@ public class NESTML2NESTCodeGenerator {
     return withSolvedOde;
   }
 
-  protected void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
-      final String outputModelFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
-    root.accept(prettyPrinter);
-
-    final File prettyPrintedModelFile = new File(outputModelFile);
-    try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
-    }
-    catch (IOException e) {
-      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
-    }
-
-  }
-
   public void generateHeader(
       final ASTNESTMLCompilationUnit compilationUnit,
       final File outputFolder) {
@@ -126,6 +112,24 @@ public class NESTML2NESTCodeGenerator {
       generator.generate("org.nest.nestml.neuron.NeuronHeader", outputFile, neuron);
     }
     
+  }
+
+  public void generateODECodeForGSL(
+      ASTNESTMLCompilationUnit root, ASTNeuron astNeuron, final ASTOdeDeclaration odeDeclaration,
+      final Path outputFolder) {
+
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
+    final GlobalExtensionManagement glex = getGlexConfiguration();
+    setup.setGlex(glex);
+
+    final GeneratorEngine generator = new GeneratorEngine(setup);
+
+    final Path outputFile = Paths.get(outputFolder.toString(), "tmp.cpp");
+    final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
+    setNeuronGenerationParameter(glex, typesFactory, astNeuron, moduleName);
+    // TODO: how do I find out the call was successful?
+    generator.generate("org.nest.nestml.function.GSLDifferentiationFunction", outputFile, odeDeclaration);
+
   }
 
   public void generateClassImplementation(
@@ -215,7 +219,23 @@ public class NESTML2NESTCodeGenerator {
         compilationUnit);
   }
 
-  private static void setNeuronGenerationParameter(
+  private void printModelToFile(
+      final ASTNESTMLCompilationUnit root,
+      final String outputFolderBase) {
+    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
+    root.accept(prettyPrinter);
+
+    final File prettyPrintedModelFile = new File(outputFolderBase);
+    try {
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
+    }
+    catch (IOException e) {
+      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputFolderBase, e);
+    }
+
+  }
+
+  private void setNeuronGenerationParameter(
       final GlobalExtensionManagement glex,
       final PredefinedTypesFactory typesFactory,
       final ASTNeuron neuron,

@@ -1,0 +1,77 @@
+package codegeneration.iaf_cond_alpha_implicit_module:
+
+neuron iaf_cond_alpha_implicit_neuron:
+
+  state:
+    V_m real = 0
+    - r integer
+  end
+
+  parameter:
+   V_th mV = -55.0      # Threshold Potential in mV
+   V_reset mV = -60.0   # Reset Potential in mV
+   t_ref ms = 2.0       # Refractory period in ms
+   g_L ms = 16.6667     # Leak Conductance in nS
+   C_m pF = 250.0       # Membrane Capacitance in pF
+
+   alias Tau ms = (1 / g_L) * C_m
+
+   V_reversalE mV = 0          # Excitatory reversal Potential in mV
+   V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
+   E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
+   tau_synE ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
+   tau_synI ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+   I_e pA = 0           # Constant Current in pA
+  end
+
+  function set_Tau(v ms):
+  end
+
+  internal:
+    h   ms   = resolution()
+
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_E real = 1.0 * E/tau_synE
+
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_I real = 1.0 * E / tau_synI
+
+    # refractory time in steps
+    RefractoryCounts integer = steps(t_ref)
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  dynamics timestep(t ms):
+
+    if r == 0: # not refractory
+      ODE:
+        # Explicit
+        GI === (E/Tau) * t * exp(-1/tau_synI*t)
+        GE === (E/Tau) * t * exp(-1/tau_synE*t)
+        d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
+
+        # Implicit
+
+        # d/dt DGI === DGI/tau_synI
+        # d/dt GI === DGI - GI/tau_synI
+        # d/dt DGE === DGE/tau_synE
+        # d/dt GE === DGE - GE/tau_synE
+        # d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
+
+      end
+
+    else:
+      r = r - 1
+    end
+  end
+
+end

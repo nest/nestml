@@ -6,12 +6,17 @@
 package org.nest.codegeneration;
 
 import com.google.common.collect.Lists;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.spl._ast.ASTOdeDeclaration;
+import org.nest.utils.ASTNodes;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
-
+import java.util.Optional;
 
 /**
  * Generates entire NEST implementation for several NESTML models.
@@ -41,7 +46,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   );
 
   private final List<String> nestmlCondModelExplicit = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
+      "src/test/resources/codegeneration/iaf_cond_alpha_implicit_module.nestml"
   );
 
 
@@ -72,6 +77,16 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   @Test
   public void testImplicitForm() {
     nestmlCondModelExplicit.forEach(this::generateNESTMLImplementation);
+    for (final String model:nestmlCondModelExplicit) {
+      final ASTNESTMLCompilationUnit root = parseNESTMLModel(model);
+      Optional<ASTOdeDeclaration> odeDeclaration = ASTNodes.getAny(root, ASTOdeDeclaration.class);
+      Assert.assertTrue(odeDeclaration.isPresent());
+      generator.generateODECodeForGSL(
+          root,
+          root.getNeurons().get(0),
+          odeDeclaration.get(),
+          Paths.get("target"));
+    }
   }
 
 }

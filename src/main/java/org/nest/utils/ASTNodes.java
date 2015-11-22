@@ -31,6 +31,7 @@ public final class ASTNodes {
   private ASTNodes() {
     // noninstantiable
   }
+
   /**
    * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the right order
    * @param queryNode The node direct parent of the given node
@@ -54,6 +55,20 @@ public final class ASTNodes {
     return Optional.empty();
   }
 
+
+  public static <T> Optional<T> getAny(ASTNode root, Class<T> clazz) {
+    final Iterable<ASTNode> nodes = Util.preOrder(root, ASTNode::get_Children);
+
+    for (ASTNode node:nodes) {
+      if (clazz.isInstance(node)) {
+        // it is checked by the if-conditions
+
+        return Optional.of((T) node);
+      }
+    }
+
+    return Optional.empty();
+  }
 
   public static List<String> getVariablesNamesFromAst(final ASTSPLNode astNode) {
     final FQNCollector fqnCollector = new FQNCollector();
