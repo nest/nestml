@@ -41,7 +41,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   );
 
   private final List<String> nestmlCondModelExplicit = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
+      "src/test/resources/codegeneration/iaf_cond_alpha_implicit_module.nestml"
   );
 
 
