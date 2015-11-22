@@ -184,7 +184,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   */
   struct State_ {
     <#list body.getNonAliasStates() as aliasDecl>
-    ${tc.include("org.nest.nestml.MemberDeclaration", aliasDecl.getDeclaration())}
+    ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
     </#list>
     State_();
 
@@ -221,7 +221,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   */
   struct Parameters_ {
     <#list body.getNonAliasParameters() as aliasDecl>
-    ${tc.include("org.nest.nestml.MemberDeclaration", aliasDecl.getDeclaration())}
+    ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
     </#list>
     /** Initialize parameters to their default values. */
     Parameters_();
@@ -245,7 +245,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   */
   struct Variables_ {
     <#list body.getNonAliasInternals() as aliasDecl>
-    ${tc.include("org.nest.nestml.MemberDeclaration", aliasDecl.getDeclaration())}
+    ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
     </#list>
     <#list body.getNonAliasInternals() as internal>
     ${tc.include("org.nest.nestml.function.StructGetterSetter", internal)}
