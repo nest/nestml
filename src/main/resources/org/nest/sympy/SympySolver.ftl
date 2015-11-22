@@ -17,9 +17,10 @@ rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
 dev${ode.getLhsVariable()} = diff(rhs, ${ode.getLhsVariable()})
 dev_t_dev${ode.getLhsVariable()} = diff(dev${ode.getLhsVariable()}, t)
 
-
+solverType = open('solverType.property', 'w')
 if dev_t_dev${ode.getLhsVariable()} == 0:
     print 'We have a linear differential equation!'
+    solverType.write("exact")
     order = None
     tmp_diffs = [ ${EQs[0].getLhsVariable()}, diff( ${EQs[0].getLhsVariable()},t)]
     a_1 = solve(tmp_diffs[1] - a* ${EQs[0].getLhsVariable()}, a)
@@ -118,4 +119,5 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
 
 else:
     print 'Not a linear differential equation'
+    solverType.write("numeric")
 

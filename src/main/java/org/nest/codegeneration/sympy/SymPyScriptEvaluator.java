@@ -26,6 +26,7 @@ public class SymPyScriptEvaluator {
 
   private final static String LOG_NAME = SymPyScriptEvaluator.class.getName();
 
+  public final static String ODE_TYPE = "solverType.property";
   public final static String P30_FILE = "P30.mat";
   public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValue.mat";
   public final static String STATE_VECTOR_FILE = "state.vector.mat";
