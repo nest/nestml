@@ -29,6 +29,14 @@
 
 #ifndef ${guard}
 #define ${guard}
+<#-- TODO make it depend on the ODE declaration -->
+#include "config.h"
+
+#ifdef HAVE_GSL
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_odeiv.h>
+
 
 #include "nest.h"
 #include "event.h"
@@ -36,6 +44,7 @@
 #include "connection.h"
 #include "universal_data_logger.h"
 #include "dictdatum.h"
+
 
 <#list nspPrefix?split("::") as nsp>
 namespace ${nsp} {
@@ -422,5 +431,5 @@ void ${nspPrefix}::${simpleNeuronName}::set_status(const DictionaryDatum &d)
   S_ = stmp;
 };
 
-#endif
-/* #ifndef ${guard} */
+#endif /* #ifndef ${guard} */
+#endif /* HAVE GSL */
