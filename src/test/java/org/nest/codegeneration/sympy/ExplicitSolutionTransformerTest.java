@@ -6,19 +6,13 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -29,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plonikov
  */
-public class SymPySolutionTransformerTest extends ModelTestBase {
+public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
   public static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
   private final static String P30_FILE
@@ -45,10 +39,10 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testExactSolutionTransformation() {
-    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
+    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer
+    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
         .replaceODEWithSymPySolution(
             modelRoot,
             P30_FILE,
@@ -83,9 +77,9 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testAddingP00Value() {
-    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
+    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer.addP30(
+    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.addP30(
         parseNESTMLModel(MODEL_FILE_PATH),
         P30_FILE);
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
@@ -103,9 +97,9 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testReplaceODEThroughMatrixMultiplication() {
-    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
+    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer.replaceODE(
+    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.replaceODE(
         parseNESTMLModel(MODEL_FILE_PATH),
         UPDATE_STEP_FILE);
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
@@ -115,9 +109,9 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testAddingPSCInitialValue() {
-    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
+    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer.addPSCInitialValue(
+    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.addPSCInitialValue(
         parseNESTMLModel(MODEL_FILE_PATH),
         PSC_INITIAL_VALUE_FILE);
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
@@ -136,11 +130,11 @@ public class SymPySolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testAddingStateVariables() {
-    final SymPySolutionTransformer symPySolutionTransformer = new SymPySolutionTransformer();
+    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
 
-    final ASTNESTMLCompilationUnit transformedModel = symPySolutionTransformer
+    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
         .addStateVariablesAndUpdateStatements(modelRoot, STATE_VECTOR_FILE);
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 

@@ -9,7 +9,7 @@ a, h = symbols('a, h')
 </#compress>
 
 <#list EQs as eq>
-${EQs[0].getLhsVariable()} = ${expressionsPrettyPrinter.print(EQs[0].getRhs())}
+${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
 </#list>
 rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
 
@@ -17,9 +17,10 @@ rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
 dev${ode.getLhsVariable()} = diff(rhs, ${ode.getLhsVariable()})
 dev_t_dev${ode.getLhsVariable()} = diff(dev${ode.getLhsVariable()}, t)
 
-
+solverType = open('solverType.property', 'w')
 if dev_t_dev${ode.getLhsVariable()} == 0:
     print 'We have a linear differential equation!'
+    solverType.write("exact")
     order = None
     tmp_diffs = [ ${EQs[0].getLhsVariable()}, diff( ${EQs[0].getLhsVariable()},t)]
     a_1 = solve(tmp_diffs[1] - a* ${EQs[0].getLhsVariable()}, a)
@@ -118,4 +119,84 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
 
 else:
     print 'Not a linear differential equation'
+    solverType.write("numeric")
+    order = None
+    tmp_diffs = [ ${EQs[0].getLhsVariable()}, diff( ${EQs[0].getLhsVariable()},t)]
+    a_1 = solve(tmp_diffs[1] - a* ${EQs[0].getLhsVariable()}, a)
+    SUM = tmp_diffs[1] - a_1[0] *  ${EQs[0].getLhsVariable()}
+    if SUM == 0:
+        order = 1
+    else:
+        for n in range(2, 10):
+            tmp_diffs.append(diff( ${EQs[0].getLhsVariable()}, t, n))
+            X = zeros(n)
+            Y = zeros(n, 1)
+            found = False
+            for k in range(0, 100): # tries
+                for i in range(0, n):
+                    substitute = i+k
+                    Y[i] = tmp_diffs[n].subs(t, substitute)
+                    for j in range(0, n):
+                        X[i, j] = tmp_diffs[j].subs(t, substitute)
+                print "Try if X is invertable:"
+                print X
+                d = det(X)
+                print "det(X) = " + str(d)
+                if d != 0:
+                    found = True
+                    break
+            if not found:
+                print 'We have a problem'
+                exit(1)
+            VecA = X.inv() * Y
+            SUM = 0
+            for k in range(0, n):
+                SUM += VecA[k]*diff(${EQs[0].getLhsVariable()}, t, k)
+            SUM -= tmp_diffs[n]
+            print "SUM = " + str(simplify(SUM))
+            if simplify(SUM) == sympify(0):
+                order = n
+                break
+
+    if order is None:
+        print 'We have a problem'
+        exit(1)
+
+    c1 = diff(rhs, ${ode.getLhsVariable()})
+    ${EQs[0].getLhsVariable()} = symbols("${EQs[0].getLhsVariable()}")
+    c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${EQs[0].getLhsVariable()})
+    f = open('explicitSolution.mat', 'w')
+    if order == 1:
+        A = Matrix([[a_1[0], 0],
+                [c2, c1]])
+
+        f.write("d/dt y1 === y1 * " + str(A[0, 0]) + "\n")
+    elif order == 2:
+        # VecA only if order 2 or larger
+        solutionpq = -VecA[1]/2 + sqrt(VecA[1]**2 / 4 + VecA[0])
+        print simplify(VecA)
+        A = Matrix([[VecA[1]+solutionpq, 0,             0     ],
+                   [1,                   -solutionpq,   0     ],
+                   [0,                   c2,        c1]])
+        f.write("d/dt y1 === y1*" + str(simplify(A[0,0])) + "\n")
+        f.write("d/dt y2 === y1 * y2 *" + str(simplify(A[1,1])) + "\n")
+
+    elif order > 2:
+        A = zeros(order)
+        A[order-1, order-1] = c1
+        A[order-1, order-2] = c2
+        for j in range(0, order-1):
+            A[0, j] = VecA[order-j-1]
+        for i in range(1,order-1):
+            A[i,i-1]=1
+
+        y1_derivation = "d/dt y1 === "
+        separator = ""
+        for i in range(0, order-1):
+            y1_derivation = separator + "y"+str(i)*str(simplify(A[0,i-1]))
+            separator = "+"
+        f.write()
+
+        for i in range(2, order+1):
+            f.write("y" + i + "=" + "y" + (i-1)+"\n")
 

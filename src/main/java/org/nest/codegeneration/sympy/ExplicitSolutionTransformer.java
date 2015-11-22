@@ -31,7 +31,7 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * @author plotnikov
  */
-public class SymPySolutionTransformer {
+public class ExplicitSolutionTransformer {
 
   final SymPyOutput2NESTMLConverter converter2NESTML = new SymPyOutput2NESTMLConverter();
 
