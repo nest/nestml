@@ -55,7 +55,6 @@ neuron iaf_cond_alpha_neuron:
     if r == 0: # not refractory
       ODE:
         # Explicit
-
         GI === (E/Tau) * t * exp(-1/tau_synI*t)
         GE === (E/Tau) * t * exp(-1/tau_synE*t)
         d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
