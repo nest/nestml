@@ -64,7 +64,6 @@ public class NESTReferenceConverter implements IReferenceConverter {
     if ("or".equals(functionName)) {
       return "||";
     }
-
     // Time.resolution() ->
     // nestml::Time::get_resolution().get_ms
     if ("resolution".equals(functionName)) {

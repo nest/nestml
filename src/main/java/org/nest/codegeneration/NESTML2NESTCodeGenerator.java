@@ -10,6 +10,7 @@ import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
 import org.apache.commons.io.FileUtils;
+import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTMLDynamicsPrinter;
@@ -121,12 +122,26 @@ public class NESTML2NESTCodeGenerator {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
     final GlobalExtensionManagement glex = getGlexConfiguration();
     setup.setGlex(glex);
+    final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
+    setNeuronGenerationParameter(glex, typesFactory, astNeuron, moduleName);
+
+    final GSLReferenceConverter converter = new GSLReferenceConverter();
+    final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
+
+    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
+    final ASTOdeDeclaration astOdeDeclaration = astBodyDecorator.getOdeDefinition().get();
+
+    glex.setGlobalValue("ODEs", astOdeDeclaration.getODEs());
+    glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
+
+    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
+    glex.setGlobalValue("functionCallConverter", converter);
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
     final Path outputFile = Paths.get(outputFolder.toString(), "tmp.cpp");
-    final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
-    setNeuronGenerationParameter(glex, typesFactory, astNeuron, moduleName);
+
+
     // TODO: how do I find out the call was successful?
     generator.generate("org.nest.nestml.function.GSLDifferentiationFunction", outputFile, odeDeclaration);
 

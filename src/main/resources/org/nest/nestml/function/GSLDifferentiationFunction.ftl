@@ -16,8 +16,13 @@ ${nspPrefix}::${simpleNeuronName}( double, const double y[], double f[], void* p
   assert( pnode );
   const ${nspPrefix}::${simpleNeuronName}& node = *( reinterpret_cast< ${nspPrefix}::${simpleNeuronName}* >( pnode ) );
 
+
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
+
+  <#list ODEs as ode>
+    f[ 0 ] = ${expressionsPrinter.print(ode.getRhs())}
+  </#list>
 
   // dV_m/dt
   f[ 0 ] = ( -I_leak - I_syn_exc - I_syn_inh + node.B_.I_stim_ + node.P_.I_e ) / node.P_.C_m;
