@@ -4,6 +4,10 @@ neuron iaf_cond_alpha_implicit_neuron:
 
   state:
     V_m real = 0
+    DGI real = 0
+    GI real = 0
+    DGE real = 0
+    GE real = 0
     - r integer
   end
 
@@ -55,17 +59,17 @@ neuron iaf_cond_alpha_implicit_neuron:
     if r == 0: # not refractory
       ODE:
         # Explicit
-        GI === (E/Tau) * t * exp(-1/tau_synI*t)
-        GE === (E/Tau) * t * exp(-1/tau_synE*t)
-        d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
+        #GI === (E/Tau) * t * exp(-1/tau_synI*t)
+        #GE === (E/Tau) * t * exp(-1/tau_synE*t)
+        #d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
 
         # Implicit
 
-        # d/dt DGI === DGI/tau_synI
-        # d/dt GI === DGI - GI/tau_synI
-        # d/dt DGE === DGE/tau_synE
-        # d/dt GE === DGE - GE/tau_synE
-        # d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
+        d/dt DGI === DGI/tau_synI
+        d/dt GI === DGI - GI/tau_synI
+        d/dt DGE === DGE/tau_synE
+        d/dt GE === DGE - GE/tau_synE
+        d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
 
       end
 
