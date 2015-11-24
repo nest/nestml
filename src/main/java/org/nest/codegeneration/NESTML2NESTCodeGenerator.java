@@ -77,7 +77,7 @@ public class NESTML2NESTCodeGenerator {
       final NESTMLScopeCreator scopeCreator,
       final File outputBase) {
     final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
-    final Path modulePath = Paths.get(outputBase.getPath(), getPathFromQualifiedName(moduleName));
+    final Path modulePath = Paths.get(outputBase.getPath(), getPathFromPackage(moduleName));
 
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, new File(modulePath.toString()));
     final Path outputTmpPath = Paths.get(outputBase.getPath(), "tmp.nestml");
