@@ -25,7 +25,7 @@ import java.util.Optional;
  */
 public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
 
-  private final List<String> nestmlModelsWithOde = Lists.newArrayList(
+  private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
   );
 
@@ -53,7 +53,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   @Test
   public void checkCocosOnModels() throws IOException {
     nestmlPSCModels.forEach(this::checkCocos);
-    nestmlModelsWithOde.forEach(this::checkCocos);
+    pscModelsWithOde.forEach(this::checkCocos);
     nestmlCondModels.forEach(this::checkCocos);
   }
 
@@ -63,8 +63,8 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   }
 
   @Test
-  public void testModelsWithOde() {
-    nestmlModelsWithOde.forEach(this::generateCodeForPSCModel);
+  public void testPscModelWithOde() {
+    pscModelsWithOde.forEach(this::generateCodeForPSCModel);
   }
 
   @Ignore

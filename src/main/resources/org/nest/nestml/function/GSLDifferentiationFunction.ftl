@@ -9,6 +9,12 @@
   @param tc templatecontroller
   @result C++ Function
 -->
+<#assign index = 0>
+<#assign indexPostfix = "INDEX">
+<#list ODEs as ode>
+const int ${ode.getLhsVariable()}_${indexPostfix} = ${index};
+ <#assign index = index + 1>
+</#list>
 extern "C" inline int
 ${nspPrefix}::${simpleNeuronName}( double, const double y[], double f[], void* pnode )
 {
@@ -16,24 +22,12 @@ ${nspPrefix}::${simpleNeuronName}( double, const double y[], double f[], void* p
   assert( pnode );
   const ${nspPrefix}::${simpleNeuronName}& node = *( reinterpret_cast< ${nspPrefix}::${simpleNeuronName}* >( pnode ) );
 
-
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
 
   <#list ODEs as ode>
-    f[ 0 ] = ${expressionsPrinter.print(ode.getRhs())}
+    f[ ${ode.getLhsVariable()}_${indexPostfix} ] = ${expressionsPrinter.print(ode.getRhs())};
   </#list>
-
-  // dV_m/dt
-  f[ 0 ] = ( -I_leak - I_syn_exc - I_syn_inh + node.B_.I_stim_ + node.P_.I_e ) / node.P_.C_m;
-
-  // d dg_exc/dt, dg_exc/dt
-  f[ 1 ] = -y[ S::DG_EXC ] / node.P_.tau_synE;
-  f[ 2 ] = y[ S::DG_EXC ] - ( y[ S::G_EXC ] / node.P_.tau_synE );
-
-  // d dg_exc/dt, dg_exc/dt
-  f[ 3 ] = -y[ S::DG_INH ] / node.P_.tau_synI;
-  f[ 4 ] = y[ S::DG_INH ] - ( y[ S::G_INH ] / node.P_.tau_synI );
 
   return GSL_SUCCESS;
 }

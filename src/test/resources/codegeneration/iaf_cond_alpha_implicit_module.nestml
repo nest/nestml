@@ -64,13 +64,11 @@ neuron iaf_cond_alpha_implicit_neuron:
         #d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
 
         # Implicit
-
         d/dt DGI === DGI/tau_synI
         d/dt GI === DGI - GI/tau_synI
         d/dt DGE === DGE/tau_synE
         d/dt GE === DGE - GE/tau_synE
         d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
-
       end
 
     else:

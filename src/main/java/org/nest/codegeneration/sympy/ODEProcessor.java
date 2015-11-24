@@ -5,7 +5,7 @@
  */
 package org.nest.codegeneration.sympy;
 
-import de.se_rwth.commons.logging.Log;
+import de.se_rwth.commons.Names;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.Names.getPathFromPackage;
 import static de.se_rwth.commons.logging.Log.info;
 
 /**
@@ -51,17 +52,16 @@ public class ODEProcessor {
       final ASTNESTMLCompilationUnit root,
       final File outputBase) {
 
-    final File outputFolder = new File(Paths.get(outputBase.getPath(), root.getNeurons().get(0).getName()).toString());
     final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
         root.getNeurons().get(0),
-        outputFolder);
+        outputBase);
 
     checkState(generatedScript.isPresent());
 
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
     boolean successfulExecution = evaluator.execute(generatedScript.get());
     checkState(successfulExecution, "Error during solver script evaluation.");
-    final Path odeTypePath = Paths.get(outputFolder.getPath(), SymPyScriptEvaluator.ODE_TYPE);
+    final Path odeTypePath = Paths.get(outputBase.getPath(), SymPyScriptEvaluator.ODE_TYPE);
     final SolutionType solutionType = readSolutionType(odeTypePath);
 
     if (solutionType.equals(SolutionType.exact)) {
@@ -69,11 +69,11 @@ public class ODEProcessor {
       final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
           .replaceODEWithSymPySolution(
               root,
-              Paths.get(outputFolder.getPath(), SymPyScriptEvaluator.P30_FILE).toString(),
-              Paths.get(outputFolder.getPath(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE)
+              Paths.get(outputBase.getPath(), SymPyScriptEvaluator.P30_FILE).toString(),
+              Paths.get(outputBase.getPath(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE)
                   .toString(),
-              Paths.get(outputFolder.getPath(), SymPyScriptEvaluator.STATE_VECTOR_FILE).toString(),
-              Paths.get(outputFolder.getPath(), SymPyScriptEvaluator.UPDATE_STEP_FILE).toString());
+              Paths.get(outputBase.getPath(), SymPyScriptEvaluator.STATE_VECTOR_FILE).toString(),
+              Paths.get(outputBase.getPath(), SymPyScriptEvaluator.UPDATE_STEP_FILE).toString());
 
       return transformedModel;
     }
