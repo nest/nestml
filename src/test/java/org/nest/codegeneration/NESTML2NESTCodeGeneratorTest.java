@@ -76,7 +76,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   @Ignore
   @Test
   public void testImplicitForm() {
-    //nestmlCondModelExplicit.forEach(this::generateNESTMLImplementation);
+    nestmlCondModelExplicit.forEach(this::generateNESTMLImplementation);
     for (final String model:nestmlCondModelExplicit) {
       final ASTNESTMLCompilationUnit root = parseNESTMLModel(model);
       scopeCreator.runSymbolTableCreator(root);

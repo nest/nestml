@@ -79,6 +79,16 @@ public class NESTML2NESTCodeGenerator {
     final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
     final Path modulePath = Paths.get(outputBase.getPath(), getPathFromPackage(moduleName));
 
+    // TODO replace this code
+    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+
+    if (bodyDecorator.getOdeDefinition().isPresent()) {
+      if (bodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
+        return root;
+      }
+    }
+    // END
+
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, new File(modulePath.toString()));
     final Path outputTmpPath = Paths.get(outputBase.getPath(), "tmp.nestml");
     printModelToFile(
