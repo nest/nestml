@@ -22,6 +22,8 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class GSLReferenceConverter implements IReferenceConverter {
 
+  public static final String INDEX_VARIABLE_POSTFIX = "_INDEX";
+
   @Override
   public String convertBinaryOperator(String binaryOperator) {
     return "(%s)" + binaryOperator + "(%s)";
@@ -39,7 +41,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
     final NESTMLVariableSymbol variableSymbol
         = resolveVariable(variableName, astQualifiedName.getEnclosingScope().get());
     if (variableSymbol.getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE)) {
-      return "y[" + variableName + "_index" + "]";
+      return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
     }
     else {
 
