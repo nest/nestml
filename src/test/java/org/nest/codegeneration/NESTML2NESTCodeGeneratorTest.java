@@ -82,11 +82,8 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
       scopeCreator.runSymbolTableCreator(root);
       Optional<ASTOdeDeclaration> odeDeclaration = ASTNodes.getAny(root, ASTOdeDeclaration.class);
       Assert.assertTrue(odeDeclaration.isPresent());
-      generator.generateODECodeForGSL(
-          root,
-          root.getNeurons().get(0),
-          odeDeclaration.get(),
-          Paths.get("target"));
+
+      generator.generateNESTCode(root, Paths.get("target"));
     }
   }
 

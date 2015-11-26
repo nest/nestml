@@ -42,13 +42,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
   public void visit(final ASTNESTMLCompilationUnit node) {
     print("package ");
     println(Names.getQualifiedName(node.getPackageName().getParts()) + BLOCK_OPEN);
-    //indent();
-  }
-
-  @Override
-  public void endVisit(final ASTNESTMLCompilationUnit node) {
-    //unindent();
-    //println("end");
   }
 
   /**

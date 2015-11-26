@@ -9,6 +9,7 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
@@ -45,7 +46,7 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
  * @author plotnikov
  */
 public class NESTML2NESTCodeGenerator {
-
+  private final String LOG_NAME = NESTML2NESTCodeGenerator.class.getName();
   private final ODEProcessor odeProcessor = new ODEProcessor();
   private final NESTReferenceConverter converter;
   private final ExpressionsPrettyPrinter expressionsPrinter;
@@ -65,7 +66,18 @@ public class NESTML2NESTCodeGenerator {
   public void generateNESTCode(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
+    Log.info("Starts processing of the model: ", LOG_NAME);
     ASTNESTMLCompilationUnit workingVersion;
+    // TODO replace this code
+    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+
+    if (bodyDecorator.getOdeDefinition().isPresent()) {
+      if (bodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
+
+      }
+    }
+    // END
+
     workingVersion = transformOdeToSolution(root, scopeCreator, new File(outputBase.toString()));
     generateHeader(workingVersion, new File(outputBase.toString()));
     generateClassImplementation(workingVersion, new File(outputBase.toString()));
@@ -78,16 +90,6 @@ public class NESTML2NESTCodeGenerator {
       final File outputBase) {
     final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
     final Path modulePath = Paths.get(outputBase.getPath(), getPathFromPackage(moduleName));
-
-    // TODO replace this code
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
-
-    if (bodyDecorator.getOdeDefinition().isPresent()) {
-      if (bodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
-        return root;
-      }
-    }
-    // END
 
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, new File(modulePath.toString()));
     final Path outputTmpPath = Paths.get(outputBase.getPath(), "tmp.nestml");
