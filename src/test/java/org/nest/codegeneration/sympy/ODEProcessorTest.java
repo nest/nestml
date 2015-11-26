@@ -66,7 +66,7 @@ public class ODEProcessorTest extends ModelTestBase {
     String modelFolder = getPathFromPackage(
         getQualifiedName(modelRoot.getPackageName().getParts()));
     final ASTNESTMLCompilationUnit explicitSolution = testant
-        .process(modelRoot, new File(Paths.get(OUTPUT_FOLDER, modelFolder).toString()));
+        .process(modelRoot, Paths.get(OUTPUT_FOLDER, modelFolder));
 
     return scopeCreator.runSymbolTableCreator(explicitSolution);
   }

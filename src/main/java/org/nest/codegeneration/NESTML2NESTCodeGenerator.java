@@ -21,14 +21,13 @@ import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTNeuronList;
-import org.nest.nestml._parser.NESTMLParserFactory;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.spl._ast.ASTODE;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.utils.ASTNodes;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +37,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.Names.getPathFromPackage;
-import static de.se_rwth.commons.Names.getPathFromQualifiedName;
 import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
@@ -66,52 +64,55 @@ public class NESTML2NESTCodeGenerator {
   public void generateNESTCode(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    Log.info("Starts processing of the model: ", LOG_NAME);
-    ASTNESTMLCompilationUnit workingVersion;
-    // TODO replace this code
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    Log.info(
+        "Starts processing of the model: " + ASTNodes.toString(root.getPackageName()),
+        LOG_NAME);
+    final ASTNESTMLCompilationUnit workingVersion;
+    workingVersion = transformOdeToSolution(root, scopeCreator, outputBase);
+    generateHeader(workingVersion, outputBase);
+    generateClassImplementation(workingVersion, outputBase);
+    generateNestModuleCode(workingVersion, outputBase);
 
-    if (bodyDecorator.getOdeDefinition().isPresent()) {
-      if (bodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
-
-      }
-    }
-    // END
-
-    workingVersion = transformOdeToSolution(root, scopeCreator, new File(outputBase.toString()));
-    generateHeader(workingVersion, new File(outputBase.toString()));
-    generateClassImplementation(workingVersion, new File(outputBase.toString()));
-    generateNestModuleCode(workingVersion, new File(outputBase.toString()));
+    Log.info(
+        "Successfully generated NEST code for" + ASTNodes.toString(root.getPackageName()),
+        LOG_NAME);
   }
 
   public ASTNESTMLCompilationUnit transformOdeToSolution(
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
-      final File outputBase) {
-    final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
-    final Path modulePath = Paths.get(outputBase.getPath(), getPathFromPackage(moduleName));
+      final Path outputBase) {
+    final String moduleName = ASTNodes.toString(root.getPackageName());
+    final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
-    ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, new File(modulePath.toString()));
-    final Path outputTmpPath = Paths.get(outputBase.getPath(), "tmp.nestml");
-    printModelToFile(
-        withSolvedOde,
-        outputTmpPath.toString());
+    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    if (astBodyDecorator.getOdeDefinition().isPresent()) {
+      if (astBodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
+        return root;
+      }
+
+    }
+    ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
+
     try {
+      final Path outputTmpPath = Paths.get(outputBase.toString(), "tmp.nestml");
+      printModelToFile(withSolvedOde, outputTmpPath.toString());
       withSolvedOde = createNESTMLCompilationUnitMCParser().parse(outputTmpPath.toString()).get();
+      scopeCreator.runSymbolTableCreator(withSolvedOde);
+      return withSolvedOde;
     }
     catch (IOException e) {
       throw  new RuntimeException(e);
     }
-    scopeCreator.runSymbolTableCreator(withSolvedOde);
-    return withSolvedOde;
+
   }
 
   public void generateHeader(
       final ASTNESTMLCompilationUnit compilationUnit,
-      final File outputFolder) {
+      final Path outputFolder) {
     final String moduleName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
 
-    final GeneratorSetup setup = new GeneratorSetup(outputFolder);
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
     final GlobalExtensionManagement glex = getGlexConfiguration();
     setup.setGlex(glex);
 
@@ -161,10 +162,10 @@ public class NESTML2NESTCodeGenerator {
 
   public void generateClassImplementation(
       final ASTNESTMLCompilationUnit compilationUnit,
-      final File outputDirectory) {
+      final Path outputDirectory) {
     final String moduleName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
 
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
     final GlobalExtensionManagement glex = getGlexConfiguration();
     setup.setGlex(glex);
 
@@ -186,7 +187,7 @@ public class NESTML2NESTCodeGenerator {
 
   public void generateNestModuleCode(
       final ASTNESTMLCompilationUnit compilationUnit,
-      final File outputDirectory) {
+      final Path outputDirectory) {
     final String fullName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
     final String moduleName = Names.getSimpleName(fullName);
 
@@ -196,7 +197,7 @@ public class NESTML2NESTCodeGenerator {
         .map(ASTNeuron::getName)
         .collect(Collectors.toList());
 
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
     setup.setTracing(false);
 
     final GlobalExtensionManagement glex = getGlexConfiguration();
@@ -267,6 +268,17 @@ public class NESTML2NESTCodeGenerator {
       final PredefinedTypesFactory typesFactory,
       final ASTNeuron neuron,
       final String moduleName) {
+    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
+    if (astBodyDecorator.getOdeDefinition().isPresent()) {
+      if (astBodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
+        glex.setGlobalValue("useGSL", true);
+      }
+      else {
+        glex.setGlobalValue("useGSL", false);
+      }
+
+    }
+
     final String guard = (moduleName + "." + neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
     glex.setGlobalValue("simpleNeuronName", neuron.getName());

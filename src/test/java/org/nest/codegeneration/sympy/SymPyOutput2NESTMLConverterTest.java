@@ -8,6 +8,8 @@ package org.nest.codegeneration.sympy;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTAliasDecl;
 
+import java.nio.file.Paths;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -28,7 +30,7 @@ public class SymPyOutput2NESTMLConverterTest {
   @Test
   public void testConvertToDeclaration() throws Exception {
 
-    final ASTAliasDecl testant = converter.convertToAlias(P30_FILE);
+    final ASTAliasDecl testant = converter.convertToAlias(Paths.get(P30_FILE));
     assertEquals(testant.getDeclaration().getVars().get(0), P_30);
     assertTrue(testant.getDeclaration().getExpr().isPresent());
 

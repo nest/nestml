@@ -13,6 +13,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -45,10 +46,10 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
     final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
         .replaceODEWithSymPySolution(
             modelRoot,
-            P30_FILE,
-            PSC_INITIAL_VALUE_FILE,
-            STATE_VECTOR_FILE,
-            UPDATE_STEP_FILE);
+            Paths.get(P30_FILE),
+            Paths.get(PSC_INITIAL_VALUE_FILE),
+            Paths.get(STATE_VECTOR_FILE),
+            Paths.get(UPDATE_STEP_FILE));
 
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 
@@ -81,7 +82,7 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
     // false abstraction level
     final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.addP30(
         parseNESTMLModel(MODEL_FILE_PATH),
-        P30_FILE);
+        Paths.get(P30_FILE));
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
@@ -101,7 +102,7 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
     // false abstraction level
     final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.replaceODE(
         parseNESTMLModel(MODEL_FILE_PATH),
-        UPDATE_STEP_FILE);
+        Paths.get(UPDATE_STEP_FILE));
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 
     parseNESTMLModel(TARGET_TMP_MODEL_PATH);
@@ -113,7 +114,7 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
     // false abstraction level
     final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.addPSCInitialValue(
         parseNESTMLModel(MODEL_FILE_PATH),
-        PSC_INITIAL_VALUE_FILE);
+        Paths.get(PSC_INITIAL_VALUE_FILE));
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
@@ -135,7 +136,7 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
     scopeCreator.runSymbolTableCreator(modelRoot);
 
     final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
-        .addStateVariablesAndUpdateStatements(modelRoot, STATE_VECTOR_FILE);
+        .addStateVariablesAndUpdateStatements(modelRoot, Paths.get(STATE_VECTOR_FILE));
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);

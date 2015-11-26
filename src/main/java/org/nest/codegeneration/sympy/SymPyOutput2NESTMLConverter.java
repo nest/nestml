@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,9 +45,9 @@ public class SymPyOutput2NESTMLConverter {
     assignmentStringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
-  public ASTAliasDecl convertToAlias(String declarationFile) {
+  public ASTAliasDecl convertToAlias(final Path declarationFile) {
     try {
-      final ASTDeclaration declaration = declarationParser.parse(declarationFile).get();
+      final ASTDeclaration declaration = declarationParser.parse(declarationFile.toString()).get();
       // it is ok to call get, since otherwise it is an error in the file structure
       return convertToAlias(declaration);
     }
@@ -82,10 +83,10 @@ public class SymPyOutput2NESTMLConverter {
     return astAliasDecl;
   }
 
-  public ASTAssignment convertToAssignment(final String assignmentPath) {
+  public ASTAssignment convertToAssignment(final Path assignmentPath) {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
-      return assignmentStringParser.parse(assignmentPath).get();
+      return assignmentStringParser.parse(assignmentPath.toString()).get();
     }
     catch (IOException e) {
       final String msg = "Cannot parse assignment statement.";
