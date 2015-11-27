@@ -86,7 +86,6 @@ public class ASTBodyDecorator extends ASTBody {
 
   @SuppressWarnings("unused") // used in templates
   public List<ASTAliasDecl> getNonAliasStates() {
-
     return getStates().stream().filter(v->!v.isAlias()).collect(toList());
   }
 

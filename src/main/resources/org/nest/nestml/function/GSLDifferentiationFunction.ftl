@@ -6,7 +6,11 @@
        (ODE (NEWLINE)*)+
        BLOCK_CLOSE;
   @param ast ASTOdeDeclaration
+  @param simpleNeuronName Name of the neuron
   @param tc templatecontroller
+  @param ODEs List of odes form the
+  @param nspPrefix List of odes form the
+  @param expressionsPrinterForGSL Pretty printer for the GSL function calls
   @result C++ Function
 -->
 <#assign index = 0>
@@ -16,7 +20,7 @@ const int ${ode.getLhsVariable()}_${indexPostfix} = ${index};
  <#assign index = index + 1>
 </#list>
 extern "C" inline int
-${simpleNeuronName}Dynamics( double, const double y[], double f[], void* pnode )
+${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode )
 {
  // get access to node so we can almost work as in a member function
   assert( pnode );
@@ -26,7 +30,7 @@ ${simpleNeuronName}Dynamics( double, const double y[], double f[], void* pnode )
   // not the state vector in the node, node.S_.y[].
 
   <#list ODEs as ode>
-    f[ ${ode.getLhsVariable()}_${indexPostfix} ] = ${expressionsPrinter.print(ode.getRhs())};
+    f[ ${ode.getLhsVariable()}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(ode.getRhs())};
   </#list>
 
   return GSL_SUCCESS;
