@@ -35,7 +35,7 @@ public class ODEProcessor {
 
   public ASTNESTMLCompilationUnit process(
       final ASTNESTMLCompilationUnit root,
-      final File outputBase) {
+      final Path outputBase) {
     checkState(root.getNeurons().size() > 0);
     final ASTNeuron neuron = root.getNeurons().get(0);
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
@@ -50,7 +50,7 @@ public class ODEProcessor {
 
   private ASTNESTMLCompilationUnit handleNeuronWithODE(
       final ASTNESTMLCompilationUnit root,
-      final File outputBase) {
+      final Path outputBase) {
 
     final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
         root.getNeurons().get(0),
@@ -61,7 +61,7 @@ public class ODEProcessor {
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
     boolean successfulExecution = evaluator.execute(generatedScript.get());
     checkState(successfulExecution, "Error during solver script evaluation.");
-    final Path odeTypePath = Paths.get(outputBase.getPath(), SymPyScriptEvaluator.ODE_TYPE);
+    final Path odeTypePath = Paths.get(outputBase.toString(), SymPyScriptEvaluator.ODE_TYPE);
     final SolutionType solutionType = readSolutionType(odeTypePath);
 
     if (solutionType.equals(SolutionType.exact)) {
@@ -69,11 +69,10 @@ public class ODEProcessor {
       final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
           .replaceODEWithSymPySolution(
               root,
-              Paths.get(outputBase.getPath(), SymPyScriptEvaluator.P30_FILE).toString(),
-              Paths.get(outputBase.getPath(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE)
-                  .toString(),
-              Paths.get(outputBase.getPath(), SymPyScriptEvaluator.STATE_VECTOR_FILE).toString(),
-              Paths.get(outputBase.getPath(), SymPyScriptEvaluator.UPDATE_STEP_FILE).toString());
+              Paths.get(outputBase.toString(), SymPyScriptEvaluator.P30_FILE),
+              Paths.get(outputBase.toString(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),
+              Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_FILE),
+              Paths.get(outputBase.toString(), SymPyScriptEvaluator.UPDATE_STEP_FILE));
 
       return transformedModel;
     }

@@ -15,6 +15,7 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -50,7 +51,6 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
 
     assertTrue(root.isPresent());
-    final File outputFolder = new File(OUTPUT_FOLDER);
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
         TEST_MODEL_PATH, typesFactory);
@@ -58,7 +58,7 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
 
     final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
-        outputFolder);
+        Paths.get(OUTPUT_FOLDER));
 
     assertTrue(generatedScript.isPresent());
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();

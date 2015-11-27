@@ -58,7 +58,7 @@ public class SymPyScriptGeneratorTest extends ModelTestBase {
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
-        new File(OUTPUT_FOLDER));
+        Paths.get(OUTPUT_FOLDER));
 
     assertTrue(generatedScript.isPresent());
   }

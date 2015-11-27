@@ -7,7 +7,9 @@ package org.nest.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+import com.sun.xml.internal.fastinfoset.QualifiedName;
 import de.monticore.ast.ASTNode;
+import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Util;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
@@ -133,6 +135,10 @@ public final class ASTNodes {
     }
 
     return argTypeNames;
+  }
+
+  public static String toString(final ASTQualifiedName qualifiedName) {
+    return Names.getQualifiedName(qualifiedName.getParts());
   }
 
 }

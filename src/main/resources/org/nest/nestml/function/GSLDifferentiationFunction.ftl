@@ -16,7 +16,7 @@ const int ${ode.getLhsVariable()}_${indexPostfix} = ${index};
  <#assign index = index + 1>
 </#list>
 extern "C" inline int
-${nspPrefix}::${simpleNeuronName}( double, const double y[], double f[], void* pnode )
+${simpleNeuronName}Dynamics( double, const double y[], double f[], void* pnode )
 {
  // get access to node so we can almost work as in a member function
   assert( pnode );

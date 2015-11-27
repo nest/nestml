@@ -32,11 +32,12 @@
 <#-- TODO make it depend on the ODE declaration -->
 #include "config.h"
 
+<#if useGSL>
 #ifdef HAVE_GSL
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv.h>
-
+</#if>
 
 #include "nest.h"
 #include "event.h"
@@ -432,4 +433,6 @@ void ${nspPrefix}::${simpleNeuronName}::set_status(const DictionaryDatum &d)
 };
 
 #endif /* #ifndef ${guard} */
+<#if useGSL>
 #endif /* HAVE GSL */
+</#if>

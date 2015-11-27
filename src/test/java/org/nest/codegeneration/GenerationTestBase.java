@@ -77,10 +77,9 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
       scopeCreator.runSymbolTableCreator(root.get());
 
-      final File outputFolder = new File(OUTPUT_FOLDER);
 
       ASTNESTMLCompilationUnit explicitSolutionRoot =
-          generator.transformOdeToSolution(root.get(), scopeCreator, outputFolder);
+          generator.transformOdeToSolution(root.get(), scopeCreator, Paths.get(OUTPUT_FOLDER));
 
       final Scope scope = scopeCreator.getGlobalScope();
 
@@ -98,13 +97,13 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
       generator.generateClassImplementation(
           explicitSolutionRoot,
-          outputFolder);
+          Paths.get(OUTPUT_FOLDER));
       generator.generateHeader(
           explicitSolutionRoot,
-          outputFolder);
+          Paths.get(OUTPUT_FOLDER));
       generator.generateNestModuleCode(
           explicitSolutionRoot,
-          outputFolder);
+          Paths.get(OUTPUT_FOLDER));
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);

@@ -19,7 +19,7 @@ import org.nest.utils.ASTNodes;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,10 +37,10 @@ public class ExplicitSolutionTransformer {
 
   public ASTNESTMLCompilationUnit replaceODEWithSymPySolution(
       ASTNESTMLCompilationUnit root,
-      final String pathToP00File,
-      final String PSCInitialValueFile,
-      final String stateVectorFile,
-      final String updateStepFile) {
+      final Path pathToP00File,
+      final Path PSCInitialValueFile,
+      final Path stateVectorFile,
+      final Path updateStepFile) {
     root = addP30(root, pathToP00File);
     root = addPSCInitialValue(root, PSCInitialValueFile);
     root = addStateVariablesAndUpdateStatements(root, stateVectorFile);
@@ -54,7 +54,7 @@ public class ExplicitSolutionTransformer {
    */
   public ASTNESTMLCompilationUnit addP30(
       final ASTNESTMLCompilationUnit root,
-      final String pathToP00File) {
+      final Path pathToP00File) {
 
     final ASTAliasDecl p00Declaration = converter2NESTML.convertToAlias(pathToP00File);
 
@@ -67,7 +67,7 @@ public class ExplicitSolutionTransformer {
    */
   public ASTNESTMLCompilationUnit addPSCInitialValue(
       final ASTNESTMLCompilationUnit root,
-      final String pathPSCInitialValueFile) {
+      final Path pathPSCInitialValueFile) {
 
     final ASTAliasDecl pscInitialValue = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
 
@@ -77,10 +77,11 @@ public class ExplicitSolutionTransformer {
 
   public ASTNESTMLCompilationUnit addStateVariablesAndUpdateStatements(
       final ASTNESTMLCompilationUnit root,
-      final String stateVectorFile) {
+      final Path stateVectorFile) {
     try {
-      final List<String> stateVectorLines = Files.lines(Paths.get(stateVectorFile))
-              .collect(Collectors.toList());
+      final List<String> stateVectorLines = Files
+          .lines(stateVectorFile)
+          .collect(Collectors.toList());
 
       checkState(stateVectorLines.size() > 0, "False stateVector.mat format. Check SymPy solver.");
 
@@ -129,7 +130,7 @@ public class ExplicitSolutionTransformer {
 
   public ASTNESTMLCompilationUnit replaceODE(
       final ASTNESTMLCompilationUnit root,
-      final String updateStepFile) {
+      final Path updateStepFile) {
     final ASTAssignment stateUpdate = converter2NESTML.convertToAssignment(updateStepFile);
 
     ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());

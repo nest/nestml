@@ -9,13 +9,11 @@ import com.google.common.collect.Lists;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBodyDecorator;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl._ast.ASTOdeDeclaration;
+import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.utils.ASTNodes;
 
 import java.io.File;
@@ -26,7 +24,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
-import static de.se_rwth.commons.Names.getPathFromPackage;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -45,8 +42,8 @@ public class SymPyScriptGenerator {
    */
   public static Optional<Path> generateSympyODEAnalyzer(
       final ASTNeuron neuron,
-      final File outputDirectory) {
-    final GeneratorSetup setup = new GeneratorSetup(outputDirectory);
+      final Path outputDirectory) {
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
 
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
     final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getOdeDefinition();
