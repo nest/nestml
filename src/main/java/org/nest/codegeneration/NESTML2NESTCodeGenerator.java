@@ -138,8 +138,6 @@ public class NESTML2NESTCodeGenerator {
     final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
     setNeuronGenerationParameter(glex, typesFactory, astNeuron, moduleName);
 
-    final GSLReferenceConverter converter = new GSLReferenceConverter();
-    final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
 
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
     final ASTOdeDeclaration astOdeDeclaration = astBodyDecorator.getOdeDefinition().get();
@@ -147,8 +145,6 @@ public class NESTML2NESTCodeGenerator {
     glex.setGlobalValue("ODEs", astOdeDeclaration.getODEs());
     glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
 
-    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
-    glex.setGlobalValue("functionCallConverter", converter);
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
@@ -263,19 +259,20 @@ public class NESTML2NESTCodeGenerator {
 
   }
 
+  public GlobalExtensionManagement getGlexConfiguration() {
+    final GlobalExtensionManagement glex = new GlobalExtensionManagement();
+    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
+    glex.setGlobalValue("functionCallConverter", converter);
+    return glex;
+  }
+
+
   private void setNeuronGenerationParameter(
       final GlobalExtensionManagement glex,
       final PredefinedTypesFactory typesFactory,
       final ASTNeuron neuron,
       final String moduleName) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
-    glex.setGlobalValue("useGSL", false);
-    if (astBodyDecorator.getOdeDefinition().isPresent()) {
-      if (astBodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
-        glex.setGlobalValue("useGSL", true);
-      }
-
-    }
+    setSolverType(glex, neuron);
 
     final String guard = (moduleName + "." + neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
@@ -301,17 +298,27 @@ public class NESTML2NESTCodeGenerator {
     glex.setGlobalValue("isCurrentInput", NESTMLInputs.isCurrentInput(neuron));
     glex.setGlobalValue("body", new ASTBodyDecorator(neuron.getBody()));
 
+    final GSLReferenceConverter converter = new GSLReferenceConverter();
+    final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
+    glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
+
+  }
+
+  private void setSolverType(GlobalExtensionManagement glex, ASTNeuron neuron) {
+    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
+    glex.setGlobalValue("useGSL", false);
+    if (astBodyDecorator.getOdeDefinition().isPresent()) {
+      if (astBodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
+        glex.setGlobalValue("useGSL", true);
+        glex.setGlobalValue("ODEs", astBodyDecorator.getOdeDefinition().get().getODEs());
+      }
+
+    }
+
   }
 
   private static String convertToCppNamespaceConvention(String fqnName) {
     return fqnName.replace(".", "::");
-  }
-
-  public GlobalExtensionManagement getGlexConfiguration() {
-    final GlobalExtensionManagement glex = new GlobalExtensionManagement();
-    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
-    glex.setGlobalValue("functionCallConverter", converter);
-    return glex;
   }
 
 

@@ -30,6 +30,7 @@
 #include "universal_data_logger_impl.h"
 
 #include <limits>
+<#assign stateSize = body.getNonAliasStates()?size>
 
 // TODO it cannot work with several neurons
 #include "${simpleNeuronName}.h"
@@ -153,6 +154,12 @@ ${nspPrefix}::${simpleNeuronName}::init_state_(const Node& proto)
   const ${ast.getName()}& pr = downcast<${ast.getName()}>(proto);
   S_ = pr.S_;
 }
+
+<#if useGSL>
+<#assign ODEs = body.getOdeDefinition().get().getODEs>
+${tc.include("org.nest.nestml.function.GSLDifferentiationFunction",body)}
+</#if>
+
 void
 ${nspPrefix}::${simpleNeuronName}::init_buffers_()
 {
@@ -161,6 +168,29 @@ ${nspPrefix}::${simpleNeuronName}::init_buffers_()
   </#list>
   B_.logger_.reset(); // includes resize
   Archiving_Node::clear_history();
+  <#if useGSL>
+    if ( B_.s_ == 0 )
+    B_.s_ = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, ${stateSize} );
+    else
+    gsl_odeiv_step_reset( B_.s_ );
+
+    if ( B_.c_ == 0 )
+    B_.c_ = gsl_odeiv_control_y_new( 1e-3, 0.0 );
+    else
+    gsl_odeiv_control_init( B_.c_, 1e-3, 0.0, 1.0, 0.0 );
+
+    if ( B_.e_ == 0 )
+    B_.e_ = gsl_odeiv_evolve_alloc( ${stateSize} );
+    else
+    gsl_odeiv_evolve_reset( B_.e_ );
+
+    B_.sys_.function = ${simpleNeuronName}_dynamics;
+    B_.sys_.jacobian = NULL;
+    B_.sys_.dimension = ${stateSize};
+    B_.sys_.params = reinterpret_cast< void* >( this );
+
+  </#if>
+
 }
 
 void
@@ -180,16 +210,15 @@ ${nspPrefix}::${simpleNeuronName}::calibrate()
     </#if>
 
   </#list>
-
 }
 
 /* ----------------------------------------------------------------
 * Update and spike handling functions
 * ---------------------------------------------------------------- */
-
-
 void
-${nspPrefix}::${simpleNeuronName}::update(nest::Time const & origin, const nest::long_t from, const nest::long_t to)
+${nspPrefix}::${simpleNeuronName}::update(
+        nest::Time const & origin,
+        const nest::long_t from, const nest::long_t to)
 {
     <#list body.getDynamics() as dynamic>
     ${tc.include("org.nest.nestml.function.DynamicsImplementation", dynamic)}

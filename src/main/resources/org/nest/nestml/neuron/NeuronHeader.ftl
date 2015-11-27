@@ -289,6 +289,16 @@ class ${simpleNeuronName} : public nest::Archiving_Node
     <#list body.getInputLines() as inputLine>
       ${bufferHelper.printBufferTypesVariables(inputLine)};
     </#list>
+
+    <#if useGSL>
+    /* GSL ODE stuff */
+    gsl_odeiv_step* s_;    //!< stepping function
+    gsl_odeiv_control* c_; //!< adaptive stepsize control function
+    gsl_odeiv_evolve* e_;  //!< evolution function
+    gsl_odeiv_system sys_; //!< struct describing system
+    </#if>
+
+
   };
 
   /**
