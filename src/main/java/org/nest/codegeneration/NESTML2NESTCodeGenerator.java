@@ -269,12 +269,10 @@ public class NESTML2NESTCodeGenerator {
       final ASTNeuron neuron,
       final String moduleName) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
+    glex.setGlobalValue("useGSL", false);
     if (astBodyDecorator.getOdeDefinition().isPresent()) {
       if (astBodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
         glex.setGlobalValue("useGSL", true);
-      }
-      else {
-        glex.setGlobalValue("useGSL", false);
       }
 
     }

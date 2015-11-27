@@ -7,7 +7,6 @@ package org.nest.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
-import com.sun.xml.internal.fastinfoset.QualifiedName;
 import de.monticore.ast.ASTNode;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
