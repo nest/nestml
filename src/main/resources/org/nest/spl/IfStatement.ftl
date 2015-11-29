@@ -15,7 +15,7 @@
 if (${tc.include("org.nest.spl.expr.Expr", ast.getIF_Clause().getExpr())}) {
 ${tc.include("org.nest.spl.Block", ast.getIF_Clause().getBlock())}
 <#list ast.getELIF_Clauses() as elif>
-else if(${tc.include("org.nest.spl.expr.Expr", elif.getExpr())}) {
+} else if(${tc.include("org.nest.spl.expr.Expr", elif.getExpr())}) {
 ${tc.include("org.nest.spl.Block", elif.getBlock())}
 </#list>
 <#if ast.getELSE_Clause().isPresent()>
