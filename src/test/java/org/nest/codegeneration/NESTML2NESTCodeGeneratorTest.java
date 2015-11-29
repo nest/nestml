@@ -73,7 +73,6 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
     nestmlCondModels.forEach(this::generateNESTMLImplementation);
   }
 
-  @Ignore
   @Test
   public void testImplicitForm() {
     nestmlCondModelExplicit.forEach(this::generateNESTMLImplementation);
