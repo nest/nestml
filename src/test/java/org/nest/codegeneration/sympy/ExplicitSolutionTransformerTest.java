@@ -27,6 +27,7 @@ import static org.junit.Assert.assertTrue;
 public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
   public static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
+
   private final static String P30_FILE
       = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.P30_FILE;
   private final static String PSC_INITIAL_VALUE_FILE
@@ -37,6 +38,8 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
       = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.UPDATE_STEP_FILE;
   private static final String MODEL_FILE_PATH
       = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
+
+  public static final String NEURON_NAME = "iaf_neuron_ode";
 
   @Test
   public void testExactSolutionTransformation() {
@@ -57,7 +60,7 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
     final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
     final Scope scope = scopeCreator2.runSymbolTableCreator(testant);
-    Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+    Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NESTMLNeuronSymbol.KIND);
 
     final Optional<NESTMLVariableSymbol> p30Symbol = neuronSymbol.get().getVariableByName("P30");
     assertTrue(p30Symbol.isPresent());
@@ -83,12 +86,15 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
     final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.addP30(
         parseNESTMLModel(MODEL_FILE_PATH),
         Paths.get(P30_FILE));
+
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
-    Optional<NESTMLNeuronSymbol> symbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+    Optional<NESTMLNeuronSymbol> symbol = scope.resolve(
+        NEURON_NAME,
+        NESTMLNeuronSymbol.KIND);
 
     final Optional<NESTMLVariableSymbol> p00Symbol = symbol.get().getVariableByName("P30");
 
@@ -121,7 +127,7 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
 
-    Optional<NESTMLNeuronSymbol> symbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+    Optional<NESTMLNeuronSymbol> symbol = scope.resolve(NEURON_NAME, NESTMLNeuronSymbol.KIND);
 
     final Optional<NESTMLVariableSymbol> pscInitialValue = symbol.get().getVariableByName("PSCInitialValue");
 
@@ -143,7 +149,7 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
 
-    Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_ode_neuron", NESTMLNeuronSymbol.KIND);
+    Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NESTMLNeuronSymbol.KIND);
 
     final Optional<NESTMLVariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
     assertTrue(y0.isPresent());

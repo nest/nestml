@@ -6,19 +6,16 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
 import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.utils.ASTNodes;
 
-import java.io.File;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static de.se_rwth.commons.Names.getPathFromPackage;
 import static de.se_rwth.commons.Names.getQualifiedName;
 import static org.junit.Assert.assertTrue;
 
@@ -34,6 +31,7 @@ public class ODEProcessorTest extends ModelTestBase {
   private static final String PSC_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 
+  public static final String NEURON_NAME = "iaf_neuron_ode";
 
   final ODEProcessor testant = new ODEProcessor();
 
@@ -42,7 +40,7 @@ public class ODEProcessorTest extends ModelTestBase {
     final Scope scope = processModel(PSC_MODEL_FILE);
 
     final Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve(
-        "iaf_neuron_ode_neuron",
+        NEURON_NAME,
         NESTMLNeuronSymbol.KIND);
 
     final Optional<NESTMLVariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
@@ -63,8 +61,8 @@ public class ODEProcessorTest extends ModelTestBase {
   private Scope processModel(final String pathToModel) {
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(pathToModel);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    String modelFolder = getPathFromPackage(
-        getQualifiedName(modelRoot.getPackageName().getParts()));
+    final String modelFolder = ASTNodes.toString(modelRoot.getPackageName());
+
     final ASTNESTMLCompilationUnit explicitSolution = testant
         .process(modelRoot, Paths.get(OUTPUT_FOLDER, modelFolder));
 

@@ -10,25 +10,24 @@ neuron iaf_neuron:
 
   parameter:
     # Capacity of the membrane.
-    C_m       pF = 250 [C_m  > 0]
+    C_m       pF = 250
     # Membrane time constant.
-    tau_m     ms = 10 [tau_m > 0]
+    tau_m     ms = 10
     # Time constant of synaptic current.
     tau_syn ms = 2
     # Refractory period.
     t_ref    ms = 2
     # Resting potential.
     E_L      mV = -70
-    - delta_V_reset mV = -70 - E_L
+    -delta_V_reset mV = -70 - E_L
     -Theta   mV = -55 - E_L
     # External current.
     I_e     pA = 0
 
-    # some aliases
-    # Threshold.
+    # some aliases Threshold.
     alias V_th mV = Theta + E_L
     # Reset value of the membrane potential.
-    alias  V_reset mV = delta_V_reset + E_L [V_reset >= Theta]
+    alias  V_reset mV = delta_V_reset + E_L
   end
 
 
@@ -54,7 +53,7 @@ neuron iaf_neuron:
   output: spike
 
   dynamics timestep(t ms):
-    if r == 0: # not refractory
+    if r == 0: # not refrassctory
       y3 = P30 * (y0 + I_e) + P31 * y1 + P32 * y2 + P33 * y3
     else:
       r = r - 1

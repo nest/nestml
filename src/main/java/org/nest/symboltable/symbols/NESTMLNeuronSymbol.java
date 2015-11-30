@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.nest.symboltable.symbols.NESTMLVariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
+import static org.nest.symboltable.symbols.NESTMLVariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
 
 /**
  * Represents the entire neuron, e.g. iaf_neuron.
@@ -58,6 +59,14 @@ public class NESTMLNeuronSymbol extends CommonScopeSpanningSymbol {
         = spannedScope.resolveLocally(NESTMLVariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_CURRENT))
+        .collect(Collectors.toList());
+  }
+
+  public List<NESTMLVariableSymbol> getSpikeBuffers() {
+    final Collection<NESTMLVariableSymbol> variableSymbols
+        = spannedScope.resolveLocally(NESTMLVariableSymbol.KIND);
+    return variableSymbols.stream()
+        .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_SPIKE))
         .collect(Collectors.toList());
   }
 

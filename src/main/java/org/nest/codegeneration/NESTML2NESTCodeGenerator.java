@@ -95,7 +95,7 @@ public class NESTML2NESTCodeGenerator {
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
 
     try {
-      final Path outputTmpPath = Paths.get(outputBase.toString(), "tmp.nestml");
+      final Path outputTmpPath = Paths.get(modulePath.toString(), "tmp.nestml");
       printModelToFile(withSolvedOde, outputTmpPath.toString());
       withSolvedOde = createNESTMLCompilationUnitMCParser().parse(outputTmpPath.toString()).get();
       scopeCreator.runSymbolTableCreator(withSolvedOde);
