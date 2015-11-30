@@ -96,6 +96,7 @@ public class ExplicitSolutionTransformer {
       for (int i = 1; i <= stateVariablesNumber; ++i) {
         stateVariableDeclarations.add("y"+ i + " real");
       }
+
       stateVariableDeclarations.stream()
           .map(converter2NESTML::convertStringToAlias)
           .forEach(astAliasDecl -> addToStateBlock(root, astAliasDecl));
