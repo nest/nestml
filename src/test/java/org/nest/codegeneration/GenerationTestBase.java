@@ -70,47 +70,6 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  protected void generateCodeForPSCModel(final String pathToModel) {
-    try {
-      final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
-      assertTrue(root.isPresent());
-
-      scopeCreator.runSymbolTableCreator(root.get());
-
-
-      ASTNESTMLCompilationUnit explicitSolutionRoot =
-          generator.transformOdeToSolution(root.get(), scopeCreator, Paths.get(OUTPUT_FOLDER));
-
-      final Scope scope = scopeCreator.getGlobalScope();
-
-      Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve(
-          "codegeneration.iaf_neuron_ode_module.iaf_neuron_ode_neuron",
-          NESTMLNeuronSymbol.KIND);
-
-      final Optional<NESTMLVariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
-      assertTrue(y0.isPresent());
-      assertTrue(y0.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
-
-      final Optional<NESTMLVariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
-      assertTrue(y1.isPresent());
-      assertTrue(y1.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
-
-      generator.generateClassImplementation(
-          explicitSolutionRoot,
-          Paths.get(OUTPUT_FOLDER));
-      generator.generateHeader(
-          explicitSolutionRoot,
-          Paths.get(OUTPUT_FOLDER));
-      generator.generateNestModuleCode(
-          explicitSolutionRoot,
-          Paths.get(OUTPUT_FOLDER));
-    }
-    catch (IOException e) { // lambda functions doesn't support checked exceptions
-      throw new RuntimeException(e);
-    }
-
-  }
-
   public void checkCocos(String pathToModel) {
     final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;

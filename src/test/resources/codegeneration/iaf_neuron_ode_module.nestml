@@ -1,9 +1,9 @@
 package codegeneration.iaf_neuron_ode_module:
 
-neuron iaf_neuron_ode_neuron:
+neuron iaf_neuron_ode:
 
   state:
-    - V mV
+    V mV
     - r  integer
 
     alias V_m mV = V + E_L # Membrane potential.
@@ -26,8 +26,7 @@ neuron iaf_neuron_ode_neuron:
     # External current.
     I_e     pA = 0 # special
 
-    # some aliases
-    # Threshold.
+    # some aliases Threshold.
     alias V_th mV = Theta + E_L
     # Reset value of the membrane potential.
     alias  V_reset mV = delta_V_reset + E_L
@@ -36,7 +35,6 @@ neuron iaf_neuron_ode_neuron:
 
   internal:
     h   ms   = resolution()
-
     RefractoryCounts integer = steps(t_ref)
   end
 
@@ -58,23 +56,13 @@ neuron iaf_neuron_ode_neuron:
         r = r - 1
     end
 
-    # alpha shape PSCs
-    #SYMPY y2 = P10 * y1 + P11 * y2
-    #SYMPY y1 = y1 * P00
-
-    # Apply spikes delivered in this step: The spikes arriving at T+1 have an
-    # immediate effect on the state of the neuron
-    #SYMPY y1 = y1 + PSCInitialValue * spikeBuffer.getSum(t)
-
     # threshold crossing
     if V >= Theta:
-        #r = RefractoryCounts
-        #V = delta_V_reset
-        #emitSpike()
+        r = RefractoryCounts
+        V = delta_V_reset
+        emitSpike()
     end
 
-    # set new input current
-    # Sympy y0 = currentBuffer.getSum(t);
   end
 
   function set_V_th(v mV):

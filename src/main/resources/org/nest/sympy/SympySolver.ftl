@@ -98,12 +98,11 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
 
     y_vector = zeros(order+1, 1)
 
-    for i in range(0, order):
+    for i in reversed(range(0, order)):
         y_vector[i] = eval(stateVariables[i])
     y_vector[order] = ${ode.getLhsVariable()}
 
     f = open('state.vector.mat', 'w')
-    f.write(str(order) + "\n")
     for i in range(0, order):
         f.write(stateVariables[i] + " = " + str(simplify(propagatorMatrix*y_vector)[i]) + "# Update\n")
 

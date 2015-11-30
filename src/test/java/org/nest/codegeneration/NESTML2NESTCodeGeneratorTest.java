@@ -64,7 +64,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
 
   @Test
   public void testPscModelWithOde() {
-    pscModelsWithOde.forEach(this::generateCodeForPSCModel);
+    pscModelsWithOde.forEach(this::invokeCodeGenerator);
   }
 
   @Ignore

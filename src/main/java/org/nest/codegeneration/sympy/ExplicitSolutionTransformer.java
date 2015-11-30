@@ -20,6 +20,7 @@ import org.nest.utils.ASTNodes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,13 +84,12 @@ public class ExplicitSolutionTransformer {
           .lines(stateVectorFile)
           .collect(Collectors.toList());
 
+      Collections.reverse(stateVectorLines);
+
       checkState(stateVectorLines.size() > 0, "False stateVector.mat format. Check SymPy solver.");
 
       // First entry is the number of variables
-      final Integer stateVariablesNumber = Integer.valueOf(stateVectorLines.get(0));
-      // oder y values + oder value itself
-      checkState(stateVectorLines.size() == stateVariablesNumber + 1,
-          "False stateVector.mat format. Check SymPy solver.");
+      final Integer stateVariablesNumber = stateVectorLines.size();
 
       final List<String> stateVariableDeclarations = Lists.newArrayList();
       stateVariableDeclarations.add("y0 real");
@@ -104,8 +104,8 @@ public class ExplicitSolutionTransformer {
       // these statements must be printed at the end of the dynamics function
       ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
 
-      for (int i = 1; i <= stateVariablesNumber; ++i) {
-        final ASTAssignment yVarAssignment = converter2NESTML.convertStringToAssignment(stateVectorLines.get(i));
+      for (final String line:stateVectorLines) {
+        final ASTAssignment yVarAssignment = converter2NESTML.convertStringToAssignment(line);
 
         // Depends on the SPL grammar structure
         addAssignmentToDynamics(astBodyDecorator, yVarAssignment);
@@ -120,6 +120,15 @@ public class ExplicitSolutionTransformer {
         final ASTAssignment y0Assignment = converter2NESTML
             .convertStringToAssignment("y0 = " + currentBuffer.getName() + ".getSum(t)");
         addAssignmentToDynamics(astBodyDecorator, y0Assignment);
+
+
+      }
+
+      if (!nestmlNeuronSymbol.getCurrentBuffers().isEmpty()) {
+        final NESTMLVariableSymbol spikeBuffer = nestmlNeuronSymbol.getSpikeBuffers().get(0);
+        final ASTAssignment pscUpdateStep = converter2NESTML
+            .convertStringToAssignment("y1 = " + spikeBuffer.getName() + ".getSum(t)");
+        addAssignmentToDynamics(astBodyDecorator, pscUpdateStep);
       }
       return root;
     }
