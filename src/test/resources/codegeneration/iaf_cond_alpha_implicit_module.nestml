@@ -57,7 +57,6 @@ neuron iaf_cond_alpha_implicit_neuron:
   dynamics timestep(t ms):
     ODE:
       # Implicit
-
       d/dt DGI === -1*DGI/tau_synI
       d/dt GI === -1*DGI * GI/tau_synI
       d/dt DGE === -1*DGE/tau_synE

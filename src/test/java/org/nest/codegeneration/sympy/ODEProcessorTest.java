@@ -54,7 +54,7 @@ public class ODEProcessorTest extends ModelTestBase {
 
   @Test
   public void testCondModel() throws Exception {
-    final Scope scope = processModel(COND_MODEL_FILE);
+    processModel(COND_MODEL_FILE);
 
   }
 
