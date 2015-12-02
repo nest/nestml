@@ -119,15 +119,18 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
 else:
     print 'Not a linear differential equation'
     solverType.write("numeric")
+    f = open('explicitSolution.mat', 'w')
+<#list EQs as eq>
+    # compute values for the  ${eq.getLhsVariable()} equation
     order = None
-    tmp_diffs = [ ${EQs[0].getLhsVariable()}, diff( ${EQs[0].getLhsVariable()},t)]
-    a_1 = solve(tmp_diffs[1] - a* ${EQs[0].getLhsVariable()}, a)
-    SUM = tmp_diffs[1] - a_1[0] *  ${EQs[0].getLhsVariable()}
+    tmp_diffs = [ ${eq.getLhsVariable()}, diff( ${eq.getLhsVariable()},t)]
+    a_1 = solve(tmp_diffs[1] - a* ${eq.getLhsVariable()}, a)
+    SUM = tmp_diffs[1] - a_1[0] *  ${eq.getLhsVariable()}
     if SUM == 0:
         order = 1
     else:
         for n in range(2, 10):
-            tmp_diffs.append(diff( ${EQs[0].getLhsVariable()}, t, n))
+            tmp_diffs.append(diff( ${eq.getLhsVariable()}, t, n))
             X = zeros(n)
             Y = zeros(n, 1)
             found = False
@@ -150,7 +153,7 @@ else:
             VecA = X.inv() * Y
             SUM = 0
             for k in range(0, n):
-                SUM += VecA[k]*diff(${EQs[0].getLhsVariable()}, t, k)
+                SUM += VecA[k]*diff(${eq.getLhsVariable()}, t, k)
             SUM -= tmp_diffs[n]
             print "SUM = " + str(simplify(SUM))
             if simplify(SUM) == sympify(0):
@@ -162,9 +165,9 @@ else:
         exit(1)
 
     c1 = diff(rhs, ${ode.getLhsVariable()})
-    ${EQs[0].getLhsVariable()} = symbols("${EQs[0].getLhsVariable()}")
-    c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${EQs[0].getLhsVariable()})
-    f = open('explicitSolution.mat', 'w')
+    ${eq.getLhsVariable()} = symbols("${eq.getLhsVariable()}")
+    c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${eq.getLhsVariable()})
+
     if order == 1:
         A = Matrix([[a_1[0], 0],
                 [c2, c1]])
@@ -177,8 +180,8 @@ else:
         A = Matrix([[VecA[1]+solutionpq, 0,             0     ],
                    [1,                   -solutionpq,   0     ],
                    [0,                   c2,        c1]])
-        f.write("d/dt y1 === y1*" + str(simplify(A[0,0])) + "\n")
-        f.write("d/dt y2 === y1 * y2 *" + str(simplify(A[1,1])) + "\n")
+        f.write("d/dt D${eq.getLhsVariable()} === D${eq.getLhsVariable()}*" + str(simplify(A[0,0])) +"\n")
+        f.write("d/dt ${eq.getLhsVariable()} === D${eq.getLhsVariable()} * ${eq.getLhsVariable()} *" + str(simplify(A[1,1])) + "\n")
 
     elif order > 2:
         A = zeros(order)
@@ -199,3 +202,4 @@ else:
         for i in range(2, order+1):
             f.write("y" + i + "=" + "y" + (i-1)+"\n")
 
+</#list>
