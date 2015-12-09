@@ -1,26 +1,18 @@
 package org.nest.nestml.parsing.emptyFuncWPars:
     
 
-    neuron EmptyFuncWParsNeuron:
-        function empty1(x mV) :
-        
-        end
-        
-        function empty2(x pA, y mV) :
-        
-        end
-        
-        function empty3(x pF, y pA) mV :
-            return 0
-        end
-        
-        dynamics timestep(t ms):
-        end
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
+neuron EmptyFuncWParsNeuron:
 
-        output: spike
+    input:
+      spikeBuffer   <- inhibitory excitatory spike
+      currentBuffer <- current
     end
-    
+
+    output: spike
+
+    dynamics timestep(t ms):
+    end
+
+
+end
+

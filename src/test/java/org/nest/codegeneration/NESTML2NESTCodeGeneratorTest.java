@@ -50,6 +50,31 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   );
 
 
+  private final List<String> feedbackModels = Lists.newArrayList(
+      "src/test/resources/codegeneration/neuron_level_1.nestml",
+      "src/test/resources/codegeneration/neuron_level_2.nestml",
+      "src/test/resources/codegeneration/neuron_level_3.nestml"
+  );
+
+  private final List<String> workshopModels = Lists.newArrayList(
+      "src/test/resources/codegeneration/neuron_level_1.nestml",
+      "src/test/resources/codegeneration/neuron_level_2.nestml",
+      "src/test/resources/codegeneration/neuron_level_3.nestml"
+  );
+
+  @Ignore
+  @Test
+  public void testFeedbackModels() {
+    workshopModels.forEach(this::invokeCodeGenerator);
+
+  }
+
+  @Ignore
+  @Test
+  public void testWorkshopCode() {
+    workshopModels.forEach(this::invokeCodeGenerator);
+  }
+
   @Test
   public void checkCocosOnModels() throws IOException {
     nestmlPSCModels.forEach(this::checkCocos);

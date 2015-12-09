@@ -1,0 +1,72 @@
+package codegeneration.neuron_level_1:
+
+neuron i_neuron:
+
+  state:
+    V mV
+    - r  integer
+
+    alias V_m mV = V + E_L # Membrane potential.
+  end
+
+  parameter:
+    # Capacity of the membrane
+    C_m       pF = 250pF
+    # Membrane time constant.
+    Tau     ms = 10
+    # Time constant of synaptic current.
+    tau_syn ms = 2
+    # Refractory period.
+    t_ref    ms = 2
+    # Resting potential.
+    E_L      mV = -70
+    -delta_V_reset mV = -70 - E_L
+    -Theta   mV = -55 - E_L
+
+    # External current.
+    I_e     pA = 0 # special
+
+    # some aliases Threshold.
+    alias V_th mV = Theta + E_L
+    # Reset value of the membrane potential.
+    alias  V_reset mV = delta_V_reset + E_L
+  end
+
+  internal:
+    h   ms   = resolution()
+    RefractoryCounts integer = steps(t_ref)
+  end
+
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
+
+  output: spike
+
+  dynamics timestep(t ms):
+
+    if r == 0: # not refractory
+      ODE:
+        G ===(E/tau_syn) * t * exp(-1/tau_syn*t)
+        d/dt V === -1/Tau * V + 1/C_m * G
+      end
+    else:
+        r = r - 1
+    end
+
+  end
+
+  function set_V_th(v mV):
+      Theta = v - E_L
+  end
+
+  function set_V_reset(v mV):
+      delta_V_reset = v - E_L
+  end
+
+  function set_V_m(v mV):
+      V = v - E_L
+  end
+
+end
