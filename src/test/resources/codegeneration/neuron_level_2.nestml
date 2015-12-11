@@ -1,6 +1,6 @@
-package codegeneration.iaf_neuron_ode_module:
+package codegeneration.neuron_level_2:
 
-neuron iaf_neuron_ode:
+neuron iaf_neuron:
 
   state:
     V mV
@@ -17,7 +17,7 @@ neuron iaf_neuron_ode:
     # Time constant of synaptic current.
     tau_syn ms = 2
     # Refractory period.
-    t_ref    ms = 2
+    t_ref    ms = 20
     # Resting potential.
     E_L      mV = -70
     -delta_V_reset mV = -70 - E_L
@@ -30,7 +30,6 @@ neuron iaf_neuron_ode:
     alias V_th mV = Theta + E_L
     # Reset value of the membrane potential.
     alias  V_reset mV = delta_V_reset + E_L
-    # invariant V_reset >= Theta
   end
 
   internal:
@@ -39,9 +38,8 @@ neuron iaf_neuron_ode:
   end
 
   input:
-    spikes   <- inhibitory excitatory spike
-
-    ext_currents <- current
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
   end
 
   output: spike
@@ -50,7 +48,7 @@ neuron iaf_neuron_ode:
 
     if r == 0: # not refractory
         ODE:
-            G ===(E/tau_syn) * t * exp(-1/tau_syn*t) # +I_e+ext_currents
+            G ===(E/tau_syn) * t * exp(-1/tau_syn*t)
             d/dt V === -1/Tau * V + 1/C_m * G
         end
     else:
@@ -77,4 +75,5 @@ neuron iaf_neuron_ode:
   function set_V_m(v mV):
       V = v - E_L
   end
+
 end

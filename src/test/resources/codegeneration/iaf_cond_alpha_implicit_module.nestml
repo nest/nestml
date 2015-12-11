@@ -3,11 +3,13 @@ package codegeneration.iaf_cond_alpha_implicit_module:
 neuron iaf_cond_alpha_implicit_neuron:
 
   state:
-    V_m real = 0
-    DGI real = 1
-    GI real = 1
-    DGE real = 1
-    GE real = 1
+    V_m real = -70
+
+    DGI real = 0
+    GI real = 0
+    DGE real = 0
+    GE real = 0
+
     - r integer
   end
 
@@ -17,9 +19,7 @@ neuron iaf_cond_alpha_implicit_neuron:
    t_ref ms = 2.0       # Refractory period in ms
    g_L ms = 16.6667     # Leak Conductance in nS
    C_m pF = 250.0       # Membrane Capacitance in pF
-
    alias Tau ms = (1 / g_L) * C_m
-
    V_reversalE mV = 0          # Excitatory reversal Potential in mV
    V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
    E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
@@ -61,16 +61,18 @@ neuron iaf_cond_alpha_implicit_neuron:
       d/dt GI === -1*DGI * GI/tau_synI
       d/dt DGE === -1*DGE/tau_synE
       d/dt GE === -1*DGE*GE/tau_synE
-      d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
+      d/dt V_m === -1/((1 / g_L) * C_m) * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
     end
 
-    if r == 0: # not refractory
+    if r != 0: # not refractory
       r =  r - 1
       V_m = V_reset # clamp potential
+
     elif V_m >= V_th:
       r = RefractoryCounts
       V_m = V_reset # clamp potential
       emitSpike()
+
     end
 
     DGE += spikeExc.getSum() * PSConInit_E;

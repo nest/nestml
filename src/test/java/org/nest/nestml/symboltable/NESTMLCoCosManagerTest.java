@@ -121,8 +121,6 @@ public class NESTMLCoCosManagerTest {
     checker.checkAll(root.get());
 
     Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
-    final StringBuilder errorDetailsBuilder = new StringBuilder();
-    nestmlErrorFindings.forEach(error -> errorDetailsBuilder.append(error).append("\n"));
     final String msg = "The model: " + file.getPath() + "Models contain unexpected errors: " +
         nestmlErrorFindings.size();
     Assert.assertTrue(msg, nestmlErrorFindings.isEmpty());
