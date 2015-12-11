@@ -39,8 +39,11 @@ neuron iaf_neuron_ode:
   end
 
   input:
-    spikeBuffer   <- inhibitory excitatory spike
-    currentBuffer <- current
+    spikes   <- inhibitory excitatory spike
+    spikes   <- inhibitory  spike
+
+    ext_currents <- current
+    ext_currents2 <- current
   end
 
   output: spike
@@ -49,7 +52,7 @@ neuron iaf_neuron_ode:
 
     if r == 0: # not refractory
         ODE:
-            G ===(E/tau_syn) * t * exp(-1/tau_syn*t)
+            G ===(E/tau_syn) * t * exp(-1/tau_syn*t)+I_e+ext_currents
             d/dt V === -1/Tau * V + 1/C_m * G
         end
     else:
