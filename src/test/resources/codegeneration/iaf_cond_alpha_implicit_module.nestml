@@ -61,7 +61,7 @@ neuron iaf_cond_alpha_implicit_neuron:
       d/dt GI === -1*DGI * GI/tau_synI
       d/dt DGE === -1*DGE/tau_synE
       d/dt GE === -1*DGE*GE/tau_synE
-      d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
+      d/dt V_m === -1/((1 / g_L) * C_m) * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
     end
 
     if r != 0: # not refractory
