@@ -4,7 +4,7 @@ neuron iaf_cond_alpha_neuron:
 
   state:
     V_m real = 0
-    - r integer
+
   end
 
   parameter:
@@ -29,6 +29,7 @@ neuron iaf_cond_alpha_neuron:
 
   internal:
     h   ms   = resolution()
+    - r integer
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.

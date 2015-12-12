@@ -5,7 +5,7 @@ neuron iaf_psc_alpha_neuron:
   state:
     y0, y1_ex, y2_ex, y1_in, y2_in, y3 real = 0;
     alias V_m real = y3 + U0
-    - r integer = 0;
+
   end
 
   function set_V_m(v real):
@@ -47,6 +47,7 @@ neuron iaf_psc_alpha_neuron:
 
   internal:
     h   ms   = resolution()
+    - r integer = 0;
 
     EPSCInitialValue real = 1.0 * E/tau_ex;
     IPSCInitialValue real = 1.0 * E/tau_in;

@@ -14,8 +14,7 @@ neuron mat2_exp_neuron:
     V_th_1 real = 0.0
     # long time adaptive threshold (related to tau_2_), variable 2
     V_th_2 real = 0.0
-    # total refractory counter (no spikes can be generated)
-    -r integer = 0
+
   end
 
   parameter:
@@ -53,6 +52,8 @@ neuron mat2_exp_neuron:
 
   internal:
     h     ms   = resolution()
+    # total refractory counter (no spikes can be generated)
+    -r integer = 0
 
     P11ex real = exp(-h/tau_ex)
     P11in real = exp(-h/tau_in)
