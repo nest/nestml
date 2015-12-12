@@ -8,9 +8,6 @@ neuron iaf_tum_2000_neuron:
     # membrane potential relative to zero
     delta_V_m mV
 
-    - r_abs integer
-    - r_tot integer
-
     # alias for the actual membrane potential
     alias V_m mV = E_L + delta_V_m
   end
@@ -45,6 +42,8 @@ neuron iaf_tum_2000_neuron:
 
   internal:
     h     ms   = resolution()
+    - r_abs integer
+    - r_tot integer
 
     P11ex real = pow(E, (-h / tau_syn_ex))
     P11in real = pow(E, (-h / tau_syn_in))
