@@ -89,8 +89,8 @@ neuron iaf_cond_alpha_neuron:
 
     end
 
-    DGE = DGE + spikeExc.getSum() * PSConInit_E;
-    DGI = DGI + spikeInh.getSum() * PSConInit_I;
+    # TODO DGE = DGE + spikeExc.getSum() * PSConInit_E;
+    # TODO DGI = DGI + spikeInh.getSum() * PSConInit_I;
     I_stim = currents.getSum()
   end
 
