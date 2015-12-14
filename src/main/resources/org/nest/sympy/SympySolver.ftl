@@ -181,7 +181,7 @@ else:
                    [1,                   -solutionpq,   0     ],
                    [0,                   c2,        c1]])
         f.write("d/dt D${eq.getLhsVariable()} === D${eq.getLhsVariable()}*" + str(simplify(A[0,0])) +"\n")
-        f.write("d/dt ${eq.getLhsVariable()} === D${eq.getLhsVariable()} * ${eq.getLhsVariable()} *" + str(simplify(A[1,1])) + "\n")
+        f.write("d/dt ${eq.getLhsVariable()} === D${eq.getLhsVariable()} + ${eq.getLhsVariable()} *" + str(simplify(A[1,1])) + "\n")
 
     elif order > 2:
         A = zeros(order)
