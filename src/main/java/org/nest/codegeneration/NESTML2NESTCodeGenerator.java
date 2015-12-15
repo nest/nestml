@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.Names.getPathFromPackage;
+import static de.se_rwth.commons.logging.Log.info;
 import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
@@ -61,24 +62,27 @@ public class NESTML2NESTCodeGenerator {
 
   }
 
-  public void generateNESTCode(
+  public void analyseAndGenerate(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    Log.info(
-        "Starts processing of the model: " + ASTNodes.toString(root.getPackageName()),
+    info("Starts processing of the model: " + ASTNodes.toString(root.getPackageName()),
         LOG_NAME);
     final ASTNESTMLCompilationUnit workingVersion;
-    workingVersion = transformOdeToSolution(root, scopeCreator, outputBase);
-    generateHeader(workingVersion, outputBase);
-    generateClassImplementation(workingVersion, outputBase);
-    generateNestModuleCode(workingVersion, outputBase);
+    workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
 
-    Log.info(
-        "Successfully generated NEST code for" + ASTNodes.toString(root.getPackageName()),
+    generate(workingVersion, outputBase);
+
+    info("Successfully generated NEST code for: " + ASTNodes.toString(root.getPackageName()),
         LOG_NAME);
   }
 
-  public ASTNESTMLCompilationUnit transformOdeToSolution(
+  protected void generate(ASTNESTMLCompilationUnit workingVersion, Path outputBase) {
+    generateHeader(workingVersion, outputBase);
+    generateClassImplementation(workingVersion, outputBase);
+    generateNestModuleCode(workingVersion, outputBase);
+  }
+
+  public ASTNESTMLCompilationUnit computeSolutionForODE(
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
       final Path outputBase) {
@@ -87,11 +91,14 @@ public class NESTML2NESTCodeGenerator {
 
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
     if (astBodyDecorator.getOdeDefinition().isPresent()) {
-      if (astBodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
+      if (astBodyDecorator.getOdeDefinition().get().getEqs().isEmpty()) {
+        Log.info("The ODE is already",
+            LOG_NAME);
         return root;
       }
 
     }
+
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
 
     try {

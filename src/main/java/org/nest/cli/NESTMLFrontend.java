@@ -14,7 +14,6 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 /**
  *
@@ -94,7 +93,7 @@ public class NESTMLFrontend {
       NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
       checker.checkAll(root);
 
-      nestml2NESTCodeGenerator.generateNESTCode(root, Paths.get(nestmlToolConfiguration.getTargetPath()));
+      nestml2NESTCodeGenerator.analyseAndGenerate(root, Paths.get(nestmlToolConfiguration.getTargetPath()));
     }
     catch (IOException e) {
       throw new RuntimeException("Cannot parse the model due to parser errors", e);

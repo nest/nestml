@@ -100,15 +100,16 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
 
   @Test
   public void testImplicitForm() {
-    nestmlCondModelExplicit.forEach(this::generateNESTMLImplementation);
-    for (final String model:nestmlCondModelExplicit) {
+
+    nestmlCondModelExplicit.forEach(model -> {
       final ASTNESTMLCompilationUnit root = parseNESTMLModel(model);
       scopeCreator.runSymbolTableCreator(root);
       Optional<ASTOdeDeclaration> odeDeclaration = ASTNodes.getAny(root, ASTOdeDeclaration.class);
       Assert.assertTrue(odeDeclaration.isPresent());
 
-      generator.generateNESTCode(root, Paths.get("target"));
-    }
+      generator.generate(root, Paths.get("target"));
+    });
+
   }
 
 }
