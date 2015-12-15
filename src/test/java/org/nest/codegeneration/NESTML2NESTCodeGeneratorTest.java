@@ -107,7 +107,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
       Optional<ASTOdeDeclaration> odeDeclaration = ASTNodes.getAny(root, ASTOdeDeclaration.class);
       Assert.assertTrue(odeDeclaration.isPresent());
 
-      generator.generate(root, Paths.get("target"));
+      generator.generateNESTCode(root, Paths.get("target"));
     });
 
   }

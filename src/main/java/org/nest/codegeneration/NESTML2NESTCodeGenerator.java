@@ -68,18 +68,12 @@ public class NESTML2NESTCodeGenerator {
     info("Starts processing of the model: " + ASTNodes.toString(root.getPackageName()),
         LOG_NAME);
     final ASTNESTMLCompilationUnit workingVersion;
-    workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
 
-    generate(workingVersion, outputBase);
+    workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
+    generateNESTCode(workingVersion, outputBase);
 
     info("Successfully generated NEST code for: " + ASTNodes.toString(root.getPackageName()),
         LOG_NAME);
-  }
-
-  protected void generate(ASTNESTMLCompilationUnit workingVersion, Path outputBase) {
-    generateHeader(workingVersion, outputBase);
-    generateClassImplementation(workingVersion, outputBase);
-    generateNestModuleCode(workingVersion, outputBase);
   }
 
   public ASTNESTMLCompilationUnit computeSolutionForODE(
@@ -89,29 +83,39 @@ public class NESTML2NESTCodeGenerator {
     final String moduleName = ASTNodes.toString(root.getPackageName());
     final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
-    if (astBodyDecorator.getOdeDefinition().isPresent()) {
-      if (astBodyDecorator.getOdeDefinition().get().getEqs().isEmpty()) {
-        Log.info("The ODE is already",
-            LOG_NAME);
-        return root;
-      }
-
-    }
-
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
 
+    return printAndReadModel(scopeCreator, modulePath, withSolvedOde);
+
+  }
+
+  /**
+   * This action is done for 2 Reasons:
+   * a) Technically it is necessary to build a new symbol table
+   * b) The model developer can view how the
+   * @return New root node of the altered model with an initialized symbol table
+   */
+  private ASTNESTMLCompilationUnit printAndReadModel(
+      final NESTMLScopeCreator scopeCreator,
+      final Path modulePath,
+      final ASTNESTMLCompilationUnit root) {
     try {
       final Path outputTmpPath = Paths.get(modulePath.toString(), "tmp.nestml");
-      printModelToFile(withSolvedOde, outputTmpPath.toString());
-      withSolvedOde = createNESTMLCompilationUnitMCParser().parse(outputTmpPath.toString()).get();
+      printModelToFile(root, outputTmpPath.toString());
+      final ASTNESTMLCompilationUnit withSolvedOde = createNESTMLCompilationUnitMCParser()
+          .parse(outputTmpPath.toString()).get();
       scopeCreator.runSymbolTableCreator(withSolvedOde);
       return withSolvedOde;
     }
     catch (IOException e) {
       throw  new RuntimeException(e);
     }
+  }
 
+  protected void generateNESTCode(ASTNESTMLCompilationUnit workingVersion, Path outputBase) {
+    generateHeader(workingVersion, outputBase);
+    generateClassImplementation(workingVersion, outputBase);
+    generateNestModuleCode(workingVersion, outputBase);
   }
 
   public void generateHeader(
