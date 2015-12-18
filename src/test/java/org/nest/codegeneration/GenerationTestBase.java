@@ -5,7 +5,6 @@
  */
 package org.nest.codegeneration;
 
-import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.ModelTestBase;
@@ -14,10 +13,7 @@ import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -49,7 +45,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
 
-      generator.generateNESTCode(root.get(), Paths.get(OUTPUT_FOLDER));
+      generator.analyseAndGenerate(root.get(), Paths.get(OUTPUT_FOLDER));
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);
@@ -62,7 +58,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
       final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
-      generator.generateNESTCode(root.get(), Paths.get(OUTPUT_FOLDER));
+      generator.analyseAndGenerate(root.get(), Paths.get(OUTPUT_FOLDER));
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);

@@ -5,22 +5,19 @@
  */
 package org.nest.codegeneration.sympy;
 
-import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
+import org.nest.codegeneration.SolverType;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
-import static de.se_rwth.commons.Names.getPathFromPackage;
 import static de.se_rwth.commons.logging.Log.info;
+import static de.se_rwth.commons.logging.Log.warn;
 
 /**
  * Analyzes a neuron for defined ODE. If an ode is defined, it produces a temporary NESTML model
@@ -31,7 +28,6 @@ import static de.se_rwth.commons.logging.Log.info;
 public class ODEProcessor {
   private final String LOG_NAME = ODEProcessor.class.getName();
   private final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
-  enum SolutionType {exact, numeric}
 
   public ASTNESTMLCompilationUnit process(
       final ASTNESTMLCompilationUnit root,
@@ -43,6 +39,9 @@ public class ODEProcessor {
       return handleNeuronWithODE(root, outputBase);
     }
     else {
+      final String msg = "The neuron: " + neuron.getName() +
+          " doesn't contain ODE. The analysis is skipped.";
+      Log.warn(msg);
       return root;
     }
 
@@ -62,9 +61,9 @@ public class ODEProcessor {
     boolean successfulExecution = evaluator.execute(generatedScript.get());
     checkState(successfulExecution, "Error during solver script evaluation.");
     final Path odeTypePath = Paths.get(outputBase.toString(), SymPyScriptEvaluator.ODE_TYPE);
-    final SolutionType solutionType = readSolutionType(odeTypePath);
+    final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
-    if (solutionType.equals(SolutionType.exact)) {
+    if (solutionType.equals(SolverType.EXACT)) {
       info("ODE is solved exactly.", LOG_NAME);
       final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
           .replaceODEWithSymPySolution(
@@ -76,22 +75,15 @@ public class ODEProcessor {
 
       return transformedModel;
     }
-    else {
+    else if (solutionType.equals(SolverType.NUMERIC)) {
       info("ODE is solved numerically.", LOG_NAME);
       return root;
     }
-
-  }
-
-  private SolutionType readSolutionType(Path odeTypePath) {
-    try {
-      final List<String> type = Files.readAllLines(odeTypePath);
-      checkState(type.size() == 1);
-      return SolutionType.valueOf(type.get(0));
+    else {
+      warn("ODEs could not be solved. The model remains unchanged.");
+      return root;
     }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+
   }
 
 }
