@@ -11,8 +11,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nest.spl._ast.ASTExpr;
-import org.nest.spl._parser.ExprMCParser;
-import org.nest.spl._parser.SPLParserFactory;
+import org.nest.spl._parser.SPLParser;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -29,10 +28,9 @@ public class SPLExpressionParsingTest {
   }
 
   public Optional<ASTExpr> parse(String input) throws RecognitionException, IOException {
-    ExprMCParser parser = SPLParserFactory.createExprMCParser();
+    final SPLParser parser = new SPLParser();
     parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    Optional<ASTExpr> res = parser.parse(new StringReader(input));
-    return res;
+    return parser.parseExpr(new StringReader(input));
   }
 
   @Test
@@ -47,14 +45,10 @@ public class SPLExpressionParsingTest {
 
   @Test
   public void testNumber() throws IOException {
-    Optional<ASTExpr> res = parse("-11");
+    final Optional<ASTExpr> res = parse("-11");
     //System.out.println(createPrettyPrinterForTypes().prettyprint(res.get().getTerm().get()));
     assertTrue(res.get().isUnaryMinus());
 
   }
 
-  private TypesPrettyPrinterConcreteVisitor createPrettyPrinterForTypes() {
-    final IndentPrinter printer = new IndentPrinter();
-    return new TypesPrettyPrinterConcreteVisitor(printer);
-  }
 }

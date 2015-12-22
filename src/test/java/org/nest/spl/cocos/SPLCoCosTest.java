@@ -11,8 +11,7 @@ import de.se_rwth.commons.logging.Log;
 import org.junit.*;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.*;
-import org.nest.spl._parser.SPLFileMCParser;
-import org.nest.spl._parser.SPLParserFactory;
+import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
@@ -47,8 +46,8 @@ public class SPLCoCosTest {
    * @throws java.io.IOException
    */
   private Optional<ASTSPLFile> getAstRoot(String modelPath) throws IOException {
-    SPLFileMCParser p = SPLParserFactory.createSPLFileMCParser();
-    Optional<ASTSPLFile> ast = p.parse(modelPath);
+    final SPLParser p = new SPLParser();
+    final Optional<ASTSPLFile> ast = p.parse(modelPath);
     assertTrue(ast.isPresent());
     return ast;
   }

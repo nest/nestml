@@ -7,14 +7,12 @@ package org.nest.nestml.parsing;
 
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
+import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._parser.NESTMLParser;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -24,23 +22,18 @@ import static org.junit.Assert.assertTrue;
 /**e
  * Tests whether the nestml model can be parsed
  */
-public class NESTMLParsingTest {
+public class NESTMLParsingTest extends ModelTestBase {
 
-  private final static  String CODEGENERATION_FOLDER = "src/test/resources/codegeneration";
+  private final static  String CODE_GENERATION_FOLDER = "src/test/resources/codegeneration";
   private final static  String PARSABLE_MODELS_FOLDER = "src/test/resources/org/nest/nestml/parsing";
   private final static  String COCOS_MODELS_FOLDER = "src/test/resources/org/nest/nestml/cocos";
   private final static  String LOG_NAME = NESTMLParsingTest.class.getName();
-  private final NESTMLCompilationUnitMCParser parser;
+  private final NESTMLParser parser = new NESTMLParser();
 
-  public NESTMLParsingTest() {
-    parser = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
-  }
 
   @Test
   public void testParsableModels() throws IOException {
-
     parseAllModelsInFolder(PARSABLE_MODELS_FOLDER);
-
   }
 
   @Test
@@ -50,7 +43,7 @@ public class NESTMLParsingTest {
 
   @Test
   public void testModelsForCodegeneration() throws IOException {
-    parseAllModelsInFolder(CODEGENERATION_FOLDER);
+    parseAllModelsInFolder(CODE_GENERATION_FOLDER);
   }
 
   @Test

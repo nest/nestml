@@ -3,8 +3,8 @@ neuron iaf_psc_alpha_multisynapse_neuron:
 
   state:
     y0 real = 0.0 # !< Constant current
-    y1_syn real[num_of_receptors] = 0.0
-    y2_syn real<num_of_receptors] = 0.0
+    y1_syn real<num_of_receptors> = 0.0
+    y2_syn real<num_of_receptors> = 0.0
     y3_ real = 0 # This is the membrane potential RELATIVE TO RESTING POTENTIAL.
     currentValue real = 0 # This is the current in a time step. This is only here to allow logging
   end

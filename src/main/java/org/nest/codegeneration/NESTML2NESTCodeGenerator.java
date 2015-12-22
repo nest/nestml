@@ -9,7 +9,6 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
@@ -20,7 +19,7 @@ import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._ast.ASTNeuronList;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
@@ -38,7 +37,6 @@ import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.Names.getPathFromPackage;
 import static de.se_rwth.commons.logging.Log.info;
-import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
  * Generates C++ Implementation and model integration code for NEST.
@@ -51,6 +49,7 @@ public class NESTML2NESTCodeGenerator {
   private final ExpressionsPrettyPrinter expressionsPrinter;
   private final PredefinedTypesFactory typesFactory;
   private final NESTMLScopeCreator scopeCreator;
+  private final NESTMLParser parser;
 
   public NESTML2NESTCodeGenerator(
       final PredefinedTypesFactory typesFactory,
@@ -59,7 +58,7 @@ public class NESTML2NESTCodeGenerator {
     this.typesFactory = typesFactory;
     converter = new NESTReferenceConverter(typesFactory);
     expressionsPrinter = new ExpressionsPrettyPrinter(converter);
-
+    parser = new NESTMLParser();
   }
 
   public void analyseAndGenerate(
@@ -102,8 +101,8 @@ public class NESTML2NESTCodeGenerator {
     try {
       final Path outputTmpPath = Paths.get(modulePath.toString(), "tmp.nestml");
       printModelToFile(root, outputTmpPath.toString());
-      final ASTNESTMLCompilationUnit withSolvedOde = createNESTMLCompilationUnitMCParser()
-          .parse(outputTmpPath.toString()).get();
+      final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit
+          (outputTmpPath.toString()).get();
       scopeCreator.runSymbolTableCreator(withSolvedOde);
       return withSolvedOde;
     }
@@ -178,7 +177,7 @@ public class NESTML2NESTCodeGenerator {
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
-    final ASTNeuronList neurons = compilationUnit.getNeurons();
+    final List<ASTNeuron> neurons = compilationUnit.getNeurons();
     for (ASTNeuron neuron : neurons) {
       setNeuronGenerationParameter(glex, typesFactory, neuron, moduleName);
       final Path classImplementationFile = Paths.get(
@@ -198,7 +197,7 @@ public class NESTML2NESTCodeGenerator {
     final String fullName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
     final String moduleName = Names.getSimpleName(fullName);
 
-    final ASTNeuronList neurons = compilationUnit.getNeurons();
+    final List<ASTNeuron> neurons = compilationUnit.getNeurons();
     final List<String> neuronModelNames = neurons
         .stream()
         .map(ASTNeuron::getName)

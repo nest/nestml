@@ -6,8 +6,7 @@ import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
@@ -19,11 +18,13 @@ import java.util.Optional;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by user on 29.05.15.
+ * Processes all NESTML modles. Then, prettyprints them and parses again, to check the soundness of
+ * the printed models.
+ *
+ * @author plotnikov
  */
 public class NESTMLPrettyPrinterTest {
-  private final NESTMLCompilationUnitMCParser nestmlParser = NESTMLParserFactory
-      .createNESTMLCompilationUnitMCParser();
+  private final NESTMLParser nestmlParser = new NESTMLParser();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 

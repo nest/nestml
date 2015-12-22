@@ -3,7 +3,6 @@ package org.nest.nestml.prettyprinter;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import de.monticore.types.types._ast.ASTQualifiedName;
-import de.monticore.types.types._ast.ASTQualifiedNameList;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
@@ -13,6 +12,7 @@ import org.nest.spl.prettyprinter.SPLPrettyPrinterFactory;
 import org.nest.spl._ast.*;
 import org.nest.utils.PrettyPrinterBase;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -232,8 +232,8 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
     println();
   }
 
-  private void printInputTypes(final ASTInputTypeList inputTypes) {
-    for (ASTInputType inputType:inputTypes) {
+  private void printInputTypes(final List<ASTInputType> inputTypes) {
+    for (final ASTInputType inputType:inputTypes) {
       if (inputType.isInhibitory()) {
         print("inhibitory ");
       }
@@ -296,7 +296,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
    */
   @Override
   public void visit(final ASTStructureLine astStructureLine) {
-    final ASTQualifiedNameList compartments = astStructureLine.getCompartments();
+    final List<ASTQualifiedName> compartments = astStructureLine.getCompartments();
     for (int curCompartmentsIndex = 0; curCompartmentsIndex < compartments.size(); ++ curCompartmentsIndex) {
       final ASTQualifiedName compartmentName = compartments.get(curCompartmentsIndex);
       boolean isLastCompartment = (curCompartmentsIndex + 1) == compartments.size();
@@ -332,7 +332,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
   private void printParameters(Optional<ASTParameters> functionParameters) {
     print("(");
     if (functionParameters.isPresent()) {
-      final ASTParameterList astParameters = functionParameters.get().getParameters();
+      final List<ASTParameter> astParameters = functionParameters.get().getParameters();
       for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
         boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
         final ASTParameter curParameter = astParameters.get(curParameterIndex);

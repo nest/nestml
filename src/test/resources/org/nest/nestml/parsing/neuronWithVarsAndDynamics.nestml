@@ -27,20 +27,20 @@ package org.nest.nestml.parsing.neuronWithVarsAndDynamics:
             if abc > y:
                 vM = y * 3 + s ** 5
             elif abc == y:
-                nestml.Logger.info("Elif!")
+                info("Elif!")
             else:
-                nestml.Logger.info("Else!")
+                info("Else!")
             end
             x = VarsNeuron.y
             while false:
-                nestml.Logger.warning("Impossible!")
+                warning("Impossible!")
             end
             i integer
             for i in 0 ... 10 step 2:
-                nestml.Logger.info("Possible! " + i)
+                info("Possible! " + i)
             end
             for i in 5 ... 0 step -1:
-                nestml.Logger.info("Possible! " + i)
+                info("Possible! " + i)
             end
         end
         

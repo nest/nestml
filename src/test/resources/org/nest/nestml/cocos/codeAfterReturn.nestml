@@ -6,6 +6,6 @@ package org.nest.nestml.cocos.codeAfterReturn:
         function foo() real:
             return 15.5
             
-            Logger.info("me is after return")
+            info("me is after return")
         end
     end

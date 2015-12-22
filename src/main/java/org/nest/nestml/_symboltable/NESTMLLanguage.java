@@ -5,6 +5,7 @@
  */
 package org.nest.nestml._symboltable;
 
+import com.google.common.collect.Sets;
 import de.monticore.CommonModelNameCalculator;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolverConfiguration;
@@ -15,6 +16,7 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.*;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -47,12 +49,14 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
     addResolver(CommonResolvingFilter.create(NESTMLUsageSymbol.class, NESTMLUsageSymbol.KIND));
 
     setModelNameCalculator(new CommonModelNameCalculator() {
-      @Override public Optional<String> calculateModelName(String name, SymbolKind kind) {
+
+      @Override
+      public Set<String> calculateModelNames(String name, SymbolKind kind) {
         if (kind.isKindOf(NESTMLNeuronSymbol.KIND)) {
-          return Optional.of(calculateModelName(name));
+          return Sets.newHashSet(calculateModelName(name));
         }
         else {
-          return empty();
+          return Sets.newHashSet();
         }
       }
 

@@ -4,13 +4,11 @@ import de.monticore.antlr4.MCConcreteParser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Test;
 import org.nest.ModelTestBase;
-import org.nest.nestml._parser.EqMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
-import org.nest.nestml._parser.ODEMCParser;
-import org.nest.nestml._parser.OdeDeclarationMCParser;
+
 import org.nest.spl._ast.ASTEq;
 import org.nest.spl._ast.ASTODE;
 import org.nest.spl._ast.ASTOdeDeclaration;
+import org.nest.spl._parser.SPLParser;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -26,6 +24,8 @@ import static org.junit.Assert.assertTrue;
  * @since 0.0.1
  */
 public class ODEParsingTest extends ModelTestBase {
+
+  final SPLParser parser = new SPLParser();
 
   @Test
   public void testOdeDefinition() throws IOException {
@@ -53,25 +53,20 @@ public class ODEParsingTest extends ModelTestBase {
   }
 
   public Optional<ASTODE> parseOde(String input) throws RecognitionException, IOException {
-    ODEMCParser parser = NESTMLParserFactory.createODEMCParser();
 
     parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    return parser.parse(new StringReader(input));
+    return parser.parseODE(new StringReader(input));
   }
 
   public Optional<ASTEq> parseEq(String input) throws RecognitionException, IOException {
-    EqMCParser parser = NESTMLParserFactory.createEqMCParser();
 
-    parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    return parser.parse(new StringReader(input));
+    return parser.parseEq(new StringReader(input));
   }
 
 
   public Optional<ASTOdeDeclaration> parseOdeDeclaration(String input) throws RecognitionException, IOException {
-    OdeDeclarationMCParser parser = NESTMLParserFactory.createOdeDeclarationMCParser();
 
-    parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    return parser.parse(new StringReader(input));
+    return parser.parseOdeDeclaration(new StringReader(input));
   }
 
 

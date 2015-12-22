@@ -181,7 +181,7 @@ public class ExplicitSolutionTransformer {
       ASTAssignment yVarAssignment) {
     final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
     final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
-    final ASTSmall_StmtList astSmallStmts = SPLNodeFactory.createASTSmall_StmtList();
+    final List<ASTSmall_Stmt> astSmallStmts = Lists.newArrayList();
     final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
 
     astStmt.setSimple_Stmt(astSimpleStmt);
