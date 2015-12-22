@@ -11,8 +11,9 @@ import de.monticore.types.types._ast.ASTQualifiedName;
 import org.nest.codegeneration.converters.IReferenceConverter;
 import org.nest.codegeneration.converters.IdempotentReferenceConverter;
 import org.nest.spl._ast.ASTExpr;
-import org.nest.spl._ast.ASTExprList;
 import org.nest.spl._ast.ASTFunctionCall;
+
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -151,7 +152,7 @@ public class ExpressionsPrettyPrinter {
   public StringBuilder printFunctionCallArguments(final ASTFunctionCall astFunctionCall) {
     final StringBuilder argsListAsString = new StringBuilder();
 
-    final ASTExprList functionArgs = astFunctionCall.getArgList().getArgs();
+    final List<ASTExpr> functionArgs = astFunctionCall.getArgList().getArgs();
     for (int i = 0; i < functionArgs.size(); ++i) {
       boolean isLastArgument = (i+1) == functionArgs.size();
       if (!isLastArgument) {

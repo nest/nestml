@@ -12,8 +12,7 @@ import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTBodyElement;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
@@ -172,8 +171,7 @@ public class NESTMLSymbolTableTest {
   }
 
   public ASTNESTMLCompilationUnit getNestmlRootFromFilename(final String modelFilename) throws IOException {
-    final NESTMLCompilationUnitMCParser p = NESTMLParserFactory
-        .createNESTMLCompilationUnitMCParser();
+    final NESTMLParser p = new NESTMLParser();
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(modelFilename);
     assertTrue(root.isPresent());
     return root.get();

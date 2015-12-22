@@ -43,9 +43,6 @@ neuron iaf_psc_alpha_multisynapse_neuron:
     P20 real = exp(-h/Tau)
     P22 real = Tau/C*(1.0 - P22);
 
-    #P30_;
-    #P33_;
-
     RefractoryCounts integer = 0
     #PSCInitialValues real<num_of_receptors> = steps(t_ref)
   end

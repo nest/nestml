@@ -5,8 +5,7 @@ import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
@@ -24,6 +23,8 @@ public class CLIConfigurationExecutor {
   private static final String LOG_NAME = CLIConfigurationExecutor.class.getName();
 
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
+
+  private final NESTMLParser parser = new NESTMLParser();
 
   public CLIConfigurationExecutor() {
     Log.enableFailQuick(false);
@@ -67,10 +68,8 @@ public class CLIConfigurationExecutor {
   }
 
   private void parseWithOptionalCocosCheck(final String modelName, final NESTMLToolConfiguration nestmlToolConfiguration) {
-    final NESTMLCompilationUnitMCParser nestmlParser = NESTMLParserFactory
-        .createNESTMLCompilationUnitMCParser();
     try {
-      final Optional<ASTNESTMLCompilationUnit> root = nestmlParser.parse(nestmlToolConfiguration.getInputBasePath() +
+      final Optional<ASTNESTMLCompilationUnit> root = parser.parse(nestmlToolConfiguration.getInputBasePath() +
               File.separator + modelName);
       if (root.isPresent()) {
         if (nestmlToolConfiguration.isCheckCoCos()) {

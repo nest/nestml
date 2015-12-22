@@ -10,8 +10,7 @@ import org.junit.Test;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
-import org.nest.spl._parser.SPLFileMCParser;
-import org.nest.spl._parser.SPLParserFactory;
+import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.NESTMLTypeSymbol;
@@ -39,7 +38,7 @@ public class ExpressionTypeCalculatorTest {
 
   @Test
   public void testTypeCalculation() throws IOException {
-    final SPLFileMCParser p = SPLParserFactory.createSPLFileMCParser();
+    final SPLParser p = new SPLParser();
     final Optional<ASTSPLFile> root = p.parse(TEST_MODEL);
     assertTrue(root.isPresent());
 

@@ -6,8 +6,7 @@ import org.apache.commons.cli.*;
 import org.nest.codegeneration.NESTML2NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
@@ -84,7 +83,7 @@ public class NESTMLFrontend {
     final NESTMLToolConfiguration nestmlToolConfiguration = createCLIConfiguration(args);
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator("", TYPES_FACTORY);
     final NESTML2NESTCodeGenerator nestml2NESTCodeGenerator = new NESTML2NESTCodeGenerator(TYPES_FACTORY, nestmlScopeCreator);
-    final NESTMLCompilationUnitMCParser parser =  NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+    final NESTMLParser parser =  new NESTMLParser();
 
     try {
       final ASTNESTMLCompilationUnit root = parser.parse(args[0]).get();

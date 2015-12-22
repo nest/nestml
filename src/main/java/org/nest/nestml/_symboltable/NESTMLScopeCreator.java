@@ -59,7 +59,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     // TODO is only for a successufl test there
     globalScope = new GlobalScope(
         modelPath,
-        nestmlLanguages.getModelLoader(),
+        nestmlLanguages,
         resolverConfiguration);
     addPredefinedTypes(globalScope);
     addPredefinedFunctions(globalScope);
@@ -70,7 +70,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   public Scope runSymbolTableCreator(final ASTNESTMLCompilationUnit compilationUnit) {
     globalScope = new GlobalScope(
         modelPath,
-        nestmlLanguages.getModelLoader(),
+        nestmlLanguages,
         resolverConfiguration);
     addPredefinedTypes(globalScope);
     addPredefinedFunctions(globalScope);

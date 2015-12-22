@@ -17,12 +17,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.utils.LogHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,8 +52,8 @@ public class NESTMLCoCosManagerTest {
    * @throws java.io.IOException
    */
   private Optional<ASTNESTMLCompilationUnit> getAstRoot(String modelPath) throws IOException {
-    NESTMLCompilationUnitMCParser p = NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
-    Optional<ASTNESTMLCompilationUnit> ast = p.parse(modelPath);
+    final NESTMLParser p = new NESTMLParser();
+    final Optional<ASTNESTMLCompilationUnit> ast = p.parse(modelPath);
     Assert.assertTrue(ast.isPresent());
     return ast;
   }

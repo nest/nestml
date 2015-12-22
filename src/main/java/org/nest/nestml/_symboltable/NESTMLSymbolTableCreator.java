@@ -383,6 +383,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     // TODO reuse SPLVisitor
     final CommonScope shadowingScope = new CommonScope(true);
     putOnStack(shadowingScope);
+    astCompoundStmt.setEnclosingScope(shadowingScope);
     info("Spans block scope.", LOGGER_NAME);
   }
 

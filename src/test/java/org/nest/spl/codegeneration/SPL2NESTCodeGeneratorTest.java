@@ -15,8 +15,7 @@ import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
-import org.nest.spl._parser.SPLFileMCParser;
-import org.nest.spl._parser.SPLParserFactory;
+import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
@@ -43,7 +42,7 @@ public class SPL2NESTCodeGeneratorTest {
 
   @Test
   public void invokeSPL2NESTGenerator() throws IOException {
-    final SPLFileMCParser p = SPLParserFactory.createSPLFileMCParser();
+    final SPLParser p = new SPLParser();
     final File outputFolder = new File(OUTPUT_FOLDER);
     final String packageName = "org.nest.spl.codegeneration";
     final String modelName = "decl";

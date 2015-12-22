@@ -10,7 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
-import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 /**
@@ -30,14 +29,13 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @author plotnikov
  */
 public abstract class GenerationTestBase extends ModelTestBase {
-  final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
+  final NESTMLParser p = new NESTMLParser();
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
       TEST_MODEL_PATH, typesFactory);
   protected final NESTML2NESTCodeGenerator generator = new NESTML2NESTCodeGenerator(
       typesFactory, scopeCreator);
 
   protected void invokeCodeGenerator(final String pathToModel) {
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
 
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
@@ -67,7 +65,6 @@ public abstract class GenerationTestBase extends ModelTestBase {
   }
 
   public void checkCocos(String pathToModel) {
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(pathToModel);

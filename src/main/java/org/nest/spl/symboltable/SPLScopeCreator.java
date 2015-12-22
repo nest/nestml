@@ -46,7 +46,10 @@ public class SPLScopeCreator extends ScopeCreatorBase {
     final ResolverConfiguration resolverConfiguration = new ResolverConfiguration();
     resolverConfiguration.addTopScopeResolvers(splLanguage.getResolvers());
 
-    globalScope = new GlobalScope(modelPath, splLanguage.getModelLoader(), resolverConfiguration);
+    globalScope = new GlobalScope(
+        modelPath,
+        splLanguage,
+        resolverConfiguration);
 
     addPredefinedTypes(globalScope);
     addPredefinedFunctions(globalScope);

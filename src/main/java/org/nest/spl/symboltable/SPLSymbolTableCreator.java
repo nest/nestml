@@ -73,7 +73,7 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
   default void visit(final ASTCompound_Stmt astCompoundStmt) {
     final CommonScope shadowingScope = new CommonScope(true);
     putOnStack(shadowingScope);
-
+    astCompoundStmt.setEnclosingScope(shadowingScope);
   }
 
   @Override

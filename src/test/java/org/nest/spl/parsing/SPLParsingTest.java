@@ -10,8 +10,7 @@ import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.spl._ast.ASTSPLFile;
-import org.nest.spl._parser.SPLFileMCParser;
-import org.nest.spl._parser.SPLParserFactory;
+import org.nest.spl._parser.SPLParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,11 +25,7 @@ public class SPLParsingTest {
   private final static  String MODELS_PARSABLE_FOLDER = "src/test/resources/org/nest/spl/parsing";
   private final static  String MODELS_COCOS_FOLDER = "src/test/resources/org/nest/spl/cocos";
   private final static  String LOG_NAME = SPLParsingTest.class.getName();
-  private final SPLFileMCParser parser;
-
-  public SPLParsingTest() {
-    parser = SPLParserFactory.createSPLFileMCParser();
-  }
+  private final SPLParser parser = new SPLParser();
 
   @Test
   public void testParsableModels() throws IOException {

@@ -4,7 +4,7 @@ x real = -3.0
 y boolean = true
 z integer = 16
 
-pow(x, -1)
+pow(x, -1.0)
 
 print("" + 1)
 
@@ -87,7 +87,6 @@ else:
     return false
 end
 
-return true
 
 while true:
 
@@ -96,7 +95,7 @@ end
 while false:
 end
 
-zz real = pow(x, -1)
+zz real = pow(x, -1.0)
 
 zz += 1
 zz -= 1

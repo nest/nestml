@@ -59,7 +59,7 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
     final ASTParameter[] params;
     if (astFunction.getParameters().isPresent()
         && astFunction.getParameters().get().getParameters().size() > 0) {
-      params = astFunction.getParameters().get().getParameters().toArray();
+      params = astFunction.getParameters().get().getParameters().toArray(new ASTParameter[0]);
     } else {
       params = new ASTParameter[0];
     }

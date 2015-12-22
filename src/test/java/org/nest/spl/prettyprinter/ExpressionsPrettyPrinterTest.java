@@ -7,8 +7,7 @@ package org.nest.spl.prettyprinter;
 
 import org.junit.Test;
 import org.nest.spl._ast.ASTSPLFile;
-import org.nest.spl._parser.SPLFileMCParser;
-import org.nest.spl._parser.SPLParserFactory;
+import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
@@ -24,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  * @since 0.0.1
  */
 public class ExpressionsPrettyPrinterTest {
-  private final SPLFileMCParser splFileParser = SPLParserFactory.createSPLFileMCParser();
+  private final SPLParser splFileParser = new SPLParser();
   private final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
