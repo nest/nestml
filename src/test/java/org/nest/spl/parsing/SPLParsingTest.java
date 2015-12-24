@@ -7,15 +7,20 @@ package org.nest.spl.parsing;
 
 import static de.se_rwth.commons.logging.Log.error;
 
+import de.monticore.antlr4.MCConcreteParser;
+import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
+import org.nest.spl._ast.ASTExpr;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -47,6 +52,18 @@ public class SPLParsingTest {
       assertTrue(ast.isPresent());
     }
 
+  }
+
+  @Test
+  public void rightAssociativeExpression() throws IOException {
+    final SPLParser splParser = new SPLParser();
+    splParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
+    final Optional<ASTExpr> result = splParser.parseExpr(new StringReader("e1**e2**e3"));
+
+    // asserts that the parse tree is built as e1**(e2**e3), e.g. in a right associative way
+    final String base = Names.getQualifiedName(result.get().getBase().get().getQualifiedName().get().getParts());
+    assertEquals("e1", base);
+    assertTrue(result.get().getExponent().get().isPow());
   }
 
 }
