@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Creates implicit types like boolean and nestml specific types like Logger
+ * Creates implicit types like boolean and nestml specific
  *
  * @author plotnikov
  */
@@ -92,16 +92,17 @@ public class PredefinedTypesFactory {
 
   public TypeSymbol getType(final String typeName) {
     Optional<TypeSymbol> predefinedType = getPredefinedTypeIfExists(typeName);
+
     if (predefinedType.isPresent()) {
       return predefinedType.get();
     }
     else {
       throw new RuntimeException("Cannot resolve the predefined type: " + typeName);
     }
+
   }
 
   public Optional<TypeSymbol> getPredefinedTypeIfExists(final String typeName) {
-
     if (implicitTypes.containsKey(typeName)) {
       return Optional.of(implicitTypes.get(typeName));
     }

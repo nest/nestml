@@ -17,13 +17,11 @@ import java.util.Set;
  * Defines a set with implicit type functions, like {@code print, pow, ...}
  *
  * @author plotnikov
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
  */
 public class PredefinedFunctionFactory {
-  private static final String TIME_RESOLUTION = "Time.resolution";
-  private static final String TIME_STEPS = "Time.steps";
-  private static final String EMIT_SPIKE = "Spiking.emitSpike";
+  private static final String TIME_RESOLUTION = "resolution";
+  private static final String TIME_STEPS = "steps";
+  private static final String EMIT_SPIKE = "emitSpike";
   private static final String PRINT = "print";
   private static final String PRINTLN = "println";
   private static final String POW = "pow";
