@@ -9,6 +9,7 @@ import de.monticore.symboltable.CommonScopeSpanningSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents functions, e.g. dynamics, getter/setter, and predefined functions like pow.
@@ -19,27 +20,25 @@ public class MethodSymbol extends CommonScopeSpanningSymbol {
 
   public final static MethodSymbolKind KIND = new MethodSymbolKind();
 
-  protected TypeSymbol returnType;
+  private TypeSymbol returnType;
+  private NeuronSymbol declaringNeuron;
+  private TypeSymbol declaringType;
 
-  protected NeuronSymbol declaringNeuron;
+  private List<TypeSymbol> parameters = new ArrayList<>();
+  private boolean isDynamics = false;
+  private boolean isTimeStep = false;
+  private boolean isMinDelay = false;
 
-  protected TypeSymbol declaringType;
-
-  protected List<TypeSymbol> parameters = new ArrayList<TypeSymbol>();
-
-  protected boolean isDynamics = false;
-
-  protected boolean isTimeStep = false;
-
-  protected boolean isMinDelay = false;
-
-  public MethodSymbol(String name) {
+  public MethodSymbol(final String name) {
     super(name, KIND);
   }
 
   @Override
   public String toString() {
-    return "MethodSymbol(" + getName() + ", #Parameters = " + getParameterTypes().size() + ")";
+    return "MethodSymbol[" + getName() + ", Parameters = " +
+        getParameterTypes().stream()
+            .map(Object::toString)
+            .collect(Collectors.joining(",")) + "]";
   }
 
   public TypeSymbol getReturnType() {
