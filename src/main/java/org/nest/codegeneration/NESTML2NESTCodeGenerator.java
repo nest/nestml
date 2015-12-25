@@ -25,7 +25,6 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.utils.ASTNodes;
 
 import java.io.File;
@@ -47,16 +46,13 @@ public class NESTML2NESTCodeGenerator {
   private final ODEProcessor odeProcessor = new ODEProcessor();
   private final NESTReferenceConverter converter;
   private final ExpressionsPrettyPrinter expressionsPrinter;
-  private final PredefinedTypesFactory typesFactory;
   private final NESTMLScopeCreator scopeCreator;
   private final NESTMLParser parser;
 
   public NESTML2NESTCodeGenerator(
-      final PredefinedTypesFactory typesFactory,
       final NESTMLScopeCreator scopeCreator) {
     this.scopeCreator = scopeCreator;
-    this.typesFactory = typesFactory;
-    converter = new NESTReferenceConverter(typesFactory);
+    converter = new NESTReferenceConverter();
     expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     parser = new NESTMLParser();
   }
@@ -129,41 +125,13 @@ public class NESTML2NESTCodeGenerator {
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
     for (ASTNeuron neuron : compilationUnit.getNeurons()) {
-      setNeuronGenerationParameter(glex, typesFactory, neuron, moduleName);
+      setNeuronGenerationParameter(glex, neuron, moduleName);
       final Path outputFile = Paths.get(getPathFromPackage(moduleName), neuron.getName() + ".h");
 
       // TODO: how do I find out the call was successful?
       generator.generate("org.nest.nestml.neuron.NeuronHeader", outputFile, neuron);
     }
     
-  }
-
-  public void generateODECodeForGSL(
-      ASTNESTMLCompilationUnit root, ASTNeuron astNeuron, final ASTOdeDeclaration odeDeclaration,
-      final Path outputFolder) {
-
-    final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
-    final GlobalExtensionManagement glex = getGlexConfiguration();
-    setup.setGlex(glex);
-    final String moduleName = Names.getQualifiedName(root.getPackageName().getParts());
-    setNeuronGenerationParameter(glex, typesFactory, astNeuron, moduleName);
-
-
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
-    final ASTOdeDeclaration astOdeDeclaration = astBodyDecorator.getOdeDefinition().get();
-
-    glex.setGlobalValue("ODEs", astOdeDeclaration.getODEs());
-    glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
-
-
-    final GeneratorEngine generator = new GeneratorEngine(setup);
-
-    final Path outputFile = Paths.get(outputFolder.toString(), "tmp.cpp");
-
-
-    // TODO: how do I find out the call was successful?
-    generator.generate("org.nest.nestml.function.GSLDifferentiationFunction", outputFile, odeDeclaration);
-
   }
 
   public void generateClassImplementation(
@@ -179,7 +147,7 @@ public class NESTML2NESTCodeGenerator {
 
     final List<ASTNeuron> neurons = compilationUnit.getNeurons();
     for (ASTNeuron neuron : neurons) {
-      setNeuronGenerationParameter(glex, typesFactory, neuron, moduleName);
+      setNeuronGenerationParameter(glex, neuron, moduleName);
       final Path classImplementationFile = Paths.get(
           getPathFromPackage(moduleName), neuron.getName() + ".cpp");
       // TODO: how do I find out the call was successful?
@@ -279,7 +247,6 @@ public class NESTML2NESTCodeGenerator {
 
   private void setNeuronGenerationParameter(
       final GlobalExtensionManagement glex,
-      final PredefinedTypesFactory typesFactory,
       final ASTNeuron neuron,
       final String moduleName) {
     setSolverType(glex, neuron);
@@ -289,17 +256,16 @@ public class NESTML2NESTCodeGenerator {
     glex.setGlobalValue("simpleNeuronName", neuron.getName());
 
     final String nspPrefix = convertToCppNamespaceConvention(moduleName);
-    final NESTMLFunctionPrinter functionPrinter = new NESTMLFunctionPrinter(typesFactory);
-    final NESTMLDeclarations declarations = new NESTMLDeclarations(typesFactory);
-    final NESTMLDynamicsPrinter dynamicsHelper = new NESTMLDynamicsPrinter(typesFactory);
+    final NESTMLFunctionPrinter functionPrinter = new NESTMLFunctionPrinter();
+    final NESTMLDeclarations declarations = new NESTMLDeclarations();
+    final NESTMLDynamicsPrinter dynamicsHelper = new NESTMLDynamicsPrinter();
 
-    glex.setGlobalValue("declarations", new NESTMLDeclarations(typesFactory) );
+    glex.setGlobalValue("declarations", new NESTMLDeclarations() );
     glex.setGlobalValue("assignmentHelper", new SPLVariableGetterSetterHelper());
-    glex.setGlobalValue("typesFactory", typesFactory);
     glex.setGlobalValue("functionPrinter", functionPrinter);
     glex.setGlobalValue("declarations", declarations);
     glex.setGlobalValue("dynamicsHelper", dynamicsHelper);
-    glex.setGlobalValue("bufferHelper", new NESTMLBuffers(typesFactory));
+    glex.setGlobalValue("bufferHelper", new NESTMLBuffers());
 
     glex.setGlobalValue("nspPrefix", nspPrefix);
     glex.setGlobalValue("outputEvent", NESTMLOutputs.printOutputEvent(neuron));

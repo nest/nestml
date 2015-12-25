@@ -19,6 +19,7 @@ import java.util.Set;
  * @author plotnikov
  */
 public class PredefinedFunctionFactory {
+
   private static final String TIME_RESOLUTION = "resolution";
   private static final String TIME_STEPS = "steps";
   private static final String EMIT_SPIKE = "emitSpike";
@@ -33,58 +34,58 @@ public class PredefinedFunctionFactory {
 
   private final Map<String, MethodSymbol> name2FunctionSymbol = Maps.newHashMap();
 
-  public PredefinedFunctionFactory(PredefinedTypesFactory typesFactory) {
+  public PredefinedFunctionFactory() {
 
     final MethodSymbol timeSteps = createFunctionSymbol(TIME_STEPS);
-    timeSteps.addParameterType(typesFactory.getType("ms"));
-    timeSteps.setReturnType(typesFactory.getIntegerType());
+    timeSteps.addParameterType(PredefinedTypes.getType("ms"));
+    timeSteps.setReturnType(PredefinedTypes.getIntegerType());
     name2FunctionSymbol.put(TIME_STEPS, timeSteps);
 
     final MethodSymbol emitSpike = createFunctionSymbol(EMIT_SPIKE);
-    emitSpike.setReturnType(typesFactory.getRealType());
+    emitSpike.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(EMIT_SPIKE, emitSpike);
 
     // create
     final MethodSymbol printMethod = createFunctionSymbol(PRINT);
-    printMethod.addParameterType(typesFactory.getStringType());
-    printMethod.setReturnType(typesFactory.getVoidType());
+    printMethod.addParameterType(PredefinedTypes.getStringType());
+    printMethod.setReturnType(PredefinedTypes.getVoidType());
     name2FunctionSymbol.put(PRINT, printMethod);
 
     final MethodSymbol printlnMethod = createFunctionSymbol(PRINTLN);
-    printlnMethod.setReturnType(typesFactory.getVoidType());
+    printlnMethod.setReturnType(PredefinedTypes.getVoidType());
     name2FunctionSymbol.put(PRINTLN, printlnMethod);
 
     final MethodSymbol powMethod = createFunctionSymbol(POW);
-    powMethod.addParameterType(typesFactory.getRealType()); // base
-    powMethod.addParameterType(typesFactory.getRealType()); // exp
-    powMethod.setReturnType(typesFactory.getRealType());
+    powMethod.addParameterType(PredefinedTypes.getRealType()); // base
+    powMethod.addParameterType(PredefinedTypes.getRealType()); // exp
+    powMethod.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(POW, powMethod);
 
     final MethodSymbol expMethod = createFunctionSymbol(EXP);
-    expMethod.addParameterType(typesFactory.getRealType()); // base
-    expMethod.setReturnType(typesFactory.getRealType());
+    expMethod.addParameterType(PredefinedTypes.getRealType()); // base
+    expMethod.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(EXP, expMethod);
 
     final MethodSymbol loggerInfoMethod = createFunctionSymbol(LOGGER_INFO);
-    loggerInfoMethod.addParameterType(typesFactory.getStringType());
-    loggerInfoMethod.setReturnType(typesFactory.getVoidType());
+    loggerInfoMethod.addParameterType(PredefinedTypes.getStringType());
+    loggerInfoMethod.setReturnType(PredefinedTypes.getVoidType());
     name2FunctionSymbol.put(LOGGER_INFO, loggerInfoMethod);
 
     final MethodSymbol randomMethod = createFunctionSymbol(RANDOM);
-    randomMethod.setReturnType(typesFactory.getRealType());
+    randomMethod.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(RANDOM, randomMethod);
 
     final MethodSymbol randomIntMethod = createFunctionSymbol(RANDOM_INT);
-    randomIntMethod.setReturnType(typesFactory.getIntegerType());
+    randomIntMethod.setReturnType(PredefinedTypes.getIntegerType());
     name2FunctionSymbol.put(RANDOM_INT, randomIntMethod);
 
     final MethodSymbol timeResolution = createFunctionSymbol(TIME_RESOLUTION);
-    timeResolution.setReturnType(typesFactory.getRealType());
+    timeResolution.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(TIME_RESOLUTION, timeResolution);
 
     final MethodSymbol expm1 = createFunctionSymbol(EXPM1);
-    expm1.addParameterType(typesFactory.getRealType());
-    expm1.setReturnType(typesFactory.getRealType());
+    expm1.addParameterType(PredefinedTypes.getRealType());
+    expm1.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(EXPM1, expm1);
 
   }

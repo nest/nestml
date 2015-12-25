@@ -8,7 +8,7 @@ package org.nest.symboltable;
 import de.monticore.symboltable.GlobalScope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.symboltable.predefined.PredefinedFunctionFactory;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.predefined.PredefinedVariablesFactory;
 
 /**
@@ -18,24 +18,19 @@ import org.nest.symboltable.predefined.PredefinedVariablesFactory;
  */
 public abstract class ScopeCreatorBase {
 
-  protected final PredefinedTypesFactory typesFactory;
   protected final PredefinedFunctionFactory functionFactory;
   protected final PredefinedVariablesFactory variablesFactory;
 
   public abstract String getLogger();
 
-  public ScopeCreatorBase(final PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-    this.functionFactory = new PredefinedFunctionFactory(typesFactory);
-    this.variablesFactory = new PredefinedVariablesFactory(typesFactory);
+  public ScopeCreatorBase() {
+    this.functionFactory = new PredefinedFunctionFactory();
+    this.variablesFactory = new PredefinedVariablesFactory();
   }
 
-  public PredefinedTypesFactory getTypesFactory() {
-    return typesFactory;
-  }
 
   public void addPredefinedTypes(final GlobalScope globalScope) {
-    typesFactory.getTypes().forEach(
+    PredefinedTypes.getTypes().forEach(
         type -> {
           globalScope.add(type);
           final String typeLogMsg = "Adds new implicit type declaration: %s";

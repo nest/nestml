@@ -12,8 +12,6 @@ import de.monticore.symboltable.ResolverConfiguration;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTVar_Block;
-import org.nest.nestml._symboltable.NESTMLSymbolTableCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.util.Optional;
 
@@ -30,7 +28,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class CommonNESTMLSymbolTableCreator
     extends CommonSymbolTableCreator
     implements NESTMLSymbolTableCreator {
-  private final PredefinedTypesFactory predefinedTypesFactory;
   private String packageName = "";
   private ASTNESTMLCompilationUnit root;
   private Optional<ASTAliasDecl> astAliasDeclaration = Optional.empty();
@@ -38,15 +35,8 @@ public class CommonNESTMLSymbolTableCreator
 
   public CommonNESTMLSymbolTableCreator(
       final ResolverConfiguration resolverConfig,
-      final MutableScope enclosingScope,
-      final PredefinedTypesFactory predefinedTypesFactory) {
+      final MutableScope enclosingScope) {
     super(resolverConfig, enclosingScope);
-    this.predefinedTypesFactory = predefinedTypesFactory;
-  }
-
-  @Override
-  public PredefinedTypesFactory getPredefinedTypesFactory() {
-    return predefinedTypesFactory;
   }
 
   @Override

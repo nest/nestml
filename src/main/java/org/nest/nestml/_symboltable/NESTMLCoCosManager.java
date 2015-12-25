@@ -12,7 +12,7 @@ import org.nest.nestml._cocos.*;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.symboltable.SPLCoCosManager;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 
 /**
  * This class is responsible for the instantiation of the NESTML context conditions.
@@ -22,15 +22,6 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
  * @since 0.0.1
  */
 public class NESTMLCoCosManager {
-
-  private final ASTNESTMLCompilationUnit astNestmlCompilationUnit;
-  private final PredefinedTypesFactory predefinedTypesFactory;
-
-  public NESTMLCoCosManager(final ASTNESTMLCompilationUnit astNestmlCompilationUnit,
-      PredefinedTypesFactory predefinedTypesFactory) {
-    this.astNestmlCompilationUnit = astNestmlCompilationUnit;
-    this.predefinedTypesFactory = predefinedTypesFactory;
-  }
 
   /**
    * @return A checker with all NESTML context conditions
@@ -65,7 +56,7 @@ public class NESTMLCoCosManager {
     nestmlCoCoChecker.addCoCo(dynamicsTimeStepParameter);
 
     final FunctionHasReturnStatement functionHasReturnStatement
-        = new FunctionHasReturnStatement(predefinedTypesFactory);
+        = new FunctionHasReturnStatement();
     nestmlCoCoChecker.addCoCo(functionHasReturnStatement);
 
     final InvalidTypesInDeclaration invalidTypesInDeclaration
@@ -109,7 +100,7 @@ public class NESTMLCoCosManager {
     final NeuronWithoutOutput neuronWithoutOutput = new NeuronWithoutOutput();
     nestmlCoCoChecker.addCoCo(neuronWithoutOutput);
 
-    final CorrectReturnValues correctReturnValues = new CorrectReturnValues(predefinedTypesFactory);
+    final CorrectReturnValues correctReturnValues = new CorrectReturnValues();
     nestmlCoCoChecker.addCoCo(correctReturnValues);
 
     final TypeIsDeclaredMultipleTimes typeIsDeclaredMultipleTimes = new TypeIsDeclaredMultipleTimes();
@@ -129,7 +120,7 @@ public class NESTMLCoCosManager {
 
   public NESTMLCoCoChecker createNESTMLCheckerWithSPLCocos() {
     final NESTMLCoCoChecker nestmlChecker = createDefaultChecker();
-    new SPLCoCosManager(predefinedTypesFactory).addSPLCocosToNESTMLChecker(nestmlChecker);
+    new SPLCoCosManager().addSPLCocosToNESTMLChecker(nestmlChecker);
     return nestmlChecker;
   }
 

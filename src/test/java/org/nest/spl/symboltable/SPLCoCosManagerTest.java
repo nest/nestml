@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.SPLCoCoChecker;
 import org.nest.spl._parser.SPLParser;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,8 +27,7 @@ public class SPLCoCosManagerTest {
   private static SPLParser parser = new SPLParser();
   public static final String TEST_MODEL_PATH = "src/test/resources/";
 
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-  private final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH, typesFactory);
+  private final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
   @BeforeClass
   public static void initLog() {
     Log.enableFailQuick(false);
@@ -49,7 +48,7 @@ public class SPLCoCosManagerTest {
       final ASTSPLFile root = getAstRoot(file.getPath());
       scopeCreator.runSymbolTableCreator(root);
 
-      final SPLCoCosManager splCoCosManager = new SPLCoCosManager(scopeCreator.getTypesFactory());
+      final SPLCoCosManager splCoCosManager = new SPLCoCosManager();
       final SPLCoCoChecker checker = splCoCosManager.createDefaultChecker();
       checker.checkAll(root);
       Collection<Finding> splErrorFindings = getErrorsByPrefix("SPL_", Log.getFindings());

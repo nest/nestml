@@ -8,7 +8,7 @@ import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.utils.LogHelper;
 
 import java.io.File;
@@ -21,8 +21,6 @@ import java.util.Optional;
 public class CLIConfigurationExecutor {
 
   private static final String LOG_NAME = CLIConfigurationExecutor.class.getName();
-
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
   private final NESTMLParser parser = new NESTMLParser();
 
@@ -94,14 +92,11 @@ public class CLIConfigurationExecutor {
       final NESTMLToolConfiguration toolConfiguration,
       final Optional<ASTNESTMLCompilationUnit> root) {
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
-        toolConfiguration.getModelPath(), typesFactory);
+        toolConfiguration.getModelPath());
 
     scopeCreator.runSymbolTableCreator(root.get());
 
-    final NESTMLCoCosManager nestmlCoCosManager
-        = new NESTMLCoCosManager(
-        root.get(),
-        scopeCreator.getTypesFactory());
+    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
 
     final NESTMLCoCoChecker cocosChecker = nestmlCoCosManager.createDefaultChecker();
 

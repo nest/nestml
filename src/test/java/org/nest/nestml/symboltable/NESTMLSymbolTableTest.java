@@ -13,7 +13,7 @@ import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.UsageSymbol;
@@ -38,8 +38,7 @@ public class NESTMLSymbolTableTest {
       + "iaf_neuron.nestml";
   private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/symboltable/"
       + "importingNeuron.nestml";
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
+  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
   private final Scope globalScope = scopeCreator.getGlobalScope();
 
   @Test
@@ -72,7 +71,6 @@ public class NESTMLSymbolTableTest {
 
     scopeCreator.runSymbolTableCreator(root);
 
-    final PredefinedTypesFactory predefinedTypesFactory = scopeCreator.getTypesFactory();
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
 
     final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
@@ -95,7 +93,7 @@ public class NESTMLSymbolTableTest {
     final Optional<VariableSymbol> newVarInMethodSymbol
         = dynamicsScope.resolve("newVarInMethod", VariableSymbol.KIND);
     assertTrue(newVarInMethodSymbol.isPresent());
-    assertTrue(newVarInMethodSymbol.get().getType().equals(predefinedTypesFactory.getRealType()));
+    assertTrue(newVarInMethodSymbol.get().getType().equals(PredefinedTypes.getRealType()));
 
 
   }
@@ -107,7 +105,6 @@ public class NESTMLSymbolTableTest {
 
     scopeCreator.runSymbolTableCreator(root);
 
-    final PredefinedTypesFactory predefinedTypesFactory = scopeCreator.getTypesFactory();
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
 
     final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
@@ -118,7 +115,7 @@ public class NESTMLSymbolTableTest {
 
     // check the symbol from parameter block
     assertTrue(testVarFromParameter.isPresent());
-    assertTrue(testVarFromParameter.get().getType().equals(predefinedTypesFactory.getStringType()));
+    assertTrue(testVarFromParameter.get().getType().equals(PredefinedTypes.getStringType()));
 
     // check the symbol in function block
     final Optional<ASTFunction> scopeTestingFunction = astBodyDecorator
@@ -131,7 +128,7 @@ public class NESTMLSymbolTableTest {
     final Optional<VariableSymbol> testVarFromFunction =
         scopeTestingFunction.get().getBlock().getEnclosingScope().get().resolve("scopeTestVar", VariableSymbol.KIND);
     assertTrue(testVarFromFunction.isPresent());
-    assertTrue(testVarFromFunction.get().getType().equals(predefinedTypesFactory.getIntegerType()));
+    assertTrue(testVarFromFunction.get().getType().equals(PredefinedTypes.getIntegerType()));
 
     // retrieve the if block and resolve it from there
     // TODO it should not be a correct solution
@@ -151,7 +148,7 @@ public class NESTMLSymbolTableTest {
             .resolve("scopeTestVar", VariableSymbol.KIND);
 
     assertTrue(testVarFromIfBlock.isPresent());
-    assertTrue(testVarFromIfBlock.get().getType().equals(predefinedTypesFactory.getRealType()));
+    assertTrue(testVarFromIfBlock.get().getType().equals(PredefinedTypes.getRealType()));
   }
 
   @Test

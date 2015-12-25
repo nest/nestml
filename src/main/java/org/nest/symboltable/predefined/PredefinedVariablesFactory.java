@@ -28,8 +28,8 @@ public class PredefinedVariablesFactory {
 
   private final Map<String, VariableSymbol> name2VariableSymbol = Maps.newHashMap();
 
-  public PredefinedVariablesFactory(PredefinedTypesFactory predefinedTypesFactory) {
-    registerVariable(E_CONSTANT, predefinedTypesFactory.getType("real"));
+  public PredefinedVariablesFactory() {
+    registerVariable(E_CONSTANT, PredefinedTypes.getRealType());
 
   }
 

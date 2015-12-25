@@ -13,7 +13,7 @@ import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.*;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -36,9 +36,7 @@ public class SPLCoCosTest {
 
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/spl/cocos/";
 
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-
-  final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH, typesFactory);
+  final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
 
   private SPLCoCoChecker splCoCoChecker;
   /**
@@ -163,7 +161,7 @@ public class SPLCoCosTest {
     Assert.assertTrue(ast.isPresent());
     splScopeCreator.runSymbolTableCreator(ast.get());
 
-    final IllegalVarInFor illegalVarInFor = new IllegalVarInFor(splScopeCreator.getTypesFactory());
+    final IllegalVarInFor illegalVarInFor = new IllegalVarInFor();
     splCoCoChecker.addCoCo(illegalVarInFor);
 
     splCoCoChecker.checkAll(ast.get());
@@ -178,7 +176,7 @@ public class SPLCoCosTest {
     Assert.assertTrue(ast.isPresent());
     splScopeCreator.runSymbolTableCreator(ast.get());
 
-    final IllegalExpression illegalExpression = new IllegalExpression(splScopeCreator.getTypesFactory());
+    final IllegalExpression illegalExpression = new IllegalExpression();
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTELIF_ClauseCoCo) illegalExpression);
@@ -213,8 +211,7 @@ public class SPLCoCosTest {
     Assert.assertTrue(ast.isPresent());
     splScopeCreator.runSymbolTableCreator(ast.get());
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist(
-        splScopeCreator.getTypesFactory());
+    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist();
     splCoCoChecker.addCoCo(functionDoesntExist);
 
     splCoCoChecker.checkAll(ast.get());
@@ -224,7 +221,8 @@ public class SPLCoCosTest {
   }
 
   // TODO
-  //@Test
+  @Ignore
+  @Test
   public void testCheckMultipleSignsBeforeFactor() throws IOException {
     final Optional<ASTSPLFile> ast = getAstRoot(TEST_MODELS_FOLDER + "multipleSigns.simple");
     Assert.assertTrue(ast.isPresent());

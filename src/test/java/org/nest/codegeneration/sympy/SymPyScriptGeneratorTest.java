@@ -47,8 +47,7 @@ public class SymPyScriptGeneratorTest extends ModelTestBase {
 
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
-        TEST_MODEL_PATH, typesFactory);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(

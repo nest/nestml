@@ -58,7 +58,7 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 
-    final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
+    final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH);
     final Scope scope = scopeCreator2.runSymbolTableCreator(testant);
     Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
 

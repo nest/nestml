@@ -12,7 +12,7 @@ import de.monticore.symboltable.Scope;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._symboltable.SPLLanguage;
 import org.nest.symboltable.ScopeCreatorBase;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 
 import java.nio.file.Paths;
 
@@ -34,14 +34,11 @@ public class SPLScopeCreator extends ScopeCreatorBase {
     return globalScope;
   }
 
-  public SPLScopeCreator(
-      final String modelPathAsString,
-      final PredefinedTypesFactory typesFactory) {
-    super(typesFactory);
+  public SPLScopeCreator(final String modelPathAsString) {
 
     final ModelPath modelPath = new ModelPath(Paths.get(modelPathAsString));
 
-    final SPLLanguage splLanguage = new SPLLanguage(typesFactory);
+    final SPLLanguage splLanguage = new SPLLanguage();
 
     final ResolverConfiguration resolverConfiguration = new ResolverConfiguration();
     resolverConfiguration.addTopScopeResolvers(splLanguage.getResolvers());
@@ -55,9 +52,7 @@ public class SPLScopeCreator extends ScopeCreatorBase {
     addPredefinedFunctions(globalScope);
     addPredefinedVariables(globalScope);
 
-    symbolTableCreator = new CommonSPLSymbolTableCreator(
-        resolverConfiguration, globalScope, typesFactory);
-
+    symbolTableCreator = new CommonSPLSymbolTableCreator(resolverConfiguration, globalScope);
   }
 
   public Scope runSymbolTableCreator(final ASTSPLFile compilationUnit) {

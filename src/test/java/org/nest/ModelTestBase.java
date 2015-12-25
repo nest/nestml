@@ -14,7 +14,6 @@ import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,9 +32,8 @@ public class ModelTestBase {
 
   protected static final String TEST_MODEL_PATH = "src/test/resources/";
 
-  protected static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
-  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
+  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
   @BeforeClass
   public static void disableFailQuick() {
