@@ -7,12 +7,11 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 import org.nest.symboltable.symbols.references.TypeSymbolReference;
@@ -39,8 +38,6 @@ import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisitor {
 
   String LOGGER_NAME = NESTMLSymbolTableCreator.class.getName();
-
-  PredefinedTypesFactory getPredefinedTypesFactory();
 
   void setPackageName(String packageName);
 
@@ -234,7 +231,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent());
 
-    final TypeSymbol bufferType = getPredefinedTypesFactory().getBufferType();
+    final TypeSymbol bufferType = PredefinedTypes.getBufferType();
 
     final VariableSymbol var = new VariableSymbol(inputLineAst.getName());
 
@@ -307,7 +304,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
       methodSymbol.setReturnType(returnType);
     }
     else {
-      methodSymbol.setReturnType(getPredefinedTypesFactory().getVoidType());
+      methodSymbol.setReturnType(PredefinedTypes.getVoidType());
     }
 
   }
@@ -355,7 +352,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     }
 
     // return type
-    methodEntry.setReturnType(getPredefinedTypesFactory().getVoidType());
+    methodEntry.setReturnType(PredefinedTypes.getVoidType());
 
   }
 
@@ -459,7 +456,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
     for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible
       final Optional<TypeSymbol> typeCandidate
-          = getPredefinedTypesFactory().getPredefinedTypeIfExists(typeName);
+          = PredefinedTypes.getPredefinedTypeIfExists(typeName);
 
       if (typeCandidate.isPresent()) {
         final VariableSymbol var = new VariableSymbol(varName);

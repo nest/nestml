@@ -9,7 +9,7 @@ import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -27,12 +27,6 @@ import static com.google.common.base.Preconditions.checkState;
  * @author plotnikov
  */
 public class NESTReferenceConverter implements IReferenceConverter {
-
-  private final PredefinedTypesFactory typesFactory;
-
-  public NESTReferenceConverter(final PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-  }
 
   @Override
   public String convertBinaryOperator(String binaryOperator) {
@@ -94,7 +88,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return emitStatements;
     }
 
-    final List<String> callTypes = ASTNodes.getArgumentsTypes(astFunctionCall, typesFactory);
+    final List<String> callTypes = ASTNodes.getArgumentsTypes(astFunctionCall);
     final Optional<MethodSymbol> functionSymbol
         = NESTMLSymbols.resolveMethod(scope, functionName, callTypes);
     if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell

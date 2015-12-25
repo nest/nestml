@@ -11,7 +11,7 @@ import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 
 import java.nio.file.Paths;
 
@@ -32,10 +32,6 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     return LOG_NAME;
   }
 
-  public PredefinedTypesFactory getTypesFactory() {
-    return typesFactory;
-  }
-
   public GlobalScope getGlobalScope() {
     return globalScope;
   }
@@ -45,13 +41,11 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   final NESTMLLanguage nestmlLanguages;
 
   public   NESTMLScopeCreator(
-      final String modelPathAsString,
-      final PredefinedTypesFactory typesFactory) {
-    super(typesFactory);
+      final String modelPathAsString) {
 
     modelPath = new ModelPath(Paths.get(modelPathAsString));
 
-    nestmlLanguages = new NESTMLLanguage(typesFactory);
+    nestmlLanguages = new NESTMLLanguage();
 
     resolverConfiguration = new ResolverConfiguration();
     resolverConfiguration.addTopScopeResolvers(nestmlLanguages.getResolvers());
@@ -77,8 +71,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     addPredefinedVariables(globalScope);
     final NESTMLSymbolTableCreator symbolTableCreator = new CommonNESTMLSymbolTableCreator(
         resolverConfiguration,
-        globalScope,
-        typesFactory);
+        globalScope);
 
     return symbolTableCreator.createFromAST(compilationUnit);
   }

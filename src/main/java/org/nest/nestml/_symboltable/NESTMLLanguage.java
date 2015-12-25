@@ -12,7 +12,6 @@ import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.SymbolKind;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.se_rwth.commons.Names;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.*;
 
 import java.util.Optional;
@@ -32,14 +31,11 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
 
   public static final String FILE_ENDING = "nestml";
 
-  final PredefinedTypesFactory typesFactory;
-
   /**
    * {@inheritDoc}
    */
-  public NESTMLLanguage(final PredefinedTypesFactory typesFactory) {
+  public NESTMLLanguage() {
     super("NESTML Language", FILE_ENDING);
-    this.typesFactory = typesFactory;
 
     addResolver(CommonResolvingFilter.create(NeuronSymbol.class, NeuronSymbol.KIND));
     addResolver(CommonResolvingFilter.create(TypeSymbol.class, TypeSymbol.KIND));
@@ -94,7 +90,7 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
   @Override
   public Optional<CommonNESTMLSymbolTableCreator> getSymbolTableCreator(
       ResolverConfiguration resolverConfiguration, MutableScope mutableScope) {
-    return Optional.of(new CommonNESTMLSymbolTableCreator(resolverConfiguration, mutableScope, new PredefinedTypesFactory()));
+    return Optional.of(new CommonNESTMLSymbolTableCreator(resolverConfiguration, mutableScope));
   }
 
 }

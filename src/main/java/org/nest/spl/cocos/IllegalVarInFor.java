@@ -6,14 +6,12 @@
 package org.nest.spl.cocos;
 
 import com.google.common.base.Preconditions;
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTFOR_Stmt;
 import org.nest.spl._cocos.SPLASTFOR_StmtCoCo;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 
@@ -31,12 +29,6 @@ public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
 
   private static final String ERROR_MSG_FORMAT = "The type of the iterator in a for-loop must be numeric and not: '%s' .";
 
-  private final PredefinedTypesFactory predefinedTypesFactory;
-
-  public IllegalVarInFor(PredefinedTypesFactory predefinedTypesFactory) {
-    this.predefinedTypesFactory = predefinedTypesFactory;
-  }
-
   @Override
   public void check(final ASTFOR_Stmt astfor) {
     checkArgument(astfor.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
@@ -46,7 +38,7 @@ public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
 
     Optional<VariableSymbol> iter = scope.resolve(iterName, VariableSymbol.KIND);
     Preconditions.checkState(iter.isPresent());
-    TypeChecker tc = new TypeChecker(predefinedTypesFactory);
+    TypeChecker tc = new TypeChecker();
     if (!tc.checkNumber(iter.get().getType())) {
       Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, iter.get().getType()),
           astfor.get_SourcePositionEnd());

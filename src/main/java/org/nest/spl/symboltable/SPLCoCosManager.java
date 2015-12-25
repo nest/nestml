@@ -6,24 +6,15 @@
 package org.nest.spl.symboltable;
 
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
-import org.nest.spl.cocos.*;
 import org.nest.spl._cocos.*;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.spl.cocos.*;
 
 /**
- * This class is responsible for the instantiation of the NESTML context conditions.
+ * This class is responsible for the instantiation of the SPL context conditions.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class SPLCoCosManager {
-
-  private final PredefinedTypesFactory predefinedTypesFactory;
-
-  public SPLCoCosManager(PredefinedTypesFactory predefinedTypesFactory) {
-    this.predefinedTypesFactory = predefinedTypesFactory;
-  }
 
   /**
    * @return A checker with all SPL context conditions
@@ -55,10 +46,10 @@ public class SPLCoCosManager {
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableNotDefinedBeforeUse);
     splCoCoChecker.addCoCo((SPLASTFOR_StmtCoCo) variableNotDefinedBeforeUse);
 
-    final IllegalVarInFor illegalVarInFor = new IllegalVarInFor(predefinedTypesFactory);
+    final IllegalVarInFor illegalVarInFor = new IllegalVarInFor();
     splCoCoChecker.addCoCo(illegalVarInFor);
 
-    final IllegalExpression illegalExpression = new IllegalExpression(predefinedTypesFactory);
+    final IllegalExpression illegalExpression = new IllegalExpression();
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTELIF_ClauseCoCo) illegalExpression);
@@ -69,7 +60,7 @@ public class SPLCoCosManager {
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
     splCoCoChecker.addCoCo(codeAfterReturn);
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist(predefinedTypesFactory);
+    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist();
     splCoCoChecker.addCoCo(functionDoesntExist);
 
     final CheckMultipleSignsBeforeFactor checkMultipleSignsBeforeFactor
@@ -93,10 +84,10 @@ public class SPLCoCosManager {
     final VarHasTypeName varHasTypeName = new VarHasTypeName();
     splCoCoChecker.addCoCo(varHasTypeName);
 
-    final IllegalVarInFor illegalVarInFor = new IllegalVarInFor(predefinedTypesFactory);
+    final IllegalVarInFor illegalVarInFor = new IllegalVarInFor();
     splCoCoChecker.addCoCo(illegalVarInFor);
 
-    final IllegalExpression illegalExpression = new IllegalExpression(predefinedTypesFactory);
+    final IllegalExpression illegalExpression = new IllegalExpression();
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTELIF_ClauseCoCo) illegalExpression);
@@ -107,7 +98,7 @@ public class SPLCoCosManager {
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
     splCoCoChecker.addCoCo(codeAfterReturn);
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist(predefinedTypesFactory);
+    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist();
     splCoCoChecker.addCoCo(functionDoesntExist);
 
     final CheckMultipleSignsBeforeFactor checkMultipleSignsBeforeFactor

@@ -30,10 +30,8 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  */
 public abstract class GenerationTestBase extends ModelTestBase {
   final NESTMLParser p = new NESTMLParser();
-  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
-      TEST_MODEL_PATH, typesFactory);
-  protected final NESTML2NESTCodeGenerator generator = new NESTML2NESTCodeGenerator(
-      typesFactory, scopeCreator);
+  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+  protected final NESTML2NESTCodeGenerator generator = new NESTML2NESTCodeGenerator(scopeCreator);
 
   protected void invokeCodeGenerator(final String pathToModel) {
 
@@ -71,9 +69,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
       assertTrue(root.isPresent());
 
       scopeCreator.runSymbolTableCreator(root.get());
-      final NESTMLCoCoChecker checker
-          = new NESTMLCoCosManager(root.get(), scopeCreator.getTypesFactory()).
-          createNESTMLCheckerWithSPLCocos();
+      final NESTMLCoCoChecker checker = new NESTMLCoCosManager().createNESTMLCheckerWithSPLCocos();
       checker.checkAll(root.get());
 
       Collection<Finding> errorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());

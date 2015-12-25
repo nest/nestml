@@ -10,7 +10,6 @@ import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -33,8 +32,6 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
       = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
 
 
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-
   @Test
   public void generateAndExecuteSympyScriptForPSC() throws IOException {
     generateAndEvaluate(PSC_MODEL_FILE);
@@ -50,8 +47,7 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
 
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
-        TEST_MODEL_PATH, typesFactory);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(

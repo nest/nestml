@@ -9,7 +9,6 @@ import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -18,8 +17,6 @@ import java.nio.file.Paths;
  *
  */
 public class NESTMLFrontend {
-
-  public static final PredefinedTypesFactory TYPES_FACTORY = new PredefinedTypesFactory();
 
   private final static String LOGGER_NAME = NESTMLFrontend.class.getName();
 
@@ -81,14 +78,15 @@ public class NESTMLFrontend {
   public void handleCLIArguments(String[] args) {
     Log.enableFailQuick(false);
     final NESTMLToolConfiguration nestmlToolConfiguration = createCLIConfiguration(args);
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator("", TYPES_FACTORY);
-    final NESTML2NESTCodeGenerator nestml2NESTCodeGenerator = new NESTML2NESTCodeGenerator(TYPES_FACTORY, nestmlScopeCreator);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(""); // TODO
+    final NESTML2NESTCodeGenerator nestml2NESTCodeGenerator = new NESTML2NESTCodeGenerator(
+        nestmlScopeCreator);
     final NESTMLParser parser =  new NESTMLParser();
 
     try {
       final ASTNESTMLCompilationUnit root = parser.parse(args[0]).get();
       nestmlScopeCreator.runSymbolTableCreator(root);
-      NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager(root, TYPES_FACTORY);
+      NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
       NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
       checker.checkAll(root);
 

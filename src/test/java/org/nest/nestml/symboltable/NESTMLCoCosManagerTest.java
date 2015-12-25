@@ -5,10 +5,6 @@
  */
 package org.nest.nestml.symboltable;
 
-import static de.se_rwth.commons.logging.Log.error;
-import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.utils.LogHelper.getErrorsByPrefix;
-
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
@@ -20,12 +16,13 @@ import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
+
+import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 
 /**
@@ -38,8 +35,6 @@ import java.util.Optional;
 public class NESTMLCoCosManagerTest {
 
   public static final String TEST_MODEL_PATH = "src/test/resources/";
-
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
   @BeforeClass
   public static void initLog() {
@@ -77,15 +72,14 @@ public class NESTMLCoCosManagerTest {
       final Optional<ASTNESTMLCompilationUnit> root = getAstRoot(file.getPath());
       Assert.assertTrue(root.isPresent());
 
-      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
-          TEST_MODEL_PATH, typesFactory);
+      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
       scopeCreator.runSymbolTableCreator(root.get());
 
       final String fqnModelName = packageName + "." + modelName;
       System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + fqnModelName);
 
-      checkNESTMLCocosOnly(file, root, scopeCreator);
-      checkNESTMLWithSPLCocos(file, root, scopeCreator);
+      checkNESTMLCocosOnly(file, root);
+      checkNESTMLWithSPLCocos(file, root);
 
     }
 
@@ -95,10 +89,8 @@ public class NESTMLCoCosManagerTest {
         nestmlErrorFindings.isEmpty());
   }
 
-  public void checkNESTMLCocosOnly(File file, Optional<ASTNESTMLCompilationUnit> root,
-      NESTMLScopeCreator nestmlScopeCreator) {
-    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager(root.get(),
-        nestmlScopeCreator.getTypesFactory());
+  public void checkNESTMLCocosOnly(File file, Optional<ASTNESTMLCompilationUnit> root) {
+    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
     final NESTMLCoCoChecker checker = nestmlCoCosManager.createDefaultChecker();
     checker.checkAll(root.get());
 
@@ -110,11 +102,9 @@ public class NESTMLCoCosManagerTest {
 
   public void checkNESTMLWithSPLCocos(
       final File file,
-      final Optional<ASTNESTMLCompilationUnit> root,
-      final NESTMLScopeCreator nestmlScopeCreator) {
+      final Optional<ASTNESTMLCompilationUnit> root) {
 
-    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager(root.get(),
-        nestmlScopeCreator.getTypesFactory());
+    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
     final NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
     checker.checkAll(root.get());
 

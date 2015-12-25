@@ -9,7 +9,7 @@ import de.monticore.symboltable.GlobalScope;
 import org.junit.Test;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -27,8 +27,6 @@ import static org.junit.Assert.assertTrue;
 public class SPLSymbolTableTest {
   public static final String TEST_MODEL_PATH = "src/test/resources/";
 
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-
   @Test
   public void testCreationOfSymtabAndResolvingOfSymbols() throws IOException {
 
@@ -38,7 +36,7 @@ public class SPLSymbolTableTest {
     assertTrue(root.isPresent());
 
 
-    SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH, typesFactory);
+    SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     splScopeCreator.runSymbolTableCreator(root.get());
 
     final GlobalScope globalScope = splScopeCreator.getGlobalScope();
@@ -47,7 +45,7 @@ public class SPLSymbolTableTest {
     assertTrue(variable.isPresent());
 
     // resolve implicit types
-    for (TypeSymbol type: splScopeCreator.getTypesFactory().getTypes()) {
+    for (final TypeSymbol type: PredefinedTypes.getTypes()) {
       Optional<TypeSymbol> resolvedType = globalScope.resolve(type.getFullName(), TypeSymbol.KIND);
       assertTrue("Cannot resolve the type: " + type.getFullName(), resolvedType.isPresent());
     }

@@ -9,7 +9,7 @@ import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
@@ -31,14 +31,12 @@ import static com.google.common.base.Preconditions.checkState;
 @SuppressWarnings("unused")
 public class NESTMLBuffers {
 
-  private final PredefinedTypesFactory typesFactory;
-
   private final NESTML2NESTTypeConverter nestml2NESTTypeConverter;
 
-  public NESTMLBuffers(PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-    nestml2NESTTypeConverter = new NESTML2NESTTypeConverter(typesFactory);
+  public NESTMLBuffers() {
+    nestml2NESTTypeConverter = new NESTML2NESTTypeConverter();
   }
+
   public boolean isInhibitory(final ASTInputLine buffer) {
     boolean isInhibitory = false, isExcitatory = false;
     for (final ASTInputType inputType:buffer.getInputTypes()) {

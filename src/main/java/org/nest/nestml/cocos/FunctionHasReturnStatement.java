@@ -13,7 +13,7 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.spl._ast.*;
 import org.nest.symboltable.symbols.TypeSymbol;
 
@@ -32,11 +32,7 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "NESTML_FUNCTION_HAS_RETURN_STATEMENT";
 
-  private final PredefinedTypesFactory predefinedTypesFactory;
 
-  public FunctionHasReturnStatement(PredefinedTypesFactory predefinedTypesFactory) {
-    this.predefinedTypesFactory = predefinedTypesFactory;
-  }
 
   @Override
   public void check(final ASTFunction fun) {
@@ -50,7 +46,7 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
       Preconditions.checkState(rType.isPresent(), "Cannot resolve the type: " + typeName);
 
       // TODO fix the problem with the FQN of the predefined types
-      if (rType.get().getFullName().equals(predefinedTypesFactory.getVoidType().getName())) {
+      if (rType.get().getFullName().equals(PredefinedTypes.getVoidType().getName())) {
         return;
       }
 

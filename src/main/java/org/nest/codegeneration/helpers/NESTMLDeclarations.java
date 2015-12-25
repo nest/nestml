@@ -12,7 +12,7 @@ import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -31,16 +31,13 @@ import static com.google.common.base.Preconditions.checkState;
  */
 @SuppressWarnings({"unused"}) // the class is used from templates
 public class NESTMLDeclarations {
-  private final PredefinedTypesFactory typesFactory;
-
   private final NESTML2NESTTypeConverter nestml2NESTTypeConverter;
 
   private final NESTML2NESTTypeConverter typeConverter;
 
-  public NESTMLDeclarations(PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-    nestml2NESTTypeConverter = new NESTML2NESTTypeConverter(typesFactory);
-    typeConverter = new NESTML2NESTTypeConverter(typesFactory);
+  public NESTMLDeclarations() {
+    nestml2NESTTypeConverter = new NESTML2NESTTypeConverter();
+    typeConverter = new NESTML2NESTTypeConverter();
   }
 
   public String getType(final ASTDeclaration astDeclaration) {
@@ -52,7 +49,7 @@ public class NESTMLDeclarations {
     Optional<TypeSymbol> declarationTypeSymbol = scope.resolve(declarationTypeName, TypeSymbol.KIND);
     checkState(declarationTypeSymbol.isPresent(), "Cannot resolve the NESTML type: " + declarationTypeName);
 
-    return new NESTML2NESTTypeConverter(typesFactory).convert(declarationTypeSymbol.get());
+    return new NESTML2NESTTypeConverter().convert(declarationTypeSymbol.get());
   }
 
   private String printDeclarationTypeName(ASTDeclaration astDeclaration) {
