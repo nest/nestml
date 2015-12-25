@@ -63,10 +63,6 @@ public class SPLCoCosManager {
     final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist();
     splCoCoChecker.addCoCo(functionDoesntExist);
 
-    final CheckMultipleSignsBeforeFactor checkMultipleSignsBeforeFactor
-        = new CheckMultipleSignsBeforeFactor();
-    splCoCoChecker.addCoCo((SPLASTBlockCoCo) checkMultipleSignsBeforeFactor);
-    splCoCoChecker.addCoCo((SPLASTBlockCoCo) checkMultipleSignsBeforeFactor);
   }
 
   public void addSPLCocosToNESTMLChecker(NESTMLCoCoChecker splCoCoChecker) {
@@ -101,10 +97,6 @@ public class SPLCoCosManager {
     final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist();
     splCoCoChecker.addCoCo(functionDoesntExist);
 
-    final CheckMultipleSignsBeforeFactor checkMultipleSignsBeforeFactor
-        = new CheckMultipleSignsBeforeFactor();
-    splCoCoChecker.addCoCo((SPLASTBlockCoCo) checkMultipleSignsBeforeFactor);
-    splCoCoChecker.addCoCo((SPLASTExprCoCo) checkMultipleSignsBeforeFactor);
   }
 
 }
