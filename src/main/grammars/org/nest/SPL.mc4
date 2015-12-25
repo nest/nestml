@@ -69,7 +69,7 @@ grammar SPL extends org.nest.commons.Commons {
 
   Expr =   (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
          | "not" Expr
-         | <rightassoc> base:Expr pow:["**"] exponent:Expr // TODO make right assoc keyword asap
+         | <rightassoc> base:Expr pow:["**"] exponent:Expr
          | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
          | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
          | left:Expr (shiftLeft:["<<"] | shiftRight:[">>"]) right:Expr
