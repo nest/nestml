@@ -15,7 +15,7 @@ import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.spl._ast.*;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
@@ -46,7 +46,7 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
     if (fun.getReturnType().isPresent()) {
       // check if void type is stated
       final String typeName = Names.getQualifiedName(fun.getReturnType().get().getParts());
-      Optional<NESTMLTypeSymbol> rType = scope.resolve(typeName, NESTMLTypeSymbol.KIND);
+      Optional<TypeSymbol> rType = scope.resolve(typeName, TypeSymbol.KIND);
       Preconditions.checkState(rType.isPresent(), "Cannot resolve the type: " + typeName);
 
       // TODO fix the problem with the FQN of the predefined types

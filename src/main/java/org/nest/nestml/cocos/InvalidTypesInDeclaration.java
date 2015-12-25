@@ -6,21 +6,18 @@
 package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
-import de.monticore.ast.ASTCNode;
 import de.monticore.ast.ASTNode;
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
-import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
 import org.nest.nestml._cocos.NESTMLASTUSE_StmtCoCo;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.utils.ASTNodes;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
@@ -48,7 +45,7 @@ public class InvalidTypesInDeclaration implements
 
       final Optional<? extends Scope> enclosingScope = astDeclaration.getEnclosingScope();
       Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astDeclaration);
-      Optional<NESTMLTypeSymbol> type = enclosingScope.get().resolve(typeName, NESTMLTypeSymbol.KIND);
+      Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
       checkIfValidType(astDeclaration, typeName, type);
 
     }
@@ -65,7 +62,7 @@ public class InvalidTypesInDeclaration implements
 
         Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
         Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
-        Optional<NESTMLTypeSymbol> type = enclosingScope.get().resolve(typeName, NESTMLTypeSymbol.KIND);
+        Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
 
         checkIfValidType(astFunction, typeName, type);
 
@@ -77,7 +74,7 @@ public class InvalidTypesInDeclaration implements
 
         final Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
         Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
-        final Optional<NESTMLTypeSymbol> type = enclosingScope.get().resolve(typeName, NESTMLTypeSymbol.KIND);
+        final Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
         checkIfValidType(astFunction, typeName, type);
 
         //doCheck(type.get(), fun.getReturnType().get(), true);
@@ -86,7 +83,7 @@ public class InvalidTypesInDeclaration implements
 
   }
 
-  public void checkIfValidType(ASTNode astNode, String typeName, Optional<NESTMLTypeSymbol> type) {
+  public void checkIfValidType(ASTNode astNode, String typeName, Optional<TypeSymbol> type) {
     if (!type.isPresent() || type.isPresent() && type.get().getName().endsWith("Logger")) {
       final String msgPredefined = "The type '%s' is a neuron/component. No neurons/components allowed " +
           "in this place. Use the use-statement.";
@@ -101,8 +98,8 @@ public class InvalidTypesInDeclaration implements
     Optional<? extends Scope> enclosingScope = astUseStmt.getEnclosingScope();
     checkState(enclosingScope.isPresent(),
         "There is no scope assigned to the AST node at: " + astUseStmt.get_SourcePositionStart());
-    final Optional<NESTMLNeuronSymbol> type = enclosingScope.get().resolve(
-        typeName, NESTMLNeuronSymbol.KIND);
+    final Optional<NeuronSymbol> type = enclosingScope.get().resolve(
+        typeName, NeuronSymbol.KIND);
 
     if (!type.isPresent()) {
       final String msgPredefined = "The type '%s' is a neuron/component. No neurons/components allowed " +

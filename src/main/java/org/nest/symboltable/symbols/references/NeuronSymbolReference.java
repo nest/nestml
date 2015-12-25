@@ -8,27 +8,26 @@ package org.nest.symboltable.symbols.references;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.references.CommonSymbolReference;
 import de.monticore.symboltable.references.SymbolReference;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
 
 /**
- * Represents a reference to a nestml type.
+ * Represents a reference to a nestml neuron.
  *
  * @author (last commit) $$Author$$
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class NESTMLTypeSymbolReference extends NESTMLTypeSymbol implements
-    SymbolReference<NESTMLTypeSymbol> {
+public class NeuronSymbolReference extends NeuronSymbol implements SymbolReference<NeuronSymbol> {
 
-  private final SymbolReference<NESTMLTypeSymbol> typeReference;
+  private final SymbolReference<NeuronSymbol> typeReference;
 
-  public NESTMLTypeSymbolReference(final String name, Type type, Scope definingScopeOfReference) {
+  public NeuronSymbolReference(final String name, NeuronSymbol.Type type, Scope definingScopeOfReference) {
     super(name, type);
-    typeReference = new CommonSymbolReference<>(name, NESTMLTypeSymbol.KIND, definingScopeOfReference);
+    typeReference = new CommonSymbolReference<>(name, NeuronSymbol.KIND, definingScopeOfReference);
   }
 
   @Override
-  public NESTMLTypeSymbol getReferencedSymbol() {
+  public NeuronSymbol getReferencedSymbol() {
     return typeReference.getReferencedSymbol();
   }
 

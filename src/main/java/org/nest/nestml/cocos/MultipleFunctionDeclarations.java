@@ -7,7 +7,6 @@ package org.nest.nestml.cocos;
 
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
-import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTFunction;
@@ -15,7 +14,7 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTParameter;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
 
 import java.util.Optional;
 
@@ -34,8 +33,8 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
 
   @Override public void check(final ASTComponent astComponent) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astComponent.getBody());
-    final Optional<NESTMLNeuronSymbol> componentSymbol
-        = (Optional<NESTMLNeuronSymbol>) astComponent.getSymbol();
+    final Optional<NeuronSymbol> componentSymbol
+        = (Optional<NeuronSymbol>) astComponent.getSymbol();
     checkState(componentSymbol.isPresent());
     astBodyDecorator.getFunctions().forEach(astFunction -> checkFunctionName(astFunction,
         componentSymbol.get()));
@@ -44,15 +43,15 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
 
   @Override public void check(final ASTNeuron astNeuron) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
-    final Optional<NESTMLNeuronSymbol> neuronSymbol
-        = (Optional<NESTMLNeuronSymbol>) astNeuron.getSymbol();
+    final Optional<NeuronSymbol> neuronSymbol
+        = (Optional<NeuronSymbol>) astNeuron.getSymbol();
     checkState(neuronSymbol.isPresent());
     astBodyDecorator.getFunctions().forEach(astFunction -> checkFunctionName(astFunction, neuronSymbol.get()));
   }
 
   private void checkFunctionName(
       final ASTFunction astFunction,
-      final NESTMLNeuronSymbol neuronSymbol) {
+      final NeuronSymbol neuronSymbol) {
 
     String funname = astFunction.getName();
 

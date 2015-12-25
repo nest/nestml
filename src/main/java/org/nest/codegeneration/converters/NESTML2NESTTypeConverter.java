@@ -2,7 +2,7 @@
 package org.nest.codegeneration.converters;
 
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 /**
  * Converts NESTML types to the
@@ -16,11 +16,11 @@ public class NESTML2NESTTypeConverter {
     this.typesFactory = typesFactory;
   }
 
-  public String convert(final NESTMLTypeSymbol nestmlType) {
+  public String convert(final TypeSymbol nestmlType) {
     return doConvert(nestmlType);
   }
 
-  public String doConvert(final NESTMLTypeSymbol nestmlType) {
+  public String doConvert(final TypeSymbol nestmlType) {
     if (typesFactory.getStringType().equals(nestmlType)) {
       return "std::string";
     }
@@ -37,7 +37,7 @@ public class NESTML2NESTTypeConverter {
       return "bool";
     }
 
-    if (nestmlType.getType() == NESTMLTypeSymbol.Type.UNIT) {
+    if (nestmlType.getType() == TypeSymbol.Type.UNIT) {
       return "nest::double_t";
     }
 

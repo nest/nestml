@@ -10,9 +10,9 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,9 +38,9 @@ public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
     checkState(enclosingScope.isPresent(),
         "There is no scope assigned to the AST node: " + fun.getName());
 
-    NESTMLMethodSymbol methodSymbol = getMethodEntry(fun, enclosingScope.get());
+    MethodSymbol methodSymbol = getMethodEntry(fun, enclosingScope.get());
 
-    if (methodSymbol.getDeclaringNeuron().getType() == NESTMLNeuronSymbol.Type.COMPONENT
+    if (methodSymbol.getDeclaringNeuron().getType() == NeuronSymbol.Type.COMPONENT
         && funName.equals("get_instance")
         && methodSymbol.getParameterTypes().size() == 0) {
 
@@ -54,8 +54,8 @@ public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
     if (funName.startsWith("get_") || funName.startsWith("set_")) {
       String varName = funName.substring(4);
 
-      Optional<NESTMLVariableSymbol> var = enclosingScope.get()
-          .resolve(varName, NESTMLVariableSymbol.KIND);
+      Optional<VariableSymbol> var = enclosingScope.get()
+          .resolve(varName, VariableSymbol.KIND);
 
       if (var.isPresent()) {
 
@@ -79,8 +79,8 @@ public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
 
   }
 
-  private NESTMLMethodSymbol getMethodEntry(final ASTFunction fun, final Scope scope) {
-    final Optional<NESTMLMethodSymbol> methodSymbol;
+  private MethodSymbol getMethodEntry(final ASTFunction fun, final Scope scope) {
+    final Optional<MethodSymbol> methodSymbol;
 
     if (!fun.getParameters().isPresent()) {
       methodSymbol = resolveMethod(scope, fun.getName(), Lists.newArrayList());

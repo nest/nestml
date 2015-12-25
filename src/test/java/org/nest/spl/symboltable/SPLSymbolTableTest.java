@@ -10,9 +10,9 @@ import org.junit.Test;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -42,13 +42,13 @@ public class SPLSymbolTableTest {
     splScopeCreator.runSymbolTableCreator(root.get());
 
     final GlobalScope globalScope = splScopeCreator.getGlobalScope();
-    globalScope.resolve("Time.steps", NESTMLMethodSymbol.KIND);
-    Optional<NESTMLVariableSymbol> variable = globalScope.resolve("org.nest.spl.symboltable.decl.decl", NESTMLVariableSymbol.KIND);
+    globalScope.resolve("Time.steps", MethodSymbol.KIND);
+    Optional<VariableSymbol> variable = globalScope.resolve("org.nest.spl.symboltable.decl.decl", VariableSymbol.KIND);
     assertTrue(variable.isPresent());
 
     // resolve implicit types
-    for (NESTMLTypeSymbol type: splScopeCreator.getTypesFactory().getTypes()) {
-      Optional<NESTMLTypeSymbol> resolvedType = globalScope.resolve(type.getFullName(), NESTMLTypeSymbol.KIND);
+    for (TypeSymbol type: splScopeCreator.getTypesFactory().getTypes()) {
+      Optional<TypeSymbol> resolvedType = globalScope.resolve(type.getFullName(), TypeSymbol.KIND);
       assertTrue("Cannot resolve the type: " + type.getFullName(), resolvedType.isPresent());
     }
 

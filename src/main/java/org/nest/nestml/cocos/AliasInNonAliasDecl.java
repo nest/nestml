@@ -8,7 +8,6 @@ package org.nest.nestml.cocos;
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTComponent;
@@ -16,8 +15,8 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,8 +32,8 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
   @Override
   public void check(final ASTComponent astComponent) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astComponent.getBody());
-    final Optional<NESTMLNeuronSymbol> componentSymbol
-        = (Optional<NESTMLNeuronSymbol>) astComponent.getSymbol();
+    final Optional<NeuronSymbol> componentSymbol
+        = (Optional<NeuronSymbol>) astComponent.getSymbol();
     checkState(componentSymbol.isPresent());
     checkAllAliasesInNeuron(astBodyDecorator, componentSymbol.get());
   }
@@ -43,24 +42,24 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
   @Override
   public void check(final ASTNeuron astNeuron) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
-    final Optional<NESTMLNeuronSymbol> neuronSymbol
-        = (Optional<NESTMLNeuronSymbol>) astNeuron.getSymbol();
+    final Optional<NeuronSymbol> neuronSymbol
+        = (Optional<NeuronSymbol>) astNeuron.getSymbol();
     checkState(neuronSymbol.isPresent());
     checkAllAliasesInNeuron(astBodyDecorator, neuronSymbol.get());
   }
 
   public void checkAllAliasesInNeuron(
       final ASTBodyDecorator astBodyDecorator,
-      final NESTMLNeuronSymbol neuronSymbol) {
+      final NeuronSymbol neuronSymbol) {
     astBodyDecorator.getInternals().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
     astBodyDecorator.getStates().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
     astBodyDecorator.getParameters().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
   }
 
-  public void checkAlias(final ASTAliasDecl alias, final NESTMLNeuronSymbol neuronSymbol) {
+  public void checkAlias(final ASTAliasDecl alias, final NeuronSymbol neuronSymbol) {
     if (!alias.isAlias() && alias.getDeclaration().exprIsPresent()) {
       final ASTDeclaration decl = alias.getDeclaration();
-      Optional<NESTMLVariableSymbol> used;
+      Optional<VariableSymbol> used;
 
       final List<ASTQualifiedName> variables
           = getSuccessors(decl.getExpr().get(), ASTQualifiedName.class);
@@ -68,7 +67,7 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
       for (final ASTQualifiedName atomFqn : variables) {
         final String fullName = Names.getQualifiedName(atomFqn.getParts());
 
-        final Optional<NESTMLVariableSymbol> stentry = neuronSymbol.getVariableByName(fullName);
+        final Optional<VariableSymbol> stentry = neuronSymbol.getVariableByName(fullName);
         if (stentry.isPresent()) {
           used = stentry;
         }

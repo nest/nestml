@@ -8,15 +8,15 @@ package org.nest.symboltable.symbols;
 import de.monticore.symboltable.SymbolKind;
 
 /**
- * KIND Class for the {@code NESTMLMethodSymbol}.
+ * KIND Class for the {@code TypeSymbolKind}.
  *
  * @author (last commit) $$Author$$
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class NESTMLMethodSymbolKind implements SymbolKind {
+public class TypeSymbolKind implements SymbolKind {
 
-  protected NESTMLMethodSymbolKind() {
+  protected TypeSymbolKind() {
   }
 
 }

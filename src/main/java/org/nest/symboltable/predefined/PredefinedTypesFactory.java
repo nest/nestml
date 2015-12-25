@@ -7,8 +7,8 @@ package org.nest.symboltable.predefined;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Collection;
 import java.util.Map;
@@ -17,37 +17,35 @@ import java.util.Optional;
 /**
  * Creates implicit types like boolean and nestml specific types like Logger
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class PredefinedTypesFactory {
 
-  private final static Map<String, NESTMLTypeSymbol> implicitTypes = Maps.newHashMap();
+  private final static Map<String, TypeSymbol> implicitTypes = Maps.newHashMap();
 
   public PredefinedTypesFactory() {
-    registerType("mV", NESTMLTypeSymbol.Type.UNIT);
-    registerType("pA", NESTMLTypeSymbol.Type.UNIT);
-    registerType("pF", NESTMLTypeSymbol.Type.UNIT);
-    registerType("pF", NESTMLTypeSymbol.Type.UNIT);
-    registerType("ms", NESTMLTypeSymbol.Type.UNIT);
-    registerType("mm", NESTMLTypeSymbol.Type.UNIT);
+    registerType("mV", TypeSymbol.Type.UNIT);
+    registerType("pA", TypeSymbol.Type.UNIT);
+    registerType("pF", TypeSymbol.Type.UNIT);
+    registerType("pF", TypeSymbol.Type.UNIT);
+    registerType("ms", TypeSymbol.Type.UNIT);
+    registerType("mm", TypeSymbol.Type.UNIT);
 
-    registerType("real", NESTMLTypeSymbol.Type.PRIMITIVE);
-    registerType("integer", NESTMLTypeSymbol.Type.PRIMITIVE);
-    registerType("boolean", NESTMLTypeSymbol.Type.PRIMITIVE);
-    registerType("string", NESTMLTypeSymbol.Type.PRIMITIVE);
-    registerType("void", NESTMLTypeSymbol.Type.PRIMITIVE);
+    registerType("real", TypeSymbol.Type.PRIMITIVE);
+    registerType("integer", TypeSymbol.Type.PRIMITIVE);
+    registerType("boolean", TypeSymbol.Type.PRIMITIVE);
+    registerType("string", TypeSymbol.Type.PRIMITIVE);
+    registerType("void", TypeSymbol.Type.PRIMITIVE);
 
     registerBufferType();
   }
 
   private void registerBufferType() {
-    final NESTMLTypeSymbol bufferType
-        = new NESTMLTypeSymbol("Buffer", NESTMLTypeSymbol.Type.PRIMITIVE);
+    final TypeSymbol bufferType
+        = new TypeSymbol("Buffer", TypeSymbol.Type.PRIMITIVE);
     implicitTypes.put("Buffer", bufferType);
 
-    final NESTMLMethodSymbol getSumMethod = new NESTMLMethodSymbol("getSum");
+    final MethodSymbol getSumMethod = new MethodSymbol("getSum");
     getSumMethod.addParameterType(getPredefinedTypeIfExists("ms").get()); // TODO smell
     getSumMethod.setReturnType(getRealType());
 
@@ -55,45 +53,45 @@ public class PredefinedTypesFactory {
     bufferType.addBuiltInMethod(getSumMethod);
   }
 
-  public NESTMLTypeSymbol getBooleanType() {
+  public TypeSymbol getBooleanType() {
     return implicitTypes.get("boolean");
   }
 
   // predefined types
-  public NESTMLTypeSymbol getVoidType() {
+  public TypeSymbol getVoidType() {
     return implicitTypes.get("void");
   }
 
-  public NESTMLTypeSymbol getStringType() {
+  public TypeSymbol getStringType() {
     return implicitTypes.get("string");
   }
 
-  public NESTMLTypeSymbol getRealType() {
+  public TypeSymbol getRealType() {
     return implicitTypes.get("real");
   }
 
-  public NESTMLTypeSymbol getIntegerType() {
+  public TypeSymbol getIntegerType() {
     return implicitTypes.get("integer");
   }
 
-  public NESTMLTypeSymbol getBufferType() {
+  public TypeSymbol getBufferType() {
     return implicitTypes.get("Buffer");
   }
 
 
-  private NESTMLTypeSymbol registerType(String modelName, NESTMLTypeSymbol.Type type) {
-    NESTMLTypeSymbol typeSymbol = new NESTMLTypeSymbol(modelName, type);
+  private TypeSymbol registerType(String modelName, TypeSymbol.Type type) {
+    TypeSymbol typeSymbol = new TypeSymbol(modelName, type);
     typeSymbol.setPackageName("");
     implicitTypes.put(modelName, typeSymbol);
     return typeSymbol;
   }
 
-  public Collection<NESTMLTypeSymbol> getTypes() {
+  public Collection<TypeSymbol> getTypes() {
     return ImmutableList.copyOf(implicitTypes.values());
   }
 
-  public NESTMLTypeSymbol getType(final String typeName) {
-    Optional<NESTMLTypeSymbol> predefinedType = getPredefinedTypeIfExists(typeName);
+  public TypeSymbol getType(final String typeName) {
+    Optional<TypeSymbol> predefinedType = getPredefinedTypeIfExists(typeName);
     if (predefinedType.isPresent()) {
       return predefinedType.get();
     }
@@ -102,7 +100,7 @@ public class PredefinedTypesFactory {
     }
   }
 
-  public Optional<NESTMLTypeSymbol> getPredefinedTypeIfExists(final String typeName) {
+  public Optional<TypeSymbol> getPredefinedTypeIfExists(final String typeName) {
 
     if (implicitTypes.containsKey(typeName)) {
       return Optional.of(implicitTypes.get(typeName));

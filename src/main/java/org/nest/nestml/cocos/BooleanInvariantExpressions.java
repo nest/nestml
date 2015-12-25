@@ -11,7 +11,7 @@ import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 /**
  * Invariants expressions must be of the type boolea.
@@ -34,7 +34,7 @@ public class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
         predefinedTypesFactory);
 
     for (final ASTExpr invariantExpr:alias.getInvariants()) {
-      final  NESTMLTypeSymbol expressionType = expressionTypeCalculator.computeType(invariantExpr);
+      final TypeSymbol expressionType = expressionTypeCalculator.computeType(invariantExpr);
 
       if (!expressionType.equals(predefinedTypesFactory.getBooleanType())) {
         final String msg = "The type of the invariant expression must be boolean and not: " +

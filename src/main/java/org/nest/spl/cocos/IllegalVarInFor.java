@@ -12,7 +12,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTFOR_Stmt;
 import org.nest.spl._cocos.SPLASTFOR_StmtCoCo;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
 
 import java.util.Optional;
@@ -44,7 +44,7 @@ public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
 
     String iterName = astfor.getVar();
 
-    Optional<NESTMLVariableSymbol> iter = scope.resolve(iterName, NESTMLVariableSymbol.KIND);
+    Optional<VariableSymbol> iter = scope.resolve(iterName, VariableSymbol.KIND);
     Preconditions.checkState(iter.isPresent());
     TypeChecker tc = new TypeChecker(predefinedTypesFactory);
     if (!tc.checkNumber(iter.get().getType())) {

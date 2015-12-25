@@ -16,8 +16,8 @@ import org.nest.spl._ast.ASTFunctionCall;
 import org.nest.spl._cocos.SPLASTFunctionCallCoCo;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.NESTMLSymbols;
 
 import java.util.List;
@@ -55,11 +55,11 @@ public class FunctionDoesntExist implements SPLASTFunctionCallCoCo {
 
     for (int i = 0; i < funcall.getArgList().getArgs().size(); ++i) {
       final ASTExpr arg = funcall.getArgList().getArgs().get(i);
-      final NESTMLTypeSymbol argType = expressionTypeCalculator.computeType(arg);
+      final TypeSymbol argType = expressionTypeCalculator.computeType(arg);
       argTypeNames.add(argType.getName());
     }
 
-    final Optional<NESTMLMethodSymbol> method
+    final Optional<MethodSymbol> method
         = NESTMLSymbols.resolveMethod(scope, methodName, argTypeNames);
 
     if (!method.isPresent()) {

@@ -10,8 +10,8 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTUSE_Stmt;
 import org.nest.nestml._cocos.NESTMLASTUSE_StmtCoCo;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
@@ -33,7 +33,7 @@ public class UsesOnlyComponents implements NESTMLASTUSE_StmtCoCo {
 
     final Scope scope = use.getEnclosingScope().get();
 
-    final Optional<NESTMLTypeSymbol> predefinedType = scope.resolve(typeName, NESTMLTypeSymbol.KIND);
+    final Optional<TypeSymbol> predefinedType = scope.resolve(typeName, TypeSymbol.KIND);
 
     if (predefinedType.isPresent()) {
       final String msg = "Only components can be used by neurons/components and not " + typeName + " of the type: " +
@@ -41,9 +41,9 @@ public class UsesOnlyComponents implements NESTMLASTUSE_StmtCoCo {
       Log.error(ERROR_CODE + ":" + msg, use.get_SourcePositionStart());
     }
 
-    final Optional<NESTMLNeuronSymbol> neuronType = scope.resolve(typeName, NESTMLNeuronSymbol.KIND);
+    final Optional<NeuronSymbol> neuronType = scope.resolve(typeName, NeuronSymbol.KIND);
 
-    if (neuronType.isPresent() && !neuronType.get().getType().equals(NESTMLNeuronSymbol.Type.COMPONENT)) {
+    if (neuronType.isPresent() && !neuronType.get().getType().equals(NeuronSymbol.Type.COMPONENT)) {
       final String msg = "Only components can be used by components and not " + typeName + " that is a neuron, not a "
           + "component";
 

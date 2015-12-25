@@ -6,7 +6,6 @@
 package org.nest.nestml.symboltable;
 
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.ScopeSpanningSymbol;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTBodyElement;
@@ -15,10 +14,10 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.symboltable.symbols.NESTMLUsageSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.UsageSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -48,21 +47,21 @@ public class NESTMLSymbolTableTest {
     final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(MODEL_FILE_NAME);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
-    Collection<NESTMLTypeSymbol> nestmlTypes = modelScope.resolveLocally(NESTMLNeuronSymbol.KIND);
+    Collection<TypeSymbol> nestmlTypes = modelScope.resolveLocally(NeuronSymbol.KIND);
     assertEquals(2, nestmlTypes.size());
 
-    final Optional<NESTMLTypeSymbol> neuronTypeOptional = modelScope.resolve(
+    final Optional<TypeSymbol> neuronTypeOptional = modelScope.resolve(
         "iaf_neuron",
-        NESTMLNeuronSymbol.KIND);
+        NeuronSymbol.KIND);
     assertTrue(neuronTypeOptional.isPresent());
 
-    final Optional<NESTMLTypeSymbol> testComponentOptional = modelScope.resolve(
+    final Optional<TypeSymbol> testComponentOptional = modelScope.resolve(
         "TestComponent",
-        NESTMLNeuronSymbol.KIND);
+        NeuronSymbol.KIND);
     assertTrue(testComponentOptional.isPresent());
 
-    final Optional<NESTMLTypeSymbol> testComponentFromGlobalScope = globalScope.resolve(
-        "org.nest.nestml.symboltable.iaf_neuron.TestComponent", NESTMLNeuronSymbol.KIND);
+    final Optional<TypeSymbol> testComponentFromGlobalScope = globalScope.resolve(
+        "org.nest.nestml.symboltable.iaf_neuron.TestComponent", NeuronSymbol.KIND);
     assertTrue(testComponentFromGlobalScope.isPresent());
   }
 
@@ -81,20 +80,20 @@ public class NESTMLSymbolTableTest {
 
     // retrieve state block
     final Scope stateScope = neuronState.get().getEnclosingScope().get();
-    Optional<NESTMLVariableSymbol> y0Symbol = stateScope.resolve("y0", NESTMLVariableSymbol.KIND);
+    Optional<VariableSymbol> y0Symbol = stateScope.resolve("y0", VariableSymbol.KIND);
     assertTrue(y0Symbol.isPresent());
 
     // retrieve parameter block
     final Scope parameterScope = astBodyDecorator.getParameterBlock().get().getEnclosingScope().get();
     assertSame(stateScope, parameterScope);
-    assertTrue(parameterScope.resolve("y0", NESTMLVariableSymbol.KIND).isPresent());
-    assertTrue(parameterScope.resolve("C_m", NESTMLVariableSymbol.KIND).isPresent());
+    assertTrue(parameterScope.resolve("y0", VariableSymbol.KIND).isPresent());
+    assertTrue(parameterScope.resolve("C_m", VariableSymbol.KIND).isPresent());
 
     // retrieve dynamics block
     final Scope dynamicsScope = astBodyDecorator.getDynamics().get(0).getBlock().getEnclosingScope().get();
 
-    final Optional<NESTMLVariableSymbol> newVarInMethodSymbol
-        = dynamicsScope.resolve("newVarInMethod", NESTMLVariableSymbol.KIND);
+    final Optional<VariableSymbol> newVarInMethodSymbol
+        = dynamicsScope.resolve("newVarInMethod", VariableSymbol.KIND);
     assertTrue(newVarInMethodSymbol.isPresent());
     assertTrue(newVarInMethodSymbol.get().getType().equals(predefinedTypesFactory.getRealType()));
 
@@ -113,9 +112,9 @@ public class NESTMLSymbolTableTest {
 
     final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
     assertTrue(neuronState.isPresent());
-    final Optional<NESTMLVariableSymbol> testVarFromParameter =
+    final Optional<VariableSymbol> testVarFromParameter =
         neuronState.get().getEnclosingScope().get().resolve("scopeTestVar",
-            NESTMLVariableSymbol.KIND);
+            VariableSymbol.KIND);
 
     // check the symbol from parameter block
     assertTrue(testVarFromParameter.isPresent());
@@ -129,14 +128,14 @@ public class NESTMLSymbolTableTest {
         .findFirst();
 
     assertTrue(scopeTestingFunction.isPresent());
-    final Optional<NESTMLVariableSymbol> testVarFromFunction =
-        scopeTestingFunction.get().getBlock().getEnclosingScope().get().resolve("scopeTestVar", NESTMLVariableSymbol.KIND);
+    final Optional<VariableSymbol> testVarFromFunction =
+        scopeTestingFunction.get().getBlock().getEnclosingScope().get().resolve("scopeTestVar", VariableSymbol.KIND);
     assertTrue(testVarFromFunction.isPresent());
     assertTrue(testVarFromFunction.get().getType().equals(predefinedTypesFactory.getIntegerType()));
 
     // retrieve the if block and resolve it from there
     // TODO it should not be a correct solution
-    final Optional<NESTMLVariableSymbol> testVarFromIfBlock =
+    final Optional<VariableSymbol> testVarFromIfBlock =
         scopeTestingFunction.get()
             .getBlock()
             .getStmts().get(1) // retrieves the second statement from function
@@ -149,7 +148,7 @@ public class NESTMLSymbolTableTest {
             .getSmall_Stmts().get(0)
             .getDeclaration().get()
             .getEnclosingScope().get()
-            .resolve("scopeTestVar", NESTMLVariableSymbol.KIND);
+            .resolve("scopeTestVar", VariableSymbol.KIND);
 
     assertTrue(testVarFromIfBlock.isPresent());
     assertTrue(testVarFromIfBlock.get().getType().equals(predefinedTypesFactory.getRealType()));
@@ -160,13 +159,13 @@ public class NESTMLSymbolTableTest {
     final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(MODEL_FILE_NAME);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
-    final Optional<NESTMLVariableSymbol> fromGlobalScope
-        = globalScope.resolve("E", NESTMLVariableSymbol.KIND);
+    final Optional<VariableSymbol> fromGlobalScope
+        = globalScope.resolve("E", VariableSymbol.KIND);
     assertTrue(fromGlobalScope.isPresent());
 
 
-    final Optional<NESTMLVariableSymbol> fromModelScope
-        = modelScope.resolve("E", NESTMLVariableSymbol.KIND);
+    final Optional<VariableSymbol> fromModelScope
+        = modelScope.resolve("E", VariableSymbol.KIND);
     assertTrue(fromModelScope.isPresent());
   }
 
@@ -181,17 +180,17 @@ public class NESTMLSymbolTableTest {
   public void testResolvingSeparateModels() throws IOException {
     final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(USING_NEURON_FILE);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
-    final Optional<NESTMLNeuronSymbol> usingNeuronSymbol = modelScope
-        .resolve("org.nest.nestml.symboltable.importingNeuron.UsingNeuron", NESTMLNeuronSymbol.KIND);
+    final Optional<NeuronSymbol> usingNeuronSymbol = modelScope
+        .resolve("org.nest.nestml.symboltable.importingNeuron.UsingNeuron", NeuronSymbol.KIND);
     assertTrue(usingNeuronSymbol.isPresent());
     final Scope neuronScope = usingNeuronSymbol.get().getSpannedScope();
 
-    final Optional<NESTMLUsageSymbol> usageSymbol = neuronScope
-        .resolve("TestReference", NESTMLUsageSymbol.KIND);
+    final Optional<UsageSymbol> usageSymbol = neuronScope
+        .resolve("TestReference", UsageSymbol.KIND);
     assertTrue(usageSymbol.isPresent());
 
-    final NESTMLNeuronSymbol componentSymbol = usageSymbol.get().getReferencedSymbol();
-    assertEquals(NESTMLNeuronSymbol.Type.COMPONENT, componentSymbol.getType());
+    final NeuronSymbol componentSymbol = usageSymbol.get().getReferencedSymbol();
+    assertEquals(NeuronSymbol.Type.COMPONENT, componentSymbol.getType());
   }
 
 }

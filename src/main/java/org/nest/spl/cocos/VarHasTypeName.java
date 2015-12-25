@@ -10,7 +10,7 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
@@ -34,7 +34,7 @@ public class VarHasTypeName implements SPLASTDeclarationCoCo {
 
     for (String var : astDeclaration.getVars()) {
       // tries to resolve the variable name as type. if it is possible, then the variable name clashes with type name is reported as an error
-      final Optional<NESTMLTypeSymbol> res = scope.resolve(var, NESTMLTypeSymbol.KIND);
+      final Optional<TypeSymbol> res = scope.resolve(var, TypeSymbol.KIND);
 
       // could resolve type as variable, report an error
       if (res.isPresent()) {

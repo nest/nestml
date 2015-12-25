@@ -12,8 +12,8 @@ import de.se_rwth.commons.Names;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.NESTMLSymbols;
 
 import java.util.Optional;
@@ -54,7 +54,7 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
         Preconditions.checkState(enclosingScope.isPresent(), "No scope assigned to the node: " + decl);
         final String setterName = "set_" + aliasVar;
 
-        Optional<NESTMLMethodSymbol> setter = NESTMLSymbols.resolveMethod(enclosingScope.get(), setterName, Lists.newArrayList(varTypeName));
+        Optional<MethodSymbol> setter = NESTMLSymbols.resolveMethod(enclosingScope.get(), setterName, Lists.newArrayList(varTypeName));
 
         if (!setter.isPresent()) {
           final String msg = "Alias-variable '" + aliasVar
@@ -66,7 +66,7 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
         else {
 
           if (setter.get().getParameterTypes().size() == 1) {
-            NESTMLTypeSymbol setterType = setter.get().getParameterTypes().get(0);
+            TypeSymbol setterType = setter.get().getParameterTypes().get(0);
 
             if (!setterType.getName().endsWith(decl.getType().get().toString())) {
               final String msg = "Alias-variable '" + aliasVar

@@ -13,8 +13,8 @@ import de.se_rwth.commons.Names;
 import org.nest.spl._ast.*;
 import org.nest.spl._cocos.*;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 
 import java.util.Optional;
@@ -67,12 +67,12 @@ public class IllegalExpression implements
       final String varNameFromDeclaration = node.getVars().get(0);
       final String declarationTypeName = getDeclarationTypeName(node);
       final Optional<Symbol> varType = scope.resolve(varNameFromDeclaration,
-          NESTMLVariableSymbol.KIND);
+          VariableSymbol.KIND);
       Preconditions.checkState(varType.isPresent(), "Cannot resolve the type of the variable:  " + varNameFromDeclaration);
 
-      NESTMLTypeSymbol initializerExpressionType;
+      TypeSymbol initializerExpressionType;
 
-      NESTMLTypeSymbol variableDeclarationType;
+      TypeSymbol variableDeclarationType;
       try {
         initializerExpressionType = typeCalculator.computeType(node.getExpr().get());
         variableDeclarationType = predefinedTypesFactory.getType(declarationTypeName);
@@ -162,7 +162,7 @@ public class IllegalExpression implements
 
   }
 
-  private boolean isCompatible(final NESTMLTypeSymbol lhsType, final NESTMLTypeSymbol rhsType) {
+  private boolean isCompatible(final TypeSymbol lhsType, final TypeSymbol rhsType) {
     if (lhsType.equals(rhsType)) {
       return true;
     }
@@ -170,12 +170,15 @@ public class IllegalExpression implements
         rhsType.equals(predefinedTypesFactory.getIntegerType())) {
       return true;
     }
-    else if (lhsType.equals(predefinedTypesFactory.getIntegerType()) && rhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT) ||
-        rhsType.equals(predefinedTypesFactory.getIntegerType()) && lhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT)) {
+    else if (lhsType.equals(predefinedTypesFactory.getIntegerType()) && rhsType.getType().equals(
+        TypeSymbol.Type.UNIT) ||
+        rhsType.equals(predefinedTypesFactory.getIntegerType()) && lhsType.getType().equals(
+            TypeSymbol.Type.UNIT)) {
       return true;
     }
-    else if (lhsType.equals(predefinedTypesFactory.getRealType()) && rhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT) ||
-        rhsType.equals(predefinedTypesFactory.getRealType()) && lhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT)) {
+    else if (lhsType.equals(predefinedTypesFactory.getRealType()) && rhsType.getType().equals(
+        TypeSymbol.Type.UNIT) ||
+        rhsType.equals(predefinedTypesFactory.getRealType()) && lhsType.getType().equals(TypeSymbol.Type.UNIT)) {
       return true;
     }
 

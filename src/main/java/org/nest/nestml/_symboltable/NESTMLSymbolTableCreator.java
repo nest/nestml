@@ -14,8 +14,8 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.*;
-import org.nest.symboltable.symbols.references.NESTMLNeuronSymbolReference;
-import org.nest.symboltable.symbols.references.NESTMLTypeSymbolReference;
+import org.nest.symboltable.symbols.references.NeuronSymbolReference;
+import org.nest.symboltable.symbols.references.TypeSymbolReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +26,8 @@ import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.warn;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
-import static org.nest.symboltable.symbols.NESTMLNeuronSymbol.Type.COMPONENT;
-import static org.nest.symboltable.symbols.NESTMLNeuronSymbol.Type.NEURON;
+import static org.nest.symboltable.symbols.NeuronSymbol.Type.COMPONENT;
+import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 
 /**
  * Visitor that creates symbols that handles nestml models..
@@ -111,7 +111,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
   default void visit(final ASTNeuron neuronAst) {
     info("Processes the neuron:  " + neuronAst.getName(), LOGGER_NAME);
 
-    final NESTMLNeuronSymbol neuronSymbol = new NESTMLNeuronSymbol(neuronAst.getName(), NEURON);
+    final NeuronSymbol neuronSymbol = new NeuronSymbol(neuronAst.getName(), NEURON);
 
     addToScopeAndLinkWithNode(neuronSymbol, neuronAst);
 
@@ -125,7 +125,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
   default void visit(final ASTComponent componentAst) {
     info("Processes the component:  " + componentAst.getName(), LOGGER_NAME);
-    final NESTMLNeuronSymbol componentSymbol = new NESTMLNeuronSymbol(componentAst.getName(), COMPONENT);
+    final NeuronSymbol componentSymbol = new NeuronSymbol(componentAst.getName(), COMPONENT);
 
     addToScopeAndLinkWithNode(componentSymbol, componentAst);
 
@@ -154,7 +154,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
    */
   default void visit(final ASTUSE_Stmt useAst) {
     checkState(this.currentScope().isPresent());
-    final Optional<NESTMLNeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
+    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
     final String referencedTypeName = Names.getQualifiedName(useAst.getName().getParts());
@@ -162,10 +162,10 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     final String aliasFqn = useAst.getAlias();
 
     // TODO it is not a reference, but a delegate
-    final NESTMLNeuronSymbolReference referencedType
-        = new NESTMLNeuronSymbolReference(referencedTypeName, NEURON, this.currentScope().get());
+    final NeuronSymbolReference referencedType
+        = new NeuronSymbolReference(referencedTypeName, NEURON, this.currentScope().get());
     referencedType.setAstNode(useAst);
-    final NESTMLUsageSymbol usageSymbol = new NESTMLUsageSymbol(aliasFqn, referencedType);
+    final UsageSymbol usageSymbol = new UsageSymbol(aliasFqn, referencedType);
     putInScope(usageSymbol);
 
     info("Handles an use statement: use " + referencedTypeName + " as " + aliasFqn, LOGGER_NAME);
@@ -174,11 +174,11 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
   // TODO: use the visitor approach
   @SuppressWarnings("unchecked") // It is OK to suppress this warning, since it is checked in the if block
-  default Optional<NESTMLNeuronSymbol> computeNeuronSymbolIfExists(final Scope mutableScope) {
+  default Optional<NeuronSymbol> computeNeuronSymbolIfExists(final Scope mutableScope) {
     if (mutableScope.getSpanningSymbol().isPresent() &&
-        mutableScope.getSpanningSymbol().get() instanceof NESTMLNeuronSymbol) {
+        mutableScope.getSpanningSymbol().get() instanceof NeuronSymbol) {
 
-      return (Optional<NESTMLNeuronSymbol>) mutableScope.getSpanningSymbol();
+      return (Optional<NeuronSymbol>) mutableScope.getSpanningSymbol();
     }
     else if (mutableScope.getEnclosingScope().isPresent()) {
       return computeNeuronSymbolIfExists(mutableScope.getEnclosingScope().get());
@@ -231,12 +231,12 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
    */
   default void visit(final ASTInputLine inputLineAst) {
     checkState(this.currentScope().isPresent());
-    final Optional<NESTMLNeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
+    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent());
 
-    final NESTMLTypeSymbol bufferType = getPredefinedTypesFactory().getBufferType();
+    final TypeSymbol bufferType = getPredefinedTypesFactory().getBufferType();
 
-    final NESTMLVariableSymbol var = new NESTMLVariableSymbol(inputLineAst.getName());
+    final VariableSymbol var = new VariableSymbol(inputLineAst.getName());
 
     var.setType(bufferType);
     var.setDeclaringType(currentTypeSymbol.get());
@@ -244,10 +244,10 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     var.setHidden(false);
 
     if (inputLineAst.isCurrent()) {
-      var.setBlockType(NESTMLVariableSymbol.BlockType.INPUT_BUFFER_CURRENT);
+      var.setBlockType(VariableSymbol.BlockType.INPUT_BUFFER_CURRENT);
     }
     else {
-      var.setBlockType(NESTMLVariableSymbol.BlockType.INPUT_BUFFER_SPIKE);
+      var.setBlockType(VariableSymbol.BlockType.INPUT_BUFFER_SPIKE);
     }
 
     if (inputLineAst.getSizeParameter().isPresent()) {
@@ -260,12 +260,12 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
   default void visit(final ASTFunction funcAst) {
     checkState(this.currentScope().isPresent());
-    final Optional<NESTMLNeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
+    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
     info(LOGGER_NAME, "Begins processing of the function: " + funcAst.getName());
 
-    NESTMLMethodSymbol methodSymbol = new NESTMLMethodSymbol(funcAst.getName());
+    MethodSymbol methodSymbol = new MethodSymbol(funcAst.getName());
 
     methodSymbol.setDeclaringType(currentTypeSymbol.get());
     methodSymbol.setDynamics(false);
@@ -277,21 +277,21 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     // Parameters
     if (funcAst.getParameters().isPresent()) {
       for (ASTParameter p : funcAst.getParameters().get().getParameters()) {
-        NESTMLTypeSymbol type = new NESTMLTypeSymbolReference(
+        TypeSymbol type = new TypeSymbolReference(
             p.getType().toString(),
-            NESTMLTypeSymbol.Type.PRIMITIVE,
+            TypeSymbol.Type.PRIMITIVE,
             this.currentScope().get());
 
         methodSymbol.addParameterType(type);
 
         // add a var entry for method body
-        NESTMLVariableSymbol var =new  NESTMLVariableSymbol(p.getName());
+        VariableSymbol var =new VariableSymbol(p.getName());
         var.setAstNode(p);
         var.setType(type);
         var.setAlias(false);
         var.setHidden(false);
         var.setDeclaringType(null);
-        var.setBlockType(NESTMLVariableSymbol.BlockType.LOCAL);
+        var.setBlockType(VariableSymbol.BlockType.LOCAL);
         addToScopeAndLinkWithNode(var, p);
 
       }
@@ -300,9 +300,9 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     // return type
     if (funcAst.getReturnType().isPresent()) {
       final String returnTypeName = Names.getQualifiedName(funcAst.getReturnType().get().getParts());
-      NESTMLTypeSymbol returnType = new NESTMLTypeSymbolReference(
+      TypeSymbol returnType = new TypeSymbolReference(
           returnTypeName,
-          NESTMLTypeSymbol.Type.PRIMITIVE,
+          TypeSymbol.Type.PRIMITIVE,
           currentScope().get());
       methodSymbol.setReturnType(returnType);
     }
@@ -319,10 +319,10 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
   default void visit(final ASTDynamics dynamicsAst) {
     checkState(this.currentScope().isPresent());
-    final Optional<NESTMLNeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
+    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
-    final NESTMLMethodSymbol methodEntry = new NESTMLMethodSymbol("dynamics");
+    final MethodSymbol methodEntry = new MethodSymbol("dynamics");
 
     methodEntry.setDeclaringType(currentTypeSymbol.get());
     methodEntry.setDynamics(true);
@@ -334,21 +334,21 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     // Parameters
     if (dynamicsAst.getParameters().isPresent()) {
       for (ASTParameter p : dynamicsAst.getParameters().get().getParameters()) {
-        NESTMLTypeSymbol type = new NESTMLTypeSymbolReference(
+        TypeSymbol type = new TypeSymbolReference(
             p.getType().toString(),
-            NESTMLTypeSymbol.Type.PRIMITIVE,
+            TypeSymbol.Type.PRIMITIVE,
             currentScope().get());
 
         methodEntry.addParameterType(type);
 
         // add a var entry for method body
-        NESTMLVariableSymbol var = new NESTMLVariableSymbol(p.getName());
+        VariableSymbol var = new VariableSymbol(p.getName());
         var.setAstNode(p);
         var.setType(type);
         var.setAlias(false);
         var.setHidden(false);
         var.setDeclaringType(null); // TODO set to optional
-        var.setBlockType(NESTMLVariableSymbol.BlockType.LOCAL);
+        var.setBlockType(VariableSymbol.BlockType.LOCAL);
         addToScopeAndLinkWithNode(var, p);
       }
 
@@ -397,7 +397,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
   // TODO replication, refactor it
   @Override
   default void visit(final ASTDeclaration astDeclaration) {
-    final Optional<NESTMLNeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(
+    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(
         this.currentScope().get());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
@@ -413,28 +413,28 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
             astDeclaration,
             currentTypeSymbol,
             aliasDeclAst,
-            NESTMLVariableSymbol.BlockType.STATE);
+            VariableSymbol.BlockType.STATE);
       }
       else if (blockAst.get().isParameter()) {
         addVariablesFromDeclaration(
             astDeclaration,
             currentTypeSymbol,
             aliasDeclAst,
-            NESTMLVariableSymbol.BlockType.PARAMETER);
+            VariableSymbol.BlockType.PARAMETER);
       }
       else if (blockAst.get().isInternal()) {
         addVariablesFromDeclaration(
             astDeclaration,
             currentTypeSymbol,
             aliasDeclAst,
-            NESTMLVariableSymbol.BlockType.INTERNAL);
+            VariableSymbol.BlockType.INTERNAL);
       }
       else {
         addVariablesFromDeclaration(
             astDeclaration,
             currentTypeSymbol,
             aliasDeclAst,
-            NESTMLVariableSymbol.BlockType.LOCAL);
+            VariableSymbol.BlockType.LOCAL);
       }
 
 
@@ -444,7 +444,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
           astDeclaration,
           currentTypeSymbol,
           aliasDeclAst,
-          NESTMLVariableSymbol.BlockType.LOCAL);
+          VariableSymbol.BlockType.LOCAL);
 
     }
 
@@ -452,17 +452,17 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
   default void addVariablesFromDeclaration(
       final ASTDeclaration astDeclaration,
-      final Optional<NESTMLNeuronSymbol> currentTypeSymbol,
+      final Optional<NeuronSymbol> currentTypeSymbol,
       final Optional<ASTAliasDecl> aliasDeclAst,
-      final NESTMLVariableSymbol.BlockType blockType) {
+      final VariableSymbol.BlockType blockType) {
     final String typeName =  astDeclaration.getType().get().toString();
 
     for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible
-      final Optional<NESTMLTypeSymbol> typeCandidate
+      final Optional<TypeSymbol> typeCandidate
           = getPredefinedTypesFactory().getPredefinedTypeIfExists(typeName);
 
       if (typeCandidate.isPresent()) {
-        final NESTMLVariableSymbol var = new NESTMLVariableSymbol(varName);
+        final VariableSymbol var = new VariableSymbol(varName);
 
         var.setAstNode(astDeclaration);
         var.setType(typeCandidate.get());

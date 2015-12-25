@@ -3,7 +3,7 @@ package org.nest.codegeneration.helpers;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTAssignment;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
 
 import java.util.Optional;
@@ -29,11 +29,11 @@ public class SPLVariableGetterSetterHelper {
     final Scope scope = astAssignment.getEnclosingScope().get();
 
     final String variableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(variableName, NESTMLVariableSymbol.KIND);
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);
     checkState(variableSymbol.isPresent(), "Cannot resolve the spl variable: " + variableName);
 
     // TODO does it make sense for the nestml?
-    if (variableSymbol.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.LOCAL)) {
+    if (variableSymbol.get().getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
       return true;
     }
     else {
@@ -71,7 +71,7 @@ public class SPLVariableGetterSetterHelper {
     final Scope scope = astAssignment.getEnclosingScope().get();
 
     final String variableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(variableName, NESTMLVariableSymbol.KIND);
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);
     checkState(variableSymbol.isPresent(), "Cannot resolve the spl variable: " + variableName);
 
 
@@ -83,8 +83,8 @@ public class SPLVariableGetterSetterHelper {
         .stream()
         .filter(
             variableNameInExpression -> {
-              final Optional<NESTMLVariableSymbol> variableSymbolExpr = scope
-                  .resolve(variableNameInExpression, NESTMLVariableSymbol.KIND);
+              final Optional<VariableSymbol> variableSymbolExpr = scope
+                  .resolve(variableNameInExpression, VariableSymbol.KIND);
               checkState(variableSymbolExpr.isPresent(),
                   "Cannot resolve the spl variable: " + variableNameInExpression);
               if (variableSymbolExpr.get().getArraySizeParameter().isPresent()) {
