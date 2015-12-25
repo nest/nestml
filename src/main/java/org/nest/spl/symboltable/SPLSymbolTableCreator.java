@@ -14,7 +14,7 @@ import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._ast.ASTSPLNode;
 import org.nest.spl._visitor.SPLVisitor;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -84,7 +84,7 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
   @Override
   default void visit(final ASTDeclaration astDeclaration) {
     for (String variableName : astDeclaration.getVars()) {
-      NESTMLVariableSymbol variable = new NESTMLVariableSymbol(variableName);
+      VariableSymbol variable = new VariableSymbol(variableName);
       String typeName = computeTypeName(astDeclaration);
       variable.setAstNode(astDeclaration);
       variable.setType(getTypesFactory().getType(typeName)); // if exists better choice?

@@ -19,7 +19,7 @@ import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
@@ -73,8 +73,8 @@ public class NESTMLCoCosTest {
     assertTrue(ast.isPresent());
 
     scopeCreator.getTypesFactory().getTypes().forEach(type -> {
-      Optional<NESTMLTypeSymbol> predefinedType = scopeCreator.getGlobalScope()
-          .resolve(Names.getSimpleName(type.getName()), NESTMLTypeSymbol.KIND);
+      Optional<TypeSymbol> predefinedType = scopeCreator.getGlobalScope()
+          .resolve(Names.getSimpleName(type.getName()), TypeSymbol.KIND);
       assertTrue("Cannot resolve the predefined type: " + type.getFullName(),
           predefinedType.isPresent());
     });

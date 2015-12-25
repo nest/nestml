@@ -1,6 +1,5 @@
 package org.nest.spl.cocos;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
@@ -12,7 +11,7 @@ import org.nest.spl._ast.*;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.SPLASTFOR_StmtCoCo;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,8 +52,8 @@ public class VariableNotDefinedBeforeUse implements
 
       for (final ASTQualifiedName variableName: variablesNamesRHS) {
         final String varRHS = getQualifiedName(variableName.getParts());
-        final Optional<NESTMLVariableSymbol> variableSymbol = decl.getEnclosingScope().get().resolve(
-            varRHS, NESTMLVariableSymbol.KIND);
+        final Optional<VariableSymbol> variableSymbol = decl.getEnclosingScope().get().resolve(
+            varRHS, VariableSymbol.KIND);
         checkState(variableSymbol.isPresent(), "Cannot resolve the symbol:  "+varRHS);
         // e.g. x real = 2 * x
         if (varsOfCurrentDecl.contains(varRHS)) {
@@ -94,7 +93,7 @@ public class VariableNotDefinedBeforeUse implements
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Scope scope = node.getEnclosingScope().get();
 
-    Optional<NESTMLVariableSymbol> varOptional = scope.resolve(varName, NESTMLVariableSymbol.KIND);
+    Optional<VariableSymbol> varOptional = scope.resolve(varName, VariableSymbol.KIND);
     if (!varOptional.isPresent()) {
       System.out.println();
     }

@@ -17,7 +17,7 @@ import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTExpr;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,9 +50,9 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
     if (declaration.getExpr().isPresent() && declaration.getVars().size() > 0) {
       final String lhsVariableName = declaration.getVars().get(0); // has at least one declaration
 
-      final Optional<NESTMLVariableSymbol> lhsSymbol = enclosingScope.get().resolve(
+      final Optional<VariableSymbol> lhsSymbol = enclosingScope.get().resolve(
           lhsVariableName,
-          NESTMLVariableSymbol.KIND); // TODO use cached version
+          VariableSymbol.KIND); // TODO use cached version
 
       checkState(lhsSymbol.isPresent(), "Variable '" + lhsVariableName + "' is not defined");
 
@@ -61,9 +61,9 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
 
       for (ASTQualifiedName variableFqnAst : variablesNames) {
         final String rhsVariableName = Names.getQualifiedName(variableFqnAst.getParts());
-        Optional<NESTMLVariableSymbol> rhsSymbol = enclosingScope.get().resolve(
+        Optional<VariableSymbol> rhsSymbol = enclosingScope.get().resolve(
             rhsVariableName,
-            NESTMLVariableSymbol.KIND);
+            VariableSymbol.KIND);
 
         if (!rhsSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
           final String msg = "Variable '" + rhsVariableName + "' is undefined." + "<" +
@@ -86,9 +86,9 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
 
         for (ASTQualifiedName variableFqnAst : namesInInvariant) {
           final String rhsVariableName = Names.getQualifiedName(variableFqnAst.getParts());
-          Optional<NESTMLVariableSymbol> variableSymbol = enclosingScope.get().resolve(
+          Optional<VariableSymbol> variableSymbol = enclosingScope.get().resolve(
               rhsVariableName,
-              NESTMLVariableSymbol.KIND);
+              VariableSymbol.KIND);
 
           if (!variableSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
             final String msg = "Variable '" + rhsVariableName + "' is undefined." + "<" +
@@ -112,8 +112,8 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
   }
 
   protected void checkIfDefinedInCorrectOrder(
-      final NESTMLVariableSymbol lhsSymbol,
-      final NESTMLVariableSymbol rhsSymbol) {
+      final VariableSymbol lhsSymbol,
+      final VariableSymbol rhsSymbol) {
     if (rhsSymbol.getDeclaringType().getName()
         .equals(lhsSymbol.getDeclaringType().getName())) {
       // same var - block? => used must be in
@@ -131,7 +131,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
         }
       }
       if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
-          rhsSymbol.getBlockType() != NESTMLVariableSymbol.BlockType.PARAMETER) {
+          rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETER) {
         final String msg = "Variable '"
             + rhsSymbol.getName()
             + "' must be declared in the parameter block to be used at this place. '"

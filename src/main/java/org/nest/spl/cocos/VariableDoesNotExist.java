@@ -8,17 +8,15 @@ package org.nest.spl.cocos;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTCNode;
 
-import static de.se_rwth.commons.logging.Log.*;
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.*;
 import org.nest.spl._cocos.*;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -61,10 +59,10 @@ public class VariableDoesNotExist implements
       final String variableName = Names.getQualifiedName(variable.getParts());
       if (isVariableName(functionNames, variableName)) {
         // todo refactor me
-        final Optional<NESTMLVariableSymbol> variableSymbol
-            = scope.resolve(variableName, NESTMLVariableSymbol.KIND);
-        final Optional<NESTMLMethodSymbol> functionSymbol
-            = scope.resolve(variableName, NESTMLMethodSymbol.KIND);
+        final Optional<VariableSymbol> variableSymbol
+            = scope.resolve(variableName, VariableSymbol.KIND);
+        final Optional<MethodSymbol> functionSymbol
+            = scope.resolve(variableName, MethodSymbol.KIND);
         if (!variableSymbol.isPresent() && !functionSymbol.isPresent()) {
           final String errorMsg = ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, variableName,
               scope.getName().orElse(""));
@@ -102,7 +100,7 @@ public class VariableDoesNotExist implements
   private void checkVariableByName(final String fqn, final ASTCNode node) {
     checkState(node.getEnclosingScope().isPresent());
     final Scope scope = node.getEnclosingScope().get();
-    Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(fqn, NESTMLVariableSymbol.KIND);
+    Optional<VariableSymbol> variableSymbol = scope.resolve(fqn, VariableSymbol.KIND);
     if (!variableSymbol.isPresent()) {
       error(ERROR_CODE + ":" +
           String.format(ERROR_MSG_FORMAT, fqn, scope.getName().orElse("")),

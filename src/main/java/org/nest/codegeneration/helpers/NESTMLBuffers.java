@@ -10,7 +10,7 @@ import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
 import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 
@@ -76,7 +76,7 @@ public class NESTMLBuffers {
   public String printBufferGetter(final ASTInputLine astInputLine, boolean isInStruct) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final NESTMLVariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
+    final VariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
 
     final StringBuilder functionDeclaration = new StringBuilder();
     functionDeclaration.append("inline ");
@@ -106,7 +106,7 @@ public class NESTMLBuffers {
   public String printBufferDeclaration(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final NESTMLVariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
+    final VariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
 
     String bufferType;
     if (buffer.getArraySizeParameter().isPresent()) {
@@ -141,15 +141,15 @@ public class NESTMLBuffers {
   public String vectorParameter(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final NESTMLVariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
+    final VariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
     checkState(buffer.getArraySizeParameter().isPresent(), "Cannot resolve the variable: " + astInputLine.getName());
     return buffer.getArraySizeParameter().get() + "_";
   }
 
   // TODO duplicate
-  private NESTMLVariableSymbol resolveVariable(final String variableName, final Scope scope) {
-    final Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(
-        variableName, NESTMLVariableSymbol.KIND);
+  private VariableSymbol resolveVariable(final String variableName, final Scope scope) {
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(
+        variableName, VariableSymbol.KIND);
     checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
     return variableSymbol.get();
   }
@@ -157,7 +157,7 @@ public class NESTMLBuffers {
   public boolean isVector(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final NESTMLVariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
+    final VariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
 
     return buffer.getArraySizeParameter().isPresent();
   }

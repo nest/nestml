@@ -7,14 +7,13 @@ package org.nest.nestml.cocos;
 
 import de.monticore.ast.ASTCNode;
 import static de.se_rwth.commons.logging.Log.error;
-import de.monticore.symboltable.Scope;
+
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -44,7 +43,7 @@ public class TypeIsDeclaredMultipleTimes implements NESTMLASTComponentCoCo, NEST
     try {
 
       // TODO refactor, document
-      node.getEnclosingScope().get().resolve(name, NESTMLNeuronSymbol.KIND);
+      node.getEnclosingScope().get().resolve(name, NeuronSymbol.KIND);
     }
     catch (ResolvedSeveralEntriesException e) {
       final String msg = "The type '" + name + "' is defined multiple times.";

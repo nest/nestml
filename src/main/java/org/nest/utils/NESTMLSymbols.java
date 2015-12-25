@@ -8,8 +8,8 @@ package org.nest.utils;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._symboltable.NESTMLMethodSignaturePredicate;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,24 +23,24 @@ import java.util.Optional;
  */
 public class NESTMLSymbols {
 
-  public static Optional<NESTMLMethodSymbol> resolveMethod(
+  public static Optional<MethodSymbol> resolveMethod(
       final Scope scope,
       final String methodName,
       final List<String> parameters) {
     // it is OK. The cast is secured through the symboltable infrastructure
     @SuppressWarnings("unchecked")
-    final Optional<NESTMLMethodSymbol> standAloneFunction = (Optional<NESTMLMethodSymbol>)
+    final Optional<MethodSymbol> standAloneFunction = (Optional<MethodSymbol>)
         scope.resolve(new NESTMLMethodSignaturePredicate(methodName, parameters));
 
     final String calleeVariableNameCandidate = Names.getQualifier(methodName);
     final String simpleMethodName = Names.getSimpleName(methodName);
 
     if (!calleeVariableNameCandidate.isEmpty()) {
-      final Optional<NESTMLVariableSymbol> calleeVariableSymbol
-          = scope.resolve(calleeVariableNameCandidate, NESTMLVariableSymbol.KIND);
+      final Optional<VariableSymbol> calleeVariableSymbol
+          = scope.resolve(calleeVariableNameCandidate, VariableSymbol.KIND);
       if (calleeVariableSymbol.isPresent()) {
 
-        final Optional<NESTMLMethodSymbol> builtInMethod
+        final Optional<MethodSymbol> builtInMethod
             = calleeVariableSymbol.get().getType().getBuiltInMethod(simpleMethodName); // TODO parameters are not considered!
         if (standAloneFunction.isPresent() && builtInMethod.isPresent()) {
           final String errorDescription = "Unambiguous function exception. Function '"

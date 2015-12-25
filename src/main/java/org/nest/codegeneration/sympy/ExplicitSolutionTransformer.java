@@ -13,8 +13,8 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.*;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
 
 import java.io.IOException;
@@ -113,11 +113,11 @@ public class ExplicitSolutionTransformer {
       }
       // add extra handling of the y0 variable
       // print resulted model to the file
-      final NESTMLNeuronSymbol nestmlNeuronSymbol = (NESTMLNeuronSymbol)
+      final NeuronSymbol neuronSymbol = (NeuronSymbol)
           root.getNeurons().get(0).getSymbol().get();
 
-      if (!nestmlNeuronSymbol.getCurrentBuffers().isEmpty()) {
-        final NESTMLVariableSymbol currentBuffer = nestmlNeuronSymbol.getCurrentBuffers().get(0);
+      if (!neuronSymbol.getCurrentBuffers().isEmpty()) {
+        final VariableSymbol currentBuffer = neuronSymbol.getCurrentBuffers().get(0);
         final ASTAssignment y0Assignment = converter2NESTML
             .convertStringToAssignment("y0 = " + currentBuffer.getName() + ".getSum(t)");
         addAssignmentToDynamics(astBodyDecorator, y0Assignment);
@@ -125,8 +125,8 @@ public class ExplicitSolutionTransformer {
 
       }
 
-      if (!nestmlNeuronSymbol.getCurrentBuffers().isEmpty()) {
-        final NESTMLVariableSymbol spikeBuffer = nestmlNeuronSymbol.getSpikeBuffers().get(0);
+      if (!neuronSymbol.getCurrentBuffers().isEmpty()) {
+        final VariableSymbol spikeBuffer = neuronSymbol.getSpikeBuffers().get(0);
         final ASTAssignment pscUpdateStep = converter2NESTML
             .convertStringToAssignment("y1 = " + spikeBuffer.getName() + ".getSum(t)");
         addAssignmentToDynamics(astBodyDecorator, pscUpdateStep);

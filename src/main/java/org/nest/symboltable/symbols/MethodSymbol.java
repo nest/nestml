@@ -13,21 +13,19 @@ import java.util.List;
 /**
  * Represents functions, e.g. dynamics, getter/setter, and predefined functions like pow.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
-public class NESTMLMethodSymbol extends CommonScopeSpanningSymbol {
+public class MethodSymbol extends CommonScopeSpanningSymbol {
 
-  public final static NESTMLMethodSymbolKind KIND = new NESTMLMethodSymbolKind();
+  public final static MethodSymbolKind KIND = new MethodSymbolKind();
 
-  protected NESTMLTypeSymbol returnType;
+  protected TypeSymbol returnType;
 
-  protected NESTMLNeuronSymbol declaringNeuron;
+  protected NeuronSymbol declaringNeuron;
 
-  protected NESTMLTypeSymbol declaringType;
+  protected TypeSymbol declaringType;
 
-  protected List<NESTMLTypeSymbol> parameters = new ArrayList<NESTMLTypeSymbol>();
+  protected List<TypeSymbol> parameters = new ArrayList<TypeSymbol>();
 
   protected boolean isDynamics = false;
 
@@ -35,44 +33,44 @@ public class NESTMLMethodSymbol extends CommonScopeSpanningSymbol {
 
   protected boolean isMinDelay = false;
 
-  public NESTMLMethodSymbol(String name) {
+  public MethodSymbol(String name) {
     super(name, KIND);
   }
 
   @Override
   public String toString() {
-    return "NESTMLMethodSymbol(" + getName() + ", #Parameters = " + getParameterTypes().size() + ")";
+    return "MethodSymbol(" + getName() + ", #Parameters = " + getParameterTypes().size() + ")";
   }
 
-  public NESTMLTypeSymbol getReturnType() {
+  public TypeSymbol getReturnType() {
     return returnType;
   }
 
-  public void setReturnType(NESTMLTypeSymbol returnType) {
+  public void setReturnType(TypeSymbol returnType) {
     this.returnType = returnType;
   }
 
-  public NESTMLNeuronSymbol getDeclaringNeuron() {
+  public NeuronSymbol getDeclaringNeuron() {
     return declaringNeuron;
   }
 
-  public void setDeclaringType(NESTMLNeuronSymbol declaringType) {
+  public void setDeclaringType(NeuronSymbol declaringType) {
     this.declaringNeuron = declaringType;
   }
 
-  public NESTMLTypeSymbol getDeclaringType() {
+  public TypeSymbol getDeclaringType() {
     return declaringType;
   }
 
-  public void setDeclaringType(NESTMLTypeSymbol declaringType) {
+  public void setDeclaringType(TypeSymbol declaringType) {
     this.declaringType = declaringType;
   }
 
-  public List<NESTMLTypeSymbol> getParameterTypes() {
+  public List<TypeSymbol> getParameterTypes() {
     return parameters;
   }
 
-  public void addParameterType(NESTMLTypeSymbol parameter) {
+  public void addParameterType(TypeSymbol parameter) {
     this.parameters.add(parameter);
   }
 
