@@ -90,6 +90,7 @@ package org.nest.nestml.symboltable.iaf_neuron:
 
             # set new input current
             y0 = currentBuffer.getSum(t);
+            newVarInMethod real = 1.0
         end
 
         function set_V_th(v mV):
