@@ -1,9 +1,9 @@
-
 /*
  * Copyright (c) 2015 RWTH Aachen. All rights reserved.
  *
  * http://www.se-rwth.de/
- */package org.nest.nestml.cocos.spl;
+ */
+package org.nest.nestml.cocos;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
@@ -39,6 +39,7 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
         var.get().getBlockType() == INPUT_BUFFER_SPIKE) {
       final String msg = "Buffer '" + var.get().getName() + "' cannot be reassigned.";
       error(ERROR_CODE + ":" +  msg, assignment.get_SourcePositionStart());
+
     }
 
   }
