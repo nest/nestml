@@ -475,6 +475,10 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
           var.setLoggable(true);
         }
 
+        if (aliasDeclAst.isPresent()) {
+          var.setAlias(aliasDeclAst.get().isAlias());
+        }
+
         if (astDeclaration.getSizeParameter().isPresent()) {
           var.setArraySizeParameter(astDeclaration.getSizeParameter().get());
         }

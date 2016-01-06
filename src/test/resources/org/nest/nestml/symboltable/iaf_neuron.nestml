@@ -7,11 +7,11 @@ package org.nest.nestml.symboltable.iaf_neuron:
         use TestComponent as TestRef
 
         state:
-            - y0 mV
-            - y1 mV
-            - y2 mV
-            - y3 mV
-            - r  integer
+            y0 mV
+            y1 mV
+            y2 mV
+            y3 mV
+            r  integer
             # Membrane potential.
             alias V_m mV = y3 + E_L
         end
@@ -27,8 +27,8 @@ package org.nest.nestml.symboltable.iaf_neuron:
             t_ref    ms = 2
             # Resting potential.
             E_L      mV = -70
-            - delta_V_reset mV = -70 - E_L
-            -Theta   mV = -55 - E_L
+            delta_V_reset mV = -70 - E_L
+            Theta   mV = -55 - E_L
             # External current.
             I_e     pA = 0
 

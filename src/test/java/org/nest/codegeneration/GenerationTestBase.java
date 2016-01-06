@@ -31,7 +31,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
 public abstract class GenerationTestBase extends ModelTestBase {
   final NESTMLParser p = new NESTMLParser();
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
-  protected final NESTML2NESTCodeGenerator generator = new NESTML2NESTCodeGenerator(scopeCreator);
+  protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
 
   protected void invokeCodeGenerator(final String pathToModel) {
 

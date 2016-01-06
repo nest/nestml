@@ -12,7 +12,6 @@ import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -44,7 +43,7 @@ public class NESTMLDeclarations {
     checkArgument(astDeclaration.getEnclosingScope().isPresent());
 
     final Scope scope = astDeclaration.getEnclosingScope().get();
-    final String declarationTypeName = printDeclarationTypeName(astDeclaration);
+    final String declarationTypeName = computeTypeName(astDeclaration);
 
     Optional<TypeSymbol> declarationTypeSymbol = scope.resolve(declarationTypeName, TypeSymbol.KIND);
     checkState(declarationTypeSymbol.isPresent(), "Cannot resolve the NESTML type: " + declarationTypeName);
@@ -52,16 +51,6 @@ public class NESTMLDeclarations {
     return new NESTML2NESTTypeConverter().convert(declarationTypeSymbol.get());
   }
 
-  private String printDeclarationTypeName(ASTDeclaration astDeclaration) {
-    if (astDeclaration.getPrimitiveType().isPresent()) {
-      return astDeclaration.getPrimitiveType().get().toString();
-    }
-    else if (astDeclaration.getType().isPresent()) {
-      final String typeName = Names.getQualifiedName(astDeclaration.getType().get().getParts());
-      return typeName;
-    }
-    throw new RuntimeException("Impossible by the grammar definition. One of alternatives must be used;");
-  }
 
   public List<String> getVariables(final ASTDeclaration astDeclaration) {
     return astDeclaration.getVars();
@@ -75,7 +64,7 @@ public class NESTMLDeclarations {
     checkArgument(astDeclaration.getEnclosingScope().isPresent());
 
     final Scope scope = astDeclaration.getEnclosingScope().get();
-    final String typeName = computeDeclarationTypeName(astDeclaration);
+    final String typeName = computeTypeName(astDeclaration);
 
     Optional<TypeSymbol> typeSymbol = scope.resolve(typeName, TypeSymbol.KIND);
     checkState(typeSymbol.isPresent(), "Cannot resolve the type: " + typeName);
@@ -89,7 +78,7 @@ public class NESTMLDeclarations {
     }
   }
 
-  private String computeDeclarationTypeName(ASTDeclaration astDeclaration) {
+  private String computeTypeName(ASTDeclaration astDeclaration) {
     if (astDeclaration.getPrimitiveType().isPresent()) {
       return astDeclaration.getPrimitiveType().get().toString(); // TODO it is not really portable
     }

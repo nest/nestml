@@ -27,7 +27,7 @@ import static org.nest.utils.NESTMLSymbols.resolveMethod;
  * @author (last commit) ippen, plotnikov
  * @since 0.0.1
  */
-public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
+public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "NESTML_GETTER_SETTER_FUNCTION_NAMES";
 
@@ -44,8 +44,7 @@ public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
         && funName.equals("get_instance")
         && methodSymbol.getParameterTypes().size() == 0) {
 
-      final String msg = "The function '"
-          + funName
+      final String msg = "The function '" + funName
           + "' is going to be generated. Please use another name.";
       error(ERROR_CODE + ":" + msg, fun.get_SourcePositionStart());
       return;
@@ -58,16 +57,15 @@ public class NESTGetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
           .resolve(varName, VariableSymbol.KIND);
 
       if (var.isPresent()) {
-
         if (funName.startsWith("set_") &&
-            methodSymbol.getParameterTypes().size() == 1 && !var.get().isAlias()) {
+            methodSymbol.getParameterTypes().size() == 1 &&
+            !var.get().isAlias()) {
           final String msg = "The function '" + funName + "' is going to be generated, since"
               + " there is a variable called '" + varName + "'.";
           error(ERROR_CODE + ":" + msg, fun.get_SourcePositionStart());
         }
 
-        if (funName.startsWith("get_")
-            && methodSymbol.getParameterTypes().size() == 0) {
+        if (funName.startsWith("get_") && methodSymbol.getParameterTypes().size() == 0) {
           final String msg = "The function '" + funName + "' is going to be generated, since"
               + " there is a variable called '" + varName + "'.";
           error(ERROR_CODE + ":" + msg, fun.get_SourcePositionStart());

@@ -328,11 +328,11 @@ public class NESTMLCoCosTest extends ModelTestBase {
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
-    final NESTGetterSetterFunctionNames nestGetterSetterFunctionNames = new NESTGetterSetterFunctionNames();
-    nestmlCoCoChecker.addCoCo(nestGetterSetterFunctionNames);
+    final GetterSetterFunctionNames getterSetterFunctionNames = new GetterSetterFunctionNames();
+    nestmlCoCoChecker.addCoCo(getterSetterFunctionNames);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countErrorsByPrefix(NESTGetterSetterFunctionNames.ERROR_CODE,
+    Integer errorsFound = countErrorsByPrefix(GetterSetterFunctionNames.ERROR_CODE,
         getFindings());
     assertEquals(Integer.valueOf(4), errorsFound);
   }

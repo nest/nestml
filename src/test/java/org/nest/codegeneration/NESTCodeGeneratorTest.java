@@ -23,7 +23,7 @@ import java.util.Optional;
  *
  * @author plotnikov
  */
-public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
+public class NESTCodeGeneratorTest extends GenerationTestBase {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
