@@ -5,21 +5,28 @@
   @param tc templatecontroller
   @result TODO
 -->
-<#if assignmentHelper.isLocal(ast)>
-${assignmentHelper.printVariableName(ast)} = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
+<#if assignments.isLocal(ast)>
+${assignments.printVariableName(ast)} ${assignments.printAssignmentSymbol(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
 <#else>
-
-  <#if assignmentHelper.isVector(ast) || declarations.isVectorLHS(ast)>
+  <#if assignments.isVector(ast) || declarations.isVectorLHS(ast)>
   for (size_t i=0; i < declarations.printSizeParameter(ast); i++) {
     <#if declarations.isVectorLHS(ast)>
-      ${assignmentHelper.printGetterName(ast)}()[i] = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
+      ${assignments.printGetterName(ast)}()[i] = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
     <#else>
-      ${assignmentHelper.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+      ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
     </#if>
 
   }
   <#else>
-    ${assignmentHelper.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+    <#if assignments.isCompoundAssignment(ast)>
+    ${assignments.printSetterName(ast)}(
+      ${assignments.printGetterName(ast)}
+      ${assignments.printAssignmentSymbol(ast)}
+      ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+    <#else>
+    ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+    </#if>
+
   </#if>
 
 </#if>

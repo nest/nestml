@@ -58,13 +58,11 @@ public class NESTReferenceConverter implements IReferenceConverter {
     if ("or".equals(functionName)) {
       return "||";
     }
-    // Time.resolution() ->
-    // nestml::Time::get_resolution().get_ms
+    // Time.resolution() -> nestml::Time::get_resolution().get_ms
     if ("resolution".equals(functionName)) {
       return "nest::Time::get_resolution().get_ms()";
     }
-    // Time.steps ->
-    // nest::Time(nest::Time::ms( args )).get_steps());
+    // Time.steps -> nest::Time(nest::Time::ms( args )).get_steps());
     if ("steps".equals(functionName)) {
       return "nest::Time(nest::Time::ms(%s)).get_steps()";
     }

@@ -1,7 +1,13 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.codegeneration.helpers;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import groovyjarjarantlr.collections.AST;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -14,12 +20,33 @@ import static com.google.common.base.Preconditions.checkState;
 /**
  * Computes how the setter call looks like
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since TODO
+ * @author plotnikov
  */
 @SuppressWarnings("unused") // methods are called from templates
-public class SPLVariableGetterSetterHelper {
+public class SPLAssignments {
+
+  public boolean isCompoundAssignment(final ASTAssignment astAssignment) {
+    return astAssignment.isCompoundSum() ||
+        astAssignment.isCompoundMinus() ||
+        astAssignment.isCompoundProduct() ||
+        astAssignment.isCompoundQuotient();
+  }
+
+  public String printAssignmentSymbol(final ASTAssignment astAssignment) {
+    if (astAssignment.isCompoundSum()) {
+      return "+=";
+    }
+    if (astAssignment.isCompoundMinus()) {
+      return "-=";
+    }
+    if (astAssignment.isCompoundProduct()) {
+      return "*=";
+    }
+    if (astAssignment.isCompoundQuotient()) {
+      return "/=";
+    }
+    return "=";
+  }
 
   /**
    * Checks if the assignment

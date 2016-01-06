@@ -22,7 +22,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * referenceConverters
  *
  * @author plotnikov
- * @since 0.0.2
  */
 public class ExpressionsPrettyPrinter {
 
@@ -81,7 +80,6 @@ public class ExpressionsPrettyPrinter {
       return expression.toString();
     }
     else if (expr.isPow()) {
-      final StringBuilder expression = new StringBuilder();
       final String leftOperand = print(expr.getBase().get());
       final String rightOperand = print(expr.getExponent().get());
 
