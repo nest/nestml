@@ -13,7 +13,6 @@ import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.nestml.cocos.spl.BufferNotAssignable;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;

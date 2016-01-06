@@ -6,7 +6,7 @@
 package org.nest.nestml._symboltable;
 
 import org.nest.nestml.cocos.*;
-import org.nest.nestml.cocos.spl.BufferNotAssignable;
+import org.nest.nestml.cocos.BufferNotAssignable;
 import org.nest.nestml._cocos.*;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
