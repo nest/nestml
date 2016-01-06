@@ -18,6 +18,14 @@ import static java.util.Optional.empty;
  */
 public class VariableSymbol extends CommonSymbol {
 
+  public boolean isLoggable() {
+    return isLoggable;
+  }
+
+  public void setLoggable(boolean loggable) {
+    isLoggable = loggable;
+  }
+
   public enum BlockType {STATE, PARAMETER, INTERNAL, LOCAL, INPUT_BUFFER_CURRENT, INPUT_BUFFER_SPIKE}
 
   public static final VariableSymbolKind KIND = new VariableSymbolKind();
@@ -28,7 +36,7 @@ public class VariableSymbol extends CommonSymbol {
 
   private boolean isAlias;
 
-  private boolean isHidden;
+  private boolean isLoggable;
 
   private BlockType blockType;
 
@@ -86,12 +94,5 @@ public class VariableSymbol extends CommonSymbol {
     this.blockType = blockType;
   }
 
-  public boolean isHidden() {
-    return isHidden;
-  }
-
-  public void setHidden(boolean isHidden) {
-    this.isHidden = isHidden;
-  }
 
 }

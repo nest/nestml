@@ -47,7 +47,7 @@ neuron iaf_psc_alpha_neuron:
 
   internal:
     h   ms   = resolution()
-    - r integer = 0;
+    r integer = 0;
 
     EPSCInitialValue real = 1.0 * E/tau_ex;
     IPSCInitialValue real = 1.0 * E/tau_in;
@@ -74,9 +74,9 @@ neuron iaf_psc_alpha_neuron:
   end
 
   input:
-      spikeBufferInh   <- inhibitory spike
-      spikeBufferExc   <- excitatory spike
-      currentBuffer <- current
+    spikeBufferInh   <- inhibitory spike
+    spikeBufferExc   <- excitatory spike
+    currentBuffer <- current
   end
 
   output: spike

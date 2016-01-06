@@ -14,7 +14,6 @@ neuron mat2_exp_neuron:
     V_th_1 real = 0.0
     # long time adaptive threshold (related to tau_2_), variable 2
     V_th_2 real = 0.0
-
   end
 
   parameter:
@@ -22,29 +21,21 @@ neuron mat2_exp_neuron:
     Tau ms = 5.0
     # Membrane capacitance in pF
     C pF = 100.0
-
     # Refractory period
     tau_ref ms = 2.0
-
     # Resting potential
     U0 mV = -70.0
-
     I_e pA = 0.0
-
     # Time constant of excitatory synaptic current
     tau_ex ms = 1.0
-
     # Time constant of inhibitory synaptic current
     tau_in ms = 3.0
-
     # Short and long time constant of adaptive threshold
     tau_1 ms = 10.0
     tau_2 ms = 200.0
-
     # Amplitudes of threshold adaption
     alpha_1 mV = 37.0
     alpha_2 mV = 2.0
-
     # Resting threshold in mV   (relative to resting potential).
     # The real resting threshold is (U0_+omega_).
     omega mV = 19.0
@@ -53,7 +44,7 @@ neuron mat2_exp_neuron:
   internal:
     h     ms   = resolution()
     # total refractory counter (no spikes can be generated)
-    -r integer = 0
+    r integer = 0
 
     P11ex real = exp(-h/tau_ex)
     P11in real = exp(-h/tau_in)

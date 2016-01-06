@@ -23,7 +23,6 @@ import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.utils.ASTNodes;
 
@@ -41,15 +40,15 @@ import static de.se_rwth.commons.logging.Log.info;
  * Generates C++ Implementation and model integration code for NEST.
  * @author plotnikov
  */
-public class NESTML2NESTCodeGenerator {
-  private final String LOG_NAME = NESTML2NESTCodeGenerator.class.getName();
+public class NESTCodeGenerator {
+  private final String LOG_NAME = NESTCodeGenerator.class.getName();
   private final ODEProcessor odeProcessor = new ODEProcessor();
   private final NESTReferenceConverter converter;
   private final ExpressionsPrettyPrinter expressionsPrinter;
   private final NESTMLScopeCreator scopeCreator;
   private final NESTMLParser parser;
 
-  public NESTML2NESTCodeGenerator(
+  public NESTCodeGenerator(
       final NESTMLScopeCreator scopeCreator) {
     this.scopeCreator = scopeCreator;
     converter = new NESTReferenceConverter();

@@ -7,12 +7,10 @@ package org.nest.nestml._symboltable;
 
 import org.nest.nestml.cocos.*;
 import org.nest.nestml.cocos.spl.BufferNotAssignable;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.symboltable.SPLCoCosManager;
-import org.nest.symboltable.predefined.PredefinedTypes;
 
 /**
  * This class is responsible for the instantiation of the NESTML context conditions.
@@ -88,8 +86,8 @@ public class NESTMLCoCosManager {
     final NESTFunctionNameChecker functionNameChecker = new NESTFunctionNameChecker();
     nestmlCoCoChecker.addCoCo(functionNameChecker);
 
-    final NESTGetterSetterFunctionNames nestGetterSetterFunctionNames = new NESTGetterSetterFunctionNames();
-    nestmlCoCoChecker.addCoCo(nestGetterSetterFunctionNames);
+    final GetterSetterFunctionNames getterSetterFunctionNames = new GetterSetterFunctionNames();
+    nestmlCoCoChecker.addCoCo(getterSetterFunctionNames);
 
     final NeuronNeedsDynamics neuronNeedsDynamics = new NeuronNeedsDynamics();
     nestmlCoCoChecker.addCoCo(neuronNeedsDynamics);

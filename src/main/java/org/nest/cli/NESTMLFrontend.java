@@ -3,7 +3,7 @@ package org.nest.cli;
 import com.google.common.base.Joiner;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
-import org.nest.codegeneration.NESTML2NESTCodeGenerator;
+import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
@@ -79,7 +79,7 @@ public class NESTMLFrontend {
     Log.enableFailQuick(false);
     final NESTMLToolConfiguration nestmlToolConfiguration = createCLIConfiguration(args);
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(""); // TODO
-    final NESTML2NESTCodeGenerator nestml2NESTCodeGenerator = new NESTML2NESTCodeGenerator(
+    final NESTCodeGenerator NESTCodeGenerator = new NESTCodeGenerator(
         nestmlScopeCreator);
     final NESTMLParser parser =  new NESTMLParser();
 
@@ -90,7 +90,7 @@ public class NESTMLFrontend {
       NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
       checker.checkAll(root);
 
-      nestml2NESTCodeGenerator.analyseAndGenerate(root, Paths.get(nestmlToolConfiguration.getTargetPath()));
+      NESTCodeGenerator.analyseAndGenerate(root, Paths.get(nestmlToolConfiguration.getTargetPath()));
     }
     catch (IOException e) {
       throw new RuntimeException("Cannot parse the model due to parser errors", e);
