@@ -30,12 +30,11 @@ neuron iaf_psc_delta_neuron:
     # reset value of the membrane potential
     V_reset real = -70.0-E_L;
     with_refr_input boolean = false  #!< spikes arriving during refractory period are counted
-
   end
 
   internal:
     h   ms   = resolution()
-    - r integer = 0  #//!< Number of refractory steps remaining
+    r integer = 0  #//!< Number of refractory steps remaining
 
     P33 real = exp(-h/tau_m)
     P30 real = 1 / c_m * (1.0 - P33) * tau_m

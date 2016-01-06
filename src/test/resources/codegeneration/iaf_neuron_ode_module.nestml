@@ -18,12 +18,10 @@ neuron iaf_neuron_ode:
     t_ref    ms = 2
     # Resting potential.
     E_L      mV = -70
-    -delta_V_reset mV = -70 - E_L
-    -Theta   mV = -55 - E_L
-
+    delta_V_reset mV = -70 - E_L
+    Theta   mV = -55 - E_L
     # External current.
     I_e     pA = 0 # special
-
     # some aliases Threshold.
     alias V_th mV = Theta + E_L
     # Reset value of the membrane potential.
@@ -33,7 +31,7 @@ neuron iaf_neuron_ode:
 
   internal:
     h   ms   = resolution()
-    - r  integer
+    r  integer
     RefractoryCounts integer = steps(t_ref)
   end
 

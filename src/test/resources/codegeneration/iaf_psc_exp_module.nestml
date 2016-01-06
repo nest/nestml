@@ -7,7 +7,6 @@ neuron iaf_psc_exp_neuron:
    i_syn_ex real = 0.0  # postsynaptic current for exc. inputs, variable 1
    i_syn_in real = 0.0  # postsynaptic current for inh. inputs, variable 1
    V_m real = 0.0       # membrane potential, variable 2
-
   end
 
   parameter:
@@ -33,7 +32,7 @@ neuron iaf_psc_exp_neuron:
 
   internal:
     h   ms   = resolution()
-    - r_ref integer  = 0   # absolute refractory counter (no membrane potential propagation)
+    r_ref integer  = 0   # absolute refractory counter (no membrane potential propagation)
     # these P are independent
     P11ex real = exp(-h/tau_ex)
     P11in real = exp(-h/tau_in)
@@ -47,7 +46,7 @@ neuron iaf_psc_exp_neuron:
     weighted_spikes_ex real
     weighted_spikes_in real
 
-   - RefractoryCounts integer = steps(t_ref)
+    RefractoryCounts integer = steps(t_ref)
   end
 
   input:

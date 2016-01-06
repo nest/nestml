@@ -150,9 +150,14 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
   }
 
   private void printAliasPrefix(ASTAliasDecl astAliasDecl) {
-    if (astAliasDecl.isHide()) {
-      print("- ");
+    if (astAliasDecl.isLog()) {
+      print("log ");
     }
+
+    if (astAliasDecl.isSuppress()) {
+      print("suppress ");
+    }
+
     if (astAliasDecl.isAlias()) {
       print("alias ");
     }

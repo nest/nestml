@@ -27,6 +27,8 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.COMPONENT;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
+import static org.nest.symboltable.symbols.VariableSymbol.BlockType.LOCAL;
+import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;
 
 /**
  * Visitor that creates symbols that handles nestml models..
@@ -237,8 +239,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
     var.setType(bufferType);
     var.setDeclaringType(currentTypeSymbol.get());
-    var.setAlias(false);
-    var.setHidden(false);
+
 
     if (inputLineAst.isCurrent()) {
       var.setBlockType(VariableSymbol.BlockType.INPUT_BUFFER_CURRENT);
@@ -282,12 +283,10 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         methodSymbol.addParameterType(type);
 
         // add a var entry for method body
-        VariableSymbol var =new VariableSymbol(p.getName());
+        VariableSymbol var = new VariableSymbol(p.getName());
         var.setAstNode(p);
         var.setType(type);
-        var.setAlias(false);
-        var.setHidden(false);
-        var.setDeclaringType(null);
+        var.setDeclaringType(null); // TOOD: make the variable optional or define a default type
         var.setBlockType(VariableSymbol.BlockType.LOCAL);
         addToScopeAndLinkWithNode(var, p);
 
@@ -342,8 +341,6 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         VariableSymbol var = new VariableSymbol(p.getName());
         var.setAstNode(p);
         var.setType(type);
-        var.setAlias(false);
-        var.setHidden(false);
         var.setDeclaringType(null); // TODO set to optional
         var.setBlockType(VariableSymbol.BlockType.LOCAL);
         addToScopeAndLinkWithNode(var, p);
@@ -410,7 +407,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
             astDeclaration,
             currentTypeSymbol,
             aliasDeclAst,
-            VariableSymbol.BlockType.STATE);
+            STATE);
       }
       else if (blockAst.get().isParameter()) {
         addVariablesFromDeclaration(
@@ -447,6 +444,11 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
   }
 
+  /**
+   *
+   * @param aliasDeclAst optional declaration which can be empty if a variable defined in a function
+   *                     and not in a variable block.
+   */
   default void addVariablesFromDeclaration(
       final ASTDeclaration astDeclaration,
       final Optional<NeuronSymbol> currentTypeSymbol,
@@ -465,13 +467,12 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         var.setType(typeCandidate.get());
         var.setDeclaringType(currentTypeSymbol.get());
 
-        if (aliasDeclAst.isPresent()) {
-          var.setAlias(aliasDeclAst.get().isAlias());
-          var.setHidden(aliasDeclAst.get().isHide());
-        }
-        else {
-          var.setAlias(false);
-          var.setHidden(false);
+        boolean isLoggableStateVariable = blockType == STATE && !aliasDeclAst.get().isSuppress();
+        boolean isLoggableNonStateVariable
+            = blockType == LOCAL || !(blockType == STATE) && aliasDeclAst.get().isLog();
+        if (isLoggableStateVariable || isLoggableNonStateVariable) {
+          // otherwise is set to false.
+          var.setLoggable(true);
         }
 
         if (astDeclaration.getSizeParameter().isPresent()) {

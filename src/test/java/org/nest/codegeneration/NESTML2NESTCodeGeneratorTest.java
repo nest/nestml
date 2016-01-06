@@ -83,7 +83,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   }
 
   @Test
-  public void testGenerator() throws IOException {
+  public void testModelsWithoutOde() throws IOException {
     nestmlPSCModels.forEach(this::invokeCodeGenerator);
   }
 

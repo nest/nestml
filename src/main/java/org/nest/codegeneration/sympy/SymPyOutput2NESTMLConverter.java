@@ -64,9 +64,6 @@ public class SymPyOutput2NESTMLConverter {
     final ASTAliasDecl astAliasDecl = NESTMLNodeFactory.createASTAliasDecl();
 
     astAliasDecl.setDeclaration(astDeclaration);
-    astAliasDecl.setAlias(false);
-    astAliasDecl.setHide(false);
-    astAliasDecl.setInvariants(Lists.newArrayList());
 
     return astAliasDecl;
   }

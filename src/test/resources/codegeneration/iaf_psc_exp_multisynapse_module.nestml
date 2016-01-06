@@ -1,42 +1,32 @@
 package codegeneration.iaf_psc_exp_multisynapse_module:
   neuron iaf_psc_exp_multisynapse_neuron:
     state:
-      - i_syn real<num_of_receptors> = 0
-      - i_0 real = 0.0
+      suppress i_syn real<num_of_receptors> = 0
+      suppress i_0 real = 0.0
       V_m real = 0.0
 
     end
 
     parameter:
-      - num_of_receptors integer = 1
-
+      num_of_receptors integer = 1
       # Membrane time constant
       Tau ms = 10.0
-
       # Membrane capacitance
       C pF = 250.0
-
       # Refractory period
       t_ref ms = 2.0
-
       # Resting potential
       U0 mV = -70
-
       # External current in
       I_e pA = 0
-
       # Reset value of the membrane potential
       alias V_reset mV = -70 - U0
-
       alias Theta mV = -55.0 - U0 # Threshold, RELATIVE TO RESTING POTENTIAL(!).
                                   # I.e. the real threshold is (U0_+Theta_).
-
       # Time constants of synaptic currents
       tau_syn ms<num_of_receptors>;
-
       # boolean flag which indicates whether the neuron has connections
       has_connections boolean = false
-
       # This is the current in a time step. This is only here to allow logging
       currentValue pA = 0
     end
@@ -51,7 +41,7 @@ package codegeneration.iaf_psc_exp_multisynapse_module:
 
     internal:
       h   ms   = resolution()
-      - r_ref integer = 0
+      r_ref integer = 0
       P11_syn real<num_of_receptors> = -h / tau_syn
       P21_syn real<num_of_receptors> = Tau/(C*(1.0-Tau/tau_syn)) * P11_syn * (1.0 - exp(h*(1.0/tau_syn-1.0/Tau)));
       P20 real = exp(-h/Tau)
