@@ -260,7 +260,7 @@ public class NESTCodeGenerator {
     final NESTMLDynamicsPrinter dynamicsHelper = new NESTMLDynamicsPrinter();
 
     glex.setGlobalValue("declarations", new NESTMLDeclarations() );
-    glex.setGlobalValue("assignmentHelper", new SPLVariableGetterSetterHelper());
+    glex.setGlobalValue("assignments", new SPLAssignments());
     glex.setGlobalValue("functionPrinter", functionPrinter);
     glex.setGlobalValue("declarations", declarations);
     glex.setGlobalValue("dynamicsHelper", dynamicsHelper);

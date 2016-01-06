@@ -7,28 +7,23 @@ package org.nest.spl.cocos;
 
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTCNode;
-
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.*;
 import org.nest.spl._cocos.*;
-import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Checks that a referenced variable is also declared.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class VariableDoesNotExist implements
     SPLASTAssignmentCoCo,
@@ -41,8 +36,8 @@ public class VariableDoesNotExist implements
   private static final String ERROR_MSG_FORMAT = "The variable %s is not defined in %s.";
 
   /**
-   * Checks if the expression contains an undeclared variable.
-   * @param expr Expression to check.
+   * Checks if the expression contains an undefined variables.
+   * TODO refactor me
    */
   private void checkExpression(final ASTExpr expr) {
     checkState(expr.getEnclosingScope().isPresent());
@@ -58,12 +53,8 @@ public class VariableDoesNotExist implements
     for (final ASTQualifiedName variable:variables) {
       final String variableName = Names.getQualifiedName(variable.getParts());
       if (isVariableName(functionNames, variableName)) {
-        // todo refactor me
-        final Optional<VariableSymbol> variableSymbol
-            = scope.resolve(variableName, VariableSymbol.KIND);
-        final Optional<MethodSymbol> functionSymbol
-            = scope.resolve(variableName, MethodSymbol.KIND);
-        if (!variableSymbol.isPresent() && !functionSymbol.isPresent()) {
+
+        if (!exists(variableName, scope)) {
           final String errorMsg = ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, variableName,
               scope.getName().orElse(""));
           error(errorMsg, variable.get_SourcePositionStart());
@@ -75,12 +66,18 @@ public class VariableDoesNotExist implements
 
   }
 
-  private boolean isVariableName(List<String> functionNames, String variableName) {
+  private boolean exists(final String variableName, final Scope scope) {
+    return scope.resolve(variableName, VariableSymbol.KIND).isPresent();
+  }
+
+  private boolean isVariableName(
+      final List<String> functionNames,
+      final String variableName) {
     return !functionNames.contains(variableName);
   }
 
   @Override
-  public void check(ASTCompound_Stmt node) {
+  public void check(final ASTCompound_Stmt node) {
     if (node.getIF_Stmt().isPresent()) {
       checkExpression(node.getIF_Stmt().get().getIF_Clause().getExpr());
     }
@@ -100,8 +97,8 @@ public class VariableDoesNotExist implements
   private void checkVariableByName(final String fqn, final ASTCNode node) {
     checkState(node.getEnclosingScope().isPresent());
     final Scope scope = node.getEnclosingScope().get();
-    Optional<VariableSymbol> variableSymbol = scope.resolve(fqn, VariableSymbol.KIND);
-    if (!variableSymbol.isPresent()) {
+
+    if (!exists(fqn, scope)) {
       error(ERROR_CODE + ":" +
           String.format(ERROR_MSG_FORMAT, fqn, scope.getName().orElse("")),
           node.get_SourcePositionStart());
@@ -112,6 +109,8 @@ public class VariableDoesNotExist implements
 
   @Override
   public void check(final ASTAssignment astAssignment) {
+    final String lhsVariables = Names.getQualifiedName(astAssignment.getVariableName().getParts());
+    checkVariableByName(lhsVariables, astAssignment);
     checkExpression(astAssignment.getExpr());
   }
 

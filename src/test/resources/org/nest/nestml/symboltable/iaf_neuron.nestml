@@ -73,11 +73,11 @@ package org.nest.nestml.symboltable.iaf_neuron:
 
             # alpha shape PSCs
             y2 = P21 * y1 + P22 * y2
-            y1 = y1 * P11
+            y1 *= P11
 
             # Apply spikes delivered in this step: The spikes arriving at T+1 have an
             # immediate effect on the state of the neuron
-            y1 = y1 + PSCInitialValue * spikeBuffer.getSum(t)
+            y1 += PSCInitialValue * spikeBuffer.getSum(t)
 
             # threshold crossing
             if y3 >= Theta:
@@ -90,7 +90,6 @@ package org.nest.nestml.symboltable.iaf_neuron:
 
             # set new input current
             y0 = currentBuffer.getSum(t);
-
             newVarInMethod real = 1.0
         end
 
