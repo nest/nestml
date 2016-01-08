@@ -36,7 +36,7 @@ package org.nest.nestml.symboltable.iaf_neuron:
             # Threshold.
             alias V_th mV = Theta + E_L
             # Reset value of the membrane potential.
-            alias  V_reset mV = delta_V_reset + E_L
+            log alias  V_reset mV = delta_V_reset + E_L
             # invariant V_reset >= Theta
 
             # tests the correct scoping rules

@@ -77,9 +77,12 @@ public class VariableSymbol extends CommonSymbol {
     return declaringType;
   }
 
-
   public boolean isAlias() {
     return isAlias;
+  }
+
+  public boolean isInState() {
+    return blockType == BlockType.STATE;
   }
 
   public void setAlias(boolean isAlias) {
