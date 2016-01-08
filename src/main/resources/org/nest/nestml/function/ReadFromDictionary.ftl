@@ -9,19 +9,21 @@
 -->
 <#list declarations.getVariables(ast) as var>
 
-<#if !var.isAlias()>
+<#if var.isAlias() && !var.isInState()>
+  // handles an alias
   ${declarations.getType(ast)} tmp_${var.getName()};
-  if (updateValue<${declarations.getType(ast)}>(d, "${var.getName()}", tmp_${var.getName()})) {
-      set_${var.getName()}(tmp_${var.getName()});
-  }
-<#else>
-  ${declarations.getType(ast)} tmp_${var.getName()};
-  if (updateValue<${declarations.getType(ast)}>(d, "${var.getName()}", tmp_${var.getName()})) {
+    if (updateValue<${declarations.getType(ast)}>(d, "${var.getName()}", tmp_${var.getName()})) {
     set_${var.getName()}(tmp_${var.getName()});
   }
   else {
     set_${var.getName()}(old_${var.getName()});
   }
+<#else>
+  ${declarations.getType(ast)} tmp_${var.getName()};
+    if (updateValue<${declarations.getType(ast)}>(d, "${var.getName()}", tmp_${var.getName()})) {
+    set_${var.getName()}(tmp_${var.getName()});
+  }
+
 </#if>
 
 </#list>

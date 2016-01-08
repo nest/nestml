@@ -7,7 +7,7 @@ package org.nest.nestml.symboltable.iaf_neuron:
         use TestComponent as TestRef
 
         state:
-            y0 mV
+            y0 mV 
             y1 mV
             y2 mV
             y3 mV
