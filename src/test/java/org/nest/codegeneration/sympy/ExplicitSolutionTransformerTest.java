@@ -150,10 +150,6 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
     Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
 
-    final Optional<VariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
-    assertTrue(y0.isPresent());
-    assertTrue(y0.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
-
     final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
     assertTrue(y1.isPresent());
     assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
