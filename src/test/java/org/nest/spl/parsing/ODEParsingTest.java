@@ -31,8 +31,8 @@ public class ODEParsingTest extends ModelTestBase {
   public void testOdeDefinition() throws IOException {
     final String odeDeclarationAsString =
             "ODE:\n" +
-            "  I === w * (E/tau_in) * t * exp(-1/tau_in*t)\n" +
-            "  d/dt V === -1/Tau * V + 1/C*I\n" +
+            "  I := w * (E/tau_in) * t * exp(-1/tau_in*t)\n" +
+            "  d/dt V := -1/Tau * V + 1/C*I\n" +
             "end";
     Optional<ASTOdeDeclaration> res = parseOdeDeclaration(odeDeclarationAsString);
     assertTrue(res.isPresent());
@@ -40,14 +40,14 @@ public class ODEParsingTest extends ModelTestBase {
 
   @Test
   public void testOde() throws IOException {
-    Optional<ASTODE> res = parseOde("d/dt V === -1/Tau * V + 1/C*I");
+    Optional<ASTODE> res = parseOde("d/dt V := -1/Tau * V + 1/C*I");
     assertTrue(res.isPresent());
 
   }
 
   @Test
   public void testEq() throws IOException {
-    Optional<ASTEq> res = parseEq("I === w * (E/tau_in) * t * exp(-1/tau_in*t)");
+    Optional<ASTEq> res = parseEq("I := w * (E/tau_in) * t * exp(-1/tau_in*t)");
     assertTrue(res.isPresent());
 
   }
