@@ -11,6 +11,7 @@ import org.nest.spl._ast.*;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.SPLASTFOR_StmtCoCo;
+import org.nest.spl._cocos.SPLASTOdeDeclarationCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
@@ -94,9 +95,7 @@ public class VariableNotDefinedBeforeUse implements
     final Scope scope = node.getEnclosingScope().get();
 
     Optional<VariableSymbol> varOptional = scope.resolve(varName, VariableSymbol.KIND);
-    if (!varOptional.isPresent()) {
-      System.out.println();
-    }
+
     checkState(varOptional.isPresent(), "Variable " + varName + " couldn't be resolved.");
     // exists
     if (node.get_SourcePositionStart().compareTo(varOptional.get().getSourcePosition()) < 0) {
