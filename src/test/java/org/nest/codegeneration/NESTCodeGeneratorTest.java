@@ -72,6 +72,7 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
   @Ignore
   @Test
   public void testWorkshopCode() {
+    workshopModels.forEach(this::checkCocos);
     workshopModels.forEach(this::invokeCodeGenerator);
   }
 

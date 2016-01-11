@@ -75,12 +75,13 @@ public class SPLCoCosTest {
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
+    splCoCoChecker.addCoCo((SPLASTOdeDeclarationCoCo) variableExists);
 
     splCoCoChecker.checkAll(ast);
 
     Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
         getFindings());
-    assertEquals(Integer.valueOf(2), errorsFound);
+    assertEquals(Integer.valueOf(6), errorsFound);
   }
 
   @Test
