@@ -3,7 +3,7 @@ package codegeneration.iaf_cond_alpha_module:
 neuron iaf_cond_alpha_neuron:
 
   state:
-    V_m real = 0
+    GI, GE, V_m real = 0
 
   end
 
