@@ -4,6 +4,7 @@ neuron iaf_neuron:
 
   state:
     V mV
+    G real
     alias V_m mV = V + E_L # Membrane potential.
   end
 

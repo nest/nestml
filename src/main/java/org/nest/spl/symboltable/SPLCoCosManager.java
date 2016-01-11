@@ -33,6 +33,7 @@ public class SPLCoCosManager {
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
+    splCoCoChecker.addCoCo((SPLASTOdeDeclarationCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
     splCoCoChecker.addCoCo(variableDefinedMultipleTimes);
@@ -72,6 +73,7 @@ public class SPLCoCosManager {
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
+    splCoCoChecker.addCoCo((SPLASTOdeDeclarationCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes
         = new VariableDefinedMultipleTimes();
