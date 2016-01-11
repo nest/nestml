@@ -28,9 +28,12 @@ public class SymPyScriptEvaluator {
 
   public final static String ODE_TYPE = "solverType.property";
   public final static String P30_FILE = "P30.mat";
+  public static final String CONSTANT_TERM = "constantTerm.mat";
   public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValue.mat";
   public final static String STATE_VECTOR_FILE = "state.vector.mat";
   public final static String UPDATE_STEP_FILE = "update.step.mat";
+
+
 
   public boolean execute(final Path generatedScript) {
 

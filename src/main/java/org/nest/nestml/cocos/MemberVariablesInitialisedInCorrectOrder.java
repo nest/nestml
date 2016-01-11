@@ -27,10 +27,9 @@ import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Variables in a block must be defined before used. Only variables from parameters are allowed
- * to be used
+ * to be used before definition
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
 public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasDeclCoCo {
 
@@ -59,56 +58,47 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
       final List<ASTQualifiedName> variablesNames
           = ASTNodes.getSuccessors(declaration.getExpr().get(), ASTQualifiedName.class);
 
-      for (ASTQualifiedName variableFqnAst : variablesNames) {
-        final String rhsVariableName = Names.getQualifiedName(variableFqnAst.getParts());
-        Optional<VariableSymbol> rhsSymbol = enclosingScope.get().resolve(
-            rhsVariableName,
-            VariableSymbol.KIND);
-
-        if (!rhsSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
-          final String msg = "Variable '" + rhsVariableName + "' is undefined." + "<" +
-              variableFqnAst.get_SourcePositionStart() + "," + variableFqnAst.get_SourcePositionEnd()  + ">";
-          Log.warn(msg);
-          return;
-        }
-        else  { //
-          // not local, e.g. a variable in one of the blocks: state, parameter, or internal
-          // both of same decl type
-          checkIfDefinedInCorrectOrder(lhsSymbol.get(), rhsSymbol.get());
-
-        }
-
-      }
+      if (checkVariables(enclosingScope.get(), lhsSymbol.get(), variablesNames))
+        return;
 
       for (ASTExpr aliasExpression:alias.getInvariants()) {
         final List<ASTQualifiedName> namesInInvariant
             = ASTNodes.getSuccessors(aliasExpression, ASTQualifiedName.class);
 
-        for (ASTQualifiedName variableFqnAst : namesInInvariant) {
-          final String rhsVariableName = Names.getQualifiedName(variableFqnAst.getParts());
-          Optional<VariableSymbol> variableSymbol = enclosingScope.get().resolve(
-              rhsVariableName,
-              VariableSymbol.KIND);
-
-          if (!variableSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
-            final String msg = "Variable '" + rhsVariableName + "' is undefined." + "<" +
-                variableFqnAst.get_SourcePositionStart() + "," + variableFqnAst.get_SourcePositionEnd()  + ">";
-            Log.warn(msg);
-            return;
-          }
-          else  { //
-            // not local, e.g. a variable in one of the blocks: state, parameter, or internal
-            // both of same decl type
-            checkIfDefinedInCorrectOrder(lhsSymbol.get(), variableSymbol.get());
-
-          }
-
-        }
+        if (checkVariables(enclosingScope.get(), lhsSymbol.get(), namesInInvariant))
+          return;
 
       }
 
     }
 
+  }
+
+  protected boolean checkVariables(
+      final Scope enclosingScope,
+      final VariableSymbol lhsSymbol,
+      final List<ASTQualifiedName> variablesNames) {
+    for (ASTQualifiedName variableFqnAst : variablesNames) {
+      final String rhsVariableName = Names.getQualifiedName(variableFqnAst.getParts());
+      Optional<VariableSymbol> rhsSymbol = enclosingScope.resolve(
+          rhsVariableName,
+          VariableSymbol.KIND);
+
+      if (!rhsSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
+        final String msg = "Variable '" + rhsVariableName + "' is undefined." + "<" +
+            variableFqnAst.get_SourcePositionStart() + "," + variableFqnAst.get_SourcePositionEnd()  + ">";
+        Log.warn(msg);
+        return true;
+      }
+      else  { //
+        // not local, e.g. a variable in one of the blocks: state, parameter, or internal
+        // both of same decl type
+        checkIfDefinedInCorrectOrder(lhsSymbol, rhsSymbol.get());
+
+      }
+
+    }
+    return false;
   }
 
   protected void checkIfDefinedInCorrectOrder(

@@ -30,6 +30,8 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
   private final static String P30_FILE
       = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.P30_FILE;
+  private final static String CONSTANT_FACTORS_FILE
+      = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.CONSTANT_TERM;
   private final static String PSC_INITIAL_VALUE_FILE
       = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE;
   private final static String STATE_VECTOR_FILE
@@ -70,9 +72,6 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
     assertTrue(pscInitialValue.isPresent());
     assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
 
-    final Optional<VariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
-    assertTrue(y0.isPresent());
-    assertTrue(y0.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
 
     final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
     assertTrue(y1.isPresent());

@@ -11,6 +11,7 @@
 
 <#list ast.getDeclaration().getVars() as varname>
   <#if ast.getDeclaration().getExpr().isPresent()>
+  // bla
   ${start} ${varname}_( ${tc.include("org.nest.spl.expr.Expr", ast.getDeclaration().getExpr().get())} ) // ${ast.getDeclaration().getType()}
   <#else>
   ${start} ${varname}_() // ${ast.getDeclaration().getType()}

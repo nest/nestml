@@ -139,6 +139,10 @@ public class NESTReferenceConverter implements IReferenceConverter {
       if (variableSymbol.get().getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
         return name;
       }
+      else if(variableSymbol.get().getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT ||
+          variableSymbol.get().getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT) {
+        return "get_" + name + "().get_value( lag )";
+      }
       else {
         if (variableSymbol.get().getArraySizeParameter().isPresent()) {
           return "get_" + name + "()[i]";

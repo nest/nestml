@@ -13,6 +13,13 @@ ${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
 </#list>
 rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
 
+var("${EQs[0].getLhsVariable()}")
+rhsTmp = ${expressionsPrettyPrinter.print(ode.getRhs())}
+contantTerm = simplify(rhsTmp - diff(rhsTmp, ${ode.getLhsVariable()})*${ode.getLhsVariable()} - diff(rhsTmp, ${EQs[0].getLhsVariable()})*${EQs[0].getLhsVariable()})
+<#list EQs as eq>
+${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
+</#list>
+
 
 dev${ode.getLhsVariable()} = diff(rhs, ${ode.getLhsVariable()})
 dev_t_dev${ode.getLhsVariable()} = diff(dev${ode.getLhsVariable()}, t)
@@ -107,8 +114,7 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
         f.write(stateVariables[i] + " = " + str(simplify(propagatorMatrix*y_vector)[i]) + "# Update\n")
 
     f = open('update.step.mat', 'w')
-    # TODO it is a hack
-    f.write("V = P30 * (y0 + I_e) + " + str(simplify(propagatorMatrix*y_vector)[order]))
+    f.write("V = P30 * (" + str(contantTerm) + ") + " + str(simplify(propagatorMatrix*y_vector)[order]))
 
     f = open('pscInitialValue.mat', 'w')
     f.write("PSCInitialValue real = " + str(simplify(X[0, 1])) + "# PSCInitial value")
