@@ -92,7 +92,6 @@ public class ExplicitSolutionTransformer {
       final Integer stateVariablesNumber = stateVectorLines.size();
 
       final List<String> stateVariableDeclarations = Lists.newArrayList();
-      stateVariableDeclarations.add("y0 real");
       for (int i = 1; i <= stateVariablesNumber; ++i) {
         stateVariableDeclarations.add("y"+ i + " real");
       }
@@ -116,16 +115,7 @@ public class ExplicitSolutionTransformer {
       final NeuronSymbol neuronSymbol = (NeuronSymbol)
           root.getNeurons().get(0).getSymbol().get();
 
-      if (!neuronSymbol.getCurrentBuffers().isEmpty()) {
-        final VariableSymbol currentBuffer = neuronSymbol.getCurrentBuffers().get(0);
-        final ASTAssignment y0Assignment = converter2NESTML
-            .convertStringToAssignment("y0 = " + currentBuffer.getName() + ".getSum(t)");
-        addAssignmentToDynamics(astBodyDecorator, y0Assignment);
-
-
-      }
-
-      if (!neuronSymbol.getCurrentBuffers().isEmpty()) {
+      if (!neuronSymbol.getSpikeBuffers().isEmpty()) {
         final VariableSymbol spikeBuffer = neuronSymbol.getSpikeBuffers().get(0);
         final ASTAssignment pscUpdateStep = converter2NESTML
             .convertStringToAssignment("y1 = " + spikeBuffer.getName() + ".getSum(t)");

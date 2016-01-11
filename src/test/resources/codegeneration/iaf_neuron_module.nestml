@@ -2,7 +2,8 @@ package codegeneration.iaf_neuron_module:
 
 neuron iaf_neuron:
   state:
-    suppress y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
+
+    suppress y0, y1, y2, y3 mV = E_L
     # Membrane potential.
     alias V_m mV = y3 + E_L
   end
