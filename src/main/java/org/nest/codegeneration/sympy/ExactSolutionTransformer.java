@@ -28,11 +28,11 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Takes SymPy result and the source AST. Produces an altered AST with the integrated solution.
+ * Takes SymPy result and the source AST. Produces an altered AST with the the exact solution.
  *
  * @author plotnikov
  */
-public class ExplicitSolutionTransformer {
+public class ExactSolutionTransformer {
 
   final SymPyOutput2NESTMLConverter converter2NESTML = new SymPyOutput2NESTMLConverter();
 
