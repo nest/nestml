@@ -8,7 +8,7 @@ package org.nest.spl.symboltable;
 import de.monticore.symboltable.CommonSymbolTableCreator;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolverConfiguration;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 
 /**
  * TODO why must I write this class?.
@@ -19,19 +19,10 @@ import org.nest.symboltable.predefined.PredefinedTypesFactory;
  */
 public class CommonSPLSymbolTableCreator extends CommonSymbolTableCreator implements SPLSymbolTableCreator {
 
-  private final PredefinedTypesFactory predefinedTypesFactory;
-
   public CommonSPLSymbolTableCreator(
       final ResolverConfiguration resolverConfig,
-      final MutableScope enclosingScope,
-      final PredefinedTypesFactory predefinedTypesFactory) {
+      final MutableScope enclosingScope) {
     super(resolverConfig, enclosingScope);
-    this.predefinedTypesFactory = predefinedTypesFactory;
-  }
-
-  @Override
-  public PredefinedTypesFactory getTypesFactory() {
-    return predefinedTypesFactory;
   }
 
 }

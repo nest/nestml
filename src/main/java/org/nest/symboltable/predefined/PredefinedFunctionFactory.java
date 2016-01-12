@@ -8,7 +8,7 @@ package org.nest.symboltable.predefined;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import de.se_rwth.commons.Names;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
 
 import java.util.Map;
 import java.util.Set;
@@ -17,13 +17,12 @@ import java.util.Set;
  * Defines a set with implicit type functions, like {@code print, pow, ...}
  *
  * @author plotnikov
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
  */
 public class PredefinedFunctionFactory {
-  private static final String TIME_RESOLUTION = "Time.resolution";
-  private static final String TIME_STEPS = "Time.steps";
-  private static final String EMIT_SPIKE = "Spiking.emitSpike";
+
+  private static final String TIME_RESOLUTION = "resolution";
+  private static final String TIME_STEPS = "steps";
+  private static final String EMIT_SPIKE = "emitSpike";
   private static final String PRINT = "print";
   private static final String PRINTLN = "println";
   private static final String POW = "pow";
@@ -33,73 +32,73 @@ public class PredefinedFunctionFactory {
   private static final String RANDOM_INT = "randomInt";
   private static final String EXPM1 = "expm1";
 
-  private final Map<String, NESTMLMethodSymbol> name2FunctionSymbol = Maps.newHashMap();
+  private final Map<String, MethodSymbol> name2FunctionSymbol = Maps.newHashMap();
 
-  public PredefinedFunctionFactory(PredefinedTypesFactory typesFactory) {
+  public PredefinedFunctionFactory() {
 
-    final NESTMLMethodSymbol timeSteps = createFunctionSymbol(TIME_STEPS);
-    timeSteps.addParameterType(typesFactory.getType("ms"));
-    timeSteps.setReturnType(typesFactory.getIntegerType());
+    final MethodSymbol timeSteps = createFunctionSymbol(TIME_STEPS);
+    timeSteps.addParameterType(PredefinedTypes.getType("ms"));
+    timeSteps.setReturnType(PredefinedTypes.getIntegerType());
     name2FunctionSymbol.put(TIME_STEPS, timeSteps);
 
-    final NESTMLMethodSymbol emitSpike = createFunctionSymbol(EMIT_SPIKE);
-    emitSpike.setReturnType(typesFactory.getRealType());
+    final MethodSymbol emitSpike = createFunctionSymbol(EMIT_SPIKE);
+    emitSpike.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(EMIT_SPIKE, emitSpike);
 
     // create
-    final NESTMLMethodSymbol printMethod = createFunctionSymbol(PRINT);
-    printMethod.addParameterType(typesFactory.getStringType());
-    printMethod.setReturnType(typesFactory.getVoidType());
+    final MethodSymbol printMethod = createFunctionSymbol(PRINT);
+    printMethod.addParameterType(PredefinedTypes.getStringType());
+    printMethod.setReturnType(PredefinedTypes.getVoidType());
     name2FunctionSymbol.put(PRINT, printMethod);
 
-    final NESTMLMethodSymbol printlnMethod = createFunctionSymbol(PRINTLN);
-    printlnMethod.setReturnType(typesFactory.getVoidType());
+    final MethodSymbol printlnMethod = createFunctionSymbol(PRINTLN);
+    printlnMethod.setReturnType(PredefinedTypes.getVoidType());
     name2FunctionSymbol.put(PRINTLN, printlnMethod);
 
-    final NESTMLMethodSymbol powMethod = createFunctionSymbol(POW);
-    powMethod.addParameterType(typesFactory.getRealType()); // base
-    powMethod.addParameterType(typesFactory.getRealType()); // exp
-    powMethod.setReturnType(typesFactory.getRealType());
+    final MethodSymbol powMethod = createFunctionSymbol(POW);
+    powMethod.addParameterType(PredefinedTypes.getRealType()); // base
+    powMethod.addParameterType(PredefinedTypes.getRealType()); // exp
+    powMethod.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(POW, powMethod);
 
-    final NESTMLMethodSymbol expMethod = createFunctionSymbol(EXP);
-    expMethod.addParameterType(typesFactory.getRealType()); // base
-    expMethod.setReturnType(typesFactory.getRealType());
+    final MethodSymbol expMethod = createFunctionSymbol(EXP);
+    expMethod.addParameterType(PredefinedTypes.getRealType()); // base
+    expMethod.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(EXP, expMethod);
 
-    final NESTMLMethodSymbol loggerInfoMethod = createFunctionSymbol(LOGGER_INFO);
-    loggerInfoMethod.addParameterType(typesFactory.getStringType());
-    loggerInfoMethod.setReturnType(typesFactory.getVoidType());
+    final MethodSymbol loggerInfoMethod = createFunctionSymbol(LOGGER_INFO);
+    loggerInfoMethod.addParameterType(PredefinedTypes.getStringType());
+    loggerInfoMethod.setReturnType(PredefinedTypes.getVoidType());
     name2FunctionSymbol.put(LOGGER_INFO, loggerInfoMethod);
 
-    final NESTMLMethodSymbol randomMethod = createFunctionSymbol(RANDOM);
-    randomMethod.setReturnType(typesFactory.getRealType());
+    final MethodSymbol randomMethod = createFunctionSymbol(RANDOM);
+    randomMethod.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(RANDOM, randomMethod);
 
-    final NESTMLMethodSymbol randomIntMethod = createFunctionSymbol(RANDOM_INT);
-    randomIntMethod.setReturnType(typesFactory.getIntegerType());
+    final MethodSymbol randomIntMethod = createFunctionSymbol(RANDOM_INT);
+    randomIntMethod.setReturnType(PredefinedTypes.getIntegerType());
     name2FunctionSymbol.put(RANDOM_INT, randomIntMethod);
 
-    final NESTMLMethodSymbol timeResolution = createFunctionSymbol(TIME_RESOLUTION);
-    timeResolution.setReturnType(typesFactory.getRealType());
+    final MethodSymbol timeResolution = createFunctionSymbol(TIME_RESOLUTION);
+    timeResolution.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(TIME_RESOLUTION, timeResolution);
 
-    final NESTMLMethodSymbol expm1 = createFunctionSymbol(EXPM1);
-    expm1.addParameterType(typesFactory.getRealType());
-    expm1.setReturnType(typesFactory.getRealType());
+    final MethodSymbol expm1 = createFunctionSymbol(EXPM1);
+    expm1.addParameterType(PredefinedTypes.getRealType());
+    expm1.setReturnType(PredefinedTypes.getRealType());
     name2FunctionSymbol.put(EXPM1, expm1);
 
   }
 
-  private static NESTMLMethodSymbol createFunctionSymbol(final String functionName) {
+  private static MethodSymbol createFunctionSymbol(final String functionName) {
     final String packageName = Names.getQualifier(functionName);
     final String simpleFunctionName = Names.getSimpleName(functionName);
-    final NESTMLMethodSymbol functionSymbol = new NESTMLMethodSymbol(simpleFunctionName);
+    final MethodSymbol functionSymbol = new MethodSymbol(simpleFunctionName);
     functionSymbol.setPackageName(packageName);
     return functionSymbol;
   }
 
-  public Set<NESTMLMethodSymbol> getMethodSymbols() {
+  public Set<MethodSymbol> getMethodSymbols() {
     return ImmutableSet.copyOf(name2FunctionSymbol.values());
   }
 

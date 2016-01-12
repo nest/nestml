@@ -13,8 +13,8 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._ast.ASTSPLNode;
 import org.nest.spl._visitor.SPLVisitor;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -33,7 +33,6 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
 
   String LOGGER_NAME = SPLSymbolTableCreator.class.getName();
 
-  PredefinedTypesFactory getTypesFactory();
   /**
    * Creates the symbol table starting from the <code>rootNode</code> and returns the first scope
    * that was created.
@@ -73,7 +72,7 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
   default void visit(final ASTCompound_Stmt astCompoundStmt) {
     final CommonScope shadowingScope = new CommonScope(true);
     putOnStack(shadowingScope);
-
+    astCompoundStmt.setEnclosingScope(shadowingScope);
   }
 
   @Override
@@ -84,10 +83,10 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
   @Override
   default void visit(final ASTDeclaration astDeclaration) {
     for (String variableName : astDeclaration.getVars()) {
-      NESTMLVariableSymbol variable = new NESTMLVariableSymbol(variableName);
+      VariableSymbol variable = new VariableSymbol(variableName);
       String typeName = computeTypeName(astDeclaration);
       variable.setAstNode(astDeclaration);
-      variable.setType(getTypesFactory().getType(typeName)); // if exists better choice?
+      variable.setType(PredefinedTypes.getType(typeName)); // if exists better choice?
 
       // handle ST infrastructure
       putInScopeAndLinkWithAst(variable, astDeclaration);

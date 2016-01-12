@@ -13,9 +13,9 @@ import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.ASTNodes;
 
 import java.util.List;
@@ -31,25 +31,19 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "SPL_CORRECT_RETURN_VALUES";
 
-  private final PredefinedTypesFactory predefinedTypesFactory;
-
-  public CorrectReturnValues(PredefinedTypesFactory predefinedTypesFactory) {
-    this.predefinedTypesFactory = predefinedTypesFactory;
-  }
-
   public void check(final ASTFunction fun) {
     Preconditions.checkState(fun.getEnclosingScope().isPresent(),
         "Function: " + fun.getName() + " has no scope assigned. ");
     final Scope scope = fun.getEnclosingScope().get();
     // get return type
-    final Optional<NESTMLMethodSymbol> mEntry = scope.resolve(fun.getName(), NESTMLMethodSymbol.KIND);
+    final Optional<MethodSymbol> mEntry = scope.resolve(fun.getName(), MethodSymbol.KIND);
     Preconditions.checkState(mEntry.isPresent(), "Cannot resolve the method: " + fun.getName());
-    final NESTMLTypeSymbol functionReturnType = mEntry.get().getReturnType();
+    final TypeSymbol functionReturnType = mEntry.get().getReturnType();
 
     // get all return statements in block
     final List<ASTReturnStmt> returns = ASTNodes.getReturnStatements(fun.getBlock());
 
-    final TypeChecker tc = new TypeChecker(predefinedTypesFactory);
+    final TypeChecker tc = new TypeChecker();
 
     for (ASTReturnStmt r : returns) {
       // no return expression
@@ -62,9 +56,8 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
       }
 
       if (r.getExpr().isPresent()) {
-        final ExpressionTypeCalculator typeCalculator = new ExpressionTypeCalculator(
-            predefinedTypesFactory);
-        final NESTMLTypeSymbol returnExpressionType = typeCalculator.computeType(r.getExpr().get());
+        final ExpressionTypeCalculator typeCalculator = new ExpressionTypeCalculator();
+        final TypeSymbol returnExpressionType = typeCalculator.computeType(r.getExpr().get());
 
         if (tc.checkVoid(functionReturnType) && !tc.checkVoid(returnExpressionType)) {
           // should return nothing, but does not

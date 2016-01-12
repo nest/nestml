@@ -12,25 +12,31 @@ import java.util.Optional;
 import static java.util.Optional.empty;
 
 /**
- * Represents variables in neuron and functions.
+ * Represents variables defined in e.g. variable blocks, functions, etc..
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
-public class NESTMLVariableSymbol extends CommonSymbol {
+public class VariableSymbol extends CommonSymbol {
+
+  public boolean isLoggable() {
+    return isLoggable;
+  }
+
+  public void setLoggable(boolean loggable) {
+    isLoggable = loggable;
+  }
 
   public enum BlockType {STATE, PARAMETER, INTERNAL, LOCAL, INPUT_BUFFER_CURRENT, INPUT_BUFFER_SPIKE}
 
-  public static final NESTMLVariableSymbolKind KIND = new NESTMLVariableSymbolKind();
+  public static final VariableSymbolKind KIND = new VariableSymbolKind();
 
-  private NESTMLTypeSymbol type;
+  private TypeSymbol type;
 
-  private NESTMLNeuronSymbol declaringType;
+  private NeuronSymbol declaringType;
 
   private boolean isAlias;
 
-  private boolean isHidden;
+  private boolean isLoggable;
 
   private BlockType blockType;
 
@@ -44,36 +50,39 @@ public class NESTMLVariableSymbol extends CommonSymbol {
     this.arraySizeParameter = Optional.of(arraySizeParameter);
   }
 
-  public NESTMLVariableSymbol(String name) {
+  public VariableSymbol(String name) {
     super(name, KIND);
     setBlockType(BlockType.LOCAL);
   }
 
   @Override
   public String toString() {
-    return "NESTMLVariableSymbol(" + getName() + ", " + getType() + ", "
+    return "VariableSymbol(" + getName() + ", " + getType() + ", "
         + getBlockType() + "," + arraySizeParameter + ")";
   }
 
-  public NESTMLTypeSymbol getType() {
+  public TypeSymbol getType() {
     return type;
   }
 
-  public void setType(NESTMLTypeSymbol type) {
+  public void setType(TypeSymbol type) {
     this.type = type;
   }
 
-  public void setDeclaringType(NESTMLNeuronSymbol declaringType) {
+  public void setDeclaringType(NeuronSymbol declaringType) {
     this.declaringType = declaringType;
   }
 
-  public NESTMLNeuronSymbol getDeclaringType() {
+  public NeuronSymbol getDeclaringType() {
     return declaringType;
   }
 
-
   public boolean isAlias() {
     return isAlias;
+  }
+
+  public boolean isInState() {
+    return blockType == BlockType.STATE;
   }
 
   public void setAlias(boolean isAlias) {
@@ -88,12 +97,5 @@ public class NESTMLVariableSymbol extends CommonSymbol {
     this.blockType = blockType;
   }
 
-  public boolean isHidden() {
-    return isHidden;
-  }
-
-  public void setHidden(boolean isHidden) {
-    this.isHidden = isHidden;
-  }
 
 }

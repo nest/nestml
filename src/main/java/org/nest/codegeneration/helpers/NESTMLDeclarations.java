@@ -12,9 +12,8 @@ import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -31,40 +30,27 @@ import static com.google.common.base.Preconditions.checkState;
  */
 @SuppressWarnings({"unused"}) // the class is used from templates
 public class NESTMLDeclarations {
-  private final PredefinedTypesFactory typesFactory;
-
   private final NESTML2NESTTypeConverter nestml2NESTTypeConverter;
 
   private final NESTML2NESTTypeConverter typeConverter;
 
-  public NESTMLDeclarations(PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-    nestml2NESTTypeConverter = new NESTML2NESTTypeConverter(typesFactory);
-    typeConverter = new NESTML2NESTTypeConverter(typesFactory);
+  public NESTMLDeclarations() {
+    nestml2NESTTypeConverter = new NESTML2NESTTypeConverter();
+    typeConverter = new NESTML2NESTTypeConverter();
   }
 
   public String getType(final ASTDeclaration astDeclaration) {
     checkArgument(astDeclaration.getEnclosingScope().isPresent());
 
     final Scope scope = astDeclaration.getEnclosingScope().get();
-    final String declarationTypeName = printDeclarationTypeName(astDeclaration);
+    final String declarationTypeName = computeTypeName(astDeclaration);
 
-    Optional<NESTMLTypeSymbol> declarationTypeSymbol = scope.resolve(declarationTypeName, NESTMLTypeSymbol.KIND);
+    Optional<TypeSymbol> declarationTypeSymbol = scope.resolve(declarationTypeName, TypeSymbol.KIND);
     checkState(declarationTypeSymbol.isPresent(), "Cannot resolve the NESTML type: " + declarationTypeName);
 
-    return new NESTML2NESTTypeConverter(typesFactory).convert(declarationTypeSymbol.get());
+    return new NESTML2NESTTypeConverter().convert(declarationTypeSymbol.get());
   }
 
-  private String printDeclarationTypeName(ASTDeclaration astDeclaration) {
-    if (astDeclaration.getPrimitiveType().isPresent()) {
-      return astDeclaration.getPrimitiveType().get().toString();
-    }
-    else if (astDeclaration.getType().isPresent()) {
-      final String typeName = Names.getQualifiedName(astDeclaration.getType().get().getParts());
-      return typeName;
-    }
-    throw new RuntimeException("Impossible by the grammar definition. One of alternatives must be used;");
-  }
 
   public List<String> getVariables(final ASTDeclaration astDeclaration) {
     return astDeclaration.getVars();
@@ -78,9 +64,9 @@ public class NESTMLDeclarations {
     checkArgument(astDeclaration.getEnclosingScope().isPresent());
 
     final Scope scope = astDeclaration.getEnclosingScope().get();
-    final String typeName = computeDeclarationTypeName(astDeclaration);
+    final String typeName = computeTypeName(astDeclaration);
 
-    Optional<NESTMLTypeSymbol> typeSymbol = scope.resolve(typeName, NESTMLTypeSymbol.KIND);
+    Optional<TypeSymbol> typeSymbol = scope.resolve(typeName, TypeSymbol.KIND);
     checkState(typeSymbol.isPresent(), "Cannot resolve the type: " + typeName);
 
 
@@ -92,7 +78,7 @@ public class NESTMLDeclarations {
     }
   }
 
-  private String computeDeclarationTypeName(ASTDeclaration astDeclaration) {
+  private String computeTypeName(ASTDeclaration astDeclaration) {
     if (astDeclaration.getPrimitiveType().isPresent()) {
       return astDeclaration.getPrimitiveType().get().toString(); // TODO it is not really portable
     }
@@ -107,18 +93,18 @@ public class NESTMLDeclarations {
     return getDeclarationType(astAliasDecl.getDeclaration());
   }
 
-  public List<NESTMLVariableSymbol> getVariables(final ASTAliasDecl astAliasDecl) {
+  public List<VariableSymbol> getVariables(final ASTAliasDecl astAliasDecl) {
     checkArgument(astAliasDecl.getEnclosingScope().isPresent(), "Alias has no assigned scope.");
     final Scope scope = astAliasDecl.getEnclosingScope().get();
     final ASTDeclaration decl = astAliasDecl.getDeclaration();
 
     final String typeName = Names.getQualifiedName(decl.getType().get().getParts());
-    final Optional<NESTMLTypeSymbol> type = scope.resolve(typeName, NESTMLTypeSymbol.KIND);
+    final Optional<TypeSymbol> type = scope.resolve(typeName, TypeSymbol.KIND);
     if (type.isPresent()) {
-      final List<NESTMLVariableSymbol> variables = Lists.newArrayList();
+      final List<VariableSymbol> variables = Lists.newArrayList();
 
       for (String variableName : decl.getVars()) {
-        final Optional<NESTMLVariableSymbol> currVar = scope.resolve(variableName, NESTMLVariableSymbol.KIND);
+        final Optional<VariableSymbol> currVar = scope.resolve(variableName, VariableSymbol.KIND);
         checkState(currVar.isPresent(), "Cannot resolve the variable: " + variableName);
         variables.add(currVar.get());
       }
@@ -136,17 +122,17 @@ public class NESTMLDeclarations {
     final Scope scope = astAliasDecl.getEnclosingScope().get();
     final ASTDeclaration decl = astAliasDecl.getDeclaration();
     final String typeName = Names.getQualifiedName(decl.getType().get().getParts());
-    final Optional<NESTMLTypeSymbol> type = scope.resolve(typeName, NESTMLTypeSymbol.KIND);
+    final Optional<TypeSymbol> type = scope.resolve(typeName, TypeSymbol.KIND);
     if (type.isPresent()) {
-      final List<NESTMLVariableSymbol> variables = Lists.newArrayList();
+      final List<VariableSymbol> variables = Lists.newArrayList();
 
       for (String var : decl.getVars()) {
-        final Optional<NESTMLVariableSymbol> currVar = scope.resolve(var, NESTMLVariableSymbol.KIND);
+        final Optional<VariableSymbol> currVar = scope.resolve(var, VariableSymbol.KIND);
         variables.add(currVar.get());
       }
 
       if (!variables.isEmpty()) {
-        final NESTMLVariableSymbol first = variables.get(0);
+        final VariableSymbol first = variables.get(0);
         switch (first.getBlockType()) {
           case STATE:
             return  "S_";
@@ -167,10 +153,10 @@ public class NESTMLDeclarations {
     return "";
   }
 
-  public String getDomainFromType(final NESTMLTypeSymbol type) {
+  public String getDomainFromType(final TypeSymbol type) {
     checkNotNull(type);
 
-    if (type.getType().equals(NESTMLTypeSymbol.Type.UNIT)) {
+    if (type.getType().equals(TypeSymbol.Type.UNIT)) {
       return  "nest::double_t";
     }
     else {
@@ -184,8 +170,8 @@ public class NESTMLDeclarations {
         "No scope. Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
     final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final Optional<NESTMLVariableSymbol> lhsVarSymbol
-        = scope.resolve(lhsVarName, NESTMLVariableSymbol.KIND);
+    final Optional<VariableSymbol> lhsVarSymbol
+        = scope.resolve(lhsVarName, VariableSymbol.KIND);
 
     checkState(lhsVarSymbol.isPresent(), "Cannot resolve the name: " + lhsVarName);
     return lhsVarSymbol.get().getArraySizeParameter().isPresent();
@@ -196,8 +182,8 @@ public class NESTMLDeclarations {
         "No scope. Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
     final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final Optional<NESTMLVariableSymbol> lhsVarSymbol
-        = scope.resolve(lhsVarName, NESTMLVariableSymbol.KIND);
+    final Optional<VariableSymbol> lhsVarSymbol
+        = scope.resolve(lhsVarName, VariableSymbol.KIND);
 
     checkState(lhsVarSymbol.isPresent(), "Cannot resolve the name: " + lhsVarName);
     checkState(lhsVarSymbol.get().getArraySizeParameter().isPresent());

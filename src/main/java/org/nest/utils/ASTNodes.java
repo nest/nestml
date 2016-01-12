@@ -15,8 +15,8 @@ import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Deque;
 import java.util.List;
@@ -121,15 +121,14 @@ public final class ASTNodes {
   }
 
   public static List<String> getArgumentsTypes(
-      final ASTFunctionCall astFunctionCall,
-      final PredefinedTypesFactory typesFactory) {
+      final ASTFunctionCall astFunctionCall) {
     final List<String> argTypeNames = Lists.newArrayList();
 
-    final ExpressionTypeCalculator typeCalculator =  new ExpressionTypeCalculator(typesFactory);
+    final ExpressionTypeCalculator typeCalculator =  new ExpressionTypeCalculator();
 
     for (int i = 0; i < astFunctionCall.getArgList().getArgs().size(); ++i) {
       final ASTExpr arg = astFunctionCall.getArgList().getArgs().get(i);
-      final NESTMLTypeSymbol argType = typeCalculator.computeType(arg);
+      final TypeSymbol argType = typeCalculator.computeType(arg);
       argTypeNames.add(argType.getName());
     }
 

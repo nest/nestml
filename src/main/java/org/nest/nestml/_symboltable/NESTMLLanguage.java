@@ -5,20 +5,20 @@
  */
 package org.nest.nestml._symboltable;
 
+import com.google.common.collect.Sets;
 import de.monticore.CommonModelNameCalculator;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.SymbolKind;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.se_rwth.commons.Names;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 import org.nest.symboltable.symbols.*;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static java.util.Optional.empty;
 
 /**
  * Frontend for the Simple Programming Language (SPL)
@@ -31,28 +31,27 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
 
   public static final String FILE_ENDING = "nestml";
 
-  final PredefinedTypesFactory typesFactory;
-
   /**
    * {@inheritDoc}
    */
-  public NESTMLLanguage(final PredefinedTypesFactory typesFactory) {
+  public NESTMLLanguage() {
     super("NESTML Language", FILE_ENDING);
-    this.typesFactory = typesFactory;
 
-    addResolver(CommonResolvingFilter.create(NESTMLNeuronSymbol.class, NESTMLNeuronSymbol.KIND));
-    addResolver(CommonResolvingFilter.create(NESTMLTypeSymbol.class, NESTMLTypeSymbol.KIND));
-    addResolver(CommonResolvingFilter.create(NESTMLMethodSymbol.class, NESTMLMethodSymbol.KIND));
-    addResolver(CommonResolvingFilter.create(NESTMLVariableSymbol.class, NESTMLVariableSymbol.KIND));
-    addResolver(CommonResolvingFilter.create(NESTMLUsageSymbol.class, NESTMLUsageSymbol.KIND));
+    addResolver(CommonResolvingFilter.create(NeuronSymbol.class, NeuronSymbol.KIND));
+    addResolver(CommonResolvingFilter.create(TypeSymbol.class, TypeSymbol.KIND));
+    addResolver(CommonResolvingFilter.create(MethodSymbol.class, MethodSymbol.KIND));
+    addResolver(CommonResolvingFilter.create(VariableSymbol.class, VariableSymbol.KIND));
+    addResolver(CommonResolvingFilter.create(UsageSymbol.class, UsageSymbol.KIND));
 
     setModelNameCalculator(new CommonModelNameCalculator() {
-      @Override public Optional<String> calculateModelName(String name, SymbolKind kind) {
-        if (kind.isKindOf(NESTMLNeuronSymbol.KIND)) {
-          return Optional.of(calculateModelName(name));
+
+      @Override
+      public Set<String> calculateModelNames(String name, SymbolKind kind) {
+        if (kind.isKindOf(NeuronSymbol.KIND)) {
+          return Sets.newHashSet(calculateModelName(name));
         }
         else {
-          return empty();
+          return Sets.newHashSet();
         }
       }
 
@@ -91,7 +90,7 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
   @Override
   public Optional<CommonNESTMLSymbolTableCreator> getSymbolTableCreator(
       ResolverConfiguration resolverConfiguration, MutableScope mutableScope) {
-    return Optional.of(new CommonNESTMLSymbolTableCreator(resolverConfiguration, mutableScope, new PredefinedTypesFactory()));
+    return Optional.of(new CommonNESTMLSymbolTableCreator(resolverConfiguration, mutableScope));
   }
 
 }

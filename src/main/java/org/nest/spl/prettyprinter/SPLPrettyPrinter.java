@@ -160,7 +160,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   public void printFunctionCall(final ASTFunctionCall astFunctionCall) {
     final String functionName = Names.getQualifiedName(astFunctionCall.getQualifiedName().getParts());
     print(functionName + "(");
-    final ASTExprList functionArguments = astFunctionCall.getArgList().getArgs();
+    final List<ASTExpr> functionArguments = astFunctionCall.getArgList().getArgs();
     for (int argumentIndex = 0; argumentIndex < functionArguments.size(); ++argumentIndex) {
       boolean isLastFunctionArgument = (argumentIndex + 1) == functionArguments.size();
       final ASTExpr currentArgument = functionArguments.get(argumentIndex);

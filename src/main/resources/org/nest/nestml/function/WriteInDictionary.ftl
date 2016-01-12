@@ -9,10 +9,10 @@
 -->
 <#list declarations.getVariables(ast) as var>
 
-<#if !ast.isHide()>
+<#if !var.isAlias() && !var.isInState()>
 def<${declarations.getType(ast)}>(d, "${var.getName()}", get_${var.getName()}());
 <#else>
-// do not export ${var.getName()}, since it is hidden
+// do not export ${var.getName()}
 </#if>
 
 </#list>

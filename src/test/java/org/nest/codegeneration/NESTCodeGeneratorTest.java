@@ -23,7 +23,7 @@ import java.util.Optional;
  *
  * @author plotnikov
  */
-public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
+public class NESTCodeGeneratorTest extends GenerationTestBase {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
@@ -50,6 +50,32 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   );
 
 
+  private final List<String> feedbackModels = Lists.newArrayList(
+      "src/test/resources/codegeneration/neuron_level_1.nestml",
+      "src/test/resources/codegeneration/neuron_level_2.nestml",
+      "src/test/resources/codegeneration/neuron_level_3.nestml"
+  );
+
+  private final List<String> workshopModels = Lists.newArrayList(
+      "src/test/resources/codegeneration/neuron_level_1.nestml",
+      "src/test/resources/codegeneration/neuron_level_2.nestml",
+      "src/test/resources/codegeneration/neuron_level_3.nestml"
+  );
+
+  @Ignore
+  @Test
+  public void testFeedbackModels() {
+    workshopModels.forEach(this::invokeCodeGenerator);
+
+  }
+
+  @Ignore
+  @Test
+  public void testWorkshopCode() {
+    workshopModels.forEach(this::checkCocos);
+    workshopModels.forEach(this::invokeCodeGenerator);
+  }
+
   @Test
   public void checkCocosOnModels() throws IOException {
     nestmlPSCModels.forEach(this::checkCocos);
@@ -58,7 +84,7 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
   }
 
   @Test
-  public void testGenerator() throws IOException {
+  public void testModelsWithoutOde() throws IOException {
     nestmlPSCModels.forEach(this::invokeCodeGenerator);
   }
 
@@ -75,15 +101,16 @@ public class NESTML2NESTCodeGeneratorTest extends GenerationTestBase {
 
   @Test
   public void testImplicitForm() {
-    nestmlCondModelExplicit.forEach(this::generateNESTMLImplementation);
-    for (final String model:nestmlCondModelExplicit) {
+
+    nestmlCondModelExplicit.forEach(model -> {
       final ASTNESTMLCompilationUnit root = parseNESTMLModel(model);
       scopeCreator.runSymbolTableCreator(root);
       Optional<ASTOdeDeclaration> odeDeclaration = ASTNodes.getAny(root, ASTOdeDeclaration.class);
       Assert.assertTrue(odeDeclaration.isPresent());
 
       generator.generateNESTCode(root, Paths.get("target"));
-    }
+    });
+
   }
 
 }

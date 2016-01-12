@@ -33,8 +33,8 @@ grammar SPL extends org.nest.commons.Commons {
        (ODE (NEWLINE)*)+
        BLOCK_CLOSE;
 
-  Eq = lhsVariable:Name "===" rhs:Expr;
-  ODE = "d/dt" lhsVariable:Name "===" rhs:Expr;
+  Eq = lhsVariable:Name ":=" rhs:Expr;
+  ODE = "d/dt" lhsVariable:Name ":=" rhs:Expr;
 
   Assignment = variableName:QualifiedName
     (assignment:["="] |
@@ -69,7 +69,7 @@ grammar SPL extends org.nest.commons.Commons {
 
   Expr =   (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
          | "not" Expr
-         | base:Expr pow:["**"] exponent:Expr // TODO make right assoc keyword asap
+         | <rightassoc> base:Expr pow:["**"] exponent:Expr
          | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
          | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
          | left:Expr (shiftLeft:["<<"] | shiftRight:[">>"]) right:Expr

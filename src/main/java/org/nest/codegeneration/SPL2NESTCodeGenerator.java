@@ -10,12 +10,11 @@ import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import org.nest.codegeneration.helpers.NESTMLDeclarations;
 import org.nest.codegeneration.helpers.SPLForNodes;
-import org.nest.codegeneration.helpers.SPLVariableGetterSetterHelper;
+import org.nest.codegeneration.helpers.SPLAssignments;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -33,14 +32,12 @@ public class SPL2NESTCodeGenerator {
 
   public SPL2NESTCodeGenerator(
       final GlobalExtensionManagement glex,
-      final PredefinedTypesFactory typesFactory,
       final File outputDirectory) {
-    GlobalExtensionManagement glex1 = glex;
     GeneratorSetup setup = new GeneratorSetup(outputDirectory);
 
     final ExpressionsPrettyPrinter prettyPrinter = new ExpressionsPrettyPrinter();
-    glex.setGlobalValue("assignmentHelper", new SPLVariableGetterSetterHelper());
-    glex.setGlobalValue("declarations", new NESTMLDeclarations(typesFactory) );
+    glex.setGlobalValue("assignments", new SPLAssignments());
+    glex.setGlobalValue("declarations", new NESTMLDeclarations() );
     glex.setGlobalValue("expressionsPrinter", prettyPrinter);
     glex.setGlobalValue("forDeclarationHelper", new SPLForNodes());
 

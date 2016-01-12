@@ -4,8 +4,7 @@ neuron iaf_neuron_ode:
 
   state:
     V mV
-    - r  integer
-
+    G real
     alias V_m mV = V + E_L # Membrane potential.
   end
 
@@ -20,12 +19,10 @@ neuron iaf_neuron_ode:
     t_ref    ms = 2
     # Resting potential.
     E_L      mV = -70
-    -delta_V_reset mV = -70 - E_L
-    -Theta   mV = -55 - E_L
-
+    delta_V_reset mV = -70 - E_L
+    Theta   mV = -55 - E_L
     # External current.
     I_e     pA = 0 # special
-
     # some aliases Threshold.
     alias V_th mV = Theta + E_L
     # Reset value of the membrane potential.
@@ -35,12 +32,13 @@ neuron iaf_neuron_ode:
 
   internal:
     h   ms   = resolution()
+    r  integer
     RefractoryCounts integer = steps(t_ref)
   end
 
   input:
-    spikeBuffer   <- inhibitory excitatory spike
-    currentBuffer <- current
+    spikes   <- inhibitory excitatory spike
+    ext_currents <- current
   end
 
   output: spike
@@ -49,8 +47,8 @@ neuron iaf_neuron_ode:
 
     if r == 0: # not refractory
         ODE:
-            G ===(E/tau_syn) * t * exp(-1/tau_syn*t)
-            d/dt V === -1/Tau * V + 1/C_m * G
+            G := (E/tau_syn) * t * exp(-1/tau_syn*t)
+            d/dt V := -1/Tau * V + 1/C_m * G + I_e + ext_currents
         end
     else:
         r = r - 1

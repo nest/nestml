@@ -7,9 +7,7 @@ package org.nest.spl.cocos;
 
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTCNode;
-
-import static de.se_rwth.commons.logging.Log.*;
-import static de.se_rwth.commons.logging.Log.error;
+import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
@@ -17,55 +15,55 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.*;
 import org.nest.spl._cocos.*;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.error;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Checks that a referenced variable is also declared.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class VariableDoesNotExist implements
     SPLASTAssignmentCoCo,
     SPLASTFunctionCallCoCo,
     SPLASTDeclarationCoCo,
     SPLASTReturnStmtCoCo,
-    SPLASTCompound_StmtCoCo {
+    SPLASTCompound_StmtCoCo,
+    SPLASTOdeDeclarationCoCo {
 
   public static final String ERROR_CODE = "SPL_VARIABLE_DOES_NOT_EXIST";
+
   private static final String ERROR_MSG_FORMAT = "The variable %s is not defined in %s.";
 
   /**
-   * Checks if the expression contains an undeclared variable.
-   * @param expr Expression to check.
+   * Checks if the expression contains an undefined variables.
+   * TODO refactor me
    */
   private void checkExpression(final ASTExpr expr) {
     checkState(expr.getEnclosingScope().isPresent());
     final Scope scope = expr.getEnclosingScope().get();
     final List<ASTQualifiedName> variables = ASTNodes.getSuccessors(expr, ASTQualifiedName.class);
-    final List<ASTFunctionCall> functionCallAsts = ASTNodes.getSuccessors(expr, ASTFunctionCall.class);
+    final List<ASTFunctionCall> functionCallAsts = ASTNodes
+        .getSuccessors(expr, ASTFunctionCall.class);
     final List<String> functionNames = Lists.newArrayList();
 
     functionCallAsts.stream().forEach(functionCallAst ->
-      functionNames.add(Names.getQualifiedName(functionCallAst.getQualifiedName().getParts()))
+        functionNames.add(Names.getQualifiedName(functionCallAst.getQualifiedName().getParts()))
     );
 
-    for (final ASTQualifiedName variable:variables) {
+    for (final ASTQualifiedName variable : variables) {
       final String variableName = Names.getQualifiedName(variable.getParts());
       if (isVariableName(functionNames, variableName)) {
-        // todo refactor me
-        final Optional<NESTMLVariableSymbol> variableSymbol
-            = scope.resolve(variableName, NESTMLVariableSymbol.KIND);
-        final Optional<NESTMLMethodSymbol> functionSymbol
-            = scope.resolve(variableName, NESTMLMethodSymbol.KIND);
-        if (!variableSymbol.isPresent() && !functionSymbol.isPresent()) {
+
+        if (!exists(variableName, scope)) {
           final String errorMsg = ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, variableName,
               scope.getName().orElse(""));
           error(errorMsg, variable.get_SourcePositionStart());
@@ -77,12 +75,18 @@ public class VariableDoesNotExist implements
 
   }
 
-  private boolean isVariableName(List<String> functionNames, String variableName) {
+  private boolean exists(final String variableName, final Scope scope) {
+    return scope.resolve(variableName, VariableSymbol.KIND).isPresent();
+  }
+
+  private boolean isVariableName(
+      final List<String> functionNames,
+      final String variableName) {
     return !functionNames.contains(variableName);
   }
 
   @Override
-  public void check(ASTCompound_Stmt node) {
+  public void check(final ASTCompound_Stmt node) {
     if (node.getIF_Stmt().isPresent()) {
       checkExpression(node.getIF_Stmt().get().getIF_Clause().getExpr());
     }
@@ -102,18 +106,19 @@ public class VariableDoesNotExist implements
   private void checkVariableByName(final String fqn, final ASTCNode node) {
     checkState(node.getEnclosingScope().isPresent());
     final Scope scope = node.getEnclosingScope().get();
-    Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(fqn, NESTMLVariableSymbol.KIND);
-    if (!variableSymbol.isPresent()) {
+
+    if (!exists(fqn, scope)) {
       error(ERROR_CODE + ":" +
-          String.format(ERROR_MSG_FORMAT, fqn, scope.getName().orElse("")),
+              String.format(ERROR_MSG_FORMAT, fqn, scope.getName().orElse("")),
           node.get_SourcePositionStart());
     }
 
   }
 
-
   @Override
   public void check(final ASTAssignment astAssignment) {
+    final String lhsVariables = Names.getQualifiedName(astAssignment.getVariableName().getParts());
+    checkVariableByName(lhsVariables, astAssignment);
     checkExpression(astAssignment.getExpr());
   }
 
@@ -127,7 +132,7 @@ public class VariableDoesNotExist implements
 
   @Override
   public void check(final ASTFunctionCall astFunctionCall) {
-    for (int i = 0; i< astFunctionCall.getArgList().getArgs().size(); ++i) {
+    for (int i = 0; i < astFunctionCall.getArgList().getArgs().size(); ++i) {
       checkExpression(astFunctionCall.getArgList().getArgs().get(i));
     }
 
@@ -141,4 +146,47 @@ public class VariableDoesNotExist implements
 
   }
 
+  protected List<ASTQualifiedName> getVariablesFromExpressions(final ASTExpr expression) {
+    final List<ASTQualifiedName> names = ASTNodes
+        .getSuccessors(expression, ASTQualifiedName.class);
+
+    final List<String> functions = ASTNodes
+        .getSuccessors(expression, ASTFunctionCall.class).stream()
+        .map(astFunctionCall -> Names
+            .getQualifiedName(astFunctionCall.getQualifiedName().getParts()))
+        .collect(Collectors.toList());
+
+    return names.stream()
+        .filter(name -> !functions.contains(Names.getQualifiedName(name.getParts())))
+        .collect(toList());
+  }
+
+  protected void check(final String varName, final ASTNode node) {
+    checkArgument(node.getEnclosingScope().isPresent(),
+        "No scope assigned. Please, run symboltable creator.");
+    final Scope scope = node.getEnclosingScope().get();
+
+    Optional<VariableSymbol> varOptional = scope.resolve(varName, VariableSymbol.KIND);
+
+
+  }
+
+  @Override
+  public void check(ASTOdeDeclaration node) {
+    node.getODEs().forEach(
+        ode-> {
+          checkVariableByName(ode.getLhsVariable(), node);
+          getVariablesFromExpressions(ode.getRhs()).forEach(variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
+        }
+
+    );
+
+    node.getEqs().forEach(
+        eq-> {
+          checkVariableByName(eq.getLhsVariable(), node);
+          getVariablesFromExpressions(eq.getRhs()).forEach(variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
+        }
+
+    );
+  }
 }

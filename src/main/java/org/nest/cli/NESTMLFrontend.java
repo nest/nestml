@@ -3,25 +3,20 @@ package org.nest.cli;
 import com.google.common.base.Joiner;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
-import org.nest.codegeneration.NESTML2NESTCodeGenerator;
+import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 /**
  *
  */
 public class NESTMLFrontend {
-
-  public static final PredefinedTypesFactory TYPES_FACTORY = new PredefinedTypesFactory();
 
   private final static String LOGGER_NAME = NESTMLFrontend.class.getName();
 
@@ -83,18 +78,19 @@ public class NESTMLFrontend {
   public void handleCLIArguments(String[] args) {
     Log.enableFailQuick(false);
     final NESTMLToolConfiguration nestmlToolConfiguration = createCLIConfiguration(args);
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator("", TYPES_FACTORY);
-    final NESTML2NESTCodeGenerator nestml2NESTCodeGenerator = new NESTML2NESTCodeGenerator(TYPES_FACTORY, nestmlScopeCreator);
-    final NESTMLCompilationUnitMCParser parser =  NESTMLParserFactory.createNESTMLCompilationUnitMCParser();
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(""); // TODO
+    final NESTCodeGenerator NESTCodeGenerator = new NESTCodeGenerator(
+        nestmlScopeCreator);
+    final NESTMLParser parser =  new NESTMLParser();
 
     try {
       final ASTNESTMLCompilationUnit root = parser.parse(args[0]).get();
       nestmlScopeCreator.runSymbolTableCreator(root);
-      NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager(root, TYPES_FACTORY);
+      NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
       NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
       checker.checkAll(root);
 
-      nestml2NESTCodeGenerator.generateNESTCode(root, Paths.get(nestmlToolConfiguration.getTargetPath()));
+      NESTCodeGenerator.analyseAndGenerate(root, Paths.get(nestmlToolConfiguration.getTargetPath()));
     }
     catch (IOException e) {
       throw new RuntimeException("Cannot parse the model due to parser errors", e);

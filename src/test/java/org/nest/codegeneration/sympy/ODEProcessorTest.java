@@ -9,8 +9,8 @@ import de.monticore.symboltable.Scope;
 import org.junit.Test;
 import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
 
 import java.nio.file.Paths;
@@ -39,17 +39,13 @@ public class ODEProcessorTest extends ModelTestBase {
   public void testProcess() throws Exception {
     final Scope scope = processModel(PSC_MODEL_FILE);
 
-    final Optional<NESTMLNeuronSymbol> neuronSymbol = scope.resolve(
+    final Optional<NeuronSymbol> neuronSymbol = scope.resolve(
         NEURON_NAME,
-        NESTMLNeuronSymbol.KIND);
+        NeuronSymbol.KIND);
 
-    final Optional<NESTMLVariableSymbol> y0 = neuronSymbol.get().getVariableByName("y0");
-    assertTrue(y0.isPresent());
-    assertTrue(y0.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
-
-    final Optional<NESTMLVariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
+    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
     assertTrue(y1.isPresent());
-    assertTrue(y1.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE));
+    assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
   }
 
   @Test

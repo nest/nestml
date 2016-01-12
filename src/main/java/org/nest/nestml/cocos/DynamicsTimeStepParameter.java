@@ -13,7 +13,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTDynamics;
 import org.nest.nestml._ast.ASTParameter;
 import org.nest.nestml._cocos.NESTMLASTDynamicsCoCo;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
@@ -44,7 +44,7 @@ public class DynamicsTimeStepParameter implements NESTMLASTDynamicsCoCo {
           final ASTParameter first = dyn.getParameters().get().getParameters().get(0);
 
           final String typeName = Names.getQualifiedName(first.getType().getParts());
-          final Optional<NESTMLTypeSymbol> type = scope.resolve(typeName, NESTMLTypeSymbol.KIND);
+          final Optional<TypeSymbol> type = scope.resolve(typeName, TypeSymbol.KIND);
 
           Preconditions.checkState(type.isPresent(), "Cannot find the type: " + typeName);
           // TODO fix the implicit type. its fqn contains the artifact fqn prefix

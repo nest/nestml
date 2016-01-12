@@ -13,8 +13,8 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.*;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
 
 import java.io.IOException;
@@ -92,7 +92,6 @@ public class ExplicitSolutionTransformer {
       final Integer stateVariablesNumber = stateVectorLines.size();
 
       final List<String> stateVariableDeclarations = Lists.newArrayList();
-      stateVariableDeclarations.add("y0 real");
       for (int i = 1; i <= stateVariablesNumber; ++i) {
         stateVariableDeclarations.add("y"+ i + " real");
       }
@@ -113,20 +112,11 @@ public class ExplicitSolutionTransformer {
       }
       // add extra handling of the y0 variable
       // print resulted model to the file
-      final NESTMLNeuronSymbol nestmlNeuronSymbol = (NESTMLNeuronSymbol)
+      final NeuronSymbol neuronSymbol = (NeuronSymbol)
           root.getNeurons().get(0).getSymbol().get();
 
-      if (!nestmlNeuronSymbol.getCurrentBuffers().isEmpty()) {
-        final NESTMLVariableSymbol currentBuffer = nestmlNeuronSymbol.getCurrentBuffers().get(0);
-        final ASTAssignment y0Assignment = converter2NESTML
-            .convertStringToAssignment("y0 = " + currentBuffer.getName() + ".getSum(t)");
-        addAssignmentToDynamics(astBodyDecorator, y0Assignment);
-
-
-      }
-
-      if (!nestmlNeuronSymbol.getCurrentBuffers().isEmpty()) {
-        final NESTMLVariableSymbol spikeBuffer = nestmlNeuronSymbol.getSpikeBuffers().get(0);
+      if (!neuronSymbol.getSpikeBuffers().isEmpty()) {
+        final VariableSymbol spikeBuffer = neuronSymbol.getSpikeBuffers().get(0);
         final ASTAssignment pscUpdateStep = converter2NESTML
             .convertStringToAssignment("y1 = " + spikeBuffer.getName() + ".getSum(t)");
         addAssignmentToDynamics(astBodyDecorator, pscUpdateStep);
@@ -181,7 +171,7 @@ public class ExplicitSolutionTransformer {
       ASTAssignment yVarAssignment) {
     final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
     final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
-    final ASTSmall_StmtList astSmallStmts = SPLNodeFactory.createASTSmall_StmtList();
+    final List<ASTSmall_Stmt> astSmallStmts = Lists.newArrayList();
     final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
 
     astStmt.setSimple_Stmt(astSimpleStmt);

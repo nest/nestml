@@ -10,7 +10,7 @@
 <#list declarations.getVariables(ast) as var>
     <#assign varDomain = declarations.getDomainFromType(var.getType())>
 
-    <#if varDomain == "nest::double_t" && !ast.isHide()>
+    <#if varDomain == "nest::double_t" && var.isLoggable()>
     insert_("${var.getName()}", &${nspPrefix}::${simpleNeuronName}::get_${var.getName()});
     <#else>
     // ignores the ${var.getName()} with the domain type ${varDomain}

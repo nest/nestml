@@ -2,8 +2,8 @@ package codegeneration.iaf_neuron_module:
 
 neuron iaf_neuron:
   state:
-    - y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
-    - r  integer
+
+    suppress y0, y1, y2, y3 mV = E_L
     # Membrane potential.
     alias V_m mV = y3 + E_L
   end
@@ -19,11 +19,10 @@ neuron iaf_neuron:
     t_ref    ms = 2
     # Resting potential.
     E_L      mV = -70
-    -delta_V_reset mV = -70 - E_L
-    -Theta   mV = -55 - E_L
+    delta_V_reset mV = -70 - E_L
+    Theta   mV = -55 - E_L
     # External current.
     I_e     pA = 0
-
     # some aliases Threshold.
     alias V_th mV = Theta + E_L
     # Reset value of the membrane potential.
@@ -33,7 +32,8 @@ neuron iaf_neuron:
 
   internal:
     h   ms   = resolution()
-    P11 real = exp(-h / tau_syn)
+    r integer
+    log P11 real = exp(-h / tau_syn)
     P22 real = P11
     P33 real = exp(-h / tau_m)
     P21 real = h * P11

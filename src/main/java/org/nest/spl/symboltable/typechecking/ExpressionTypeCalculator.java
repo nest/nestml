@@ -17,10 +17,10 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinterFactory;
 import org.nest.spl._ast.ASTExpr;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
 
 import java.util.Optional;
 
@@ -37,13 +37,7 @@ public class ExpressionTypeCalculator {
 
   public static final String ERROR_CODE = "SPL_EXPRESSION_TYPE_ERROR";
 
-  private final PredefinedTypesFactory typesFactory;
-
-  public ExpressionTypeCalculator(PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-  }
-
-  public NESTMLTypeSymbol computeType(final ASTExpr expr) {
+  public TypeSymbol computeType(final ASTExpr expr) {
     Preconditions.checkNotNull(expr);
     checkArgument(expr.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Scope scope = expr.getEnclosingScope().get();
@@ -53,25 +47,25 @@ public class ExpressionTypeCalculator {
     }
     else if (expr.getNumericLiteral().isPresent()) { // number
       if (expr.getNumericLiteral().get() instanceof ASTDoubleLiteral) {
-        return typesFactory.getRealType();
+        return PredefinedTypes.getRealType();
       }
       else if (expr.getNumericLiteral().get() instanceof ASTIntLiteral) {
-        return typesFactory.getIntegerType();
+        return PredefinedTypes.getIntegerType();
       }
 
     }
     else if(expr.isInf()) {
-      return typesFactory.getRealType();
+      return PredefinedTypes.getRealType();
     }
     else if (expr.getStringLiteral().isPresent()) { // string
-      return typesFactory.getStringType();
+      return PredefinedTypes.getStringType();
     }
     else if (expr.getBooleanLiteral().isPresent()) { // boolean
-      return typesFactory.getBooleanType();
+      return PredefinedTypes.getBooleanType();
     }
     else if (expr.getQualifiedName().isPresent()) { // var
       final String varName = Names.getQualifiedName(expr.getQualifiedName().get().getParts());
-      final Optional<NESTMLVariableSymbol> var = scope.resolve(varName, NESTMLVariableSymbol.KIND);
+      final Optional<VariableSymbol> var = scope.resolve(varName, VariableSymbol.KIND);
 
       if (var.isPresent()) {
         return var.get().getType();
@@ -86,12 +80,12 @@ public class ExpressionTypeCalculator {
 
       // TODO: use the helper to query function by parameters
       //final Object[] params = atom.getFunctionCall().getArgList().getArgs().toArray();
-      final Optional<NESTMLMethodSymbol> methodSymbol = scope.resolve(functionName,
-          NESTMLMethodSymbol.KIND);
+      final Optional<MethodSymbol> methodSymbol = scope.resolve(functionName,
+          MethodSymbol.KIND);
       Preconditions.checkState(methodSymbol.isPresent(), "Cannot resolve the method: "
           + functionName);
 
-      if (new TypeChecker(typesFactory).checkVoid(methodSymbol.get().getReturnType())) {
+      if (new TypeChecker().checkVoid(methodSymbol.get().getReturnType())) {
         final String errorMsg = "Function '%s' with returntype 'Void' cannot be used in expressions.";
         Log.error(ERROR_CODE + ":"+ String.format(errorMsg, functionName),
             expr.get_SourcePositionEnd());
@@ -101,7 +95,7 @@ public class ExpressionTypeCalculator {
     }
     // TODO expr.leftParenthesesIsPresent must be handled
     else if (expr.getTerm().isPresent()) { // TODO it is a hack. the code with isUnaryPlus must work
-      NESTMLTypeSymbol type = computeType(expr.getTerm().get());
+      TypeSymbol type = computeType(expr.getTerm().get());
       if (isNumeric(type)) {
         return type;
       }
@@ -113,26 +107,26 @@ public class ExpressionTypeCalculator {
       }
     }
     else if (expr.isPlusOp()) {
-      final NESTMLTypeSymbol lhsType = computeType(expr.getLeft().get());
-      final NESTMLTypeSymbol rhsType = computeType(expr.getRight().get());
+      final TypeSymbol lhsType = computeType(expr.getLeft().get());
+      final TypeSymbol rhsType = computeType(expr.getRight().get());
 
       // String concatenation has a prio. If one of the operands is a string, the remaining sub-expression becomes a string
-      if ((lhsType.equals(typesFactory.getStringType()) ||
-          rhsType.equals(typesFactory.getStringType())) &&
-          (!rhsType.equals(typesFactory.getVoidType()) &&
-          !lhsType.equals(typesFactory.getVoidType()))) {
-        return typesFactory.getStringType();
+      if ((lhsType.equals(PredefinedTypes.getStringType()) ||
+          rhsType.equals(PredefinedTypes.getStringType())) &&
+          (!rhsType.equals(PredefinedTypes.getVoidType()) &&
+          !lhsType.equals(PredefinedTypes.getVoidType()))) {
+        return PredefinedTypes.getStringType();
       }
       if (isNumeric(lhsType) && isNumeric(rhsType)) {
         // in this case, neither of the sides is a String
-        if ((lhsType.equals(typesFactory.getRealType()) || lhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT)) ||
-            (rhsType.equals(typesFactory.getRealType()) || rhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT))) {
-          return typesFactory.getRealType();
+        if ((lhsType.equals(PredefinedTypes.getRealType()) || lhsType.getType().equals(TypeSymbol.Type.UNIT)) ||
+            (rhsType.equals(PredefinedTypes.getRealType()) || rhsType.getType().equals(TypeSymbol.Type.UNIT))) {
+          return PredefinedTypes.getRealType();
         }
         // e.g. both are integers, but check to be sure
-        if (lhsType.equals(typesFactory.getIntegerType()) ||
-            rhsType.equals(typesFactory.getIntegerType())) {
-          return  typesFactory.getIntegerType();
+        if (lhsType.equals(PredefinedTypes.getIntegerType()) ||
+            rhsType.equals(PredefinedTypes.getIntegerType())) {
+          return  PredefinedTypes.getIntegerType();
         }
 
         final String errorMsg = "Cannot determine the type of the operation with types: " + lhsType
@@ -141,14 +135,14 @@ public class ExpressionTypeCalculator {
         throw new RuntimeException(errorMsg);
       }
       // in this case, neither of the sides is a String
-      if (lhsType.equals(typesFactory.getRealType()) ||
-          rhsType.equals(typesFactory.getRealType())) {
-        return typesFactory.getRealType();
+      if (lhsType.equals(PredefinedTypes.getRealType()) ||
+          rhsType.equals(PredefinedTypes.getRealType())) {
+        return PredefinedTypes.getRealType();
       }
       // e.g. both are integers, but check to be sure
-      if (lhsType.equals(typesFactory.getIntegerType()) ||
-          rhsType.equals(typesFactory.getIntegerType())) {
-        return  typesFactory.getIntegerType();
+      if (lhsType.equals(PredefinedTypes.getIntegerType()) ||
+          rhsType.equals(PredefinedTypes.getIntegerType())) {
+        return  PredefinedTypes.getIntegerType();
       }
 
       // TODO should be not possible
@@ -160,20 +154,20 @@ public class ExpressionTypeCalculator {
     else if (expr.isMinusOp() || expr.isTimesOp() || expr.isDivOp()) {
 
 
-      final NESTMLTypeSymbol lhsType = computeType(expr.getLeft().get());
-      final NESTMLTypeSymbol rhsType = computeType(expr.getRight().get());
+      final TypeSymbol lhsType = computeType(expr.getLeft().get());
+      final TypeSymbol rhsType = computeType(expr.getRight().get());
 
       if (isNumeric(lhsType) && isNumeric(rhsType)) {
-        if (lhsType.equals(typesFactory.getRealType()) ||
-            rhsType.equals(typesFactory.getRealType()) ||
-            lhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT) ||
-            rhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT)) {
-          return typesFactory.getRealType();
+        if (lhsType.equals(PredefinedTypes.getRealType()) ||
+            rhsType.equals(PredefinedTypes.getRealType()) ||
+            lhsType.getType().equals(TypeSymbol.Type.UNIT) ||
+            rhsType.getType().equals(TypeSymbol.Type.UNIT)) {
+          return PredefinedTypes.getRealType();
         }
         // e.g. both are integers, but check to be sure
-        if (lhsType.equals(typesFactory.getIntegerType()) ||
-            rhsType.equals(typesFactory.getIntegerType())) {
-          return  typesFactory.getIntegerType();
+        if (lhsType.equals(PredefinedTypes.getIntegerType()) ||
+            rhsType.equals(PredefinedTypes.getIntegerType())) {
+          return  PredefinedTypes.getIntegerType();
         }
 
         final String errorMsg = "Cannot determine the type of the Expression-Node @<"
@@ -191,16 +185,16 @@ public class ExpressionTypeCalculator {
     else if (expr.isPow()) {
       Preconditions.checkState(expr.getBase().isPresent());
       Preconditions.checkState(expr.getExponent().isPresent());
-      final NESTMLTypeSymbol baseType = computeType(expr.getBase().get());
-      final NESTMLTypeSymbol exponentType = computeType(expr.getExponent().get());
+      final TypeSymbol baseType = computeType(expr.getBase().get());
+      final TypeSymbol exponentType = computeType(expr.getExponent().get());
 
-      if (!baseType.equals(typesFactory.getStringType()) &&
-          !exponentType.equals(typesFactory.getStringType()) &&
-          !baseType.equals(typesFactory.getBooleanType()) &&
-          !exponentType.equals(typesFactory.getBooleanType()) &&
-          !baseType.equals(typesFactory.getVoidType()) &&
-          !exponentType.equals(typesFactory.getVoidType())) {
-       return typesFactory.getRealType();
+      if (!baseType.equals(PredefinedTypes.getStringType()) &&
+          !exponentType.equals(PredefinedTypes.getStringType()) &&
+          !baseType.equals(PredefinedTypes.getBooleanType()) &&
+          !exponentType.equals(PredefinedTypes.getBooleanType()) &&
+          !baseType.equals(PredefinedTypes.getVoidType()) &&
+          !exponentType.equals(PredefinedTypes.getVoidType())) {
+       return PredefinedTypes.getRealType();
       }
       else {
 
@@ -221,12 +215,12 @@ public class ExpressionTypeCalculator {
       Preconditions.checkState(expr.getLeft().isPresent());
       Preconditions.checkState(expr.getRight().isPresent());
 
-      final NESTMLTypeSymbol lhsType = computeType(expr.getLeft().get());
-      final NESTMLTypeSymbol rhsType = computeType(expr.getRight().get());
+      final TypeSymbol lhsType = computeType(expr.getLeft().get());
+      final TypeSymbol rhsType = computeType(expr.getRight().get());
 
-      if (lhsType.equals(typesFactory.getIntegerType()) &&
-          rhsType.equals(typesFactory.getIntegerType())) {
-        return typesFactory.getIntegerType();
+      if (lhsType.equals(PredefinedTypes.getIntegerType()) &&
+          rhsType.equals(PredefinedTypes.getIntegerType())) {
+        return PredefinedTypes.getIntegerType();
       }
       else {
         final String errorMsg = "This operation expects both operands of the type integer @<" + expr.get_SourcePositionStart() +
@@ -236,11 +230,11 @@ public class ExpressionTypeCalculator {
       }
     }
     else if (expr.isLt() || expr.isLe() || expr.isEq() || expr.isNe() || expr.isNe2() || expr.isGe() || expr.isGt()) {
-      final NESTMLTypeSymbol lhsType = computeType(expr.getLeft().get());
-      final NESTMLTypeSymbol rhsType = computeType(expr.getRight().get());
+      final TypeSymbol lhsType = computeType(expr.getLeft().get());
+      final TypeSymbol rhsType = computeType(expr.getRight().get());
 
       if (isNumeric(lhsType) && isNumeric(rhsType)) {
-        return typesFactory.getBooleanType();
+        return PredefinedTypes.getBooleanType();
       }
       else {
         final String errorMsg = "This operation expects both operands of a numeric type @<" + expr.get_SourcePositionStart() +
@@ -254,11 +248,11 @@ public class ExpressionTypeCalculator {
       computeType(expr.getExpr().get());
     }
     else if (expr.isLogicalAnd() || expr.isLogicalOr()) {
-      final NESTMLTypeSymbol lhsType = computeType(expr.getLeft().get());
-      final NESTMLTypeSymbol rhsType = computeType(expr.getRight().get());
-      if (lhsType.equals(typesFactory.getBooleanType()) &&
-          rhsType.equals(typesFactory.getBooleanType())) {
-        return typesFactory.getBooleanType();
+      final TypeSymbol lhsType = computeType(expr.getLeft().get());
+      final TypeSymbol rhsType = computeType(expr.getRight().get());
+      if (lhsType.equals(PredefinedTypes.getBooleanType()) &&
+          rhsType.equals(PredefinedTypes.getBooleanType())) {
+        return PredefinedTypes.getBooleanType();
       }
       else {
         final String errorMsg = "Both operands of the logical expression must be boolean "
@@ -280,10 +274,10 @@ public class ExpressionTypeCalculator {
   /**
    * Checks if the type is a numeric type, e.g. Integer or Real.
    */
-  private boolean isNumeric(NESTMLTypeSymbol type) {
-    return type.equals(typesFactory.getIntegerType()) ||
-        type.equals(typesFactory.getRealType()) ||
-        type.getType().equals(NESTMLTypeSymbol.Type.UNIT);
+  private boolean isNumeric(TypeSymbol type) {
+    return type.equals(PredefinedTypes.getIntegerType()) ||
+        type.equals(PredefinedTypes.getRealType()) ||
+        type.getType().equals(TypeSymbol.Type.UNIT);
 
   }
 

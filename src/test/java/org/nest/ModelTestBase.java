@@ -10,16 +10,14 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
  * Disables exit on error and provides base services for parsing and symbol table.
@@ -28,13 +26,14 @@ import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilatio
  */
 public class ModelTestBase {
 
+  protected static final NESTMLParser parser = new NESTMLParser();
+
   protected static final String OUTPUT_FOLDER = "target";
 
   protected static final String TEST_MODEL_PATH = "src/test/resources/";
 
-  protected static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
-  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
+  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
   @BeforeClass
   public static void disableFailQuick() {
@@ -47,10 +46,9 @@ public class ModelTestBase {
   }
 
   public ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
-    final NESTMLCompilationUnitMCParser p = createNESTMLCompilationUnitMCParser();
 
     try {
-      return p.parse(pathToModel).get();
+      return parser.parse(pathToModel).get();
     }
     catch (final IOException e) {
       throw new RuntimeException("Cannot parse the NESTML model: " + pathToModel, e);

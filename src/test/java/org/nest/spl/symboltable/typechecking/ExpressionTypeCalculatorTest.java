@@ -10,11 +10,10 @@ import org.junit.Test;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
-import org.nest.spl._parser.SPLFileMCParser;
-import org.nest.spl._parser.SPLParserFactory;
+import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -35,18 +34,16 @@ public class ExpressionTypeCalculatorTest {
 
   public static final String TEST_MODEL = "src/test/resources/org/nest/spl/symboltable/mathExpressions.simple";
 
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-
   @Test
   public void testTypeCalculation() throws IOException {
-    final SPLFileMCParser p = SPLParserFactory.createSPLFileMCParser();
+    final SPLParser p = new SPLParser();
     final Optional<ASTSPLFile> root = p.parse(TEST_MODEL);
     assertTrue(root.isPresent());
 
-    final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH, typesFactory);
+    final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root.get());
 
-    final ExpressionTypeCalculator calculator = new ExpressionTypeCalculator(typesFactory);
+    final ExpressionTypeCalculator calculator = new ExpressionTypeCalculator();
 
     // Retrieves line: b = 1.0
     final Optional<ASTDeclaration> bDeclaration = root.get()
@@ -56,9 +53,9 @@ public class ExpressionTypeCalculatorTest {
         .getDeclaration();
     Assert.assertTrue(bDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfB = calculator.computeType(bDeclaration.get().getExpr().get());
+    final TypeSymbol typeOfB = calculator.computeType(bDeclaration.get().getExpr().get());
     Assert.assertNotNull(typeOfB);
-    Assert.assertEquals(typesFactory.getRealType(), typeOfB);
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfB);
 
     // Retrieves line: c = 1
     final Optional<ASTAssignment> cDeclaration = root.get()
@@ -68,9 +65,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(cDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfC = calculator.computeType(cDeclaration.get().getExpr());
+    final TypeSymbol typeOfC = calculator.computeType(cDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfC);
-    Assert.assertEquals(typesFactory.getIntegerType(), typeOfC);
+    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfC);
 
     // Retrieves line: d = "test"
     final Optional<ASTAssignment> dDeclaration = root.get()
@@ -80,9 +77,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(dDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfD = calculator.computeType(dDeclaration.get().getExpr());
+    final TypeSymbol typeOfD = calculator.computeType(dDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfD);
-    Assert.assertEquals(typesFactory.getStringType(), typeOfD);
+    Assert.assertEquals(PredefinedTypes.getStringType(), typeOfD);
 
     // Retrieves line: e = 1 + 1
     final Optional<ASTAssignment> eDeclaration = root.get()
@@ -92,9 +89,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(dDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfE = calculator.computeType(eDeclaration.get().getExpr());
+    final TypeSymbol typeOfE = calculator.computeType(eDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfE);
-    Assert.assertEquals(typesFactory.getIntegerType(), typeOfE);
+    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfE);
 
     // Retrieves line: f = 1 + 1.0
     final Optional<ASTAssignment> fDeclaration = root.get()
@@ -104,9 +101,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(dDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfF = calculator.computeType(fDeclaration.get().getExpr());
+    final TypeSymbol typeOfF = calculator.computeType(fDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfF);
-    Assert.assertEquals(typesFactory.getRealType(), typeOfF);
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfF);
 
     // Retrieves line: f = 1.0 + 1
     final Optional<ASTAssignment> gDeclaration = root.get()
@@ -116,9 +113,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(dDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfG = calculator.computeType(gDeclaration.get().getExpr());
+    final TypeSymbol typeOfG = calculator.computeType(gDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfG);
-    Assert.assertEquals(typesFactory.getRealType(), typeOfG);
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfG);
 
     // Retrieves line: f = 1.0 + 1
     final Optional<ASTAssignment> hDeclaration = root.get()
@@ -128,9 +125,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(dDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfH = calculator.computeType(hDeclaration.get().getExpr());
+    final TypeSymbol typeOfH = calculator.computeType(hDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfH);
-    Assert.assertEquals(typesFactory.getRealType(), typeOfH);
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfH);
 
     // Retrieves line: i = ~1
     final Optional<ASTAssignment> iDeclaration = root.get()
@@ -140,9 +137,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(iDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfI = calculator.computeType(iDeclaration.get().getExpr());
+    final TypeSymbol typeOfI = calculator.computeType(iDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfI);
-    Assert.assertEquals(typesFactory.getIntegerType(), typeOfI);
+    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfI);
 
     // Retrieves line: j = ~b, b is a string
     final Optional<ASTAssignment> jDeclaration = root.get()
@@ -168,9 +165,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(iDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfK = calculator.computeType(kDeclaration.get().getExpr());
+    final TypeSymbol typeOfK = calculator.computeType(kDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfK);
-    Assert.assertEquals(typesFactory.getRealType(), typeOfK);
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfK);
 
     // Retrieves line: m = 1 ** d, b is a string
     final Optional<ASTAssignment> mDeclaration = root.get()
@@ -196,9 +193,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(oDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfO = calculator.computeType(oDeclaration.get().getExpr());
+    final TypeSymbol typeOfO = calculator.computeType(oDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfO);
-    Assert.assertEquals(typesFactory.getIntegerType(), typeOfO);
+    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfO);
 
     // Retrieves line: p = 1 - 1.0
     final Optional<ASTAssignment> pDeclaration = root.get()
@@ -208,9 +205,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(pDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfP = calculator.computeType(pDeclaration.get().getExpr());
+    final TypeSymbol typeOfP = calculator.computeType(pDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfP);
-    Assert.assertEquals(typesFactory.getRealType(), typeOfP);
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfP);
 
     // Retrieves line: r = 1 - d, b is a string
     final Optional<ASTAssignment> rDeclaration = root.get()
@@ -236,9 +233,9 @@ public class ExpressionTypeCalculatorTest {
         .getAssignment();
     Assert.assertTrue(sDeclaration.isPresent());
 
-    final NESTMLTypeSymbol typeOfS = calculator.computeType(sDeclaration.get().getExpr());
+    final TypeSymbol typeOfS = calculator.computeType(sDeclaration.get().getExpr());
     Assert.assertNotNull(typeOfS);
-    Assert.assertEquals(typesFactory.getBooleanType(), typeOfS);
+    Assert.assertEquals(PredefinedTypes.getBooleanType(), typeOfS);
 
     final Optional<ASTDeclaration> P11exAST = root.get()
         .getBlock().getStmts().get(19)
@@ -247,9 +244,9 @@ public class ExpressionTypeCalculatorTest {
         .getDeclaration();
     Assert.assertTrue(P11exAST.isPresent());
 
-    final NESTMLTypeSymbol P11exType = calculator.computeType(P11exAST.get().getExpr().get());
+    final TypeSymbol P11exType = calculator.computeType(P11exAST.get().getExpr().get());
     Assert.assertNotNull(P11exType);
-    Assert.assertEquals(typesFactory.getRealType(), P11exType);
+    Assert.assertEquals(PredefinedTypes.getRealType(), P11exType);
 
   }
 

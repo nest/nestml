@@ -7,11 +7,11 @@ package org.nest.nestml.symboltable.iaf_neuron:
         use TestComponent as TestRef
 
         state:
-            - y0 mV
-            - y1 mV
-            - y2 mV
-            - y3 mV
-            - r  integer
+            y0 mV
+            y1 mV
+            y2 mV
+            y3 mV
+            r  integer
             # Membrane potential.
             alias V_m mV = y3 + E_L
         end
@@ -27,8 +27,8 @@ package org.nest.nestml.symboltable.iaf_neuron:
             t_ref    ms = 2
             # Resting potential.
             E_L      mV = -70
-            - delta_V_reset mV = -70 - E_L
-            -Theta   mV = -55 - E_L
+            delta_V_reset mV = -70 - E_L
+            Theta   mV = -55 - E_L
             # External current.
             I_e     pA = 0
 
@@ -36,7 +36,7 @@ package org.nest.nestml.symboltable.iaf_neuron:
             # Threshold.
             alias V_th mV = Theta + E_L
             # Reset value of the membrane potential.
-            alias  V_reset mV = delta_V_reset + E_L
+            log alias  V_reset mV = delta_V_reset + E_L
             # invariant V_reset >= Theta
 
             # tests the correct scoping rules
@@ -73,11 +73,11 @@ package org.nest.nestml.symboltable.iaf_neuron:
 
             # alpha shape PSCs
             y2 = P21 * y1 + P22 * y2
-            y1 = y1 * P11
+            y1 *= P11
 
             # Apply spikes delivered in this step: The spikes arriving at T+1 have an
             # immediate effect on the state of the neuron
-            y1 = y1 + PSCInitialValue * spikeBuffer.getSum(t)
+            y1 += PSCInitialValue * spikeBuffer.getSum(t)
 
             # threshold crossing
             if y3 >= Theta:
@@ -90,7 +90,6 @@ package org.nest.nestml.symboltable.iaf_neuron:
 
             # set new input current
             y0 = currentBuffer.getSum(t);
-
             newVarInMethod real = 1.0
         end
 

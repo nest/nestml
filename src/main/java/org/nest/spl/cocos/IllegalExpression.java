@@ -12,9 +12,9 @@ import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.*;
 import org.nest.spl._cocos.*;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 
 import java.util.Optional;
@@ -41,13 +41,9 @@ public class IllegalExpression implements
 
   private final ExpressionTypeCalculator typeCalculator;
 
-  private final PredefinedTypesFactory predefinedTypesFactory;
-
-  public IllegalExpression(final PredefinedTypesFactory predefinedTypesFactory) {
-    typeCalculator = new ExpressionTypeCalculator(predefinedTypesFactory);
-    this.predefinedTypesFactory = predefinedTypesFactory;
+  public IllegalExpression() {
+    typeCalculator = new ExpressionTypeCalculator();
   }
-
 
   @Override
   public void check(final ASTAssignment node) {
@@ -67,15 +63,15 @@ public class IllegalExpression implements
       final String varNameFromDeclaration = node.getVars().get(0);
       final String declarationTypeName = getDeclarationTypeName(node);
       final Optional<Symbol> varType = scope.resolve(varNameFromDeclaration,
-          NESTMLVariableSymbol.KIND);
+          VariableSymbol.KIND);
       Preconditions.checkState(varType.isPresent(), "Cannot resolve the type of the variable:  " + varNameFromDeclaration);
 
-      NESTMLTypeSymbol initializerExpressionType;
+      TypeSymbol initializerExpressionType;
 
-      NESTMLTypeSymbol variableDeclarationType;
+      TypeSymbol variableDeclarationType;
       try {
         initializerExpressionType = typeCalculator.computeType(node.getExpr().get());
-        variableDeclarationType = predefinedTypesFactory.getType(declarationTypeName);
+        variableDeclarationType = PredefinedTypes.getType(declarationTypeName);
         // TODO write a helper get assignable
         if (!isCompatible(variableDeclarationType, initializerExpressionType)) {
           final String msg = "Cannot initialize variable with an expression of type: " +
@@ -109,7 +105,7 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTELIF_Clause node) {
     try {
-      if (!typeCalculator.computeType(node.getExpr()).equals(predefinedTypesFactory.getBooleanType())) {
+      if (!typeCalculator.computeType(node.getExpr()).equals(PredefinedTypes.getBooleanType())) {
         final String msg = "Cannot use non boolean expression in an if statement " +
             "@" + node.get_SourcePositionStart();
        error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
@@ -130,7 +126,7 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTIF_Clause node) {
     try {
-      if (!typeCalculator.computeType(node.getExpr()).equals(predefinedTypesFactory.getBooleanType())) {
+      if (!typeCalculator.computeType(node.getExpr()).equals(PredefinedTypes.getBooleanType())) {
         final String msg = "Cannot use non boolean expression in an if statement " +
             "@" + node.get_SourcePositionStart();
        error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
@@ -147,7 +143,7 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTWHILE_Stmt node) {
     try {
-      if (!typeCalculator.computeType(node.getExpr()).equals(predefinedTypesFactory.getBooleanType())) {
+      if (!typeCalculator.computeType(node.getExpr()).equals(PredefinedTypes.getBooleanType())) {
         final String msg = "Cannot use non boolean expression in a while statement " +
             "@" + node.get_SourcePositionStart();
        error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
@@ -162,20 +158,23 @@ public class IllegalExpression implements
 
   }
 
-  private boolean isCompatible(final NESTMLTypeSymbol lhsType, final NESTMLTypeSymbol rhsType) {
+  private boolean isCompatible(final TypeSymbol lhsType, final TypeSymbol rhsType) {
     if (lhsType.equals(rhsType)) {
       return true;
     }
-    else if (lhsType.equals(predefinedTypesFactory.getRealType()) &&
-        rhsType.equals(predefinedTypesFactory.getIntegerType())) {
+    else if (lhsType.equals(PredefinedTypes.getRealType()) &&
+        rhsType.equals(PredefinedTypes.getIntegerType())) {
       return true;
     }
-    else if (lhsType.equals(predefinedTypesFactory.getIntegerType()) && rhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT) ||
-        rhsType.equals(predefinedTypesFactory.getIntegerType()) && lhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT)) {
+    else if (lhsType.equals(PredefinedTypes.getIntegerType()) && rhsType.getType().equals(
+        TypeSymbol.Type.UNIT) ||
+        rhsType.equals(PredefinedTypes.getIntegerType()) && lhsType.getType().equals(
+            TypeSymbol.Type.UNIT)) {
       return true;
     }
-    else if (lhsType.equals(predefinedTypesFactory.getRealType()) && rhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT) ||
-        rhsType.equals(predefinedTypesFactory.getRealType()) && lhsType.getType().equals(NESTMLTypeSymbol.Type.UNIT)) {
+    else if (lhsType.equals(PredefinedTypes.getRealType()) && rhsType.getType().equals(
+        TypeSymbol.Type.UNIT) ||
+        rhsType.equals(PredefinedTypes.getRealType()) && lhsType.getType().equals(TypeSymbol.Type.UNIT)) {
       return true;
     }
 

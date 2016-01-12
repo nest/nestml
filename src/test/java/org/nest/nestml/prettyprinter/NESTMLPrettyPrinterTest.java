@@ -1,15 +1,11 @@
 package org.nest.nestml.prettyprinter;
 
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
-import org.nest.nestml._parser.NESTMLParserFactory;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,16 +15,16 @@ import java.util.Optional;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Created by user on 29.05.15.
+ * Processes all NESTML modles. Then, prettyprints them and parses again, to check the soundness of
+ * the printed models.
+ *
+ * @author plotnikov
  */
 public class NESTMLPrettyPrinterTest {
-  private final NESTMLCompilationUnitMCParser nestmlParser = NESTMLParserFactory
-      .createNESTMLCompilationUnitMCParser();
+  private final NESTMLParser nestmlParser = new NESTMLParser();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
 
   private Optional<ASTNESTMLCompilationUnit> parseStringAsSPLFile(final String fileAsString) throws IOException {
-
     return nestmlParser.parse(new StringReader(fileAsString));
   }
 
@@ -81,7 +77,7 @@ public class NESTMLPrettyPrinterTest {
     final Optional<ASTNESTMLCompilationUnit> splModelRoot = nestmlParser.parse(pathToModel);
     assertTrue("Cannot parse the model: " + pathToModel, splModelRoot.isPresent());
 
-    NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
+    NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     nestmlScopeCreator.runSymbolTableCreator(splModelRoot.get());
     splModelRoot.get().accept(splPrettyPrinter);
 

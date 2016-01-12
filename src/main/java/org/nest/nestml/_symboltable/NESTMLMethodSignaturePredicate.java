@@ -7,7 +7,7 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolPredicate;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +31,9 @@ public class NESTMLMethodSignaturePredicate implements SymbolPredicate {
   @Override
   public boolean apply(final Symbol symbol) {
     if ((symbol != null) &&
-        symbol.isKindOf(NESTMLMethodSymbol.KIND) &&
-        (symbol instanceof NESTMLMethodSymbol)) {
-      final NESTMLMethodSymbol methodSymbol = (NESTMLMethodSymbol) symbol;
+        symbol.isKindOf(MethodSymbol.KIND) &&
+        (symbol instanceof MethodSymbol)) {
+      final MethodSymbol methodSymbol = (MethodSymbol) symbol;
 
       if (methodSymbol.getName().equals(expectedMethodName) &&
           (methodSymbol.getParameterTypes().size() == expectedParameterTypes.size())) {

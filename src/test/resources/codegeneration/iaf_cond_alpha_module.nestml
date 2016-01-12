@@ -3,8 +3,8 @@ package codegeneration.iaf_cond_alpha_module:
 neuron iaf_cond_alpha_neuron:
 
   state:
-    V_m real = 0
-    - r integer
+    GI, GE, V_m real = 0
+
   end
 
   parameter:
@@ -22,6 +22,11 @@ neuron iaf_cond_alpha_neuron:
    tau_synE ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
    tau_synI ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
    I_e pA = 0           # Constant Current in pA
+
+   # Input current injected by CurrentEvent.
+   # This variable is used to transport the current applied into the
+   # _dynamics function computing the derivative of the state vector.
+   I_stim pA = 0
   end
 
   function set_Tau(v ms):
@@ -29,6 +34,7 @@ neuron iaf_cond_alpha_neuron:
 
   internal:
     h   ms   = resolution()
+    r integer
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
@@ -55,22 +61,37 @@ neuron iaf_cond_alpha_neuron:
     if r == 0: # not refractory
       ODE:
         # Explicit
-        GI === (E/Tau) * t * exp(-1/tau_synI*t)
-        GE === (E/Tau) * t * exp(-1/tau_synE*t)
-        d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
+        GI := (E/Tau) * t * exp(-1/tau_synI*t)
+        GE := (E/Tau) * t * exp(-1/tau_synE*t)
+        d/dt V_m := -1/((1 / g_L) * C_m) * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
 
         # Implicit
-        # d/dt DGI === DGI/tau_synI
-        # d/dt GI === DGI - GI/tau_synI
-        # d/dt DGE === DGE/tau_synE
-        # d/dt GE === DGE - GE/tau_synE
-        # d/dt V_m === -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
+        # d/dt DGI := DGI/tau_synI
+        # d/dt GI := DGI - GI/tau_synI
+        # d/dt DGE := DGE/tau_synE
+        # d/dt GE := DGE - GE/tau_synE
+        # d/dt V_m := -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
 
       end
 
     else:
       r = r - 1
     end
+
+    if r != 0: # not refractory
+      r =  r - 1
+      V_m = V_reset # clamp potential
+
+    elif V_m >= V_th:
+      r = RefractoryCounts
+      V_m = V_reset # clamp potential
+      emitSpike()
+
+    end
+
+    # TODO DGE = DGE + spikeExc.getSum() * PSConInit_E;
+    # TODO DGI = DGI + spikeInh.getSum() * PSConInit_I;
+    I_stim = currents.getSum()
   end
 
 end

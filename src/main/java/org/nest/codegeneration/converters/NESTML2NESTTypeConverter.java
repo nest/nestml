@@ -1,8 +1,8 @@
 
 package org.nest.codegeneration.converters;
 
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 /**
  * Converts NESTML types to the
@@ -10,42 +10,37 @@ import org.nest.symboltable.symbols.NESTMLTypeSymbol;
  * @author plotnikov
  */
 public class NESTML2NESTTypeConverter {
-  final PredefinedTypesFactory typesFactory;
 
-  public NESTML2NESTTypeConverter(PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-  }
-
-  public String convert(final NESTMLTypeSymbol nestmlType) {
+  public String convert(final TypeSymbol nestmlType) {
     return doConvert(nestmlType);
   }
 
-  public String doConvert(final NESTMLTypeSymbol nestmlType) {
-    if (typesFactory.getStringType().equals(nestmlType)) {
+  public String doConvert(final TypeSymbol nestmlType) {
+    if (PredefinedTypes.getStringType().equals(nestmlType)) {
       return "std::string";
     }
 
-    if (typesFactory.getVoidType().equals(nestmlType)) {
+    if (PredefinedTypes.getVoidType().equals(nestmlType)) {
       return "void";
     }
 
-    if (typesFactory.getBufferType().equals(nestmlType)) {
+    if (PredefinedTypes.getBufferType().equals(nestmlType)) {
       return "nest::RingBuffer";
     }
 
-    if (typesFactory.getBooleanType().equals(nestmlType)) {
+    if (PredefinedTypes.getBooleanType().equals(nestmlType)) {
       return "bool";
     }
 
-    if (nestmlType.getType() == NESTMLTypeSymbol.Type.UNIT) {
+    if (nestmlType.getType() == TypeSymbol.Type.UNIT) {
       return "nest::double_t";
     }
 
-    if (typesFactory.getRealType().equals(nestmlType)) {
+    if (PredefinedTypes.getRealType().equals(nestmlType)) {
       return "nest::double_t";
     }
 
-    if (typesFactory.getIntegerType().equals(nestmlType)) {
+    if (PredefinedTypes.getIntegerType().equals(nestmlType)) {
       return "int";
     }
 

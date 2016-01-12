@@ -8,20 +8,16 @@ package org.nest.codegeneration.sympy;
 import org.junit.Test;
 import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLCompilationUnitMCParser;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
 
-import java.io.*;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static de.se_rwth.commons.Names.getPathFromPackage;
-import static de.se_rwth.commons.Names.getQualifiedName;
 import static org.junit.Assert.assertTrue;
 import static org.nest.codegeneration.sympy.SymPyScriptGenerator.generateSympyODEAnalyzer;
-import static org.nest.nestml._parser.NESTMLParserFactory.createNESTMLCompilationUnitMCParser;
 
 /**
  * Tests that the solver script is generated from an ODE based model.
@@ -46,14 +42,12 @@ public class SymPyScriptGeneratorTest extends ModelTestBase {
   }
 
   private void generateScriptForModel(final String pathToModel) throws IOException {
-    final NESTMLCompilationUnitMCParser p =
-        createNESTMLCompilationUnitMCParser();
+    final NESTMLParser p = new NESTMLParser();
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
 
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
-        TEST_MODEL_PATH, typesFactory);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(

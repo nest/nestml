@@ -10,8 +10,7 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTDynamics;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
+import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.utils.NESTMLSymbols;
 
 import java.util.List;
@@ -30,12 +29,6 @@ public class NESTMLDynamicsPrinter {
 
   public static final String DEFAULT_DYNAMICS_NAME = "dynamics";
 
-  public final PredefinedTypesFactory typesFactory;
-
-  public NESTMLDynamicsPrinter(PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-  }
-
   public String printDynamicsType(final ASTDynamics dynamics) {
     checkArgument(dynamics.getEnclosingScope().isPresent());
     final Scope scope = dynamics.getEnclosingScope().get();
@@ -46,10 +39,10 @@ public class NESTMLDynamicsPrinter {
       parameters.add(parameterTypeFqn);
     }
 
-    Optional<NESTMLMethodSymbol> dynamicsSymbol = NESTMLSymbols.resolveMethod(scope, DEFAULT_DYNAMICS_NAME, parameters);
+    Optional<MethodSymbol> dynamicsSymbol = NESTMLSymbols.resolveMethod(scope, DEFAULT_DYNAMICS_NAME, parameters);
     checkState(dynamicsSymbol.isPresent(), "Cannot resolve neuron's dynamic: " + DEFAULT_DYNAMICS_NAME);
 
-    String typeName = new NESTML2NESTTypeConverter(typesFactory).convert(dynamicsSymbol.get().getParameterTypes().get(0));
+    String typeName = new NESTML2NESTTypeConverter().convert(dynamicsSymbol.get().getParameterTypes().get(0));
     return typeName.replace(".", "::");
   }
 

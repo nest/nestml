@@ -6,20 +6,18 @@
 package org.nest.nestml.cocos;
 
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.nestml.cocos.spl.BufferNotAssignable;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
@@ -32,32 +30,19 @@ import static org.nest.utils.LogHelper.countErrorsByPrefix;
 /**
  * Test every context context conditions. For each implemented context condition there is one model that contains exactly one tested error.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
-public class NESTMLCoCosTest {
-
-  public static final String TEST_MODEL_PATH = "src/test/resources/";
+public class NESTMLCoCosTest extends ModelTestBase {
 
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/nestml/cocos/";
 
   private NESTMLCoCoChecker nestmlCoCoChecker;
 
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-
-  private NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH, typesFactory);
-
-  @BeforeClass
-  public static void initLog() {
-    Log.enableFailQuick(false);
-  }
+  private NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
   @Before
   public void setup() {
-    getFindings().clear();
     nestmlCoCoChecker = new NESTMLCoCoChecker();
-
   }
 
   @After
@@ -72,9 +57,9 @@ public class NESTMLCoCosTest {
         TEST_MODELS_FOLDER + "functionWithOutReturn.nestml");
     assertTrue(ast.isPresent());
 
-    scopeCreator.getTypesFactory().getTypes().forEach(type -> {
-      Optional<NESTMLTypeSymbol> predefinedType = scopeCreator.getGlobalScope()
-          .resolve(Names.getSimpleName(type.getName()), NESTMLTypeSymbol.KIND);
+    PredefinedTypes.getTypes().forEach(type -> {
+      Optional<TypeSymbol> predefinedType = scopeCreator.getGlobalScope()
+          .resolve(Names.getSimpleName(type.getName()), TypeSymbol.KIND);
       assertTrue("Cannot resolve the predefined type: " + type.getFullName(),
           predefinedType.isPresent());
     });
@@ -173,8 +158,7 @@ public class NESTMLCoCosTest {
 
     scopeCreator.runSymbolTableCreator(ast.get());
 
-    final CorrectReturnValues correctReturnValues
-        = new CorrectReturnValues(scopeCreator.getTypesFactory());
+    final CorrectReturnValues correctReturnValues = new CorrectReturnValues();
     nestmlCoCoChecker.addCoCo(correctReturnValues);
     nestmlCoCoChecker.checkAll(ast.get());
 
@@ -220,8 +204,7 @@ public class NESTMLCoCosTest {
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
-    final FunctionHasReturnStatement functionHasReturnStatement = new FunctionHasReturnStatement(
-        scopeCreator.getTypesFactory());
+    final FunctionHasReturnStatement functionHasReturnStatement = new FunctionHasReturnStatement();
     nestmlCoCoChecker.addCoCo(functionHasReturnStatement);
     nestmlCoCoChecker.checkAll(ast.get());
 
@@ -344,11 +327,11 @@ public class NESTMLCoCosTest {
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
-    final NESTGetterSetterFunctionNames nestGetterSetterFunctionNames = new NESTGetterSetterFunctionNames();
-    nestmlCoCoChecker.addCoCo(nestGetterSetterFunctionNames);
+    final GetterSetterFunctionNames getterSetterFunctionNames = new GetterSetterFunctionNames();
+    nestmlCoCoChecker.addCoCo(getterSetterFunctionNames);
     nestmlCoCoChecker.checkAll(ast.get());
 
-    Integer errorsFound = countErrorsByPrefix(NESTGetterSetterFunctionNames.ERROR_CODE,
+    Integer errorsFound = countErrorsByPrefix(GetterSetterFunctionNames.ERROR_CODE,
         getFindings());
     assertEquals(Integer.valueOf(4), errorsFound);
   }
@@ -457,26 +440,6 @@ public class NESTMLCoCosTest {
   }
 
   @Test
-  public void testSplCocosInNestml() {
-    final NESTMLCoCoChecker nestmlCoCoCheckerWithSPLCocos = new NESTMLCoCoChecker();
-    final SPLCoCosManager splCoCosManager  = new SPLCoCosManager(scopeCreator.getTypesFactory());
-    splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoCheckerWithSPLCocos);
-
-    String pathToValidModel = TEST_MODELS_FOLDER + "splInFunctions/validMethod.nestml";
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoCheckerWithSPLCocos,
-        "SPL_");
-
-    String pathToInvalidModel = TEST_MODELS_FOLDER + "splInFunctions/invalidMethod.nestml";
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoCheckerWithSPLCocos,
-        "SPL_",
-        18);
-  }
-
-  @Test
   public void testVarHasTypeName() {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "varWithTypeName.nestml");
     assertTrue(ast.isPresent());
@@ -515,7 +478,7 @@ public class NESTMLCoCosTest {
   @Test
   public void testSplInFunctions() {
     final NESTMLCoCoChecker nestmlCoCoCheckerWithSPLCocos = new NESTMLCoCoChecker();
-    final SPLCoCosManager splCoCosManager  = new SPLCoCosManager(scopeCreator.getTypesFactory());
+    final SPLCoCosManager splCoCosManager  = new SPLCoCosManager();
     splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoCheckerWithSPLCocos);
 
     String pathToValidModel = TEST_MODELS_FOLDER + "splInFunctions/validMethod.nestml";
@@ -536,7 +499,7 @@ public class NESTMLCoCosTest {
   @Test
   public void testInvalidInvariantExpressionType() {
     final BooleanInvariantExpressions booleanInvariantExpressions
-        = new BooleanInvariantExpressions(scopeCreator.getTypesFactory());
+        = new BooleanInvariantExpressions();
     nestmlCoCoChecker.addCoCo(booleanInvariantExpressions);
 
     String pathToValidModel = TEST_MODELS_FOLDER + "invariants/validInvariantType.nestml";

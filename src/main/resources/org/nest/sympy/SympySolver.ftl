@@ -13,6 +13,13 @@ ${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
 </#list>
 rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
 
+var("${EQs[0].getLhsVariable()}")
+rhsTmp = ${expressionsPrettyPrinter.print(ode.getRhs())}
+contantTerm = simplify(rhsTmp - diff(rhsTmp, ${ode.getLhsVariable()})*${ode.getLhsVariable()} - diff(rhsTmp, ${EQs[0].getLhsVariable()})*${EQs[0].getLhsVariable()})
+<#list EQs as eq>
+${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
+</#list>
+
 
 dev${ode.getLhsVariable()} = diff(rhs, ${ode.getLhsVariable()})
 dev_t_dev${ode.getLhsVariable()} = diff(dev${ode.getLhsVariable()}, t)
@@ -107,8 +114,7 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
         f.write(stateVariables[i] + " = " + str(simplify(propagatorMatrix*y_vector)[i]) + "# Update\n")
 
     f = open('update.step.mat', 'w')
-    # TODO it is a hack
-    f.write("V = P30 * (y0 + I_e) + " + str(simplify(propagatorMatrix*y_vector)[order]))
+    f.write("V = P30 * (" + str(contantTerm) + ") + " + str(simplify(propagatorMatrix*y_vector)[order]))
 
     f = open('pscInitialValue.mat', 'w')
     f.write("PSCInitialValue real = " + str(simplify(X[0, 1])) + "# PSCInitial value")
@@ -172,7 +178,7 @@ else:
         A = Matrix([[a_1[0], 0],
                 [c2, c1]])
 
-        f.write("d/dt y1 === y1 * " + str(A[0, 0]) + "\n")
+        f.write("d/dt y1 := y1 * " + str(A[0, 0]) + "\n")
     elif order == 2:
         # VecA only if order 2 or larger
         solutionpq = -VecA[1]/2 + sqrt(VecA[1]**2 / 4 + VecA[0])
@@ -180,8 +186,8 @@ else:
         A = Matrix([[VecA[1]+solutionpq, 0,             0     ],
                    [1,                   -solutionpq,   0     ],
                    [0,                   c2,        c1]])
-        f.write("d/dt D${eq.getLhsVariable()} === D${eq.getLhsVariable()}*" + str(simplify(A[0,0])) +"\n")
-        f.write("d/dt ${eq.getLhsVariable()} === D${eq.getLhsVariable()} * ${eq.getLhsVariable()} *" + str(simplify(A[1,1])) + "\n")
+        f.write("d/dt D${eq.getLhsVariable()} := D${eq.getLhsVariable()}*" + str(simplify(A[0,0])) +"\n")
+        f.write("d/dt ${eq.getLhsVariable()} := D${eq.getLhsVariable()} + ${eq.getLhsVariable()} *" + str(simplify(A[1,1])) + "\n")
 
     elif order > 2:
         A = zeros(order)
@@ -192,7 +198,7 @@ else:
         for i in range(1,order-1):
             A[i,i-1]=1
 
-        y1_derivation = "d/dt y1 === "
+        y1_derivation = "d/dt y1 := "
         separator = ""
         for i in range(0, order-1):
             y1_derivation = separator + "y"+str(i)*str(simplify(A[0,i-1]))

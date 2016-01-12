@@ -6,7 +6,6 @@
 package org.nest.spl.codegeneration;
 
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.se_rwth.commons.Names;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nest.codegeneration.helpers.NESTMLDeclarations;
@@ -15,10 +14,9 @@ import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
-import org.nest.spl._parser.SPLFileMCParser;
-import org.nest.spl._parser.SPLParserFactory;
+import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
+import org.nest.symboltable.predefined.PredefinedTypes;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,16 +32,13 @@ public class SPL2NESTCodeGeneratorTest {
 
   private static final String OUTPUT_FOLDER = "target";
 
-  private static final PredefinedTypesFactory typesFactory = new PredefinedTypesFactory();
-
   private GlobalExtensionManagement createGLEXConfiguration() {
-
     return new GlobalExtensionManagement();
   }
 
   @Test
   public void invokeSPL2NESTGenerator() throws IOException {
-    final SPLFileMCParser p = SPLParserFactory.createSPLFileMCParser();
+    final SPLParser p = new SPLParser();
     final File outputFolder = new File(OUTPUT_FOLDER);
     final String packageName = "org.nest.spl.codegeneration";
     final String modelName = "decl";
@@ -53,12 +48,12 @@ public class SPL2NESTCodeGeneratorTest {
     Optional<ASTSPLFile> root = p.parse(TEST_MODEL_PATH + File.separator + fullQualifiedModelname.replaceAll("\\.", File.separator) + ".simple");
     Assert.assertTrue(root.isPresent());
 
-    final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH, typesFactory);
+    final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     splScopeCreator.runSymbolTableCreator(root.get());
 
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final SPL2NESTCodeGenerator generator = new SPL2NESTCodeGenerator(glex, typesFactory, outputFolder);
-    final NESTMLDeclarations declarations = new NESTMLDeclarations(splScopeCreator.getTypesFactory());
+    final SPL2NESTCodeGenerator generator = new SPL2NESTCodeGenerator(glex, outputFolder);
+    final NESTMLDeclarations declarations = new NESTMLDeclarations();
     glex.setGlobalValue("declarations", declarations);
 
     // tests code generation for a spldeclaration

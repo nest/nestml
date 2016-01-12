@@ -9,7 +9,7 @@ import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 
@@ -38,9 +38,9 @@ public class GSLReferenceConverter implements IReferenceConverter {
   public String convertNameReference(final ASTQualifiedName astQualifiedName) {
     checkState(astQualifiedName.getEnclosingScope().isPresent(), "Run symbol table creator.");
     final String variableName = Names.getQualifiedName(astQualifiedName.getParts());
-    final NESTMLVariableSymbol variableSymbol
+    final VariableSymbol variableSymbol
         = resolveVariable(variableName, astQualifiedName.getEnclosingScope().get());
-    if (variableSymbol.getBlockType().equals(NESTMLVariableSymbol.BlockType.STATE)) {
+    if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE)) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
     }
     else {
@@ -49,7 +49,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
         return "numerics::e";
       }
       else {
-        if (variableSymbol.getBlockType().equals(NESTMLVariableSymbol.BlockType.LOCAL)) {
+        if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
           return variableName;
         }
         else {
@@ -77,9 +77,9 @@ public class GSLReferenceConverter implements IReferenceConverter {
     throw new UnsupportedOperationException();
   }
 
-  private NESTMLVariableSymbol resolveVariable(final String variableName, final Scope scope) {
-    final Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(
-        variableName, NESTMLVariableSymbol.KIND);
+  private VariableSymbol resolveVariable(final String variableName, final Scope scope) {
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(
+        variableName, VariableSymbol.KIND);
     checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
     return variableSymbol.get();
   }

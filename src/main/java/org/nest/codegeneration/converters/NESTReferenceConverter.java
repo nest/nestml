@@ -9,9 +9,9 @@ import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.symboltable.predefined.PredefinedTypesFactory;
-import org.nest.symboltable.symbols.NESTMLMethodSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
 import org.nest.utils.NESTMLSymbols;
 
@@ -27,12 +27,6 @@ import static com.google.common.base.Preconditions.checkState;
  * @author plotnikov
  */
 public class NESTReferenceConverter implements IReferenceConverter {
-
-  private final PredefinedTypesFactory typesFactory;
-
-  public NESTReferenceConverter(final PredefinedTypesFactory typesFactory) {
-    this.typesFactory = typesFactory;
-  }
 
   @Override
   public String convertBinaryOperator(String binaryOperator) {
@@ -64,13 +58,11 @@ public class NESTReferenceConverter implements IReferenceConverter {
     if ("or".equals(functionName)) {
       return "||";
     }
-    // Time.resolution() ->
-    // nestml::Time::get_resolution().get_ms
+    // Time.resolution() -> nestml::Time::get_resolution().get_ms
     if ("resolution".equals(functionName)) {
       return "nest::Time::get_resolution().get_ms()";
     }
-    // Time.steps ->
-    // nest::Time(nest::Time::ms( args )).get_steps());
+    // Time.steps -> nest::Time(nest::Time::ms( args )).get_steps());
     if ("steps".equals(functionName)) {
       return "nest::Time(nest::Time::ms(%s)).get_steps()";
     }
@@ -94,13 +86,13 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return emitStatements;
     }
 
-    final List<String> callTypes = ASTNodes.getArgumentsTypes(astFunctionCall, typesFactory);
-    final Optional<NESTMLMethodSymbol> functionSymbol
+    final List<String> callTypes = ASTNodes.getArgumentsTypes(astFunctionCall);
+    final Optional<MethodSymbol> functionSymbol
         = NESTMLSymbols.resolveMethod(scope, functionName, callTypes);
     if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell
 
       if (functionSymbol.get().getDeclaringType().getName().equals("Buffer")) {
-        final NESTMLVariableSymbol variableSymbol = resolveVariable(
+        final VariableSymbol variableSymbol = resolveVariable(
             Names.getQualifier(functionName), scope);
 
 
@@ -123,9 +115,9 @@ public class NESTReferenceConverter implements IReferenceConverter {
     return functionName;
   }
 
-  private NESTMLVariableSymbol resolveVariable(final String variableName, final Scope scope) {
-    final Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(
-        variableName, NESTMLVariableSymbol.KIND);
+  private VariableSymbol resolveVariable(final String variableName, final Scope scope) {
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(
+        variableName, VariableSymbol.KIND);
     checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
     return variableSymbol.get();
   }
@@ -140,12 +132,16 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return "numerics::e";
     }
     else {
-      final Optional<NESTMLVariableSymbol> variableSymbol = scope.resolve(name, NESTMLVariableSymbol.KIND);
+      final Optional<VariableSymbol> variableSymbol = scope.resolve(name, VariableSymbol.KIND);
 
       checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + name);
 
-      if (variableSymbol.get().getBlockType().equals(NESTMLVariableSymbol.BlockType.LOCAL)) {
+      if (variableSymbol.get().getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
         return name;
+      }
+      else if(variableSymbol.get().getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT ||
+          variableSymbol.get().getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT) {
+        return "get_" + name + "().get_value( lag )";
       }
       else {
         if (variableSymbol.get().getArraySizeParameter().isPresent()) {

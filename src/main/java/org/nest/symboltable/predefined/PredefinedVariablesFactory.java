@@ -7,9 +7,9 @@ package org.nest.symboltable.predefined;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import org.nest.symboltable.symbols.NESTMLNeuronSymbol;
-import org.nest.symboltable.symbols.NESTMLTypeSymbol;
-import org.nest.symboltable.symbols.NESTMLVariableSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Map;
 import java.util.Set;
@@ -23,25 +23,25 @@ import java.util.Set;
  */
 public class PredefinedVariablesFactory {
   private static final String E_CONSTANT = "E";
-  private static final NESTMLNeuronSymbol predefinedComponent = new NESTMLNeuronSymbol("Math",
-      NESTMLNeuronSymbol.Type.COMPONENT);
+  private static final NeuronSymbol predefinedComponent = new NeuronSymbol("Math",
+      NeuronSymbol.Type.COMPONENT);
 
-  private final Map<String, NESTMLVariableSymbol> name2VariableSymbol = Maps.newHashMap();
+  private final Map<String, VariableSymbol> name2VariableSymbol = Maps.newHashMap();
 
-  public PredefinedVariablesFactory(PredefinedTypesFactory predefinedTypesFactory) {
-    registerVariable(E_CONSTANT, predefinedTypesFactory.getType("real"));
+  public PredefinedVariablesFactory() {
+    registerVariable(E_CONSTANT, PredefinedTypes.getRealType());
 
   }
 
   private void registerVariable(
-      final String variableName, final NESTMLTypeSymbol type) {
-    final NESTMLVariableSymbol variableSymbol = new NESTMLVariableSymbol(variableName);
+      final String variableName, final TypeSymbol type) {
+    final VariableSymbol variableSymbol = new VariableSymbol(variableName);
     variableSymbol.setDeclaringType(predefinedComponent);
     variableSymbol.setType(type);
     name2VariableSymbol.put(variableName, variableSymbol);
   }
 
-  public Set<NESTMLVariableSymbol> gerVariables() {
+  public Set<VariableSymbol> gerVariables() {
     return ImmutableSet.copyOf(name2VariableSymbol.values());
   }
 

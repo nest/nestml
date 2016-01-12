@@ -31,7 +31,7 @@ end
 println();
 pow(x2, y2)
 
-Logger.info("" + 3+4**6)
+info("" + 3+4**6)
 
 x2, y2 real
 x2 = 1

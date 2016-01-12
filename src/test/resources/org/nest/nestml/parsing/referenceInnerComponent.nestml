@@ -16,7 +16,7 @@ package org.nest.nestml.parsing.referenceInnerComponent:
         
         function testHelloWorld():
             #soma.helloWorld();
-            #Logger.info("Diameter = " + soma.diameter5)
+            #info("Diameter = " + soma.diameter5)
         end
         
         dynamics timestep(t ms):

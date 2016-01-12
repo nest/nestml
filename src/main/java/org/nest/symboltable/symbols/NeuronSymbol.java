@@ -16,23 +16,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.nest.symboltable.symbols.NESTMLVariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
-import static org.nest.symboltable.symbols.NESTMLVariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
+import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
+import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
 
 /**
  * Represents the entire neuron, e.g. iaf_neuron.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
-public class NESTMLNeuronSymbol extends CommonScopeSpanningSymbol {
+public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
-  public final static NESTMLNeuronSymbolKind KIND = new NESTMLNeuronSymbolKind();
+  public final static NeuronSymbolKind KIND = new NeuronSymbolKind();
 
   private final Type type;
 
-  public NESTMLNeuronSymbol(final String name, final Type type) {
+  public NeuronSymbol(final String name, final Type type) {
     super(name, KIND);
     this.type = type;
   }
@@ -43,42 +41,42 @@ public class NESTMLNeuronSymbol extends CommonScopeSpanningSymbol {
 
   @Override
   public String toString() {
-    return "NESTMLNeuronSymbol(" + getFullName() + "," + type + ")";
+    return "NeuronSymbol(" + getFullName() + "," + type + ")";
   }
 
-  public Optional<NESTMLVariableSymbol> getVariableByName(String variableName) {
-    return spannedScope.resolveLocally(variableName, NESTMLVariableSymbol.KIND);
+  public Optional<VariableSymbol> getVariableByName(String variableName) {
+    return spannedScope.resolveLocally(variableName, VariableSymbol.KIND);
   }
 
-  public Optional<NESTMLMethodSymbol> getMethodByName(String methodName) {
+  public Optional<MethodSymbol> getMethodByName(String methodName) {
     return getMethodByName(methodName, Lists.newArrayList());
   }
 
-  public List<NESTMLVariableSymbol> getCurrentBuffers() {
-    final Collection<NESTMLVariableSymbol> variableSymbols
-        = spannedScope.resolveLocally(NESTMLVariableSymbol.KIND);
+  public List<VariableSymbol> getCurrentBuffers() {
+    final Collection<VariableSymbol> variableSymbols
+        = spannedScope.resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_CURRENT))
         .collect(Collectors.toList());
   }
 
-  public List<NESTMLVariableSymbol> getSpikeBuffers() {
-    final Collection<NESTMLVariableSymbol> variableSymbols
-        = spannedScope.resolveLocally(NESTMLVariableSymbol.KIND);
+  public List<VariableSymbol> getSpikeBuffers() {
+    final Collection<VariableSymbol> variableSymbols
+        = spannedScope.resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_SPIKE))
         .collect(Collectors.toList());
   }
 
   @SuppressWarnings("unchecked") // Resolving filter does the type checking
-  public Optional<NESTMLMethodSymbol> getMethodByName(String methodName, List<String> parameters) {
+  public Optional<MethodSymbol> getMethodByName(String methodName, List<String> parameters) {
     final Optional<? extends Symbol> result
         = spannedScope.resolve(new NESTMLMethodSignaturePredicate(methodName, parameters));
     if (result.isPresent()) {
-      Preconditions.checkState(result.get() instanceof NESTMLMethodSymbol);
+      Preconditions.checkState(result.get() instanceof MethodSymbol);
     }
 
-    return (Optional<NESTMLMethodSymbol>) result;
+    return (Optional<MethodSymbol>) result;
   }
 
   public enum Type { NEURON, COMPONENT }

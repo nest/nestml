@@ -51,6 +51,12 @@ namespace nest
     <#list body.getStates() as state>
       ${tc.include("org.nest.nestml.function.RecordCallback", state)}
     </#list>
+    <#list body.getInternals() as internal>
+      ${tc.include("org.nest.nestml.function.RecordCallback", internal)}
+    </#list>
+    <#list body.getParameters() as parameter>
+      ${tc.include("org.nest.nestml.function.RecordCallback", parameter)}
+    </#list>
   }
 }
 
