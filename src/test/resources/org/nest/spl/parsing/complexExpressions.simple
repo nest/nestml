@@ -6,3 +6,4 @@ tau_syn_ex ms = 2.0
 # TODO P21ex real = tau_m / (C_m * (1.0 - tau_m / tau_syn_ex)) * P11ex * (1.0 - pow(E, (h * (1.0 / tau_syn_ex - 1.0 / tau_m))))
 t_ref    ms = 2s
 RefractoryCounts integer = steps(t_ref)
+print("" + ((( a | (-3+6%2) & ~(0x4fa) | 0x23) >> 2) << 2))

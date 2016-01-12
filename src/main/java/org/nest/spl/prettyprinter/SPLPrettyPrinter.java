@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.spl.prettyprinter;
 
 import de.monticore.prettyprint.IndentPrinter;
@@ -13,11 +18,9 @@ import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.Names.getQualifiedName;
 
 /**
- * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
- * production.
+ * Produces the concrete textual representation from the AST.
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
+ * @author plotnikov
  */
 public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 

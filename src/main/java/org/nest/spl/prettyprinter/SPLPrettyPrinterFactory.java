@@ -1,12 +1,15 @@
 package org.nest.spl.prettyprinter;
 
 /**
- * Created by user on 09.06.15.
+ * Instantiates SPL printers. Optionally, set the indentation level which is useful for the
+ * composition of printers.
+ *
+ * @author plotnikov
  */
 public class SPLPrettyPrinterFactory {
+
   public static SPLPrettyPrinter createDefaultPrettyPrinter() {
     return new SPLPrettyPrinter(new ExpressionsPrettyPrinter());
-
   }
 
   public static SPLPrettyPrinter createDefaultPrettyPrinter(int indentionLevel) {
