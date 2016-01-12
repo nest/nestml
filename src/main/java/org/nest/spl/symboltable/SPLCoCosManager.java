@@ -69,8 +69,8 @@ public class SPLCoCosManager {
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
     splCoCoChecker.addCoCo(codeAfterReturn);
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist(predefinedTypesFactory);
-    splCoCoChecker.addCoCo(functionDoesntExist);
+    final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist(predefinedTypesFactory);
+    splCoCoChecker.addCoCo(functionDoesNotExist);
 
     final CheckMultipleSignsBeforeFactor checkMultipleSignsBeforeFactor
         = new CheckMultipleSignsBeforeFactor();
@@ -107,8 +107,8 @@ public class SPLCoCosManager {
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
     splCoCoChecker.addCoCo(codeAfterReturn);
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist(predefinedTypesFactory);
-    splCoCoChecker.addCoCo(functionDoesntExist);
+    final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist(predefinedTypesFactory);
+    splCoCoChecker.addCoCo(functionDoesNotExist);
 
     final CheckMultipleSignsBeforeFactor checkMultipleSignsBeforeFactor
         = new CheckMultipleSignsBeforeFactor();

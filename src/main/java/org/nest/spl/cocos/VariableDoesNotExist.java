@@ -39,7 +39,7 @@ public class VariableDoesNotExist implements
     SPLASTReturnStmtCoCo,
     SPLASTCompound_StmtCoCo {
 
-  public static final String ERROR_CODE = "SPL_DOES_NOT_VARIABLE_EXIST";
+  public static final String ERROR_CODE = "SPL_VARIABLE_DOES_NOT_EXIST";
   private static final String ERROR_MSG_FORMAT = "The variable %s is not defined in %s.";
 
   /**

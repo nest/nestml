@@ -214,13 +214,13 @@ public class SPLCoCosTest {
     Assert.assertTrue(ast.isPresent());
     splScopeCreator.runSymbolTableCreator(ast.get());
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist(
+    final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist(
         splScopeCreator.getTypesFactory());
-    splCoCoChecker.addCoCo(functionDoesntExist);
+    splCoCoChecker.addCoCo(functionDoesNotExist);
 
     splCoCoChecker.checkAll(ast.get());
 
-    final Integer errorsFound = countErrorsByPrefix(FunctionDoesntExist.ERROR_CODE, getFindings());
+    final Integer errorsFound = countErrorsByPrefix(FunctionDoesNotExist.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
