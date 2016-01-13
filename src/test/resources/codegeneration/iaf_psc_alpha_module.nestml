@@ -49,21 +49,21 @@ neuron iaf_psc_alpha_neuron:
     h   ms   = resolution()
     r integer = 0;
 
-    EPSCInitialValue real = 1.0 * E/tau_ex;
-    IPSCInitialValue real = 1.0 * E/tau_in;
+    EPSCInitialValue real = 1.0 * e/tau_ex;
+    IPSCInitialValue real = 1.0 * e/tau_in;
     RefractoryCounts integer = steps(TauR)
 
     P30 real = -Tau/C * expm1(-h / Tau)
-    P33 real = pow(E, -h/Tau)
+    P33 real = pow(e, -h/Tau)
 
-    P11_ex real = pow(E, -h/tau_ex)
+    P11_ex real = pow(e, -h/tau_ex)
     P21_ex real = h * P11_ex
     P22_ex real = h * P11_ex
     P31_ex real = 1/C * ((P11_ex - P33)/(-1/tau_ex - -1/Tau)-  h*P11_ex) /(-1/Tau - -1/tau_ex);
     P32_ex real = 1 / C * (P33 - P11_ex)/(-1/Tau - -1/tau_ex)
-    P11_in real = pow(E, -h/tau_in)
+    P11_in real = pow(e, -h/tau_in)
     P21_in real = h * P11_in
-    P22_in real = pow(E, -h/tau_in)
+    P22_in real = pow(e, -h/tau_in)
     P31_in real = 1/C * ((P11_in - P33)/(-1/tau_in- -1/Tau)- h*P11_in)/(-1/Tau - -1/tau_in);
     P32_in real = 1/C*(P33 - P11_in)/(-1/Tau - -1/tau_in);
 

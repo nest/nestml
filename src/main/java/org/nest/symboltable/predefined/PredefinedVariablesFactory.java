@@ -22,7 +22,7 @@ import java.util.Set;
  * @since 0.0.1
  */
 public class PredefinedVariablesFactory {
-  private static final String E_CONSTANT = "E";
+  private static final String E_CONSTANT = "e";
   private static final NeuronSymbol predefinedComponent = new NeuronSymbol("Math",
       NeuronSymbol.Type.COMPONENT);
 

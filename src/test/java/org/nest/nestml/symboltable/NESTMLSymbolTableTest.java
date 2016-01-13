@@ -157,12 +157,12 @@ public class NESTMLSymbolTableTest {
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
     final Optional<VariableSymbol> fromGlobalScope
-        = globalScope.resolve("E", VariableSymbol.KIND);
+        = globalScope.resolve("e", VariableSymbol.KIND);
     assertTrue(fromGlobalScope.isPresent());
 
 
     final Optional<VariableSymbol> fromModelScope
-        = modelScope.resolve("E", VariableSymbol.KIND);
+        = modelScope.resolve("e", VariableSymbol.KIND);
     assertTrue(fromModelScope.isPresent());
   }
 
