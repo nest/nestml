@@ -19,20 +19,18 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * Test the functioning of the expression pretty printer
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class ExpressionTypeCalculatorTest {
 
   public static final String TEST_MODEL_PATH = "src/test/resources/";
 
-  public static final String TEST_MODEL = "src/test/resources/org/nest/spl/symboltable/mathExpressions.simple";
+  public static final String TEST_MODEL = "src/test/resources/org/nest/spl/symboltable"
+      + "/mathExpressions.simple";
 
   @Test
   public void testTypeCalculation() throws IOException {
@@ -51,11 +49,12 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getDeclaration();
-    Assert.assertTrue(bDeclaration.isPresent());
+    assertTrue(bDeclaration.isPresent());
 
-    final TypeSymbol typeOfB = calculator.computeType(bDeclaration.get().getExpr().get());
-    Assert.assertNotNull(typeOfB);
-    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfB);
+    final Either<TypeSymbol, String> typeOfB = calculator.computeType(bDeclaration.get().getExpr().get());
+    assertTrue(typeOfB.isLeft());
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfB.getLeft().get());
+
 
     // Retrieves line: c = 1
     final Optional<ASTAssignment> cDeclaration = root.get()
@@ -63,11 +62,12 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(cDeclaration.isPresent());
+    assertTrue(cDeclaration.isPresent());
 
-    final TypeSymbol typeOfC = calculator.computeType(cDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfC);
-    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfC);
+    final Either<TypeSymbol, String> typeOfC = calculator.computeType(cDeclaration.get().getExpr());
+    assertTrue(typeOfC.isLeft());
+    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfC.getLeft().get());
+
 
     // Retrieves line: d = "test"
     final Optional<ASTAssignment> dDeclaration = root.get()
@@ -75,11 +75,12 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(dDeclaration.isPresent());
+    assertTrue(dDeclaration.isPresent());
 
-    final TypeSymbol typeOfD = calculator.computeType(dDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfD);
-    Assert.assertEquals(PredefinedTypes.getStringType(), typeOfD);
+    final Either<TypeSymbol, String> typeOfD = calculator.computeType(dDeclaration.get().getExpr());
+    assertTrue(typeOfD.isLeft());
+    Assert.assertEquals(PredefinedTypes.getStringType(), typeOfD.getLeft().get());
+
 
     // Retrieves line: e = 1 + 1
     final Optional<ASTAssignment> eDeclaration = root.get()
@@ -87,11 +88,12 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(dDeclaration.isPresent());
+    assertTrue(dDeclaration.isPresent());
 
-    final TypeSymbol typeOfE = calculator.computeType(eDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfE);
-    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfE);
+    final Either<TypeSymbol, String> typeOfE = calculator.computeType(eDeclaration.get().getExpr());
+    assertTrue(typeOfE.isLeft());
+    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfE.getLeft().get());
+
 
     // Retrieves line: f = 1 + 1.0
     final Optional<ASTAssignment> fDeclaration = root.get()
@@ -99,11 +101,12 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(dDeclaration.isPresent());
+    assertTrue(dDeclaration.isPresent());
 
-    final TypeSymbol typeOfF = calculator.computeType(fDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfF);
-    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfF);
+    final Either<TypeSymbol, String> typeOfF = calculator.computeType(fDeclaration.get().getExpr());
+    assertTrue(typeOfF.isLeft());
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfF.getLeft().get());
+
 
     // Retrieves line: f = 1.0 + 1
     final Optional<ASTAssignment> gDeclaration = root.get()
@@ -111,11 +114,12 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(dDeclaration.isPresent());
+    assertTrue(dDeclaration.isPresent());
 
-    final TypeSymbol typeOfG = calculator.computeType(gDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfG);
-    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfG);
+    final Either<TypeSymbol, String> typeOfG = calculator.computeType(gDeclaration.get().getExpr());
+    assertTrue(typeOfG.isLeft());
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfG.getLeft().get());
+
 
     // Retrieves line: f = 1.0 + 1
     final Optional<ASTAssignment> hDeclaration = root.get()
@@ -123,11 +127,12 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(dDeclaration.isPresent());
+    assertTrue(dDeclaration.isPresent());
 
-    final TypeSymbol typeOfH = calculator.computeType(hDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfH);
-    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfH);
+    final Either<TypeSymbol, String> typeOfH = calculator.computeType(hDeclaration.get().getExpr());
+    assertTrue(typeOfH.isLeft());
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfH.getLeft().get());
+
 
     // Retrieves line: i = ~1
     final Optional<ASTAssignment> iDeclaration = root.get()
@@ -135,11 +140,12 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(iDeclaration.isPresent());
+    assertTrue(iDeclaration.isPresent());
 
-    final TypeSymbol typeOfI = calculator.computeType(iDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfI);
-    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfI);
+    final Either<TypeSymbol, String> typeOfI = calculator.computeType(iDeclaration.get().getExpr());
+    assertTrue(typeOfI.isLeft());
+    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfI.getLeft().get());
+
 
     // Retrieves line: j = ~b, b is a string
     final Optional<ASTAssignment> jDeclaration = root.get()
@@ -147,27 +153,21 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(jDeclaration.isPresent());
+    assertTrue(jDeclaration.isPresent());
 
-    try {
-      calculator.computeType(jDeclaration.get().getExpr());
-      fail();
-    }
-    catch (RuntimeException e) {
-      // expects an type computation exception
-    }
-
+    final Either<TypeSymbol, String> jType = calculator.computeType(jDeclaration.get().getExpr());
+    assertTrue(jType.isRight());
     // Retrieves line: l = 1 ** 2.5
     final Optional<ASTAssignment> kDeclaration = root.get()
         .getBlock().getStmts().get(11)
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(iDeclaration.isPresent());
+    assertTrue(iDeclaration.isPresent());
 
-    final TypeSymbol typeOfK = calculator.computeType(kDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfK);
-    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfK);
+    final Either<TypeSymbol, String> typeOfK = calculator.computeType(kDeclaration.get().getExpr());
+    assertTrue(typeOfK.isLeft());
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfK.getLeft().get());
 
     // Retrieves line: m = 1 ** d, b is a string
     final Optional<ASTAssignment> mDeclaration = root.get()
@@ -175,15 +175,10 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(mDeclaration.isPresent());
+    assertTrue(mDeclaration.isPresent());
 
-    try {
-      calculator.computeType(mDeclaration.get().getExpr());
-      fail();
-    }
-    catch (RuntimeException e) {
-      // expects an type computation exception
-    }
+    final Either<TypeSymbol, String> mType = calculator.computeType(mDeclaration.get().getExpr());
+    assertTrue(mType.isRight());
 
     // Retrieves line: o = 1 - 1
     final Optional<ASTAssignment> oDeclaration = root.get().
@@ -191,11 +186,11 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(oDeclaration.isPresent());
+    assertTrue(oDeclaration.isPresent());
 
-    final TypeSymbol typeOfO = calculator.computeType(oDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfO);
-    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfO);
+    final Either<TypeSymbol, String> typeOfO = calculator.computeType(oDeclaration.get().getExpr());
+    assertTrue(typeOfO.isLeft());
+    Assert.assertEquals(PredefinedTypes.getIntegerType(), typeOfO.getLeft().get());
 
     // Retrieves line: p = 1 - 1.0
     final Optional<ASTAssignment> pDeclaration = root.get()
@@ -203,11 +198,11 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(pDeclaration.isPresent());
+    assertTrue(pDeclaration.isPresent());
 
-    final TypeSymbol typeOfP = calculator.computeType(pDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfP);
-    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfP);
+    final Either<TypeSymbol, String> typeOfP = calculator.computeType(pDeclaration.get().getExpr());
+    assertTrue(typeOfP.isLeft());
+    Assert.assertEquals(PredefinedTypes.getRealType(), typeOfP.getLeft().get());
 
     // Retrieves line: r = 1 - d, b is a string
     final Optional<ASTAssignment> rDeclaration = root.get()
@@ -215,39 +210,33 @@ public class ExpressionTypeCalculatorTest {
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(rDeclaration.isPresent());
+    assertTrue(rDeclaration.isPresent());
 
-    try {
-      calculator.computeType(rDeclaration.get().getExpr());
-      fail();
-    }
-    catch (RuntimeException e) {
-      // expects an type computation exception
-    }
-
+    final Either<TypeSymbol, String> rType = calculator.computeType(rDeclaration.get().getExpr());
+    assertTrue(rType.isRight());
     // Retrieves line: t = true
     final Optional<ASTAssignment> sDeclaration = root.get()
         .getBlock().getStmts().get(16)
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getAssignment();
-    Assert.assertTrue(sDeclaration.isPresent());
+    assertTrue(sDeclaration.isPresent());
 
-    final TypeSymbol typeOfS = calculator.computeType(sDeclaration.get().getExpr());
-    Assert.assertNotNull(typeOfS);
-    Assert.assertEquals(PredefinedTypes.getBooleanType(), typeOfS);
+    final Either<TypeSymbol, String> typeOfS = calculator.computeType(sDeclaration.get().getExpr());
+    assertTrue(typeOfS.isLeft());
+    Assert.assertEquals(PredefinedTypes.getBooleanType(), typeOfS.getLeft().get());
 
     final Optional<ASTDeclaration> P11exAST = root.get()
         .getBlock().getStmts().get(19)
         .getSimple_Stmt().get()
         .getSmall_Stmts().get(0)
         .getDeclaration();
-    Assert.assertTrue(P11exAST.isPresent());
+    assertTrue(P11exAST.isPresent());
 
-    final TypeSymbol P11exType = calculator.computeType(P11exAST.get().getExpr().get());
-    Assert.assertNotNull(P11exType);
-    Assert.assertEquals(PredefinedTypes.getRealType(), P11exType);
-
+    final Either<TypeSymbol, String> P11exType = calculator.computeType(P11exAST.get().getExpr().get());
+    assertTrue(P11exType.isLeft());
+    Assert.assertEquals(PredefinedTypes.getRealType(), P11exType.getLeft().get());
+    // find ast by name
   }
 
 

@@ -27,7 +27,8 @@ public class PredefinedFunctionFactory {
   private static final String PRINTLN = "println";
   private static final String POW = "pow";
   private static final String EXP = "exp";
-  private static final String LOGGER_INFO = "Logger.info";
+  private static final String LOGGER_INFO = "info";
+  private static final String LOGGER_WARNING = "warning";
   private static final String RANDOM = "random";
   private static final String RANDOM_INT = "randomInt";
   private static final String EXPM1 = "expm1";
@@ -70,6 +71,11 @@ public class PredefinedFunctionFactory {
     loggerInfoMethod.addParameterType(PredefinedTypes.getStringType());
     loggerInfoMethod.setReturnType(PredefinedTypes.getVoidType());
     name2FunctionSymbol.put(LOGGER_INFO, loggerInfoMethod);
+
+    final MethodSymbol loggerWarningMethod = createFunctionSymbol(LOGGER_WARNING);
+    loggerWarningMethod.addParameterType(PredefinedTypes.getStringType());
+    loggerWarningMethod.setReturnType(PredefinedTypes.getVoidType());
+    name2FunctionSymbol.put(LOGGER_WARNING, loggerWarningMethod);
 
     final MethodSymbol randomMethod = createFunctionSymbol(RANDOM);
     randomMethod.setReturnType(PredefinedTypes.getRealType());

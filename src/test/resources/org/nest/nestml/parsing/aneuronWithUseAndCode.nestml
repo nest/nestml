@@ -5,7 +5,7 @@ package org.nest.nestml.parsing.aneuronWithUseAndCode:
     neuron Neuron1234:
     
         function foobar():
-            EmptyFunctionNeuron.empty()
+            # TODO model referencing EmptyFunctionNeuron.empty()
         end
         
         dynamics timestep(t ms):

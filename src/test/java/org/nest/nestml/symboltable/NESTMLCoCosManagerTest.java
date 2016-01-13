@@ -109,9 +109,14 @@ public class NESTMLCoCosManagerTest {
     checker.checkAll(root.get());
 
     Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
-    final String msg = "The model: " + file.getPath() + "Models contain unexpected errors: " +
-        nestmlErrorFindings.size();
-    Assert.assertTrue(msg, nestmlErrorFindings.isEmpty());
+    final String nestmlMsg = "The model: " + file.getPath() + ". Models contain unexpected "
+        + "NESTML errors: " + nestmlErrorFindings.size();
+    Assert.assertTrue(nestmlMsg, nestmlErrorFindings.isEmpty());
+
+    Collection<Finding> splErrorFindings = getErrorsByPrefix("SPL_", Log.getFindings());
+    final String splMsg = "The model: " + file.getPath() + ". Models contain unexpected SPL "
+        + "errors: " + splErrorFindings.size();
+    Assert.assertTrue(splMsg, splErrorFindings.isEmpty());
   }
 
   /**

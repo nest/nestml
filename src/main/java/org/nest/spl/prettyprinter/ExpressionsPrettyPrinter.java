@@ -19,7 +19,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Converts SPL expressions to the executable platform dependent code. By using different
- * referenceConverters
+ * referenceConverters the handling of variables, names, and functions can be adapted. For this,
+ * implement own {@code IReferenceConverter} specialisation.
  *
  * @author plotnikov
  */

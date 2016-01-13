@@ -165,7 +165,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
     Integer errorsFound = countErrorsByPrefix(CorrectReturnValues.ERROR_CODE, getFindings());
     getFindings().forEach(System.out::println);
     // TODO check if this does make sense?
-    assertEquals(Integer.valueOf(10), errorsFound);
+    assertEquals(Integer.valueOf(8), errorsFound);
   }
 
   @Test

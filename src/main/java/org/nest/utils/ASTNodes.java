@@ -14,6 +14,7 @@ import de.se_rwth.commons.Util;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
+import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -127,9 +128,16 @@ public final class ASTNodes {
     final ExpressionTypeCalculator typeCalculator =  new ExpressionTypeCalculator();
 
     for (int i = 0; i < astFunctionCall.getArgList().getArgs().size(); ++i) {
-      final ASTExpr arg = astFunctionCall.getArgList().getArgs().get(i);
-      final TypeSymbol argType = typeCalculator.computeType(arg);
-      argTypeNames.add(argType.getName());
+      final ASTExpr argExpr = astFunctionCall.getArgList().getArgs().get(i);
+      final Either<TypeSymbol, String> argType = typeCalculator.computeType(argExpr);
+      if (argType.isLeft()) {
+        argTypeNames.add(argType.getLeft().get().getName());
+      }
+      else {
+        // TODO print the value of the expression
+        throw new RuntimeException("Cannot determine the type of the expression");
+      }
+
     }
 
     return argTypeNames;

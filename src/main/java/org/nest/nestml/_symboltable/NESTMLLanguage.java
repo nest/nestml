@@ -23,9 +23,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 /**
  * Frontend for the Simple Programming Language (SPL)
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class NESTMLLanguage extends NESTMLLanguageTOP {
 

@@ -40,7 +40,7 @@ public class SPLSymbolTableTest {
     splScopeCreator.runSymbolTableCreator(root.get());
 
     final GlobalScope globalScope = splScopeCreator.getGlobalScope();
-    globalScope.resolve("Time.steps", MethodSymbol.KIND);
+    globalScope.resolve("steps", MethodSymbol.KIND);
     Optional<VariableSymbol> variable = globalScope.resolve("org.nest.spl.symboltable.decl.decl", VariableSymbol.KIND);
     assertTrue(variable.isPresent());
 
