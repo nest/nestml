@@ -15,7 +15,28 @@ import org.nest.symboltable.symbols.TypeSymbol;
  * @author plotnikov
  */
 public class TypeChecker {
+  public static boolean  isCompatible(final TypeSymbol lhsType, final TypeSymbol rhsType) {
+    if (lhsType.equals(rhsType)) {
+      return true;
+    }
+    else if (lhsType.equals(PredefinedTypes.getRealType()) &&
+        rhsType.equals(PredefinedTypes.getIntegerType())) {
+      return true;
+    }
+    else if (lhsType.equals(PredefinedTypes.getIntegerType()) && rhsType.getType().equals(
+        TypeSymbol.Type.UNIT) ||
+        rhsType.equals(PredefinedTypes.getIntegerType()) && lhsType.getType().equals(
+            TypeSymbol.Type.UNIT)) {
+      return true;
+    }
+    else if (lhsType.equals(PredefinedTypes.getRealType()) && rhsType.getType().equals(
+        TypeSymbol.Type.UNIT) ||
+        rhsType.equals(PredefinedTypes.getRealType()) && lhsType.getType().equals(TypeSymbol.Type.UNIT)) {
+      return true;
+    }
 
+    return false;
+  }
   /**
    * Checks that the {@code type} is a numeric type {@code Integer} or {@code Real}.
    */

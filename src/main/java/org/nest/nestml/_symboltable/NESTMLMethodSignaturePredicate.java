@@ -25,7 +25,6 @@ public class NESTMLMethodSignaturePredicate implements SymbolPredicate {
     this.expectedMethodName = requireNonNull(emptyToNull(methodName));
 
     expectedParameterTypes.addAll(parameters);
-
   }
 
   @Override

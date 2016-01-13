@@ -9,6 +9,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTExpr;
+import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -28,12 +29,18 @@ public class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
     final ExpressionTypeCalculator expressionTypeCalculator = new ExpressionTypeCalculator();
 
     for (final ASTExpr invariantExpr:alias.getInvariants()) {
-      final TypeSymbol expressionType = expressionTypeCalculator.computeType(invariantExpr);
+      final Either<TypeSymbol, String> expressionType = expressionTypeCalculator.computeType(invariantExpr);
 
-      if (!expressionType.equals(PredefinedTypes.getBooleanType())) {
-        final String msg = "The type of the invariant expression must be boolean and not: " +
-            expressionType;
-        Log.error(ERROR_CODE + ":" + msg, invariantExpr.get_SourcePositionStart());
+      if (expressionType.isLeft()) {
+
+        if (!expressionType.getLeft().get().equals(PredefinedTypes.getBooleanType())) {
+          final String msg = "The type of the invariant expression must be boolean and not: " +
+              expressionType;
+          Log.error(ERROR_CODE + ":" + msg, invariantExpr.get_SourcePositionStart());
+        }
+      }
+      else {
+        Log.warn("Cannot compute the type: " + invariantExpr);
       }
 
     }

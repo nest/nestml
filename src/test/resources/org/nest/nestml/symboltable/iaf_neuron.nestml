@@ -44,7 +44,7 @@ neuron iaf_neuron:
   end
 
   internal:
-    h   ms   = Time.resolution()
+    h   ms   = resolution()
     P11 real = E ** (-h / tau_syn)
     P22 real = P11
     P33 real = E ** (-h / tau_m)
@@ -54,7 +54,7 @@ neuron iaf_neuron:
     P32 real = 1 / C_m * (P33 - P11) / (-1/tau_m - -1/tau_syn)
 
     PSCInitialValue  mV = 1 * E / tau_syn
-    RefractoryCounts integer = Time.steps(t_ref)
+    RefractoryCounts integer = steps(t_ref)
   end
 
   input:
@@ -85,7 +85,7 @@ neuron iaf_neuron:
         r = RefractoryCounts
         y3 = delta_V_reset
 
-        Spiking.emitSpike()
+        emitSpike()
     end
 
     # set new input current
