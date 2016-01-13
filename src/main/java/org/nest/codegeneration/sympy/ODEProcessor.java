@@ -27,7 +27,7 @@ import static de.se_rwth.commons.logging.Log.warn;
  */
 public class ODEProcessor {
   private final String LOG_NAME = ODEProcessor.class.getName();
-  private final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
+  private final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
 
   public ASTNESTMLCompilationUnit process(
       final ASTNESTMLCompilationUnit root,
@@ -65,7 +65,7 @@ public class ODEProcessor {
 
     if (solutionType.equals(SolverType.EXACT)) {
       info("ODE is solved exactly.", LOG_NAME);
-      final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
+      final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer
           .replaceODEWithSymPySolution(
               root,
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.P30_FILE),

@@ -1,58 +1,58 @@
 package org.nest.nestml.parsing.neuronWithVarsAndDynamics:
 
-    import vars.VarsNeuron
+import vars.VarsNeuron
 
-    neuron DynamicsNeuron:
-        state:
-            vM mV
-            x mV
-        end
-        
-        parameter:
-            radius mm = 5
-            alias diameter mm = 2 * radius
-        end
-        
-        internal:
-            y, z real = 0
-            s real = 0
-        end
-        
-        function foo(x ms):
-            x = x * 2
-        end
-        
-        dynamics timestep (t ms):
-            abc real = 9.4563
-            if abc > y:
-                vM = y * 3 + s ** 5
-            elif abc == y:
-                info("Elif!")
-            else:
-                info("Else!")
-            end
-            x = VarsNeuron.y
-            while false:
-                warning("Impossible!")
-            end
-            i integer
-            for i in 0 ... 10 step 2:
-                info("Possible! " + i)
-            end
-            for i in 5 ... 0 step -1:
-                info("Possible! " + i)
-            end
-        end
-        
-        
-        function set_diameter(v mm):
-            radius = v / 2
-        end
-
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
-
-        output: spike
+neuron DynamicsNeuron:
+    state:
+        vM mV
+        x mV
     end
+
+    parameter:
+        radius mm = 5
+        alias diameter mm = 2 * radius
+    end
+
+    internal:
+        y, z real = 0
+        s real = 0
+    end
+
+    function foo(x ms):
+        x = x * 2
+    end
+
+    dynamics timestep (t ms):
+        abc real = 9.4563
+        if abc > y:
+            vM = y * 3 + s ** 5
+        elif abc == y:
+            info("Elif!")
+        else:
+            info("Else!")
+        end
+        x = 1.0 # TODO: implement this model crossreferencing VarsNeuron.y
+        while false:
+            warning("Impossible!")
+        end
+        i integer
+        for i in 0 ... 10 step 2:
+            info("Possible! " + i)
+        end
+        for i in 5 ... 0 step -1:
+            info("Possible! " + i)
+        end
+    end
+
+
+    function set_diameter(v mm):
+        radius = v / 2
+    end
+
+    input:
+      spikeBuffer   <- inhibitory excitatory spike
+      currentBuffer <- current
+    end
+
+    output: spike
+end

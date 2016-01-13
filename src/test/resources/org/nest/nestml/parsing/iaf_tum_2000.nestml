@@ -45,7 +45,7 @@ package org.nest.nestml.parsing.iaf_tum_2000:
         end
         
         internal:
-            h     ms   = Time.resolution()
+            h     ms   = resolution()
 
             P11ex real = E ** (-h / tau_syn_ex)
             P11in real = E ** (-h / tau_syn_in)
@@ -54,8 +54,8 @@ package org.nest.nestml.parsing.iaf_tum_2000:
             P21in real = tau_m / (C_m * (1.0 - tau_m / tau_syn_in)) * P11in * (1.0 - E ** (h * (1.0 / tau_syn_in - 1.0 / tau_m)))
             P20   real = tau_m / C_m * (1.0 - P22)
             
-            RefrCountAbs integer = Time.steps(t_ref_abs)
-            RefrCountTot integer = Time.steps(t_ref_tot)
+            RefrCountAbs integer = steps(t_ref_abs)
+            RefrCountTot integer = steps(t_ref_tot)
         end
         
         input:
@@ -87,7 +87,7 @@ package org.nest.nestml.parsing.iaf_tum_2000:
                     r_tot = RefrCountTot
                     V_m    = V_reset
                     
-                    Spiking.emitSpike()
+                    emitSpike()
                 end
             else:
                 r_tot = r_tot - 1

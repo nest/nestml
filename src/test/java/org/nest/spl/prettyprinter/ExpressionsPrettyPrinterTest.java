@@ -32,15 +32,11 @@ public class ExpressionsPrettyPrinterTest {
         ("src/test/resources/org/nest/spl/parsing/complexExpressions.simple");
     assertTrue(root.isPresent());
 
-    // TODO write frontend manager for the cocos and check them on the model
     SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     splScopeCreator.runSymbolTableCreator(root.get());// do I need symbol table for the pretty printer
-    System.out.println(expressionsPrettyPrinter
-        .print(root.get().getBlock().getStmts().get(4).getSimple_Stmt().get()
-            .getSmall_Stmts().get(0).getDeclaration().get().getExpr().get()));
-    // TODO
-    //System.out.println(expressionsPrettyPrinter.print(root.get().getBlock().getStmts().get(6).getSimple_Stmt().get()
-    //    .getSmall_Stmts().get(0).getDeclaration().get().getExpr().get()));
 
+    expressionsPrettyPrinter.print(root.get().getBlock().getStmts().get(4).getSimple_Stmt().get()
+            .getSmall_Stmts().get(0).getDeclaration().get().getExpr().get());
   }
+  
 }

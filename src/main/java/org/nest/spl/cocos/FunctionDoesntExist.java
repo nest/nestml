@@ -13,6 +13,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.spl._ast.ASTFunctionCall;
 import org.nest.spl._cocos.SPLASTFunctionCallCoCo;
+import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -47,8 +48,15 @@ public class FunctionDoesNotExist implements SPLASTFunctionCallCoCo {
 
     for (int i = 0; i < funcall.getArgList().getArgs().size(); ++i) {
       final ASTExpr arg = funcall.getArgList().getArgs().get(i);
-      final TypeSymbol argType = expressionTypeCalculator.computeType(arg);
-      argTypeNames.add(argType.getName());
+      final Either<TypeSymbol, String> argType = expressionTypeCalculator.computeType(arg);
+      if (argType.isLeft()) {
+        argTypeNames.add(argType.getLeft().get().getName());
+      }
+      else {
+        Log.warn("Cannot compute the type: " + arg);
+        return;
+      }
+
     }
 
     final Optional<MethodSymbol> method

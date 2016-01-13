@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plonikov
  */
-public class ExplicitSolutionTransformerTest extends ModelTestBase {
+public class ExactSolutionTransformerTest extends ModelTestBase {
 
   public static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
@@ -45,10 +45,10 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testExactSolutionTransformation() {
-    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
+    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer
         .replaceODEWithSymPySolution(
             modelRoot,
             Paths.get(P30_FILE),
@@ -80,9 +80,9 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testAddingP00Value() {
-    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.addP30(
+    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer.addP30(
         parseNESTMLModel(MODEL_FILE_PATH),
         Paths.get(P30_FILE));
 
@@ -103,9 +103,9 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testReplaceODEThroughMatrixMultiplication() {
-    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.replaceODE(
+    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer.replaceODE(
         parseNESTMLModel(MODEL_FILE_PATH),
         Paths.get(UPDATE_STEP_FILE));
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
@@ -115,9 +115,9 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testAddingPSCInitialValue() {
-    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer.addPSCInitialValue(
+    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer.addPSCInitialValue(
         parseNESTMLModel(MODEL_FILE_PATH),
         Paths.get(PSC_INITIAL_VALUE_FILE));
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
@@ -136,11 +136,11 @@ public class ExplicitSolutionTransformerTest extends ModelTestBase {
 
   @Test
   public void testAddingStateVariables() {
-    final ExplicitSolutionTransformer explicitSolutionTransformer = new ExplicitSolutionTransformer();
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
 
-    final ASTNESTMLCompilationUnit transformedModel = explicitSolutionTransformer
+    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer
         .addStateVariablesAndUpdateStatements(modelRoot, Paths.get(STATE_VECTOR_FILE));
     printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
 

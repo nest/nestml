@@ -11,16 +11,13 @@ import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
-import org.nest.symboltable.predefined.PredefinedTypes;
 
 import java.nio.file.Paths;
 
 /**
  * Creates a artifact scope, build the symbol table and adds predifined types.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class NESTMLScopeCreator extends ScopeCreatorBase {
   final static String LOG_NAME = NESTMLScopeCreator.class.getName();
