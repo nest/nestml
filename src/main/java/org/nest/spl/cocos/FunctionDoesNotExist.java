@@ -31,10 +31,9 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class FunctionDoesntExist implements SPLASTFunctionCallCoCo {
-  public static final String ERROR_CODE = "SPL_FUNCTION_DOESNT_EXIST";
+public class FunctionDoesNotExist implements SPLASTFunctionCallCoCo {
+  public static final String ERROR_CODE = "SPL_FUNCTION_DOES_NOT_EXIST";
   private static final String ERROR_MSG_FORMAT = "The function '%s' is not defined";
-
 
   @Override
   public void check(final ASTFunctionCall funcall) {
