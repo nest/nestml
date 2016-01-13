@@ -47,11 +47,11 @@ package org.nest.nestml.parsing.iaf_tum_2000:
         internal:
             h     ms   = resolution()
 
-            P11ex real = E ** (-h / tau_syn_ex)
-            P11in real = E ** (-h / tau_syn_in)
-            P22   real = E ** (-h / tau_m)
-            P21ex real = tau_m / (C_m * (1.0 - tau_m / tau_syn_ex)) * P11ex * (1.0 - E ** (h * (1.0 / tau_syn_ex - 1.0 / tau_m)))
-            P21in real = tau_m / (C_m * (1.0 - tau_m / tau_syn_in)) * P11in * (1.0 - E ** (h * (1.0 / tau_syn_in - 1.0 / tau_m)))
+            P11ex real = e ** (-h / tau_syn_ex)
+            P11in real = e ** (-h / tau_syn_in)
+            P22   real = e ** (-h / tau_m)
+            P21ex real = tau_m / (C_m * (1.0 - tau_m / tau_syn_ex)) * P11ex * (1.0 - e ** (h * (1.0 / tau_syn_ex - 1.0 / tau_m)))
+            P21in real = tau_m / (C_m * (1.0 - tau_m / tau_syn_in)) * P11in * (1.0 - e ** (h * (1.0 / tau_syn_in - 1.0 / tau_m)))
             P20   real = tau_m / C_m * (1.0 - P22)
             
             RefrCountAbs integer = steps(t_ref_abs)

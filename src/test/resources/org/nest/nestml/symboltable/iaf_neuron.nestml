@@ -45,15 +45,15 @@ neuron iaf_neuron:
 
   internal:
     h   ms   = resolution()
-    P11 real = E ** (-h / tau_syn)
+    P11 real = e ** (-h / tau_syn)
     P22 real = P11
-    P33 real = E ** (-h / tau_m)
+    P33 real = e ** (-h / tau_m)
     P21 real = h * P11
     P30 real = 1 / C_m * (1 - P33) * tau_m
     P31 real = 1 / C_m * ((P11 - P33) / (-1/tau_syn - -1/tau_m) - h * P11) / (-1/tau_m - -1/tau_syn)
     P32 real = 1 / C_m * (P33 - P11) / (-1/tau_m - -1/tau_syn)
 
-    PSCInitialValue  mV = 1 * E / tau_syn
+    PSCInitialValue  mV = 1 * e / tau_syn
     RefractoryCounts integer = steps(t_ref)
   end
 

@@ -8,6 +8,6 @@ V real
 Tau real
 
 ODE:
-    I := w * (E/tau_in) * t * exp(-1/tau_in*t)
+    I := w * (e/tau_in) * t * exp(-1/tau_in*t)
     d/dt V := -1/Tau * V + 1/C_m*I
 end

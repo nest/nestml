@@ -41,7 +41,7 @@ neuron iaf_neuron:
     P31 real = 1 / C_m * ((P11 - P33) / (-1/tau_syn - -1/tau_m) - h * P11) / (-1/tau_m - -1/tau_syn)
     P32 real = 1 / C_m * (P33 - P11) / (-1/tau_m - -1/tau_syn)
 
-    PSCInitialValue  mV = 1 * E / tau_syn
+    PSCInitialValue  mV = 1 * e / tau_syn
     RefractoryCounts integer = steps(t_ref)
   end
 
