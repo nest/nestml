@@ -61,8 +61,8 @@ public class SPLCoCosManager {
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
     splCoCoChecker.addCoCo(codeAfterReturn);
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist();
-    splCoCoChecker.addCoCo(functionDoesntExist);
+    final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
+    splCoCoChecker.addCoCo(functionDoesNotExist);
 
   }
 
@@ -96,8 +96,8 @@ public class SPLCoCosManager {
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
     splCoCoChecker.addCoCo(codeAfterReturn);
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist();
-    splCoCoChecker.addCoCo(functionDoesntExist);
+    final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
+    splCoCoChecker.addCoCo(functionDoesNotExist);
 
   }
 

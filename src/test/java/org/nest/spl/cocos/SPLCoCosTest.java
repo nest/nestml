@@ -201,12 +201,12 @@ public class SPLCoCosTest {
     final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "funNotDefined.simple");
     splScopeCreator.runSymbolTableCreator(ast);
 
-    final FunctionDoesntExist functionDoesntExist = new FunctionDoesntExist();
-    splCoCoChecker.addCoCo(functionDoesntExist);
+    final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
+    splCoCoChecker.addCoCo(functionDoesNotExist);
 
     splCoCoChecker.checkAll(ast);
 
-    final Integer errorsFound = countErrorsByPrefix(FunctionDoesntExist.ERROR_CODE, getFindings());
+    final Integer errorsFound = countErrorsByPrefix(FunctionDoesNotExist.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
