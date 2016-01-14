@@ -24,15 +24,9 @@ grammar SPL extends org.nest.commons.Commons {
   Small_Stmt = Assignment
              | FunctionCall
              | Declaration
-             | ReturnStmt
-             | OdeDeclaration;
+             | ReturnStmt;
 
-   OdeDeclaration  =
-     "ODE" BLOCK_OPEN (NEWLINE)*
-       (Eq (NEWLINE)*)*
-       (ODE (NEWLINE)*)+
-       BLOCK_CLOSE;
-
+  OdeDeclaration  = (Eq | ODE | NEWLINE)+;
   Eq = lhsVariable:Name ":=" rhs:Expr;
   ODE = "d/dt" lhsVariable:Name ":=" rhs:Expr;
 

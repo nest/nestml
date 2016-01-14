@@ -35,7 +35,7 @@ public class ODEProcessor {
     checkState(root.getNeurons().size() > 0);
     final ASTNeuron neuron = root.getNeurons().get(0);
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
-    if (astBodyDecorator.getOdeDefinition().isPresent()) {
+    if (astBodyDecorator.getEquations().isPresent()) {
       return handleNeuronWithODE(root, outputBase);
     }
     else {

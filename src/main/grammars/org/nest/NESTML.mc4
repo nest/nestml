@@ -88,6 +88,13 @@ grammar NESTML extends org.nest.SPL {
       Block
     BLOCK_CLOSE;
 
+  Equations implements BodyElement =
+    "equations"
+    BLOCK_OPEN
+      OdeDeclaration
+    BLOCK_CLOSE;
+
+
   /** ASTVar_Block represents a block with variables, e.g.:
 
     @attribute hide is true iff. declaration is not trackable.

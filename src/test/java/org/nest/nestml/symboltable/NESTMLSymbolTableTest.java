@@ -131,7 +131,6 @@ public class NESTMLSymbolTableTest {
     assertTrue(testVarFromFunction.get().getType().equals(PredefinedTypes.getIntegerType()));
 
     // retrieve the if block and resolve it from there
-    // TODO it should not be a correct solution
     final Optional<VariableSymbol> testVarFromIfBlock =
         scopeTestingFunction.get()
             .getBlock()

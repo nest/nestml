@@ -5,7 +5,12 @@ neuron iaf_neuron_ode:
   state:
     V mV
     G real
-    alias V_m mV = V + E_L # Membrane potential.
+    alias V_m mV = V + E_L # Membrane potenCodetial.
+  end
+
+  equations:
+      G := (e/tau_syn) * t * exp(-1/tau_syn*t)
+      d/dt V := -1/Tau * V + 1/C_m * (G + I_e + ext_currents)
   end
 
   parameter:
@@ -46,10 +51,7 @@ neuron iaf_neuron_ode:
   update:
 
     if r == 0: # not refractory
-        ODE:
-            G := (e/tau_syn) * t * exp(-1/tau_syn*t)
-            d/dt V := -1/Tau * V + 1/C_m * G + I_e + ext_currents
-        end
+        # TODO integrate
     else:
         r = r - 1
     end

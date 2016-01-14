@@ -2,8 +2,7 @@
   @grammar: Small_Stmt = Assignment
              | FunctionCall
              | Declaration
-             | ReturnStmt
-             | OdeDeclaration;
+             | ReturnStmt;
   @param ast ASTSmall_Stmt
   @param tc templatecontroller
   @result TODO
@@ -16,6 +15,5 @@ ${tc.include("org.nest.spl.FunctionCall", ast.getFunctionCall().get())}
 ${tc.include("org.nest.spl.Declaration", ast.getDeclaration().get())}
 <#elseif ast.getReturnStmt().isPresent()>
 ${tc.include("org.nest.spl.ReturnStatement", ast.getReturnStmt().get())}
-<#elseif ast.getOdeDeclaration().isPresent()>
-${tc.include("org.nest.spl.ODEDeclaration", ast.getOdeDeclaration().get())}
+
 </#if>

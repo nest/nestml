@@ -5,8 +5,6 @@
  */
 package org.nest.spl.parsing;
 
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.monticore.antlr4.MCConcreteParser;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;

@@ -81,7 +81,7 @@ public class SPLCoCosTest {
 
     Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
         getFindings());
-    assertEquals(Integer.valueOf(6), errorsFound);
+    assertEquals(Integer.valueOf(2), errorsFound);
   }
 
   @Test

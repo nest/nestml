@@ -25,12 +25,10 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class ODEProcessorTest extends ModelTestBase {
-
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
   private static final String PSC_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
-
   public static final String NEURON_NAME = "iaf_neuron_ode";
 
   final ODEProcessor testant = new ODEProcessor();

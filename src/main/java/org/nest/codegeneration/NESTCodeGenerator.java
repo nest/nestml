@@ -278,10 +278,10 @@ public class NESTCodeGenerator {
   private void setSolverType(GlobalExtensionManagement glex, ASTNeuron neuron) {
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
     glex.setGlobalValue("useGSL", false);
-    if (astBodyDecorator.getOdeDefinition().isPresent()) {
-      if (astBodyDecorator.getOdeDefinition().get().getODEs().size() > 1) {
+    if (astBodyDecorator.getEquations().isPresent()) {
+      if (astBodyDecorator.getEquations().get().getODEs().size() > 1) {
         glex.setGlobalValue("useGSL", true);
-        glex.setGlobalValue("ODEs", astBodyDecorator.getOdeDefinition().get().getODEs());
+        glex.setGlobalValue("ODEs", astBodyDecorator.getEquations().get().getODEs());
       }
 
     }

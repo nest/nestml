@@ -8,6 +8,11 @@ neuron iaf_neuron:
     alias V_m mV = V + E_L # Membrane potential.
   end
 
+  equations:
+      G := (E/tau_syn) * t * exp(-1/tau_syn*t)
+      d/dt V := -1/Tau * V + (G + I_e + cur)
+  end
+
   parameter:
     # Capacity of the membrane
     C_m       pF = 250pF
@@ -45,10 +50,7 @@ neuron iaf_neuron:
   update:
 
     if r == 0: # not refractory
-        ODE:
-            G := (E/tau_syn) * t * exp(-1/tau_syn*t)
-            d/dt V := -1/Tau * V + (G + I_e + cur)
-        end
+        # todo integrate
     else:
         r = r - 1
     end

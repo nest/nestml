@@ -2,8 +2,8 @@ from sympy import *
 from sympy.matrices import zeros
 import numpy
 from numpy.random import randint
-
-a, h = symbols('a, h')
+# TODO why a?
+a, h = symbols('a h')
 <#compress>
     var('<#list variables as variable> ${variable} </#list>')
 </#compress>

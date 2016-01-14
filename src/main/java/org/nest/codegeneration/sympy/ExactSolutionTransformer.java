@@ -143,7 +143,6 @@ public class ExactSolutionTransformer {
     checkState(parent.get() instanceof ASTSmall_Stmt);
 
     final ASTSmall_Stmt castedParent = (ASTSmall_Stmt) parent.get();
-    castedParent.setOdeDeclaration(null);
     castedParent.setAssignment(stateUpdate);
 
     return root;
