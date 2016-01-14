@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.Names.getQualifiedName;
 
 /**
  * Takes SymPy result and the source AST. Produces an altered AST with the the exact solution.
@@ -134,6 +135,7 @@ public class ExactSolutionTransformer {
     final ASTAssignment stateUpdate = converter2NESTML.convertToAssignment(updateStepFile);
 
     ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+
     final ODECollector odeCollector = new ODECollector();
     odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
     checkState(odeCollector.getFoundOde().isPresent());
@@ -149,18 +151,22 @@ public class ExactSolutionTransformer {
   }
 
   private class ODECollector implements NESTMLVisitor {
-    private Optional<ASTOdeDeclaration> foundOde = Optional.empty();
+    private Optional<ASTFunctionCall> foundOde = Optional.empty();
 
     public void startVisitor(ASTNESTMLNode node) {
       node.accept(this);
     }
 
     @Override
-    public void visit(final ASTOdeDeclaration astOdeDeclaration) {
-      foundOde = Optional.of(astOdeDeclaration);
+    public void visit(final ASTFunctionCall astFunctionCall) {
+      // TODO also parameter should be checked
+      // TODO actually works only for the first ode
+      if (getQualifiedName(astFunctionCall.getQualifiedName().getParts()).equals("integrate")) {
+        foundOde = Optional.of(astFunctionCall);
+      }
     }
 
-    public Optional<ASTOdeDeclaration> getFoundOde() {
+    public Optional<ASTFunctionCall> getFoundOde() {
       return foundOde;
     }
 

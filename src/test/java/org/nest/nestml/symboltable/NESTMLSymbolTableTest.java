@@ -5,6 +5,7 @@
  */
 package org.nest.nestml.symboltable;
 
+import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTBodyDecorator;
@@ -12,15 +13,15 @@ import org.nest.nestml._ast.ASTBodyElement;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
+import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.symboltable.symbols.UsageSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.symboltable.symbols.*;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -165,13 +166,6 @@ public class NESTMLSymbolTableTest {
     assertTrue(fromModelScope.isPresent());
   }
 
-  public ASTNESTMLCompilationUnit getNestmlRootFromFilename(final String modelFilename) throws IOException {
-    final NESTMLParser p = new NESTMLParser();
-    final Optional<ASTNESTMLCompilationUnit> root = p.parse(modelFilename);
-    assertTrue(root.isPresent());
-    return root.get();
-  }
-
   @Test
   public void testResolvingSeparateModels() throws IOException {
     final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(USING_NEURON_FILE);
@@ -189,4 +183,35 @@ public class NESTMLSymbolTableTest {
     assertEquals(NeuronSymbol.Type.COMPONENT, componentSymbol.getType());
   }
 
+  @Test
+  public void testResolvingOfPredefinedFunctions() throws IOException {
+    final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(MODEL_FILE_NAME);
+    assertEquals(1, root.getNeurons().size());
+
+    scopeCreator.runSymbolTableCreator(root);
+
+    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(
+        root.getNeurons().get(0).getBody());
+
+    final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
+    assertTrue(neuronState.isPresent());
+
+    // retrieve state block
+    final Scope stateScope = neuronState.get().getEnclosingScope().get();
+    Optional<VariableSymbol> y0Symbol = stateScope.resolve("y0", VariableSymbol.KIND);
+    assertTrue(y0Symbol.isPresent());
+
+    List<String> parameters = Lists.newArrayList("mV");
+
+    final Optional<MethodSymbol> standAloneFunction = (Optional<MethodSymbol>)
+        stateScope.resolve(new MethodSignaturePredicate(PredefinedFunctions.INTEGRATE, parameters));
+    standAloneFunction.isPresent();
+  }
+
+  public ASTNESTMLCompilationUnit getNestmlRootFromFilename(final String modelFilename) throws IOException {
+    final NESTMLParser p = new NESTMLParser();
+    final Optional<ASTNESTMLCompilationUnit> root = p.parse(modelFilename);
+    assertTrue(root.isPresent());
+    return root.get();
+  }
 }

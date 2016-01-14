@@ -7,7 +7,7 @@ package org.nest.utils;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
-import org.nest.nestml._symboltable.NESTMLMethodSignaturePredicate;
+import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -30,7 +30,7 @@ public class NESTMLSymbols {
     // it is OK. The cast is secured through the symboltable infrastructure
     @SuppressWarnings("unchecked")
     final Optional<MethodSymbol> standAloneFunction = (Optional<MethodSymbol>)
-        scope.resolve(new NESTMLMethodSignaturePredicate(methodName, parameters));
+        scope.resolve(new MethodSignaturePredicate(methodName, parameters));
 
     final String calleeVariableNameCandidate = Names.getQualifier(methodName);
     final String simpleMethodName = Names.getSimpleName(methodName);
@@ -57,7 +57,9 @@ public class NESTMLSymbols {
       }
 
     }
-
+    if (!standAloneFunction.isPresent()) {
+      System.out.println();
+    }
     return standAloneFunction;
   }
 

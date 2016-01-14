@@ -9,7 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.Symbol;
-import org.nest.nestml._symboltable.NESTMLMethodSignaturePredicate;
+import org.nest.nestml._symboltable.MethodSignaturePredicate;
 
 import java.util.Collection;
 import java.util.List;
@@ -71,7 +71,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   @SuppressWarnings("unchecked") // Resolving filter does the type checking
   public Optional<MethodSymbol> getMethodByName(String methodName, List<String> parameters) {
     final Optional<? extends Symbol> result
-        = spannedScope.resolve(new NESTMLMethodSignaturePredicate(methodName, parameters));
+        = spannedScope.resolve(new MethodSignaturePredicate(methodName, parameters));
     if (result.isPresent()) {
       Preconditions.checkState(result.get() instanceof MethodSymbol);
     }
