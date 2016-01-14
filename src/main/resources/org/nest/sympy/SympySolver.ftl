@@ -178,7 +178,7 @@ else:
         A = Matrix([[a_1[0], 0],
                 [c2, c1]])
 
-        f.write("d/dt y1 := y1 * " + str(A[0, 0]) + "\n")
+        f.write("y1' = y1 * " + str(A[0, 0]) + "\n")
     elif order == 2:
         # VecA only if order 2 or larger
         solutionpq = -VecA[1]/2 + sqrt(VecA[1]**2 / 4 + VecA[0])
@@ -186,8 +186,8 @@ else:
         A = Matrix([[VecA[1]+solutionpq, 0,             0     ],
                    [1,                   -solutionpq,   0     ],
                    [0,                   c2,        c1]])
-        f.write("d/dt D${eq.getLhsVariable()} := D${eq.getLhsVariable()}*" + str(simplify(A[0,0])) +"\n")
-        f.write("d/dt ${eq.getLhsVariable()} := D${eq.getLhsVariable()} + ${eq.getLhsVariable()} *" + str(simplify(A[1,1])) + "\n")
+        f.write("D${eq.getLhsVariable()}' = D${eq.getLhsVariable()}*" + str(simplify(A[0,0])) +"\n")
+        f.write("${eq.getLhsVariable()}' = D${eq.getLhsVariable()} + ${eq.getLhsVariable()} *" + str(simplify(A[1,1])) + "\n")
 
     elif order > 2:
         A = zeros(order)
@@ -198,7 +198,7 @@ else:
         for i in range(1,order-1):
             A[i,i-1]=1
 
-        y1_derivation = "d/dt y1 := "
+        y1_derivation = "y1' = "
         separator = ""
         for i in range(0, order-1):
             y1_derivation = separator + "y"+str(i)*str(simplify(A[0,i-1]))

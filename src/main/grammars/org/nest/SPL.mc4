@@ -27,8 +27,8 @@ grammar SPL extends org.nest.commons.Commons {
              | ReturnStmt;
 
   OdeDeclaration  = (Eq | ODE | NEWLINE)+;
-  Eq = lhsVariable:Name ":=" rhs:Expr;
-  ODE = "d/dt" lhsVariable:Name ":=" rhs:Expr;
+  Eq = lhsVariable:Name "=" rhs:Expr;
+  ODE = lhsVariable:Name "\'" "=" rhs:Expr;
 
   Assignment = variableName:QualifiedName
     (assignment:["="] |
