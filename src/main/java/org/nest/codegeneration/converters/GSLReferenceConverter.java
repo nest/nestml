@@ -9,6 +9,7 @@ import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;
+import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
@@ -45,7 +46,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
     }
     else {
 
-      if ("E".equals(variableName)) {
+      if (PredefinedVariables.E_CONSTANT.equals(variableName)) {
         return "numerics::e";
       }
       else {

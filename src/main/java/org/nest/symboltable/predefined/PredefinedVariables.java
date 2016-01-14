@@ -20,8 +20,8 @@ import java.util.Set;
  * @author plotnikov
  */
 public class PredefinedVariables {
-  private static final String E_CONSTANT = "e";
-  private static final String TIME_CONSTANT = "t";
+  public static final String E_CONSTANT = "e";
+  public static final String TIME_CONSTANT = "t";
   private static final NeuronSymbol predefinedComponent =
       new NeuronSymbol("Math", NeuronSymbol.Type.COMPONENT);
 
