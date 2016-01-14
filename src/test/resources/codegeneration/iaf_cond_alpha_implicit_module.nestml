@@ -13,11 +13,11 @@ neuron iaf_cond_alpha_implicit_neuron:
 
   equations:
     # Implicit
-    d/dt DGI := DGI*-1/tau_synI
-    d/dt GI := DGI + GI *-1/tau_synI
-    d/dt DGE := DGE*-1/tau_synE
-    d/dt GE := DGE + GE *-1/tau_synE
-    d/dt V_m := -1/((1 / g_L) * C_m) * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
+    DGI' = DGI*-1/tau_synI
+    GI' = DGI + GI *-1/tau_synI
+    DGE' = DGE*-1/tau_synE
+    GE' = DGE + GE *-1/tau_synE
+    V_m' = -1/((1 / g_L) * C_m) * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
 
   parameter:
