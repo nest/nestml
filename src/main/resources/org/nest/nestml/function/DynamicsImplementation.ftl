@@ -7,8 +7,4 @@
   @param tc templatecontroller
   @result TODO
 -->
-<#if ast.getMinDelay().isPresent()>
-${tc.include("org.nest.nestml.function.MinDelayDynamics", ast)}
-<#elseif ast.getTimeStep().isPresent()>
 ${tc.include("org.nest.nestml.function.TimestepDynamics", ast)}
-</#if>

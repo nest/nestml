@@ -30,10 +30,8 @@ public class ODEParsingTest extends ModelTestBase {
   @Test
   public void testOdeDefinition() throws IOException {
     final String odeDeclarationAsString =
-            "ODE:\n" +
             "  I := w * (E/tau_in) * t * exp(-1/tau_in*t)\n" +
-            "  d/dt V := -1/Tau * V + 1/C*I\n" +
-            "end";
+            "  d/dt V := -1/Tau * V + 1/C*I\n" ;
     Optional<ASTOdeDeclaration> res = parseOdeDeclaration(odeDeclarationAsString);
     assertTrue(res.isPresent());
   }

@@ -19,7 +19,7 @@ package org.nest.nestml.parsing.referenceInnerComponent:
             #info("Diameter = " + soma.diameter5)
         end
         
-        dynamics timestep(t ms):
+        update:
         end
 
         input:

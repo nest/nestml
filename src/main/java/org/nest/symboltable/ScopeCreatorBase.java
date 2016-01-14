@@ -7,9 +7,9 @@ package org.nest.symboltable;
 
 import de.monticore.symboltable.GlobalScope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.symboltable.predefined.PredefinedFunctionFactory;
+import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.predefined.PredefinedVariablesFactory;
+import org.nest.symboltable.predefined.PredefinedVariables;
 
 /**
  * TODO
@@ -18,14 +18,14 @@ import org.nest.symboltable.predefined.PredefinedVariablesFactory;
  */
 public abstract class ScopeCreatorBase {
 
-  protected final PredefinedFunctionFactory functionFactory;
-  protected final PredefinedVariablesFactory variablesFactory;
+  protected final PredefinedFunctions functionFactory;
+  protected final PredefinedVariables variablesFactory;
 
   public abstract String getLogger();
 
   public ScopeCreatorBase() {
-    this.functionFactory = new PredefinedFunctionFactory();
-    this.variablesFactory = new PredefinedVariablesFactory();
+    this.functionFactory = new PredefinedFunctions();
+    this.variablesFactory = new PredefinedVariables();
   }
 
 

@@ -6,6 +6,6 @@ package org.nest.nestml.cocos.multipleInhExcInInput:
             inhExcBuffer   <- inhibitory excitatory inhibitory excitatory spike
         end
         
-        dynamics timestep(t ms):
+        update:
         end
     end

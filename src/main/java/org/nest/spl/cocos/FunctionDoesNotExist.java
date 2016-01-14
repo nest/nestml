@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static de.se_rwth.commons.Names.getQualifiedName;
+import static org.nest.utils.NESTMLSymbols.resolveMethod;
 
 /**
  * Checks that methods are defined and used with correct types.
@@ -40,7 +42,7 @@ public class FunctionDoesNotExist implements SPLASTFunctionCallCoCo {
     checkArgument(funcall.getEnclosingScope().isPresent(), "No scope assigned. run symboltable creator.");
     final Scope scope = funcall.getEnclosingScope().get();
 
-    final String methodName = Names.getQualifiedName(funcall.getQualifiedName().getParts());
+    final String methodName = getQualifiedName(funcall.getQualifiedName().getParts());
 
     final ExpressionTypeCalculator expressionTypeCalculator =  new ExpressionTypeCalculator();
 
@@ -59,8 +61,7 @@ public class FunctionDoesNotExist implements SPLASTFunctionCallCoCo {
 
     }
 
-    final Optional<MethodSymbol> method
-        = NESTMLSymbols.resolveMethod(scope, methodName, argTypeNames);
+    final Optional<MethodSymbol> method = resolveMethod(scope, methodName, argTypeNames);
 
     if (!method.isPresent()) {
       Log.error(

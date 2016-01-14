@@ -7,6 +7,7 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolPredicate;
+import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.symbols.MethodSymbol;
 
 import java.util.ArrayList;
@@ -15,12 +16,12 @@ import java.util.List;
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Objects.requireNonNull;
 
-public class NESTMLMethodSignaturePredicate implements SymbolPredicate {
+public class MethodSignaturePredicate implements SymbolPredicate {
 
   private final String expectedMethodName;
   private final List<String> expectedParameterTypes = new ArrayList<>();
 
-  public NESTMLMethodSignaturePredicate(final String methodName,
+  public MethodSignaturePredicate(final String methodName,
                                         final List<String> parameters) {
     this.expectedMethodName = requireNonNull(emptyToNull(methodName));
 
@@ -40,7 +41,7 @@ public class NESTMLMethodSignaturePredicate implements SymbolPredicate {
           final String expectedType = expectedParameterTypes.get(i);
           final String actualType = methodSymbol.getParameterTypes().get(i).getFullName();
 
-          if (!actualType.equals(expectedType)) {
+          if (!TypeChecker.isCompatible(actualType, expectedType)) {
             return false;
           }
         }

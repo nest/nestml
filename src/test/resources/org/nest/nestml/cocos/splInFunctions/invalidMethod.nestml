@@ -17,7 +17,7 @@ package org.nest.nestml.cocos.splInFunctions.invalidMethod:
 
         output: spike
 
-        dynamics timestep(t ms):
+        update:
             return
 
             multipleSigns integer = +++2 # TODO doesn't work since not activated

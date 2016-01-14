@@ -10,7 +10,7 @@ neuron EmptyFuncWParsNeuron:
 
     output: spike
 
-    dynamics timestep(t ms):
+    update:
     end
 
 

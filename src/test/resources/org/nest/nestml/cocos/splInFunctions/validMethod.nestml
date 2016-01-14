@@ -16,7 +16,7 @@ package org.nest.nestml.cocos.splInFunctions.validMethod:
 
         output: spike
 
-        dynamics timestep(t ms):
+        update:
 
             multipleSigns integer = 2
             random()

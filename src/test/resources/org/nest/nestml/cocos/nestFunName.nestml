@@ -1,8 +1,6 @@
 package org.nest.nestml.cocos.nestFunName:
     component Blaa:
-        function update():
-        end
-        
+
         function calibrate(t ms):
         end
         

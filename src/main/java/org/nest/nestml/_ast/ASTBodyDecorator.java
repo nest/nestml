@@ -129,6 +129,32 @@ public class ASTBodyDecorator extends ASTBody {
     return ImmutableList.copyOf(result);
   }
 
+  public Optional<ASTOdeDeclaration> getEquations() {
+    final Optional<ASTEquations> equations = findEquationsBlock();
+    if (equations.isPresent()) {
+      return Optional.of(equations.get().getOdeDeclaration());
+    }
+    else {
+      return Optional.empty();
+    }
+  }
+
+  private Optional<ASTEquations> findEquationsBlock() {
+    final Optional<ASTBodyElement> equations = body.getBodyElements()
+        .stream()
+        .filter(be -> be instanceof ASTEquations)
+        .findFirst();
+    if (equations.isPresent()) {
+      // only ASTEquations are filtered
+      return Optional.of((ASTEquations) equations.get());
+    }
+    else {
+      return Optional.empty();
+    }
+  }
+
+
+
   public void addToInternalBlock(final ASTAliasDecl astAliasDecl) {
     body.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
 
@@ -153,40 +179,6 @@ public class ASTBodyDecorator extends ASTBody {
 
     });
 
-  }
-  private static class OdeDefinitionCollector implements NESTMLInheritanceVisitor {
-
-    private Optional<ASTOdeDeclaration> astOdeDeclaration = Optional.empty();
-
-    @Override
-    public void visit(final ASTOdeDeclaration astOdeDeclarationNode) {
-      this.astOdeDeclaration = Optional.of(astOdeDeclarationNode);
-    }
-
-    public Optional<ASTOdeDeclaration> collect(final ASTNESTMLNode astNestmlBase) {
-      astNestmlBase.accept(this);
-      return astOdeDeclaration;
-    }
-
-    public Optional<ASTOdeDeclaration> getAstOdeDeclaration() {
-      return astOdeDeclaration;
-    }
-
-  }
-
-  /**
-   * TODO rework: ODE is not a body element
-   * @return
-   */
-  public Optional<ASTOdeDeclaration> getOdeDefinition() {
-    // It is ensured through cocos that there is exactly one dynamics
-    final Optional<ASTBodyElement> astDynamics = findDynamics();
-    checkState(astDynamics.isPresent(), MISSING_DYNAMICS_ERROR);
-
-    final OdeDefinitionCollector odeDefinitionCollector = new OdeDefinitionCollector();
-    Optional<ASTOdeDeclaration> foundOdeDeclaration = odeDefinitionCollector.collect(astDynamics.get());
-
-    return foundOdeDeclaration;
   }
 
   private Optional<ASTBodyElement> findDynamics() {

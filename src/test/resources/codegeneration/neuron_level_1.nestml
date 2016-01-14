@@ -8,6 +8,11 @@ neuron i_neuron:
     alias V_m mV = V + E_L # Membrane potential.
   end
 
+  equations:
+    G := (E/tau_syn) * t * exp(-1/tau_syn*t)
+    d/dt V := -1/Tau * V + 1/C_m * (G + I_e + cur)
+  end
+
   parameter:
     # Capacity of the membrane
     C_m       pF = 250pF
@@ -42,13 +47,10 @@ neuron i_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
 
     if r == 0: # not refractory
-      ODE:
-        G := (E/tau_syn) * t * exp(-1/tau_syn*t)
-        d/dt V := -1/Tau * V + 1/C_m * (G + I_e + cur)
-      end
+      # TODO update
     else:
         r = r - 1
     end

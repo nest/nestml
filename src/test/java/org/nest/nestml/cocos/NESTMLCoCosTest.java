@@ -184,21 +184,6 @@ public class NESTMLCoCosTest extends ModelTestBase {
   }
 
   @Test
-  public void testDynamicsTimeStepParameter() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "timestepDynamics.nestml");
-    assertTrue(ast.isPresent());
-    scopeCreator.runSymbolTableCreator(ast.get());
-
-    final DynamicsTimeStepParameter dynamicsTimeStepParameter = new DynamicsTimeStepParameter();
-    nestmlCoCoChecker.addCoCo(dynamicsTimeStepParameter);
-    nestmlCoCoChecker.checkAll(ast.get());
-
-    Integer errorsFound = countErrorsByPrefix(DynamicsTimeStepParameter.ERROR_CODE,
-        getFindings());
-    assertEquals(Integer.valueOf(3), errorsFound);
-  }
-
-  @Test
   public void testFunctionHasReturnStatement() {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "functionWithOutReturn.nestml");
     assertTrue(ast.isPresent());
@@ -318,7 +303,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
     Integer errorsFound = countErrorsByPrefix(NESTFunctionNameChecker.ERROR_CODE,
         getFindings());
-    assertEquals(Integer.valueOf(9), errorsFound);
+    assertEquals(Integer.valueOf(8), errorsFound);
   }
 
   @Test

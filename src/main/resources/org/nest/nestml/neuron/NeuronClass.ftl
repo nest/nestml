@@ -162,7 +162,7 @@ ${nspPrefix}::${simpleNeuronName}::init_state_(const Node& proto)
 }
 
 <#if useGSL>
-<#assign ODEs = body.getOdeDefinition().get().getODEs>
+<#assign ODEs = body.getEquations().get().getODEs>
 ${tc.include("org.nest.nestml.function.GSLDifferentiationFunction",body)}
 </#if>
 

@@ -15,6 +15,10 @@ import org.nest.symboltable.symbols.TypeSymbol;
  * @author plotnikov
  */
 public class TypeChecker {
+  public static boolean  isCompatible(final String lhsType, final String rhsType) {
+    return isCompatible(PredefinedTypes.getType(lhsType), PredefinedTypes.getType(rhsType));
+  }
+
   public static boolean  isCompatible(final TypeSymbol lhsType, final TypeSymbol rhsType) {
     if (lhsType.equals(rhsType)) {
       return true;

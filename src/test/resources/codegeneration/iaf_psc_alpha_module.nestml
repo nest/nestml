@@ -81,7 +81,7 @@ neuron iaf_psc_alpha_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
       if r == 0:
           # neuron not refractory
           y3 = P30*(y0 + I_e) + P31_ex * y1_ex + P32_ex * y2_ex + P31_in * y1_in + P32_in * y2_in + expm1_tau_m * y3 + y3;

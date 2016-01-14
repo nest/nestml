@@ -26,7 +26,6 @@ import static com.google.common.base.Preconditions.checkState;
  * Prints regular functions
  *
  * @author plotnikov
- * @since 0.0.1
  */
 @SuppressWarnings("unused") // class is used in templates
 public class NESTMLFunctionPrinter {

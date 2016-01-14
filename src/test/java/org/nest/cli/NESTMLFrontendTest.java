@@ -95,6 +95,7 @@ public class NESTMLFrontendTest {
 
   }
 
+  @Ignore
   @Test
   public void testRun() {
 

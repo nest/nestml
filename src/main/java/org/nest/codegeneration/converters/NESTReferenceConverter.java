@@ -10,6 +10,7 @@ import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;
 import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -128,7 +129,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         + "table before calling this function.");
     final String name = Names.getQualifiedName(astQualifiedName.getParts());
     final Scope scope = astQualifiedName.getEnclosingScope().get();
-    if ("E".equals(name)) {
+    if (PredefinedVariables.E_CONSTANT.equals(name)) {
       return "numerics::e";
     }
     else {

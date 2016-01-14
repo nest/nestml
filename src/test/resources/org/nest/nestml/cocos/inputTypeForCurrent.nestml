@@ -6,6 +6,6 @@ package org.nest.nestml.cocos.inputTypeForCurrent:
             inhExcBuffer   <- inhibitory excitatory current
         end
         
-        dynamics timestep(t ms):
+        update:
         end
     end

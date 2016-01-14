@@ -57,7 +57,7 @@ neuron iaf_psc_exp_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
     if r_ref == 0: # neuron not refractory, so evolve V
       V_m = V_m*P22 + i_syn_ex*P21ex + i_syn_in*P21in + (I_e+i_0)*P20
     else:

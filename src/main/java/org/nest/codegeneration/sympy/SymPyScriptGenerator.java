@@ -14,6 +14,7 @@ import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.utils.ASTNodes;
 
 import java.io.File;
@@ -46,7 +47,7 @@ public class SymPyScriptGenerator {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
 
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
-    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getOdeDefinition();
+    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getEquations();
 
     if (odeDefinition.isPresent()) {
       final Path generatedScriptFile = generateSolverScript(
@@ -82,6 +83,7 @@ public class SymPyScriptGenerator {
     checkState(astOdeDeclaration.getODEs().size() == 1, "It works only for a single ODE.");
     glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));
     glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
+    glex.setGlobalValue("prdefinedVariables", PredefinedVariables.gerVariables());
     glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
 
     setup.setGlex(glex);
@@ -91,10 +93,7 @@ public class SymPyScriptGenerator {
 
     final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
 
-    // TODO: filter out E
-    final List<String> variables = filterConstantVariables(
-        ASTNodes.getVariablesNamesFromAst(astOdeDeclaration));
-    glex.setGlobalValue("variables", variables);
+    glex.setGlobalValue("variables", ASTNodes.getVariablesNamesFromAst(astOdeDeclaration));
 
     // TODO: how do I find out the call was successful?
     generator.generate(
@@ -110,7 +109,7 @@ public class SymPyScriptGenerator {
    */
   private static List<String> filterConstantVariables(final List<String> variablesNames) {
     final List<String> result = Lists.newArrayList();
-    result.addAll(variablesNames.stream().filter(variable -> !variable.equals("E"))
+    result.addAll(variablesNames.stream().filter(variable -> !variable.equals("e"))
         .collect(Collectors.toList()));
 
     return result;

@@ -29,7 +29,7 @@ neuron izhikevich_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
     v_old, u_old real
     # neuron is never refractory
     # use standard forward Euler numerics in this case

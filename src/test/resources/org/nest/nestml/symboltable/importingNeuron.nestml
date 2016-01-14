@@ -22,7 +22,7 @@ package org.nest.nestml.symboltable.importingNeuron:
 
         output: spike
 
-        dynamics timestep(t ms):
+        update:
             TestReference.testFunction()
         end
 

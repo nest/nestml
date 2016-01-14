@@ -16,7 +16,7 @@ package org.nest.nestml.parsing.neuronWithVars:
             y, z real = 0
         end
         
-        dynamics timestep(t ms):
+        update:
         end
         
         function set_diameter(v mm):
