@@ -50,9 +50,6 @@ public class NESTMLCoCosManager {
     final CurrentInputIsNotInhExc currentInputIsNotInhExc = new CurrentInputIsNotInhExc();
     nestmlCoCoChecker.addCoCo(currentInputIsNotInhExc);
 
-    final DynamicsTimeStepParameter dynamicsTimeStepParameter = new DynamicsTimeStepParameter();
-    nestmlCoCoChecker.addCoCo(dynamicsTimeStepParameter);
-
     final FunctionHasReturnStatement functionHasReturnStatement
         = new FunctionHasReturnStatement();
     nestmlCoCoChecker.addCoCo(functionHasReturnStatement);

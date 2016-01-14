@@ -12,7 +12,7 @@ package org.nest.nestml.parsing.typenameAsVarName:
 
         output: spike
 
-        dynamics timestep(t ms):
+        update:
         end
 
     end

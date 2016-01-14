@@ -5,7 +5,7 @@ package org.nest.nestml.cocos.varWithTypeName:
             real real = 15.0
         end
 
-        dynamics timestep (t ms):
+        update:
             string string = "a"
         end
     end

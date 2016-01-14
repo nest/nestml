@@ -23,17 +23,19 @@ import java.util.Set;
  */
 public class PredefinedVariablesFactory {
   private static final String E_CONSTANT = "e";
-  private static final NeuronSymbol predefinedComponent = new NeuronSymbol("Math",
-      NeuronSymbol.Type.COMPONENT);
+  private static final String TIME_CONSTANT = "t";
+  private static final NeuronSymbol predefinedComponent =
+      new NeuronSymbol("Math", NeuronSymbol.Type.COMPONENT);
 
-  private final Map<String, VariableSymbol> name2VariableSymbol = Maps.newHashMap();
+  private static final Map<String, VariableSymbol> name2VariableSymbol = Maps.newHashMap();
 
-  public PredefinedVariablesFactory() {
+  static  {
     registerVariable(E_CONSTANT, PredefinedTypes.getRealType());
+    registerVariable(TIME_CONSTANT, PredefinedTypes.getMS());
 
   }
 
-  private void registerVariable(
+  private static void registerVariable(
       final String variableName, final TypeSymbol type) {
     final VariableSymbol variableSymbol = new VariableSymbol(variableName);
     variableSymbol.setDeclaringType(predefinedComponent);
@@ -41,8 +43,13 @@ public class PredefinedVariablesFactory {
     name2VariableSymbol.put(variableName, variableSymbol);
   }
 
-  public Set<VariableSymbol> gerVariables() {
+  public static VariableSymbol getTimeConstant() {
+    return name2VariableSymbol.get(TIME_CONSTANT);
+  }
+
+  public static Set<VariableSymbol> gerVariables() {
     return ImmutableSet.copyOf(name2VariableSymbol.values());
   }
+
 
 }

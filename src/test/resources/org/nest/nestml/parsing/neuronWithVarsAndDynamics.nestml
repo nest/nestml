@@ -22,7 +22,7 @@ neuron DynamicsNeuron:
         x = x * 2
     end
 
-    dynamics timestep (t ms):
+    update:
         abc real = 9.4563
         if abc > y:
             vM = y * 3 + s ** 5

@@ -5,7 +5,7 @@ package org.nest.nestml.parsing.emptyFunction:
         
         end
         
-        dynamics timestep(t ms):
+        update:
         end
         input:
           spikeBuffer   <- inhibitory excitatory spike

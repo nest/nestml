@@ -20,7 +20,7 @@ package org.nest.nestml.cocos.undefinedVariables.validModelUndefinedValues:
 
         output: spike
 
-        dynamics timestep(t ms):
+        update:
             
         end
 

@@ -8,7 +8,7 @@ package org.nest.nestml.parsing.headerInNeuron:
         # #define TRUE 1
         # _END_
         
-        dynamics timestep(t ms):
+        update:
         end
 
         input:

@@ -52,7 +52,7 @@ neuron iaf_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
     if r == 0: # not refrassctory
       y3 = P30 * (y0 + I_e) + P31 * y1 + P32 * y2 + P33 * y3
     else:

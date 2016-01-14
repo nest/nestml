@@ -6,10 +6,10 @@ import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
+import org.nest.spl._ast.*;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinterFactory;
-import org.nest.spl._ast.*;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
@@ -372,30 +372,20 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
   }
 
   /**
-   *
-   *  Dynamics implements BodyElement = "dynamics" (MinDelay | TimeStep)
-   *  "(" Parameters? ")"
-   *  BLOCK_OPEN // Todo remove me. It is not the way for modular extension
-   *  Block
-   *  BLOCK_CLOSE;
-   *  MinDelay = "minDelay";
-   *  TimeStep = "timestep";
+   * Dynamics implements BodyElement =
+   * "update"
+   *   BLOCK_OPEN
+   *     Block
+   *   BLOCK_CLOSE;
    */
   @Override
   public void visit(final ASTDynamics astDynamics) {
-    printDynamicsName(astDynamics);
-    printParameters(astDynamics.getParameters());
+    printDynamicsStatement(astDynamics);
     printDynamicsBody(astDynamics);
   }
 
-  private void printDynamicsName(ASTDynamics astDynamics) {
-    print("dynamics ");
-    if (astDynamics.getMinDelay().isPresent()) {
-      print("minDelay");
-    }
-    else {
-      print("timestep");
-    }
+  private void printDynamicsStatement(ASTDynamics astDynamics) {
+    print("update");
   }
 
   private void printDynamicsBody(ASTDynamics astDynamics) {

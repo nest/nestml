@@ -19,7 +19,7 @@ package org.nest.nestml.cocos.undefinedVariables.validInvariantType:
 
         output: spike
 
-        dynamics timestep(t ms):
+        update:
 
         end
     end

@@ -1,5 +1,5 @@
 package org.nest.nestml.cocos.componentWithDynamics:
     component CompWithDynamics:
-        dynamics timestep (t ms):
+        update:
         end
     end

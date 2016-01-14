@@ -165,7 +165,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         = new NeuronSymbolReference(referencedTypeName, NEURON, this.currentScope().get());
     referencedType.setAstNode(useAst);
     final UsageSymbol usageSymbol = new UsageSymbol(aliasFqn, referencedType);
-    putInScope(usageSymbol);
+    addToScope(usageSymbol);
 
     info("Handles an use statement: use " + referencedTypeName + " as " + aliasFqn, LOGGER_NAME);
   }
@@ -266,9 +266,6 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     MethodSymbol methodSymbol = new MethodSymbol(funcAst.getName());
 
     methodSymbol.setDeclaringType(currentTypeSymbol.get());
-    methodSymbol.setDynamics(false);
-    methodSymbol.setMinDelay(false);
-    methodSymbol.setTimeStep(false);
 
     addToScopeAndLinkWithNode(methodSymbol, funcAst);
 
@@ -322,34 +319,8 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
     methodEntry.setDeclaringType(currentTypeSymbol.get());
     methodEntry.setDynamics(true);
-    methodEntry.setMinDelay(dynamicsAst.getMinDelay().isPresent());
-    methodEntry.setTimeStep(dynamicsAst.getTimeStep().isPresent());
-
-    addToScopeAndLinkWithNode(methodEntry, dynamicsAst);
-
-    // Parameters
-    if (dynamicsAst.getParameters().isPresent()) {
-      for (ASTParameter p : dynamicsAst.getParameters().get().getParameters()) {
-        TypeSymbol type = new TypeSymbolReference(
-            p.getType().toString(),
-            TypeSymbol.Type.PRIMITIVE,
-            currentScope().get());
-
-        methodEntry.addParameterType(type);
-
-        // add a var entry for method body
-        VariableSymbol var = new VariableSymbol(p.getName());
-        var.setAstNode(p);
-        var.setType(type);
-        var.setDeclaringType(null); // TODO set to optional
-        var.setBlockType(VariableSymbol.BlockType.LOCAL);
-        addToScopeAndLinkWithNode(var, p);
-      }
-
-    }
-
-    // return type
     methodEntry.setReturnType(PredefinedTypes.getVoidType());
+    addToScopeAndLinkWithNode(methodEntry, dynamicsAst);
 
   }
 

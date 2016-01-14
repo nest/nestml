@@ -74,6 +74,20 @@ grammar NESTML extends org.nest.SPL {
       (AliasDecl (";" AliasDecl)* (";")? | NEWLINE)*
     BLOCK_CLOSE;
 
+   /** ASTDynamics a special function definition:
+         update:
+              if r == 0: # not refractory
+                integrate(V)
+              end
+          end
+       @attribute block Implementation of the dynamics.
+     */
+  Dynamics implements BodyElement =
+    "update"
+    BLOCK_OPEN
+      Block
+    BLOCK_CLOSE;
+
   /** ASTVar_Block represents a block with variables, e.g.:
 
     @attribute hide is true iff. declaration is not trackable.
@@ -158,31 +172,6 @@ grammar NESTML extends org.nest.SPL {
              Block
            BLOCK_CLOSE;
 
-   // e.g. first: current time, second: min delay in ms
-   // e.g. first: current time, second: timestep in ms
-   /** ASTFunction a function definition:
-         function set_V_m(v mV):
-           y3 = v - E_L
-         end
-       @attribute minDelay iff. the dynamics is midDelay.
-       @attribute timeStem iff. the dynamics is timeStep.
-       @attribute parameters List with function parameters.
-       @attribute block Implementation of the function.
-     */
-  Dynamics implements BodyElement = "dynamics" (MinDelay | TimeStep)
-                                    "(" Parameters? ")"
-                                    BLOCK_OPEN
-                                      Block
-                                    BLOCK_CLOSE;
-
-
-  /** ASTMinDelay represents minDelay dynamics.
-  */
-  MinDelay = "minDelay";
-
-  /** ASTTimeStep represents timestep dynamics.
-  */
-  TimeStep = "timestep";
 
   /** ASTParameters models parameter list in function declaration.
     @attribute parameters List with parameters.

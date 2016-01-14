@@ -8,7 +8,7 @@ package org.nest.nestml.parsing.aneuronWithUseAndCode:
             # TODO model referencing EmptyFunctionNeuron.empty()
         end
         
-        dynamics timestep(t ms):
+        update:
         end
 
         input:

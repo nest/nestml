@@ -9,7 +9,7 @@ package org.nest.nestml.parsing.nestCodeInNeuron:
             //_END_
         end*/
         
-        dynamics timestep(t ms):
+        update:
         end
         input:
           spikeBuffer   <- inhibitory excitatory spike

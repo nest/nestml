@@ -64,7 +64,7 @@ neuron iaf_tum_2000_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
 
     if r_abs == 0: # neuron not refractory, so evolve V
         delta_V_m = delta_V_m * P22 + i_syn_ex * P21ex + i_syn_in * P21in + (I_e + i_0) * P20

@@ -59,7 +59,7 @@ neuron iaf_cond_alpha_implicit_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
     ODE:
       # Implicit
       d/dt DGI := DGI*-1/tau_synI

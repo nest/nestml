@@ -22,7 +22,7 @@ package notDefined:
             end
         end
         
-        dynamics timestep (t ms):
+        update:
             t mV
             h integer
             for h in 0 ... 10:

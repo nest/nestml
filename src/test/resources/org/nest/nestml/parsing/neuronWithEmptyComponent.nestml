@@ -7,7 +7,7 @@ package org.nest.nestml.parsing.neuronWithEmptyComponent:
         
         use SomaComonent as soma
         
-        dynamics timestep(t ms):
+        update:
         end
         input:
           spikeBuffer   <- inhibitory excitatory spike

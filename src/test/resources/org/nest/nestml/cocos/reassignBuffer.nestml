@@ -4,7 +4,7 @@ package useAliasInNonAliasDecl.nestml.reassignBuffer:
             testBuffer <- spike
         end
         
-        dynamics timestep(t ms):
+        update:
             testBuffer = 15
         end
     end

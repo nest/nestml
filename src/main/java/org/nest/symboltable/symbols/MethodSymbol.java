@@ -26,8 +26,6 @@ public class MethodSymbol extends CommonScopeSpanningSymbol {
 
   private List<TypeSymbol> parameters = new ArrayList<>();
   private boolean isDynamics = false;
-  private boolean isTimeStep = false;
-  private boolean isMinDelay = false;
 
   public MethodSymbol(final String name) {
     super(name, KIND);
@@ -79,21 +77,5 @@ public class MethodSymbol extends CommonScopeSpanningSymbol {
 
   public void setDynamics(boolean isDynamics) {
     this.isDynamics = isDynamics;
-  }
-
-  public boolean isTimeStep() {
-    return isTimeStep;
-  }
-
-  public void setTimeStep(boolean isTimeStep) {
-    this.isTimeStep = isTimeStep;
-  }
-
-  public boolean isMinDelay() {
-    return isMinDelay;
-  }
-
-  public void setMinDelay(boolean isMinDelay) {
-    this.isMinDelay = isMinDelay;
   }
 }

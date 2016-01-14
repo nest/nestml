@@ -71,7 +71,7 @@ neuron mat2_exp_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
     # evolve membrane potential
     V_m = V_m*P22_expm1 + V_m + i_syn_ex*P21ex + i_syn_in*P21in + (I_e+i_0)*P20;
 

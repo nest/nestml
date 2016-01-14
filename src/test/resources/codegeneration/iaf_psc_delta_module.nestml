@@ -49,7 +49,7 @@ neuron iaf_psc_delta_neuron:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
     if r == 0: # neuron not refractory
       y3 = P30*(y0 + I_e) + P33*y3 + spikeBufferInh.getSum()
 

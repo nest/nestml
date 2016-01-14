@@ -52,6 +52,10 @@ public class PredefinedTypes {
     return implicitTypes.get("real");
   }
 
+  public static TypeSymbol getMS() {
+    return implicitTypes.get("ms");
+  }
+
   public static TypeSymbol getIntegerType() {
     return implicitTypes.get("integer");
   }
@@ -122,5 +126,6 @@ public class PredefinedTypes {
     }
 
   }
+
 
 }

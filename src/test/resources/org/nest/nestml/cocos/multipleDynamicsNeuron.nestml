@@ -1,8 +1,8 @@
 package org.nest.nestml.cocos.multipleDynamicsNeuron:
     neuron MultipleDynamicsNeuron:
-        dynamics timestep(t ms):
+        update:
         end
         
-        dynamics minDelay(t ms):
+        update:
         end
     end

@@ -43,7 +43,7 @@ neuron iaf_neuron_ode:
 
   output: spike
 
-  dynamics timestep(t ms):
+  update:
 
     if r == 0: # not refractory
         ODE:

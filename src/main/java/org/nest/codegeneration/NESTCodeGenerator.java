@@ -13,7 +13,6 @@ import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.printers.NESTMLDynamicsPrinter;
 import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTBodyDecorator;
@@ -257,13 +256,10 @@ public class NESTCodeGenerator {
     final String nspPrefix = convertToCppNamespaceConvention(moduleName);
     final NESTMLFunctionPrinter functionPrinter = new NESTMLFunctionPrinter();
     final NESTMLDeclarations declarations = new NESTMLDeclarations();
-    final NESTMLDynamicsPrinter dynamicsHelper = new NESTMLDynamicsPrinter();
-
     glex.setGlobalValue("declarations", new NESTMLDeclarations() );
     glex.setGlobalValue("assignments", new SPLAssignments());
     glex.setGlobalValue("functionPrinter", functionPrinter);
     glex.setGlobalValue("declarations", declarations);
-    glex.setGlobalValue("dynamicsHelper", dynamicsHelper);
     glex.setGlobalValue("bufferHelper", new NESTMLBuffers());
 
     glex.setGlobalValue("nspPrefix", nspPrefix);
