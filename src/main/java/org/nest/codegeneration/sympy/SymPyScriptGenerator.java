@@ -11,11 +11,10 @@ import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBodyDecorator;
-import org.nest.nestml._ast.ASTEquations;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedVariablesFactory;
+import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.utils.ASTNodes;
 
 import java.io.File;
@@ -84,7 +83,7 @@ public class SymPyScriptGenerator {
     checkState(astOdeDeclaration.getODEs().size() == 1, "It works only for a single ODE.");
     glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));
     glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
-    glex.setGlobalValue("prdefinedVariables", PredefinedVariablesFactory.gerVariables());
+    glex.setGlobalValue("prdefinedVariables", PredefinedVariables.gerVariables());
     glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
 
     setup.setGlex(glex);

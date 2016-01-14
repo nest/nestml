@@ -18,7 +18,7 @@ import java.util.Set;
  *
  * @author plotnikov
  */
-public class PredefinedFunctionFactory {
+public class PredefinedFunctions {
 
   private static final String TIME_RESOLUTION = "resolution";
   private static final String TIME_STEPS = "steps";
@@ -33,9 +33,10 @@ public class PredefinedFunctionFactory {
   private static final String RANDOM_INT = "randomInt";
   private static final String EXPM1 = "expm1";
 
+
   private final Map<String, MethodSymbol> name2FunctionSymbol = Maps.newHashMap();
 
-  public PredefinedFunctionFactory() {
+  public PredefinedFunctions() {
 
     final MethodSymbol timeSteps = createFunctionSymbol(TIME_STEPS);
     timeSteps.addParameterType(PredefinedTypes.getType("ms"));

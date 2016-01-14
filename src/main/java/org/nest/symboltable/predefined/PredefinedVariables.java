@@ -15,13 +15,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Defines a set with implicit type functions, like {@code print, pow, ...}
+ * Defines a set with implicit variables and constants, like {@code e, t, ...}
  *
  * @author plotnikov
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
  */
-public class PredefinedVariablesFactory {
+public class PredefinedVariables {
   private static final String E_CONSTANT = "e";
   private static final String TIME_CONSTANT = "t";
   private static final NeuronSymbol predefinedComponent =
