@@ -63,7 +63,7 @@ grammar SPL extends org.nest.commons.Commons {
 
   Expr =   (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
          | "not" Expr
-         | left:Expr logicalAend:["and"] right:Expr
+         | left:Expr logicalAnd:["and"] right:Expr
          | left:Expr logicalOr:["or"] right:Expr
          | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
          | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
