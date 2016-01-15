@@ -32,7 +32,7 @@ public class SPLSymbolTableTest {
 
     final SPLParser p = new SPLParser();
     final Optional<ASTSPLFile> root = p.parse(
-        "src/test/resources/org/nest/spl/symboltable/decl.simple");
+        "src/test/resources/org/nest/spl/parsing/decl.simple");
     assertTrue(root.isPresent());
 
 
@@ -41,7 +41,7 @@ public class SPLSymbolTableTest {
 
     final GlobalScope globalScope = splScopeCreator.getGlobalScope();
     globalScope.resolve("steps", MethodSymbol.KIND);
-    Optional<VariableSymbol> variable = globalScope.resolve("org.nest.spl.symboltable.decl.decl", VariableSymbol.KIND);
+    Optional<VariableSymbol> variable = globalScope.resolve("org.nest.spl.parsing.decl.decl", VariableSymbol.KIND);
     assertTrue(variable.isPresent());
 
     // resolve implicit types

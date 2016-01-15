@@ -1,9 +1,55 @@
 module org.nest.spl.parsing.decl
+decl real
+wahr1, wahr2 boolean = true
+intVar integer = 1
+realDeclration real = 1+2/3+(intVar)
+intVar = 2
+
+if 2 < 3 :
+elif 4>6 :
+else:
+end
+
+if 4 < 5 :
+
+elif wahr1 :
+
+else :
+
+end
+
+x, y real
+for x in 1 ... 5 :
+    if x > 4:
+        return x
+    end
+
+    y = x*2
+end
+
+# Tests how the function call generation is handled
+println();
+pow(x2, y2)
+
+info("" + 3+4**6)
+
+x2, y2 real
+x2 = 1
+y2 = 2
+while x2 <= 10 :
+    if x2 > 4:
+        return x2
+    end
+
+    y2 = x2*2
+    x2 = x2+1
+end
 
 wahr boolean = true
 
-x real = 3; y real = 4; z real = 16.8
+xx real = 3; yy real = 4; z real = 16.8
 
 f real = -2e12
 
 a, b, c real
+

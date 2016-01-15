@@ -18,6 +18,7 @@ import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.Optional;
 
@@ -61,7 +62,6 @@ public class IllegalExpression implements
     // compute the symbol of the var from the declaration.
     // take an arbitrary var since the variables in the declaration
     // share the same type
-
     if (node.getExpr().isPresent()) {
       final String varNameFromDeclaration = node.getVars().get(0);
       final String declarationTypeName = getDeclarationTypeName(node);
@@ -84,9 +84,10 @@ public class IllegalExpression implements
         }
       }
       else {
-        undefinedTypeError(node, initializerExpressionType.getRight().get());
+        final String errorDescription = initializerExpressionType.getRight().get() +
+            "Problem with the expression: " + ASTNodes.toString(node.getExpr().get());
+        undefinedTypeError(node, errorDescription);
       }
-
 
     }
 
@@ -102,6 +103,8 @@ public class IllegalExpression implements
     }
 
     if (exprType.isRight()) {
+      final String errorDescription = exprType.getRight().get() +
+          "Problem with the expression: " + ASTNodes.toString(node.getExpr());
       undefinedTypeError(node, exprType.getRight().get());
     }
 

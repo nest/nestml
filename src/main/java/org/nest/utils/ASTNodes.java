@@ -14,9 +14,10 @@ import de.se_rwth.commons.Util;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
+import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Deque;
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Helper class containing common operations concerning ASTNodes
+ * Helper class containing common operations concerning ast nodes.
  * 
  * @author plotnikov, oberhoff
  */
@@ -57,14 +58,18 @@ public final class ASTNodes {
     return Optional.empty();
   }
 
-
+  /**
+   * Finds the first node of the required type
+   * @param root The root node from where the search starts
+   * @param clazz The required type
+   * @return The fist node of the required type or empty value.
+   */
   public static <T> Optional<T> getAny(ASTNode root, Class<T> clazz) {
     final Iterable<ASTNode> nodes = Util.preOrder(root, ASTNode::get_Children);
 
     for (ASTNode node:nodes) {
       if (clazz.isInstance(node)) {
-        // it is checked by the if-conditions
-
+        // it is checked by the if-conditions. only T types are handled
         return Optional.of((T) node);
       }
     }
@@ -72,28 +77,33 @@ public final class ASTNodes {
     return Optional.empty();
   }
 
+  /**
+   * Finds the first node of the required type
+   * @param root The root node from where the search starts
+   * @param clazz The required type
+   * @return The list with all nodes of the required type.
+   */
+  public static <T> List<T> getAll(ASTNode root, Class<T> clazz) {
+    final Iterable<ASTNode> nodes = Util.preOrder(root, ASTNode::get_Children);
+    final List<T> resultList = Lists.newArrayList();
+    for (ASTNode node:nodes) {
+      if (clazz.isInstance(node)) {
+        // it is checked by the if-conditions. only T types are handled
+        resultList.add((T) node);
+      }
+    }
+
+    return resultList;
+  }
+  /**
+   * Returns all variables defined in the tree starting from the astNode.
+   * @param astNode
+   * @return
+   */
   public static List<String> getVariablesNamesFromAst(final ASTSPLNode astNode) {
     final FQNCollector fqnCollector = new FQNCollector();
     astNode.accept(fqnCollector);
     return fqnCollector.getVariableNames();
-  }
-
-  private final static class SPLNodesCollector implements SPLInheritanceVisitor {
-
-    private List<ASTReturnStmt> returnStmts = Lists.newArrayList();
-
-    public void startVisitor(ASTBlock blockAst) {
-      blockAst.accept(this);
-    }
-
-    @Override
-    public void visit(ASTReturnStmt astReturnStmt) {
-      returnStmts.add(astReturnStmt);
-    }
-
-    public List<ASTReturnStmt> getReturnStmts() {
-      return returnStmts;
-    }
   }
 
   public static List<ASTReturnStmt> getReturnStatements(ASTBlock blockAst) {
@@ -102,27 +112,7 @@ public final class ASTNodes {
     return splNodesCollector.getReturnStmts();
   }
 
-  static final class FQNCollector implements NESTMLInheritanceVisitor {
-    public List<String> getVariableNames() {
-      return variableNames;
-    }
-
-    final private List<String> variableNames = Lists.newArrayList();
-
-    @Override
-    public void visit(final ASTExpr astExpr) {
-      if (astExpr.getQualifiedName().isPresent()) {
-        final String variableName = Names.getQualifiedName(astExpr.getQualifiedName().get().getParts());
-        variableNames.add(variableName);
-
-      }
-
-    }
-
-  }
-
-  public static List<String> getArgumentsTypes(
-      final ASTFunctionCall astFunctionCall) {
+  public static List<String> getArgumentsTypes(final ASTFunctionCall astFunctionCall) {
     final List<String> argTypeNames = Lists.newArrayList();
 
     final ExpressionTypeCalculator typeCalculator =  new ExpressionTypeCalculator();
@@ -145,6 +135,48 @@ public final class ASTNodes {
 
   public static String toString(final ASTQualifiedName qualifiedName) {
     return Names.getQualifiedName(qualifiedName.getParts());
+  }
+
+  public static String toString(final ASTExpr expr) {
+    final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
+    return printer.print(expr);
+  }
+
+  private final static class SPLNodesCollector implements SPLInheritanceVisitor {
+
+    private List<ASTReturnStmt> returnStmts = Lists.newArrayList();
+
+    public void startVisitor(ASTBlock blockAst) {
+      blockAst.accept(this);
+    }
+
+    @Override
+    public void visit(ASTReturnStmt astReturnStmt) {
+      returnStmts.add(astReturnStmt);
+    }
+
+    public List<ASTReturnStmt> getReturnStmts() {
+      return returnStmts;
+    }
+  }
+
+  static final class FQNCollector implements NESTMLInheritanceVisitor {
+    public List<String> getVariableNames() {
+      return variableNames;
+    }
+
+    final private List<String> variableNames = Lists.newArrayList();
+
+    @Override
+    public void visit(final ASTExpr astExpr) {
+      if (astExpr.getQualifiedName().isPresent()) {
+        final String variableName = Names.getQualifiedName(astExpr.getQualifiedName().get().getParts());
+        variableNames.add(variableName);
+
+      }
+
+    }
+
   }
 
 }

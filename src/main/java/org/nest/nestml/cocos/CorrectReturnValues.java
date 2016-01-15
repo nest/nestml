@@ -87,7 +87,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
          error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
         }
 
-        if (tc.checkBoolean(functionReturnType) && !tc.checkBoolean(returnExpressionType.getLeft().get())) {
+        if (tc.isBoolean(functionReturnType) && !tc.isBoolean(returnExpressionType.getLeft().get())) {
           // should return bool, but does not
           final String msg = "Function '" + fun.getName() + "' must return a result of type "
               + functionReturnType.getName() + ".";

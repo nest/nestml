@@ -17,6 +17,7 @@ import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.utils.ASTNodes;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +41,7 @@ public class SPL2NESTCodeGeneratorTest {
   public void invokeSPL2NESTGenerator() throws IOException {
     final SPLParser p = new SPLParser();
     final File outputFolder = new File(OUTPUT_FOLDER);
-    final String packageName = "org.nest.spl.codegeneration";
+    final String packageName = "org.nest.spl.parsing";
     final String modelName = "decl";
     final String fullQualifiedModelname = packageName + "." + modelName;
 
@@ -74,14 +75,11 @@ public class SPL2NESTCodeGeneratorTest {
     assertTrue(realDeclaration.isPresent());
     generator.handle(realDeclaration.get(), outputFile);
 
+
     // tests code generation for an assignment
-    final Optional<ASTAssignment> intVarAssignment = root.get()
-        .getBlock().getStmts().get(3)
-        .getSimple_Stmt().get()
-        .getSmall_Stmts().get(0)
-        .getAssignment();
-    assertTrue(intVarAssignment.isPresent());
-    generator.handle(intVarAssignment.get(), outputFile);
+    // retrieves: intVar = 2
+    final ASTAssignment intVarAssignment = ASTNodes.getAll(root.get(), ASTAssignment.class).get(0);
+    generator.handle(intVarAssignment, outputFile);
 
     // tests code generation for the entire Block
     final ASTBlock block = root.get().getBlock();

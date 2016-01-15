@@ -44,10 +44,13 @@ public class SPLParsingTest {
   @Test
   public void testModelsForCocos() throws IOException {
     for (File file: new File(MODELS_COCOS_FOLDER).listFiles()) {
-      Log.trace("Processes the following file: %s" + file.getAbsolutePath(), LOG_NAME);
+      if (file.isFile()) {
+        Log.trace("Processes the following file: %s" + file.getAbsolutePath(), LOG_NAME);
 
-      Optional<ASTSPLFile> ast = parser.parse(file.getAbsolutePath());
-      assertTrue(ast.isPresent());
+        Optional<ASTSPLFile> ast = parser.parse(file.getAbsolutePath());
+        assertTrue(ast.isPresent());
+      }
+
     }
 
   }

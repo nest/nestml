@@ -96,12 +96,17 @@ public class VariableNotDefinedBeforeUse implements
 
     Optional<VariableSymbol> varOptional = scope.resolve(varName, VariableSymbol.KIND);
 
-    checkState(varOptional.isPresent(), "Variable " + varName + " couldn't be resolved.");
-    // exists
-    if (node.get_SourcePositionStart().compareTo(varOptional.get().getSourcePosition()) < 0) {
-      Log.error(ERROR_CODE + ":" +
-          String.format(ERROR_MSG_FORMAT, varName, varOptional.get().getSourcePosition().getLine()),
-          node.get_SourcePositionEnd());
+    if(varOptional.isPresent()) {
+      // exists
+      if (node.get_SourcePositionStart().compareTo(varOptional.get().getSourcePosition()) < 0) {
+        Log.error(ERROR_CODE + ":" +
+                String
+                    .format(ERROR_MSG_FORMAT, varName, varOptional.get().getSourcePosition().getLine()),
+            node.get_SourcePositionEnd());
+      }
+    }
+    else {
+      Log.warn(ERROR_CODE +  "Variable " + varName + " couldn't be resolved.");
     }
 
   }
