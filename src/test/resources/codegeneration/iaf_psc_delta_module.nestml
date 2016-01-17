@@ -58,7 +58,7 @@ neuron iaf_psc_delta_neuron:
       if with_refr_input and refr_spikes_buffer != 0.0:
         y3 = y3 + refr_spikes_buffer
         refr_spikes_buffer = 0.0
-       end
+      end
 
       # lower bound of membrane potential
       if y3 < V_min:

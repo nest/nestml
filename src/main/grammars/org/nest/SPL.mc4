@@ -61,16 +61,15 @@ grammar SPL extends org.nest.commons.Commons {
 
   WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
 
-  Expr =   (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
-         | "not" Expr
-         | left:Expr logicalAnd:["and"] right:Expr
-         | left:Expr logicalOr:["or"] right:Expr
+  Expr = leftParentheses:"(" Expr rightParentheses:")"
+         | <rightassoc> base:Expr pow:["**"] exponent:Expr
+         | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
          | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
          | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
          | left:Expr (shiftLeft:["<<"] | shiftRight:[">>"]) right:Expr
          | left:Expr bitAnd:["&"] right:Expr
-         | left:Expr bitOr:["|"] right:Expr
          | left:Expr bitXor:["^"]  right:Expr
+         | left:Expr bitOr:["|"] right:Expr
          | left:Expr (lt:["<"] |
                       le:["<="] |
                       eq:["=="] |
@@ -78,14 +77,15 @@ grammar SPL extends org.nest.commons.Commons {
                       ne2:["<>"] |
                       ge:[">="] |
                       gt:[">"]) right:Expr
-         | <rightassoc> base:Expr pow:["**"] exponent:Expr
+         | "not" Expr
+         | left:Expr logicalAnd:["and"] right:Expr
+         | left:Expr logicalOr:["or"] right:Expr
          | FunctionCall
          | BooleanLiteral // true & false;
          | NumericLiteral type:Name?
          | StringLiteral
          | ["inf"]
-         | QualifiedName
-         | leftParentheses:"(" Expr rightParentheses:")";
+         | QualifiedName;
 
   FunctionCall = QualifiedName "(" ArgList ")";
 

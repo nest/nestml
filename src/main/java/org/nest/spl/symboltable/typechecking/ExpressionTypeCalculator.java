@@ -68,15 +68,12 @@ public class ExpressionTypeCalculator {
         return Either.left(var.get().getType());
       }
       else {
-        Log.warn("ExpressionCalculator cannot resolve the type of the variable: " + varName);
-        // TODO handle it correctly
+        return Either.right("ExpressionCalculator cannot resolve the type of the variable: " + varName);
       }
     }
     else if (expr.getFunctionCall().isPresent()) { // function
       final String functionName = Names.getQualifiedName(expr.getFunctionCall().get().getQualifiedName().getParts());
 
-      // TODO: use the helper to query function by parameters
-      //final Object[] params = atom.getFunctionCall().getArgList().getArgs().toArray();
       final Optional<MethodSymbol> methodSymbol = scope.resolve(functionName,
           MethodSymbol.KIND);
       if (!methodSymbol.isPresent()) {
@@ -281,13 +278,11 @@ public class ExpressionTypeCalculator {
         return rhsType;
       }
 
-
       if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get())) {
         return Either.left(getBooleanType());
       }
       else {
-        final String errorMsg = "This operation expects both operands of a numeric type @<" + expr.get_SourcePositionStart() +
-            ", " + expr.get_SourcePositionStart() + ">";
+        final String errorMsg = "This operation expects both operands of a numeric type.";
 
         return Either.right(errorMsg);
       }
@@ -303,13 +298,12 @@ public class ExpressionTypeCalculator {
       if (lhsType.isRight()) {
         return lhsType;
       }
-
       if (rhsType.isRight()) {
         return rhsType;
       }
 
       if (isBoolean(lhsType.getLeft().get()) && isBoolean(rhsType.getLeft().get())) {
-        return lhsType; // TODO will not work for units
+        return Either.left(getBooleanType());
       }
       else {
         final String errorMsg = "Both operands of the logical expression must be boolean ";

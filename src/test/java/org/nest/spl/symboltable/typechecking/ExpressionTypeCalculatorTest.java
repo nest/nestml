@@ -7,12 +7,10 @@ package org.nest.spl.symboltable.typechecking;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.ASTNodes;
 
@@ -21,9 +19,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
-import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getStringType;
+import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
  * Test the functioning of the expression pretty printer
@@ -115,7 +111,13 @@ public class ExpressionTypeCalculatorTest {
     assertTrue(typeOfTmp.isLeft());
     Assert.assertEquals(getStringType(), typeOfTmp.getLeft().get());
 
+    // Retrieves line: m boolean = true and l != 0.0
+    final Either<TypeSymbol, String> typeOfM = calculator.computeType(
+        getByName(declarations, "m").getExpr().get());
+    assertTrue(typeOfM.isLeft());
+    Assert.assertEquals(getBooleanType(), typeOfM.getLeft().get());
   }
+
 
   @Test
   public void testNegativeExamples() throws IOException {
@@ -141,12 +143,17 @@ public class ExpressionTypeCalculatorTest {
     final Either<TypeSymbol, String> typeOfM = calculator.computeType(
         getByName(declarations, "a").getExpr().get());
     assertTrue(typeOfM.isRight());
+
+    // m1 boolean = "a" and k != 0.0
+    final Either<TypeSymbol, String> typeOfM1 = calculator.computeType(
+        getByName(declarations, "m1").getExpr().get());
+    assertTrue(typeOfM1.isRight());
   }
 
   private ASTDeclaration getByName(
       final List<ASTDeclaration> declarations,
       final String variableName) {
-    Optional<ASTDeclaration> declaration = declarations.stream().
+    final Optional<ASTDeclaration> declaration = declarations.stream().
         filter(e -> e.getVars().contains(variableName))
         .findFirst();
     assertTrue(declaration.isPresent());
