@@ -12,16 +12,17 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTExpr;
-import org.nest.spl.prettyprinter.SPLPrettyPrinter;
-import org.nest.spl.prettyprinter.SPLPrettyPrinterFactory;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
@@ -67,15 +68,12 @@ public class ExpressionTypeCalculator {
         return Either.left(var.get().getType());
       }
       else {
-        Log.warn("ExpressionCalculator cannot resolve the type of the variable: " + varName);
-        // TODO handle it correctly
+        return Either.right("ExpressionCalculator cannot resolve the type of the variable: " + varName);
       }
     }
     else if (expr.getFunctionCall().isPresent()) { // function
       final String functionName = Names.getQualifiedName(expr.getFunctionCall().get().getQualifiedName().getParts());
 
-      // TODO: use the helper to query function by parameters
-      //final Object[] params = atom.getFunctionCall().getArgList().getArgs().toArray();
       final Optional<MethodSymbol> methodSymbol = scope.resolve(functionName,
           MethodSymbol.KIND);
       if (!methodSymbol.isPresent()) {
@@ -89,14 +87,28 @@ public class ExpressionTypeCalculator {
             expr.get_SourcePositionEnd());
       }
 
+      double a = ~1;
       return Either.left(methodSymbol.get().getReturnType());
     }
-    // TODO expr.leftParenthesesIsPresent must be handled
-    else if (expr.getTerm().isPresent()) { // TODO it is a hack. the code with isUnaryPlus must work
+    else if (expr.isUnaryMinus() || expr.isUnaryPlus()) {
       final Either<TypeSymbol, String> type = computeType(expr.getTerm().get());
 
       if (type.getLeft().isPresent()) {
         if (isNumeric(type.getLeft().get())) {
+          return type;
+        }
+        else {
+          String errorMsg = "Cannot perform a math operation on the not numeric type";
+          return Either.right(errorMsg);
+        }
+
+      }
+    }
+    else if (expr.isUnaryTilde()) {
+      final Either<TypeSymbol, String> type = computeType(expr.getTerm().get());
+
+      if (type.getLeft().isPresent()) {
+        if (isInteger(type.getLeft().get())) {
           return type;
         }
         else {
@@ -203,21 +215,22 @@ public class ExpressionTypeCalculator {
     else if (expr.isPow()) {
       Preconditions.checkState(expr.getBase().isPresent());
       Preconditions.checkState(expr.getExponent().isPresent());
+
       final Either<TypeSymbol, String> baseType = computeType(expr.getBase().get());
       final Either<TypeSymbol, String> exponentType = computeType(expr.getExponent().get());
+
       if (baseType.isRight()) {
         return baseType;
       }
       if (exponentType.isRight()) {
         return exponentType;
       }
-      else if (baseType.getLeft().get() != (getStringType()) &&
-          exponentType.getLeft().get() != (getStringType()) &&
-          baseType.getLeft().get() != (getBooleanType()) &&
-          exponentType.getLeft().get() != (getBooleanType()) &&
-          baseType.getLeft().get() != (getVoidType()) &&
-          exponentType.getLeft().get() != (getVoidType())) {
-       return Either.left(getRealType());
+      else if (isNumeric(baseType.getLeft().get()) && isNumeric(exponentType.getLeft().get())) {
+        if (isInteger(baseType.getLeft().get()) && isInteger(exponentType.getLeft().get())) {
+          return Either.left(getIntegerType());
+        } else {
+          return Either.left(getRealType());
+        }
       }
       else {
 
@@ -231,12 +244,13 @@ public class ExpressionTypeCalculator {
         expr.isModuloOp() ||
         expr.isBitAnd() ||
         expr.isBitOr() ||
-        expr.isBitAnd()) {
+        expr.isBitXor()) {
       Preconditions.checkState(expr.getLeft().isPresent());
       Preconditions.checkState(expr.getRight().isPresent());
 
       final Either<TypeSymbol, String> lhsType = computeType(expr.getLeft().get());
       final Either<TypeSymbol, String> rhsType = computeType(expr.getRight().get());
+
       if (lhsType.isRight()) {
         return lhsType;
       }
@@ -248,12 +262,12 @@ public class ExpressionTypeCalculator {
         return Either.left(getIntegerType());
       }
       else {
-        final String errorMsg = "This operation expects both operands of the type integer @<" + expr.get_SourcePositionStart() +
-            ", " + expr.get_SourcePositionStart() + ">";
-
+        final String errorMsg = "This operation expects both operands of the type integer in the "
+            + "expression" + ASTNodes.toString(expr);
         return Either.right(errorMsg);
       }
     }
+
     else if (expr.isLt() || expr.isLe() || expr.isEq() || expr.isNe() || expr.isNe2() || expr.isGe() || expr.isGt()) {
       final Either<TypeSymbol, String> lhsType = computeType(expr.getLeft().get());
       final Either<TypeSymbol, String> rhsType = computeType(expr.getRight().get());
@@ -268,8 +282,7 @@ public class ExpressionTypeCalculator {
         return Either.left(getBooleanType());
       }
       else {
-        final String errorMsg = "This operation expects both operands of a numeric type @<" + expr.get_SourcePositionStart() +
-            ", " + expr.get_SourcePositionStart() + ">";
+        final String errorMsg = "This operation expects both operands of a numeric type.";
 
         return Either.right(errorMsg);
       }
@@ -281,19 +294,26 @@ public class ExpressionTypeCalculator {
     else if (expr.isLogicalAnd() || expr.isLogicalOr()) {
       final Either<TypeSymbol, String> lhsType = computeType(expr.getLeft().get());
       final Either<TypeSymbol, String> rhsType = computeType(expr.getRight().get());
-      if (lhsType.getLeft().get() == getBooleanType() &&
-          rhsType.getLeft().get() == getBooleanType()) {
+
+      if (lhsType.isRight()) {
+        return lhsType;
+      }
+      if (rhsType.isRight()) {
+        return rhsType;
+      }
+
+      if (isBoolean(lhsType.getLeft().get()) && isBoolean(rhsType.getLeft().get())) {
         return Either.left(getBooleanType());
       }
       else {
-        final String errorMsg = "Both operands of the logical expression must be boolean "
-            + "' @" + expr.get_SourcePositionStart() ;
+        final String errorMsg = "Both operands of the logical expression must be boolean ";
         return Either.right(errorMsg);
       }
 
     }
 
-    final String errorMsg =  "Cannot determine the type of the Expression-Node '";
+    final String errorMsg =  "This operation for expressions is not supported yet.";
+
     return Either.right(errorMsg);
   }
 

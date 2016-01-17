@@ -1,0 +1,13 @@
+module org.nest.spl.symboltable.mathExpression
+b real = 1.0
+c integer = 1
+d string = "test"
+e integer = 1 + 1
+f real = 1 + 1.0
+g real = 1.0 + 1
+h real = 1 + 1 + 1 + 1 + 1.0
+l real = 1 ** 2.5
+i integer = ~1
+P11ex real = pow(1.0, 1.0) # TODO **,h / pow(E, (-h / tau_syn_ex))
+tmp string = ("")
+m boolean = true and l != 0.0

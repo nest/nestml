@@ -1,8 +1,0 @@
-module org.nest.spl.parsing.simpleWhile
-
-while true:
-
-end
-
-while false:
-end

@@ -9,6 +9,9 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 
+import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
+
 /**
  * Helper routine to calculate the category of the particular type.
  *
@@ -79,12 +82,13 @@ public class TypeChecker {
     if (type != null) {
       return type.getName().equals(PredefinedTypes.getStringType().getName());
     }
+
     return false;
   }
 
-  public boolean checkBoolean(final TypeSymbol type) {
+  public static boolean isBoolean(final TypeSymbol type) {
     if (type != null) {
-      return type.getName().equals(PredefinedTypes.getBooleanType().getName());
+      return type.getName().equals(getBooleanType().getName()); // TODO use prover equals implementation
     }
     return false;
   }
@@ -94,4 +98,10 @@ public class TypeChecker {
     return false;
   }
 
+  public static boolean isInteger(TypeSymbol typeSymbol) {
+    if (typeSymbol != null) {
+      return typeSymbol.getName().equals(getIntegerType().getName()); // TODO use prover equals implementation
+    }
+    return false;
+  }
 }
