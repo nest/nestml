@@ -27,6 +27,7 @@ import static de.se_rwth.commons.logging.Log.warn;
  */
 public class ODEProcessor {
   private final String LOG_NAME = ODEProcessor.class.getName();
+
   private final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
 
   public ASTNESTMLCompilationUnit process(
@@ -47,7 +48,7 @@ public class ODEProcessor {
 
   }
 
-  private ASTNESTMLCompilationUnit handleNeuronWithODE(
+  protected ASTNESTMLCompilationUnit handleNeuronWithODE(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
 
@@ -86,4 +87,7 @@ public class ODEProcessor {
 
   }
 
+  public ExactSolutionTransformer getExactSolutionTransformer() {
+    return exactSolutionTransformer;
+  }
 }

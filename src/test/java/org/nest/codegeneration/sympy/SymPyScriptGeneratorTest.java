@@ -6,7 +6,7 @@
 package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
-import org.nest.ModelTestBase;
+import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;

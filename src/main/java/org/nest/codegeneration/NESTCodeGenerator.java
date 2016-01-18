@@ -41,15 +41,23 @@ import static de.se_rwth.commons.logging.Log.info;
  */
 public class NESTCodeGenerator {
   private final String LOG_NAME = NESTCodeGenerator.class.getName();
-  private final ODEProcessor odeProcessor = new ODEProcessor();
+  private final ODEProcessor odeProcessor;
   private final NESTReferenceConverter converter;
   private final ExpressionsPrettyPrinter expressionsPrinter;
   private final NESTMLScopeCreator scopeCreator;
   private final NESTMLParser parser;
 
-  public NESTCodeGenerator(
-      final NESTMLScopeCreator scopeCreator) {
+  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
     this.scopeCreator = scopeCreator;
+    this.odeProcessor= odeProcessor;
+    converter = new NESTReferenceConverter();
+    expressionsPrinter = new ExpressionsPrettyPrinter(converter);
+    parser = new NESTMLParser();
+  }
+
+  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator) {
+    this.scopeCreator = scopeCreator;
+    this.odeProcessor= new ODEProcessor();
     converter = new NESTReferenceConverter();
     expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     parser = new NESTMLParser();
@@ -105,7 +113,7 @@ public class NESTCodeGenerator {
     }
   }
 
-  protected void generateNESTCode(ASTNESTMLCompilationUnit workingVersion, Path outputBase) {
+  public void generateNESTCode(ASTNESTMLCompilationUnit workingVersion, Path outputBase) {
     generateHeader(workingVersion, outputBase);
     generateClassImplementation(workingVersion, outputBase);
     generateNestModuleCode(workingVersion, outputBase);

@@ -17,12 +17,12 @@ import static org.junit.Assert.assertEquals;
  * @author plotnikov
  */
 public class SolverTypeTest {
-  private final static String SOLVER_TYPE_FILE = "src/test/resources/codegeneration/sympy/solverType.property";
+  private final static String SOLVER_TYPE_FILE = "src/test/resources/codegeneration/sympy/psc/solverType.property";
 
   @Test
   public void testLoadTypeFromFile() {
     final SolverType result = SolverType.fromFile(Paths.get(SOLVER_TYPE_FILE));
-    assertEquals(SolverType.NUMERIC, result);
+    assertEquals(SolverType.EXACT, result);
   }
 
 }

@@ -3,11 +3,13 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration.sympy;
+package org.nest.integration;
 
 import de.monticore.symboltable.Scope;
+import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.ModelTestBase;
+import org.nest.base.ModelTestBase;
+import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -24,6 +26,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
+@Ignore
 public class ODEProcessorTest extends ModelTestBase {
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
