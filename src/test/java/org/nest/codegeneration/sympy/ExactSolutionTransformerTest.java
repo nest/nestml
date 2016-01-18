@@ -7,7 +7,7 @@ package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
 import org.junit.Test;
-import org.nest.ModelTestBase;
+import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.symbols.NeuronSymbol;
@@ -29,15 +29,15 @@ public class ExactSolutionTransformerTest extends ModelTestBase {
   public static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
   private final static String P30_FILE
-      = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.P30_FILE;
+      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.P30_FILE;
   private final static String CONSTANT_FACTORS_FILE
-      = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.CONSTANT_TERM;
+      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.CONSTANT_TERM;
   private final static String PSC_INITIAL_VALUE_FILE
-      = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE;
+      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE;
   private final static String STATE_VECTOR_FILE
-      = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.STATE_VECTOR_FILE;
+      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.STATE_VECTOR_FILE;
   private final static String UPDATE_STEP_FILE
-      = "src/test/resources/codegeneration/sympy/" + SymPyScriptEvaluator.UPDATE_STEP_FILE;
+      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.UPDATE_STEP_FILE;
   private static final String MODEL_FILE_PATH
       = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
 

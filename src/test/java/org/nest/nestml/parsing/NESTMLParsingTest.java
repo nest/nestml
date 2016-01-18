@@ -7,7 +7,7 @@ package org.nest.nestml.parsing;
 
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
-import org.nest.ModelTestBase;
+import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 

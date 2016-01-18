@@ -9,7 +9,7 @@ import de.se_rwth.commons.Names;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.nest.ModelTestBase;
+import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;

@@ -3,11 +3,12 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration;
+package org.nest.base;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.ModelTestBase;
+import org.nest.base.ModelTestBase;
+import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
@@ -62,7 +63,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   }
 
-  public void checkCocos(String pathToModel) {
+  public void checkCocos(final String pathToModel) {
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(pathToModel);
@@ -75,8 +76,6 @@ public abstract class GenerationTestBase extends ModelTestBase {
       Collection<Finding> errorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
       errorFindings.addAll(getErrorsByPrefix("SPL_", Log.getFindings()));
 
-      errorFindings.forEach(System.out::println);
-      // TODO reactivate me
       assertTrue("Models contain unexpected errors: " + errorFindings.size(),
           errorFindings.isEmpty());
 

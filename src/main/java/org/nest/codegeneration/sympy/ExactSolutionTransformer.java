@@ -113,6 +113,7 @@ public class ExactSolutionTransformer {
       }
       // add extra handling of the y0 variable
       // print resulted model to the file
+      // TODO
       final NeuronSymbol neuronSymbol = (NeuronSymbol)
           root.getNeurons().get(0).getSymbol().get();
 

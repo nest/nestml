@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest;
+package org.nest.base;
 
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;

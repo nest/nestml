@@ -3,10 +3,13 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration.sympy;
+package org.nest.integration;
 
+import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.ModelTestBase;
+import org.nest.base.ModelTestBase;
+import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
+import org.nest.codegeneration.sympy.SymPyScriptGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -23,6 +26,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plonikov
  */
+@Ignore
 public class SymPyScriptEvaluatorTest extends ModelTestBase {
   private final NESTMLParser parser = new NESTMLParser();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
