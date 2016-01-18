@@ -60,7 +60,7 @@ grammar NESTML extends org.nest.SPL {
 
   /** ASTVar_Block represent a block with variables, e.g.:
     state:
-      - y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
+      y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
     end
 
     @attribute state true if the varblock ist a state.

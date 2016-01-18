@@ -1,3 +1,8 @@
+/*
+ * Copyright (c)  RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml._ast;
 
 import com.google.common.collect.ImmutableList;
@@ -17,8 +22,7 @@ import static java.util.stream.Collectors.toList;
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
  * production.
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
+ * @author plotnikov
  */
 public class ASTBodyDecorator extends ASTBody {
 
