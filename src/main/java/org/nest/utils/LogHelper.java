@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
  * Provides convenient method to work with error messages coming from {@code Log}.
  *
  * @author plotnikov
- * @since 0.0.1
  */
 public class LogHelper {
   /**
