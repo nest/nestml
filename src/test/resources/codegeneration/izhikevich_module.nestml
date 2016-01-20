@@ -1,5 +1,3 @@
-package codegeneration.izhikevich_module:
-
 neuron izhikevich_neuron:
   state:
     v mV = -65.0 # membrane potential

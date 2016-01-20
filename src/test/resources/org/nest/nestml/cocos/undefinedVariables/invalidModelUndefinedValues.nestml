@@ -1,31 +1,29 @@
-package org.nest.nestml.cocos.undefinedVariables.invalidModelUndefinedValues:
+neuron testNeuron:
+    state:
+        stateVar1 real = 1.0 [stateVar2 > 0]
+        stateVar2 real = 1.0 + internalVar1 # Error parameterVar1 cannot be used in state block
 
-    neuron testNeuron:
-        state:
-            stateVar1 real = 1.0 [stateVar2 > 0]
-            stateVar2 real = 1.0 + internalVar1 # Error parameterVar1 cannot be used in state block
-
-
-        end
-
-        parameter:
-            # Error parameter can only use another parameter in correct order
-            parameterVar1 real = stateVar1
-        end
-
-        internal:
-            internalVar1 real = 1.0
-        end
-
-        input:
-            spikeBuffer   <- inhibitory excitatory spike
-            currentBuffer <- current
-        end
-
-        output: spike
-
-        update:
-            
-        end
 
     end
+
+    parameter:
+        # Error parameter can only use another parameter in correct order
+        parameterVar1 real = stateVar1
+    end
+
+    internal:
+        internalVar1 real = 1.0
+    end
+
+    input:
+        spikeBuffer   <- inhibitory excitatory spike
+        currentBuffer <- current
+    end
+
+    output: spike
+
+    update:
+
+    end
+
+end

@@ -1,27 +1,26 @@
-package org.nest.nestml.cocos.nestFunName:
-    component Blaa:
+component Blaa:
 
-        function calibrate(t ms):
-        end
-        
-        function handle(r real):
-        end
-        
-        function connect_sender(i integer):
-        end
-        
-        function check_connection():
-        end
-        
-        function get_status():
-        end
-        
-        function set_status():
-        end
-        
-        function init_state_():
-        end
-        
-        function init_buffers_():
-        end
-    end
+  function calibrate(t ms):
+  end
+
+  function handle(r real):
+  end
+
+  function connect_sender(i integer):
+  end
+
+  function check_connection():
+  end
+
+  function get_status():
+  end
+
+  function set_status():
+  end
+
+  function init_state_():
+  end
+
+  function init_buffers_():
+  end
+end

@@ -1,14 +1,12 @@
-package org.nest.nestml.cocos.useComponents.invalidUsage:
+import org.nest.nestml.symboltable.iaf_neuron.iaf_neuron
 
-  import org.nest.nestml.symboltable.iaf_neuron.iaf_neuron
+neuron UsesNeuron:
+    use iaf_neuron as blaa
 
-  neuron UsesNeuron:
-      use iaf_neuron as blaa
+    update:
+    end
+end
 
-      update:
-      end
-  end
-
-  component UsesUnit:
-     use integer as blub
-  end
+component UsesUnit:
+   use integer as blub
+end

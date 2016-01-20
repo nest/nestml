@@ -1,8 +1,7 @@
-package org.nest.nestml.cocos.multipleDynamicsNeuron:
-    neuron MultipleDynamicsNeuron:
-        update:
-        end
-        
-        update:
-        end
-    end
+neuron MultipleDynamicsNeuron:
+  update:
+  end
+
+  update:
+  end
+end

@@ -35,7 +35,6 @@ public abstract class GenerationTestBase extends ModelTestBase {
   protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
 
   protected void invokeCodeGenerator(final String pathToModel) {
-
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = p.parse(pathToModel);

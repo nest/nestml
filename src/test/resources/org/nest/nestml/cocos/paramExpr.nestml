@@ -1,16 +1,15 @@
-package paras:
-    component ParaExpr:
-        # TODO: forbid keywords as variable name per coco
-        function foo(str string, int1 integer, r real):
-        end
-        
-        function bar():
-            foo("Hallo Welt!", 23, 0.5)
-            
-            foo(23, "Hallo Welt!", 0.5)
-            
-            foo("Hallo Welt!", 0.5, 23)
-            
-            foo("Hallo Welt!", 23, "Hallo Welt!")
-        end
-    end
+component ParaExpr:
+    # TODO: forbid keywords as variable name per coco
+  function foo(str string, int1 integer, r real):
+  end
+
+  function bar():
+      foo("Hallo Welt!", 23, 0.5)
+
+      foo(23, "Hallo Welt!", 0.5)
+
+      foo("Hallo Welt!", 0.5, 23)
+
+      foo("Hallo Welt!", 23, "Hallo Welt!")
+  end
+end

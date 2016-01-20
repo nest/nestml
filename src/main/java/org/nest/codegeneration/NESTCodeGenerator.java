@@ -66,22 +66,21 @@ public class NESTCodeGenerator {
   public void analyseAndGenerate(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    info("Starts processing of the model: " + ASTNodes.toString(root.getPackageName()),
+    info("Starts processing of the model: " + root.getPackageName(),
         LOG_NAME);
     final ASTNESTMLCompilationUnit workingVersion;
 
     workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
     generateNESTCode(workingVersion, outputBase);
 
-    info("Successfully generated NEST code for: " + ASTNodes.toString(root.getPackageName()),
-        LOG_NAME);
+    info("Successfully generated NEST code for: " + root.getPackageName(), LOG_NAME);
   }
 
   public ASTNESTMLCompilationUnit computeSolutionForODE(
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
       final Path outputBase) {
-    final String moduleName = ASTNodes.toString(root.getPackageName());
+    final String moduleName = root.getPackageName();
     final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
@@ -122,7 +121,7 @@ public class NESTCodeGenerator {
   public void generateHeader(
       final ASTNESTMLCompilationUnit compilationUnit,
       final Path outputFolder) {
-    final String moduleName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
+    final String moduleName = compilationUnit.getPackageName();
 
     final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
     final GlobalExtensionManagement glex = getGlexConfiguration();
@@ -143,7 +142,7 @@ public class NESTCodeGenerator {
   public void generateClassImplementation(
       final ASTNESTMLCompilationUnit compilationUnit,
       final Path outputDirectory) {
-    final String moduleName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
+    final String moduleName = compilationUnit.getPackageName();
 
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
     final GlobalExtensionManagement glex = getGlexConfiguration();
@@ -168,7 +167,7 @@ public class NESTCodeGenerator {
   public void generateNestModuleCode(
       final ASTNESTMLCompilationUnit compilationUnit,
       final Path outputDirectory) {
-    final String fullName = Names.getQualifiedName(compilationUnit.getPackageName().getParts());
+    final String fullName = compilationUnit.getPackageName();
     final String moduleName = Names.getSimpleName(fullName);
 
     final List<ASTNeuron> neurons = compilationUnit.getNeurons();

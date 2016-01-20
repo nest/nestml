@@ -1,5 +1,3 @@
-package codegeneration.neuron_level_1:
-
 neuron i_neuron:
 
   state:

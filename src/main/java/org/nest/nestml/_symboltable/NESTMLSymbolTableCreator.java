@@ -31,23 +31,17 @@ import static org.nest.symboltable.symbols.VariableSymbol.BlockType.LOCAL;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;
 
 /**
- * Visitor that creates symbols that handles nestml models..
+ * Creates NESTML symbols.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisitor {
 
   String LOGGER_NAME = NESTMLSymbolTableCreator.class.getName();
 
-  void setPackageName(String packageName);
-
   void setRoot(final ASTNESTMLCompilationUnit compilationUnitAst);
 
   ASTNESTMLCompilationUnit getRoot();
-
-  String getPackageName();
 
   void setAliasDeclaration(final Optional<ASTAliasDecl> astAliasDeclaration);
 
@@ -72,37 +66,34 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
 
   default void visit(final ASTNESTMLCompilationUnit compilationUnitAst) {
-    final String fullName = Names.getQualifiedName(compilationUnitAst.getPackageName().getParts());
-    final String packageName = Names.getQualifier(fullName);
-
     setRoot(compilationUnitAst);
-    setPackageName(packageName);
 
     final List<ImportStatement> imports = computeImportStatements(compilationUnitAst);
 
-    final MutableScope artifactScope = new ArtifactScope(empty(), fullName, imports);
+    final MutableScope artifactScope = new ArtifactScope(
+        empty(),
+        compilationUnitAst.getPackageName() + "." + compilationUnitAst.getArtifactName(),
+        imports);
     putOnStack(artifactScope);
 
-    info("Adds an artifact scope for the NESTML model file: " + fullName, LOGGER_NAME);
+    final String msg = "Adds an artifact scope for the NESTML model file: " +
+        compilationUnitAst.getFullName();
+    info(msg, LOGGER_NAME);
   }
 
   default List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
     final List<ImportStatement> imports = new ArrayList<>();
-    if(compilationUnitAst.getImports() != null) {
 
-      compilationUnitAst.getImports().stream().forEach(importStatement -> {
-        final String importAsString = Names.getQualifiedName(importStatement.getQualifiedName().getParts());
-        imports.add(new ImportStatement(importAsString, importStatement.isStar()));
-      });
-    }
+    compilationUnitAst.getImports().stream().forEach(importStatement -> {
+      final String importAsString = Names.getQualifiedName(importStatement.getQualifiedName().getParts());
+      imports.add(new ImportStatement(importAsString, importStatement.isStar()));
+    });
     return imports;
   }
 
   default void endVisit(final ASTNESTMLCompilationUnit compilationUnitAst) {
-    final String fullName = Names.getQualifiedName(compilationUnitAst.getPackageName().getParts());
-
+    final String fullName = compilationUnitAst.getPackageName() + "." + compilationUnitAst.getArtifactName();
     removeCurrentScope();
-
     setEnclosingScopeOfNodes(compilationUnitAst);
     info("Finishes handling and sets scopes on all ASTs for the artifact: " + fullName, LOGGER_NAME);
   }

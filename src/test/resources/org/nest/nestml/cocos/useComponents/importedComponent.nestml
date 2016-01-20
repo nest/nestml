@@ -1,6 +1,4 @@
-package org.nest.nestml.cocos.useComponents.importedComponent:
-
-  component ImportedComponent:
-    function testFunction():
-    end
+component ImportedComponent:
+  function testFunction():
   end
+end

@@ -1,7 +1,5 @@
-package org.nest.nestml.cocos.componentWithInput:
-
-    component ComponentWithInput:
-        input:
-            buff <- spike
-        end
+component ComponentWithInput:
+    input:
+        buff <- spike
     end
+end

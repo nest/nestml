@@ -1,33 +1,31 @@
-package notDefined:
+neuron NeuronMultipleLocal:
 
-    neuron NeuronMultipleLocal:
-    
-        state:
-            x pA
-        end
-        
-        function foo():
-            z mV
-            if 1>0 :
-                x mV
-                z mV
-                x mV
-            end
-        end
-        
-        function bar(x real, z real):
-            x mV
-            while true:
-                z mV
-            end
-        end
-        
-        update:
-            t mV
-            h integer
-            for h in 0 ... 10:
-                t ms
-            end
-        end
-        
+    state:
+        x pA
     end
+
+    function foo():
+        z mV
+        if 1>0 :
+            x mV
+            z mV
+            x mV
+        end
+    end
+
+    function bar(x real, z real):
+        x mV
+        while true:
+            z mV
+        end
+    end
+
+    update:
+        t mV
+        h integer
+        for h in 0 ... 10:
+            t ms
+        end
+    end
+
+end

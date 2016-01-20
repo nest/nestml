@@ -1,11 +1,9 @@
-package org.nest.nestml.cocos.codeAfterReturn:
+component Simple:
 
-    component Simple:
-        
-        
-        function foo() real:
-            return 15.5
-            
-            info("me is after return")
-        end
+
+    function foo() real:
+        return 15.5
+
+        info("me is after return")
     end
+end

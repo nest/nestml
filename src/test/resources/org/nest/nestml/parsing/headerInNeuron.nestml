@@ -1,20 +1,18 @@
-package org.nest.nestml.parsing.headerInNeuron:
+neuron EmptyHeaderNeuron:
+  # TODO not working yet
+  #_NEST_HEADER_:
+  # #include <cmath>
 
-    neuron EmptyHeaderNeuron:
-        # TODO not working yet
-        #_NEST_HEADER_:
-        # #include <cmath>
-        
-        # #define TRUE 1
-        # _END_
-        
-        update:
-        end
+  # #define TRUE 1
+  # _END_
 
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
+  update:
+  end
 
-        output: spike
-    end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
+
+  output: spike
+end

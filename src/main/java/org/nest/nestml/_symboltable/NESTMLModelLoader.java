@@ -12,6 +12,7 @@ import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
 import static de.se_rwth.commons.logging.Log.error;
 
+import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
@@ -38,6 +39,9 @@ public class NESTMLModelLoader extends ModelingLanguageModelLoader<ASTNESTMLComp
       final ResolverConfiguration resolverConfiguration) {
     final NESTMLSymbolTableCreator symbolTableCreator = getModelingLanguage().getSymbolTableCreator
         (resolverConfiguration, enclosingScope).orElse(null);
+
+    ast.setArtifactName(Names.getSimpleName(modelName));
+    ast.setPackageName(Names.getQualifier(modelName));
 
     if (symbolTableCreator != null) {
       debug("Start creation of symbol table for model \"" + modelName + "\".",

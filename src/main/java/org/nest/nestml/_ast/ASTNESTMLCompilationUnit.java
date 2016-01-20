@@ -11,15 +11,22 @@ package org.nest.nestml._ast;
  * @author plotnikov
  */
 public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
+  private String packageName = "";
+  private String artifactName = "";
+
+  public void setPackageName(final String packageName) {
+    this.packageName = packageName;
+  }
+
+  public void setArtifactName(final String artifactName) {
+    this.artifactName = artifactName;
+  }
+
   protected ASTNESTMLCompilationUnit () {
 
   }
 
   protected ASTNESTMLCompilationUnit (
-      de.monticore.types.types._ast.ASTQualifiedName packageName
-      ,
-      org.nest.commons.commons._ast.ASTBLOCK_OPEN bLOCK_OPEN
-      ,
       java.util.List<org.nest.nestml._ast.ASTImport> imports
       ,
       java.util.List<org.nest.nestml._ast.ASTNeuron> neurons
@@ -29,6 +36,24 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
       java.util.List<String> nEWLINEs
 
   ) {
-    super(packageName, bLOCK_OPEN, imports, neurons, components , nEWLINEs);
+    super(imports, neurons, components , nEWLINEs);
+  }
+
+  public String getArtifactName() {
+    return artifactName;
+  }
+
+  public String getPackageName() {
+    return packageName;
+  }
+
+  public String getFullName() {
+    if (getPackageName().isEmpty()) {
+      return  getArtifactName();
+    }
+    else {
+      return getPackageName() + "." + getArtifactName();
+    }
+
   }
 }

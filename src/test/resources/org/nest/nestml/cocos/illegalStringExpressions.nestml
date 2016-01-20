@@ -1,25 +1,23 @@
-package illegalExpression:
+component IllegalStringExpressions:
+  internal:
+    i IllegalNumberExpressions
+  end
 
-    component IllegalStringExpressions:
-        internal:
-            i IllegalNumberExpressions
-        end
-    
-        function foo():
-            # no error
-            bar string = (5) + "Hallo Welt!"
-            # error
-            foo string = "Hello" * 5
-            # error
-            foobar string = "Hello" | 6
-            # error
-            barfoo string = "Hello" ** 3
-            # error
-            barbar string = "" + 3 - "!"
-            
-            # error
-            foofoo string = "" + i
-            
-            correct string = "Hello " + (3 * 4.0)**6 + " " + "Welt!"
-        end
-    end
+  function foo():
+    # no error
+    bar string = (5) + "Hallo Welt!"
+    # error
+    foo string = "Hello" * 5
+    # error
+    foobar string = "Hello" | 6
+    # error
+    barfoo string = "Hello" ** 3
+    # error
+    barbar string = "" + 3 - "!"
+
+    # error
+    foofoo string = "" + i
+
+    correct string = "Hello " + (3 * 4.0)**6 + " " + "Welt!"
+  end
+end

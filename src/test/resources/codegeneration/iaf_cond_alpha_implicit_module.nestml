@@ -1,5 +1,3 @@
-package codegeneration.iaf_cond_alpha_implicit_module:
-
 neuron iaf_cond_alpha_implicit_neuron:
 
   state:

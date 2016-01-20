@@ -1,17 +1,14 @@
-package org.nest.nestml.parsing.emptyFunction:
+neuron EmptyFunctionNeuron:
+  function empty() :
 
-    neuron EmptyFunctionNeuron:
-        function empty() :
-        
-        end
-        
-        update:
-        end
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
+  end
 
-        output: spike
-    end
-    
+  update:
+  end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
+
+  output: spike
+end

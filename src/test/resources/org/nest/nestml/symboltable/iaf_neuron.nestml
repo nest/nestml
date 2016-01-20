@@ -1,5 +1,3 @@
-package org.nest.nestml.symboltable.iaf_neuron:
-
 component TestComponent:
 end
 

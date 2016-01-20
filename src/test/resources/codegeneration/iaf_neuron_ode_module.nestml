@@ -1,5 +1,3 @@
-package codegeneration.iaf_neuron_ode_module:
-
 neuron iaf_neuron_ode:
 
   state:
