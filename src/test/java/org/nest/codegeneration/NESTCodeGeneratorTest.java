@@ -29,6 +29,16 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
   public NESTCodeGeneratorTest() {
 
   }
+
+  @Test
+  public void testPSCModel() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL);
+    scopeCreator.runSymbolTableCreator(root);
+    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    generator.analyseAndGenerate(root, Paths.get("target"));
+
+  }
+
   class PSCMock extends ODEProcessor {
     @Override
     protected ASTNESTMLCompilationUnit handleNeuronWithODE(
@@ -44,16 +54,4 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
       return transformedModel;
     }
   }
-
-
-
-  @Test
-  public void testPSCModel() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL);
-    scopeCreator.runSymbolTableCreator(root);
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
-    generator.analyseAndGenerate(root, Paths.get("target"));
-
-  }
-
 }

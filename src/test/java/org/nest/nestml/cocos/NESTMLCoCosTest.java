@@ -54,7 +54,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
   public void testResolvingOfPredefinedTypes() {
     // just take an arbitrary nestml model with an import: nestml*
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
-        TEST_MODELS_FOLDER + "functionWithOutReturn.nestml");
+        TEST_MODELS_FOLDER + "functionWithOutReturn.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     PredefinedTypes.getTypes().forEach(type -> {
@@ -67,7 +67,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testAliasHasNoSetter() {
-    final Optional<ASTNESTMLCompilationUnit> root = getAstRoot(TEST_MODELS_FOLDER + "aliasSetter.nestml");
+    final Optional<ASTNESTMLCompilationUnit> root = getAstRoot(
+        TEST_MODELS_FOLDER + "aliasSetter.nestml", TEST_MODEL_PATH);
     assertTrue(root.isPresent());
 
     scopeCreator.runSymbolTableCreator(root.get());
@@ -83,7 +84,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testAliasHasOneVar() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "aliasMultipleVars.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "aliasMultipleVars.nestml",TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final AliasHasOneVar aliasHasOneVar = new AliasHasOneVar();
@@ -97,7 +99,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
   @Test
   public void testAliasInNonAliasDecl() {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
-        TEST_MODELS_FOLDER + "useAliasInNonAliasDecl.nestml");
+        TEST_MODELS_FOLDER + "useAliasInNonAliasDecl.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -112,7 +114,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testComponentHasNoDynamics() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "componentWithDynamics.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "componentWithDynamics.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final ComponentHasNoDynamics componentHasNoDynamics = new ComponentHasNoDynamics();
@@ -126,7 +129,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testComponentNoInput() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "componentWithInput.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "componentWithInput.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final ComponentNoInput componentNoInput = new ComponentNoInput();
@@ -139,7 +143,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testComponentNoOutput() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "componentWithOutput.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "componentWithOutput.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final ComponentNoOutput componentNoOutput = new ComponentNoOutput();
@@ -152,8 +157,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testCorrectReturnValues() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER
-        + "functionsWithWrongReturns.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "functionsWithWrongReturns.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     scopeCreator.runSymbolTableCreator(ast.get());
@@ -171,7 +176,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
   @Test
   public void testCurrentInputIsNotInhExc() {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
-        TEST_MODELS_FOLDER + "inputTypeForCurrent.nestml");
+        TEST_MODELS_FOLDER + "inputTypeForCurrent.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final CurrentInputIsNotInhExc currentInputIsNotInhExc = new CurrentInputIsNotInhExc();
@@ -185,7 +190,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testFunctionHasReturnStatement() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "functionWithOutReturn.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "functionWithOutReturn.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -200,7 +206,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testInvalidTypesInDeclaration() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "invalidTypeInDecl.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "invalidTypeInDecl.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -218,7 +225,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testMemberVariableDefinedMultipleTimes() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "varDefinedMultipleTimes.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "varDefinedMultipleTimes.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes = new MemberVariableDefinedMultipleTimes();
@@ -235,7 +243,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testMemberVariablesInitialisedInCorrectOrder() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "memberVarDefinedInWrongOrder.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "memberVarDefinedInWrongOrder.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
     final MemberVariablesInitialisedInCorrectOrder memberVariablesInitialisedInCorrectOrder
@@ -251,7 +260,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testMultipleFunctionsDeclarations() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "multipleFunctionDeclarations.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "multipleFunctionDeclarations.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -268,7 +278,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testMultipleInhExcInput() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "multipleInhExcInInput.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "multipleInhExcInInput.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final MultipleInhExcInput multipleInhExcInput = new MultipleInhExcInput();
@@ -281,7 +292,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testMultipleOutputs() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "multipleOutputs.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "multipleOutputs.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final MultipleOutputs multipleOutputs = new MultipleOutputs();
@@ -294,7 +306,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testFunctionNameChecker() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "nestFunName.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "nestFunName.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final NESTFunctionNameChecker functionNameChecker = new NESTFunctionNameChecker();
@@ -308,7 +321,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testNESTGetterSetterFunctionNames() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "getterSetter.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "getterSetter.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -323,7 +337,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testNeuronNeedsDynamicsWithNoDynamics() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "emptyNeuron.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "emptyNeuron.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final NeuronNeedsDynamics neuronNeedsDynamics = new NeuronNeedsDynamics();
@@ -336,7 +351,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testNeuronNeedsDynamicsWithMultipleDynamics() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "multipleDynamicsNeuron.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "multipleDynamicsNeuron.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final NeuronNeedsDynamics neuronNeedsDynamics = new NeuronNeedsDynamics();
@@ -349,7 +365,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testNeuronWithoutInput() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "emptyNeuron.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "emptyNeuron.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final NeuronWithoutInput neuronNeedsDynamics = new NeuronWithoutInput();
@@ -362,7 +379,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testNeuronWithoutOutput() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "emptyNeuron.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "emptyNeuron.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     final NeuronWithoutOutput neuronWithoutOutput = new NeuronWithoutOutput();
@@ -375,7 +393,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testTypesDeclaredMultipleTimes() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "multipleTypesDeclared.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "multipleTypesDeclared.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -411,7 +430,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testBufferNotAssignable() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "reassignBuffer.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "reassignBuffer.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -426,7 +446,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testVarHasTypeName() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(TEST_MODELS_FOLDER + "varWithTypeName.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
+        TEST_MODELS_FOLDER + "varWithTypeName.nestml", TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -506,7 +527,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
       final String pathToModel,
       final NESTMLCoCoChecker nestmlCoCoChecker,
       final String expectedErrorCode) {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel);
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel, TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -522,7 +543,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
       final NESTMLCoCoChecker nestmlCoCoChecker,
       final String expectedErrorCode,
       final Integer expectedNumberCount) {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel);
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel, TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 

@@ -7,7 +7,7 @@ neuron i_neuron:
   end
 
   equations:
-    G = (E/tau_syn) * t * exp(-1/tau_syn*t)
+    G = (e/tau_syn) * t * exp(-1/tau_syn*t)
     V' = -1/Tau * V + 1/C_m * (G + I_e + cur)
   end
 

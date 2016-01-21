@@ -67,7 +67,7 @@ public class CLIConfigurationExecutor {
   }
 
   private void parseWithOptionalCocosCheck(final String modelName, final NESTMLToolConfiguration nestmlToolConfiguration) {
-    final NESTMLParser parser = new NESTMLParser();
+    final NESTMLParser parser = new NESTMLParser(Paths.get(nestmlToolConfiguration.getModelPath()));
     try {
       final Optional<ASTNESTMLCompilationUnit> root = parser.parse(nestmlToolConfiguration.getInputBasePath() +
               File.separator + modelName);

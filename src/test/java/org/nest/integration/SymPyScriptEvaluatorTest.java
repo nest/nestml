@@ -28,12 +28,12 @@ import static org.junit.Assert.assertTrue;
  */
 @Ignore
 public class SymPyScriptEvaluatorTest extends ModelTestBase {
-  private final NESTMLParser parser = new NESTMLParser();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final String PSC_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
+  private final NESTMLParser parser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
 
 
   @Test

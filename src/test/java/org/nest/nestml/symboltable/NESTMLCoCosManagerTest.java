@@ -19,6 +19,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -47,7 +48,7 @@ public class NESTMLCoCosManagerTest {
    * @throws java.io.IOException
    */
   private Optional<ASTNESTMLCompilationUnit> getAstRoot(String modelPath) throws IOException {
-    final NESTMLParser p = new NESTMLParser();
+    final NESTMLParser p = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
     final Optional<ASTNESTMLCompilationUnit> ast = p.parse(modelPath);
     Assert.assertTrue(ast.isPresent());
     return ast;

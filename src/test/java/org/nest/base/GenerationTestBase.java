@@ -30,14 +30,13 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @author plotnikov
  */
 public abstract class GenerationTestBase extends ModelTestBase {
-  final NESTMLParser p = new NESTMLParser();
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
   protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
 
   protected void invokeCodeGenerator(final String pathToModel) {
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
-      root = p.parse(pathToModel);
+      root = parser.parse(pathToModel);
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
 
@@ -51,7 +50,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
 
   protected void generateNESTMLImplementation(final String pathToModel) {
     try {
-      final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
+      final Optional<ASTNESTMLCompilationUnit> root = parser.parse(pathToModel);
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
       generator.analyseAndGenerate(root.get(), Paths.get(OUTPUT_FOLDER));
@@ -65,7 +64,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
   public void checkCocos(final String pathToModel) {
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
-      root = p.parse(pathToModel);
+      root = parser.parse(pathToModel);
       assertTrue(root.isPresent());
 
       scopeCreator.runSymbolTableCreator(root.get());
