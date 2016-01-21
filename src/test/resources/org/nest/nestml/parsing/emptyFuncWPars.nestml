@@ -1,17 +1,14 @@
-package org.nest.nestml.parsing.emptyFuncWPars:
-    
-
 neuron EmptyFuncWParsNeuron:
 
-    input:
-      spikeBuffer   <- inhibitory excitatory spike
-      currentBuffer <- current
-    end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
 
-    output: spike
+  output: spike
 
-    update:
-    end
+  update:
+  end
 
 
 end

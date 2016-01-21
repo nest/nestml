@@ -42,7 +42,7 @@ public class SymPyScriptGeneratorTest extends ModelTestBase {
   }
 
   private void generateScriptForModel(final String pathToModel) throws IOException {
-    final NESTMLParser p = new NESTMLParser();
+    final NESTMLParser p = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
 
     assertTrue(root.isPresent());

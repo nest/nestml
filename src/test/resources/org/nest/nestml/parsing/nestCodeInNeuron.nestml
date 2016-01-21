@@ -1,20 +1,18 @@
-package org.nest.nestml.parsing.nestCodeInNeuron:
+neuron EmptyCodeNeuron:
 
-    neuron EmptyCodeNeuron:
-        
-        /*function blaa():
-            //_NEST_CODE_:
-            #    int x = 3;
-            #    x = x + 5;
-            //_END_
-        end*/
-        
-        update:
-        end
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
+  /*function blaa():
+      //_NEST_CODE_:
+      #    int x = 3;
+      #    x = x + 5;
+      //_END_
+  end*/
 
-        output: spike
-    end
+  update:
+  end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
+
+  output: spike
+end

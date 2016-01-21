@@ -40,8 +40,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
    */
   @Override
   public void visit(final ASTNESTMLCompilationUnit node) {
-    print("package ");
-    println(Names.getQualifiedName(node.getPackageName().getParts()) + BLOCK_OPEN);
   }
 
   /**
@@ -75,7 +73,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
   public void visit(final ASTComponent astComponent) {
     print("component " + astComponent.getName());
   }
-
   /**
    * Grammar:
    * Body = BLOCK_OPEN ( SL_COMMENT | NEWLINE | BodyElement)* BLOCK_CLOSE;

@@ -1,11 +1,9 @@
-package notDefined:
+neuron NeuronFunCall:
+  function foo():
+    bar() /* not defined */
+    EmptyNeuron.bar()
+    # not defined
+    NeuronInTest.foo(2) # not defined with parameter
 
-    neuron NeuronFunCall:
-        function foo():
-            bar() /* not defined */
-            EmptyNeuron.bar() 
-            # not defined
-            NeuronInTest.foo(2) # not defined with parameter
-            
-        end
-    end
+  end
+end

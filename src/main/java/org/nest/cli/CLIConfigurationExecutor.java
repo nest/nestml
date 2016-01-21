@@ -14,6 +14,7 @@ import org.nest.utils.LogHelper;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,7 @@ public class CLIConfigurationExecutor {
 
   private static final String LOG_NAME = CLIConfigurationExecutor.class.getName();
 
-  private final NESTMLParser parser = new NESTMLParser();
+
 
   public CLIConfigurationExecutor() {
     Log.enableFailQuick(false);
@@ -66,6 +67,7 @@ public class CLIConfigurationExecutor {
   }
 
   private void parseWithOptionalCocosCheck(final String modelName, final NESTMLToolConfiguration nestmlToolConfiguration) {
+    final NESTMLParser parser = new NESTMLParser(Paths.get(nestmlToolConfiguration.getModelPath()));
     try {
       final Optional<ASTNESTMLCompilationUnit> root = parser.parse(nestmlToolConfiguration.getInputBasePath() +
               File.separator + modelName);

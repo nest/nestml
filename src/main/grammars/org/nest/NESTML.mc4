@@ -13,8 +13,7 @@ grammar NESTML extends org.nest.SPL {
     @attribute Neuron           The neuron representation
     @attribute Component        The component representation
   */
-  NESTMLCompilationUnit = "package" packageName:QualifiedName
-    BLOCK_OPEN
+  NESTMLCompilationUnit =
     (Import | NEWLINE)*
     (Neuron | Component | NEWLINE)*
     EOF;

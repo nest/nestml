@@ -1,17 +1,15 @@
-package org.nest.nestml.cocos.aliasSetter:
-
-    component AliasSetter:
-        parameter:
-            x integer = 5
-            alias y integer = -x
-            alias z real = x * y
-        end
-        
-        function set_y(v real):
-            x = -v
-        end
-        
-        function set_z():
-        end
-        
+component AliasSetter:
+    parameter:
+        x integer = 5
+        alias y integer = -x
+        alias z real = x * y
     end
+
+    function set_y(v real):
+        x = -v
+    end
+
+    function set_z():
+    end
+
+end

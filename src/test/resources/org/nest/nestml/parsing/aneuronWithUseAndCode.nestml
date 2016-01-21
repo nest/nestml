@@ -1,21 +1,17 @@
-package org.nest.nestml.parsing.aneuronWithUseAndCode:
+neuron Neuron1234:
 
-    import empty.*
+  function foobar():
+    # TODO model referencing EmptyFunctionNeuron.empty()
+  end
 
-    neuron Neuron1234:
-    
-        function foobar():
-            # TODO model referencing EmptyFunctionNeuron.empty()
-        end
-        
-        update:
-        end
+  update:
+  end
 
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
 
-        output: spike
-        
-    end
+  output: spike
+
+end

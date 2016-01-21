@@ -1,17 +1,16 @@
-package reassign:
-    neuron Reassigner:
-        parameter:
-            a integer = 10
-        end
-        internal:
-            b real = 0.23
-        end
-        
-        function foo():
-            b = a * 12.7
-        end
-        
-        update:
-            a = 10 | 2
-        end
-    end
+neuron Reassigner:
+  parameter:
+      a integer = 10
+  end
+  internal:
+      b real = 0.23
+  end
+
+  function foo():
+      b = a * 12.7
+  end
+
+  update:
+      a = 10 | 2
+  end
+end

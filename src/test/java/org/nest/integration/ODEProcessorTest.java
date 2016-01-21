@@ -58,7 +58,7 @@ public class ODEProcessorTest extends ModelTestBase {
   private Scope processModel(final String pathToModel) {
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(pathToModel);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    final String modelFolder = ASTNodes.toString(modelRoot.getPackageName());
+    final String modelFolder = modelRoot.getPackageName();
 
     final ASTNESTMLCompilationUnit explicitSolution = testant
         .process(modelRoot, Paths.get(OUTPUT_FOLDER, modelFolder));

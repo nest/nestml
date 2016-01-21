@@ -1,3 +1,2 @@
-package org.nest.nestml.parsing.emptyComponent:
-
-    component EmptyComponent:end
+component EmptyComponent:
+end

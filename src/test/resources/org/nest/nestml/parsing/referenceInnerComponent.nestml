@@ -1,31 +1,27 @@
-package org.nest.nestml.parsing.referenceInnerComponent:
+component SomaComponent:
+  parameter:
+    diameter5 integer = 5
+  end
+  function helloWorld():
+  end
+end
 
-    import units.unitless.*
-    
-    component SomaComponent:
-        parameter:
-            diameter5 integer = 5
-        end
-        function helloWorld():
-        end
-    end
+neuron TestSoma:
 
-    neuron TestSoma:
-        
-        use SomaComponent as soma
-        
-        function testHelloWorld():
-            #soma.helloWorld();
-            #info("Diameter = " + soma.diameter5)
-        end
-        
-        update:
-        end
+  use SomaComponent as soma
 
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
+  function testHelloWorld():
+    #soma.helloWorld();
+    #info("Diameter = " + soma.diameter5)
+  end
 
-        output: spike
-    end
+  update:
+  end
+
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
+
+  output: spike
+end

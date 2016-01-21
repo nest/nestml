@@ -1,10 +1,9 @@
-package useAliasInNonAliasDecl.nestml.reassignBuffer:
-    neuron ReassignBuffer:
-        input:
-            testBuffer <- spike
-        end
-        
-        update:
-            testBuffer = 15
-        end
-    end
+neuron ReassignBuffer:
+  input:
+      testBuffer <- spike
+  end
+
+  update:
+      testBuffer = 15
+  end
+end

@@ -1,5 +1,3 @@
-package codegeneration.neuron_level_2:
-
 neuron iaf_neuron:
 
   state:
@@ -9,8 +7,8 @@ neuron iaf_neuron:
   end
 
   equations:
-    G = (E/tau_syn) * t * exp(-1/tau_syn*t)
-    V' = -1/Tau * V + (G + I_e + cur)
+    G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+    V' = -1/Tau * V + 1/C_m * (G + I_e + cur)
   end
 
   parameter:

@@ -1,13 +1,11 @@
-package org.nest.nestml.parsing.emptyNeuron:
+neuron EmptyNeuron:
+  update:
+  end
 
-    neuron EmptyNeuron:
-        update:
-        end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
 
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
-
-        output: spike
-    end
+  output: spike
+end

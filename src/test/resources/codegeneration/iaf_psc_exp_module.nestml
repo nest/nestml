@@ -1,5 +1,3 @@
-package codegeneration.iaf_psc_exp_module:
-
 neuron iaf_psc_exp_neuron:
   state:
    i_0 real = 0.0       # synaptic stepwise constant input current, variable 0

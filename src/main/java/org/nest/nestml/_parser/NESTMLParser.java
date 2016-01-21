@@ -11,35 +11,54 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
- * HW Parser that is responsible for the computation of the package and module
+ * HW parser that also is able
  *
  * @author plotnikov
  */
 public class NESTMLParser extends NESTMLParserTOP {
+
+  private final Optional<Path> modelPath;
+
+  public NESTMLParser() {
+    modelPath = Optional.empty();
+  }
+
+  public NESTMLParser(final Path modelPath) {
+    this.modelPath = Optional.of(modelPath);
+  }
+
   @Override
   public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(String filename)
       throws IOException, RecognitionException {
-
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
-    if (res.isPresent()) {
-      final String packageName = Names.getPackageFromPath(filename);
+    if (res.isPresent() && modelPath.isPresent()) {
+      final String packageName = computePackageName(Paths.get(filename), modelPath.get());
+      final String artifactName = computeArtifactName(Paths.get(filename));
+      res.get().setPackageName(packageName);
+      res.get().setArtifactName(artifactName);
     }
+
     return res;
   }
 
-  protected String computePackage(final Path modelPath, final Path absoluteFilePath) {
-    return absoluteFilePath.relativize(modelPath).getParent().toString();
+  protected String computePackageName(final Path artifactPath, final Path modelPath) {
+
+    final String pathAsString = modelPath.relativize(artifactPath).getParent().toString();
+
+    return Names.getPackageFromPath(pathAsString);
   }
 
-  protected String computeArtifact(final Path absoluteFilePath) {
-    final String filename = absoluteFilePath.getFileName().toString();
-    if (filename.endsWith(".nestml")) {
+  protected String computeArtifactName(final Path artifactPath) {
+    final String filename = artifactPath.getFileName().getName(0).toString();
+    if (filename.contains(".nestml")) {
       return filename.substring(0, filename.indexOf(".nestml"));
+    } else {
+      return filename;
     }
-    return absoluteFilePath.getFileName().toString();
-  }
 
+  }
 }

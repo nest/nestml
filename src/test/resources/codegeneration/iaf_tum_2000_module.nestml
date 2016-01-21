@@ -1,5 +1,3 @@
-package codegeneration.iaf_tum_2000:
-
 neuron iaf_tum_2000_neuron:
   state:
     i_0       mV

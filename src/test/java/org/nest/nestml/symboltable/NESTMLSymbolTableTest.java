@@ -8,11 +8,11 @@ package org.nest.nestml.symboltable;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.junit.Test;
+import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTBodyElement;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedFunctions;
@@ -27,24 +27,21 @@ import java.util.Optional;
 import static org.junit.Assert.*;
 
 /**
+ *  Tests the symbol table infrastructure of the NESTML language
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
-public class NESTMLSymbolTableTest {
+public class NESTMLSymbolTableTest extends ModelTestBase {
 
-  private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/symboltable/"
       + "iaf_neuron.nestml";
   private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/symboltable/"
       + "importingNeuron.nestml";
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
-  private final Scope globalScope = scopeCreator.getGlobalScope();
 
   @Test
   public void testCreationOfSymtabAndResolvingOfSymbols() throws IOException {
-    final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
     Collection<TypeSymbol> nestmlTypes = modelScope.resolveLocally(NeuronSymbol.KIND);
@@ -60,14 +57,14 @@ public class NESTMLSymbolTableTest {
         NeuronSymbol.KIND);
     assertTrue(testComponentOptional.isPresent());
 
-    final Optional<TypeSymbol> testComponentFromGlobalScope = globalScope.resolve(
+    final Optional<TypeSymbol> testComponentFromGlobalScope = scopeCreator.getGlobalScope().resolve(
         "org.nest.nestml.symboltable.iaf_neuron.TestComponent", NeuronSymbol.KIND);
     assertTrue(testComponentFromGlobalScope.isPresent());
   }
 
   @Test
   public void testResolvingFromSeparateBlocks() throws IOException {
-    final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
 
     scopeCreator.runSymbolTableCreator(root);
@@ -101,7 +98,7 @@ public class NESTMLSymbolTableTest {
 
   @Test
   public void testShadowingOfVariablesInMethods() throws IOException {
-    final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
 
     scopeCreator.runSymbolTableCreator(root);
@@ -153,11 +150,11 @@ public class NESTMLSymbolTableTest {
 
   @Test
   public void testPredefinedVariables() throws IOException {
-    final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
     final Optional<VariableSymbol> fromGlobalScope
-        = globalScope.resolve("e", VariableSymbol.KIND);
+        = scopeCreator.getGlobalScope().resolve("e", VariableSymbol.KIND);
     assertTrue(fromGlobalScope.isPresent());
 
 
@@ -168,7 +165,7 @@ public class NESTMLSymbolTableTest {
 
   @Test
   public void testResolvingSeparateModels() throws IOException {
-    final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(USING_NEURON_FILE);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(USING_NEURON_FILE);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
     final Optional<NeuronSymbol> usingNeuronSymbol = modelScope
         .resolve("org.nest.nestml.symboltable.importingNeuron.UsingNeuron", NeuronSymbol.KIND);
@@ -185,7 +182,7 @@ public class NESTMLSymbolTableTest {
 
   @Test
   public void testResolvingOfPredefinedFunctions() throws IOException {
-    final ASTNESTMLCompilationUnit root = getNestmlRootFromFilename(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
 
     scopeCreator.runSymbolTableCreator(root);
@@ -208,10 +205,4 @@ public class NESTMLSymbolTableTest {
     standAloneFunction.isPresent();
   }
 
-  public ASTNESTMLCompilationUnit getNestmlRootFromFilename(final String modelFilename) throws IOException {
-    final NESTMLParser p = new NESTMLParser();
-    final Optional<ASTNESTMLCompilationUnit> root = p.parse(modelFilename);
-    assertTrue(root.isPresent());
-    return root.get();
-  }
 }

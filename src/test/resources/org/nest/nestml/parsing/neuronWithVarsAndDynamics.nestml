@@ -1,58 +1,56 @@
-package org.nest.nestml.parsing.neuronWithVarsAndDynamics:
-
 import vars.VarsNeuron
 
 neuron DynamicsNeuron:
-    state:
-        vM mV
-        x mV
+  state:
+    vM mV
+    x mV
+  end
+
+  parameter:
+    radius mm = 5
+    alias diameter mm = 2 * radius
+  end
+
+  internal:
+    y, z real = 0
+    s real = 0
+  end
+
+  function foo(x ms):
+    x = x * 2
+  end
+
+  update:
+    abc real = 9.4563
+    if abc > y:
+      vM = y * 3 + s ** 5
+    elif abc == y:
+      info("Elif!")
+    else:
+      info("Else!")
     end
-
-    parameter:
-        radius mm = 5
-        alias diameter mm = 2 * radius
+    x = 1.0 # TODO: implement this model crossreferencing VarsNeuron.y
+    while false:
+      warning("Impossible!")
     end
-
-    internal:
-        y, z real = 0
-        s real = 0
+    i integer
+    for i in 0 ... 10 step 2:
+      info("Possible! " + i)
     end
-
-    function foo(x ms):
-        x = x * 2
+    for i in 5 ... 0 step -1:
+      info("Possible! " + i)
     end
-
-    update:
-        abc real = 9.4563
-        if abc > y:
-            vM = y * 3 + s ** 5
-        elif abc == y:
-            info("Elif!")
-        else:
-            info("Else!")
-        end
-        x = 1.0 # TODO: implement this model crossreferencing VarsNeuron.y
-        while false:
-            warning("Impossible!")
-        end
-        i integer
-        for i in 0 ... 10 step 2:
-            info("Possible! " + i)
-        end
-        for i in 5 ... 0 step -1:
-            info("Possible! " + i)
-        end
-    end
+  end
 
 
-    function set_diameter(v mm):
-        radius = v / 2
-    end
+  function set_diameter(v mm):
+    radius = v / 2
+  end
 
-    input:
-      spikeBuffer   <- inhibitory excitatory spike
-      currentBuffer <- current
-    end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
 
-    output: spike
+  output: spike
 end

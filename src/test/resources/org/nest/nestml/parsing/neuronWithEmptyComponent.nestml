@@ -1,18 +1,17 @@
-package org.nest.nestml.parsing.neuronWithEmptyComponent:
-    
-    component SomaComonent:
-    end
 
-    neuron SomaNeuron:
-        
-        use SomaComonent as soma
-        
-        update:
-        end
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
+component SomaComonent:
+end
 
-        output: spike
-    end
+neuron SomaNeuron:
+
+  use SomaComonent as soma
+
+  update:
+  end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
+
+  output: spike
+end

@@ -1,10 +1,9 @@
-package org.nest.nestml.cocos.multipleOutputs:
-    neuron OutputsNeuron:
-        output: spike
-        output: current
-    end
-    
-    component OutputsComponent:
-        output: spike
-        output: current
-    end
+neuron OutputsNeuron:
+  output: spike
+  output: current
+end
+
+component OutputsComponent:
+  output: spike
+  output: current
+end

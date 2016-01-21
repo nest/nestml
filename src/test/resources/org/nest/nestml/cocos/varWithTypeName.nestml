@@ -1,11 +1,9 @@
-package org.nest.nestml.cocos.varWithTypeName:
+component B:
+  state:
+    real real = 15.0
+  end
 
-    component B:
-        state:
-            real real = 15.0
-        end
-
-        update:
-            string string = "a"
-        end
-    end
+  update:
+    string string = "a"
+  end
+end

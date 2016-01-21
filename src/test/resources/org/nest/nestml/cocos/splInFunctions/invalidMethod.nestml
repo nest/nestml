@@ -1,76 +1,74 @@
-package org.nest.nestml.cocos.splInFunctions.invalidMethod:
-
-    neuron testNeuron:
-        state:
-        end
-
-        parameter:
-        end
-
-        internal:
-        end
-
-        input:
-            spikeBuffer   <- inhibitory excitatory spike
-            currentBuffer <- current
-        end
-
-        output: spike
-
-        update:
-            return
-
-            multipleSigns integer = +++2 # TODO doesn't work since not activated
-                                         # error: code after return
-            bar() # error 1 /* not defined */
-            random(2) # error 2 not defined with parameter
-
-            b boolean = true
-
-            bar real = b ** 4 # error 3: boolean cannot be used as a base
-
-            foo integer = 3*b*6/b # error 4: boolean as a factor in devision
-
-            foobar integer = 3.0 << 4 >> 2.0 # error 5+6: no shift operation on float values
-
-            barfoo integer = 3.2 & 5 & 6.4 # error 6+7 no bit operation on float values
-
-            bafoo integer = 3.2 | 5 | 6.4 # error 8+9 no bit operation on float values
-
-            barfo integer = 3.2 ^ 5 ^ 6.4 # error 10+11 no bit operation on float values
-
-            if foo: # 13 integer is not a valid boolean expression
-
-            elif randomInt(): # 14 integer which is the return value of randomInt is not a valid boolean expression
-
-            elif b < 7: # 15 cannot compare boolean to integer
-
-            elif "abc" > "bca": # ok? 16 no comparison
-
-            end
-
-            # error 17
-            foo2 string = "Hello" * 5
-            # error 18
-            barfoo2 string = "Hello" ** 3
-
-            i void
-            # error 19
-            foofoo2 string = "" + i
-
-            x3 boolean
-            for x3 in 1 ... 5 : # error: boolean in for step
-
-            end
-
-            real real = 0.0
-            #x3 boolean # x3 is already defined. # TODO doesn't work
-
-            xxx real = 2 * xxx # TODO it should produce an error
-
-            # for a in 1 ... 10 step 1: # TODO it should work
-            # blaa
-            # end
-        end
-
+neuron testNeuron:
+    state:
     end
+
+    parameter:
+    end
+
+    internal:
+    end
+
+    input:
+        spikeBuffer   <- inhibitory excitatory spike
+        currentBuffer <- current
+    end
+
+    output: spike
+
+    update:
+        return
+
+        multipleSigns integer = +++2 # TODO doesn't work since not activated
+                                     # error: code after return
+        bar() # error 1 /* not defined */
+        random(2) # error 2 not defined with parameter
+
+        b boolean = true
+
+        bar real = b ** 4 # error 3: boolean cannot be used as a base
+
+        foo integer = 3*b*6/b # error 4: boolean as a factor in devision
+
+        foobar integer = 3.0 << 4 >> 2.0 # error 5+6: no shift operation on float values
+
+        barfoo integer = 3.2 & 5 & 6.4 # error 6+7 no bit operation on float values
+
+        bafoo integer = 3.2 | 5 | 6.4 # error 8+9 no bit operation on float values
+
+        barfo integer = 3.2 ^ 5 ^ 6.4 # error 10+11 no bit operation on float values
+
+        if foo: # 13 integer is not a valid boolean expression
+
+        elif randomInt(): # 14 integer which is the return value of randomInt is not a valid boolean expression
+
+        elif b < 7: # 15 cannot compare boolean to integer
+
+        elif "abc" > "bca": # ok? 16 no comparison
+
+        end
+
+        # error 17
+        foo2 string = "Hello" * 5
+        # error 18
+        barfoo2 string = "Hello" ** 3
+
+        i void
+        # error 19
+        foofoo2 string = "" + i
+
+        x3 boolean
+        for x3 in 1 ... 5 : # error: boolean in for step
+
+        end
+
+        real real = 0.0
+        #x3 boolean # x3 is already defined. # TODO doesn't work
+
+        xxx real = 2 * xxx # TODO it should produce an error
+
+        # for a in 1 ... 10 step 1: # TODO it should work
+        # blaa
+        # end
+    end
+
+end

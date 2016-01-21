@@ -1,40 +1,34 @@
-package illegalExpression:
+component IllegalNumberExpressions:
 
-    import nestml.*
-    import units.unitless.*
-    
-    component IllegalNumberExpressions:
-        
-        internal:
-            b boolean = true
-            
-        end
-    
-        function foo():
-            bar real = b ** 4
-            
-            foo integer = 3*b*6/b
-            
-            foobar integer = 3.0 << 4 >> 2.0
-            
-            barfoo integer = 3.2 & 5 & 6.4
-            
-            bafoo integer = 3.2 | 5 | 6.4
-            
-            barfo integer = 3.2 ^ 5 ^ 6.4
-            
-            if foo:
-                
-            elif bar():
-            
-            elif b < 7:
-            
-            elif "abc" > "bca": # ok?
-            
-            end
-        end
-        
-        function bar() integer:
-            return 0
-        end
-    end
+  internal:
+    b boolean = true
+  end
+
+  function foo():
+    bar real = b ** 4
+
+    foo integer = 3*b*6/b
+
+    foobar integer = 3.0 << 4 >> 2.0
+
+    barfoo integer = 3.2 & 5 & 6.4
+
+    bafoo integer = 3.2 | 5 | 6.4
+
+    barfo integer = 3.2 ^ 5 ^ 6.4
+
+    if foo:
+
+    elif bar():
+
+    elif b < 7:
+
+    elif "abc" > "bca": # ok?
+
+      end
+  end
+
+  function bar() integer:
+    return 0
+  end
+end

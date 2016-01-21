@@ -1,32 +1,30 @@
-package org.nest.nestml.parsing.neuronWithVars:
+neuron VarsNeuron:
+  state:
+    vM mV
+    x mV
+    abc mm
+  end
 
-    neuron VarsNeuron:
-        state:
-            vM mV
-            x mV
-            abc mm
-        end
-        
-        parameter:
-            radius mm = 5
-            alias diameter mm = 2 * radius
-        end
-        
-        internal:
-            y, z real = 0
-        end
-        
-        update:
-        end
-        
-        function set_diameter(v mm):
-            radius = v / 2
-        end
+  parameter:
+    radius mm = 5
+    alias diameter mm = 2 * radius
+  end
 
-        input:
-          spikeBuffer   <- inhibitory excitatory spike
-          currentBuffer <- current
-        end
+  internal:
+    y, z real = 0
+  end
 
-        output: spike
-    end
+  update:
+  end
+
+  function set_diameter(v mm):
+    radius = v / 2
+  end
+
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
+
+  output: spike
+end

@@ -1,5 +1,3 @@
-package codegeneration.mat2_psc_exp_module:
-
 neuron mat2_exp_neuron:
   state:
     # synaptic dc input current, variable 0

@@ -1,9 +1,8 @@
-package org.nest.nestml.cocos.multipleTypesDeclared:
 
-    neuron Foo:
-        update:
-        end
-    end
+neuron Foo:
+  update:
+  end
+end
 
-    component Foo:
-    end
+component Foo:
+end

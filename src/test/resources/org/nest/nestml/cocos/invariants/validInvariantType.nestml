@@ -1,25 +1,23 @@
-package org.nest.nestml.cocos.undefinedVariables.validInvariantType:
-
-    neuron testNeuron:
-        state:
-            stateVar1 boolean = false
-            stateVar2 real = 1.0 [stateVar1]
-        end
-
-        parameter:
-        end
-
-        internal:
-        end
-
-        input:
-            spikeBuffer   <- inhibitory excitatory spike
-            currentBuffer <- current
-        end
-
-        output: spike
-
-        update:
-
-        end
+neuron testNeuron:
+    state:
+        stateVar1 boolean = false
+        stateVar2 real = 1.0 [stateVar1]
     end
+
+    parameter:
+    end
+
+    internal:
+    end
+
+    input:
+        spikeBuffer   <- inhibitory excitatory spike
+        currentBuffer <- current
+    end
+
+    output: spike
+
+    update:
+
+    end
+end

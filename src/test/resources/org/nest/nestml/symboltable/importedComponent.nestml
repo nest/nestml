@@ -1,8 +1,4 @@
-package org.nest.nestml.symboltable.importedComponent:
-
-  component ImportedComponent:
-    function testFunction():
-    end
+component ImportedComponent:
+  function testFunction():
   end
-
-
+end

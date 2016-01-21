@@ -1,11 +1,10 @@
-package org.nest.nestml.cocos.inputTypeForCurrent:
-    neuron InhExcTypeForCurrent:
-        input:
-            inhBuffer   <- inhibitory  current
-            excBuffer   <- excitatory current
-            inhExcBuffer   <- inhibitory excitatory current
-        end
-        
-        update:
-        end
-    end
+neuron InhExcTypeForCurrent:
+  input:
+    inhBuffer   <- inhibitory  current
+    excBuffer   <- excitatory current
+    inhExcBuffer   <- inhibitory excitatory current
+  end
+
+  update:
+  end
+end

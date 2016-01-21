@@ -1,5 +1,4 @@
-package org.nest.nestml.cocos.componentWithDynamics:
-    component CompWithDynamics:
-        update:
-        end
+component CompWithDynamics:
+    update:
     end
+end

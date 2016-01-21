@@ -28,7 +28,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class CommonNESTMLSymbolTableCreator
     extends CommonSymbolTableCreator
     implements NESTMLSymbolTableCreator {
-  private String packageName = "";
   private ASTNESTMLCompilationUnit root;
   private Optional<ASTAliasDecl> astAliasDeclaration = Optional.empty();
   private Optional<ASTVar_Block> astVariableBlockType = Optional.empty();
@@ -40,13 +39,6 @@ public class CommonNESTMLSymbolTableCreator
   }
 
   @Override
-  public void setPackageName(String packageName) {
-    checkNotNull(packageName);
-
-    this.packageName = packageName;
-  }
-
-  @Override
   public void setRoot(ASTNESTMLCompilationUnit root) {
     this.root = root;
   }
@@ -54,12 +46,6 @@ public class CommonNESTMLSymbolTableCreator
   @Override
   public ASTNESTMLCompilationUnit getRoot() {
     return root;
-  }
-
-  @Override
-  public String getPackageName() {
-    Preconditions.checkState(packageName != null, "Package name is used before it is set by the visit method");
-    return packageName;
   }
 
   @Override

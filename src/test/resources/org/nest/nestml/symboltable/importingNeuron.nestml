@@ -1,29 +1,27 @@
-package org.nest.nestml.symboltable.importingNeuron:
+import org.nest.nestml.symboltable.importedComponent.ImportedComponent
 
-    import org.nest.nestml.symboltable.importedComponent.ImportedComponent
+neuron UsingNeuron:
+  use ImportedComponent as TestReference
 
-    neuron UsingNeuron:
-        use ImportedComponent as TestReference
+  state:
+  end
 
-        state:
-        end
+  parameter:
+  end
 
-        parameter:
-        end
+  internal:
 
-        internal:
+  end
 
-        end
+  input:
+      spikeBuffer   <- inhibitory excitatory spike
+      currentBuffer <- current
+  end
 
-        input:
-            spikeBuffer   <- inhibitory excitatory spike
-            currentBuffer <- current
-        end
+  output: spike
 
-        output: spike
+  update:
+      TestReference.testFunction()
+  end
 
-        update:
-            TestReference.testFunction()
-        end
-
-    end
+end

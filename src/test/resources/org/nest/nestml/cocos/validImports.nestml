@@ -1,6 +1,3 @@
-package validImports:
-    
-    import bullshit.*
-    
-    component ValidNeuron:
-    end
+
+component ValidNeuron:
+end

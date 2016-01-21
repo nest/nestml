@@ -1,12 +1,11 @@
-package org.nest.nestml.cocos.useAliasInNonAliasDecl:
-    component AliasInDecl:
-        parameter:
-            alias three integer = 3 # should be an error?
-            
-            threePlusFour integer = three + 4
-        end
-        
-        function set_three(v integer):
-            
-        end
-    end
+component AliasInDecl:
+  parameter:
+    alias three integer = 3 # should be an error?
+
+    threePlusFour integer = three + 4
+  end
+
+  function set_three(v integer):
+
+  end
+end
