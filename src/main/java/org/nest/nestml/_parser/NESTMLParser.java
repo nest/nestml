@@ -6,6 +6,7 @@
 package org.nest.nestml._parser;
 
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
@@ -35,11 +36,30 @@ public class NESTMLParser extends NESTMLParserTOP {
   public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(String filename)
       throws IOException, RecognitionException {
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
-    if (res.isPresent() && modelPath.isPresent()) {
-      final String packageName = computePackageName(Paths.get(filename), modelPath.get());
-      final String artifactName = computeArtifactName(Paths.get(filename));
-      res.get().setPackageName(packageName);
-      res.get().setArtifactName(artifactName);
+    if (res.isPresent()) {
+      if (modelPath.isPresent()) {
+        final String packageName = computePackageName(Paths.get(filename), modelPath.get());
+        final String artifactName = computeArtifactName(Paths.get(filename));
+        res.get().setPackageName(packageName);
+        res.get().setArtifactName(artifactName);
+      }
+      else {
+        if (filename.endsWith(".nestml")) {
+
+          final String withoutFileExt = filename.substring(0, filename.indexOf(".nestml"));
+          final String filenameAsPackage = Names.getPackageFromPath(withoutFileExt);
+          final String packageName = Names.getQualifier(filenameAsPackage);
+          final String artifactName = Names.getSimpleName(filenameAsPackage);
+
+          res.get().setPackageName(packageName);
+          res.get().setArtifactName(artifactName);
+        }
+        else {
+          Log.warn("Parser doesn't set the package and artifact name.");
+        }
+
+      }
+
     }
 
     return res;
@@ -54,7 +74,7 @@ public class NESTMLParser extends NESTMLParserTOP {
 
   protected String computeArtifactName(final Path artifactPath) {
     final String filename = artifactPath.getFileName().getName(0).toString();
-    if (filename.contains(".nestml")) {
+    if (filename.endsWith(".nestml")) {
       return filename.substring(0, filename.indexOf(".nestml"));
     } else {
       return filename;
