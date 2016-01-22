@@ -11,6 +11,7 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import org.nest.codegeneration.helpers.NESTMLDeclarations;
 import org.nest.codegeneration.helpers.SPLForNodes;
 import org.nest.codegeneration.helpers.SPLAssignments;
+import org.nest.codegeneration.helpers.SPLFunctionCalls;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
@@ -40,6 +41,7 @@ public class SPL2NESTCodeGenerator {
     glex.setGlobalValue("declarations", new NESTMLDeclarations() );
     glex.setGlobalValue("expressionsPrinter", prettyPrinter);
     glex.setGlobalValue("forDeclarationHelper", new SPLForNodes());
+    glex.setGlobalValue("functions", new SPLFunctionCalls());
 
     setup.setGlex(glex);
     generator = new GeneratorEngine(setup);
