@@ -261,6 +261,7 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("declarations", new NESTMLDeclarations() );
     glex.setGlobalValue("assignments", new SPLAssignments());
     glex.setGlobalValue("functionPrinter", functionPrinter);
+    glex.setGlobalValue("functions", new SPLFunctionCalls());
     glex.setGlobalValue("declarations", declarations);
     glex.setGlobalValue("bufferHelper", new NESTMLBuffers());
 

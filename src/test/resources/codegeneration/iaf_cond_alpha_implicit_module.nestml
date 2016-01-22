@@ -68,7 +68,7 @@ neuron iaf_cond_alpha_implicit_neuron:
 
   update:
 
-
+    integrate(V_m)
     if r != 0: # not refractory
       r =  r - 1
       V_m = V_reset # clamp potential
