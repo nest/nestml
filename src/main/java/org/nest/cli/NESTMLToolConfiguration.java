@@ -1,20 +1,23 @@
+/*
+ * Copyright (c)  RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.cli;
 
 /**
- * Created by user on 05.06.15.
+ * Data class to store the tool's configuration
+ *
+ * @author plotnikov
  */
 public class NESTMLToolConfiguration {
   private final boolean checkCoCos;
-
-
   private final String inputBasePath;
   private final String targetPath;
-  private final String modelPath;
 
   private NESTMLToolConfiguration(final Builder builder) {
     this.checkCoCos = builder.checkCoCos;
     this.inputBasePath = builder.inputBasePath;
-    this.modelPath = builder.modelPath;
     this.targetPath = builder.targetPath;
   }
 
@@ -26,10 +29,6 @@ public class NESTMLToolConfiguration {
     return inputBasePath;
   }
 
-  public String getModelPath() {
-    return modelPath;
-  }
-
   public String getTargetPath() {
     return targetPath;
   }
@@ -38,7 +37,6 @@ public class NESTMLToolConfiguration {
     private boolean checkCoCos = false;
     private String inputBasePath;
     private String targetPath;
-    private String modelPath;
 
     public Builder withCoCos() {
       this.checkCoCos = true;
@@ -52,11 +50,6 @@ public class NESTMLToolConfiguration {
 
     public Builder withInputBasePath(final String inputBasePath) {
       this.inputBasePath = inputBasePath;
-      return this;
-    }
-
-    public Builder withModelPath(final String modelPath) {
-      this.modelPath = modelPath;
       return this;
     }
 

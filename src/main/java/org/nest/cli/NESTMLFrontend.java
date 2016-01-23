@@ -1,3 +1,8 @@
+/*
+ * Copyright (c)  RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.cli;
 
 import com.google.common.base.Joiner;
@@ -12,48 +17,35 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 /**
+ * Handles available options set by the tool invocation
  *
+ * @author plotnikov
  */
 public class NESTMLFrontend {
-
   private final static String LOGGER_NAME = NESTMLFrontend.class.getName();
 
   public static final String RUNNING_MODE = "runningMode";
-
   public static final String HELP_ARGUMENT = "help";
-
-  public static final String INPUT_MODELS = "input";
-
-  public static final String MODEL_PATH = "modelPath";
-
   public static final String TARGET_PATH = "target";
 
   private final Options options = new Options();
   private final HelpFormatter formatter = new HelpFormatter();
 
   protected NESTMLFrontend() {
+    Log.enableFailQuick(false);
+    createOptions();
+  }
+
+  private void createOptions() {
     //"mode", true, "Chose the working mode. Possible options are: parse, check, generate");
     options.addOption(Option.builder(RUNNING_MODE)
         .longOpt(RUNNING_MODE)
         .hasArgs()
         .numberOfArgs(1)
         .desc("With the 'parseAndCheck' context conditions for NESTML are activated.")
-        .build());
-
-    options.addOption(Option.builder(INPUT_MODELS)
-        .longOpt(INPUT_MODELS)
-        .hasArgs()
-        .numberOfArgs(1)
-        .desc("Defines the path to input models. E.g. --" + INPUT_MODELS + " ./")
-        .build());
-
-    options.addOption(Option.builder(MODEL_PATH)
-        .longOpt(MODEL_PATH)
-        .hasArgs()
-        .numberOfArgs(1)
-        .desc("Defines the path to input models. E.g. --" + MODEL_PATH + " ./")
         .build());
 
     options.addOption(Option.builder(TARGET_PATH)
@@ -66,22 +58,20 @@ public class NESTMLFrontend {
     options.addOption(Option.builder(HELP_ARGUMENT)
         .longOpt(HELP_ARGUMENT)
         .build());
-
   }
 
   public static void main(String[] args) {
     final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
     nestmlFrontend.handleCLIArguments(args);
-
   }
 
   public void handleCLIArguments(String[] args) {
-    Log.enableFailQuick(false);
     final NESTMLToolConfiguration nestmlToolConfiguration = createCLIConfiguration(args);
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(""); // TODO
-    final NESTCodeGenerator NESTCodeGenerator = new NESTCodeGenerator(
-        nestmlScopeCreator);
-    final NESTMLParser parser =  new NESTMLParser();
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
+        nestmlToolConfiguration.getInputBasePath());
+    final NESTCodeGenerator NESTCodeGenerator = new NESTCodeGenerator(nestmlScopeCreator);
+    final NESTMLParser parser =  new NESTMLParser(
+        Paths.get(nestmlToolConfiguration.getInputBasePath()));
 
     try {
       final ASTNESTMLCompilationUnit root = parser.parse(args[0]).get();
@@ -98,22 +88,20 @@ public class NESTMLFrontend {
   }
 
   public NESTMLToolConfiguration createCLIConfiguration(String[] args) {
-    final CommandLine commandLineParameters = parseCLIArguments(args);
 
+    final CommandLine commandLineParameters = parseCLIArguments(args);
     interpretHelpArgument(commandLineParameters);
 
     boolean isCheckCocos = interpretRunningModeArgument(commandLineParameters);
-    final String inputModelPath = interpretInputModelsPathArgument(commandLineParameters);
-    final String modelPath = interpretModelPathArgument(commandLineParameters);
     final String targetPath = interpretTargetPathArgument(commandLineParameters);
 
     final NESTMLToolConfiguration nestmlToolConfiguration = new NESTMLToolConfiguration
         .Builder()
         .withCoCos(isCheckCocos)
-        .withInputBasePath(inputModelPath)
-        .withModelPath(modelPath)
+        .withInputBasePath(args[0])
         .withTargetPath(targetPath)
         .build();
+
     return nestmlToolConfiguration;
   }
 
@@ -129,12 +117,13 @@ public class NESTMLFrontend {
       formatter.printHelp(msg, options);
       throw new RuntimeException(e);
     }
+
     return commandLineParameters;
   }
 
   public void interpretHelpArgument(CommandLine cmd) {
     if (cmd.hasOption(HELP_ARGUMENT)) {
-      formatter.printHelp("NESTML frontend", options );
+      formatter.printHelp("NESTML frontend", options);
     }
   }
 
@@ -155,28 +144,18 @@ public class NESTMLFrontend {
     return isCheckCocos;
   }
 
-  public String interpretInputModelsPathArgument(final CommandLine cmd) {
-    return interpretPathArgument(cmd, INPUT_MODELS);
-  }
-
-  public String interpretModelPathArgument(final CommandLine cmd) {
-    return interpretPathArgument(cmd, MODEL_PATH);
-  }
-
   public String interpretTargetPathArgument(final CommandLine cmd) {
-    return interpretPathArgument(cmd, TARGET_PATH);
+    return interpretPathArgument(cmd, TARGET_PATH).orElse("build");
   }
 
-  private String interpretPathArgument(CommandLine cmd, String argumentName) {
+  private Optional<String> interpretPathArgument(CommandLine cmd, String argumentName) {
     if (cmd.hasOption(argumentName)) {
-
       Log.info("'" + argumentName + "' option is set to: " + cmd.getOptionValue(argumentName), LOGGER_NAME);
-      return  cmd.getOptionValue(argumentName);
+      return  Optional.of(cmd.getOptionValue(argumentName));
 
     }
     else {
-      Log.info("Uses current folder as " +  argumentName + " value",  LOGGER_NAME);
-      return "./";
+      return Optional.empty();
     }
 
   }
