@@ -51,7 +51,8 @@ public class NESTMLParsingTest extends ModelTestBase {
 
   @Test
   public void testModelWithODE() throws IOException {
-    Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/codegeneration/iaf_neuron_ode_module.nestml");
+    Optional<ASTNESTMLCompilationUnit> ast = parser.parse(
+        "src/test/resources/codegeneration/iaf_neuron_ode.nestml");
     assertTrue(ast.isPresent());
   }
 

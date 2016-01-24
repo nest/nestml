@@ -1,4 +1,4 @@
-neuron iaf_cond_alpha_implicit_neuron:
+neuron iaf_cond_alpha_implicit:
 
   state:
     V_m real = -70

@@ -83,7 +83,7 @@ public class NESTCodeGenerator {
   /**
    * This action is done for 2 Reasons:
    * a) Technically it is necessary to build a new symbol table
-   * b) The model developer can view how the
+   * b) The model developer can view how the solution was computed.
    * @return New root node of the altered model with an initialized symbol table
    */
   private ASTNESTMLCompilationUnit printAndReadModel(

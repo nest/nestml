@@ -35,7 +35,7 @@ public class NESTMLPrettyPrinterTest {
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
-    parseAndCheckNestmlModel("src/test/resources/codegeneration/iaf_neuron_module.nestml");
+    parseAndCheckNestmlModel("src/test/resources/codegeneration/iaf_neuron.nestml");
   }
 
   @Test

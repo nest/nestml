@@ -62,22 +62,23 @@ public class NESTMLFrontend {
 
   public static void main(String[] args) {
     final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
-    nestmlFrontend.handleCLIArguments(args);
+    nestmlFrontend.handleConsoleArguments(args);
   }
 
-  public void handleCLIArguments(String[] args) {
+  public void handleConsoleArguments(String[] args) {
     final NESTMLToolConfiguration nestmlToolConfiguration = createCLIConfiguration(args);
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
         nestmlToolConfiguration.getInputBasePath());
     final NESTCodeGenerator NESTCodeGenerator = new NESTCodeGenerator(nestmlScopeCreator);
+    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
     final NESTMLParser parser =  new NESTMLParser(
         Paths.get(nestmlToolConfiguration.getInputBasePath()));
 
     try {
       final ASTNESTMLCompilationUnit root = parser.parse(args[0]).get();
       nestmlScopeCreator.runSymbolTableCreator(root);
-      NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
-      NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
+
+      final NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
       checker.checkAll(root);
 
       NESTCodeGenerator.analyseAndGenerate(root, Paths.get(nestmlToolConfiguration.getTargetPath()));
@@ -85,10 +86,10 @@ public class NESTMLFrontend {
     catch (IOException e) {
       throw new RuntimeException("Cannot parse the model due to parser errors", e);
     }
+
   }
 
   public NESTMLToolConfiguration createCLIConfiguration(String[] args) {
-
     final CommandLine commandLineParameters = parseCLIArguments(args);
     interpretHelpArgument(commandLineParameters);
 

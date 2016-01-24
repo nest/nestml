@@ -34,7 +34,7 @@ public class NESTMLFrontendTest {
         "--target", targetPath
     });
 
-    assertEquals(true, testant.isCheckCoCos());
+    assertTrue(testant.isCheckCoCos());
     assertEquals(testInputModelsPath, testant.getInputBasePath());
     assertEquals(targetPath, testant.getTargetPath());
   }
@@ -75,9 +75,8 @@ public class NESTMLFrontendTest {
   @Ignore
   @Test
   public void testRun() {
-
-    nestmlFrontend.handleCLIArguments(new String[] {
-        "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml",
+    nestmlFrontend.handleConsoleArguments(new String[] {
+        "src/test/resources/codegeneration/iaf_neuron_ode.nestml",
         "--target", Paths.get("target","tmpOutput").toString()});
   }
 
