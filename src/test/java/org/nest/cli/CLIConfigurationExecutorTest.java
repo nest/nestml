@@ -10,6 +10,7 @@ public class CLIConfigurationExecutorTest {
   private static final String TARGET_FOLDER = "target";
   private final NESTMLToolConfiguration testConfig;
   private final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
+
   public CLIConfigurationExecutorTest() {
     testConfig = new NESTMLToolConfiguration.Builder()
         .withCoCos()

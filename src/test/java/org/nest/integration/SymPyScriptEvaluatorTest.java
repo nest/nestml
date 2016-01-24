@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plonikov
  */
-@Ignore
+@Ignore("Don't run this tests on github")
 public class SymPyScriptEvaluatorTest extends ModelTestBase {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final String PSC_MODEL_FILE

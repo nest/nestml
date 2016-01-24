@@ -24,7 +24,7 @@ import java.util.Optional;
  *
  * @author plotnikov
  */
-@Ignore
+@Ignore("Don't run this tests on github")
 public class GeneratorIntegrationTest extends GenerationTestBase {
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_ode.nestml"

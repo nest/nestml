@@ -34,7 +34,7 @@ public class NESTMLFrontend {
   private final Options options = new Options();
   private final HelpFormatter formatter = new HelpFormatter();
 
-  protected NESTMLFrontend() {
+  public NESTMLFrontend() {
     Log.enableFailQuick(false);
     createOptions();
   }
