@@ -39,7 +39,7 @@ public class ExactSolutionTransformerTest extends ModelTestBase {
   private final static String UPDATE_STEP_FILE
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.UPDATE_STEP_FILE;
   private static final String MODEL_FILE_PATH
-      = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
+      = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
 
   public static final String NEURON_NAME = "iaf_neuron_ode";
 

@@ -27,47 +27,38 @@ import java.util.Optional;
 @Ignore
 public class GeneratorIntegrationTest extends GenerationTestBase {
   private final List<String> pscModelsWithOde = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml"
+      "src/test/resources/codegeneration/iaf_neuron_ode.nestml"
   );
 
   private final List<String> nestmlPSCModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron_module.nestml",
-      "src/test/resources/codegeneration/iaf_tum_2000_module.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha_module.nestml",
-      "src/test/resources/codegeneration/iaf_psc_exp_module.nestml",
-      "src/test/resources/codegeneration/iaf_psc_delta_module.nestml",
-      "src/test/resources/codegeneration/iaf_psc_exp_multisynapse_module.nestml",
-      "src/test/resources/codegeneration/mat2_psc_exp_module.nestml",
-      "src/test/resources/codegeneration/izhikevich_module.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse_module.nestml"
+      "src/test/resources/codegeneration/iaf_neuron.nestml",
+      "src/test/resources/codegeneration/iaf_tum_2000.nestml",
+      "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
+      "src/test/resources/codegeneration/iaf_psc_exp.nestml",
+      "src/test/resources/codegeneration/iaf_psc_delta.nestml",
+      "src/test/resources/codegeneration/iaf_psc_exp_multisynapse.nestml",
+      "src/test/resources/codegeneration/mat2_psc_exp.nestml",
+      "src/test/resources/codegeneration/izhikevich.nestml",
+      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse.nestml"
   );
 
   private final List<String> nestmlCondModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml"
+      "src/test/resources/codegeneration/iaf_cond_alpha.nestml"
   );
 
   private final List<String> nestmlCondModelExplicit = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_cond_alpha_implicit_module.nestml"
+      "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml"
   );
 
-
-  private final List<String> feedbackModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/neuron_level_1.nestml",
-      "src/test/resources/codegeneration/neuron_level_2.nestml",
-      "src/test/resources/codegeneration/neuron_level_3.nestml"
-  );
 
   private final List<String> workshopModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/neuron_level_1.nestml",
-      "src/test/resources/codegeneration/neuron_level_2.nestml",
-      "src/test/resources/codegeneration/neuron_level_3.nestml"
+      "src/test/resources/codegeneration/workshop.nestml"
   );
 
   @Ignore
   @Test
   public void testFeedbackModels() {
     workshopModels.forEach(this::invokeCodeGenerator);
-
   }
 
   @Ignore

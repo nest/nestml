@@ -26,19 +26,16 @@ public class NESTMLFrontendTest {
   public void testCreationOfConfiguration() throws Exception {
 
     final String testInputModelsPath = "testInputModelsPath";
-    final String testModelPath = "testModelPath";
     final String targetPath = "targetPath";
 
     final NESTMLToolConfiguration testant = nestmlFrontend.createCLIConfiguration(new String[] {
+        testInputModelsPath,
         "--runningMode", "parseAndCheck",
-        "--input", testInputModelsPath,
-        "--modelPath", testModelPath,
         "--target", targetPath
     });
 
-    assertEquals(true, testant.isCheckCoCos());
+    assertTrue(testant.isCheckCoCos());
     assertEquals(testInputModelsPath, testant.getInputBasePath());
-    assertEquals(testModelPath, testant.getModelPath());
     assertEquals(targetPath, testant.getTargetPath());
   }
 
@@ -62,28 +59,8 @@ public class NESTMLFrontendTest {
     testant = nestmlFrontend.interpretRunningModeArgument(cliArguments);
     assertFalse(testant);
 
-    ;
   }
 
-  @Test
-  public void testInputModelPath() throws Exception {
-    final String inputModelsPath = "./testModels";
-    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(
-        new String[] { "--input",  inputModelsPath});
-    final String testant = nestmlFrontend.interpretInputModelsPathArgument(cliArguments);
-    assertEquals(inputModelsPath, testant);
-
-  }
-
-  @Test
-  public void testModelPath() throws Exception {
-    final String inputModelsPath = "./testModelPath";
-    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(
-        new String[] { "--modelPath",  inputModelsPath});
-    final String testant = nestmlFrontend.interpretModelPathArgument(cliArguments);
-    assertEquals(inputModelsPath, testant);
-
-  }
 
   @Test
   public void testInputPath() throws Exception {
@@ -98,9 +75,8 @@ public class NESTMLFrontendTest {
   @Ignore
   @Test
   public void testRun() {
-
-    nestmlFrontend.handleCLIArguments(new String[]{
-        "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml",
+    nestmlFrontend.handleConsoleArguments(new String[] {
+        "src/test/resources/codegeneration/iaf_neuron_ode.nestml",
         "--target", Paths.get("target","tmpOutput").toString()});
   }
 

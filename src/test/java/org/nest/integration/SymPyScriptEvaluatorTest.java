@@ -30,9 +30,9 @@ import static org.junit.Assert.assertTrue;
 public class SymPyScriptEvaluatorTest extends ModelTestBase {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final String PSC_MODEL_FILE
-      = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
+      = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
   private static final String COND_MODEL_FILE
-      = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
+      = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private final NESTMLParser parser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
 
 

@@ -22,9 +22,9 @@ import java.nio.file.Paths;
 public class NESTCodeGeneratorTest extends GenerationTestBase {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/psc/";
   private final PSCMock pscMock = new PSCMock();
-  private final String PSC_MODEL = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
-  private final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
-  private final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit_module.nestml";
+  private final String PSC_MODEL = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
+  private final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
+  private final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
 
   public NESTCodeGeneratorTest() {
 
@@ -53,5 +53,7 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
 
       return transformedModel;
     }
+
   }
+
 }

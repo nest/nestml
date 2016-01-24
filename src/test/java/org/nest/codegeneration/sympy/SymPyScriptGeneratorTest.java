@@ -26,9 +26,9 @@ import static org.nest.codegeneration.sympy.SymPyScriptGenerator.generateSympyOD
  */
 public class SymPyScriptGeneratorTest extends ModelTestBase {
   public static final String PATH_TO_PSC_MODEL
-      = "src/test/resources/codegeneration/iaf_neuron_ode_module.nestml";
+      = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
   public static final String PATH_TO_COND_MODEL
-      = "src/test/resources/codegeneration/iaf_cond_alpha_module.nestml";
+      = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String OUTPUT_FOLDER = "target";
 
   @Test

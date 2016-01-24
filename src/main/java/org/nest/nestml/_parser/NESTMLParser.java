@@ -32,9 +32,22 @@ public class NESTMLParser extends NESTMLParserTOP {
     this.modelPath = Optional.of(modelPath);
   }
 
+
   @Override
   public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(String filename)
       throws IOException, RecognitionException {
+    final Path pathToModel = Paths.get(filename).normalize();
+    if (pathToModel.getParent() == null) {
+      final String msg = String.format("The model '%s' must be stored in a folder. Structuring "
+          + "models improves maintenance.", filename);
+      Log.error(msg);
+      return Optional.empty();
+    }
+    if (!filename.endsWith(".nestml")) {
+      Log.error("NESTML models must be stored in artifacts with '.nestml' file extension.");
+      return Optional.empty();
+    }
+
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
     if (res.isPresent()) {
       if (modelPath.isPresent()) {
