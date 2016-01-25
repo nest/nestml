@@ -1,0 +1,32 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
+package org.nest.mocks;
+
+import org.nest.codegeneration.sympy.ODEProcessor;
+import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class PSCMock extends ODEProcessor {
+  private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/psc/";
+
+  @Override
+  protected ASTNESTMLCompilationUnit handleNeuronWithODE(
+      ASTNESTMLCompilationUnit root, Path outputBase) {
+    final ASTNESTMLCompilationUnit transformedModel = getExactSolutionTransformer()
+        .replaceODEWithSymPySolution(
+            root,
+            Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.P30_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.STATE_VECTOR_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.UPDATE_STEP_FILE));
+
+    return transformedModel;
+  }
+
+}

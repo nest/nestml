@@ -8,6 +8,7 @@ package org.nest.cli;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
+import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
@@ -32,14 +33,19 @@ import java.util.Optional;
 public class CLIConfigurationExecutor {
 
   private static final String LOG_NAME = CLIConfigurationExecutor.class.getName();
+  final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
 
   public CLIConfigurationExecutor() {
     Log.enableFailQuick(false);
   }
 
-  public boolean execute(final NESTMLToolConfiguration nestmlToolConfiguration) {
-    List<String> nestmlModelFilenames = collectNestmlModelFilenames(nestmlToolConfiguration.getInputBasePath());
-    handleCollectedModels(nestmlModelFilenames, nestmlToolConfiguration);
+  public boolean execute(
+      final NESTCodeGenerator generator,
+      final NESTMLToolConfiguration configuration) {
+    final List<String> nestmlModelFilenames = collectNestmlModelFilenames(
+        configuration.getInputBasePath());
+    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(configuration.getInputBasePath());
+    handleCollectedModels(nestmlModelFilenames, configuration, scopeCreator, generator);
 
     return true;
   }
@@ -62,58 +68,39 @@ public class CLIConfigurationExecutor {
 
   private void handleCollectedModels(
       final List<String> nestmlModelFilenames,
-      final NESTMLToolConfiguration nestmlToolConfiguration) {
+      final NESTMLToolConfiguration configuration,
+      final NESTMLScopeCreator scopeCreator,
+      final NESTCodeGenerator generator) {
     for (final String modelName:nestmlModelFilenames) {
-      handleSingleModel(modelName, nestmlToolConfiguration);
+      handleSingleModel(modelName, scopeCreator, generator, configuration);
     }
 
   }
 
-  private void handleSingleModel(final String modelName, final NESTMLToolConfiguration nestmlToolConfiguration) {
-    parseWithOptionalCocosCheck(modelName, nestmlToolConfiguration);
+  private void handleSingleModel(
+      final String modelName,
+      final NESTMLScopeCreator nestmlScopeCreator,
+      final NESTCodeGenerator nestCodeGenerator,
+      final NESTMLToolConfiguration nestmlToolConfiguration) {
     Log.info("Processed model: " + modelName, LOG_NAME);
-  }
-
-  private boolean parseWithOptionalCocosCheck(final String modelName, final NESTMLToolConfiguration nestmlToolConfiguration) {
-    final NESTMLParser parser = new NESTMLParser(
+    final NESTMLParser parser =  new NESTMLParser(
         Paths.get(nestmlToolConfiguration.getInputBasePath()));
+
     try {
-      final Optional<ASTNESTMLCompilationUnit> root = parser.parse(
-          Paths.get(nestmlToolConfiguration.getInputBasePath(), modelName).toString());
-
+      final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelName);
       if (root.isPresent()) {
-        if (nestmlToolConfiguration.isCheckCoCos()) {
-          final List<Finding> error = checkCocosForModel(modelName, nestmlToolConfiguration, root);
-          return error.isEmpty();
-
-        } else {
-          return true;
-        }
-
-      }
-      else {
-        Log.error("There is a problem with the model: " + modelName + ". It will be skipped.");
-        return false;
+        nestmlScopeCreator.runSymbolTableCreator(root.get());
+        checkCocosForModel(root.get());
+        nestCodeGenerator.analyseAndGenerate(root.get(), Paths.get(nestmlToolConfiguration.getTargetPath()));
       }
 
     }
     catch (IOException e) {
-      Log.error("Skips the procession of the model: " + modelName, e);
-      return false;
+      throw new RuntimeException("Cannot parse the model due to parser errors", e);
     }
-
   }
 
-  private List<Finding> checkCocosForModel(
-      final String modelName,
-      final NESTMLToolConfiguration toolConfiguration,
-      final Optional<ASTNESTMLCompilationUnit> root) {
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(
-        toolConfiguration.getInputBasePath());
-
-    scopeCreator.runSymbolTableCreator(root.get());
-
-    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
+  private List<Finding> checkCocosForModel(final ASTNESTMLCompilationUnit root) {
 
     final NESTMLCoCoChecker cocosChecker = nestmlCoCosManager.createDefaultChecker();
 
@@ -122,14 +109,18 @@ public class CLIConfigurationExecutor {
     errors.addAll(LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
     errors.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
-    evaluateCocosLog(modelName, LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
-    evaluateCocosLog(modelName, LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
+    evaluateCocosLog(
+        root.getFullName(),
+        LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
+    evaluateCocosLog(
+        root.getFullName(),
+        LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
     return errors;
   }
 
-  private void checkNESTMLCocos(Optional<ASTNESTMLCompilationUnit> root, NESTMLCoCoChecker cocosChecker) {
+  private void checkNESTMLCocos(ASTNESTMLCompilationUnit root, NESTMLCoCoChecker cocosChecker) {
     Log.getFindings().clear();
-    cocosChecker.checkAll(root.get());
+    cocosChecker.checkAll(root);
   }
 
   private void evaluateCocosLog(String modelName, Collection<Finding> nestmlErrorFindings) {

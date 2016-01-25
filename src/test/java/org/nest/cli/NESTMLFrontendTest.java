@@ -61,7 +61,6 @@ public class NESTMLFrontendTest {
 
   }
 
-
   @Test
   public void testInputPath() throws Exception {
     final String inputModelsPath = "./testTargetPath";
@@ -70,14 +69,6 @@ public class NESTMLFrontendTest {
     final String testant = nestmlFrontend.interpretTargetPathArgument(cliArguments);
     assertEquals(inputModelsPath, testant);
 
-  }
-
-  @Ignore
-  @Test
-  public void testRun() {
-    nestmlFrontend.handleConsoleArguments(new String[] {
-        "src/test/resources/codegeneration/iaf_neuron_ode.nestml",
-        "--target", Paths.get("target","tmpOutput").toString()});
   }
 
 }

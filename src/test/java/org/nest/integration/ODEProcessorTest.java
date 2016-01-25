@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-@Ignore
+@Ignore("Don't run this tests on github")
 public class ODEProcessorTest extends ModelTestBase {
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
