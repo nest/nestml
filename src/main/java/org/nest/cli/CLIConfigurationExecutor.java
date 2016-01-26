@@ -16,10 +16,9 @@ import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.LogHelper;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -42,52 +41,57 @@ public class CLIConfigurationExecutor {
   public boolean execute(
       final NESTCodeGenerator generator,
       final NESTMLToolConfiguration configuration) {
-    final List<String> nestmlModelFilenames = collectNestmlModelFilenames(
-        configuration.getInputBasePath());
+    final List<Path> nestmlModelFilenames = collectNESTMLModelFilenames(
+        Paths.get(configuration.getInputBasePath()));
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(configuration.getInputBasePath());
     handleCollectedModels(nestmlModelFilenames, configuration, scopeCreator, generator);
 
     return true;
   }
 
-  private List<String> collectNestmlModelFilenames(final String inputPath) {
-    List<String> filenames = Lists.newArrayList();
+  protected List<Path> collectNESTMLModelFilenames(final Path inputPath) {
+    final List<Path> filenames = Lists.newArrayList();
     try {
-      Files.list(new File(inputPath).toPath())
-          .filter(file -> !Files.isDirectory(file))
-          .forEach(file -> filenames.add(file.getFileName().toString()));
+      Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
+        @Override
+        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+          if (Files.isRegularFile(file)) {
+            filenames.add(file);
+          }
+          return FileVisitResult.CONTINUE;
+        }
+      });
     }
     catch (IOException e) {
       final String msg = "There is a problem to process NESTML models in the folder:  " + inputPath;
       Log.error(msg, e);
       throw new RuntimeException(msg, e);
     }
-    Log.info("NESTML models found: #" + filenames.size(), LOG_NAME);
     return filenames;
   }
 
   private void handleCollectedModels(
-      final List<String> nestmlModelFilenames,
+      final List<Path> nestmlModelFiles,
       final NESTMLToolConfiguration configuration,
       final NESTMLScopeCreator scopeCreator,
       final NESTCodeGenerator generator) {
-    for (final String modelName:nestmlModelFilenames) {
-      handleSingleModel(modelName, scopeCreator, generator, configuration);
+    for (final Path modelFile:nestmlModelFiles) {
+      handleSingleModel(modelFile, scopeCreator, generator, configuration);
     }
 
   }
 
   private void handleSingleModel(
-      final String modelName,
+      final Path modelFile,
       final NESTMLScopeCreator nestmlScopeCreator,
       final NESTCodeGenerator nestCodeGenerator,
       final NESTMLToolConfiguration nestmlToolConfiguration) {
-    Log.info("Processed model: " + modelName, LOG_NAME);
+    Log.info("Processed model: " + modelFile, LOG_NAME);
     final NESTMLParser parser =  new NESTMLParser(
         Paths.get(nestmlToolConfiguration.getInputBasePath()));
 
     try {
-      final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelName);
+      final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelFile.toString());
       if (root.isPresent()) {
         nestmlScopeCreator.runSymbolTableCreator(root.get());
         checkCocosForModel(root.get());

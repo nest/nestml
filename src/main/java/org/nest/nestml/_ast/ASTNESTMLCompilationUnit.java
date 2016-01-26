@@ -5,17 +5,21 @@
  */
 package org.nest.nestml._ast;
 
+import java.util.Objects;
+import java.util.Optional;
+
 /**
  * TODO
  *
  * @author plotnikov
  */
 public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
-  private String packageName = "";
+  private Optional<String> packageName = Optional.empty();
   private String artifactName = "";
 
   public void setPackageName(final String packageName) {
-    this.packageName = packageName;
+    Objects.requireNonNull(packageName);
+    this.packageName = Optional.of(packageName);
   }
 
   public void setArtifactName(final String artifactName) {
@@ -43,17 +47,26 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
     return artifactName;
   }
 
-  public String getPackageName() {
+  public Optional<String> getPackageName() {
     return packageName;
   }
 
   public String getFullName() {
-    if (getPackageName().isEmpty()) {
-      return  getArtifactName();
+    if (getPackageName().isPresent()) {
+      return getPackageName().get() + "." + getArtifactName();
     }
     else {
-      return getPackageName() + "." + getArtifactName();
+      return  getArtifactName();
     }
 
+  }
+
+  /**
+   * During model transformation the file is printed and read again. For this temporary folders
+   * and file names are used. Therefore, this method provides the possibility to remove it technical
+   * name from the model
+   */
+  public void removePackageName() {
+    this.packageName = Optional.empty();
   }
 }

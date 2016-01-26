@@ -12,6 +12,11 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Provides a mock for the psc_alpha neuron defined with an ode.
+ *
+ * @author plotnikov
+ */
 public class PSCMock extends ODEProcessor {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/psc/";
 
