@@ -143,7 +143,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.nest.command_line_base.NESTMLFrontend</mainClass>
+                            <mainClass>org.nest.cli.NESTMLFrontend</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
