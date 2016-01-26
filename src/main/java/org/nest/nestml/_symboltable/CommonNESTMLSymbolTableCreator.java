@@ -5,7 +5,6 @@
  */
 package org.nest.nestml._symboltable;
 
-import com.google.common.base.Preconditions;
 import de.monticore.symboltable.CommonSymbolTableCreator;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolverConfiguration;
@@ -14,8 +13,6 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTVar_Block;
 
 import java.util.Optional;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * The implementation of the symboltable creator.

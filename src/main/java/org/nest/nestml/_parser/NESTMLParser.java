@@ -51,9 +51,12 @@ public class NESTMLParser extends NESTMLParserTOP {
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
     if (res.isPresent()) {
       if (modelPath.isPresent()) {
-        final String packageName = computePackageName(Paths.get(filename), modelPath.get());
+        final Optional<String> packageName = computePackageName(Paths.get(filename), modelPath.get());
         final String artifactName = computeArtifactName(Paths.get(filename));
-        res.get().setPackageName(packageName);
+
+        if (packageName.isPresent()) {
+          res.get().setPackageName(packageName.get());
+        }
         res.get().setArtifactName(artifactName);
       }
       else {
@@ -78,11 +81,17 @@ public class NESTMLParser extends NESTMLParserTOP {
     return res;
   }
 
-  protected String computePackageName(final Path artifactPath, final Path modelPath) {
+  protected Optional<String> computePackageName(final Path artifactPath, final Path modelPath) {
 
-    final String pathAsString = modelPath.relativize(artifactPath).getParent().toString();
+    final Path directParent = modelPath.relativize(artifactPath).getParent();
+    if (directParent == null) {
+      return Optional.empty();
+    }
+    else {
+      final String pathAsString = directParent.toString();
+      return Optional.of(Names.getPackageFromPath(pathAsString));
+    }
 
-    return Names.getPackageFromPath(pathAsString);
   }
 
   protected String computeArtifactName(final Path artifactPath) {

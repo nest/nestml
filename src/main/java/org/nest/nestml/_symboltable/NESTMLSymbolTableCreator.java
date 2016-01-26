@@ -72,7 +72,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
     final MutableScope artifactScope = new ArtifactScope(
         empty(),
-        compilationUnitAst.getPackageName() + "." + compilationUnitAst.getArtifactName(),
+        compilationUnitAst.getFullName(),
         imports);
     putOnStack(artifactScope);
 

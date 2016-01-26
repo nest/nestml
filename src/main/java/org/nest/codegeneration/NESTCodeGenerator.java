@@ -71,7 +71,7 @@ public class NESTCodeGenerator {
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
       final Path outputBase) {
-    final String moduleName = root.getPackageName();
+    final String moduleName = root.getFullName();
     final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
@@ -98,7 +98,13 @@ public class NESTCodeGenerator {
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit
           (outputTmpPath.toString()).get();
       withSolvedOde.setArtifactName(root.getArtifactName());
-      withSolvedOde.setPackageName(root.getPackageName());
+      if (root.getPackageName().isPresent()) {
+        withSolvedOde.setPackageName(root.getPackageName().get());
+      }
+      else {
+        withSolvedOde.removePackageName();
+      }
+
       scopeCreator.runSymbolTableCreator(withSolvedOde);
       return withSolvedOde;
     }
