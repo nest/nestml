@@ -47,14 +47,14 @@ public class NESTMLParserTest extends ModelTestBase {
 
   @Test
   public void testEmptyPackage() {
-    final String emptyPackage = "/home/user/nestml/src/test/resources/command_line_base/cli/cli_example.nestml";
+    final String emptyPackage = "/home/user/nestml/src/test/resources/command_line_base/cli_example.nestml";
     final Optional<String> packageName = parser.computePackageName(
         Paths.get(TEST_MODEL1),
         Paths.get(emptyPackage));
 
     final String artifactName = parser.computeArtifactName(Paths.get(TEST_MODEL1));
     assertFalse(packageName.isPresent());
-    assertEquals("iaf_neuron", artifactName);
+    assertEquals("cli_example", artifactName);
   }
 
   /**

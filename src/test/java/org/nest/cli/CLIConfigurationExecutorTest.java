@@ -16,7 +16,7 @@ import java.util.List;
  * @author plotnikov
  */
 public class CLIConfigurationExecutorTest {
-  private static final String TEST_INPUT_PATH = "src/test/resources/command_line_base/cli";
+  private static final String TEST_INPUT_PATH = "src/test/resources/command_line_base/";
   private static final String TARGET_FOLDER = "target";
   private final PSCMock pscMock = new PSCMock();
   private final NESTMLToolConfiguration testConfig;
