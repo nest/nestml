@@ -41,6 +41,7 @@ public class CLIConfigurationExecutor {
   public void execute(
       final NESTCodeGenerator generator,
       final NESTMLToolConfiguration config) {
+
     final List<Path> modelFilenames = collectNESTMLModelFilenames(Paths.get(config.getInputBase()));
     final NESTMLParser parser =  new NESTMLParser(Paths.get(config.getInputBase()));
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
