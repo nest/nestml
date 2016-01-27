@@ -38,16 +38,41 @@ public class CLIConfigurationExecutor {
     Log.enableFailQuick(false);
   }
 
-  public boolean execute(
+  public void execute(
       final NESTCodeGenerator generator,
-      final NESTMLToolConfiguration configuration) {
-    final List<Path> nestmlModelFilenames = collectNESTMLModelFilenames(
-        Paths.get(configuration.getInputBasePath()));
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(configuration.getInputBasePath());
-    handleCollectedModels(nestmlModelFilenames, configuration, scopeCreator, generator);
+      final NESTMLToolConfiguration config) {
+    final List<Path> modelFilenames = collectNESTMLModelFilenames(Paths.get(config.getInputBase()));
+    final NESTMLParser parser =  new NESTMLParser(Paths.get(config.getInputBase()));
+    final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
+    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getInputBase());
 
-    return true;
+    processNestmlModels(modelRoots, config, scopeCreator, generator);
   }
+
+  private List<ASTNESTMLCompilationUnit> parseModels(
+      final List<Path> nestmlModelFiles,
+      final NESTMLParser parser) {
+    final List<ASTNESTMLCompilationUnit> modelRoots = Lists.newArrayList();
+    for (final Path modelFile:nestmlModelFiles) {
+      try {
+        final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelFile.toString());
+        if (root.isPresent()) {
+          modelRoots.add(root.get());
+        }
+        else {
+          Log.warn("Cannot parse the model " + modelFile.toString() + " due to parser errors.");
+        }
+
+      }
+      catch (IOException e) {
+        Log.warn("Cannot parse the model: " + modelFile.toString(), e);
+      }
+
+    }
+
+    return modelRoots;
+  }
+
 
   protected List<Path> collectNESTMLModelFilenames(final Path inputPath) {
     final List<Path> filenames = Lists.newArrayList();
@@ -70,38 +95,27 @@ public class CLIConfigurationExecutor {
     return filenames;
   }
 
-  private void handleCollectedModels(
-      final List<Path> nestmlModelFiles,
-      final NESTMLToolConfiguration configuration,
+  private void processNestmlModels(
+      final List<ASTNESTMLCompilationUnit> modelRoots,
+      final NESTMLToolConfiguration config,
       final NESTMLScopeCreator scopeCreator,
       final NESTCodeGenerator generator) {
-    for (final Path modelFile:nestmlModelFiles) {
-      handleSingleModel(modelFile, scopeCreator, generator, configuration);
+
+    modelRoots.forEach(scopeCreator::runSymbolTableCreator);
+
+    if (config.isCheckCoCos()) {
+      Log.info("Checks context conditions.", LOG_NAME);
+      modelRoots.forEach(this::checkCocosForModel);
     }
 
-  }
-
-  private void handleSingleModel(
-      final Path modelFile,
-      final NESTMLScopeCreator nestmlScopeCreator,
-      final NESTCodeGenerator nestCodeGenerator,
-      final NESTMLToolConfiguration nestmlToolConfiguration) {
-    Log.info("Processed model: " + modelFile, LOG_NAME);
-    final NESTMLParser parser =  new NESTMLParser(
-        Paths.get(nestmlToolConfiguration.getInputBasePath()));
-
-    try {
-      final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelFile.toString());
-      if (root.isPresent()) {
-        nestmlScopeCreator.runSymbolTableCreator(root.get());
-        checkCocosForModel(root.get());
-        nestCodeGenerator.analyseAndGenerate(root.get(), Paths.get(nestmlToolConfiguration.getTargetPath()));
-      }
-
+    for (final ASTNESTMLCompilationUnit root:modelRoots) {
+      Log.info("Begins codegeneration for the model: " + root.getFullName(), LOG_NAME);
+      generator.analyseAndGenerate(root, Paths.get(config.getTargetPath()));
     }
-    catch (IOException e) {
-      throw new RuntimeException("Cannot parse the model due to parser errors", e);
-    }
+
+    final String modelName = Paths.get(config.getInputBase()).getFileName().toString();
+    generator.generateNESTModuleCode(modelRoots, modelName, Paths.get(config.getTargetPath()));
+
   }
 
   private List<Finding> checkCocosForModel(final ASTNESTMLCompilationUnit root) {

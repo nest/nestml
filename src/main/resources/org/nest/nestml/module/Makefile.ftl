@@ -16,8 +16,8 @@ include_HEADERS = ${moduleName}Config.h
 
 # All other source files
 source_files=  ${moduleName}Config.cpp \
-<#list neuronModelNames as name>
-    ${name}.cpp ${name}.h
+<#list neurons as neuron>
+    ${neuron.getName()}.cpp ${neuron.getName()}.h
 </#list>
 
 if BUILD_DYNAMIC_USER_MODULES

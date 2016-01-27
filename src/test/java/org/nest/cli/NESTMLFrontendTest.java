@@ -6,10 +6,7 @@
 package org.nest.cli;
 
 import org.apache.commons.cli.CommandLine;
-import org.junit.Ignore;
 import org.junit.Test;
-
-import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
 
@@ -35,7 +32,7 @@ public class NESTMLFrontendTest {
     });
 
     assertTrue(testant.isCheckCoCos());
-    assertEquals(testInputModelsPath, testant.getInputBasePath());
+    assertEquals(testInputModelsPath, testant.getInputBase());
     assertEquals(targetPath, testant.getTargetPath());
   }
 

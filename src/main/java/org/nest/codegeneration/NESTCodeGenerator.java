@@ -113,10 +113,11 @@ public class NESTCodeGenerator {
     }
   }
 
-  public void generateNESTCode(ASTNESTMLCompilationUnit workingVersion, Path outputBase) {
+  public void generateNESTCode(
+      final ASTNESTMLCompilationUnit workingVersion,
+      final Path outputBase) {
     generateHeader(workingVersion, outputBase);
     generateClassImplementation(workingVersion, outputBase);
-    generateNestModuleCode(workingVersion, outputBase);
   }
 
   public void generateHeader(
@@ -130,11 +131,10 @@ public class NESTCodeGenerator {
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
-    for (ASTNeuron neuron : compilationUnit.getNeurons()) {
+    for (final ASTNeuron neuron : compilationUnit.getNeurons()) {
       setNeuronGenerationParameter(glex, neuron, moduleName);
-      final Path outputFile = Paths.get(getPathFromPackage(moduleName), neuron.getName() + ".h");
+      final Path outputFile = Paths.get(neuron.getName() + ".h");
 
-      // TODO: how do I find out the call was successful?
       generator.generate("org.nest.nestml.neuron.NeuronHeader", outputFile, neuron);
     }
     
@@ -142,10 +142,10 @@ public class NESTCodeGenerator {
 
   public void generateClassImplementation(
       final ASTNESTMLCompilationUnit compilationUnit,
-      final Path outputDirectory) {
+      final Path outputBase) {
     final String moduleName = compilationUnit.getFullName();
 
-    final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputBase.toString()));
     final GlobalExtensionManagement glex = getGlexConfiguration();
     setup.setGlex(glex);
 
@@ -154,8 +154,7 @@ public class NESTCodeGenerator {
     final List<ASTNeuron> neurons = compilationUnit.getNeurons();
     for (ASTNeuron neuron : neurons) {
       setNeuronGenerationParameter(glex, neuron, moduleName);
-      final Path classImplementationFile = Paths.get(
-          getPathFromPackage(moduleName), neuron.getName() + ".cpp");
+      final Path classImplementationFile = Paths.get(neuron.getName() + ".cpp");
       // TODO: how do I find out the call was successful?
       generator.generate(
           "org.nest.nestml.neuron.NeuronClass",
@@ -165,66 +164,71 @@ public class NESTCodeGenerator {
 
   }
 
-  public void generateNestModuleCode(
-      final ASTNESTMLCompilationUnit compilationUnit,
+  public void generateNESTModuleCode(
+      final List<ASTNESTMLCompilationUnit> modelRoots,
+      final String moduleName,
       final Path outputDirectory) {
-    final String fullName = compilationUnit.getFullName();
-    final String moduleName = Names.getSimpleName(fullName);
-
-    final List<ASTNeuron> neurons = compilationUnit.getNeurons();
-    final List<String> neuronModelNames = neurons
-        .stream()
-        .map(ASTNeuron::getName)
+    final List<ASTNeuron> neurons = modelRoots.stream()
+        .flatMap(root -> root.getNeurons().stream())
         .collect(Collectors.toList());
+    generateModuleCodeForNeuron(neurons, moduleName, outputDirectory);
+  }
+
+  protected void generateModuleCodeForNeuron(
+      final List<ASTNeuron> neurons,
+      final String moduleName,
+      final Path outputDirectory) {
 
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
     setup.setTracing(false);
 
     final GlobalExtensionManagement glex = getGlexConfiguration();
+    glex.setGlobalValue("neurons", neurons);
     glex.setGlobalValue("moduleName", moduleName);
-    glex.setGlobalValue("packageName", fullName);
-    glex.setGlobalValue("neuronModelNames", neuronModelNames);
+    glex.setGlobalValue("names", new Names());
 
     setup.setGlex(glex);
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
-    final Path makefileFile = Paths.get(getPathFromPackage(fullName), "Makefile.am");
+    final Path makefileFile = Paths.get("Makefile.am");
     generator.generate(
         "org.nest.nestml.module.Makefile",
         makefileFile,
-        compilationUnit);
+        neurons.get(0)); // an arbitrary AST to match the signature
 
-    final Path bootstrappingFile = Paths.get(getPathFromPackage(fullName), "bootstrap.sh");
+    final Path bootstrappingFile = Paths.get("bootstrap.sh");
     generator.generate(
         "org.nest.nestml.module.Bootstrap",
         bootstrappingFile,
-        compilationUnit);
+        neurons.get(0)); // an arbitrary AST to match the signature
 
-    final Path configureFile = Paths.get(getPathFromPackage(fullName), "configure.ac");
+    final Path configureFile = Paths.get("configure.ac");
     generator.generate(
         "org.nest.nestml.module.Configure",
         configureFile,
-        compilationUnit);
+        neurons.get(0)); // an arbitrary AST to match the signature
 
-    final Path moduleClass = Paths.get(getPathFromPackage(fullName), moduleName + "Config.cpp");
+    final Path moduleClass = Paths.get(moduleName + "Config.cpp");
     generator.generate(
         "org.nest.nestml.module.ModuleClass",
         moduleClass,
-        compilationUnit);
+        neurons.get(0)); // an arbitrary AST to match the signature
 
-    final Path moduleHeader = Paths.get(getPathFromPackage(fullName), moduleName + "Config.h");
+    final Path moduleHeader = Paths.get( moduleName + "Config.h");
     generator.generate(
         "org.nest.nestml.module.ModuleHeader",
         moduleHeader,
-        compilationUnit);
+        neurons.get(0)); // an arbitrary AST to match the signature
 
+    /*
     final Path sliInitFile = Paths.get(
         getPathFromPackage(fullName), "sli", moduleName.toLowerCase() + "-init");
     generator.generate(
         "org.nest.nestml.module.SLI_Init",
         sliInitFile,
-        compilationUnit);
+        null);*/
+
   }
 
   private void printModelToFile(

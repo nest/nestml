@@ -1,4 +1,3 @@
-<#assign lowerModuleName = moduleName?lower_case>
 <#assign upperModuleName = moduleName?upper_case>
 /*
  *  ${moduleName}.h
@@ -28,9 +27,6 @@
 #include "slimodule.h"
 #include "slifunction.h"
 
-
-// Put your stuff into your own namespace.
-namespace ${lowerModuleName} {
 
 /**
 * Class defining your model.
@@ -74,6 +70,5 @@ public:
   // Classes implementing your functions -----------------------------
 
 };
-} // namespace ${lowerModuleName}
 
 #endif

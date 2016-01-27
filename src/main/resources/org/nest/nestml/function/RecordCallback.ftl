@@ -11,7 +11,7 @@
     <#assign varDomain = declarations.getDomainFromType(var.getType())>
 
     <#if varDomain == "nest::double_t" && var.isLoggable()>
-    insert_("${var.getName()}", &${nspPrefix}::${simpleNeuronName}::get_${var.getName()});
+    insert_("${var.getName()}", &${simpleNeuronName}::get_${var.getName()});
     <#else>
     // ignores the ${var.getName()} with the domain type ${varDomain}
     </#if>

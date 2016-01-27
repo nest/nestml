@@ -25,7 +25,7 @@ public class NESTMLToolConfiguration {
     return checkCoCos;
   }
 
-  public String getInputBasePath() {
+  public String getInputBase() {
     return inputBasePath;
   }
 
