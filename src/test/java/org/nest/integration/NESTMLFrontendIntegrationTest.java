@@ -21,9 +21,10 @@ public class NESTMLFrontendIntegrationTest {
   private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
 
   @Test
-  public void testRun() {
+  public void testRunUserDefinedOutputFolder() {
     nestmlFrontend.handleConsoleArguments(new String[] {
-        "src/test/resources/codegeneration/iaf_neuron_ode.nestml",
+        "src/test/resources/command_line_base",
         "--target", Paths.get("target","tmpOutput").toString()});
   }
+
 }

@@ -22,6 +22,7 @@ import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
+import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 
 import java.io.File;
@@ -73,6 +74,14 @@ public class NESTCodeGenerator {
       final Path outputBase) {
     final String moduleName = root.getFullName();
     final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
+
+    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    final ASTOdeDeclaration odesBlock = bodyDecorator.getEquations().get();
+
+    if (odesBlock.getEqs().size() == 0) {
+      info("The model will be solved numerically with a GSL solver.", LOG_NAME);
+      return root;
+    }
 
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
 

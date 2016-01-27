@@ -11,6 +11,7 @@ import org.apache.commons.cli.*;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
+import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
