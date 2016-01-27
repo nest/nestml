@@ -1,3 +1,8 @@
+/*
+ * Copyright (c)  RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.cli;
 
 import org.junit.Assert;
@@ -17,7 +22,7 @@ import java.util.List;
  */
 public class CLIConfigurationExecutorTest {
   private static final String TEST_INPUT_PATH = "src/test/resources/command_line_base/";
-  private static final String TARGET_FOLDER = "target";
+  private static final String TARGET_FOLDER = "target/build";
   private final PSCMock pscMock = new PSCMock();
   private final NESTMLToolConfiguration testConfig;
   private final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();

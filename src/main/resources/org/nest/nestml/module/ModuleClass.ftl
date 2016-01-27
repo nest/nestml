@@ -1,5 +1,3 @@
-<#assign lowerModuleName = moduleName?lower_case>
-<#assign upperModuleName = moduleName?upper_case>
 /*
  *  ${moduleName}.cpp
  *
@@ -40,8 +38,8 @@
 // include headers with your own stuff
 #include "${moduleName}Config.h"
 
-<#list neuronModelNames as name>
-  #include "${name}.h"
+<#list neurons as neuron>
+  #include "${neuron.getName()}.h"
 </#list>
 // -- Interface to dynamic module loader ---------------------------------------
 
@@ -55,11 +53,11 @@
  * The dynamicloader can then load modulename and search for symbol "mod" in it.
  */
 
-${lowerModuleName}::${moduleName} ${lowerModuleName}_LTX_mod;
+${moduleName} ${moduleName}_LTX_mod;
 
 // -- DynModule functions ------------------------------------------------------
 
-${lowerModuleName}::${moduleName}::${moduleName}()
+${moduleName}::${moduleName}()
 {
 #ifdef LINKED_MODULE
   // register this module at the dynamic loader
@@ -69,18 +67,18 @@ ${lowerModuleName}::${moduleName}::${moduleName}()
 #endif
 }
 
-${lowerModuleName}::${moduleName}::~${moduleName}()
+${moduleName}::~${moduleName}()
 {
 }
 
 const std::string
-${lowerModuleName}::${moduleName}::name(void) const
+${moduleName}::name(void) const
 {
   return std::string("${moduleName}"); // Return name of the module
 }
 
 const std::string
-${lowerModuleName}::${moduleName}::commandstring( void ) const
+${moduleName}::commandstring( void ) const
 {
   // Instruct the interpreter to load ${moduleName}-init.sli
   return std::string( "(${moduleName}-init) run" );
@@ -88,12 +86,9 @@ ${lowerModuleName}::${moduleName}::commandstring( void ) const
 
 //-------------------------------------------------------------------------------------
 void
-${lowerModuleName}::${moduleName}::init( SLIInterpreter* i )
-{<#list neuronModelNames as name>
-  <#assign fqnName = packageName + "." + name>
-  nest::register_model<${fqnName?replace(".", "::")}>(nest::NestModule::get_network(),
-  "${fqnName?replace(".", "_")}");
-
+${moduleName}::init( SLIInterpreter* i )
+{
+  <#list neurons as neuron>
+    nest::register_model<${neuron.getName()}>(nest::NestModule::get_network(), "${neuron.getName()}");
   </#list>
-
 } // ${moduleName}::init()

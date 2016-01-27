@@ -93,14 +93,13 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
 
   @Test
   public void testImplicitForm() {
-
     nestmlCondModelExplicit.forEach(model -> {
       final ASTNESTMLCompilationUnit root = parseNESTMLModel(model);
       scopeCreator.runSymbolTableCreator(root);
       Optional<ASTOdeDeclaration> odeDeclaration = ASTNodes.getAny(root, ASTOdeDeclaration.class);
       Assert.assertTrue(odeDeclaration.isPresent());
 
-      generator.generateNESTCode(root, Paths.get("target"));
+      generator.analyseAndGenerate(root, Paths.get("target"));
     });
 
   }

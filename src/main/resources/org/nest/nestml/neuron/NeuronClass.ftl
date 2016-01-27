@@ -38,14 +38,14 @@
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
-nest::RecordablesMap<${nspPrefix}::${simpleNeuronName}> ${nspPrefix}::${simpleNeuronName}::recordablesMap_;
+nest::RecordablesMap<${simpleNeuronName}> ${simpleNeuronName}::recordablesMap_;
 
 namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
   template <>
-  void RecordablesMap<${nspPrefix}::${simpleNeuronName}>::create()
+  void RecordablesMap<${simpleNeuronName}>::create()
   {
     // use standard names whereever you can for consistency!
     <#list body.getStates() as state>
@@ -64,7 +64,7 @@ namespace nest
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
 <#assign start="">
-${nspPrefix}::${simpleNeuronName}::Parameters_::Parameters_():
+${simpleNeuronName}::Parameters_::Parameters_():
 <#list body.getNonAliasParameters() as parameter>
   ${start} ${tc.include("org.nest.nestml.function.MemberInitialization", parameter)}
   <#assign start=",">
@@ -72,7 +72,7 @@ ${nspPrefix}::${simpleNeuronName}::Parameters_::Parameters_():
 {}
 
 <#assign start="">
-${nspPrefix}::${simpleNeuronName}::State_::State_():
+${simpleNeuronName}::State_::State_():
 <#list body.getNonAliasStates() as state>
   ${start} ${tc.include("org.nest.nestml.function.MemberInitialization", state)}
   <#assign start=",">
@@ -84,7 +84,7 @@ ${nspPrefix}::${simpleNeuronName}::State_::State_():
 * ---------------------------------------------------------------- */
 
 void
-${nspPrefix}::${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
+${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
 {
   <#list body.getNonAliasParameters() as parameter>
   ${tc.include("org.nest.nestml.function.WriteInDictionary", parameter)}
@@ -92,7 +92,7 @@ ${nspPrefix}::${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
 }
 
 void
-${nspPrefix}::${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
+${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
 {
   <#list body.getNonAliasParameters() as parameter>
   ${tc.include("org.nest.nestml.function.ReadFromDictionary", parameter)}
@@ -107,7 +107,7 @@ ${nspPrefix}::${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
 }
 
 void
-${nspPrefix}::${simpleNeuronName}::State_::get(DictionaryDatum &d) const
+${simpleNeuronName}::State_::get(DictionaryDatum &d) const
 {
     <#list body.getNonAliasStates() as state>
     ${tc.include("org.nest.nestml.function.WriteInDictionary", state)}
@@ -115,18 +115,18 @@ ${nspPrefix}::${simpleNeuronName}::State_::get(DictionaryDatum &d) const
 }
 
 void
-${nspPrefix}::${simpleNeuronName}::State_::set(const DictionaryDatum& d)
+${simpleNeuronName}::State_::set(const DictionaryDatum& d)
 {
   <#list body.getNonAliasStates() as state>
   ${tc.include("org.nest.nestml.function.ReadFromDictionary", state)}
   </#list>
 }
 
-${nspPrefix}::${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n)
+${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n)
 : logger_(n)
 {}
 
-${nspPrefix}::${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n)
+${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n)
 : logger_(n)
 {}
 
@@ -134,7 +134,7 @@ ${nspPrefix}::${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.ge
 * Default and copy constructor for node
 * ---------------------------------------------------------------- */
 // TODO inner components
-${nspPrefix}::${simpleNeuronName}::${simpleNeuronName}()
+${simpleNeuronName}::${simpleNeuronName}()
 : Archiving_Node(),
 P_(),
 S_(),
@@ -143,7 +143,7 @@ B_(*this)
   recordablesMap_.create();
 }
 
-${nspPrefix}::${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n)
+${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n)
     : Archiving_Node(n),
     P_(n.P_),
     S_(n.S_),
@@ -155,7 +155,7 @@ ${nspPrefix}::${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}
 * ---------------------------------------------------------------- */
 
 void
-${nspPrefix}::${simpleNeuronName}::init_state_(const Node& proto)
+${simpleNeuronName}::init_state_(const Node& proto)
 { // TODO inner components
   const ${ast.getName()}& pr = downcast<${ast.getName()}>(proto);
   S_ = pr.S_;
@@ -167,7 +167,7 @@ ${tc.include("org.nest.nestml.function.GSLDifferentiationFunction",body)}
 </#if>
 
 void
-${nspPrefix}::${simpleNeuronName}::init_buffers_()
+${simpleNeuronName}::init_buffers_()
 {
   <#list body.getInputLines() as input>
   ${bufferHelper.printBufferInitialization(input)}
@@ -200,7 +200,7 @@ ${nspPrefix}::${simpleNeuronName}::init_buffers_()
 }
 
 void
-${nspPrefix}::${simpleNeuronName}::calibrate()
+${simpleNeuronName}::calibrate()
 { // TODO init internal variables
   B_.logger_.init();
 
@@ -222,7 +222,7 @@ ${nspPrefix}::${simpleNeuronName}::calibrate()
 * Update and spike handling functions
 * ---------------------------------------------------------------- */
 void
-${nspPrefix}::${simpleNeuronName}::update(
+${simpleNeuronName}::update(
         nest::Time const & origin,
         const nest::long_t from, const nest::long_t to)
 {
@@ -234,13 +234,13 @@ ${nspPrefix}::${simpleNeuronName}::update(
 // Do not move this function as inline to h-file. It depends on
 // universal_data_logger_impl.h being included here.
 void
-${nspPrefix}::${simpleNeuronName}::handle(nest::DataLoggingRequest& e)
+${simpleNeuronName}::handle(nest::DataLoggingRequest& e)
 {
     B_.logger_.handle(e);
 }
 
 <#list body.getFunctions() as function>
-${functionPrinter.printFunctionDefinition(function, nspPrefix + "::" + simpleNeuronName)}
+${functionPrinter.printFunctionDefinition(function, simpleNeuronName)}
 {
   ${tc.include("org.nest.spl.Block", function.getBlock())}
 }
@@ -248,7 +248,7 @@ ${functionPrinter.printFunctionDefinition(function, nspPrefix + "::" + simpleNeu
 
 <#if isSpikeInput>
 void
-${nspPrefix}::${simpleNeuronName}::handle(nest::SpikeEvent &e)
+${simpleNeuronName}::handle(nest::SpikeEvent &e)
 {
   assert(e.get_delay() > 0);
 
@@ -260,7 +260,7 @@ ${nspPrefix}::${simpleNeuronName}::handle(nest::SpikeEvent &e)
 
 <#if isCurrentInput>
 void
-${nspPrefix}::${simpleNeuronName}::handle(nest::CurrentEvent& e)
+${simpleNeuronName}::handle(nest::CurrentEvent& e)
 {
   assert(e.get_delay() > 0);
 

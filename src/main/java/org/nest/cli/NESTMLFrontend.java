@@ -11,6 +11,7 @@ import org.apache.commons.cli.*;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
+import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -64,7 +65,7 @@ public class NESTMLFrontend {
     final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
-        nestmlToolConfiguration.getInputBasePath());
+        nestmlToolConfiguration.getInputBase());
     final NESTCodeGenerator nestCodeGenerator = new NESTCodeGenerator(nestmlScopeCreator);
 
     executor.execute(nestCodeGenerator, nestmlToolConfiguration);

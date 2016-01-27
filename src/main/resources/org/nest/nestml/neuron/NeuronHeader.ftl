@@ -46,11 +46,6 @@
 #include "universal_data_logger.h"
 #include "dictdatum.h"
 
-
-<#list nspPrefix?split("::") as nsp>
-namespace ${nsp} {
-</#list>
-
 /* BeginDocumentation
 Name: ${simpleNeuronName} .
 
@@ -323,14 +318,10 @@ class ${simpleNeuronName} : public nest::Archiving_Node
 /** @} */
 }; /* neuron ${simpleNeuronName} */
 
-<#list nspPrefix?split("::") as nsp>
-} /* namespace ${nsp} */
-</#list>
-
 
 <#if isOutputEventPresent>
 inline
-nest::port ${nspPrefix}::${simpleNeuronName}::send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool)
+nest::port ${simpleNeuronName}::send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool)
 {
   // You should usually not change the code in this function.
   // It confirms that the target of connection @c c accepts @c ${outputEvent} on
@@ -345,7 +336,7 @@ nest::port ${nspPrefix}::${simpleNeuronName}::send_test_event(nest::Node& target
 
 <#if isSpikeInput>
 inline
-nest::port ${nspPrefix}::${simpleNeuronName}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
+nest::port ${simpleNeuronName}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
   // You should usually not change the code in this function.
   // It confirms to the connection management system that we are able
@@ -359,7 +350,7 @@ nest::port ${nspPrefix}::${simpleNeuronName}::handles_test_event(nest::SpikeEven
 
 <#if isCurrentInput>
 inline
-nest::port ${nspPrefix}::${simpleNeuronName}::handles_test_event(nest::CurrentEvent&, nest::port receptor_type)
+nest::port ${simpleNeuronName}::handles_test_event(nest::CurrentEvent&, nest::port receptor_type)
 {
   // You should usually not change the code in this function.
   // It confirms to the connection management system that we are able
@@ -371,7 +362,7 @@ nest::port ${nspPrefix}::${simpleNeuronName}::handles_test_event(nest::CurrentEv
 }
 </#if>
 inline
-nest::port ${nspPrefix}::${simpleNeuronName}::handles_test_event(nest::DataLoggingRequest& dlr,
+nest::port ${simpleNeuronName}::handles_test_event(nest::DataLoggingRequest& dlr,
 nest::port receptor_type)
 {
   // You should usually not change the code in this function.
@@ -387,7 +378,7 @@ nest::port receptor_type)
 
 // TODO call get_status on used or internal components
 inline
-void ${nspPrefix}::${simpleNeuronName}::get_status(DictionaryDatum &d) const
+void ${simpleNeuronName}::get_status(DictionaryDatum &d) const
 {
   P_.get(d);
   <#list body.getAliasParameters() as parameter>
@@ -403,7 +394,7 @@ void ${nspPrefix}::${simpleNeuronName}::get_status(DictionaryDatum &d) const
 
 // TODO call set_status on used or internal components
 inline
-void ${nspPrefix}::${simpleNeuronName}::set_status(const DictionaryDatum &d)
+void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
 {
   <#list body.getAliasParameters() as parameter>
   ${tc.include("org.nest.nestml.function.SetOldAliasState", parameter)}
