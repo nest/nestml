@@ -26,13 +26,11 @@ import static org.junit.Assert.assertTrue;
  */
 @Ignore("Ignore this test to further work on the code generation")
 public class NESTMLParsingTest extends ModelTestBase {
+  private final static  String LOG_NAME = NESTMLParsingTest.class.getName();
 
   private final static  String CODE_GENERATION_FOLDER = "src/test/resources/codegeneration";
   private final static  String PARSABLE_MODELS_FOLDER = "src/test/resources/org/nest/nestml/parsing";
   private final static  String COCOS_MODELS_FOLDER = "src/test/resources/org/nest/nestml/cocos";
-  private final static  String LOG_NAME = NESTMLParsingTest.class.getName();
-  private final NESTMLParser parser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
-
 
   @Test
   public void testParsableModels() throws IOException {

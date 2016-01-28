@@ -40,10 +40,10 @@ public class CLIConfigurationExecutor {
 
   public void execute(
       final NESTCodeGenerator generator,
-      final NESTMLToolConfiguration config) {
+      final Configuration config) {
 
-    final List<Path> modelFilenames = collectNESTMLModelFilenames(Paths.get(config.getInputBase()));
-    final NESTMLParser parser =  new NESTMLParser(Paths.get(config.getInputBase()));
+    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
+    final NESTMLParser parser =  new NESTMLParser(config.getInputBase());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getInputBase());
 
@@ -74,7 +74,6 @@ public class CLIConfigurationExecutor {
     return modelRoots;
   }
 
-
   protected List<Path> collectNESTMLModelFilenames(final Path inputPath) {
     final List<Path> filenames = Lists.newArrayList();
     try {
@@ -98,7 +97,7 @@ public class CLIConfigurationExecutor {
 
   private void processNestmlModels(
       final List<ASTNESTMLCompilationUnit> modelRoots,
-      final NESTMLToolConfiguration config,
+      final Configuration config,
       final NESTMLScopeCreator scopeCreator,
       final NESTCodeGenerator generator) {
 
@@ -111,11 +110,11 @@ public class CLIConfigurationExecutor {
 
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
       Log.info("Begins codegeneration for the model: " + root.getFullName(), LOG_NAME);
-      generator.analyseAndGenerate(root, Paths.get(config.getTargetPath()));
+      generator.analyseAndGenerate(root, config.getTargetPath());
     }
 
-    final String modelName = Paths.get(config.getInputBase()).getFileName().toString();
-    generator.generateNESTModuleCode(modelRoots, modelName, Paths.get(config.getTargetPath()));
+    final String modelName = config.getInputBase().getFileName().toString();
+    generator.generateNESTModuleCode(modelRoots, modelName, config.getTargetPath());
 
   }
 

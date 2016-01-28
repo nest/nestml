@@ -73,7 +73,7 @@ public class NESTMLCoCosManagerTest {
       final Optional<ASTNESTMLCompilationUnit> root = getAstRoot(file.getPath());
       Assert.assertTrue(root.isPresent());
 
-      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
       scopeCreator.runSymbolTableCreator(root.get());
 
       final String fqnModelName = packageName + "." + modelName;

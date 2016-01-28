@@ -12,6 +12,7 @@ import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -38,9 +39,9 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   final NESTMLLanguage nestmlLanguages;
 
   public   NESTMLScopeCreator(
-      final String modelPathAsString) {
+      final Path modelPathAsString) {
 
-    modelPath = new ModelPath(Paths.get(modelPathAsString));
+    modelPath = new ModelPath(modelPathAsString);
 
     nestmlLanguages = new NESTMLLanguage();
 
