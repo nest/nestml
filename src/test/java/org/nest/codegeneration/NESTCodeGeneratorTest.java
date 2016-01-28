@@ -29,9 +29,6 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
   private final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
 
-  public NESTCodeGeneratorTest() {
-
-  }
 
   @Test
   public void testPSCModelWithOde() {

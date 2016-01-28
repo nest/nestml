@@ -5,7 +5,6 @@
  */
 package org.nest.spl.cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTDeclaration;
@@ -19,9 +18,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * Checks that the variable name is not a type name, e.g. integer integer = 1.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class VarHasTypeName implements SPLASTDeclarationCoCo {
   public static final String ERROR_CODE = "SPL_VARIABLE_HAS_TYPE_NAME";

@@ -225,20 +225,29 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testMemberVariableDefinedMultipleTimes() {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
-        TEST_MODELS_FOLDER + "varDefinedMultipleTimes.nestml", TEST_MODEL_PATH);
-    assertTrue(ast.isPresent());
 
     final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes = new MemberVariableDefinedMultipleTimes();
-
     nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) memberVariableDefinedMultipleTimes);
     nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) memberVariableDefinedMultipleTimes);
 
-    nestmlCoCoChecker.checkAll(ast.get());
+    String pathToValidModel = TEST_MODELS_FOLDER + "multiplyDefinedVars/validModel.nestml";
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        "NESTML_");
+
+    String pathToInvalidModel = TEST_MODELS_FOLDER + "multiplyDefinedVars/varDefinedMultipleTimes.nestml";
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        "NESTML_",
+        2);
+
+
 
     Integer errorsFound = countErrorsByPrefix(MemberVariableDefinedMultipleTimes.ERROR_CODE,
         getFindings());
-    assertEquals(Integer.valueOf(1), errorsFound);
+    assertEquals(Integer.valueOf(2), errorsFound);
   }
 
   @Test

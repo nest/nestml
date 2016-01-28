@@ -5,14 +5,8 @@
  */
 package org.nest.nestml.cocos;
 
-import static com.google.common.base.Preconditions.checkState;
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
-import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
-import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
-
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
@@ -20,6 +14,16 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.error;
+import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
+import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
+
+/**
+ * Checks that buffers cannot be assigned a value.
+ *
+ * @author plotnikov
+ */
 public class BufferNotAssignable implements SPLASTAssignmentCoCo {
 
   public static final String ERROR_CODE = "NESTML_SPL_BUFFER_NOT_ASSIGNABLE";

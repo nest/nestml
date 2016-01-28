@@ -1,0 +1,15 @@
+neuron NeuronInTest:
+    state:
+        x mV
+    end
+
+    parameter:
+        x real = x * 2
+        y real
+    end
+
+    input:
+       y <- spike
+    end
+end
+
