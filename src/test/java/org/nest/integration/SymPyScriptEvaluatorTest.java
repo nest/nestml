@@ -28,13 +28,10 @@ import static org.junit.Assert.assertTrue;
  */
 @Ignore("Don't run this tests on github")
 public class SymPyScriptEvaluatorTest extends ModelTestBase {
-  private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final String PSC_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
-  private final NESTMLParser parser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
-
 
   @Test
   public void generateAndExecuteSympyScriptForPSC() throws IOException {
@@ -56,7 +53,7 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
 
     final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
-        Paths.get(OUTPUT_FOLDER));
+        OUTPUT_FOLDER);
 
     assertTrue(generatedScript.isPresent());
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();

@@ -3,6 +3,7 @@ package org.nest.nestml.prettyprinter;
 import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -20,9 +21,8 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class NESTMLPrettyPrinterTest {
+public class NESTMLPrettyPrinterTest extends ModelTestBase {
   private final NESTMLParser nestmlParser = new NESTMLParser();
-  private static final String TEST_MODEL_PATH = "src/test/resources/";
 
   private Optional<ASTNESTMLCompilationUnit> parseStringAsSPLFile(final String fileAsString) throws IOException {
     return nestmlParser.parse(new StringReader(fileAsString));

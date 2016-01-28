@@ -21,9 +21,7 @@ import static de.se_rwth.commons.logging.Log.debug;
 /**
  * Creates symbol table for the {@code NESTMLLanguage} from the parsed model.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class NESTMLModelLoader extends ModelingLanguageModelLoader<ASTNESTMLCompilationUnit> {
 

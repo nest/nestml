@@ -7,6 +7,7 @@ package org.nest.cli;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.nest.base.ModelTestBase;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -20,16 +21,16 @@ import java.util.List;
  *
  * @author plotnikov
  */
-public class CLIConfigurationExecutorTest {
-  private static final String TEST_INPUT_PATH = "src/test/resources/command_line_base/";
-  private static final String TARGET_FOLDER = "target/build";
+public class CLIConfigurationExecutorTest extends ModelTestBase {
+  private static final Path TEST_INPUT_PATH = Paths.get("src/test/resources/command_line_base/");
+  private static final Path TARGET_FOLDER = Paths.get("target/build");
   private final PSCMock pscMock = new PSCMock();
-  private final NESTMLToolConfiguration testConfig;
+  private final Configuration testConfig;
   private final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_INPUT_PATH);
 
   public CLIConfigurationExecutorTest() {
-    testConfig = new NESTMLToolConfiguration.Builder()
+    testConfig = new Configuration.Builder()
         .withCoCos()
         .withInputBasePath(TEST_INPUT_PATH)
         .withTargetPath(TARGET_FOLDER)
@@ -44,8 +45,7 @@ public class CLIConfigurationExecutorTest {
 
   @Test
   public void testArtifactCollection() {
-    final List<Path> collectedFiles = executor.collectNESTMLModelFilenames(
-        Paths.get(TEST_INPUT_PATH));
+    final List<Path> collectedFiles = executor.collectNESTMLModelFilenames(TEST_INPUT_PATH);
     Assert.assertEquals(2, collectedFiles.size());
   }
 

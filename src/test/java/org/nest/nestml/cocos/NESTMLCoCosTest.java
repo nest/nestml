@@ -19,6 +19,7 @@ import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static de.se_rwth.commons.logging.Log.getFindings;
@@ -38,8 +39,6 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   private NESTMLCoCoChecker nestmlCoCoChecker;
 
-  private NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
-
   @Before
   public void setup() {
     nestmlCoCoChecker = new NESTMLCoCoChecker();
@@ -54,7 +53,8 @@ public class NESTMLCoCosTest extends ModelTestBase {
   public void testResolvingOfPredefinedTypes() {
     // just take an arbitrary nestml model with an import: nestml*
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
-        TEST_MODELS_FOLDER + "functionWithOutReturn.nestml", TEST_MODEL_PATH);
+        Paths.get(TEST_MODELS_FOLDER, "functionWithOutReturn.nestml").toString(),
+        TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
 
     PredefinedTypes.getTypes().forEach(type -> {

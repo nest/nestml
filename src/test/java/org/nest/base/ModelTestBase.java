@@ -17,6 +17,7 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -25,9 +26,9 @@ import java.nio.file.Paths;
  * @author plotnikov
  */
 public class ModelTestBase {
-  protected static final String OUTPUT_FOLDER = "target";
-  protected static final String TEST_MODEL_PATH = "src/test/resources/";
-  protected final NESTMLParser parser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
+  protected static final Path OUTPUT_FOLDER = Paths.get("target");
+  protected static final Path TEST_MODEL_PATH = Paths.get("src/test/resources/");
+  protected final NESTMLParser parser = new NESTMLParser(TEST_MODEL_PATH);
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
   @BeforeClass

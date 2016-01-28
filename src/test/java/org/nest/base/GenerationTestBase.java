@@ -40,7 +40,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
 
-      generator.analyseAndGenerate(root.get(), Paths.get(OUTPUT_FOLDER));
+      generator.analyseAndGenerate(root.get(), OUTPUT_FOLDER);
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);
@@ -53,7 +53,7 @@ public abstract class GenerationTestBase extends ModelTestBase {
       final Optional<ASTNESTMLCompilationUnit> root = parser.parse(pathToModel);
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
-      generator.analyseAndGenerate(root.get(), Paths.get(OUTPUT_FOLDER));
+      generator.analyseAndGenerate(root.get(), OUTPUT_FOLDER);
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);

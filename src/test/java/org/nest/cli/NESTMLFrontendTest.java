@@ -8,6 +8,9 @@ package org.nest.cli;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static org.junit.Assert.*;
 
 /**
@@ -22,13 +25,13 @@ public class NESTMLFrontendTest {
   @Test
   public void testCreationOfConfiguration() throws Exception {
 
-    final String testInputModelsPath = "testInputModelsPath";
-    final String targetPath = "targetPath";
+    final Path testInputModelsPath = Paths.get("testInputModelsPath");
+    final Path targetPath = Paths.get("targetPath");
 
-    final NESTMLToolConfiguration testant = nestmlFrontend.createCLIConfiguration(new String[] {
-        testInputModelsPath,
+    final Configuration testant = nestmlFrontend.createCLIConfiguration(new String[] {
+        testInputModelsPath.toString(),
         "--runningMode", "parseAndCheck",
-        "--target", targetPath
+        "--target", targetPath.toString()
     });
 
     assertTrue(testant.isCheckCoCos());

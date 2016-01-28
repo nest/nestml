@@ -11,7 +11,6 @@ import org.apache.commons.cli.*;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
-import java.nio.file.Paths;
 import java.util.Optional;
 
 /**
@@ -61,32 +60,32 @@ public class NESTMLFrontend {
   }
 
   public void handleConsoleArguments(String[] args) {
-    final NESTMLToolConfiguration nestmlToolConfiguration = createCLIConfiguration(args);
+    final Configuration configuration = createCLIConfiguration(args);
     final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
-        nestmlToolConfiguration.getInputBase());
+        configuration.getInputBase());
     final NESTCodeGenerator nestCodeGenerator = new NESTCodeGenerator(nestmlScopeCreator);
 
-    executor.execute(nestCodeGenerator, nestmlToolConfiguration);
+    executor.execute(nestCodeGenerator, configuration);
 
   }
 
-  public NESTMLToolConfiguration createCLIConfiguration(String[] args) {
+  public Configuration createCLIConfiguration(String[] args) {
     final CommandLine commandLineParameters = parseCLIArguments(args);
     interpretHelpArgument(commandLineParameters);
 
     boolean isCheckCocos = interpretRunningModeArgument(commandLineParameters);
     final String targetPath = interpretTargetPathArgument(commandLineParameters);
 
-    final NESTMLToolConfiguration nestmlToolConfiguration = new NESTMLToolConfiguration
+    final Configuration configuration = new Configuration
         .Builder()
         .withCoCos(isCheckCocos)
         .withInputBasePath(args[0])
         .withTargetPath(targetPath)
         .build();
 
-    return nestmlToolConfiguration;
+    return configuration;
   }
 
   public CommandLine parseCLIArguments(String[] args) {
