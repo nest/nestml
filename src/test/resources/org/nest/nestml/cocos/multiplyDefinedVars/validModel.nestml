@@ -4,7 +4,11 @@ neuron NeuronInTest:
     end
 
     parameter:
-        x real = x * 2
+        y real
+    end
+
+    input:
+       z <- spike
     end
 end
 

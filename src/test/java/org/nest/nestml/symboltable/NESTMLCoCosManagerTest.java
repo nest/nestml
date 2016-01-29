@@ -19,6 +19,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
@@ -64,23 +65,32 @@ public class NESTMLCoCosManagerTest {
   public void testGoodModels() throws IOException {
     final File modelsFolder = new File(TEST_MODEL_PATH + "/org/nest/nestml/parsing");
 
-    final String packageName = "org.nest.nestml.parsing";
+    checkAllModelsInFolder(modelsFolder);
+  }
 
+  @Test
+  public void testCodegenerationModels() throws IOException {
+    final File modelsFolder = new File(Paths.get(TEST_MODEL_PATH.toString(), "codegeneration").toString());
+
+    checkAllModelsInFolder(modelsFolder);
+  }
+
+  private void checkAllModelsInFolder(File modelsFolder) throws IOException {
     for (final File file : modelsFolder.listFiles()) {
       System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file);
 
-      final String modelName = removeFileExtension(file.getName(), "nestml");
-      final Optional<ASTNESTMLCompilationUnit> root = getAstRoot(file.getPath());
-      Assert.assertTrue(root.isPresent());
+      if (file.isFile()) {
+        final Optional<ASTNESTMLCompilationUnit> root = getAstRoot(file.getPath());
+        Assert.assertTrue(root.isPresent());
 
-      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
-      scopeCreator.runSymbolTableCreator(root.get());
+        final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
+        scopeCreator.runSymbolTableCreator(root.get());
 
-      final String fqnModelName = packageName + "." + modelName;
-      System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + fqnModelName);
+        System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file.toString());
 
-      checkNESTMLCocosOnly(file, root);
-      checkNESTMLWithSPLCocos(file, root);
+        checkNESTMLCocosOnly(file, root);
+        checkNESTMLWithSPLCocos(file, root);
+      }
 
     }
 
