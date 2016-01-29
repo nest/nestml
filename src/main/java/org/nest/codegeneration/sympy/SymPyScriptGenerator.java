@@ -101,11 +101,11 @@ public class SymPyScriptGenerator {
     final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
 
     final List<VariableSymbol> variables = ASTNodes.getVariableSymbols(astOdeDeclaration);
-    glex.setGlobalValue("variables", variables);
-
     final List<VariableSymbol> aliases = variables.stream()
         .filter(VariableSymbol::isAlias)
         .collect(Collectors.toList());
+    aliases.stream().forEach(alias ->
+        variables.addAll(ASTNodes.getVariableSymbols(alias.getDeclaringExpression().get())));
 
     glex.setGlobalValue("variables", variables);
     glex.setGlobalValue("aliases", aliases);
