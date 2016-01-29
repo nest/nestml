@@ -36,7 +36,22 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     generator.analyseAndGenerate(root, OUTPUT_DIRECTORY);
-    generator.generateNESTModuleCode(newArrayList(root), "codegeneration", OUTPUT_DIRECTORY);
+    generator.generateNESTModuleCode(
+        newArrayList(root),
+        "psc",
+        Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
+  }
+
+  @Test
+  public void testCondModelWithImplicitOdes() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_IMPLICIT);
+    scopeCreator.runSymbolTableCreator(root);
+    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    generator.analyseAndGenerate(root, OUTPUT_DIRECTORY);
+    generator.generateNESTModuleCode(
+        newArrayList(root),
+        "cond",
+        Paths.get(OUTPUT_DIRECTORY.toString(), "cond"));
   }
 
 }

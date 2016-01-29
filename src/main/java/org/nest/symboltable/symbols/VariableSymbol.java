@@ -6,7 +6,9 @@
 package org.nest.symboltable.symbols;
 
 import de.monticore.symboltable.CommonSymbol;
+import org.nest.spl._ast.ASTExpr;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.util.Optional.empty;
@@ -17,18 +19,11 @@ import static java.util.Optional.empty;
  * @author plotnikov
  */
 public class VariableSymbol extends CommonSymbol {
+  public static final VariableSymbolKind KIND = new VariableSymbolKind();
 
-  public boolean isLoggable() {
-    return isLoggable;
-  }
-
-  public void setLoggable(boolean loggable) {
-    isLoggable = loggable;
-  }
+  private Optional<ASTExpr> declaringExpression = Optional.empty();
 
   public enum BlockType {STATE, PARAMETER, INTERNAL, LOCAL, INPUT_BUFFER_CURRENT, INPUT_BUFFER_SPIKE}
-
-  public static final VariableSymbolKind KIND = new VariableSymbolKind();
 
   private TypeSymbol type;
 
@@ -41,6 +36,24 @@ public class VariableSymbol extends CommonSymbol {
   private BlockType blockType;
 
   private Optional<String> arraySizeParameter = empty();
+
+  public boolean isLoggable() {
+    return isLoggable;
+  }
+
+  public void setLoggable(boolean loggable) {
+    isLoggable = loggable;
+  }
+
+  public void setDeclaringExpression(ASTExpr declaringExpression) {
+    Objects.requireNonNull(declaringExpression);
+
+    this.declaringExpression = Optional.of(declaringExpression);
+  }
+
+  public Optional<ASTExpr> getDeclaringExpression() {
+    return declaringExpression;
+  }
 
   public Optional<String> getArraySizeParameter() {
     return arraySizeParameter;

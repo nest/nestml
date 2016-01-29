@@ -5,16 +5,18 @@
  */
 package org.nest.codegeneration.sympy;
 
-import com.google.common.collect.Lists;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
+import org.nest.codegeneration.converters.IReferenceConverter;
+import org.nest.codegeneration.converters.IdempotentReferenceConverter;
+import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedVariables;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
 
 import java.io.File;
@@ -34,7 +36,11 @@ import static java.util.Optional.of;
  * @author plotnikov
  */
 public class SymPyScriptGenerator {
+
   private final static String LOG_NAME = SymPyScriptGenerator.class.getName();
+
+  public static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.SympySolver";
+
   /**
    * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
    * @param neuron Neuron from the nestml model (must be part of the root)
@@ -65,9 +71,8 @@ public class SymPyScriptGenerator {
       return of(generatedScriptFile);
     }
 
-    final String msg = String.format(
-        "The neuron %s doesn't contain an ODE. The script generation is skipped.",
-        neuron.getName());
+    final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
+        + "is skipped.", neuron.getName());
     Log.warn(msg);
 
     return empty();
@@ -83,36 +88,35 @@ public class SymPyScriptGenerator {
     checkState(astOdeDeclaration.getODEs().size() == 1, "It works only for a single ODE.");
     glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));
     glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
-    glex.setGlobalValue("prdefinedVariables", PredefinedVariables.gerVariables());
+    // TODO should be defined in sympy fileglex.setGlobalValue("predefinedVariables", PredefinedVariables.gerVariables());
     glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
 
     setup.setGlex(glex);
     setup.setTracing(false); // python comments are not java comments
+    setup.setCommentStart(Optional.of("#"));
+    setup.setCommentEnd(Optional.empty());
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
     final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
 
-    glex.setGlobalValue("variables", ASTNodes.getVariablesNamesFromAst(astOdeDeclaration));
+    final List<VariableSymbol> variables = ASTNodes.getVariableSymbols(astOdeDeclaration);
+    final List<VariableSymbol> aliases = variables.stream()
+        .filter(VariableSymbol::isAlias)
+        .collect(Collectors.toList());
+    aliases.stream().forEach(alias ->
+        variables.addAll(ASTNodes.getVariableSymbols(alias.getDeclaringExpression().get())));
 
-    // TODO: how do I find out the call was successful?
-    generator.generate(
-        "org.nest.sympy.SympySolver",
-        solverSubPath,
-        astOdeDeclaration);
+    glex.setGlobalValue("variables", variables);
+    glex.setGlobalValue("aliases", aliases);
+
+    final IReferenceConverter converter = new IdempotentReferenceConverter();
+    final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
+    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
+
+    generator.generate(SCRIPT_GENERATOR_TEMPLATE, solverSubPath, astOdeDeclaration);
 
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
-  }
-
-  /**
-   * Filters mathematical constants like Pi, E, ...
-   */
-  private static List<String> filterConstantVariables(final List<String> variablesNames) {
-    final List<String> result = Lists.newArrayList();
-    result.addAll(variablesNames.stream().filter(variable -> !variable.equals("e"))
-        .collect(Collectors.toList()));
-
-    return result;
   }
 
   private static GlobalExtensionManagement createGLEXConfiguration() {

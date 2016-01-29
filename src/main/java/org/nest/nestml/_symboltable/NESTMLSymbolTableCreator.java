@@ -18,6 +18,7 @@ import org.nest.symboltable.symbols.references.TypeSymbolReference;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -407,7 +408,8 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
   }
 
   /**
-   *
+   * Adds variables from a declaration. Distinguishes between the place of the declaration, e.g.
+   * local, state, ...
    * @param aliasDeclAst optional declaration which can be empty if a variable defined in a function
    *                     and not in a variable block.
    */
@@ -438,7 +440,15 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         }
 
         if (aliasDeclAst.isPresent()) {
-          var.setAlias(aliasDeclAst.get().isAlias());
+          if (aliasDeclAst.get().isAlias()) {
+            var.setAlias(true);
+
+            if (astDeclaration.getExpr().isPresent()) {
+              var.setDeclaringExpression(astDeclaration.getExpr().get());
+            }
+
+          }
+
         }
 
         if (astDeclaration.getSizeParameter().isPresent()) {

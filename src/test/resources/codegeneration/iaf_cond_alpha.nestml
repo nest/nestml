@@ -9,15 +9,7 @@ neuron iaf_cond_alpha_neuron:
     # Explicit
     GI = (e/Tau) * t * exp(-1/tau_synI*t)
     GE = (e/Tau) * t * exp(-1/tau_synE*t)
-    V_m' = -1/((1 / g_L) * C_m) * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
-
-    # Implicit
-    # DGI' = DGI/tau_synI
-    # GI' = DGI - GI/tau_synI
-    # DGE' = DGE/tau_synE
-    # GE' = DGE - GE/tau_synE
-    # V_m' = -1/Tau * V_m + 1/C_m * GI * (V_m-V_reversalI)+ GE * (V_m-V_reversalE)
-
+    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
 
   parameter:

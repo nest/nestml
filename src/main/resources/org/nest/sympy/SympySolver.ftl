@@ -5,8 +5,12 @@ from numpy.random import randint
 # TODO why a?
 a, h = symbols('a h')
 <#compress>
-    var('<#list variables as variable> ${variable} </#list>')
+    var('<#list variables as variable> ${variable.getName()} </#list>')
 </#compress>
+
+<#list aliases as alias>
+${alias.getName()} = ${expressionsPrinter.print(alias.getDeclaringExpression().get())}
+</#list>
 
 <#list EQs as eq>
 ${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
