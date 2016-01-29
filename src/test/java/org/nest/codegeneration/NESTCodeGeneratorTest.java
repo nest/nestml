@@ -36,7 +36,10 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     generator.analyseAndGenerate(root, OUTPUT_DIRECTORY);
-    generator.generateNESTModuleCode(newArrayList(root), "psc", Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
+    generator.generateNESTModuleCode(
+        newArrayList(root),
+        "psc",
+        Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
   }
 
   @Test
@@ -45,7 +48,10 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     generator.analyseAndGenerate(root, OUTPUT_DIRECTORY);
-    generator.generateNESTModuleCode(newArrayList(root), "cond", Paths.get(OUTPUT_DIRECTORY.toString(), "cond"));
+    generator.generateNESTModuleCode(
+        newArrayList(root),
+        "cond",
+        Paths.get(OUTPUT_DIRECTORY.toString(), "cond"));
   }
 
 }

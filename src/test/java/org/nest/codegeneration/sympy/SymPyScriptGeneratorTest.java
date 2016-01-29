@@ -5,6 +5,7 @@
  */
 package org.nest.codegeneration.sympy;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -29,6 +30,8 @@ public class SymPyScriptGeneratorTest extends ModelTestBase {
       = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
   public static final String PATH_TO_COND_MODEL
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
+  public static final String PATH_TO_COND_IMPLICIT_MODEL
+      = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
   private static final String OUTPUT_FOLDER = "target";
 
   @Test
@@ -39,6 +42,12 @@ public class SymPyScriptGeneratorTest extends ModelTestBase {
   @Test
   public void generateSymPySolverForCondModel() throws IOException {
     generateScriptForModel(PATH_TO_COND_MODEL);
+  }
+
+  @Ignore("Enable as soon as the script can handle it")
+  @Test
+  public void generateSymPySolverForCondImplicitModel() throws IOException {
+    generateScriptForModel(PATH_TO_COND_IMPLICIT_MODEL);
   }
 
   private void generateScriptForModel(final String pathToModel) throws IOException {

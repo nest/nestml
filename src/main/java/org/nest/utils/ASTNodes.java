@@ -7,7 +7,9 @@ package org.nest.utils;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
+import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
+import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Util;
@@ -15,14 +17,15 @@ import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Helper class containing common operations concerning ast nodes.
@@ -95,10 +98,9 @@ public final class ASTNodes {
 
     return resultList;
   }
+
   /**
    * Returns all variables defined in the tree starting from the astNode.
-   * @param astNode
-   * @return
    */
   public static List<String> getVariablesNamesFromAst(final ASTSPLNode astNode) {
     final FQNCollector fqnCollector = new FQNCollector();
@@ -162,16 +164,49 @@ public final class ASTNodes {
 
   static final class FQNCollector implements NESTMLInheritanceVisitor {
     public List<String> getVariableNames() {
-      return variableNames;
+      return Lists.newArrayList(variableNames);
     }
 
-    final private List<String> variableNames = Lists.newArrayList();
+    final private Set<String> variableNames = Sets.newHashSet();
 
     @Override
     public void visit(final ASTExpr astExpr) {
       if (astExpr.getQualifiedName().isPresent()) {
         final String variableName = Names.getQualifiedName(astExpr.getQualifiedName().get().getParts());
         variableNames.add(variableName);
+
+      }
+
+    }
+
+  }
+
+  /**
+   * Returns all variable symbols for variables which are defined in the subtree starting from
+   * the astNode.
+   */
+  public static List<VariableSymbol> getVariableSymbols(final ASTSPLNode astNode) {
+    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
+    astNode.accept(variableSymbolsCollector);
+    return variableSymbolsCollector.getVariableSymbol();
+  }
+
+  static final class VariableSymbolsCollector implements NESTMLInheritanceVisitor {
+    public List<VariableSymbol> getVariableSymbol() {
+      return Lists.newArrayList(variables);
+    }
+
+    final private Set<VariableSymbol> variables = Sets.newHashSet();
+
+    @Override
+    public void visit(final ASTExpr astExpr) {
+      if (astExpr.getQualifiedName().isPresent()) {
+        final String variableName = Names.getQualifiedName(astExpr.getQualifiedName().get().getParts());
+        final Scope scope = astExpr.getEnclosingScope().get();
+        final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
+        if (symbol.isPresent()) {
+          variables.add(symbol.get());
+        }
 
       }
 
