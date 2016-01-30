@@ -9,14 +9,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelTestBase;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
-import org.nest.codegeneration.sympy.SymPyScriptGenerator;
+import org.nest.codegeneration.sympy.ODESolverScriptGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -51,7 +49,7 @@ public class SymPyScriptEvaluatorTest extends ModelTestBase {
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
-    final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
+    final Optional<Path> generatedScript = ODESolverScriptGenerator.generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
         OUTPUT_FOLDER);
 

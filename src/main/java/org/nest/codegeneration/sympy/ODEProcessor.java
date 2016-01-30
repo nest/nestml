@@ -10,7 +10,6 @@ import org.nest.codegeneration.SolverType;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.ASTOdeDeclaration;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,7 +51,7 @@ public class ODEProcessor {
   protected ASTNESTMLCompilationUnit handleNeuronWithODE(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    final Optional<Path> generatedScript = SymPyScriptGenerator.generateSympyODEAnalyzer(
+    final Optional<Path> generatedScript = ODESolverScriptGenerator.generateSympyODEAnalyzer(
         root.getNeurons().get(0),
         outputBase);
 

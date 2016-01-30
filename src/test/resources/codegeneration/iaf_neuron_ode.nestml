@@ -3,7 +3,7 @@ neuron iaf_neuron_ode:
   state:
     V mV
     G real
-    alias V_m mV = V + E_L # Membrane potenCodetial.
+    alias V_m mV = V + E_L # Membrane potential.
   end
 
   equations:

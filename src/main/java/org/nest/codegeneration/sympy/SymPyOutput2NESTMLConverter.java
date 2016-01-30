@@ -5,19 +5,16 @@
  */
 package org.nest.codegeneration.sympy;
 
-import com.google.common.collect.Lists;
 import de.monticore.antlr4.MCConcreteParser;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.NESTMLNodeFactory;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.SPLNodeFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 /**
  * Takes output from the SymPy script and converts into the NESTML ASTs.

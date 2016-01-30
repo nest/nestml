@@ -18,14 +18,14 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
-import static org.nest.codegeneration.sympy.SymPyScriptGenerator.generateSympyODEAnalyzer;
+import static org.nest.codegeneration.sympy.ODESolverScriptGenerator.generateSympyODEAnalyzer;
 
 /**
  * Tests that the solver script is generated from an ODE based model.
  *
  * @author plotnikov
  */
-public class SymPyScriptGeneratorTest extends ModelTestBase {
+public class ODESolverScriptGeneratorTest extends ModelTestBase {
   public static final String PATH_TO_PSC_MODEL
       = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
   public static final String PATH_TO_COND_MODEL

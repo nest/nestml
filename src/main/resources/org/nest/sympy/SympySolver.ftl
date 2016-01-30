@@ -9,7 +9,7 @@ a, h = symbols('a h')
 </#compress>
 
 <#list aliases as alias>
-${alias.getName()} = ${expressionsPrinter.print(alias.getDeclaringExpression().get())}
+${alias.getName()} = ${expressionsPrinter.print(alias.getDeclaringExpression().get()}
 </#list>
 
 <#list EQs as eq>

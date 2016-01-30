@@ -13,6 +13,8 @@ import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Util;
+import de.se_rwth.commons.logging.Log;
+import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
@@ -26,6 +28,8 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Helper class containing common operations concerning ast nodes.
@@ -185,6 +189,40 @@ public final class ASTNodes {
    * Returns all variable symbols for variables which are defined in the subtree starting from
    * the astNode.
    */
+  public static List<VariableSymbol> getVariableSymbols(final ASTNESTMLNode astNode) {
+    final DeclarationsCollector variableSymbolsCollector = new DeclarationsCollector();
+    astNode.accept(variableSymbolsCollector);
+    return variableSymbolsCollector.getVariableSymbols();
+  }
+
+  static final class DeclarationsCollector implements NESTMLInheritanceVisitor {
+    public List<VariableSymbol> getVariableSymbols() {
+      return Lists.newArrayList(variables);
+    }
+
+    final private Set<VariableSymbol> variables = Sets.newHashSet();
+
+    @Override
+    public void visit(final ASTDeclaration astDeclaration) {
+      checkArgument(astDeclaration.getEnclosingScope().isPresent(), "Run symbol table creator.");
+      final Scope scope = astDeclaration.getEnclosingScope().get();
+      for (final String variableName:astDeclaration.getVars()) {
+        final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
+        if (symbol.isPresent()) {
+          variables.add(symbol.get());
+        }
+        else {
+          Log.warn("Cannot resolve the variable: " + variableName);
+        }
+      }
+
+    }
+
+  }
+  /**
+   * Returns all variable symbols for variables which are defined in the subtree starting from
+   * the astNode.
+   */
   public static List<VariableSymbol> getVariableSymbols(final ASTSPLNode astNode) {
     final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
     astNode.accept(variableSymbolsCollector);
@@ -199,19 +237,23 @@ public final class ASTNodes {
     final private Set<VariableSymbol> variables = Sets.newHashSet();
 
     @Override
-    public void visit(final ASTExpr astExpr) {
-      if (astExpr.getQualifiedName().isPresent()) {
-        final String variableName = Names.getQualifiedName(astExpr.getQualifiedName().get().getParts());
-        final Scope scope = astExpr.getEnclosingScope().get();
-        final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
-        if (symbol.isPresent()) {
-          variables.add(symbol.get());
-        }
-
+    public void visit(final ASTQualifiedName astQualifiedName) {
+      checkArgument(astQualifiedName.getEnclosingScope().isPresent(), "Run symbol table creator.");
+      final String variableName = ASTNodes.toString(astQualifiedName);
+      final Scope scope = astQualifiedName.getEnclosingScope().get();
+      final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
+      if (symbol.isPresent()) {
+        variables.add(symbol.get());
       }
 
     }
 
+  }
+
+  public static boolean isInvertableExpression(final ASTExpr astExpr) {
+    // todo: check user defined functions
+    // check: comparison and relational operations
+    return true;
   }
 
 }
