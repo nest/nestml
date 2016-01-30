@@ -9,19 +9,19 @@ a, h = symbols('a h')
 </#compress>
 
 <#list aliases as alias>
-${alias.getName()} = ${expressionsPrinter.print(alias.getDeclaringExpression().get()}
+${alias.getName()} = ${printer.print(alias.getDeclaringExpression().get())}
 </#list>
 
 <#list EQs as eq>
-${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
+${eq.getLhsVariable()} = ${printer.print(eq.getRhs())}
 </#list>
-rhs = ${expressionsPrettyPrinter.print(ode.getRhs())}
+rhs = ${printer.print(ode.getRhs())}
 
 var("${EQs[0].getLhsVariable()}")
-rhsTmp = ${expressionsPrettyPrinter.print(ode.getRhs())}
+rhsTmp = ${printer.print(ode.getRhs())}
 contantTerm = simplify(rhsTmp - diff(rhsTmp, ${ode.getLhsVariable()})*${ode.getLhsVariable()} - diff(rhsTmp, ${EQs[0].getLhsVariable()})*${EQs[0].getLhsVariable()})
 <#list EQs as eq>
-${eq.getLhsVariable()} = ${expressionsPrettyPrinter.print(eq.getRhs())}
+${eq.getLhsVariable()} = ${printer.print(eq.getRhs())}
 </#list>
 
 
@@ -76,7 +76,7 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
 
     c1 = diff(rhs, ${ode.getLhsVariable()})
     ${EQs[0].getLhsVariable()} = symbols("${EQs[0].getLhsVariable()}")
-    c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${EQs[0].getLhsVariable()})
+    c2 = diff(${printer.print(ode.getRhs())}, ${EQs[0].getLhsVariable()})
 
     if order == 1:
         A = Matrix([[a_1[0], 0],
@@ -176,7 +176,7 @@ else:
 
     c1 = diff(rhs, ${ode.getLhsVariable()})
     ${eq.getLhsVariable()} = symbols("${eq.getLhsVariable()}")
-    c2 = diff(${expressionsPrettyPrinter.print(ode.getRhs())}, ${eq.getLhsVariable()})
+    c2 = diff(${printer.print(ode.getRhs())}, ${eq.getLhsVariable()})
 
     if order == 1:
         A = Matrix([[a_1[0], 0],

@@ -109,7 +109,7 @@ public class ODESolverScriptGenerator {
     glex.setGlobalValue("aliases", aliases);
 
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
-    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
+    glex.setGlobalValue("printer", expressionsPrinter);
 
     generator.generate(SCRIPT_GENERATOR_TEMPLATE, solverSubPath, astOdeDeclaration);
 
