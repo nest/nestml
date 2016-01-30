@@ -11,7 +11,6 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.IReferenceConverter;
 import org.nest.codegeneration.converters.IdempotentReferenceConverter;
-import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTOdeDeclaration;
@@ -35,9 +34,9 @@ import static java.util.Optional.of;
  * Wrapps the logic how to extract and generate SymPy script..
  * @author plotnikov
  */
-public class SymPyScriptGenerator {
+public class ODESolverScriptGenerator {
 
-  private final static String LOG_NAME = SymPyScriptGenerator.class.getName();
+  private final static String LOG_NAME = ODESolverScriptGenerator.class.getName();
 
   public static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.SympySolver";
 
@@ -89,7 +88,6 @@ public class SymPyScriptGenerator {
     glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));
     glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
     // TODO should be defined in sympy fileglex.setGlobalValue("predefinedVariables", PredefinedVariables.gerVariables());
-    glex.setGlobalValue("expressionsPrettyPrinter", expressionsPrettyPrinter);
 
     setup.setGlex(glex);
     setup.setTracing(false); // python comments are not java comments
@@ -110,9 +108,8 @@ public class SymPyScriptGenerator {
     glex.setGlobalValue("variables", variables);
     glex.setGlobalValue("aliases", aliases);
 
-    final IReferenceConverter converter = new IdempotentReferenceConverter();
-    final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
-    glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
+    final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
+    glex.setGlobalValue("printer", expressionsPrinter);
 
     generator.generate(SCRIPT_GENERATOR_TEMPLATE, solverSubPath, astOdeDeclaration);
 

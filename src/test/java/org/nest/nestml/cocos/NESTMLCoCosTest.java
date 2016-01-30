@@ -77,8 +77,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
     nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
     nestmlCoCoChecker.checkAll(root.get());
 
-    Integer errorsFound = countErrorsByPrefix(AliasHasNoSetter.ERROR_CODE,
-        getFindings());
+    Integer errorsFound = countErrorsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
   }
 

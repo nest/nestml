@@ -9,17 +9,18 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
 
+import static com.google.common.collect.Lists.newArrayList;
+
 /**
  * Provides convenience methods
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class NESTMLSymbols {
 
@@ -61,6 +62,28 @@ public class NESTMLSymbols {
       System.out.println();
     }
     return standAloneFunction;
+  }
+
+  public static boolean isSetterPresent(
+      final String aliasVar,
+      final String varTypeName,
+      final Scope scope) {
+    final String setterName = "set_" + aliasVar;
+
+    final Optional<MethodSymbol> setter = NESTMLSymbols.resolveMethod(
+        scope,
+        setterName,
+        newArrayList(varTypeName));
+
+    if (!setter.isPresent()) {
+      return false;
+    }
+    else {
+      final TypeSymbol setterType = setter.get().getParameterTypes().get(0);
+
+      return setterType.getName().endsWith(varTypeName);
+    }
+
   }
 
 }
