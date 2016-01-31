@@ -33,6 +33,7 @@ import static org.nest.utils.ASTNodes.getVariableSymbols;
 
 /**
  * Wrapps the logic how to generate a solver script to invert the alias definition.
+ *
  * @author plotnikov
  */
 public class AliasSolverScriptGenerator {

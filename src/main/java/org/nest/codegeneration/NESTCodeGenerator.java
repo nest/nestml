@@ -14,6 +14,7 @@ import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
+import org.nest.codegeneration.sympy.AliasSolverScriptGenerator;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -30,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.Names.getPathFromPackage;
@@ -60,18 +62,20 @@ public class NESTCodeGenerator {
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
     info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
-    final ASTNESTMLCompilationUnit workingVersion;
+    ASTNESTMLCompilationUnit workingVersion;
 
     workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
+    workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     generateNESTCode(workingVersion, outputBase);
 
     info("Successfully generated NEST code for: " + root.getFullName(), LOG_NAME);
   }
 
-  public ASTNESTMLCompilationUnit computeSolutionForODE(
+  protected ASTNESTMLCompilationUnit computeSolutionForODE(
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
       final Path outputBase) {
+    // TODO: it makes no sense anymore. Print it flatly
     final String moduleName = root.getFullName();
     final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
@@ -86,7 +90,18 @@ public class NESTCodeGenerator {
     ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
 
     return printAndReadModel(scopeCreator, modulePath, withSolvedOde);
+  }
 
+  protected ASTNESTMLCompilationUnit computeSetterForAliases(
+      final ASTNESTMLCompilationUnit root,
+      final NESTMLScopeCreator scopeCreator,
+      final Path outputBase) {
+    final AliasSolverScriptGenerator generator = new AliasSolverScriptGenerator();
+    final Optional<Path> inverterScript = generator.generateAliasInverter(root.getNeurons().get(0), outputBase);
+
+    final String moduleName = root.getFullName();
+    final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
+    return printAndReadModel(scopeCreator, modulePath, root);
   }
 
   /**
