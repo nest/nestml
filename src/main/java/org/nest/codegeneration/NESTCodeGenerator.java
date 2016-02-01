@@ -65,7 +65,7 @@ public class NESTCodeGenerator {
     ASTNESTMLCompilationUnit workingVersion;
 
     workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
-    workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
+    //workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     generateNESTCode(workingVersion, outputBase);
 
     info("Successfully generated NEST code for: " + root.getFullName(), LOG_NAME);
