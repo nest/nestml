@@ -22,12 +22,12 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class NESTCodeGeneratorTest extends GenerationTestBase {
 
-  public static final Path OUTPUT_DIRECTORY = Paths.get("target", "build");
+  private static final Path OUTPUT_DIRECTORY = Paths.get("target", "build");
 
-  private final PSCMock pscMock = new PSCMock();
-  private final String PSC_MODEL = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
-  private final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
-  private final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
+  private static final PSCMock pscMock = new PSCMock();
+  private static final String PSC_MODEL = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
+  private static final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
+  private static final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
 
 
   @Test
