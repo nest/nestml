@@ -23,13 +23,11 @@ import java.util.Optional;
  * @version $Revision$, $Date$
  */
 public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisitor {
+  private final ExpressionsPrettyPrinter expressionsPrinter;
 
-  private final ExpressionsPrettyPrinter expressionsPrettyPrinter;
-
-  protected NESTMLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrettyPrinter) {
-    this.expressionsPrettyPrinter = expressionsPrettyPrinter;
+  protected NESTMLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrinter) {
+    this.expressionsPrinter = expressionsPrinter;
   }
-
 
   /**
    *   NESTMLCompilationUnit = "package" packageName:QualifiedName
@@ -173,7 +171,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
       print("[ ");
       for (int invariantIndex = 0; invariantIndex < astAliasDecl.getInvariants().size(); ++invariantIndex) {
         final ASTExpr astInvariant = astAliasDecl.getInvariants().get(invariantIndex);
-        print(expressionsPrettyPrinter.print(astInvariant));
+        print(expressionsPrinter.print(astInvariant));
         boolean isLastInvariant = (invariantIndex + 1) == astAliasDecl.getInvariants().size();
         if (!isLastInvariant) {
           print("; ");
@@ -217,6 +215,39 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
    */
   @Override
   public void endVisit(final ASTInput astInput) {
+    unindent();
+    println(BLOCK_CLOSE);
+  }
+
+  /**
+   * Equations implements BodyElement =
+   * "equations"
+   * BLOCK_OPEN
+   *   OdeDeclaration
+   * BLOCK_CLOSE;
+   *
+   * OdeDeclaration  = (Eq | ODE | NEWLINE)+;
+   * Eq = lhsVariable:Name "=" rhs:Expr;
+   * ODE = lhsVariable:Name "\'" "=" rhs:Expr;
+   */
+  @Override
+  public void visit(final ASTEquations astEquations) {
+    println("equations" + BLOCK_OPEN);
+    indent();
+
+    astEquations
+        .getOdeDeclaration()
+        .getEqs()
+        .forEach(eq -> println(eq.getLhsVariable() + " = " + expressionsPrinter.print(eq.getRhs())));
+
+    astEquations
+        .getOdeDeclaration()
+        .getODEs()
+        .forEach(ode -> println(ode.getLhsVariable() + " = " + expressionsPrinter.print(ode.getRhs())));
+  }
+
+  @Override
+  public void endVisit(final ASTEquations astEquations) {
     unindent();
     println(BLOCK_CLOSE);
   }
