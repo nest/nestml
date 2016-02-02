@@ -21,7 +21,7 @@ neuron iaf_neuron_ode:
     Theta   mV = -55 - E_L
     I_e     pA = 0 # External current.
     alias V_th mV = Theta + E_L # some aliases Threshold.
-    
+
     alias  V_reset mV = delta_V_reset + E_L # Reset value of the membrane potential. # invariant V_reset >= Theta
   end
 

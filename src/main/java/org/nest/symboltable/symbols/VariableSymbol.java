@@ -11,7 +11,10 @@ import org.nest.spl._ast.ASTExpr;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.util.Optional.empty;
+import static org.nest.utils.NESTMLSymbols.isSetterPresent;
 
 /**
  * Represents variables defined in e.g. variable blocks, functions, etc..
@@ -110,5 +113,10 @@ public class VariableSymbol extends CommonSymbol {
     this.blockType = blockType;
   }
 
+  public boolean hasSetter() {
+    checkState(getAstNode().isPresent(), "Symbol table must set the AST node.");
+    checkArgument(getAstNode().get().getEnclosingScope().isPresent(), "Run symboltable creator.");
+    return isSetterPresent(getName(), getType().getName(), getAstNode().get().getEnclosingScope().get());
 
+  }
 }

@@ -9,6 +9,7 @@ import de.se_rwth.commons.logging.Finding;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -17,20 +18,45 @@ import java.util.stream.Collectors;
  * @author plotnikov
  */
 public class LogHelper {
+
   /**
    *
-   * @return Number of {@code errorCode}s occurrences in {@code findings}
+   * @return Number of {@code error}s occurrences in {@code findings}
    */
-  public static Integer countErrorsByPrefix(String errorCode, Collection<Finding> findings) {
+  public static Integer countErrorsByPrefix(
+      final String errorCode,
+      final Collection<Finding> findings) {
+    return countByPrefix(errorCode, Finding::isError, findings);
+  }
+
+  /**
+   *
+   * @return Number of {@code error}s occurrences in {@code findings}
+   */
+  public static Integer countWarningsByPrefix(
+      final String errorCode,
+      final Collection<Finding> findings) {
+    return countByPrefix(errorCode, Finding::isWarning, findings);
+  }
+
+  /**
+   *
+   * @return Number of {@code errorType}s occurrences in {@code findings}
+   */
+  private static Integer countByPrefix(
+      final String errorCode,
+      final Predicate<Finding> errorType,
+      final Collection<Finding> findings) {
 
     Long occurrences = findings.stream()
-        .filter(error -> error.getType().equals(Finding.Type.ERROR))
+        .filter(errorType)
         .filter(error -> error.getMsg().startsWith(errorCode))
         .count();
     // it is unlikely that the number of issues is greater than the domain of int!    Integer result = 0;
     return safeLongToInt(occurrences);
 
   }
+
 
   /**
    * Converts long value to int under the conditions that the long value is representable

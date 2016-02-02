@@ -35,7 +35,7 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL);
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
-    generator.analyseAndGenerate(root, OUTPUT_DIRECTORY);
+    generator.analyseAndGenerate(root, Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
     generator.generateNESTModuleCode(
         newArrayList(root),
         "psc",
@@ -47,7 +47,7 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_IMPLICIT);
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
-    generator.analyseAndGenerate(root, OUTPUT_DIRECTORY);
+    generator.analyseAndGenerate(root, Paths.get(OUTPUT_DIRECTORY.toString(), "cond"));
     generator.generateNESTModuleCode(
         newArrayList(root),
         "cond",

@@ -25,6 +25,7 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.utils.NESTMLSymbols;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +66,7 @@ public class NESTCodeGenerator {
     ASTNESTMLCompilationUnit workingVersion;
 
     workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
-    workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
+    // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     generateNESTCode(workingVersion, outputBase);
 
     info("Successfully generated NEST code for: " + root.getFullName(), LOG_NAME);
@@ -309,6 +310,7 @@ public class NESTCodeGenerator {
     final GSLReferenceConverter converter = new GSLReferenceConverter();
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
+    glex.setGlobalValue("nestmlSymbols", new NESTMLSymbols());
 
   }
 
