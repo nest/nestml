@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.nest.nestml._symboltable.NESTMLRootCreator.getAstRoot;
 import static org.nest.utils.LogHelper.countErrorsByPrefix;
+import static org.nest.utils.LogHelper.countWarningsByPrefix;
 
 /**
  * Test every context context conditions. For each implemented context condition there is one model that contains exactly one tested error.
@@ -77,7 +78,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
     nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
     nestmlCoCoChecker.checkAll(root.get());
 
-    Integer errorsFound = countErrorsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
+    Integer errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
   }
 
@@ -510,6 +511,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   }
 
+
   @Test
   public void testInvalidInvariantExpressionType() {
     final BooleanInvariantExpressions booleanInvariantExpressions
@@ -528,6 +530,27 @@ public class NESTMLCoCosTest extends ModelTestBase {
         nestmlCoCoChecker,
         BooleanInvariantExpressions.ERROR_CODE,
         2);
+
+  }
+
+  @Test
+  public void testAliasHasDefiningExpression() {
+    final AliasHasDefiningExpression booleanInvariantExpressions
+        = new AliasHasDefiningExpression();
+    nestmlCoCoChecker.addCoCo(booleanInvariantExpressions);
+
+    String pathToValidModel = TEST_MODELS_FOLDER + "aliasDefiningExpression/validAliasWithExpression.nestml";
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        "NESTML_");
+
+    String pathToInvalidModel = TEST_MODELS_FOLDER + "aliasDefiningExpression/invalidAliasWithoutExpression.nestml";
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        "NESTML_",
+        1);
 
   }
 

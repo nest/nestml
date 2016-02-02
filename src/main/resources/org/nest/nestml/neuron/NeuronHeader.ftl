@@ -404,7 +404,7 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
   </#list>
 
   Parameters_ ptmp = P_;  // temporary copy in case of errors
-  ptmp.set(d);                       // throws if BadProperty
+  ptmp.set(d);            // throws if BadProperty
 
   // alias setter-functions perform the set on the member-variable P_, hence
   // we swap ptmp and P_ and 're-swap' afterwards.
@@ -415,7 +415,7 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
   </#list>
 
   State_      stmp = S_;  // temporary copy in case of errors
-  stmp.set(d);                       // throws if BadProperty
+  stmp.set(d);            // throws if BadProperty
 
   // alias setter-functions perform the set on the member-variable S_, hence
   // we swap stmp and S_ and 're-swap' afterwards.

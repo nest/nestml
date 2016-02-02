@@ -30,18 +30,25 @@ public class ODEProcessor {
 
   private final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
 
-  public ASTNESTMLCompilationUnit process(
+  /**
+   * Dependent of the ODE kind either computes the exact solution or brings to the form which can
+   * be directly utilized in a solver.
+   * @param root TODO must be neuron
+   * @param outputBase Folder, where temporary files can be stored.
+   * @return The model root with the exact solution or in a normalized form..
+   */
+  public ASTNESTMLCompilationUnit solveODE(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    checkState(root.getNeurons().size() > 0);
+    checkState(root.getNeurons().size() > 0, "Model contains at least on neuron.");
     final ASTNeuron neuron = root.getNeurons().get(0);
     final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
     if (astBodyDecorator.getEquations().isPresent()) {
       return handleNeuronWithODE(root, outputBase);
     }
     else {
-      final String msg = "The neuron: " + neuron.getName() +
-          " doesn't contain ODE. The analysis is skipped.";
+      final String msg = "The neuron: " + neuron.getName() + " doesn't contain ODE. The analysis "
+          + "is skipped.";
       Log.warn(msg);
       return root;
     }

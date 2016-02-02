@@ -26,7 +26,6 @@ import static com.google.common.base.Preconditions.checkState;
  * TODO
  *
  * @author plotnikov
- * @since 0.0.1
  */
 @SuppressWarnings({"unused"}) // the class is used from templates
 public class NESTMLDeclarations {

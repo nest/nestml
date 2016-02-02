@@ -13,6 +13,7 @@ import org.nest.utils.ASTNodes;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
+import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.utils.NESTMLSymbols.isSetterPresent;
 
 /**
@@ -25,7 +26,7 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
   public static final String ERROR_CODE = "NESTML_ALIAS_HAS_NO_SETTER";
 
   @Override
-  public void check(ASTAliasDecl alias) {
+  public void check(final ASTAliasDecl alias) {
     final ASTDeclaration decl = alias.getDeclaration();
     checkState(decl.getEnclosingScope().isPresent(), "No scope assigned to the node: " + decl);
     final  Scope scope = decl.getEnclosingScope().get();
@@ -39,7 +40,7 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
         final String msg = "Alias-variable '" + aliasVar
             + "' needs a setter-function: set_" + aliasVar
             + "(v " + decl.getType().get().toString() + ")";
-        error(ERROR_CODE + ":" + msg, alias.get_SourcePositionStart());
+        warn(ERROR_CODE + ":" + msg, alias.get_SourcePositionStart());
       }
 
     }

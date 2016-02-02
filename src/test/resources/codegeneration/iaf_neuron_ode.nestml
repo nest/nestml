@@ -12,25 +12,17 @@ neuron iaf_neuron_ode:
   end
 
   parameter:
-    # Capacity of the membrane
-    C_m       pF = 250pF
-    # Membrane time constant.
-    Tau     ms = 10
-    # Time constant of synaptic current.
-    tau_syn ms = 2
-    # Refractory period.
-    t_ref    ms = 2
-    # Resting potential.
-    E_L      mV = -70
+    C_m     pF = 250pF # Capacity of the membrane
+    Tau     ms = 10 # Membrane time constant.
+    tau_syn ms = 2 # Time constant of synaptic current.
+    t_ref   ms = 2 # Refractory period.
+    E_L      mV = -70 # Resting potential.
     delta_V_reset mV = -70 - E_L
     Theta   mV = -55 - E_L
-    # External current.
-    I_e     pA = 0 # special
-    # some aliases Threshold.
-    alias V_th mV = Theta + E_L
-    # Reset value of the membrane potential.
-    alias  V_reset mV = delta_V_reset + E_L
-    # invariant V_reset >= Theta
+    I_e     pA = 0 # External current.
+    alias V_th mV = Theta + E_L # some aliases Threshold.
+
+    alias  V_reset mV = delta_V_reset + E_L # Reset value of the membrane potential. # invariant V_reset >= Theta
   end
 
   internal:
@@ -63,15 +55,4 @@ neuron iaf_neuron_ode:
 
   end
 
-  function set_V_th(v mV):
-      Theta = v - E_L
-  end
-
-  function set_V_reset(v mV):
-      delta_V_reset = v - E_L
-  end
-
-  function set_V_m(v mV):
-      V = v - E_L
-  end
 end

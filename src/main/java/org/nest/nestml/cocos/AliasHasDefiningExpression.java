@@ -5,24 +5,25 @@
  */
 package org.nest.nestml.cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 
+import static de.se_rwth.commons.logging.Log.error;
+
 /**
- * Every alias declaration has exactly one variable
+ * An alias
  *
  * @author (last commit) ippen, plotnikov
  */
-public class AliasHasOneVar implements NESTMLASTAliasDeclCoCo {
+public class AliasHasDefiningExpression implements NESTMLASTAliasDeclCoCo {
 
-  public static final String ERROR_CODE = "NESTML_ALIAS_HAS_ONE_VAR";
+  public static final String ERROR_CODE = "NESTML_ALIAS_HAS_DEFINING_EXPRESSION";
 
   @Override
   public void check(final ASTAliasDecl decl) {
     if (decl.isAlias()) {
-      if (decl.getDeclaration().getVars().size() != 1) {
-        final String msg = "'alias' declarations must only declare one variable.";
+      if (!decl.getDeclaration().getExpr().isPresent()) {
+        final String msg = "'alias' must be defined through an expression.";
 
        error(ERROR_CODE + ":" +  msg, decl.get_SourcePositionStart());
       }

@@ -7,6 +7,7 @@ package org.nest.codegeneration.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;
 import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.NESTMLNodeFactory;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.spl._ast.ASTAssignment;
@@ -80,6 +81,17 @@ public class SymPyOutput2NESTMLConverter {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
       return stringParser.parseAssignment(new StringReader(assignmentAsString)).get();
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+
+  }
+
+  public ASTFunction convertToFanction(final Path pathToFunction) {
+    try {
+      return fileParser.parseFunction(pathToFunction.toString()).get();
     }
     catch (IOException e) {
       final String msg = "Cannot parse assignment statement.";

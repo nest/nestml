@@ -47,4 +47,9 @@ public class SymPyOutput2NESTMLConverterTest {
     assertEquals(P_30, testant.getDeclaration().getVars().get(0));
   }
 
+  @Test
+  public void testConvert2Function() {
+
+  }
+
 }
