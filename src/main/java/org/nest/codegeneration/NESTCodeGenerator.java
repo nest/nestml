@@ -87,7 +87,7 @@ public class NESTCodeGenerator {
       return root;
     }
 
-    ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.process(root, modulePath);
+    ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, modulePath);
 
     return printAndReadModel(scopeCreator, modulePath, withSolvedOde);
   }

@@ -88,7 +88,7 @@ public class CLIConfigurationExecutor {
       });
     }
     catch (IOException e) {
-      final String msg = "There is a problem to process NESTML models in the folder:  " + inputPath;
+      final String msg = "There is a problem to solveODE NESTML models in the folder:  " + inputPath;
       Log.error(msg, e);
       throw new RuntimeException(msg, e);
     }

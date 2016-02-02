@@ -126,7 +126,7 @@ public class ExactSolutionTransformer {
       return root;
     }
     catch (IOException e) {
-      throw new RuntimeException("Cannot process stateVector output from the SymPy solver", e);
+      throw new RuntimeException("Cannot solveODE stateVector output from the SymPy solver", e);
     }
   }
 

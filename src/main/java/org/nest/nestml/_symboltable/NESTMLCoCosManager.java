@@ -30,6 +30,9 @@ public class NESTMLCoCosManager {
     final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
     nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
 
+    final AliasHasDefiningExpression aliasHasDefiningExpression = new AliasHasDefiningExpression();
+    nestmlCoCoChecker.addCoCo(aliasHasDefiningExpression);
+
     final AliasHasOneVar aliasHasOneVar = new AliasHasOneVar();
     nestmlCoCoChecker.addCoCo(aliasHasOneVar);
 

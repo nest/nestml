@@ -510,6 +510,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   }
 
+
   @Test
   public void testInvalidInvariantExpressionType() {
     final BooleanInvariantExpressions booleanInvariantExpressions
@@ -528,6 +529,27 @@ public class NESTMLCoCosTest extends ModelTestBase {
         nestmlCoCoChecker,
         BooleanInvariantExpressions.ERROR_CODE,
         2);
+
+  }
+
+  @Test
+  public void testAliasHasDefiningExpression() {
+    final AliasHasDefiningExpression booleanInvariantExpressions
+        = new AliasHasDefiningExpression();
+    nestmlCoCoChecker.addCoCo(booleanInvariantExpressions);
+
+    String pathToValidModel = TEST_MODELS_FOLDER + "aliasDefiningExpression/validAliasWithExpression.nestml";
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        "NESTML_");
+
+    String pathToInvalidModel = TEST_MODELS_FOLDER + "aliasDefiningExpression/invalidAliasWithoutExpression.nestml";
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        "NESTML_",
+        1);
 
   }
 

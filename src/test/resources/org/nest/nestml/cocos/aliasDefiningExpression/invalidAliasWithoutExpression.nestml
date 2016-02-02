@@ -1,0 +1,20 @@
+neuron testNeuron:
+    state:
+        stateVar1 real = 1.0
+        alias stateVar2 real # error: no defining expression
+
+
+    end
+
+    input:
+        spikeBuffer   <- inhibitory excitatory spike
+        currentBuffer <- current
+    end
+
+    output: spike
+
+    update:
+
+    end
+
+end

@@ -13,7 +13,6 @@ import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
 
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -22,7 +21,7 @@ import static de.se_rwth.commons.Names.getQualifiedName;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Tests if the overall transformation process works
+ * Tests if the overall transformation solveODE works
  *
  * @author plotnikov
  */
@@ -61,7 +60,7 @@ public class ODEProcessorTest extends ModelTestBase {
     final String modelFolder = modelRoot.getFullName();
 
     final ASTNESTMLCompilationUnit explicitSolution = testant
-        .process(modelRoot, Paths.get(OUTPUT_FOLDER.toString(), modelFolder));
+        .solveODE(modelRoot, Paths.get(OUTPUT_FOLDER.toString(), modelFolder));
 
     return scopeCreator.runSymbolTableCreator(explicitSolution);
   }
