@@ -26,7 +26,7 @@
     }
 
   </#if>
-</else>
-  // ignores ''${var.getName()} declarations.getType(ast)' since no setter is defined
+<#else>
+  // ignores ''${var.getName()} ${declarations.getType(ast)}' since no setter is defined
 </#if>
 </#list>

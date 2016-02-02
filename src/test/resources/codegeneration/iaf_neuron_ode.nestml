@@ -55,15 +55,4 @@ neuron iaf_neuron_ode:
 
   end
 
-  function set_V_th(v mV):
-      Theta = v - E_L
-  end
-
-  function set_V_reset(v mV):
-      delta_V_reset = v - E_L
-  end
-
-  function set_V_m(v mV):
-      V = v - E_L
-  end
 end
