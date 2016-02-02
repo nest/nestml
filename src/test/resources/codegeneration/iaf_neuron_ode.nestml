@@ -39,7 +39,6 @@ neuron iaf_neuron_ode:
   output: spike
 
   update:
-
     if r == 0: # not refractory
         integrate(V)
     else:
