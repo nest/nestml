@@ -25,6 +25,7 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.utils.ASTNodes;
 import org.nest.utils.NESTMLSymbols;
 
 import java.io.File;
@@ -311,6 +312,7 @@ public class NESTCodeGenerator {
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
     glex.setGlobalValue("nestmlSymbols", new NESTMLSymbols());
+    glex.setGlobalValue("astNodes", new ASTNodes());
 
   }
 

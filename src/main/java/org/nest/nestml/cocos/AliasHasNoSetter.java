@@ -34,12 +34,11 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
     if (alias.isAlias()) {
       // per default aliases have only a single variable. it is checked by the AliasHasOneVar coco.
       final String aliasVar = decl.getVars().get(0);
-      final String varTypeName = ASTNodes.toString(decl.getType().get());
+      final String varTypeName = ASTNodes.computeTypeName(decl.getDatatype());
       if (!isSetterPresent(aliasVar, varTypeName, scope)) {
 
-        final String msg = "Alias-variable '" + aliasVar
-            + "' needs a setter-function: set_" + aliasVar
-            + "(v " + decl.getType().get().toString() + ")";
+        final String msg = "Alias-variable '" + aliasVar + "' needs a setter-function: set_"
+            + aliasVar + "(v " + varTypeName + ")";
         warn(ERROR_CODE + ":" + msg, alias.get_SourcePositionStart());
       }
 

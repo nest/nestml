@@ -8,10 +8,7 @@ package org.nest.spl.symboltable;
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
-import org.nest.spl._ast.ASTCompound_Stmt;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTSPLFile;
-import org.nest.spl._ast.ASTSPLNode;
+import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLVisitor;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -21,6 +18,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.nest.utils.ASTNodes.computeTypeName;
 
 /**
  * Visitor that creates symbols for SPLTypes, SPLVariables from an SPL model.
@@ -84,34 +82,16 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
   default void visit(final ASTDeclaration astDeclaration) {
     for (String variableName : astDeclaration.getVars()) {
       VariableSymbol variable = new VariableSymbol(variableName);
-      String typeName = computeTypeName(astDeclaration);
+      String typeName = computeTypeName(astDeclaration.getDatatype());
       variable.setAstNode(astDeclaration);
       variable.setType(PredefinedTypes.getType(typeName)); // if exists better choice?
 
       // handle ST infrastructure
-      putInScopeAndLinkWithAst(variable, astDeclaration);
+      addToScopeAndLinkWithNode(variable, astDeclaration);
 
       Log.info("Creates a variable: " + variableName + " with the type: " + typeName, LOGGER_NAME);
     }
 
-  }
-
-  /**
-   * Computes the typename for the declaration ast. It is defined in one of the grammar
-   * alternatives.
-   */
-  default String computeTypeName(final ASTDeclaration astDeclaration) {
-    String typeName = null;
-    if (astDeclaration.getType().isPresent()) {
-      typeName = astDeclaration.getType().get().toString();
-    }
-    else if (astDeclaration.getPrimitiveType().isPresent()) {
-      typeName = astDeclaration.getPrimitiveType().get().toString();
-    }
-    else {
-      checkState(false, "Is not possible through the grammar construction.");
-    }
-    return typeName;
   }
 
 }

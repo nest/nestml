@@ -11,10 +11,9 @@
 
 <#list ast.getDeclaration().getVars() as varname>
   <#if ast.getDeclaration().getExpr().isPresent()>
-  // bla
-  ${start} ${varname}_( ${tc.include("org.nest.spl.expr.Expr", ast.getDeclaration().getExpr().get())} ) // ${ast.getDeclaration().getType()}
+  ${start} ${varname}_( ${tc.include("org.nest.spl.expr.Expr", ast.getDeclaration().getExpr().get())} ) // NESTML type ${astNodes.computeTypeName(ast.getDeclaration().getDatatype())}
   <#else>
-  ${start} ${varname}_() // ${ast.getDeclaration().getType()}
+  ${start} ${varname}_() // NESTML type ${astNodes.computeTypeName(ast.getDeclaration().getDatatype())}
   </#if>
   <#assign start=",">
 </#list>

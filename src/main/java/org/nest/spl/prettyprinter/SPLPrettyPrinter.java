@@ -10,6 +10,7 @@ import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLVisitor;
+import org.nest.utils.ASTNodes;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
@@ -218,18 +219,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   }
 
   private void printDeclarationType(final ASTDeclaration astDeclaration) {
-    // print the type of the declaration. it is either a primitive type or a reference type
-    if (astDeclaration.getPrimitiveType().isPresent()) {
-
-      print(createPrettyPrinterForTypes().prettyprint(astDeclaration.getPrimitiveType().get()));
-    }
-    else if (astDeclaration.getType().isPresent()) {
-      print(Names.getQualifiedName(astDeclaration.getType().get().getParts()));
-    }
-    else {
-      checkState(false, "Should be impossible through the grammar definition.");
-    }
-
+    print(ASTNodes.computeTypeName(astDeclaration.getDatatype()));
   }
 
 

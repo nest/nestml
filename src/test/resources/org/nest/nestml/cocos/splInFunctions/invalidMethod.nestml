@@ -61,7 +61,8 @@ neuron testNeuron:
 
         end
 
-        real real = 0.0
+        ms ms = 0
+
         #x3 boolean # x3 is already defined. # TODO doesn't work
 
         xxx real = 2 * xxx # TODO it should produce an error

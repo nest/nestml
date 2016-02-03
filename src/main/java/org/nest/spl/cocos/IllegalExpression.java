@@ -23,9 +23,11 @@ import org.nest.utils.ASTNodes;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
+import static org.nest.utils.ASTNodes.computeTypeName;
 
 /**
  * Check that the type of the loop variable is an integer.
@@ -64,10 +66,10 @@ public class IllegalExpression implements
     // share the same type
     if (node.getExpr().isPresent()) {
       final String varNameFromDeclaration = node.getVars().get(0);
-      final String declarationTypeName = getDeclarationTypeName(node);
+      final String declarationTypeName = computeTypeName(node.getDatatype());
       final Optional<Symbol> varType = scope.resolve(varNameFromDeclaration,
           VariableSymbol.KIND);
-      Preconditions.checkState(varType.isPresent(), "Cannot resolve the type of the variable:  " + varNameFromDeclaration);
+      checkState(varType.isPresent(), "Cannot resolve the type of the variable:  " + varNameFromDeclaration);
 
       final Either<TypeSymbol, String> initializerExpressionType
           = typeCalculator.computeType(node.getExpr().get());
@@ -154,16 +156,6 @@ public class IllegalExpression implements
     final String msg = "Cannot determine the type of the initializer expression. "
         + "Reason: " + reason;
     error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
-  }
-
-  private String getDeclarationTypeName(final ASTDeclaration declaration) {
-    if (declaration.getPrimitiveType().isPresent()) {
-      return "boolean";
-    }
-    if (declaration.getType().isPresent()) {
-      return Names.getQualifiedName(declaration.getType().get().getParts());
-    }
-    throw new RuntimeException("Declaration has not type! Impossible through the grammar.");
   }
 
 }

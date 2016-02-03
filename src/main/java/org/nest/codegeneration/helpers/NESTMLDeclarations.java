@@ -14,6 +14,7 @@ import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.nest.utils.ASTNodes.computeTypeName;
 
 /**
  * TODO
@@ -42,7 +44,7 @@ public class NESTMLDeclarations {
     checkArgument(astDeclaration.getEnclosingScope().isPresent());
 
     final Scope scope = astDeclaration.getEnclosingScope().get();
-    final String declarationTypeName = computeTypeName(astDeclaration);
+    final String declarationTypeName = computeTypeName(astDeclaration.getDatatype());
 
     Optional<TypeSymbol> declarationTypeSymbol = scope.resolve(declarationTypeName, TypeSymbol.KIND);
     checkState(declarationTypeSymbol.isPresent(), "Cannot resolve the NESTML type: " + declarationTypeName);
@@ -63,7 +65,7 @@ public class NESTMLDeclarations {
     checkArgument(astDeclaration.getEnclosingScope().isPresent());
 
     final Scope scope = astDeclaration.getEnclosingScope().get();
-    final String typeName = computeTypeName(astDeclaration);
+    final String typeName = computeTypeName(astDeclaration.getDatatype());
 
     Optional<TypeSymbol> typeSymbol = scope.resolve(typeName, TypeSymbol.KIND);
     checkState(typeSymbol.isPresent(), "Cannot resolve the type: " + typeName);
@@ -77,17 +79,6 @@ public class NESTMLDeclarations {
     }
   }
 
-  private String computeTypeName(ASTDeclaration astDeclaration) {
-    if (astDeclaration.getPrimitiveType().isPresent()) {
-      return astDeclaration.getPrimitiveType().get().toString(); // TODO it is not really portable
-    }
-    else if (astDeclaration.getType().isPresent()) {
-      final String typeName = Names.getQualifiedName(astDeclaration.getType().get().getParts());
-      return typeName;
-    }
-    throw new RuntimeException("Impossible by the grammar definition. One of alternatives muste be used;");
-  }
-
   public String getType(final ASTAliasDecl astAliasDecl) {
     return getDeclarationType(astAliasDecl.getDeclaration());
   }
@@ -97,7 +88,7 @@ public class NESTMLDeclarations {
     final Scope scope = astAliasDecl.getEnclosingScope().get();
     final ASTDeclaration decl = astAliasDecl.getDeclaration();
 
-    final String typeName = Names.getQualifiedName(decl.getType().get().getParts());
+    final String typeName = computeTypeName(decl.getDatatype());
     final Optional<TypeSymbol> type = scope.resolve(typeName, TypeSymbol.KIND);
     if (type.isPresent()) {
       final List<VariableSymbol> variables = Lists.newArrayList();
@@ -111,7 +102,7 @@ public class NESTMLDeclarations {
       return variables;
     }
     else {
-      throw new RuntimeException("Cannot resolve the type: " + decl.getType().get());
+      throw new RuntimeException("Cannot resolve the type: " + typeName);
     }
 
   }
@@ -120,7 +111,7 @@ public class NESTMLDeclarations {
     checkArgument(astAliasDecl.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
     final Scope scope = astAliasDecl.getEnclosingScope().get();
     final ASTDeclaration decl = astAliasDecl.getDeclaration();
-    final String typeName = Names.getQualifiedName(decl.getType().get().getParts());
+    final String typeName = computeTypeName(decl.getDatatype());
     final Optional<TypeSymbol> type = scope.resolve(typeName, TypeSymbol.KIND);
     if (type.isPresent()) {
       final List<VariableSymbol> variables = Lists.newArrayList();

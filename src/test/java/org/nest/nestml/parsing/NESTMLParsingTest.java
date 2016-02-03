@@ -21,10 +21,9 @@ import java.util.Optional;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-/**e
+/**
  * Tests whether the nestml model can be parsed
  */
-@Ignore("Ignore this test to further work on the code generation")
 public class NESTMLParsingTest extends ModelTestBase {
   private final static  String LOG_NAME = NESTMLParsingTest.class.getName();
 
@@ -55,6 +54,7 @@ public class NESTMLParsingTest extends ModelTestBase {
   }
 
   private void parseAllModelsInFolder(final String pathToFolder) throws IOException {
+    final NESTMLParser parser = new NESTMLParser();
     final File path = new File(pathToFolder);
     assertNotNull(path);
     Arrays.stream(path.listFiles())

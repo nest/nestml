@@ -14,6 +14,7 @@ import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTParameter;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.utils.ASTNodes;
 import org.nest.utils.NESTMLSymbols;
 
 import java.util.List;
@@ -38,7 +39,8 @@ public class NESTMLFunctionPrinter {
     List<String> parameterNestmlTypes = Lists.newArrayList();
     List<String> parameterNestTypes = Lists.newArrayList();
     for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
-      String parameterTypeFqn = Names.getQualifiedName(astFunction.getParameters().get().getParameters().get(i).getType().getParts());
+      String parameterTypeFqn = ASTNodes.computeTypeName(astFunction.getParameters().get().getParameters().get(i).getDatatype());
+
       Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
       checkState(parameterType.isPresent(),
           "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
@@ -75,7 +77,7 @@ public class NESTMLFunctionPrinter {
     List<String> parameterNestTypes = Lists.newArrayList();
     for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
       final ASTParameter functionParameter = astFunction.getParameters().get().getParameters().get(i);
-      String parameterTypeFqn = Names.getQualifiedName(functionParameter.getType().getParts());
+      String parameterTypeFqn = ASTNodes.computeTypeName(functionParameter.getDatatype());
       Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
       checkState(parameterType.isPresent(),
           "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction

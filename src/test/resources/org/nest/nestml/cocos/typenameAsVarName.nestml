@@ -1,6 +1,7 @@
 neuron iaf_neuron:
     state:
-        integer    integer = 1
+        # integer    integer = 1 TODO can be improved
+        ms ms = 0
     end
 
     input:

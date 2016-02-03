@@ -1,9 +1,9 @@
 component B:
   state:
-    real real = 15.0
+    ms ms = 15.0
   end
 
   update:
-    string string = "a"
+    mV mV = 0
   end
 end
