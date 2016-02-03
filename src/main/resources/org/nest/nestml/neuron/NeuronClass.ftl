@@ -30,8 +30,7 @@
 #include "universal_data_logger_impl.h"
 
 #include <limits>
-<#assign stateSize = body.getNonAliasStates()?size>
-
+<#assign stateSize = body.getStateNonAliasSymbols()?size>
 // TODO it cannot work with several neurons
 #include "${simpleNeuronName}.h"
 

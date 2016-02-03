@@ -8,7 +8,7 @@
   @param stateSize number of the step variables
   @result TODO
 -->
-<#assign stateSize = body.getNonAliasStates()?size>
+<#assign stateSize = body.getStateNonAliasSymbols()?size>
 <#assign indexPostfix = "INDEX">
 
 double step_ = nest::Time::get_resolution().get_ms();

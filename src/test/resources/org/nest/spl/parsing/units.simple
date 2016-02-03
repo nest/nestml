@@ -1,3 +1,4 @@
 module org.nest.spl.parsing.units
 
-# TODO activate me testVar nS/ms**2 = 0
+#testVar1 nS/ms**2 = 1
+#testVar nS/ms**2 = 1 + testVar1
