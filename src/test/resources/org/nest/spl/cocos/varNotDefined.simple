@@ -4,3 +4,9 @@ x real = 3 * y
 for a in 1 ... 10 step 1:
 # blaa
 end
+
+if xx:
+end
+
+while yy:
+end

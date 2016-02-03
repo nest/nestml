@@ -1,5 +1,0 @@
-neuron EmptyNeuron:
-  state:
-    x real = 3 * y
-  end
-end

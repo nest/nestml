@@ -71,6 +71,7 @@ public class PredefinedTypes {
     registerType("pF", TypeSymbol.Type.UNIT);
     registerType("ms", TypeSymbol.Type.UNIT);
     registerType("mm", TypeSymbol.Type.UNIT);
+    registerType("nS", TypeSymbol.Type.UNIT);
   }
 
   private static void registerPrimitiveTypes() {

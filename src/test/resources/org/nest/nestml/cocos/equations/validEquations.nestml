@@ -1,0 +1,10 @@
+neuron IAF:
+  state:
+    G1, G2, V1, V2 real = 0
+  end
+
+  equations:
+    G1 = G2
+    V1' = V2
+  end
+end

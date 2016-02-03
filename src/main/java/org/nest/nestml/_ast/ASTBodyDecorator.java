@@ -6,8 +6,11 @@
 package org.nest.nestml._ast;
 
 import com.google.common.collect.ImmutableList;
+import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.ASTOdeDeclaration;
+import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +89,24 @@ public class ASTBodyDecorator extends ASTBody {
   @SuppressWarnings("unused") // used in templates
   public List<ASTAliasDecl> getAliasStates() {
     return getStates().stream().filter(decl->decl.isAlias()).collect(toList());
+  }
+
+  @SuppressWarnings("unused") // used in templates
+  public List<VariableSymbol> getStateAliasSymbols() {
+    checkState(body.getEnclosingScope().isPresent());
+    final Scope scope = body.getEnclosingScope().get();
+    final List<ASTAliasDecl> aliasDeclarations = getStates().stream()
+        .filter(decl -> decl.isAlias())
+        .collect(toList());
+
+    List<VariableSymbol> aliasSymbols = aliasDeclarations.stream()
+        .map(alias -> {
+          Optional<VariableSymbol> varSymbol = scope
+              .resolve(alias.getDeclaration().getVars().get(0), VariableSymbol.KIND);
+          return varSymbol.get();
+        })
+        .collect(toList());
+    return aliasSymbols;
   }
 
   @SuppressWarnings("unused") // used in templates

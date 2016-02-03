@@ -7,19 +7,19 @@ package org.nest.base;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.base.ModelTestBase;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
-import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertTrue;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
@@ -32,6 +32,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
 public abstract class GenerationTestBase extends ModelTestBase {
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
   protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
+  private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "integration");
 
   protected void invokeCodeGenerator(final String pathToModel) {
     final Optional<ASTNESTMLCompilationUnit> root;
@@ -40,20 +41,8 @@ public abstract class GenerationTestBase extends ModelTestBase {
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
 
-      generator.analyseAndGenerate(root.get(), OUTPUT_FOLDER);
-    }
-    catch (IOException e) { // lambda functions doesn't support checked exceptions
-      throw new RuntimeException(e);
-    }
-
-  }
-
-  protected void generateNESTMLImplementation(final String pathToModel) {
-    try {
-      final Optional<ASTNESTMLCompilationUnit> root = parser.parse(pathToModel);
-      assertTrue(root.isPresent());
-      scopeCreator.runSymbolTableCreator(root.get());
-      generator.analyseAndGenerate(root.get(), OUTPUT_FOLDER);
+      generator.analyseAndGenerate(root.get(), CODE_GEN_OUTPUT);
+      generator.generateNESTModuleCode(newArrayList(root.get()), "integration", CODE_GEN_OUTPUT);
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);

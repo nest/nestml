@@ -1,0 +1,6 @@
+neuron IAF:
+  equations:
+    G1 = G2
+    V1' = V2
+  end
+end

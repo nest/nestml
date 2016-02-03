@@ -30,6 +30,11 @@ ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode 
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
 
+  <#list body.getStateAliasSymbols() as alias>
+    double ${alias.getName()}
+        = ${expressionsPrinterForGSL.print(alias.getDeclaringExpression().get())};
+  </#list>
+
   <#list ODEs as ode>
     f[ ${ode.getLhsVariable()}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(ode.getRhs())};
   </#list>

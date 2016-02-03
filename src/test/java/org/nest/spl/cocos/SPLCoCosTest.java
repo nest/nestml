@@ -81,27 +81,9 @@ public class SPLCoCosTest {
 
     Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
         getFindings());
-    assertEquals(Integer.valueOf(2), errorsFound);
+    assertEquals(Integer.valueOf(4), errorsFound);
   }
 
-  @Test
-  public void testVarNotDefinedInTest() throws IOException {
-    final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "varNotDefinedInTest.simple");
-    splScopeCreator.runSymbolTableCreator(ast);
-
-    final VariableDoesNotExist variableExists = new VariableDoesNotExist();
-    splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-
-    splCoCoChecker.checkAll(ast);
-
-    final Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
-        getFindings());
-    assertEquals(Integer.valueOf(2), errorsFound);
-  }
 
   @Test
   public void testVarDefinedMultipleTimes() throws IOException {
