@@ -11,6 +11,7 @@ import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.Optional;
 
@@ -32,6 +33,13 @@ public class GSLReferenceConverter implements IReferenceConverter {
 
   @Override
   public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
+    final String functionName = ASTNodes.toString(astFunctionCall.getQualifiedName());
+    if ("exp".equals(functionName)) {
+      return "std::exp(%s)";
+    }
+    if ("pow".equals(functionName)) {
+      return "pow(%s)";
+    }
     throw new UnsupportedOperationException();
   }
 
@@ -41,7 +49,8 @@ public class GSLReferenceConverter implements IReferenceConverter {
     final String variableName = Names.getQualifiedName(astQualifiedName.getParts());
     final VariableSymbol variableSymbol
         = resolveVariable(variableName, astQualifiedName.getEnclosingScope().get());
-    if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE)) {
+    if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
+        !variableSymbol.isAlias()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
     }
     else {
@@ -50,7 +59,8 @@ public class GSLReferenceConverter implements IReferenceConverter {
         return "numerics::e";
       }
       else {
-        if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
+        if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL) ||
+            variableSymbol.isAlias()) {
           return variableName;
         }
         else {
@@ -75,6 +85,13 @@ public class GSLReferenceConverter implements IReferenceConverter {
 
   @Override
   public boolean needsArguments(final ASTFunctionCall astFunctionCall) {
+    final String functionName = ASTNodes.toString(astFunctionCall.getQualifiedName());
+    if ("exp".equals(functionName)) {
+      return true;
+    }
+    if ("pow".equals(functionName)) {
+      return true;
+    }
     throw new UnsupportedOperationException();
   }
 

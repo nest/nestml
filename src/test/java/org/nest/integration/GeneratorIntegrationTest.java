@@ -50,11 +50,14 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
       "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml"
   );
 
-
   private final List<String> workshopModels = Lists.newArrayList(
       "src/test/resources/codegeneration/workshop.nestml"
   );
 
+  private final List<String> blueGen = Lists.newArrayList(
+      "src/test/resources/codegeneration/aeif_cond_alpha_neuron_bluegen.nestml",
+      "src/test/resources/codegeneration/hh_cond_alpha_bluegen.nestml"
+  );
   @Ignore
   @Test
   public void testFeedbackModels() {
@@ -88,19 +91,19 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
   @Ignore
   @Test
   public void testCondModel() {
-    nestmlCondModels.forEach(this::generateNESTMLImplementation);
+    nestmlCondModels.forEach(this::invokeCodeGenerator);
   }
 
   @Test
   public void testImplicitForm() {
-    nestmlCondModelExplicit.forEach(model -> {
-      final ASTNESTMLCompilationUnit root = parseNESTMLModel(model);
-      scopeCreator.runSymbolTableCreator(root);
-      Optional<ASTOdeDeclaration> odeDeclaration = ASTNodes.getAny(root, ASTOdeDeclaration.class);
-      Assert.assertTrue(odeDeclaration.isPresent());
+    nestmlCondModelExplicit.forEach(this::invokeCodeGenerator);
 
-      generator.analyseAndGenerate(root, Paths.get("target"));
-    });
+  }
+
+  @Test
+  public void testBluegenModels() {
+    blueGen.forEach(this::checkCocos);
+    blueGen.forEach(this::invokeCodeGenerator);
 
   }
 }

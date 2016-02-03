@@ -7,6 +7,7 @@ package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -139,7 +140,10 @@ public class ExactSolutionTransformer {
 
     final ODECollector odeCollector = new ODECollector();
     odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
-    checkState(odeCollector.getFoundOde().isPresent());
+    if (!odeCollector.getFoundOde().isPresent()) {
+      Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
+      return root;
+    }
 
     final Optional<ASTNode> parent = ASTNodes.getParent(odeCollector.getFoundOde().get(), root);
     checkState(parent.isPresent());
