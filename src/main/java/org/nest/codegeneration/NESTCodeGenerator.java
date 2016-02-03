@@ -82,16 +82,22 @@ public class NESTCodeGenerator {
     final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
     final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
-    final ASTOdeDeclaration odesBlock = bodyDecorator.getEquations().get();
+    final Optional<ASTOdeDeclaration> odesBlock = bodyDecorator.getEquations();
+    if (odesBlock.isPresent()) {
+      if (odesBlock.get().getEqs().size() == 0) {
+        info("The model will be solved numerically with a GSL solver.", LOG_NAME);
+        return root;
+      }
 
-    if (odesBlock.getEqs().size() == 0) {
-      info("The model will be solved numerically with a GSL solver.", LOG_NAME);
+      ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, modulePath);
+
+      return printAndReadModel(scopeCreator, modulePath, withSolvedOde);
+    }
+    else {
       return root;
     }
 
-    ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, modulePath);
 
-    return printAndReadModel(scopeCreator, modulePath, withSolvedOde);
   }
 
   protected ASTNESTMLCompilationUnit computeSetterForAliases(
