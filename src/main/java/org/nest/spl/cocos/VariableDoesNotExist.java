@@ -161,16 +161,6 @@ public class VariableDoesNotExist implements
         .collect(toList());
   }
 
-  protected void check(final String varName, final ASTNode node) {
-    checkArgument(node.getEnclosingScope().isPresent(),
-        "No scope assigned. Please, run symboltable creator.");
-    final Scope scope = node.getEnclosingScope().get();
-
-    Optional<VariableSymbol> varOptional = scope.resolve(varName, VariableSymbol.KIND);
-
-
-  }
-
   @Override
   public void check(ASTOdeDeclaration node) {
     node.getODEs().forEach(

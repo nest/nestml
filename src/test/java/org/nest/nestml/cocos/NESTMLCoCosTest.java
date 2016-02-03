@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
@@ -514,6 +513,26 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   }
 
+  @Test
+  public void testUndefinedVariablesInEquations() {
+    final NESTMLCoCoChecker nestmlCoCoCheckerWithSPLCocos = new NESTMLCoCoChecker();
+    final SPLCoCosManager splCoCosManager  = new SPLCoCosManager();
+    splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoCheckerWithSPLCocos);
+
+    String pathToValidModel = TEST_MODELS_FOLDER + "equations/validEquations.nestml";
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoCheckerWithSPLCocos,
+        "SPL_");
+
+    String pathToInvalidModel = TEST_MODELS_FOLDER + "equations/invalidEquations.nestml";
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoCheckerWithSPLCocos,
+        "SPL_",
+        4);
+
+  }
 
   @Test
   public void testInvalidInvariantExpressionType() {
