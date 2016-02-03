@@ -41,10 +41,20 @@ grammar SPL extends org.nest.commons.Commons {
   // between fqn: boolean and "keyword" boolean
   Declaration =
     vars:Name ("," vars:Name)*
-    (type:QualifiedName | primitiveType:PrimitiveType)
+    Datatype
     ("<" sizeParameter:Name ">")?
     ( "=" Expr )? ;
 
+  Datatype = ["integer"] |
+         ["real"] |
+         ["string"] |
+         ["boolean"] |
+         ["void"] |
+         UnitType;
+  UnitType = leftParentheses:"(" UnitType rightParentheses:")"
+         | base:UnitType pow:["**"] exponent:IntLiteral
+         | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
+         | unit:Name;
   ReturnStmt = "return" Expr?;
 
   IF_Stmt = IF_Clause

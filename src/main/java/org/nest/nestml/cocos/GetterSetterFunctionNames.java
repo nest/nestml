@@ -13,6 +13,7 @@ import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.List;
 import java.util.Optional;
@@ -86,8 +87,8 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
     else {
       List<String> parameters = Lists.newArrayList();
       for (int i = 0; i < fun.getParameters().get().getParameters().size(); ++i) {
-        String parameterTypeFqn = Names.getQualifiedName(
-            fun.getParameters().get().getParameters().get(i).getType().getParts());
+        String parameterTypeFqn = ASTNodes.computeTypeName(
+            fun.getParameters().get().getParameters().get(i).getDatatype());
         parameters.add(parameterTypeFqn);
       }
 

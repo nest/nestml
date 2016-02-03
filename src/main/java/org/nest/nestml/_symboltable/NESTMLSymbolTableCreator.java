@@ -15,6 +15,7 @@ import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 import org.nest.symboltable.symbols.references.TypeSymbolReference;
+import org.nest.utils.ASTNodes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,7 @@ import static org.nest.symboltable.symbols.NeuronSymbol.Type.COMPONENT;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.LOCAL;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;
+import static org.nest.utils.ASTNodes.computeTypeName;
 
 /**
  * Creates NESTML symbols.
@@ -265,7 +267,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     if (funcAst.getParameters().isPresent()) {
       for (ASTParameter p : funcAst.getParameters().get().getParameters()) {
         TypeSymbol type = new TypeSymbolReference(
-            p.getType().toString(),
+            computeTypeName(p.getDatatype()),
             TypeSymbol.Type.PRIMITIVE,
             this.currentScope().get());
 
@@ -284,7 +286,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     }
     // return type
     if (funcAst.getReturnType().isPresent()) {
-      final String returnTypeName = Names.getQualifiedName(funcAst.getReturnType().get().getParts());
+      final String returnTypeName = computeTypeName(funcAst.getReturnType().get());
       TypeSymbol returnType = new TypeSymbolReference(
           returnTypeName,
           TypeSymbol.Type.PRIMITIVE,
@@ -418,7 +420,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
       final Optional<NeuronSymbol> currentTypeSymbol,
       final Optional<ASTAliasDecl> aliasDeclAst,
       final VariableSymbol.BlockType blockType) {
-    final String typeName =  astDeclaration.getType().get().toString();
+    final String typeName =  computeTypeName(astDeclaration.getDatatype());
 
     for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible
       final Optional<TypeSymbol> typeCandidate

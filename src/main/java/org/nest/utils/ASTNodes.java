@@ -30,6 +30,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Helper class containing common operations concerning ast nodes.
@@ -37,10 +38,6 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author plotnikov, oberhoff
  */
 public final class ASTNodes {
-  
-  private ASTNodes() {
-    // noninstantiable
-  }
 
   /**
    * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the right order
@@ -71,13 +68,14 @@ public final class ASTNodes {
    * @param clazz The required type
    * @return The fist node of the required type or empty value.
    */
+  @SuppressWarnings("unchecked") // checked by reflection
   public static <T> Optional<T> getAny(ASTNode root, Class<T> clazz) {
     final Iterable<ASTNode> nodes = Util.preOrder(root, ASTNode::get_Children);
 
     for (ASTNode node:nodes) {
       if (clazz.isInstance(node)) {
         // it is checked by the if-conditions. only T types are handled
-        return Optional.of((T) node);
+        return Optional.of( (T) node);
       }
     }
 
@@ -90,13 +88,14 @@ public final class ASTNodes {
    * @param clazz The required type
    * @return The list with all nodes of the required type.
    */
+  @SuppressWarnings("unchecked") // checked by reflection
   public static <T> List<T> getAll(ASTNode root, Class<T> clazz) {
     final Iterable<ASTNode> nodes = Util.preOrder(root, ASTNode::get_Children);
     final List<T> resultList = Lists.newArrayList();
     for (ASTNode node:nodes) {
       if (clazz.isInstance(node)) {
         // it is checked by the if-conditions. only T types are handled
-        resultList.add((T) node);
+         resultList.add((T) node);
       }
     }
 
@@ -254,6 +253,38 @@ public final class ASTNodes {
     // todo: check user defined functions
     // check: comparison and relational operations
     return true;
+  }
+
+  /**
+   * Computes the typename for the declaration ast. It is defined in one of the grammar
+   * alternatives.
+   */
+  public static String computeTypeName(final ASTDatatype astDatatype) {
+    String typeName = null;
+    if (astDatatype.isBoolean()) {
+      typeName = "boolean";
+    }
+    else if (astDatatype.isInteger()) {
+      typeName = "integer";
+    }
+    else if (astDatatype.isReal()) {
+      typeName = "real";
+    }
+    else if (astDatatype.isString()) {
+      typeName = "string";
+    }
+    else if (astDatatype.isVoid()) {
+      typeName = "void";
+    }
+    else if (astDatatype.getUnitType().isPresent()) {
+      final ASTUnitType unitType = astDatatype.getUnitType().get();
+      checkState(unitType.getUnit().isPresent());
+      return unitType.getUnit().get();
+    }
+    else {
+      checkState(false, "Is not possible through the grammar construction.");
+    }
+    return typeName;
   }
 
 }

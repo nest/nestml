@@ -173,7 +173,7 @@ grammar NESTML extends org.nest.SPL {
     @attribute block Implementation of the function.
   */
   Function implements BodyElement =
-          "function" Name "(" Parameters? ")" (returnType:QualifiedName | PrimitiveType)?
+          "function" Name "(" Parameters? ")" (returnType:Datatype)?
            BLOCK_OPEN
              Block
            BLOCK_CLOSE;
@@ -188,6 +188,6 @@ grammar NESTML extends org.nest.SPL {
       output: spike
     @attribute compartments Lists with compartments.
   */
-  Parameter = Name type:QualifiedName;
+  Parameter = Name Datatype;
 
 }

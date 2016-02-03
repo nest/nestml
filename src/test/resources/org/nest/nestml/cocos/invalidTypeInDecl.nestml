@@ -13,7 +13,8 @@ component InvalidTypes:
   end
 
   function foo(bar Test) TestRef: # error 3, 4
-    n org.nest.nestml.parsing.iaf_neuron.iaf_neuron
+    #n org.nest.nestml.parsing.iaf_neuron.iaf_neuron TODO enable me
+    #n org.nest.nestml.parsing.iaf_neuron.iaf_neuron TODO enable me
 
   end
 end

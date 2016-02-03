@@ -16,6 +16,7 @@ import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.spl._ast.*;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.Optional;
 
@@ -41,7 +42,7 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
 
     if (fun.getReturnType().isPresent()) {
       // check if void type is stated
-      final String typeName = Names.getQualifiedName(fun.getReturnType().get().getParts());
+      final String typeName = ASTNodes.computeTypeName(fun.getReturnType().get());
       Optional<TypeSymbol> rType = scope.resolve(typeName, TypeSymbol.KIND);
       Preconditions.checkState(rType.isPresent(), "Cannot resolve the type: " + typeName);
 

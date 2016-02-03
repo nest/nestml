@@ -18,10 +18,12 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.Optional;
 
 import static org.abego.treelayout.internal.util.Contract.checkState;
+import static org.nest.utils.ASTNodes.computeTypeName;
 
 /**
  * Only predefined types must be used in a declaration.
@@ -39,16 +41,12 @@ public class InvalidTypesInDeclaration implements
 
   @Override
   public void check(final ASTDeclaration astDeclaration) {
+    String typeName = computeTypeName(astDeclaration.getDatatype());
 
-    if (astDeclaration.getType().isPresent()) {
-      String typeName = Names.getQualifiedName(astDeclaration.getType().get().getParts());
-
-      final Optional<? extends Scope> enclosingScope = astDeclaration.getEnclosingScope();
-      Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astDeclaration);
-      Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
-      checkIfValidType(astDeclaration, typeName, type);
-
-    }
+    final Optional<? extends Scope> enclosingScope = astDeclaration.getEnclosingScope();
+    Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astDeclaration);
+    Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
+    checkIfValidType(astDeclaration, typeName, type);
 
   }
 
@@ -58,7 +56,7 @@ public class InvalidTypesInDeclaration implements
     // check parameter types
     if (astFunction.getParameters().isPresent()) {
       for (ASTParameter par : astFunction.getParameters().get().getParameters()) {
-        typeName = Names.getQualifiedName(par.getType().getParts());
+        typeName = computeTypeName(par.getDatatype());
 
         Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
         Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
@@ -70,7 +68,7 @@ public class InvalidTypesInDeclaration implements
 
       // check return type
       if (astFunction.getReturnType().isPresent()) {
-        typeName = Names.getQualifiedName(astFunction.getReturnType().get().getParts());
+        typeName = computeTypeName(astFunction.getReturnType().get());
 
         final Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
         Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);

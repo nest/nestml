@@ -10,6 +10,7 @@ import org.nest.spl._ast.*;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinterFactory;
+import org.nest.utils.ASTNodes;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
@@ -362,14 +363,14 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
 
   }
 
-  private void printParameters(Optional<ASTParameters> functionParameters) {
+  private void printParameters(final Optional<ASTParameters> functionParameters) {
     print("(");
     if (functionParameters.isPresent()) {
       final List<ASTParameter> astParameters = functionParameters.get().getParameters();
       for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
         boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
         final ASTParameter curParameter = astParameters.get(curParameterIndex);
-        print(curParameter.getName() + " " + Names.getQualifiedName(curParameter.getType().getParts()));
+        print(curParameter.getName() + " " + ASTNodes.computeTypeName(curParameter.getDatatype()));
         if (!isLastParameter) {
           print(", ");
         }
@@ -382,10 +383,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
 
   private void printOptionalReturnValue(final ASTFunction astFunction) {
     if (astFunction.getReturnType().isPresent()) {
-      print(Names.getQualifiedName(astFunction.getReturnType().get().getParts()));
-    }
-    else if (astFunction.getPrimitiveType().isPresent()) {
-      print(createPrettyPrinterForTypes().prettyprint(astFunction.getPrimitiveType().get()));
+      print(ASTNodes.computeTypeName(astFunction.getReturnType().get()));
     }
 
   }
