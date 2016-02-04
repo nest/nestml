@@ -17,14 +17,13 @@ import static org.junit.Assert.*;
  * @author plonikov
  */
 public class NESTMLParserTest extends ModelTestBase {
-  private static final String TEST_MODEL1 = "/home/user/nestml/src/test/resources/command_line_base/"
+  private static final String TEST_MODEL1 = "src/test/resources/command_line_base/"
       + "cli_example.nestml";
 
-  private static final String TEST_MODEL2 = "/home/user/nestml/src/test/resources/"
+  private static final String TEST_MODEL2 = "src/test/resources/"
       + "command_line_base/sub/cli_example.nestml";
 
-  private static final String TEST_MODEL_PATH = "/home/user/nestml/src/test/resources/"
-      + "command_line_base/";
+  private static final String TEST_MODEL_PATH = "src/test/resources/command_line_base/";
 
   @Test
   public void testNamesComputation() {
@@ -47,7 +46,7 @@ public class NESTMLParserTest extends ModelTestBase {
 
   @Test
   public void testEmptyPackage() {
-    final String emptyPackage = "/home/user/nestml/src/test/resources/command_line_base/cli_example.nestml";
+    final String emptyPackage = "src/test/resources/command_line_base/cli_example.nestml";
     final Optional<String> packageName = parser.computePackageName(
         Paths.get(TEST_MODEL1),
         Paths.get(emptyPackage));
