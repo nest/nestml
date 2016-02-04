@@ -2,11 +2,8 @@ neuron iaf_cond_alpha_implicit:
 
   state:
     V_m real = -70
-
-    DGI real = 0
-    GI real = 0
-    DGE real = 0
-    GE real = 0
+    DGI, GI real = 0
+    DGE, GE real = 0
   end
 
   equations:
