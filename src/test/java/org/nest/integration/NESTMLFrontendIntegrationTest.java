@@ -30,8 +30,8 @@ public class NESTMLFrontendIntegrationTest {
   @Test
   public void testBluegenModels() {
     nestmlFrontend.handleConsoleArguments(new String[] {
-        "src/test/resources/codegeneration/bluegen",
-        "--target", Paths.get("target","bluegen").toString()});
+        "src/test/resources/codegeneration/bluegene",
+        "--target", Paths.get("target","bluegene").toString()});
   }
 
 }
