@@ -1,7 +1,7 @@
 neuron aeif_cond_alpha_neuron:
 
   state:
-    V_m mV = 0.
+    V_m mV = 70.
     GE, GI nS = 0.
     DGE, DGI real = 0. # nS/ms
     w pA = 0.
@@ -44,7 +44,7 @@ neuron aeif_cond_alpha_neuron:
     h   ms   = resolution()
     a real = 0.5
 
-    n, m real = 0.
+    n, m real = 0.5
     r integer
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude

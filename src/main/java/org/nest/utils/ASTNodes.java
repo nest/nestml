@@ -31,6 +31,7 @@ import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Helper class containing common operations concerning ast nodes.
@@ -109,6 +110,23 @@ public final class ASTNodes {
     final FQNCollector fqnCollector = new FQNCollector();
     astNode.accept(fqnCollector);
     return fqnCollector.getVariableNames();
+  }
+
+  /**
+   * Returns all aliases which are used in the tree beginning at astNode
+   */
+  public static List<VariableSymbol> getAliasSymbols(final ASTSPLNode astNode) {
+    checkState(astNode.getEnclosingScope().isPresent(), "Run symbol table creator");
+    final Scope scope = astNode.getEnclosingScope().get();
+    final List<String> names = getVariablesNamesFromAst(astNode);
+    final List<VariableSymbol> symbols = names.stream()
+        .map(variableName -> {
+          final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
+          return symbol.get();
+        })
+        .filter(VariableSymbol::isAlias)
+        .collect(toList());
+    return symbols;
   }
 
   public static List<ASTReturnStmt> getReturnStatements(ASTBlock blockAst) {

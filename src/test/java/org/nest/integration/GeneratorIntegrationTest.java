@@ -24,7 +24,6 @@ import java.util.Optional;
  *
  * @author plotnikov
  */
-@Ignore("Don't run this tests on github")
 public class GeneratorIntegrationTest extends GenerationTestBase {
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_ode.nestml"
@@ -55,8 +54,8 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
   );
 
   private final List<String> blueGen = Lists.newArrayList(
-     // "src/test/resources/codegeneration/aeif_cond_alpha_neuron_bluegen.nestml",
-      "src/test/resources/codegeneration/hh_cond_alpha_bluegen.nestml"
+      "src/test/resources/codegeneration/bluegene/aeif_cond_alpha_neuron.nestml"
+      //"src/test/resources/codegeneration/bluegene/hh_cond_alpha.nestml"
   );
   @Ignore
   @Test
@@ -83,6 +82,7 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
     nestmlPSCModels.forEach(this::invokeCodeGenerator);
   }
 
+  @Ignore("Don't run this tests on github")
   @Test
   public void testPscModelWithOde() {
     pscModelsWithOde.forEach(this::invokeCodeGenerator);
