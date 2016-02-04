@@ -30,7 +30,7 @@ public class NESTMLParserTest extends ModelTestBase {
   public void testNamesComputation() {
     final Optional<String> packageName = parser.computePackageName(
         Paths.get(TEST_MODEL1),
-        Paths.get(TEST_MODEL_PATH));
+        Paths.get("src/test/resources/", "command_line_base"));
 
     final String artifactName = parser.computeArtifactName(Paths.get(TEST_MODEL1));
     assertFalse(packageName.isPresent());
