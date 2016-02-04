@@ -58,9 +58,7 @@ public class NESTMLSymbols {
       }
 
     }
-    if (!standAloneFunction.isPresent()) {
-      System.out.println();
-    }
+
     return standAloneFunction;
   }
 
@@ -69,7 +67,6 @@ public class NESTMLSymbols {
       final String varTypeName,
       final Scope scope) {
     final String setterName = "set_" + aliasVar;
-
     final Optional<MethodSymbol> setter = NESTMLSymbols.resolveMethod(
         scope,
         setterName,

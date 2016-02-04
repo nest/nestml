@@ -110,6 +110,23 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   @SuppressWarnings("unused") // used in templates
+  public List<VariableSymbol> getStateNonAliasSymbols() {
+    checkState(body.getEnclosingScope().isPresent());
+    final Scope scope = body.getEnclosingScope().get();
+    final List<ASTAliasDecl> aliasDeclarations = getStates().stream()
+        .filter(decl -> !decl.isAlias())
+        .collect(toList());
+
+    List<VariableSymbol> aliasSymbols = aliasDeclarations.stream()
+        .flatMap(alias -> alias.getDeclaration().getVars().stream())
+        .map(variableName ->
+        { Optional<VariableSymbol> varSymbol = scope.resolve(variableName, VariableSymbol.KIND);
+          return varSymbol.get();})
+        .collect(toList());
+    return aliasSymbols;
+  }
+
+  @SuppressWarnings("unused") // used in templates
   public List<ASTAliasDecl> getNonAliasStates() {
     return getStates().stream().filter(v->!v.isAlias()).collect(toList());
   }
