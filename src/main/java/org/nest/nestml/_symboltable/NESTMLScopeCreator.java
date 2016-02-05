@@ -21,22 +21,14 @@ import java.nio.file.Paths;
  * @author plotnikov
  */
 public class NESTMLScopeCreator extends ScopeCreatorBase {
-  final static String LOG_NAME = NESTMLScopeCreator.class.getName();
-
   private GlobalScope globalScope;
-
-  @Override
-  public String getLogger() {
-    return LOG_NAME;
-  }
+  private final ModelPath modelPath;
+  private final ResolverConfiguration resolverConfiguration;
+  private final NESTMLLanguage nestmlLanguages;
 
   public GlobalScope getGlobalScope() {
     return globalScope;
   }
-
-  final ModelPath modelPath;
-  final ResolverConfiguration resolverConfiguration;
-  final NESTMLLanguage nestmlLanguages;
 
   public   NESTMLScopeCreator(
       final Path modelPathAsString) {
@@ -48,15 +40,6 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     resolverConfiguration = new ResolverConfiguration();
     resolverConfiguration.addTopScopeResolvers(nestmlLanguages.getResolvers());
 
-    // TODO is only for a successufl test there
-    globalScope = new GlobalScope(
-        modelPath,
-        nestmlLanguages,
-        resolverConfiguration);
-    addPredefinedTypes(globalScope);
-    addPredefinedFunctions(globalScope);
-    addPredefinedVariables(globalScope);
-    // END
   }
 
   public Scope runSymbolTableCreator(final ASTNESTMLCompilationUnit compilationUnit) {

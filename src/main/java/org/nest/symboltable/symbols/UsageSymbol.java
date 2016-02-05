@@ -6,6 +6,7 @@
 package org.nest.symboltable.symbols;
 
 import de.monticore.symboltable.CommonSymbol;
+import de.monticore.symboltable.SymbolKind;
 
 /**
  * Represents the usage of a component in an neuron.
@@ -31,4 +32,12 @@ public class UsageSymbol extends CommonSymbol {
   public NeuronSymbol getReferencedSymbol() {
     return referencedSymbol;
   }
+
+  public static class UsageSymbolKind implements SymbolKind {
+
+    protected UsageSymbolKind() {
+    }
+
+  }
+
 }

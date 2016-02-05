@@ -18,9 +18,7 @@ import java.util.Optional;
  * The implementation of the symboltable creator.
  * Implements required methods to compute packagename, current alias declaration
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class CommonNESTMLSymbolTableCreator
     extends CommonSymbolTableCreator

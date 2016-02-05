@@ -102,4 +102,5 @@ neuron hh_cond_alpha:
       emitSpike()
     end
   end
+
 end

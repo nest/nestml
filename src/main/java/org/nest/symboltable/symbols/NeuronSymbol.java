@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.Symbol;
+import de.monticore.symboltable.SymbolKind;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 
 import java.util.Collection;
@@ -80,4 +81,12 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   }
 
   public enum Type { NEURON, COMPONENT }
+
+  public static class NeuronSymbolKind implements SymbolKind {
+
+    protected NeuronSymbolKind() {
+    }
+
+  }
+
 }
