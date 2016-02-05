@@ -6,7 +6,7 @@
 package org.nest.nestml.cocos;
 
 import static de.se_rwth.commons.logging.Log.error;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTOutput;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
@@ -24,7 +24,7 @@ public class NeuronWithoutOutput implements NESTMLASTNeuronCoCo {
   public static final String ERROR_CODE = "NESTML_NEURON_WITHOUT_OUTPUT";
 
   public void check(ASTNeuron neuron) {
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(neuron.getBody());
+    final ASTBody bodyDecorator = neuron.getBody();
 
     final List<ASTOutput> inputs = bodyDecorator.getOutputs();
 

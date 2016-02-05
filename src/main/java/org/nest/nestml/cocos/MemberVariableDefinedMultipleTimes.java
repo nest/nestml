@@ -46,7 +46,7 @@ public class MemberVariableDefinedMultipleTimes implements
   }
 
   private void check(ASTBody body) {
-    ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(body);
+    ASTBody bodyDecorator = (body);
     Map<String, SourcePosition> varNames = Maps.newHashMap();
     bodyDecorator.getStates()
         .forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));

@@ -6,7 +6,7 @@
 package org.nest.codegeneration.helpers;
 
 import de.monticore.ast.ASTNode;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import groovyjarjarantlr.collections.AST;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
@@ -20,17 +20,14 @@ import static com.google.common.base.Preconditions.checkState;
  * Computes the type of the output for neurons and neuron components.
  *
  * @author plotnikov
- * @since 0.0.1
  */
 public class NESTMLOutputs {
-  public static boolean isOutputEventPresent(final ASTNode node) {
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(getBodyNode(node));
-    return !bodyDecorator.getOutputs().isEmpty();
+  public static boolean isOutputEventPresent(final ASTBody astBody) {
+    return !astBody.getOutputs().isEmpty();
   }
 
-  public static String printOutputEvent(final ASTNode node) {
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(getBodyNode(node));
-    final List<ASTOutput> neuronOutputs = bodyDecorator.getOutputs();
+  public static String printOutputEvent(final ASTBody astBody) {
+    final List<ASTOutput> neuronOutputs = astBody.getOutputs();
     if (!neuronOutputs.isEmpty()) {
       ASTOutput output = neuronOutputs.get(0);
 

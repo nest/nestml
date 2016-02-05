@@ -30,35 +30,12 @@ public class NESTMLFrontendTest {
 
     final Configuration testant = nestmlFrontend.createCLIConfiguration(new String[] {
         testInputModelsPath.toString(),
-        "--runningMode", "parseAndCheck",
         "--target", targetPath.toString()
     });
 
     assertTrue(testant.isCheckCoCos());
     assertEquals(testInputModelsPath, testant.getInputBase());
     assertEquals(targetPath, testant.getTargetPath());
-  }
-
-  @Test(expected = RuntimeException.class)
-  public void testInvalidOptions() {
-    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--runningMode"});
-    nestmlFrontend.interpretRunningModeArgument(cliArguments);
-  }
-
-  @Test
-  public void testParseMode() throws Exception {
-    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--runningMode", "parseAndCheck" });
-    boolean testant = nestmlFrontend.interpretRunningModeArgument(cliArguments);
-    assertTrue(testant);
-
-    cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--runningMode", "parse" });
-    testant = nestmlFrontend.interpretRunningModeArgument(cliArguments);
-    assertFalse(testant);
-
-    cliArguments = nestmlFrontend.parseCLIArguments(new String[] { });
-    testant = nestmlFrontend.interpretRunningModeArgument(cliArguments);
-    assertFalse(testant);
-
   }
 
   @Test

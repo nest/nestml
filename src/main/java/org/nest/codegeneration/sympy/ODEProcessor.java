@@ -7,7 +7,7 @@ package org.nest.codegeneration.sympy;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.SolverType;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 
@@ -42,7 +42,7 @@ public class ODEProcessor {
       final Path outputBase) {
     checkState(root.getNeurons().size() > 0, "Model contains at least on neuron.");
     final ASTNeuron neuron = root.getNeurons().get(0);
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
+    final ASTBody astBodyDecorator = (neuron.getBody());
     if (astBodyDecorator.getEquations().isPresent()) {
       return handleNeuronWithODE(root, outputBase);
     }

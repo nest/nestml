@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.junit.Test;
 import org.nest.base.ModelTestBase;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTBodyElement;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -69,7 +69,7 @@ public class NESTMLSymbolTableTest extends ModelTestBase {
 
     scopeCreator.runSymbolTableCreator(root);
 
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    final ASTBody astBodyDecorator = (root.getNeurons().get(0).getBody());
 
     final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
     assertTrue(neuronState.isPresent());
@@ -103,7 +103,7 @@ public class NESTMLSymbolTableTest extends ModelTestBase {
 
     scopeCreator.runSymbolTableCreator(root);
 
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    final ASTBody astBodyDecorator = (root.getNeurons().get(0).getBody());
 
     final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
     assertTrue(neuronState.isPresent());
@@ -187,8 +187,7 @@ public class NESTMLSymbolTableTest extends ModelTestBase {
 
     scopeCreator.runSymbolTableCreator(root);
 
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(
-        root.getNeurons().get(0).getBody());
+    final ASTBody astBodyDecorator = (root.getNeurons().get(0).getBody());
 
     final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
     assertTrue(neuronState.isPresent());

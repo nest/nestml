@@ -7,7 +7,7 @@ package org.nest.nestml.cocos;
 
 import de.monticore.types.types._ast.ASTQualifiedName;
 import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
@@ -36,7 +36,7 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
 
   @Override
   public void check(final ASTComponent astComponent) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astComponent.getBody());
+    final ASTBody astBodyDecorator = astComponent.getBody();
     final Optional<NeuronSymbol> componentSymbol
         = (Optional<NeuronSymbol>) astComponent.getSymbol();
     checkState(componentSymbol.isPresent());
@@ -45,7 +45,7 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
 
   @Override
   public void check(final ASTNeuron astNeuron) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
+    final ASTBody astBodyDecorator = (astNeuron.getBody());
     final Optional<NeuronSymbol> neuronSymbol
         = (Optional<NeuronSymbol>) astNeuron.getSymbol();
     checkState(neuronSymbol.isPresent());
@@ -53,7 +53,7 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
   }
 
   public void checkAllAliasesInNeuron(
-      final ASTBodyDecorator astBodyDecorator,
+      final ASTBody astBodyDecorator,
       final NeuronSymbol neuronSymbol) {
     astBodyDecorator.getInternals().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
     astBodyDecorator.getStates().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));

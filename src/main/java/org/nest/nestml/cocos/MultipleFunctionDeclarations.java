@@ -7,7 +7,7 @@ package org.nest.nestml.cocos;
 
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNeuron;
@@ -31,8 +31,9 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
   public static final String ERROR_CODE = "NESTML_MULTIPLE_FUNCTIONS_DECLARATIONS";
 
 
-  @Override public void check(final ASTComponent astComponent) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astComponent.getBody());
+  @Override
+  public void check(final ASTComponent astComponent) {
+    final ASTBody astBodyDecorator = astComponent.getBody();
     final Optional<NeuronSymbol> componentSymbol
         = (Optional<NeuronSymbol>) astComponent.getSymbol();
     checkState(componentSymbol.isPresent());
@@ -42,7 +43,7 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
 
 
   @Override public void check(final ASTNeuron astNeuron) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(astNeuron.getBody());
+    final ASTBody astBodyDecorator = (astNeuron.getBody());
     final Optional<NeuronSymbol> neuronSymbol
         = (Optional<NeuronSymbol>) astNeuron.getSymbol();
     checkState(neuronSymbol.isPresent());

@@ -5,17 +5,21 @@
  */
 package org.nest.nestml.parsing;
 
+import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
+import org.nest.nestml._symboltable.NESTMLLanguage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertNotNull;
@@ -27,23 +31,24 @@ import static org.junit.Assert.assertTrue;
 public class NESTMLParsingTest extends ModelTestBase {
   private final static  String LOG_NAME = NESTMLParsingTest.class.getName();
 
-  private final static  String CODE_GENERATION_FOLDER = "src/test/resources/codegeneration";
-  private final static  String PARSABLE_MODELS_FOLDER = "src/test/resources/org/nest/nestml/parsing";
-  private final static  String COCOS_MODELS_FOLDER = "src/test/resources/org/nest/nestml/cocos";
+  private final static  String TEST_RESOURCES_PATH = "src/test/resources";
 
   @Test
   public void testParsableModels() throws IOException {
-    parseAllModelsInFolder(PARSABLE_MODELS_FOLDER);
-  }
+    final List<Path> filenames = Lists.newArrayList();
+    Files.walkFileTree(Paths.get(TEST_RESOURCES_PATH), new SimpleFileVisitor<Path>() {
+      @Override
+      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        if (Files.isRegularFile(file) &&
+            file.getFileName().toString().endsWith(NESTMLLanguage.FILE_ENDING)) {
 
-  @Test
-  public void testModelsForCocos() throws IOException {
-    parseAllModelsInFolder(COCOS_MODELS_FOLDER);
-  }
+          filenames.add(file);
+        }
+        return FileVisitResult.CONTINUE;
+      }
+    });
 
-  @Test
-  public void testModelsForCodegeneration() throws IOException {
-    parseAllModelsInFolder(CODE_GENERATION_FOLDER);
+    filenames.forEach(this::parseAndCheck);
   }
 
   @Test
@@ -53,25 +58,17 @@ public class NESTMLParsingTest extends ModelTestBase {
     assertTrue(ast.isPresent());
   }
 
-  private void parseAllModelsInFolder(final String pathToFolder) throws IOException {
-    final NESTMLParser parser = new NESTMLParser();
-    final File path = new File(pathToFolder);
-    assertNotNull(path);
-    Arrays.stream(path.listFiles())
-        .filter(file -> !file.isDirectory())
-        .forEach(file -> {
-          Log.trace(String.format("Processes the following file: %s", file.getAbsolutePath()), LOG_NAME);
+  private void parseAndCheck(Path file) {
+    Log.info(String.format("Processes the following file: %s", file.toString()), LOG_NAME);
 
-          Optional<ASTNESTMLCompilationUnit> ast = null;
-          try {
-            ast = parser.parse(file.getAbsolutePath());
-          }
-          catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          assertTrue(ast.isPresent());
-        });
-
+    Optional<ASTNESTMLCompilationUnit> ast = null;
+    try {
+      ast = parser.parse(file.toString());
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    assertTrue(ast.isPresent());
   }
 
 }

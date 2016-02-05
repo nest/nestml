@@ -28,7 +28,7 @@ grammar NESTML extends org.nest.SPL {
     @attribute Name    The name of the neuron
     @attribute Body    The body of the neuron, e.g. internal, state, parameter...
   */
-  Neuron = "neuron" Name Body;
+  Neuron = "neuron" Name ("extends" base:Name)? Body;
 
   /** ASTComponent represents neuron.
     @attribute Name    The name of the component

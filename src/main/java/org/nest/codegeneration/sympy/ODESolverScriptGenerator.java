@@ -9,9 +9,7 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
-import org.nest.codegeneration.converters.IReferenceConverter;
-import org.nest.codegeneration.converters.IdempotentReferenceConverter;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
@@ -51,7 +49,7 @@ public class ODESolverScriptGenerator {
       final Path outputDirectory) {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
 
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
+    final ASTBody astBodyDecorator = (neuron.getBody());
     final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getEquations();
 
     if (odeDefinition.isPresent()) {

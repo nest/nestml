@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
@@ -104,7 +104,7 @@ public class ExactSolutionTransformer {
 
       // remaining entries are y_index update entries
       // these statements must be printed at the end of the dynamics function
-      ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+      ASTBody astBodyDecorator = root.getNeurons().get(0).getBody();
 
       for (final String line:stateVectorLines) {
         final ASTAssignment yVarAssignment = converter2NESTML.convertStringToAssignment(line);
@@ -136,7 +136,7 @@ public class ExactSolutionTransformer {
       final Path updateStepFile) {
     final ASTAssignment stateUpdate = converter2NESTML.convertToAssignment(updateStepFile);
 
-    ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    ASTBody astBodyDecorator = root.getNeurons().get(0).getBody();
 
     final ODECollector odeCollector = new ODECollector();
     odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
@@ -177,7 +177,7 @@ public class ExactSolutionTransformer {
 
   }
 
-  private void addAssignmentToDynamics(ASTBodyDecorator astBodyDecorator,
+  private void addAssignmentToDynamics(ASTBody astBodyDecorator,
       ASTAssignment yVarAssignment) {
     final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
     final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
@@ -198,14 +198,14 @@ public class ExactSolutionTransformer {
   private void addToInternalBlock(
       final ASTNESTMLCompilationUnit root,
       final ASTAliasDecl declaration) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    final ASTBody astBodyDecorator = root.getNeurons().get(0).getBody();
     astBodyDecorator.addToInternalBlock(declaration);
   }
 
   private void addToStateBlock(
       final ASTNESTMLCompilationUnit root,
       final ASTAliasDecl declaration) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    final ASTBody astBodyDecorator = root.getNeurons().get(0).getBody();
     astBodyDecorator.addToStateBlock(declaration);
   }
 

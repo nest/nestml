@@ -6,7 +6,7 @@
 package org.nest.nestml.cocos;
 
 import static de.se_rwth.commons.logging.Log.error;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
 
@@ -22,7 +22,7 @@ public class NeuronNeedsDynamics implements NESTMLASTNeuronCoCo {
   public static final String ERROR_CODE = "NESTML_NEURON_NEEDS_DYNAMICS";
 
   public void check(final ASTNeuron neuron) {
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(neuron.getBody());
+    final ASTBody bodyDecorator = neuron.getBody();
 
     if (bodyDecorator.getDynamics().isEmpty()) {
       final String msg = "Neurons need at least one dynamics function.";

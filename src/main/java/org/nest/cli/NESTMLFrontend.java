@@ -21,7 +21,6 @@ import java.util.Optional;
 public class NESTMLFrontend {
   private final static String LOGGER_NAME = NESTMLFrontend.class.getName();
 
-  public static final String RUNNING_MODE = "runningMode";
   public static final String HELP_ARGUMENT = "help";
   public static final String TARGET_PATH = "target";
 
@@ -34,14 +33,6 @@ public class NESTMLFrontend {
   }
 
   private void createOptions() {
-    //"mode", true, "Chose the working mode. Possible options are: parse, check, generate");
-    options.addOption(Option.builder(RUNNING_MODE)
-        .longOpt(RUNNING_MODE)
-        .hasArgs()
-        .numberOfArgs(1)
-        .desc("With the 'parseAndCheck' context conditions for NESTML are activated.")
-        .build());
-
     options.addOption(Option.builder(TARGET_PATH)
         .longOpt(TARGET_PATH)
         .hasArgs()
@@ -75,17 +66,14 @@ public class NESTMLFrontend {
     final CommandLine commandLineParameters = parseCLIArguments(args);
     interpretHelpArgument(commandLineParameters);
 
-    boolean isCheckCocos = interpretRunningModeArgument(commandLineParameters);
     final String targetPath = interpretTargetPathArgument(commandLineParameters);
 
-    final Configuration configuration = new Configuration
+    return new Configuration
         .Builder()
-        .withCoCos(isCheckCocos)
+        .withCoCos(true)
         .withInputBasePath(args[0])
         .withTargetPath(targetPath)
         .build();
-
-    return configuration;
   }
 
   public CommandLine parseCLIArguments(String[] args) {
@@ -108,23 +96,6 @@ public class NESTMLFrontend {
     if (cmd.hasOption(HELP_ARGUMENT)) {
       formatter.printHelp("NESTML frontend", options);
     }
-  }
-
-  public boolean interpretRunningModeArgument(final CommandLine cmd) {
-    boolean isCheckCocos = false;
-    if (cmd.hasOption(RUNNING_MODE)) {
-      Log.info("'" + RUNNING_MODE + "' option is set to: " + cmd.getOptionValue(RUNNING_MODE),
-          LOGGER_NAME);
-      if (cmd.getOptionValue(RUNNING_MODE).equals("parseAndCheck")) {
-        Log.info("NESTML models will be parsed and checked.", LOGGER_NAME);
-        isCheckCocos = true;
-      }
-
-    }
-    else {
-      Log.info("'" + RUNNING_MODE + "' is set to 'parse' only configuration", LOGGER_NAME);
-    }
-    return isCheckCocos;
   }
 
   public String interpretTargetPathArgument(final CommandLine cmd) {
