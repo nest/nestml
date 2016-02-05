@@ -8,6 +8,8 @@ package org.nest.nestml._ast;
 import com.google.common.collect.ImmutableList;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
+import org.nest.commons.commons._ast.ASTBLOCK_CLOSE;
+import org.nest.commons.commons._ast.ASTBLOCK_OPEN;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -27,22 +29,22 @@ import static java.util.stream.Collectors.toList;
  *
  * @author plotnikov
  */
-public class ASTBodyDecorator extends ASTBody {
+public class ASTBody extends ASTBodyTOP {
 
-  public static final String MISSING_DYNAMICS_ERROR =
-      "There is no dynamics in the NESTML model. This error should be catched by "
-          + "the context conditions.lease check you tool configuration and enable context conditions.!";
+  public ASTBody() {
+    // this constructor is used in the generated code.
+  }
 
-  private final ASTBody body;
-
-  public ASTBodyDecorator(ASTBody body) {
-    checkNotNull(body);
-
-    this.body = body;
+  public ASTBody(
+      final ASTBLOCK_OPEN bLOCK_open,
+      final List<String> nEWLINEs,
+      final List<ASTBodyElement> bodyElements,
+      final ASTBLOCK_CLOSE bLOCK_close) {
+    super(bLOCK_open, nEWLINEs, bodyElements, bLOCK_close);
   }
 
   public List<ASTFunction> getFunctions() {
-    List<ASTFunction> result = body.getBodyElements().stream()
+    List<ASTFunction> result = this.getBodyElements().stream()
         .filter(be -> be instanceof ASTFunction)
         .map(be -> (ASTFunction) be)
         .collect(Collectors.toList());
@@ -51,7 +53,7 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   public List<ASTDynamics> getDynamics() {
-    List<ASTDynamics> result = body.getBodyElements().stream()
+    List<ASTDynamics> result = this.getBodyElements().stream()
         .filter(be -> be instanceof ASTDynamics)
         .map(be -> (ASTDynamics) be)
         .collect(Collectors.toList());
@@ -60,13 +62,13 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   public Optional<ASTBodyElement> getStateBlock() {
-    return body.getBodyElements().stream()
+    return this.getBodyElements().stream()
         .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isState())
         .findFirst();
   }
 
   public Optional<ASTBodyElement> getParameterBlock() {
-    return body.getBodyElements().stream()
+    return this.getBodyElements().stream()
         .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isParameter())
         .findFirst();
   }
@@ -74,7 +76,7 @@ public class ASTBodyDecorator extends ASTBody {
   public List<ASTAliasDecl> getStates() {
     List<ASTAliasDecl> result = new ArrayList<ASTAliasDecl>();
 
-    body.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
+    this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
       ASTVar_Block block = (ASTVar_Block) be;
       if (block.isState()) {
         for (ASTAliasDecl ad : block.getAliasDecls()) {
@@ -93,8 +95,8 @@ public class ASTBodyDecorator extends ASTBody {
 
   @SuppressWarnings("unused") // used in templates
   public List<VariableSymbol> getStateAliasSymbols() {
-    checkState(body.getEnclosingScope().isPresent());
-    final Scope scope = body.getEnclosingScope().get();
+    checkState(this.getEnclosingScope().isPresent());
+    final Scope scope = this.getEnclosingScope().get();
     final List<ASTAliasDecl> aliasDeclarations = getStates().stream()
         .filter(decl -> decl.isAlias())
         .collect(toList());
@@ -111,8 +113,8 @@ public class ASTBodyDecorator extends ASTBody {
 
   @SuppressWarnings("unused") // used in templates
   public List<VariableSymbol> getStateNonAliasSymbols() {
-    checkState(body.getEnclosingScope().isPresent());
-    final Scope scope = body.getEnclosingScope().get();
+    checkState(this.getEnclosingScope().isPresent());
+    final Scope scope = this.getEnclosingScope().get();
     final List<ASTAliasDecl> aliasDeclarations = getStates().stream()
         .filter(decl -> !decl.isAlias())
         .collect(toList());
@@ -134,7 +136,7 @@ public class ASTBodyDecorator extends ASTBody {
   public List<ASTAliasDecl> getParameters() {
     List<ASTAliasDecl> result = new ArrayList<ASTAliasDecl>();
 
-    body.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
+    this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
       ASTVar_Block block = (ASTVar_Block) be;
       if (block.isParameter()) {
         result.addAll(block.getAliasDecls().stream().collect(Collectors.toList()));
@@ -158,7 +160,7 @@ public class ASTBodyDecorator extends ASTBody {
   public List<ASTAliasDecl> getInternals() {
     List<ASTAliasDecl> result = new ArrayList<ASTAliasDecl>();
 
-    body.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
+    this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
       ASTVar_Block block = (ASTVar_Block) be;
 
       if (block.isInternal()) {
@@ -182,7 +184,7 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   private Optional<ASTEquations> findEquationsBlock() {
-    final Optional<ASTBodyElement> equations = body.getBodyElements()
+    final Optional<ASTBodyElement> equations = this.getBodyElements()
         .stream()
         .filter(be -> be instanceof ASTEquations)
         .findFirst();
@@ -198,7 +200,7 @@ public class ASTBodyDecorator extends ASTBody {
 
 
   public void addToInternalBlock(final ASTAliasDecl astAliasDecl) {
-    body.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
+    this.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
 
       ASTVar_Block block = (ASTVar_Block) be;
 
@@ -211,7 +213,7 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   public void addToStateBlock(final ASTAliasDecl astAliasDecl) {
-    body.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
+    this.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
 
       ASTVar_Block block = (ASTVar_Block) be;
 
@@ -224,7 +226,7 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   private Optional<ASTBodyElement> findDynamics() {
-    return body.getBodyElements().stream()
+    return this.getBodyElements().stream()
           .filter(be -> be instanceof ASTDynamics)
           .findFirst();
   }
@@ -241,7 +243,7 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   public List<ASTUSE_Stmt> getUses() {
-    List<ASTUSE_Stmt> result = body.getBodyElements().stream()
+    List<ASTUSE_Stmt> result = this.getBodyElements().stream()
         .filter(be -> be instanceof ASTUSE_Stmt)
         .map(be -> (ASTUSE_Stmt) be)
         .collect(Collectors.toList());
@@ -252,7 +254,7 @@ public class ASTBodyDecorator extends ASTBody {
   public List<ASTInputLine> getInputLines() {
     List<ASTInputLine> result = new ArrayList<ASTInputLine>();
 
-    for (ASTBodyElement be : body.getBodyElements()) {
+    for (ASTBodyElement be : this.getBodyElements()) {
       if (be instanceof ASTInput) {
         ASTInput in = (ASTInput) be;
         for (ASTInputLine inline : in.getInputLines()) {
@@ -265,7 +267,7 @@ public class ASTBodyDecorator extends ASTBody {
   }
 
   public List<ASTOutput> getOutputs() {
-    List<ASTOutput> result = body.getBodyElements().stream()
+    List<ASTOutput> result = this.getBodyElements().stream()
         .filter(be -> be instanceof ASTOutput)
         .map(be -> (ASTOutput) be)
         .collect(Collectors.toList());
@@ -276,7 +278,7 @@ public class ASTBodyDecorator extends ASTBody {
   public List<ASTStructureLine> getStructure() {
     List<ASTStructureLine> result = new ArrayList<ASTStructureLine>();
 
-    for (ASTBodyElement be : body.getBodyElements()) {
+    for (ASTBodyElement be : this.getBodyElements()) {
       if (be instanceof ASTStructure) {
         ASTStructure st = (ASTStructure) be;
         for (ASTStructureLine stline : st.getStructureLines()) {

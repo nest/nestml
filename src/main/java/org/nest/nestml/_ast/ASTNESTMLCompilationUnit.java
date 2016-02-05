@@ -27,7 +27,7 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
   }
 
   protected ASTNESTMLCompilationUnit () {
-
+    // used in the MC generated code
   }
 
   protected ASTNESTMLCompilationUnit (

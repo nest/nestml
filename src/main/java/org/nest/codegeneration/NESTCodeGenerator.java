@@ -16,7 +16,7 @@ import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
 import org.nest.codegeneration.sympy.AliasSolverScriptGenerator;
 import org.nest.codegeneration.sympy.ODEProcessor;
-import org.nest.nestml._ast.ASTBodyDecorator;
+import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
@@ -81,7 +81,7 @@ public class NESTCodeGenerator {
     final String moduleName = root.getFullName();
     final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(root.getNeurons().get(0).getBody());
+    final ASTBody bodyDecorator = root.getNeurons().get(0).getBody();
     final Optional<ASTOdeDeclaration> odesBlock = bodyDecorator.getEquations();
     if (odesBlock.isPresent()) {
       if (odesBlock.get().getEqs().size() == 0) {
@@ -308,11 +308,11 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("bufferHelper", new NESTMLBuffers());
 
     glex.setGlobalValue("nspPrefix", nspPrefix);
-    glex.setGlobalValue("outputEvent", NESTMLOutputs.printOutputEvent(neuron));
-    glex.setGlobalValue("isOutputEventPresent", NESTMLOutputs.isOutputEventPresent(neuron));
+    glex.setGlobalValue("outputEvent", NESTMLOutputs.printOutputEvent(neuron.getBody()));
+    glex.setGlobalValue("isOutputEventPresent", NESTMLOutputs.isOutputEventPresent(neuron.getBody()));
     glex.setGlobalValue("isSpikeInput", NESTMLInputs.isSpikeInput(neuron));
     glex.setGlobalValue("isCurrentInput", NESTMLInputs.isCurrentInput(neuron));
-    glex.setGlobalValue("body", new ASTBodyDecorator(neuron.getBody()));
+    glex.setGlobalValue("body", neuron.getBody());
 
     final GSLReferenceConverter converter = new GSLReferenceConverter();
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
@@ -323,12 +323,12 @@ public class NESTCodeGenerator {
   }
 
   private void setSolverType(GlobalExtensionManagement glex, ASTNeuron neuron) {
-    final ASTBodyDecorator astBodyDecorator = new ASTBodyDecorator(neuron.getBody());
+    final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
-    if (astBodyDecorator.getEquations().isPresent()) {
-      if (astBodyDecorator.getEquations().get().getODEs().size() > 1) {
+    if (astBody.getEquations().isPresent()) {
+      if (astBody.getEquations().get().getODEs().size() > 1) {
         glex.setGlobalValue("useGSL", true);
-        glex.setGlobalValue("ODEs", astBodyDecorator.getEquations().get().getODEs());
+        glex.setGlobalValue("ODEs", astBody.getEquations().get().getODEs());
       }
 
     }

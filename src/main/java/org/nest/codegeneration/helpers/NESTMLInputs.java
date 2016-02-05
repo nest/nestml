@@ -6,7 +6,6 @@
 package org.nest.codegeneration.helpers;
 
 import de.monticore.ast.ASTNode;
-import org.nest.nestml._ast.ASTBodyDecorator;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTInputLine;
@@ -23,7 +22,7 @@ import java.util.Optional;
  */
 public class NESTMLInputs {
   public static boolean isSpikeInput(final ASTNode node) {
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(getBodyNode(node));
+    final ASTBody bodyDecorator = (getBodyNode(node));
     final List<ASTInputLine> neuronInputLines = bodyDecorator.getInputLines();
     Optional<ASTInputLine> inputSpikeCandidate = neuronInputLines
         .stream()
@@ -33,7 +32,7 @@ public class NESTMLInputs {
   }
 
   public static boolean isCurrentInput(final ASTNode node) {
-    final ASTBodyDecorator bodyDecorator = new ASTBodyDecorator(getBodyNode(node));
+    final ASTBody bodyDecorator = (getBodyNode(node));
     final List<ASTInputLine> neuronInputLines = bodyDecorator.getInputLines();
     Optional<ASTInputLine> inputSpikeCandidate = neuronInputLines
         .stream()
