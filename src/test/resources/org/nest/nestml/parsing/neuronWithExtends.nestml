@@ -1,0 +1,18 @@
+component EmptyComponent:
+
+
+end
+
+neuron AliasNeuron extends EmptyComponent:
+    use EmptyComponent as Soma
+
+    update:
+    end
+
+    input:
+      spikeBuffer   <- inhibitory excitatory spike
+      currentBuffer <- current
+    end
+
+    output: spike
+end
