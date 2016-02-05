@@ -40,7 +40,7 @@ import static de.se_rwth.commons.Names.getPathFromPackage;
 import static de.se_rwth.commons.logging.Log.info;
 
 /**
- * Generates C++ Implementation and model integration code for NEST.
+ * Generates C++ implementation and model integration code for NEST.
  * @author plotnikov
  */
 public class NESTCodeGenerator {
