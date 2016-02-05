@@ -30,7 +30,6 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @author plotnikov
  */
 public abstract class GenerationTestBase extends ModelTestBase {
-  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
   protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
   private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "integration");
 

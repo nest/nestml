@@ -59,9 +59,4 @@ public class SPLScopeCreator extends ScopeCreatorBase {
     return symbolTableCreator.createFromAST(compilationUnit);
   }
 
-  @Override
-  public String getLogger() {
-    return LOGGER_NAME;
-  }
-
 }

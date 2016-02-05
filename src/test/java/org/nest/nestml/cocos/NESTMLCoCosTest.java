@@ -56,6 +56,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
         Paths.get(TEST_MODELS_FOLDER, "functionWithOutReturn.nestml").toString(),
         TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
+    scopeCreator.runSymbolTableCreator(ast.get());
 
     PredefinedTypes.getTypes().forEach(type -> {
       Optional<TypeSymbol> predefinedType = scopeCreator.getGlobalScope()

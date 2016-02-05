@@ -15,16 +15,13 @@ import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 import org.nest.symboltable.symbols.references.TypeSymbolReference;
-import org.nest.utils.ASTNodes;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
-import static de.se_rwth.commons.logging.Log.info;
-import static de.se_rwth.commons.logging.Log.warn;
+import static de.se_rwth.commons.logging.Log.*;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.COMPONENT;
@@ -98,28 +95,22 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     final String fullName = compilationUnitAst.getPackageName() + "." + compilationUnitAst.getArtifactName();
     removeCurrentScope();
     setEnclosingScopeOfNodes(compilationUnitAst);
-    info("Finishes handling and sets scopes on all ASTs for the artifact: " + fullName, LOGGER_NAME);
+    trace("Finishes handling and sets scopes on all ASTs for the artifact: " + fullName, LOGGER_NAME);
   }
 
   default void visit(final ASTNeuron neuronAst) {
     info("Processes the neuron:  " + neuronAst.getName(), LOGGER_NAME);
 
     final NeuronSymbol neuronSymbol = new NeuronSymbol(neuronAst.getName(), NEURON);
-
     addToScopeAndLinkWithNode(neuronSymbol, neuronAst);
-
-    info("Adds a neuron symbol: " + neuronSymbol.getFullName(), LOGGER_NAME);
   }
 
   default void endVisit(final ASTNeuron neuron) {
     removeCurrentScope();
-    info(LOGGER_NAME, "Finishes handling of the neuron: " + neuron.getName());
   }
 
   default void visit(final ASTComponent componentAst) {
-    info("Processes the component:  " + componentAst.getName(), LOGGER_NAME);
     final NeuronSymbol componentSymbol = new NeuronSymbol(componentAst.getName(), COMPONENT);
-
     addToScopeAndLinkWithNode(componentSymbol, componentAst);
 
     info("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
@@ -127,7 +118,6 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
   default void endVisit(final ASTComponent componentAst) {
     removeCurrentScope();
-    info("Finishes handling of the component: " + componentAst.getName(), LOGGER_NAME);
   }
 
   /**
@@ -161,7 +151,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     final UsageSymbol usageSymbol = new UsageSymbol(aliasFqn, referencedType);
     addToScope(usageSymbol);
 
-    info("Handles an use statement: use " + referencedTypeName + " as " + aliasFqn, LOGGER_NAME);
+    trace("Handles an use statement: use " + referencedTypeName + " as " + aliasFqn, LOGGER_NAME);
   }
 
 
@@ -181,11 +171,6 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     }
 
   }
-
-  default void endVisit(final ASTUSE_Stmt useAst) {
-    //removeCurrentScope();
-  }
-
   /**
    * {@code
    * Grammar:
@@ -197,15 +182,13 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
   default void visit(final ASTAliasDecl aliasDeclAst) {
     checkState(this.currentScope().isPresent());
 
-    final String msg = "Begins handling of an alias declaration: " + aliasDeclAst.get_SourcePositionStart();
-    info(msg, LOGGER_NAME);
     setAliasDeclaration(Optional.of(aliasDeclAst));
+    final String msg = "Sets parent alias at the position: " + aliasDeclAst.get_SourcePositionStart();
+    trace(msg, LOGGER_NAME);
 
   }
 
   default void endVisit(final ASTAliasDecl aliasDeclAst) {
-    final String msg = "Ends handling of an alias declaration: " + aliasDeclAst.get_SourcePositionStart();
-    info(msg, LOGGER_NAME);
     setAliasDeclaration(empty());
   }
 
@@ -247,7 +230,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     }
 
     addToScopeAndLinkWithNode(var, inputLineAst);
-    info("Creates new symbol for the input buffer: " + var, LOGGER_NAME);
+    trace("Creates new symbol for the input buffer: " + var, LOGGER_NAME);
   }
 
   default void visit(final ASTFunction funcAst) {
@@ -255,7 +238,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
-    info(LOGGER_NAME, "Begins processing of the function: " + funcAst.getName());
+    trace(LOGGER_NAME, "Begins processing of the function: " + funcAst.getName());
 
     MethodSymbol methodSymbol = new MethodSymbol(funcAst.getName());
 
@@ -301,7 +284,6 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
   default void endVisit(final ASTFunction funcAst) {
     removeCurrentScope();
-    info("Ends processing of the function: " + funcAst.getName(), LOGGER_NAME);
   }
 
   default void visit(final ASTDynamics dynamicsAst) {
@@ -315,20 +297,20 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     methodEntry.setDynamics(true);
     methodEntry.setReturnType(PredefinedTypes.getVoidType());
     addToScopeAndLinkWithNode(methodEntry, dynamicsAst);
-
+    trace("Adds symbol for the dynamics", LOGGER_NAME);
   }
 
 
   @Override
   default void endVisit(final ASTDynamics de) {
     removeCurrentScope();
-    info("Ends processing of the dynamics: ", LOGGER_NAME);
   }
 
 
   @Override
   default void visit(final ASTVar_Block astVarBlock) {
     setVariableBlockType(Optional.of(astVarBlock));
+    trace("Handled variable_block", LOGGER_NAME);
   }
 
   @Override
@@ -343,14 +325,14 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     final CommonScope shadowingScope = new CommonScope(true);
     putOnStack(shadowingScope);
     astCompoundStmt.setEnclosingScope(shadowingScope);
-    info("Spans block scope.", LOGGER_NAME);
+    trace("Spans block scope.", LOGGER_NAME);
   }
 
   @Override
   default void endVisit(final ASTCompound_Stmt astCompoundStmt) {
     // TODO reuse SPLVisitor
     removeCurrentScope();
-    info("Removes block scope.", LOGGER_NAME);
+    trace("Removes block scope.", LOGGER_NAME);
   }
 
   // TODO replication, refactor it
@@ -460,7 +442,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
         var.setBlockType(blockType);
         addToScopeAndLinkWithNode(var, astDeclaration);
 
-        info("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
+        trace("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
       }
       else {
         warn("The variable " + varName + " at " + astDeclaration.get_SourcePositionStart() +

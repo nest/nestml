@@ -25,14 +25,28 @@ public class NESTCodeGeneratorTest extends GenerationTestBase {
   private static final Path OUTPUT_DIRECTORY = Paths.get("target", "build");
 
   private static final PSCMock pscMock = new PSCMock();
-  private static final String PSC_MODEL = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
+  private static final String PSC_MODEL_WITH_ODE = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
+  private static final String PSC_MODEL = "src/test/resources/codegeneration/iaf_neuron.nestml";
   private static final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
 
+  @Test
+  public void testPSCModelWithoutOde() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL);
+    scopeCreator.runSymbolTableCreator(root);
+    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    generator.analyseAndGenerate(
+        root,
+        Paths.get(OUTPUT_DIRECTORY.toString(), "simple_psc"));
+    generator.generateNESTModuleCode(
+        newArrayList(root),
+        "simple_psc",
+        Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
+  }
 
   @Test
   public void testPSCModelWithOde() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE);
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     generator.analyseAndGenerate(
