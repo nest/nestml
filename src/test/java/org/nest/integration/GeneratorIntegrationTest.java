@@ -54,8 +54,8 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
   );
 
   private final List<String> blueGen = Lists.newArrayList(
-      "src/test/resources/codegeneration/bluegene/aeif_cond_alpha_neuron.nestml"
-      //"src/test/resources/codegeneration/bluegene/hh_cond_alpha.nestml"
+      "src/test/resources/codegeneration/bluegene/aeif_cond_alpha_neuron.nestml",
+      "src/test/resources/codegeneration/bluegene/hh_cond_alpha.nestml"
   );
   @Ignore
   @Test

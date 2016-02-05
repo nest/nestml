@@ -26,6 +26,8 @@ public class GSLReferenceConverter implements IReferenceConverter {
 
   public static final String INDEX_VARIABLE_POSTFIX = "_INDEX";
 
+  private static final Double MAXIMAL_EXPONENT = 10.0;
+
   @Override
   public String convertBinaryOperator(String binaryOperator) {
     return "(%s)" + binaryOperator + "(%s)";
@@ -35,7 +37,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
   public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
     final String functionName = ASTNodes.toString(astFunctionCall.getQualifiedName());
     if ("exp".equals(functionName)) {
-      return "std::exp(%s)";
+      return "std::exp(std::min(%s, " + MAXIMAL_EXPONENT + "))";
     }
     if ("pow".equals(functionName)) {
       return "pow(%s)";
