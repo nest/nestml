@@ -11,9 +11,11 @@ import com.google.common.collect.Maps;
 import de.se_rwth.commons.Names;
 import org.nest.symboltable.symbols.MethodSymbol;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
@@ -112,13 +114,9 @@ public class PredefinedFunctions {
     return functionSymbol;
   }
 
-  public static Set<MethodSymbol> getMethodSymbols() {
-    return ImmutableSet.copyOf(name2FunctionSymbol.values());
+  public static List<MethodSymbol> getMethodSymbols() {
+    return name2FunctionSymbol.values().stream().map(MethodSymbol::new).collect(toList());
   }
 
-  public static MethodSymbol getMethodSymbol(final String methodName) {
-    Preconditions.checkArgument(name2FunctionSymbol.containsKey(methodName));
-    return name2FunctionSymbol.get(methodName);
-  }
 
 }

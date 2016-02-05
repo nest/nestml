@@ -6,6 +6,7 @@
 package org.nest.symboltable.symbols;
 
 import de.monticore.symboltable.CommonSymbol;
+import de.monticore.symboltable.SymbolKind;
 import org.nest.spl._ast.ASTExpr;
 
 import java.util.Objects;
@@ -117,6 +118,13 @@ public class VariableSymbol extends CommonSymbol {
     checkState(getAstNode().isPresent(), "Symbol table must set the AST node.");
     checkArgument(getAstNode().get().getEnclosingScope().isPresent(), "Run symboltable creator.");
     return isSetterPresent(getName(), getType().getName(), getAstNode().get().getEnclosingScope().get());
+
+  }
+
+  public static class VariableSymbolKind implements SymbolKind {
+
+    protected VariableSymbolKind() {
+    }
 
   }
 }
