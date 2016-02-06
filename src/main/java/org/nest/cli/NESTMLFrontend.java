@@ -8,7 +8,7 @@ package org.nest.cli;
 import com.google.common.base.Joiner;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
-import org.nest.codegeneration.NESTCodeGenerator;
+import org.nest.codegeneration.NESTGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.util.Optional;
@@ -56,9 +56,9 @@ public class NESTMLFrontend {
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(
         configuration.getInputBase());
-    final NESTCodeGenerator nestCodeGenerator = new NESTCodeGenerator(nestmlScopeCreator);
+    final NESTGenerator nestGenerator = new NESTGenerator(nestmlScopeCreator);
 
-    executor.execute(nestCodeGenerator, configuration);
+    executor.execute(nestGenerator, configuration);
 
   }
 

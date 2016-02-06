@@ -9,6 +9,7 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
@@ -16,6 +17,7 @@ import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
 import org.nest.codegeneration.sympy.AliasSolverScriptGenerator;
 import org.nest.codegeneration.sympy.ODEProcessor;
+import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -43,19 +45,19 @@ import static de.se_rwth.commons.logging.Log.info;
  * Generates C++ implementation and model integration code for NEST.
  * @author plotnikov
  */
-public class NESTCodeGenerator {
-  private final String LOG_NAME = NESTCodeGenerator.class.getName();
+public class NESTGenerator {
+  private final String LOG_NAME = NESTGenerator.class.getName();
   private final ODEProcessor odeProcessor;
   private final NESTReferenceConverter converter = new NESTReferenceConverter();
   private final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
   private final NESTMLScopeCreator scopeCreator;
 
-  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
+  public NESTGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= odeProcessor;
   }
 
-  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator) {
+  public NESTGenerator(final NESTMLScopeCreator scopeCreator) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= new ODEProcessor();
   }
@@ -77,9 +79,6 @@ public class NESTCodeGenerator {
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
       final Path outputBase) {
-    // TODO: it makes no sense anymore. Print it flatly
-    final String moduleName = root.getFullName();
-    final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
     final ASTBody bodyDecorator = root.getNeurons().get(0).getBody();
     final Optional<ASTOdeDeclaration> odesBlock = bodyDecorator.getEquations();
@@ -89,9 +88,9 @@ public class NESTCodeGenerator {
         return root;
       }
 
-      ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, modulePath);
+      ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, outputBase);
 
-      return printAndReadModel(scopeCreator, modulePath, withSolvedOde);
+      return printAndReadModel(scopeCreator, outputBase, withSolvedOde);
     }
     else {
       return root;
@@ -106,10 +105,11 @@ public class NESTCodeGenerator {
       final Path outputBase) {
     final AliasSolverScriptGenerator generator = new AliasSolverScriptGenerator();
     final Optional<Path> inverterScript = generator.generateAliasInverter(root.getNeurons().get(0), outputBase);
-
-    final String moduleName = root.getFullName();
-    final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
-    return printAndReadModel(scopeCreator, modulePath, root);
+    final SymPyScriptEvaluator scriptEvaluator = new SymPyScriptEvaluator();
+    if (!scriptEvaluator.execute(inverterScript.get())) {
+      Log.error("Cannot evaluate sympy script to compute inverse expression");
+    }
+    return printAndReadModel(scopeCreator, outputBase, root);
   }
 
   /**
