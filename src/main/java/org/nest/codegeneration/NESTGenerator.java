@@ -9,6 +9,7 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
@@ -16,6 +17,7 @@ import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
 import org.nest.codegeneration.sympy.AliasSolverScriptGenerator;
 import org.nest.codegeneration.sympy.ODEProcessor;
+import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -77,9 +79,6 @@ public class NESTGenerator {
       final ASTNESTMLCompilationUnit root,
       final NESTMLScopeCreator scopeCreator,
       final Path outputBase) {
-    // TODO: it makes no sense anymore. Print it flatly
-    final String moduleName = root.getFullName();
-    final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
 
     final ASTBody bodyDecorator = root.getNeurons().get(0).getBody();
     final Optional<ASTOdeDeclaration> odesBlock = bodyDecorator.getEquations();
@@ -89,9 +88,9 @@ public class NESTGenerator {
         return root;
       }
 
-      ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, modulePath);
+      ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, outputBase);
 
-      return printAndReadModel(scopeCreator, modulePath, withSolvedOde);
+      return printAndReadModel(scopeCreator, outputBase, withSolvedOde);
     }
     else {
       return root;
@@ -106,10 +105,11 @@ public class NESTGenerator {
       final Path outputBase) {
     final AliasSolverScriptGenerator generator = new AliasSolverScriptGenerator();
     final Optional<Path> inverterScript = generator.generateAliasInverter(root.getNeurons().get(0), outputBase);
-
-    final String moduleName = root.getFullName();
-    final Path modulePath = Paths.get(outputBase.toString(), getPathFromPackage(moduleName));
-    return printAndReadModel(scopeCreator, modulePath, root);
+    final SymPyScriptEvaluator scriptEvaluator = new SymPyScriptEvaluator();
+    if (!scriptEvaluator.execute(inverterScript.get())) {
+      Log.error("Cannot evaluate sympy script to compute inverse expression");
+    }
+    return printAndReadModel(scopeCreator, outputBase, root);
   }
 
   /**
