@@ -8,7 +8,7 @@ package org.nest.cli;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.codegeneration.NESTCodeGenerator;
+import org.nest.codegeneration.NESTGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
@@ -39,7 +39,7 @@ public class CLIConfigurationExecutor {
   }
 
   public void execute(
-      final NESTCodeGenerator generator,
+      final NESTGenerator generator,
       final Configuration config) {
 
     final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
@@ -99,7 +99,7 @@ public class CLIConfigurationExecutor {
       final List<ASTNESTMLCompilationUnit> modelRoots,
       final Configuration config,
       final NESTMLScopeCreator scopeCreator,
-      final NESTCodeGenerator generator) {
+      final NESTGenerator generator) {
 
     modelRoots.forEach(scopeCreator::runSymbolTableCreator);
 

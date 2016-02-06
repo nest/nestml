@@ -43,19 +43,19 @@ import static de.se_rwth.commons.logging.Log.info;
  * Generates C++ implementation and model integration code for NEST.
  * @author plotnikov
  */
-public class NESTCodeGenerator {
-  private final String LOG_NAME = NESTCodeGenerator.class.getName();
+public class NESTGenerator {
+  private final String LOG_NAME = NESTGenerator.class.getName();
   private final ODEProcessor odeProcessor;
   private final NESTReferenceConverter converter = new NESTReferenceConverter();
   private final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
   private final NESTMLScopeCreator scopeCreator;
 
-  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
+  public NESTGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= odeProcessor;
   }
 
-  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator) {
+  public NESTGenerator(final NESTMLScopeCreator scopeCreator) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= new ODEProcessor();
   }

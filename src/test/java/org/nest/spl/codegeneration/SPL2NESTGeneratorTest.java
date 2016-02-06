@@ -27,7 +27,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
 
-public class SPL2NESTCodeGeneratorTest {
+public class SPL2NESTGeneratorTest {
 
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 

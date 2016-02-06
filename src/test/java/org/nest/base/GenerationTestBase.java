@@ -7,11 +7,10 @@ package org.nest.base;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.codegeneration.NESTCodeGenerator;
+import org.nest.codegeneration.NESTGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,7 +29,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @author plotnikov
  */
 public abstract class GenerationTestBase extends ModelTestBase {
-  protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
+  protected final NESTGenerator generator = new NESTGenerator(scopeCreator);
   private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "integration");
 
   protected void invokeCodeGenerator(final String pathToModel) {

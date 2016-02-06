@@ -8,7 +8,7 @@ package org.nest.cli;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nest.base.ModelTestBase;
-import org.nest.codegeneration.NESTCodeGenerator;
+import org.nest.codegeneration.NESTGenerator;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
@@ -39,7 +39,7 @@ public class CLIConfigurationExecutorTest extends ModelTestBase {
 
   @Test
   public void testExecutionTestConfiguration() {
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    final NESTGenerator generator = new NESTGenerator(scopeCreator, pscMock);
     executor.execute(generator, testConfig);
   }
 
