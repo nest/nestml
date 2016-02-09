@@ -71,6 +71,34 @@ grammar SPL extends org.nest.commons.Commons {
 
   WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
 
+  /** ASTFunction a function definition:
+      function set_V_m(v mV):
+        y3 = v - E_L
+      end
+    @attribute name Functionname.
+    @attribute parameters List with function parameters.
+    @attribute returnType Complex return type, e.g. String
+    @attribute primitiveType Primitive return type, e.g. int
+    @attribute block Implementation of the function.
+  */
+  Function =
+          "function" Name "(" Parameters? ")" (returnType:Datatype)?
+           BLOCK_OPEN
+             Block
+           BLOCK_CLOSE;
+
+
+  /** ASTParameters models parameter list in function declaration.
+    @attribute parameters List with parameters.
+  */
+  Parameters = Parameter ("," Parameter)*;
+
+  /** ASTParameter represents singe:
+      output: spike
+    @attribute compartments Lists with compartments.
+  */
+  Parameter = Name Datatype;
+
   Expr = leftParentheses:"(" Expr rightParentheses:")"
          | <rightassoc> base:Expr pow:["**"] exponent:Expr
          | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr

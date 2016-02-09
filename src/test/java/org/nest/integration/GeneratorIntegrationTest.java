@@ -30,7 +30,7 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
   );
 
   private final List<String> nestmlPSCModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron.nestml",
+      "src/test/resources/codegeneration/iaf_neuron.nestml"/*,
       "src/test/resources/codegeneration/iaf_tum_2000.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp.nestml",
@@ -38,7 +38,7 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
       "src/test/resources/codegeneration/iaf_psc_exp_multisynapse.nestml",
       "src/test/resources/codegeneration/mat2_psc_exp.nestml",
       "src/test/resources/codegeneration/izhikevich.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse.nestml"
+      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse.nestml"*/
   );
 
   private final List<String> nestmlCondModels = Lists.newArrayList(
@@ -73,8 +73,8 @@ public class GeneratorIntegrationTest extends GenerationTestBase {
   @Test
   public void checkCocosOnModels() throws IOException {
     nestmlPSCModels.forEach(this::checkCocos);
-    pscModelsWithOde.forEach(this::checkCocos);
-    nestmlCondModels.forEach(this::checkCocos);
+//    pscModelsWithOde.forEach(this::checkCocos);
+//    nestmlCondModels.forEach(this::checkCocos);
   }
 
   @Test

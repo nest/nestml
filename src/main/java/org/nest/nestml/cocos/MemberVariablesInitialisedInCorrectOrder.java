@@ -85,8 +85,8 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
           VariableSymbol.KIND);
 
       if (!rhsSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
-        final String msg = "Variable '" + rhsVariableName + "' is undefined." + "<" +
-            variableFqnAst.get_SourcePositionStart() + "," + variableFqnAst.get_SourcePositionEnd()  + ">";
+        final String msg = variableFqnAst.get_SourcePositionStart() + ": Variable '" +
+            rhsVariableName + "' is undefined.";
         Log.warn(msg);
         return true;
       }
