@@ -60,20 +60,7 @@ public class NESTMLParser extends NESTMLParserTOP {
         res.get().setArtifactName(artifactName);
       }
       else {
-        if (filename.endsWith(".nestml")) {
-
-          final String withoutFileExt = filename.substring(0, filename.indexOf(".nestml"));
-          final String filenameAsPackage = Names.getPackageFromPath(withoutFileExt);
-          final String packageName = Names.getQualifier(filenameAsPackage);
-          final String artifactName = Names.getSimpleName(filenameAsPackage);
-
-          res.get().setPackageName(packageName);
-          res.get().setArtifactName(artifactName);
-        }
-        else {
-          Log.warn("Parser doesn't set the package and artifact name.");
-        }
-
+        throw new RuntimeException("The parser must be instantiated with a model path.");
       }
 
     }

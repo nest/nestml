@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class NESTMLPrettyPrinterTest extends ModelTestBase {
-  private final NESTMLParser nestmlParser = new NESTMLParser();
+  private final NESTMLParser nestmlParser = new NESTMLParser(TEST_MODEL_PATH);
 
   private Optional<ASTNESTMLCompilationUnit> parseStringAsSPLFile(final String fileAsString) throws IOException {
     return nestmlParser.parse(new StringReader(fileAsString));
