@@ -7,7 +7,7 @@ package org.nest.cli;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 import org.nest.codegeneration.NESTGenerator;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -21,7 +21,7 @@ import java.util.List;
  *
  * @author plotnikov
  */
-public class CLIConfigurationExecutorTest extends ModelTestBase {
+public class CLIConfigurationExecutorTest extends ModebasedTest {
   private static final Path TEST_INPUT_PATH = Paths.get("src/test/resources/command_line_base/");
   private static final Path TARGET_FOLDER = Paths.get("target/build");
   private final PSCMock pscMock = new PSCMock();

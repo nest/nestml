@@ -6,7 +6,7 @@
 package org.nest.codegeneration;
 
 import org.junit.Test;
-import org.nest.base.GenerationTestBase;
+import org.nest.base.GenerationTest;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
@@ -20,7 +20,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @author plotnikov
  */
-public class NESTGeneratorTest extends GenerationTestBase {
+public class NESTGeneratorTest extends GenerationTest {
 
   private static final Path OUTPUT_DIRECTORY = Paths.get("target", "build");
 

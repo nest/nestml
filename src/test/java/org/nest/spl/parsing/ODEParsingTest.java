@@ -3,7 +3,7 @@ package org.nest.spl.parsing;
 import de.monticore.antlr4.MCConcreteParser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 
 import org.nest.spl._ast.ASTEq;
 import org.nest.spl._ast.ASTODE;
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
  * @version $$Revision$$, $$Date$$
  * @since 0.0.1
  */
-public class ODEParsingTest extends ModelTestBase {
+public class ODEParsingTest extends ModebasedTest {
 
   final SPLParser parser = new SPLParser();
 

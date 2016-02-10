@@ -28,7 +28,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  *
  * @author plotnikov
  */
-public abstract class GenerationTestBase extends ModelTestBase {
+public abstract class GenerationTest extends ModebasedTest {
   protected final NESTGenerator generator = new NESTGenerator(scopeCreator);
   private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "integration");
 

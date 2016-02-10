@@ -8,7 +8,7 @@ package org.nest.nestml.symboltable;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTBodyElement;
 import org.nest.nestml._ast.ASTFunction;
@@ -31,7 +31,7 @@ import static org.junit.Assert.*;
  *
  * @author plotnikov
  */
-public class NESTMLSymbolTableTest extends ModelTestBase {
+public class NESTMLSymbolTableTest extends ModebasedTest {
 
   private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/symboltable/"
       + "iaf_neuron.nestml";

@@ -3,7 +3,7 @@ package org.nest.nestml.prettyprinter;
 import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class NESTMLPrettyPrinterTest extends ModelTestBase {
+public class NESTMLPrettyPrinterTest extends ModebasedTest {
   private final NESTMLParser nestmlParser = new NESTMLParser(TEST_MODEL_PATH);
 
   private Optional<ASTNESTMLCompilationUnit> parseStringAsSPLFile(final String fileAsString) throws IOException {
@@ -81,7 +81,7 @@ public class NESTMLPrettyPrinterTest extends ModelTestBase {
     nestmlScopeCreator.runSymbolTableCreator(splModelRoot.get());
     splModelRoot.get().accept(splPrettyPrinter);
 
-    System.out.println(splPrettyPrinter.getResult());
+    //System.out.println(splPrettyPrinter.getResult());
 
     final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseStringAsSPLFile(splPrettyPrinter.getResult());
     assertTrue(prettyPrintedRoot.isPresent());

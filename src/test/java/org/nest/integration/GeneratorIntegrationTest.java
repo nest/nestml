@@ -6,25 +6,19 @@
 package org.nest.integration;
 
 import com.google.common.collect.Lists;
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.base.GenerationTestBase;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.spl._ast.ASTOdeDeclaration;
-import org.nest.utils.ASTNodes;
+import org.nest.base.GenerationTest;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Test the entire generation pipeline without mocks
  *
  * @author plotnikov
  */
-public class GeneratorIntegrationTest extends GenerationTestBase {
+public class GeneratorIntegrationTest extends GenerationTest {
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_ode.nestml"
   );

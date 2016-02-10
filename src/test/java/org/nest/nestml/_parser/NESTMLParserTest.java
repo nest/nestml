@@ -1,7 +1,7 @@
 package org.nest.nestml._parser;
 
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
 import java.io.IOException;
@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
  *
  * @author plonikov
  */
-public class NESTMLParserTest extends ModelTestBase {
+public class NESTMLParserTest extends ModebasedTest {
   private static final String TEST_MODEL1 = "src/test/resources/command_line_base/"
       + "cli_example.nestml";
 

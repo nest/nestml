@@ -9,7 +9,7 @@ import de.se_rwth.commons.Names;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
@@ -36,7 +36,7 @@ import static org.nest.utils.LogHelper.countWarningsByPrefix;
  *
  * @author plotnikov
  */
-public class NESTMLCoCosTest extends ModelTestBase {
+public class NESTMLCoCosTest extends ModebasedTest {
 
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/nestml/cocos/";
 

@@ -8,7 +8,7 @@ package org.nest.nestml.parsing;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLLanguage;
 
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests whether the nestml model can be parsed
  */
-public class NESTMLParserTest extends ModelTestBase {
+public class NESTMLParserTest extends ModebasedTest {
   private final static  String LOG_NAME = NESTMLParserTest.class.getName();
 
 

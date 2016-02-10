@@ -78,7 +78,7 @@ public class TypeSymbol extends CommonSymbol {
     return com.google.common.base.Objects.hashCode(this.getName(), this.type);
   }
 
-  public enum Type { UNIT, PRIMITIVE}
+  public enum Type { UNIT, PRIMITIVE, BUFFER}
 
   public static class TypeSymbolKind implements SymbolKind {
 

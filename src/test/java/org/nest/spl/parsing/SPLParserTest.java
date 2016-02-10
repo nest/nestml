@@ -5,21 +5,17 @@
  */
 package org.nest.spl.parsing;
 
-import com.google.common.collect.Lists;
 import de.monticore.antlr4.MCConcreteParser;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
-import org.nest.spl._symboltable.SPLLanguage;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,24 +25,13 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests whether the model can be parsed or not
  */
-public class SPLParserTest extends ModelTestBase {
+public class SPLParserTest extends ModebasedTest {
   private final static  String LOG_NAME = SPLParserTest.class.getName();
   private final SPLParser parser = new SPLParser();
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = Lists.newArrayList();
-    Files.walkFileTree(TEST_MODEL_PATH, new SimpleFileVisitor<Path>() {
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        if (Files.isRegularFile(file) &&
-            file.getFileName().toString().endsWith(SPLLanguage.FILE_ENDING)) {
-
-          filenames.add(file);
-        }
-        return FileVisitResult.CONTINUE;
-      }
-    });
+    final List<Path> filenames = getSPLFilesFromFolder(TEST_MODEL_PATH);
 
     filenames.forEach(this::parseAndCheck);
   }
