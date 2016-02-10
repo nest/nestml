@@ -156,10 +156,6 @@ public final class ASTNodes {
     return argTypeNames;
   }
 
-  public static String toString(final ASTQualifiedName qualifiedName) {
-    return Names.getQualifiedName(qualifiedName.getParts());
-  }
-
   public static String toString(final ASTExpr expr) {
     final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
     return printer.print(expr);
@@ -250,10 +246,10 @@ public final class ASTNodes {
     final private Set<VariableSymbol> variables = Sets.newHashSet();
 
     @Override
-    public void visit(final ASTQualifiedName astQualifiedName) {
-      checkArgument(astQualifiedName.getEnclosingScope().isPresent(), "Run symbol table creator.");
-      final String variableName = ASTNodes.toString(astQualifiedName);
-      final Scope scope = astQualifiedName.getEnclosingScope().get();
+    public void visit(final ASTVariable astVariable) {
+      checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
+      final String variableName = astVariable.toString();
+      final Scope scope = astVariable.getEnclosingScope().get();
       final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
       if (symbol.isPresent()) {
         variables.add(symbol.get());

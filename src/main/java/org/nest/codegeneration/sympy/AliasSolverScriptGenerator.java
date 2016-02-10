@@ -16,6 +16,7 @@ import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.ASTSPLNode;
+import org.nest.spl._ast.ASTVariable;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -126,13 +127,13 @@ public class AliasSolverScriptGenerator {
     }
 
     @Override
-    public void visit(final ASTQualifiedName astQualifiedName) {
+    public void visit(final ASTVariable astVariable) {
       Preconditions.checkArgument(
-          astQualifiedName.getEnclosingScope().isPresent(),
+          astVariable.getEnclosingScope().isPresent(),
           "Run symbol table creator.");
-      final Scope scope = astQualifiedName.getEnclosingScope().get();
+      final Scope scope = astVariable.getEnclosingScope().get();
 
-      final String variableName = ASTNodes.toString(astQualifiedName);
+      final String variableName = astVariable.toString();
       final Optional<VariableSymbol> variableSymbol
           = scope.resolve(variableName, VariableSymbol.KIND);
       if (variableSymbol.isPresent() && !variableSymbol.get().isAlias()) {

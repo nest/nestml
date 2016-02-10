@@ -13,6 +13,7 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
 import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._ast.ASTVariable;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -65,12 +66,10 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
       final ASTDeclaration decl = alias.getDeclaration();
       Optional<VariableSymbol> used;
 
-      final List<ASTQualifiedName> variables = getSuccessors(
-          decl.getExpr().get(),
-          ASTQualifiedName.class);
+      final List<ASTVariable> variables = getSuccessors(decl.getExpr().get(), ASTVariable.class);
       // TODO Review the "reflection code"
-      for (final ASTQualifiedName atomFqn : variables) {
-        final String fullName = ASTNodes.toString(atomFqn);
+      for (final ASTVariable atomFqn : variables) {
+        final String fullName = atomFqn.toString();
 
         final Optional<VariableSymbol> stentry = neuronSymbol.getVariableByName(fullName);
         if (stentry.isPresent()) {
