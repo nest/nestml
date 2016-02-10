@@ -13,11 +13,14 @@ import org.nest.base.ModelTestBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
+import org.nest.spl._cocos.SPLASTEqCoCo;
+import org.nest.spl._cocos.SPLASTODECoCo;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -233,13 +236,13 @@ public class NESTMLCoCosTest extends ModelTestBase {
     nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) memberVariableDefinedMultipleTimes);
     nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) memberVariableDefinedMultipleTimes);
 
-    String pathToValidModel = TEST_MODELS_FOLDER + "multiplyDefinedVars/validModel.nestml";
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "multiplyDefinedVars/validModel.nestml") ;
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         "NESTML_");
 
-    String pathToInvalidModel = TEST_MODELS_FOLDER + "multiplyDefinedVars/varDefinedMultipleTimes.nestml";
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "multiplyDefinedVars/varDefinedMultipleTimes.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
@@ -426,13 +429,13 @@ public class NESTMLCoCosTest extends ModelTestBase {
     final UsesOnlyComponents usesOnlyComponents = new UsesOnlyComponents();
     nestmlCoCoChecker.addCoCo(usesOnlyComponents);
 
-    String pathToValidModel = TEST_MODELS_FOLDER + "useComponents/validUsage.nestml";
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "useComponents/validUsage.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         "NESTML_");
 
-    String pathToInvalidModel = TEST_MODELS_FOLDER + "useComponents/invalidUsage.nestml";
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "useComponents/invalidUsage.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
@@ -474,7 +477,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   @Test
   public void testUsageIncorrectOrder() {
-    String pathToValidModel = TEST_MODELS_FOLDER + "undefinedVariables/validModelUndefinedValues.nestml";
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "undefinedVariables/validModelUndefinedValues.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
@@ -484,7 +487,7 @@ public class NESTMLCoCosTest extends ModelTestBase {
         = new MemberVariablesInitialisedInCorrectOrder();
     nestmlCoCoChecker.addCoCo(memberVariablesInitialisedInCorrectOrder);
 
-    String pathToInvalidModel = TEST_MODELS_FOLDER + "undefinedVariables/invalidModelUndefinedValues.nestml";
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "undefinedVariables/invalidModelUndefinedValues.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
@@ -499,13 +502,13 @@ public class NESTMLCoCosTest extends ModelTestBase {
     final SPLCoCosManager splCoCosManager  = new SPLCoCosManager();
     splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoCheckerWithSPLCocos);
 
-    String pathToValidModel = TEST_MODELS_FOLDER + "splInFunctions/validMethod.nestml";
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "splInFunctions/validMethod.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoCheckerWithSPLCocos,
         "SPL_");
 
-    String pathToInvalidModel = TEST_MODELS_FOLDER + "splInFunctions/invalidMethod.nestml";
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "splInFunctions/invalidMethod.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoCheckerWithSPLCocos,
@@ -520,13 +523,13 @@ public class NESTMLCoCosTest extends ModelTestBase {
     final SPLCoCosManager splCoCosManager  = new SPLCoCosManager();
     splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoCheckerWithSPLCocos);
 
-    String pathToValidModel = TEST_MODELS_FOLDER + "equations/validEquations.nestml";
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "equations/validEquations.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoCheckerWithSPLCocos,
         "SPL_");
 
-    String pathToInvalidModel = TEST_MODELS_FOLDER + "equations/invalidEquations.nestml";
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equations/invalidEquations.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoCheckerWithSPLCocos,
@@ -541,13 +544,13 @@ public class NESTMLCoCosTest extends ModelTestBase {
         = new BooleanInvariantExpressions();
     nestmlCoCoChecker.addCoCo(booleanInvariantExpressions);
 
-    String pathToValidModel = TEST_MODELS_FOLDER + "invariants/validInvariantType.nestml";
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "invariants/validInvariantType.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         BooleanInvariantExpressions.ERROR_CODE);
 
-    String pathToInvalidModel = TEST_MODELS_FOLDER + "invariants/invalidInvariantType.nestml";
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invariants/invalidInvariantType.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
@@ -562,13 +565,13 @@ public class NESTMLCoCosTest extends ModelTestBase {
         = new AliasHasDefiningExpression();
     nestmlCoCoChecker.addCoCo(booleanInvariantExpressions);
 
-    String pathToValidModel = TEST_MODELS_FOLDER + "aliasDefiningExpression/validAliasWithExpression.nestml";
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "aliasDefiningExpression/validAliasWithExpression.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         "NESTML_");
 
-    String pathToInvalidModel = TEST_MODELS_FOLDER + "aliasDefiningExpression/invalidAliasWithoutExpression.nestml";
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "aliasDefiningExpression/invalidAliasWithoutExpression.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
@@ -577,27 +580,42 @@ public class NESTMLCoCosTest extends ModelTestBase {
 
   }
 
+  @Test
+  public void testOnlyStateVariablesInOde() {
+    final EquationsOnlyForStateVariables equationsOnlyForStateVariables
+        = new EquationsOnlyForStateVariables();
+    nestmlCoCoChecker.addCoCo((SPLASTEqCoCo) equationsOnlyForStateVariables);
+    nestmlCoCoChecker.addCoCo((SPLASTODECoCo) equationsOnlyForStateVariables);
+
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "odesOnlyForStateVariables/valid.nestml");
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        "NESTML_");
+
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "odesOnlyForStateVariables/invalid.nestml");
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        "NESTML_",
+        2);
+
+  }
+
   private void checkModelAndAssertNoErrors(
-      final String pathToModel,
+      final Path pathToModel,
       final NESTMLCoCoChecker nestmlCoCoChecker,
       final String expectedErrorCode) {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel, TEST_MODEL_PATH);
-    assertTrue(ast.isPresent());
-    scopeCreator.runSymbolTableCreator(ast.get());
-
-    nestmlCoCoChecker.checkAll(ast.get());
-
-    int errorsFound = countErrorsByPrefix(expectedErrorCode, getFindings());
-    assertEquals(0, errorsFound);
+    checkModelAndAssertWithErrors(pathToModel, nestmlCoCoChecker, expectedErrorCode, 0);
 
   }
 
   private void checkModelAndAssertWithErrors(
-      final String pathToModel,
+      final Path pathToModel,
       final NESTMLCoCoChecker nestmlCoCoChecker,
       final String expectedErrorCode,
       final Integer expectedNumberCount) {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel, TEST_MODEL_PATH);
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel.toString(), TEST_MODEL_PATH);
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 

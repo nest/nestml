@@ -13,6 +13,7 @@ import org.nest.spl._ast.ASTVariable;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
+import org.nest.utils.NESTMLSymbols;
 
 import java.util.Optional;
 
@@ -99,8 +100,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
   }
 
   private VariableSymbol resolveVariable(final String variableName, final Scope scope) {
-    final Optional<VariableSymbol> variableSymbol = scope.resolve(
-        variableName, VariableSymbol.KIND);
+    final Optional<VariableSymbol> variableSymbol = NESTMLSymbols.resolve(variableName, scope);
     checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
     return variableSymbol.get();
   }

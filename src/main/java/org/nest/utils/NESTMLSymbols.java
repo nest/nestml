@@ -6,7 +6,9 @@
 package org.nest.utils;
 
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -60,6 +62,16 @@ public class NESTMLSymbols {
     }
 
     return standAloneFunction;
+  }
+
+  public static Optional<VariableSymbol> resolve(final String variableName, final Scope scope) {
+    try {
+      return scope.resolve(variableName, VariableSymbol.KIND);
+    }
+    catch (ResolvedSeveralEntriesException e) {
+      Log.warn("The variable '" + variableName + "' is defined multiple times.");
+    }
+    return Optional.empty();
   }
 
   public static boolean isSetterPresent(

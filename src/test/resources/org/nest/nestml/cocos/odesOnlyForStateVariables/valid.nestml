@@ -1,0 +1,17 @@
+neuron iaf_neuron_ode:
+
+  state:
+    V mV
+    G ms
+  end
+
+  equations:
+      G = e * t
+      V' = -1/Tau * V + 1/C_m
+  end
+
+  parameter:
+    C_m     pF = 250pF # Capacity of the membrane
+    Tau     ms = 10 # Membrane time constant.
+  end
+end
