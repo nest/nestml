@@ -6,10 +6,9 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
-import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.spl._ast.ASTVariable;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -30,7 +29,7 @@ import static com.google.common.base.Preconditions.checkState;
 public class NESTReferenceConverter implements IReferenceConverter {
 
   @Override
-  public String convertBinaryOperator(String binaryOperator) {
+  public String convertBinaryOperator(final String binaryOperator) {
     if (binaryOperator.equals("**")) {
       return "pow(%s, %s)";
     }
@@ -45,12 +44,11 @@ public class NESTReferenceConverter implements IReferenceConverter {
   }
 
   @Override
-  public String convertFunctionCall(
-      final ASTFunctionCall astFunctionCall) {
+  public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
     checkState(astFunctionCall.getEnclosingScope().isPresent(), "No scope assigned. Run SymbolTable creator.");
 
     final Scope scope = astFunctionCall.getEnclosingScope().get();
-    final String functionName = Names.getQualifiedName(astFunctionCall.getQualifiedName().getParts());
+    final String functionName = astFunctionCall.getCalleeName();
 
     if ("and".equals(functionName)) {
       return "&&";
@@ -124,10 +122,10 @@ public class NESTReferenceConverter implements IReferenceConverter {
   }
 
   @Override
-  public String convertNameReference(final ASTQualifiedName astQualifiedName) {
+  public String convertNameReference(final ASTVariable astQualifiedName) {
     checkArgument(astQualifiedName.getEnclosingScope().isPresent(), "No scope is assigned. Please, build the symbol "
         + "table before calling this function.");
-    final String name = Names.getQualifiedName(astQualifiedName.getParts());
+    final String name = astQualifiedName.toString();
     final Scope scope = astQualifiedName.getEnclosingScope().get();
     if (PredefinedVariables.E_CONSTANT.equals(name)) {
       return "numerics::e";
@@ -170,7 +168,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
 
   @Override
   public boolean needsArguments(final ASTFunctionCall astFunctionCall) {
-    final String functionName = Names.getQualifiedName(astFunctionCall.getQualifiedName().getParts());
+    final String functionName = astFunctionCall.getCalleeName();
     if (functionName.contains("emitSpike")) { // TODO it cannot work!
       return false;
     }

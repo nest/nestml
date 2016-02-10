@@ -55,8 +55,8 @@ public class VariableDoesNotExist implements
         .getSuccessors(expr, ASTFunctionCall.class);
     final List<String> functionNames = Lists.newArrayList();
 
-    functionCallAsts.stream().forEach(functionCallAst ->
-        functionNames.add(Names.getQualifiedName(functionCallAst.getQualifiedName().getParts()))
+    functionCallAsts.stream().forEach(astFunctionCall ->
+        functionNames.add(astFunctionCall.getCalleeName())
     );
 
     for (final ASTQualifiedName variable : variables) {
@@ -152,8 +152,7 @@ public class VariableDoesNotExist implements
 
     final List<String> functions = ASTNodes
         .getSuccessors(expression, ASTFunctionCall.class).stream()
-        .map(astFunctionCall -> Names
-            .getQualifiedName(astFunctionCall.getQualifiedName().getParts()))
+        .map(ASTFunctionCall::getCalleeName)
         .collect(Collectors.toList());
 
     return names.stream()
@@ -166,7 +165,8 @@ public class VariableDoesNotExist implements
     node.getODEs().forEach(
         ode-> {
           checkVariableByName(ode.getLhsVariable(), node);
-          getVariablesFromExpressions(ode.getRhs()).forEach(variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
+          getVariablesFromExpressions(ode.getRhs()).forEach(
+              variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
         }
 
     );
@@ -174,7 +174,8 @@ public class VariableDoesNotExist implements
     node.getEqs().forEach(
         eq-> {
           checkVariableByName(eq.getLhsVariable(), node);
-          getVariablesFromExpressions(eq.getRhs()).forEach(variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
+          getVariablesFromExpressions(eq.getRhs()).forEach(
+              variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
         }
 
     );

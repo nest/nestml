@@ -17,6 +17,7 @@ import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTExpr;
+import org.nest.spl._ast.ASTVariable;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
@@ -55,15 +56,15 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
 
       checkState(lhsSymbol.isPresent(), "Variable '" + lhsVariableName + "' is not defined");
 
-      final List<ASTQualifiedName> variablesNames
-          = ASTNodes.getSuccessors(declaration.getExpr().get(), ASTQualifiedName.class);
+      final List<ASTVariable> variablesNames
+          = ASTNodes.getSuccessors(declaration.getExpr().get(), ASTVariable.class);
 
       if (checkVariables(enclosingScope.get(), lhsSymbol.get(), variablesNames))
         return;
 
       for (ASTExpr aliasExpression:alias.getInvariants()) {
-        final List<ASTQualifiedName> namesInInvariant
-            = ASTNodes.getSuccessors(aliasExpression, ASTQualifiedName.class);
+        final List<ASTVariable> namesInInvariant
+            = ASTNodes.getSuccessors(aliasExpression, ASTVariable.class);
 
         if (checkVariables(enclosingScope.get(), lhsSymbol.get(), namesInInvariant))
           return;
@@ -77,16 +78,16 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
   protected boolean checkVariables(
       final Scope enclosingScope,
       final VariableSymbol lhsSymbol,
-      final List<ASTQualifiedName> variablesNames) {
-    for (ASTQualifiedName variableFqnAst : variablesNames) {
-      final String rhsVariableName = Names.getQualifiedName(variableFqnAst.getParts());
-      Optional<VariableSymbol> rhsSymbol = enclosingScope.resolve(
+      final List<ASTVariable> variablesNames) {
+    for (final ASTVariable astVariable : variablesNames) {
+      final String rhsVariableName = astVariable.toString();
+      final Optional<VariableSymbol> rhsSymbol = enclosingScope.resolve(
           rhsVariableName,
           VariableSymbol.KIND);
 
       if (!rhsSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
-        final String msg = "Variable '" + rhsVariableName + "' is undefined." + "<" +
-            variableFqnAst.get_SourcePositionStart() + "," + variableFqnAst.get_SourcePositionEnd()  + ">";
+        final String msg = astVariable.get_SourcePositionStart() + ": Variable '" +
+            rhsVariableName + "' is undefined.";
         Log.warn(msg);
         return true;
       }

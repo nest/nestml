@@ -15,7 +15,6 @@ import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.Names.getQualifiedName;
 
 /**
@@ -162,7 +161,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    * ArgList = (args:Expr ("," args:Expr)*)?;
    */
   public void printFunctionCall(final ASTFunctionCall astFunctionCall) {
-    final String functionName = Names.getQualifiedName(astFunctionCall.getQualifiedName().getParts());
+    final String functionName = astFunctionCall.getCalleeName();
     print(functionName + "(");
     final List<ASTExpr> functionArguments = astFunctionCall.getArgList().getArgs();
     for (int argumentIndex = 0; argumentIndex < functionArguments.size(); ++argumentIndex) {

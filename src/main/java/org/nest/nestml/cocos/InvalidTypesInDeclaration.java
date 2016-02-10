@@ -7,18 +7,18 @@ package org.nest.nestml.cocos;
 
 import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTNode;
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
-import org.nest.nestml._ast.*;
+import org.nest.nestml._ast.ASTFunction;
+import org.nest.nestml._ast.ASTUSE_Stmt;
 import org.nest.nestml._cocos.NESTMLASTFunctionCoCo;
 import org.nest.nestml._cocos.NESTMLASTUSE_StmtCoCo;
 import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._ast.ASTParameter;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.ASTNodes;
 
 import java.util.Optional;
 

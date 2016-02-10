@@ -5,8 +5,8 @@
  */
 package org.nest.codegeneration.converters;
 
-import de.monticore.types.types._ast.ASTQualifiedName;
 import org.nest.spl._ast.ASTFunctionCall;
+import org.nest.spl._ast.ASTVariable;
 
 public interface IReferenceConverter {
 
@@ -14,10 +14,11 @@ public interface IReferenceConverter {
 
   String convertFunctionCall(final ASTFunctionCall astFunctionCall);
 
-  String convertNameReference(final ASTQualifiedName astQualifiedName);
+  String convertNameReference(final ASTVariable astVariable);
 
   String convertConstant(final String constantName);
 
   boolean needsArguments(final ASTFunctionCall astFunctionCall);
+
 
 }

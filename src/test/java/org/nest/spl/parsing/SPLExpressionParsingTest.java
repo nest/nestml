@@ -37,7 +37,7 @@ public class SPLExpressionParsingTest {
   public void testPlus() throws IOException {
     Optional<ASTExpr> res = parse("-a");
     assertTrue(res.isPresent());
-    assertEquals("a", Names.getQualifiedName(res.get().getTerm().get().getQualifiedName().get().getParts()));
+    assertEquals("a", res.get().getTerm().get().getVariable().get().toString());
     assertTrue(res.get().isUnaryMinus());
 
   }

@@ -5,6 +5,7 @@ import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._ast.*;
+import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;

@@ -6,7 +6,6 @@
 package org.nest.spl.parsing;
 
 import de.monticore.antlr4.MCConcreteParser;
-import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.spl._ast.ASTExpr;
@@ -62,7 +61,7 @@ public class SPLParsingTest {
     final Optional<ASTExpr> result = splParser.parseExpr(new StringReader("e1**e2**e3"));
 
     // asserts that the parse tree is built as e1**(e2**e3), e.g. in a right associative way
-    final String base = Names.getQualifiedName(result.get().getBase().get().getQualifiedName().get().getParts());
+    final String base = result.get().getBase().get().getVariable().get().toString();
     assertEquals("e1", base);
     assertTrue(result.get().getExponent().get().isPow());
   }

@@ -11,9 +11,9 @@ import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._ast.ASTParameter;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
+import org.nest.spl._ast.ASTParameter;
 import org.nest.symboltable.symbols.NeuronSymbol;
 
 import java.util.Optional;
