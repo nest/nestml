@@ -7,10 +7,8 @@ package org.nest.nestml._ast;
 
 import com.google.common.collect.ImmutableList;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.Symbol;
-import org.nest.commons.commons._ast.ASTBLOCK_CLOSE;
-import org.nest.commons.commons._ast.ASTBLOCK_OPEN;
-import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.commons._ast.ASTBLOCK_CLOSE;
+import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -19,7 +17,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 

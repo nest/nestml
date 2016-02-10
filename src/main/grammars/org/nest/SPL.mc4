@@ -5,7 +5,7 @@
  */
 package org.nest;
 
-grammar SPL extends org.nest.commons.Commons {
+grammar SPL extends org.nest.Commons {
 
   SPLFile = ModuleDefinitionStatement Block;
 

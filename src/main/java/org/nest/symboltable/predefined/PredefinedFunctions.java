@@ -38,6 +38,7 @@ public class PredefinedFunctions {
   public static final String RANDOM_INT = "randomInt";
   public static final String EXPM1 = "expm1";
   public static final String INTEGRATE = "integrate";
+  public static final String I_SUM = "I_Sum";
 
 
   private static final Map<String, MethodSymbol> name2FunctionSymbol = Maps.newHashMap();
@@ -104,6 +105,12 @@ public class PredefinedFunctions {
     integrate.addParameterType(getRealType());
     integrate.setReturnType(getVoidType());
     name2FunctionSymbol.put(INTEGRATE, integrate);
+
+    final MethodSymbol i_sum = createFunctionSymbol(I_SUM);
+    i_sum.addParameterType(getBufferType());
+    i_sum.addParameterType(getRealType());
+    i_sum.setReturnType(getType("pA"));
+    name2FunctionSymbol.put(I_SUM, i_sum);
   }
 
   private static MethodSymbol createFunctionSymbol(final String functionName) {

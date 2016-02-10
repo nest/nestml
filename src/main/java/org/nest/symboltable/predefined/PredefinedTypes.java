@@ -90,8 +90,7 @@ public class PredefinedTypes {
   }
 
   private static void registerBufferType() {
-    final TypeSymbol bufferType
-        = new TypeSymbol("Buffer", TypeSymbol.Type.PRIMITIVE);
+    final TypeSymbol bufferType = new TypeSymbol("Buffer", TypeSymbol.Type.BUFFER);
     implicitTypes.put("Buffer", bufferType);
 
     final MethodSymbol getSumMethod = new MethodSymbol("getSum");

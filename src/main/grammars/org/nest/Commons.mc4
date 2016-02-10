@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.commons;
+package org.nest;
 
 grammar Commons extends de.monticore.types.Types {
 
