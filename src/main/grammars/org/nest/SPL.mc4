@@ -31,9 +31,9 @@ grammar SPL extends org.nest.Commons {
   ODE = lhsVariable:Name "\'" "=" rhs:Expr;
 
   Assignment = variableName:QualifiedName
-    (assignment:["="] |
-     compoundSum:["+="] |
-     compoundMinus:["-="] |
+    (assignment:["="]       |
+     compoundSum:["+="]     |
+     compoundMinus:["-="]   |
      compoundProduct:["*="] |
      compoundQuotient:["/="]) Expr;
 
@@ -45,22 +45,25 @@ grammar SPL extends org.nest.Commons {
     ("<" sizeParameter:Name ">")?
     ( "=" Expr )? ;
 
-  Datatype = ["integer"] |
-         ["real"] |
-         ["string"] |
-         ["boolean"] |
-         ["void"] |
-         UnitType;
+  Datatype = ["integer"]
+           | ["real"]
+           | ["string"]
+           | ["boolean"]
+           | ["void"]
+           | UnitType;
+
   UnitType = leftParentheses:"(" UnitType rightParentheses:")"
-         | base:UnitType pow:["**"] exponent:IntLiteral
-         | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
-         | unit:Name;
+           | base:UnitType pow:["**"] exponent:IntLiteral
+           | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
+           | unit:Name;
+
   ReturnStmt = "return" Expr?;
 
   IF_Stmt = IF_Clause
             ELIF_Clause*
             (ELSE_Clause)?
             BLOCK_CLOSE;
+
   IF_Clause = "if" Expr BLOCK_OPEN Block;
 
   ELIF_Clause = "elif" Expr BLOCK_OPEN Block;
@@ -81,12 +84,10 @@ grammar SPL extends org.nest.Commons {
     @attribute primitiveType Primitive return type, e.g. int
     @attribute block Implementation of the function.
   */
-  Function =
-          "function" Name "(" Parameters? ")" (returnType:Datatype)?
+  Function = "function" Name "(" Parameters? ")" (returnType:Datatype)?
            BLOCK_OPEN
              Block
            BLOCK_CLOSE;
-
 
   /** ASTParameters models parameter list in function declaration.
     @attribute parameters List with parameters.
@@ -125,9 +126,22 @@ grammar SPL extends org.nest.Commons {
          | ["inf"]
          | Variable;
 
+  /**
+    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    @attribute name
+  */
+  Variable = name:QualifiedName;
+
+  /**
+    ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
+    @attribute name The (qualified) name of the fucntions
+    @attribute argList A list with parameters
+  */
   FunctionCall = name:QualifiedName "(" ArgList ")";
 
+  /**
+    ASTArgList Stores the arguments of the callee function
+    @attribute args Comma separated list of expressions representing parameters.
+  */
   ArgList = (args:Expr ("," args:Expr)*)?;
-
-  Variable = name:QualifiedName;
 }

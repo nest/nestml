@@ -20,7 +20,7 @@ grammar NESTML extends org.nest.SPL {
 
   /** ASTImport represents the import line. Can be the qualified name oder a wirldcard import.
     @attribute qualifiedName    The qualified name to artifact
-    @attribute star             Optional wildcard
+    @attribute star             Optional wildcard ('*')
   */
   Import = "import" QualifiedName ([star:".*"])? (";")?;
 
