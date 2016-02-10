@@ -6,18 +6,16 @@
 package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
-import org.nest.base.ModelTestBase;
+import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
 import java.nio.file.Paths;
-
-import static org.junit.Assert.*;
 
 /**
  * Tests that the generator correctly handles a model with aliases
  * @author plotnikov
  */
-public class AliasSolverScriptGeneratorTest extends ModelTestBase {
+public class AliasSolverScriptGeneratorTest extends ModebasedTest {
   public static final String PATH_TO_PSC_MODEL
       = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
   private final AliasSolverScriptGenerator aliasSolverGenerator = new AliasSolverScriptGenerator();
