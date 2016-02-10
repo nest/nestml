@@ -9,7 +9,6 @@ import com.google.common.base.Preconditions;
 import de.monticore.literals.literals._ast.ASTDoubleLiteral;
 import de.monticore.literals.literals._ast.ASTIntLiteral;
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.symboltable.symbols.MethodSymbol;
@@ -60,8 +59,8 @@ public class ExpressionTypeCalculator {
     else if (expr.getBooleanLiteral().isPresent()) { // boolean
       return Either.left(getBooleanType());
     }
-    else if (expr.getQualifiedName().isPresent()) { // var
-      final String varName = Names.getQualifiedName(expr.getQualifiedName().get().getParts());
+    else if (expr.getVariable().isPresent()) { // var
+      final String varName = expr.getVariable().get().toString();
       final Optional<VariableSymbol> var = scope.resolve(varName, VariableSymbol.KIND);
 
       if (var.isPresent()) {
@@ -72,7 +71,7 @@ public class ExpressionTypeCalculator {
       }
     }
     else if (expr.getFunctionCall().isPresent()) { // function
-      final String functionName = Names.getQualifiedName(expr.getFunctionCall().get().getQualifiedName().getParts());
+      final String functionName = expr.getFunctionCall().get().getCalleeName();
 
       final Optional<MethodSymbol> methodSymbol = scope.resolve(functionName,
           MethodSymbol.KIND);
@@ -87,7 +86,6 @@ public class ExpressionTypeCalculator {
             expr.get_SourcePositionEnd());
       }
 
-      double a = ~1;
       return Either.left(methodSymbol.get().getReturnType());
     }
     else if (expr.isUnaryMinus() || expr.isUnaryPlus()) {

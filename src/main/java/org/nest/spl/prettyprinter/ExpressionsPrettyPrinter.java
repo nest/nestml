@@ -7,11 +7,11 @@ package org.nest.spl.prettyprinter;
 
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
-import de.monticore.types.types._ast.ASTQualifiedName;
 import org.nest.codegeneration.converters.IReferenceConverter;
 import org.nest.codegeneration.converters.IdempotentReferenceConverter;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.spl._ast.ASTFunctionCall;
+import org.nest.spl._ast.ASTVariable;
 
 import java.util.List;
 
@@ -51,8 +51,8 @@ public class ExpressionsPrettyPrinter {
     else if (expr.getBooleanLiteral().isPresent()) { // boolean
       return typesPrinter().prettyprint(expr.getBooleanLiteral().get());
     }
-    else if (expr.getQualifiedName().isPresent()) { // var
-      return handleQualifiedName(expr.getQualifiedName().get());
+    else if (expr.getVariable().isPresent()) { // var
+      return handleQualifiedName(expr.getVariable().get());
     }
     else if (expr.getFunctionCall().isPresent()) { // function
       final ASTFunctionCall astFunctionCall = expr.getFunctionCall().get();
@@ -171,7 +171,7 @@ public class ExpressionsPrettyPrinter {
     return referenceConverter.convertConstant(constantName);
   }
 
-  protected String handleQualifiedName(final ASTQualifiedName astVariableName) {
+  protected String handleQualifiedName(final ASTVariable astVariableName) {
     return referenceConverter.convertNameReference(astVariableName);
   }
 

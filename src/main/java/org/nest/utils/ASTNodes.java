@@ -191,12 +191,8 @@ public final class ASTNodes {
     final private Set<String> variableNames = Sets.newHashSet();
 
     @Override
-    public void visit(final ASTExpr astExpr) {
-      if (astExpr.getQualifiedName().isPresent()) {
-        final String variableName = Names.getQualifiedName(astExpr.getQualifiedName().get().getParts());
-        variableNames.add(variableName);
-
-      }
+    public void visit(final ASTVariable var) {
+      variableNames.add(var.toString());
 
     }
 

@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
-import static de.se_rwth.commons.Names.getQualifiedName;
 
 /**
  * Takes SymPy result and the source AST. Produces an altered AST with the the exact solution.
@@ -166,7 +165,7 @@ public class ExactSolutionTransformer {
     public void visit(final ASTFunctionCall astFunctionCall) {
       // TODO also parameter should be checked
       // TODO actually works only for the first ode
-      if (getQualifiedName(astFunctionCall.getQualifiedName().getParts()).equals("integrate")) {
+      if (astFunctionCall.getCalleeName().equals("integrate")) {
         foundOde = Optional.of(astFunctionCall);
       }
     }

@@ -123,9 +123,11 @@ grammar SPL extends org.nest.commons.Commons {
          | NumericLiteral type:Name?
          | StringLiteral
          | ["inf"]
-         | QualifiedName;
+         | Variable;
 
-  FunctionCall = QualifiedName "(" ArgList ")";
+  FunctionCall = name:QualifiedName "(" ArgList ")";
 
   ArgList = (args:Expr ("," args:Expr)*)?;
+
+  Variable = name:QualifiedName;
 }

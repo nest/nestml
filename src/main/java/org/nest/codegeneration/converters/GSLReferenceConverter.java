@@ -9,6 +9,7 @@ import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.spl._ast.ASTFunctionCall;
+import org.nest.spl._ast.ASTVariable;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -35,7 +36,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
 
   @Override
   public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
-    final String functionName = ASTNodes.toString(astFunctionCall.getQualifiedName());
+    final String functionName = astFunctionCall.getCalleeName();
     if ("exp".equals(functionName)) {
       return "std::exp(std::min(%s, " + MAXIMAL_EXPONENT + "))";
     }
@@ -46,11 +47,11 @@ public class GSLReferenceConverter implements IReferenceConverter {
   }
 
   @Override
-  public String convertNameReference(final ASTQualifiedName astQualifiedName) {
-    checkState(astQualifiedName.getEnclosingScope().isPresent(), "Run symbol table creator.");
-    final String variableName = Names.getQualifiedName(astQualifiedName.getParts());
+  public String convertNameReference(final ASTVariable astVariable) {
+    checkState(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
+    final String variableName = astVariable.toString();
     final VariableSymbol variableSymbol
-        = resolveVariable(variableName, astQualifiedName.getEnclosingScope().get());
+        = resolveVariable(variableName, astVariable.getEnclosingScope().get());
     if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
         !variableSymbol.isAlias()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
@@ -87,7 +88,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
 
   @Override
   public boolean needsArguments(final ASTFunctionCall astFunctionCall) {
-    final String functionName = ASTNodes.toString(astFunctionCall.getQualifiedName());
+    final String functionName = astFunctionCall.getCalleeName();
     if ("exp".equals(functionName)) {
       return true;
     }
