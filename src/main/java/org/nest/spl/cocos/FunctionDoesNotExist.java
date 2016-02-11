@@ -26,9 +26,7 @@ import static org.nest.utils.NESTMLSymbols.resolveMethod;
 /**
  * Checks that methods are defined and used with correct types.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class FunctionDoesNotExist implements SPLASTFunctionCallCoCo {
   public static final String ERROR_CODE = "SPL_FUNCTION_DOES_NOT_EXIST";
@@ -52,7 +50,7 @@ public class FunctionDoesNotExist implements SPLASTFunctionCallCoCo {
         argTypeNames.add(argType.getLeft().get().getName());
       }
       else {
-        Log.warn("Cannot compute the type: " + arg);
+        Log.warn(ERROR_CODE + ": Cannot compute the type: " + arg);
         return;
       }
 

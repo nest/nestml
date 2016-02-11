@@ -69,20 +69,5 @@ public class ModebasedTest {
       throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);
     }
   }
-
-  protected List<Path> getSPLFilesFromFolder(Path testModelPath) throws IOException {
-    final List<Path> filenames = Lists.newArrayList();
-    Files.walkFileTree(testModelPath, new SimpleFileVisitor<Path>() {
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        if (Files.isRegularFile(file) &&
-            file.getFileName().toString().endsWith(SPLLanguage.FILE_ENDING)) {
-
-          filenames.add(file);
-        }
-        return FileVisitResult.CONTINUE;
-      }
-    });
-    return filenames;
-  }
+  
 }

@@ -63,7 +63,7 @@ public class TypeSymbol extends CommonSymbol {
     }
     final TypeSymbol other = (TypeSymbol) obj;
 
-    return   com.google.common.base.Objects.equal(this.type, other.type)
+    return com.google.common.base.Objects.equal(this.type, other.type)
         && com.google.common.base.Objects.equal(this.getName(), other.getName());
   }
 

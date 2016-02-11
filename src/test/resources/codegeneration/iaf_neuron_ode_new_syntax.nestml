@@ -1,0 +1,57 @@
+neuron iaf_neuron_ode:
+
+  state:
+    V mV
+    G real
+    alias V_m mV = V + E_L # Membrane potential.
+  end
+
+  equations:
+      G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+      V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + ext_currents)
+  end
+
+  parameter:
+    C_m     pF = 250pF # Capacity of the membrane
+    Tau     ms = 10 # Membrane time constant.
+    tau_syn ms = 2 # Time constant of synaptic current.
+    t_ref   ms = 2 # Refractory period.
+    E_L      mV = -70 # Resting potential.
+    delta_V_reset mV = -70 - E_L
+    Theta   mV = -55 - E_L
+    I_e     pA = 0 # External current.
+    alias V_th mV = Theta + E_L # some aliases Threshold.
+
+    alias  V_reset mV = delta_V_reset + E_L # Reset value of the membrane potential. # invariant V_reset >= Theta
+  end
+
+  internal:
+    h   ms   = resolution()
+    r  integer
+    RefractoryCounts integer = steps(t_ref)
+  end
+
+  input:
+    spikes   <- inhibitory excitatory spike
+    ext_currents <- current
+  end
+
+  output: spike
+
+  update:
+    if r == 0: # not refractory
+        integrate(V)
+    else:
+        r = r - 1
+    end
+
+    # threshold crossing
+    if V >= Theta:
+        r = RefractoryCounts
+        V = delta_V_reset
+        emitSpike()
+    end
+
+  end
+
+end

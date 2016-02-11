@@ -12,6 +12,8 @@ import org.nest.base.ModebasedTest;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
+import org.nest.spl._symboltable.SPLLanguage;
+import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -31,7 +33,8 @@ public class SPLParserTest extends ModebasedTest {
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = getSPLFilesFromFolder(TEST_MODEL_PATH);
+    final List<Path> filenames = FileHelper.collectModelFilenames(
+        TEST_MODEL_PATH, model -> model.endsWith(SPLLanguage.FILE_ENDING));
 
     filenames.forEach(this::parseAndCheck);
   }

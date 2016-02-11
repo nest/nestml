@@ -13,12 +13,13 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
+import org.nest.nestml._symboltable.NESTMLLanguage;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.utils.FileHelper;
 import org.nest.utils.LogHelper;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -74,25 +75,10 @@ public class CLIConfigurationExecutor {
     return modelRoots;
   }
 
-  protected List<Path> collectNESTMLModelFilenames(final Path inputPath) {
-    final List<Path> filenames = Lists.newArrayList();
-    try {
-      Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-          if (Files.isRegularFile(file)) {
-            filenames.add(file);
-          }
-          return FileVisitResult.CONTINUE;
-        }
-      });
-    }
-    catch (IOException e) {
-      final String msg = "There is a problem to solveODE NESTML models in the folder:  " + inputPath;
-      Log.error(msg, e);
-      throw new RuntimeException(msg, e);
-    }
-    return filenames;
+  public List<Path> collectNESTMLModelFilenames(final Path path) {
+    return FileHelper.collectModelFilenames(
+        path,
+        modelFile -> modelFile.endsWith(NESTMLLanguage.FILE_ENDING));
   }
 
   private void processNestmlModels(
