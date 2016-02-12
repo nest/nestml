@@ -5,14 +5,19 @@
  */
 package org.nest.codegeneration.sympy;
 
+import de.monticore.ast.ASTNode;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.spl._ast.ASTExpr;
+import org.nest.spl._ast.ASTFunctionCall;
+import org.nest.spl._ast.ASTODE;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
 
@@ -27,6 +32,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static java.util.stream.Collectors.toList;
+import static org.nest.utils.ASTNodes.getVariableSymbols;
 
 /**
  * Wrapps the logic how to extract and generate SymPy script..
@@ -81,14 +88,12 @@ public class ODESolverScriptGenerator {
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
 
-    final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
     checkState(astOdeDeclaration.getODEs().size() == 1, "It works only for a single ODE.");
-    glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));
+    glex.setGlobalValue("ode", replace_I_sum(astOdeDeclaration.getODEs().get(0)));
     glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
-    // TODO should be defined in sympy fileglex.setGlobalValue("predefinedVariables", PredefinedVariables.gerVariables());
+    glex.setGlobalValue("predefinedVariables", PredefinedVariables.gerVariables());
 
     setup.setGlex(glex);
-    setup.setTracing(false); // python comments are not java comments
     setup.setCommentStart(Optional.of("#"));
     setup.setCommentEnd(Optional.empty());
 
@@ -96,12 +101,12 @@ public class ODESolverScriptGenerator {
 
     final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
 
-    final List<VariableSymbol> variables = ASTNodes.getVariableSymbols(astOdeDeclaration);
+    final List<VariableSymbol> variables = getVariableSymbols(astOdeDeclaration);
     final List<VariableSymbol> aliases = variables.stream()
         .filter(VariableSymbol::isAlias)
-        .collect(Collectors.toList());
-    aliases.stream().forEach(alias ->
-        variables.addAll(ASTNodes.getVariableSymbols(alias.getDeclaringExpression().get())));
+        .collect(toList());
+    aliases.stream()
+        .forEach(alias -> variables.addAll(getVariableSymbols(alias.getDeclaringExpression().get())));
 
     glex.setGlobalValue("variables", variables);
     glex.setGlobalValue("aliases", aliases);
@@ -112,6 +117,22 @@ public class ODESolverScriptGenerator {
     generator.generate(SCRIPT_GENERATOR_TEMPLATE, solverSubPath, astOdeDeclaration);
 
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
+  }
+
+  protected static ASTODE replace_I_sum(final ASTODE astOde) {
+    final List<ASTFunctionCall> functions = ASTNodes.getAll(astOde, ASTFunctionCall.class)
+        .stream()
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals("I_sum"))
+        .collect(toList());
+
+    functions.stream().forEach(node -> {
+      final Optional<ASTNode> parent = ASTNodes.getParent(node, astOde);
+      checkState(parent.isPresent());
+      final ASTExpr expr = (ASTExpr) parent.get();
+      expr.setFunctionCall(null);
+      expr.setVariable(node.getArgList().getArgs().get(0).getVariable().get());
+    });
+    return astOde;
   }
 
   private static GlobalExtensionManagement createGLEXConfiguration() {

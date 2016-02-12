@@ -95,6 +95,7 @@ public class GeneratorIntegrationTest extends GenerationTest {
     blueGene.forEach(this::invokeCodeGenerator);
   }
 
+  @Ignore
   @Test
   public void testNewSyntax() {
     newSyntax.forEach(this::checkCocos);
