@@ -278,7 +278,7 @@ public class NESTGenerator {
   private void setNeuronGenerationParameter(
       final GlobalExtensionManagement glex,
       final ASTNeuron neuron) {
-    setSolverType(glex, neuron);
+    defineSolverType(glex, neuron);
 
     final String guard = (neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
@@ -307,7 +307,7 @@ public class NESTGenerator {
 
   }
 
-  private void setSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
+  private void defineSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
     final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
     if (astBody.getEquations().isPresent()) {
