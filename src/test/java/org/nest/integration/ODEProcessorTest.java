@@ -34,7 +34,6 @@ public class ODEProcessorTest extends ModebasedTest {
 
   final ODEProcessor testant = new ODEProcessor();
 
-  @Ignore("Don't run this tests on github")
   @Test
   public void testPscModel() throws Exception {
     final Scope scope = processModel(PSC_MODEL_FILE);
@@ -51,7 +50,6 @@ public class ODEProcessorTest extends ModebasedTest {
   @Test
   public void testCondModel() throws Exception {
     processModel(COND_MODEL_FILE);
-
   }
 
   private Scope processModel(final String pathToModel) {

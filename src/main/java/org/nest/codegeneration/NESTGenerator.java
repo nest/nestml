@@ -72,7 +72,6 @@ public class NESTGenerator {
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     generateNESTCode(workingVersion, outputBase);
 
-
     final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
         + outputBase.toAbsolutePath().toString() + "'";
     info(msg, LOG_NAME);

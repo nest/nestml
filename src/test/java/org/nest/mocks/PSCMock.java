@@ -23,15 +23,13 @@ public class PSCMock extends ODEProcessor {
   @Override
   protected ASTNESTMLCompilationUnit handleNeuronWithODE(
       ASTNESTMLCompilationUnit root, Path outputBase) {
-    final ASTNESTMLCompilationUnit transformedModel = getExactSolutionTransformer()
-        .replaceODEWithSymPySolution(
+
+    return getExactSolutionTransformer().replaceODEWithSymPySolution(
             root,
             Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.P30_FILE),
             Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),
             Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.STATE_VECTOR_FILE),
             Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.UPDATE_STEP_FILE));
-
-    return transformedModel;
   }
 
 }
