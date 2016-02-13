@@ -18,7 +18,7 @@ import java.util.List;
  *
  * @author plotnikov
  */
-public class GeneratorIntegrationTest extends GenerationTest {
+public class NESTGeneratorIntegrationTest extends GenerationTest {
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron_ode.nestml"
   );

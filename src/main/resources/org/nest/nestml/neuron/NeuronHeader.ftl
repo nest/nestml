@@ -27,8 +27,8 @@
 */
 
 
-#ifndef ${guard}
-#define ${guard}
+#ifndef ${simpleNeuronName?upper_case}
+#define ${simpleNeuronName?upper_case}
 <#-- TODO make it depend on the ODE declaration -->
 #include "config.h"
 
@@ -433,7 +433,7 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
   S_ = stmp;
 };
 
-#endif /* #ifndef ${guard} */
+#endif /* #ifndef ${simpleNeuronName?upper_case} */
 <#if useGSL>
 #endif /* HAVE GSL */
 </#if>

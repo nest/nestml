@@ -29,8 +29,11 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  * @author plotnikov
  */
 public abstract class GenerationTest extends ModebasedTest {
+
+  public static final String MODULE_NAME = "integration";
+
   protected final NESTGenerator generator = new NESTGenerator(scopeCreator);
-  private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "integration");
+  private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
 
   protected void invokeCodeGenerator(final String pathToModel) {
     final Optional<ASTNESTMLCompilationUnit> root;
@@ -40,7 +43,7 @@ public abstract class GenerationTest extends ModebasedTest {
       scopeCreator.runSymbolTableCreator(root.get());
 
       generator.analyseAndGenerate(root.get(), CODE_GEN_OUTPUT);
-      generator.generateNESTModuleCode(newArrayList(root.get()), "integration", CODE_GEN_OUTPUT);
+      generator.generateNESTModuleCode(newArrayList(root.get()), MODULE_NAME, CODE_GEN_OUTPUT);
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions
       throw new RuntimeException(e);
