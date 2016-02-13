@@ -19,10 +19,14 @@ import org.nest.utils.FileHelper;
 import org.nest.utils.LogHelper;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import static java.nio.file.FileSystems.*;
 
 /**
  * Interprets the provided configuration by collecting models and executing parsing, context
@@ -76,9 +80,8 @@ public class CLIConfigurationExecutor {
   }
 
   public List<Path> collectNESTMLModelFilenames(final Path path) {
-    return FileHelper.collectModelFilenames(
-        path,
-        modelFile -> modelFile.endsWith(NESTMLLanguage.FILE_ENDING));
+    final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + NESTMLLanguage.FILE_ENDING);
+    return FileHelper.collectModelFilenames(path, modelFile -> matcher.matches(modelFile.getFileName()));
   }
 
   private void processNestmlModels(
