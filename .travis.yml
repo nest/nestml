@@ -11,8 +11,5 @@ branches:
     - master
 
 install:
-  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings settings.xml
   - pip install --user -r requirements.txt
-
-script: 
-  - mvn surefire:test --settings settings.xml
+  - mvn clean install -DskipTests=true -Dmaven.javadoc.skip=true -B -V --settings settings.xml
