@@ -8,7 +8,6 @@ package org.nest.codegeneration.sympy;
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.SolverType;
 import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 
 import java.nio.file.Path;
@@ -18,6 +17,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.warn;
+import static org.nest.codegeneration.sympy.ODESolverScriptGenerator.generateSympyODEAnalyzer;
 
 /**
  * Analyzes a neuron for defined ODE. If an ode is defined, it produces a temporary NESTML model
@@ -32,35 +32,31 @@ public class ODEProcessor {
 
   /**
    * Dependent of the ODE kind either computes the exact solution or brings to the form which can
-   * be directly utilized in a solver.
-   * @param root TODO must be neuron
-   * @param outputBase Folder, where temporary files can be stored.
-   * @return The model root with the exact solution or in a normalized form..
+   * be directly utilized in a solver. The result is stored directly in the provided neuron AST.
+   * @param astNeuron Input neuron.
+   * @param outputBase Folder where the solverscript is generated
+   * @return Exactly solved neuron.
    */
-  public ASTNESTMLCompilationUnit solveODE(
-      final ASTNESTMLCompilationUnit root,
+  public ASTNeuron solveODE(
+      final ASTNeuron astNeuron,
       final Path outputBase) {
-    checkState(root.getNeurons().size() > 0, "Model contains at least on neuron.");
-    final ASTNeuron neuron = root.getNeurons().get(0);
-    final ASTBody astBodyDecorator = (neuron.getBody());
-    if (astBodyDecorator.getEquations().isPresent()) {
-      return handleNeuronWithODE(root, outputBase);
+    final ASTBody astBody = astNeuron.getBody();
+    if (astBody.getEquations().isPresent()) {
+      return handleNeuronWithODE(astNeuron, outputBase);
     }
     else {
-      final String msg = "The neuron: " + neuron.getName() + " doesn't contain ODE. The analysis "
-          + "is skipped.";
+      final String msg = "The neuron: " + astNeuron.getName() + " doesn't contain ODE. "
+          + "The analysis is skipped.";
       Log.warn(msg);
-      return root;
+      return astNeuron;
     }
 
   }
 
-  protected ASTNESTMLCompilationUnit handleNeuronWithODE(
-      final ASTNESTMLCompilationUnit root,
+  protected ASTNeuron handleNeuronWithODE(
+      final ASTNeuron astNeuron,
       final Path outputBase) {
-    final Optional<Path> generatedScript = ODESolverScriptGenerator.generateSympyODEAnalyzer(
-        root.getNeurons().get(0),
-        outputBase);
+    final Optional<Path> generatedScript = generateSympyODEAnalyzer(astNeuron, outputBase);
 
     checkState(generatedScript.isPresent());
 
@@ -72,23 +68,22 @@ public class ODEProcessor {
 
     if (solutionType.equals(SolverType.EXACT)) {
       info("ODE is solved exactly.", LOG_NAME);
-      final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer
+
+      return exactSolutionTransformer
           .replaceODEWithSymPySolution(
-              root,
+              astNeuron,
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.P30_FILE),
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_FILE),
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.UPDATE_STEP_FILE));
-
-      return transformedModel;
     }
     else if (solutionType.equals(SolverType.NUMERIC)) {
       info("ODE is solved numerically.", LOG_NAME);
-      return root;
+      return astNeuron;
     }
     else {
       warn("ODEs could not be solved. The model remains unchanged.");
-      return root;
+      return astNeuron;
     }
 
   }

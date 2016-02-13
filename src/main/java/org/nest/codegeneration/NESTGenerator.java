@@ -36,10 +36,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static de.se_rwth.commons.Names.getPathFromPackage;
 import static de.se_rwth.commons.logging.Log.info;
+import static org.nest.utils.ASTNodes.getAllNeurons;
 
 /**
  * Generates C++ implementation and model integration code for NEST.
@@ -66,86 +65,42 @@ public class NESTGenerator {
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
     info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
-    ASTNESTMLCompilationUnit workingVersion;
+    ASTNESTMLCompilationUnit workingVersion = root;
+    for (int i = 0; i < root.getNeurons().size(); ++i) {
+      final ASTNeuron solvedNeuron = computeSolutionForODE(root.getNeurons().get(i), outputBase);
+      root.getNeurons().set(i, solvedNeuron);
+    }
 
-    workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
+    workingVersion = printAndReadModel(outputBase, workingVersion);
+    scopeCreator.runSymbolTableCreator(workingVersion);
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     generateNESTCode(workingVersion, outputBase);
 
-    info("Successfully generated NEST code for: " + root.getFullName(), LOG_NAME);
+    final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
+        + outputBase.toAbsolutePath().toString() + "'";
+    info(msg, LOG_NAME);
   }
 
-  protected ASTNESTMLCompilationUnit computeSolutionForODE(
-      final ASTNESTMLCompilationUnit root,
-      final NESTMLScopeCreator scopeCreator,
+  protected ASTNeuron computeSolutionForODE(
+      final ASTNeuron astNeuron,
       final Path outputBase) {
-
-    final ASTBody bodyDecorator = root.getNeurons().get(0).getBody();
-    final Optional<ASTOdeDeclaration> odesBlock = bodyDecorator.getEquations();
+    final ASTBody astBody = astNeuron.getBody();
+    final Optional<ASTOdeDeclaration> odesBlock = astBody.getEquations();
     if (odesBlock.isPresent()) {
       if (odesBlock.get().getEqs().size() == 0) {
         info("The model will be solved numerically with a GSL solver.", LOG_NAME);
-        return root;
+        return astNeuron;
       }
 
-      ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, outputBase);
-
-      return printAndReadModel(scopeCreator, outputBase, withSolvedOde);
+      return odeProcessor.solveODE(astNeuron, outputBase);
     }
     else {
-      return root;
+      return astNeuron;
     }
-
 
   }
 
-  protected ASTNESTMLCompilationUnit computeSetterForAliases(
-      final ASTNESTMLCompilationUnit root,
-      final NESTMLScopeCreator scopeCreator,
-      final Path outputBase) {
-    final AliasSolverScriptGenerator generator = new AliasSolverScriptGenerator();
-    final Optional<Path> inverterScript = generator.generateAliasInverter(root.getNeurons().get(0), outputBase);
-    final SymPyScriptEvaluator scriptEvaluator = new SymPyScriptEvaluator();
-    if (!scriptEvaluator.execute(inverterScript.get())) {
-      Log.error("Cannot evaluate sympy script to compute inverse expression");
-    }
-    return printAndReadModel(scopeCreator, outputBase, root);
-  }
-
-  /**
-   * This action is done for 2 Reasons:
-   * a) Technically it is necessary to build a new symbol table
-   * b) The model developer can view how the solution was computed.
-   * @return New root node of the altered model with an initialized symbol table
-   */
-  private ASTNESTMLCompilationUnit printAndReadModel(
-      final NESTMLScopeCreator scopeCreator,
-      final Path modulePath,
-      final ASTNESTMLCompilationUnit root) {
-    try {
-      final Path outputTmpPath = Paths.get(modulePath.toString(), "tmp.nestml");
-      printModelToFile(root, outputTmpPath.toString());
-      final NESTMLParser parser = new NESTMLParser(modulePath);
-
-      final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit
-          (outputTmpPath.toString()).get();
-      withSolvedOde.setArtifactName(root.getArtifactName());
-      if (root.getPackageName().isPresent()) {
-        withSolvedOde.setPackageName(root.getPackageName().get());
-      }
-      else {
-        withSolvedOde.removePackageName();
-      }
-
-      scopeCreator.runSymbolTableCreator(withSolvedOde);
-      return withSolvedOde;
-    }
-    catch (IOException e) {
-      throw  new RuntimeException(e);
-    }
-  }
-
-  public void generateNESTCode(
+  protected void generateNESTCode(
       final ASTNESTMLCompilationUnit workingVersion,
       final Path outputBase) {
     generateHeader(workingVersion, outputBase);
@@ -196,17 +151,60 @@ public class NESTGenerator {
 
   }
 
+  protected ASTNESTMLCompilationUnit computeSetterForAliases(
+      final ASTNESTMLCompilationUnit root,
+      final NESTMLScopeCreator scopeCreator,
+      final Path outputBase) {
+    final AliasSolverScriptGenerator generator = new AliasSolverScriptGenerator();
+    final Optional<Path> inverterScript = generator.generateAliasInverter(root.getNeurons().get(0), outputBase);
+    final SymPyScriptEvaluator scriptEvaluator = new SymPyScriptEvaluator();
+    if (!scriptEvaluator.execute(inverterScript.get())) {
+      Log.error("Cannot evaluate sympy script to compute inverse expression");
+    }
+    return printAndReadModel(outputBase, root);
+  }
+
+  /**
+   * This action is done for 2 Reasons:
+   * a) Technically it is necessary to build a new symbol table
+   * b) The model developer can view how the solution was computed.
+   * @return New root node of the altered model with an initialized symbol table
+   */
+  private ASTNESTMLCompilationUnit printAndReadModel(
+      final Path modulePath,
+      final ASTNESTMLCompilationUnit root) {
+    try {
+      final Path outputTmpPath = Paths.get(modulePath.toString(), "tmp.nestml");
+      printModelToFile(root, outputTmpPath.toString());
+      final NESTMLParser parser = new NESTMLParser(modulePath);
+
+      final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit
+          (outputTmpPath.toString()).get();
+      withSolvedOde.setArtifactName(root.getArtifactName());
+      if (root.getPackageName().isPresent()) {
+        withSolvedOde.setPackageName(root.getPackageName().get());
+      }
+      else {
+        withSolvedOde.removePackageName();
+      }
+
+      scopeCreator.runSymbolTableCreator(withSolvedOde);
+      return withSolvedOde;
+    }
+    catch (IOException e) {
+      throw  new RuntimeException(e);
+    }
+  }
+
   public void generateNESTModuleCode(
       final List<ASTNESTMLCompilationUnit> modelRoots,
       final String moduleName,
       final Path outputDirectory) {
-    final List<ASTNeuron> neurons = modelRoots.stream()
-        .flatMap(root -> root.getNeurons().stream())
-        .collect(Collectors.toList());
-    generateModuleCodeForNeuron(neurons, moduleName, outputDirectory);
+    final List<ASTNeuron> neurons = getAllNeurons(modelRoots);
+    generateModuleCodeForNeurons(neurons, moduleName, outputDirectory);
   }
 
-  protected void generateModuleCodeForNeuron(
+  protected void generateModuleCodeForNeurons(
       final List<ASTNeuron> neurons,
       final String moduleName,
       final Path outputDirectory) {
@@ -265,16 +263,17 @@ public class NESTGenerator {
 
   private void printModelToFile(
       final ASTNESTMLCompilationUnit root,
-      final String outputFolderBase) {
+      final String outputFile) {
     final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
     root.accept(prettyPrinter);
 
-    final File prettyPrintedModelFile = new File(outputFolderBase);
+    final File prettyPrintedModelFile = new File(outputFile);
     try {
       FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
     }
     catch (IOException e) {
-      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputFolderBase, e);
+      final String msg = "Cannot write the prettyprinted model to the file: " + outputFile;
+      throw new RuntimeException(msg, e);
     }
 
   }
@@ -297,7 +296,6 @@ public class NESTGenerator {
     glex.setGlobalValue("guard", guard);
     glex.setGlobalValue("simpleNeuronName", neuron.getName());
 
-    final String nspPrefix = convertToCppNamespaceConvention(moduleName);
     final NESTMLFunctionPrinter functionPrinter = new NESTMLFunctionPrinter();
     final NESTMLDeclarations declarations = new NESTMLDeclarations();
     glex.setGlobalValue("declarations", new NESTMLDeclarations() );
@@ -307,7 +305,6 @@ public class NESTGenerator {
     glex.setGlobalValue("declarations", declarations);
     glex.setGlobalValue("bufferHelper", new NESTMLBuffers());
 
-    glex.setGlobalValue("nspPrefix", nspPrefix);
     glex.setGlobalValue("outputEvent", NESTMLOutputs.printOutputEvent(neuron.getBody()));
     glex.setGlobalValue("isOutputEventPresent", NESTMLOutputs.isOutputEventPresent(neuron.getBody()));
     glex.setGlobalValue("isSpikeInput", NESTMLInputs.isSpikeInput(neuron));
@@ -334,10 +331,5 @@ public class NESTGenerator {
     }
 
   }
-
-  private static String convertToCppNamespaceConvention(String fqnName) {
-    return fqnName.replace(".", "::");
-  }
-
 
 }

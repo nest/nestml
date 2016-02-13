@@ -52,10 +52,6 @@ public class GeneratorIntegrationTest extends GenerationTest {
       "src/test/resources/codegeneration/bluegene/hh_cond_alpha.nestml"
   );
 
-  private final List<String> newSyntax = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron_ode_new_syntax.nestml"
-  );
-
   @Ignore
   @Test
   public void testFeedbackModels() {
@@ -93,13 +89,6 @@ public class GeneratorIntegrationTest extends GenerationTest {
   public void testBluegeneModels() {
     blueGene.forEach(this::checkCocos);
     blueGene.forEach(this::invokeCodeGenerator);
-  }
-
-  @Ignore
-  @Test
-  public void testNewSyntax() {
-    newSyntax.forEach(this::checkCocos);
-    newSyntax.forEach(this::invokeCodeGenerator);
   }
 
 }

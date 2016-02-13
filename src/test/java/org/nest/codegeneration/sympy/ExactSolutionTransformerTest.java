@@ -9,6 +9,7 @@ import de.monticore.symboltable.Scope;
 import org.junit.Test;
 import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -48,15 +49,15 @@ public class ExactSolutionTransformerTest extends ModebasedTest {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer
+    final ASTNeuron transformedModel = exactSolutionTransformer
         .replaceODEWithSymPySolution(
-            modelRoot,
+            modelRoot.getNeurons().get(0),
             Paths.get(P30_FILE),
             Paths.get(PSC_INITIAL_VALUE_FILE),
             Paths.get(STATE_VECTOR_FILE),
             Paths.get(UPDATE_STEP_FILE));
 
-    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+    printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 
@@ -82,11 +83,10 @@ public class ExactSolutionTransformerTest extends ModebasedTest {
   public void testAddingP00Value() {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer.addP30(
-        parseNESTMLModel(MODEL_FILE_PATH),
-        Paths.get(P30_FILE));
+    ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
+    exactSolutionTransformer.addP30(modelRoot.getNeurons().get(0), Paths.get(P30_FILE));
 
-    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+    printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 
@@ -105,10 +105,11 @@ public class ExactSolutionTransformerTest extends ModebasedTest {
   public void testReplaceODEThroughMatrixMultiplication() {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer.replaceODE(
-        parseNESTMLModel(MODEL_FILE_PATH),
+    ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
+    exactSolutionTransformer.replaceODE(
+        modelRoot.getNeurons().get(0),
         Paths.get(UPDATE_STEP_FILE));
-    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+    printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     parseNESTMLModel(TARGET_TMP_MODEL_PATH);
   }
@@ -117,10 +118,11 @@ public class ExactSolutionTransformerTest extends ModebasedTest {
   public void testAddingPSCInitialValue() {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
-    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer.addPSCInitialValue(
-        parseNESTMLModel(MODEL_FILE_PATH),
+    ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
+    exactSolutionTransformer.addPSCInitialValue(
+        modelRoot.getNeurons().get(0),
         Paths.get(PSC_INITIAL_VALUE_FILE));
-    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+    printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 
@@ -140,9 +142,10 @@ public class ExactSolutionTransformerTest extends ModebasedTest {
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
 
-    final ASTNESTMLCompilationUnit transformedModel = exactSolutionTransformer
-        .addStateVariablesAndUpdateStatements(modelRoot, Paths.get(STATE_VECTOR_FILE));
-    printModelToFile(transformedModel, TARGET_TMP_MODEL_PATH);
+    exactSolutionTransformer.addStateVariablesAndUpdateStatements(
+        modelRoot.getNeurons().get(0),
+        Paths.get(STATE_VECTOR_FILE));
+    printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 

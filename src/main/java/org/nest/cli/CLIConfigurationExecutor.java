@@ -13,20 +13,16 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
-import org.nest.nestml._symboltable.NESTMLLanguage;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.utils.FileHelper;
 import org.nest.utils.LogHelper;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static java.nio.file.FileSystems.*;
+import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
 
 /**
  * Interprets the provided configuration by collecting models and executing parsing, context
@@ -40,7 +36,7 @@ public class CLIConfigurationExecutor {
   final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
 
   public CLIConfigurationExecutor() {
-    Log.enableFailQuick(false);
+    Log.enableFailQuick(false); // otherwise the processing is stopped after encountering first error
   }
 
   public void execute(
@@ -77,11 +73,6 @@ public class CLIConfigurationExecutor {
     }
 
     return modelRoots;
-  }
-
-  public List<Path> collectNESTMLModelFilenames(final Path path) {
-    final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + NESTMLLanguage.FILE_ENDING);
-    return FileHelper.collectModelFilenames(path, modelFile -> matcher.matches(modelFile.getFileName()));
   }
 
   private void processNestmlModels(

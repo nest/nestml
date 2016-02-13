@@ -5,22 +5,19 @@
  */
 package org.nest.nestml.parsing;
 
-import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLLanguage;
-import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
-import static org.nest.utils.FileHelper.collectModelFilenames;
+import static org.nest.utils.FileHelper.collectFiles;
 
 /**
  * Tests whether the nestml model can be parsed
@@ -31,7 +28,7 @@ public class NESTMLParserTest extends ModebasedTest {
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = collectModelFilenames(
+    final List<Path> filenames = collectFiles(
         TEST_MODEL_PATH,
         model -> model.endsWith(NESTMLLanguage.FILE_ENDING));
 

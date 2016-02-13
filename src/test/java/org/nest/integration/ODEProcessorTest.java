@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.nest.base.ModebasedTest;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -25,7 +26,6 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-@Ignore("Don't run this tests on github")
 public class ODEProcessorTest extends ModebasedTest {
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
@@ -36,7 +36,7 @@ public class ODEProcessorTest extends ModebasedTest {
   final ODEProcessor testant = new ODEProcessor();
 
   @Test
-  public void testProcess() throws Exception {
+  public void testPscModel() throws Exception {
     final Scope scope = processModel(PSC_MODEL_FILE);
 
     final Optional<NeuronSymbol> neuronSymbol = scope.resolve(
@@ -51,7 +51,6 @@ public class ODEProcessorTest extends ModebasedTest {
   @Test
   public void testCondModel() throws Exception {
     processModel(COND_MODEL_FILE);
-
   }
 
   private Scope processModel(final String pathToModel) {
@@ -59,10 +58,11 @@ public class ODEProcessorTest extends ModebasedTest {
     scopeCreator.runSymbolTableCreator(modelRoot);
     final String modelFolder = modelRoot.getFullName();
 
-    final ASTNESTMLCompilationUnit explicitSolution = testant
-        .solveODE(modelRoot, Paths.get(OUTPUT_FOLDER.toString(), modelFolder));
+    final ASTNeuron explicitSolution = testant.solveODE(
+        modelRoot.getNeurons().get(0),
+        Paths.get(OUTPUT_FOLDER.toString(), modelFolder));
 
-    return scopeCreator.runSymbolTableCreator(explicitSolution);
+    return scopeCreator.runSymbolTableCreator(modelRoot);
   }
 
 }
