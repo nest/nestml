@@ -8,6 +8,7 @@ package org.nest.mocks;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNeuron;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -21,8 +22,7 @@ public class PSCMock extends ODEProcessor {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/psc/";
 
   @Override
-  protected ASTNESTMLCompilationUnit handleNeuronWithODE(
-      ASTNESTMLCompilationUnit root, Path outputBase) {
+  protected ASTNeuron handleNeuronWithODE(final ASTNeuron root, final Path outputBase) {
 
     return getExactSolutionTransformer().replaceODEWithSymPySolution(
             root,

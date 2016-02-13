@@ -65,8 +65,12 @@ public class NESTGenerator {
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
     info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
-    ASTNESTMLCompilationUnit workingVersion;
-    workingVersion = computeSolutionForODE(root, outputBase);
+    ASTNESTMLCompilationUnit workingVersion = root;
+    for (int i = 0; i < root.getNeurons().size(); ++i) {
+      final ASTNeuron solvedNeuron = computeSolutionForODE(root.getNeurons().get(i), outputBase);
+      root.getNeurons().set(i, solvedNeuron);
+    }
+
     workingVersion = printAndReadModel(outputBase, workingVersion);
     scopeCreator.runSymbolTableCreator(workingVersion);
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
@@ -77,21 +81,21 @@ public class NESTGenerator {
     info(msg, LOG_NAME);
   }
 
-  protected ASTNESTMLCompilationUnit computeSolutionForODE(
-      final ASTNESTMLCompilationUnit root,
+  protected ASTNeuron computeSolutionForODE(
+      final ASTNeuron astNeuron,
       final Path outputBase) {
-    final ASTBody bodyDecorator = root.getNeurons().get(0).getBody();
-    final Optional<ASTOdeDeclaration> odesBlock = bodyDecorator.getEquations();
+    final ASTBody astBody = astNeuron.getBody();
+    final Optional<ASTOdeDeclaration> odesBlock = astBody.getEquations();
     if (odesBlock.isPresent()) {
       if (odesBlock.get().getEqs().size() == 0) {
         info("The model will be solved numerically with a GSL solver.", LOG_NAME);
-        return root;
+        return astNeuron;
       }
 
-      return odeProcessor.solveODE(root, outputBase);
+      return odeProcessor.solveODE(astNeuron, outputBase);
     }
     else {
-      return root;
+      return astNeuron;
     }
 
   }

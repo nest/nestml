@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.nest.base.ModebasedTest;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -57,10 +58,11 @@ public class ODEProcessorTest extends ModebasedTest {
     scopeCreator.runSymbolTableCreator(modelRoot);
     final String modelFolder = modelRoot.getFullName();
 
-    final ASTNESTMLCompilationUnit explicitSolution = testant
-        .solveODE(modelRoot, Paths.get(OUTPUT_FOLDER.toString(), modelFolder));
+    final ASTNeuron explicitSolution = testant.solveODE(
+        modelRoot.getNeurons().get(0),
+        Paths.get(OUTPUT_FOLDER.toString(), modelFolder));
 
-    return scopeCreator.runSymbolTableCreator(explicitSolution);
+    return scopeCreator.runSymbolTableCreator(modelRoot);
   }
 
 }

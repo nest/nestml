@@ -8,10 +8,7 @@ package org.nest.codegeneration.sympy;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.logging.Log;
-import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTNESTMLNode;
+import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.*;
 import org.nest.symboltable.symbols.NeuronSymbol;
@@ -37,25 +34,25 @@ public class ExactSolutionTransformer {
 
   final SymPyOutput2NESTMLConverter converter2NESTML = new SymPyOutput2NESTMLConverter();
 
-  public ASTNESTMLCompilationUnit replaceODEWithSymPySolution(
-      ASTNESTMLCompilationUnit root,
+  public ASTNeuron replaceODEWithSymPySolution(
+      final ASTNeuron astNeuron,
       final Path pathToP00File,
       final Path PSCInitialValueFile,
       final Path stateVectorFile,
       final Path updateStepFile) {
-    root = addP30(root, pathToP00File);
-    root = addPSCInitialValue(root, PSCInitialValueFile);
-    root = addStateVariablesAndUpdateStatements(root, stateVectorFile);
-    root = replaceODE(root, updateStepFile);
+    ASTNeuron workingVersion = addP30(astNeuron, pathToP00File);
+    workingVersion = addPSCInitialValue(workingVersion, PSCInitialValueFile);
+    workingVersion = addStateVariablesAndUpdateStatements(workingVersion, stateVectorFile);
+    workingVersion = replaceODE(workingVersion, updateStepFile);
 
-    return root;
+    return workingVersion;
   }
 
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  public ASTNESTMLCompilationUnit addP30(
-      final ASTNESTMLCompilationUnit root,
+  public ASTNeuron addP30(
+      final ASTNeuron root,
       final Path pathToP00File) {
 
     final ASTAliasDecl p00Declaration = converter2NESTML.convertToAlias(pathToP00File);
@@ -67,18 +64,17 @@ public class ExactSolutionTransformer {
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  public ASTNESTMLCompilationUnit addPSCInitialValue(
-      final ASTNESTMLCompilationUnit root,
+  public ASTNeuron addPSCInitialValue(
+      final ASTNeuron astNeuron,
       final Path pathPSCInitialValueFile) {
 
     final ASTAliasDecl pscInitialValue = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
 
-    addToInternalBlock(root, pscInitialValue);
-    return root;
+    return addToInternalBlock(astNeuron, pscInitialValue);
   }
 
-  public ASTNESTMLCompilationUnit addStateVariablesAndUpdateStatements(
-      final ASTNESTMLCompilationUnit root,
+  public ASTNeuron addStateVariablesAndUpdateStatements(
+      final ASTNeuron astNeuron,
       final Path stateVectorFile) {
     try {
       final List<String> stateVectorLines = Files
@@ -99,20 +95,18 @@ public class ExactSolutionTransformer {
 
       stateVariableDeclarations.stream()
           .map(converter2NESTML::convertStringToAlias)
-          .forEach(astAliasDecl -> addToStateBlock(root, astAliasDecl));
+          .forEach(astAliasDecl -> addToStateBlock(astNeuron, astAliasDecl));
 
       // remaining entries are y_index update entries
       // these statements must be printed at the end of the dynamics function
-      ASTBody body = root.getNeurons().get(0).getBody();
+      ASTBody body = astNeuron.getBody();
       stateVectorLines
           .stream()
           .map(converter2NESTML::convertStringToAssignment)
           .forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
 
       // add extra handling of the y0 variable
-      // TODO
-      final NeuronSymbol neuronSymbol = (NeuronSymbol)
-          root.getNeurons().get(0).getSymbol().get();
+      final NeuronSymbol neuronSymbol = (NeuronSymbol) astNeuron.getSymbol().get();
 
       if (!neuronSymbol.getSpikeBuffers().isEmpty()) {
         final VariableSymbol spikeBuffer = neuronSymbol.getSpikeBuffers().get(0);
@@ -120,35 +114,33 @@ public class ExactSolutionTransformer {
             .convertStringToAssignment("y1 = " + spikeBuffer.getName() + ".getSum(t)");
         addAssignmentToDynamics(body, pscUpdateStep);
       }
-      return root;
+      return astNeuron;
     }
     catch (IOException e) {
       throw new RuntimeException("Cannot solveODE stateVector output from the SymPy solver", e);
     }
   }
 
-  public ASTNESTMLCompilationUnit replaceODE(
-      final ASTNESTMLCompilationUnit root,
-      final Path updateStepFile) {
+  public ASTNeuron replaceODE(final ASTNeuron astNeuron, final Path updateStepFile) {
     final ASTAssignment stateUpdate = converter2NESTML.convertToAssignment(updateStepFile);
 
-    ASTBody astBodyDecorator = root.getNeurons().get(0).getBody();
+    final ASTBody astBodyDecorator = astNeuron.getBody();
 
     final ODECollector odeCollector = new ODECollector();
     odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
     if (!odeCollector.getFoundOde().isPresent()) {
       Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
-      return root;
+      return astNeuron;
     }
 
-    final Optional<ASTNode> parent = ASTNodes.getParent(odeCollector.getFoundOde().get(), root);
+    final Optional<ASTNode> parent = ASTNodes.getParent(odeCollector.getFoundOde().get(), astNeuron);
     checkState(parent.isPresent());
     checkState(parent.get() instanceof ASTSmall_Stmt);
 
     final ASTSmall_Stmt castedParent = (ASTSmall_Stmt) parent.get();
     castedParent.setAssignment(stateUpdate);
 
-    return root;
+    return astNeuron;
   }
 
   private class ODECollector implements NESTMLVisitor {
@@ -191,17 +183,18 @@ public class ExactSolutionTransformer {
   }
 
   // TODO do I need functions? Try to express it as lambda
-  private void addToInternalBlock(
-      final ASTNESTMLCompilationUnit root,
+  private ASTNeuron addToInternalBlock(
+      final ASTNeuron astNeuron,
       final ASTAliasDecl declaration) {
-    final ASTBody astBodyDecorator = root.getNeurons().get(0).getBody();
-    astBodyDecorator.addToInternalBlock(declaration);
+    final ASTBody astBody = astNeuron.getBody();
+    astBody.addToInternalBlock(declaration);
+    return astNeuron;
   }
 
   private void addToStateBlock(
-      final ASTNESTMLCompilationUnit root,
+      final ASTNeuron astNeuron,
       final ASTAliasDecl declaration) {
-    final ASTBody astBodyDecorator = root.getNeurons().get(0).getBody();
+    final ASTBody astBodyDecorator = astNeuron.getBody();
     astBodyDecorator.addToStateBlock(declaration);
   }
 
