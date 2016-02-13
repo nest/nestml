@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLLanguage;
+import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
+import static org.nest.utils.FileHelper.collectModelFilenames;
 
 /**
  * Tests whether the nestml model can be parsed
@@ -29,18 +31,9 @@ public class NESTMLParserTest extends ModebasedTest {
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = Lists.newArrayList();
-    Files.walkFileTree(TEST_MODEL_PATH, new SimpleFileVisitor<Path>() {
-      @Override
-      public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        if (Files.isRegularFile(file) &&
-            file.getFileName().toString().endsWith(NESTMLLanguage.FILE_ENDING)) {
-
-          filenames.add(file);
-        }
-        return FileVisitResult.CONTINUE;
-      }
-    });
+    final List<Path> filenames = collectModelFilenames(
+        TEST_MODEL_PATH,
+        model -> model.endsWith(NESTMLLanguage.FILE_ENDING));
 
     filenames.forEach(this::parseAndCheck);
   }

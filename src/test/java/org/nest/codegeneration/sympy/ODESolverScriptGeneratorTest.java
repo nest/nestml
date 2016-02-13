@@ -11,12 +11,17 @@ import org.nest.base.ModebasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.spl._ast.ASTFunctionCall;
+import org.nest.spl._ast.ASTODE;
+import org.nest.utils.ASTNodes;
 
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.nest.codegeneration.sympy.ODESolverScriptGenerator.generateSympyODEAnalyzer;
 
@@ -32,25 +37,45 @@ public class ODESolverScriptGeneratorTest extends ModebasedTest {
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   public static final String PATH_TO_COND_IMPLICIT_MODEL
       = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
+
   private static final String OUTPUT_FOLDER = "target";
 
   @Test
   public void generateSymPySolverForPSCModel() throws IOException {
-    generateScriptForModel(PATH_TO_PSC_MODEL);
+    generateAndCheck(PATH_TO_PSC_MODEL);
   }
 
   @Test
   public void generateSymPySolverForCondModel() throws IOException {
-    generateScriptForModel(PATH_TO_COND_MODEL);
+    generateAndCheck(PATH_TO_COND_MODEL);
   }
 
   @Ignore("Enable as soon as the script can handle it")
   @Test
   public void generateSymPySolverForCondImplicitModel() throws IOException {
-    generateScriptForModel(PATH_TO_COND_IMPLICIT_MODEL);
+    generateAndCheck(PATH_TO_COND_IMPLICIT_MODEL);
   }
 
-  private void generateScriptForModel(final String pathToModel) throws IOException {
+  @Test
+  public void testReplacement() throws IOException {
+    final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
+    final String ODE_DECLARATION = "V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + ext_currents)";
+    final Optional<ASTODE> ode = p.parseODE(new StringReader(ODE_DECLARATION));
+    assertTrue(ode.isPresent());
+
+    boolean i_sum = ASTNodes.getAll(ode.get(), ASTFunctionCall.class)
+        .stream()
+        .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals("I_sum"));
+    assertTrue(i_sum);
+
+    final ASTODE testant = ODESolverScriptGenerator.replace_I_sum(ode.get());
+    i_sum = ASTNodes.getAll(testant, ASTFunctionCall.class)
+        .stream()
+        .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals("I_sum"));
+    assertFalse(i_sum);
+  }
+
+  private void generateAndCheck(final String pathToModel) throws IOException {
     final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
 
@@ -65,5 +90,6 @@ public class ODESolverScriptGeneratorTest extends ModebasedTest {
 
     assertTrue(generatedScript.isPresent());
   }
+
 
 }

@@ -47,57 +47,59 @@ public class GeneratorIntegrationTest extends GenerationTest {
       "src/test/resources/codegeneration/workshop.nestml"
   );
 
-  private final List<String> blueGen = Lists.newArrayList(
+  private final List<String> blueGene = Lists.newArrayList(
       "src/test/resources/codegeneration/bluegene/aeif_cond_alpha_neuron.nestml",
       "src/test/resources/codegeneration/bluegene/hh_cond_alpha.nestml"
   );
-  @Ignore
-  @Test
-  public void testFeedbackModels() {
-    workshopModels.forEach(this::invokeCodeGenerator);
-  }
+
+  private final List<String> newSyntax = Lists.newArrayList(
+      "src/test/resources/codegeneration/iaf_neuron_ode_new_syntax.nestml"
+  );
 
   @Ignore
   @Test
-  public void testWorkshopCode() {
+  public void testFeedbackModels() {
     workshopModels.forEach(this::checkCocos);
     workshopModels.forEach(this::invokeCodeGenerator);
   }
 
   @Test
-  public void checkCocosOnModels() throws IOException {
-    nestmlPSCModels.forEach(this::checkCocos);
-    pscModelsWithOde.forEach(this::checkCocos);
-    nestmlCondModels.forEach(this::checkCocos);
-  }
-
-  @Test
   public void testModelsWithoutOde() throws IOException {
+    nestmlPSCModels.forEach(this::checkCocos);
     nestmlPSCModels.forEach(this::invokeCodeGenerator);
   }
 
   @Ignore("Don't run this tests on github")
   @Test
   public void testPscModelWithOde() {
+    pscModelsWithOde.forEach(this::checkCocos);
     pscModelsWithOde.forEach(this::invokeCodeGenerator);
   }
 
   @Ignore
   @Test
   public void testCondModel() {
+    nestmlCondModels.forEach(this::checkCocos);
     nestmlCondModels.forEach(this::invokeCodeGenerator);
   }
 
   @Test
   public void testImplicitForm() {
+    nestmlCondModelExplicit.forEach(this::checkCocos);
     nestmlCondModelExplicit.forEach(this::invokeCodeGenerator);
-
   }
 
   @Test
-  public void testBluegenModels() {
-    blueGen.forEach(this::checkCocos);
-    blueGen.forEach(this::invokeCodeGenerator);
-
+  public void testBluegeneModels() {
+    blueGene.forEach(this::checkCocos);
+    blueGene.forEach(this::invokeCodeGenerator);
   }
+
+  @Ignore
+  @Test
+  public void testNewSyntax() {
+    newSyntax.forEach(this::checkCocos);
+    newSyntax.forEach(this::invokeCodeGenerator);
+  }
+
 }

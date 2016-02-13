@@ -18,6 +18,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
+import org.nest.utils.NESTMLSymbols;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
+import static org.nest.utils.NESTMLSymbols.resolveMethod;
 
 /**
  *  Tests the symbol table infrastructure of the NESTML language
@@ -202,6 +204,22 @@ public class NESTMLSymbolTableTest extends ModebasedTest {
     final Optional<MethodSymbol> standAloneFunction = (Optional<MethodSymbol>)
         stateScope.resolve(new MethodSignaturePredicate(PredefinedFunctions.INTEGRATE, parameters));
     standAloneFunction.isPresent();
+  }
+
+  @Test
+  public void testResolvingPredefinedFunctions() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    assertEquals(1, root.getNeurons().size());
+
+    scopeCreator.runSymbolTableCreator(root);
+    final Scope scope = scopeCreator.getGlobalScope();
+    final Optional<MethodSymbol> method1 = resolveMethod(
+        scope, "I_sum", Lists.newArrayList("real", "Buffer"));
+    assertTrue(method1.isPresent());
+
+    final Optional<MethodSymbol> method2 = resolveMethod(
+        scope, "integrate", Lists.newArrayList("Buffer"));
+    assertFalse(method2.isPresent());
   }
 
 }

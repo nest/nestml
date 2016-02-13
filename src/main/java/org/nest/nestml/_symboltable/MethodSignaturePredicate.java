@@ -30,9 +30,7 @@ public class MethodSignaturePredicate implements SymbolPredicate {
 
   @Override
   public boolean apply(final Symbol symbol) {
-    if ((symbol != null) &&
-        symbol.isKindOf(MethodSymbol.KIND) &&
-        (symbol instanceof MethodSymbol)) {
+    if ((symbol != null) && symbol.isKindOf(MethodSymbol.KIND) && (symbol instanceof MethodSymbol)) {
       final MethodSymbol methodSymbol = (MethodSymbol) symbol;
 
       if (methodSymbol.getName().equals(expectedMethodName) &&

@@ -17,6 +17,7 @@ import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
  * Defines a set with implicit type functions, like {@code print, pow, ...}
@@ -38,7 +39,7 @@ public class PredefinedFunctions {
   public static final String RANDOM_INT = "randomInt";
   public static final String EXPM1 = "expm1";
   public static final String INTEGRATE = "integrate";
-  public static final String I_SUM = "I_Sum";
+  public static final String I_SUM = "I_sum";
 
 
   private static final Map<String, MethodSymbol> name2FunctionSymbol = Maps.newHashMap();
@@ -107,8 +108,8 @@ public class PredefinedFunctions {
     name2FunctionSymbol.put(INTEGRATE, integrate);
 
     final MethodSymbol i_sum = createFunctionSymbol(I_SUM);
+    i_sum.addParameterType(getType("ms"));
     i_sum.addParameterType(getBufferType());
-    i_sum.addParameterType(getRealType());
     i_sum.setReturnType(getType("pA"));
     name2FunctionSymbol.put(I_SUM, i_sum);
   }
