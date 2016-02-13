@@ -14,7 +14,9 @@ import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Util;
 import de.se_rwth.commons.logging.Log;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNESTMLNode;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
@@ -28,6 +30,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -295,6 +298,17 @@ public final class ASTNodes {
       checkState(false, "Is not possible through the grammar construction.");
     }
     return typeName;
+  }
+
+  /**
+   * Collects all neuron ASTs from every model root
+   * @param modelRoots list with nestml roots
+   * @return List with all neurons from roots.
+   */
+  public static List<ASTNeuron> getAllNeurons(final List<ASTNESTMLCompilationUnit> modelRoots) {
+    return modelRoots.stream()
+        .flatMap(root -> root.getNeurons().stream())
+        .collect(Collectors.toList());
   }
 
 }

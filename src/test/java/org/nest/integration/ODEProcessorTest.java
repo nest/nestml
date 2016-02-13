@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-@Ignore("Don't run this tests on github")
 public class ODEProcessorTest extends ModebasedTest {
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
@@ -35,8 +34,9 @@ public class ODEProcessorTest extends ModebasedTest {
 
   final ODEProcessor testant = new ODEProcessor();
 
+  @Ignore("Don't run this tests on github")
   @Test
-  public void testProcess() throws Exception {
+  public void testPscModel() throws Exception {
     final Scope scope = processModel(PSC_MODEL_FILE);
 
     final Optional<NeuronSymbol> neuronSymbol = scope.resolve(
