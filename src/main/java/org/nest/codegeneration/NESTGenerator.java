@@ -74,7 +74,9 @@ public class NESTGenerator {
     workingVersion = printAndReadModel(outputBase, workingVersion);
     scopeCreator.runSymbolTableCreator(workingVersion);
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
-    generateNESTCode(workingVersion, outputBase);
+    workingVersion.getNeurons()
+        .stream()
+        .forEach(astNeuron -> generateNESTCode(astNeuron, outputBase));
 
     final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
         + outputBase.toAbsolutePath().toString() + "'";
@@ -101,53 +103,40 @@ public class NESTGenerator {
   }
 
   protected void generateNESTCode(
-      final ASTNESTMLCompilationUnit workingVersion,
+      final ASTNeuron astNeuron,
       final Path outputBase) {
-    generateHeader(workingVersion, outputBase);
-    generateClassImplementation(workingVersion, outputBase);
+
+    final GlobalExtensionManagement glex = getGlexConfiguration();
+    setNeuronGenerationParameter(glex, astNeuron);
+    generateHeader(astNeuron, outputBase, glex);
+    generateClassImplementation(astNeuron, outputBase, glex);
   }
 
   public void generateHeader(
-      final ASTNESTMLCompilationUnit compilationUnit,
-      final Path outputFolder) {
-    final String moduleName = compilationUnit.getFullName();
-
+      final ASTNeuron astNeuron,
+      final Path outputFolder,
+      final GlobalExtensionManagement glex) {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
-    final GlobalExtensionManagement glex = getGlexConfiguration();
     setup.setGlex(glex);
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
-
-    for (final ASTNeuron neuron : compilationUnit.getNeurons()) {
-      setNeuronGenerationParameter(glex, neuron, moduleName);
-      final Path outputFile = Paths.get(neuron.getName() + ".h");
-
-      generator.generate("org.nest.nestml.neuron.NeuronHeader", outputFile, neuron);
-    }
-    
+    final Path outputFile = Paths.get(astNeuron.getName() + ".h");
+    generator.generate("org.nest.nestml.neuron.NeuronHeader", outputFile, astNeuron);
   }
 
   public void generateClassImplementation(
-      final ASTNESTMLCompilationUnit compilationUnit,
-      final Path outputBase) {
-    final String moduleName = compilationUnit.getFullName();
-
-    final GeneratorSetup setup = new GeneratorSetup(new File(outputBase.toString()));
-    final GlobalExtensionManagement glex = getGlexConfiguration();
+      final ASTNeuron astNeuron,
+      final Path outputFolder,
+      final GlobalExtensionManagement glex) {
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
     setup.setGlex(glex);
-
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
-    final List<ASTNeuron> neurons = compilationUnit.getNeurons();
-    for (ASTNeuron neuron : neurons) {
-      setNeuronGenerationParameter(glex, neuron, moduleName);
-      final Path classImplementationFile = Paths.get(neuron.getName() + ".cpp");
-      // TODO: how do I find out the call was successful?
-      generator.generate(
-          "org.nest.nestml.neuron.NeuronClass",
-          classImplementationFile,
-          neuron);
-    }
+    final Path classImplementationFile = Paths.get(astNeuron.getName() + ".cpp");
+    generator.generate(
+        "org.nest.nestml.neuron.NeuronClass",
+        classImplementationFile,
+        astNeuron);
 
   }
 
@@ -288,11 +277,10 @@ public class NESTGenerator {
 
   private void setNeuronGenerationParameter(
       final GlobalExtensionManagement glex,
-      final ASTNeuron neuron,
-      final String moduleName) {
-    setSolverType(glex, neuron);
+      final ASTNeuron neuron) {
+    defineSolverType(glex, neuron);
 
-    final String guard = (moduleName + "." + neuron.getName()).replace(".", "_");
+    final String guard = (neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
     glex.setGlobalValue("simpleNeuronName", neuron.getName());
 
@@ -319,7 +307,7 @@ public class NESTGenerator {
 
   }
 
-  private void setSolverType(GlobalExtensionManagement glex, ASTNeuron neuron) {
+  private void defineSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
     final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
     if (astBody.getEquations().isPresent()) {
