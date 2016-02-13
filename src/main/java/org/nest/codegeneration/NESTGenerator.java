@@ -163,7 +163,7 @@ public class NESTGenerator {
       final Path modulePath,
       final ASTNESTMLCompilationUnit root) {
     try {
-      final Path outputTmpPath = Paths.get(modulePath.toString(), "tmp.nestml");
+      final Path outputTmpPath = Paths.get(modulePath.toString(), root.getFullName() + ".nestml");
       printModelToFile(root, outputTmpPath.toString());
       final NESTMLParser parser = new NESTMLParser(modulePath);
 
