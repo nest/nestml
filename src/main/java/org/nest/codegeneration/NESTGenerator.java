@@ -65,11 +65,13 @@ public class NESTGenerator {
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
     info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
-    final ASTNESTMLCompilationUnit workingVersion;
-
-    workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
+    ASTNESTMLCompilationUnit workingVersion;
+    workingVersion = computeSolutionForODE(root, outputBase);
+    workingVersion = printAndReadModel(outputBase, workingVersion);
+    scopeCreator.runSymbolTableCreator(workingVersion);
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     generateNESTCode(workingVersion, outputBase);
+
 
     final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
         + outputBase.toAbsolutePath().toString() + "'";
@@ -78,9 +80,7 @@ public class NESTGenerator {
 
   protected ASTNESTMLCompilationUnit computeSolutionForODE(
       final ASTNESTMLCompilationUnit root,
-      final NESTMLScopeCreator scopeCreator,
       final Path outputBase) {
-
     final ASTBody bodyDecorator = root.getNeurons().get(0).getBody();
     final Optional<ASTOdeDeclaration> odesBlock = bodyDecorator.getEquations();
     if (odesBlock.isPresent()) {
@@ -89,14 +89,11 @@ public class NESTGenerator {
         return root;
       }
 
-      ASTNESTMLCompilationUnit withSolvedOde = odeProcessor.solveODE(root, outputBase);
-
-      return printAndReadModel(scopeCreator, outputBase, withSolvedOde);
+      return odeProcessor.solveODE(root, outputBase);
     }
     else {
       return root;
     }
-
 
   }
 
@@ -161,7 +158,7 @@ public class NESTGenerator {
     if (!scriptEvaluator.execute(inverterScript.get())) {
       Log.error("Cannot evaluate sympy script to compute inverse expression");
     }
-    return printAndReadModel(scopeCreator, outputBase, root);
+    return printAndReadModel(outputBase, root);
   }
 
   /**
@@ -171,7 +168,6 @@ public class NESTGenerator {
    * @return New root node of the altered model with an initialized symbol table
    */
   private ASTNESTMLCompilationUnit printAndReadModel(
-      final NESTMLScopeCreator scopeCreator,
       final Path modulePath,
       final ASTNESTMLCompilationUnit root) {
     try {
@@ -264,16 +260,17 @@ public class NESTGenerator {
 
   private void printModelToFile(
       final ASTNESTMLCompilationUnit root,
-      final String outputFolderBase) {
+      final String outputFile) {
     final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
     root.accept(prettyPrinter);
 
-    final File prettyPrintedModelFile = new File(outputFolderBase);
+    final File prettyPrintedModelFile = new File(outputFile);
     try {
       FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
     }
     catch (IOException e) {
-      throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputFolderBase, e);
+      final String msg = "Cannot write the prettyprinted model to the file: " + outputFile;
+      throw new RuntimeException(msg, e);
     }
 
   }
