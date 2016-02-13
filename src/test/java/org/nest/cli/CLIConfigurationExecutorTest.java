@@ -16,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
+
 /**
  * Mocks the codegenerator and tests executor functions.
  *
@@ -45,7 +47,7 @@ public class CLIConfigurationExecutorTest extends ModebasedTest {
 
   @Test
   public void testArtifactCollection() {
-    final List<Path> collectedFiles = executor.collectNESTMLModelFilenames(TEST_INPUT_PATH);
+    final List<Path> collectedFiles = collectNESTMLModelFilenames(TEST_INPUT_PATH);
     Assert.assertEquals(2, collectedFiles.size());
   }
 

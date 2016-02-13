@@ -71,8 +71,9 @@ public class NESTGenerator {
     workingVersion = computeSolutionForODE(root, scopeCreator, outputBase);
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     generateNESTCode(workingVersion, outputBase);
-
-    info("Successfully generated NEST code for: " + root.getFullName(), LOG_NAME);
+    final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
+        + outputBase.toAbsolutePath().toString() + "'";
+    info(msg, LOG_NAME);
   }
 
   protected ASTNESTMLCompilationUnit computeSolutionForODE(

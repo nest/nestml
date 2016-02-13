@@ -103,16 +103,13 @@ public class ExactSolutionTransformer {
 
       // remaining entries are y_index update entries
       // these statements must be printed at the end of the dynamics function
-      ASTBody astBodyDecorator = root.getNeurons().get(0).getBody();
+      ASTBody body = root.getNeurons().get(0).getBody();
+      stateVectorLines
+          .stream()
+          .map(converter2NESTML::convertStringToAssignment)
+          .forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
 
-      for (final String line:stateVectorLines) {
-        final ASTAssignment yVarAssignment = converter2NESTML.convertStringToAssignment(line);
-
-        // Depends on the SPL grammar structure
-        addAssignmentToDynamics(astBodyDecorator, yVarAssignment);
-      }
       // add extra handling of the y0 variable
-      // print resulted model to the file
       // TODO
       final NeuronSymbol neuronSymbol = (NeuronSymbol)
           root.getNeurons().get(0).getSymbol().get();
@@ -121,7 +118,7 @@ public class ExactSolutionTransformer {
         final VariableSymbol spikeBuffer = neuronSymbol.getSpikeBuffers().get(0);
         final ASTAssignment pscUpdateStep = converter2NESTML
             .convertStringToAssignment("y1 = " + spikeBuffer.getName() + ".getSum(t)");
-        addAssignmentToDynamics(astBodyDecorator, pscUpdateStep);
+        addAssignmentToDynamics(body, pscUpdateStep);
       }
       return root;
     }

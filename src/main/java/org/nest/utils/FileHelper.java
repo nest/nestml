@@ -7,15 +7,15 @@ package org.nest.utils;
 
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
+import org.nest.nestml._symboltable.NESTMLLanguage;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
 import java.util.function.Predicate;
+
+import static java.nio.file.FileSystems.getDefault;
 
 /**
  * Provides base methods to work with model files: collect.
@@ -23,7 +23,13 @@ import java.util.function.Predicate;
  * @author plotnikov
  */
 public class FileHelper {
-  public static List<Path> collectModelFilenames(
+
+  public static List<Path> collectNESTMLModelFilenames(final Path path) {
+    final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + NESTMLLanguage.FILE_ENDING);
+    return FileHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
+  }
+
+  public static List<Path> collectFiles(
       final Path inputPath,
       final Predicate<Path> predicate) {
     final List<Path> filenames = Lists.newArrayList();

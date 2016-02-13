@@ -33,7 +33,7 @@ public class SPLParserTest extends ModebasedTest {
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = FileHelper.collectModelFilenames(
+    final List<Path> filenames = FileHelper.collectFiles(
         TEST_MODEL_PATH, model -> model.endsWith(SPLLanguage.FILE_ENDING));
 
     filenames.forEach(this::parseAndCheck);
