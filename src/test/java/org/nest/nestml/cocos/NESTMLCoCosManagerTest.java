@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.nestml.symboltable;
+package org.nest.nestml.cocos;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
