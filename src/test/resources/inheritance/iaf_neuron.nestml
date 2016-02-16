@@ -1,4 +1,4 @@
-neuron iaf_neuron:
+neuron my_iaf_neuron extends iaf_base:
   state:
 
     suppress y0, y1, y2, y3 mV
