@@ -6,9 +6,8 @@
 package org.nest.integration;
 
 import de.monticore.symboltable.Scope;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.base.ModebasedTest;
+import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -26,7 +25,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class ODEProcessorTest extends ModebasedTest {
+public class ODEProcessorTest extends ModelbasedTest {
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String PSC_MODEL_FILE

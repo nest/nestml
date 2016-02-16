@@ -9,8 +9,8 @@ import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
@@ -19,7 +19,6 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
@@ -30,18 +29,10 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
 /**
  * Iterates through good models and checks that there is no errors in log.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
-public class NESTMLCoCosManagerTest {
+public class NESTMLCoCosManagerTest extends ModelbasedTest {
 
-  public static final String TEST_MODEL_PATH = "src/test/resources/";
-
-  @BeforeClass
-  public static void initLog() {
-    Log.enableFailQuick(false);
-  }
 
   /**
    * Parses the model and returns ast.
@@ -49,7 +40,7 @@ public class NESTMLCoCosManagerTest {
    * @throws java.io.IOException
    */
   private Optional<ASTNESTMLCompilationUnit> getAstRoot(String modelPath) throws IOException {
-    final NESTMLParser p = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
+    final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
     final Optional<ASTNESTMLCompilationUnit> ast = p.parse(modelPath);
     Assert.assertTrue(ast.isPresent());
     return ast;
@@ -63,14 +54,15 @@ public class NESTMLCoCosManagerTest {
 
   @Test
   public void testGoodModels() throws IOException {
-    final File modelsFolder = new File(TEST_MODEL_PATH + "/org/nest/nestml/parsing");
+
+    final File modelsFolder = Paths.get(TEST_MODEL_PATH.toString(),"/org/nest/nestml/parsing").toFile();
 
     checkAllModelsInFolder(modelsFolder);
   }
 
   @Test
   public void testCodegenerationModels() throws IOException {
-    final File modelsFolder = new File(Paths.get(TEST_MODEL_PATH.toString(), "codegeneration").toString());
+    final File modelsFolder = Paths.get(TEST_MODEL_PATH.toString(),"codegeneration").toFile();
 
     checkAllModelsInFolder(modelsFolder);
   }
@@ -83,7 +75,7 @@ public class NESTMLCoCosManagerTest {
         final Optional<ASTNESTMLCompilationUnit> root = getAstRoot(file.getPath());
         Assert.assertTrue(root.isPresent());
 
-        final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
+        final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
         scopeCreator.runSymbolTableCreator(root.get());
 
         System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file.toString());
@@ -128,19 +120,6 @@ public class NESTMLCoCosManagerTest {
     final String splMsg = "The model: " + file.getPath() + ". Models contain unexpected SPL "
         + "errors: " + splErrorFindings.size();
     Assert.assertTrue(splMsg, splErrorFindings.isEmpty());
-  }
-
-  /**
-   * Given the filename, e.g test.nestml; and an extension, nestml, returns the simple name, e.g. test
-   *
-   */
-  private String removeFileExtension(String name, String nestml) {
-    if (nestml.startsWith(".")) {
-      return name.substring(0, name.indexOf(nestml));
-    } else {
-      return name.substring(0, name.indexOf("." + nestml));
-    }
-
   }
 
 }

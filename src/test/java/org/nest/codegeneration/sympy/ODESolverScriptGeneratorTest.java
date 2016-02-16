@@ -7,7 +7,7 @@ package org.nest.codegeneration.sympy;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.base.ModebasedTest;
+import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -30,7 +30,7 @@ import static org.nest.codegeneration.sympy.ODESolverScriptGenerator.generateSym
  *
  * @author plotnikov
  */
-public class ODESolverScriptGeneratorTest extends ModebasedTest {
+public class ODESolverScriptGeneratorTest extends ModelbasedTest {
   public static final String PATH_TO_PSC_MODEL
       = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
   public static final String PATH_TO_COND_MODEL
