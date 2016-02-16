@@ -71,6 +71,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
     final List<ImportStatement> imports = computeImportStatements(compilationUnitAst);
 
+    setRoot(compilationUnitAst);
     final MutableScope artifactScope = new ArtifactScope(
         empty(),
         compilationUnitAst.getFullName(),
@@ -79,7 +80,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
 
     final String msg = "Adds an artifact scope for the NESTML model file: " +
         compilationUnitAst.getFullName();
-    info(msg, LOGGER_NAME);
+    debug(msg, LOGGER_NAME);
   }
 
   default List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
@@ -99,11 +100,20 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     trace("Finishes handling and sets scopes on all ASTs for the artifact: " + fullName, LOGGER_NAME);
   }
 
-  default void visit(final ASTNeuron neuronAst) {
-    info("Processes the neuron:  " + neuronAst.getName(), LOGGER_NAME);
+  default void visit(final ASTNeuron astNeuron) {
+    debug("Processes the neuron:  " + astNeuron.getName(), LOGGER_NAME);
 
-    final NeuronSymbol neuronSymbol = new NeuronSymbol(neuronAst.getName(), NEURON);
-    addToScopeAndLinkWithNode(neuronSymbol, neuronAst);
+    final NeuronSymbol neuronSymbol = new NeuronSymbol(astNeuron.getName(), NEURON);
+
+    if (astNeuron.getBase().isPresent()) {
+      final NeuronSymbolReference baseSymbol = new NeuronSymbolReference(
+          astNeuron.getBase().get(),
+          NeuronSymbol.Type.NEURON,
+          getFirstCreatedScope()
+      );
+      neuronSymbol.setBaseNeuron(baseSymbol);
+    }
+    addToScopeAndLinkWithNode(neuronSymbol, astNeuron);
   }
 
   default void endVisit(final ASTNeuron neuron) {
@@ -114,7 +124,7 @@ public interface NESTMLSymbolTableCreator extends SymbolTableCreator, NESTMLVisi
     final NeuronSymbol componentSymbol = new NeuronSymbol(componentAst.getName(), COMPONENT);
     addToScopeAndLinkWithNode(componentSymbol, componentAst);
 
-    info("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
+    debug("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
   }
 
   default void endVisit(final ASTComponent componentAst) {

@@ -1,3 +1,5 @@
+import inheritance.iaf_base.iaf_base
+
 neuron my_iaf_neuron extends iaf_base:
   state:
 
@@ -7,8 +9,7 @@ neuron my_iaf_neuron extends iaf_base:
   end
 
   parameter:
-    # Capacity of the membrane.
-    C_m       pF = 250
+
     # Membrane time constant.
     tau_m     ms = 10
     # Time constant of synaptic current.

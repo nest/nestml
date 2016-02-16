@@ -7,6 +7,7 @@ package org.nest.nestml.symboltable;
 
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.*;
@@ -36,7 +37,8 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
   private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/symboltable/"
       + "importingNeuron.nestml";
 
-  private static final String MODEL_WITH_INHERITANCE = "src/test/resources/inheritance/iaf_neuron.nestml";
+  private static final String MODEL_WITH_INHERITANCE =
+      "src/test/resources/inheritance/iaf_neuron.nestml";
 
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
@@ -173,9 +175,9 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue(usingNeuronSymbol.isPresent());
     final Scope neuronScope = usingNeuronSymbol.get().getSpannedScope();
 
-    final Optional<UsageSymbol> usageSymbol = neuronScope
-        .resolve("TestReference", UsageSymbol.KIND);
+    final Optional<UsageSymbol> usageSymbol = neuronScope.resolve("TestReference", UsageSymbol.KIND);
     assertTrue(usageSymbol.isPresent());
+    assertNotNull(usageSymbol.get().getReferencedSymbol().getName());
 
     final NeuronSymbol componentSymbol = usageSymbol.get().getReferencedSymbol();
     assertEquals(NeuronSymbol.Type.COMPONENT, componentSymbol.getType());
@@ -230,6 +232,13 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     ASTNeuron astNeuron = root.getNeurons().get(0);
     assertTrue( astNeuron.getSymbol().isPresent());
     assertTrue( astNeuron.getSymbol().get() instanceof NeuronSymbol);
+    final NeuronSymbol neuronSymbol = (NeuronSymbol) astNeuron.getSymbol().get();
+    Optional<VariableSymbol> internalVariable = neuronSymbol.getSpannedScope().resolve("tau_m", VariableSymbol.KIND);
+    assertTrue(internalVariable.isPresent());
+
+    Optional<VariableSymbol> importedVariable = neuronSymbol.getSpannedScope().resolve("C_m", VariableSymbol.KIND);
+    assertTrue(importedVariable.isPresent());
+
   }
 
 }

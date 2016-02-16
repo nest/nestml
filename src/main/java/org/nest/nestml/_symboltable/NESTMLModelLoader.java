@@ -25,6 +25,8 @@ import static de.se_rwth.commons.logging.Log.debug;
  */
 public class NESTMLModelLoader extends ModelingLanguageModelLoader<ASTNESTMLCompilationUnit> {
 
+  public static final String NO_CREATOR = "Register symbol table creator in the language.";
+
   public NESTMLModelLoader(NESTMLLanguage language) {
     super(language);
   }
@@ -35,8 +37,9 @@ public class NESTMLModelLoader extends ModelingLanguageModelLoader<ASTNESTMLComp
       final String modelName,
       final MutableScope enclosingScope,
       final ResolverConfiguration resolverConfiguration) {
-    final NESTMLSymbolTableCreator symbolTableCreator = getModelingLanguage().getSymbolTableCreator
-        (resolverConfiguration, enclosingScope).orElse(null);
+    final NESTMLSymbolTableCreator symbolTableCreator = getModelingLanguage()
+        .getSymbolTableCreator(resolverConfiguration, enclosingScope)
+        .orElseThrow(() -> new RuntimeException(NO_CREATOR));
 
     ast.setArtifactName(Names.getSimpleName(modelName));
     ast.setPackageName(Names.getQualifier(modelName));

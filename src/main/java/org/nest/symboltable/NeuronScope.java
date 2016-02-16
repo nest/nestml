@@ -8,11 +8,12 @@ package org.nest.symboltable;
 import de.monticore.symboltable.CommonScope;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolKind;
+import org.nest.symboltable.symbols.NeuronSymbol;
 
 import java.util.Optional;
 
 /**
- * TODO
+ * Provides the possibility resolve symbols from the inherited symbols
  *
  * @author plotnikov
  */
@@ -23,10 +24,13 @@ public class NeuronScope extends CommonScope {
     Optional<T> resolvedSymbol = super.resolve(symbolName, kind);
 
 
-    /*if (!resolvedSymbol.isPresent()) {
-      // To resolve symbols of super types, they must at least be protected.
-      resolvedSymbol = resolveInSuperTypes(symbolName, kind);
-    }*/
+    if (!resolvedSymbol.isPresent()) {
+      final NeuronSymbol neuronSymbol = ((Optional<NeuronSymbol>) getSpanningSymbol()).get();
+      if (neuronSymbol.getBaseNeuron().isPresent()) {
+        resolvedSymbol = neuronSymbol.getBaseNeuron().get().getSpannedScope()
+            .resolveDown(symbolName, kind);
+      }
+    }
 
     return resolvedSymbol;
   }
