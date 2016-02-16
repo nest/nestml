@@ -8,17 +8,13 @@ package org.nest.nestml.symboltable;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.junit.Test;
-import org.nest.base.ModebasedTest;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTBodyElement;
-import org.nest.nestml._ast.ASTFunction;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.base.ModelbasedTest;
+import org.nest.nestml._ast.*;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
-import org.nest.utils.NESTMLSymbols;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -33,12 +29,15 @@ import static org.nest.utils.NESTMLSymbols.resolveMethod;
  *
  * @author plotnikov
  */
-public class NESTMLSymbolTableTest extends ModebasedTest {
+public class NESTMLSymbolTableTest extends ModelbasedTest {
 
   private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/symboltable/"
       + "iaf_neuron.nestml";
   private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/symboltable/"
       + "importingNeuron.nestml";
+
+  private static final String MODEL_WITH_INHERITANCE = "src/test/resources/inheritance/iaf_neuron.nestml";
+
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
   @Test
@@ -220,6 +219,17 @@ public class NESTMLSymbolTableTest extends ModebasedTest {
     final Optional<MethodSymbol> method2 = resolveMethod(
         scope, "integrate", Lists.newArrayList("Buffer"));
     assertFalse(method2.isPresent());
+  }
+
+  @Test
+  public void testResolvingFromSupertype() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_WITH_INHERITANCE);
+    assertEquals(1, root.getNeurons().size());
+
+    scopeCreator.runSymbolTableCreator(root);
+    ASTNeuron astNeuron = root.getNeurons().get(0);
+    assertTrue( astNeuron.getSymbol().isPresent());
+    assertTrue( astNeuron.getSymbol().get() instanceof NeuronSymbol);
   }
 
 }

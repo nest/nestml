@@ -28,7 +28,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  *
  * @author plotnikov
  */
-public abstract class GenerationTest extends ModebasedTest {
+public abstract class GenerationTest extends ModelbasedTest {
 
   public static final String MODULE_NAME = "integration";
 

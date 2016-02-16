@@ -7,7 +7,7 @@ package org.nest.integration;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.base.ModebasedTest;
+import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.codegeneration.sympy.ODESolverScriptGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
  * @author plonikov
  */
 @Ignore("Don't run this tests on github")
-public class SymPyScriptEvaluatorTest extends ModebasedTest {
+public class SymPyScriptEvaluatorTest extends ModelbasedTest {
   private static final String PSC_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
   private static final String COND_MODEL_FILE

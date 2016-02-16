@@ -8,7 +8,7 @@ package org.nest.spl.parsing;
 import de.monticore.antlr4.MCConcreteParser;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
-import org.nest.base.ModebasedTest;
+import org.nest.base.ModelbasedTest;
 import org.nest.spl._ast.ASTExpr;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Tests whether the model can be parsed or not
  */
-public class SPLParserTest extends ModebasedTest {
+public class SPLParserTest extends ModelbasedTest {
   private final static  String LOG_NAME = SPLParserTest.class.getName();
   private final SPLParser parser = new SPLParser();
 

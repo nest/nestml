@@ -7,7 +7,7 @@ package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
 import org.junit.Test;
-import org.nest.base.ModebasedTest;
+import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plonikov
  */
-public class ExactSolutionTransformerTest extends ModebasedTest {
+public class ExactSolutionTransformerTest extends ModelbasedTest {
 
   public static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
