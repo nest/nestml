@@ -8,9 +8,11 @@ package org.nest.symboltable.symbols;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
+import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
+import org.nest.symboltable.NeuronScope;
 
 import java.util.Collection;
 import java.util.List;
@@ -78,6 +80,11 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     }
 
     return (Optional<MethodSymbol>) result;
+  }
+
+  @Override
+  protected MutableScope createSpannedScope() {
+    return new NeuronScope();
   }
 
   public enum Type { NEURON, COMPONENT }
