@@ -71,7 +71,8 @@ ${simpleNeuronName}::Parameters_::Parameters_():
 {}
 
 <#assign start="">
-${simpleNeuronName}::State_::State_():
+${simpleNeuronName}::State_::State_()
+<#if body.getNonAliasStates()?size != 0>:</#if>
 <#list body.getNonAliasStates() as state>
   ${start} ${tc.include("org.nest.nestml.function.MemberInitialization", state)}
   <#assign start=",">

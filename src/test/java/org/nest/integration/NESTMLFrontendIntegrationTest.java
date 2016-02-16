@@ -28,6 +28,13 @@ public class NESTMLFrontendIntegrationTest {
   }
 
   @Test
+  public void testInheritance() {
+    nestmlFrontend.handleConsoleArguments(new String[] {
+        "src/test/resources/inheritance",
+        "--target", Paths.get("target","tmpOutput").toString()});
+  }
+
+  @Test
   public void testBluegenModels() {
     nestmlFrontend.handleConsoleArguments(new String[] {
         "src/test/resources/codegeneration/bluegene",

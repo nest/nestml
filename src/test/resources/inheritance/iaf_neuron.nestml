@@ -1,7 +1,7 @@
-neuron iaf_neuron:
+neuron my_iaf_neuron extends iaf_base:
   state:
 
-    suppress y0, y1, y2, y3 mVss
+    suppress y0, y1, y2, y3 mV
     # Membrane potential.
     alias V_m mV = y3 + E_L
   end
