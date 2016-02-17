@@ -12,6 +12,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -30,7 +31,6 @@ public class PredefinedVariables {
   static  {
     registerVariable(E_CONSTANT, PredefinedTypes.getRealType());
     registerVariable(TIME_CONSTANT, PredefinedTypes.getMS());
-
   }
 
   private static void registerVariable(
@@ -49,5 +49,13 @@ public class PredefinedVariables {
     return ImmutableSet.copyOf(name2VariableSymbol.values());
   }
 
+  public static Optional<VariableSymbol> getVariableIfExists(final String variableName) {
+    if (name2VariableSymbol.containsKey(variableName)) {
+      return Optional.of(name2VariableSymbol.get(variableName));
+    }
+    else {
+      return Optional.empty();
+    }
+  }
 
 }

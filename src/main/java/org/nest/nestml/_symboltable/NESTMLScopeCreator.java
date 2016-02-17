@@ -47,9 +47,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
         modelPath,
         nestmlLanguages,
         resolverConfiguration);
-    addPredefinedTypes(globalScope);
     addPredefinedFunctions(globalScope);
-    addPredefinedVariables(globalScope);
     final NESTMLSymbolTableCreator symbolTableCreator = new CommonNESTMLSymbolTableCreator(
         resolverConfiguration,
         globalScope);
