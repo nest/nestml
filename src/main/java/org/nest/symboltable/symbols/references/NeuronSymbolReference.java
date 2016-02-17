@@ -11,11 +11,10 @@ import de.monticore.symboltable.references.SymbolReference;
 import org.nest.symboltable.symbols.NeuronSymbol;
 
 /**
- * Represents a reference to a nestml neuron.
+ * Represents a reference to a nestml neuron. Can be used in the SymbolTable creator for
+ * supertypes and use-expressions
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class NeuronSymbolReference extends NeuronSymbol implements SymbolReference<NeuronSymbol> {
 
@@ -50,5 +49,7 @@ public class NeuronSymbolReference extends NeuronSymbol implements SymbolReferen
     return typeReference.getReferencedSymbol().getType();
   }
 
-
+  @Override public Scope getSpannedScope() {
+    return typeReference.getReferencedSymbol().getSpannedScope();
+  }
 }

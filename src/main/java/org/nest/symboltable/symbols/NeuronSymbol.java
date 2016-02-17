@@ -8,9 +8,12 @@ package org.nest.symboltable.symbols;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
+import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
+import org.nest.symboltable.NeuronScope;
+import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,6 +33,8 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   public final static NeuronSymbolKind KIND = new NeuronSymbolKind();
 
   private final Type type;
+
+  private Optional<NeuronSymbolReference> baseNeuron = Optional.empty();
 
   public NeuronSymbol(final String name, final Type type) {
     super(name, KIND);
@@ -53,6 +58,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     return getMethodByName(methodName, Lists.newArrayList());
   }
 
+  @SuppressWarnings("unused") // it is used within freemarker templates
   public List<VariableSymbol> getCurrentBuffers() {
     final Collection<VariableSymbol> variableSymbols
         = spannedScope.resolveLocally(VariableSymbol.KIND);
@@ -80,6 +86,23 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     return (Optional<MethodSymbol>) result;
   }
 
+  @Override
+  protected MutableScope createSpannedScope() {
+    return new NeuronScope();
+  }
+
+  public void setBaseNeuron(NeuronSymbolReference baseNeuron) {
+    this.baseNeuron = Optional.of(baseNeuron);
+  }
+
+  public Optional<NeuronSymbolReference> getBaseNeuron() {
+    return baseNeuron;
+  }
+
+  /**
+   * The same symbol is used for neurons and components. To  distinguish between them, this enum is
+   * used.
+   */
   public enum Type { NEURON, COMPONENT }
 
   public static class NeuronSymbolKind implements SymbolKind {

@@ -16,7 +16,6 @@ import java.util.Optional;
 
 /**
  * The implementation of the symboltable creator.
- * Implements required methods to compute packagename, current alias declaration
  *
  * @author plotnikov
  */
