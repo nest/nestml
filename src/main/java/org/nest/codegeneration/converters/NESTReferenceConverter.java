@@ -133,6 +133,9 @@ public class NESTReferenceConverter implements IReferenceConverter {
     else {
       final Optional<VariableSymbol> variableSymbol = scope.resolve(name, VariableSymbol.KIND);
 
+      if (!variableSymbol.isPresent()) {
+        scope.resolve(name, VariableSymbol.KIND);
+      }
       checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + name);
 
       if (variableSymbol.get().getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {

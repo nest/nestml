@@ -148,7 +148,8 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
-
+    testant.setPackageName("codegeneration");
+    testant.setArtifactName("iaf_neuron_ode");
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
 
     Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
@@ -157,6 +158,5 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     assertTrue(y1.isPresent());
     assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
   }
-
 
 }

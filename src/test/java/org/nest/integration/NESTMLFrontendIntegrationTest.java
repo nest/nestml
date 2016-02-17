@@ -9,6 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.cli.NESTMLFrontend;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -41,4 +42,10 @@ public class NESTMLFrontendIntegrationTest {
         "--target", Paths.get("target", "codegeneration/bluegene").toString()});
   }
 
+  @Test
+  public void testModelsWithInheritance() {
+    nestmlFrontend.handleConsoleArguments(new String[] {
+        "src/test/resources/inheritance",
+        "--target", Paths.get("target", "codegeneration/inheritance").toString()});
+  }
 }

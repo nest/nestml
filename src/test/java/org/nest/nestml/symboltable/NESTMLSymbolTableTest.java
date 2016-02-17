@@ -225,7 +225,8 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
 
   @Test
   public void testResolvingFromSupertype() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_WITH_INHERITANCE);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(
+        MODEL_WITH_INHERITANCE, "src/test/resources/inheritance");
     assertEquals(1, root.getNeurons().size());
 
     scopeCreator.runSymbolTableCreator(root);
@@ -236,7 +237,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     Optional<VariableSymbol> internalVariable = neuronSymbol.getSpannedScope().resolve("tau_m", VariableSymbol.KIND);
     assertTrue(internalVariable.isPresent());
 
-    Optional<VariableSymbol> importedVariable = neuronSymbol.getSpannedScope().resolve("C_m", VariableSymbol.KIND);
+    Optional<VariableSymbol> importedVariable = neuronSymbol.getSpannedScope().resolve("r", VariableSymbol.KIND);
     assertTrue(importedVariable.isPresent());
 
   }
