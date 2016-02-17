@@ -105,7 +105,9 @@ public class NESTGenerator {
   protected void generateNESTCode(
       final ASTNeuron astNeuron,
       final Path outputBase) {
-
+    if (astNeuron.getName().equals("iaf_base")) {
+      return;
+    }
     final GlobalExtensionManagement glex = getGlexConfiguration();
     setNeuronGenerationParameter(glex, astNeuron);
     generateHeader(astNeuron, outputBase, glex);

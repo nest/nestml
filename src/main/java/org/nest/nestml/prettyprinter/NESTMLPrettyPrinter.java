@@ -63,6 +63,8 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
   @Override
   public void visit(final ASTNeuron astNeuron) {
     print("neuron " + astNeuron.getName());
+    astNeuron.getBase().ifPresent(
+        baseNeuron -> print(" extends " + baseNeuron));
   }
 
   /**

@@ -45,6 +45,10 @@ public class ModelbasedTest {
   }
 
   public ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
+    return parseNESTMLModel(pathToModel, TEST_MODEL_PATH.toString());
+  }
+
+  public ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel, final String modelPath)  {
 
     try {
       return parser.parse(pathToModel).get();

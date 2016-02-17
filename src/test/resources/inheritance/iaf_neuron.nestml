@@ -1,54 +1,6 @@
-import inheritance.iaf_base.iaf_base
+import inheritance.iaf_base.*
 
 neuron my_iaf_neuron extends iaf_base:
-  state:
-
-    suppress y0, y1, y2, y3 mV
-    # Membrane potential.
-    alias V_m mV = y3 + E_L
-  end
-
-  parameter:
-
-    # Membrane time constant.
-    tau_m     ms = 10
-    # Time constant of synaptic current.
-    tau_syn ms = 2
-    # Refractory period.
-    t_ref    ms = 2
-    # Resting potential.
-    E_L      mV = -70
-    delta_V_reset mV = -70 - E_L
-    Theta   mV = -55 - E_L
-    # External current.
-    I_e     pA = 0
-    # some aliases Threshold.
-    alias V_th mV = Theta + E_L
-    # Reset value of the membrane potential.
-    alias  V_reset mV = delta_V_reset + E_L
-  end
-
-
-  internal:
-    h   ms   = resolution()
-    r integer
-    log P11 real = exp(-h / tau_syn)
-    P22 real = P11
-    P33 real = exp(-h / tau_m)
-    P21 real = h * P11
-    P30 real = 1 / C_m * (1 - P33) * tau_m
-    P31 real = 1 / C_m * ((P11 - P33) / (-1/tau_syn - -1/tau_m) - h * P11) / (-1/tau_m - -1/tau_syn)
-    P32 real = 1 / C_m * (P33 - P11) / (-1/tau_m - -1/tau_syn)
-    PSCInitialValue  mV = 1 * e / tau_syn
-    RefractoryCounts integer = steps(t_ref)
-  end
-
-  input:
-    spikeBuffer   <- inhibitory excitatory spike
-    currentBuffer <- current
-  end
-
-  output: spike
 
   update:
     if r == 0: # not refrassctory
@@ -77,17 +29,6 @@ neuron my_iaf_neuron extends iaf_base:
     y0 = currentBuffer.getSum(t);
   end
 
-  function set_V_th(v mV):
-    Theta = v - E_L
-  end
-
-  function set_V_reset(v mV):
-    delta_V_reset = v - E_L
-  end
-
-  function set_V_m(v mV):
-    y3 = v - E_L
-  end
 
 end
 

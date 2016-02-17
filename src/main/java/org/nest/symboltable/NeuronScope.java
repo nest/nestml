@@ -29,13 +29,17 @@ public class NeuronScope extends CommonScope {
       if (neuronSymbol.getBaseNeuron().isPresent()) {
         resolvedSymbol = neuronSymbol.getBaseNeuron().get().getSpannedScope()
             .resolveDown(symbolName, kind);
+        if (!resolvedSymbol.isPresent()) {
+          System.out.printf("");
+        }
       }
+
     }
 
     return resolvedSymbol;
   }
 
-  private <T extends Symbol> Optional<T> resolveInSuperTypes(String symbolName, SymbolKind kind) {
+  private <T extends Symbol> Optional<T> resolveInSupearTypes(String symbolName, SymbolKind kind) {
     return null;
   }
 
