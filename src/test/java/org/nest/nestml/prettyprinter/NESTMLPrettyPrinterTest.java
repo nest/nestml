@@ -35,7 +35,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
-    parseAndCheckNestmlModel("/home/user/nestml/src/test/resources/inheritance/iaf_neuron.nestml");
+    parseAndCheckNestmlModel("src/test/resources/inheritance/iaf_neuron.nestml");
   }
 
   @Test
