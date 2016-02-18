@@ -26,7 +26,6 @@ import static org.nest.utils.NESTMLSymbols.resolveMethod;
  * Prohibits definition of setter/getters for declared variables which are not aliases.
  *
  * @author (last commit) ippen, plotnikov
- * @since 0.0.1
  */
 public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
 
@@ -81,20 +80,17 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
   private MethodSymbol getMethodEntry(final ASTFunction fun, final Scope scope) {
     final Optional<MethodSymbol> methodSymbol;
 
-    if (!fun.getParameters().isPresent()) {
-      methodSymbol = resolveMethod(scope, fun.getName(), Lists.newArrayList());
-    }
-    else {
-      List<String> parameters = Lists.newArrayList();
+    List<String> parameters = Lists.newArrayList();
+    if (fun.getParameters().isPresent()) {
       for (int i = 0; i < fun.getParameters().get().getParameters().size(); ++i) {
         String parameterTypeFqn = ASTNodes.computeTypeName(
             fun.getParameters().get().getParameters().get(i).getDatatype());
         parameters.add(parameterTypeFqn);
       }
 
-      methodSymbol = resolveMethod(scope, fun.getName(), parameters);
     }
 
+    methodSymbol = resolveMethod(scope, fun.getName(), parameters);
     checkState(methodSymbol.isPresent(), "Cannot resolve the method: " + fun.getName());
     return methodSymbol.get();
   }

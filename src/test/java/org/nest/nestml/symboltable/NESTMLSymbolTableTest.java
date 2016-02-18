@@ -7,6 +7,7 @@ package org.nest.nestml.symboltable;
 
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.ScopeSpanningSymbol;
 import de.monticore.symboltable.Symbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
@@ -16,6 +17,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
+import org.nest.utils.NESTMLSymbols;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -167,6 +169,24 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
   }
 
   @Test
+  public void testPredefinedMethods() throws IOException {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
+
+    final Optional<MethodSymbol> fromGlobalScope
+        = scopeCreator.getGlobalScope().resolve("exp", MethodSymbol.KIND);
+    assertTrue(fromGlobalScope.isPresent());
+
+
+    final Optional<MethodSymbol> fromModelScope = modelScope.resolve("exp", MethodSymbol.KIND);
+    assertTrue(fromModelScope.isPresent());
+
+    final Optional<MethodSymbol> withPredicate
+        = NESTMLSymbols.resolveMethod(modelScope, "exp", Lists.newArrayList("real"));
+    assertTrue(withPredicate.isPresent());
+  }
+
+  @Test
   public void testResolvingSeparateModels() throws IOException {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(USING_NEURON_FILE);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
@@ -211,11 +231,15 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
   public void testResolvingPredefinedFunctions() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
-
     scopeCreator.runSymbolTableCreator(root);
-    final Scope scope = scopeCreator.getGlobalScope();
+    final ScopeSpanningSymbol symbol = (ScopeSpanningSymbol) root.getNeurons().get(0).getSymbol().get();
+    final Scope scope = symbol.getSpannedScope();//scopeCreator.runSymbolTableCreator(root);
+
+    scope.resolve("I_sum", MethodSymbol.KIND);
     final Optional<MethodSymbol> method1 = resolveMethod(
-        scope, "I_sum", Lists.newArrayList("real", "Buffer"));
+        scope,
+        "I_sum", Lists.newArrayList("real", "Buffer"));
+
     assertTrue(method1.isPresent());
 
     final Optional<MethodSymbol> method2 = resolveMethod(

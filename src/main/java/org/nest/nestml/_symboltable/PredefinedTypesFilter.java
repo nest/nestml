@@ -18,9 +18,7 @@ import java.util.Optional;
 /**
  * TODO
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since TODO
+ * @author plotnikov
  */
 public class PredefinedTypesFilter extends CommonResolvingFilter<TypeSymbol> {
   public PredefinedTypesFilter(

@@ -8,6 +8,7 @@ package org.nest.nestml.cocos;
 import de.se_rwth.commons.Names;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -334,6 +335,7 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     assertEquals(Integer.valueOf(8), errorsFound);
   }
 
+  @Ignore
   @Test
   public void testNESTGetterSetterFunctionNames() {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
