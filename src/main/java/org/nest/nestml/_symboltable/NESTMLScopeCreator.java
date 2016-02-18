@@ -11,6 +11,7 @@ import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
+import org.nest.symboltable.symbols.MethodSymbol;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +40,6 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
 
     resolverConfiguration = new ResolverConfiguration();
     resolverConfiguration.addTopScopeResolvers(nestmlLanguages.getResolvers());
-
   }
 
   public Scope runSymbolTableCreator(final ASTNESTMLCompilationUnit compilationUnit) {
@@ -47,7 +47,6 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
         modelPath,
         nestmlLanguages,
         resolverConfiguration);
-    addPredefinedFunctions(globalScope);
     final NESTMLSymbolTableCreator symbolTableCreator = new CommonNESTMLSymbolTableCreator(
         resolverConfiguration,
         globalScope);

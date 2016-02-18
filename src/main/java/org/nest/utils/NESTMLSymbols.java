@@ -6,6 +6,7 @@
 package org.nest.utils;
 
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
@@ -14,6 +15,7 @@ import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +34,10 @@ public class NESTMLSymbols {
       final List<String> parameters) {
     // it is OK. The cast is secured through the symboltable infrastructure
     @SuppressWarnings("unchecked")
-    final Optional<MethodSymbol> standAloneFunction = (Optional<MethodSymbol>)
-        scope.resolve(new MethodSignaturePredicate(methodName, parameters));
+    final Optional<MethodSymbol> standAloneFunction = resolveMethodWithArguments(
+        scope,
+        methodName,
+        parameters);
 
     final String calleeVariableNameCandidate = Names.getQualifier(methodName);
     final String simpleMethodName = Names.getSimpleName(methodName);
@@ -62,6 +66,30 @@ public class NESTMLSymbols {
     }
 
     return standAloneFunction;
+  }
+
+  private static Optional<MethodSymbol> resolveMethodWithArguments(
+      final Scope scope,
+      final String methodName,
+      final List<String> parameters) {
+    if (parameters.isEmpty()) {
+      return scope.resolve(methodName, MethodSymbol.KIND);
+    }
+
+    final Collection<MethodSymbol> tmp = scope.resolveMany(methodName, MethodSymbol.KIND);
+
+    final Collection<MethodSymbol> possibleMethods = scope.resolveMany(methodName, MethodSymbol.KIND);
+
+    final MethodSignaturePredicate methodSignaturePredicate = new MethodSignaturePredicate(methodName, parameters);
+    for(final MethodSymbol methodSymbol:possibleMethods) {
+      if (methodSignaturePredicate.apply(methodSymbol)) {
+        // TODO: check that it is the only suitable method
+        return Optional.of(methodSymbol);
+      }
+
+    }
+
+    return Optional.empty();
   }
 
   public static Optional<VariableSymbol> resolve(final String variableName, final Scope scope) {

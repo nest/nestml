@@ -22,7 +22,7 @@ public class MethodSignaturePredicate implements SymbolPredicate {
   private final List<String> expectedParameterTypes = new ArrayList<>();
 
   public MethodSignaturePredicate(final String methodName,
-                                        final List<String> parameters) {
+                                  final List<String> parameters) {
     this.expectedMethodName = requireNonNull(emptyToNull(methodName));
 
     expectedParameterTypes.addAll(parameters);

@@ -7,6 +7,9 @@ component GetSet:
   function get_a() mV: # error
   end
 
+  function get_a(x real) mV: # error
+  end
+
   function set_a(x real): # error
   end
 

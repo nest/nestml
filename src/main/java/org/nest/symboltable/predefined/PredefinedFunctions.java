@@ -13,6 +13,7 @@ import org.nest.symboltable.symbols.MethodSymbol;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
@@ -124,6 +125,16 @@ public class PredefinedFunctions {
 
   public static List<MethodSymbol> getMethodSymbols() {
     return name2FunctionSymbol.values().stream().map(MethodSymbol::new).collect(toList());
+  }
+
+  public static Optional<MethodSymbol> getMethodSymbol(final String methodName) {
+    if (name2FunctionSymbol.containsKey(methodName)) {
+      return Optional.of(name2FunctionSymbol.get(methodName));
+    }
+    else {
+      return Optional.empty();
+    }
+
   }
 
 
