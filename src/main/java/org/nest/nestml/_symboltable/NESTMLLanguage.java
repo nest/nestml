@@ -99,9 +99,9 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
   }
 
   @Override
-  public Optional<CommonNESTMLSymbolTableCreator> getSymbolTableCreator(
+  public Optional<NESTMLSymbolTableCreator> getSymbolTableCreator(
       ResolverConfiguration resolverConfiguration, MutableScope mutableScope) {
-    return Optional.of(new CommonNESTMLSymbolTableCreator(resolverConfiguration, mutableScope));
+    return Optional.of(new NESTMLSymbolTableCreator(resolverConfiguration, mutableScope));
   }
 
 }
