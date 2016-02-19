@@ -9,7 +9,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.cli.NESTMLFrontend;
 
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**

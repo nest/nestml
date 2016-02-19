@@ -66,13 +66,13 @@ public class NESTGenerator {
       final Path outputBase) {
     info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
     ASTNESTMLCompilationUnit workingVersion = root;
-    for (int i = 0; i < root.getNeurons().size(); ++i) {
+    /*for (int i = 0; i < root.getNeurons().size(); ++i) {
       final ASTNeuron solvedNeuron = computeSolutionForODE(root.getNeurons().get(i), outputBase);
       root.getNeurons().set(i, solvedNeuron);
     }
 
     workingVersion = printAndReadModel(outputBase, workingVersion);
-    scopeCreator.runSymbolTableCreator(workingVersion);
+    scopeCreator.runSymbolTableCreator(workingVersion);*/
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     workingVersion.getNeurons()
         .stream()

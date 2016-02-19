@@ -100,7 +100,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     final String msg = "Adds an artifact scope for the NESTML model file: " +
         compilationUnitAst.getFullName();
-    debug(msg, LOGGER_NAME);
+    trace(msg, LOGGER_NAME);
   }
 
   public List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
@@ -114,14 +114,15 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   }
 
   public void endVisit(final ASTNESTMLCompilationUnit compilationUnitAst) {
-    final String fullName = compilationUnitAst.getPackageName() + "." + compilationUnitAst.getArtifactName();
     removeCurrentScope();
     setEnclosingScopeOfNodes(compilationUnitAst);
-    trace("Finishes handling and sets scopes on all ASTs for the artifact: " + fullName, LOGGER_NAME);
+    final String msg = "Finishes handling and sets scopes on all ASTs for the artifact: " +
+        compilationUnitAst.getFullName();
+    trace(msg, LOGGER_NAME);
   }
 
   public void visit(final ASTNeuron astNeuron) {
-    debug("Processes the neuron:  " + astNeuron.getName(), LOGGER_NAME);
+    trace("Processes the neuron:  " + astNeuron.getName(), LOGGER_NAME);
 
     final NeuronSymbol neuronSymbol = new NeuronSymbol(astNeuron.getName(), NEURON);
 
@@ -144,7 +145,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     final NeuronSymbol componentSymbol = new NeuronSymbol(componentAst.getName(), COMPONENT);
     addToScopeAndLinkWithNode(componentSymbol, componentAst);
 
-    debug("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
+    trace("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
   }
 
   public void endVisit(final ASTComponent componentAst) {

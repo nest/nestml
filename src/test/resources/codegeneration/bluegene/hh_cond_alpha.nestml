@@ -21,7 +21,9 @@ neuron hh_cond_alpha:
     n'   = alpha_n*(1. - n) - beta_n*n
     m'   = alpha_m*(1. - m) - beta_m*m
     h'   = alpha_h*(1. - h) - beta_h*h
-    V_m' = - (g_K*pow(n,4)*(V_m - E_K) + g_Na* pow(m,3)*h*(V_m - E_Na) + g_L*(V_m - E_L))/C_m - (GI*(V_m-V_reversalI) + GE*(V_m-V_reversalE))/C_m + (I_e + I_stim)/C_m
+    V_m' = - (g_K*pow(n,4)*(V_m - E_K) + g_Na* pow(m,3)*h*(V_m - E_Na) + \
+            g_L*(V_m - E_L))/C_m - (GI*(V_m-V_reversalI) + GE*(V_m-V_reversalE))/C_m + \
+            (I_e + I_stim)/C_m
   end
 
   parameter:

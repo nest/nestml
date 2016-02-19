@@ -12,7 +12,8 @@ neuron aeif_cond_alpha_neuron:
     GI'  = DGI + GI *-1/tau_synI
     DGE' = DGE*-1/tau_synE
     GE'  = DGE + GE *-1/tau_synE
-    V_m' = -(V_m - E_L)/Tau + Delta_T/Tau*exp((V_m - V_th)/Delta_T) - (GI*(V_m-V_reversalI) + GE*(V_m-V_reversalE))/C_m + (I_e + I_stim)/C_m
+    V_m' = -(V_m - E_L)/Tau + Delta_T/Tau*exp((V_m - V_th)/Delta_T) - (GI*(V_m-V_reversalI) + \
+           GE*(V_m-V_reversalE))/C_m + (I_e + I_stim)/C_m
     w'   = (a*(V_m-E_L) - w)/tau_w
   end
 

@@ -85,7 +85,7 @@ public class CLIConfigurationExecutor {
 
     if (config.isCheckCoCos()) {
       Log.info("Checks context conditions.", LOG_NAME);
-      modelRoots.forEach(this::checkCocosForModel);
+      //modelRoots.forEach(this::checkCocosForModel);
     }
 
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
