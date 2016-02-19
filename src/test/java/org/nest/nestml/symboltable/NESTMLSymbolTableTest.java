@@ -12,6 +12,7 @@ import de.monticore.symboltable.Symbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.*;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedFunctions;
@@ -20,6 +21,7 @@ import org.nest.symboltable.symbols.*;
 import org.nest.utils.NESTMLSymbols;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -248,11 +250,11 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
   }
 
   @Test
-  public void testResolvingFromSupertype() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(
-        MODEL_WITH_INHERITANCE, "src/test/resources/inheritance");
+  public void testResolvingFromSupertype() throws IOException {
+    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources/inheritance"));
+    final NESTMLParser nestmlParser = new NESTMLParser(Paths.get("src/test/resources/inheritance"));
+    final ASTNESTMLCompilationUnit root = nestmlParser.parse(MODEL_WITH_INHERITANCE.toString()).get();
     assertEquals(1, root.getNeurons().size());
-
     scopeCreator.runSymbolTableCreator(root);
     ASTNeuron astNeuron = root.getNeurons().get(0);
     assertTrue( astNeuron.getSymbol().isPresent());

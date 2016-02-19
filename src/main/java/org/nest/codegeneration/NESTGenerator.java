@@ -71,8 +71,7 @@ public class NESTGenerator {
       root.getNeurons().set(i, solvedNeuron);
     }
 
-    workingVersion = printAndReadModel(outputBase, workingVersion);
-    scopeCreator.runSymbolTableCreator(workingVersion);*/
+    workingVersion = printAndReadModel(outputBase, workingVersion);*/
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     workingVersion.getNeurons()
         .stream()

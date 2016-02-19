@@ -1,9 +1,9 @@
-import inheritance.iaf_base.*
+import iaf_base.iaf_base
 
 neuron my_iaf_neuron extends iaf_base:
 
   update:
-    if r == 0: # not refrassctory
+    if r == 0: # not refractory
       y3 = P30 * (y0 + I_e) + P31 * y1 + P32 * y2 + P33 * y3
     else:
       r = r - 1

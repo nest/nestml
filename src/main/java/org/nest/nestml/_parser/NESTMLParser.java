@@ -71,6 +71,7 @@ public class NESTMLParser extends NESTMLParserTOP {
   protected Optional<String> computePackageName(Path artifactPath, Path modelPath) {
     artifactPath = artifactPath.normalize().toAbsolutePath();
     modelPath = modelPath.normalize().toAbsolutePath();
+
     final Path directParent = modelPath.relativize(artifactPath).getParent();
     if (directParent == null) {
       return Optional.empty();
