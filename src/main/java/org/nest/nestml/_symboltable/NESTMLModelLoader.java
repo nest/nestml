@@ -5,13 +5,10 @@
  */
 package org.nest.nestml._symboltable;
 
-import de.monticore.modelloader.ModelingLanguageModelLoader;
 import de.monticore.symboltable.ArtifactScope;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -23,9 +20,7 @@ import static de.se_rwth.commons.logging.Log.debug;
  *
  * @author plotnikov
  */
-public class NESTMLModelLoader extends ModelingLanguageModelLoader<ASTNESTMLCompilationUnit> {
-
-  public static final String NO_CREATOR = "Register symbol table creator in the language.";
+public class NESTMLModelLoader extends NESTMLModelLoaderTOP {
 
   public NESTMLModelLoader(NESTMLLanguage language) {
     super(language);
@@ -37,6 +32,7 @@ public class NESTMLModelLoader extends ModelingLanguageModelLoader<ASTNESTMLComp
       final String modelName,
       final MutableScope enclosingScope,
       final ResolverConfiguration resolverConfiguration) {
+    final String NO_CREATOR = "Register symbol table creator in the language.";
     final NESTMLSymbolTableCreator symbolTableCreator = getModelingLanguage()
         .getSymbolTableCreator(resolverConfiguration, enclosingScope)
         .orElseThrow(() -> new RuntimeException(NO_CREATOR));
@@ -64,8 +60,4 @@ public class NESTMLModelLoader extends ModelingLanguageModelLoader<ASTNESTMLComp
 
   }
 
-  @Override
-  public NESTMLLanguage getModelingLanguage() {
-    return (NESTMLLanguage) super.getModelingLanguage();
-  }
 }

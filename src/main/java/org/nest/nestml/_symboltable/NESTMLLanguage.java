@@ -66,7 +66,7 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
        * no artifact for it, but neuron is defined in a file defined by the fqn prefix.
        * TODO: it is a big hack for now! wait for the correct implementation in the ST infrastructure
        */
-      public String calculateModelName(String name) {
+      public String calculateModelName(final String name) {
         checkArgument(!isNullOrEmpty(name));
 
         // a.b.nestmlfile.IaFNeuron => a.b.nestmlfile is the artifact name
@@ -99,9 +99,9 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
   }
 
   @Override
-  public Optional<CommonNESTMLSymbolTableCreator> getSymbolTableCreator(
+  public Optional<NESTMLSymbolTableCreator> getSymbolTableCreator(
       ResolverConfiguration resolverConfiguration, MutableScope mutableScope) {
-    return Optional.of(new CommonNESTMLSymbolTableCreator(resolverConfiguration, mutableScope));
+    return Optional.of(new NESTMLSymbolTableCreator(resolverConfiguration, mutableScope));
   }
 
 }

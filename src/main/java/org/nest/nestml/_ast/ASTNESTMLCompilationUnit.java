@@ -19,7 +19,7 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
 
   public void setPackageName(final String packageName) {
     Objects.requireNonNull(packageName);
-    this.packageName = Optional.of(packageName);
+    this.packageName = !packageName.isEmpty()?Optional.of(packageName):Optional.empty();
   }
 
   public void setArtifactName(final String artifactName) {

@@ -39,12 +39,9 @@ public class CLIConfigurationExecutor {
     Log.enableFailQuick(false); // otherwise the processing is stopped after encountering first error
   }
 
-  public void execute(
-      final NESTGenerator generator,
-      final Configuration config) {
-
-    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
+  public void execute(final NESTGenerator generator, final Configuration config) {
     final NESTMLParser parser =  new NESTMLParser(config.getInputBase());
+    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getInputBase());
 
@@ -85,7 +82,7 @@ public class CLIConfigurationExecutor {
 
     if (config.isCheckCoCos()) {
       Log.info("Checks context conditions.", LOG_NAME);
-      modelRoots.forEach(this::checkCocosForModel);
+      //modelRoots.forEach(this::checkCocosForModel);
     }
 
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
