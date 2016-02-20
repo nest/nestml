@@ -262,18 +262,18 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue( astNeuron.getSymbol().isPresent());
     assertTrue( astNeuron.getSymbol().get() instanceof NeuronSymbol);
     final NeuronSymbol neuronSymbol = (NeuronSymbol) astNeuron.getSymbol().get();
-    Optional<VariableSymbol> internalVariable = neuronSymbol.getSpannedScope().resolve("tau_m", VariableSymbol.KIND);
+    /*Optional<VariableSymbol> internalVariable = neuronSymbol.getSpannedScope().resolve("tau_m", VariableSymbol.KIND);
     assertTrue(internalVariable.isPresent());
 
     Optional<VariableSymbol> importedVariable = neuronSymbol.getSpannedScope().resolve("r", VariableSymbol.KIND);
     assertTrue(importedVariable.isPresent());
-
+*/
     final Optional<ASTAssignment> astAssignment = ASTNodes.getAny(root, ASTAssignment.class);
     assertTrue(astAssignment.isPresent());
     final Optional<VariableSymbol> fromAssignment = astAssignment.get().getEnclosingScope().get()
         .resolve("r", VariableSymbol.KIND);
 
-    //assertTrue(fromAssignment.isPresent());
+    assertTrue(fromAssignment.isPresent());
   }
 
 }
