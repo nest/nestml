@@ -37,6 +37,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.info;
 import static org.nest.utils.ASTNodes.getAllNeurons;
 
@@ -66,12 +67,12 @@ public class NESTGenerator {
       final Path outputBase) {
     info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
     ASTNESTMLCompilationUnit workingVersion = root;
-    /*for (int i = 0; i < root.getNeurons().size(); ++i) {
+    for (int i = 0; i < root.getNeurons().size(); ++i) {
       final ASTNeuron solvedNeuron = computeSolutionForODE(root.getNeurons().get(i), outputBase);
       root.getNeurons().set(i, solvedNeuron);
     }
 
-    workingVersion = printAndReadModel(outputBase, workingVersion);*/
+    workingVersion = printAndReadModel(outputBase, workingVersion);
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
     workingVersion.getNeurons()
         .stream()
@@ -104,9 +105,7 @@ public class NESTGenerator {
   protected void generateNESTCode(
       final ASTNeuron astNeuron,
       final Path outputBase) {
-    if (astNeuron.getName().equals("iaf_base")) {
-      return;
-    }
+
     final GlobalExtensionManagement glex = getGlexConfiguration();
     setNeuronGenerationParameter(glex, astNeuron);
     generateHeader(astNeuron, outputBase, glex);
@@ -279,11 +278,13 @@ public class NESTGenerator {
   private void setNeuronGenerationParameter(
       final GlobalExtensionManagement glex,
       final ASTNeuron neuron) {
+    checkArgument(neuron.getSymbol().isPresent());
     defineSolverType(glex, neuron);
 
     final String guard = (neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
     glex.setGlobalValue("simpleNeuronName", neuron.getName());
+    glex.setGlobalValue("neuronSymbol", neuron.getSymbol().get());
 
     final NESTMLFunctionPrinter functionPrinter = new NESTMLFunctionPrinter();
     final NESTMLDeclarations declarations = new NESTMLDeclarations();

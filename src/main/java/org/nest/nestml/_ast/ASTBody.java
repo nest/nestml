@@ -76,9 +76,9 @@ public class ASTBody extends ASTBodyTOP {
     this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
       ASTVar_Block block = (ASTVar_Block) be;
       if (block.isState()) {
-        for (ASTAliasDecl ad : block.getAliasDecls()) {
-          result.add(ad);
-        }
+        result.addAll(block.getAliasDecls()
+            .stream()
+            .collect(Collectors.toList()));
       }
     });
 
