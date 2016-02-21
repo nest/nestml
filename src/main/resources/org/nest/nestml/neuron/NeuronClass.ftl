@@ -31,7 +31,6 @@
 
 #include <limits>
 <#assign stateSize = body.getStateNonAliasSymbols()?size>
-// TODO it cannot work with several neurons
 #include "${simpleNeuronName}.h"
 
 /* ----------------------------------------------------------------
@@ -56,6 +55,13 @@ namespace nest
     <#list body.getParameters() as parameter>
       ${tc.include("org.nest.nestml.function.RecordCallback", parameter)}
     </#list>
+
+    <#if neuronSymbol.getBaseNeuron().isPresent()>
+      <#list neuronSymbol.getBaseNeuron().get().getStateVariables() as var>
+        insert_("${var.getName()}", &${simpleNeuronName}::get_${var.getName()});
+      </#list>
+    </#if>
+
   }
 }
 
@@ -63,7 +69,8 @@ namespace nest
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
 <#assign start="">
-${simpleNeuronName}::Parameters_::Parameters_():
+${simpleNeuronName}::Parameters_::Parameters_()
+<#if body.getNonAliasStates()?size != 0>:</#if>
 <#list body.getNonAliasParameters() as parameter>
   ${start} ${tc.include("org.nest.nestml.function.MemberInitialization", parameter)}
   <#assign start=",">
@@ -86,6 +93,9 @@ ${simpleNeuronName}::State_::State_()
 void
 ${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
 {
+  <#if neuronSymbol.getBaseNeuron().isPresent()>
+  ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::get(d);
+  </#if>
   <#list body.getNonAliasParameters() as parameter>
   ${tc.include("org.nest.nestml.function.WriteInDictionary", parameter)}
   </#list>
@@ -94,6 +104,9 @@ ${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
 void
 ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
 {
+  <#if neuronSymbol.getBaseNeuron().isPresent()>
+  ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::set(d);
+  </#if>
   <#list body.getNonAliasParameters() as parameter>
   ${tc.include("org.nest.nestml.function.ReadFromDictionary", parameter)}
   </#list>
@@ -109,33 +122,51 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
 void
 ${simpleNeuronName}::State_::get(DictionaryDatum &d) const
 {
-    <#list body.getNonAliasStates() as state>
-    ${tc.include("org.nest.nestml.function.WriteInDictionary", state)}
-    </#list>
+  <#if neuronSymbol.getBaseNeuron().isPresent()>
+  ${neuronSymbol.getBaseNeuron().get().getName()}::State_::get(d);
+  </#if>
+  <#list body.getNonAliasStates() as state>
+  ${tc.include("org.nest.nestml.function.WriteInDictionary", state)}
+  </#list>
 }
 
 void
 ${simpleNeuronName}::State_::set(const DictionaryDatum& d)
 {
+  <#if neuronSymbol.getBaseNeuron().isPresent()>
+  ${neuronSymbol.getBaseNeuron().get().getName()}::State_::set(d);
+  </#if>
   <#list body.getNonAliasStates() as state>
   ${tc.include("org.nest.nestml.function.ReadFromDictionary", state)}
   </#list>
 }
 
 ${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n)
+<#if neuronSymbol.getBaseNeuron().isPresent()>
+: ${neuronSymbol.getBaseNeuron().get().getName()}::Buffers_(n), logger_(n)
+<#else>
 : logger_(n)
+</#if>
 {}
 
 ${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n)
+<#if neuronSymbol.getBaseNeuron().isPresent()>
+: ${neuronSymbol.getBaseNeuron().get().getName()}::Buffers_(n), logger_(n)
+<#else>
 : logger_(n)
+</#if>
 {}
 
 /* ----------------------------------------------------------------
 * Default and copy constructor for node
 * ---------------------------------------------------------------- */
 // TODO inner components
-${simpleNeuronName}::${simpleNeuronName}()
-: Archiving_Node(),
+${simpleNeuronName}::${simpleNeuronName}():
+<#if neuronSymbol.getBaseNeuron().isPresent()>
+${neuronSymbol.getBaseNeuron().get().getName()}(),
+<#else>
+Archiving_Node(),
+</#if>
 P_(),
 S_(),
 B_(*this)
@@ -143,8 +174,12 @@ B_(*this)
   recordablesMap_.create();
 }
 
-${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n)
-    : Archiving_Node(n),
+${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n):
+<#if neuronSymbol.getBaseNeuron().isPresent()>
+${neuronSymbol.getBaseNeuron().get().getName()}(),
+<#else>
+Archiving_Node(),
+</#if>
     P_(n.P_),
     S_(n.S_),
     B_(n.B_, *this)
@@ -157,6 +192,7 @@ ${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n)
 void
 ${simpleNeuronName}::init_state_(const Node& proto)
 { // TODO inner components
+
   const ${ast.getName()}& pr = downcast<${ast.getName()}>(proto);
   S_ = pr.S_;
 }
@@ -169,6 +205,9 @@ ${tc.include("org.nest.nestml.function.GSLDifferentiationFunction",body)}
 void
 ${simpleNeuronName}::init_buffers_()
 {
+  <#if neuronSymbol.getBaseNeuron().isPresent()>
+    ${neuronSymbol.getBaseNeuron().get().getName()}::init_buffers_();
+  </#if>
   <#list body.getInputLines() as input>
   ${bufferHelper.printBufferInitialization(input)}
   </#list>
@@ -203,6 +242,9 @@ void
 ${simpleNeuronName}::calibrate()
 { // TODO init internal variables
   B_.logger_.init();
+  <#if neuronSymbol.getBaseNeuron().isPresent()>
+    ${neuronSymbol.getBaseNeuron().get().getName()}::calibrate();
+  </#if>
 
   ${tc.include("org.nest.nestml.function.Calibrate", body.getNonAliasInternals())}
 

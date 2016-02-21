@@ -49,7 +49,8 @@ public class NeuronSymbolReference extends NeuronSymbol implements SymbolReferen
     return typeReference.getReferencedSymbol().getType();
   }
 
-  @Override public Scope getSpannedScope() {
+  @Override
+  public Scope getSpannedScope() {
     return typeReference.getReferencedSymbol().getSpannedScope();
   }
 }

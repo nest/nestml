@@ -32,6 +32,10 @@
 <#-- TODO make it depend on the ODE declaration -->
 #include "config.h"
 
+<#if neuronSymbol.getBaseNeuron().isPresent()>
+#include "${neuronSymbol.getBaseNeuron().get().getName()}.h"
+</#if>
+
 <#if useGSL>
 #ifdef HAVE_GSL
 #include <gsl/gsl_errno.h>
@@ -70,9 +74,15 @@ TODO
 SeeAlso:
 Empty
 */
-class ${simpleNeuronName} : public nest::Archiving_Node
+class ${simpleNeuronName}
+<#if neuronSymbol.getBaseNeuron().isPresent()>
+: public ${neuronSymbol.getBaseNeuron().get().getName()}
+<#else>
+: public nest::Archiving_Node
+</#if>
+
 {
-  public:
+public:
   /**
   * The constructor is only used to create the model prototype in the model manager.
   */
@@ -149,7 +159,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   ${bufferHelper.printBufferGetter(inputLine, false)};
   </#list>
 
-  private:
+protected:
 
   //! Reset parameters and state of neuron.
 
@@ -169,6 +179,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   friend class nest::RecordablesMap<${simpleNeuronName}>;
   friend class nest::UniversalDataLogger<${simpleNeuronName}>;
 
+protected:
   /**
   * Dynamic state of the neuron.
   *
@@ -187,7 +198,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct State_ {
+  struct State_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::State_ </#if> {
     <#list body.getNonAliasStates() as aliasDecl>
     ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
     </#list>
@@ -224,7 +235,8 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct Parameters_ {
+  struct Parameters_
+    <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_ </#if> {
     <#list body.getNonAliasParameters() as aliasDecl>
     ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
     </#list>
@@ -248,7 +260,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   *       since it is initialized by @c calibrate(). If Variables_ has members that
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
-  struct Variables_ {
+  struct Variables_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Variables_ </#if> {
     <#list body.getNonAliasInternals() as aliasDecl>
     ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
     </#list>
@@ -267,7 +279,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
   *       since it is initialized by @c init_nodes_(). If Buffers_ has members that
   *       cannot destroy themselves, Buffers_ will need a destructor.
   */
-  struct Buffers_ {
+  struct Buffers_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Buffers_ </#if> {
     Buffers_(${simpleNeuronName}&);
     Buffers_(const Buffers_ &, ${simpleNeuronName}&);
     <#list body.getInputLines() as inputLine>
@@ -296,6 +308,7 @@ class ${simpleNeuronName} : public nest::Archiving_Node
 
   };
 
+private:
   /**
   * @defgroup pif_members Member variables of neuron model.
   * Each model neuron should have precisely the following four data members,

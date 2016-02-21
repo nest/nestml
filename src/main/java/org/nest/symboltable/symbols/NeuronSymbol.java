@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
 
@@ -34,7 +35,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   private final Type type;
 
-  private Optional<NeuronSymbolReference> baseNeuron = Optional.empty();
+  private Optional<NeuronSymbol> baseNeuron = Optional.empty();
 
   public NeuronSymbol(final String name, final Type type) {
     super(name, KIND);
@@ -48,6 +49,13 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   @Override
   public String toString() {
     return "NeuronSymbol(" + getFullName() + "," + type + ")";
+  }
+
+  public List<VariableSymbol> getStateVariables() {
+    return getSpannedScope().<VariableSymbol> resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .filter(VariableSymbol::isInState)
+        .collect(toList());
   }
 
   public Optional<VariableSymbol> getVariableByName(String variableName) {
@@ -64,7 +72,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
         = spannedScope.resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_CURRENT))
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   public List<VariableSymbol> getSpikeBuffers() {
@@ -72,7 +80,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
         = spannedScope.resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_SPIKE))
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   @SuppressWarnings("unchecked") // Resolving filter does the type checking
@@ -95,7 +103,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     this.baseNeuron = Optional.of(baseNeuron);
   }
 
-  public Optional<NeuronSymbolReference> getBaseNeuron() {
+  public Optional<NeuronSymbol> getBaseNeuron() {
     return baseNeuron;
   }
 
