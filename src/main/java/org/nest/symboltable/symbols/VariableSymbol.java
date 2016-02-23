@@ -29,7 +29,15 @@ public class VariableSymbol extends CommonSymbol {
 
   private Optional<ASTExpr> declaringExpression = Optional.empty();
 
-  public enum BlockType {STATE, PARAMETER, INTERNAL, LOCAL, INPUT_BUFFER_CURRENT, INPUT_BUFFER_SPIKE}
+  public enum BlockType {
+    STATE,
+    PARAMETER,
+    INTERNAL,
+    LOCAL,
+    INPUT_BUFFER_CURRENT,
+    INPUT_BUFFER_SPIKE,
+    OUTPUT
+  }
 
   private TypeSymbol type;
 

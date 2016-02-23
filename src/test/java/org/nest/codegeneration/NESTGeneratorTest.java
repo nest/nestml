@@ -25,7 +25,7 @@ public class NESTGeneratorTest extends GenerationTest {
   private static final Path OUTPUT_DIRECTORY = Paths.get("target", "build");
 
   private static final PSCMock pscMock = new PSCMock();
-  private static final String PSC_MODEL_WITH_ODE = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
+  private static final String PSC_MODEL_WITH_ODE = "src/test/resources/codegeneration/iaf_neuron.nestml";
   private static final String PSC_MODEL = "src/test/resources/codegeneration/iaf_neuron.nestml";
   private static final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";

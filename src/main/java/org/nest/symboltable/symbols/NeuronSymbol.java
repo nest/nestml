@@ -18,7 +18,6 @@ import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
@@ -51,6 +50,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     return "NeuronSymbol(" + getFullName() + "," + type + ")";
   }
 
+  @SuppressWarnings("unused") // it is used within freemarker templates
   public List<VariableSymbol> getStateVariables() {
     return getSpannedScope().<VariableSymbol> resolveLocally(VariableSymbol.KIND)
         .stream()

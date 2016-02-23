@@ -5,6 +5,7 @@
  */
 package org.nest.nestml.cocos;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTInputLine;
@@ -16,8 +17,7 @@ import java.util.List;
 /**
  * Neurons must have input block.
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
 public class NeuronWithoutInput implements NESTMLASTNeuronCoCo {
 

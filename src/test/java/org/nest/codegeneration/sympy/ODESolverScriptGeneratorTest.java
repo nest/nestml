@@ -32,7 +32,7 @@ import static org.nest.codegeneration.sympy.ODESolverScriptGenerator.generateSym
  */
 public class ODESolverScriptGeneratorTest extends ModelbasedTest {
   public static final String PATH_TO_PSC_MODEL
-      = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
+      = "src/test/resources/codegeneration/iaf_neuron.nestml";
   public static final String PATH_TO_COND_MODEL
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   public static final String PATH_TO_COND_IMPLICIT_MODEL

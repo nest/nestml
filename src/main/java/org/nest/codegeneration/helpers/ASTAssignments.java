@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @author plotnikov
  */
 @SuppressWarnings("unused") // methods are called from templates
-public class SPLAssignments {
+public class ASTAssignments {
 
   public boolean isCompoundAssignment(final ASTAssignment astAssignment) {
     return astAssignment.isCompoundSum() ||
@@ -112,6 +112,9 @@ public class SPLAssignments {
             variableNameInExpression -> {
               final Optional<VariableSymbol> variableSymbolExpr = scope
                   .resolve(variableNameInExpression, VariableSymbol.KIND);
+              if ("ext_currents".equals(variableNameInExpression)) {
+                System.out.printf("");
+              }
               checkState(variableSymbolExpr.isPresent(),
                   "Cannot resolve the spl variable: " + variableNameInExpression);
               if (variableSymbolExpr.get().getArraySizeParameter().isPresent()) {

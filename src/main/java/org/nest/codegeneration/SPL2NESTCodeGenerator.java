@@ -10,7 +10,7 @@ import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import org.nest.codegeneration.helpers.NESTMLDeclarations;
 import org.nest.codegeneration.helpers.SPLForNodes;
-import org.nest.codegeneration.helpers.SPLAssignments;
+import org.nest.codegeneration.helpers.ASTAssignments;
 import org.nest.codegeneration.helpers.SPLFunctionCalls;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
@@ -37,7 +37,7 @@ public class SPL2NESTCodeGenerator {
     GeneratorSetup setup = new GeneratorSetup(outputDirectory);
 
     final ExpressionsPrettyPrinter prettyPrinter = new ExpressionsPrettyPrinter();
-    glex.setGlobalValue("assignments", new SPLAssignments());
+    glex.setGlobalValue("assignments", new ASTAssignments());
     glex.setGlobalValue("declarations", new NESTMLDeclarations() );
     glex.setGlobalValue("expressionsPrinter", prettyPrinter);
     glex.setGlobalValue("forDeclarationHelper", new SPLForNodes());

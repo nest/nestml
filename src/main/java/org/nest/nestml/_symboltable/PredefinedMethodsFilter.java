@@ -43,10 +43,6 @@ public class PredefinedMethodsFilter extends CommonResolvingFilter<MethodSymbol>
       if (!symbols.contains(foundPredefinedMethod.get())) {
         symbols.add(foundPredefinedMethod.get());
       }
-      else {
-        System.out.println();
-      }
-
       symbols.add(foundPredefinedMethod.get());
     }
 

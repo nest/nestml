@@ -289,7 +289,7 @@ public class NESTGenerator {
     final NESTMLFunctionPrinter functionPrinter = new NESTMLFunctionPrinter();
     final NESTMLDeclarations declarations = new NESTMLDeclarations();
     glex.setGlobalValue("declarations", new NESTMLDeclarations() );
-    glex.setGlobalValue("assignments", new SPLAssignments());
+    glex.setGlobalValue("assignments", new ASTAssignments());
     glex.setGlobalValue("functionPrinter", functionPrinter);
     glex.setGlobalValue("functions", new SPLFunctionCalls());
     glex.setGlobalValue("declarations", declarations);

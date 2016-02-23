@@ -345,10 +345,13 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     trace("Handled variable_block", LOGGER_NAME);
   }
 
+
+
   @Override
   public void endVisit(final ASTVar_Block astVarBlock) {
     setVariableBlockType(empty());
   }
+
 
 
   @Override
