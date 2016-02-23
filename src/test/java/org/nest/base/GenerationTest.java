@@ -64,7 +64,7 @@ public abstract class GenerationTest extends ModelbasedTest {
       Collection<Finding> errorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
       errorFindings.addAll(getErrorsByPrefix("SPL_", Log.getFindings()));
 
-      assertTrue("Models contain unexpected errors: " + errorFindings.size(),
+      assertTrue("Model " + pathToModel + " contain unexpected errors: " + errorFindings.size(),
           errorFindings.isEmpty());
 
     }

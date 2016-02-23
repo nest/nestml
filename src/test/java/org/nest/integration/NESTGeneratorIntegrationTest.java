@@ -6,6 +6,9 @@
 package org.nest.integration;
 
 import com.google.common.collect.Lists;
+import de.se_rwth.commons.logging.Log;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.GenerationTest;
@@ -19,13 +22,16 @@ import java.util.List;
  * @author plotnikov
  */
 public class NESTGeneratorIntegrationTest extends GenerationTest {
+
   private final List<String> pscModelsWithOde = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron.nestml"
+      "src/test/resources/codegeneration/iaf_neuron.nestml",
+      "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
+      "src/test/resources/codegeneration/iaf_psc_exp.nestml"
   );
 
   private final List<String> nestmlPSCModels = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_tum_2000.nestml",
-      //"src/test/resources/codegeneration/iaf_psc_alpha.nestml",
+      "src/test/resources/codegeneration/iaf_psc_alpha_imperative.nestml",
       //"src/test/resources/codegeneration/iaf_psc_exp.nestml",
       //"src/test/resources/codegeneration/iaf_psc_delta.nestml",
       //"src/test/resources/codegeneration/iaf_psc_exp_multisynapse.nestml",
@@ -67,6 +73,7 @@ public class NESTGeneratorIntegrationTest extends GenerationTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testPscModelWithOde() {
+    Log.enableFailQuick(false);
     pscModelsWithOde.forEach(this::checkCocos);
     pscModelsWithOde.forEach(this::invokeCodeGenerator);
   }
