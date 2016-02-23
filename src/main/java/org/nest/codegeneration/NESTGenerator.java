@@ -247,7 +247,7 @@ public class NESTGenerator {
         "org.nest.nestml.module.SLI_Init",
         sliInitFile,
         null);*/
-
+    info("Successfully generated NEST module code in " + outputDirectory, LOG_NAME);
   }
 
   private void printModelToFile(

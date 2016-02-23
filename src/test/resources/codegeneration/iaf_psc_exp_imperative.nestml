@@ -1,4 +1,4 @@
-neuron iaf_psc_exp_neuron:
+neuron iaf_psc_exp_ms_imperative_nestml:
   state:
    i_0 real = 0.0       # synaptic stepwise constant input current, variable 0
    i_1 real = 0.0       # presynaptic stepwise constant input current

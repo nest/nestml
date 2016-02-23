@@ -16,9 +16,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertTrue;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
@@ -36,19 +36,25 @@ public abstract class GenerationTest extends ModelbasedTest {
   private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
 
   protected void invokeCodeGenerator(final String pathToModel) {
+    final ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(pathToModel);
+    generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
+  }
+
+  protected ASTNESTMLCompilationUnit parseAndBuildSymboltable(final String pathToModel) {
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = parser.parse(pathToModel);
       assertTrue(root.isPresent());
       scopeCreator.runSymbolTableCreator(root.get());
-
-      generator.analyseAndGenerate(root.get(), CODE_GEN_OUTPUT);
-      generator.generateNESTModuleCode(newArrayList(root.get()), MODULE_NAME, CODE_GEN_OUTPUT);
+      return root.get();
     }
-    catch (IOException e) { // lambda functions doesn't support checked exceptions
+    catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
 
+  protected void generateNESTModuleCode(final List<ASTNESTMLCompilationUnit> modelRoots) {
+    generator.generateNESTModuleCode(modelRoots, MODULE_NAME, CODE_GEN_OUTPUT);
   }
 
   public void checkCocos(final String pathToModel) {

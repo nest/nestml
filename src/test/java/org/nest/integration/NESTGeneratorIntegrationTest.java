@@ -12,9 +12,11 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.GenerationTest;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Test the entire generation pipeline without mocks
@@ -68,6 +70,10 @@ public class NESTGeneratorIntegrationTest extends GenerationTest {
   public void testModelsWithoutOde() throws IOException {
     nestmlPSCModels.forEach(this::checkCocos);
     nestmlPSCModels.forEach(this::invokeCodeGenerator);
+    final List<ASTNESTMLCompilationUnit> roots = nestmlPSCModels.stream()
+        .map(this::parseAndBuildSymboltable)
+        .collect(Collectors.toList());
+    generateNESTModuleCode(roots);
   }
 
   @Ignore("Don't run this tests on github")
@@ -76,6 +82,11 @@ public class NESTGeneratorIntegrationTest extends GenerationTest {
     Log.enableFailQuick(false);
     pscModelsWithOde.forEach(this::checkCocos);
     pscModelsWithOde.forEach(this::invokeCodeGenerator);
+
+    final List<ASTNESTMLCompilationUnit> roots = pscModelsWithOde.stream()
+        .map(this::parseAndBuildSymboltable)
+        .collect(Collectors.toList());
+    generateNESTModuleCode(roots);
   }
 
   @Ignore

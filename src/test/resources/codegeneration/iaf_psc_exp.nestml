@@ -1,4 +1,4 @@
-neuron iaf_neuron_nestml:
+neuron iaf_psc_exp_nestml:
 
   state:
     V mV

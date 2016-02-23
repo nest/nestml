@@ -1,4 +1,4 @@
-neuron iaf_psc_alpha_neuron:
+neuron iaf_psc_alpha_mc_imperative:
 
   state:
     y0, y1_ex, y2_ex, y1_in, y2_in, y3 real = 0;
