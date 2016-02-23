@@ -26,6 +26,11 @@ public class TypeChecker {
     if (lhsType.equals(rhsType)) {
       return true;
     }
+    if (lhsType.getName().endsWith(rhsType.getName()) ||
+        rhsType.getName().endsWith(lhsType.getName())) {
+      // TODO: it is a hack! Replace through proper typing
+      return true;
+    }
     else if (lhsType.equals(PredefinedTypes.getRealType()) &&
         rhsType.equals(PredefinedTypes.getIntegerType())) {
       return true;

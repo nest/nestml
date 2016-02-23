@@ -63,8 +63,8 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
   @Test
   public void testCodegenerationModels() throws IOException {
     final File modelsFolder = Paths.get(TEST_MODEL_PATH.toString(),"codegeneration").toFile();
-    
-    // /checkAllModelsInFolder(modelsFolder);
+
+//    checkAllModelsInFolder(modelsFolder);
   }
 
   private void checkAllModelsInFolder(File modelsFolder) throws IOException {
