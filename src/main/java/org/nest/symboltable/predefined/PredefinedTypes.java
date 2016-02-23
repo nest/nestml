@@ -67,6 +67,7 @@ public class PredefinedTypes {
   private static void registerSITypes() {
     registerType("mV", TypeSymbol.Type.UNIT);
     registerType("pA", TypeSymbol.Type.UNIT);
+    registerType("mA", TypeSymbol.Type.UNIT);
     registerType("pF", TypeSymbol.Type.UNIT);
     registerType("pF", TypeSymbol.Type.UNIT);
     registerType("ms", TypeSymbol.Type.UNIT);

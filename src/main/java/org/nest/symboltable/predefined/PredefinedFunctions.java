@@ -5,8 +5,6 @@
  */
 package org.nest.symboltable.predefined;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import de.se_rwth.commons.Names;
 import org.nest.symboltable.symbols.MethodSymbol;
@@ -14,11 +12,9 @@ import org.nest.symboltable.symbols.MethodSymbol;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
-import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
  * Defines a set with implicit type functions, like {@code print, pow, ...}

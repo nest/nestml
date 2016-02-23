@@ -1,83 +1,55 @@
-neuron iaf_psc_exp_multisynapse_neuron:
-  state:
-    suppress i_syn real<num_of_receptors> = 0
-    suppress i_0 real = 0.0
-    V_m real = 0.0
+neuron iaf_neuron_nestml:
 
+  state:
+    V mV
+    G_in, G_ex real
+    alias V_m mV = V + E_L # Membrane potential.
+  end
+
+  equations:
+      G_in = exp(-1/tau_in*t)
+      G_ex = exp(-1/tau_ex*t)
+      V' = -1/Tau * V + 1/C_m * (I_sum(G_in, in_spikes) + I_sum(G_ex, ex_spikes) + I_e + currents)
   end
 
   parameter:
-    num_of_receptors integer = 1
-    # Membrane time constant
-    Tau ms = 10.0
-    # Membrane capacitance
-    C pF = 250.0
-    # Refractory period
-    t_ref ms = 2.0
-    # Resting potential
-    U0 mV = -70
-    # External current in
-    I_e pA = 0
-    # Reset value of the membrane potential
-    alias V_reset mV = -70 - U0
-    alias Theta mV = -55.0 - U0 # Threshold, RELATIVE TO RESTING POTENTIAL(!).
-                                # I.e. the real threshold is (U0_+Theta_).
-    # Time constants of synaptic currents
-    tau_syn ms<num_of_receptors>;
-    # boolean flag which indicates whether the neuron has connections
-    has_connections boolean = false
-    # This is the current in a time step. This is only here to allow logging
-    currentValue pA = 0
-  end
-
-  function set_V_reset(v mV):
-      V_reset = v - U0
-  end
-
-  function set_Theta(v mV):
-      Theta = v - U0
+    C_m     pF = 250   # Capacity of the membrane
+    Tau     ms = 10    # Membrane time constant.
+    tau_syn_in ms = 2     # Time constant of synaptic current.
+    tau_syn_ex ms = 2     # Time constant of synaptic current.
+    t_ref   ms = 2     # Refractory period.
+    E_L     mV = -70  # Resting potential.
+    alias V_reset mV = -70 - E_L
+    alias Theta   mV = -55 - E_L
+    I_e     pA = 0     # External current.
   end
 
   internal:
     h   ms   = resolution()
-    r_ref integer = 0
-    P11_syn real<num_of_receptors> = -h / tau_syn
-    P21_syn real<num_of_receptors> = Tau/(C*(1.0-Tau/tau_syn)) * P11_syn * (1.0 - exp(h*(1.0/tau_syn-1.0/Tau)));
-    P20 real = exp(-h/Tau)
-    P22 real = Tau/C*(1.0 - P22);
-    RefractoryCounts real = steps(t_ref) [RefractoryCounts >= 0]
+    r  integer
+    RefractoryCounts integer = steps(t_ref)
   end
 
   input:
-      spikeBufferInh<num_of_receptors> <- inhibitory spike
-      currentBuffer <- current
+    ex_spikes   <- excitatory spike
+    in_spikes   <- inhibitory spike
+    currents    <- current
   end
 
   output: spike
 
   update:
-    if r_ref == 0: # neuron not refractory, so evolve V
-      V_m = V_m * P22 + (I_e + i_0) * P20 # not sure about this
-      currentValue = 0.0
-      V_m = V_m + P21_syn*i_syn
-      currentValue = currentValue + i_syn # not sure about this
+    if r == 0: # not refractory
+        integrate(V)
     else:
-      r_ref = r_ref - 1 # neuron is absolute refractory
+        r = r - 1
     end
 
-    i_syn = i_syn * P11_syn;
-    # collect spikes
-    i_syn = i_syn + spikeBufferInh.getSum() # not sure about this
-
-    if V_m >= Theta:  # threshold crossing
-      r_ref = RefractoryCounts
-      V_m = V_reset
-
-      emitSpike()
+    if V >= Theta: # threshold crossing
+        r = RefractoryCounts
+        V = V_reset
+        emitSpike()
     end
-
-    # set new input current
-    i_0 = currentBuffer.getSum()
 
   end
 

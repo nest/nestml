@@ -42,7 +42,7 @@ grammar SPL extends org.nest.Commons {
   Declaration =
     vars:Name ("," vars:Name)*
     Datatype
-    ("<" sizeParameter:Name ">")?
+    ("[" sizeParameter:Name "]")?
     ( "=" Expr )? ;
 
   Datatype = ["integer"]

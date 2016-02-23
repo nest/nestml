@@ -29,8 +29,8 @@ public class ODEProcessorTest extends ModelbasedTest {
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String PSC_MODEL_FILE
-      = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
-  public static final String NEURON_NAME = "iaf_neuron_ode";
+      = "src/test/resources/codegeneration/iaf_neuron.nestml";
+  public static final String NEURON_NAME = "iaf_neuron_nestml";
 
   final ODEProcessor testant = new ODEProcessor();
 

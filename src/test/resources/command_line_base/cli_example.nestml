@@ -8,7 +8,7 @@ neuron iaf_neuron_ode:
 
   equations:
       G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-      V' = -1/Tau * V + 1/C_m * (G + I_e + ext_currents)
+      V' = -1/Tau * V + 1/C_m * (G + I_e + currents)
   end
 
   parameter:
@@ -41,7 +41,7 @@ neuron iaf_neuron_ode:
 
   input:
     spikes   <- inhibitory excitatory spike
-    ext_currents <- current
+    currents <- current
   end
 
   output: spike

@@ -57,12 +57,15 @@ public class ODEProcessor {
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(astNeuron, outputBase);
-
     checkState(generatedScript.isPresent());
+    info("The solver script is generated: " + generatedScript.get(), LOG_NAME);
 
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
     boolean successfulExecution = evaluator.execute(generatedScript.get());
+    info("The solver script is evaluated. Results are under " + generatedScript.get().getParent(), LOG_NAME);
+
     checkState(successfulExecution, "Error during solver script evaluation.");
+
     final Path odeTypePath = Paths.get(outputBase.toString(), SymPyScriptEvaluator.ODE_TYPE);
     final SolverType solutionType = SolverType.fromFile(odeTypePath);
 

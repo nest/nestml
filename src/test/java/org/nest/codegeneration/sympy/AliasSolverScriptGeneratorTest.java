@@ -17,7 +17,7 @@ import java.nio.file.Paths;
  */
 public class AliasSolverScriptGeneratorTest extends ModelbasedTest {
   public static final String PATH_TO_PSC_MODEL
-      = "src/test/resources/codegeneration/iaf_neuron_ode.nestml";
+      = "src/test/resources/codegeneration/iaf_neuron.nestml";
   private final AliasSolverScriptGenerator aliasSolverGenerator = new AliasSolverScriptGenerator();
 
   @Test
