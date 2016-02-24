@@ -21,7 +21,7 @@ ${assignments.printVariableName(ast)} ${assignments.printAssignmentSymbol(ast)} 
     <#if assignments.isCompoundAssignment(ast)>
       ${assignments.printSetterName(ast)}(
       ${assignments.printGetterName(ast)}()
-      ${assignments.printAssignmentSymbol(ast)}
+      ${assignments.printCompoundOperation(ast)}
       ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
     <#else>
     ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});

@@ -32,7 +32,7 @@ public class ASTAssignments {
         astAssignment.isCompoundQuotient();
   }
 
-  public String printAssignmentSymbol(final ASTAssignment astAssignment) {
+  public String printCompoundOperation(final ASTAssignment astAssignment) {
     if (astAssignment.isCompoundSum()) {
       return "+";
     }
