@@ -48,7 +48,7 @@ public class SymPyScriptEvaluator {
       long end = System.nanoTime();
       long elapsedTime = end - start;
       final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
-          + (double)elapsedTime / 1000000000.0;
+          + (double)elapsedTime / 1000000000.0 +  " [s]";
       info(msg, LOG_NAME);
 
       // reports standard output

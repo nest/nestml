@@ -45,7 +45,7 @@ public class ASTAssignments {
     if (astAssignment.isCompoundQuotient()) {
       return "/";
     }
-    return "=";
+    throw new RuntimeException("The argument should be a compound assignment.");
   }
 
   /**

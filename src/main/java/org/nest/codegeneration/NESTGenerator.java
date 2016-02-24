@@ -66,6 +66,7 @@ public class NESTGenerator {
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
     info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
+
     ASTNESTMLCompilationUnit workingVersion = root;
     for (int i = 0; i < root.getNeurons().size(); ++i) {
       final ASTNeuron solvedNeuron = computeSolutionForODE(root.getNeurons().get(i), outputBase);
