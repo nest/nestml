@@ -38,13 +38,18 @@ public class SymPyScriptEvaluator {
   public boolean execute(final Path generatedScript) {
 
     try {
-      info("Begins long running SymPy script evaluation...", LOG_NAME);
+      info("Start long running SymPy script evaluation...", LOG_NAME);
+      long start = System.nanoTime();
       final Process res = Runtime.getRuntime().exec(
           "python " + generatedScript.getFileName(),
           new String[0],
           new File(generatedScript.getParent().toString()));
       res.waitFor();
-      info("Successfully evaluated the SymPy script", LOG_NAME);
+      long end = System.nanoTime();
+      long elapsedTime = end - start;
+      final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
+          + (double)elapsedTime / 1000000000.0;
+      info(msg, LOG_NAME);
 
       // reports standard output
       getListFromStream(res.getInputStream())

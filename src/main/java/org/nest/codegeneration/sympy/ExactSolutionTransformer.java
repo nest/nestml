@@ -111,7 +111,7 @@ public class ExactSolutionTransformer {
       if (!neuronSymbol.getSpikeBuffers().isEmpty()) {
         final VariableSymbol spikeBuffer = neuronSymbol.getSpikeBuffers().get(0);
         final ASTAssignment pscUpdateStep = converter2NESTML
-            .convertStringToAssignment("y1 = " + spikeBuffer.getName() + ".getSum(t)");
+            .convertStringToAssignment("y1 += PSCInitialValue * " + spikeBuffer.getName() + ".getSum(t)");
         addAssignmentToDynamics(body, pscUpdateStep);
       }
       return astNeuron;

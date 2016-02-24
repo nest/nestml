@@ -165,6 +165,7 @@ public class NESTGenerator {
     try {
       final Path outputTmpPath = Paths.get(modulePath.toString(), root.getFullName() + ".nestml");
       printModelToFile(root, outputTmpPath.toString());
+      info("Printed analysed model into: " + outputTmpPath, LOG_NAME);
       final NESTMLParser parser = new NESTMLParser(modulePath);
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit

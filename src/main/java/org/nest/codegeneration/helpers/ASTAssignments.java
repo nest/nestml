@@ -34,16 +34,16 @@ public class ASTAssignments {
 
   public String printAssignmentSymbol(final ASTAssignment astAssignment) {
     if (astAssignment.isCompoundSum()) {
-      return "+=";
+      return "+";
     }
     if (astAssignment.isCompoundMinus()) {
-      return "-=";
+      return "-";
     }
     if (astAssignment.isCompoundProduct()) {
-      return "*=";
+      return "*";
     }
     if (astAssignment.isCompoundQuotient()) {
-      return "/=";
+      return "/";
     }
     return "=";
   }

@@ -152,7 +152,23 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   public void printAssignment(final ASTAssignment astAssignment) {
     final String lhsVariableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
     final String rhsOfAssignment = expressionsPrettyPrinter.print(astAssignment.getExpr());
-    println(lhsVariableName + " = " + rhsOfAssignment);
+    if (astAssignment.isAssignment()) {
+      println(lhsVariableName + " = " + rhsOfAssignment);
+    }
+    if (astAssignment.isCompoundSum()) {
+      println(lhsVariableName + " += " + rhsOfAssignment);
+    }
+    if (astAssignment.isCompoundMinus()) {
+      println(lhsVariableName + " -= " + rhsOfAssignment);
+    }
+    if (astAssignment.isCompoundProduct()) {
+      println(lhsVariableName + " *= " + rhsOfAssignment);
+    }
+    if (astAssignment.isCompoundQuotient()) {
+      println(lhsVariableName + " /= " + rhsOfAssignment);
+    }
+
+
   }
 
   /**
