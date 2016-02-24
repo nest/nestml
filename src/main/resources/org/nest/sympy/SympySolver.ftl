@@ -121,7 +121,7 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
     f.write("V = P30 * (" + str(contantTerm) + ") + " + str(simplify(propagatorMatrix*y_vector)[order]))
 
     f = open('pscInitialValue.mat', 'w')
-    f.write("PSCInitialValue real = " + str(simplify(X[0, 1])) + "# PSCInitial value")
+    f.write("PSCInitialValue real = " + str(simplify(tmp_diffs[1].subs(t, 0))) + "# PSCInitial value")
 
     f = open('P30.mat', 'w')
     f.write("P30 real = " + str(simplify(c2/c1*(exp(h*c1)-1))) + "# P00 expression")
