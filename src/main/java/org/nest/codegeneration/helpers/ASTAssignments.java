@@ -32,7 +32,8 @@ public class ASTAssignments {
         astAssignment.isCompoundQuotient();
   }
 
-  public String printAssignmentSymbol(final ASTAssignment astAssignment) {
+
+  public String printAssignmentsOperation(final ASTAssignment astAssignment) {
     if (astAssignment.isCompoundSum()) {
       return "+=";
     }
@@ -45,7 +46,23 @@ public class ASTAssignments {
     if (astAssignment.isCompoundQuotient()) {
       return "/=";
     }
-    return "=";
+    return  "=";
+  }
+
+  public String printCompoundOperation(final ASTAssignment astAssignment) {
+    if (astAssignment.isCompoundSum()) {
+      return "+";
+    }
+    if (astAssignment.isCompoundMinus()) {
+      return "-";
+    }
+    if (astAssignment.isCompoundProduct()) {
+      return "*";
+    }
+    if (astAssignment.isCompoundQuotient()) {
+      return "/";
+    }
+    throw new RuntimeException("The argument should be a compound assignment.");
   }
 
   /**

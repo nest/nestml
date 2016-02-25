@@ -56,7 +56,7 @@ public class ODEProcessor {
   protected ASTNeuron handleNeuronWithODE(
       final ASTNeuron astNeuron,
       final Path outputBase) {
-    final Optional<Path> generatedScript = generateSympyODEAnalyzer(astNeuron, outputBase);
+    final Optional<Path> generatedScript = generateSympyODEAnalyzer(astNeuron.deepClone(), outputBase);
     checkState(generatedScript.isPresent());
     info("The solver script is generated: " + generatedScript.get(), LOG_NAME);
 

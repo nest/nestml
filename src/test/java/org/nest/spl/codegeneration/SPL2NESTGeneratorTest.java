@@ -27,6 +27,11 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Tests the generator fot the SPL sub-language
+ *
+ * @author plotnikov
+ */
 public class SPL2NESTGeneratorTest {
 
   private static final String TEST_MODEL_PATH = "src/test/resources/";

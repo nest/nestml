@@ -6,7 +6,7 @@
   @result TODO
 -->
 <#if assignments.isLocal(ast)>
-${assignments.printVariableName(ast)} ${assignments.printAssignmentSymbol(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
+${assignments.printVariableName(ast)} ${assignments.printAssignmentsOperation(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
 <#else>
   <#if assignments.isVector(ast) || declarations.isVectorLHS(ast)>
   for (size_t i=0; i < declarations.printSizeParameter(ast); i++) {
@@ -19,9 +19,9 @@ ${assignments.printVariableName(ast)} ${assignments.printAssignmentSymbol(ast)} 
   }
   <#else>
     <#if assignments.isCompoundAssignment(ast)>
-    ${assignments.printSetterName(ast)}(
-      ${assignments.printGetterName(ast)}
-      ${assignments.printAssignmentSymbol(ast)}
+      ${assignments.printSetterName(ast)}(
+      ${assignments.printGetterName(ast)}()
+      ${assignments.printCompoundOperation(ast)}
       ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
     <#else>
     ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});

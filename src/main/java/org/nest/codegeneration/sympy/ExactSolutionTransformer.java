@@ -11,8 +11,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.*;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.ASTNodes;
 
 import java.io.IOException;
@@ -24,6 +23,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Takes SymPy result and the source AST. Produces an altered AST with the the exact solution.
@@ -105,15 +105,18 @@ public class ExactSolutionTransformer {
           .map(converter2NESTML::convertStringToAssignment)
           .forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
 
-      // add extra handling of the y0 variable
-      final NeuronSymbol neuronSymbol = (NeuronSymbol) astNeuron.getSymbol().get();
+      final List<ASTFunctionCall> functions = ASTNodes.getAll(astNeuron.getBody().getEquations().get(), ASTFunctionCall.class)
+          .stream()
+          .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
+          .collect(toList());
 
-      if (!neuronSymbol.getSpikeBuffers().isEmpty()) {
-        final VariableSymbol spikeBuffer = neuronSymbol.getSpikeBuffers().get(0);
+      for (ASTFunctionCall i_sum_call:functions) {
+        final String bufferName = ASTNodes.toString(i_sum_call.getArgList().getArgs().get(1));
         final ASTAssignment pscUpdateStep = converter2NESTML
-            .convertStringToAssignment("y1 = " + spikeBuffer.getName() + ".getSum(t)");
+            .convertStringToAssignment("y1 += PSCInitialValue * " + bufferName + ".getSum(t)");
         addAssignmentToDynamics(body, pscUpdateStep);
       }
+
       return astNeuron;
     }
     catch (IOException e) {
@@ -126,7 +129,7 @@ public class ExactSolutionTransformer {
 
     final ASTBody astBodyDecorator = astNeuron.getBody();
 
-    final ODECollector odeCollector = new ODECollector();
+    final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector();
     odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
     if (!odeCollector.getFoundOde().isPresent()) {
       Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
@@ -143,7 +146,7 @@ public class ExactSolutionTransformer {
     return astNeuron;
   }
 
-  private class ODECollector implements NESTMLVisitor {
+  private class IntegrateFunctionCollector implements NESTMLVisitor {
     private Optional<ASTFunctionCall> foundOde = Optional.empty();
 
     public void startVisitor(ASTNESTMLNode node) {

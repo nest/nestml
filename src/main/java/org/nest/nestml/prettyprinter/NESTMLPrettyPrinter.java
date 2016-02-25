@@ -17,6 +17,8 @@ import org.nest.utils.PrettyPrinterBase;
 import java.util.List;
 import java.util.Optional;
 
+import static org.nest.spl.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
+
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
  * production.
@@ -163,7 +165,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
   }
 
   private void printDeclarationStatement(ASTAliasDecl astAliasDecl) {
-    final SPLPrettyPrinter splPrettyPrinter = SPLPrettyPrinterFactory.createDefaultPrettyPrinter(getIndentionLevel());
+    final SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
     splPrettyPrinter.printDeclaration(astAliasDecl.getDeclaration()); // TODO refactor as soon a the visitor is
     // generated
     print(splPrettyPrinter.getResult());
@@ -393,7 +395,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
 
 
   private void printSplBlock(final ASTBlock astBlock) {
-    final  SPLPrettyPrinter splPrettyPrinter = SPLPrettyPrinterFactory.createDefaultPrettyPrinter(getIndentionLevel());
+    final  SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
 
     astBlock.accept(splPrettyPrinter);
 

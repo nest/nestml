@@ -66,6 +66,7 @@ public class NESTGenerator {
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
     info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
+
     ASTNESTMLCompilationUnit workingVersion = root;
     for (int i = 0; i < root.getNeurons().size(); ++i) {
       final ASTNeuron solvedNeuron = computeSolutionForODE(root.getNeurons().get(i), outputBase);
@@ -165,6 +166,7 @@ public class NESTGenerator {
     try {
       final Path outputTmpPath = Paths.get(modulePath.toString(), root.getFullName() + ".nestml");
       printModelToFile(root, outputTmpPath.toString());
+      info("Printed analysed model into: " + outputTmpPath, LOG_NAME);
       final NESTMLParser parser = new NESTMLParser(modulePath);
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit

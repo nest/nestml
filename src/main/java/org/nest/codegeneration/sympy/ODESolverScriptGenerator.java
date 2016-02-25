@@ -17,6 +17,7 @@ import org.nest.spl._ast.ASTFunctionCall;
 import org.nest.spl._ast.ASTODE;
 import org.nest.spl._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -62,7 +63,7 @@ public class ODESolverScriptGenerator {
     if (odeDefinition.isPresent()) {
       final Path generatedScriptFile = generateSolverScript(
           createGLEXConfiguration(),
-          neuron,
+          neuron.deepClone(),
           odeDefinition.get(),
           setup);
 
@@ -122,7 +123,7 @@ public class ODESolverScriptGenerator {
   protected static ASTODE replace_I_sum(final ASTODE astOde) {
     final List<ASTFunctionCall> functions = ASTNodes.getAll(astOde, ASTFunctionCall.class)
         .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals("I_sum"))
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
         .collect(toList());
 
     functions.stream().forEach(node -> {
