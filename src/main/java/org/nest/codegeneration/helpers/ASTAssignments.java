@@ -32,6 +32,23 @@ public class ASTAssignments {
         astAssignment.isCompoundQuotient();
   }
 
+
+  public String printAssignmentsOperation(final ASTAssignment astAssignment) {
+    if (astAssignment.isCompoundSum()) {
+      return "+=";
+    }
+    if (astAssignment.isCompoundMinus()) {
+      return "-=";
+    }
+    if (astAssignment.isCompoundProduct()) {
+      return "*=";
+    }
+    if (astAssignment.isCompoundQuotient()) {
+      return "/=";
+    }
+    return  "=";
+  }
+
   public String printCompoundOperation(final ASTAssignment astAssignment) {
     if (astAssignment.isCompoundSum()) {
       return "+";
