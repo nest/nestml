@@ -25,15 +25,14 @@ public class NESTGeneratorIntegrationTest extends GenerationTest {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha.nestml"
-      //"src/test/resources/codegeneration/iaf_psc_exp.nestml" cannot be processed on github
+      "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
+      "src/test/resources/codegeneration/iaf_psc_exp.nestml"
   );
 
   private final List<String> nestmlPSCModels = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_tum_2000.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_imperative.nestml",
-      "src/test/resources/codegeneration/iaf_psc_exp.nestml",
-      //"src/test/resources/codegeneration/iaf_psc_delta.nestml",
+      "src/test/resources/codegeneration/iaf_psc_delta.nestml",
       //"src/test/resources/codegeneration/iaf_psc_exp_multisynapse.nestml",
       "src/test/resources/codegeneration/mat2_psc_exp.nestml",
       "src/test/resources/codegeneration/izhikevich.nestml"//,
@@ -97,7 +96,7 @@ public class NESTGeneratorIntegrationTest extends GenerationTest {
     generateNESTModuleCode(roots);
   }
 
-  @Ignore
+  @Ignore("Doesn't work at the moments")
   @Test
   public void testCondModel() {
     nestmlCondModels.forEach(this::checkCocos);
