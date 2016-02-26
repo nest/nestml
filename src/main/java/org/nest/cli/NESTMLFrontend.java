@@ -59,7 +59,6 @@ public class NESTMLFrontend {
     final NESTGenerator nestGenerator = new NESTGenerator(nestmlScopeCreator);
 
     executor.execute(nestGenerator, configuration);
-
   }
 
   public Configuration createCLIConfiguration(String[] args) {

@@ -411,15 +411,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
    */
   @Override
   public void visit(final ASTDynamics astDynamics) {
-    printDynamicsStatement(astDynamics);
-    printDynamicsBody(astDynamics);
-  }
-
-  private void printDynamicsStatement(ASTDynamics astDynamics) {
     print("update");
-  }
-
-  private void printDynamicsBody(ASTDynamics astDynamics) {
     println(BLOCK_OPEN);
     indent();
     printSplBlock(astDynamics.getBlock());
@@ -443,8 +435,4 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
 
   }
 
-  private TypesPrettyPrinterConcreteVisitor createPrettyPrinterForTypes() {
-    final IndentPrinter printer = new IndentPrinter();
-    return new TypesPrettyPrinterConcreteVisitor(printer);
-  }
 }
