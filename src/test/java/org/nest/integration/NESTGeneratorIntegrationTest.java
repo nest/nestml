@@ -9,7 +9,7 @@ import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.base.GenerationTest;
+import org.nest.base.GenerationBasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
 import java.io.IOException;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  *
  * @author plotnikov
  */
-public class NESTGeneratorIntegrationTest extends GenerationTest {
+public class NESTGeneratorIntegrationTest extends GenerationBasedTest {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron.nestml",
