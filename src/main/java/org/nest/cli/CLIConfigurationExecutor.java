@@ -90,8 +90,14 @@ public class CLIConfigurationExecutor {
       generator.analyseAndGenerate(root, config.getTargetPath());
     }
 
-    final String modelName = config.getInputBase().getFileName().toString();
-    generator.generateNESTModuleCode(modelRoots, modelName, config.getTargetPath());
+    if (modelRoots.size() > 0) {
+      final String modelName = config.getInputBase().getFileName().toString();
+      generator.generateNESTModuleCode(modelRoots, modelName, config.getTargetPath());
+    }
+    else {
+      Log.warn("Cannot generate module code, since there is no parsable neuron in " + config.getInputBase());
+    }
+
 
   }
 
@@ -106,9 +112,11 @@ public class CLIConfigurationExecutor {
 
     evaluateCocosLog(
         root.getFullName(),
+        "NESTML",
         LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
     evaluateCocosLog(
         root.getFullName(),
+        "SPL",
         LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
     return errors;
   }
@@ -118,9 +126,12 @@ public class CLIConfigurationExecutor {
     cocosChecker.checkAll(root);
   }
 
-  private void evaluateCocosLog(String modelName, Collection<Finding> nestmlErrorFindings) {
+  private void evaluateCocosLog(
+      final String modelName,
+      final String errorClass,
+      final Collection<Finding> nestmlErrorFindings) {
     if (nestmlErrorFindings.isEmpty()) {
-      Log.info(modelName + " contains no errors", LOG_NAME);
+      Log.info(modelName + " contains no '" +  errorClass + "' errors", LOG_NAME);
     } else {
       Log.error(modelName + " contains the following errors: ");
       nestmlErrorFindings.forEach(finding -> Log.warn(finding.toString()));

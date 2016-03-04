@@ -199,6 +199,7 @@ public class NESTGenerator {
       final List<ASTNeuron> neurons,
       final String moduleName,
       final Path outputDirectory) {
+    checkArgument(!neurons.isEmpty());
 
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
     setup.setTracing(false);

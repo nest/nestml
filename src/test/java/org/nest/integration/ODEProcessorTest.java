@@ -6,6 +6,7 @@
 package org.nest.integration;
 
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.Names;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.ODEProcessor;
@@ -57,9 +58,9 @@ public class ODEProcessorTest extends ModelbasedTest {
     scopeCreator.runSymbolTableCreator(modelRoot);
     final String modelFolder = modelRoot.getFullName();
 
-    final ASTNeuron explicitSolution = testant.solveODE(
+   testant.solveODE(
         modelRoot.getNeurons().get(0),
-        Paths.get(OUTPUT_FOLDER.toString(), modelFolder));
+        Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(modelFolder)));
 
     return scopeCreator.runSymbolTableCreator(modelRoot);
   }
