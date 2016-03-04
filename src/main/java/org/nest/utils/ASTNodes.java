@@ -122,14 +122,16 @@ public final class ASTNodes {
     checkState(astNode.getEnclosingScope().isPresent(), "Run symbol table creator");
     final Scope scope = astNode.getEnclosingScope().get();
     final List<String> names = getVariablesNamesFromAst(astNode);
-    final List<VariableSymbol> symbols = names.stream()
+    return names.stream()
         .map(variableName -> {
           final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
+          if (!symbol.isPresent()) {
+            System.out.printf("");
+          }
           return symbol.get();
         })
         .filter(VariableSymbol::isAlias)
         .collect(toList());
-    return symbols;
   }
 
   public static List<ASTReturnStmt> getReturnStatements(ASTBlock blockAst) {

@@ -47,4 +47,12 @@ public class NESTMLFrontendIntegrationTest {
         "src/test/resources/inheritance",
         "--target", Paths.get("target", "codegeneration/inheritance").toString()});
   }
+
+  @Test
+  public void testIzhikevichModel() {
+    nestmlFrontend.handleConsoleArguments(new String[] {
+        "src/test/resources/codegeneration/izhikevich",
+        "--target", Paths.get("target", "codegeneration/izhikevich").toString()});
+  }
+
 }

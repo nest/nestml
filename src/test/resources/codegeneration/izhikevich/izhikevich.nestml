@@ -1,0 +1,42 @@
+neuron izhikevich_nestml:
+
+  state:
+    V_m mV = 0mv
+    u real
+  end
+
+  equations:
+    V_m' = 0.04 * V_m*V_m + 4.1 * V_m + 108 - u + I_e
+    u' = aa*(bb*V_m-u)
+  end
+
+  parameter:
+    aa real = 0.02
+    bb real = 0.2
+    c mV = -65
+    d real = 2.0
+  end
+
+  internal:
+    h   ms   = resolution()
+    r  integer
+    I_e mA = 10mA
+  end
+
+  input:
+    spikes   <- spike
+    currents <- current
+  end
+
+  output: spike
+
+  update:
+    integrate(v)
+    if V_m >= 30:
+      V_m = c
+      u += d
+      emitSpike()
+    end
+  end
+
+end
