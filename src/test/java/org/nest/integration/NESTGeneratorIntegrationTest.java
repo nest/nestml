@@ -27,12 +27,12 @@ public class NESTGeneratorIntegrationTest extends GenerationBasedTest {
       "src/test/resources/codegeneration/iaf_neuron.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp.nestml"
+      // TODO "src/test/resources/codegeneration/iaf_psc_delta.nestml",
   );
 
-  private final List<String> nestmlPSCModels = Lists.newArrayList(
+  private final List<String> imperativeModels = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_tum_2000.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_imperative.nestml",
-      "src/test/resources/codegeneration/iaf_psc_delta.nestml",
       //"src/test/resources/codegeneration/iaf_psc_exp_multisynapse.nestml",
       "src/test/resources/codegeneration/mat2_psc_exp.nestml",
       "src/test/resources/codegeneration/izhikevich.nestml"//,
@@ -59,7 +59,7 @@ public class NESTGeneratorIntegrationTest extends GenerationBasedTest {
   @Test
   public void testCocos() {
     pscModelsWithOde.forEach(this::checkCocos);
-    nestmlPSCModels.forEach(this::checkCocos);
+    imperativeModels.forEach(this::checkCocos);
     nestmlCondModels.forEach(this::checkCocos);
     nestmlCondModelExplicit.forEach(this::checkCocos);
     workshopModels.forEach(this::checkCocos);
@@ -75,9 +75,9 @@ public class NESTGeneratorIntegrationTest extends GenerationBasedTest {
 
   @Test
   public void testModelsWithoutOde() throws IOException {
-    nestmlPSCModels.forEach(this::checkCocos);
-    nestmlPSCModels.forEach(this::invokeCodeGenerator);
-    final List<ASTNESTMLCompilationUnit> roots = nestmlPSCModels.stream()
+    imperativeModels.forEach(this::checkCocos);
+    imperativeModels.forEach(this::invokeCodeGenerator);
+    final List<ASTNESTMLCompilationUnit> roots = imperativeModels.stream()
         .map(this::parseAndBuildSymboltable)
         .collect(Collectors.toList());
     generateNESTModuleCode(roots);
