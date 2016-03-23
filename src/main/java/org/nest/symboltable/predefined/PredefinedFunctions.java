@@ -23,18 +23,19 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  */
 public class PredefinedFunctions {
 
-  public static final String TIME_RESOLUTION = "resolution";
-  public static final String TIME_STEPS = "steps";
-  public static final String EMIT_SPIKE = "emitSpike";
-  public static final String PRINT = "print";
-  public static final String PRINTLN = "println";
-  public static final String POW = "pow";
-  public static final String EXP = "exp";
-  public static final String LOGGER_INFO = "info";
-  public static final String LOGGER_WARNING = "warning";
-  public static final String RANDOM = "random";
-  public static final String RANDOM_INT = "randomInt";
-  public static final String EXPM1 = "expm1";
+  private static final String TIME_RESOLUTION = "resolution";
+  private static final String TIME_STEPS = "steps";
+  private static final String EMIT_SPIKE = "emitSpike";
+  private static final String PRINT = "print";
+  private static final String PRINTLN = "println";
+  private static final String POW = "pow";
+  private static final String EXP = "exp";
+  private static final String LOGGER_INFO = "info";
+  private static final String LOGGER_WARNING = "warning";
+  private static final String RANDOM = "random";
+  private static final String RANDOM_INT = "randomInt";
+  private static final String EXPM1 = "expm1";
+  private static final String DELTA = "delta";
   public static final String INTEGRATE = "integrate";
   public static final String I_SUM = "I_sum";
 
@@ -98,6 +99,12 @@ public class PredefinedFunctions {
     expm1.addParameterType(getRealType());
     expm1.setReturnType(getRealType());
     name2FunctionSymbol.put(EXPM1, expm1);
+
+    final MethodSymbol delta = createFunctionSymbol(DELTA);
+    delta.addParameterType(getType("ms"));
+    delta.addParameterType(getType("ms"));
+    delta.setReturnType(getType("real"));
+    name2FunctionSymbol.put(DELTA, delta);
 
     final MethodSymbol integrate = createFunctionSymbol(INTEGRATE);
     integrate.addParameterType(getRealType());
