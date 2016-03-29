@@ -3,12 +3,15 @@ package org.nest.nestml._parser;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.utils.FileHelper;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
+import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
 
 /**
  * Tests the method which set artifact and package name according to the file name and corresponding
@@ -24,6 +27,14 @@ public class NESTMLParserTest extends ModelbasedTest {
       + "command_line_base/sub/cli_example.nestml";
 
   private static final String TEST_MODEL_PATH = "src/test/resources/command_line_base/";
+
+  @Test
+  public void testAllModels() {
+    for (final Path path:collectNESTMLModelFilenames(Paths.get("src/test/resources/"))) {
+      System.out.println(path.toString());
+      parseNESTMLModel(path.toString());
+    }
+  }
 
   @Test
   public void testNamesComputation() {

@@ -21,7 +21,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
     # Lower bound, RELATIVE TO RESTING POTENTIAL(!).
     # I.e. the real lower bound is (LowerBound_+Theta_).
     LowerBound mV = -inf;
-    tau_syn ms<num_of_receptors>    # Time constants of synaptic currents
+    tau_syn ms[num_of_receptors]    # Time constants of synaptic currents
     has_connections boolean = false # boolean flag which indicates whether the neuron has connections
   end
 

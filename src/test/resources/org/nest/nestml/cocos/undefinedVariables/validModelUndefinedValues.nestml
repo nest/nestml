@@ -1,6 +1,6 @@
 neuron testNeuron:
     state:
-        test1 real = 1 <test1 > parameterVar1>
+        test1 real = 1 | test1 > parameterVar1
     end
 
     parameter:

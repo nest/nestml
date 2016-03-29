@@ -1,6 +1,6 @@
 neuron testNeuron:
     state:
-        stateVar1 real = 1.0 <stateVar2 > 0>
+        stateVar1 real = 1.0 | stateVar2 > 0
         stateVar2 real = 1.0 + internalVar1 # Error parameterVar1 cannot be used in state block
 
 

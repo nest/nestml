@@ -1,7 +1,7 @@
 neuron testNeuron:
     state:
         stateVar1 boolean = false
-        stateVar2 real = 1.0 <stateVar1>
+        stateVar2 real = 1.0 | stateVar1
     end
 
     parameter:
