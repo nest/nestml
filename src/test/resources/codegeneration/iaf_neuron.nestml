@@ -38,15 +38,16 @@ neuron iaf_neuron_nestml:
   update:
     if r == 0: # not refractory
         integrate(V)
+
     else:
         r = r - 1
     end
-
     if V >= Theta: # threshold crossing
         r = RefractoryCounts
         V = V_reset
         emitSpike()
     end
+
 
   end
 

@@ -113,10 +113,9 @@ public class MethodSymbol extends CommonScopeSpanningSymbol {
         this.getName(), this.returnType, declaringType, declaringNeuron, isDynamics);
   }
 
-  public static class MethodSymbolKind implements SymbolKind {
-
-    protected MethodSymbolKind() {
+  private static class MethodSymbolKind implements SymbolKind {
+    MethodSymbolKind() {
     }
-
   }
+
 }

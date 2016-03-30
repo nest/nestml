@@ -104,7 +104,7 @@ grammar NESTML extends org.nest.SPL {
   AliasDecl =
     ([log:"log"] | [suppress:"suppress"])? (["alias"])?
     Declaration
-    ("<" invariants:Expr (";" invariants:Expr)* ">")?;
+    ("[[" invariants:Expr (";" invariants:Expr)* "]]")?;
 
   /** ASTInput represents the input block:
     input:
