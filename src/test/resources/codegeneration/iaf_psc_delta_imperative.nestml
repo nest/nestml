@@ -36,7 +36,7 @@ neuron iaf_psc_delta_neuron:
 
     P33 real = exp(-h/tau_m)
     P30 real = 1 / c_m * (1.0 - P33) * tau_m
-    RefractoryCounts real = steps(t_ref) | RefractoryCounts >= 0
+    RefractoryCounts real = steps(t_ref) [[RefractoryCounts >= 0]]
   end
 
   input:

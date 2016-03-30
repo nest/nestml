@@ -546,11 +546,11 @@ public class NESTMLCoCosTest extends ModelbasedTest {
         = new BooleanInvariantExpressions();
     nestmlCoCoChecker.addCoCo(booleanInvariantExpressions);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "invariants/validInvariantType.nestml");
+    /*final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "invariants/validInvariantType.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        BooleanInvariantExpressions.ERROR_CODE);
+        BooleanInvariantExpressions.ERROR_CODE);*/
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invariants/invalidInvariantType.nestml");
     checkModelAndAssertWithErrors(

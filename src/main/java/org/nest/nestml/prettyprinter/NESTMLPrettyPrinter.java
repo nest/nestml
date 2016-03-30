@@ -174,7 +174,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
 
   private void printInvariants(final ASTAliasDecl astAliasDecl) {
     if (astAliasDecl.getInvariants().size() > 0) {
-      print("< ");
+      print("[[");
       for (int invariantIndex = 0; invariantIndex < astAliasDecl.getInvariants().size(); ++invariantIndex) {
         final ASTExpr astInvariant = astAliasDecl.getInvariants().get(invariantIndex);
         print(expressionsPrinter.print(astInvariant));
@@ -185,7 +185,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
 
       }
 
-      println(" >");
+      println("]]");
 
     }
   }

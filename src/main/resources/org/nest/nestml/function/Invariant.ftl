@@ -1,8 +1,9 @@
 <#--
   Generates C++ declaration
-  @grammar: AliasDecl = ([hide:"-"])? ([alias:"alias"])?
-                        Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
-                        Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
+  @grammar: AliasDecl =
+                ([log:"log"] | [suppress:"suppress"])? (["alias"])?
+                Declaration
+                ("|" invariants:Expr (";" invariants:Expr)* )?;
   @param ast ASTAliasDecl
   @param tc templatecontroller
   @result TODO

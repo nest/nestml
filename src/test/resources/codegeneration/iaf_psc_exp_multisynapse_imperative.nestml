@@ -45,7 +45,7 @@ neuron iaf_psc_exp_multisynapse_nestml:
     P21_syn real[num_of_receptors] = Tau/(C*(1.0-Tau/tau_syn)) * P11_syn * (1.0 - exp(h*(1.0/tau_syn-1.0/Tau)));
     P20 real = exp(-h/Tau)
     P22 real = Tau/C*(1.0 - P22)
-    RefractoryCounts real = steps(t_ref) | RefractoryCounts >= 0
+    RefractoryCounts real = steps(t_ref) [[RefractoryCounts >= 0]]
   end
 
   input:

@@ -13,6 +13,7 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.utils.ASTNodes;
 
 /**
  * Invariants expressions must be of the type boolea.
@@ -40,7 +41,7 @@ public class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
         }
       }
       else {
-        Log.warn("Cannot compute the type: " + invariantExpr);
+        Log.warn("Cannot compute the type: " + ASTNodes.toString(invariantExpr));
       }
 
     }
