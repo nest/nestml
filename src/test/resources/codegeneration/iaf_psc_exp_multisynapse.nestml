@@ -9,14 +9,14 @@ neuron iaf_psc_exp_ms_nestml:
   equations:
       G_in = exp(-1/tau_in*t)
       G_ex = exp(-1/tau_ex*t)
-      V' = -1/Tau * V + 1/C_m * (I_sum(G_in, in_spikes) + I_sum(G_ex, ex_spikes) + I_e + currents)
+      # TODO V' = -1/Tau * V + 1/C_m * (I_sum(G_in, in_spikes) + I_sum(G_ex, ex_spikes) + I_e + currents)
   end
 
   parameter:
     C_m     pF = 250   # Capacity of the membrane
     Tau     ms = 10    # Membrane time constant.
-    tau_syn_in ms = 2     # Time constant of synaptic current.
-    tau_syn_ex ms = 2     # Time constant of synaptic current.
+    tau_in ms = 2     # Time constant of synaptic current.
+    tau_ex ms = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
     E_L     mV = -70  # Resting potential.
     alias V_reset mV = -70 - E_L

@@ -31,7 +31,7 @@ neuron izhikevich_nestml:
   output: spike
 
   update:
-    integrate(v)
+    integrate(V_m)
     if V_m >= 30:
       V_m = c
       u += d

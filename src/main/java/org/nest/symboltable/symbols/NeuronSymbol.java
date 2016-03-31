@@ -80,24 +80,6 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
         .collect(toList());
   }
 
-  @SuppressWarnings("unchecked") // Resolving filter does the type checking
-  public Optional<MethodSymbol> getMethodByName(String methodName) {
-    final Collection<Symbol> result = spannedScope.resolveMany(
-        methodName,
-        MethodSymbol.KIND);
-
-    if (result.size() > 1) {
-      final String msg = "The function: " + methodName + "exists several times";
-      throw new ResolvedSeveralEntriesException(msg, result);
-    }
-
-    if (result.size() == 1) {
-      return Optional.of((MethodSymbol) result.iterator().next());
-    }
-
-    return Optional.empty();
-  }
-
   @Override
   protected MutableScope createSpannedScope() {
     return new NeuronScope();

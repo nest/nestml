@@ -5,7 +5,8 @@
  */
 package org.nest.nestml.cocos;
 
-import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
+import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
@@ -13,8 +14,10 @@ import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
+import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.NeuronSymbol;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -36,8 +39,7 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
     final Optional<NeuronSymbol> componentSymbol
         = (Optional<NeuronSymbol>) astComponent.getSymbol();
     checkState(componentSymbol.isPresent());
-    astBodyDecorator.getFunctions().forEach(astFunction -> checkFunctionName(astFunction,
-        componentSymbol.get()));
+    astBodyDecorator.getFunctions().forEach(this::checkFunctionName);
   }
 
 
@@ -45,29 +47,31 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
     final ASTBody astBodyDecorator = (astNeuron.getBody());
     final Optional<NeuronSymbol> neuronSymbol = (Optional<NeuronSymbol>) astNeuron.getSymbol();
     if (neuronSymbol.isPresent()) {
-      astBodyDecorator.getFunctions().forEach(
-          astFunction -> checkFunctionName(astFunction, neuronSymbol.get()));
+      astBodyDecorator.getFunctions().forEach(this::checkFunctionName);
     }
     else {
       Log.error("The neuron symbol: " + astNeuron.getName() + " has no symbol.");
     }
   }
 
-  private void checkFunctionName(
-      final ASTFunction astFunction,
-      final NeuronSymbol neuronSymbol) {
+  private void checkFunctionName(final ASTFunction astFunction) {
 
     String funname = astFunction.getName();
-    try {
-      // throws a ResolvedSeveralEntriesException exception in case the name is unambiguous
-      neuronSymbol.getMethodByName(funname);
 
+    if (astFunction.getEnclosingScope().isPresent()) {
+      final Scope scope = astFunction.getEnclosingScope().get();
+      final Collection<Symbol> methods = scope.resolveMany(
+          funname, MethodSymbol.KIND);
+      if (methods.size() > 1) {
+        final String msg = "The function '" + funname
+            + " parameter(s) is defined multiple times.";
+        error(ERROR_CODE + ":" + msg, astFunction.get_SourcePositionStart());
+      }
     }
-    catch (ResolvedSeveralEntriesException e) {
-      final String msg = "The function '" + funname
-          + " parameter(s) is defined multiple times.";
-      error(ERROR_CODE + ":" + msg, astFunction.get_SourcePositionStart());
+    else {
+      Log.error("Run symbol table creator.");
     }
+
   }
 
 }
