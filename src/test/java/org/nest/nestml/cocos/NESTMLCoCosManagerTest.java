@@ -16,13 +16,17 @@ import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.utils.FileHelper;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
+import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 
@@ -62,34 +66,44 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
 
   @Test
   public void testCodegenerationModels() throws IOException {
-    final File modelsFolder = Paths.get(TEST_MODEL_PATH.toString(),"codegeneration").toFile();
-
-//    checkAllModelsInFolder(modelsFolder);
+    final List<Path> models = collectNESTMLModelFilenames(
+        Paths.get(TEST_MODEL_PATH.toString(),
+            "codegeneration"));
+    models.stream().forEach(this::checkModel);
   }
 
   private void checkAllModelsInFolder(File modelsFolder) throws IOException {
     for (final File file : modelsFolder.listFiles()) {
-      System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file);
-
-      if (file.isFile()) {
-        final Optional<ASTNESTMLCompilationUnit> root = getAstRoot(file.getPath());
-        Assert.assertTrue(root.isPresent());
-
-        final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
-        scopeCreator.runSymbolTableCreator(root.get());
-
-        System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file.toString());
-
-        checkNESTMLCocosOnly(file, root);
-        checkNESTMLWithSPLCocos(file, root);
-      }
-
+      checkModel(file.toPath());
     }
 
-    Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
-    nestmlErrorFindings.forEach(System.out::println);
-    Assert.assertTrue("Models contain unexpected errors: " + nestmlErrorFindings.size(),
-        nestmlErrorFindings.isEmpty());
+  }
+
+  private void checkModel(final Path file)  {
+    System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file);
+
+    if (file.toFile().isFile()) {
+      final Optional<ASTNESTMLCompilationUnit> root;
+      try {
+        root = getAstRoot(file.toString());
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      Assert.assertTrue(root.isPresent());
+
+      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+      scopeCreator.runSymbolTableCreator(root.get());
+
+      System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file.toString());
+
+      checkNESTMLCocosOnly(file.toFile(), root);
+      checkNESTMLWithSPLCocos(file.toFile(), root);
+      Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
+      nestmlErrorFindings.forEach(System.out::println);
+      Assert.assertTrue("Models contain unexpected errors: " + nestmlErrorFindings.size(),
+          nestmlErrorFindings.isEmpty());
+    }
   }
 
   public void checkNESTMLCocosOnly(File file, Optional<ASTNESTMLCompilationUnit> root) {

@@ -79,9 +79,10 @@ public class SPLCoCosTest {
 
     splCoCoChecker.checkAll(ast);
 
-    Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE,
+    Integer errorsFound = countErrorsByPrefix(
+        VariableDoesNotExist.ERROR_CODE,
         getFindings());
-    assertEquals(Integer.valueOf(4), errorsFound);
+    assertEquals(Integer.valueOf(5), errorsFound);
   }
 
 
