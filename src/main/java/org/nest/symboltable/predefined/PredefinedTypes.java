@@ -95,7 +95,7 @@ public class PredefinedTypes {
     implicitTypes.put("Buffer", bufferType);
 
     final MethodSymbol getSumMethod = new MethodSymbol("getSum");
-    getSumMethod.addParameterType(getPredefinedTypeIfExists("ms").get()); // TODO smell
+    getSumMethod.addParameterType(getTypeIfExists("ms").get()); // TODO smell
     getSumMethod.setReturnType(getRealType());
 
     getSumMethod.setDeclaringType(bufferType);
@@ -107,7 +107,7 @@ public class PredefinedTypes {
   }
 
   public static TypeSymbol getType(final String typeName) {
-    Optional<TypeSymbol> predefinedType = getPredefinedTypeIfExists(typeName);
+    Optional<TypeSymbol> predefinedType = getTypeIfExists(typeName);
 
     if (predefinedType.isPresent()) {
       return predefinedType.get();
@@ -118,7 +118,7 @@ public class PredefinedTypes {
 
   }
 
-  public static Optional<TypeSymbol> getPredefinedTypeIfExists(final String typeName) {
+  public static Optional<TypeSymbol> getTypeIfExists(final String typeName) {
     if (implicitTypes.containsKey(typeName)) {
       return Optional.of(implicitTypes.get(typeName));
     }

@@ -85,7 +85,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return emitStatements;
     }
 
-    final List<String> callTypes = ASTNodes.getArgumentsTypes(astFunctionCall);
+    final List<String> callTypes = ASTNodes.getParameterTypes(astFunctionCall);
     final Optional<MethodSymbol> functionSymbol
         = NESTMLSymbols.resolveMethod(scope, functionName, callTypes);
     if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell

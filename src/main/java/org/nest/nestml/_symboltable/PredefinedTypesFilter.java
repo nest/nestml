@@ -10,6 +10,7 @@ import de.monticore.symboltable.SymbolKind;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.monticore.symboltable.resolving.ResolvingInfo;
 import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.List;
@@ -22,18 +23,23 @@ import java.util.Optional;
  */
 public class PredefinedTypesFilter extends CommonResolvingFilter<TypeSymbol> {
   public PredefinedTypesFilter(
-      final Class<TypeSymbol> symbolClass,
       final SymbolKind targetKind) {
-    super(symbolClass, targetKind);
+    super(targetKind);
   }
 
   @Override
-  public Optional<TypeSymbol> filter(
+  public Optional<Symbol> filter(
       final ResolvingInfo resolvingInfo,
       final String name,
       final List<Symbol> symbols) {
+    final Optional<TypeSymbol> typeSymbol = PredefinedTypes.getTypeIfExists(name);
+    if (typeSymbol.isPresent()) {
+      return Optional.of(typeSymbol.get());
+    }
+    else {
+      return Optional.empty();
+    }
 
-    return PredefinedTypes.getPredefinedTypeIfExists(name);
   }
 
 }

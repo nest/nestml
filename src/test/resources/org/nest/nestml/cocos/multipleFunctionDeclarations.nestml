@@ -25,5 +25,5 @@ neuron MultipleFunctionsNeuron:
   end
 
   update:
-    end
+  end
 end

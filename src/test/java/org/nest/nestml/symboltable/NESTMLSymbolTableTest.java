@@ -239,16 +239,25 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     final ScopeSpanningSymbol symbol = (ScopeSpanningSymbol) root.getNeurons().get(0).getSymbol().get();
     final Scope scope = symbol.getSpannedScope();//scopeCreator.runSymbolTableCreator(root);
 
-    scope.resolve("I_sum", MethodSymbol.KIND);
+    scope.resolve(PredefinedFunctions.I_SUM, MethodSymbol.KIND);
     final Optional<MethodSymbol> method1 = resolveMethod(
         scope,
-        "I_sum", Lists.newArrayList("real", "Buffer"));
+        PredefinedFunctions.I_SUM,
+        Lists.newArrayList("real", "Buffer"));
 
     assertTrue(method1.isPresent());
 
     final Optional<MethodSymbol> method2 = resolveMethod(
-        scope, "integrate", Lists.newArrayList("Buffer"));
+        scope,
+        PredefinedFunctions.INTEGRATE,
+        Lists.newArrayList("boolean"));
     assertFalse(method2.isPresent());
+
+    final Optional<MethodSymbol> method3 = resolveMethod(
+        scope,
+        PredefinedFunctions.INTEGRATE,
+        Lists.newArrayList("real"));
+    assertTrue(method3.isPresent());
   }
 
   @Test

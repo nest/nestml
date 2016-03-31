@@ -6,6 +6,7 @@
 package org.nest.nestml.cocos;
 
 import de.monticore.ast.ASTCNode;
+import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTEq;
@@ -45,7 +46,7 @@ public class EquationsOnlyForStateVariables implements SPLASTEqCoCo, SPLASTODECo
     checkVariable(variableSymbol, astOde);
   }
 
-  private void checkVariable(final Optional<VariableSymbol> variableSymbol, final ASTCNode node) {
+  private void checkVariable(final Optional<VariableSymbol> variableSymbol, final ASTNode node) {
     if (variableSymbol.isPresent()) {
       if (!variableSymbol.get().isInState()) {
         final String msg = "The variable '" + variableSymbol.get().getName() + "' is not a state"

@@ -28,16 +28,22 @@ public class PredefinedVariablesFilter extends CommonResolvingFilter<VariableSym
   public PredefinedVariablesFilter(
       final Class<VariableSymbol> symbolClass,
       final SymbolKind targetKind) {
-    super(symbolClass, targetKind);
+    super(targetKind);
   }
 
   @Override
-  public Optional<VariableSymbol> filter(
+  public Optional<Symbol> filter(
       final ResolvingInfo resolvingInfo,
       final String name,
       final List<Symbol> symbols) {
+    final Optional<VariableSymbol> predefinedVariable = PredefinedVariables.getVariableIfExists(name);
+    if (predefinedVariable.isPresent()) {
+      return Optional.of(predefinedVariable.get());
+    }
+    else {
+      return Optional.empty();
+    }
 
-    return PredefinedVariables.getVariableIfExists(name);
   }
 
 }

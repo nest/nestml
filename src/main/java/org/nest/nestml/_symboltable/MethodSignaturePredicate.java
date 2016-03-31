@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2015 RWTH Aachen. All rights reserved.
- *
- * http://www.se-rwth.de/
- */
+* Copyright (c) 2015 RWTH Aachen. All rights reserved.
+*
+* http://www.se-rwth.de/
+*/
 package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.Symbol;
@@ -21,15 +21,17 @@ public class MethodSignaturePredicate implements SymbolPredicate {
   private final String expectedMethodName;
   private final List<String> expectedParameterTypes = new ArrayList<>();
 
-  public MethodSignaturePredicate(final String methodName,
-                                  final List<String> parameters) {
+  public MethodSignaturePredicate(
+      final String methodName,
+      final List<String> parameters) {
     this.expectedMethodName = requireNonNull(emptyToNull(methodName));
 
     expectedParameterTypes.addAll(parameters);
   }
 
   @Override
-  public boolean apply(final Symbol symbol) {
+  public boolean test(final Symbol symbol) {
+    System.out.printf("");
     if ((symbol != null) && symbol.isKindOf(MethodSymbol.KIND) && (symbol instanceof MethodSymbol)) {
       final MethodSymbol methodSymbol = (MethodSymbol) symbol;
 

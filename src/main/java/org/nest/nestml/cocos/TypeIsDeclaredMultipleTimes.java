@@ -8,6 +8,7 @@ package org.nest.nestml.cocos;
 import de.monticore.ast.ASTCNode;
 import static de.se_rwth.commons.logging.Log.error;
 
+import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
@@ -38,7 +39,7 @@ public class TypeIsDeclaredMultipleTimes implements NESTMLASTComponentCoCo, NEST
 
   }
 
-  private void check(String name, ASTCNode node) {
+  private void check(String name, ASTNode node) {
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please run symbol table creator");
     try {
 

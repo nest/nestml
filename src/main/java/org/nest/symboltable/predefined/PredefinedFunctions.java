@@ -130,7 +130,7 @@ public class PredefinedFunctions {
     return name2FunctionSymbol.values().stream().map(MethodSymbol::new).collect(toList());
   }
 
-  public static Optional<MethodSymbol> getMethodSymbol(final String methodName) {
+  public static Optional<MethodSymbol> getMethodSymbolIfExists(final String methodName) {
     if (name2FunctionSymbol.containsKey(methodName)) {
       return Optional.of(name2FunctionSymbol.get(methodName));
     }

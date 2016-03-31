@@ -10,13 +10,12 @@ import de.monticore.symboltable.SymbolKind;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.monticore.symboltable.resolving.ResolvingInfo;
 import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.TypeSymbol;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import static org.nest.symboltable.predefined.PredefinedFunctions.getMethodSymbolIfExists;
 
 /**
  * TODO
@@ -26,27 +25,24 @@ import java.util.Optional;
 public class PredefinedMethodsFilter extends CommonResolvingFilter<MethodSymbol> {
 
   public PredefinedMethodsFilter(
-      final Class<MethodSymbol> symbolClass,
       final SymbolKind targetKind) {
-    super(symbolClass, targetKind);
+    super(targetKind);
+
+
   }
 
   @Override
-  public Optional<MethodSymbol> filter(
-      final ResolvingInfo resolvingInfo,
-      final String name,
-      final List<Symbol> symbols) {
-    final Optional<MethodSymbol> foundPredefinedMethod = PredefinedFunctions.getMethodSymbol(name);
+  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name,
+      List<Symbol> symbols) {
+    final Optional<MethodSymbol> foundPredefinedMethod = getMethodSymbolIfExists(name);
 
     if (foundPredefinedMethod.isPresent()) {
 
-      if (!symbols.contains(foundPredefinedMethod.get())) {
-        symbols.add(foundPredefinedMethod.get());
-      }
-      symbols.add(foundPredefinedMethod.get());
+      return Optional.of(foundPredefinedMethod.get());
     }
 
-    return  foundPredefinedMethod;
+    return Optional.empty();
   }
+
 
 }

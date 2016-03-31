@@ -48,7 +48,8 @@ public class NESTMLFunctionPrinter {
       parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()));
     }
 
-    final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(scope, astFunction.getName(), parameterNestmlTypes);
+    final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
+        scope, astFunction.getName(), parameterNestmlTypes);
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
@@ -85,7 +86,8 @@ public class NESTMLFunctionPrinter {
       parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()) + " " + functionParameter.getName()); // TODO misleading name
     }
 
-    final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(scope, astFunction.getName(), parameterNestmlTypes);
+    final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
+        scope, astFunction.getName(), parameterNestmlTypes);
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
