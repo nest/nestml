@@ -441,7 +441,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible
       final Optional<TypeSymbol> typeCandidate
-          = PredefinedTypes.getPredefinedTypeIfExists(typeName);
+          = PredefinedTypes.getTypeIfExists(typeName);
 
       if (typeCandidate.isPresent()) {
         final VariableSymbol var = new VariableSymbol(varName);

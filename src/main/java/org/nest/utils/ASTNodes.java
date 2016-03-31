@@ -140,7 +140,7 @@ public final class ASTNodes {
     return splNodesCollector.getReturnStmts();
   }
 
-  public static List<String> getArgumentsTypes(final ASTFunctionCall astFunctionCall) {
+  public static List<String> getParameterTypes(final ASTFunctionCall astFunctionCall) {
     final List<String> argTypeNames = Lists.newArrayList();
 
     final ExpressionTypeCalculator typeCalculator =  new ExpressionTypeCalculator();

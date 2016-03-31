@@ -5,8 +5,9 @@
  */
 package org.nest.utils;
 
+import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.resolving.CommonResolvingFilter;
+import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
@@ -18,8 +19,7 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
-import static com.google.common.collect.Lists.newArrayList;
+import java.util.stream.Collectors;
 
 /**
  * Provides convenience methods
@@ -31,13 +31,17 @@ public class NESTMLSymbols {
   public static Optional<MethodSymbol> resolveMethod(
       final Scope scope,
       final String methodName,
-      final List<String> parameters) {
+      final List<String> parameterTypes) {
     // it is OK. The cast is secured through the symboltable infrastructure
+    MethodSignaturePredicate signaturePredicate = new MethodSignaturePredicate(methodName,
+        parameterTypes);
     @SuppressWarnings("unchecked")
-    final Optional<MethodSymbol> standAloneFunction = resolveMethodWithArguments(
-        scope,
+    final Collection<Symbol> standAloneFunction = scope.resolveMany(
         methodName,
-        parameters);
+        MethodSymbol.KIND,
+         signaturePredicate).stream().filter(signaturePredicate) // TODO is it a bug in MC?
+        .collect(Collectors.toList());
+
 
     final String calleeVariableNameCandidate = Names.getQualifier(methodName);
     final String simpleMethodName = Names.getSimpleName(methodName);
@@ -49,7 +53,8 @@ public class NESTMLSymbols {
 
         final Optional<MethodSymbol> builtInMethod
             = calleeVariableSymbol.get().getType().getBuiltInMethod(simpleMethodName); // TODO parameters are not considered!
-        if (standAloneFunction.isPresent() && builtInMethod.isPresent()) {
+        if (standAloneFunction.size() > 0 && builtInMethod.isPresent()) {
+          // TODO is that possible?
           final String errorDescription = "Unambiguous function exception. Function '"
               + simpleMethodName + "'. Can be resolved as a standalone function and as a method of: '"
               + calleeVariableSymbol + "' variable.";
@@ -65,32 +70,14 @@ public class NESTMLSymbols {
 
     }
 
-    return standAloneFunction;
+    if (standAloneFunction.size() > 0) {
+      return Optional.of((MethodSymbol)standAloneFunction.iterator().next());
+    }
+    else {
+      return Optional.empty();
+    }
   }
 
-  private static Optional<MethodSymbol> resolveMethodWithArguments(
-      final Scope scope,
-      final String methodName,
-      final List<String> parameters) {
-    if (parameters.isEmpty()) {
-      return scope.resolve(methodName, MethodSymbol.KIND);
-    }
-
-    final Collection<MethodSymbol> tmp = scope.resolveMany(methodName, MethodSymbol.KIND);
-
-    final Collection<MethodSymbol> possibleMethods = scope.resolveMany(methodName, MethodSymbol.KIND);
-
-    final MethodSignaturePredicate methodSignaturePredicate = new MethodSignaturePredicate(methodName, parameters);
-    for(final MethodSymbol methodSymbol:possibleMethods) {
-      if (methodSignaturePredicate.apply(methodSymbol)) {
-        // TODO: check that it is the only suitable method
-        return Optional.of(methodSymbol);
-      }
-
-    }
-
-    return Optional.empty();
-  }
 
   public static Optional<VariableSymbol> resolve(final String variableName, final Scope scope) {
     try {
@@ -110,7 +97,7 @@ public class NESTMLSymbols {
     final Optional<MethodSymbol> setter = NESTMLSymbols.resolveMethod(
         scope,
         setterName,
-        newArrayList(varTypeName));
+        Lists.newArrayList(varTypeName));
 
     if (!setter.isPresent()) {
       return false;

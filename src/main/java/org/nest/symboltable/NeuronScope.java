@@ -5,16 +5,17 @@
  */
 package org.nest.symboltable;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import de.monticore.symboltable.CommonScope;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolKind;
+import de.monticore.symboltable.modifiers.AccessModifier;
 import de.monticore.symboltable.resolving.ResolvingInfo;
 import org.nest.symboltable.symbols.NeuronSymbol;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Provides the possibility resolve symbols from the inherited symbols
@@ -23,48 +24,29 @@ import java.util.Optional;
  */
 public class NeuronScope extends CommonScope {
 
-  /**
-   * TODO: big hack! review it with PN.
-   * @param resolvingInfo
-   * @param name
-   * @param kind
-   * @param <T>
-   * @return
-   */
-  @Override
-  protected <T extends Symbol> Collection<T> resolveManyLocally(
-      ResolvingInfo resolvingInfo, String name, SymbolKind kind) {
-    Collection<T> symbols = super.resolveManyLocally(resolvingInfo, name, kind);
+  @Override protected <T extends Symbol> Set<T> resolveManyLocally(
+      final ResolvingInfo resolvingInfo,
+      final String name,
+      final SymbolKind kind,
+      final AccessModifier modifier, Predicate<Symbol> predicate) {
+    Set<T> symbols = super.resolveManyLocally(resolvingInfo, name, kind, modifier, predicate);
     if (!symbols.isEmpty()) {
       return symbols;
     }
 
     final NeuronSymbol neuronSymbol = ((Optional<NeuronSymbol>) getSpanningSymbol()).get();
     if (neuronSymbol.getBaseNeuron().isPresent()) {
-      final List<Symbol> result = Lists.newArrayList();
+      final Set<Symbol> result = Sets.newHashSet();
       Optional<Symbol> resolvedSymbol = neuronSymbol.getBaseNeuron().get().getSpannedScope()
           .resolveLocally(kind).stream().filter(symbol -> symbol.getName().equals(name)).findFirst();
       resolvedSymbol.ifPresent(result::add);
-      return (Collection<T>) result;
+      return (Set<T>) result;
     }
     else {
       return symbols;
     }
   }
 
-  @Override
-  public <T extends Symbol> Optional<T> resolve(String symbolName, SymbolKind kind) {
-    // TODO PN rather resolveLocally, then in the super types, and finally in enclosing scope
-    Optional<T> resolvedSymbol = super.resolve(symbolName, kind);
-
-
-    if (!resolvedSymbol.isPresent()) {
-
-
-    }
-
-    return resolvedSymbol;
-  }
 
   @Override public boolean exportsSymbols() {
     return true;

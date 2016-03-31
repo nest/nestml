@@ -5,13 +5,11 @@
  */
 package org.nest.symboltable.symbols;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolKind;
-import org.nest.nestml._symboltable.MethodSignaturePredicate;
+import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import org.nest.symboltable.NeuronScope;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 
@@ -19,12 +17,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
 
 /**
- * Represents the entire neuron, e.g. iaf_neuron.
+ * Represents the entire neuron or component, e.g. iaf_neuron.
  *
  * @author plotnikov
  */
@@ -34,7 +33,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   private final Type type;
 
-  private Optional<NeuronSymbol> baseNeuron = Optional.empty();
+  private NeuronSymbol baseNeuron = null;
 
   public NeuronSymbol(final String name, final Type type) {
     super(name, KIND);
@@ -62,9 +61,6 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     return spannedScope.resolveLocally(variableName, VariableSymbol.KIND);
   }
 
-  public Optional<MethodSymbol> getMethodByName(String methodName) {
-    return getMethodByName(methodName, Lists.newArrayList());
-  }
 
   @SuppressWarnings("unused") // it is used within freemarker templates
   public List<VariableSymbol> getCurrentBuffers() {
@@ -75,6 +71,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
         .collect(toList());
   }
 
+  @SuppressWarnings("unused") // it is used within freemarker templates
   public List<VariableSymbol> getSpikeBuffers() {
     final Collection<VariableSymbol> variableSymbols
         = spannedScope.resolveLocally(VariableSymbol.KIND);
@@ -84,14 +81,21 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   }
 
   @SuppressWarnings("unchecked") // Resolving filter does the type checking
-  public Optional<MethodSymbol> getMethodByName(String methodName, List<String> parameters) {
-    final Optional<? extends Symbol> result
-        = spannedScope.resolve(new MethodSignaturePredicate(methodName, parameters));
-    if (result.isPresent()) {
-      Preconditions.checkState(result.get() instanceof MethodSymbol);
+  public Optional<MethodSymbol> getMethodByName(String methodName) {
+    final Collection<Symbol> result = spannedScope.resolveMany(
+        methodName,
+        MethodSymbol.KIND);
+
+    if (result.size() > 1) {
+      final String msg = "The function: " + methodName + "exists several times";
+      throw new ResolvedSeveralEntriesException(msg, result);
     }
 
-    return (Optional<MethodSymbol>) result;
+    if (result.size() == 1) {
+      return Optional.of((MethodSymbol) result.iterator().next());
+    }
+
+    return Optional.empty();
   }
 
   @Override
@@ -100,11 +104,12 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   }
 
   public void setBaseNeuron(NeuronSymbolReference baseNeuron) {
-    this.baseNeuron = Optional.of(baseNeuron);
+    checkNotNull(baseNeuron );
+    this.baseNeuron = baseNeuron;
   }
 
   public Optional<NeuronSymbol> getBaseNeuron() {
-    return baseNeuron;
+    return Optional.ofNullable(baseNeuron);
   }
 
   /**
@@ -113,9 +118,9 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
    */
   public enum Type { NEURON, COMPONENT }
 
-  public static class NeuronSymbolKind implements SymbolKind {
+  static private class NeuronSymbolKind implements SymbolKind {
 
-    protected NeuronSymbolKind() {
+    NeuronSymbolKind() {
     }
 
   }

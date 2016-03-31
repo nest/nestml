@@ -5,26 +5,25 @@
  */
 package org.nest.nestml.cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
-import org.nest.spl._ast.ASTParameter;
 import org.nest.symboltable.symbols.NeuronSymbol;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Methods must be unique. If there are two methods with same name, than they must have
  * different argument types.
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
 public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTMLASTComponentCoCo {
 
@@ -44,10 +43,14 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
 
   @Override public void check(final ASTNeuron astNeuron) {
     final ASTBody astBodyDecorator = (astNeuron.getBody());
-    final Optional<NeuronSymbol> neuronSymbol
-        = (Optional<NeuronSymbol>) astNeuron.getSymbol();
-    checkState(neuronSymbol.isPresent());
-    astBodyDecorator.getFunctions().forEach(astFunction -> checkFunctionName(astFunction, neuronSymbol.get()));
+    final Optional<NeuronSymbol> neuronSymbol = (Optional<NeuronSymbol>) astNeuron.getSymbol();
+    if (neuronSymbol.isPresent()) {
+      astBodyDecorator.getFunctions().forEach(
+          astFunction -> checkFunctionName(astFunction, neuronSymbol.get()));
+    }
+    else {
+      Log.error("The neuron symbol: " + astNeuron.getName() + " has no symbol.");
+    }
   }
 
   private void checkFunctionName(
@@ -55,25 +58,13 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
       final NeuronSymbol neuronSymbol) {
 
     String funname = astFunction.getName();
-
-    final ASTParameter[] params;
-    if (astFunction.getParameters().isPresent()
-        && astFunction.getParameters().get().getParameters().size() > 0) {
-      params = astFunction.getParameters().get().getParameters().toArray(new ASTParameter[0]);
-    } else {
-      params = new ASTParameter[0];
-    }
-
-
     try {
       // throws a ResolvedSeveralEntriesException exception in case the name is unambiguous
       neuronSymbol.getMethodByName(funname);
 
-
     }
     catch (ResolvedSeveralEntriesException e) {
-      final String msg = "The function '" + funname + "' with "
-          + params.length
+      final String msg = "The function '" + funname
           + " parameter(s) is defined multiple times.";
       error(ERROR_CODE + ":" + msg, astFunction.get_SourcePositionStart());
     }

@@ -103,7 +103,7 @@ public class VariableDoesNotExist implements
 
   }
 
-  private void checkVariableByName(final String fqn, final ASTCNode node) {
+  private void checkVariableByName(final String fqn, final ASTNode node) {
     checkState(node.getEnclosingScope().isPresent());
     final Scope scope = node.getEnclosingScope().get();
 

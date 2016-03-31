@@ -110,7 +110,7 @@ public class MethodSymbol extends CommonScopeSpanningSymbol {
   public int hashCode()
   {
     return com.google.common.base.Objects.hashCode(
-        this.getName(), this.returnType, declaringType, declaringNeuron, isDynamics);
+        this.getName(), this.returnType, declaringType, declaringNeuron, isDynamics, this.parameters);
   }
 
   private static class MethodSymbolKind implements SymbolKind {
