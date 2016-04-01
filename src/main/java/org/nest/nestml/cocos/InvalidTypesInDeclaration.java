@@ -19,6 +19,7 @@ import org.nest.spl._ast.ASTParameter;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.Optional;
 
@@ -96,8 +97,7 @@ public class InvalidTypesInDeclaration implements
     Optional<? extends Scope> enclosingScope = astUseStmt.getEnclosingScope();
     checkState(enclosingScope.isPresent(),
         "There is no scope assigned to the AST node at: " + astUseStmt.get_SourcePositionStart());
-    final Optional<NeuronSymbol> type = enclosingScope.get().resolve(
-        typeName, NeuronSymbol.KIND);
+    final Optional<NeuronSymbol> type = enclosingScope.get().resolve(typeName, NeuronSymbol.KIND);
 
     if (!type.isPresent()) {
       final String msgPredefined = "The type '%s' is a neuron/component. No neurons/components allowed " +

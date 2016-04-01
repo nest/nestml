@@ -24,14 +24,14 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.nest.codegeneration.sympy.ODESolverScriptGenerator.generateSympyODEAnalyzer;
+import static org.nest.codegeneration.sympy.SolverScriptGenerator.generateSympyODEAnalyzer;
 
 /**
  * Tests that the solver script is generated from an ODE based model.
  *
  * @author plotnikov
  */
-public class ODESolverScriptGeneratorTest extends ModelbasedTest {
+public class SolverScriptGeneratorTest extends ModelbasedTest {
   public static final String PATH_TO_PSC_MODEL
       = "src/test/resources/codegeneration/iaf_neuron.nestml";
   public static final String PATH_TO_COND_MODEL
@@ -69,7 +69,7 @@ public class ODESolverScriptGeneratorTest extends ModelbasedTest {
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
     assertTrue(i_sum);
 
-    final ASTODE testant = ODESolverScriptGenerator.replace_I_sum(ode.get());
+    final ASTODE testant = SolverScriptGenerator.replace_I_sum(ode.get());
     i_sum = ASTNodes.getAll(testant, ASTFunctionCall.class)
         .stream()
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));

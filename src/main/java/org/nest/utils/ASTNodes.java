@@ -10,8 +10,6 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.monticore.types.types._ast.ASTQualifiedName;
-import de.se_rwth.commons.Names;
 import de.se_rwth.commons.Util;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -170,7 +168,7 @@ public final class ASTNodes {
 
     private List<ASTReturnStmt> returnStmts = Lists.newArrayList();
 
-    public void startVisitor(ASTBlock blockAst) {
+    private void startVisitor(ASTBlock blockAst) {
       blockAst.accept(this);
     }
 
@@ -179,13 +177,13 @@ public final class ASTNodes {
       returnStmts.add(astReturnStmt);
     }
 
-    public List<ASTReturnStmt> getReturnStmts() {
+    List<ASTReturnStmt> getReturnStmts() {
       return returnStmts;
     }
   }
 
-  static final class FQNCollector implements NESTMLInheritanceVisitor {
-    public List<String> getVariableNames() {
+  private static final class FQNCollector implements NESTMLInheritanceVisitor {
+    List<String> getVariableNames() {
       return Lists.newArrayList(variableNames);
     }
 
@@ -210,7 +208,7 @@ public final class ASTNodes {
   }
 
   static final class DeclarationsCollector implements NESTMLInheritanceVisitor {
-    public List<VariableSymbol> getVariableSymbols() {
+    List<VariableSymbol> getVariableSymbols() {
       return Lists.newArrayList(variables);
     }
 
@@ -240,11 +238,12 @@ public final class ASTNodes {
   public static List<VariableSymbol> getVariableSymbols(final ASTSPLNode astNode) {
     final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
     astNode.accept(variableSymbolsCollector);
-    return variableSymbolsCollector.getVariableSymbol();
+
+    return variableSymbolsCollector.getVariables();
   }
 
-  static final class VariableSymbolsCollector implements NESTMLInheritanceVisitor {
-    public List<VariableSymbol> getVariableSymbol() {
+  static private final class VariableSymbolsCollector implements NESTMLInheritanceVisitor {
+    List<VariableSymbol> getVariables() {
       return Lists.newArrayList(variables);
     }
 
