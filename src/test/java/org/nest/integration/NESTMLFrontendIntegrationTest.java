@@ -55,4 +55,11 @@ public class NESTMLFrontendIntegrationTest {
         "--target", Paths.get("target", "codegeneration/izhikevich").toString()});
   }
 
+  @Test
+  public void testGIFModel() {
+    nestmlFrontend.handleConsoleArguments(new String[] {
+        "src/test/resources/codegeneration/gif",
+        "--target", Paths.get("target", "codegeneration/gif").toString()});
+  }
+
 }

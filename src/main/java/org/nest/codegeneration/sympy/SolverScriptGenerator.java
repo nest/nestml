@@ -9,6 +9,7 @@ import de.monticore.ast.ASTNode;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
+import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
@@ -27,24 +28,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toList;
+import static org.nest.symboltable.predefined.PredefinedFunctions.*;
 import static org.nest.utils.ASTNodes.getVariableSymbols;
 
 /**
  * Wrapps the logic how to extract and generate SymPy script..
  * @author plotnikov
  */
-public class ODESolverScriptGenerator {
+public class SolverScriptGenerator {
 
-  private final static String LOG_NAME = ODESolverScriptGenerator.class.getName();
+  private final static String LOG_NAME = SolverScriptGenerator.class.getName();
 
-  public static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.SympySolver";
+  private static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.SympySolver";
 
   /**
    * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
@@ -103,6 +104,16 @@ public class ODESolverScriptGenerator {
     final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
 
     final List<VariableSymbol> variables = getVariableSymbols(astOdeDeclaration);
+
+    // TODO refactor
+    Optional<? extends Scope> scope = astOdeDeclaration.getEnclosingScope();
+    if (scope.isPresent()) {
+      for (ASTODE ode:astOdeDeclaration.getODEs()) {
+        final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(ode.getLhsVariable(), VariableSymbol.KIND);
+        lhsSymbol.ifPresent(variables::add);
+      }
+    }
+    //
     final List<VariableSymbol> aliases = variables.stream()
         .filter(VariableSymbol::isAlias)
         .collect(toList());
@@ -120,10 +131,10 @@ public class ODESolverScriptGenerator {
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
   }
 
-  protected static ASTODE replace_I_sum(final ASTODE astOde) {
+  static ASTODE replace_I_sum(final ASTODE astOde) {
     final List<ASTFunctionCall> functions = ASTNodes.getAll(astOde, ASTFunctionCall.class)
         .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))
         .collect(toList());
 
     functions.stream().forEach(node -> {

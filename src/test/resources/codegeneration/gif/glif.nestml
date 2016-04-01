@@ -1,0 +1,56 @@
+neuron glif:
+
+  state:
+    V mV
+    G_in, G_ex real
+    alias V_m mV = V + E_L # Membrane potential.
+  end
+
+  equations:
+    G_ex = exp(-1/tau_syn_ex*t) # I_sum(G_ex, in_spikes)
+    V' = 1/C_m*(I_e)
+
+  end
+
+  parameter:
+    C_m     pF = 250   # Capacity of the membrane
+    Tau     ms = 10    # Membrane time constant.
+    tau_syn_in ms = 2     # Time constant of synaptic current.
+    tau_syn_ex ms = 2     # Time constant of synaptic current.
+    t_ref   ms = 2     # Refractory period.
+    E_L     mV = -70  # Resting potential.
+    alias V_reset mV = -70 - E_L
+    alias Theta   mV = -55 - E_L
+    I_e     pA = 0     # External current.
+  end
+
+  internal:
+    h   ms   = resolution()
+    r  integer
+    RefractoryCounts integer = steps(t_ref)
+  end
+
+  input:
+    ex_spikes   <- excitatory spike
+    in_spikes   <- inhibitory spike
+    currents    <- current
+  end
+
+  output: spike
+
+  update:
+    if r == 0: # not refractory
+        integrate(V)
+    else:
+        r = r - 1
+    end
+
+    if V >= Theta: # threshold crossing
+        r = RefractoryCounts
+        V = V_reset
+        emitSpike()
+    end
+
+  end
+
+end

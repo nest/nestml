@@ -5,11 +5,10 @@
  */
 package org.nest.integration;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
-import org.nest.codegeneration.sympy.ODESolverScriptGenerator;
+import org.nest.codegeneration.sympy.SolverScriptGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
@@ -48,7 +47,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
-    final Optional<Path> generatedScript = ODESolverScriptGenerator.generateSympyODEAnalyzer(
+    final Optional<Path> generatedScript = SolverScriptGenerator.generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
         OUTPUT_FOLDER);
 
