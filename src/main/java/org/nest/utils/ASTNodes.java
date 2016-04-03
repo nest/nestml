@@ -21,13 +21,17 @@ import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTODENode;
-import org.nest.spl._ast.*;
+import org.nest.spl._ast.ASTBlock;
+import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.units._ast.ASTDatatype;
+import org.nest.units._ast.ASTUnitType;
 
 import java.util.Deque;
 import java.util.List;
@@ -121,7 +125,7 @@ public final class ASTNodes {
   /**
    * Returns all variables defined in the tree starting from the astNode.
    */
-  public static List<String> getVariablesNamesFromAst(final ASTODENode astNode) {
+  static List<String> getVariablesNamesFromAst(final ASTODENode astNode) {
     final FQNCollector fqnCollector = new FQNCollector();
     astNode.accept(fqnCollector);
     return fqnCollector.getVariableNames();
@@ -224,7 +228,7 @@ public final class ASTNodes {
     return variableSymbolsCollector.getVariableSymbols();
   }
 
-  static final class DeclarationsCollector implements NESTMLInheritanceVisitor {
+  static private class DeclarationsCollector implements NESTMLInheritanceVisitor {
     List<VariableSymbol> getVariableSymbols() {
       return Lists.newArrayList(variables);
     }

@@ -5,7 +5,7 @@
  */
 package org.nest;
 
-grammar SPL extends org.nest.ODE {
+grammar SPL extends org.nest.ODE, org.nest.Units {
 
   SPLFile = ModuleDefinitionStatement Block;
 
@@ -41,17 +41,6 @@ grammar SPL extends org.nest.ODE {
     ("[" sizeParameter:Name "]")?
     ( "=" Expr )? ;
 
-  Datatype = ["integer"]
-           | ["real"]
-           | ["string"]
-           | ["boolean"]
-           | ["void"]
-           | UnitType;
-
-  UnitType = leftParentheses:"(" UnitType rightParentheses:")"
-           | base:UnitType pow:["**"] exponent:IntLiteral
-           | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
-           | unit:Name;
 
   ReturnStmt = "return" Expr?;
 
