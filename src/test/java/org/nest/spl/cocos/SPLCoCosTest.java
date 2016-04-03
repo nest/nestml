@@ -10,6 +10,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
+import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.*;
 import org.nest.spl._parser.SPLParser;
@@ -73,9 +75,9 @@ public class SPLCoCosTest {
     splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
+    splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTOdeDeclarationCoCo) variableExists);
+    splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
 
     splCoCoChecker.checkAll(ast);
 

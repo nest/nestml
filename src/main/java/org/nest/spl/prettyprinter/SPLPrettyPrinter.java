@@ -8,6 +8,8 @@ package org.nest.spl.prettyprinter;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import de.se_rwth.commons.Names;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLVisitor;
 import org.nest.utils.ASTNodes;

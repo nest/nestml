@@ -5,8 +5,8 @@
  */
 package org.nest.codegeneration.converters;
 
-import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.spl._ast.ASTVariable;
+import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._ast.ASTVariable;
 
 public interface IReferenceConverter {
 

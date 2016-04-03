@@ -8,6 +8,7 @@ package org.nest.codegeneration.sympy;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLNode;

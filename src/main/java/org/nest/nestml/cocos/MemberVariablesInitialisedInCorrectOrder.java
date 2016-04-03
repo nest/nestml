@@ -7,17 +7,16 @@ package org.nest.nestml.cocos;
 
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
-import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
-import de.se_rwth.commons.Names;
+
 import static de.se_rwth.commons.logging.Log.error;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTExpr;
-import org.nest.spl._ast.ASTVariable;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;

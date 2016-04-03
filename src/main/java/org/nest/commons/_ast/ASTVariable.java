@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.spl._ast;
+package org.nest.commons._ast;
 
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;

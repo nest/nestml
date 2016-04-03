@@ -17,7 +17,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.codegeneration.sympy.SolverScriptGenerator.generateSympyODEAnalyzer;
+import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyODEAnalyzer;
 
 /**
  * Analyzes a neuron for defined ODE. If an ode is defined, it produces a temporary NESTML model

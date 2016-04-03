@@ -58,7 +58,7 @@ public class ODEProcessorTest extends ModelbasedTest {
     scopeCreator.runSymbolTableCreator(modelRoot);
     final String modelFolder = modelRoot.getFullName();
 
-   testant.solveODE(
+    testant.solveODE(
         modelRoot.getNeurons().get(0),
         Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(modelFolder)));
 

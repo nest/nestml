@@ -13,12 +13,11 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.ASTExpr;
-import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.spl._ast.ASTODE;
-import org.nest.spl._ast.ASTOdeDeclaration;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.ode._ast.ASTODE;
+import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -28,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
@@ -41,9 +41,9 @@ import static org.nest.utils.ASTNodes.getVariableSymbols;
  * Wrapps the logic how to extract and generate SymPy script..
  * @author plotnikov
  */
-public class SolverScriptGenerator {
+public class SympyScriptGenerator {
 
-  private final static String LOG_NAME = SolverScriptGenerator.class.getName();
+  private final static String LOG_NAME = SympyScriptGenerator.class.getName();
 
   private static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.SympySolver";
 
@@ -105,11 +105,17 @@ public class SolverScriptGenerator {
 
     final List<VariableSymbol> variables = getVariableSymbols(astOdeDeclaration);
 
+    List<VariableSymbol> tmp = ASTNodes.getAliasSymbols(astOdeDeclaration)
+        .stream()
+        .flatMap(alias -> ASTNodes.getVariableSymbols(alias.getDeclaringExpression().get()).stream())
+        .collect(Collectors.toList());
     // TODO refactor
     Optional<? extends Scope> scope = astOdeDeclaration.getEnclosingScope();
     if (scope.isPresent()) {
       for (ASTODE ode:astOdeDeclaration.getODEs()) {
-        final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(ode.getLhsVariable(), VariableSymbol.KIND);
+        final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(
+            ode.getLhsVariable().toString(),
+            VariableSymbol.KIND);
         lhsSymbol.ifPresent(variables::add);
       }
     }

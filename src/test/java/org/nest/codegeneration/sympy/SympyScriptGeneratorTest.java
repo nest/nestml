@@ -11,8 +11,8 @@ import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.spl._ast.ASTODE;
+import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.ode._ast.ASTODE;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.ASTNodes;
 
@@ -24,14 +24,14 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.nest.codegeneration.sympy.SolverScriptGenerator.generateSympyODEAnalyzer;
+import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyODEAnalyzer;
 
 /**
  * Tests that the solver script is generated from an ODE based model.
  *
  * @author plotnikov
  */
-public class SolverScriptGeneratorTest extends ModelbasedTest {
+public class SympyScriptGeneratorTest extends ModelbasedTest {
   public static final String PATH_TO_PSC_MODEL
       = "src/test/resources/codegeneration/iaf_neuron.nestml";
   public static final String PATH_TO_COND_MODEL
@@ -69,7 +69,7 @@ public class SolverScriptGeneratorTest extends ModelbasedTest {
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
     assertTrue(i_sum);
 
-    final ASTODE testant = SolverScriptGenerator.replace_I_sum(ode.get());
+    final ASTODE testant = SympyScriptGenerator.replace_I_sum(ode.get());
     i_sum = ASTNodes.getAll(testant, ASTFunctionCall.class)
         .stream()
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));

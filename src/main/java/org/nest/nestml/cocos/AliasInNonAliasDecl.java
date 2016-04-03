@@ -5,7 +5,6 @@
  */
 package org.nest.nestml.cocos;
 
-import de.monticore.types.types._ast.ASTQualifiedName;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
@@ -13,10 +12,9 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.NESTMLASTComponentCoCo;
 import org.nest.nestml._cocos.NESTMLASTNeuronCoCo;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTVariable;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
 
 import java.util.List;
 import java.util.Optional;

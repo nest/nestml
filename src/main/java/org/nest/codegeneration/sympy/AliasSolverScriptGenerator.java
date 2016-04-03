@@ -10,16 +10,13 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.symboltable.Scope;
-import de.monticore.types.types._ast.ASTQualifiedName;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.spl._ast.ASTSPLNode;
-import org.nest.spl._ast.ASTVariable;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -41,12 +38,7 @@ public class AliasSolverScriptGenerator {
 
   private final static String LOG_NAME = AliasSolverScriptGenerator.class.getName();
 
-  public static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.AliasSolver";
-
-  public String getSolutionFile(final ASTAliasDecl astAliasDecl) {
-    final String variableName = astAliasDecl.getDeclaration().getVars().get(0);
-    return "alias" + variableName + ".expr";
-  }
+  private static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.AliasSolver";
 
   public Optional<Path> generateAliasInverter(
       final ASTNeuron neuron,
@@ -112,15 +104,15 @@ public class AliasSolverScriptGenerator {
     return new GlobalExtensionManagement();
   }
 
-  static class DependentVariableCalculator implements NESTMLVisitor {
+  static private class DependentVariableCalculator implements NESTMLVisitor {
 
-    public VariableSymbol dependentVariable;
+    private VariableSymbol dependentVariable;
 
     public VariableSymbol getVariable() {
       return dependentVariable;
     }
 
-    public static VariableSymbol getVariableSymbols(final ASTSPLNode astNode) {
+    static VariableSymbol getVariableSymbols(final ASTExpr astNode) {
       final DependentVariableCalculator calculator = new DependentVariableCalculator();
       astNode.accept(calculator);
       return calculator.getVariable();

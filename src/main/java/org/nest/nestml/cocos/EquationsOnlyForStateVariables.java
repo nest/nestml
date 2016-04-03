@@ -9,10 +9,10 @@ import de.monticore.ast.ASTCNode;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.spl._ast.ASTEq;
-import org.nest.spl._ast.ASTODE;
-import org.nest.spl._cocos.SPLASTEqCoCo;
-import org.nest.spl._cocos.SPLASTODECoCo;
+import org.nest.ode._ast.ASTEq;
+import org.nest.ode._ast.ASTODE;
+import org.nest.ode._cocos.ODEASTEqCoCo;
+import org.nest.ode._cocos.ODEASTODECoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.NESTMLSymbols;
 
@@ -25,7 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author plotnikov
  */
-public class EquationsOnlyForStateVariables implements SPLASTEqCoCo, SPLASTODECoCo {
+public class EquationsOnlyForStateVariables implements ODEASTEqCoCo, ODEASTODECoCo {
   public static final String ERROR_CODE = "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
 
   @Override
@@ -33,7 +33,7 @@ public class EquationsOnlyForStateVariables implements SPLASTEqCoCo, SPLASTODECo
     checkArgument(astEq.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astEq.getEnclosingScope().get();
     final Optional<VariableSymbol> variableSymbol
-        = NESTMLSymbols.resolve(astEq.getLhsVariable(), scope);
+        = NESTMLSymbols.resolve(astEq.getLhsVariable().toString(), scope);
     checkVariable(variableSymbol, astEq);
   }
 
@@ -42,7 +42,7 @@ public class EquationsOnlyForStateVariables implements SPLASTEqCoCo, SPLASTODECo
     checkArgument(astOde.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astOde.getEnclosingScope().get();
     final Optional<VariableSymbol> variableSymbol
-        = NESTMLSymbols.resolve(astOde.getLhsVariable(), scope);
+        = NESTMLSymbols.resolve(astOde.getLhsVariable().toString(), scope);
     checkVariable(variableSymbol, astOde);
   }
 

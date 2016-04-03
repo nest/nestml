@@ -1,6 +1,6 @@
 package org.nest.codegeneration.helpers;
 
-import org.nest.spl._ast.ASTFunctionCall;
+import org.nest.commons._ast.ASTFunctionCall;
 
 /**
  * TODO

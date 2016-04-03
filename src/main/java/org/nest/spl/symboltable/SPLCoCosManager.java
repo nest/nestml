@@ -5,7 +5,9 @@
  */
 package org.nest.spl.symboltable;
 
+import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
+import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._cocos.*;
 import org.nest.spl.cocos.*;
 
@@ -31,9 +33,9 @@ public class SPLCoCosManager {
     splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
+    splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTOdeDeclarationCoCo) variableExists);
+    splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
     splCoCoChecker.addCoCo(variableDefinedMultipleTimes);
@@ -71,9 +73,9 @@ public class SPLCoCosManager {
     splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTFunctionCallCoCo) variableExists);
+    splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTOdeDeclarationCoCo) variableExists);
+    splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes
         = new VariableDefinedMultipleTimes();

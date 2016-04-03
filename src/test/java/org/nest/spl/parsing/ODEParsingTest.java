@@ -5,9 +5,9 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 
-import org.nest.spl._ast.ASTEq;
-import org.nest.spl._ast.ASTODE;
-import org.nest.spl._ast.ASTOdeDeclaration;
+import org.nest.ode._ast.ASTEq;
+import org.nest.ode._ast.ASTODE;
+import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl._parser.SPLParser;
 
 import java.io.IOException;

@@ -6,22 +6,29 @@
 package org.nest.spl.cocos;
 
 import com.google.common.collect.Lists;
-import de.monticore.ast.ASTCNode;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
-import org.nest.spl._ast.*;
-import org.nest.spl._cocos.*;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
+import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
+import org.nest.spl._ast.ASTAssignment;
+import org.nest.spl._ast.ASTCompound_Stmt;
+import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._ast.ASTReturnStmt;
+import org.nest.spl._cocos.SPLASTAssignmentCoCo;
+import org.nest.spl._cocos.SPLASTCompound_StmtCoCo;
+import org.nest.spl._cocos.SPLASTDeclarationCoCo;
+import org.nest.spl._cocos.SPLASTReturnStmtCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static java.util.stream.Collectors.toList;
@@ -33,11 +40,11 @@ import static java.util.stream.Collectors.toList;
  */
 public class VariableDoesNotExist implements
     SPLASTAssignmentCoCo,
-    SPLASTFunctionCallCoCo,
+    CommonsASTFunctionCallCoCo,
     SPLASTDeclarationCoCo,
     SPLASTReturnStmtCoCo,
     SPLASTCompound_StmtCoCo,
-    SPLASTOdeDeclarationCoCo {
+    ODEASTOdeDeclarationCoCo {
 
   public static final String ERROR_CODE = "SPL_VARIABLE_DOES_NOT_EXIST";
 
@@ -164,7 +171,7 @@ public class VariableDoesNotExist implements
   public void check(ASTOdeDeclaration node) {
     node.getODEs().forEach(
         ode-> {
-          checkVariableByName(ode.getLhsVariable(), node);
+          checkVariableByName(ode.getLhsVariable().toString(), node);
           getVariablesFromExpressions(ode.getRhs()).forEach(
               variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
         }
@@ -173,7 +180,7 @@ public class VariableDoesNotExist implements
 
     node.getEqs().forEach(
         eq-> {
-          checkVariableByName(eq.getLhsVariable(), node);
+          checkVariableByName(eq.getLhsVariable().toString(), node);
           getVariablesFromExpressions(eq.getRhs()).forEach(
               variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
         }

@@ -9,9 +9,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.spl._ast.ASTExpr;
-import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.spl._cocos.SPLASTFunctionCallCoCo;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.MethodSymbol;
@@ -28,7 +28,7 @@ import static org.nest.utils.NESTMLSymbols.resolveMethod;
  *
  * @author plotnikov
  */
-public class FunctionDoesNotExist implements SPLASTFunctionCallCoCo {
+public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
   public static final String ERROR_CODE = "SPL_FUNCTION_DOES_NOT_EXIST";
   private static final String ERROR_MSG_FORMAT = "The function '%s' is not defined";
 

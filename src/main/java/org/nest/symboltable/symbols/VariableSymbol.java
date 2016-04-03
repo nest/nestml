@@ -6,10 +6,8 @@
 package org.nest.symboltable.symbols;
 
 import de.monticore.symboltable.CommonSymbol;
-import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.SymbolKind;
-import org.nest.spl._ast.ASTExpr;
-import org.nest.symboltable.NeuronScope;
+import org.nest.commons._ast.ASTExpr;
 
 import java.util.Objects;
 import java.util.Optional;
