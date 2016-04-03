@@ -15,7 +15,7 @@ import java.nio.file.Paths;
  * Tests that the generator correctly handles a model with aliases
  * @author plotnikov
  */
-public class AliasSolverScriptGeneratorTest extends ModelbasedTest {
+public class AliasSympyScriptGeneratorTest extends ModelbasedTest {
   public static final String PATH_TO_PSC_MODEL
       = "src/test/resources/codegeneration/iaf_neuron.nestml";
   private final AliasSolverScriptGenerator aliasSolverGenerator = new AliasSolverScriptGenerator();

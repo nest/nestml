@@ -12,10 +12,15 @@ import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Util;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTCommonsNode;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.ode._ast.ASTODENode;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
@@ -107,7 +112,16 @@ public final class ASTNodes {
   /**
    * Returns all variables defined in the tree starting from the astNode.
    */
-  public static List<String> getVariablesNamesFromAst(final ASTSPLNode astNode) {
+  public static List<String> getVariablesNamesFromAst(final ASTCommonsNode astNode) {
+    final FQNCollector fqnCollector = new FQNCollector();
+    astNode.accept(fqnCollector);
+    return fqnCollector.getVariableNames();
+  }
+
+  /**
+   * Returns all variables defined in the tree starting from the astNode.
+   */
+  public static List<String> getVariablesNamesFromAst(final ASTODENode astNode) {
     final FQNCollector fqnCollector = new FQNCollector();
     astNode.accept(fqnCollector);
     return fqnCollector.getVariableNames();
@@ -116,16 +130,13 @@ public final class ASTNodes {
   /**
    * Returns all aliases which are used in the tree beginning at astNode
    */
-  public static List<VariableSymbol> getAliasSymbols(final ASTSPLNode astNode) {
+  public static List<VariableSymbol> getAliasSymbols(final ASTODENode astNode) {
     checkState(astNode.getEnclosingScope().isPresent(), "Run symbol table creator");
     final Scope scope = astNode.getEnclosingScope().get();
     final List<String> names = getVariablesNamesFromAst(astNode);
     return names.stream()
         .map(variableName -> {
           final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
-          if (!symbol.isPresent()) {
-            System.out.printf("");
-          }
           return symbol.get();
         })
         .filter(VariableSymbol::isAlias)
@@ -201,6 +212,12 @@ public final class ASTNodes {
    * Returns all variable symbols for variables which are defined in the subtree starting from
    * the astNode.
    */
+  public static List<VariableSymbol> getVariableSymbols(final ASTCommonsNode astNode) {
+    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
+    astNode.accept(variableSymbolsCollector);
+    return variableSymbolsCollector.getVariables();
+  }
+
   public static List<VariableSymbol> getVariableSymbols(final ASTNESTMLNode astNode) {
     final DeclarationsCollector variableSymbolsCollector = new DeclarationsCollector();
     astNode.accept(variableSymbolsCollector);
@@ -235,7 +252,7 @@ public final class ASTNodes {
    * Returns all variable symbols for variables which are defined in the subtree starting from
    * the astNode.
    */
-  public static List<VariableSymbol> getVariableSymbols(final ASTSPLNode astNode) {
+  public static List<VariableSymbol> getVariableSymbols(final ASTODENode astNode) {
     final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
     astNode.accept(variableSymbolsCollector);
 

@@ -7,8 +7,8 @@ package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
-import org.nest.spl._ast.ASTFunctionCall;
-import org.nest.spl._ast.ASTVariable;
+import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;

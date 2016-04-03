@@ -5,6 +5,8 @@ import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.spl._ast.*;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
@@ -71,7 +73,7 @@ public class VariableNotDefinedBeforeUse implements
 
   }
 
-  protected List<ASTVariable> getVariablesFromExpressions(final  ASTExpr expression) {
+  protected List<ASTVariable> getVariablesFromExpressions(final ASTExpr expression) {
     return ASTNodes.getSuccessors(expression, ASTVariable.class);
 
   }

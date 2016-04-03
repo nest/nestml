@@ -10,7 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.nest.spl._ast.ASTExpr;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.spl._parser.SPLParser;
 
 import java.io.IOException;

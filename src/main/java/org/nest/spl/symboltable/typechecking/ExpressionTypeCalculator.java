@@ -10,7 +10,7 @@ import de.monticore.literals.literals._ast.ASTDoubleLiteral;
 import de.monticore.literals.literals._ast.ASTIntLiteral;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.spl._ast.ASTExpr;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;

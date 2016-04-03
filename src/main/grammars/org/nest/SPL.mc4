@@ -5,7 +5,7 @@
  */
 package org.nest;
 
-grammar SPL extends org.nest.Commons {
+grammar SPL extends org.nest.ODE {
 
   SPLFile = ModuleDefinitionStatement Block;
 
@@ -25,10 +25,6 @@ grammar SPL extends org.nest.Commons {
              | FunctionCall
              | Declaration
              | ReturnStmt;
-
-  OdeDeclaration  = (Eq | ODE | NEWLINE)+;
-  Eq = lhsVariable:Name "=" rhs:Expr;
-  ODE = lhsVariable:Name "\'" "=" rhs:Expr;
 
   Assignment = variableName:QualifiedName
     (assignment:["="]       |
@@ -100,48 +96,4 @@ grammar SPL extends org.nest.Commons {
   */
   Parameter = Name Datatype;
 
-  Expr = leftParentheses:"(" Expr rightParentheses:")"
-         | <rightassoc> base:Expr pow:["**"] exponent:Expr
-         | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
-         | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
-         | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
-         | left:Expr (shiftLeft:["<<"] | shiftRight:[">>"]) right:Expr
-         | left:Expr bitAnd:["&"] right:Expr
-         | left:Expr bitXor:["^"]  right:Expr
-         | left:Expr bitOr:["|"] right:Expr
-         | left:Expr (lt:["<"] |
-                      le:["<="] |
-                      eq:["=="] |
-                      ne:["!="] |
-                      ne2:["<>"] |
-                      ge:[">="] |
-                      gt:[">"]) right:Expr
-         | "not" Expr
-         | left:Expr logicalAnd:["and"] right:Expr
-         | left:Expr logicalOr:["or"] right:Expr
-         | FunctionCall
-         | BooleanLiteral // true & false;
-         | NumericLiteral type:Name?
-         | StringLiteral
-         | ["inf"]
-         | Variable;
-
-  /**
-    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
-    @attribute name
-  */
-  Variable = name:QualifiedName;
-
-  /**
-    ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
-    @attribute name The (qualified) name of the fucntions
-    @attribute argList A list with parameters
-  */
-  FunctionCall = name:QualifiedName "(" ArgList ")";
-
-  /**
-    ASTArgList Stores the arguments of the callee function
-    @attribute args Comma separated list of expressions representing parameters.
-  */
-  ArgList = (args:Expr ("," args:Expr)*)?;
 }

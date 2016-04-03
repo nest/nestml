@@ -9,7 +9,7 @@ import de.monticore.antlr4.MCConcreteParser;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.spl._ast.ASTExpr;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl._symboltable.SPLLanguage;

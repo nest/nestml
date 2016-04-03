@@ -14,8 +14,8 @@ import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.spl._cocos.SPLASTEqCoCo;
-import org.nest.spl._cocos.SPLASTODECoCo;
+import org.nest.ode._cocos.ODEASTEqCoCo;
+import org.nest.ode._cocos.ODEASTODECoCo;
 import org.nest.spl.cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
@@ -586,8 +586,8 @@ public class NESTMLCoCosTest extends ModelbasedTest {
   public void testOnlyStateVariablesInOde() {
     final EquationsOnlyForStateVariables equationsOnlyForStateVariables
         = new EquationsOnlyForStateVariables();
-    nestmlCoCoChecker.addCoCo((SPLASTEqCoCo) equationsOnlyForStateVariables);
-    nestmlCoCoChecker.addCoCo((SPLASTODECoCo) equationsOnlyForStateVariables);
+    nestmlCoCoChecker.addCoCo((ODEASTEqCoCo) equationsOnlyForStateVariables);
+    nestmlCoCoChecker.addCoCo((ODEASTODECoCo) equationsOnlyForStateVariables);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "odesOnlyForStateVariables/valid.nestml");
     checkModelAndAssertNoErrors(
