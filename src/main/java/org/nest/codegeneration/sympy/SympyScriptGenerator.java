@@ -114,7 +114,7 @@ public class SympyScriptGenerator {
     if (scope.isPresent()) {
       for (ASTODE ode:astOdeDeclaration.getODEs()) {
         final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(
-            ode.getLhsVariable().toString(),
+            ode.getLhs().toString(),
             VariableSymbol.KIND);
         lhsSymbol.ifPresent(variables::add);
       }

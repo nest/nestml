@@ -33,7 +33,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEqCoCo, ODEASTODECo
     checkArgument(astEq.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astEq.getEnclosingScope().get();
     final Optional<VariableSymbol> variableSymbol
-        = NESTMLSymbols.resolve(astEq.getLhsVariable().toString(), scope);
+        = NESTMLSymbols.resolve(astEq.getLhs().toString(), scope);
     checkVariable(variableSymbol, astEq);
   }
 
@@ -42,7 +42,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEqCoCo, ODEASTODECo
     checkArgument(astOde.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astOde.getEnclosingScope().get();
     final Optional<VariableSymbol> variableSymbol
-        = NESTMLSymbols.resolve(astOde.getLhsVariable().toString(), scope);
+        = NESTMLSymbols.resolve(astOde.getLhs().toString(), scope);
     checkVariable(variableSymbol, astOde);
   }
 

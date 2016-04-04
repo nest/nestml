@@ -13,34 +13,34 @@ ${alias.getName()} = ${printer.print(alias.getDeclaringExpression().get())}
 </#list>
 
 <#list EQs as eq>
-${eq.getLhsVariable()} = ${printer.print(eq.getRhs())}
+${eq.getLhs()} = ${printer.print(eq.getRhs())}
 </#list>
 rhs = ${printer.print(ode.getRhs())}
 
-var("${EQs[0].getLhsVariable()}")
+var("${EQs[0].getLhs()}")
 rhsTmp = ${printer.print(ode.getRhs())}
-contantTerm = simplify(rhsTmp - diff(rhsTmp, ${ode.getLhsVariable()})*${ode.getLhsVariable()} - diff(rhsTmp, ${EQs[0].getLhsVariable()})*${EQs[0].getLhsVariable()})
+contantTerm = simplify(rhsTmp - diff(rhsTmp, ${ode.getLhs()})*${ode.getLhs()} - diff(rhsTmp, ${EQs[0].getLhs()})*${EQs[0].getLhs()})
 <#list EQs as eq>
-${eq.getLhsVariable()} = ${printer.print(eq.getRhs())}
+${eq.getLhs()} = ${printer.print(eq.getRhs())}
 </#list>
 
 
-dev${ode.getLhsVariable()} = diff(rhs, ${ode.getLhsVariable()})
-dev_t_dev${ode.getLhsVariable()} = diff(dev${ode.getLhsVariable()}, t)
+dev${ode.getLhs()} = diff(rhs, ${ode.getLhs()})
+dev_t_dev${ode.getLhs()} = diff(dev${ode.getLhs()}, t)
 
 solverType = open('solverType.property', 'w')
-if dev_t_dev${ode.getLhsVariable()} == 0:
+if dev_t_dev${ode.getLhs()} == 0:
     print 'We have a linear differential equation!'
     solverType.write("exact")
     order = None
-    tmp_diffs = [ ${EQs[0].getLhsVariable()}, diff( ${EQs[0].getLhsVariable()},t)]
-    a_1 = solve(tmp_diffs[1] - a* ${EQs[0].getLhsVariable()}, a)
-    SUM = tmp_diffs[1] - a_1[0] *  ${EQs[0].getLhsVariable()}
+    tmp_diffs = [ ${EQs[0].getLhs()}, diff( ${EQs[0].getLhs()},t)]
+    a_1 = solve(tmp_diffs[1] - a* ${EQs[0].getLhs()}, a)
+    SUM = tmp_diffs[1] - a_1[0] *  ${EQs[0].getLhs()}
     if SUM == 0:
         order = 1
     else:
         for n in range(2, 10):
-            tmp_diffs.append(diff( ${EQs[0].getLhsVariable()}, t, n))
+            tmp_diffs.append(diff( ${EQs[0].getLhs()}, t, n))
             X = zeros(n)
             Y = zeros(n, 1)
             found = False
@@ -63,7 +63,7 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
             VecA = X.inv() * Y
             SUM = 0
             for k in range(0, n):
-                SUM += VecA[k]*diff( ${EQs[0].getLhsVariable()}, t, k)
+                SUM += VecA[k]*diff( ${EQs[0].getLhs()}, t, k)
             SUM -= tmp_diffs[n]
             print "SUM = " + str(simplify(SUM))
             if simplify(SUM) == sympify(0):
@@ -74,9 +74,9 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
         print 'We have a problem'
         exit(1)
 
-    c1 = diff(rhs, ${ode.getLhsVariable()})
-    ${EQs[0].getLhsVariable()} = symbols("${EQs[0].getLhsVariable()}")
-    c2 = diff(${printer.print(ode.getRhs())}, ${EQs[0].getLhsVariable()})
+    c1 = diff(rhs, ${ode.getLhs()})
+    ${EQs[0].getLhs()} = symbols("${EQs[0].getLhs()}")
+    c2 = diff(${printer.print(ode.getRhs())}, ${EQs[0].getLhs()})
 
     if order == 1:
         A = Matrix([[a_1[0], 0],
@@ -111,7 +111,7 @@ if dev_t_dev${ode.getLhsVariable()} == 0:
 
     for i in reversed(range(0, order)):
         y_vector[i] = eval(stateVariables[i])
-    y_vector[order] = ${ode.getLhsVariable()}
+    y_vector[order] = ${ode.getLhs()}
 
     f = open('state.vector.mat', 'w')
     for i in range(0, order):
@@ -131,16 +131,16 @@ else:
     solverType.write("numeric")
     f = open('explicitSolution.mat', 'w')
 <#list EQs as eq>
-    # compute values for the  ${eq.getLhsVariable()} equation
+    # compute values for the  ${eq.getLhs()} equation
     order = None
-    tmp_diffs = [ ${eq.getLhsVariable()}, diff( ${eq.getLhsVariable()},t)]
-    a_1 = solve(tmp_diffs[1] - a* ${eq.getLhsVariable()}, a)
-    SUM = tmp_diffs[1] - a_1[0] *  ${eq.getLhsVariable()}
+    tmp_diffs = [ ${eq.getLhs()}, diff( ${eq.getLhs()},t)]
+    a_1 = solve(tmp_diffs[1] - a* ${eq.getLhs()}, a)
+    SUM = tmp_diffs[1] - a_1[0] *  ${eq.getLhs()}
     if SUM == 0:
         order = 1
     else:
         for n in range(2, 10):
-            tmp_diffs.append(diff( ${eq.getLhsVariable()}, t, n))
+            tmp_diffs.append(diff( ${eq.getLhs()}, t, n))
             X = zeros(n)
             Y = zeros(n, 1)
             found = False
@@ -163,7 +163,7 @@ else:
             VecA = X.inv() * Y
             SUM = 0
             for k in range(0, n):
-                SUM += VecA[k]*diff(${eq.getLhsVariable()}, t, k)
+                SUM += VecA[k]*diff(${eq.getLhs()}, t, k)
             SUM -= tmp_diffs[n]
             print "SUM = " + str(simplify(SUM))
             if simplify(SUM) == sympify(0):
@@ -174,9 +174,9 @@ else:
         print 'We have a problem'
         exit(1)
 
-    c1 = diff(rhs, ${ode.getLhsVariable()})
-    ${eq.getLhsVariable()} = symbols("${eq.getLhsVariable()}")
-    c2 = diff(${printer.print(ode.getRhs())}, ${eq.getLhsVariable()})
+    c1 = diff(rhs, ${ode.getLhs()})
+    ${eq.getLhs()} = symbols("${eq.getLhs()}")
+    c2 = diff(${printer.print(ode.getRhs())}, ${eq.getLhs()})
 
     if order == 1:
         A = Matrix([[a_1[0], 0],
@@ -190,8 +190,8 @@ else:
         A = Matrix([[VecA[1]+solutionpq, 0,             0     ],
                    [1,                   -solutionpq,   0     ],
                    [0,                   c2,        c1]])
-        f.write("D${eq.getLhsVariable()}' = D${eq.getLhsVariable()}*" + str(simplify(A[0,0])) +"\n")
-        f.write("${eq.getLhsVariable()}' = D${eq.getLhsVariable()} + ${eq.getLhsVariable()} *" + str(simplify(A[1,1])) + "\n")
+        f.write("D${eq.getLhs()}' = D${eq.getLhs()}*" + str(simplify(A[0,0])) +"\n")
+        f.write("${eq.getLhs()}' = D${eq.getLhs()} + ${eq.getLhs()} *" + str(simplify(A[1,1])) + "\n")
 
     elif order > 2:
         A = zeros(order)

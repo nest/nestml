@@ -17,7 +17,7 @@
 <#assign index = 0>
 <#assign indexPostfix = "INDEX">
 <#list ODEs as ode>
-const int ${ode.getLhsVariable()}_${indexPostfix} = ${index};
+const int ${ode.getLhs()}_${indexPostfix} = ${index};
  <#assign index = index + 1>
 </#list>
 extern "C" inline int
@@ -37,7 +37,7 @@ ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode 
   </#list>
 
   <#list ODEs as ode>
-    f[ ${ode.getLhsVariable()}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(ode.getRhs())};
+    f[ ${ode.getLhs()}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(ode.getRhs())};
   </#list>
 
   return GSL_SUCCESS;
