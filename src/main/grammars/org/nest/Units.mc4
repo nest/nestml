@@ -5,16 +5,29 @@
  */
 package org.nest;
 
+/**
+  Grammar representing ODE expressions.
+*/
 grammar Units extends de.monticore.types.Types {
-    Datatype = ["integer"]
-             | ["real"]
-             | ["string"]
-             | ["boolean"]
-             | ["void"]
-             | UnitType;
 
-    UnitType = leftParentheses:"(" UnitType rightParentheses:")"
-             | base:UnitType pow:["**"] exponent:IntLiteral
-             | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
-             | unit:Name;
+  /**
+    ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
+    datatype.
+    @attribute boolean getters for integer, real, ...
+    @attribute unitType a SI datatype
+  */
+  Datatype = ["integer"]
+           | ["real"]
+           | ["string"]
+           | ["boolean"]
+           | ["void"]
+           | UnitType;
+  /**
+    ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
+    complex data type as 'mV/s'
+  */
+  UnitType = leftParentheses:"(" UnitType rightParentheses:")"
+           | base:UnitType pow:["**"] exponent:IntLiteral
+           | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
+           | unit:Name;
 }

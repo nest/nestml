@@ -23,10 +23,13 @@ grammar Commons extends de.monticore.types.Types {
   }};
 
   token NEWLINE = ('\r' '\n' | '\r' | '\n' );
+
   token WS = (' ' | '\t'):{_channel = HIDDEN;};
+
   token LINE_ESCAPE = '\\' '\r'? '\n':{_channel = HIDDEN;};
 
   BLOCK_OPEN = ":";
+
   BLOCK_CLOSE = "end";
 
   Expr = leftParentheses:"(" Expr rightParentheses:")"
