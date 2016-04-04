@@ -248,12 +248,12 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
     astEquations
         .getOdeDeclaration()
         .getEqs()
-        .forEach(eq -> println(eq.getLhsVariable() + " = " + expressionsPrinter.print(eq.getRhs())));
+        .forEach(eq -> println(eq.getLhs() + " = " + expressionsPrinter.print(eq.getRhs())));
 
     astEquations
         .getOdeDeclaration()
         .getODEs()
-        .forEach(ode -> println(ode.getLhsVariable() + "' = " + expressionsPrinter.print(ode.getRhs())));
+        .forEach(ode -> println(ode.getLhs() + "' = " + expressionsPrinter.print(ode.getRhs())));
   }
 
   @Override

@@ -171,7 +171,7 @@ public class VariableDoesNotExist implements
   public void check(ASTOdeDeclaration node) {
     node.getODEs().forEach(
         ode-> {
-          checkVariableByName(ode.getLhsVariable().toString(), node);
+          checkVariableByName(ode.getLhs().toString(), node);
           getVariablesFromExpressions(ode.getRhs()).forEach(
               variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
         }
@@ -180,7 +180,7 @@ public class VariableDoesNotExist implements
 
     node.getEqs().forEach(
         eq-> {
-          checkVariableByName(eq.getLhsVariable().toString(), node);
+          checkVariableByName(eq.getLhs().toString(), node);
           getVariablesFromExpressions(eq.getRhs()).forEach(
               variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
         }

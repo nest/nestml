@@ -17,7 +17,7 @@ import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.info;
 
 /**
- * The class is responsible for the execution of the python code which
+ * The class is responsible for the execution of the PYTHON_VERSION code which
  * was generated from the neuron model.
  *
  * @author plotnikov
@@ -33,7 +33,7 @@ public class SymPyScriptEvaluator {
   public final static String STATE_VECTOR_FILE = "state.vector.mat";
   public final static String UPDATE_STEP_FILE = "update.step.mat";
 
-
+  private final static String PYTHON_VERSION = "python2.7";
 
   public boolean execute(final Path generatedScript) {
 
@@ -41,7 +41,7 @@ public class SymPyScriptEvaluator {
       info("Start long running SymPy script evaluation...", LOG_NAME);
       long start = System.nanoTime();
       final Process res = Runtime.getRuntime().exec(
-          "python " + generatedScript.getFileName(),
+          PYTHON_VERSION + " " + generatedScript.getFileName(),
           new String[0],
           new File(generatedScript.getParent().toString()));
       res.waitFor();
