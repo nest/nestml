@@ -8,7 +8,6 @@ package org.nest.frontend;
 import com.google.common.base.Joiner;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
-import org.apache.commons.io.IOUtils;
 import org.nest.codegeneration.NESTGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FileHelper;
@@ -21,11 +20,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.trace;
 
 /**
- * Handles available options set by the tool invocation
+ * Handles available options set at the tool invocation. Makes minimal checks of the infrastructure:
+ * python, sympy.
  *
  * @author plotnikov
  */
@@ -34,6 +33,10 @@ public class NESTMLFrontend {
   private static final String PYTHON_VERSION_TEST_OUTPUT = "pythonVersion.tmp";
   private static final String PYTHON_CHECK_SCRIPT = "pythonChecker.py";
   private static final String PYTHON_CHECK_SCRIPT_SOURCE = "checks/pythonCheck.py";
+
+  private static final String SYMPY_VERSION_TEST_OUTPUT = "sympyVersion.tmp";
+  private static final String SYMPY_CHECK_SCRIPT = "sympyChecker.py";
+  private static final String SYMPY_CHECK_SCRIPT_SOURCE = "checks/sympyChecker.py";
 
   private final static String LOG_NAME = NESTMLFrontend.class.getName();
   private static final String HELP_ARGUMENT = "help";
@@ -44,10 +47,7 @@ public class NESTMLFrontend {
 
   public NESTMLFrontend() {
     Log.enableFailQuick(false); // otherwise error terminates the java vm
-    createOptions();
-  }
 
-  private void createOptions() {
     options.addOption(Option.builder(TARGET_PATH)
         .longOpt(TARGET_PATH)
         .hasArgs()
@@ -61,8 +61,7 @@ public class NESTMLFrontend {
   }
 
   public static void main(final String[] args) {
-    final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
-    nestmlFrontend.start(args);
+    new NESTMLFrontend().start(args);
   }
 
   public void start(final String[] args) {
@@ -95,7 +94,11 @@ public class NESTMLFrontend {
     cleanUpTmpFiles(cliConfiguration);
 
     boolean isError = false;
-    if (!checkPython(cliConfiguration.getTargetPath())) {
+    if (!evaluateCheckScript(
+        PYTHON_CHECK_SCRIPT_SOURCE,
+        PYTHON_CHECK_SCRIPT,
+        PYTHON_VERSION_TEST_OUTPUT,
+        cliConfiguration.getTargetPath())) {
       Log.error("Install Python in minimal version 2.7");
       isError = true;
     }
@@ -103,6 +106,17 @@ public class NESTMLFrontend {
       Log.info("Python is installed", LOG_NAME);
     }
 
+    if (!evaluateCheckScript(
+        SYMPY_CHECK_SCRIPT_SOURCE,
+        SYMPY_CHECK_SCRIPT,
+        SYMPY_VERSION_TEST_OUTPUT,
+        cliConfiguration.getTargetPath())) {
+      Log.error("Install SymPy in minimal version 1.0.0");
+      isError = true;
+    }
+    else {
+      Log.info("SymPy is installed.", LOG_NAME);
+    }
     return !isError;
   }
 
@@ -119,10 +133,14 @@ public class NESTMLFrontend {
     }
   }
 
-  private static boolean checkPython(final Path targetPath) {
-    executeCommand(PYTHON_CHECK_SCRIPT_SOURCE, targetPath);
+  private static boolean evaluateCheckScript(
+      final String scriptSource,
+      final String scriptName,
+      final String scriptOutput,
+      final Path targetPath) {
+    executeCommand(scriptSource, scriptName, targetPath);
 
-    final Path file = Paths.get(targetPath.toString(), PYTHON_VERSION_TEST_OUTPUT);
+    final Path file = Paths.get(targetPath.toString(), scriptOutput);
     if (!Files.exists(file)) {
       return false;
     }
@@ -140,21 +158,24 @@ public class NESTMLFrontend {
     return pythonStatus.size() != 0 && pythonStatus.get(0).equals("True");
   }
 
-  private static void executeCommand(final String checkScript, final Path outputFolder) {
-    trace("Start long running SymPy script evaluation...", LOG_NAME);
+  private static void executeCommand(
+      final String checkScript,
+      final String copiedScriptName,
+      final Path outputFolder) {
+    trace("Evaluate script " + copiedScriptName, LOG_NAME);
     try {
-      copyScript(checkScript, outputFolder);
+      copyScript(checkScript, copiedScriptName, outputFolder);
 
       long start = System.nanoTime();
       final Process res;
       res = Runtime.getRuntime().exec(
-          "python2.7 " + PYTHON_CHECK_SCRIPT,
+          "python2.7 " + copiedScriptName,
           new String[0],
           outputFolder.toFile());
       res.waitFor();
       long end = System.nanoTime();
       long elapsedTime = end - start;
-      final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
+      final String msg = "Successfully evaluated script. Elapsed time: "
           + (double)elapsedTime / 1000000000.0 +  " [s]";
       trace(msg, LOG_NAME);
 
@@ -168,7 +189,10 @@ public class NESTMLFrontend {
 
   }
 
-  private static void copyScript(String checkScript, Path outputFolder) throws IOException {
+  private static void copyScript(
+      final String checkScript,
+      final String copiedScriptName,
+      final Path outputFolder) throws IOException {
     ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
     final InputStream is = classloader.getResourceAsStream(checkScript);
     byte[] buffer = new byte[is.available()];
@@ -177,7 +201,7 @@ public class NESTMLFrontend {
     }
 
     OutputStream outStream = new FileOutputStream(
-        Paths.get(outputFolder.toString(), PYTHON_CHECK_SCRIPT).toString());
+        Paths.get(outputFolder.toString(), copiedScriptName).toString());
     outStream.write(buffer);
   }
 
