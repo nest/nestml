@@ -5,5 +5,5 @@
   @param tc templatecontroller
 -->
 if ( !(${expressionsPrinter.print(ast)}) ) {
-  throw nest::BadProperty("The invariant '${expressionsPrinterForGSL.print(ast)}' is violated!");
+  throw nest::BadProperty("The invariant '${idemPrinter.print(ast)}' is violated!");
 }

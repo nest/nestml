@@ -48,8 +48,7 @@ import static org.nest.utils.ASTNodes.getAllNeurons;
 public class NESTCodeGenerator {
   private final String LOG_NAME = NESTCodeGenerator.class.getName();
   private final ODEProcessor odeProcessor;
-  private final NESTReferenceConverter converter = new NESTReferenceConverter();
-  private final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
+
   private final NESTMLScopeCreator scopeCreator;
 
   public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
@@ -272,8 +271,14 @@ public class NESTCodeGenerator {
 
   private GlobalExtensionManagement getGlexConfiguration() {
     final GlobalExtensionManagement glex = new GlobalExtensionManagement();
+    final NESTReferenceConverter converter = new NESTReferenceConverter();
+    final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
+
+
+
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);
+    glex.setGlobalValue("idemPrinter", new ExpressionsPrettyPrinter());
     return glex;
   }
 
