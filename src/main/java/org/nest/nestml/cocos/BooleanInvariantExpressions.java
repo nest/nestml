@@ -8,7 +8,6 @@ package org.nest.nestml.cocos;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
-import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
@@ -18,10 +17,9 @@ import org.nest.utils.ASTNodes;
 /**
  * Invariants expressions must be of the type boolea.
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.2
+ * @author ppen, plotnikov
  */
-public class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
+class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
 
   public static final String ERROR_CODE = "NESTML_INVARIANTS_WITH_CORRECT_VARIABLES";
 
@@ -29,19 +27,19 @@ public class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
   public void check(final ASTAliasDecl alias) {
     final ExpressionTypeCalculator expressionTypeCalculator = new ExpressionTypeCalculator();
 
-    for (final ASTExpr invariantExpr:alias.getInvariants()) {
-      final Either<TypeSymbol, String> expressionType = expressionTypeCalculator.computeType(invariantExpr);
+    if (alias.getInvariant().isPresent()) {
+      final Either<TypeSymbol, String> expressionType = expressionTypeCalculator.computeType(alias.getInvariant().get());
 
       if (expressionType.isLeft()) {
 
         if (!expressionType.getLeft().get().equals(PredefinedTypes.getBooleanType())) {
           final String msg = "The type of the invariant expression must be boolean and not: " +
               expressionType;
-          Log.error(ERROR_CODE + ":" + msg, invariantExpr.get_SourcePositionStart());
+          Log.error(ERROR_CODE + ":" + msg, alias.getInvariant().get().get_SourcePositionStart());
         }
       }
       else {
-        Log.warn("Cannot compute the type: " + ASTNodes.toString(invariantExpr));
+        Log.warn("Cannot compute the type: " + ASTNodes.toString(alias.getInvariant().get()));
       }
 
     }

@@ -8,7 +8,7 @@ package org.nest.frontend;
 import com.google.common.base.Joiner;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
-import org.nest.codegeneration.NESTGenerator;
+import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FileHelper;
 
@@ -214,9 +214,9 @@ public class NESTMLFrontend {
     final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(CLIConfiguration.getInputBase());
-    final NESTGenerator nestGenerator = new NESTGenerator(nestmlScopeCreator);
+    final NESTCodeGenerator nestCodeGenerator = new NESTCodeGenerator(nestmlScopeCreator);
 
-    executor.execute(nestGenerator, CLIConfiguration);
+    executor.execute(nestCodeGenerator, CLIConfiguration);
   }
 
   CommandLine parseCLIArguments(String[] args) {

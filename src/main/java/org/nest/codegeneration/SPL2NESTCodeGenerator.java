@@ -25,9 +25,9 @@ import java.nio.file.Path;
  * @author plotnikov
  */
 public class SPL2NESTCodeGenerator {
-  public static final String DECLARATION_TEMPLATE = "org.nest.spl.Declaration";
-  public static final String ASSIGNMENT_TEMPLATE = "org.nest.spl.Assignment";
-  public static final String BLOCK_TEMPLATE = "org.nest.spl.Block";
+  private static final String DECLARATION_TEMPLATE = "org.nest.spl.Declaration";
+  private static final String ASSIGNMENT_TEMPLATE = "org.nest.spl.Assignment";
+  private static final String BLOCK_TEMPLATE = "org.nest.spl.Block";
 
   private final GeneratorEngine generator;
 

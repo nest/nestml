@@ -45,19 +45,19 @@ import static org.nest.utils.ASTNodes.getAllNeurons;
  * Generates C++ implementation and model integration code for NEST.
  * @author plotnikov
  */
-public class NESTGenerator {
-  private final String LOG_NAME = NESTGenerator.class.getName();
+public class NESTCodeGenerator {
+  private final String LOG_NAME = NESTCodeGenerator.class.getName();
   private final ODEProcessor odeProcessor;
   private final NESTReferenceConverter converter = new NESTReferenceConverter();
   private final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
   private final NESTMLScopeCreator scopeCreator;
 
-  public NESTGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
+  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= odeProcessor;
   }
 
-  public NESTGenerator(final NESTMLScopeCreator scopeCreator) {
+  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= new ODEProcessor();
   }
@@ -270,7 +270,7 @@ public class NESTGenerator {
 
   }
 
-  public GlobalExtensionManagement getGlexConfiguration() {
+  private GlobalExtensionManagement getGlexConfiguration() {
     final GlobalExtensionManagement glex = new GlobalExtensionManagement();
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);

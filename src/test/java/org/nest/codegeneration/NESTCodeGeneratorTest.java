@@ -20,21 +20,21 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @author plotnikov
  */
-public class NESTGeneratorTest extends GenerationBasedTest {
+public class NESTCodeGeneratorTest extends GenerationBasedTest {
 
   private static final Path OUTPUT_DIRECTORY = Paths.get("target", "build");
 
   private static final PSCMock pscMock = new PSCMock();
   private static final String PSC_MODEL_WITH_ODE = "src/test/resources/codegeneration/iaf_neuron.nestml";
   private static final String PSC_MODEL = "src/test/resources/codegeneration/iaf_neuron.nestml";
-  private static final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
+  //private static final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
 
   @Test
   public void testPSCModelWithoutOde() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTGenerator generator = new NESTGenerator(scopeCreator, pscMock);
+    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     generator.analyseAndGenerate(
         root,
         Paths.get(OUTPUT_DIRECTORY.toString(), "simple_psc"));
@@ -48,7 +48,7 @@ public class NESTGeneratorTest extends GenerationBasedTest {
   public void testPSCModelWithOde() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTGenerator generator = new NESTGenerator(scopeCreator, pscMock);
+    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     generator.analyseAndGenerate(
         root,
         Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
@@ -62,7 +62,7 @@ public class NESTGeneratorTest extends GenerationBasedTest {
   public void testCondModelWithImplicitOdes() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_IMPLICIT);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTGenerator generator = new NESTGenerator(scopeCreator, pscMock);
+    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     generator.analyseAndGenerate(
         root,
         Paths.get(OUTPUT_DIRECTORY.toString(), "cond"));

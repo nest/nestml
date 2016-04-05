@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -146,6 +147,14 @@ public class ASTBody extends ASTBodyTOP {
   public List<ASTAliasDecl> getAliasParameters() {
 
     return getParameters().stream().filter(decl -> decl.isAlias()).collect(toList());
+  }
+
+  @SuppressWarnings("unused") // used in templates
+  public List<ASTExpr> getParameterInvariants() {
+    return getParameters().stream()
+        .filter(param -> param.getInvariant().isPresent())
+        .map(param -> param.getInvariant().get())
+        .collect(toList());
   }
 
   @SuppressWarnings("unused") // used in templates

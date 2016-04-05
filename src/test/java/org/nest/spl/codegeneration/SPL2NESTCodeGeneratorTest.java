@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class SPL2NESTGeneratorTest {
+public class SPL2NESTCodeGeneratorTest {
 
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 

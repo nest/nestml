@@ -111,11 +111,7 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
   ${tc.include("org.nest.nestml.function.ReadFromDictionary", parameter)}
   </#list>
 
-  <#list body.getNonAliasParameters() as parameter>
-    <#list parameter.getInvariants() as invariant>
-      ${tc.include("org.nest.nestml.function.Invariant", invariant)}
-    </#list>
-  </#list>
+  ${tc.include("org.nest.nestml.function.Invariant", body.getParameterInvariants())}
 
 }
 

@@ -236,7 +236,8 @@ protected:
   *         assignment operator to copy those members.
   */
   struct Parameters_
-    <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_ </#if> {
+    <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_ </#if>
+  {
     <#list body.getNonAliasParameters() as aliasDecl>
     ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
     </#list>

@@ -5,6 +5,7 @@
  */
 package org.nest.nestml.cocos;
 
+import static de.monticore.utils.ASTNodes.getSuccessors;
 import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.monticore.utils.ASTNodes;
@@ -56,25 +57,24 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
       checkState(lhsSymbol.isPresent(), "Variable '" + lhsVariableName + "' is not defined");
 
       final List<ASTVariable> variablesNames
-          = ASTNodes.getSuccessors(declaration.getExpr().get(), ASTVariable.class);
+          = getSuccessors(declaration.getExpr().get(), ASTVariable.class);
 
       if (checkVariables(enclosingScope.get(), lhsSymbol.get(), variablesNames))
         return;
 
-      for (ASTExpr aliasExpression:alias.getInvariants()) {
-        final List<ASTVariable> namesInInvariant
-            = ASTNodes.getSuccessors(aliasExpression, ASTVariable.class);
+      if (alias.getInvariant().isPresent()) {
+        final List<ASTVariable> namesInInvariant = getSuccessors(
+            alias.getInvariant().get(),
+            ASTVariable.class);
 
-        if (checkVariables(enclosingScope.get(), lhsSymbol.get(), namesInInvariant))
-          return;
-
+        checkVariables(enclosingScope.get(), lhsSymbol.get(), namesInInvariant);
       }
 
     }
 
   }
 
-  protected boolean checkVariables(
+  private boolean checkVariables(
       final Scope enclosingScope,
       final VariableSymbol lhsSymbol,
       final List<ASTVariable> variablesNames) {
