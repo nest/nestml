@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.cli;
+package org.nest.frontend;
 
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
@@ -39,7 +39,7 @@ public class CLIConfigurationExecutor {
     Log.enableFailQuick(false); // otherwise the processing is stopped after encountering first error
   }
 
-  public void execute(final NESTGenerator generator, final Configuration config) {
+  public void execute(final NESTGenerator generator, final CLIConfiguration config) {
     final NESTMLParser parser =  new NESTMLParser(config.getInputBase());
     final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
@@ -74,7 +74,7 @@ public class CLIConfigurationExecutor {
 
   private void processNestmlModels(
       final List<ASTNESTMLCompilationUnit> modelRoots,
-      final Configuration config,
+      final CLIConfiguration config,
       final NESTMLScopeCreator scopeCreator,
       final NESTGenerator generator) {
 

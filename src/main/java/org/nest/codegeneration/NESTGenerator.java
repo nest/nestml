@@ -148,7 +148,7 @@ public class NESTGenerator {
     final AliasSolverScriptGenerator generator = new AliasSolverScriptGenerator();
     final Optional<Path> inverterScript = generator.generateAliasInverter(root.getNeurons().get(0), outputBase);
     final SymPyScriptEvaluator scriptEvaluator = new SymPyScriptEvaluator();
-    if (!scriptEvaluator.execute(inverterScript.get())) {
+    if (!scriptEvaluator.evaluateScript(inverterScript.get())) {
       Log.error("Cannot evaluate sympy script to compute inverse expression");
     }
     return printAndReadModel(outputBase, root);

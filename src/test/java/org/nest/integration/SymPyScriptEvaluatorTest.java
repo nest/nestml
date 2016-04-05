@@ -54,7 +54,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     assertTrue(generatedScript.isPresent());
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
 
-    assertTrue(evaluator.execute(generatedScript.get()));
+    assertTrue(evaluator.evaluateScript(generatedScript.get()));
   }
 
 }

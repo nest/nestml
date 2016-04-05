@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.cli;
+package org.nest.frontend;
 
 import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class NESTMLFrontendTest {
     final Path testInputModelsPath = Paths.get("testInputModelsPath");
     final Path targetPath = Paths.get("targetPath");
 
-    final Configuration testant = nestmlFrontend.createCLIConfiguration(new String[] {
+    final CLIConfiguration testant = nestmlFrontend.createCLIConfiguration(new String[] {
         testInputModelsPath.toString(),
         "--target", targetPath.toString()
     });

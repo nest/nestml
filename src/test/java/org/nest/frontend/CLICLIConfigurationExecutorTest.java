@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.cli;
+package org.nest.frontend;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,16 +23,16 @@ import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
  *
  * @author plotnikov
  */
-public class CLIConfigurationExecutorTest extends ModelbasedTest {
+public class CLICLIConfigurationExecutorTest extends ModelbasedTest {
   private static final Path TEST_INPUT_PATH = Paths.get("src/test/resources/command_line_base/");
   private static final Path TARGET_FOLDER = Paths.get("target/build");
   private final PSCMock pscMock = new PSCMock();
-  private final Configuration testConfig;
+  private final CLIConfiguration testConfig;
   private final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_INPUT_PATH);
 
-  public CLIConfigurationExecutorTest() {
-    testConfig = new Configuration.Builder()
+  public CLICLIConfigurationExecutorTest() {
+    testConfig = new CLIConfiguration.Builder()
         .withCoCos()
         .withInputBasePath(TEST_INPUT_PATH)
         .withTargetPath(TARGET_FOLDER)
