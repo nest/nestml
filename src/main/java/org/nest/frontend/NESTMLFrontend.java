@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.logging.Log.info;
+import static de.se_rwth.commons.logging.Log.trace;
 
 /**
  * Handles available options set by the tool invocation
@@ -32,6 +33,8 @@ public class NESTMLFrontend {
 
   private static final String PYTHON_VERSION_TEST_OUTPUT = "pythonVersion.tmp";
   private static final String PYTHON_CHECK_SCRIPT = "pythonChecker.py";
+  private static final String PYTHON_CHECK_SCRIPT_SOURCE = "checks/pythonCheck.py";
+
   private final static String LOG_NAME = NESTMLFrontend.class.getName();
   private static final String HELP_ARGUMENT = "help";
   private static final String TARGET_PATH = "target";
@@ -97,7 +100,7 @@ public class NESTMLFrontend {
       isError = true;
     }
     else {
-      Log.trace("Python is installed", LOG_NAME);
+      Log.info("Python is installed", LOG_NAME);
     }
 
     return !isError;
@@ -117,7 +120,8 @@ public class NESTMLFrontend {
   }
 
   private static boolean checkPython(final Path targetPath) {
-    executeCommand(PythonCheckPrograms.PYTHON_CHECK, targetPath);
+    executeCommand(PYTHON_CHECK_SCRIPT_SOURCE, targetPath);
+
     final Path file = Paths.get(targetPath.toString(), PYTHON_VERSION_TEST_OUTPUT);
     if (!Files.exists(file)) {
       return false;
@@ -136,16 +140,10 @@ public class NESTMLFrontend {
     return pythonStatus.size() != 0 && pythonStatus.get(0).equals("True");
   }
 
-  private static void executeCommand(final String command, final Path outputFolder) {
-    info("Start long running SymPy script evaluation...", LOG_NAME);
+  private static void executeCommand(final String checkScript, final Path outputFolder) {
+    trace("Start long running SymPy script evaluation...", LOG_NAME);
     try {
-      ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
-      final InputStream is = classloader.getResourceAsStream("checks/pythonCheck.py");
-      byte[] buffer = new byte[is.available()];
-      is.read(buffer);
-
-      OutputStream outStream = new FileOutputStream(Paths.get(outputFolder.toString(), PYTHON_CHECK_SCRIPT).toString());
-      outStream.write(buffer);
+      copyScript(checkScript, outputFolder);
 
       long start = System.nanoTime();
       final Process res;
@@ -158,7 +156,7 @@ public class NESTMLFrontend {
       long elapsedTime = end - start;
       final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
           + (double)elapsedTime / 1000000000.0 +  " [s]";
-      info(msg, LOG_NAME);
+      trace(msg, LOG_NAME);
 
       getListFromStream(res.getErrorStream()).forEach(Log::error);
       getListFromStream(res.getInputStream()).forEach(entry -> Log.info(entry, LOG_NAME));
@@ -168,6 +166,19 @@ public class NESTMLFrontend {
       throw new RuntimeException(e);
     }
 
+  }
+
+  private static void copyScript(String checkScript, Path outputFolder) throws IOException {
+    ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
+    final InputStream is = classloader.getResourceAsStream(checkScript);
+    byte[] buffer = new byte[is.available()];
+    if (is.read(buffer) < 0) {
+      Log.error("Cannot copy the script " + checkScript);
+    }
+
+    OutputStream outStream = new FileOutputStream(
+        Paths.get(outputFolder.toString(), PYTHON_CHECK_SCRIPT).toString());
+    outStream.write(buffer);
   }
 
   private static List<String> getListFromStream(final InputStream inputStream) throws IOException {
