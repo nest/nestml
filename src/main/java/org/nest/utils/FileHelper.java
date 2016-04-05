@@ -23,16 +23,41 @@ import static java.nio.file.FileSystems.getDefault;
  * @author plotnikov
  */
 public class FileHelper {
+  private static String LOG_NAME = FileHelper.class.getName();
 
   public static List<Path> collectNESTMLModelFilenames(final Path path) {
     final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + NESTMLLanguage.FILE_ENDING);
     return FileHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
   }
 
+  public static void deleteFile(final Path file) {
+    try {
+      Files.delete(file);
+      Log.trace("Deleted configuration file: " + file.toString(), LOG_NAME);
+    }
+    catch (IOException e) {
+      Log.error("Cannot delete file: " + file.toString(), e);
+    }
+  }
+
+  public static void createFolders(final Path folder) {
+    try {
+      Files.createDirectories(folder);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   public static List<Path> collectFiles(
       final Path inputPath,
       final Predicate<Path> predicate) {
     final List<Path> filenames = Lists.newArrayList();
+
+    if (!Files.exists(inputPath)) {
+      return filenames;
+    }
+
     try {
       Files.walkFileTree(inputPath, new SimpleFileVisitor<Path>() {
         @Override

@@ -61,7 +61,7 @@ public class ODEProcessor {
     info("The solver script is generated: " + generatedScript.get(), LOG_NAME);
 
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
-    boolean successfulExecution = evaluator.execute(generatedScript.get());
+    boolean successfulExecution = evaluator.evaluateScript(generatedScript.get());
     info("The solver script is evaluated. Results are under " + generatedScript.get().getParent(), LOG_NAME);
 
     checkState(successfulExecution, "Error during solver script evaluation.");

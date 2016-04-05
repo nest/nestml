@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.cli;
+package org.nest.frontend;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -13,12 +13,12 @@ import java.nio.file.Paths;
  *
  * @author plotnikov
  */
-public class Configuration {
+public class CLIConfiguration {
   private final boolean checkCoCos;
   private final Path inputBasePath;
   private final Path targetPath;
 
-  private Configuration(final Builder builder) {
+  private CLIConfiguration(final Builder builder) {
     this.checkCoCos = builder.checkCoCos;
     this.inputBasePath = builder.inputBasePath;
     this.targetPath = builder.targetPath;
@@ -71,8 +71,8 @@ public class Configuration {
       return this;
     }
 
-    public Configuration build() {
-      return new Configuration(this);
+    public CLIConfiguration build() {
+      return new CLIConfiguration(this);
     }
 
   }

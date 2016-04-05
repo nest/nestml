@@ -7,7 +7,7 @@ package org.nest.integration;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.cli.NESTMLFrontend;
+import org.nest.frontend.NESTMLFrontend;
 
 import java.nio.file.Paths;
 
@@ -22,42 +22,42 @@ public class NESTMLFrontendIntegrationTest {
 
   @Test
   public void testRunUserDefinedOutputFolder() {
-    nestmlFrontend.handleConsoleArguments(new String[] {
+    nestmlFrontend.start(new String[] {
         "src/test/resources/command_line_base",
         "--target", Paths.get("target","tmpOutput").toString()});
   }
 
   @Test
   public void testInheritance() {
-    nestmlFrontend.handleConsoleArguments(new String[] {
+    nestmlFrontend.start(new String[] {
         "src/test/resources/inheritance",
         "--target", Paths.get("target","tmpOutput").toString()});
   }
 
   @Test
   public void testBluegeneModels() {
-    nestmlFrontend.handleConsoleArguments(new String[] {
+    nestmlFrontend.start(new String[] {
         "src/test/resources/codegeneration/bluegene",
         "--target", Paths.get("target", "codegeneration/bluegene").toString()});
   }
 
   @Test
   public void testModelsWithInheritance() {
-    nestmlFrontend.handleConsoleArguments(new String[] {
+    nestmlFrontend.start(new String[] {
         "src/test/resources/inheritance",
         "--target", Paths.get("target", "codegeneration/inheritance").toString()});
   }
 
   @Test
   public void testIzhikevichModel() {
-    nestmlFrontend.handleConsoleArguments(new String[] {
+    nestmlFrontend.start(new String[] {
         "src/test/resources/codegeneration/izhikevich",
         "--target", Paths.get("target", "codegeneration/izhikevich").toString()});
   }
 
   @Test
   public void testGIFModel() {
-    nestmlFrontend.handleConsoleArguments(new String[] {
+    nestmlFrontend.start(new String[] {
         "src/test/resources/codegeneration/gif",
         "--target", Paths.get("target", "codegeneration/gif").toString()});
   }
