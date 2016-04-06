@@ -25,7 +25,6 @@ import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
 public class I_SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
   private final static String ERROR_CODE = "NESTML_" + I_SumHasCorrectParameter.class.getSimpleName();
 
-
   @Override
   public void check(final ASTOdeDeclaration odeDeclaration) {
     final List<ASTFunctionCall> functions = ASTNodes.getAll(odeDeclaration, ASTFunctionCall.class)
