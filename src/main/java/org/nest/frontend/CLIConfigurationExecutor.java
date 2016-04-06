@@ -33,13 +33,13 @@ import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
 public class CLIConfigurationExecutor {
 
   private static final String LOG_NAME = CLIConfigurationExecutor.class.getName();
-  final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
+  private final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
 
   public CLIConfigurationExecutor() {
     Log.enableFailQuick(false); // otherwise the processing is stopped after encountering first error
   }
 
-  public void execute(final NESTCodeGenerator generator, final CLIConfiguration config) {
+  void execute(final NESTCodeGenerator generator, final CLIConfiguration config) {
     final NESTMLParser parser =  new NESTMLParser(config.getInputBase());
     final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);

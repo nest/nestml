@@ -48,4 +48,11 @@ public class NESTMLFrontendTest {
 
   }
 
+  @Test
+  public void testUnparsableModels() {
+    nestmlFrontend.start(new String[] {
+        "src/test/resources/cli_unparsable",
+        "--target", Paths.get("target", "cli_unparsable").toString()});
+  }
+
 }

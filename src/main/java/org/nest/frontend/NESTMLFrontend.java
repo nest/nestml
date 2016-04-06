@@ -32,7 +32,7 @@ public class NESTMLFrontend {
 
   private static final String PYTHON_VERSION_TEST_OUTPUT = "pythonVersion.tmp";
   private static final String PYTHON_CHECK_SCRIPT = "pythonChecker.py";
-  private static final String PYTHON_CHECK_SCRIPT_SOURCE = "checks/pythonCheck.py";
+  private static final String PYTHON_CHECK_SCRIPT_SOURCE = "checks/pythonChecker.py";
 
   private static final String SYMPY_VERSION_TEST_OUTPUT = "sympyVersion.tmp";
   private static final String SYMPY_CHECK_SCRIPT = "sympyChecker.py";
@@ -91,6 +91,7 @@ public class NESTMLFrontend {
   }
 
   public static boolean checkEnvironment(final CLIConfiguration cliConfiguration) {
+    FileHelper.createFolders(cliConfiguration.getTargetPath());
     cleanUpTmpFiles(cliConfiguration);
 
     boolean isError = false;
@@ -190,14 +191,14 @@ public class NESTMLFrontend {
   }
 
   private static void copyScript(
-      final String checkScript,
+      final String checkerScript,
       final String copiedScriptName,
       final Path outputFolder) throws IOException {
     ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
-    final InputStream is = classloader.getResourceAsStream(checkScript);
+    final InputStream is = classloader.getResourceAsStream(checkerScript);
     byte[] buffer = new byte[is.available()];
     if (is.read(buffer) < 0) {
-      Log.error("Cannot copy the script " + checkScript);
+      Log.error("Cannot copy the script " + checkerScript);
     }
 
     OutputStream outStream = new FileOutputStream(
