@@ -15,9 +15,11 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.ode._ast.ASTODE;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.ASTNodes;
+import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -79,7 +81,6 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
   private void generateAndCheck(final String pathToModel) throws IOException {
     final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
-
     assertTrue(root.isPresent());
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
@@ -87,7 +88,7 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
-        Paths.get(OUTPUT_FOLDER));
+        Paths.get(OUTPUT_FOLDER, "sympy"));
 
     assertTrue(generatedScript.isPresent());
   }
