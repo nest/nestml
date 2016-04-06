@@ -5,25 +5,19 @@
  */
 package org.nest.nestml.cocos;
 
-import static de.monticore.utils.ASTNodes.getSuccessors;
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
-import de.monticore.utils.ASTNodes;
-
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._cocos.NESTMLASTAliasDeclCoCo;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.monticore.utils.ASTNodes.getSuccessors;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
@@ -33,51 +27,45 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author ippen, plotnikov
  */
 public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasDeclCoCo {
-
   public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
 
-  /**
-   * AliasDecl = ([hide:"-"])? ([alias:"alias"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
-   * Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
-   *
-   */
   public void check(final ASTAliasDecl alias) {
     final Optional<? extends Scope> enclosingScope = alias.getEnclosingScope();
     checkState(enclosingScope.isPresent(),
         "There is no scope assigned to the AST node: " + alias);
-    ASTDeclaration declaration = alias.getDeclaration();
+    final ASTDeclaration declaration = alias.getDeclaration();
 
-    if (declaration.getExpr().isPresent() && declaration.getVars().size() > 0) {
-      final String lhsVariableName = declaration.getVars().get(0); // has at least one declaration
+    if (declaration.getExpr().isPresent()) {
+      // has at least one declaration. it is ensured by the grammar
+      final String lhsVariableName = declaration.getVars().get(0);
 
-      final Optional<VariableSymbol> lhsSymbol = enclosingScope.get().resolve(
+      final Optional<VariableSymbol> lhsVariable = enclosingScope.get().resolve(
           lhsVariableName,
-          VariableSymbol.KIND); // TODO use cached version
+          VariableSymbol.KIND);
 
-      checkState(lhsSymbol.isPresent(), "Variable '" + lhsVariableName + "' is not defined");
+      checkState(lhsVariable.isPresent(), "Variable '" + lhsVariableName + "' is not defined");
 
-      final List<ASTVariable> variablesNames
-          = getSuccessors(declaration.getExpr().get(), ASTVariable.class);
+      final List<ASTVariable> variablesNames = getSuccessors(
+          declaration.getExpr().get(),
+          ASTVariable.class);
 
-      if (checkVariables(enclosingScope.get(), lhsSymbol.get(), variablesNames))
-        return;
+      checkVariables(lhsVariable.get(), variablesNames, enclosingScope.get());
 
       if (alias.getInvariant().isPresent()) {
-        final List<ASTVariable> namesInInvariant = getSuccessors(
+        final List<ASTVariable> variablesInInvariant = getSuccessors(
             alias.getInvariant().get(),
             ASTVariable.class);
 
-        checkVariables(enclosingScope.get(), lhsSymbol.get(), namesInInvariant);
+        checkVariables(lhsVariable.get(), variablesInInvariant, enclosingScope.get());
       }
 
     }
 
   }
 
-  private boolean checkVariables(
-      final Scope enclosingScope,
-      final VariableSymbol lhsSymbol,
-      final List<ASTVariable> variablesNames) {
+  private void checkVariables(
+      final VariableSymbol lhsSymbol, final List<ASTVariable> variablesNames,
+      final Scope enclosingScope) {
     for (final ASTVariable astVariable : variablesNames) {
       final String rhsVariableName = astVariable.toString();
       final Optional<VariableSymbol> rhsSymbol = enclosingScope.resolve(
@@ -88,7 +76,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
         final String msg = astVariable.get_SourcePositionStart() + ": Variable '" +
             rhsVariableName + "' is undefined.";
         Log.warn(msg);
-        return true;
+        return;
       }
       else  { //
         // not local, e.g. a variable in one of the blocks: state, parameter, or internal
@@ -98,16 +86,15 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
       }
 
     }
-    return false;
+
   }
 
-  protected void checkIfDefinedInCorrectOrder(
+  private void checkIfDefinedInCorrectOrder(
       final VariableSymbol lhsSymbol,
       final VariableSymbol rhsSymbol) {
     if (rhsSymbol.getDeclaringType().getName()
         .equals(lhsSymbol.getDeclaringType().getName())) {
-      // same var - block? => used must be in
-      // previous line
+      // same var - block? => used must be in previous line
       if (rhsSymbol.getBlockType() == lhsSymbol.getBlockType()) {
         // same block not parameter block
         if (rhsSymbol.getSourcePosition().getLine() >
