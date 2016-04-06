@@ -30,12 +30,12 @@ public class FileHelper {
     return FileHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
   }
 
-  public static void cleanUpAndDelete(final Path file) {
+  public static void deleteFilesInFolder(final Path file) {
     FileHelper.collectFiles(file, f -> true)
         .stream()
         .forEach(FileHelper::deleteFile);
-
   }
+
   public static void deleteFile(final Path file) {
     try {
       Files.delete(file);

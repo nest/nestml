@@ -11,9 +11,11 @@ import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.codegeneration.sympy.SympyScriptGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -28,6 +30,8 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
       = "src/test/resources/codegeneration/iaf_neuron.nestml";
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
+
+  private static final Path SYMPY_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "sympy");
 
   @Test
   public void generateAndExecuteSympyScriptForPSC() throws IOException {
@@ -47,9 +51,11 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
+    FileHelper.deleteFilesInFolder(SYMPY_OUTPUT);
+
     final Optional<Path> generatedScript = SympyScriptGenerator.generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
-        OUTPUT_FOLDER);
+         SYMPY_OUTPUT);
 
     assertTrue(generatedScript.isPresent());
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
