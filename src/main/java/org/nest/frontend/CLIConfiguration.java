@@ -18,21 +18,21 @@ public class CLIConfiguration {
   private final Path inputBasePath;
   private final Path targetPath;
 
-  private CLIConfiguration(final Builder builder) {
+  public CLIConfiguration(final Builder builder) {
     this.checkCoCos = builder.checkCoCos;
     this.inputBasePath = builder.inputBasePath;
     this.targetPath = builder.targetPath;
   }
 
-  public boolean isCheckCoCos() {
+  boolean isCheckCoCos() {
     return checkCoCos;
   }
 
-  public Path getInputBase() {
+  Path getInputBase() {
     return inputBasePath;
   }
 
-  public Path getTargetPath() {
+  Path getTargetPath() {
     return targetPath;
   }
 
@@ -41,32 +41,32 @@ public class CLIConfiguration {
     private Path inputBasePath;
     private Path targetPath;
 
-    public Builder withCoCos() {
+    Builder withCoCos() {
       this.checkCoCos = true;
       return this;
     }
 
-    public Builder withCoCos(boolean checkCoCos) {
+    Builder withCoCos(boolean checkCoCos) {
       this.checkCoCos = checkCoCos;
       return this;
     }
 
-    public Builder withInputBasePath(final String inputBasePath) {
+    Builder withInputBasePath(final String inputBasePath) {
       this.inputBasePath = Paths.get(inputBasePath);
       return this;
     }
 
-    public Builder withInputBasePath(final Path inputBasePath) {
+    Builder withInputBasePath(final Path inputBasePath) {
       this.inputBasePath = inputBasePath;
       return this;
     }
 
-    public Builder withTargetPath(final String targetPath) {
+    Builder withTargetPath(final String targetPath) {
       this.targetPath = Paths.get(targetPath);
       return this;
     }
 
-    public Builder withTargetPath(final Path targetPath) {
+    Builder withTargetPath(final Path targetPath) {
       this.targetPath = targetPath;
       return this;
     }

@@ -76,7 +76,7 @@ public class NESTMLFrontend {
     }
   }
 
-  CLIConfiguration createCLIConfiguration(String[] args) {
+  public CLIConfiguration createCLIConfiguration(String[] args) {
     final CommandLine commandLineParameters = parseCLIArguments(args);
     interpretHelpArgument(commandLineParameters);
 
@@ -90,7 +90,7 @@ public class NESTMLFrontend {
         .build();
   }
 
-  private static boolean checkEnvironment(final CLIConfiguration cliConfiguration) {
+  public static boolean checkEnvironment(final CLIConfiguration cliConfiguration) {
     cleanUpTmpFiles(cliConfiguration);
 
     boolean isError = false;
