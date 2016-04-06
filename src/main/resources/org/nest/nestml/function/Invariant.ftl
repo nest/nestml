@@ -1,13 +1,9 @@
 <#--
-  Generates C++ declaration
-  @grammar: AliasDecl =
-                ([log:"log"] | [suppress:"suppress"])? (["alias"])?
-                Declaration
-                ("|" invariants:Expr (";" invariants:Expr)* )?;
+  Invariant checker as C++ code
+  @grammar: ASTExpression
   @param ast ASTAliasDecl
   @param tc templatecontroller
-  @result TODO
 -->
-if ( !(${tc.include("org.nest.spl.expr.Expr", ast)}) ) {
-  throw nest::BadProperty("Message");
+if ( !(${expressionsPrinter.print(ast)}) ) {
+  throw nest::BadProperty("The invariant '${idemPrinter.print(ast)}' is violated!");
 }

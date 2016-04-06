@@ -7,7 +7,7 @@ package org.nest.base;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.codegeneration.NESTGenerator;
+import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
@@ -32,7 +32,7 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
 
   public static final String MODULE_NAME = "integration";
 
-  protected final NESTGenerator generator = new NESTGenerator(scopeCreator);
+  protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
   private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
 
   protected void invokeCodeGenerator(final String pathToModel) {

@@ -29,9 +29,9 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
 public class ExpressionTypeCalculatorTest {
   final SPLParser p = new SPLParser();
   public static final String TEST_MODEL_PATH = "src/test/resources/";
-  public static final String TEST_POSITIVE_MODEL = "src/test/resources/org/nest/spl/cocos/valid"
+  public static final String TEST_POSITIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/valid"
       + "/mathExpressions.simple";
-  public static final String TEST_NEGATIVE_MODEL = "src/test/resources/org/nest/spl/cocos/invalid"
+  public static final String TEST_NEGATIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/invalid"
       + "/mathExpressions.simple";
 
 

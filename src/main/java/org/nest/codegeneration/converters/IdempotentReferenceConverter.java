@@ -46,6 +46,6 @@ public class IdempotentReferenceConverter implements IReferenceConverter {
   }
 
   @Override public boolean needsArguments(ASTFunctionCall astFunctionCall) {
-    return astFunctionCall.getArgList().getArgs().size() > 0;
+    return astFunctionCall.getArgs().size() > 0;
   }
 }

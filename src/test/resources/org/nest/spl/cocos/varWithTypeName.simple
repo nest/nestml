@@ -1,4 +1,0 @@
-module org.nest.spl.cocos.varWithTypeName
-# real real = 15 TODO: can be improved or replace
-ms ms = 15
-v integer = 11

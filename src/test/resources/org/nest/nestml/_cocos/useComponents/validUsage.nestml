@@ -1,0 +1,27 @@
+import org.nest.nestml._cocos.useComponents.importedComponent.ImportedComponent
+
+neuron UsingNeuron:
+    use ImportedComponent as TestReference
+
+    state:
+    end
+
+    parameter:
+    end
+
+    internal:
+
+    end
+
+    input:
+        spikeBuffer   <- inhibitory excitatory spike
+        currentBuffer <- current
+    end
+
+    output: spike
+
+    update:
+        TestReference.testFunction()
+    end
+
+end

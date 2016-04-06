@@ -1,0 +1,17 @@
+module org.nest.spl._cocos.illegalStringExpressions
+# no error
+bar string = (5) + "Hallo Welt!"
+# error
+foo string = "Hello" * 5
+# error
+#foobar string = "Hello" | 6
+# error
+barfoo string = "Hello" ** 3
+# error
+barbar string = "" + 3 - "!"
+
+i void
+# error
+foofoo string = "" + i
+
+correct string = "Hello " + (3 * 4.0)**6 + " " + "Welt!"

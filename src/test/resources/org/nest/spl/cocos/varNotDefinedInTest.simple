@@ -1,7 +1,0 @@
-module org.nest.spl.cocos.varNotDefinedInTest
-
-if x:
-end
-
-while y:
-end

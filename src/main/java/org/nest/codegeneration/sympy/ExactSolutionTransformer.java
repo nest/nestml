@@ -117,7 +117,7 @@ public class ExactSolutionTransformer {
           .collect(toList());
 
       for (ASTFunctionCall i_sum_call:functions) {
-        final String bufferName = ASTNodes.toString(i_sum_call.getArgList().getArgs().get(1));
+        final String bufferName = ASTNodes.toString(i_sum_call.getArgs().get(1));
         final ASTAssignment pscUpdateStep = converter2NESTML
             .convertStringToAssignment("y1 += PSCInitialValue * " + bufferName + ".getSum(t)");
         addAssignmentToDynamics(body, pscUpdateStep);

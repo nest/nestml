@@ -5,8 +5,10 @@
  */
 package org.nest.integration;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.nest.frontend.CLIConfiguration;
 import org.nest.frontend.NESTMLFrontend;
 
 import java.nio.file.Paths;
@@ -62,4 +64,11 @@ public class NESTMLFrontendIntegrationTest {
         "--target", Paths.get("target", "codegeneration/gif").toString()});
   }
 
+  @Test
+  public void testInfrastructure() {
+    final CLIConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
+        "src/test/resources/codegeneration/gif",
+        "--target", Paths.get("target", "codegeneration/gif").toString()});
+    Assert.assertTrue(NESTMLFrontend.checkEnvironment(cliConfiguration));
+  }
 }

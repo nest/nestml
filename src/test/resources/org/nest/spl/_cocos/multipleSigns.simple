@@ -1,0 +1,9 @@
+module org.nest.spl._cocos.multipleSigns
+
+f real = +-2
+
+b real = +++2
+
+c real = --2
+
+d real = ~~2
