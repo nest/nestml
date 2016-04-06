@@ -40,7 +40,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
 
   @Test
   public void testAllModelsForCocos() throws IOException {
-    parseAllNESTMLModelsFromFolder("src/test/resources/org/nest/nestml/cocos");
+    parseAllNESTMLModelsFromFolder("src/test/resources/org/nest/nestml/_cocos");
 
   }
 

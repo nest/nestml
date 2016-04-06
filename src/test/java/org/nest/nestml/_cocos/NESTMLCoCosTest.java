@@ -15,7 +15,7 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.ode._cocos.ODEASTEqCoCo;
 import org.nest.ode._cocos.ODEASTODECoCo;
-import org.nest.spl.cocos.VarHasTypeName;
+import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;

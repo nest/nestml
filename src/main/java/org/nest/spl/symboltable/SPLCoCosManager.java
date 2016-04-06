@@ -9,7 +9,6 @@ import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._cocos.*;
-import org.nest.spl.cocos.*;
 
 /**
  * This class is responsible for the instantiation of the SPL context conditions.
