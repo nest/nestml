@@ -1,0 +1,5 @@
+module org.nest.spl._cocos.invalid.mathExpression
+a real = ((( 1.0 | (-3+6%2) & ~(0x4fa) | 0x23 ^ 12) >> 2) << 2)
+k integer = ~1.0
+m real = 1 ** "a"
+m1 boolean = "a" and k != 0.0

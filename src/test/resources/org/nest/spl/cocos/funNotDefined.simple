@@ -1,6 +1,0 @@
-module org.nest.spl.cocos.funNotDefined
-
-bar() /* not defined */
-EmptyNeuron.bar() #TODO implement a resolving mechanism
-# not defined
-random(2) # not defined with parameter

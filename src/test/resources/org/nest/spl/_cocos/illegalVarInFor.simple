@@ -1,0 +1,5 @@
+module org.nest.spl._cocos.illegalVarInFor
+x boolean
+for x in 1 ... 5 :
+
+end
