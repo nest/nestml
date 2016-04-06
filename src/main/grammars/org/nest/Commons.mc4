@@ -67,14 +67,8 @@ grammar Commons extends de.monticore.types.Types {
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
     @attribute name The (qualified) name of the fucntions
-    @attribute argList A list with parameters
-  */
-  FunctionCall = name:QualifiedName "(" ArgList ")";
-
-  /**
-    ASTArgList Stores the arguments of the callee function
     @attribute args Comma separated list of expressions representing parameters.
   */
-  ArgList = (args:Expr ("," args:Expr)*)?;
+  FunctionCall = name:QualifiedName "(" args:(Expr& || ",")* ")";
 
 }

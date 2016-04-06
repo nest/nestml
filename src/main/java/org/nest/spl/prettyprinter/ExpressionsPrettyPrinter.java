@@ -151,7 +151,7 @@ public class ExpressionsPrettyPrinter {
   public StringBuilder printFunctionCallArguments(final ASTFunctionCall astFunctionCall) {
     final StringBuilder argsListAsString = new StringBuilder();
 
-    final List<ASTExpr> functionArgs = astFunctionCall.getArgList().getArgs();
+    final List<ASTExpr> functionArgs = astFunctionCall.getArgs();
     for (int i = 0; i < functionArgs.size(); ++i) {
       boolean isLastArgument = (i+1) == functionArgs.size();
       if (!isLastArgument) {

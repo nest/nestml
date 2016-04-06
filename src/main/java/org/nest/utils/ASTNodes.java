@@ -158,8 +158,8 @@ public final class ASTNodes {
 
     final ExpressionTypeCalculator typeCalculator =  new ExpressionTypeCalculator();
 
-    for (int i = 0; i < astFunctionCall.getArgList().getArgs().size(); ++i) {
-      final ASTExpr argExpr = astFunctionCall.getArgList().getArgs().get(i);
+    for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
+      final ASTExpr argExpr = astFunctionCall.getArgs().get(i);
       final Either<TypeSymbol, String> argType = typeCalculator.computeType(argExpr);
       if (argType.isLeft()) {
         argTypeNames.add(argType.getLeft().get().getName());

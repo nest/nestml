@@ -135,8 +135,8 @@ public class VariableDoesNotExist implements
 
   @Override
   public void check(final ASTFunctionCall astFunctionCall) {
-    for (int i = 0; i < astFunctionCall.getArgList().getArgs().size(); ++i) {
-      checkExpression(astFunctionCall.getArgList().getArgs().get(i));
+    for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
+      checkExpression(astFunctionCall.getArgs().get(i));
     }
 
   }

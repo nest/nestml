@@ -12,9 +12,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.ode._cocos.ODEASTEqCoCo;
 import org.nest.ode._cocos.ODEASTODECoCo;
+import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
@@ -600,6 +600,27 @@ public class NESTMLCoCosTest extends ModelbasedTest {
         nestmlCoCoChecker,
         "NESTML_",
         2);
+
+  }
+
+  @Test
+  public void testI_SumHasCorrectParameter() {
+    final I_SumHasCorrectParameter i_sumHasCorrectParameter
+        = new I_SumHasCorrectParameter();
+    nestmlCoCoChecker.addCoCo(i_sumHasCorrectParameter);
+
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "I_SumHasCorrectParameter/valid.nestml");
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        "NESTML_");
+
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "I_SumHasCorrectParameter/invalid.nestml");
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        "NESTML_",
+        3);
 
   }
 

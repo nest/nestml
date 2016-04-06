@@ -8,6 +8,8 @@ package org.nest.commons._ast;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 
+import java.util.List;
+
 /**
  *  HW extension of the AST classes. Provides method to print function's name.
  *
@@ -17,7 +19,7 @@ public class ASTFunctionCall extends ASTFunctionCallTOP {
   public ASTFunctionCall() {
   }
 
-  public ASTFunctionCall(final ASTQualifiedName name, final ASTArgList argList) {
+  public ASTFunctionCall(final ASTQualifiedName name, final List<ASTExpr> argList) {
     super(name, argList);
   }
 

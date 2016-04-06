@@ -242,13 +242,6 @@ public class NESTCodeGenerator {
         moduleHeader,
         neurons.get(0)); // an arbitrary AST to match the signature
 
-    /*
-    final Path sliInitFile = Paths.get(
-        getPathFromPackage(fullName), "sli", moduleName.toLowerCase() + "-init");
-    generator.generate(
-        "org.nest.nestml.module.SLI_Init",
-        sliInitFile,
-        null);*/
     info("Successfully generated NEST module code in " + outputDirectory, LOG_NAME);
   }
 
@@ -273,8 +266,6 @@ public class NESTCodeGenerator {
     final GlobalExtensionManagement glex = new GlobalExtensionManagement();
     final NESTReferenceConverter converter = new NESTReferenceConverter();
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
-
-
 
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);

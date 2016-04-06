@@ -1,0 +1,16 @@
+neuron valid_I_sum:
+  state:
+    V_m mV
+    G pA
+  end
+
+  equations:
+    G = t
+    V_m' = V_m+I_sum(G, spikes)
+  end
+
+  input:
+    spikes   <- spike
+    currents <- current
+  end
+end

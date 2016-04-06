@@ -148,7 +148,7 @@ public class SympyScriptGenerator {
       checkState(parent.isPresent());
       final ASTExpr expr = (ASTExpr) parent.get();
       expr.setFunctionCall(null);
-      expr.setVariable(node.getArgList().getArgs().get(0).getVariable().get());
+      expr.setVariable(node.getArgs().get(0).getVariable().get());
     });
     return astOde;
   }
