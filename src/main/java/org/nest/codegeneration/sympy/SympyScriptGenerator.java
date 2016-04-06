@@ -114,10 +114,9 @@ public class SympyScriptGenerator {
         .collect(Collectors.toList());
     variables.addAll(symbolsInAliasDeclaration);
 
-    // TODO refactor
     Optional<? extends Scope> scope = astOdeDeclaration.getEnclosingScope();
     if (scope.isPresent()) {
-      for (ASTODE ode:astOdeDeclaration.getODEs()) {
+      for (final ASTODE ode:astOdeDeclaration.getODEs()) {
         final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(
             ode.getLhs().toString(),
             VariableSymbol.KIND);
