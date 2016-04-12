@@ -145,7 +145,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.nest.cli.NESTMLFrontend</mainClass>
+                            <mainClass>org.nest.frontend.NESTMLFrontend</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
