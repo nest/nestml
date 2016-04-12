@@ -46,16 +46,17 @@ namespace nest
   void RecordablesMap<${simpleNeuronName}>::create()
   {
     // use standard names whereever you can for consistency!
-    <#list body.getStates() as state>
-      ${tc.include("org.nest.nestml.function.RecordCallback", state)}
+    <#list body.getStateSymbols() as state>
+      ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [state])}
     </#list>
-    <#list body.getInternals() as internal>
-      ${tc.include("org.nest.nestml.function.RecordCallback", internal)}
+    <#list body.getInternalSymbols() as internal>
+      ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [internal])}
     </#list>
-    <#list body.getParameters() as parameter>
-      ${tc.include("org.nest.nestml.function.RecordCallback", parameter)}
+    <#list body.getParameterSymbols() as parameter>
+      ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [parameter])}
     </#list>
 
+    // TODO It is a hack and handle inheritance correctly
     <#if neuronSymbol.getBaseNeuron().isPresent()>
       <#list neuronSymbol.getBaseNeuron().get().getStateVariables() as var>
         insert_("${var.getName()}", &${simpleNeuronName}::get_${var.getName()});
@@ -68,23 +69,25 @@ namespace nest
 /* ----------------------------------------------------------------
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
+
 <#assign start="">
 ${simpleNeuronName}::Parameters_::Parameters_()
-<#if body.getNonAliasStates()?size != 0>:</#if>
-<#list body.getNonAliasParameters() as parameter>
-  ${start} ${tc.include("org.nest.nestml.function.MemberInitialization", parameter)}
+<#if body.getParameterNonAliasSymbols()?size != 0>:</#if>
+<#list body.getParameterNonAliasSymbols() as parameter>
+  ${start} ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
   <#assign start=",">
 </#list>
 {}
 
 <#assign start="">
 ${simpleNeuronName}::State_::State_()
-<#if body.getNonAliasStates()?size != 0>:</#if>
-<#list body.getNonAliasStates() as state>
-  ${start} ${tc.include("org.nest.nestml.function.MemberInitialization", state)}
+<#if body.getStateNonAliasSymbols()?size != 0>:</#if>
+<#list body.getStateNonAliasSymbols() as state>
+  ${start} ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state])}
   <#assign start=",">
 </#list>
 {}
+
 
 /* ----------------------------------------------------------------
 * Parameter and state extractions and manipulation functions
@@ -96,8 +99,8 @@ ${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::get(d);
   </#if>
-  <#list body.getNonAliasParameters() as parameter>
-  ${tc.include("org.nest.nestml.function.WriteInDictionary", parameter)}
+  <#list body.getParameterNonAliasSymbols() as parameter>
+  ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
   </#list>
 }
 
@@ -107,8 +110,8 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::set(d);
   </#if>
-  <#list body.getNonAliasParameters() as parameter>
-  ${tc.include("org.nest.nestml.function.ReadFromDictionary", parameter)}
+  <#list body.getParameterNonAliasSymbols() as parameter>
+  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
   </#list>
 
   ${tc.include("org.nest.nestml.function.Invariant", body.getParameterInvariants())}
@@ -121,8 +124,8 @@ ${simpleNeuronName}::State_::get(DictionaryDatum &d) const
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::State_::get(d);
   </#if>
-  <#list body.getNonAliasStates() as state>
-  ${tc.include("org.nest.nestml.function.WriteInDictionary", state)}
+  <#list body.getStateNonAliasSymbols() as state>
+  ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
   </#list>
 }
 
@@ -132,8 +135,8 @@ ${simpleNeuronName}::State_::set(const DictionaryDatum& d)
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::State_::set(d);
   </#if>
-  <#list body.getNonAliasStates() as state>
-  ${tc.include("org.nest.nestml.function.ReadFromDictionary", state)}
+  <#list body.getStateNonAliasSymbols() as state>
+  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [state])}
   </#list>
 }
 
@@ -198,6 +201,7 @@ ${simpleNeuronName}::init_state_(const Node& proto)
 ${tc.include("org.nest.nestml.function.GSLDifferentiationFunction",body)}
 </#if>
 
+
 void
 ${simpleNeuronName}::init_buffers_()
 {
@@ -234,6 +238,7 @@ ${simpleNeuronName}::init_buffers_()
 
 }
 
+
 void
 ${simpleNeuronName}::calibrate()
 { // TODO init internal variables
@@ -242,8 +247,9 @@ ${simpleNeuronName}::calibrate()
     ${neuronSymbol.getBaseNeuron().get().getName()}::calibrate();
   </#if>
 
-  ${tc.include("org.nest.nestml.function.Calibrate", body.getNonAliasInternals())}
-
+  <#list body.getInternalNonAliasSymbols() as variable>
+    ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
+  </#list>
   <#list body.getInputLines() as inputLine>
     <#if bufferHelper.isVector(inputLine)>
         B_.receptor_types_${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
@@ -268,6 +274,7 @@ ${simpleNeuronName}::update(
     ${tc.include("org.nest.nestml.function.DynamicsImplementation", dynamic)}
     </#list>
 }
+
 
 // Do not move this function as inline to h-file. It depends on
 // universal_data_logger_impl.h being included here.
@@ -309,4 +316,3 @@ ${simpleNeuronName}::handle(nest::CurrentEvent& e)
   ${tc.include("org.nest.nestml.buffer.CurrentBufferFill", body.getInputLines())}
 }
 </#if>
-

@@ -141,7 +141,7 @@ public final class ASTNodes {
     return names.stream()
         .map(variableName -> {
           final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
-          return symbol.get();
+          return symbol.get(); //  checked by the context condition
         })
         .filter(VariableSymbol::isAlias)
         .collect(toList());

@@ -14,18 +14,15 @@ import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
 
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static org.nest.utils.ASTNodes.computeTypeName;
 
 /**
- * TODO
+ * This class is used in the code generator to convert NESTML types to the NEST types
  *
  * @author plotnikov
  */
@@ -40,18 +37,6 @@ public class NESTMLDeclarations {
     typeConverter = new NESTML2NESTTypeConverter();
   }
 
-  public String getType(final ASTDeclaration astDeclaration) {
-    checkArgument(astDeclaration.getEnclosingScope().isPresent());
-
-    final Scope scope = astDeclaration.getEnclosingScope().get();
-    final String declarationTypeName = computeTypeName(astDeclaration.getDatatype());
-
-    Optional<TypeSymbol> declarationTypeSymbol = scope.resolve(declarationTypeName, TypeSymbol.KIND);
-    checkState(declarationTypeSymbol.isPresent(), "Cannot resolve the NESTML type: " + declarationTypeName);
-
-    return new NESTML2NESTTypeConverter().convert(declarationTypeSymbol.get());
-  }
-
 
   public List<String> getVariables(final ASTDeclaration astDeclaration) {
     return astDeclaration.getVars();
@@ -61,27 +46,18 @@ public class NESTMLDeclarations {
     return astAliasDecl.getDeclaration().getSizeParameter().isPresent();
   }
 
-  public String getDeclarationType(final ASTDeclaration astDeclaration) {
-    checkArgument(astDeclaration.getEnclosingScope().isPresent());
-
-    final Scope scope = astDeclaration.getEnclosingScope().get();
-    final String typeName = computeTypeName(astDeclaration.getDatatype());
-
-    Optional<TypeSymbol> typeSymbol = scope.resolve(typeName, TypeSymbol.KIND);
-    checkState(typeSymbol.isPresent(), "Cannot resolve the type: " + typeName);
-
-
-    if (astDeclaration.getSizeParameter().isPresent()) {
-      return "std::vector< " + nestml2NESTTypeConverter.convert(typeSymbol.get()) + " > ";
+  public String printVariableType(final VariableSymbol variableSymbol) {
+    if (variableSymbol == null) {
+      System.out.println();
+    }
+    if (variableSymbol.getArraySizeParameter().isPresent()) {
+      return "std::vector< " + nestml2NESTTypeConverter.convert(variableSymbol.getType()) + " > ";
     }
     else {
-      return nestml2NESTTypeConverter.convert(typeSymbol.get());
+      return nestml2NESTTypeConverter.convert(variableSymbol.getType());
     }
   }
 
-  public String getType(final ASTAliasDecl astAliasDecl) {
-    return getDeclarationType(astAliasDecl.getDeclaration());
-  }
 
   public List<VariableSymbol> getVariables(final ASTAliasDecl astAliasDecl) {
     checkArgument(astAliasDecl.getEnclosingScope().isPresent(), "Alias has no assigned scope.");
@@ -107,40 +83,18 @@ public class NESTMLDeclarations {
 
   }
 
-  public String getAliasOrigin(final ASTAliasDecl astAliasDecl) {
-    checkArgument(astAliasDecl.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
-    final Scope scope = astAliasDecl.getEnclosingScope().get();
-    final ASTDeclaration decl = astAliasDecl.getDeclaration();
-    final String typeName = computeTypeName(decl.getDatatype());
-    final Optional<TypeSymbol> type = scope.resolve(typeName, TypeSymbol.KIND);
-    if (type.isPresent()) {
-      final List<VariableSymbol> variables = Lists.newArrayList();
-
-      for (String var : decl.getVars()) {
-        final Optional<VariableSymbol> currVar = scope.resolve(var, VariableSymbol.KIND);
-        variables.add(currVar.get());
-      }
-
-      if (!variables.isEmpty()) {
-        final VariableSymbol first = variables.get(0);
-        switch (first.getBlockType()) {
-          case STATE:
-            return  "S_";
-          case PARAMETER:
-            return  "P_";
-          case INTERNAL:
-            return  "V_";
-          default:
-            return "";
-        }
-
-      }
-
+  public String getAliasOrigin(final VariableSymbol variableSymbol) {
+    switch (variableSymbol.getBlockType()) {
+      case STATE:
+        return  "S_";
+      case PARAMETER:
+        return  "P_";
+      case INTERNAL:
+        return  "V_";
+      default:
+        return "";
     }
-    else {
-      throw new RuntimeException("Cannot resolve the type: " + typeName);
-    }
-    return "";
+
   }
 
   public String getDomainFromType(final TypeSymbol type) {

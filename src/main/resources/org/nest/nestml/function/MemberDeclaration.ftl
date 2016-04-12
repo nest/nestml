@@ -1,12 +1,10 @@
 <#--
-  Generates C++ declaration
-  @grammar: Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
-  @param ast ASTDeclaration
-  @param tc templatecontroller
-  @result TODO
--->
-<#assign declarationType = declarations.getDeclarationType(ast)>
+  Generates C++ declaration for a variable
 
-<#list ast.getVars() as variableName>
-${declarationType} ${variableName}_;
-</#list>
+  @param var VariableSymbol
+  @result C++ declaration
+-->
+${signature("var")}
+
+${declarations.printVariableType(var)} ${var.getName()}_;
+

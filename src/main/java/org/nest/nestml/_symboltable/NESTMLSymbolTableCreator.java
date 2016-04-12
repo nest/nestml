@@ -466,11 +466,10 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       if (aliasDeclAst != null) {
         if (aliasDeclAst.isAlias()) {
           var.setAlias(true);
+        }
 
-          if (astDeclaration.getExpr().isPresent()) {
-            var.setDeclaringExpression(astDeclaration.getExpr().get());
-          }
-
+        if (astDeclaration.getExpr().isPresent()) {
+          var.setDeclaringExpression(astDeclaration.getExpr().get());
         }
 
       }

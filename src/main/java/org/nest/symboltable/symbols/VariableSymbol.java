@@ -12,9 +12,7 @@ import org.nest.commons._ast.ASTExpr;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static java.util.Optional.empty;
+import static com.google.common.base.Preconditions.*;
 import static org.nest.utils.NESTMLSymbols.isSetterPresent;
 
 /**
@@ -47,7 +45,7 @@ public class VariableSymbol extends CommonSymbol {
 
   private BlockType blockType;
 
-  private Optional<String> arraySizeParameter = empty();
+  private String arraySizeParameter = null;
 
   public boolean isLoggable() {
     return isLoggable;
@@ -57,22 +55,10 @@ public class VariableSymbol extends CommonSymbol {
     isLoggable = loggable;
   }
 
-  public void setDeclaringExpression(ASTExpr declaringExpression) {
+  public void setDeclaringExpression(final ASTExpr declaringExpression) {
     Objects.requireNonNull(declaringExpression);
 
     this.declaringExpression = Optional.of(declaringExpression);
-  }
-
-  public Optional<ASTExpr> getDeclaringExpression() {
-    return declaringExpression;
-  }
-
-  public Optional<String> getArraySizeParameter() {
-    return arraySizeParameter;
-  }
-
-  public void setArraySizeParameter(String arraySizeParameter) {
-    this.arraySizeParameter = Optional.of(arraySizeParameter);
   }
 
   public VariableSymbol(String name) {
@@ -80,10 +66,23 @@ public class VariableSymbol extends CommonSymbol {
     setBlockType(BlockType.LOCAL);
   }
 
+  public Optional<ASTExpr> getDeclaringExpression() {
+    return declaringExpression;
+  }
+
+  public Optional<String> getArraySizeParameter() {
+    return Optional.ofNullable(arraySizeParameter);
+  }
+
+  public void setArraySizeParameter(final String arraySizeParameter) {
+    checkNotNull(arraySizeParameter);
+    this.arraySizeParameter = arraySizeParameter;
+  }
+
   @Override
   public String toString() {
     return "VariableSymbol(" + getName() + ", " + getType() + ", "
-        + getBlockType() + "," + arraySizeParameter + ")";
+        + getBlockType() + "," + "array parameter: " + arraySizeParameter + ")";
   }
 
   public TypeSymbol getType() {
@@ -125,13 +124,25 @@ public class VariableSymbol extends CommonSymbol {
   public boolean hasSetter() {
     checkState(getAstNode().isPresent(), "Symbol table must set the AST node.");
     checkArgument(getAstNode().get().getEnclosingScope().isPresent(), "Run symboltable creator.");
-    return isSetterPresent(getName(), getType().getName(), getAstNode().get().getEnclosingScope().get());
 
+    return isSetterPresent(getName(), getType().getName(), getAstNode().get().getEnclosingScope().get());
   }
 
-  public static class VariableSymbolKind implements SymbolKind {
+  public String printModelComment() {
+    final StringBuffer output = new StringBuffer();
+    if(getAstNode().isPresent()) {
+      getAstNode().get().get_PreComments().forEach(comment -> output.append(comment.getText()));
+    }
 
-    protected VariableSymbolKind() {
+    return output.toString();
+  }
+
+  /**
+   * Technical class for the symobol table.
+   */
+  static private class VariableSymbolKind implements SymbolKind {
+
+    VariableSymbolKind() {
     }
 
   }

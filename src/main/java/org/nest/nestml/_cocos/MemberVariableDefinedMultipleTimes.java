@@ -44,16 +44,15 @@ public class MemberVariableDefinedMultipleTimes implements
   }
 
   private void check(ASTBody body) {
-    ASTBody bodyDecorator = (body);
     Map<String, SourcePosition> varNames = Maps.newHashMap();
-    bodyDecorator.getStates()
+    /*body.getStateBlock().
         .forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    bodyDecorator.getParameters()
+    body.getParameterVariables()
         .forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    bodyDecorator.getInternals()
+    body.getInternalVariables()
         .forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    bodyDecorator.getInputLines()
-        .forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
+    body.getInputLines()
+        .forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );*/
   }
 
   private void addNames(

@@ -14,7 +14,9 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.FileHelper;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
@@ -31,9 +33,9 @@ public class ODEProcessorTest extends ModelbasedTest {
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String PSC_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_neuron.nestml";
-  public static final String NEURON_NAME = "iaf_neuron_nestml";
+  private static final String NEURON_NAME = "iaf_neuron_nestml";
 
-  final ODEProcessor testant = new ODEProcessor();
+  private final ODEProcessor testant = new ODEProcessor();
 
   @Test
   public void testPscModel() throws Exception {
@@ -58,9 +60,10 @@ public class ODEProcessorTest extends ModelbasedTest {
     scopeCreator.runSymbolTableCreator(modelRoot);
     final String modelFolder = modelRoot.getFullName();
 
-    testant.solveODE(
-        modelRoot.getNeurons().get(0),
-        Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(modelFolder)));
+    final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(modelFolder));
+    FileHelper.deleteFilesInFolder(outputBase);
+
+    testant.solveODE(modelRoot.getNeurons().get(0), outputBase);
 
     return scopeCreator.runSymbolTableCreator(modelRoot);
   }

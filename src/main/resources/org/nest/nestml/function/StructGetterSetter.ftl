@@ -7,7 +7,6 @@
   @param tc templatecontroller
   @result TODO
 -->
-<#list declarations.getVariables(ast) as var>
-inline ${declarations.getType(ast)} get_${var.getName()}() const { return ${var.getName()}_ ; }
-inline void set_${var.getName()}(const ${declarations.getType(ast)} v) { ${var.getName()}_ = v ; }
-</#list>
+${signature("variable")}
+inline ${declarations.printVariableType(variable)} get_${variable.getName()}() const { return ${variable.getName()}_ ; }
+inline void set_${variable.getName()}(const ${declarations.printVariableType(variable)} v) { ${variable.getName()}_ = v ; }

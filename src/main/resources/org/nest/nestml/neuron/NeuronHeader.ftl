@@ -143,16 +143,16 @@ public:
   ${functionPrinter.printFunctionDeclaration(function)} ;
   </#list>
 
-  <#list body.getStates() as state>
-  ${tc.include("org.nest.nestml.function.MemberVariableGetterSetter", state)}
+  <#list body.getStateSymbols() as state>
+  ${tc.includeArgs("org.nest.nestml.function.MemberVariableGetterSetter", [state])}
   </#list>
 
-  <#list body.getParameters() as parameter>
-  ${tc.include("org.nest.nestml.function.MemberVariableGetterSetter", parameter)}
+  <#list body.getParameterSymbols() as parameter>
+  ${tc.includeArgs("org.nest.nestml.function.MemberVariableGetterSetter", [parameter])}
   </#list>
 
-  <#list body.getInternals() as internal>
-  ${tc.include("org.nest.nestml.function.MemberVariableGetterSetter", internal)}
+  <#list body.getInternalSymbols() as internal>
+  ${tc.includeArgs("org.nest.nestml.function.MemberVariableGetterSetter", [internal])}
   </#list>
 
   <#list body.getInputLines() as inputLine>
@@ -199,8 +199,8 @@ protected:
   *         assignment operator to copy those members.
   */
   struct State_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::State_ </#if> {
-    <#list body.getNonAliasStates() as aliasDecl>
-    ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
+    <#list body.getStateNonAliasSymbols() as variable>
+    ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
     State_();
 
@@ -212,8 +212,8 @@ protected:
     */
     void set(const DictionaryDatum&);
 
-    <#list body.getNonAliasStates() as aliasDecl>
-    ${tc.include("org.nest.nestml.function.StructGetterSetter", aliasDecl)}
+    <#list body.getStateNonAliasSymbols() as variable>
+    ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
     </#list>
   };
 
@@ -235,11 +235,10 @@ protected:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct Parameters_
-    <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_ </#if>
+  struct Parameters_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_ </#if>
   {
-    <#list body.getNonAliasParameters() as aliasDecl>
-    ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
+    <#list body.getParameterNonAliasSymbols() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
     /** Initialize parameters to their default values. */
     Parameters_();
@@ -250,7 +249,9 @@ protected:
     /** Set parameter values from dictionary. */
     void set(const DictionaryDatum&);
 
-    ${tc.include("org.nest.nestml.function.StructGetterSetter", body.getNonAliasParameters())}
+    <#list body.getParameterNonAliasSymbols() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
+    </#list>
   };
 
   /**
@@ -262,24 +263,25 @@ protected:
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
   struct Variables_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Variables_ </#if> {
-    <#list body.getNonAliasInternals() as aliasDecl>
-    ${tc.include("org.nest.nestml.function.MemberDeclaration", aliasDecl.getDeclaration())}
+    <#list body.getInternalNonAliasSymbols() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
-    <#list body.getNonAliasInternals() as internal>
-    ${tc.include("org.nest.nestml.function.StructGetterSetter", internal)}
+
+    <#list body.getInternalNonAliasSymbols() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
     </#list>
   };
 
   /**
-  * Buffers of the neuron.
-  * Ususally buffers for incoming spikes and data logged for analog recorders.
-  * Buffers must be initialized by @c init_buffers_(), which is called before
-  * @c calibrate() on the first call to @c Simulate after the start of NEST,
-  * ResetKernel or ResetNetwork.
-  * @node Buffers_ needs neither constructor, copy constructor or assignment operator,
-  *       since it is initialized by @c init_nodes_(). If Buffers_ has members that
-  *       cannot destroy themselves, Buffers_ will need a destructor.
-  */
+    * Buffers of the neuron.
+    * Ususally buffers for incoming spikes and data logged for analog recorders.
+    * Buffers must be initialized by @c init_buffers_(), which is called before
+    * @c calibrate() on the first call to @c Simulate after the start of NEST,
+    * ResetKernel or ResetNetwork.
+    * @node Buffers_ needs neither constructor, copy constructor or assignment operator,
+    *       since it is initialized by @c init_nodes_(). If Buffers_ has members that
+    *       cannot destroy themselves, Buffers_ will need a destructor.
+    */
   struct Buffers_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Buffers_ </#if> {
     Buffers_(${simpleNeuronName}&);
     Buffers_(const Buffers_ &, ${simpleNeuronName}&);
@@ -308,7 +310,6 @@ protected:
 
 
   };
-
 private:
   /**
   * @defgroup pif_members Member variables of neuron model.
@@ -331,7 +332,6 @@ private:
 
 /** @} */
 }; /* neuron ${simpleNeuronName} */
-
 
 <#if isOutputEventPresent>
 inline
@@ -395,14 +395,14 @@ inline
 void ${simpleNeuronName}::get_status(DictionaryDatum &d) const
 {
   P_.get(d);
-  <#list body.getAliasParameters() as parameter>
-  ${tc.include("org.nest.nestml.function.WriteInDictionary", parameter)}
+  <#list body.getParameterSymbols() as parameter>
+  ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
   </#list>
   S_.get(d);
-
-  <#list body.getAliasStates() as state>
-  ${tc.include("org.nest.nestml.function.WriteInDictionary", state)}
+  <#list body.getStateAliasSymbols() as state>
+    ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
   </#list>
+
   (*d)[nest::names::recordables] = recordablesMap_.get_list();
 }
 
@@ -410,11 +410,11 @@ void ${simpleNeuronName}::get_status(DictionaryDatum &d) const
 inline
 void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
 {
-  <#list body.getAliasParameters() as parameter>
-  ${tc.include("org.nest.nestml.function.SetOldAliasState", parameter)}
+  <#list body.getParameterAliasSymbols() as parameter>
+    ${tc.includeArgs("org.nest.nestml.function.SetOldAliasState", [parameter])}
   </#list>
-  <#list body.getAliasStates() as state>
-  ${tc.include("org.nest.nestml.function.SetOldAliasState", state)}
+  <#list body.getStateAliasSymbols() as state>
+    ${tc.includeArgs("org.nest.nestml.function.SetOldAliasState", [state])}
   </#list>
 
   Parameters_ ptmp = P_;  // temporary copy in case of errors
@@ -424,8 +424,8 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
   // we swap ptmp and P_ and 're-swap' afterwards.
   std::swap(P_, ptmp);
 
-  <#list body.getAliasParameters() as parameter>
-  ${tc.include("org.nest.nestml.function.ReadFromDictionary", parameter)}
+  <#list body.getParameterAliasSymbols() as parameter>
+  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
   </#list>
 
   State_      stmp = S_;  // temporary copy in case of errors
@@ -435,8 +435,8 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
   // we swap stmp and S_ and 're-swap' afterwards.
   // P_ and ptmp stay swaped, since the alias might access parameters
   std::swap(S_, stmp);
-  <#list body.getAliasStates() as state>
-  ${tc.include("org.nest.nestml.function.ReadFromDictionary", state)}
+  <#list body.getStateAliasSymbols() as state>
+  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [state])}
   </#list>
   // 're-swap' when everything is ok (TODO: check for tests)
   std::swap(P_, ptmp);

@@ -7,6 +7,7 @@
   @param tc templatecontroller
   @result TODO
 -->
-<#list declarations.getVariables(ast) as var>
-${declarations.getType(ast)} old_${var.getName()} = get_${var.getName()}();
-</#list>
+
+${signature("variable")}
+
+${declarations.printVariableType(variable)} old_${variable.getName()} = get_${variable.getName()}();
