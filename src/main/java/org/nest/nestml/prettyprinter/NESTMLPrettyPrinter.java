@@ -66,9 +66,16 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
    */
   @Override
   public void visit(final ASTNeuron astNeuron) {
+    printComments(astNeuron);
     print("neuron " + astNeuron.getName());
     astNeuron.getBase().ifPresent(
         baseNeuron -> print(" extends " + baseNeuron));
+  }
+
+  // TODO It works only with multiline comments
+  private void printComments(ASTNeuron astNeuron) {
+    astNeuron.get_PreComments().forEach( comment -> print(comment.getText()));
+    astNeuron.get_PostComments().forEach( comment -> print(comment.getText()));
   }
 
   /**
