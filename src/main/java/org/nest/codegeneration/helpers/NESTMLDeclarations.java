@@ -53,11 +53,7 @@ public class NESTMLDeclarations {
 
 
   public List<VariableSymbol> getVariables(final ASTAliasDecl astAliasDecl) {
-
-    final ASTDeclaration decl = astAliasDecl.getDeclaration();
-
     return getVariables(astAliasDecl.getDeclaration());
-
   }
 
   public List<VariableSymbol> getVariables(final ASTDeclaration astDeclaration) {
@@ -109,8 +105,7 @@ public class NESTMLDeclarations {
   }
 
   public boolean isVectorLHS(final ASTAssignment astAssignment) {
-    checkArgument(astAssignment.getEnclosingScope().isPresent(),
-        "No scope. Run symbol table creator");
+    checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
     final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
     final Optional<VariableSymbol> lhsVarSymbol
@@ -121,8 +116,7 @@ public class NESTMLDeclarations {
   }
 
   public String printSizeParameter(final ASTAssignment astAssignment) {
-    checkArgument(astAssignment.getEnclosingScope().isPresent(),
-        "No scope. Run symbol table creator");
+    checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
     final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
     final Optional<VariableSymbol> lhsVarSymbol
