@@ -32,7 +32,7 @@ public class NESTMLFrontend {
 
   private static final String PYTHON_VERSION_TEST_OUTPUT = "pythonVersion.tmp";
   private static final String PYTHON_CHECK_SCRIPT = "pythonChecker.py";
-  private static final String PYTHON_CHECK_SCRIPT_SOURCE = "checks/pythonCheck.py";
+  private static final String PYTHON_CHECK_SCRIPT_SOURCE = "checks/pythonChecker.py";
 
   private static final String SYMPY_VERSION_TEST_OUTPUT = "sympyVersion.tmp";
   private static final String SYMPY_CHECK_SCRIPT = "sympyChecker.py";
