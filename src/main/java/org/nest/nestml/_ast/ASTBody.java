@@ -6,6 +6,7 @@
 package org.nest.nestml._ast;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
@@ -15,10 +16,11 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -30,7 +32,7 @@ import static java.util.stream.Collectors.toList;
 public class ASTBody extends ASTBodyTOP {
 
   public ASTBody() {
-    // this constructor is used in the generated code.
+    // this constructor is used in the generated code and must be provided
   }
 
   public ASTBody(
@@ -41,6 +43,7 @@ public class ASTBody extends ASTBodyTOP {
     super(bLOCK_open, nEWLINEs, bodyElements, bLOCK_close);
   }
 
+  // Retrieves model structure blocks
   public List<ASTFunction> getFunctions() {
     List<ASTFunction> result = this.getBodyElements().stream()
         .filter(be -> be instanceof ASTFunction)
@@ -62,122 +65,42 @@ public class ASTBody extends ASTBodyTOP {
   public Optional<ASTBodyElement> getStateBlock() {
     return this.getBodyElements().stream()
         .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isState())
-        .findFirst();
+        .findFirst(); // there is at most one
+  }
+
+  public List<ASTAliasDecl> getStateDeclarations() {
+    final Optional<ASTBodyElement> stateBlock = getStateBlock();
+    final List<ASTAliasDecl> result = Lists.newArrayList();
+    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getAliasDecls()));
+    return result;
   }
 
   public Optional<ASTBodyElement> getParameterBlock() {
     return this.getBodyElements().stream()
         .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isParameter())
-        .findFirst();
+        .findFirst(); // there is at most one
   }
 
-  public List<ASTAliasDecl> getStates() {
-    List<ASTAliasDecl> result = new ArrayList<ASTAliasDecl>();
-
-    this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
-      ASTVar_Block block = (ASTVar_Block) be;
-      if (block.isState()) {
-        result.addAll(block.getAliasDecls()
-            .stream()
-            .collect(Collectors.toList()));
-      }
-    });
-
-    return ImmutableList.copyOf(result);
+  public List<ASTAliasDecl> getParameterDeclarations() {
+    final Optional<ASTBodyElement> stateBlock = getParameterBlock();
+    final List<ASTAliasDecl> result = Lists.newArrayList();
+    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getAliasDecls()));
+    return result;
   }
 
-  @SuppressWarnings("unused") // used in templates
-  public List<ASTAliasDecl> getAliasStates() {
-    return getStates().stream().filter(decl->decl.isAlias()).collect(toList());
+  public Optional<ASTBodyElement> getInternalBlock() {
+    return this.getBodyElements().stream()
+        .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isInternal())
+        .findFirst(); // there is at most one
   }
 
-  @SuppressWarnings("unused") // used in templates
-  public List<VariableSymbol> getStateAliasSymbols() {
-    checkState(this.getEnclosingScope().isPresent());
-    final Scope scope = this.getEnclosingScope().get();
-    final List<ASTAliasDecl> aliasDeclarations = getStates().stream()
-        .filter(decl -> decl.isAlias())
-        .collect(toList());
-
-    List<VariableSymbol> aliasSymbols = aliasDeclarations.stream()
-        .map(alias -> {
-          Optional<VariableSymbol> varSymbol = scope
-              .resolve(alias.getDeclaration().getVars().get(0), VariableSymbol.KIND);
-          return varSymbol.get();
-        })
-        .collect(toList());
-    return aliasSymbols;
+  public List<ASTAliasDecl> getInternalDeclarations() {
+    final Optional<ASTBodyElement> stateBlock = getInternalBlock();
+    final List<ASTAliasDecl> result = Lists.newArrayList();
+    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getAliasDecls()));
+    return result;
   }
 
-  @SuppressWarnings("unused") // used in templates
-  public List<VariableSymbol> getStateNonAliasSymbols() {
-    checkState(this.getEnclosingScope().isPresent());
-    final Scope scope = this.getEnclosingScope().get();
-    final List<ASTAliasDecl> aliasDeclarations = getStates().stream()
-        .filter(decl -> !decl.isAlias())
-        .collect(toList());
-
-    List<VariableSymbol> aliasSymbols = aliasDeclarations.stream()
-        .flatMap(alias -> alias.getDeclaration().getVars().stream())
-        .map(variableName ->
-        { Optional<VariableSymbol> varSymbol = scope.resolve(variableName, VariableSymbol.KIND);
-          return varSymbol.get();})
-        .collect(toList());
-    return aliasSymbols;
-  }
-
-  @SuppressWarnings("unused") // used in templates
-  public List<ASTAliasDecl> getNonAliasStates() {
-    return getStates().stream().filter(v->!v.isAlias()).collect(toList());
-  }
-
-  public List<ASTAliasDecl> getParameters() {
-    List<ASTAliasDecl> result = new ArrayList<ASTAliasDecl>();
-
-    this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
-      ASTVar_Block block = (ASTVar_Block) be;
-      if (block.isParameter()) {
-        result.addAll(block.getAliasDecls().stream().collect(Collectors.toList()));
-      }
-    });
-
-    return ImmutableList.copyOf(result);
-  }
-
-  public List<ASTAliasDecl> getAliasParameters() {
-
-    return getParameters().stream().filter(decl -> decl.isAlias()).collect(toList());
-  }
-
-  @SuppressWarnings("unused") // used in templates
-  public List<ASTExpr> getParameterInvariants() {
-    return getParameters().stream()
-        .filter(param -> param.getInvariant().isPresent())
-        .map(param -> param.getInvariant().get())
-        .collect(toList());
-  }
-
-  @SuppressWarnings("unused") // used in templates
-  public List<ASTAliasDecl> getNonAliasParameters() {
-
-    return getParameters().stream().filter(decl -> !decl.isAlias()).collect(toList());
-  }
-
-  public List<ASTAliasDecl> getInternals() {
-    List<ASTAliasDecl> result = new ArrayList<ASTAliasDecl>();
-
-    this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
-      ASTVar_Block block = (ASTVar_Block) be;
-
-      if (block.isInternal()) {
-        for (ASTAliasDecl ad : block.getAliasDecls()) {
-          result.add(ad);
-        }
-      }
-    });
-
-    return ImmutableList.copyOf(result);
-  }
 
   public Optional<ASTOdeDeclaration> getEquations() {
     final Optional<ASTEquations> equations = findEquationsBlock();
@@ -203,7 +126,96 @@ public class ASTBody extends ASTBodyTOP {
     }
   }
 
+  // STATE Block handling
+  public List<VariableSymbol> getStateSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get());
+  }
 
+  public List<VariableSymbol> getStateAliasSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get())
+        .stream()
+        .filter(VariableSymbol::isAlias)
+        .collect(Collectors.toList());
+  }
+
+  public List<VariableSymbol> getStateNonAliasSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get())
+        .stream()
+        .filter(variable -> !variable.isAlias())
+        .collect(Collectors.toList());
+  }
+
+  // Parameter Block handling
+  public List<VariableSymbol> getParameterSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameter), getEnclosingScope().get());
+  }
+
+  public List<VariableSymbol> getParameterAliasSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameter), getEnclosingScope().get())
+        .stream()
+        .filter(VariableSymbol::isAlias)
+        .collect(Collectors.toList());
+  }
+
+  public List<VariableSymbol> getParameterNonAliasSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameter), getEnclosingScope().get())
+        .stream()
+        .filter(variable -> !variable.isAlias())
+        .collect(Collectors.toList());
+  }
+
+  // Internal Block handling
+  public List<VariableSymbol> getInternalSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternal), getEnclosingScope().get());
+  }
+
+  public List<VariableSymbol> getInternalAliasSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternal), getEnclosingScope().get())
+        .stream()
+        .filter(VariableSymbol::isAlias)
+        .collect(Collectors.toList());
+  }
+
+  public List<VariableSymbol> getInternalNonAliasSymbols() {
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternal), getEnclosingScope().get())
+        .stream()
+        .filter(variable -> !variable.isAlias())
+        .collect(Collectors.toList());
+  }
+
+  private List<ASTAliasDecl> getDeclarationsFromBlock(final Predicate<ASTVar_Block> predicate) {
+    final List<ASTAliasDecl> result = Lists.newArrayList();
+
+    this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
+      ASTVar_Block block = (ASTVar_Block) be;
+      if (predicate.test(block)) {
+        result.addAll(block.getAliasDecls());
+      }
+    });
+
+    return result;
+  }
+
+  private List<VariableSymbol> getVariableSymbols(
+      final List<ASTAliasDecl> aliasDeclarations,
+      final Scope scope) {
+    return aliasDeclarations.stream()
+        .flatMap(alias -> alias.getDeclaration().getVars().stream()) // get all variables form the declaration
+        .map(variable -> {
+          Optional<VariableSymbol> varSymbol = scope.resolve(variable, VariableSymbol.KIND);
+          return varSymbol.get(); // assumes the all condition are fullfiled and the variable exists
+        })
+        .collect(toList());
+  }
+
+
+  @SuppressWarnings("unused") // used in templates
+  public List<ASTExpr> getParameterInvariants() {
+    return getParameterDeclarations().stream()
+        .filter(param -> param.getInvariant().isPresent())
+        .map(param -> param.getInvariant().get()) // ensured by the filter function
+        .collect(toList());
+  }
 
   public void addToInternalBlock(final ASTAliasDecl astAliasDecl) {
     this.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
@@ -235,26 +247,6 @@ public class ASTBody extends ASTBodyTOP {
     return this.getBodyElements().stream()
           .filter(be -> be instanceof ASTDynamics)
           .findFirst();
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<ASTAliasDecl> getAliasInternals() {
-    return getInternals().stream().filter(decl -> decl.isAlias()).collect(toList());
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<ASTAliasDecl> getNonAliasInternals() {
-
-    return getInternals().stream().filter(decl -> !decl.isAlias()).collect(toList());
-  }
-
-  public List<ASTUSE_Stmt> getUses() {
-    List<ASTUSE_Stmt> result = this.getBodyElements().stream()
-        .filter(be -> be instanceof ASTUSE_Stmt)
-        .map(be -> (ASTUSE_Stmt) be)
-        .collect(Collectors.toList());
-
-    return ImmutableList.copyOf(result);
   }
 
   public List<ASTInputLine> getInputLines() {
@@ -295,4 +287,6 @@ public class ASTBody extends ASTBodyTOP {
 
     return ImmutableList.copyOf(result);
   }
+
+
 }

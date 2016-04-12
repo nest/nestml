@@ -7,12 +7,10 @@
   @param tc templatecontroller
   @result TODO
 -->
-<#list declarations.getVariables(ast) as var>
+${signature("variable")}
 
-<#if !var.isAlias() && !var.isInState()>
-def<${declarations.getType(ast)}>(d, "${var.getName()}", get_${var.getName()}());
+<#if !variable.isAlias() && !variable.isInState()>
+def<${declarations.printVariableType(variable)}>(d, "${variable.getName()}", get_${variable.getName()}());
 <#else>
-// do not export ${var.getName()}
+// do not export ${variable.getName()}
 </#if>
-
-</#list>

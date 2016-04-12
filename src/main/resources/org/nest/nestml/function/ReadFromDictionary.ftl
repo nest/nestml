@@ -7,26 +7,25 @@
   @param tc templatecontroller
   @result C++ Statements
 -->
-<#list declarations.getVariables(ast) as var>
+${signature("var")}
 
 <#if var.hasSetter()>
   <#if var.isAlias() && !var.isInState()>
     // handles an alias
-    ${declarations.getType(ast)} tmp_${var.getName()};
-      if (updateValue<${declarations.getType(ast)}>(d, "${var.getName()}", tmp_${var.getName()})) {
+    ${declarations.printVariableType(var)} tmp_${var.getName()};
+      if (updateValue<${declarations.printVariableType(var)}>(d, "${var.getName()}", tmp_${var.getName()})) {
       set_${var.getName()}(tmp_${var.getName()});
     }
     else {
       set_${var.getName()}(old_${var.getName()});
     }
   <#else>
-    ${declarations.getType(ast)} tmp_${var.getName()};
-      if (updateValue<${declarations.getType(ast)}>(d, "${var.getName()}", tmp_${var.getName()})) {
+    ${declarations.printVariableType(var)} tmp_${var.getName()};
+      if (updateValue<${declarations.printVariableType(var)}>(d, "${var.getName()}", tmp_${var.getName()})) {
       set_${var.getName()}(tmp_${var.getName()});
     }
 
   </#if>
 <#else>
-  // ignores ''${var.getName()} ${declarations.getType(ast)}' since no setter is defined
+  // ignores '${var.getName()}' ${declarations.printVariableType(var)}' since no setter is defined
 </#if>
-</#list>

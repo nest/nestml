@@ -30,9 +30,9 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  */
 public abstract class GenerationBasedTest extends ModelbasedTest {
 
-  public static final String MODULE_NAME = "integration";
+  private static final String MODULE_NAME = "integration";
 
-  protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
+  private final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
   private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
 
   protected void invokeCodeGenerator(final String pathToModel) {

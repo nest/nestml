@@ -13,6 +13,7 @@ import org.nest.base.GenerationBasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -113,6 +114,18 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   public void testBluegeneModels() {
     blueGene.forEach(this::checkCocos);
     blueGene.forEach(this::invokeCodeGenerator);
+  }
+
+
+  @Test
+  public void testManually() {
+    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/iaf_neuron.nestml");
+    modelName.forEach(this::checkCocos);
+    modelName.forEach(this::invokeCodeGenerator);
+    final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
+        .map(this::parseAndBuildSymboltable)
+        .collect(Collectors.toList());
+    generateNESTModuleCode(roots);
   }
 
 }

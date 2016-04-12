@@ -249,8 +249,6 @@ public class NESTMLCoCosTest extends ModelbasedTest {
         "NESTML_",
         2);
 
-
-
     Integer errorsFound = countErrorsByPrefix(MemberVariableDefinedMultipleTimes.ERROR_CODE,
         getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
