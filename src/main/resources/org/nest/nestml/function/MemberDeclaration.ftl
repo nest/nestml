@@ -1,10 +1,10 @@
 <#--
   Generates C++ declaration for a variable
 
-  @param var VariableSymbol
+  @param variable VariableSymbol
   @result C++ declaration
 -->
-${signature("var")}
+${signature("variable")}
 
-${declarations.printVariableType(var)} ${var.getName()}_;
+${declarations.printVariableType(variable)} ${variable.getName()}_; // ${variable.printComment()}
 

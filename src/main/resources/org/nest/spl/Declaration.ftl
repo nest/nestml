@@ -8,10 +8,9 @@
     ( "=" Expr )? ;
   @param ast ASTDeclaration
 -->
-<#assign declarationType = declarations.getDeclarationType(ast)>
 
-<#list declarations.getVariables(ast) as variableName>
-  ${declarationType} ${variableName}
+<#list declarations.getVariables(ast) as variable>
+  ${declarations.printVariableType(variable)} ${variable.getName()}
   <#if ast.getExpr().isPresent()>
     = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr().get())}
   </#if>;

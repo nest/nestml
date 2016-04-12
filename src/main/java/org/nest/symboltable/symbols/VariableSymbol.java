@@ -128,10 +128,11 @@ public class VariableSymbol extends CommonSymbol {
     return isSetterPresent(getName(), getType().getName(), getAstNode().get().getEnclosingScope().get());
   }
 
-  public String printModelComment() {
+  public String printComment() {
     final StringBuffer output = new StringBuffer();
     if(getAstNode().isPresent()) {
-      getAstNode().get().get_PreComments().forEach(comment -> output.append(comment.getText()));
+      getAstNode().get().get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
+      getAstNode().get().get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
     }
 
     return output.toString();

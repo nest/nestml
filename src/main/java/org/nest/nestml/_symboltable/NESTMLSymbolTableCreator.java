@@ -479,7 +479,12 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       }
 
       var.setBlockType(blockType);
-      addToScopeAndLinkWithNode(var, astDeclaration);
+      if (aliasDeclAst != null) {
+        addToScopeAndLinkWithNode(var, aliasDeclAst);
+      }
+      else {
+        addToScopeAndLinkWithNode(var, astDeclaration);
+      }
 
       trace("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
 

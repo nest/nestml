@@ -1,7 +1,9 @@
 neuron iaf_neuron_nestml:
 
   state:
-    V mV
+    # test 1
+    V mV # test 2
+    # test 3
     G real
     alias V_m mV = V + E_L # Membrane potential.
   end

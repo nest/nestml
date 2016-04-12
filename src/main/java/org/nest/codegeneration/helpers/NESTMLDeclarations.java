@@ -37,19 +37,12 @@ public class NESTMLDeclarations {
     typeConverter = new NESTML2NESTTypeConverter();
   }
 
-
-  public List<String> getVariables(final ASTDeclaration astDeclaration) {
-    return astDeclaration.getVars();
-  }
-
   public boolean isVectorType(final ASTAliasDecl astAliasDecl) {
     return astAliasDecl.getDeclaration().getSizeParameter().isPresent();
   }
 
   public String printVariableType(final VariableSymbol variableSymbol) {
-    if (variableSymbol == null) {
-      System.out.println();
-    }
+
     if (variableSymbol.getArraySizeParameter().isPresent()) {
       return "std::vector< " + nestml2NESTTypeConverter.convert(variableSymbol.getType()) + " > ";
     }
@@ -60,16 +53,23 @@ public class NESTMLDeclarations {
 
 
   public List<VariableSymbol> getVariables(final ASTAliasDecl astAliasDecl) {
-    checkArgument(astAliasDecl.getEnclosingScope().isPresent(), "Alias has no assigned scope.");
-    final Scope scope = astAliasDecl.getEnclosingScope().get();
+
     final ASTDeclaration decl = astAliasDecl.getDeclaration();
 
-    final String typeName = computeTypeName(decl.getDatatype());
+    return getVariables(astAliasDecl.getDeclaration());
+
+  }
+
+  public List<VariableSymbol> getVariables(final ASTDeclaration astDeclaration) {
+    checkArgument(astDeclaration.getEnclosingScope().isPresent(), "Alias has no assigned scope.");
+    final List<VariableSymbol> variables = Lists.newArrayList();
+    final Scope scope = astDeclaration.getEnclosingScope().get();
+    final String typeName = computeTypeName(astDeclaration.getDatatype());
     final Optional<TypeSymbol> type = scope.resolve(typeName, TypeSymbol.KIND);
     if (type.isPresent()) {
-      final List<VariableSymbol> variables = Lists.newArrayList();
 
-      for (String variableName : decl.getVars()) {
+
+      for (String variableName : astDeclaration.getVars()) {
         final Optional<VariableSymbol> currVar = scope.resolve(variableName, VariableSymbol.KIND);
         checkState(currVar.isPresent(), "Cannot resolve the variable: " + variableName);
         variables.add(currVar.get());
@@ -80,7 +80,6 @@ public class NESTMLDeclarations {
     else {
       throw new RuntimeException("Cannot resolve the type: " + typeName);
     }
-
   }
 
   public String getAliasOrigin(final VariableSymbol variableSymbol) {
