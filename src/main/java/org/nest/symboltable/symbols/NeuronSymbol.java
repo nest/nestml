@@ -94,16 +94,6 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     return Optional.ofNullable(baseNeuron);
   }
 
-  public String printComment() {
-    final StringBuffer output = new StringBuffer();
-    if(getAstNode().isPresent()) {
-      getAstNode().get().get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
-      getAstNode().get().get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
-    }
-
-    return output.toString();
-  }
-
   /**
    * The same symbol is used for neurons and components. To  distinguish between them, this enum is
    * used.

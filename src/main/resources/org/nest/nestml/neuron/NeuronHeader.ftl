@@ -53,7 +53,8 @@
 /* BeginDocumentation
 Name: ${simpleNeuronName} .
 
-${neuronSymbol.printComment()}
+Description:
+Empty. TODO
 
 Parameters:
 
@@ -67,6 +68,8 @@ Sends: ${outputEvent}
 
 Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if>DataLoggingRequest
 
+Author:
+TODO
 
 SeeAlso:
 Empty
