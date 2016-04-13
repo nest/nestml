@@ -26,9 +26,10 @@ public class ComponentNoInput implements NESTMLASTComponentCoCo {
 
     if (bodyDecorator.getInputLines() != null) { // TODO null check makes no sense
       if (!bodyDecorator.getInputLines().isEmpty()) {
-        final String msg = "Components cannot have inputs, since they are not elements of a "
-            + "neuronal network.";
-       error(ERROR_CODE + ":" + msg, comp.get_SourcePositionStart());
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsg(this);
+
+       error(msg, comp.get_SourcePositionStart());
       }
 
     }

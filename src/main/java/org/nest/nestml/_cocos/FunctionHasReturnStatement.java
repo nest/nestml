@@ -52,10 +52,10 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
       // non void return type
       // if block not returning:
       if (isReturnBlock(fun.getBlock()) == null) {
-        final String msg = "Function '" + fun.getName()
-                + "' must return a result of type '"
-                + fun.getReturnType().get().toString();
-        Log.error(ERROR_CODE + ":" + msg, fun.get_SourcePositionStart());
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsg(this,fun.getName(),fun.getReturnType().get().toString());
+
+        Log.error(msg, fun.get_SourcePositionStart());
       }
 
     }

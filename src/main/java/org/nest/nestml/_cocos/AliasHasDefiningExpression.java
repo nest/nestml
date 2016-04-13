@@ -22,9 +22,10 @@ public class AliasHasDefiningExpression implements NESTMLASTAliasDeclCoCo {
   public void check(final ASTAliasDecl decl) {
     if (decl.isAlias()) {
       if (!decl.getDeclaration().getExpr().isPresent()) {
-        final String msg = "'alias' must be defined through an expression.";
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsg(this);
 
-       error(ERROR_CODE + ":" +  msg, decl.get_SourcePositionStart());
+        error(msg, decl.get_SourcePositionStart());
       }
 
     }

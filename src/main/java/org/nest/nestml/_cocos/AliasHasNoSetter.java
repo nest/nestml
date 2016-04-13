@@ -35,10 +35,10 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
       final String aliasVar = decl.getVars().get(0);
       final String varTypeName = ASTNodes.computeTypeName(decl.getDatatype());
       if (!isSetterPresent(aliasVar, varTypeName, scope)) {
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsg(this,aliasVar,varTypeName);
 
-        final String msg = "Alias-variable '" + aliasVar + "' needs a setter-function: set_"
-            + aliasVar + "(v " + varTypeName + ")";
-        warn(ERROR_CODE + ":" + msg, alias.get_SourcePositionStart());
+        warn(msg, alias.get_SourcePositionStart());
       }
 
     }

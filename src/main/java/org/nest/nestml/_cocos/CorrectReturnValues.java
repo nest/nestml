@@ -32,6 +32,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "SPL_CORRECT_RETURN_VALUES";
   private final ExpressionTypeCalculator typeCalculator = new ExpressionTypeCalculator();
+  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
 
   public void check(final ASTFunction fun) {
     checkState(fun.getEnclosingScope().isPresent(),
@@ -51,9 +52,9 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
       // no return expression
       if (!r.getExpr().isPresent() && !tc.checkVoid(functionReturnType)) {
         // void return value
-        final String msg = "Function '" + fun.getName() + "' must return a result of type "
-            + functionReturnType.getName() + ".";
-       error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
+        final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+
+       error(msg, r.get_SourcePositionStart());
 
       }
 
@@ -62,7 +63,9 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
         final Either<TypeSymbol, String> returnExpressionType
             = typeCalculator.computeType(r.getExpr().get());
         if (returnExpressionType.isRight()) {
-          Log.warn(ERROR_CODE + "Cannot determine the type of the expression", r.getExpr().get().get_SourcePositionStart());
+          final String msg = errorStrings.getErrorMsgCannotDetermineExpressionType(this);
+
+          Log.warn(msg, r.getExpr().get().get_SourcePositionStart());
           return;
         }
 
@@ -73,40 +76,38 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
         if (tc.checkVoid(functionReturnType) && !tc.checkVoid(returnExpressionType.getLeft().get())) {
           // should return nothing, but does not
-          final String msg = "Function '" + fun.getName() + "' must not return a result."
-              + functionReturnType.getName() + ".";
-         error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+
+         error(msg, r.get_SourcePositionStart());
         }
 
         // same type is ok (e.g. string, boolean,integer, real,...)
         if (tc.checkString(functionReturnType) && !tc.checkString(returnExpressionType.getLeft().get())) {
           // should return string, but does not
-          final String msg = "Function '" + fun.getName() + "' must return a result of type "
-              + functionReturnType.getName() + ".";
-         error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+
+         error(msg, r.get_SourcePositionStart());
         }
 
         if (tc.isBoolean(functionReturnType) && !tc.isBoolean(returnExpressionType.getLeft().get())) {
           // should return bool, but does not
-          final String msg = "Function '" + fun.getName() + "' must return a result of type "
-              + functionReturnType.getName() + ".";
-         error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+
+         error(msg, r.get_SourcePositionStart());
         }
 
         if (tc.checkUnit(functionReturnType) && !tc.checkUnit(returnExpressionType.getLeft().get())) {
           // should return numeric, but does not
-          final String msg = "Function '" + fun.getName() + "' must return a result of type "
-              + functionReturnType.getName() + ".";
-         error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+
+         error(msg, r.get_SourcePositionStart());
         }
 
         // real rType and integer eType is ok, since more general
         // integer rType and real eType is not ok
-        final String msg = "Cannot convert from " + returnExpressionType.getLeft().get().getName()
-            + " (type of return expression) to " + functionReturnType.getName()
-            + " (return type), since the first is real domain and the second is in the integer "
-            + "domain and conversion reduces the precision.";
-       error(ERROR_CODE + ":" +  msg, r.get_SourcePositionStart());
+        final String msg = errorStrings.getErrorMsgCannotConvertReturnValue(this,returnExpressionType.getLeft().get().getName(),functionReturnType.getName());
+
+       error(msg, r.get_SourcePositionStart());
       }
 
     }

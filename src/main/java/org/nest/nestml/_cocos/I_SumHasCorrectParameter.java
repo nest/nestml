@@ -23,7 +23,7 @@ import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
  * @author plotnikov
  */
 public class I_SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
-  private final static String ERROR_CODE = "NESTML_" + I_SumHasCorrectParameter.class.getSimpleName();
+  public final static String ERROR_CODE = "NESTML_" + I_SumHasCorrectParameter.class.getSimpleName();
 
 
   @Override
@@ -49,8 +49,9 @@ public class I_SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
    * Creates an error message for the {@code exprArgument}.
    */
   private void error(final ASTExpr exprArgument) {
-    final String msg = ERROR_CODE + ":" + "The arguments of the I_sum must be atomic expressions: "
-        + "e.g. V_m and not : " + ASTNodes.toString(exprArgument);
+    CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+    final String msg = errorStrings.getErrorMsg(this,ASTNodes.toString(exprArgument));
+
     Log.error(msg);
   }
 

@@ -25,8 +25,10 @@ public class ComponentHasNoDynamics implements NESTMLASTComponentCoCo {
     ASTBody bodyDecorator = (comp.getBody());
 
     if (!bodyDecorator.getDynamics().isEmpty()) {
-      final String msg = "Components do not have dynamics function.";
-      error(ERROR_CODE + ":" + msg, comp.get_SourcePositionStart());
+      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      final String msg = errorStrings.getErrorMsg(this);
+
+      error(msg, comp.get_SourcePositionStart());
     }
 
   }
