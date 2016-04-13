@@ -176,9 +176,10 @@ protected:
   friend class nest::RecordablesMap<${simpleNeuronName}>;
   friend class nest::UniversalDataLogger<${simpleNeuronName}>;
 
-protected:
   /**
   * Dynamic state of the neuron.
+  *
+  * ${body.printStateComment()}
   *
   * These are the state variables that are advanced in time by calls to
   * @c update(). In many models, some or all of them can be set by the user
@@ -217,6 +218,8 @@ protected:
   /**
   * Free parameters of the neuron.
   *
+  * ${body.printParameterComment()}
+  *
   * These are the parameters that can be set by the user through @c SetStatus.
   * They are initialized from the model prototype when the node is created.
   * Parameters do not change during calls to @c update() and are not reset by
@@ -253,6 +256,9 @@ protected:
 
   /**
   * Internal variables of the neuron.
+  *
+  * ${body.printInternalComment()}
+  *
   * These variables must be initialized by @c calibrate, which is called before
   * the first call to @c update() upon each call to @c Simulate.
   * @node Variables_ needs neither constructor, copy constructor or assignment operator,

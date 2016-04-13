@@ -47,17 +47,20 @@ relevant measures analytically.
 */
 neuron iaf_neuron_nestml:
 
+  # Captures the dynamik state of the neuron
   state:
     V mV
     G real
     alias V_m mV = V + E_L # Membrane potential.
   end
 
+  # Declarative description of the updates rules
   equations:
       G = (e/tau_syn) * t * exp(-1/tau_syn*t)
       V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 
+  # these parameter are adjusted from outside
   parameter:
     C_m     pF = 250 [[C_m > 0]]   # Capacity of the membrane
     Tau     ms = 10    # Membrane time constant.
@@ -69,19 +72,23 @@ neuron iaf_neuron_nestml:
     I_e     pA = 0     # External current.
   end
 
+  # helper calculations
   internal:
     h   ms   = resolution()
     r  integer
     RefractoryCounts integer = steps(t_ref)
   end
 
+  # input sources
   input:
     spikes   <- spike
     currents <- current
   end
 
+  # output events
   output: spike
 
+  # Describes how the state evolves in the time
   update:
     if r == 0: # not refractory
         integrate(V)
@@ -95,7 +102,10 @@ neuron iaf_neuron_nestml:
         emitSpike()
     end
 
+  end
 
+  # Dummy function to test comment printing
+  function test() void:
   end
 
 end

@@ -77,20 +77,27 @@ grammar NESTML extends org.nest.SPL {
       (AliasDecl (";" AliasDecl)* (";")? | NEWLINE)*
     BLOCK_CLOSE;
 
-   /** ASTDynamics a special function definition:
-         update:
-              if r == 0: # not refractory
-                integrate(V)
-              end
-          end
-       @attribute block Implementation of the dynamics.
-     */
+  /** ASTDynamics a special function definition:
+       update:
+            if r == 0: # not refractory
+              integrate(V)
+            end
+        end
+     @attribute block Implementation of the dynamics.
+   */
   Dynamics implements BodyElement =
     "update"
     BLOCK_OPEN
       Block
     BLOCK_CLOSE;
 
+  /** ASTEquations a special function definition:
+       equations:
+             G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+             V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+         end
+     @attribute ddeDeclaration Block with equations and differential equations.
+   */
   Equations implements BodyElement =
     "equations"
     BLOCK_OPEN

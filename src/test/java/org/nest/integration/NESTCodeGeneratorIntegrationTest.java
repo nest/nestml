@@ -13,7 +13,6 @@ import org.nest.base.GenerationBasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron.nestml",
+      //"src/test/resources/codegeneration/iaf_neuron.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp.nestml"
       // TODO "src/test/resources/codegeneration/iaf_psc_delta.nestml",
@@ -86,7 +85,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   @Ignore("Don't run this tests on github")
   @Test
-  public void testPscModelWithOde() {
+  public void testPSCModelsWithOde() {
     Log.enableFailQuick(false);
     pscModelsWithOde.forEach(this::checkCocos);
     pscModelsWithOde.forEach(this::invokeCodeGenerator);
