@@ -265,6 +265,10 @@ ${simpleNeuronName}::calibrate()
 /* ----------------------------------------------------------------
 * Update and spike handling functions
 * ---------------------------------------------------------------- */
+
+/*
+ ${body.printDynamicsComment()}
+ */
 void
 ${simpleNeuronName}::update(
         nest::Time const & origin,

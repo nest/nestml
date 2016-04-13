@@ -23,6 +23,10 @@ import static org.junit.Assert.assertTrue;
  */
 public class NESTMLPrettyPrinterTest extends ModelbasedTest {
   private final NESTMLParser nestmlParser = new NESTMLParser(TEST_MODEL_PATH);
+  @BeforeClass
+  public static void disableFailQuick() {
+    Log.enableFailQuick(false);
+  }
 
   private Optional<ASTNESTMLCompilationUnit> parseStringAsSPLFile(final String fileAsString) throws IOException {
     return nestmlParser.parse(new StringReader(fileAsString));
@@ -84,6 +88,9 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
     //System.out.println(splPrettyPrinter.getResult());
 
     final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseStringAsSPLFile(splPrettyPrinter.getResult());
+    if (!prettyPrintedRoot.isPresent()) {
+      System.out.println();
+    }
     assertTrue(prettyPrintedRoot.isPresent());
   }
 

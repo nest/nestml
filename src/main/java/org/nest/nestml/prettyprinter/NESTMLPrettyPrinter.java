@@ -1,9 +1,12 @@
 package org.nest.nestml.prettyprinter;
 
+import de.monticore.ast.ASTCNode;
+import de.monticore.ast.ASTNode;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
+import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEq;
 import org.nest.ode._ast.ASTODE;
@@ -28,7 +31,7 @@ import static org.nest.spl.prettyprinter.SPLPrettyPrinterFactory.createDefaultPr
  * @author (last commit) $Author$
  * @version $Revision$, $Date$
  */
-public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisitor {
+public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInheritanceVisitor {
   private final ExpressionsPrettyPrinter expressionsPrinter;
 
   protected NESTMLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrinter) {
@@ -66,17 +69,13 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
    */
   @Override
   public void visit(final ASTNeuron astNeuron) {
-    printComments(astNeuron);
+    printMultilineComments(astNeuron);
     print("neuron " + astNeuron.getName());
     astNeuron.getBase().ifPresent(
         baseNeuron -> print(" extends " + baseNeuron));
   }
 
-  // TODO It works only with multiline comments
-  private void printComments(ASTNeuron astNeuron) {
-    astNeuron.get_PreComments().forEach( comment -> print(comment.getText()));
-    astNeuron.get_PostComments().forEach( comment -> print(comment.getText()));
-  }
+
 
   /**
    * Grammar:
@@ -115,6 +114,10 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
     println("use " + referencedName + " as " + astUseStmt.getAlias());
   }
 
+  @Override
+  public void visit(final ASTBodyElement astBodyElement) {
+    printSingleLineComment(astBodyElement);
+  }
   /**
    * Var_Block implements BodyElement =
    * ([state:"state"]|[para:"parameter"]|[internal:"internal"])
@@ -126,6 +129,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
   @Override
   public void visit(final ASTVar_Block astVarBlock) {
     printVariableBlockHeader(astVarBlock);
+
     indent();
   }
 
@@ -156,7 +160,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
     printAliasPrefix(astAliasDecl);
     printDeclarationStatement(astAliasDecl);
     printInvariants(astAliasDecl);
-    printComments(astAliasDecl);
+    printSingleLineComment(astAliasDecl);
 
   }
 
@@ -192,12 +196,21 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisi
     }
   }
 
-  private void printComments(final ASTAliasDecl astAliasDecl) {
+  private void printSingleLineComment(final ASTNode astAliasDecl) {
     final String lineBreak = System.getProperty("line.separator");
     // comments are returned with linebreaks, therefore, relace them
-    astAliasDecl.get_PreComments().forEach( comment -> print(comment.getText().replace(lineBreak, "") + ";"));
-    astAliasDecl.get_PostComments().forEach( comment -> print(comment.getText().replace(lineBreak, "") + ";"));
+    astAliasDecl.get_PreComments().forEach( comment -> print(comment.getText().replace(lineBreak, "") ));
+    astAliasDecl.get_PostComments().forEach( comment -> print(comment.getText().replace(lineBreak, "") ));
+    println();
   }
+
+  // TODO It works only with multiline comments
+  private void printMultilineComments(final ASTNode astNeuron) {
+    astNeuron.get_PreComments().forEach( comment -> print(comment.getText()));
+    astNeuron.get_PostComments().forEach( comment -> print(comment.getText()));
+    println();
+  }
+
   /**
    * Grammar:
    * AliasDecl = ([hide:"-"])? ([alias:"alias"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;

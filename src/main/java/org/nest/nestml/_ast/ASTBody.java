@@ -7,6 +7,7 @@ package org.nest.nestml._ast;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
@@ -16,12 +17,12 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static org.nest.utils.ASTNodes.printComment;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
@@ -62,6 +63,17 @@ public class ASTBody extends ASTBodyTOP {
     return ImmutableList.copyOf(result);
   }
 
+  public Optional<ASTDynamics> getDynamicsBlock() {
+    return this.getBodyElements().stream()
+        .filter(be -> be instanceof ASTDynamics)
+        .map(be -> (ASTDynamics) be)
+        .findFirst();
+  }
+
+  public String printDynamicsComment() {
+    return printBlockComment(getDynamicsBlock());
+  }
+
   public Optional<ASTBodyElement> getStateBlock() {
     return this.getBodyElements().stream()
         .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isState())
@@ -75,6 +87,9 @@ public class ASTBody extends ASTBodyTOP {
     return result;
   }
 
+  public String printStateComment() {
+    return printBlockComment(getStateBlock());
+  }
   public Optional<ASTBodyElement> getParameterBlock() {
     return this.getBodyElements().stream()
         .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isParameter())
@@ -86,6 +101,10 @@ public class ASTBody extends ASTBodyTOP {
     final List<ASTAliasDecl> result = Lists.newArrayList();
     stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getAliasDecls()));
     return result;
+  }
+
+  public String printParameterComment() {
+    return printBlockComment(getParameterBlock());
   }
 
   public Optional<ASTBodyElement> getInternalBlock() {
@@ -101,6 +120,9 @@ public class ASTBody extends ASTBodyTOP {
     return result;
   }
 
+  public String printInternalComment() {
+    return printBlockComment(getInternalBlock());
+  }
 
   public Optional<ASTOdeDeclaration> getEquations() {
     final Optional<ASTEquations> equations = findEquationsBlock();
@@ -126,7 +148,21 @@ public class ASTBody extends ASTBodyTOP {
     }
   }
 
-  // STATE Block handling
+  public String printEquationsComment() {
+    return printBlockComment(getEquations());
+  }
+
+
+  private String printBlockComment(final Optional<? extends ASTNode> block) {
+    if (block.isPresent()) {
+      return printComment(block.get());
+    }
+    else {
+      return "";
+    }
+  }
+
+  // STATE variables handling
   public List<VariableSymbol> getStateSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get());
   }
@@ -145,7 +181,7 @@ public class ASTBody extends ASTBodyTOP {
         .collect(Collectors.toList());
   }
 
-  // Parameter Block handling
+  // Parameter variable handling
   public List<VariableSymbol> getParameterSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameter), getEnclosingScope().get());
   }
@@ -164,7 +200,7 @@ public class ASTBody extends ASTBodyTOP {
         .collect(Collectors.toList());
   }
 
-  // Internal Block handling
+  // Internal variables handling
   public List<VariableSymbol> getInternalSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternal), getEnclosingScope().get());
   }

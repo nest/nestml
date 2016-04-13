@@ -309,4 +309,13 @@ public final class ASTNodes {
         .collect(Collectors.toList());
   }
 
+  public static String printComment(final ASTNode astNode) {
+    final StringBuilder output = new StringBuilder();
+
+    astNode.get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
+    astNode.get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
+
+    return output.toString();
+  }
+
 }
