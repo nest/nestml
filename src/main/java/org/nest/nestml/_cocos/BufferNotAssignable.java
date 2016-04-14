@@ -41,8 +41,10 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
     }
     else if (var.get().getBlockType() == INPUT_BUFFER_CURRENT ||
         var.get().getBlockType() == INPUT_BUFFER_SPIKE) {
-      final String msg = "Buffer '" + var.get().getName() + "' cannot be reassigned.";
-      error(ERROR_CODE + ":" +  msg, assignment.get_SourcePositionStart());
+      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      String msg = errorStrings.getErrorMsg(this,var.get().getName());
+
+      error(msg, assignment.get_SourcePositionStart());
 
     }
 

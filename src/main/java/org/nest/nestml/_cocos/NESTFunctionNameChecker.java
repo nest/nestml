@@ -38,9 +38,10 @@ public class NESTFunctionNameChecker implements NESTMLASTFunctionCoCo {
       final String funName = fun.getName();
 
       if (nestFunNames.contains(funName)) {
-        final String msg = "The function-name '" + funName
-                + "' is already used by NEST. Please use another name.";
-        error(ERROR_CODE + ":" + msg, fun.get_SourcePositionStart());
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsg(this,funName);
+
+        error(msg, fun.get_SourcePositionStart());
       }
 
     }

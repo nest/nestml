@@ -27,6 +27,7 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasDeclCoCo {
   public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
+  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
 
   public void check(final ASTAliasDecl alias) {
     final Optional<? extends Scope> enclosingScope = alias.getEnclosingScope();
@@ -72,8 +73,9 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
           VariableSymbol.KIND);
 
       if (!rhsSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
-        final String msg = astVariable.get_SourcePositionStart() + ": Variable '" +
-            rhsVariableName + "' is undefined.";
+        final String msg = errorStrings.getErrorMsgVariableNotDefined(this,
+                astVariable.get_SourcePositionStart().toString(),
+                rhsVariableName);
         Log.warn(msg);
         return;
       }
@@ -98,21 +100,21 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
         // same block not parameter block
         if (rhsSymbol.getSourcePosition().getLine() >
             lhsSymbol.getSourcePosition().getLine()) {
-          final String msg = "Variable '"
-              + rhsSymbol.getName()
-              + "' must be declared before it can be used in declaration of '"
-              + lhsSymbol.getName() + "'.";
-          error(ERROR_CODE + ": " + msg, rhsSymbol.getSourcePosition());
+          final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
+                  rhsSymbol.getName(),
+                  lhsSymbol.getName());
+
+          error(msg, rhsSymbol.getSourcePosition());
 
         }
       }
       if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
           rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETER) {
-        final String msg = "Variable '"
-            + rhsSymbol.getName()
-            + "' must be declared in the parameter block to be used at this place. '"
-            + lhsSymbol.getName() + "'.";
-       error(ERROR_CODE + ":" + msg, rhsSymbol.getSourcePosition());
+         final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
+                rhsSymbol.getName(),
+                lhsSymbol.getName());
+
+        error(msg, rhsSymbol.getSourcePosition());
       }
 
     }

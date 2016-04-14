@@ -26,6 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class EquationsOnlyForStateVariables implements ODEASTEqCoCo, ODEASTODECoCo {
   public static final String ERROR_CODE = "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
+  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
 
   @Override
   public void check(final ASTEq astEq) {
@@ -48,13 +49,14 @@ public class EquationsOnlyForStateVariables implements ODEASTEqCoCo, ODEASTODECo
   private void checkVariable(final Optional<VariableSymbol> variableSymbol, final ASTNode node) {
     if (variableSymbol.isPresent()) {
       if (!variableSymbol.get().isInState()) {
-        final String msg = "The variable '" + variableSymbol.get().getName() + "' is not a state"
-            + " variable and, therefore, cannot be used on the left side of an equation.";
-        Log.error(ERROR_CODE + ":" + msg, node.get_SourcePositionStart());
+        final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());
+
+        Log.error(msg, node.get_SourcePositionStart());
       }
     }
     else {
-      Log.warn("Variable is not defined in the current scope.", node.get_SourcePositionStart());
+      final String msg = errorStrings.getErrorMsgVariableNotDefined(this);
+      Log.warn(msg, node.get_SourcePositionStart());
     }
 
   }

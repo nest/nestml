@@ -21,9 +21,10 @@ public class AliasHasOneVar implements NESTMLASTAliasDeclCoCo {
   public void check(final ASTAliasDecl decl) {
     if (decl.isAlias()) {
       if (decl.getDeclaration().getVars().size() != 1) {
-        final String msg = "'alias' declarations must only declare one variable.";
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsg(this);
 
-       error(ERROR_CODE + ":" +  msg, decl.get_SourcePositionStart());
+       error(msg, decl.get_SourcePositionStart());
       }
 
     }

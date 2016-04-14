@@ -24,8 +24,10 @@ public class ComponentNoOutput implements NESTMLASTComponentCoCo {
     ASTBody bodyDecorator = (comp.getBody());
     if (bodyDecorator.getOutputs() != null) {
       if (!bodyDecorator.getOutputs().isEmpty()) {
-        final String msg = "Components do not have outputs, only neurons have outputs.";
-       error(ERROR_CODE + ":" +  msg, comp.get_SourcePositionStart());
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsg(this);
+
+       error(msg, comp.get_SourcePositionStart());
       }
 
     }

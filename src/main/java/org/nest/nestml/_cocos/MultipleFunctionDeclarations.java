@@ -29,6 +29,7 @@ import static de.se_rwth.commons.logging.Log.error;
 public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTMLASTComponentCoCo {
 
   public static final String ERROR_CODE = "NESTML_MULTIPLE_FUNCTIONS_DECLARATIONS";
+  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
 
 
   @Override
@@ -48,7 +49,9 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
       astBodyDecorator.getFunctions().forEach(this::checkFunctionName);
     }
     else {
-      Log.error("The neuron symbol: " + astNeuron.getName() + " has no symbol.");
+      final String msg = errorStrings.getErrorMsgNeuronHasNoSymbol(this,astNeuron.getName());
+
+      Log.error(msg);
     }
   }
 
@@ -61,13 +64,14 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
       final Collection<Symbol> methods = scope.resolveMany(
           funname, MethodSymbol.KIND);
       if (methods.size() > 1) {
-        final String msg = "The function '" + funname
-            + " parameter(s) is defined multiple times.";
-        error(ERROR_CODE + ":" + msg, astFunction.get_SourcePositionStart());
+        final String msg = errorStrings.getErrorMsgParameterDefinedMultipleTimes(this,funname);
+
+        error(msg, astFunction.get_SourcePositionStart());
       }
     }
     else {
-      Log.error("Run symbol table creator.");
+      final String msg = errorStrings.getErrorMsgNoScopePresent(this);
+      Log.error(msg);
     }
 
   }

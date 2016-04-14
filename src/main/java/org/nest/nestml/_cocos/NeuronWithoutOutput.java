@@ -28,8 +28,10 @@ public class NeuronWithoutOutput implements NESTMLASTNeuronCoCo {
     final List<ASTOutput> inputs = bodyDecorator.getOutputs();
 
     if (inputs.isEmpty()) {
-      final String msg = "Neurons need some outputs.";
-     error(ERROR_CODE + ":" +  msg, neuron.get_SourcePositionStart());
+      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      final String msg = errorStrings.getErrorMsg(this);
+
+     error(msg, neuron.get_SourcePositionStart());
     }
 
   }

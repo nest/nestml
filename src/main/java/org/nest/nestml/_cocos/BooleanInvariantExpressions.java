@@ -21,6 +21,7 @@ import org.nest.utils.ASTNodes;
 class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
 
   public static final String ERROR_CODE = "NESTML_INVARIANTS_WITH_CORRECT_VARIABLES";
+  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
 
 
   public void check(final ASTAliasDecl alias) {
@@ -32,13 +33,16 @@ class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
       if (expressionType.isLeft()) {
 
         if (!expressionType.getLeft().get().equals(PredefinedTypes.getBooleanType())) {
-          final String msg = "The type of the invariant expression must be boolean and not: " +
-              expressionType;
-          Log.error(ERROR_CODE + ":" + msg, alias.getInvariant().get().get_SourcePositionStart());
+          final String msg = errorStrings.getErrorMsgInvariantMustBeBoolean(this,expressionType.toString());
+
+          Log.error(msg, alias.getInvariant().get().get_SourcePositionStart());
         }
       }
       else {
-        Log.warn("Cannot compute the type: " + ASTNodes.toString(alias.getInvariant().get()));
+        final String msg = errorStrings.getErrorMsgCannotComputeType(this,
+                ASTNodes.toString(alias.getInvariant().get()));
+
+        Log.warn(msg);
       }
 
     }

@@ -81,10 +81,9 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
 
         // used is set here
         if (used.get().isAlias()) {
-          final String msg = "Alias variable '"
-                  + used.get().getName()
-                  + "' cannot be used in default-value declaration of non-alias variables.";
-          error(ERROR_CODE + ":" + msg, decl.get_SourcePositionStart());
+          CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+          final String msg = errorStrings.getErrorMsg(this,used.get().getName());
+          error(msg, decl.get_SourcePositionStart());
         }
 
       }

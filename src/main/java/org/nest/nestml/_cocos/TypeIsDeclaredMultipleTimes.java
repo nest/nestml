@@ -44,8 +44,10 @@ public class TypeIsDeclaredMultipleTimes implements NESTMLASTComponentCoCo, NEST
       node.getEnclosingScope().get().resolve(name, NeuronSymbol.KIND);
     }
     catch (ResolvedSeveralEntriesException e) {
-      final String msg = "The type '" + name + "' is defined multiple times.";
-     error(ERROR_CODE + ":" +  msg, node.get_SourcePositionEnd());
+      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      final String msg = errorStrings.getErrorMsg(this, name);
+
+     error(msg, node.get_SourcePositionEnd());
     }
 
   }

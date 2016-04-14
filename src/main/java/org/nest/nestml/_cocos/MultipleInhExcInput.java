@@ -18,6 +18,7 @@ import org.nest.nestml._ast.ASTInputType;
 public class MultipleInhExcInput implements NESTMLASTInputLineCoCo {
 
   public static final String ERROR_CODE = "NESTML_MULTIPLE_INH_EXC_INPUT";
+  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
 
   public void check(final ASTInputLine inputLine) {
     if (inputLine.isSpike()) {
@@ -32,13 +33,13 @@ public class MultipleInhExcInput implements NESTMLASTInputLineCoCo {
       }
 
       if (inh > 1) {
-        final String msg =  "Multiple occurrences of the keyword 'inhibitory' are not allowed.";
-       error(ERROR_CODE + ":" +  msg, inputLine.get_SourcePositionStart());
+        final String msg =  errorStrings.getErrorMsgMultipleInhibitory(this);
+       error(msg, inputLine.get_SourcePositionStart());
       }
 
       if (exc > 1) {
-        final String msg =  "Multiple occurrences of the keyword 'excitatory' are not allowed.";
-       error(ERROR_CODE + ":" +  msg, inputLine.get_SourcePositionStart());
+        final String msg =  errorStrings.getErrorMsgMultipleExcitatory(this);
+       error(msg, inputLine.get_SourcePositionStart());
       }
 
     }

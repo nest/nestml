@@ -23,8 +23,9 @@ public class CurrentInputIsNotInhExc implements NESTMLASTInputLineCoCo {
   public void check(ASTInputLine inputLine) {
     if (inputLine.isCurrent() ) {
       if (!inputLine.getInputTypes().isEmpty()) {
-        final String msg = "Current input can neither be inhibitory nor excitatory.";
-       error(ERROR_CODE + ":" +  msg, inputLine.get_SourcePositionStart());
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsg(this);
+       error(msg, inputLine.get_SourcePositionStart());
       }
 
     }

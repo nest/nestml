@@ -27,8 +27,10 @@ public class MultipleOutputs implements NESTMLASTNeuronCoCo {
     final List<ASTOutput> outputs = bodyDecorator.getOutputs();
 
     if (outputs.size() > 1) {
-      final String msg = "Neurons have at most one output and not " + outputs.size() + ".";
-      Log.error(ERROR_CODE + ":" + msg, neuron.get_SourcePositionStart());
+      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      final String msg = errorStrings.getErrorMsg(this,outputs.size());
+
+      Log.error(msg, neuron.get_SourcePositionStart());
     }
 
   }

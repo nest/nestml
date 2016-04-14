@@ -19,17 +19,21 @@ public class NeuronNeedsDynamics implements NESTMLASTNeuronCoCo {
 
 
   public static final String ERROR_CODE = "NESTML_NEURON_NEEDS_DYNAMICS";
+  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+
 
   public void check(final ASTNeuron neuron) {
     final ASTBody bodyDecorator = neuron.getBody();
 
     if (bodyDecorator.getDynamics().isEmpty()) {
-      final String msg = "Neurons need at least one dynamics function.";
+      final String msg = errorStrings.getErrorMsgDynamicsNotPresent(this);
+
      error(ERROR_CODE + ":" +  msg, neuron.get_SourcePositionStart());
     }
 
     if (bodyDecorator.getDynamics().size() > 1) {
-      final String msg = "Neurons need at most one dynamics function.";
+      final String msg = errorStrings.getErrorMsgMultipleDynamics(this);
+
      error(ERROR_CODE + ":" +  msg, neuron.get_SourcePositionStart());
     }
 
