@@ -24,6 +24,7 @@ import java.util.Optional;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.nest.utils.FileHelper.collectFiles;
+import static org.nest.utils.FileHelper.collectSPLModelFilenames;
 
 /**
  * Tests whether the model can be parsed or not
@@ -34,7 +35,7 @@ public class SPLParserTest extends ModelbasedTest {
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = collectFiles(TEST_MODEL_PATH, model -> model.endsWith(SPLLanguage.FILE_ENDING));
+    final List<Path> filenames = collectSPLModelFilenames(TEST_MODEL_PATH);
 
     filenames.forEach(this::parseAndCheck);
   }
