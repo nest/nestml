@@ -105,13 +105,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        AliasHasOneVar.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "aliasHasOneVar/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        AliasHasOneVar.ERROR_CODE,
         1);
   }
 
@@ -125,13 +125,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        AliasInNonAliasDecl.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "aliasInNonAliasDecl/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        AliasInNonAliasDecl.ERROR_CODE,
         1);
   }
 
@@ -144,13 +144,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        ComponentHasNoDynamics.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "componentHasNoDynamics/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        ComponentHasNoDynamics.ERROR_CODE,
         1);
   }
 
@@ -163,13 +163,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        ComponentNoInput.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "componentNoInput/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        ComponentNoInput.ERROR_CODE,
         1);
   }
 
@@ -182,13 +182,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        ComponentNoOutput.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "componentNoOutput/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        ComponentNoOutput.ERROR_CODE,
         1);
   }
 
@@ -201,13 +201,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "SPL_");
+        CorrectReturnValues.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "correctReturnValues/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "SPL_",
+        CorrectReturnValues.ERROR_CODE,
         8);
   }
 
@@ -220,13 +220,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        CurrentInputIsNotInhExc.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "currentInputIsNotInhExc/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        CurrentInputIsNotInhExc.ERROR_CODE,
         3);
   }
 
@@ -239,13 +239,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        FunctionHasReturnStatement.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "functionHasReturnStatement/invalid.nestml") ;
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        FunctionHasReturnStatement.ERROR_CODE,
         1);
   }
 
@@ -261,13 +261,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        InvalidTypesInDeclaration.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalidTypesInDeclaration/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        InvalidTypesInDeclaration.ERROR_CODE,
         5);
   }
 
@@ -281,13 +281,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        MemberVariableDefinedMultipleTimes.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "memberVariableDefinedMultipleTimes/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        MemberVariableDefinedMultipleTimes.ERROR_CODE,
         2);
   }
 
@@ -302,13 +302,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        MemberVariablesInitialisedInCorrectOrder.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "memberVariablesInitialisedInCorrectOrder/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        MemberVariablesInitialisedInCorrectOrder.ERROR_CODE,
         3);
   }
 
@@ -323,13 +323,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        MultipleFunctionDeclarations.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "multipleFunctionDeclarations/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        MultipleFunctionDeclarations.ERROR_CODE,
         6);
   }
 
@@ -342,13 +342,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        MultipleInhExcInput.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "multipleInhExcInput/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        MultipleInhExcInput.ERROR_CODE,
         4);
   }
 
@@ -361,13 +361,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        MultipleOutputs.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "multipleOutputs/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        MultipleOutputs.ERROR_CODE,
         1);
   }
 
@@ -380,13 +380,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        NESTFunctionNameChecker.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "functionNameChecker/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        NESTFunctionNameChecker.ERROR_CODE,
         8);
   }
 
@@ -399,13 +399,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        GetterSetterFunctionNames.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "getterSetterFunctionNames/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        GetterSetterFunctionNames.ERROR_CODE,
         4);
   }
 
@@ -418,13 +418,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        NeuronNeedsDynamics.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "neuronNeedsDynamics/invalid_noDynamics.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        NeuronNeedsDynamics.ERROR_CODE,
         1);
   }
 
@@ -437,13 +437,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        NeuronNeedsDynamics.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "neuronNeedsDynamics/invalid_multipleDynamics.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        NeuronNeedsDynamics.ERROR_CODE,
         1);
   }
 
@@ -456,13 +456,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        NeuronWithoutInput.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "neuronWithoutInput/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        NeuronWithoutInput.ERROR_CODE,
         1);
   }
 
@@ -475,13 +475,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        NeuronWithoutOutput.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "neuronWithoutOutput/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        NeuronWithoutOutput.ERROR_CODE,
         1);
   }
 
@@ -495,13 +495,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        TypeIsDeclaredMultipleTimes.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "typeIsDeclaredMultipleTimes/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        TypeIsDeclaredMultipleTimes.ERROR_CODE,
         2);
   }
 
@@ -514,13 +514,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        UsesOnlyComponents.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "usesOnlyComponents/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        UsesOnlyComponents.ERROR_CODE,
         2);
   }
 
@@ -534,13 +534,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        BufferNotAssignable.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "bufferNotAssignable/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        BufferNotAssignable.ERROR_CODE,
         1);
   }
 
@@ -553,13 +553,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "SPL_");
+        VarHasTypeName.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "varHasTypeName/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "SPL_",
+        VarHasTypeName.ERROR_CODE,
         2);
   }
 
@@ -636,13 +636,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        AliasHasDefiningExpression.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "aliasHasDefiningExpression/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        AliasHasDefiningExpression.ERROR_CODE,
         1);
 
   }
@@ -658,13 +658,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        EquationsOnlyForStateVariables.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equationsOnlyForStateVariables/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        EquationsOnlyForStateVariables.ERROR_CODE,
         2);
 
   }
@@ -679,13 +679,13 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        I_SumHasCorrectParameter.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "i_SumHasCorrectParameter/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        I_SumHasCorrectParameter.ERROR_CODE,
         3);
 
   }
