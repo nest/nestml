@@ -75,7 +75,9 @@ public class NESTMLCoCosTest extends ModelbasedTest {
         TEST_MODELS_FOLDER + "aliasHasNoSetter/valid.nestml", TEST_MODEL_PATH);
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
+    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
 
+    nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
     nestmlCoCoChecker.checkAll(validRoot.get());
 
     Integer errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
@@ -86,8 +88,8 @@ public class NESTMLCoCosTest extends ModelbasedTest {
         assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
 
-    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
-    nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
+
+
     nestmlCoCoChecker.checkAll(invalidRoot.get());
 
     errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
