@@ -1,0 +1,10 @@
+neuron MultipleInhExc:
+  input:
+    inhBuffer   <- inhibitory spike
+    excBuffer   <- excitatory spike
+    inhExcBuffer   <- inhibitory excitatory spike
+  end
+
+  update:
+  end
+end

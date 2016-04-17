@@ -1,0 +1,17 @@
+component GetSet:
+  internal:
+    a mV
+    alias b integer
+  end
+  function set_a(): # no error
+  end
+
+  function get_b(x mV, bs integer): # no error
+  end
+
+  function set_b(): # no error
+  end
+
+  function set_b(x mV): # no error
+  end
+end

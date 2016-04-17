@@ -1,0 +1,12 @@
+component validTypes:
+  state:
+    c boolean
+    d string
+  end
+
+  function foo(bar boolean) string:
+    #n org.nest.nestml.parsing.iaf_neuron.iaf_neuron TODO enable me
+    #n org.nest.nestml.parsing.iaf_neuron.iaf_neuron TODO enable me
+
+  end
+end
