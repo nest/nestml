@@ -46,7 +46,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
 
   @Ignore
   @Test
-  public void testPSC_ALPHA_EXP() throws IOException {
+  public void testPSC_EXP_MODEL() throws IOException {
     generateAndEvaluate(IAF_PSC_EXP);
   }
 

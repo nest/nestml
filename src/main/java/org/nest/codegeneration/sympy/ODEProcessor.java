@@ -78,6 +78,7 @@ public class ODEProcessor {
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.P30_FILE),
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_FILE),
+              Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VARIABLES_FILE),
               Paths.get(outputBase.toString(), SymPyScriptEvaluator.UPDATE_STEP_FILE));
     }
     else if (solutionType.equals(SolverType.NUMERIC)) {

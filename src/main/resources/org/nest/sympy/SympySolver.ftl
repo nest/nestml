@@ -116,30 +116,30 @@ if dev_t_dev${ode.getLhs()} == 0:
 
     statefile = open('state.vector.mat', 'w')
     y_vector = [zeros(max(orders) + 1, 1)] * len(shapes)
-
+    stateVariablesFile = open('state.variables.mat', 'w')
+    initialValue = open('pscInitialValue.mat', 'w')
     for index in range(0, len(shapes)):
         stateVariables = ["y1_", "y2_", "y3_", "y4_", "y5_", "y6_", "y7_", "y8_", "y9_", "y10_"]
         var((str(shapes[index]) + " ,").join(stateVariables))
 
         for i in reversed(range(0, orders[index])):
             y_vector[index][i] = eval(stateVariables[i] + shapes[index])
+            stateVariablesFile.write(stateVariables[i] + shapes[index] + "\n")
         y_vector[index][orders[index]] = V
 
-        for i in range(0, orders[index]):
-            statefile.write(stateVariables[i] + shapes[index] + " = " + str(simplify(Ps[index] * y_vector[index])[i]) + "\n")
+        pscInitialValues = list(reversed(tmp_diffs[index]))
 
-        f = open('pscInitialValue.mat', 'w')
-        f.write("PSCInitialValue real = " + str(simplify(tmp_diffs[index][1].subs(t, 0))) + "# PSCInitial value\n")
+        for i in range(0, orders[index]-1):
+            statefile.write(stateVariables[i] + shapes[index] + " = " + str(simplify(Ps[index] * y_vector[index])[i]) + "\n")
+            initialValue.write(stateVariables[i] + shapes[index] + "PSCInitialValue real = " + str(simplify(pscInitialValues[i].subs(t, 0))) + "# PSCInitial value\n")
 
     f = open('P30.mat', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
-
     tmp = (Ps[0] * y_vector[0])[orders[0]]
-    print(str(Ps[index][0:1, 0:1]))
-    print(str(y_vector[index][0:1]))
+
     for index in range(1, len(shapes)):
-        tmp += (Ps[index][0:1, 0:1] * Matrix(y_vector[index][0:1]))[0]
+        tmp += (Ps[index][0:(orders[index]-1), 0:(orders[index]-1)] * Matrix(y_vector[index][0:(orders[index]-1)]))[0]
 
     updateStep = open('update.step.mat', 'w')
     updateStep.write("V = P30 * (" + str(contantTerm) + ") + " + str(tmp))

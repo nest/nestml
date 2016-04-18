@@ -37,6 +37,8 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE;
   private final static String STATE_VECTOR_FILE
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.STATE_VECTOR_FILE;
+  private final static String STATE_VARIABLES_FILE
+      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.STATE_VARIABLES_FILE;
   private final static String UPDATE_STEP_FILE
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.UPDATE_STEP_FILE;
   private static final String MODEL_FILE_PATH
@@ -54,6 +56,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
             modelRoot.getNeurons().get(0),
             Paths.get(P30_FILE),
             Paths.get(PSC_INITIAL_VALUE_FILE),
+            Paths.get(STATE_VARIABLES_FILE),
             Paths.get(STATE_VECTOR_FILE),
             Paths.get(UPDATE_STEP_FILE));
 
@@ -144,6 +147,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
     exactSolutionTransformer.addStateVariablesAndUpdateStatements(
         modelRoot.getNeurons().get(0),
+        Paths.get(STATE_VARIABLES_FILE),
         Paths.get(STATE_VECTOR_FILE));
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
