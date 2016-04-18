@@ -30,7 +30,7 @@ public class SymPyOutput2NESTMLConverterTest {
   @Test
   public void testConvertToDeclaration() throws Exception {
 
-    final ASTAliasDecl testant = converter.convertToAlias(Paths.get(P30_FILE));
+    final ASTAliasDecl testant = converter.convertToAlias(Paths.get(P30_FILE)).get(0);
     assertEquals(testant.getDeclaration().getVars().get(0), P_30);
     assertTrue(testant.getDeclaration().getExpr().isPresent());
 

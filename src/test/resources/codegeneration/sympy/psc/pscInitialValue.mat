@@ -1,1 +1,2 @@
-PSCInitialValue real = e/tau_syn# PSCInitial value
+y1_I_shape_inPSCInitialValue real = -2*e/tau_syn_in**2# PSCInitial value
+y1_I_shape_exPSCInitialValue real = -2*e/tau_syn_ex**2# PSCInitial value
