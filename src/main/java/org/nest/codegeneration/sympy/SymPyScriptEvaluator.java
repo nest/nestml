@@ -50,8 +50,7 @@ public class SymPyScriptEvaluator {
       info(msg, LOG_NAME);
 
       // reports standard output
-      getListFromStream(res.getInputStream())
-          .forEach(outputLine -> debug(outputLine, LOG_NAME));
+      getListFromStream(res.getInputStream()).forEach(outputLine -> debug(outputLine, LOG_NAME));
 
       // reports errors
       getListFromStream(res.getErrorStream()).forEach(Log::error);

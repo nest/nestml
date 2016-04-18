@@ -115,7 +115,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     blueGene.forEach(this::invokeCodeGenerator);
   }
 
-
+  @Ignore("Don't run this tests on github")
   @Test
   public void testManually() {
     final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/iaf_neuron.nestml");

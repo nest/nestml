@@ -23,6 +23,8 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.nest.utils.FileHelper.collectFiles;
+import static org.nest.utils.FileHelper.collectSPLModelFilenames;
 
 /**
  * Tests whether the model can be parsed or not
@@ -33,10 +35,21 @@ public class SPLParserTest extends ModelbasedTest {
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = FileHelper.collectFiles(
-        TEST_MODEL_PATH, model -> model.endsWith(SPLLanguage.FILE_ENDING));
+    final List<Path> filenames = collectSPLModelFilenames(TEST_MODEL_PATH);
 
     filenames.forEach(this::parseAndCheck);
+  }
+
+  @Test
+  public void rightAssociativeExpression() throws IOException {
+    final SPLParser splParser = new SPLParser();
+    splParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
+    final Optional<ASTExpr> result = splParser.parseExpr(new StringReader("e1**e2**e3"));
+
+    // asserts that the parse tree is built as e1**(e2**e3), e.g. in a right associative way
+    final String base = result.get().getBase().get().getVariable().get().toString();
+    assertEquals("e1", base);
+    assertTrue(result.get().getExponent().get().isPow());
   }
 
   private void parseAndCheck(Path file) {
@@ -50,18 +63,6 @@ public class SPLParserTest extends ModelbasedTest {
       throw new RuntimeException(e);
     }
     assertTrue(ast.isPresent());
-  }
-
-  @Test
-  public void rightAssociativeExpression() throws IOException {
-    final SPLParser splParser = new SPLParser();
-    splParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    final Optional<ASTExpr> result = splParser.parseExpr(new StringReader("e1**e2**e3"));
-
-    // asserts that the parse tree is built as e1**(e2**e3), e.g. in a right associative way
-    final String base = result.get().getBase().get().getVariable().get().toString();
-    assertEquals("e1", base);
-    assertTrue(result.get().getExponent().get().isPow());
   }
 
 }

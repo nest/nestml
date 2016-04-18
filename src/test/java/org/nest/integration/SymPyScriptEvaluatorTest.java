@@ -5,6 +5,7 @@
  */
 package org.nest.integration;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
@@ -26,12 +27,28 @@ import static org.junit.Assert.assertTrue;
  * @author plonikov
  */
 public class SymPyScriptEvaluatorTest extends ModelbasedTest {
+  private static final String IAF_PSC_EXP
+      = "src/test/resources/codegeneration/iaf_psc_exp.nestml";
+  private static final String IAF_PSC_ALPHA
+      = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
   private static final String PSC_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_neuron.nestml";
   private static final String COND_MODEL_FILE
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
 
   private static final Path SYMPY_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "sympy");
+
+  @Ignore
+  @Test
+  public void testPSC_ALPHA_MODEL() throws IOException {
+    generateAndEvaluate(IAF_PSC_ALPHA);
+  }
+
+  @Ignore
+  @Test
+  public void testPSC_ALPHA_EXP() throws IOException {
+    generateAndEvaluate(IAF_PSC_EXP);
+  }
 
   @Test
   public void generateAndExecuteSympyScriptForPSC() throws IOException {
@@ -55,7 +72,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
 
     final Optional<Path> generatedScript = SympyScriptGenerator.generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
-         SYMPY_OUTPUT);
+        SYMPY_OUTPUT);
 
     assertTrue(generatedScript.isPresent());
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();

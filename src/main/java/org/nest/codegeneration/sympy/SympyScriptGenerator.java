@@ -51,6 +51,7 @@ public class SympyScriptGenerator {
 
   /**
    * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
+   *
    * @param neuron Neuron from the nestml model (must be part of the root)
    * @param outputDirectory Base directory for the output
    * @return Path to the generated script of @code{empty()} if there is no ODE definition.
