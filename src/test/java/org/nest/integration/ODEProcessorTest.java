@@ -11,7 +11,6 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTNeuron;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.FileHelper;
@@ -20,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static de.se_rwth.commons.Names.getQualifiedName;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -45,7 +43,7 @@ public class ODEProcessorTest extends ModelbasedTest {
         NEURON_NAME,
         NeuronSymbol.KIND);
 
-    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
+    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1_G");
     assertTrue(y1.isPresent());
     assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
   }

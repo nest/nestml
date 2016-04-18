@@ -88,19 +88,18 @@ public class ExactSolutionTransformer {
           .lines(stateVectorFile)
           .collect(Collectors.toList());
 
-      final List<ASTAssignment> stateAssignments = stateVectorLines
-          .stream()
-          .map(converter2NESTML::convertStringToAssignment)
+      final List<String> stateVariableDeclarations = Files.lines(stateVariablesFile)
+          .map(stateVariable -> stateVariable + " real")
           .collect(Collectors.toList());
 
-      final List<String> stateVariableDeclarations = Lists.newArrayList();
-      Files.lines(stateVariablesFile).forEach(stateVariable -> stateVariableDeclarations.add(stateVariable+ " real"));
       stateVariableDeclarations.stream()
           .map(converter2NESTML::convertStringToAlias)
           .forEach(astAliasDecl -> astNeuron.getBody().addToStateBlock(astAliasDecl));
 
-      // remaining entries are y_index update entries
-      // these statements must be printed at the end of the dynamics function
+      final List<ASTAssignment> stateAssignments = stateVectorLines
+          .stream()
+          .map(converter2NESTML::convertStringToAssignment)
+          .collect(Collectors.toList());
       stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
 
       final List<ASTFunctionCall> functions = ASTNodes.getAll(astNeuron.getBody().getEquations().get(), ASTFunctionCall.class)
