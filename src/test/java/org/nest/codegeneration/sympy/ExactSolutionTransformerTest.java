@@ -122,7 +122,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    exactSolutionTransformer.addPSCInitialValue(
+    exactSolutionTransformer.addPSCInitialValueToStateBlock(
         modelRoot.getNeurons().get(0),
         Paths.get(PSC_INITIAL_VALUE_FILE));
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
@@ -147,6 +147,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
     exactSolutionTransformer.addStateVariablesAndUpdateStatements(
         modelRoot.getNeurons().get(0),
+        Paths.get(PSC_INITIAL_VALUE_FILE),
         Paths.get(STATE_VARIABLES_FILE),
         Paths.get(STATE_VECTOR_FILE));
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);

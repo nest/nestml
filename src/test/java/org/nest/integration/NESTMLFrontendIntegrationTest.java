@@ -71,4 +71,5 @@ public class NESTMLFrontendIntegrationTest {
         "--target", Paths.get("target", "codegeneration/gif").toString()});
     Assert.assertTrue(NESTMLFrontend.checkEnvironment(cliConfiguration));
   }
+
 }
