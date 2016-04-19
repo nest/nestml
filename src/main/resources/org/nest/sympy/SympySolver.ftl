@@ -1,56 +1,69 @@
 from sympy import *
 from sympy.matrices import zeros
-import numpy
-from numpy.random import randint
 
-# TODO why a?
-a, h = symbols('a h')
+__a__, h = symbols('__a__ h')
 <#compress>
     var('<#list variables as variable> ${variable.getName()} </#list>')
 </#compress>
 
+# Handle aliases
 <#list aliases as alias>
 ${alias.getName()} = ${printer.print(alias.getDeclaringExpression().get())}
 </#list>
 
+# Shapes must be symbolic for the differetiation step
+rhsTmp = ${printer.print(ode.getRhs())}
+constantInputs = simplify(rhsTmp - diff(rhsTmp, ${ode.getLhs()})*${ode.getLhs()} - diff(rhsTmp, ${EQs[0].getLhs()})*(
+<#assign operator = "">
+<#compress> <#list EQs as eq>
+${operator} ${eq.getLhs()}
+<#assign operator = "+">
+</#list> </#compress>
+))
+
+# TODO take the comment for the source model
 <#list EQs as eq>
 ${eq.getLhs()} = ${printer.print(eq.getRhs())}
 </#list>
 rhs = ${printer.print(ode.getRhs())}
-
-var("${EQs[0].getLhs()}")
-rhsTmp = ${printer.print(ode.getRhs())}
-contantTerm = simplify(rhsTmp - diff(rhsTmp, ${ode.getLhs()})*${ode.getLhs()} - diff(rhsTmp, ${EQs[0].getLhs()})*${EQs[0].getLhs()})
-<#list EQs as eq>
-${eq.getLhs()} = ${printer.print(eq.getRhs())}
-</#list>
-
-
 dev${ode.getLhs()} = diff(rhs, ${ode.getLhs()})
 dev_t_dev${ode.getLhs()} = diff(dev${ode.getLhs()}, t)
 
 solverType = open('solverType.property', 'w')
 if dev_t_dev${ode.getLhs()} == 0:
     print 'We have a linear differential equation!'
-    solverType.write("exact")
+
     order = None
 
+    # a list of defining exressions of shapes
     shapes = [<#compress> <#list EQs as eq> ${eq.getLhs()}, </#list> </#compress>]
+    # a list of intergers. each number represents the order of the differential equations corresponding to its shape
     orders = [None]*len(shapes)
+    # a list of propagator matrices of the dimension [order x order]
     Ps = [None]*len(shapes)
+    # list of list of derivatives of elements in "shapes" from 0 to order-1
     tmp_diffs = [None]*len(shapes)
 
+    # Goal: produce a propagator matrix for each shape
     for shape_index in range(0, len(shapes)):
+        # tmp_diffs is needed to calculate PSCInitialValues and the propagator matrix
         tmp_diffs[shape_index] = [shapes[shape_index], diff(shapes[shape_index], t)]
-        a_1 = solve(tmp_diffs[shape_index][1] - a * shapes[shape_index], a)
+        # if this element of shapes solves a first order linear differential equation, we calculate the corresponding factor
+        a_1 = solve(tmp_diffs[shape_index][1] - __a__ * shapes[shape_index], __a__)
+        # SUM equals 0 iff. this element of shape is the solution of  a first order linear differential equations
         SUM = tmp_diffs[shape_index][1] - a_1[0] * shapes[shape_index]
 
         if SUM == 0:
+            # we have a first order linear differential equation
             orders[shape_index] = 1
         else:
+            # we check if this element in shape sastisfies a linear differential equation upto order 10
             for n in range(2, 10):
+                # add new differential of the
                 tmp_diffs[shape_index].append(diff(shapes[shape_index], t, n))
+                # helps to calculate Ps. Datatype Matrix [n x n]
                 X = zeros(n)
+                # Datatype: Vector [n x 1]
                 Y = zeros(n, 1)
                 found = False
                 for k in range(0, 100): # tries
@@ -59,19 +72,21 @@ if dev_t_dev${ode.getLhs()} == 0:
                         Y[i] = tmp_diffs[shape_index][n].subs(t, substitute)
                         for j in range(0, n):
                             X[i, j] = tmp_diffs[shape_index][j].subs(t, substitute)
-                    print "Try if X is invertable:"
-                    print X
+                    # "Try if X is invertable:"
                     d = det(X)
-                    print "det(X) = " + str(d)
                     if d != 0:
                         found = True
                         break
                 if not found:
-                    print 'We have a problem'
+                    # TODO print out the status into a file to notify the code generator about the error
+                    print 'Error: could not find X. The equations will be solved numerically.'
+                    # TODO jump to X
                     exit(1)
                 VecA = X.inv() * Y
                 SUM = 0
+                # SUM equals 0 iff. this element of shape is the solution of  a nth order linear differential equations
                 for k in range(0, n):
+                    # sum up derivatives of this element of shapes
                     SUM += VecA[k]*diff( shapes[shape_index], t, k)
                 SUM -= tmp_diffs[shape_index][n]
                 print "SUM = " + str(simplify(SUM))
@@ -80,13 +95,17 @@ if dev_t_dev${ode.getLhs()} == 0:
                     break
 
         if orders[shape_index] is None:
-            print 'We have a problem'
-            exit(1)
+            print 'The equations will be solved numerically.'
+            exit(1) # TODO jump to X
 
+        # calculate -1/Tau
         c1 = diff(rhs, V)
+        # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative
         ${EQs[0].getLhs()} = symbols("${EQs[0].getLhs()}")
         c2 = diff( ${printer.print(ode.getRhs())} , ${EQs[0].getLhs()})
 
+        # define matrices depending on order
+        # for order 1 and 2 A is lower triangular matrix
         if orders[shape_index] == 1:
             A = Matrix([[a_1[0], 0],
                     [c2, c1]])
@@ -127,23 +146,25 @@ if dev_t_dev${ode.getLhs()} == 0:
             stateVariablesFile.write(stateVariables[i] + shapes[index] + "\n")
         y_vector[index][orders[index]] = V
 
-        pscInitialValues = list(reversed(tmp_diffs[index]))
+        pscInitialValues = tmp_diffs[index]
 
-        for i in range(0, orders[index]-1):
+        for i in range(0, orders[index]):
+            initialValue.write(stateVariables[i] + shapes[index] + "PSCInitialValue real = " + str(simplify(pscInitialValues[orders[index]-i-1].subs(t, 0))) + "# PSCInitial value\n")
+
+        for i in range(0, orders[index]):
             statefile.write(stateVariables[i] + shapes[index] + " = " + str(simplify(Ps[index] * y_vector[index])[i]) + "\n")
-            initialValue.write(stateVariables[i] + shapes[index] + "PSCInitialValue real = " + str(simplify(pscInitialValues[i].subs(t, 0))) + "# PSCInitial value\n")
-
     f = open('P30.mat', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
     tmp = (Ps[0] * y_vector[0])[orders[0]]
 
     for index in range(1, len(shapes)):
-        tmp += (Ps[index][0:(orders[index]-1), 0:(orders[index]-1)] * Matrix(y_vector[index][0:(orders[index]-1)]))[0]
+        if orders[index] > 1:
+            tmp += (Ps[index][0:(orders[index]-1), 0:(orders[index]-1)] * Matrix(y_vector[index][0:(orders[index]-1)]))[0]
 
     updateStep = open('update.step.mat', 'w')
-    updateStep.write("V = P30 * (" + str(contantTerm) + ") + " + str(tmp))
-
+    updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(tmp))
+    solverType.write("exact")
 else:
     print 'Not a linear differential equation'
     solverType.write("numeric")

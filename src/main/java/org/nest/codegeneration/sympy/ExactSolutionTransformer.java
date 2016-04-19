@@ -45,8 +45,12 @@ public class ExactSolutionTransformer {
       final Path stateVectorFile,
       final Path updateStepFile) {
     ASTNeuron workingVersion = addP30(astNeuron, pathToP00File);
-    workingVersion = addPSCInitialValue(workingVersion, PSCInitialValueFile);
-    workingVersion = addStateVariablesAndUpdateStatements(workingVersion, stateStateVariablesFile, stateVectorFile);
+    workingVersion = addPSCInitialValueToStateBlock(workingVersion, PSCInitialValueFile);
+    workingVersion = addStateVariablesAndUpdateStatements(
+        workingVersion,
+        PSCInitialValueFile,
+        stateStateVariablesFile,
+        stateVectorFile);
     workingVersion = replaceODE(workingVersion, updateStepFile);
 
     return workingVersion;
@@ -68,7 +72,7 @@ public class ExactSolutionTransformer {
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  ASTNeuron addPSCInitialValue(
+  ASTNeuron addPSCInitialValueToStateBlock(
       final ASTNeuron astNeuron,
       final Path pathPSCInitialValueFile) {
     final List<ASTAliasDecl> pscInitialValue = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
@@ -78,6 +82,7 @@ public class ExactSolutionTransformer {
 
   ASTNeuron addStateVariablesAndUpdateStatements(
       final ASTNeuron astNeuron,
+      final Path pathPSCInitialValueFile,
       final Path stateVariablesFile,
       final Path stateVectorFile) {
     try {
@@ -102,17 +107,27 @@ public class ExactSolutionTransformer {
           .collect(Collectors.toList());
       stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
 
-      final List<ASTFunctionCall> functions = ASTNodes.getAll(astNeuron.getBody().getEquations().get(), ASTFunctionCall.class)
+      final List<ASTFunctionCall> i_sumCalls = ASTNodes.getAll(astNeuron.getBody().getEquations().get(), ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
           .collect(toList());
 
-      for (ASTFunctionCall i_sum_call:functions) {
-        final String bufferName = ASTNodes.toString(i_sum_call.getArgs().get(1));
-        final String shapeName = ASTNodes.toString(i_sum_call.getArgs().get(0));
-        final ASTAssignment pscUpdateStep = converter2NESTML
-            .convertStringToAssignment("y1_" + shapeName + " += " +  "y1_" + shapeName + "PSCInitialValue * " + bufferName + ".getSum(t)");
-        addAssignmentToDynamics(body, pscUpdateStep);
+      final List<ASTAliasDecl> pscInitialValues = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
+      for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
+        final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
+        final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
+        final String shapeName = variableName.substring(variableName.indexOf("_") + 1, variableName.length());
+        for (ASTFunctionCall i_sum_call:i_sumCalls) {
+          final String shapeNameInCall = ASTNodes.toString(i_sum_call.getArgs().get(0));
+          if (shapeNameInCall.equals(shapeName)) {
+            final String bufferName = ASTNodes.toString(i_sum_call.getArgs().get(1));
+            final ASTAssignment pscUpdateStep = converter2NESTML
+                .convertStringToAssignment(variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".getSum(t)");
+            addAssignmentToDynamics(body, pscUpdateStep);
+          }
+
+        }
+
       }
 
       return astNeuron;
