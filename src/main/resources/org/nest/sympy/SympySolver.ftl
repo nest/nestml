@@ -5,6 +5,8 @@ __a__, h = symbols('__a__ h')
 <#compress>
     var('<#list variables as variable> ${variable.getName()} </#list>')
 </#compress>
+
+# Handle aliases
 <#list aliases as alias>
 ${alias.getName()} = ${printer.print(alias.getDeclaringExpression().get())}
 </#list>
