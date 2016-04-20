@@ -7,9 +7,7 @@ package org.nest.symboltable.symbols;
 
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.MutableScope;
-import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolKind;
-import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import org.nest.symboltable.NeuronScope;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 
@@ -94,11 +92,12 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     return Optional.ofNullable(baseNeuron);
   }
 
+  @SuppressWarnings("unused") // it is used in the NeuronHeader.ftl generator template
   public String printComment() {
     final StringBuffer output = new StringBuffer();
-    if(getAstNode().isPresent()) {
-      getAstNode().get().get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
-      getAstNode().get().get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
+    if(getAstNode().isPresent()) {//
+      getAstNode().get().get_PreComments().forEach(comment -> output.append("//").append(comment.getText()).append(" "));
+      getAstNode().get().get_PostComments().forEach(comment -> output.append("//").append(comment.getText()).append(" "));
     }
 
     return output.toString();

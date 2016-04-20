@@ -3,7 +3,7 @@ from sympy.matrices import zeros
 
 __a__, h = symbols('__a__ h')
 <#compress>
-    var('<#list variables as variable> ${variable.getName()} </#list>')
+    <#list variables as variable> ${variable.getName()} , </#list> = symbols('<#list variables as variable> ${variable.getName()} </#list>')
 </#compress>
 
 # Handle aliases
@@ -160,7 +160,7 @@ if dev_t_dev${ode.getLhs()} == 0:
 
     for index in range(1, len(shapes)):
         if orders[index] > 1:
-            tmp += (Ps[index][0:(orders[index]-1), 0:(orders[index]-1)] * Matrix(y_vector[index][0:(orders[index]-1)]))[0]
+            tmp += (Ps[index][0:(orders[index]), 0:(orders[index])] * Matrix(y_vector[index][0:(orders[index])]))[0]
 
     updateStep = open('update.step.mat', 'w')
     updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(tmp))
