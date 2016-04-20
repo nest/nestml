@@ -5,6 +5,7 @@
  */
 package org.nest.symboltable.symbols;
 
+import de.monticore.ast.Comment;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.SymbolKind;
@@ -94,13 +95,27 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   @SuppressWarnings("unused") // it is used in the NeuronHeader.ftl generator template
   public String printComment() {
-    final StringBuffer output = new StringBuffer();
+    final StringBuilder output = new StringBuilder();
     if(getAstNode().isPresent()) {//
-      getAstNode().get().get_PreComments().forEach(comment -> output.append("//").append(comment.getText()).append(" "));
-      getAstNode().get().get_PostComments().forEach(comment -> output.append("//").append(comment.getText()).append(" "));
+      escapeAndPrintComment(getAstNode().get().get_PreComments(), output);
+      escapeAndPrintComment(getAstNode().get().get_PostComments(), output);
+      getAstNode().get().get_PostComments()
+          .stream()
+          .map(comment -> comment.getText().replace("/*", "//").replace("*/", "//"))
+          .forEach(output::append);
     }
 
     return output.toString();
+  }
+
+  /**
+   * Replaces the multiline comment characters and prints it as string to output.
+   * @param output Adds comments to this output
+   */
+  private void escapeAndPrintComment(final List<Comment> comments, final StringBuilder output) {
+    comments.stream()
+        .map(comment -> comment.getText().replace("/*", "//").replace("*/", "//"))
+        .forEach(output::append);
   }
 
   /**
