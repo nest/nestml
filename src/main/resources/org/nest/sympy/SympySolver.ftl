@@ -3,7 +3,7 @@ from sympy.matrices import zeros
 
 __a__, h = symbols('__a__ h')
 <#compress>
-    var('<#list variables as variable> ${variable.getName()} </#list>')
+    <#list variables as variable> ${variable.getName()} , </#list> = symbols('<#list variables as variable> ${variable.getName()} </#list>')
 </#compress>
 
 # Handle aliases
@@ -13,7 +13,7 @@ ${alias.getName()} = ${printer.print(alias.getDeclaringExpression().get())}
 
 # Shapes must be symbolic for the differetiation step
 rhsTmp = ${printer.print(ode.getRhs())}
-constantInputs = simplify(rhsTmp - diff(rhsTmp, ${ode.getLhs()})*${ode.getLhs()} - diff(rhsTmp, ${EQs[0].getLhs()})*(
+constantInputs = simplify(1/diff(rhsTmp, ${EQs[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs()})*${ode.getLhs()}) - (
 <#assign operator = "">
 <#compress> <#list EQs as eq>
 ${operator} ${eq.getLhs()}
@@ -133,38 +133,41 @@ if dev_t_dev${ode.getLhs()} == 0:
 
     shapes = [<#compress> <#list EQs as eq> "${eq.getLhs()}", </#list> </#compress>]
 
-    statefile = open('state.vector.mat', 'w')
-    y_vector = [zeros(max(orders) + 1, 1)] * len(shapes)
+    stateVectorUpdateFile = open('state.vector.update.mat', 'w')
+
+    stateVectors = [zeros(max(orders) + 1, 1)] * len(shapes)
     stateVariablesFile = open('state.variables.mat', 'w')
-    initialValue = open('pscInitialValue.mat', 'w')
+    initialValue = open('pscInitialValues.mat', 'w')
+
     for index in range(0, len(shapes)):
         stateVariables = ["y1_", "y2_", "y3_", "y4_", "y5_", "y6_", "y7_", "y8_", "y9_", "y10_"]
         var((str(shapes[index]) + " ,").join(stateVariables))
 
         for i in reversed(range(0, orders[index])):
-            y_vector[index][i] = eval(stateVariables[i] + shapes[index])
+            stateVectors[index][i] = eval(stateVariables[i] + shapes[index])
             stateVariablesFile.write(stateVariables[i] + shapes[index] + "\n")
-        y_vector[index][orders[index]] = V
+        stateVectors[index][orders[index]] = V
 
         pscInitialValues = tmp_diffs[index]
-
         for i in range(0, orders[index]):
             initialValue.write(stateVariables[i] + shapes[index] + "PSCInitialValue real = " + str(simplify(pscInitialValues[orders[index]-i-1].subs(t, 0))) + "# PSCInitial value\n")
 
-        for i in range(0, orders[index]):
-            statefile.write(stateVariables[i] + shapes[index] + " = " + str(simplify(Ps[index] * y_vector[index])[i]) + "\n")
+        for i in reversed(range(0, orders[index])):
+            stateVectorUpdateFile.write(stateVariables[i] + shapes[index] + " = " + str(simplify(Ps[index] * stateVectors[index])[i]) + "\n")
+
     f = open('P30.mat', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
-    tmp = (Ps[0] * y_vector[0])[orders[0]]
+    tmp = (Ps[0] * stateVectors[0])[orders[0]]
 
     for index in range(1, len(shapes)):
         if orders[index] > 1:
-            tmp += (Ps[index][0:(orders[index]-1), 0:(orders[index]-1)] * Matrix(y_vector[index][0:(orders[index]-1)]))[0]
+            tmp += (Ps[index][1:(orders[index]+1), 0:(orders[index])] * Matrix(stateVectors[index][0:(orders[index])]))[0]
 
     updateStep = open('update.step.mat', 'w')
     updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(tmp))
     solverType.write("exact")
+
 else:
     print 'Not a linear differential equation'
     solverType.write("numeric")

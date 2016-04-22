@@ -26,12 +26,13 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_neuron.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
-      "src/test/resources/codegeneration/iaf_psc_exp.nestml"
+      "src/test/resources/codegeneration/iaf_psc_exp.nestml",
+      "src/test/resources/codegeneration/iaf_tum_2000.nestml"
       // TODO "src/test/resources/codegeneration/iaf_psc_delta.nestml",
   );
 
   private final List<String> imperativeModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_tum_2000.nestml",
+      "src/test/resources/codegeneration/iaf_tum_2000_imerative.nestml",
       "src/test/resources/codegeneration/iaf_psc_alpha_imperative.nestml",
       //"src/test/resources/codegeneration/iaf_psc_exp_multisynapse.nestml",
       "src/test/resources/codegeneration/mat2_psc_exp.nestml",
@@ -118,7 +119,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testManually() {
-    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/iaf_neuron.nestml");
+    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/iaf_tum_2000.nestml");
     modelName.forEach(this::checkCocos);
     modelName.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
