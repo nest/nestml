@@ -1,0 +1,6 @@
+neuron ReassignBuffer:
+  input:
+      testBuffer <- spike
+  end
+
+end
