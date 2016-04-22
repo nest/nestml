@@ -36,7 +36,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
   private final static String PSC_INITIAL_VALUE_FILE
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE;
   private final static String STATE_VECTOR_FILE
-      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.STATE_VECTOR_FILE;
+      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.STATE_VECTOR_UPDATE_FILE;
   private final static String STATE_VARIABLES_FILE
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.STATE_VARIABLES_FILE;
   private final static String UPDATE_STEP_FILE
