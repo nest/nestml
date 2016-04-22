@@ -466,11 +466,10 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       if (aliasDeclAst != null) {
         if (aliasDeclAst.isAlias()) {
           var.setAlias(true);
+        }
 
-          if (astDeclaration.getExpr().isPresent()) {
-            var.setDeclaringExpression(astDeclaration.getExpr().get());
-          }
-
+        if (astDeclaration.getExpr().isPresent()) {
+          var.setDeclaringExpression(astDeclaration.getExpr().get());
         }
 
       }
@@ -480,7 +479,12 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       }
 
       var.setBlockType(blockType);
-      addToScopeAndLinkWithNode(var, astDeclaration);
+      if (aliasDeclAst != null) {
+        addToScopeAndLinkWithNode(var, aliasDeclAst);
+      }
+      else {
+        addToScopeAndLinkWithNode(var, astDeclaration);
+      }
 
       trace("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
 

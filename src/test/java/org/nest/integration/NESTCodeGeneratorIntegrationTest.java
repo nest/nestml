@@ -85,7 +85,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   @Ignore("Don't run this tests on github")
   @Test
-  public void testPscModelWithOde() {
+  public void testPSCModelsWithOde() {
     Log.enableFailQuick(false);
     pscModelsWithOde.forEach(this::checkCocos);
     pscModelsWithOde.forEach(this::invokeCodeGenerator);
@@ -113,6 +113,18 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   public void testBluegeneModels() {
     blueGene.forEach(this::checkCocos);
     blueGene.forEach(this::invokeCodeGenerator);
+  }
+
+  @Ignore("Don't run this tests on github")
+  @Test
+  public void testManually() {
+    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/iaf_neuron.nestml");
+    modelName.forEach(this::checkCocos);
+    modelName.forEach(this::invokeCodeGenerator);
+    final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
+        .map(this::parseAndBuildSymboltable)
+        .collect(Collectors.toList());
+    generateNESTModuleCode(roots);
   }
 
 }

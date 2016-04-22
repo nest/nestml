@@ -67,38 +67,38 @@ public class SPLCoCosManager {
 
   }
 
-  public void addSPLCocosToNESTMLChecker(NESTMLCoCoChecker splCoCoChecker) {
+  public void addSPLCocosToNESTMLChecker(final NESTMLCoCoChecker nestmlCoCoChecker) {
     final VariableDoesNotExist variableExists = new VariableDoesNotExist();
-    splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
-    splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
-    splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes
         = new VariableDefinedMultipleTimes();
-    splCoCoChecker.addCoCo(variableDefinedMultipleTimes);
+    nestmlCoCoChecker.addCoCo(variableDefinedMultipleTimes);
 
     final VarHasTypeName varHasTypeName = new VarHasTypeName();
-    splCoCoChecker.addCoCo(varHasTypeName);
+    nestmlCoCoChecker.addCoCo(varHasTypeName);
 
     final IllegalVarInFor illegalVarInFor = new IllegalVarInFor();
-    splCoCoChecker.addCoCo(illegalVarInFor);
+    nestmlCoCoChecker.addCoCo(illegalVarInFor);
 
     final IllegalExpression illegalExpression = new IllegalExpression();
-    splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) illegalExpression);
-    splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) illegalExpression);
-    splCoCoChecker.addCoCo((SPLASTELIF_ClauseCoCo) illegalExpression);
-    splCoCoChecker.addCoCo((SPLASTFOR_StmtCoCo) illegalExpression);
-    splCoCoChecker.addCoCo((SPLASTIF_ClauseCoCo) illegalExpression);
-    splCoCoChecker.addCoCo((SPLASTWHILE_StmtCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((SPLASTAssignmentCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((SPLASTELIF_ClauseCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((SPLASTFOR_StmtCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((SPLASTIF_ClauseCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((SPLASTWHILE_StmtCoCo) illegalExpression);
 
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
-    splCoCoChecker.addCoCo(codeAfterReturn);
+    nestmlCoCoChecker.addCoCo(codeAfterReturn);
 
     final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
-    splCoCoChecker.addCoCo(functionDoesNotExist);
+    nestmlCoCoChecker.addCoCo(functionDoesNotExist);
 
   }
 

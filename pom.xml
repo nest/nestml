@@ -9,7 +9,6 @@
     <version>0.0.4-SNAPSHOT</version>
 
     <properties>
-
         <!-- .. Libraries ..................................................... -->
         <guava.version>18.0</guava.version>
         <commons.cli.version>1.3.1</commons.cli.version>
@@ -43,35 +42,11 @@
     <!-- == PROJECT METAINFORMATION ========================================= -->
 
     <name>nestml-core</name>
-    <url>http://lab11.se.rwth-aachen.de/nexus/service/local/repositories/se-sites/content/monticore/${project.version}/</url>
-    <inceptionYear>2013</inceptionYear>
-
-    <organization>
-        <name>Department of Software Engineering, RWTH Aachen University</name>
-        <url>http://www.se-rwth.de/</url>
-    </organization>
-
-    <mailingLists>
-        <mailingList>
-            <name>Developer</name>
-            <post>monticore-dev@se-rwth.de</post>
-        </mailingList>
-    </mailingLists>
-
-    <issueManagement>
-        <system>Trac</system>
-        <url>https://sselab.de/lab2/private/trac/MontiCore/</url>
-    </issueManagement>
 
     <!-- == DEFAULT BUILD SETTINGS =========================================== -->
-
-    <!-- == DEFAULT BUILD SETTINGS =========================================== -->
-
     <build>
 
         <plugins>
-            <!-- MontiCore Configuration -->
-
             <!-- MontiCore Generation -->
             <plugin>
                 <groupId>de.monticore.mojo</groupId>
@@ -230,8 +205,29 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>${groovy.version}</version>
-        </dependency>
+        </dependency><dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>RELEASE</version>
+        <scope>test</scope>
+    </dependency>
 
     </dependencies>
+
+    <!-- == DEPENDENCY & PLUGIN REPOSITORIES =================================-->
+
+    <repositories>
+        <repository>
+            <id>se-public</id>
+            <url>https://nexus.se.rwth-aachen.de/content/groups/public</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>se-public</id>
+            <url>https://nexus.se.rwth-aachen.de/content/groups/public</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

@@ -141,7 +141,7 @@ public final class ASTNodes {
     return names.stream()
         .map(variableName -> {
           final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
-          return symbol.get();
+          return symbol.get(); //  checked by the context condition
         })
         .filter(VariableSymbol::isAlias)
         .collect(toList());
@@ -223,35 +223,11 @@ public final class ASTNodes {
   }
 
   public static List<VariableSymbol> getVariableSymbols(final ASTNESTMLNode astNode) {
-    final DeclarationsCollector variableSymbolsCollector = new DeclarationsCollector();
+    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
     astNode.accept(variableSymbolsCollector);
-    return variableSymbolsCollector.getVariableSymbols();
+    return variableSymbolsCollector.getVariables();
   }
 
-  static private class DeclarationsCollector implements NESTMLInheritanceVisitor {
-    List<VariableSymbol> getVariableSymbols() {
-      return Lists.newArrayList(variables);
-    }
-
-    final private Set<VariableSymbol> variables = Sets.newHashSet();
-
-    @Override
-    public void visit(final ASTDeclaration astDeclaration) {
-      checkArgument(astDeclaration.getEnclosingScope().isPresent(), "Run symbol table creator.");
-      final Scope scope = astDeclaration.getEnclosingScope().get();
-      for (final String variableName:astDeclaration.getVars()) {
-        final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
-        if (symbol.isPresent()) {
-          variables.add(symbol.get());
-        }
-        else {
-          Log.warn("Cannot resolve the variable: " + variableName);
-        }
-      }
-
-    }
-
-  }
   /**
    * Returns all variable symbols for variables which are defined in the subtree starting from
    * the astNode.
@@ -331,6 +307,15 @@ public final class ASTNodes {
     return modelRoots.stream()
         .flatMap(root -> root.getNeurons().stream())
         .collect(Collectors.toList());
+  }
+
+  public static String printComment(final ASTNode astNode) {
+    final StringBuilder output = new StringBuilder();
+
+    astNode.get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
+    astNode.get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
+
+    return output.toString();
   }
 
 }

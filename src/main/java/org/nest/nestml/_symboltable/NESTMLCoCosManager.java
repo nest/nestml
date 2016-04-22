@@ -7,6 +7,7 @@ package org.nest.nestml._symboltable;
 
 import org.nest.nestml._cocos.*;
 import org.nest.nestml._cocos.BufferNotAssignable;
+import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.symboltable.SPLCoCosManager;
@@ -106,11 +107,15 @@ public class NESTMLCoCosManager {
 
     // TODO
     // UsesOnlyComponents
+
     final BufferNotAssignable bufferNotAssignable = new BufferNotAssignable();
     nestmlCoCoChecker.addCoCo(bufferNotAssignable);
 
     final VarHasTypeName varHasTypeName = new VarHasTypeName();
     nestmlCoCoChecker.addCoCo(varHasTypeName);
+
+    final I_SumHasCorrectParameter i_sumHasCorrectParameter = new I_SumHasCorrectParameter();
+    nestmlCoCoChecker.addCoCo(i_sumHasCorrectParameter);
 
     return nestmlCoCoChecker;
   }

@@ -9,15 +9,12 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
-import org.nest.codegeneration.sympy.AliasSolverScriptGenerator;
 import org.nest.codegeneration.sympy.ODEProcessor;
-import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -83,7 +80,7 @@ public class NESTCodeGenerator {
     info(msg, LOG_NAME);
   }
 
-  protected ASTNeuron computeSolutionForODE(
+  private ASTNeuron computeSolutionForODE(
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
@@ -102,7 +99,7 @@ public class NESTCodeGenerator {
 
   }
 
-  protected void generateNESTCode(
+  private void generateNESTCode(
       final ASTNeuron astNeuron,
       final Path outputBase) {
 
@@ -112,7 +109,7 @@ public class NESTCodeGenerator {
     generateClassImplementation(astNeuron, outputBase, glex);
   }
 
-  public void generateHeader(
+  private void generateHeader(
       final ASTNeuron astNeuron,
       final Path outputFolder,
       final GlobalExtensionManagement glex) {
@@ -124,7 +121,7 @@ public class NESTCodeGenerator {
     generator.generate("org.nest.nestml.neuron.NeuronHeader", outputFile, astNeuron);
   }
 
-  public void generateClassImplementation(
+  private void generateClassImplementation(
       final ASTNeuron astNeuron,
       final Path outputFolder,
       final GlobalExtensionManagement glex) {
@@ -138,19 +135,6 @@ public class NESTCodeGenerator {
         classImplementationFile,
         astNeuron);
 
-  }
-
-  protected ASTNESTMLCompilationUnit computeSetterForAliases(
-      final ASTNESTMLCompilationUnit root,
-      final NESTMLScopeCreator scopeCreator,
-      final Path outputBase) {
-    final AliasSolverScriptGenerator generator = new AliasSolverScriptGenerator();
-    final Optional<Path> inverterScript = generator.generateAliasInverter(root.getNeurons().get(0), outputBase);
-    final SymPyScriptEvaluator scriptEvaluator = new SymPyScriptEvaluator();
-    if (!scriptEvaluator.evaluateScript(inverterScript.get())) {
-      Log.error("Cannot evaluate sympy script to compute inverse expression");
-    }
-    return printAndReadModel(outputBase, root);
   }
 
   /**
@@ -194,7 +178,7 @@ public class NESTCodeGenerator {
     generateModuleCodeForNeurons(neurons, moduleName, outputDirectory);
   }
 
-  protected void generateModuleCodeForNeurons(
+  private void generateModuleCodeForNeurons(
       final List<ASTNeuron> neurons,
       final String moduleName,
       final Path outputDirectory) {

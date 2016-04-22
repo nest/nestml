@@ -8,6 +8,7 @@ package org.nest.utils;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._symboltable.NESTMLLanguage;
+import org.nest.spl._symboltable.SPLLanguage;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -30,10 +31,21 @@ public class FileHelper {
     return FileHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
   }
 
+  public static List<Path> collectSPLModelFilenames(final Path path) {
+    final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + SPLLanguage.FILE_ENDING);
+    return FileHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
+  }
+
+  public static void deleteFilesInFolder(final Path file) {
+    FileHelper.collectFiles(file, f -> true)
+        .stream()
+        .forEach(FileHelper::deleteFile);
+  }
+
   public static void deleteFile(final Path file) {
     try {
       Files.delete(file);
-      Log.trace("Deleted configuration file: " + file.toString(), LOG_NAME);
+      Log.trace("Deleted  file: " + file.toString(), LOG_NAME);
     }
     catch (IOException e) {
       Log.error("Cannot delete file: " + file.toString(), e);

@@ -8,7 +8,9 @@ import org.nest.utils.FileHelper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
@@ -30,7 +32,13 @@ public class NESTMLParserTest extends ModelbasedTest {
 
   @Test
   public void testAllModels() {
-    for (final Path path:collectNESTMLModelFilenames(Paths.get("src/test/resources/"))) {
+    // ignore all models, in an folder with an 'unparsable' infix
+    final List<Path> testModels = collectNESTMLModelFilenames(Paths.get("src/test/resources/"))
+        .stream()
+        .filter( path -> !path.toString().contains("unparsable"))
+        .collect(Collectors.toList());
+
+    for (final Path path:testModels) {
       System.out.println(path.toString());
       parseNESTMLModel(path.toString());
     }

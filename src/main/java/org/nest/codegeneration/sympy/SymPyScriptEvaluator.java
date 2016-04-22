@@ -30,6 +30,7 @@ public class SymPyScriptEvaluator {
   static final String CONSTANT_TERM = "constantTerm.mat";
   public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValue.mat";
   public final static String STATE_VECTOR_FILE = "state.vector.mat";
+  public final static String STATE_VARIABLES_FILE = "state.variables.mat";
   public final static String UPDATE_STEP_FILE = "update.step.mat";
 
   private final static String PYTHON_VERSION = "python2.7";
@@ -38,10 +39,13 @@ public class SymPyScriptEvaluator {
     try {
       info("Start long running SymPy script evaluation...", LOG_NAME);
       long start = System.nanoTime();
-      final Process res = Runtime.getRuntime().exec(
-          PYTHON_VERSION + " " + generatedScript.getFileName(),
-          new String[0],
-          new File(generatedScript.getParent().toString()));
+
+      final ProcessBuilder processBuilder = new ProcessBuilder(
+          PYTHON_VERSION,
+          generatedScript.getFileName().toString())
+          .directory(generatedScript.getParent().toFile());
+
+      final Process res = processBuilder.start();
       res.waitFor();
       long end = System.nanoTime();
       long elapsedTime = end - start;
@@ -49,9 +53,9 @@ public class SymPyScriptEvaluator {
           + (double)elapsedTime / 1000000000.0 +  " [s]";
       info(msg, LOG_NAME);
 
+
       // reports standard output
-      getListFromStream(res.getInputStream())
-          .forEach(outputLine -> debug(outputLine, LOG_NAME));
+      getListFromStream(res.getInputStream()).forEach(outputLine -> debug(outputLine, LOG_NAME));
 
       // reports errors
       getListFromStream(res.getErrorStream()).forEach(Log::error);
@@ -73,4 +77,5 @@ public class SymPyScriptEvaluator {
     final BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
     return in.lines().collect(Collectors.toList());
   }
+
 }

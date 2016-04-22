@@ -11,10 +11,10 @@ import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTNeuron;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTBody;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.ode._ast.ASTODE;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
@@ -25,8 +25,10 @@ import org.nest.utils.ASTNodes;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -34,7 +36,7 @@ import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toList;
-import static org.nest.symboltable.predefined.PredefinedFunctions.*;
+import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
 import static org.nest.utils.ASTNodes.getVariableSymbols;
 
 /**
@@ -49,6 +51,7 @@ public class SympyScriptGenerator {
 
   /**
    * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
+   *
    * @param neuron Neuron from the nestml model (must be part of the root)
    * @param outputDirectory Base directory for the output
    * @return Path to the generated script of @code{empty()} if there is no ODE definition.
@@ -103,28 +106,24 @@ public class SympyScriptGenerator {
 
     final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
 
-    final List<VariableSymbol> variables = getVariableSymbols(astOdeDeclaration);
+    final Set<VariableSymbol> variables = new HashSet<>(getVariableSymbols(astOdeDeclaration));
 
-    List<VariableSymbol> tmp = ASTNodes.getAliasSymbols(astOdeDeclaration)
+    final List<VariableSymbol> aliases = ASTNodes.getAliasSymbols(astOdeDeclaration);
+    List<VariableSymbol> symbolsInAliasDeclaration = aliases
         .stream()
         .flatMap(alias -> ASTNodes.getVariableSymbols(alias.getDeclaringExpression().get()).stream())
         .collect(Collectors.toList());
-    // TODO refactor
+    variables.addAll(symbolsInAliasDeclaration);
+
     Optional<? extends Scope> scope = astOdeDeclaration.getEnclosingScope();
     if (scope.isPresent()) {
-      for (ASTODE ode:astOdeDeclaration.getODEs()) {
+      for (final ASTODE ode:astOdeDeclaration.getODEs()) {
         final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(
             ode.getLhs().toString(),
             VariableSymbol.KIND);
         lhsSymbol.ifPresent(variables::add);
       }
     }
-    //
-    final List<VariableSymbol> aliases = variables.stream()
-        .filter(VariableSymbol::isAlias)
-        .collect(toList());
-    aliases.stream()
-        .forEach(alias -> variables.addAll(getVariableSymbols(alias.getDeclaringExpression().get())));
 
     glex.setGlobalValue("variables", variables);
     glex.setGlobalValue("aliases", aliases);

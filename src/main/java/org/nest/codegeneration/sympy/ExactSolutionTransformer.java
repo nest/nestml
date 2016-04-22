@@ -21,7 +21,6 @@ import org.nest.utils.ASTNodes;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,11 +41,16 @@ public class ExactSolutionTransformer {
       final ASTNeuron astNeuron,
       final Path pathToP00File,
       final Path PSCInitialValueFile,
+      final Path stateStateVariablesFile,
       final Path stateVectorFile,
       final Path updateStepFile) {
     ASTNeuron workingVersion = addP30(astNeuron, pathToP00File);
-    workingVersion = addPSCInitialValue(workingVersion, PSCInitialValueFile);
-    workingVersion = addStateVariablesAndUpdateStatements(workingVersion, stateVectorFile);
+    workingVersion = addPSCInitialValueToStateBlock(workingVersion, PSCInitialValueFile);
+    workingVersion = addStateVariablesAndUpdateStatements(
+        workingVersion,
+        PSCInitialValueFile,
+        stateStateVariablesFile,
+        stateVectorFile);
     workingVersion = replaceODE(workingVersion, updateStepFile);
 
     return workingVersion;
@@ -59,7 +63,7 @@ public class ExactSolutionTransformer {
       final ASTNeuron astNeuron,
       final Path pathToP00File) {
 
-    final ASTAliasDecl p00Declaration = converter2NESTML.convertToAlias(pathToP00File);
+    final ASTAliasDecl p00Declaration = converter2NESTML.convertToAlias(pathToP00File).get(0);
 
     astNeuron.getBody().addToInternalBlock(p00Declaration);
     return astNeuron;
@@ -68,59 +72,62 @@ public class ExactSolutionTransformer {
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  ASTNeuron addPSCInitialValue(
+  ASTNeuron addPSCInitialValueToStateBlock(
       final ASTNeuron astNeuron,
       final Path pathPSCInitialValueFile) {
-
-    final ASTAliasDecl pscInitialValue = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
-
-    astNeuron.getBody().addToInternalBlock(pscInitialValue);
+    final List<ASTAliasDecl> pscInitialValue = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
+    pscInitialValue.stream().forEach(initialValue -> astNeuron.getBody().addToInternalBlock(initialValue));
     return astNeuron;
   }
 
   ASTNeuron addStateVariablesAndUpdateStatements(
       final ASTNeuron astNeuron,
+      final Path pathPSCInitialValueFile,
+      final Path stateVariablesFile,
       final Path stateVectorFile) {
     try {
+      checkState(astNeuron.getBody().getEquations().isPresent(),  "The model has no ODES.");
+      final ASTBody body = astNeuron.getBody();
+
       final List<String> stateVectorLines = Files
           .lines(stateVectorFile)
           .collect(Collectors.toList());
 
-      Collections.reverse(stateVectorLines);
-
-      checkState(stateVectorLines.size() > 0, "False stateVector.mat format. Check SymPy solver.");
-      checkState(astNeuron.getBody().getEquations().isPresent(),  "The model has no ODES.");
-
-      // First entry is the number of variables
-      final Integer stateVariablesNumber = stateVectorLines.size();
-
-      final List<String> stateVariableDeclarations = Lists.newArrayList();
-      for (int i = 1; i <= stateVariablesNumber; ++i) {
-        stateVariableDeclarations.add("y"+ i + " real");
-      }
+      final List<String> stateVariableDeclarations = Files.lines(stateVariablesFile)
+          .map(stateVariable -> stateVariable + " real")
+          .collect(Collectors.toList());
 
       stateVariableDeclarations.stream()
           .map(converter2NESTML::convertStringToAlias)
           .forEach(astAliasDecl -> astNeuron.getBody().addToStateBlock(astAliasDecl));
 
-      // remaining entries are y_index update entries
-      // these statements must be printed at the end of the dynamics function
-      ASTBody body = astNeuron.getBody();
-      stateVectorLines
+      final List<ASTAssignment> stateAssignments = stateVectorLines
           .stream()
           .map(converter2NESTML::convertStringToAssignment)
-          .forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
+          .collect(Collectors.toList());
+      stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
 
-      final List<ASTFunctionCall> functions = ASTNodes.getAll(astNeuron.getBody().getEquations().get(), ASTFunctionCall.class)
+      final List<ASTFunctionCall> i_sumCalls = ASTNodes.getAll(astNeuron.getBody().getEquations().get(), ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
           .collect(toList());
 
-      for (ASTFunctionCall i_sum_call:functions) {
-        final String bufferName = ASTNodes.toString(i_sum_call.getArgs().get(1));
-        final ASTAssignment pscUpdateStep = converter2NESTML
-            .convertStringToAssignment("y1 += PSCInitialValue * " + bufferName + ".getSum(t)");
-        addAssignmentToDynamics(body, pscUpdateStep);
+      final List<ASTAliasDecl> pscInitialValues = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
+      for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
+        final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
+        final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
+        final String shapeName = variableName.substring(variableName.indexOf("_") + 1, variableName.length());
+        for (ASTFunctionCall i_sum_call:i_sumCalls) {
+          final String shapeNameInCall = ASTNodes.toString(i_sum_call.getArgs().get(0));
+          if (shapeNameInCall.equals(shapeName)) {
+            final String bufferName = ASTNodes.toString(i_sum_call.getArgs().get(1));
+            final ASTAssignment pscUpdateStep = converter2NESTML
+                .convertStringToAssignment(variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".getSum(t)");
+            addAssignmentToDynamics(body, pscUpdateStep);
+          }
+
+        }
+
       }
 
       return astNeuron;

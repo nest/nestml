@@ -7,7 +7,6 @@ package org.nest.codegeneration.helpers;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
-import groovyjarjarantlr.collections.AST;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
@@ -132,14 +131,8 @@ public class ASTAssignments {
               if ("ext_currents".equals(variableNameInExpression)) {
                 System.out.printf("");
               }
-              checkState(variableSymbolExpr.isPresent(),
-                  "Cannot resolve the spl variable: " + variableNameInExpression);
-              if (variableSymbolExpr.get().getArraySizeParameter().isPresent()) {
-                return true;
-              }
-              else {
-                return false;
-              }
+              checkState(variableSymbolExpr.isPresent(), "Cannot resolve the variable: " + variableNameInExpression);
+              return variableSymbolExpr.get().getArraySizeParameter().isPresent();
             }
         ).findFirst();
 

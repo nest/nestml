@@ -7,10 +7,12 @@ package org.nest.base;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
+import org.junit.Before;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
+import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -30,10 +32,15 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  */
 public abstract class GenerationBasedTest extends ModelbasedTest {
 
-  public static final String MODULE_NAME = "integration";
+  private static final String MODULE_NAME = "integration";
 
-  protected final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
+  private final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
   private final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
+
+  @Before
+  public void cleanUpGeneratedFolder() {
+    FileHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
+  }
 
   protected void invokeCodeGenerator(final String pathToModel) {
     final ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(pathToModel);

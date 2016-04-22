@@ -9,6 +9,7 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNeuron;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -49,23 +50,41 @@ public class NESTMLParser extends NESTMLParserTOP {
     }
 
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
+
     if (res.isPresent()) {
-      if (modelPath.isPresent()) {
-        final Optional<String> packageName = computePackageName(Paths.get(filename), modelPath.get());
-        final String artifactName = computeArtifactName(Paths.get(filename));
-
-        if (packageName.isPresent()) {
-          res.get().setPackageName(packageName.get());
-        }
-        res.get().setArtifactName(artifactName);
-      }
-      else {
-        throw new RuntimeException("The parser must be instantiated with a model path.");
-      }
-
+      setModelPackage(filename, res.get());
+      forwardModelComment(res.get());
     }
 
     return res;
+  }
+
+  /**
+   * Through the grammar structure it is not possible to distinguish between module comment and a comment on first
+   * neuron. As a workaround put this comment also to the first neuron.
+   */
+  private void forwardModelComment(final ASTNESTMLCompilationUnit root) {
+    if ((!root.get_PostComments().isEmpty() || !root.get_PreComments().isEmpty()) && !root.getNeurons().isEmpty()) {
+      final ASTNeuron astNeuron = root.getNeurons().get(0);
+      astNeuron.set_PostComments(root.get_PostComments());
+      astNeuron.set_PreComments(root.get_PreComments());
+    }
+
+  }
+
+  private void setModelPackage(final String filename, final ASTNESTMLCompilationUnit root) {
+    if (modelPath.isPresent()) {
+      final Optional<String> packageName = computePackageName(Paths.get(filename), modelPath.get());
+      final String artifactName = computeArtifactName(Paths.get(filename));
+
+      if (packageName.isPresent()) {
+        root.setPackageName(packageName.get());
+      }
+      root.setArtifactName(artifactName);
+    }
+    else {
+      throw new RuntimeException("The parser must be instantiated with a model path.");
+    }
   }
 
   protected Optional<String> computePackageName(Path artifactPath, Path modelPath) {

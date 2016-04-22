@@ -7,26 +7,23 @@
   @param tc templatecontroller
   @result TODO
 -->
-<#list declarations.getVariables(ast) as var>
-<#if declarations.isVectorType(ast)>
-for (size_t i=0; i < declarations.printSizeParameter(ast); i++) {
-  get_${var.getName()}()[i] =
-    <#if ast.getDeclaration().getExpr().isPresent()>
-    ${tc.include("org.nest.spl.expr.Expr", ast.getDeclaration().getExpr().get())}
+${signature("variable")}
+
+<#if variable.getArraySizeParameter().isPresent()>
+for (size_t i=0; i < variable.getArraySizeParameter().get(); i++) {
+  get_${variable.getName()}()[i] =
+    <#if variable.getDeclaringExpression().isPresent()>
+    ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())}
     <#else>
     0
     </#if>
   ;
 }
 <#else>
-set_${var.getName()}(
-  <#if ast.getDeclaration().getExpr().isPresent()>
-  ${tc.include("org.nest.spl.expr.Expr", ast.getDeclaration().getExpr().get())}
+set_${variable.getName()}(
+  <#if variable.getDeclaringExpression().isPresent()>
+    ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())}
   <#else>
   0
   </#if> );
 </#if>
-
-
-
-</#list>

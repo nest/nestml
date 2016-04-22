@@ -37,12 +37,14 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE;
   private final static String STATE_VECTOR_FILE
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.STATE_VECTOR_FILE;
+  private final static String STATE_VARIABLES_FILE
+      = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.STATE_VARIABLES_FILE;
   private final static String UPDATE_STEP_FILE
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.UPDATE_STEP_FILE;
   private static final String MODEL_FILE_PATH
-      = "src/test/resources/codegeneration/iaf_neuron.nestml";
+      = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
 
-  public static final String NEURON_NAME = "iaf_neuron_nestml";
+  public static final String NEURON_NAME = "iaf_psc_alpha_nestml";
 
   @Test
   public void testExactSolutionTransformation() {
@@ -54,6 +56,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
             modelRoot.getNeurons().get(0),
             Paths.get(P30_FILE),
             Paths.get(PSC_INITIAL_VALUE_FILE),
+            Paths.get(STATE_VARIABLES_FILE),
             Paths.get(STATE_VECTOR_FILE),
             Paths.get(UPDATE_STEP_FILE));
 
@@ -69,12 +72,12 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     assertTrue(p30Symbol.isPresent());
     assertTrue(p30Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
 
-    final Optional<VariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("PSCInitialValue");
+    final Optional<VariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("y1_I_shape_inPSCInitialValue");
     assertTrue(pscInitialValue.isPresent());
     assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
 
 
-    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
+    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y2_I_shape_in");
     assertTrue(y1.isPresent());
     assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
   }
@@ -119,7 +122,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    exactSolutionTransformer.addPSCInitialValue(
+    exactSolutionTransformer.addPSCInitialValueToStateBlock(
         modelRoot.getNeurons().get(0),
         Paths.get(PSC_INITIAL_VALUE_FILE));
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
@@ -130,7 +133,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
     Optional<NeuronSymbol> symbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
 
-    final Optional<VariableSymbol> pscInitialValue = symbol.get().getVariableByName("PSCInitialValue");
+    final Optional<VariableSymbol> pscInitialValue = symbol.get().getVariableByName("y1_I_shape_inPSCInitialValue");
 
     assertTrue(pscInitialValue.isPresent());
     assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
@@ -144,17 +147,19 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
     exactSolutionTransformer.addStateVariablesAndUpdateStatements(
         modelRoot.getNeurons().get(0),
+        Paths.get(PSC_INITIAL_VALUE_FILE),
+        Paths.get(STATE_VARIABLES_FILE),
         Paths.get(STATE_VECTOR_FILE));
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
     testant.setPackageName("codegeneration");
-    testant.setArtifactName("iaf_neuron_ode");
+    testant.setArtifactName("iaf_psc_alpha_neuron");
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
 
     Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
 
-    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1");
+    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1_I_shape_in");
     assertTrue(y1.isPresent());
     assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
   }

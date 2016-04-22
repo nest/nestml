@@ -52,9 +52,9 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
   public void checkAllAliasesInNeuron(
       final ASTBody astBodyDecorator,
       final NeuronSymbol neuronSymbol) {
-    astBodyDecorator.getInternals().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
-    astBodyDecorator.getStates().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
-    astBodyDecorator.getParameters().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
+    astBodyDecorator.getInternalDeclarations().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
+    astBodyDecorator.getStateDeclarations().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
+    astBodyDecorator.getParameterDeclarations().forEach(astFunction -> checkAlias(astFunction, neuronSymbol));
   }
 
   public void checkAlias(final ASTAliasDecl alias, final NeuronSymbol neuronSymbol) {

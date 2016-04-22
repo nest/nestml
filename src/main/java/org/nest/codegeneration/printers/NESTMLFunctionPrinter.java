@@ -37,15 +37,17 @@ public class NESTMLFunctionPrinter {
     // TODO names and concept is misleading
     List<String> parameterNestmlTypes = Lists.newArrayList();
     List<String> parameterNestTypes = Lists.newArrayList();
-    for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
-      String parameterTypeFqn = ASTNodes.computeTypeName(astFunction.getParameters().get().getParameters().get(i).getDatatype());
+    if (astFunction.getParameters().isPresent()) {
+      for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
+        String parameterTypeFqn = ASTNodes.computeTypeName(astFunction.getParameters().get().getParameters().get(i).getDatatype());
 
-      Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
-      checkState(parameterType.isPresent(),
-          "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
-              .getName());
-      parameterNestmlTypes.add(parameterTypeFqn);
-      parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()));
+        Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
+        checkState(parameterType.isPresent(),
+            "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
+                .getName());
+        parameterNestmlTypes.add(parameterTypeFqn);
+        parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()));
+      }
     }
 
     final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
@@ -53,6 +55,7 @@ public class NESTMLFunctionPrinter {
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
+      declaration.append("//").append(ASTNodes.printComment(astFunction));
       final String returnType = new NESTML2NESTTypeConverter().convert(method.get().getReturnType()).replace(
           ".", "::");
       declaration.append(returnType);
@@ -75,15 +78,17 @@ public class NESTMLFunctionPrinter {
     // TODO names and concept is misleading
     List<String> parameterNestmlTypes = Lists.newArrayList();
     List<String> parameterNestTypes = Lists.newArrayList();
-    for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
-      final ASTParameter functionParameter = astFunction.getParameters().get().getParameters().get(i);
-      String parameterTypeFqn = ASTNodes.computeTypeName(functionParameter.getDatatype());
-      Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
-      checkState(parameterType.isPresent(),
-          "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
-              .getName());
-      parameterNestmlTypes.add(parameterTypeFqn);
-      parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()) + " " + functionParameter.getName()); // TODO misleading name
+    if (astFunction.getParameters().isPresent()) {
+      for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
+        final ASTParameter functionParameter = astFunction.getParameters().get().getParameters().get(i);
+        String parameterTypeFqn = ASTNodes.computeTypeName(functionParameter.getDatatype());
+        Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
+        checkState(parameterType.isPresent(),
+            "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
+                .getName());
+        parameterNestmlTypes.add(parameterTypeFqn);
+        parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()) + " " + functionParameter.getName()); // TODO misleading name
+      }
     }
 
     final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
@@ -91,6 +96,7 @@ public class NESTMLFunctionPrinter {
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
+      declaration.append("//").append(ASTNodes.printComment(astFunction));
       final String returnType = new NESTML2NESTTypeConverter().convert(method.get().getReturnType()).replace(
           ".", "::");
       declaration.append(returnType);
