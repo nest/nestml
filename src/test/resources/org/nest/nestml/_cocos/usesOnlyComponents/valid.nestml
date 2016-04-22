@@ -1,4 +1,4 @@
-import org.nest.nestml._cocos.useComponents.importedComponent.ImportedComponent
+import org.nest.nestml._cocos.usesOnlyComponents.importedComponent.ImportedComponent
 
 neuron UsingNeuron:
     use ImportedComponent as TestReference

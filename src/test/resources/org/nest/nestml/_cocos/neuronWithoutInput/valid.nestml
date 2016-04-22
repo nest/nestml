@@ -1,0 +1,5 @@
+neuron EmptyNeuron:
+  input:
+    currentBuffer <- current 
+  end
+end

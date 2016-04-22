@@ -1,0 +1,8 @@
+neuron PlainCurrent:
+  input:
+    currBuffer   <- current
+  end
+
+  update:
+  end
+end

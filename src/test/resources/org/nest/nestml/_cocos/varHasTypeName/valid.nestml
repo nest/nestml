@@ -1,0 +1,9 @@
+component B:
+  state:
+    a ms = 15.0
+  end
+
+  update:
+    b mV = 0
+  end
+end
