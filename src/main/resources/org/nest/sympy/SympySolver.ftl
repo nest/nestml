@@ -159,7 +159,6 @@ if dev_t_dev${ode.getLhs()} == 0:
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
     tmp = (Ps[0] * stateVectors.col(0))[orders[0]]
-    print(str(tmp))
     for index in range(1, len(shapes)):
         tmp += (Ps[index][1:(orders[index]+1), 0:(orders[index])] * stateVectors.col(index)[0:orders[index], 0])[orders[index] - 1]
 
