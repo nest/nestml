@@ -139,28 +139,28 @@ if dev_t_dev${ode.getLhs()} == 0:
     stateVariablesFile = open('state.variables.mat', 'w')
     initialValue = open('pscInitialValues.mat', 'w')
 
-    for index in range(0, len(shapes)):
+    for shapeIndex in range(0, len(shapes)):
         stateVariables = ["y1_", "y2_", "y3_", "y4_", "y5_", "y6_", "y7_", "y8_", "y9_", "y10_"]
-        var((str(shapes[index]) + " ,").join(stateVariables))
-        for i in range(0, orders[index]):
-            stateVectors[i, index] = eval(stateVariables[i] + shapes[index])
-            stateVariablesFile.write(stateVariables[i] + shapes[index] + "\n")
-        stateVectors[orders[index], index] = V
+        var((str(shapes[shapeIndex]) + " ,").join(stateVariables))
+        for i in range(0, orders[shapeIndex]):
+            stateVectors[i, shapeIndex] = eval(stateVariables[i] + shapes[shapeIndex])
+            stateVariablesFile.write(stateVariables[i] + shapes[shapeIndex] + "\n")
+        stateVectors[orders[shapeIndex], shapeIndex] = V
 
-        pscInitialValues = tmp_diffs[index]
-        for i in range(0, orders[index]):
-            initialValue.write(stateVariables[i] + shapes[index] + "PSCInitialValue real = " + str(
-                simplify(pscInitialValues[orders[index] - i - 1].subs(t, 0))) + "# PSCInitial value\n")
+        pscInitialValues = tmp_diffs[shapeIndex]
+        for i in range(0, orders[shapeIndex]):
+            initialValue.write(stateVariables[i] + shapes[shapeIndex] + "PSCInitialValue real = " + str(
+                simplify(pscInitialValues[orders[shapeIndex] - i - 1].subs(t, 0))) + "# PSCInitial value\n")
 
-        for i in reversed(range(0, orders[index])):
-            stateVectors[i, index] = stateVariables[i] + shapes[index]
-            stateVectorUpdateFile.write(stateVariables[i] + shapes[index] + " = " + str(simplify(Ps[index] * stateVectors[index])[i]) + "\n")
+        for i in reversed(range(0, orders[shapeIndex])):
+            stateVectors[i, shapeIndex] = stateVariables[i] + shapes[shapeIndex]
+            stateVectorUpdateFile.write(stateVariables[i] + shapes[shapeIndex] + " = " + str(simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
     f = open('P30.mat', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
     tmp = (Ps[0] * stateVectors.col(0))[orders[0]]
-    for index in range(1, len(shapes)):
-        tmp += (Ps[index][1:(orders[index]+1), 0:(orders[index])] * stateVectors.col(index)[0:orders[index], 0])[orders[index] - 1]
+    for shapeIndex in range(1, len(shapes)):
+        tmp += (Ps[shapeIndex][1:(orders[shapeIndex] + 1), 0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex], 0])[orders[shapeIndex] - 1]
 
     updateStep = open('update.step.mat', 'w')
     updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(tmp))
