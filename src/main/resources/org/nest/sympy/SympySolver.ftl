@@ -135,38 +135,37 @@ if dev_t_dev${ode.getLhs()} == 0:
 
     stateVectorUpdateFile = open('state.vector.update.mat', 'w')
 
-    stateVectors = [zeros(max(orders) + 1, 1)] * len(shapes)
+    stateVectors = zeros(max(orders) + 1, len(shapes))
     stateVariablesFile = open('state.variables.mat', 'w')
     initialValue = open('pscInitialValues.mat', 'w')
 
     for index in range(0, len(shapes)):
         stateVariables = ["y1_", "y2_", "y3_", "y4_", "y5_", "y6_", "y7_", "y8_", "y9_", "y10_"]
         var((str(shapes[index]) + " ,").join(stateVariables))
-
-        for i in reversed(range(0, orders[index])):
-            stateVectors[index][i] = eval(stateVariables[i] + shapes[index])
+        for i in range(0, orders[index]):
+            stateVectors[i, index] = eval(stateVariables[i] + shapes[index])
             stateVariablesFile.write(stateVariables[i] + shapes[index] + "\n")
-        stateVectors[index][orders[index]] = V
+        stateVectors[orders[index], index] = V
 
         pscInitialValues = tmp_diffs[index]
         for i in range(0, orders[index]):
-            initialValue.write(stateVariables[i] + shapes[index] + "PSCInitialValue real = " + str(simplify(pscInitialValues[orders[index]-i-1].subs(t, 0))) + "# PSCInitial value\n")
+            initialValue.write(stateVariables[i] + shapes[index] + "PSCInitialValue real = " + str(
+                simplify(pscInitialValues[orders[index] - i - 1].subs(t, 0))) + "# PSCInitial value\n")
 
         for i in reversed(range(0, orders[index])):
+            stateVectors[i, index] = stateVariables[i] + shapes[index]
             stateVectorUpdateFile.write(stateVariables[i] + shapes[index] + " = " + str(simplify(Ps[index] * stateVectors[index])[i]) + "\n")
-
     f = open('P30.mat', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
-    tmp = (Ps[0] * stateVectors[0])[orders[0]]
-
+    tmp = (Ps[0] * stateVectors.col(0))[orders[0]]
     for index in range(1, len(shapes)):
-        if orders[index] > 1:
-            tmp += (Ps[index][1:(orders[index]+1), 0:(orders[index])] * Matrix(stateVectors[index][0:(orders[index])]))[0]
+        tmp += (Ps[index][1:(orders[index]+1), 0:(orders[index])] * stateVectors.col(index)[0:orders[index], 0])[orders[index] - 1]
 
     updateStep = open('update.step.mat', 'w')
     updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(tmp))
     solverType.write("exact")
+
 
 else:
     print 'Not a linear differential equation'
