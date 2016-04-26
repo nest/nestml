@@ -3,7 +3,7 @@ neuron iaf_tum_2000_nestml:
   state:
     V mV
     I_shape_in, I_shape_ex real
-    alias V_m mV = V + E_L # Membrane potential.
+    alias V_m mV = V #+ E_L # Membrane potential.
   end
 
   equations:
