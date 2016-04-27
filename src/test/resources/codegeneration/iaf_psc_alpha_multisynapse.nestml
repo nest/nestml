@@ -1,14 +1,14 @@
-neuron iaf_psc_alpha_ms_nestml:
+neuron iaf_psc_alpha_multisynapse_nestml:
 
   state:
     V mV
-    I_shape_ex mA[receptors]
+    I_shape real[receptorsros]
     alias V_m mV = V + E_L # Membrane potential.
   end
 
   equations:
-      I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
-      V' = -1/Tau * V + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+      I_shape = (e/tau_syn) * t * exp(-1/tau_syn*t)
+      V' = -1/Tau * V + 1/C_m * (I_sum(I_shape, spikes) + I_e + currents)
   end
 
   parameter:
@@ -29,8 +29,9 @@ neuron iaf_psc_alpha_ms_nestml:
     RefractoryCounts integer = steps(t_ref)
   end
 
+
   input:
-    spikes[receptors] <- spike
+    spikes   <- excitatory spike
     currents    <- current
   end
 
