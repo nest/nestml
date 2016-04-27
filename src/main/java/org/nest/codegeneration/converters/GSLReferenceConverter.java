@@ -41,7 +41,12 @@ public class GSLReferenceConverter implements IReferenceConverter {
     if ("pow".equals(functionName)) {
       return "pow(%s)";
     }
-    throw new UnsupportedOperationException();
+    if ("I_sum".equals(functionName)) {
+      return "%s)";
+    }
+
+
+    throw new UnsupportedOperationException("Cannot map the function: '" + functionName +"'");
   }
 
   @Override

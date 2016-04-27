@@ -36,6 +36,8 @@ public class PredefinedFunctions {
   private static final String RANDOM_INT = "randomInt";
   private static final String EXPM1 = "expm1";
   private static final String DELTA = "delta";
+  public static final String SUM = "sum";
+  private static final String MAX = "max";
   public static final String INTEGRATE = "integrate";
   public static final String I_SUM = "I_sum";
 
@@ -105,6 +107,17 @@ public class PredefinedFunctions {
     delta.addParameterType(getType("ms"));
     delta.setReturnType(getType("real"));
     name2FunctionSymbol.put(DELTA, delta);
+
+    final MethodSymbol sum = createFunctionSymbol(SUM);
+    sum.addParameterType(getType("pA"));
+    sum.setReturnType(getType("pA"));
+    name2FunctionSymbol.put(SUM, sum);
+
+    final MethodSymbol max = createFunctionSymbol(MAX);
+    max.addParameterType(getType("mV"));
+    max.addParameterType(getType("mV"));
+    max.setReturnType(getType("mV"));
+    name2FunctionSymbol.put(MAX, max);
 
     final MethodSymbol integrate = createFunctionSymbol(INTEGRATE);
     integrate.addParameterType(getRealType());

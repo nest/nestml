@@ -6,7 +6,6 @@
 package org.nest.integration;
 
 import com.google.common.collect.Lists;
-import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.GenerationBasedTest;
@@ -32,12 +31,13 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   );
 
   private final List<String> imperativeModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_tum_2000_imerative.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha_imperative.nestml",
-      //"src/test/resources/codegeneration/iaf_psc_exp_multisynapse.nestml",
-      "src/test/resources/codegeneration/mat2_psc_exp.nestml",
-      "src/test/resources/codegeneration/izhikevich.nestml"//,
-      //"src/test/resources/codegeneration/iaf_psc_alpha_multisynapse.nestml"
+      "src/test/resources/codegeneration/imperative/iaf_tum_2000_imerative.nestml",
+      "src/test/resources/codegeneration/imperative/iaf_psc_alpha_multisynapse_imperative.nestml",
+      "src/test/resources/codegeneration/imperative/iaf_psc_delta_imperative.nestml",
+      "src/test/resources/codegeneration/imperative/iaf_psc_exp_imperative.nestml",
+      "src/test/resources/codegeneration/imperative/iaf_psc_exp_multisynapse_imperative.nestml",
+      "src/test/resources/codegeneration/imperative/iaf_tum_2000_imerative.nestml",
+      "src/test/resources/codegeneration/imperative/mat2_psc_exp_imperative.nestml"
   );
 
   private final List<String> nestmlCondModels = Lists.newArrayList(
@@ -48,13 +48,16 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
       "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml"
   );
 
-  private final List<String> workshopModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/workshop.nestml"
-  );
-
   private final List<String> blueGene = Lists.newArrayList(
       "src/test/resources/codegeneration/bluegene/aeif_cond_alpha_neuron.nestml",
       "src/test/resources/codegeneration/bluegene/hh_cond_alpha.nestml"
+  );
+
+  private final List<String> glf = Lists.newArrayList(
+      "src/test/resources/codegeneration/gif/glif.nestml",
+      "src/test/resources/codegeneration/gif/glif_2.nestml",
+      "src/test/resources/codegeneration/gif/glif_extended.nestml"
+
   );
 
   @Test
@@ -63,15 +66,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     imperativeModels.forEach(this::checkCocos);
     nestmlCondModels.forEach(this::checkCocos);
     nestmlCondModelExplicit.forEach(this::checkCocos);
-    workshopModels.forEach(this::checkCocos);
     blueGene.forEach(this::checkCocos);
-  }
-
-  @Ignore
-  @Test
-  public void testFeedbackModels() {
-    workshopModels.forEach(this::checkCocos);
-    workshopModels.forEach(this::invokeCodeGenerator);
   }
 
   @Test
@@ -87,7 +82,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testPSCModelsWithOde() {
-    Log.enableFailQuick(false);
     pscModelsWithOde.forEach(this::checkCocos);
     pscModelsWithOde.forEach(this::invokeCodeGenerator);
 
@@ -114,6 +108,13 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   public void testBluegeneModels() {
     blueGene.forEach(this::checkCocos);
     blueGene.forEach(this::invokeCodeGenerator);
+  }
+
+  @Ignore("Don't run this tests on github")
+  @Test
+  public void testGlifModel() {
+    glf.forEach(this::checkCocos);
+    glf.forEach(this::invokeCodeGenerator);
   }
 
   @Ignore("Don't run this tests on github")

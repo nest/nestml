@@ -64,9 +64,7 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
 
   @Test
   public void testCodegenerationModels() throws IOException {
-    final List<Path> models = collectNESTMLModelFilenames(
-        Paths.get(TEST_MODEL_PATH.toString(),
-            "codegeneration"));
+    final List<Path> models = collectNESTMLModelFilenames(Paths.get(TEST_MODEL_PATH.toString(), "codegeneration"));
     models.stream().forEach(this::checkModel);
   }
 

@@ -67,11 +67,6 @@ public class TypeSymbol extends CommonSymbol {
         && com.google.common.base.Objects.equal(this.getName(), other.getName());
   }
 
-  /**
-   * Uses Guava to assist in providing hash code of this employee instance.
-   *
-   * @return My hash code.
-   */
   @Override
   public int hashCode()
   {
@@ -80,9 +75,9 @@ public class TypeSymbol extends CommonSymbol {
 
   public enum Type { UNIT, PRIMITIVE, BUFFER}
 
-  public static class TypeSymbolKind implements SymbolKind {
+  private static class TypeSymbolKind implements SymbolKind {
 
-    protected TypeSymbolKind() {
+    TypeSymbolKind() {
     }
 
   }
