@@ -6,7 +6,6 @@
 package org.nest.integration;
 
 import com.google.common.collect.Lists;
-import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.GenerationBasedTest;
@@ -54,6 +53,13 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
       "src/test/resources/codegeneration/bluegene/hh_cond_alpha.nestml"
   );
 
+  private final List<String> glf = Lists.newArrayList(
+      "src/test/resources/codegeneration/gif/glif.nestml",
+      "src/test/resources/codegeneration/gif/glif_2.nestml",
+      "src/test/resources/codegeneration/gif/glif_extended.nestml"
+
+  );
+
   @Test
   public void testCocos() {
     pscModelsWithOde.forEach(this::checkCocos);
@@ -76,7 +82,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testPSCModelsWithOde() {
-    Log.enableFailQuick(false);
     pscModelsWithOde.forEach(this::checkCocos);
     pscModelsWithOde.forEach(this::invokeCodeGenerator);
 
@@ -103,6 +108,13 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   public void testBluegeneModels() {
     blueGene.forEach(this::checkCocos);
     blueGene.forEach(this::invokeCodeGenerator);
+  }
+
+  @Ignore("Don't run this tests on github")
+  @Test
+  public void testGlifModel() {
+    glf.forEach(this::checkCocos);
+    glf.forEach(this::invokeCodeGenerator);
   }
 
   @Ignore("Don't run this tests on github")

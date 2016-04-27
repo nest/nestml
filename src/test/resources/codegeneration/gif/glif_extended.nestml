@@ -1,4 +1,4 @@
-neuron glif:
+neuron glif_extended:
 
   state:
     V mV
@@ -12,7 +12,7 @@ neuron glif:
       I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
       Theta' = -b*(Theta-Theta_inf) + a*(V-E_L)
-      I_a' = -(1/tau_a)*I_a
+      I_a' = Beta*(V-E_L) - (1/tau_a)*I_a
       V' = -1/Tau * (V-E_L) + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents + sum(I_a))
   end
 
@@ -24,14 +24,15 @@ neuron glif:
     n integer # adaptive current increment factor
     C_m     pF = 250   # Capacity of the membrane
     Tau     ms = 10    # Membrane time constant.
+    tau_a     ms = 10    # Membrane time constant.
     tau_syn_in ms = 2     # Time constant of synaptic current.
     tau_syn_ex ms = 2     # Time constant of synaptic current.
-    tau_a ms = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
     E_L     mV = -70  # Resting potential.
     V_reset mV = 0 [[V_reset < Theta_reset]]
     I_e     pA = 0     # External current.
     Alpha real[n] = 0 # spike frequency adaptation. TODO check the correct type
+    Beta real[n] = 0 # spike frequency adaptation. TODO check the correct type
     kappa real[n] = 1 # TODO check the correct type
   end
 

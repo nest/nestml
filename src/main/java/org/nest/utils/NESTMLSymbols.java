@@ -32,14 +32,14 @@ public class NESTMLSymbols {
       final Scope scope,
       final String methodName,
       final List<String> parameterTypes) {
-    // it is OK. The cast is secured through the symboltable infrastructure
-    MethodSignaturePredicate signaturePredicate = new MethodSignaturePredicate(methodName,
+
+    final MethodSignaturePredicate signaturePredicate = new MethodSignaturePredicate(methodName,
         parameterTypes);
     @SuppressWarnings("unchecked")
     final Collection<Symbol> standAloneFunction = scope.resolveMany(
-        methodName,
-        MethodSymbol.KIND,
-         signaturePredicate).stream().filter(signaturePredicate) // TODO is it a bug in MC?
+        methodName, MethodSymbol.KIND, signaturePredicate)
+        .stream()
+        .filter(signaturePredicate) // TODO is it a bug in MC?
         .collect(Collectors.toList());
 
 

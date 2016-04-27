@@ -9,6 +9,7 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
@@ -293,11 +294,12 @@ public class NESTCodeGenerator {
   }
 
   private void defineSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
+    Log.warn("This logic doesn't work at the moement. The sympy script must be used to consult which ODE how should be solved.");
     final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
     if (astBody.getEquations().isPresent()) {
       if (astBody.getEquations().get().getODEs().size() > 1) {
-        glex.setGlobalValue("useGSL", true);
+        glex.setGlobalValue("useGSL", false);
         glex.setGlobalValue("ODEs", astBody.getEquations().get().getODEs());
       }
 

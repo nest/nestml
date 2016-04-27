@@ -1,8 +1,9 @@
-neuron glif:
+neuron glif_2:
 
   state:
     V mV
-    I_a pA[n]
+    I_a_1 pA
+    I_a_2 pA
     I_shape_in, I_shape_ex real
     Theta   mV
   end
@@ -12,11 +13,14 @@ neuron glif:
       I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
       Theta' = -b*(Theta-Theta_inf) + a*(V-E_L)
-      I_a' = -(1/tau_a)*I_a
-      V' = -1/Tau * (V-E_L) + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents + sum(I_a))
+      I_a_1' = -(1/tau_a_1)*I_a_1
+      I_a_2' = -(1/tau_a_2)*I_a_2
+      V' = -1/Tau * (V-E_L) + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents + I_a_1+I_a_2)
   end
 
   parameter:
+    tau_a_1 real
+    tau_a_2 real
     a real = 1 # TODO 1/ms
     b real = 1 # TODO 1/ms
     Theta_inf mV
@@ -26,13 +30,14 @@ neuron glif:
     Tau     ms = 10    # Membrane time constant.
     tau_syn_in ms = 2     # Time constant of synaptic current.
     tau_syn_ex ms = 2     # Time constant of synaptic current.
-    tau_a ms = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
     E_L     mV = -70  # Resting potential.
     V_reset mV = 0 [[V_reset < Theta_reset]]
     I_e     pA = 0     # External current.
-    Alpha real[n] = 0 # spike frequency adaptation. TODO check the correct type
-    kappa real[n] = 1 # TODO check the correct type
+    Alpha_1 real = 0 # spike frequency adaptation. TODO check the correct type
+    Alpha_2 real = 0 # spike frequency adaptation. TODO check the correct type
+    kappa_1 real = 1 # TODO check the correct type
+    kappa_2 real = 1 # TODO check the correct type
   end
 
   internal:
@@ -52,6 +57,9 @@ neuron glif:
   update:
     if r == 0: # not refractory
         integrate(V)
+        integrate(Theta)
+        integrate(I_a_1)
+        integrate(I_a_2)
     else:
         r = r - 1
     end
@@ -61,7 +69,8 @@ neuron glif:
         V = V_reset
         emitSpike()
         Theta = max(Theta, Theta_reset)
-        I_a = kappa*I_a + Alpha
+        I_a_1 = kappa_1*I_a_1 + Alpha_1
+        I_a_2 = kappa_2*I_a_2 + Alpha_2
     end
   end
 

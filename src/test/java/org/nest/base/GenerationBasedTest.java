@@ -39,6 +39,7 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
 
   @Before
   public void cleanUpGeneratedFolder() {
+    Log.enableFailQuick(false);
     FileHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
   }
 

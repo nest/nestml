@@ -37,6 +37,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
+import static org.nest.symboltable.predefined.PredefinedFunctions.SUM;
 import static org.nest.utils.ASTNodes.getVariableSymbols;
 
 /**
@@ -93,8 +94,12 @@ public class SympyScriptGenerator {
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
 
-    checkState(astOdeDeclaration.getODEs().size() == 1, "It works only for a single ODE.");
-    glex.setGlobalValue("ode", replace_I_sum(astOdeDeclaration.getODEs().get(0)));
+    if (astOdeDeclaration.getODEs().size() == 1) {
+      Log.warn("It works only for a single ODE. Only the first equation will be used.");
+    }
+    ASTODE workingVersion = replace_I_sum(astOdeDeclaration.getODEs().get(0));
+    workingVersion = replace_sum(workingVersion);
+    glex.setGlobalValue("ode", workingVersion);
     glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
     glex.setGlobalValue("predefinedVariables", PredefinedVariables.gerVariables());
 
@@ -140,6 +145,22 @@ public class SympyScriptGenerator {
     final List<ASTFunctionCall> functions = ASTNodes.getAll(astOde, ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))
+        .collect(toList());
+
+    functions.stream().forEach(node -> {
+      final Optional<ASTNode> parent = ASTNodes.getParent(node, astOde);
+      checkState(parent.isPresent());
+      final ASTExpr expr = (ASTExpr) parent.get();
+      expr.setFunctionCall(null);
+      expr.setVariable(node.getArgs().get(0).getVariable().get());
+    });
+    return astOde;
+  }
+
+  private static ASTODE replace_sum(final ASTODE astOde) {
+    final List<ASTFunctionCall> functions = ASTNodes.getAll(astOde, ASTFunctionCall.class)
+        .stream()
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(SUM))
         .collect(toList());
 
     functions.stream().forEach(node -> {
