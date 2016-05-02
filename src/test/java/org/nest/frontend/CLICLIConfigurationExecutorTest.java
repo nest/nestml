@@ -16,7 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
+import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
 /**
  * Mocks the codegenerator and tests executor functions.

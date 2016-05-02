@@ -15,11 +15,9 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.ode._ast.ASTODE;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.ASTNodes;
-import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;

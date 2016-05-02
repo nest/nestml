@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
+import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 

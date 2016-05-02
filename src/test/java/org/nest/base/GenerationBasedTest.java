@@ -12,7 +12,7 @@ import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
-import org.nest.utils.FileHelper;
+import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,7 +40,7 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
   @Before
   public void cleanUpGeneratedFolder() {
     Log.enableFailQuick(false);
-    FileHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
+    FilesHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
   }
 
   protected void invokeCodeGenerator(final String pathToModel) {

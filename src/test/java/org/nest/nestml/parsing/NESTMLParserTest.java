@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
-import static org.nest.utils.FileHelper.collectFiles;
+import static org.nest.utils.FilesHelper.collectFiles;
 
 /**
  * Tests whether the nestml model can be parsed

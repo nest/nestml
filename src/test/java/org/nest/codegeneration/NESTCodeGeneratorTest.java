@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.nest.base.GenerationBasedTest;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.utils.FileHelper;
+import org.nest.utils.FilesHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,7 +39,7 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     outputFolder = Paths.get(OUTPUT_DIRECTORY.toString(), "simple_psc");
 
-    FileHelper.deleteFilesInFolder(outputFolder);
+    FilesHelper.deleteFilesInFolder(outputFolder);
     generator.analyseAndGenerate(root, outputFolder);
     generator.generateNESTModuleCode(newArrayList(root), "simple_psc", outputFolder);
   }
@@ -51,7 +51,7 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     Path outputFolder = Paths.get(OUTPUT_DIRECTORY.toString(), "psc");
 
-    FileHelper.deleteFilesInFolder(outputFolder);
+    FilesHelper.deleteFilesInFolder(outputFolder);
     generator.analyseAndGenerate(root, outputFolder);
     generator.generateNESTModuleCode(newArrayList(root), "psc", outputFolder);
   }
@@ -63,7 +63,7 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
     Path outputFolder = Paths.get(OUTPUT_DIRECTORY.toString(), "cond");
 
-    FileHelper.deleteFilesInFolder(outputFolder);
+    FilesHelper.deleteFilesInFolder(outputFolder);
     generator.analyseAndGenerate(root, outputFolder);
     generator.generateNESTModuleCode(newArrayList(root), "cond", outputFolder);
   }

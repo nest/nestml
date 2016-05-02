@@ -3,7 +3,6 @@ package org.nest.nestml._parser;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,7 +12,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
+import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
 /**
  * Tests the method which set artifact and package name according to the file name and corresponding

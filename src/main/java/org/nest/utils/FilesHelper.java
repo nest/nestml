@@ -23,29 +23,29 @@ import static java.nio.file.FileSystems.getDefault;
  *
  * @author plotnikov
  */
-public class FileHelper {
-  private static String LOG_NAME = FileHelper.class.getName();
+public class FilesHelper {
+  private static String LOG_NAME = FilesHelper.class.getName();
 
   public static List<Path> collectNESTMLModelFilenames(final Path path) {
     final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + NESTMLLanguage.FILE_ENDING);
-    return FileHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
+    return FilesHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
   }
 
   public static List<Path> collectSPLModelFilenames(final Path path) {
     final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + SPLLanguage.FILE_ENDING);
-    return FileHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
+    return FilesHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
   }
 
   public static void deleteFilesInFolder(final Path file) {
-    FileHelper.collectFiles(file, f -> true)
+    FilesHelper.collectFiles(file, f -> true)
         .stream()
-        .forEach(FileHelper::deleteFile);
+        .forEach(FilesHelper::deleteFile);
   }
 
   public static void deleteFilesInFolder(final Path file, final Predicate<Path> predicate) {
-    FileHelper.collectFiles(file, predicate)
+    FilesHelper.collectFiles(file, predicate)
             .stream()
-            .forEach(FileHelper::deleteFile);
+            .forEach(FilesHelper::deleteFile);
   }
 
   public static void deleteFile(final Path file) {
