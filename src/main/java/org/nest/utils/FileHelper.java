@@ -42,6 +42,12 @@ public class FileHelper {
         .forEach(FileHelper::deleteFile);
   }
 
+  public static void deleteFilesInFolder(final Path file, final Predicate<Path> predicate) {
+    FileHelper.collectFiles(file, predicate)
+            .stream()
+            .forEach(FileHelper::deleteFile);
+  }
+
   public static void deleteFile(final Path file) {
     try {
       Files.delete(file);

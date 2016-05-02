@@ -42,6 +42,7 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
       = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
 
   private static final String OUTPUT_FOLDER = "target";
+  public static final Path OUTPUT_SCRIPT_DIRECTORY = Paths.get(OUTPUT_FOLDER, "sympy");
 
   @Test
   public void generateSymPySolverForPSCModel() throws IOException {
@@ -87,8 +88,7 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(
-        root.get().getNeurons().get(0),
-        Paths.get(OUTPUT_FOLDER, "sympy"));
+            root.get().getNeurons().get(0), OUTPUT_SCRIPT_DIRECTORY);
 
     assertTrue(generatedScript.isPresent());
   }

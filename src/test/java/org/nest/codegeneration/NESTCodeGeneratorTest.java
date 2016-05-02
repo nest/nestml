@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.nest.base.GenerationBasedTest;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.utils.FileHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -29,19 +30,18 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
   private static final String PSC_MODEL = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
   //private static final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
+  private Path outputFolder;
 
   @Test
   public void testPSCModelWithoutOde() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL);
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
-    generator.analyseAndGenerate(
-        root,
-        Paths.get(OUTPUT_DIRECTORY.toString(), "simple_psc"));
-    generator.generateNESTModuleCode(
-        newArrayList(root),
-        "simple_psc",
-        Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
+    outputFolder = Paths.get(OUTPUT_DIRECTORY.toString(), "simple_psc");
+
+    FileHelper.deleteFilesInFolder(outputFolder);
+    generator.analyseAndGenerate(root, outputFolder);
+    generator.generateNESTModuleCode(newArrayList(root), "simple_psc", outputFolder);
   }
 
   @Test
@@ -49,13 +49,11 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE);
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
-    generator.analyseAndGenerate(
-        root,
-        Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
-    generator.generateNESTModuleCode(
-        newArrayList(root),
-        "psc",
-        Paths.get(OUTPUT_DIRECTORY.toString(), "psc"));
+    Path outputFolder = Paths.get(OUTPUT_DIRECTORY.toString(), "psc");
+
+    FileHelper.deleteFilesInFolder(outputFolder);
+    generator.analyseAndGenerate(root, outputFolder);
+    generator.generateNESTModuleCode(newArrayList(root), "psc", outputFolder);
   }
 
   @Test
@@ -63,13 +61,11 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_IMPLICIT);
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
-    generator.analyseAndGenerate(
-        root,
-        Paths.get(OUTPUT_DIRECTORY.toString(), "cond"));
-    generator.generateNESTModuleCode(
-        newArrayList(root),
-        "cond",
-        Paths.get(OUTPUT_DIRECTORY.toString(), "cond"));
+    Path outputFolder = Paths.get(OUTPUT_DIRECTORY.toString(), "cond");
+
+    FileHelper.deleteFilesInFolder(outputFolder);
+    generator.analyseAndGenerate(root, outputFolder);
+    generator.generateNESTModuleCode(newArrayList(root), "cond", outputFolder);
   }
 
 }
