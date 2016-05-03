@@ -8,8 +8,8 @@ neuron glif:
   end
 
   equations:
-      shape I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-      shape I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+      I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+      I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
       I_a' = -(1/tau_a)*I_a
 
       V' = -1/Tau * (V-E_L) + 1/C_m * (sum(I_a)+I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
