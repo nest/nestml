@@ -104,6 +104,14 @@ public class ASTAssignments {
   /**
    * Returns the textual representation of the setter invocation
    */
+  public String printLhsName(final ASTAssignment astAssignment) {
+    final String variableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
+    return variableName + "_tmp";
+  }
+
+  /**
+   * Returns the textual representation of the setter invocation
+   */
   public String printGetterName(final ASTAssignment astAssignment) {
     final String variableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
     return "get_" + variableName;

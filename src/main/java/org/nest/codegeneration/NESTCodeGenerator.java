@@ -14,7 +14,7 @@ import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.printers.NESTMLFunctionPrinter;
+import org.nest.codegeneration.printers.NESTFunctionPrinter;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -270,7 +270,7 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("simpleNeuronName", neuron.getName());
     glex.setGlobalValue("neuronSymbol", neuron.getSymbol().get());
 
-    final NESTMLFunctionPrinter functionPrinter = new NESTMLFunctionPrinter();
+    final NESTFunctionPrinter functionPrinter = new NESTFunctionPrinter();
     final NESTMLDeclarations declarations = new NESTMLDeclarations();
     glex.setGlobalValue("declarations", new NESTMLDeclarations() );
     glex.setGlobalValue("assignments", new ASTAssignments());

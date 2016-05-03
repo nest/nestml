@@ -65,7 +65,7 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
     generator.generateNESTModuleCode(modelRoots, MODULE_NAME, CODE_GEN_OUTPUT);
   }
 
-  public void checkCocos(final String pathToModel) {
+  protected void checkCocos(final String pathToModel) {
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = parser.parse(pathToModel);
