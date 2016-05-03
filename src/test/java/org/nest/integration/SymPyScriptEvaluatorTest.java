@@ -12,7 +12,7 @@ import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.codegeneration.sympy.SympyScriptGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.utils.FileHelper;
+import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -68,7 +68,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
-    FileHelper.deleteFilesInFolder(SYMPY_OUTPUT);
+    FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
 
     final Optional<Path> generatedScript = SympyScriptGenerator.generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),

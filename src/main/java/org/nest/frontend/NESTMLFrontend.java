@@ -10,7 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.utils.FileHelper;
+import org.nest.utils.FilesHelper;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -91,7 +91,7 @@ public class NESTMLFrontend {
   }
 
   public static boolean checkEnvironment(final CLIConfiguration cliConfiguration) {
-    FileHelper.createFolders(cliConfiguration.getTargetPath());
+    FilesHelper.createFolders(cliConfiguration.getTargetPath());
     cleanUpTmpFiles(cliConfiguration);
 
     boolean isError = false;
@@ -123,14 +123,14 @@ public class NESTMLFrontend {
 
   private static void cleanUpTmpFiles(final CLIConfiguration cliConfiguration) {
     if (!Files.exists(cliConfiguration.getTargetPath())) {
-      FileHelper.createFolders(cliConfiguration.getTargetPath());
+      FilesHelper.createFolders(cliConfiguration.getTargetPath());
     }
     else {
-      final List<Path> tmps = FileHelper.collectFiles(
+      final List<Path> tmps = FilesHelper.collectFiles(
           cliConfiguration.getTargetPath(),
           file -> file.endsWith(".tmp"));
 
-      tmps.stream().forEach(FileHelper::deleteFile);
+      tmps.stream().forEach(FilesHelper::deleteFile);
     }
   }
 

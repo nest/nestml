@@ -13,7 +13,7 @@ import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.FileHelper;
+import org.nest.utils.FilesHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -59,7 +59,7 @@ public class ODEProcessorTest extends ModelbasedTest {
     final String modelFolder = modelRoot.getFullName();
 
     final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(modelFolder));
-    FileHelper.deleteFilesInFolder(outputBase);
+    FilesHelper.deleteFilesInFolder(outputBase);
 
     testant.solveODE(modelRoot.getNeurons().get(0), outputBase);
 

@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ExactSolutionTransformerTest extends ModelbasedTest {
 
-  public static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
+  private static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
   private final static String P30_FILE
       = "src/test/resources/codegeneration/sympy/psc/" + SymPyScriptEvaluator.P30_FILE;
@@ -44,7 +44,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
   private static final String MODEL_FILE_PATH
       = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
 
-  public static final String NEURON_NAME = "iaf_psc_alpha_nestml";
+  private static final String NEURON_NAME = "iaf_psc_alpha_nestml";
 
   @Test
   public void testExactSolutionTransformation() {

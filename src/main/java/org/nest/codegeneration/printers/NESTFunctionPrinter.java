@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkState;
  * @author plotnikov
  */
 @SuppressWarnings("unused") // class is used in templates
-public class NESTMLFunctionPrinter {
+public class NESTFunctionPrinter {
 
   public String printFunctionDeclaration(final ASTFunction astFunction) {
     checkArgument(astFunction.getEnclosingScope().isPresent(), "Function: " + astFunction.getName() + " has no scope.");
@@ -51,11 +51,13 @@ public class NESTMLFunctionPrinter {
     }
 
     final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
-        scope, astFunction.getName(), parameterNestmlTypes);
+        scope,
+        astFunction.getName(),
+        parameterNestmlTypes);
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
-      declaration.append("//").append(ASTNodes.printComment(astFunction));
+      declaration.append("//").append(ASTNodes.printComment(astFunction)).append("\n");
       final String returnType = new NESTML2NESTTypeConverter().convert(method.get().getReturnType()).replace(
           ".", "::");
       declaration.append(returnType);
@@ -96,7 +98,7 @@ public class NESTMLFunctionPrinter {
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
-      declaration.append("//").append(ASTNodes.printComment(astFunction));
+      declaration.append("//").append(ASTNodes.printComment(astFunction)).append("\n");
       final String returnType = new NESTML2NESTTypeConverter().convert(method.get().getReturnType()).replace(
           ".", "::");
       declaration.append(returnType);

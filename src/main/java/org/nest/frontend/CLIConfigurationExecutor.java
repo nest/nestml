@@ -22,7 +22,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
+import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
 /**
  * Interprets the provided configuration by collecting models and executing parsing, context
