@@ -66,7 +66,7 @@ public class NESTCodeGenerator {
 
     ASTNESTMLCompilationUnit workingVersion = root;
     for (int i = 0; i < root.getNeurons().size(); ++i) {
-      final ASTNeuron solvedNeuron = computeSolutionForODE(root.getNeurons().get(i), outputBase);
+      final ASTNeuron solvedNeuron = solveODESInNeuron(root.getNeurons().get(i), outputBase);
       root.getNeurons().set(i, solvedNeuron);
     }
 
@@ -81,7 +81,7 @@ public class NESTCodeGenerator {
     info(msg, LOG_NAME);
   }
 
-  private ASTNeuron computeSolutionForODE(
+  private ASTNeuron solveODESInNeuron(
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
@@ -91,8 +91,11 @@ public class NESTCodeGenerator {
         info("The model will be solved numerically with a GSL solver.", LOG_NAME);
         return astNeuron;
       }
+      else {
+        info("The model will be analysed.", LOG_NAME);
+        return odeProcessor.solveODE(astNeuron, outputBase);
+      }
 
-      return odeProcessor.solveODE(astNeuron, outputBase);
     }
     else {
       return astNeuron;
@@ -294,12 +297,11 @@ public class NESTCodeGenerator {
   }
 
   private void defineSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
-    Log.warn("This logic doesn't work at the moement. The sympy script must be used to consult which ODE how should be solved.");
     final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
     if (astBody.getEquations().isPresent()) {
-      if (astBody.getEquations().get().getODEs().size() > 1) {
-        glex.setGlobalValue("useGSL", false);
+      if (astBody.getEquations().get().getEqs().size() == 0) {
+        glex.setGlobalValue("useGSL", true);
         glex.setGlobalValue("ODEs", astBody.getEquations().get().getODEs());
       }
 

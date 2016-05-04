@@ -9,8 +9,8 @@ neuron glif_2:
   end
 
   equations:
-      I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-      I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+      I_shape_in = exp(-1/tau_syn_in*t)
+      I_shape_ex = exp(-1/tau_syn_ex*t)
 
       Theta' = -b*(Theta-Theta_inf) + a*(V-E_L)
       I_a_1' = -(1/tau_a_1)*I_a_1
