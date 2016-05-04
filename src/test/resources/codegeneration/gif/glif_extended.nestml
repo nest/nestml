@@ -8,12 +8,12 @@ neuron glif_extended:
   end
 
   equations:
-      I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-      I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+      I_shape_in = exp(-1/tau_syn_in*t)
+      I_shape_ex = exp(-1/tau_syn_ex*t)
 
       Theta' = -b*(Theta-Theta_inf) + a*(V-E_L)
       I_a' = Beta*(V-E_L) - (1/tau_a)*I_a
-      V' = -1/Tau * (V-E_L) + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents + sum(I_a))
+      V' = -1/Tau * (V-E_L) + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents + I_a)
   end
 
   parameter:

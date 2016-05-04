@@ -3,16 +3,16 @@ neuron glif:
   state:
     V mV
     I_a pA[n]
-    I_shape_in, I_shape_ex real
+    I_shape_in, I_shape_ex, I_shape_a real
     Theta   mV
   end
 
   equations:
-      I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-      I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
-      I_a' = -(1/tau_a)*I_a
+      I_shape_in = exp(-1/tau_syn_in*t)
+      I_shape_ex = exp(-1/tau_syn_ex*t)
+      I_shape_a =  exp(-1/tau_syn_a*t)
 
-      V' = -1/Tau * (V-E_L) + 1/C_m * (sum(I_a)+I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+      V' = -1/Tau * (V-E_L) + 1/C_m * (I_shape_a+I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
 
       Theta' = -b*(Theta-Theta_inf) + a*(V-E_L)
   end
@@ -27,7 +27,7 @@ neuron glif:
     Tau     ms = 10    # Membrane time constant.
     tau_syn_in ms = 2     # Time constant of synaptic current.
     tau_syn_ex ms = 2     # Time constant of synaptic current.
-    tau_a ms[n] = 2     # Time constant of synaptic current.
+    tau_syn_a ms[n] = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
     E_L     mV = -70  # Resting potential.
     V_reset mV = 0 [[V_reset < Theta_reset]]
