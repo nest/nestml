@@ -47,8 +47,19 @@ WORKDIR /data/nestml
 RUN mvn install
 ENV NESTML 'java -jar /data/nestml/target/nestml.jar'
 
+# create a non-root user named tester, 
+# give them the password "tester" put them in the sudo group
+RUN useradd -d /home/tester -m -s /bin/bash tester && echo "tester:tester" | chpasswd && adduser tester sudo
+
+# start working in the "tester" home directory
+WORKDIR /home/tester
+
+# Make the files owned by tester
+RUN chown -R tester:tester /home/tester
+
+# Switch to your new user in the docker image
+USER tester
+
+
 # Define default command.
 ENTRYPOINT ["java", "-jar", "/data/nestml/target/nestml.jar", "/nestml", "--target", "/nestml/result"]
-
-# usage from the commandlien
-# docker run -v folderWithModelsOnHost:/nestml nestml_box
