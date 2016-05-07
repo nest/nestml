@@ -20,6 +20,7 @@ import java.nio.file.Paths;
  *
  * @author plotnikov
  */
+@Ignore("Don't run this tests on github. PIP uses to outdated sympy package.")
 public class NESTMLFrontendIntegrationTest {
   private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
 
@@ -58,7 +59,7 @@ public class NESTMLFrontendIntegrationTest {
     nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/izhikevich", "--target", outputPath.toString()});
   }
 
-  @Ignore("Don't run this tests on github")
+
   @Test
   public void testGIFModel() {
     Path outputPath = Paths.get("target", "tmpOutput");
