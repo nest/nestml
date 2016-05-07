@@ -68,7 +68,7 @@ public class NESTMLFrontend {
     final CLIConfiguration cliConfiguration = createCLIConfiguration(args);
 
     if (checkEnvironment(cliConfiguration)) {
-      handleConsoleArguments(cliConfiguration);
+      executeConfiguration(cliConfiguration);
 
     } else {
       Log.error("The execution environment is not installed properly.");
@@ -194,14 +194,14 @@ public class NESTMLFrontend {
       final String checkerScript,
       final String copiedScriptName,
       final Path outputFolder) throws IOException {
-    ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
+    final ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
     final InputStream is = classloader.getResourceAsStream(checkerScript);
     byte[] buffer = new byte[is.available()];
     if (is.read(buffer) < 0) {
       Log.error("Cannot copy the script " + checkerScript);
     }
 
-    OutputStream outStream = new FileOutputStream(
+    final OutputStream outStream = new FileOutputStream(
         Paths.get(outputFolder.toString(), copiedScriptName).toString());
     outStream.write(buffer);
   }
@@ -211,7 +211,7 @@ public class NESTMLFrontend {
     return in.lines().collect(Collectors.toList());
   }
 
-  private void handleConsoleArguments(final CLIConfiguration CLIConfiguration) {
+  private void executeConfiguration(final CLIConfiguration CLIConfiguration) {
     final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(CLIConfiguration.getInputBase());

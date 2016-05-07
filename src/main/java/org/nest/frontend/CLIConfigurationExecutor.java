@@ -14,6 +14,7 @@ import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
 import java.io.IOException;
@@ -45,7 +46,12 @@ public class CLIConfigurationExecutor {
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getInputBase());
 
+    cleanUpWorkingFolder(config.getTargetPath());
     processNestmlModels(modelRoots, config, scopeCreator, generator);
+  }
+
+  private void cleanUpWorkingFolder(final Path targetPath) {
+    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith("tmp"));
   }
 
   private List<ASTNESTMLCompilationUnit> parseModels(
@@ -97,7 +103,6 @@ public class CLIConfigurationExecutor {
     else {
       Log.warn("Cannot generate module code, since there is no parsable neuron in " + config.getInputBase());
     }
-
 
   }
 

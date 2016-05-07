@@ -16,11 +16,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * TODO
+ * Tests the entire pipeline.
  *
  * @author plotnikov
  */
-@Ignore("Don't run this tests on github")
 public class NESTMLFrontendIntegrationTest {
   private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
 
@@ -59,6 +58,7 @@ public class NESTMLFrontendIntegrationTest {
     nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/izhikevich", "--target", outputPath.toString()});
   }
 
+  @Ignore("Don't run this tests on github")
   @Test
   public void testGIFModel() {
     Path outputPath = Paths.get("target", "tmpOutput");
