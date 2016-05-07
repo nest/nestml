@@ -25,15 +25,15 @@ import static de.se_rwth.commons.logging.Log.info;
 public class SymPyScriptEvaluator {
   private final static String LOG_NAME = SymPyScriptEvaluator.class.getName();
 
-  public final static String P30_FILE = "P30.mat";
-   final static String ODE_TYPE = "solverType.property";
+  public final static String P30_FILE = "P30.tmp";
+   final static String ODE_TYPE = "solverType.tmp";
   static final String CONSTANT_TERM = "constantTerm.mat";
-  public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValues.mat";
-  public final static String STATE_VECTOR_UPDATE_FILE = "state.vector.update.mat";
-  public final static String STATE_VARIABLES_FILE = "state.variables.mat";
-  public final static String UPDATE_STEP_FILE = "update.step.mat";
+  public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValues.tmp";
+  public final static String STATE_VECTOR_UPDATE_FILE = "state.vector.update.tmp";
+  public final static String STATE_VARIABLES_FILE = "state.variables.tmp";
+  public final static String UPDATE_STEP_FILE = "update.step.tmp";
 
-  private final static String PYTHON_VERSION = "python2.7";
+  private final static String PYTHON_VERSION = "python";
 
   public boolean evaluateScript(final Path generatedScript) {
     try {

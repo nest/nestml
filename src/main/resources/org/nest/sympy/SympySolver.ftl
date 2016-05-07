@@ -29,7 +29,6 @@ rhs = ${printer.print(ode.getRhs())}
 dev${ode.getLhs()} = diff(rhs, ${ode.getLhs()})
 dev_t_dev${ode.getLhs()} = diff(dev${ode.getLhs()}, t)
 
-solverType = open('solverType.property', 'w')
 if dev_t_dev${ode.getLhs()} == 0:
     print 'We have a linear differential equation!'
 
@@ -133,11 +132,11 @@ if dev_t_dev${ode.getLhs()} == 0:
 
     shapes = [<#compress> <#list EQs as eq> "${eq.getLhs()}", </#list> </#compress>]
 
-    stateVectorUpdateFile = open('state.vector.update.mat', 'w')
+    stateVectorUpdateFile = open('state.vector.update.tmp', 'w')
 
     stateVectors = zeros(max(orders) + 1, len(shapes))
-    stateVariablesFile = open('state.variables.mat', 'w')
-    initialValue = open('pscInitialValues.mat', 'w')
+    stateVariablesFile = open('state.variables.tmp', 'w')
+    initialValue = open('pscInitialValues.tmp', 'w')
 
     for shapeIndex in range(0, len(shapes)):
         stateVariables = ["y1_", "y2_", "y3_", "y4_", "y5_", "y6_", "y7_", "y8_", "y9_", "y10_"]
@@ -155,22 +154,23 @@ if dev_t_dev${ode.getLhs()} == 0:
         for i in reversed(range(0, orders[shapeIndex])):
             stateVectors[i, shapeIndex] = stateVariables[i] + shapes[shapeIndex]
             stateVectorUpdateFile.write(stateVariables[i] + shapes[shapeIndex] + " = " + str(simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
-    f = open('P30.mat', 'w')
+    f = open('P30.tmp', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
     tmp = (Ps[0] * stateVectors.col(0))[orders[0]]
     for shapeIndex in range(1, len(shapes)):
         tmp += (Ps[shapeIndex][1:(orders[shapeIndex] + 1), 0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex], 0])[orders[shapeIndex] - 1]
 
-    updateStep = open('update.step.mat', 'w')
+    updateStep = open('update.step.tmp', 'w')
     updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(tmp))
+
+    solverType = open('solverType.tmp', 'w')
     solverType.write("exact")
-
-
 else:
     print 'Not a linear differential equation'
+    solverType = open('solverType.tmp', 'w')
     solverType.write("numeric")
-    f = open('explicitSolution.mat', 'w')
+    f = open('explicitSolution.tmp', 'w')
 <#list EQs as eq>
     # compute values for the  ${eq.getLhs()} equation
     order = None
