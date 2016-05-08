@@ -61,7 +61,7 @@ grammar Commons extends de.monticore.types.Types {
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name
   */
-  Variable = name:QualifiedName;
+  Variable = name:QualifiedName (differentialOrder:"\'")*;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").

@@ -4,9 +4,7 @@ import de.monticore.antlr4.MCConcreteParser;
 import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-
-import org.nest.ode._ast.ASTEq;
-import org.nest.ode._ast.ASTODE;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl._parser.SPLParser;
 
@@ -17,15 +15,13 @@ import java.util.Optional;
 import static org.junit.Assert.assertTrue;
 
 /**
- * TODO
+ * Tests the handling of the parser for the ODE block.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plornikov
  */
 public class ODEParsingTest extends ModelbasedTest {
 
-  final SPLParser parser = new SPLParser();
+  private final SPLParser parser = new SPLParser();
 
   @Test
   public void testOdeDefinition() throws IOException {
@@ -38,31 +34,26 @@ public class ODEParsingTest extends ModelbasedTest {
 
   @Test
   public void testOde() throws IOException {
-    Optional<ASTODE> res = parseOde("V' = -1/Tau * V + 1/C*I");
+    Optional<ASTEquation> res = parseEquation("V' = -1/Tau * V + 1/C*I");
     assertTrue(res.isPresent());
 
   }
 
   @Test
   public void testEq() throws IOException {
-    Optional<ASTEq> res = parseEq("I = w * (E/tau_in) * t * exp(-1/tau_in*t)");
+    Optional<ASTEquation> res = parseEquation("I = w * (E/tau_in) * t * exp(-1/tau_in*t)");
     assertTrue(res.isPresent());
 
   }
 
-  public Optional<ASTODE> parseOde(String input) throws RecognitionException, IOException {
+  private Optional<ASTEquation> parseEquation(String input) throws RecognitionException, IOException {
 
     parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
-    return parser.parseODE(new StringReader(input));
-  }
-
-  public Optional<ASTEq> parseEq(String input) throws RecognitionException, IOException {
-
-    return parser.parseEq(new StringReader(input));
+    return parser.parseEquation(new StringReader(input));
   }
 
 
-  public Optional<ASTOdeDeclaration> parseOdeDeclaration(String input) throws RecognitionException, IOException {
+  private Optional<ASTOdeDeclaration> parseOdeDeclaration(String input) throws RecognitionException, IOException {
 
     return parser.parseOdeDeclaration(new StringReader(input));
   }

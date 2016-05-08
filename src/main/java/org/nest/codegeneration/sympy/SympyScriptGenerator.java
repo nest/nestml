@@ -15,7 +15,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.ode._ast.ASTODE;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedVariables;
@@ -93,10 +93,10 @@ public class SympyScriptGenerator {
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
 
-    if (astOdeDeclaration.getODEs().size() == 1) {
+    if (astOdeDeclaration.getODEs().size() >= 1) {
       Log.warn("It works only for a single ODE. Only the first equation will be used.");
     }
-    ASTODE workingVersion = replace_I_sum(astOdeDeclaration.getODEs().get(0));
+    final ASTEquation workingVersion = replace_I_sum(astOdeDeclaration.getODEs().get(0));
 
     glex.setGlobalValue("ode", workingVersion);
     glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
@@ -119,9 +119,9 @@ public class SympyScriptGenerator {
         .collect(Collectors.toList());
     variables.addAll(symbolsInAliasDeclaration);
 
-    Optional<? extends Scope> scope = astOdeDeclaration.getEnclosingScope();
+    final Optional<? extends Scope> scope = astOdeDeclaration.getEnclosingScope();
     if (scope.isPresent()) {
-      for (final ASTODE ode:astOdeDeclaration.getODEs()) {
+      for (final ASTEquation ode:astOdeDeclaration.getODEs()) {
         final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(
             ode.getLhs().toString(),
             VariableSymbol.KIND);
@@ -140,7 +140,7 @@ public class SympyScriptGenerator {
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
   }
 
-  static ASTODE replace_I_sum(final ASTODE astOde) {
+  static ASTEquation replace_I_sum(final ASTEquation astOde) {
     final List<ASTFunctionCall> functions = ASTNodes.getAll(astOde, ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))

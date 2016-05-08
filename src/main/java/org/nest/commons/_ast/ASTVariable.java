@@ -8,6 +8,8 @@ package org.nest.commons._ast;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 
+import java.util.List;
+
 /**
  * HW extension of the AST class. Provides method to print the variable name.
  *
@@ -15,12 +17,13 @@ import de.se_rwth.commons.Names;
  */
 public class ASTVariable extends ASTVariableTOP {
 
-  public ASTVariable(ASTQualifiedName name) {
-    super(name);
+  public ASTVariable(
+      final ASTQualifiedName name,
+      final List<String> differentialOrder) {
+    super(name, differentialOrder);
   }
 
   public ASTVariable() {
-
   }
 
   @Override
