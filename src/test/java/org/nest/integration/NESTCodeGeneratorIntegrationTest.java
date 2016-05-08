@@ -46,6 +46,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   private final List<String> nestmlCondModelExplicit = Lists.newArrayList(
       "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml"
+      //"src/test/resources/codegeneration/iaf_cond_alpha_implicit_new.nestml"
   );
 
   private final List<String> blueGene = Lists.newArrayList(
@@ -96,14 +97,27 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   public void testCondModel() {
     nestmlCondModels.forEach(this::checkCocos);
     nestmlCondModels.forEach(this::invokeCodeGenerator);
+
+    final List<ASTNESTMLCompilationUnit> roots = nestmlCondModels.stream()
+        .map(this::parseAndBuildSymboltable)
+        .collect(Collectors.toList());
+    generateNESTModuleCode(roots);
   }
 
+
+  @Ignore
   @Test
   public void testImplicitForm() {
     nestmlCondModelExplicit.forEach(this::checkCocos);
     nestmlCondModelExplicit.forEach(this::invokeCodeGenerator);
+
+    final List<ASTNESTMLCompilationUnit> roots = nestmlCondModelExplicit.stream()
+        .map(this::parseAndBuildSymboltable)
+        .collect(Collectors.toList());
+    generateNESTModuleCode(roots);
   }
 
+  @Ignore
   @Test
   public void testBluegeneModels() {
     blueGene.forEach(this::checkCocos);

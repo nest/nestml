@@ -105,17 +105,7 @@ public class VariableDoesNotExist implements
 
   }
 
-  private void checkVariableByName(final String fqn, final ASTNode node) {
-    checkState(node.getEnclosingScope().isPresent());
-    final Scope scope = node.getEnclosingScope().get();
 
-    if (!exists(fqn, scope)) {
-      error(ERROR_CODE + ":" +
-              String.format(ERROR_MSG_FORMAT, fqn, scope.getName().orElse("")),
-          node.get_SourcePositionStart());
-    }
-
-  }
 
   @Override
   public void check(final ASTAssignment astAssignment) {
@@ -152,12 +142,24 @@ public class VariableDoesNotExist implements
   public void check(final ASTOdeDeclaration node) {
     node.getEquations().forEach(
         ode-> {
-          checkVariableByName(ode.getLhs().toString(), node);
+          checkVariableByName(ode.getLhs().getName().toString(), node);
           org.nest.utils.ASTNodes.getAll(ode.getRhs(), ASTVariable.class).forEach(
               variable -> checkVariableByName(Names.getQualifiedName(variable.getName().getParts()), node));
         }
 
     );
+
+  }
+
+  private void checkVariableByName(final String variableName, final ASTNode node) {
+    checkState(node.getEnclosingScope().isPresent());
+    final Scope scope = node.getEnclosingScope().get();
+
+    if (!exists(variableName, scope)) {
+      error(ERROR_CODE + ":" +
+              String.format(ERROR_MSG_FORMAT, variableName, scope.getName().orElse("")),
+          node.get_SourcePositionStart());
+    }
 
   }
 }

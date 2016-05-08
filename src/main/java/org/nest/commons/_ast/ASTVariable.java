@@ -5,6 +5,7 @@
  */
 package org.nest.commons._ast;
 
+import com.google.common.base.Joiner;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 
@@ -28,7 +29,7 @@ public class ASTVariable extends ASTVariableTOP {
 
   @Override
   public String toString() {
-    return Names.getQualifiedName(name.getParts());
+    return Names.getQualifiedName(name.getParts()) + Joiner.on("").join(getDifferentialOrder());
   }
 
 }
