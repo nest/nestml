@@ -91,5 +91,16 @@ public class SymPyOutput2NESTMLConverter {
 
   }
 
+  ASTDeclaration convertStringToDeclaration(final String declarationAsString) {
+    try {
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return stringParser.parseDeclaration(new StringReader(declarationAsString)).get();
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+
+  }
 
 }
