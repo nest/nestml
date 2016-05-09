@@ -21,15 +21,14 @@ import static org.junit.Assert.assertTrue;
  */
 public class SymPyOutput2NESTMLConverterTest {
 
-  public static final String P_30 = "P30";
+  private static final String P_30 = "P30";
 
   private final static String P30_FILE = "src/test/resources/codegeneration/sympy/psc/P30.tmp";
 
-  final SymPyOutput2NESTMLConverter converter = new SymPyOutput2NESTMLConverter();
+  private final SymPyOutput2NESTMLConverter converter = new SymPyOutput2NESTMLConverter();
 
   @Test
   public void testConvertToDeclaration() throws Exception {
-
     final ASTAliasDecl testant = converter.convertToAlias(Paths.get(P30_FILE)).get(0);
     assertEquals(testant.getDeclaration().getVars().get(0), P_30);
     assertTrue(testant.getDeclaration().getExpr().isPresent());
@@ -47,9 +46,5 @@ public class SymPyOutput2NESTMLConverterTest {
     assertEquals(P_30, testant.getDeclaration().getVars().get(0));
   }
 
-  @Test
-  public void testConvert2Function() {
-
-  }
 
 }

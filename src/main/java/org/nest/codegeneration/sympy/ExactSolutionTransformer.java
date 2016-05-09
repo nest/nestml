@@ -84,56 +84,83 @@ public class ExactSolutionTransformer {
       final ASTNeuron astNeuron,
       final Path pathPSCInitialValueFile,
       final Path stateVariablesFile,
-      final Path stateVectorFile) {
+      final Path stateUpdatesFile) {
     try {
       checkState(astNeuron.getBody().getEquations().isPresent(),  "The model has no ODES.");
       final ASTBody body = astNeuron.getBody();
 
-      final List<String> stateVectorLines = Files
-          .lines(stateVectorFile)
-          .collect(Collectors.toList());
-
-      final List<String> stateVariableDeclarations = Files.lines(stateVariablesFile)
-          .map(stateVariable -> stateVariable + " real")
-          .collect(Collectors.toList());
-
-      stateVariableDeclarations.stream()
-          .map(converter2NESTML::convertStringToAlias)
-          .forEach(astAliasDecl -> astNeuron.getBody().addToStateBlock(astAliasDecl));
-
-      final List<ASTAssignment> stateAssignments = stateVectorLines
-          .stream()
-          .map(converter2NESTML::convertStringToAssignment)
-          .collect(Collectors.toList());
-      stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
-
-      final List<ASTFunctionCall> i_sumCalls = ASTNodes.getAll(astNeuron.getBody().getEquations().get(), ASTFunctionCall.class)
-          .stream()
-          .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
-          .collect(toList());
-
-      final List<ASTAliasDecl> pscInitialValues = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
-      for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
-        final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
-        final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
-        final String shapeName = variableName.substring(variableName.indexOf("_") + 1, variableName.length());
-        for (ASTFunctionCall i_sum_call:i_sumCalls) {
-          final String shapeNameInCall = ASTNodes.toString(i_sum_call.getArgs().get(0));
-          if (shapeNameInCall.equals(shapeName)) {
-            final String bufferName = ASTNodes.toString(i_sum_call.getArgs().get(1));
-            final ASTAssignment pscUpdateStep = converter2NESTML
-                .convertStringToAssignment(variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".getSum(t)");
-            addAssignmentToDynamics(body, pscUpdateStep);
-          }
-
-        }
-
-      }
+      addStateVariables(stateVariablesFile, body);
+      addStateUpdates(stateUpdatesFile, body);
+      addPSCInitialValuesUpdates(pathPSCInitialValueFile, body);
 
       return astNeuron;
     }
     catch (IOException e) {
       throw new RuntimeException("Cannot solveODE stateVector output from the SymPy solver", e);
+    }
+  }
+
+  private void addStateVariables(final Path stateVariablesFile, final ASTBody astBody) throws IOException {
+    final List<String> stateVariableDeclarations = Files.lines(stateVariablesFile)
+        .map(stateVariable -> stateVariable + " real")
+        .collect(Collectors.toList());
+
+    stateVariableDeclarations.stream()
+        .map(converter2NESTML::convertStringToAlias)
+        .forEach(astBody::addToStateBlock);
+  }
+
+  private void addStateUpdates(final Path stateUpdatesFile, final ASTBody body) throws IOException {
+    final List<String> stateUpdates = Files
+        .lines(stateUpdatesFile)
+        .collect(Collectors.toList());
+
+
+    final List<ASTAssignment> stateAssignments = stateUpdates
+        .stream()
+        .map(converter2NESTML::convertStringToAssignment)
+        .collect(Collectors.toList());
+
+    final List<ASTDeclaration> tmpStateDeclarations = stateAssignments
+        .stream()
+        .map(assignment -> assignment.getVariableName() + " real = " + assignment.getVariableName())
+        .map(converter2NESTML::convertStringToDeclaration)
+        .collect(Collectors.toList());
+
+    final List<ASTAssignment> backAssignments = stateAssignments
+        .stream()
+        .map(assignment -> assignment.getVariableName().toString()) // get variable names as strings
+        .map(stateVariable -> stateVariable.substring(0, stateVariable.indexOf("_tmp")) + " = " + stateVariable)
+        .map(converter2NESTML::convertStringToAssignment)
+        .collect(Collectors.toList());
+
+    tmpStateDeclarations.forEach(tmpDeclaration -> addDeclarationToDynamics(body, tmpDeclaration));
+    stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
+    backAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
+  }
+
+  private void addPSCInitialValuesUpdates(final Path pathPSCInitialValueFile, final ASTBody body) {
+    final List<ASTFunctionCall> i_sumCalls = ASTNodes.getAll(body.getEquations().get(), ASTFunctionCall.class)
+        .stream()
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
+        .collect(toList());
+
+    final List<ASTAliasDecl> pscInitialValues = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
+    for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
+      final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
+      final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
+      final String shapeName = variableName.substring(variableName.indexOf("_") + 1, variableName.length());
+      for (ASTFunctionCall i_sum_call:i_sumCalls) {
+        final String shapeNameInCall = ASTNodes.toString(i_sum_call.getArgs().get(0));
+        if (shapeNameInCall.equals(shapeName)) {
+          final String bufferName = ASTNodes.toString(i_sum_call.getArgs().get(1));
+          final ASTAssignment pscUpdateStep = converter2NESTML
+              .convertStringToAssignment(variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".getSum(t)");
+          addAssignmentToDynamics(body, pscUpdateStep);
+        }
+
+      }
+
     }
   }
 
@@ -184,8 +211,9 @@ public class ExactSolutionTransformer {
 
   }
 
-  private void addAssignmentToDynamics(ASTBody astBodyDecorator,
-      ASTAssignment yVarAssignment) {
+  private void addAssignmentToDynamics(
+      final ASTBody astBodyDecorator,
+      final ASTAssignment yVarAssignment) {
     final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
     final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
     final List<ASTSmall_Stmt> astSmallStmts = Lists.newArrayList();
@@ -197,6 +225,23 @@ public class ExactSolutionTransformer {
 
     // Goal: add the y-assignments at the end of the expression
     astSmall_stmt.setAssignment(yVarAssignment);
+
+    astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
+  }
+
+  private void addDeclarationToDynamics(
+      final ASTBody astBodyDecorator,
+      final ASTDeclaration astDeclaration) {
+    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
+    final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
+    final List<ASTSmall_Stmt> astSmallStmts = Lists.newArrayList();
+    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
+
+    astStmt.setSimple_Stmt(astSimpleStmt);
+    astSmallStmts.add(astSmall_stmt);
+    astSimpleStmt.setSmall_Stmts(astSmallStmts);
+
+    astSmall_stmt.setDeclaration(astDeclaration);
 
     astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }

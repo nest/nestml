@@ -57,42 +57,48 @@ public class ODEProcessor {
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(astNeuron.deepClone(), outputBase);
-    checkState(generatedScript.isPresent());
-    info("The solver script is generated: " + generatedScript.get(), LOG_NAME);
+    if(generatedScript.isPresent()) {
+      info("The solver script is generated: " + generatedScript.get(), LOG_NAME);
 
-    final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
-    boolean successfulExecution = evaluator.evaluateScript(generatedScript.get());
-    info("The solver script is evaluated. Results are under " + generatedScript.get().getParent(), LOG_NAME);
+      final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
+      boolean successfulExecution = evaluator.evaluateScript(generatedScript.get());
+      info("The solver script is evaluated. Results are under " + generatedScript.get().getParent(), LOG_NAME);
 
-    checkState(successfulExecution, "Error during solver script evaluation.");
+      checkState(successfulExecution, "Error during solver script evaluation.");
 
-    final Path odeTypePath = Paths.get(outputBase.toString(), SymPyScriptEvaluator.ODE_TYPE);
-    final SolverType solutionType = SolverType.fromFile(odeTypePath);
+      final Path odeTypePath = Paths.get(outputBase.toString(), SymPyScriptEvaluator.ODE_TYPE);
+      final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
-    if (solutionType.equals(SolverType.EXACT)) {
-      info("ODE is solved exactly.", LOG_NAME);
+      if (solutionType.equals(SolverType.EXACT)) {
+        info("ODE is solved exactly.", LOG_NAME);
 
-      return exactSolutionTransformer
-          .replaceODEWithSymPySolution(
-              astNeuron,
-              Paths.get(outputBase.toString(), SymPyScriptEvaluator.P30_FILE),
-              Paths.get(outputBase.toString(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),
-              Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VARIABLES_FILE),
-              Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_UPDATE_FILE),
-              Paths.get(outputBase.toString(), SymPyScriptEvaluator.UPDATE_STEP_FILE));
-    }
-    else if (solutionType.equals(SolverType.NUMERIC)) {
-      info("ODE is solved numerically.", LOG_NAME);
-      return astNeuron;
+        return exactSolutionTransformer
+            .replaceODEWithSymPySolution(
+                astNeuron,
+                Paths.get(outputBase.toString(), SymPyScriptEvaluator.P30_FILE),
+                Paths.get(outputBase.toString(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),
+                Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VARIABLES_FILE),
+                Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_UPDATE_FILE),
+                Paths.get(outputBase.toString(), SymPyScriptEvaluator.UPDATE_STEP_FILE));
+      }
+      else if (solutionType.equals(SolverType.NUMERIC)) {
+        info("ODE is solved numerically.", LOG_NAME);
+        return astNeuron;
+      }
+      else {
+        warn(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.");
+        return astNeuron;
+      }
     }
     else {
-      warn("ODEs could not be solved. The model remains unchanged.");
+      warn(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.");
       return astNeuron;
     }
+
 
   }
 
-  public ExactSolutionTransformer getExactSolutionTransformer() {
+  protected ExactSolutionTransformer getExactSolutionTransformer() {
     return exactSolutionTransformer;
   }
 }
