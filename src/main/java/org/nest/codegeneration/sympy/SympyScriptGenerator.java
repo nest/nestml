@@ -79,12 +79,14 @@ public class SympyScriptGenerator {
 
       return of(generatedScriptFile);
     }
+    else {
+      final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
+          + "is skipped.", neuron.getName());
+      Log.warn(msg);
 
-    final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
-        + "is skipped.", neuron.getName());
-    Log.warn(msg);
+      return empty();
+    }
 
-    return empty();
   }
 
   private static Path generateSolverScript(
@@ -96,6 +98,7 @@ public class SympyScriptGenerator {
     if (astOdeDeclaration.getODEs().size() >= 1) {
       Log.warn("It works only for a single ODE. Only the first equation will be used.");
     }
+
     final ASTEquation workingVersion = replace_I_sum(astOdeDeclaration.getODEs().get(0));
 
     glex.setGlobalValue("ode", workingVersion);
@@ -113,6 +116,7 @@ public class SympyScriptGenerator {
     final Set<VariableSymbol> variables = new HashSet<>(getVariableSymbols(astOdeDeclaration));
 
     final List<VariableSymbol> aliases = ASTNodes.getAliasSymbols(astOdeDeclaration);
+
     List<VariableSymbol> symbolsInAliasDeclaration = aliases
         .stream()
         .flatMap(alias -> ASTNodes.getVariableSymbols(alias.getDeclaringExpression().get()).stream())
@@ -146,14 +150,16 @@ public class SympyScriptGenerator {
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))
         .collect(toList());
 
-    functions.stream().forEach(node -> {
-      final Optional<ASTNode> parent = ASTNodes.getParent(node, astOde);
-      checkState(parent.isPresent());
-      final ASTExpr expr = (ASTExpr) parent.get();
-      expr.setFunctionCall(null);
-      expr.setVariable(node.getArgs().get(0).getVariable().get());
-    });
+    functions.stream().forEach(node -> replaceFunctionCallThroughFirstArgument(astOde, node));
     return astOde;
+  }
+
+  private static void replaceFunctionCallThroughFirstArgument(ASTEquation astOde, ASTFunctionCall node) {
+    final Optional<ASTNode> parent = ASTNodes.getParent(node, astOde);
+    checkState(parent.isPresent());
+    final ASTExpr expr = (ASTExpr) parent.get();
+    expr.setFunctionCall(null);
+    expr.setVariable(node.getArgs().get(0).getVariable().get());
   }
 
 

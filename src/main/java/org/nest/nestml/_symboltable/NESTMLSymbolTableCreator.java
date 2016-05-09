@@ -9,6 +9,7 @@ import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
+import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTParameter;
@@ -490,6 +491,11 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     }
 
+  }
+
+  @Override
+  public void visit(final ASTOdeDeclaration astOdeDeclaration) {
+    // TODO should be variables declared?
   }
 
 }

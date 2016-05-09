@@ -29,6 +29,10 @@ public class ASTVariable extends ASTVariableTOP {
 
   @Override
   public String toString() {
+    return Names.getQualifiedName(name.getParts());
+  }
+
+  public String printFullName() {
     return Names.getQualifiedName(name.getParts()) + Joiner.on("").join(getDifferentialOrder());
   }
 
