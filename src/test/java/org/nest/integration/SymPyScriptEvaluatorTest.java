@@ -38,13 +38,12 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
 
   private static final Path SYMPY_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "sympy");
 
-  @Ignore
+  @Ignore("Doesn't work at the moment")
   @Test
   public void testPSC_ALPHA_MODEL() throws IOException {
     generateAndEvaluate(IAF_PSC_ALPHA);
   }
 
-  @Ignore
   @Test
   public void testPSC_EXP_MODEL() throws IOException {
     generateAndEvaluate(IAF_PSC_EXP);

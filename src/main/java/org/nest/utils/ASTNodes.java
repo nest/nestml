@@ -11,7 +11,6 @@ import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Util;
-import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTCommonsNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
@@ -22,7 +21,6 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTODENode;
 import org.nest.spl._ast.ASTBlock;
-import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
@@ -117,18 +115,18 @@ public final class ASTNodes {
    * Returns all variables defined in the tree starting from the astNode.
    */
   public static List<String> getVariablesNamesFromAst(final ASTCommonsNode astNode) {
-    final FQNCollector fqnCollector = new FQNCollector();
-    astNode.accept(fqnCollector);
-    return fqnCollector.getVariableNames();
+    final VariablesCollector variablesCollector = new VariablesCollector();
+    astNode.accept(variablesCollector);
+    return variablesCollector.getVariableNames();
   }
 
   /**
    * Returns all variables defined in the tree starting from the astNode.
    */
   static List<String> getVariablesNamesFromAst(final ASTODENode astNode) {
-    final FQNCollector fqnCollector = new FQNCollector();
-    astNode.accept(fqnCollector);
-    return fqnCollector.getVariableNames();
+    final VariablesCollector variablesCollector = new VariablesCollector();
+    astNode.accept(variablesCollector);
+    return variablesCollector.getVariableNames();
   }
 
   /**
@@ -139,6 +137,7 @@ public final class ASTNodes {
     final Scope scope = astNode.getEnclosingScope().get();
     final List<String> names = getVariablesNamesFromAst(astNode);
     return names.stream()
+        .filter(name -> !name.contains("'"))
         .map(variableName -> {
           final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
           return symbol.get(); //  checked by the context condition
@@ -197,7 +196,7 @@ public final class ASTNodes {
     }
   }
 
-  private static final class FQNCollector implements NESTMLInheritanceVisitor {
+  private static final class VariablesCollector implements NESTMLInheritanceVisitor {
     List<String> getVariableNames() {
       return Lists.newArrayList(variableNames);
     }

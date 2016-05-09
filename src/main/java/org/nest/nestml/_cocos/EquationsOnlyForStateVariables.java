@@ -8,10 +8,8 @@ package org.nest.nestml._cocos;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.ode._ast.ASTEq;
-import org.nest.ode._ast.ASTODE;
-import org.nest.ode._cocos.ODEASTEqCoCo;
-import org.nest.ode._cocos.ODEASTODECoCo;
+import org.nest.ode._ast.ASTEquation;
+import org.nest.ode._cocos.ODEASTEquationCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.NESTMLSymbols;
 
@@ -24,26 +22,17 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author plotnikov
  */
-public class EquationsOnlyForStateVariables implements ODEASTEqCoCo, ODEASTODECoCo {
+public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
   public static final String ERROR_CODE = "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
   CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
 
   @Override
-  public void check(final ASTEq astEq) {
+  public void check(final ASTEquation astEq) {
     checkArgument(astEq.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astEq.getEnclosingScope().get();
     final Optional<VariableSymbol> variableSymbol
         = NESTMLSymbols.resolve(astEq.getLhs().toString(), scope);
     checkVariable(variableSymbol, astEq);
-  }
-
-  @Override
-  public void check(final ASTODE astOde) {
-    checkArgument(astOde.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
-    final Scope scope = astOde.getEnclosingScope().get();
-    final Optional<VariableSymbol> variableSymbol
-        = NESTMLSymbols.resolve(astOde.getLhs().toString(), scope);
-    checkVariable(variableSymbol, astOde);
   }
 
   private void checkVariable(final Optional<VariableSymbol> variableSymbol, final ASTNode node) {

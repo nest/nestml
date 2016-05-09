@@ -8,12 +8,9 @@ package org.nest.nestml._cocos;
 import de.se_rwth.commons.Names;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.ode._cocos.ODEASTEqCoCo;
-import org.nest.ode._cocos.ODEASTODECoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
@@ -653,8 +650,7 @@ public class NESTMLCoCosTest extends ModelbasedTest {
   public void testOnlyStateVariablesInOde() {
     final EquationsOnlyForStateVariables equationsOnlyForStateVariables
         = new EquationsOnlyForStateVariables();
-    nestmlCoCoChecker.addCoCo((ODEASTEqCoCo) equationsOnlyForStateVariables);
-    nestmlCoCoChecker.addCoCo((ODEASTODECoCo) equationsOnlyForStateVariables);
+    nestmlCoCoChecker.addCoCo(equationsOnlyForStateVariables);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "equationsOnlyForStateVariables/valid.nestml");
     checkModelAndAssertNoErrors(

@@ -8,8 +8,6 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.ode._ast.ASTEq;
-import org.nest.ode._ast.ASTODE;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTParameter;
@@ -264,13 +262,8 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
     astEquations
         .getOdeDeclaration()
-        .getEqs()
-        .forEach(eq -> println(eq.getLhs() + " = " + expressionsPrinter.print(eq.getRhs())));
-
-    astEquations
-        .getOdeDeclaration()
-        .getODEs()
-        .forEach(ode -> println(ode.getLhs() + "' = " + expressionsPrinter.print(ode.getRhs())));
+        .getEquations()
+        .forEach(eq -> println(eq.getLhs().printFullName() + " = " + expressionsPrinter.print(eq.getRhs())));
   }
 
   @Override
@@ -439,21 +432,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     unindent();
     println();
     println(BLOCK_CLOSE);
-  }
-
-  @Override
-  public void visit(ASTEq node) {
-
-  }
-
-  @Override
-  public void visit(ASTODE node) {
-
-  }
-
-  @Override
-  public void visit(ASTOdeDeclaration node) {
-
   }
 
 }
