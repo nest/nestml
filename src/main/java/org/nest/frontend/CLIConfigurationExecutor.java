@@ -151,7 +151,7 @@ public class CLIConfigurationExecutor {
 
     final List<String> formatCommand = Lists.newArrayList("clang-format", "-i", "*.cpp", "*.h");
     final ProcessBuilder processBuilder
-        = new ProcessBuilder(formatCommand).directory(new File("/home/nestml/repositories/nestml/target/build"));
+        = new ProcessBuilder(formatCommand).directory(targetPath.toFile());
 
     final Process res;
     try {
