@@ -42,8 +42,7 @@ public class SymPyScriptEvaluator {
 
       final ProcessBuilder processBuilder = new ProcessBuilder(
           PYTHON_VERSION,
-          generatedScript.getFileName().toString())
-          .directory(generatedScript.getParent().toFile());
+          generatedScript.getFileName().toString()).directory(generatedScript.getParent().toFile());
 
       final Process res = processBuilder.start();
       res.waitFor();

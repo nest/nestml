@@ -17,12 +17,14 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static de.se_rwth.commons.logging.Log.info;
 import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
 /**
@@ -48,6 +50,7 @@ public class CLIConfigurationExecutor {
 
     cleanUpWorkingFolder(config.getTargetPath());
     processNestmlModels(modelRoots, config, scopeCreator, generator);
+    formatGeneratedCode(config.getTargetPath());
   }
 
   private void cleanUpWorkingFolder(final Path targetPath) {
@@ -143,4 +146,22 @@ public class CLIConfigurationExecutor {
     }
   }
 
+
+  private void formatGeneratedCode(final Path targetPath) {
+
+    final List<String> formatCommand = Lists.newArrayList("clang-format", "-i", "*.cpp", "*.h");
+    final ProcessBuilder processBuilder
+        = new ProcessBuilder(formatCommand).directory(new File("/home/nestml/repositories/nestml/target/build"));
+
+    final Process res;
+    try {
+      res = processBuilder.start();
+      res.waitFor();
+      info(LOG_NAME + ": Formatted generates sources in: " + targetPath.toString(), LOG_NAME);
+    } catch (IOException | InterruptedException e) {
+      Log.warn(LOG_NAME + ": Cannot format generated sources in: " + targetPath.toString(), e);
+    }
+
+
+  }
 }
