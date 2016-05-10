@@ -24,7 +24,6 @@ neuron iaf_psc_alpha_multisynapse_nestml:
   end
 
   internal:
-    h   ms   = resolution()
     r  integer
     RefractoryCounts integer = steps(t_ref)
   end

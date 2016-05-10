@@ -47,7 +47,7 @@ relevant measures analytically.
 */
 neuron iaf_neuron_nestml:
 
-  # Captures the dynamik state of the neuron
+  # Captures the dynamic state of the neuron
   state:
     V mV
     G real
@@ -74,9 +74,8 @@ neuron iaf_neuron_nestml:
 
   # helper calculations
   internal:
-    h   ms   = resolution()
-    r  integer
     RefractoryCounts integer = steps(t_ref)
+    r  integer
   end
 
   # input sources
@@ -92,15 +91,15 @@ neuron iaf_neuron_nestml:
   update:
     if r == 0: # not refractory
         integrate(V)
-
+        if V >= Theta: # threshold crossing
+          r = RefractoryCounts
+          V = V_reset
+        emitSpike()
+    end
     else:
         r = r - 1
     end
-    if V >= Theta: # threshold crossing
-        r = RefractoryCounts
-        V = V_reset
-        emitSpike()
-    end
+
 
   end
 
