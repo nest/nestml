@@ -23,7 +23,7 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
  *
  * @author plotnikov
  */
-public class CLICLIConfigurationExecutorTest extends ModelbasedTest {
+public class CLIConfigurationExecutorTest extends ModelbasedTest {
   private static final Path TEST_INPUT_PATH = Paths.get("src/test/resources/command_line_base/");
   private static final Path TARGET_FOLDER = Paths.get("target/build");
   private final PSCMock pscMock = new PSCMock();
@@ -31,7 +31,7 @@ public class CLICLIConfigurationExecutorTest extends ModelbasedTest {
   private final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_INPUT_PATH);
 
-  public CLICLIConfigurationExecutorTest() {
+  public CLIConfigurationExecutorTest() {
     testConfig = new CLIConfiguration.Builder()
         .withCoCos()
         .withInputBasePath(TEST_INPUT_PATH)

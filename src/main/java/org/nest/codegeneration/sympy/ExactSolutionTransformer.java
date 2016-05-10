@@ -45,7 +45,7 @@ public class ExactSolutionTransformer {
       final Path stateVectorFile,
       final Path updateStepFile) {
     ASTNeuron workingVersion = addP30(astNeuron, pathToP00File);
-    workingVersion = addPSCInitialValueToStateBlock(workingVersion, PSCInitialValueFile);
+    workingVersion = addPSCInitialValueAndHToInternalBlock(workingVersion, PSCInitialValueFile);
     workingVersion = addStateVariablesAndUpdateStatements(
         workingVersion,
         PSCInitialValueFile,
@@ -72,11 +72,13 @@ public class ExactSolutionTransformer {
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  ASTNeuron addPSCInitialValueToStateBlock(
+  ASTNeuron addPSCInitialValueAndHToInternalBlock(
       final ASTNeuron astNeuron,
       final Path pathPSCInitialValueFile) {
     final List<ASTAliasDecl> pscInitialValue = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
     pscInitialValue.stream().forEach(initialValue -> astNeuron.getBody().addToInternalBlock(initialValue));
+    astNeuron.getBody().addToInternalBlock(converter2NESTML.convertStringToAlias("h ms = resolution()"));
+
     return astNeuron;
   }
 

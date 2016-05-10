@@ -27,12 +27,12 @@ neuron iaf_tum_2000_nestml:
   end
 
   internal:
-    h   ms   = resolution()
     r_abs  integer
     r_tot  integer
     RefractoryCountsAbs integer = steps(t_ref_abs)
     RefractoryCountsTot integer = steps(t_ref_tot)
   end
+
 
   input:
     ex_spikes   <- excitatory spike

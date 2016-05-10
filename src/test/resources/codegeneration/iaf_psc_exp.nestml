@@ -25,7 +25,6 @@ neuron iaf_psc_exp_nestml:
   end
 
   internal:
-    h   ms   = resolution()
     r  integer
     RefractoryCounts integer = steps(t_ref)
   end
