@@ -26,7 +26,7 @@ public class SymPyScriptEvaluator {
   private final static String LOG_NAME = SymPyScriptEvaluator.class.getName();
 
   public final static String P30_FILE = "P30.tmp";
-   final static String ODE_TYPE = "solverType.tmp";
+  final static String ODE_TYPE = "solverType.tmp";
   static final String CONSTANT_TERM = "constantTerm.mat";
   public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValues.tmp";
   public final static String STATE_VECTOR_UPDATE_FILE = "state.vector.update.tmp";
@@ -41,8 +41,8 @@ public class SymPyScriptEvaluator {
       long start = System.nanoTime();
 
       final ProcessBuilder processBuilder = new ProcessBuilder(
-          PYTHON_VERSION,
-          generatedScript.getFileName().toString()).directory(generatedScript.getParent().toFile());
+          PYTHON_VERSION, generatedScript.getFileName().toString())
+          .directory(generatedScript.getParent().toFile());
 
       final Process res = processBuilder.start();
       res.waitFor();
