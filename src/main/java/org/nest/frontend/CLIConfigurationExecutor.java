@@ -17,12 +17,12 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.logging.Log.info;
 import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
@@ -146,20 +146,27 @@ public class CLIConfigurationExecutor {
     }
   }
 
+  private List<String> getListFromStream(final InputStream inputStream) throws IOException {
+    final BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+    return in.lines().collect(Collectors.toList());
+  }
 
   private void formatGeneratedCode(final Path targetPath) {
 
-    final List<String> formatCommand = Lists.newArrayList("clang-format", "-i", "*.cpp", "*.h");
-    final ProcessBuilder processBuilder
-        = new ProcessBuilder(formatCommand).directory(targetPath.toFile());
+    // "/bin/sh", "-c" is necessary because of the wild cards in the clang-format command.
+    final List<String> formatCommand = Lists.newArrayList("/bin/sh", "-c", "clang-format -i *.cpp *.h");
 
-    final Process res;
     try {
-      res = processBuilder.start();
+
+      final ProcessBuilder processBuilder = new ProcessBuilder(formatCommand).directory(targetPath.toFile());
+
+      final Process res = processBuilder.start();
       res.waitFor();
-      info(LOG_NAME + ": Formatted generates sources in: " + targetPath.toString(), LOG_NAME);
+      getListFromStream(res.getInputStream()).forEach(m -> Log.trace("Log: " + m, LOG_NAME));
+      getListFromStream(res.getErrorStream()).forEach(m -> Log.warn("Error: " + m));
+      info("Formatted generates sources in: " + targetPath.toString(), LOG_NAME);
     } catch (IOException | InterruptedException e) {
-      Log.warn(LOG_NAME + ": Cannot format generated sources in: " + targetPath.toString(), e);
+      Log.warn("Cannot format generated sources in: " + targetPath.toString(), e);
     }
 
 
