@@ -41,7 +41,7 @@ public class NESTMLFrontend {
   private final static String LOG_NAME = NESTMLFrontend.class.getName();
   private static final String HELP_ARGUMENT = "help";
   private static final String TARGET_PATH = "target";
-  public static final String PYTHON_INTERPRETER = "python ";
+  private static final String PYTHON_INTERPRETER = "python ";
 
   private final Options options = new Options();
   private final HelpFormatter formatter = new HelpFormatter();
