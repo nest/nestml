@@ -12,6 +12,7 @@ RUN apt-get install -y wget
 RUN apt-get install -y gcc
 RUN apt-get install -y python
 RUN apt-get install -y python-dev
+RUN apt-get install -y clang-format
 
 # install oracle java
 RUN add-apt-repository -y ppa:webupd8team/java
