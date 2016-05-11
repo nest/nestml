@@ -52,7 +52,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
     final ASTNeuron transformedModel = exactSolutionTransformer
-        .replaceODEWithSymPySolution(
+        .addExactSolution(
             modelRoot.getNeurons().get(0),
             Paths.get(P30_FILE),
             Paths.get(PSC_INITIAL_VALUE_FILE),
@@ -109,7 +109,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    exactSolutionTransformer.replaceODE(
+    exactSolutionTransformer.replaceODEPropagationStep(
         modelRoot.getNeurons().get(0),
         Paths.get(UPDATE_STEP_FILE));
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
@@ -121,7 +121,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
   public void testAddingPSCInitialValue() {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
-    ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
+    ASTNESTMLCompilationUnit modelRoot = parseAndBuildSymboltable(MODEL_FILE_PATH);
     exactSolutionTransformer.addPSCInitialValueAndHToInternalBlock(
         modelRoot.getNeurons().get(0),
         Paths.get(PSC_INITIAL_VALUE_FILE));

@@ -129,17 +129,14 @@ public class ASTAssignments {
     if (variableSymbol.get().getArraySizeParameter().isPresent()) {
       return true;
     }
+
     // TODO to complex logic, refactor
     final Optional<String> arrayVariable = ASTNodes.getVariablesNamesFromAst(astAssignment.getExpr())
         .stream()
         .filter(
             variableNameInExpression -> {
-              final Optional<VariableSymbol> variableSymbolExpr = scope
-                  .resolve(variableNameInExpression, VariableSymbol.KIND);
-              if ("ext_currents".equals(variableNameInExpression)) {
-                System.out.printf("");
-              }
-              checkState(variableSymbolExpr.isPresent(), "Cannot resolve the variable: " + variableNameInExpression);
+              final Optional<VariableSymbol> variableSymbolExpr = scope.resolve(variableNameInExpression, VariableSymbol.KIND);
+              checkState(variableSymbolExpr.isPresent(), "The existence should ensured by context condition: " + variableNameInExpression);
               return variableSymbolExpr.get().getArraySizeParameter().isPresent();
             }
         ).findFirst();

@@ -30,6 +30,10 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
       // TODO "src/test/resources/codegeneration/iaf_psc_delta.nestml",
   );
 
+  private final List<String> multisynapseModels = Lists.newArrayList(
+      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse.nestml"
+  );
+
   private final List<String> imperativeModels = Lists.newArrayList(
       "src/test/resources/codegeneration/imperative/iaf_tum_2000_imerative.nestml",
       "src/test/resources/codegeneration/imperative/iaf_psc_alpha_multisynapse_imperative.nestml",
@@ -75,6 +79,16 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     imperativeModels.forEach(this::checkCocos);
     imperativeModels.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = imperativeModels.stream()
+        .map(this::parseAndBuildSymboltable)
+        .collect(Collectors.toList());
+    generateNESTModuleCode(roots);
+  }
+
+  @Test
+  public void testMultisynapseModel() throws IOException {
+    multisynapseModels.forEach(this::checkCocos);
+    multisynapseModels.forEach(this::invokeCodeGenerator);
+    final List<ASTNESTMLCompilationUnit> roots = multisynapseModels.stream()
         .map(this::parseAndBuildSymboltable)
         .collect(Collectors.toList());
     generateNESTModuleCode(roots);

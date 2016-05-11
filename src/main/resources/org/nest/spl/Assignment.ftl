@@ -9,11 +9,18 @@
 ${assignments.printVariableName(ast)} ${assignments.printAssignmentsOperation(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
 <#else>
   <#if assignments.isVector(ast) || declarations.isVectorLHS(ast)>
-  for (size_t i=0; i < declarations.printSizeParameter(ast); i++) {
+  for (size_t i=0; i < get_${declarations.printSizeParameter(ast)}(); i++) {
     <#if declarations.isVectorLHS(ast)>
       ${assignments.printGetterName(ast)}()[i] = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
     <#else>
-      ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+      <#if assignments.isCompoundAssignment(ast)>
+        ${assignments.printSetterName(ast)}(
+        ${assignments.printGetterName(ast)}()
+        ${assignments.printCompoundOperation(ast)}
+        ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+      <#else>
+        ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+      </#if>
     </#if>
 
   }
@@ -24,7 +31,7 @@ ${assignments.printVariableName(ast)} ${assignments.printAssignmentsOperation(as
       ${assignments.printCompoundOperation(ast)}
       ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
     <#else>
-    ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
+      ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
     </#if>
 
   </#if>

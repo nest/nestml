@@ -33,7 +33,7 @@ public class SymPyOutput2NESTMLConverter {
     stringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
-  List<ASTAliasDecl> convertToAlias(final Path declarationFile) {
+  List<ASTAliasDecl> convertToAliases(final Path declarationFile) {
     try {
       return Files.lines(declarationFile)
           .map(this::convertStringToAlias)
@@ -51,7 +51,7 @@ public class SymPyOutput2NESTMLConverter {
       final ASTDeclaration declaration = stringParser.parseDeclaration(
           new StringReader(declarationAsString)).get();
       // it is ok to call get, since otherwise it is an error in the file structure
-      return convertToAlias(declaration);
+      return convertToAliases(declaration);
     }
     catch (IOException e) {
       final String msg = "Cannot parse declaration statement.";
@@ -60,7 +60,7 @@ public class SymPyOutput2NESTMLConverter {
 
   }
 
-  private ASTAliasDecl convertToAlias(final ASTDeclaration astDeclaration) {
+  private ASTAliasDecl convertToAliases(final ASTDeclaration astDeclaration) {
     final ASTAliasDecl astAliasDecl = NESTMLNodeFactory.createASTAliasDecl();
 
     astAliasDecl.setDeclaration(astDeclaration);
