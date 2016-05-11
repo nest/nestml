@@ -79,8 +79,8 @@ neuron iaf_cond_alpha_implicit_new:
 
     end
 
-    DGE = DGE + spikeExc.getSum() * PSConInit_E;
-    DGI = DGI + spikeInh.getSum() * PSConInit_I;
+    # GE' = GE' + spikeExc.getSum() * PSConInit_E;
+    # GI' = GI' + spikeInh.getSum() * PSConInit_I;
     I_stim = currents.getSum()
   end
 
