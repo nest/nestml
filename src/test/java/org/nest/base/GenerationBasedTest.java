@@ -48,19 +48,6 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
   }
 
-  protected ASTNESTMLCompilationUnit parseAndBuildSymboltable(final String pathToModel) {
-    final Optional<ASTNESTMLCompilationUnit> root;
-    try {
-      root = parser.parse(pathToModel);
-      assertTrue(root.isPresent());
-      scopeCreator.runSymbolTableCreator(root.get());
-      return root.get();
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   protected void generateNESTModuleCode(final List<ASTNESTMLCompilationUnit> modelRoots) {
     generator.generateNESTModuleCode(modelRoots, MODULE_NAME, CODE_GEN_OUTPUT);
   }
