@@ -10,7 +10,7 @@
 ${signature("variable")}
 
 <#if variable.getArraySizeParameter().isPresent()>
-for (size_t i=0; i < variable.getArraySizeParameter().get(); i++) {
+for (size_t i=0; i < ${variable.getArraySizeParameter().get()}; i++) {
   get_${variable.getName()}()[i] =
     <#if variable.getDeclaringExpression().isPresent()>
     ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())}

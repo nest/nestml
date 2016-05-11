@@ -14,6 +14,7 @@ import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTNodes;
 
 import java.util.List;
 import java.util.Optional;
@@ -116,15 +117,13 @@ public class NESTMLDeclarations {
   }
 
   public String printSizeParameter(final ASTAssignment astAssignment) {
-    checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
+    checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
-    final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final Optional<VariableSymbol> lhsVarSymbol
-        = scope.resolve(lhsVarName, VariableSymbol.KIND);
-
-    checkState(lhsVarSymbol.isPresent(), "Cannot resolve the name: " + lhsVarName);
-    checkState(lhsVarSymbol.get().getArraySizeParameter().isPresent());
-    return lhsVarSymbol.get().getArraySizeParameter().get();
+    // The existence of the variable is ensured by construction
+    final Optional<VariableSymbol> vectorVariable = ASTNodes.getVariableSymbols(astAssignment.getExpr())
+        .stream()
+        .filter(VariableSymbol::isVector).findAny();
+    return vectorVariable.get().getArraySizeParameter().get(); // Array parameter is ensured by the query
   }
 
 }

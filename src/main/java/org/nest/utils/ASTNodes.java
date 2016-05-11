@@ -22,6 +22,7 @@ import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTODENode;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
+import org.nest.spl._ast.ASTSPLNode;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
@@ -227,6 +228,11 @@ public final class ASTNodes {
     return variableSymbolsCollector.getVariables();
   }
 
+  public static List<VariableSymbol> getVariableSymbols(final ASTSPLNode astNode) {
+    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
+    astNode.accept(variableSymbolsCollector);
+    return variableSymbolsCollector.getVariables();
+  }
   /**
    * Returns all variable symbols for variables which are defined in the subtree starting from
    * the astNode.

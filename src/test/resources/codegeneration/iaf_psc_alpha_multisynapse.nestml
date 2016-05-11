@@ -2,7 +2,7 @@ neuron iaf_psc_alpha_multisynapse_nestml:
 
   state:
     V mV
-    I_shape real[receptors]
+    suppress I_shape real[receptors] # suppress is, as there is errors in logging
     alias V_m mV = V + E_L # Membrane potential.
   end
 
@@ -15,7 +15,7 @@ neuron iaf_psc_alpha_multisynapse_nestml:
     receptors integer  = 2
     C_m     pF = 250   # Capacity of the membrane
     Tau     ms = 10    # Membrane time constant.
-    tau_syn ms[receptors] = 2     # Time constant of synaptic current.
+    suppress tau_syn ms[receptors] = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
     E_L     mV = -70  # Resting potential.
     alias V_reset mV = -70 - E_L
@@ -28,19 +28,18 @@ neuron iaf_psc_alpha_multisynapse_nestml:
     RefractoryCounts integer = steps(t_ref)
   end
 
-
   input:
     spikes   <- excitatory spike
-    currents    <- current
+    currents <- current
   end
 
   output: spike
 
   update:
     if r == 0: # not refractory
-        integrate(V)
+      integrate(V)
     else:
-        r = r - 1
+      r = r - 1
     end
 
     if V >= Theta: # threshold crossing

@@ -105,6 +105,10 @@ public class VariableSymbol extends CommonSymbol {
     return isAlias;
   }
 
+  public boolean isVector() {
+    return getArraySizeParameter().isPresent();
+  }
+
   public boolean isInState() {
     return blockType == BlockType.STATE;
   }

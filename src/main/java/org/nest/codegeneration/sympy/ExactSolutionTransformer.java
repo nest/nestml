@@ -7,8 +7,11 @@ package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
+import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.ScopeSpanningSymbol;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLNode;
@@ -16,6 +19,7 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.spl._ast.*;
 import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTNodes;
 
 import java.io.IOException;
@@ -23,10 +27,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -64,7 +66,7 @@ public class ExactSolutionTransformer {
       final ASTNeuron astNeuron,
       final Path pathToP00File) {
 
-    final ASTAliasDecl p00Declaration = converter2NESTML.convertToAlias(pathToP00File).get(0);
+    final ASTAliasDecl p00Declaration = converter2NESTML.convertToAliases(pathToP00File).get(0);
 
     astNeuron.getBody().addToInternalBlock(p00Declaration);
     return astNeuron;
@@ -76,8 +78,25 @@ public class ExactSolutionTransformer {
   ASTNeuron addPSCInitialValueAndHToInternalBlock(
       final ASTNeuron astNeuron,
       final Path pathPSCInitialValueFile) {
-    final List<ASTAliasDecl> pscInitialValue = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
-    pscInitialValue.stream().forEach(initialValue -> astNeuron.getBody().addToInternalBlock(initialValue));
+    final List<ASTAliasDecl> pscInitialValues = converter2NESTML.convertToAliases(pathPSCInitialValueFile);
+    for (final ASTAliasDecl astAliasDecl:pscInitialValues) {
+      final List<ASTVariable> variables = ASTNodes.getAll(astAliasDecl.getDeclaration(), ASTVariable.class);
+      checkState(astNeuron.enclosingScopeIsPresent());
+      // TODO can I do it better?
+      final Scope scope = ((ScopeSpanningSymbol)astNeuron.getSymbol().get()).getSpannedScope(); // valid, after the symboltable is created
+
+      Optional<VariableSymbol> vectorizedVariable = variables.stream()
+          .map(astVariable -> (VariableSymbol) scope.resolve(astVariable.toString(), VariableSymbol.KIND).get())
+          .filter(variableSymbol -> variableSymbol.getArraySizeParameter().isPresent())
+          .findAny();
+      if (vectorizedVariable.isPresent()) {
+        // the existence of the array parameter is ensured by the query
+        astAliasDecl.getDeclaration().setSizeParameter(vectorizedVariable.get().getArraySizeParameter().get());
+      }
+
+    }
+
+    pscInitialValues.stream().forEach(initialValue -> astNeuron.getBody().addToInternalBlock(initialValue));
     astNeuron.getBody().addToInternalBlock(converter2NESTML.convertStringToAlias("h ms = resolution()"));
 
     return astNeuron;
@@ -166,7 +185,7 @@ public class ExactSolutionTransformer {
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
         .collect(toList());
 
-    final List<ASTAliasDecl> pscInitialValues = converter2NESTML.convertToAlias(pathPSCInitialValueFile);
+    final List<ASTAliasDecl> pscInitialValues = converter2NESTML.convertToAliases(pathPSCInitialValueFile);
     for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
       final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
       final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
@@ -220,8 +239,6 @@ public class ExactSolutionTransformer {
         checkState(smallStatement.isPresent());
         checkState(smallStatement.get() instanceof ASTSmall_Stmt);
         final ASTSmall_Stmt integrateCall = (ASTSmall_Stmt) smallStatement.get();
-        //integrateCall.setFunctionCall(null);
-        //integrateCall.setAssignment(stateUpdate);
 
         final Optional<ASTNode> simpleStatement = ASTNodes.getParent(smallStatement.get(), astNeuron);
         checkState(simpleStatement.isPresent());
