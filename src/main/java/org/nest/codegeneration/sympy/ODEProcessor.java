@@ -73,7 +73,7 @@ public class ODEProcessor {
         info("ODE is solved exactly.", LOG_NAME);
 
         return exactSolutionTransformer
-            .replaceODEWithSymPySolution(
+            .addExactSolution(
                 astNeuron,
                 Paths.get(outputBase.toString(), SymPyScriptEvaluator.P30_FILE),
                 Paths.get(outputBase.toString(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),

@@ -2,7 +2,7 @@ neuron iaf_psc_alpha_multisynapse_nestml:
 
   state:
     V mV
-    I_shape real[receptorsros]
+    I_shape real[receptors]
     alias V_m mV = V + E_L # Membrane potential.
   end
 

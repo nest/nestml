@@ -24,7 +24,7 @@ public class PSCMock extends ODEProcessor {
   @Override
   protected ASTNeuron handleNeuronWithODE(final ASTNeuron root, final Path outputBase) {
     Log.trace("Uses PSC mock", this.getClass().getName());
-    return getExactSolutionTransformer().replaceODEWithSymPySolution(
+    return getExactSolutionTransformer().addExactSolution(
             root,
             Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.P30_FILE),
             Paths.get(MOCK_RESOURCE_PATH, SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),

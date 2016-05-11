@@ -17,27 +17,24 @@ import java.nio.file.Paths;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Generates entire NEST implementation for several NESTML models.
+ * Generates entire NEST implementation for several NESTML models. Uses MOCKs or works with models without ODEs.
  *
  * @author plotnikov
  */
 public class NESTCodeGeneratorTest extends GenerationBasedTest {
-
   private static final Path OUTPUT_DIRECTORY = Paths.get("target", "build");
-
   private static final PSCMock pscMock = new PSCMock();
+
   private static final String PSC_MODEL_WITH_ODE = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
-  private static final String PSC_MODEL = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
-  //private static final String COND_MODEL_EXPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
+  private static final String PSC_MODEL_IMPERATIVE = "src/test/resources/codegeneration/imperative/iaf_psc_alpha_imperative.nestml";
   private static final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
-  private Path outputFolder;
 
   @Test
   public void testPSCModelWithoutOde() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_IMPERATIVE);
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
-    outputFolder = Paths.get(OUTPUT_DIRECTORY.toString(), "simple_psc");
+    final Path outputFolder = Paths.get(OUTPUT_DIRECTORY.toString(), "simple_psc");
 
     FilesHelper.deleteFilesInFolder(outputFolder);
     generator.analyseAndGenerate(root, outputFolder);

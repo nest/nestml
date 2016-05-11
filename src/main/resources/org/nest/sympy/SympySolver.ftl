@@ -144,7 +144,7 @@ if dev_t_dev${ode.getLhs()} == 0:
         for i in range(0, orders[shapeIndex]):
             stateVectors[i, shapeIndex] = eval(stateVariables[i] + shapes[shapeIndex])
             stateVariablesFile.write(stateVariables[i] + shapes[shapeIndex] + "\n")
-        stateVectors[orders[shapeIndex], shapeIndex] = V
+        stateVectors[orders[shapeIndex], shapeIndex] = ${ode.getLhs()}
 
         pscInitialValues = tmp_diffs[shapeIndex]
         for i in range(0, orders[shapeIndex]):
@@ -157,12 +157,12 @@ if dev_t_dev${ode.getLhs()} == 0:
     f = open('P30.tmp', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
-    tmp = (Ps[0] * stateVectors.col(0))[orders[0]]
-    for shapeIndex in range(1, len(shapes)):
-        tmp += (Ps[shapeIndex][1:(orders[shapeIndex] + 1), 0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex], 0])[orders[shapeIndex] - 1]
-
     updateStep = open('update.step.tmp', 'w')
-    updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(tmp))
+    # the result matrix of matrix with 1 element. therefore, take it by [] operator
+    updateStep.write("${ode.getLhs()} = P30 * (" + str(constantInputs) + ") + " + str((Ps[0][orders[0], orders[0]] * stateVectors.col(0)[orders[0]])) + "\n")
+
+    for shapeIndex in range(0, len(shapes)):
+        updateStep.write("${ode.getLhs()} += " + str((Ps[shapeIndex][1:(orders[shapeIndex] + 1),0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex], 0])[orders[shapeIndex] - 1]) + "\n")
 
     solverType = open('solverType.tmp', 'w')
     solverType.write("exact")

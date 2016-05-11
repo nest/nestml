@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -37,7 +38,7 @@ public class ExactSolutionTransformer {
 
   private final SymPyOutput2NESTMLConverter converter2NESTML = new SymPyOutput2NESTMLConverter();
 
-  public ASTNeuron replaceODEWithSymPySolution(
+  public ASTNeuron addExactSolution(
       final ASTNeuron astNeuron,
       final Path pathToP00File,
       final Path PSCInitialValueFile,
@@ -51,7 +52,7 @@ public class ExactSolutionTransformer {
         PSCInitialValueFile,
         stateStateVariablesFile,
         stateVectorFile);
-    workingVersion = replaceODE(workingVersion, updateStepFile);
+    workingVersion = replaceODEPropagationStep(workingVersion, updateStepFile);
 
     return workingVersion;
   }
@@ -105,7 +106,7 @@ public class ExactSolutionTransformer {
   private void addStateVariables(final Path stateVariablesFile, final ASTBody astBody) throws IOException {
     final List<String> stateVariableDeclarations = Files.lines(stateVariablesFile)
         .map(stateVariable -> stateVariable + " real")
-        .collect(Collectors.toList());
+        .collect(toList());
 
     stateVariableDeclarations.stream()
         .map(converter2NESTML::convertStringToAlias)
@@ -115,31 +116,49 @@ public class ExactSolutionTransformer {
   private void addStateUpdates(final Path stateUpdatesFile, final ASTBody body) throws IOException {
     final List<String> stateUpdates = Files
         .lines(stateUpdatesFile)
-        .collect(Collectors.toList());
+        .collect(toList());
 
 
     final List<ASTAssignment> stateAssignments = stateUpdates
         .stream()
         .map(converter2NESTML::convertStringToAssignment)
-        .collect(Collectors.toList());
+        .collect(toList());
 
     final List<ASTDeclaration> tmpStateDeclarations = stateAssignments
         .stream()
         .map(assignment -> assignment.getVariableName() + " real = " + assignment.getVariableName())
         .map(converter2NESTML::convertStringToDeclaration)
-        .collect(Collectors.toList());
+        .collect(toList());
 
     final List<ASTAssignment> backAssignments = stateAssignments
         .stream()
         .map(assignment -> assignment.getVariableName().toString()) // get variable names as strings
         .map(stateVariable -> stateVariable.substring(0, stateVariable.indexOf("_tmp")) + " = " + stateVariable)
         .map(converter2NESTML::convertStringToAssignment)
-        .collect(Collectors.toList());
+        .collect(toList());
 
     tmpStateDeclarations.forEach(tmpDeclaration -> addDeclarationToDynamics(body, tmpDeclaration));
     stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
     backAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
   }
+
+  private void addDeclarationToDynamics(
+      final ASTBody astBodyDecorator,
+      final ASTDeclaration astDeclaration) {
+    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
+    final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
+    final List<ASTSmall_Stmt> astSmallStmts = Lists.newArrayList();
+    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
+
+    astStmt.setSimple_Stmt(astSimpleStmt);
+    astSmallStmts.add(astSmall_stmt);
+    astSimpleStmt.setSmall_Stmts(astSmallStmts);
+
+    astSmall_stmt.setDeclaration(astDeclaration);
+
+    astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
+  }
+
 
   private void addPSCInitialValuesUpdates(final Path pathPSCInitialValueFile, final ASTBody body) {
     final List<ASTFunctionCall> i_sumCalls = ASTNodes.getAll(body.getEquations().get(), ASTFunctionCall.class)
@@ -166,53 +185,6 @@ public class ExactSolutionTransformer {
     }
   }
 
-  ASTNeuron replaceODE(final ASTNeuron astNeuron, final Path updateStepFile) {
-    final ASTAssignment stateUpdate = converter2NESTML.convertToAssignment(updateStepFile);
-
-    final ASTBody astBodyDecorator = astNeuron.getBody();
-
-    final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector();
-    odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
-    if (odeCollector.getFoundOde().isPresent()) {
-
-      final Optional<ASTNode> parent = ASTNodes.getParent(odeCollector.getFoundOde().get(), astNeuron);
-      checkState(parent.isPresent());
-      checkState(parent.get() instanceof ASTSmall_Stmt);
-
-      final ASTSmall_Stmt castedParent = (ASTSmall_Stmt) parent.get();
-      castedParent.setAssignment(stateUpdate);
-      return astNeuron;
-    }
-    else {
-      Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
-      return astNeuron;
-    }
-
-  }
-
-  private class IntegrateFunctionCollector implements NESTMLInheritanceVisitor {
-    // Initialized by null and set to the actual value
-    private ASTFunctionCall foundOde = null;
-
-    void startVisitor(ASTNESTMLNode node) {
-      node.accept(this);
-    }
-
-    @Override
-    public void visit(final ASTFunctionCall astFunctionCall) {
-      // TODO also parameter should be checked
-      // TODO actually works only for the first ode
-      if (astFunctionCall.getCalleeName().equals("integrate")) {
-        foundOde = astFunctionCall;
-      }
-    }
-
-    Optional<ASTFunctionCall> getFoundOde() {
-      return Optional.ofNullable(foundOde);
-    }
-
-  }
-
   private void addAssignmentToDynamics(
       final ASTBody astBodyDecorator,
       final ASTAssignment yVarAssignment) {
@@ -231,22 +203,72 @@ public class ExactSolutionTransformer {
     astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }
 
-  private void addDeclarationToDynamics(
-      final ASTBody astBodyDecorator,
-      final ASTDeclaration astDeclaration) {
-    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
-    final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
-    final List<ASTSmall_Stmt> astSmallStmts = Lists.newArrayList();
-    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
+  ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, final Path updateStepFile) {
 
-    astStmt.setSimple_Stmt(astSimpleStmt);
-    astSmallStmts.add(astSmall_stmt);
-    astSimpleStmt.setSmall_Stmts(astSmallStmts);
+    final ASTBody astBodyDecorator = astNeuron.getBody();
+    final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector();
 
-    astSmall_stmt.setDeclaration(astDeclaration);
+    try {
+      final List<ASTSmall_Stmt> propogatorSteps = Files.lines(updateStepFile)
+          .map(converter2NESTML::convertStringToAssignment)
+          .map(this::convertToSmallStatement)
+          .collect(toList());
+      odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
 
-    astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
+      if (odeCollector.getFoundOde().isPresent()) {
+        final Optional<ASTNode> smallStatement = ASTNodes.getParent(odeCollector.getFoundOde().get(), astNeuron);
+        checkState(smallStatement.isPresent());
+        checkState(smallStatement.get() instanceof ASTSmall_Stmt);
+        final ASTSmall_Stmt integrateCall = (ASTSmall_Stmt) smallStatement.get();
+        //integrateCall.setFunctionCall(null);
+        //integrateCall.setAssignment(stateUpdate);
+
+        final Optional<ASTNode> simpleStatement = ASTNodes.getParent(smallStatement.get(), astNeuron);
+        checkState(simpleStatement.isPresent());
+        checkState(simpleStatement.get() instanceof ASTSimple_Stmt);
+        final ASTSimple_Stmt astSimpleStatement = (ASTSimple_Stmt) simpleStatement.get();
+        int integrateFunction = astSimpleStatement.getSmall_Stmts().indexOf(integrateCall);
+        astSimpleStatement.getSmall_Stmts().remove(integrateCall);
+        astSimpleStatement.getSmall_Stmts().addAll(integrateFunction, propogatorSteps);
+
+        return astNeuron;
+      } else {
+        Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
+        return astNeuron;
+      }
+    } catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+
   }
 
+  private ASTSmall_Stmt convertToSmallStatement(final ASTAssignment astAssignment) {
+    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
+    astSmall_stmt.setAssignment(astAssignment);
+    return astSmall_stmt;
+  }
+
+  private class IntegrateFunctionCollector implements NESTMLInheritanceVisitor {
+    // Initialized by null and set to the actual value
+    private ASTFunctionCall foundOde = null;
+
+    void startVisitor(ASTNESTMLNode node) {
+      node.accept(this);
+    }
+
+    @Override
+    public void visit(final ASTFunctionCall astFunctionCall) {
+      // TODO actually works only for the first ode
+      if (astFunctionCall.getCalleeName().equals("integrate")) {
+        foundOde = astFunctionCall;
+      }
+    }
+
+    Optional<ASTFunctionCall> getFoundOde() {
+      return Optional.ofNullable(foundOde);
+    }
+
+  }
 
 }
