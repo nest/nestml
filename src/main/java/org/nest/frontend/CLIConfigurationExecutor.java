@@ -152,10 +152,9 @@ public class CLIConfigurationExecutor {
   }
 
   private void formatGeneratedCode(final Path targetPath) {
-
     // "/bin/sh", "-c" is necessary because of the wild cards in the clang-format command.
     // otherwise, the command is not evaluated correctly
-    final List<String> formatCommand = Lists.newArrayList("/bin/sh", "-c", "clang-format -i *.cpp *.h");
+    final List<String> formatCommand = Lists.newArrayList("/bin/sh", "-c", "clang-format -style=\"{Standard: Cpp03}\"  -i *.cpp *.h");
 
     try {
 

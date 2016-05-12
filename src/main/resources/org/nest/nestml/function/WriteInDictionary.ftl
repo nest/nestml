@@ -10,7 +10,7 @@
 ${signature("variable")}
 
 <#if !variable.isAlias() && !variable.isInState()>
-def<${declarations.printVariableType(variable)}>(d, "${variable.getName()}", get_${variable.getName()}());
+def< ${declarations.printVariableType(variable)} >(d, "${variable.getName()}", get_${variable.getName()}());
 <#else>
 // do not export ${variable.getName()}
 </#if>
