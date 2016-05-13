@@ -153,7 +153,7 @@ if dev_t_dev${ode.getLhs()} == 0:
 
         for i in reversed(range(0, orders[shapeIndex])):
             stateVectors[i, shapeIndex] = stateVariables[i] + shapes[shapeIndex]
-            stateVectorUpdateFile.write(stateVariables[i] + shapes[shapeIndex] + "_tmp" + " = " + str(simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
+            stateVectorUpdateFile.write(stateVariables[i] + shapes[shapeIndex] + " = " + str(simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
     f = open('P30.tmp', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 

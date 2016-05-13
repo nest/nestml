@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
@@ -123,42 +124,66 @@ public class ExactSolutionTransformer {
   }
 
   private void addStateVariables(final Path stateVariablesFile, final ASTBody astBody) throws IOException {
-    final List<String> stateVariableDeclarations = Files.lines(stateVariablesFile)
-        .map(stateVariable -> stateVariable + " real")
+    final List<String> stateVariables = Files.lines(stateVariablesFile)
+        .map(stateVariable -> stateVariable)
         .collect(toList());
 
-    stateVariableDeclarations.stream()
-        .map(converter2NESTML::convertStringToAlias)
-        .forEach(astBody::addToStateBlock);
+    final List<VariableSymbol> correspondingShapeSymbols = stateVariables
+        .stream()
+        .map(shapeName -> shapeName.substring(shapeName.indexOf("_") + 1))
+        .map(shapeName -> VariableSymbol.resolve(shapeName, astBody.getEnclosingScope().get()))
+        .collect(Collectors.toList());
+    for (int i = 0; i < stateVariables.size(); ++i) {
+      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getArraySizeParameter().get() + "]":"";
+      final String stateVarDeclaration = stateVariables.get(i)+ " real " + vectorDatatype;
+
+      astBody.addToStateBlock(converter2NESTML.convertStringToAlias(stateVarDeclaration));
+    }
+
   }
 
-  private void addStateUpdates(final Path stateUpdatesFile, final ASTBody body) throws IOException {
+  private void addStateUpdates(final Path stateUpdatesFile, final ASTBody astBody) throws IOException {
+    checkState(astBody.getEnclosingScope().isPresent(), "Run symbol table creator");
     final List<String> stateUpdates = Files
         .lines(stateUpdatesFile)
         .collect(toList());
-
 
     final List<ASTAssignment> stateAssignments = stateUpdates
         .stream()
         .map(converter2NESTML::convertStringToAssignment)
         .collect(toList());
 
-    final List<ASTDeclaration> tmpStateDeclarations = stateAssignments
+    final List<VariableSymbol> correspondingShapeSymbols = stateAssignments
         .stream()
-        .map(assignment -> assignment.getVariableName() + " real = " + assignment.getVariableName())
+        .map(astAssignment -> astAssignment.getVariableName().toString())
+        .map(variableName -> variableName.substring(variableName.indexOf("_") + 1))
+        .map(shapeName -> VariableSymbol.resolve(shapeName, astBody.getEnclosingScope().get()))
+        .collect(Collectors.toList());
+
+    final List<ASTDeclaration> tmpStateDeclarations = Lists.newArrayList();
+
+    for (int i = 0; i < stateUpdates.size(); ++i) {
+      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getArraySizeParameter().get() + "]":"";
+      final String tmpDeclaration = stateAssignments.get(i).getVariableName() + "_tmp" + " real " + vectorDatatype + "= " + stateAssignments.get(i).getVariableName();
+      tmpStateDeclarations.add(converter2NESTML.convertStringToDeclaration(tmpDeclaration));
+    }
+
+    stateAssignments
+        .stream()
+        .map(assignment -> assignment.getVariableName() + "_tmp" + " real = " + assignment.getVariableName())
         .map(converter2NESTML::convertStringToDeclaration)
         .collect(toList());
 
     final List<ASTAssignment> backAssignments = stateAssignments
         .stream()
         .map(assignment -> assignment.getVariableName().toString()) // get variable names as strings
-        .map(stateVariable -> stateVariable.substring(0, stateVariable.indexOf("_tmp")) + " = " + stateVariable)
+        .map(stateVariable -> stateVariable + " = " + stateVariable + "_tmp")
         .map(converter2NESTML::convertStringToAssignment)
         .collect(toList());
 
-    tmpStateDeclarations.forEach(tmpDeclaration -> addDeclarationToDynamics(body, tmpDeclaration));
-    stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
-    backAssignments.forEach(varAssignment -> addAssignmentToDynamics(body, varAssignment));
+    tmpStateDeclarations.forEach(tmpDeclaration -> addDeclarationToDynamics(astBody, tmpDeclaration));
+    stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(astBody, varAssignment));
+    backAssignments.forEach(varAssignment -> addAssignmentToDynamics(astBody, varAssignment));
   }
 
   private void addDeclarationToDynamics(
@@ -177,7 +202,6 @@ public class ExactSolutionTransformer {
 
     astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }
-
 
   private void addPSCInitialValuesUpdates(final Path pathPSCInitialValueFile, final ASTBody body) {
     final List<ASTFunctionCall> i_sumCalls = ASTNodes.getAll(body.getEquations().get(), ASTFunctionCall.class)
@@ -228,7 +252,7 @@ public class ExactSolutionTransformer {
     final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector();
 
     try {
-      final List<ASTSmall_Stmt> propogatorSteps = Files.lines(updateStepFile)
+      final List<ASTSmall_Stmt> propagatorSteps = Files.lines(updateStepFile)
           .map(converter2NESTML::convertStringToAssignment)
           .map(this::convertToSmallStatement)
           .collect(toList());
@@ -246,7 +270,7 @@ public class ExactSolutionTransformer {
         final ASTSimple_Stmt astSimpleStatement = (ASTSimple_Stmt) simpleStatement.get();
         int integrateFunction = astSimpleStatement.getSmall_Stmts().indexOf(integrateCall);
         astSimpleStatement.getSmall_Stmts().remove(integrateCall);
-        astSimpleStatement.getSmall_Stmts().addAll(integrateFunction, propogatorSteps);
+        astSimpleStatement.getSmall_Stmts().addAll(integrateFunction, propagatorSteps);
 
         return astNeuron;
       } else {
