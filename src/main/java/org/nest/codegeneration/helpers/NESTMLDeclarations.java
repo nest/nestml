@@ -119,10 +119,14 @@ public class NESTMLDeclarations {
   public String printSizeParameter(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
-    // The existence of the variable is ensured by construction
-    final Optional<VariableSymbol> vectorVariable = ASTNodes.getVariableSymbols(astAssignment.getExpr())
+
+    Optional<VariableSymbol> vectorVariable = ASTNodes.getVariableSymbols(astAssignment.getExpr())
         .stream()
         .filter(VariableSymbol::isVector).findAny();
+    if (!vectorVariable.isPresent()) {
+      vectorVariable = Optional.of(VariableSymbol.resolve(astAssignment.getVariableName().toString(), astAssignment.getEnclosingScope().get()));
+    }
+    // The existence of the variable is ensured by construction
     return vectorVariable.get().getArraySizeParameter().get(); // Array parameter is ensured by the query
   }
 

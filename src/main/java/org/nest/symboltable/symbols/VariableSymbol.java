@@ -6,6 +6,7 @@
 package org.nest.symboltable.symbols;
 
 import de.monticore.symboltable.CommonSymbol;
+import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.commons._ast.ASTExpr;
 
@@ -140,6 +141,12 @@ public class VariableSymbol extends CommonSymbol {
     }
 
     return output.toString();
+  }
+
+  public static VariableSymbol resolve(final String variableName, final Scope scope) {
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);
+    checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
+    return variableSymbol.get();
   }
 
   /**
