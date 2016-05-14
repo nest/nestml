@@ -7,6 +7,7 @@ package org.nest.nestml._cocos;
 
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.NeuronSymbol;
@@ -52,8 +53,7 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
     if (funName.startsWith("get_") || funName.startsWith("set_")) {
       String varName = funName.substring(4);
 
-      Optional<VariableSymbol> var = enclosingScope.get()
-          .resolve(varName, VariableSymbol.KIND);
+      Optional<VariableSymbol> var = enclosingScope.get().resolve(varName, VariableSymbol.KIND);
 
       if (var.isPresent()) {
         if (funName.startsWith("set_") &&
@@ -70,6 +70,9 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
           error(msg, fun.get_SourcePositionStart());
         }
 
+      }
+      else {
+        Log.warn(ERROR_CODE + ":" + "Cannot resolve the variable: " + varName);
       }
 
     }

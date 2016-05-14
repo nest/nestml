@@ -139,10 +139,7 @@ public final class ASTNodes {
     final List<String> names = getVariablesNamesFromAst(astNode);
     return names.stream()
         .filter(name -> !name.contains("'"))
-        .map(variableName -> {
-          final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
-          return symbol.get(); //  checked by the context condition
-        })
+        .map(variableName -> VariableSymbol.resolve(variableName, scope)) // the variable existence checked by the context condition
         .filter(VariableSymbol::isAlias)
         .collect(toList());
   }
@@ -256,11 +253,8 @@ public final class ASTNodes {
       checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
       final String variableName = astVariable.toString();
       final Scope scope = astVariable.getEnclosingScope().get();
-      final Optional<VariableSymbol> symbol = scope.resolve(variableName, VariableSymbol.KIND);
-      if (symbol.isPresent()) {
-        variables.add(symbol.get());
-      }
 
+      variables.add(VariableSymbol.resolve(variableName, scope));
     }
 
   }

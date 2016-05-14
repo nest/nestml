@@ -79,15 +79,13 @@ public class NESTReferenceConverter implements IReferenceConverter {
     }
 
     if (functionName.contains("emitSpike")) {
-      final String emitStatements = "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" +
+      return "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" +
           "nest::SpikeEvent se;\n" +
           "network()->send(*this, se, lag);";
-      return emitStatements;
     }
 
     final List<String> callTypes = ASTNodes.getParameterTypes(astFunctionCall);
-    final Optional<MethodSymbol> functionSymbol
-        = NESTMLSymbols.resolveMethod(scope, functionName, callTypes);
+    final Optional<MethodSymbol> functionSymbol = NESTMLSymbols.resolveMethod(scope, functionName, callTypes);
     if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell
 
       if (functionSymbol.get().getDeclaringType().getName().equals("Buffer")) {

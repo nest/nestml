@@ -53,8 +53,8 @@ public class GSLReferenceConverter implements IReferenceConverter {
   public String convertNameReference(final ASTVariable astVariable) {
     checkState(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
     final String variableName = astVariable.toString();
-    final VariableSymbol variableSymbol
-        = resolveVariable(variableName, astVariable.getEnclosingScope().get());
+    final Scope scope = astVariable.getEnclosingScope().get();
+    final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
     if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
         !variableSymbol.isAlias()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
@@ -101,9 +101,5 @@ public class GSLReferenceConverter implements IReferenceConverter {
     throw new UnsupportedOperationException();
   }
 
-  private VariableSymbol resolveVariable(final String variableName, final Scope scope) {
-    final Optional<VariableSymbol> variableSymbol = NESTMLSymbols.resolve(variableName, scope);
-    checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
-    return variableSymbol.get();
-  }
+
 }

@@ -74,7 +74,7 @@ public class NESTMLBuffers {
   public String printBufferGetter(final ASTInputLine astInputLine, boolean isInStruct) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final VariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
+    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
 
     final StringBuilder functionDeclaration = new StringBuilder();
     functionDeclaration.append("inline ");
@@ -104,7 +104,7 @@ public class NESTMLBuffers {
   public String printBufferDeclaration(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final VariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
+    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
 
     String bufferType;
     if (buffer.getArraySizeParameter().isPresent()) {
@@ -139,23 +139,15 @@ public class NESTMLBuffers {
   public String vectorParameter(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final VariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
+    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
     checkState(buffer.getArraySizeParameter().isPresent(), "Cannot resolve the variable: " + astInputLine.getName());
     return buffer.getArraySizeParameter().get() + "_";
-  }
-
-  // TODO duplicate
-  private VariableSymbol resolveVariable(final String variableName, final Scope scope) {
-    final Optional<VariableSymbol> variableSymbol = scope.resolve(
-        variableName, VariableSymbol.KIND);
-    checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
-    return variableSymbol.get();
   }
 
   public boolean isVector(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final VariableSymbol buffer = resolveVariable(astInputLine.getName(), scope);
+    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
 
     return buffer.getArraySizeParameter().isPresent();
   }

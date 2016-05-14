@@ -40,6 +40,9 @@ public class VariableNotDefinedBeforeUse implements
 
   @Override
   public void check(final ASTDeclaration decl) {
+    checkArgument(decl.getEnclosingScope().isPresent(), "Run symboltable creator.");
+    final Scope scope = decl.getEnclosingScope().get();
+
     if (decl.getExpr().isPresent()) {
       final List<String> varsOfCurrentDecl = Lists.newArrayList(decl.getVars());
       final List<ASTVariable> variablesNamesRHS = getVariablesFromExpressions(decl.getExpr().get());
@@ -47,16 +50,14 @@ public class VariableNotDefinedBeforeUse implements
 
       for (final ASTVariable variable: variablesNamesRHS) {
         final String varRHS = variable.toString();
-        final Optional<VariableSymbol> variableSymbol = decl.getEnclosingScope().get().resolve(
-            varRHS, VariableSymbol.KIND);
-        checkState(variableSymbol.isPresent(), "Cannot resolve the symbol:  "+varRHS);
+        final VariableSymbol variableSymbol =VariableSymbol.resolve(varRHS, scope);
         // e.g. x real = 2 * x
         if (varsOfCurrentDecl.contains(varRHS)) {
           final String logMsg = "Cannot use variable '%s' in the assignment of its own declaration.";
           error(ERROR_CODE + ":" + String.format(logMsg, varRHS),
               decl.get_SourcePositionStart());
         }
-        else if (variable.get_SourcePositionStart().compareTo(variableSymbol.get().getAstNode().get().get_SourcePositionStart()) < 0) {
+        else if (variable.get_SourcePositionStart().compareTo(variableSymbol.getAstNode().get().get_SourcePositionStart()) < 0) {
           // y real = 5 * x
           // x integer = 1
           final String logMsg = "Cannot use variable '%s' before its usage.";

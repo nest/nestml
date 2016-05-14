@@ -63,9 +63,6 @@ public class IllegalExpression implements
     if (node.getExpr().isPresent()) {
       final String varNameFromDeclaration = node.getVars().get(0);
       final String declarationTypeName = computeTypeName(node.getDatatype());
-      final Optional<Symbol> varType = scope.resolve(varNameFromDeclaration,
-          VariableSymbol.KIND);
-      checkState(varType.isPresent(), "Cannot resolve the type of the variable:  " + varNameFromDeclaration);
 
       final Either<TypeSymbol, String> initializerExpressionType
           = typeCalculator.computeType(node.getExpr().get());

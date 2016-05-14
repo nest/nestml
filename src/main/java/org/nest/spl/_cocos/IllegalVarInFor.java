@@ -5,23 +5,18 @@
  */
 package org.nest.spl._cocos;
 
-import com.google.common.base.Preconditions;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTFOR_Stmt;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.symbols.VariableSymbol;
 
-import java.util.Optional;
-
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Check that the type of the loop variable is an integer.
- *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * TODO this coco fails, if variable is not defined
+ * @author plotnikov
  */
 public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
   public static final String ERROR_CODE = "SPL_ILLEGAL_VAR_IN_FOR";
@@ -35,12 +30,10 @@ public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
 
     String iterName = astfor.getVar();
 
-    Optional<VariableSymbol> iter = scope.resolve(iterName, VariableSymbol.KIND);
-    Preconditions.checkState(iter.isPresent());
+    final VariableSymbol iter = VariableSymbol.resolve(iterName, scope);
     TypeChecker tc = new TypeChecker();
-    if (!tc.checkNumber(iter.get().getType())) {
-      Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, iter.get().getType()),
-          astfor.get_SourcePositionEnd());
+    if (!tc.checkNumber(iter.getType())) {
+      Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, iter.getType()), astfor.get_SourcePositionEnd());
     }
 
   }
