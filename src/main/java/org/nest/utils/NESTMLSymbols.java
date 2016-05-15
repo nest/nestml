@@ -47,8 +47,7 @@ public class NESTMLSymbols {
     final String simpleMethodName = Names.getSimpleName(methodName);
 
     if (!calleeVariableNameCandidate.isEmpty()) {
-      final Optional<VariableSymbol> calleeVariableSymbol
-          = scope.resolve(calleeVariableNameCandidate, VariableSymbol.KIND);
+      final Optional<VariableSymbol> calleeVariableSymbol = scope.resolve(calleeVariableNameCandidate, VariableSymbol.KIND);
       if (calleeVariableSymbol.isPresent()) {
 
         final Optional<MethodSymbol> builtInMethod

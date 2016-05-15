@@ -87,7 +87,7 @@ public class ExactSolutionTransformer {
       final Scope scope = ((ScopeSpanningSymbol)astNeuron.getSymbol().get()).getSpannedScope(); // valid, after the symboltable is created
 
       Optional<VariableSymbol> vectorizedVariable = variables.stream()
-          .map(astVariable -> (VariableSymbol) scope.resolve(astVariable.toString(), VariableSymbol.KIND).get())
+          .map(astVariable -> VariableSymbol.resolve(astVariable.toString(), scope))
           .filter(variableSymbol -> variableSymbol.getArraySizeParameter().isPresent())
           .findAny();
       if (vectorizedVariable.isPresent()) {

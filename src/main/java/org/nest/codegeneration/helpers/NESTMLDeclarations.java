@@ -67,9 +67,8 @@ public class NESTMLDeclarations {
 
 
       for (String variableName : astDeclaration.getVars()) {
-        final Optional<VariableSymbol> currVar = scope.resolve(variableName, VariableSymbol.KIND);
-        checkState(currVar.isPresent(), "Cannot resolve the variable: " + variableName);
-        variables.add(currVar.get());
+        final VariableSymbol currVar = VariableSymbol.resolve(variableName, scope);
+        variables.add(currVar);
       }
 
       return variables;
@@ -109,11 +108,9 @@ public class NESTMLDeclarations {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
     final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final Optional<VariableSymbol> lhsVarSymbol
-        = scope.resolve(lhsVarName, VariableSymbol.KIND);
+    final VariableSymbol lhsVarSymbol = VariableSymbol.resolve(lhsVarName, scope);
 
-    checkState(lhsVarSymbol.isPresent(), "Cannot resolve the name: " + lhsVarName);
-    return lhsVarSymbol.get().getArraySizeParameter().isPresent();
+    return lhsVarSymbol.getArraySizeParameter().isPresent();
   }
 
   public String printSizeParameter(final ASTAssignment astAssignment) {

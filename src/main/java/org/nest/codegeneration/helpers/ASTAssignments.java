@@ -72,17 +72,9 @@ public class ASTAssignments {
     final Scope scope = astAssignment.getEnclosingScope().get();
 
     final String variableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);
-    checkState(variableSymbol.isPresent(), "Cannot resolve the spl variable: " + variableName);
+    final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
 
-    // TODO does it make sense for the nestml?
-    if (variableSymbol.get().getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
-      return true;
-    }
-    else {
-      return false;
-    }
-
+    return variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL);
   }
 
   /**
@@ -122,23 +114,18 @@ public class ASTAssignments {
     final Scope scope = astAssignment.getEnclosingScope().get();
 
     final String variableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);
-    checkState(variableSymbol.isPresent(), "Cannot resolve the spl variable: " + variableName);
+    final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
 
-
-    if (variableSymbol.get().getArraySizeParameter().isPresent()) {
+    if (variableSymbol.getArraySizeParameter().isPresent()) {
       return true;
     }
 
     // TODO to complex logic, refactor
     final Optional<String> arrayVariable = ASTNodes.getVariablesNamesFromAst(astAssignment.getExpr())
         .stream()
-        .filter(
-            variableNameInExpression -> {
-              final Optional<VariableSymbol> variableSymbolExpr = scope.resolve(variableNameInExpression, VariableSymbol.KIND);
-              checkState(variableSymbolExpr.isPresent(), "The existence should ensured by context condition: " + variableNameInExpression);
-              return variableSymbolExpr.get().getArraySizeParameter().isPresent();
-            }
+        .filter(variableNameInExpression -> VariableSymbol.resolve(variableNameInExpression, scope)
+            .getArraySizeParameter()
+            .isPresent()
         ).findFirst();
 
     return arrayVariable.isPresent();

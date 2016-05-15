@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
@@ -94,7 +95,7 @@ public class SympyScriptGenerator {
       final ASTNeuron neuron,
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
-
+    checkArgument(neuron.getEnclosingScope().isPresent(), "Run symboltable creator");
     if (astOdeDeclaration.getODEs().size() >= 1) {
       Log.warn("It works only for a single ODE. Only the first equation will be used.");
     }
@@ -123,14 +124,11 @@ public class SympyScriptGenerator {
         .collect(Collectors.toList());
     variables.addAll(symbolsInAliasDeclaration);
 
-    final Optional<? extends Scope> scope = astOdeDeclaration.getEnclosingScope();
-    if (scope.isPresent()) {
-      for (final ASTEquation ode:astOdeDeclaration.getODEs()) {
-        final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(
-            ode.getLhs().toString(),
-            VariableSymbol.KIND);
-        lhsSymbol.ifPresent(variables::add);
-      }
+    final Scope scope = astOdeDeclaration.getEnclosingScope().get();
+
+    for (final ASTEquation ode:astOdeDeclaration.getODEs()) {
+      final VariableSymbol lhsSymbol = VariableSymbol.resolve(ode.getLhs().toString(), scope);
+      variables.add(lhsSymbol);
     }
 
     glex.setGlobalValue("variables", variables);

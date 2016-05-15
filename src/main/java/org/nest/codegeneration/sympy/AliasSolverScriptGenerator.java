@@ -126,10 +126,9 @@ public class AliasSolverScriptGenerator {
       final Scope scope = astVariable.getEnclosingScope().get();
 
       final String variableName = astVariable.toString();
-      final Optional<VariableSymbol> variableSymbol
-          = scope.resolve(variableName, VariableSymbol.KIND);
-      if (variableSymbol.isPresent() && !variableSymbol.get().isAlias()) {
-        dependentVariable = variableSymbol.get();
+      final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
+      if (!variableSymbol.isAlias()) {
+        dependentVariable = variableSymbol;
       }
 
     }
