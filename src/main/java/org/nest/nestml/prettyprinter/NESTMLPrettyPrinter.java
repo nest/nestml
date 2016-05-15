@@ -279,7 +279,9 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTInputLine astInputLine) {
-    print(astInputLine.getName() + " <- ");
+    print(astInputLine.getName());
+    printArrayParameter(astInputLine);
+    print(" <- ");
     printInputTypes(astInputLine.getInputTypes());
     printOutputType(astInputLine);
     println();
@@ -296,6 +298,10 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
     }
 
+  }
+
+  private void printArrayParameter(final ASTInputLine astInputLine) {
+    astInputLine.getSizeParameter().ifPresent(parameter -> print("[" + parameter + "]"));
   }
 
   private void printOutputType(final ASTInputLine astInputLine) {

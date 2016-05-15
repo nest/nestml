@@ -156,8 +156,7 @@ public class NESTCodeGenerator {
       info("Printed analysed model into: " + outputTmpPath, LOG_NAME);
       final NESTMLParser parser = new NESTMLParser(modulePath);
 
-      final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit
-          (outputTmpPath.toString()).get();
+      final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
       withSolvedOde.setArtifactName(root.getArtifactName());
       if (root.getPackageName().isPresent()) {
         withSolvedOde.setPackageName(root.getPackageName().get());

@@ -29,7 +29,7 @@ neuron iaf_psc_alpha_multisynapse_nestml:
   end
 
   input:
-    spikes   <- excitatory spike
+    spikes[receptors]   <- excitatory spike
     currents <- current
   end
 
