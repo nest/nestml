@@ -115,13 +115,8 @@ public class NESTMLBuffers {
     }
     bufferType = bufferType.replace(".", "::"); // TODO review
 
-    final StringBuilder bufferDeclaration = new StringBuilder();
-
-    bufferDeclaration.append(bufferType).append(" ");
-    bufferDeclaration.append(astInputLine.getName() + "_");
-    bufferDeclaration.append("//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n");
-
-    return bufferDeclaration.toString();
+    return bufferType + " " + astInputLine.getName() + "_" +
+        "//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
   }
 
   public String printBufferTypesVariables(final ASTInputLine astInputLine) {
