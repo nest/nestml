@@ -49,7 +49,9 @@ public class VariableSymbol extends CommonSymbol {
   private String arraySizeParameter = null;
 
   public boolean isLoggable() {
-    return isLoggable;
+    // TODO: check whether the logic is correct. At the moment, the vector datatypes are not supported by the code
+    // generator.
+    return isLoggable && !isVector();
   }
 
   public void setLoggable(boolean loggable) {

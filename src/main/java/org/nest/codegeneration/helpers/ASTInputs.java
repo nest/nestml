@@ -6,44 +6,38 @@
 package org.nest.codegeneration.helpers;
 
 import de.monticore.ast.ASTNode;
-import groovyjarjarantlr.collections.AST;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
+import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._ast.ASTOutput;
 
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkState;
+import java.util.Optional;
 
 /**
  * Computes the type of the output for neurons and neuron components.
  *
  * @author plotnikov
  */
-public class NESTMLOutputs {
-  public static boolean isOutputEventPresent(final ASTBody astBody) {
-    return !astBody.getOutputs().isEmpty();
+public class ASTInputs {
+  public static boolean isSpikeInput(final ASTNode node) {
+    final ASTBody bodyDecorator = (getBodyNode(node));
+    final List<ASTInputLine> neuronInputLines = bodyDecorator.getInputLines();
+    Optional<ASTInputLine> inputSpikeCandidate = neuronInputLines
+        .stream()
+        .filter(ASTInputLine::isSpike)
+        .findFirst();
+    return inputSpikeCandidate.isPresent();
   }
 
-  public static String printOutputEvent(final ASTBody astBody) {
-    final List<ASTOutput> neuronOutputs = astBody.getOutputs();
-    if (!neuronOutputs.isEmpty()) {
-      ASTOutput output = neuronOutputs.get(0);
-
-      if (output.isSpike()) {
-        return "nest::SpikeEvent";
-      }
-      else if (output.isCurrent()) {
-        return "nest::CurrentEvent";
-      }
-      else {
-        throw new RuntimeException("Unexpected output type. Must be current or spike.");
-      }
-    }
-    else {
-      return "none";
-    }
+  public static boolean isCurrentInput(final ASTNode node) {
+    final ASTBody bodyDecorator = (getBodyNode(node));
+    final List<ASTInputLine> neuronInputLines = bodyDecorator.getInputLines();
+    Optional<ASTInputLine> inputSpikeCandidate = neuronInputLines
+        .stream()
+        .filter(ASTInputLine::isCurrent)
+        .findFirst();
+    return inputSpikeCandidate.isPresent();
   }
 
   private static ASTBody getBodyNode(ASTNode node) {
@@ -59,4 +53,5 @@ public class NESTMLOutputs {
     }
     return bodyElement;
   }
+
 }

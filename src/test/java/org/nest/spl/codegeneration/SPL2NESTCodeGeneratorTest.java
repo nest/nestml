@@ -8,7 +8,7 @@ package org.nest.spl.codegeneration;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import org.junit.Assert;
 import org.junit.Test;
-import org.nest.codegeneration.helpers.NESTMLDeclarations;
+import org.nest.codegeneration.helpers.ASTDeclarations;
 import org.nest.codegeneration.SPL2NESTCodeGenerator;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
@@ -16,7 +16,6 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.utils.ASTNodes;
 
 import java.io.File;
@@ -59,7 +58,7 @@ public class SPL2NESTCodeGeneratorTest {
 
     final GlobalExtensionManagement glex = createGLEXConfiguration();
     final SPL2NESTCodeGenerator generator = new SPL2NESTCodeGenerator(glex, outputFolder);
-    final NESTMLDeclarations declarations = new NESTMLDeclarations();
+    final ASTDeclarations declarations = new ASTDeclarations();
     glex.setGlobalValue("declarations", declarations);
 
     // tests code generation for a spldeclaration
