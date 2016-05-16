@@ -12,16 +12,14 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * TODO
+ * Provides helper methods to print information from the for-loop AST.
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
- * @since TODO
+ * @author plotnikov
  */
 @SuppressWarnings({"unused"}) // the class is used from templates
-public class SPLForNodes {
+public class ASTForNodes {
 
-  private static final String LOG_NAME = SPLForNodes.class.getName();
+  private static final String LOG_NAME = ASTForNodes.class.getName();
 
   public String printComparisonOperator(final ASTFOR_Stmt ast) {
     Optional<ASTSignedNumericLiteral> step = ast.getStep();

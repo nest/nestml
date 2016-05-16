@@ -29,11 +29,11 @@ import static com.google.common.base.Preconditions.checkState;
  * @since 0.0.1
  */
 @SuppressWarnings("unused")
-public class NESTMLBuffers {
+public class ASTBuffers {
 
   private final NESTML2NESTTypeConverter nestml2NESTTypeConverter;
 
-  public NESTMLBuffers() {
+  public ASTBuffers() {
     nestml2NESTTypeConverter = new NESTML2NESTTypeConverter();
   }
 

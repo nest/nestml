@@ -28,18 +28,27 @@ import static org.nest.utils.ASTNodes.computeTypeName;
  * @author plotnikov
  */
 @SuppressWarnings({"unused"}) // the class is used from templates
-public class NESTMLDeclarations {
+public class ASTDeclarations {
   private final NESTML2NESTTypeConverter nestml2NESTTypeConverter;
 
   private final NESTML2NESTTypeConverter typeConverter;
 
-  public NESTMLDeclarations() {
+  public ASTDeclarations() {
     nestml2NESTTypeConverter = new NESTML2NESTTypeConverter();
     typeConverter = new NESTML2NESTTypeConverter();
   }
 
+  // TODO where is this used?
   public boolean isVectorType(final ASTAliasDecl astAliasDecl) {
     return astAliasDecl.getDeclaration().getSizeParameter().isPresent();
+  }
+
+  public boolean isVector(final ASTDeclaration astDeclaration) {
+    return astDeclaration.getSizeParameter().isPresent();
+  }
+
+  public String printSizeParameter(final ASTDeclaration astDeclaration) {
+    return astDeclaration.getSizeParameter().get(); // must be ensured in the calling template
   }
 
   public String printVariableType(final VariableSymbol variableSymbol) {
@@ -102,29 +111,6 @@ public class NESTMLDeclarations {
       return typeConverter.convert(type);
     }
 
-  }
-
-  public boolean isVectorLHS(final ASTAssignment astAssignment) {
-    checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
-    final Scope scope = astAssignment.getEnclosingScope().get();
-    final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    final VariableSymbol lhsVarSymbol = VariableSymbol.resolve(lhsVarName, scope);
-
-    return lhsVarSymbol.getArraySizeParameter().isPresent();
-  }
-
-  public String printSizeParameter(final ASTAssignment astAssignment) {
-    checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symbol table creator");
-    final Scope scope = astAssignment.getEnclosingScope().get();
-
-    Optional<VariableSymbol> vectorVariable = ASTNodes.getVariableSymbols(astAssignment.getExpr())
-        .stream()
-        .filter(VariableSymbol::isVector).findAny();
-    if (!vectorVariable.isPresent()) {
-      vectorVariable = Optional.of(VariableSymbol.resolve(astAssignment.getVariableName().toString(), astAssignment.getEnclosingScope().get()));
-    }
-    // The existence of the variable is ensured by construction
-    return vectorVariable.get().getArraySizeParameter().get(); // Array parameter is ensured by the query
   }
 
 }

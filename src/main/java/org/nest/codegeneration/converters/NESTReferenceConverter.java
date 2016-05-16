@@ -129,22 +129,17 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return "numerics::e";
     }
     else {
-      final Optional<VariableSymbol> variableSymbol = scope.resolve(name, VariableSymbol.KIND);
+      final VariableSymbol variableSymbol = VariableSymbol.resolve(name, scope);
 
-      if (!variableSymbol.isPresent()) {
-        scope.resolve(name, VariableSymbol.KIND);
+      if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
+        return name + (variableSymbol.isVector()?"[i]":"");
       }
-      checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + name);
-
-      if (variableSymbol.get().getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
-        return name;
-      }
-      else if(variableSymbol.get().getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT ||
-          variableSymbol.get().getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT) {
+      else if(variableSymbol.getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT ||
+              variableSymbol.getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT) {
         return "get_" + name + "().get_value( lag )";
       }
       else {
-        if (variableSymbol.get().getArraySizeParameter().isPresent()) {
+        if (variableSymbol.getArraySizeParameter().isPresent()) {
           return "get_" + name + "()[i]";
         }
         else {

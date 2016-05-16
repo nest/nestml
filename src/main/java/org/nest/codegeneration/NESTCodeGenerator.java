@@ -9,7 +9,6 @@ import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
@@ -273,18 +272,18 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("neuronSymbol", neuron.getSymbol().get());
 
     final NESTFunctionPrinter functionPrinter = new NESTFunctionPrinter();
-    final NESTMLDeclarations declarations = new NESTMLDeclarations();
-    glex.setGlobalValue("declarations", new NESTMLDeclarations() );
+    final ASTDeclarations declarations = new ASTDeclarations();
+    glex.setGlobalValue("declarations", new ASTDeclarations() );
     glex.setGlobalValue("assignments", new ASTAssignments());
     glex.setGlobalValue("functionPrinter", functionPrinter);
     glex.setGlobalValue("functions", new SPLFunctionCalls());
     glex.setGlobalValue("declarations", declarations);
-    glex.setGlobalValue("bufferHelper", new NESTMLBuffers());
+    glex.setGlobalValue("bufferHelper", new ASTBuffers());
 
-    glex.setGlobalValue("outputEvent", NESTMLOutputs.printOutputEvent(neuron.getBody()));
-    glex.setGlobalValue("isOutputEventPresent", NESTMLOutputs.isOutputEventPresent(neuron.getBody()));
-    glex.setGlobalValue("isSpikeInput", NESTMLInputs.isSpikeInput(neuron));
-    glex.setGlobalValue("isCurrentInput", NESTMLInputs.isCurrentInput(neuron));
+    glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron.getBody()));
+    glex.setGlobalValue("isOutputEventPresent", ASTOutputs.isOutputEventPresent(neuron.getBody()));
+    glex.setGlobalValue("isSpikeInput", ASTInputs.isSpikeInput(neuron));
+    glex.setGlobalValue("isCurrentInput", ASTInputs.isCurrentInput(neuron));
     glex.setGlobalValue("body", neuron.getBody());
 
     final GSLReferenceConverter converter = new GSLReferenceConverter();
