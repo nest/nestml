@@ -10,6 +10,7 @@
 ${signature("variable")}
 
 <#if variable.getArraySizeParameter().isPresent()>
+resize_${variable.getName()}(${variable.getArraySizeParameter().get()}());
 for (size_t i=0; i < get_${variable.getArraySizeParameter().get()}(); i++) {
   get_${variable.getName()}()[i] =
     <#if variable.getDeclaringExpression().isPresent()>
