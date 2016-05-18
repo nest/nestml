@@ -72,11 +72,19 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   @SuppressWarnings("unused") // it is used within freemarker templates
   public List<VariableSymbol> getSpikeBuffers() {
-    final Collection<VariableSymbol> variableSymbols
-        = spannedScope.resolveLocally(VariableSymbol.KIND);
+    final Collection<VariableSymbol> variableSymbols = spannedScope.resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_SPIKE))
         .collect(toList());
+  }
+
+  @SuppressWarnings("unused") // it is used within freemarker templates
+  public boolean isMultisynapseSpikes() {
+    return getSpikeBuffers()
+        .stream()
+        .filter(VariableSymbol::isVector)
+        .findAny()
+        .isPresent();
   }
 
   @Override
