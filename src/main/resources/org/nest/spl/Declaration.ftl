@@ -19,6 +19,10 @@
       }
     </#if>
   <#else>
-    ${declarations.printVariableType(variable)} ${variable.getName()} = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr().get())};
+    <#if ast.getExpr().isPresent()>
+      ${declarations.printVariableType(variable)} ${variable.getName()} = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr().get())};
+    <#else>
+      ${declarations.printVariableType(variable)} ${variable.getName()};
+    </#if>
   </#if>
 </#list>
