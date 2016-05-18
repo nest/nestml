@@ -88,11 +88,11 @@ public class ExactSolutionTransformer {
 
       Optional<VariableSymbol> vectorizedVariable = variables.stream()
           .map(astVariable -> VariableSymbol.resolve(astVariable.toString(), scope))
-          .filter(variableSymbol -> variableSymbol.getArraySizeParameter().isPresent())
+          .filter(variableSymbol -> variableSymbol.getVectorParameter().isPresent())
           .findAny();
       if (vectorizedVariable.isPresent()) {
         // the existence of the array parameter is ensured by the query
-        astAliasDecl.getDeclaration().setSizeParameter(vectorizedVariable.get().getArraySizeParameter().get());
+        astAliasDecl.getDeclaration().setSizeParameter(vectorizedVariable.get().getVectorParameter().get());
       }
 
     }
@@ -134,7 +134,7 @@ public class ExactSolutionTransformer {
         .map(shapeName -> VariableSymbol.resolve(shapeName, astBody.getEnclosingScope().get()))
         .collect(Collectors.toList());
     for (int i = 0; i < stateVariables.size(); ++i) {
-      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getArraySizeParameter().get() + "]":"";
+      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getVectorParameter().get() + "]":"";
       final String stateVarDeclaration = stateVariables.get(i)+ " real " + vectorDatatype;
 
       astBody.addToStateBlock(converter2NESTML.convertStringToAlias(stateVarDeclaration));
@@ -163,7 +163,7 @@ public class ExactSolutionTransformer {
     final List<ASTDeclaration> tmpStateDeclarations = Lists.newArrayList();
 
     for (int i = 0; i < stateUpdates.size(); ++i) {
-      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getArraySizeParameter().get() + "]":"";
+      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getVectorParameter().get() + "]":"";
       final String tmpDeclaration = stateAssignments.get(i).getVariableName() + "_tmp" + " real " + vectorDatatype + "= " + stateAssignments.get(i).getVariableName();
       tmpStateDeclarations.add(converter2NESTML.convertStringToDeclaration(tmpDeclaration));
     }

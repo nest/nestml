@@ -7,14 +7,11 @@ package org.nest.codegeneration.helpers;
 
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,11 +35,6 @@ public class ASTDeclarations {
     typeConverter = new NESTML2NESTTypeConverter();
   }
 
-  // TODO where is this used?
-  public boolean isVectorType(final ASTAliasDecl astAliasDecl) {
-    return astAliasDecl.getDeclaration().getSizeParameter().isPresent();
-  }
-
   public boolean isVector(final ASTDeclaration astDeclaration) {
     return astDeclaration.getSizeParameter().isPresent();
   }
@@ -53,7 +45,7 @@ public class ASTDeclarations {
 
   public String printVariableType(final VariableSymbol variableSymbol) {
 
-    if (variableSymbol.getArraySizeParameter().isPresent()) {
+    if (variableSymbol.getVectorParameter().isPresent()) {
       return "std::vector< " + nestml2NESTTypeConverter.convert(variableSymbol.getType()) + " > ";
     }
     else {

@@ -94,7 +94,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
 
 
         if (functionSymbol.get().getName().equals("getSum")) {
-          if (variableSymbol.getArraySizeParameter().isPresent()) {
+          if (variableSymbol.getVectorParameter().isPresent()) {
             final String calleeObject = Names.getQualifier(functionName);
             return "get_" + calleeObject + "()[i].get_value(lag)";
           }
@@ -139,7 +139,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return "get_" + name + "().get_value( lag )";
       }
       else {
-        if (variableSymbol.getArraySizeParameter().isPresent()) {
+        if (variableSymbol.getVectorParameter().isPresent()) {
           return "get_" + name + "()[i]";
         }
         else {

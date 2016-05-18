@@ -116,7 +116,7 @@ public class ASTAssignments {
     final String variableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
     final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
 
-    if (variableSymbol.getArraySizeParameter().isPresent()) {
+    if (variableSymbol.getVectorParameter().isPresent()) {
       return true;
     }
 
@@ -124,7 +124,7 @@ public class ASTAssignments {
     final Optional<String> arrayVariable = ASTNodes.getVariablesNamesFromAst(astAssignment.getExpr())
         .stream()
         .filter(variableNameInExpression -> VariableSymbol.resolve(variableNameInExpression, scope)
-            .getArraySizeParameter()
+            .getVectorParameter()
             .isPresent()
         ).findFirst();
 
@@ -137,7 +137,7 @@ public class ASTAssignments {
     final String lhsVarName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
     final VariableSymbol lhsVarSymbol = VariableSymbol.resolve(lhsVarName, scope);
 
-    return lhsVarSymbol.getArraySizeParameter().isPresent();
+    return lhsVarSymbol.getVectorParameter().isPresent();
   }
 
   public String printSizeParameter(final ASTAssignment astAssignment) {
@@ -151,6 +151,6 @@ public class ASTAssignments {
       vectorVariable = Optional.of(VariableSymbol.resolve(astAssignment.getVariableName().toString(), astAssignment.getEnclosingScope().get()));
     }
     // The existence of the variable is ensured by construction
-    return vectorVariable.get().getArraySizeParameter().get(); // Array parameter is ensured by the query
+    return vectorVariable.get().getVectorParameter().get(); // Array parameter is ensured by the query
   }
 }

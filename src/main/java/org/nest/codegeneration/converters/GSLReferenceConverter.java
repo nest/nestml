@@ -10,9 +10,6 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.NESTMLSymbols;
-
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -70,7 +67,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
           return variableName;
         }
         else {
-          if (variableSymbol.getArraySizeParameter().isPresent()) {
+          if (variableSymbol.getVectorParameter().isPresent()) {
             return "node.get_" + variableName + "()[i]";
           }
           else {

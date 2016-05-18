@@ -73,11 +73,11 @@ public class VariableSymbol extends CommonSymbol {
     return declaringExpression;
   }
 
-  public Optional<String> getArraySizeParameter() {
+  public Optional<String> getVectorParameter() {
     return Optional.ofNullable(arraySizeParameter);
   }
 
-  public void setArraySizeParameter(final String arraySizeParameter) {
+  public void setVectorParameter(final String arraySizeParameter) {
     checkNotNull(arraySizeParameter);
     this.arraySizeParameter = arraySizeParameter;
   }
@@ -109,7 +109,7 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isVector() {
-    return getArraySizeParameter().isPresent();
+    return getVectorParameter().isPresent();
   }
 
   public boolean isInState() {

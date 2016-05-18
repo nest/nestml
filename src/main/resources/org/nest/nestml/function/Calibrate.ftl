@@ -9,8 +9,9 @@
 -->
 ${signature("variable")}
 
-<#if variable.getArraySizeParameter().isPresent()>
-for (size_t i=0; i < get_${variable.getArraySizeParameter().get()}(); i++) {
+<#if variable.getVectorParameter().isPresent()>
+${declarations.getAliasOrigin(variable)}.${variable.getName()}_.resize(get_${variable.getVectorParameter().get()}());
+for (size_t i=0; i < get_${variable.getVectorParameter().get()}(); i++) {
   get_${variable.getName()}()[i] =
     <#if variable.getDeclaringExpression().isPresent()>
     ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())}

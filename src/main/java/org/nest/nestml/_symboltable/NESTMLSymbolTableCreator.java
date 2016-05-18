@@ -260,7 +260,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     }
 
     if (inputLineAst.getSizeParameter().isPresent()) {
-      var.setArraySizeParameter(inputLineAst.getSizeParameter().get());
+      var.setVectorParameter(inputLineAst.getSizeParameter().get());
     }
 
     addToScopeAndLinkWithNode(var, inputLineAst);
@@ -476,7 +476,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       }
 
       if (astDeclaration.getSizeParameter().isPresent()) {
-        var.setArraySizeParameter(astDeclaration.getSizeParameter().get());
+        var.setVectorParameter(astDeclaration.getSizeParameter().get());
       }
 
       var.setBlockType(blockType);

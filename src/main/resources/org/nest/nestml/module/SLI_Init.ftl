@@ -25,4 +25,4 @@
 * Run automatically when MyModule is loaded.
 */
 
-M_DEBUG (${moduleName}.sli) (Initializing SLI support for MyModule.) message
+M_DEBUG (${moduleName}.sli) (Initializing SLI support for ${moduleName}.) message

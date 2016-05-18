@@ -9,10 +9,7 @@ import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.VariableSymbol;
-
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -79,7 +76,7 @@ public class ASTBuffers {
     final StringBuilder functionDeclaration = new StringBuilder();
     functionDeclaration.append("inline ");
 
-    if (buffer.getArraySizeParameter().isPresent()) {
+    if (buffer.getVectorParameter().isPresent()) {
       functionDeclaration.append("std::vector< ");
       functionDeclaration.append(nestml2NESTTypeConverter.convert(buffer.getType()));
       functionDeclaration.append(" > &");
@@ -107,7 +104,7 @@ public class ASTBuffers {
     final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
 
     String bufferType;
-    if (buffer.getArraySizeParameter().isPresent()) {
+    if (buffer.getVectorParameter().isPresent()) {
       bufferType = "std::vector< " + nestml2NESTTypeConverter.convert(buffer.getType()) + " >";
     }
     else {
@@ -135,8 +132,8 @@ public class ASTBuffers {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
     final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
-    checkState(buffer.getArraySizeParameter().isPresent(), "Cannot resolve the variable: " + astInputLine.getName());
-    return buffer.getArraySizeParameter().get() + "_";
+    checkState(buffer.getVectorParameter().isPresent(), "Cannot resolve the variable: " + astInputLine.getName());
+    return buffer.getVectorParameter().get() + "_";
   }
 
   public boolean isVector(final ASTInputLine astInputLine) {
@@ -144,6 +141,6 @@ public class ASTBuffers {
     final Scope scope = astInputLine.getEnclosingScope().get();
     final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
 
-    return buffer.getArraySizeParameter().isPresent();
+    return buffer.getVectorParameter().isPresent();
   }
 }
