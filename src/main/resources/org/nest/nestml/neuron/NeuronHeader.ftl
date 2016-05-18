@@ -355,13 +355,22 @@ nest::port ${simpleNeuronName}::send_test_event(nest::Node& target, nest::rport 
 inline
 nest::port ${simpleNeuronName}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
-  // You should usually not change the code in this function.
-  // It confirms to the connection management system that we are able
-  // to handle @c SpikeEvent on port 0. You need to extend the function
-  // if you want to differentiate between input ports.
-  if (receptor_type != 0)
-  throw nest::UnknownReceptorType(receptor_type, get_name());
-  return 0;
+
+  <#if neuronSymbol.isMultisynapseSpikes()>
+    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_${neuronSymbol.getSpikeBuffers()[0].getVectorParameter().get()}()) ) // TODO refactor me. The code assumes that there is only one. Check by coco.
+        throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
+
+    return receptor_type;
+  <#else>
+    // You should usually not change the code in this function.
+    // It confirms to the connection management system that we are able
+    // to handle @c SpikeEvent on port 0. You need to extend the function
+    // if you want to differentiate between input ports.
+    if (receptor_type != 0)
+      throw nest::UnknownReceptorType(receptor_type, get_name());
+    return 0;
+  </#if>
+
 }
 </#if>
 
