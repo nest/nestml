@@ -70,23 +70,19 @@ namespace nest
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
 
-<#assign start="">
 ${simpleNeuronName}::Parameters_::Parameters_()
-<#if body.getParameterNonAliasSymbols()?size != 0>:</#if>
+{
 <#list body.getParameterNonAliasSymbols() as parameter>
-  ${start} ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
-  <#assign start=",">
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
 </#list>
-{}
+}
 
-<#assign start="">
 ${simpleNeuronName}::State_::State_()
-<#if body.getStateNonAliasSymbols()?size != 0>:</#if>
+{
 <#list body.getStateNonAliasSymbols() as state>
-  ${start} ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state])}
-  <#assign start=",">
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state])}
 </#list>
-{}
+}
 
 
 /* ----------------------------------------------------------------
@@ -247,11 +243,25 @@ ${simpleNeuronName}::calibrate()
     ${neuronSymbol.getBaseNeuron().get().getName()}::calibrate();
   </#if>
 
+  <#list body.getParameterNonAliasSymbols() as variable>
+    <#if variable.isVector()>
+      ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
+    </#if>
+  </#list>
+
   <#list body.getInternalNonAliasSymbols() as variable>
     ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
   </#list>
+
+  <#list body.getStateNonAliasSymbols() as variable>
+    <#if variable.isVector()>
+      ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
+    </#if>
+  </#list>
+
   <#list body.getInputLines() as inputLine>
     <#if bufferHelper.isVector(inputLine)>
+        B_.${inputLine.getName()}_.resize(P_.${bufferHelper.vectorParameter(inputLine)});
         B_.receptor_types_${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
         for (size_t i=0; i < P_.${bufferHelper.vectorParameter(inputLine)}; i++)
         {

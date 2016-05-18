@@ -11,16 +11,14 @@
 
 <#list declarations.getVariables(ast) as variable>
 
-  ${declarations.printVariableType(variable)} ${variable.getName()};
-  <#-- The declaration is decoupled into the declaration and assignment because otherwise the vectorized version would not work properly-->
-
-  <#if ast.getExpr().isPresent()>
-    <#if declarations.isVector(ast)>
+  <#if declarations.isVector(ast)>
+    ${declarations.printVariableType(variable)} ${variable.getName()}(get_${declarations.printSizeParameter(ast)}());
+    <#if ast.getExpr().isPresent()>
       for (size_t i=0; i < get_${declarations.printSizeParameter(ast)}(); i++) {
         ${variable.getName()}[i] = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr().get())};
       }
-    <#else>
-      ${variable.getName()} = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr().get())};
     </#if>
+  <#else>
+    ${declarations.printVariableType(variable)} ${variable.getName()} = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr().get())};
   </#if>
 </#list>
