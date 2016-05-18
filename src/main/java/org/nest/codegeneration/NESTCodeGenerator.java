@@ -228,6 +228,12 @@ public class NESTCodeGenerator {
         moduleHeader,
         neurons.get(0)); // an arbitrary AST to match the signature
 
+    final Path initSLI = Paths.get( moduleName + "-init.sli");
+    generator.generate(
+        "org.nest.nestml.module.SLI_Init",
+        initSLI,
+        neurons.get(0)); // an arbitrary AST to match the signature
+
     info("Successfully generated NEST module code in " + outputDirectory, LOG_NAME);
   }
 

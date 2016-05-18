@@ -8,6 +8,7 @@ package org.nest.codegeneration.helpers;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTAssignment;
@@ -36,11 +37,6 @@ public class ASTDeclarations {
   public ASTDeclarations() {
     nestml2NESTTypeConverter = new NESTML2NESTTypeConverter();
     typeConverter = new NESTML2NESTTypeConverter();
-  }
-
-  // TODO where is this used?
-  public boolean isVectorType(final ASTAliasDecl astAliasDecl) {
-    return astAliasDecl.getDeclaration().getSizeParameter().isPresent();
   }
 
   public boolean isVector(final ASTDeclaration astDeclaration) {
