@@ -109,8 +109,7 @@ public class VariableDoesNotExist implements
 
   @Override
   public void check(final ASTAssignment astAssignment) {
-    final String lhsVariables = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    checkVariableByName(lhsVariables, astAssignment);
+    checkVariableByName(astAssignment.getLhsVarialbe(), astAssignment);
     checkExpression(astAssignment.getExpr());
   }
 

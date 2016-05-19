@@ -22,10 +22,6 @@ import static org.nest.utils.NESTMLSymbols.isSetterPresent;
  * @author plotnikov
  */
 public class VariableSymbol extends CommonSymbol {
-  public static final VariableSymbolKind KIND = new VariableSymbolKind();
-
-  private Optional<ASTExpr> declaringExpression = Optional.empty();
-
   public enum BlockType {
     STATE,
     PARAMETER,
@@ -35,6 +31,10 @@ public class VariableSymbol extends CommonSymbol {
     INPUT_BUFFER_SPIKE,
     OUTPUT
   }
+
+  public static final VariableSymbolKind KIND = new VariableSymbolKind();
+
+  private Optional<ASTExpr> declaringExpression = Optional.empty();
 
   private TypeSymbol type;
 
@@ -47,6 +47,10 @@ public class VariableSymbol extends CommonSymbol {
   private BlockType blockType;
 
   private String arraySizeParameter = null;
+
+  public boolean isBuffer() {
+    return blockType == BlockType.INPUT_BUFFER_CURRENT || blockType == BlockType.INPUT_BUFFER_SPIKE;
+  }
 
   public boolean isLoggable() {
     // TODO: check whether the logic is correct. At the moment, the vector datatypes are not supported by the code

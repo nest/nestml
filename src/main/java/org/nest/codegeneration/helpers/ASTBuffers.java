@@ -15,15 +15,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Todo: refactor
+ * Provides methods to print beffer parameter
  * grammar:
- * {@code
- * InputLine = Name "<-" InputType* ([spike:"spike"]|[current:"current"]);
- * InputType = (["inhibitory"]|["excitatory"]);
- * }
+ *
+ *   InputLine =
+ *     Name
+ *     ("[" sizeParameter:Name "]")?
+ *     "<-" InputType*
+ *     (["spike"] | ["current"]);
+ *     InputType = (["inhibitory"] | ["excitatory"]);
  *
  * @author plotnikov
- * @since 0.0.1
  */
 @SuppressWarnings("unused")
 public class ASTBuffers {
@@ -36,7 +38,7 @@ public class ASTBuffers {
 
   public boolean isInhibitory(final ASTInputLine buffer) {
     boolean isInhibitory = false, isExcitatory = false;
-    for (final ASTInputType inputType:buffer.getInputTypes()) {
+    for (final ASTInputType inputType : buffer.getInputTypes()) {
       if (inputType.isInhibitory()) {
         isInhibitory = true;
       }
@@ -44,17 +46,14 @@ public class ASTBuffers {
         isExcitatory = true;
       }
     }
-    if ( !isInhibitory && !isExcitatory ) { // defulat
-      return true;
-    } else {
-      return isInhibitory;
-    }
+    // defulat
+    return !isInhibitory && !isExcitatory || isInhibitory;
 
   }
 
   public boolean isExcitatory(final ASTInputLine buffer) {
     boolean isInhibitory = false, isExcitatory = false;
-    for (final ASTInputType inputType:buffer.getInputTypes()) {
+    for (final ASTInputType inputType : buffer.getInputTypes()) {
       if (inputType.isInhibitory()) {
         isInhibitory = true;
       }
@@ -62,12 +61,10 @@ public class ASTBuffers {
         isExcitatory = true;
       }
     }
-    if ( !isInhibitory && !isExcitatory ) { // default
-      return true;
-    } else {
-      return isExcitatory;
-    }
+    // default
+    return !isInhibitory && !isExcitatory || isExcitatory;
   }
+
   public String printBufferGetter(final ASTInputLine astInputLine, boolean isInStruct) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
@@ -88,7 +85,7 @@ public class ASTBuffers {
     functionDeclaration.append(" get_"+astInputLine.getName() + "() {");
 
     if (isInStruct) {
-      functionDeclaration.append("return " + astInputLine.getName() + "_; ");
+      functionDeclaration.append("return " + astInputLine.getName() + "; ");
     }
     else {
       functionDeclaration.append("return B_.get_" + astInputLine.getName() + "(); ");
@@ -112,16 +109,14 @@ public class ASTBuffers {
     }
     bufferType = bufferType.replace(".", "::"); // TODO review
 
-    return bufferType + " " + astInputLine.getName() + "_" +
-        "//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
+    return bufferType + " " + astInputLine.getName() + ";" +
+        "\n//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
   }
 
   public String printBufferTypesVariables(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
 
-    final StringBuilder declaration = new StringBuilder();
-    declaration.append("std::vector<long> receptor_types_").append(astInputLine.getName());
-    return declaration.toString();
+    return "std::vector<long> receptor_types_" + astInputLine.getName();
   }
 
   public String printBufferInitialization(final ASTInputLine astInputLine) {
@@ -133,7 +128,7 @@ public class ASTBuffers {
     final Scope scope = astInputLine.getEnclosingScope().get();
     final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
     checkState(buffer.getVectorParameter().isPresent(), "Cannot resolve the variable: " + astInputLine.getName());
-    return buffer.getVectorParameter().get() + "_";
+    return buffer.getVectorParameter().get();
   }
 
   public boolean isVector(final ASTInputLine astInputLine) {

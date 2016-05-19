@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
+import de.monticore.types.types._ast.TypesNodeFactory;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
@@ -153,33 +154,29 @@ public class ExactSolutionTransformer {
         .map(converter2NESTML::convertStringToAssignment)
         .collect(toList());
 
-    final List<VariableSymbol> correspondingShapeSymbols = stateAssignments
+    final List<VariableSymbol> shapeForVariable = stateAssignments
         .stream()
-        .map(astAssignment -> astAssignment.getVariableName().toString())
+        .map(ASTAssignment::getLhsVarialbe)
         .map(variableName -> variableName.substring(variableName.indexOf("_") + 1))
         .map(shapeName -> VariableSymbol.resolve(shapeName, astBody.getEnclosingScope().get()))
         .collect(Collectors.toList());
 
     final List<ASTDeclaration> tmpStateDeclarations = Lists.newArrayList();
-
     for (int i = 0; i < stateUpdates.size(); ++i) {
-      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getVectorParameter().get() + "]":"";
-      final String tmpDeclaration = stateAssignments.get(i).getVariableName() + "_tmp" + " real " + vectorDatatype + "= " + stateAssignments.get(i).getVariableName();
+      final String vectorDatatype = shapeForVariable.get(i).isVector()?"[" + shapeForVariable.get(i).getVectorParameter().get() + "]":"";
+      final String tmpDeclaration = stateAssignments.get(i).getLhsVarialbe() + "_tmp" + " real " + vectorDatatype + "= " + stateAssignments.get(i).getLhsVarialbe();
       tmpStateDeclarations.add(converter2NESTML.convertStringToDeclaration(tmpDeclaration));
     }
 
-    stateAssignments
-        .stream()
-        .map(assignment -> assignment.getVariableName() + "_tmp" + " real = " + assignment.getVariableName())
-        .map(converter2NESTML::convertStringToDeclaration)
-        .collect(toList());
-
     final List<ASTAssignment> backAssignments = stateAssignments
         .stream()
-        .map(assignment -> assignment.getVariableName().toString()) // get variable names as strings
+        .map(ASTAssignment::getLhsVarialbe) // get variable names as strings
         .map(stateVariable -> stateVariable + " = " + stateVariable + "_tmp")
         .map(converter2NESTML::convertStringToAssignment)
         .collect(toList());
+
+    // must be in the last place
+    stateAssignments.forEach(astAssignment -> astAssignment.setLhsVarialbe(astAssignment.getLhsVarialbe() + "_tmp"));
 
     tmpStateDeclarations.forEach(tmpDeclaration -> addDeclarationToDynamics(astBody, tmpDeclaration));
     stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(astBody, varAssignment));

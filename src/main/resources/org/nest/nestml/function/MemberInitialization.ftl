@@ -12,7 +12,7 @@
 ${signature("variable")}
 <#if variable.getDeclaringExpression().isPresent()>
   <#if !variable.isVector()>
-    ${variable.getName()}_ = ${expressionsPrinter.print(variable.getDeclaringExpression().get())};
+    ${variable.getName()} = ${expressionsPrinter.print(variable.getDeclaringExpression().get())};
   </#if>
 
 </#if>

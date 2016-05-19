@@ -37,13 +37,10 @@ public class ModelbasedTest {
   protected final NESTMLParser parser = new NESTMLParser(TEST_MODEL_PATH);
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
-  @BeforeClass
-  public static void disableFailQuick() {
-    Log.enableFailQuick(false);
-  }
 
   @Before
   public void clearLog() {
+    Log.enableFailQuick(false);
     Log.getFindings().clear();
   }
 

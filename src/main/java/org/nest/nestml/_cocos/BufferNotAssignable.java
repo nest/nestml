@@ -29,11 +29,11 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
 
   public static final String ERROR_CODE = "NESTML_SPL_BUFFER_NOT_ASSIGNABLE";
 
-  public void check(final ASTAssignment assignment) {
-    checkArgument(assignment.getEnclosingScope().isPresent(), "Run symboltable creator. ")
+  public void check(final ASTAssignment astAssignment) {
+    checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symboltable creator. ")
     ;
-    final Scope enclosingScope = assignment.getEnclosingScope().get();
-    final String varName = Names.getQualifiedName(assignment.getVariableName().getParts());
+    final Scope enclosingScope = astAssignment.getEnclosingScope().get();
+    final String varName = astAssignment.getLhsVarialbe();
 
     final Optional<VariableSymbol> var = enclosingScope.resolve(varName, VariableSymbol.KIND);
 
@@ -45,7 +45,7 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
       CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
       String msg = errorStrings.getErrorMsg(this,var.get().getName());
 
-      error(msg, assignment.get_SourcePositionStart());
+      error(msg, astAssignment.get_SourcePositionStart());
 
     }
 

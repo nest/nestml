@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static org.nest.codegeneration.helpers.VariableHelper.printOrigin;
 
 /**
  * Converts constants, names and functions the NEST equivalents.
@@ -86,21 +87,21 @@ public class NESTReferenceConverter implements IReferenceConverter {
 
     final List<String> callTypes = ASTNodes.getParameterTypes(astFunctionCall);
     final Optional<MethodSymbol> functionSymbol = NESTMLSymbols.resolveMethod(scope, functionName, callTypes);
+
     if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell
 
       if (functionSymbol.get().getDeclaringType().getName().equals("Buffer")) {
         final VariableSymbol variableSymbol = resolveVariable(
             Names.getQualifier(functionName), scope);
 
-
         if (functionSymbol.get().getName().equals("getSum")) {
           if (variableSymbol.getVectorParameter().isPresent()) {
             final String calleeObject = Names.getQualifier(functionName);
-            return "get_" + calleeObject + "()[i].get_value(lag)";
+            return "B_." + calleeObject + "[i].get_value(lag)";
           }
           else {
             final String calleeObject = Names.getQualifier(functionName);
-            return "get_" + calleeObject + "().get_value(lag)";
+            return "B_." + calleeObject + ".get_value(lag)";
           }
 
         }
@@ -120,30 +121,28 @@ public class NESTReferenceConverter implements IReferenceConverter {
   }
 
   @Override
-  public String convertNameReference(final ASTVariable astQualifiedName) {
-    checkArgument(astQualifiedName.getEnclosingScope().isPresent(), "No scope is assigned. Please, build the symbol "
-        + "table before calling this function.");
-    final String name = astQualifiedName.toString();
-    final Scope scope = astQualifiedName.getEnclosingScope().get();
-    if (PredefinedVariables.E_CONSTANT.equals(name)) {
+  public String convertNameReference(final ASTVariable astVariable) {
+    checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symboltable creator");
+    final String variableName = astVariable.toString();
+    final Scope scope = astVariable.getEnclosingScope().get();
+    if (PredefinedVariables.E_CONSTANT.equals(variableName)) {
       return "numerics::e";
     }
     else {
-      final VariableSymbol variableSymbol = VariableSymbol.resolve(name, scope);
+      final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
 
       if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
-        return name + (variableSymbol.isVector()?"[i]":"");
+        return variableName + (variableSymbol.isVector()?"[i]":"");
       }
-      else if(variableSymbol.getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT ||
-              variableSymbol.getBlockType() == VariableSymbol.BlockType.INPUT_BUFFER_CURRENT) {
-        return "get_" + name + "().get_value( lag )";
+      else if(variableSymbol.isBuffer()) {
+        return "B_." + variableName + ".get_value( lag )";
       }
       else {
-        if (variableSymbol.getVectorParameter().isPresent()) {
-          return "get_" + name + "()[i]";
+        if (variableSymbol.isAlias()) {
+          return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {
-          return "get_" + name + "()";
+          return printOrigin(variableSymbol) + variableName +  (variableSymbol.isVector()?"[i]":"");
         }
 
       }
@@ -151,6 +150,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
     }
 
   }
+
 
   @Override
   public String convertConstant(final String constantName) {
