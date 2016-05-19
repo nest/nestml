@@ -154,7 +154,7 @@ public class ExactSolutionTransformer {
         .map(converter2NESTML::convertStringToAssignment)
         .collect(toList());
 
-    final List<VariableSymbol> correspondingShapeSymbols = stateAssignments
+    final List<VariableSymbol> shapeForVariable = stateAssignments
         .stream()
         .map(ASTAssignment::getLhsVarialbe)
         .map(variableName -> variableName.substring(variableName.indexOf("_") + 1))
@@ -163,13 +163,10 @@ public class ExactSolutionTransformer {
 
     final List<ASTDeclaration> tmpStateDeclarations = Lists.newArrayList();
     for (int i = 0; i < stateUpdates.size(); ++i) {
-      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getVectorParameter().get() + "]":"";
+      final String vectorDatatype = shapeForVariable.get(i).isVector()?"[" + shapeForVariable.get(i).getVectorParameter().get() + "]":"";
       final String tmpDeclaration = stateAssignments.get(i).getLhsVarialbe() + "_tmp" + " real " + vectorDatatype + "= " + stateAssignments.get(i).getLhsVarialbe();
       tmpStateDeclarations.add(converter2NESTML.convertStringToDeclaration(tmpDeclaration));
     }
-
-    //stateAssignments
-    //    .forEach(astAssignment -> astAssignment.setVariableName(TypesNodeFactory.createASTQualifiedName(astAssignment.getVariableName().getParts().ad)));
 
     final List<ASTAssignment> backAssignments = stateAssignments
         .stream()
@@ -177,6 +174,9 @@ public class ExactSolutionTransformer {
         .map(stateVariable -> stateVariable + " = " + stateVariable + "_tmp")
         .map(converter2NESTML::convertStringToAssignment)
         .collect(toList());
+
+    // must be in the last place
+    stateAssignments.forEach(astAssignment -> astAssignment.setLhsVarialbe(astAssignment.getLhsVarialbe() + "_tmp"));
 
     tmpStateDeclarations.forEach(tmpDeclaration -> addDeclarationToDynamics(astBody, tmpDeclaration));
     stateAssignments.forEach(varAssignment -> addAssignmentToDynamics(astBody, varAssignment));

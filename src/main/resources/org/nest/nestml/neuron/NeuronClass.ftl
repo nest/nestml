@@ -261,7 +261,7 @@ ${simpleNeuronName}::calibrate()
 
   <#list body.getInputLines() as inputLine>
     <#if bufferHelper.isVector(inputLine)>
-        B_.${inputLine.getName()}_.resize(P_.${bufferHelper.vectorParameter(inputLine)});
+        B_.${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
         B_.receptor_types_${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
         for (size_t i=0; i < P_.${bufferHelper.vectorParameter(inputLine)}; i++)
         {

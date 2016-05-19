@@ -8,7 +8,7 @@ ${signature("var")}
 
 <#if !var.isAlias()>
 inline ${declarations.printVariableType(var)} get_${var.getName()}() const {
-  return ${variableHelper.printOrigin(var)}.get_${var.getName()}() ;
+  return ${variableHelper.printOrigin(var)} ${var.getName()} ;
 }
 <#else>
 inline ${declarations.printVariableType(var)} get_${var.getName()}() const {
@@ -17,6 +17,6 @@ inline ${declarations.printVariableType(var)} get_${var.getName()}() const {
 </#if>
 <#if !var.isAlias()>
 inline void set_${var.getName()}(const ${declarations.printVariableType(var)} v) {
-  ${variableHelper.printOrigin(var)}.set_${var.getName()}( v ) ;
+  ${variableHelper.printOrigin(var)} ${var.getName()} = v ;
 }
 </#if>

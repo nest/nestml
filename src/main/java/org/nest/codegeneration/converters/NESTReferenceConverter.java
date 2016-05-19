@@ -97,11 +97,11 @@ public class NESTReferenceConverter implements IReferenceConverter {
         if (functionSymbol.get().getName().equals("getSum")) {
           if (variableSymbol.getVectorParameter().isPresent()) {
             final String calleeObject = Names.getQualifier(functionName);
-            return "B_." + calleeObject + "_[i].get_value(lag)";
+            return "B_." + calleeObject + "[i].get_value(lag)";
           }
           else {
             final String calleeObject = Names.getQualifier(functionName);
-            return "B_." + calleeObject + "_.get_value(lag)";
+            return "B_." + calleeObject + ".get_value(lag)";
           }
 
         }
@@ -135,14 +135,14 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return variableName + (variableSymbol.isVector()?"[i]":"");
       }
       else if(variableSymbol.isBuffer()) {
-        return "B_." + variableName + "_.get_value( lag )";
+        return "B_." + variableName + ".get_value( lag )";
       }
       else {
         if (variableSymbol.isAlias()) {
           return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {
-          return printOrigin(variableSymbol) + "." + variableName + "_" +  (variableSymbol.isVector()?"[i]":"");
+          return printOrigin(variableSymbol) + variableName +  (variableSymbol.isVector()?"[i]":"");
         }
 
       }

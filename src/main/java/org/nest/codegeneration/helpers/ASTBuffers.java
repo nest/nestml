@@ -85,7 +85,7 @@ public class ASTBuffers {
     functionDeclaration.append(" get_"+astInputLine.getName() + "() {");
 
     if (isInStruct) {
-      functionDeclaration.append("return " + astInputLine.getName() + "_; ");
+      functionDeclaration.append("return " + astInputLine.getName() + "; ");
     }
     else {
       functionDeclaration.append("return B_.get_" + astInputLine.getName() + "(); ");
@@ -109,8 +109,8 @@ public class ASTBuffers {
     }
     bufferType = bufferType.replace(".", "::"); // TODO review
 
-    return bufferType + " " + astInputLine.getName() + "_" +
-        "//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
+    return bufferType + " " + astInputLine.getName() + ";" +
+        "\n//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
   }
 
   public String printBufferTypesVariables(final ASTInputLine astInputLine) {
@@ -128,7 +128,7 @@ public class ASTBuffers {
     final Scope scope = astInputLine.getEnclosingScope().get();
     final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
     checkState(buffer.getVectorParameter().isPresent(), "Cannot resolve the variable: " + astInputLine.getName());
-    return buffer.getVectorParameter().get() + "_";
+    return buffer.getVectorParameter().get();
   }
 
   public boolean isVector(final ASTInputLine astInputLine) {

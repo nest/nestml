@@ -10,11 +10,11 @@ public class VariableHelper {
   static public String printOrigin(final VariableSymbol variableSymbol) {
     switch (variableSymbol.getBlockType()) {
       case STATE:
-        return  "S_";
+        return  "S_.";
       case PARAMETER:
-        return  "P_";
+        return  "P_.";
       case INTERNAL:
-        return  "V_";
+        return  "V_.";
       default:
         return "";
     }

@@ -6,5 +6,5 @@
 -->
 ${signature("variable")}
 
-${declarations.printVariableType(variable)} ${variable.getName()}_; // ${variable.printComment()}
+${declarations.printVariableType(variable)} ${variable.getName()}; // ${variable.printComment()}
 
