@@ -152,7 +152,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    * Assignment = variableName:QualifiedName "=" Expr;
    */
   public void printAssignment(final ASTAssignment astAssignment) {
-    final String lhsVariableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
+    final String lhsVariableName = astAssignment.getLhsVarialbe();
     final String rhsOfAssignment = expressionsPrettyPrinter.print(astAssignment.getExpr());
     if (astAssignment.isAssignment()) {
       println(lhsVariableName + " = " + rhsOfAssignment);

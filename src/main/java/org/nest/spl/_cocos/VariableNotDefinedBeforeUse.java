@@ -34,8 +34,7 @@ public class VariableNotDefinedBeforeUse implements
 
   @Override
   public void check(final ASTAssignment assignment) {
-      String fullName = getQualifiedName(assignment.getVariableName().getParts());
-      check(fullName, assignment);
+      check(assignment.getLhsVarialbe(), assignment);
   }
 
   @Override

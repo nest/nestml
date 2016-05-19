@@ -10,7 +10,7 @@
 ${signature("variable")}
 
 <#if variable.getVectorParameter().isPresent()>
-${declarations.getAliasOrigin(variable)}.${variable.getName()}_.resize(get_${variable.getVectorParameter().get()}());
+${variableHelper.printOrigin(variable)}.${variable.getName()}_.resize(get_${variable.getVectorParameter().get()}());
 for (size_t i=0; i < get_${variable.getVectorParameter().get()}(); i++) {
   get_${variable.getName()}()[i] =
     <#if variable.getDeclaringExpression().isPresent()>

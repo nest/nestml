@@ -285,6 +285,7 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("functions", new SPLFunctionCalls());
     glex.setGlobalValue("declarations", declarations);
     glex.setGlobalValue("bufferHelper", new ASTBuffers());
+    glex.setGlobalValue("variableHelper", new VariableHelper());
 
     glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron.getBody()));
     glex.setGlobalValue("isOutputEventPresent", ASTOutputs.isOutputEventPresent(neuron.getBody()));

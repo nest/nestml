@@ -53,7 +53,6 @@ public class ASTDeclarations {
     }
   }
 
-
   public List<VariableSymbol> getVariables(final ASTAliasDecl astAliasDecl) {
     return getVariables(astAliasDecl.getDeclaration());
   }
@@ -79,19 +78,7 @@ public class ASTDeclarations {
     }
   }
 
-  public String getAliasOrigin(final VariableSymbol variableSymbol) {
-    switch (variableSymbol.getBlockType()) {
-      case STATE:
-        return  "S_";
-      case PARAMETER:
-        return  "P_";
-      case INTERNAL:
-        return  "V_";
-      default:
-        return "";
-    }
 
-  }
 
   public String getDomainFromType(final TypeSymbol type) {
     checkNotNull(type);

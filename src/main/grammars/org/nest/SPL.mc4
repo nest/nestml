@@ -26,7 +26,7 @@ grammar SPL extends org.nest.ODE, org.nest.Units {
              | Declaration
              | ReturnStmt;
 
-  Assignment = variableName:QualifiedName
+  Assignment = lhsVarialbe:Name
     (assignment:["="]       |
      compoundSum:["+="]     |
      compoundMinus:["-="]   |
