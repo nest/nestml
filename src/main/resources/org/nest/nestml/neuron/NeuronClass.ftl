@@ -314,11 +314,12 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
   <#if neuronSymbol.isMultisynapseSpikes()>
     <#assign spikeBuffer = neuronSymbol.getSpikeBuffers()[0]>
 
-    for ( size_t i = 0; i < get_${spikeBuffer.getVectorParameter().get()}(); ++i )
+    for ( size_t i = 0; i < P_.${spikeBuffer.getVectorParameter().get()}; ++i )
       {
         if ( B_.receptor_types_${spikeBuffer.getName()}[ i ] == e.get_rport() )
         {
-            get_${spikeBuffer.getName()}()[ i ].add_value( e.get_rel_delivery_steps( network()->get_slice_origin() ),
+            B_.${spikeBuffer.getName()}[i].add_value(
+              e.get_rel_delivery_steps( network()->get_slice_origin() ),
               e.get_weight() * e.get_multiplicity() );
         }
       }

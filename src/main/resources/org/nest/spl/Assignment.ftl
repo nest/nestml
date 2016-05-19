@@ -7,7 +7,7 @@
 -->
 
 <#if assignments.isVector(ast) || assignments.isVectorLHS(ast)>
-for (size_t i=0; i < get_${assignments.printSizeParameter(ast)}(); i++) {
+for (size_t i=0; i < P_.${assignments.printSizeParameter(ast)}; i++) {
   <#if assignments.isVectorLHS(ast)>
     ${assignments.printOrigin(ast)} ${assignments.printLHS(ast)}[i]
   <#else>
