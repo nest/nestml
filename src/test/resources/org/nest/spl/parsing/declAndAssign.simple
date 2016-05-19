@@ -2,4 +2,4 @@ module org.nest.spl.parsing.declAndAssign
 
 x real = 4
 
-org.nest.spl.parsing.declAndAssign.x = 5
+x = 5
