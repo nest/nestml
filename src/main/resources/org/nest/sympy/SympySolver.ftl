@@ -136,7 +136,7 @@ if dev_t_dev${ode.getLhs()} == 0:
 
     stateVectors = zeros(max(orders) + 1, len(shapes))
     stateVariablesFile = open('state.variables.tmp', 'w')
-    initialValue = open('pscInitialValues.tmp', 'w')
+    initialValueFile = open('pscInitialValues.tmp', 'w')
 
     for shapeIndex in range(0, len(shapes)):
         stateVariables = ["y1_", "y2_", "y3_", "y4_", "y5_", "y6_", "y7_", "y8_", "y9_", "y10_"]
@@ -148,8 +148,9 @@ if dev_t_dev${ode.getLhs()} == 0:
 
         pscInitialValues = tmp_diffs[shapeIndex]
         for i in range(0, orders[shapeIndex]):
-            initialValue.write(stateVariables[i] + shapes[shapeIndex] + "PSCInitialValue real = " + str(
-                simplify(pscInitialValues[orders[shapeIndex] - i - 1].subs(t, 0))) + "# PSCInitial value\n")
+            initialValue = simplify(pscInitialValues[orders[shapeIndex] - i - 1].subs(t, 0))
+            if initialValue != 0:
+                initialValueFile.write(stateVariables[i] + shapes[shapeIndex] + "PSCInitialValue real = " + str(initialValue) + "# PSCInitial value\n")
 
         for i in reversed(range(0, orders[shapeIndex])):
             stateVectors[i, shapeIndex] = stateVariables[i] + shapes[shapeIndex]
