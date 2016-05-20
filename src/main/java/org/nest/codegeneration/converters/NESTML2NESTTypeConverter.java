@@ -41,7 +41,7 @@ public class NESTML2NESTTypeConverter {
     }
 
     if (PredefinedTypes.getIntegerType().equals(nestmlType)) {
-      return "int";
+      return "long";
     }
 
     if (nestmlType.getName().contains("Time")) {
