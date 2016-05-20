@@ -121,7 +121,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   @Ignore
   @Test
-  public void testImplicitForm() {
+  public void testCondImplicitForm() {
     nestmlCondModelExplicit.forEach(this::checkCocos);
     nestmlCondModelExplicit.forEach(this::invokeCodeGenerator);
 

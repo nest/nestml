@@ -21,6 +21,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.codegeneration.helpers.VariableHelper.printOrigin;
+import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**
  * Converts constants, names and functions the NEST equivalents.
@@ -91,8 +92,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
     if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell
 
       if (functionSymbol.get().getDeclaringType().getName().equals("Buffer")) {
-        final VariableSymbol variableSymbol = resolveVariable(
-            Names.getQualifier(functionName), scope);
+        final VariableSymbol variableSymbol = resolve(Names.getQualifier(functionName), scope);
 
         if (functionSymbol.get().getName().equals("getSum")) {
           if (variableSymbol.getVectorParameter().isPresent()) {
@@ -113,13 +113,6 @@ public class NESTReferenceConverter implements IReferenceConverter {
     return functionName;
   }
 
-  private VariableSymbol resolveVariable(final String variableName, final Scope scope) {
-    final Optional<VariableSymbol> variableSymbol = scope.resolve(
-        variableName, VariableSymbol.KIND);
-    checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
-    return variableSymbol.get();
-  }
-
   @Override
   public String convertNameReference(final ASTVariable astVariable) {
     checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symboltable creator");
@@ -129,7 +122,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return "numerics::e";
     }
     else {
-      final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
+      final VariableSymbol variableSymbol = resolve(variableName, scope);
 
       if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
         return variableName + (variableSymbol.isVector()?"[i]":"");

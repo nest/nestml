@@ -11,6 +11,8 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.Names;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
+import org.nest.codegeneration.converters.IReferenceConverter;
+import org.nest.codegeneration.converters.NESTParameterBlockReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTFunctionPrinter;
@@ -259,9 +261,12 @@ public class NESTCodeGenerator {
     final NESTReferenceConverter converter = new NESTReferenceConverter();
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
 
+    final IReferenceConverter parameterBlockConverter = new NESTParameterBlockReferenceConverter();
+    final ExpressionsPrettyPrinter parameterBlockPrinter = new ExpressionsPrettyPrinter(parameterBlockConverter);
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);
     glex.setGlobalValue("idemPrinter", new ExpressionsPrettyPrinter());
+    glex.setGlobalValue("parameterBlockPrinter", parameterBlockPrinter);
     return glex;
   }
 
