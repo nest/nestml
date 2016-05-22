@@ -41,11 +41,11 @@ public class ExpressionTypeCalculator {
     if (expr.leftParenthesesIsPresent()) {
       return computeType(expr.getExpr().get());
     }
-    else if (expr.getNumericLiteral().isPresent()) { // number
-      if (expr.getNumericLiteral().get() instanceof ASTDoubleLiteral) {
+    else if (expr.getNESTMLNumericLiteral().isPresent()) { // number
+      if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTDoubleLiteral) {
         return Either.left(getRealType());
       }
-      else if (expr.getNumericLiteral().get() instanceof ASTIntLiteral) {
+      else if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
         return Either.left(getIntegerType());
       }
 

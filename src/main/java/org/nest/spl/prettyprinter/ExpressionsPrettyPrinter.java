@@ -39,8 +39,8 @@ public class ExpressionsPrettyPrinter {
   public String print(final ASTExpr expr) {
     checkNotNull(expr);
 
-    if (expr.getNumericLiteral().isPresent()) { // number
-      return typesPrinter().prettyprint(expr.getNumericLiteral().get());
+    if (expr.getNESTMLNumericLiteral().isPresent()) { // number
+      return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
     }
     if (expr.isInf()) {
       return handleConstant("inf");

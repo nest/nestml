@@ -97,6 +97,37 @@ public class NESTMLCoCosTest extends ModelbasedTest {
 
 
   }
+  //TODO: Remove this test
+  @Ignore
+  @Test
+  public void testUnit() {
+    final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
+        "src/test/resources/org/nest/units/units.nestml", TEST_MODEL_PATH);
+    assertTrue(validRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(validRoot.get());
+    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
+
+    //nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
+    nestmlCoCoChecker.checkAll(validRoot.get());
+
+    Integer errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
+    assertEquals(Integer.valueOf(0), errorsFound);
+
+    final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
+        "src/test/resources/org/nest/units/units.nestml", TEST_MODEL_PATH);
+    assertTrue(invalidRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(invalidRoot.get());
+
+
+
+    nestmlCoCoChecker.checkAll(invalidRoot.get());
+
+    errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
+    assertEquals(Integer.valueOf(0), errorsFound);
+
+
+  }
+
 
   @Test
   public void testAliasHasOneVar() {
