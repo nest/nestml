@@ -100,7 +100,7 @@ public class ExactSolutionTransformer {
           .collect(Collectors.toList());
 
       checkState(astNeuron.enclosingScopeIsPresent());
-      
+
       Optional<VariableSymbol> vectorizedVariable = variables.stream()
           .map(astVariable -> resolve(astVariable.toString(), scope))
           .filter(variableSymbol -> variableSymbol.getVectorParameter().isPresent())
