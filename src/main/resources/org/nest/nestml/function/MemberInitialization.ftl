@@ -13,6 +13,8 @@ ${signature("variable")}
 <#if variable.getDeclaringExpression().isPresent()>
   <#if !variable.isVector()>
     ${variable.getName()} = ${expressionsPrinter.print(variable.getDeclaringExpression().get())};
+  <#else>
+    ${variable.getName()}.resize(${variable.getVectorParameter().get()}, ${expressionsPrinter.print(variable.getDeclaringExpression().get())});
   </#if>
 
 </#if>
