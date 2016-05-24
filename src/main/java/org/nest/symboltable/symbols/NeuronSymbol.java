@@ -87,6 +87,12 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
         .isPresent();
   }
 
+  public MethodSymbol getUpdateBlock() {
+    // the existence is checked by a context condition
+    final Optional<MethodSymbol> methodSymbol = spannedScope.resolveLocally("dynamics", MethodSymbol.KIND);
+    return methodSymbol.get();
+  }
+
   @Override
   protected MutableScope createSpannedScope() {
     return new NeuronScope();

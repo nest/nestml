@@ -132,38 +132,66 @@ if dev_t_dev${ode.getLhs()} == 0:
 
     shapes = [<#compress> <#list EQs as eq> "${eq.getLhs()}", </#list> </#compress>]
 
-    stateVectorUpdateFile = open('state.vector.update.tmp', 'w')
-
-    stateVectors = zeros(max(orders) + 1, len(shapes))
     stateVariablesFile = open('state.variables.tmp', 'w')
     initialValueFile = open('pscInitialValues.tmp', 'w')
+    stateVectorTmpDeclarationsFile = open('state.vector.tmp.declarations.tmp', 'w')
+    stateVectorUpdateSteps = open('state.vector.update.steps.tmp', 'w')
+    stateVectorTmpBackAssignmentsFile = open('state.vector.tmp.back.assignments.tmp', 'w')
 
+    stateVectors = zeros(max(orders) + 1, len(shapes))
     for shapeIndex in range(0, len(shapes)):
         stateVariables = ["y1_", "y2_", "y3_", "y4_", "y5_", "y6_", "y7_", "y8_", "y9_", "y10_"]
         var((str(shapes[shapeIndex]) + " ,").join(stateVariables))
         for i in range(0, orders[shapeIndex]):
             stateVectors[i, shapeIndex] = eval(stateVariables[i] + shapes[shapeIndex])
             stateVariablesFile.write(stateVariables[i] + shapes[shapeIndex] + "\n")
-        stateVectors[orders[shapeIndex], shapeIndex] = ${ode.getLhs()}
+        stateVectors[orders[shapeIndex], shapeIndex] = V
 
         pscInitialValues = tmp_diffs[shapeIndex]
         for i in range(0, orders[shapeIndex]):
             initialValue = simplify(pscInitialValues[orders[shapeIndex] - i - 1].subs(t, 0))
             if initialValue != 0:
-                initialValueFile.write(stateVariables[i] + shapes[shapeIndex] + "PSCInitialValue real = " + str(initialValue) + "# PSCInitial value\n")
+                initialValueFile.write(stateVariables[i] + shapes[shapeIndex] + "PSCInitialValue real = " + str(
+                    initialValue) + "# PSCInitial value\n")
 
         for i in reversed(range(0, orders[shapeIndex])):
             stateVectors[i, shapeIndex] = stateVariables[i] + shapes[shapeIndex]
-            stateVectorUpdateFile.write(stateVariables[i] + shapes[shapeIndex] + " = " + str(simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
+
+        if orders[shapeIndex] > 1:
+            for i in reversed(range(0, orders[shapeIndex])):
+                stateVectorTmpDeclarationsFile.write(stateVariables[i] + shapes[shapeIndex] + "_tmp real\n")
+            for i in reversed(range(0, orders[shapeIndex])):
+                stateVectorUpdateSteps.write(stateVariables[i] + shapes[shapeIndex] + "_tmp" + " = " + str(simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
+            for i in reversed(range(0, orders[shapeIndex])):
+                stateVectorTmpBackAssignmentsFile.write(stateVariables[i] + shapes[shapeIndex] + " = " + stateVariables[i] + shapes[shapeIndex] + "_tmp" + "\n")
+
+        else:
+            for i in reversed(range(0, orders[shapeIndex])):
+                stateVectorUpdateSteps.write(stateVariables[i] + shapes[shapeIndex] + " = " + str(
+                    simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
+
     f = open('P30.tmp', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
 
-    updateStep = open('update.step.tmp', 'w')
+    updateStep = open('propagator.step.tmp', 'w')
     # the result matrix of matrix with 1 element. therefore, take it by [] operator
-    updateStep.write("${ode.getLhs()} = P30 * (" + str(constantInputs) + ") + " + str((Ps[0][orders[0], orders[0]] * stateVectors.col(0)[orders[0]])) + "\n")
+    updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(
+        (Ps[0][orders[0], orders[0]] * stateVectors.col(0)[orders[0]])) + "\n")
+
+    propagatorMatrixFile = open('propagator.matrix.tmp', 'w')
+    tmpPropagator = zeros(len(Ps[shapeIndex].row(0)), len(Ps[shapeIndex].col(0)))
+
+    for rowIndex in range(0, len(Ps[shapeIndex].row(0))):
+        for colIndex in range(0, len(Ps[shapeIndex].col(0))):
+            propagatorMatrixFile.write(
+                "P" + str(rowIndex) + str(colIndex) + " real = " + str(Ps[shapeIndex][rowIndex, colIndex]) + "\n")
+            tmpPropagator[rowIndex, colIndex] = symbols("P" + str(rowIndex) + str(colIndex));
+    print(str(tmpPropagator))
 
     for shapeIndex in range(0, len(shapes)):
-        updateStep.write("${ode.getLhs()} += " + str((Ps[shapeIndex][1:(orders[shapeIndex] + 1),0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex], 0])[orders[shapeIndex] - 1]) + "\n")
+        updateStep.write("V += " + str((tmpPropagator[1:(orders[shapeIndex] + 1),
+                                        0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex],
+                                                                  0])[orders[shapeIndex] - 1]) + "\n")
 
     solverType = open('solverType.tmp', 'w')
     solverType.write("exact")

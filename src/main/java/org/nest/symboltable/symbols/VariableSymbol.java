@@ -155,6 +155,11 @@ public class VariableSymbol extends CommonSymbol {
     return variableSymbol.get();
   }
 
+  public static Optional<VariableSymbol> resolveIfExists(final String variableName, final Scope scope) {
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);
+    return variableSymbol;
+  }
+
   /**
    * Technical class for the symobol table.
    */

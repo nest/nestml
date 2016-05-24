@@ -1,0 +1,4 @@
+y2_I_shape_in_tmp = (h*y1_I_shape_in + y2_I_shape_in)*exp(-h/tau_syn_in)
+y1_I_shape_in_tmp = y1_I_shape_in*exp(-h/tau_syn_in)
+y2_I_shape_ex_tmp = (h*y1_I_shape_ex + y2_I_shape_ex)*exp(-h/tau_syn_ex)
+y1_I_shape_ex_tmp = y1_I_shape_ex*exp(-h/tau_syn_ex)
