@@ -1,4 +1,2 @@
 y1_I_shape_inPSCInitialValue real = e/tau_syn_in# PSCInitial value
-y2_I_shape_inPSCInitialValue real = 0# PSCInitial value
 y1_I_shape_exPSCInitialValue real = e/tau_syn_ex# PSCInitial value
-y2_I_shape_exPSCInitialValue real = 0# PSCInitial value

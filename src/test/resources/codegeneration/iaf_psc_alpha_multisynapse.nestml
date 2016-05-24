@@ -6,6 +6,10 @@ neuron iaf_psc_alpha_multisynapse_nestml:
     alias V_m mV = V + E_L # Membrane potential.
   end
 
+  function set_V_m(V_m mV):
+    V = V_m - E_L
+  end
+
   equations:
       I_shape = (e/tau_syn) * t * exp(-1/tau_syn*t)
       V' = -1/Tau * V + 1/C_m * (I_sum(I_shape, spikes) + I_e + currents)
@@ -17,9 +21,9 @@ neuron iaf_psc_alpha_multisynapse_nestml:
     Tau     ms = 10    # Membrane time constant.
     suppress tau_syn ms[receptors] = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
-    E_L     mV = -70  # Resting potential.
-    alias V_reset mV = -70 - E_L
-    alias Theta   mV = -55 - E_L
+    E_L     mV = 0  # Resting potential.
+    alias V_reset mV = 0
+    alias Theta   mV = 20
     I_e     pA = 0     # External current.
   end
 

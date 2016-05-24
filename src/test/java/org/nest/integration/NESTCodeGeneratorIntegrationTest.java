@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
-      "src/test/resources/codegeneration/iaf_psc_exp.nestml",
-      "src/test/resources/codegeneration/iaf_tum_2000.nestml"
+      //"src/test/resources/codegeneration/iaf_neuron.nestml",
+      "src/test/resources/codegeneration/iaf_psc_alpha.nestml"//,
+      //"src/test/resources/codegeneration/iaf_psc_exp.nestml",
+      //"src/test/resources/codegeneration/iaf_tum_2000.nestml"
       // TODO "src/test/resources/codegeneration/iaf_psc_delta.nestml",
   );
 
@@ -94,7 +94,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     generateNESTModuleCode(roots);
   }
 
-  @Ignore("Don't run this tests on github")
   @Test
   public void testPSCModelsWithOde() {
     pscModelsWithOde.forEach(this::checkCocos);
@@ -103,6 +102,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     final List<ASTNESTMLCompilationUnit> roots = pscModelsWithOde.stream()
         .map(this::parseAndBuildSymboltable)
         .collect(Collectors.toList());
+
     generateNESTModuleCode(roots);
   }
 
