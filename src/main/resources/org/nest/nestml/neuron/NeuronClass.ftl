@@ -237,17 +237,11 @@ ${simpleNeuronName}::init_buffers_()
 
 void
 ${simpleNeuronName}::calibrate()
-{ // TODO init internal variables
+{
   B_.logger_.init();
   <#if neuronSymbol.getBaseNeuron().isPresent()>
     ${neuronSymbol.getBaseNeuron().get().getName()}::calibrate();
   </#if>
-
-  <#list body.getParameterNonAliasSymbols() as variable>
-    <#if variable.isVector()>
-      ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
-    </#if>
-  </#list>
 
   <#list body.getInternalNonAliasSymbols() as variable>
     ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}

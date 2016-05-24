@@ -157,7 +157,7 @@ if dev_t_dev${ode.getLhs()} == 0:
         for i in reversed(range(0, orders[shapeIndex])):
             stateVectors[i, shapeIndex] = stateVariables[i] + shapes[shapeIndex]
 
-        if orders[shapeIndex] > 1:
+        if orders[shapeIndex] > 2:
             for i in reversed(range(0, orders[shapeIndex])):
                 stateVectorTmpDeclarationsFile.write(stateVariables[i] + shapes[shapeIndex] + "_tmp real\n")
             for i in reversed(range(0, orders[shapeIndex])):
