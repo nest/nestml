@@ -24,19 +24,17 @@ import java.util.stream.Collectors;
  *
  * @author plotnikov
  */
-public class NESTMLASTCreator {
+class NESTMLASTCreator {
 
   private static final NESTMLParser stringParser = new NESTMLParser();
-  private static final NESTMLParser fileParser = new NESTMLParser();
-
-  public NESTMLASTCreator() {
+  static {
     stringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
   static List<ASTAliasDecl> convertToAliases(final Path declarationFile) {
     try {
       return Files.lines(declarationFile)
-          .map(NESTMLASTCreator::convertStringToAlias)
+          .map(NESTMLASTCreator::createAlias)
           .collect(Collectors.toList());
     }
     catch (IOException e) {
@@ -46,7 +44,7 @@ public class NESTMLASTCreator {
 
   }
 
-  static ASTAliasDecl convertStringToAlias(final String declarationAsString) {
+  static ASTAliasDecl createAlias(final String declarationAsString) {
     try {
       final ASTDeclaration declaration = stringParser.parseDeclaration(
           new StringReader(declarationAsString)).get();
@@ -62,24 +60,13 @@ public class NESTMLASTCreator {
 
   static private ASTAliasDecl convertToAliases(final ASTDeclaration astDeclaration) {
     final ASTAliasDecl astAliasDecl = NESTMLNodeFactory.createASTAliasDecl();
-
     astAliasDecl.setDeclaration(astDeclaration);
 
     return astAliasDecl;
   }
 
-  static ASTAssignment convertToAssignment(final Path assignmentPath) {
-    try {
-      // it is ok to call get, since otherwise it is an error in the file structure
-      return fileParser.parseAssignment(assignmentPath.toString()).get();
-    }
-    catch (IOException e) {
-      final String msg = "Cannot parse assignment statement.";
-      throw new RuntimeException(msg, e);
-    }
-  }
 
-  static ASTAssignment convertStringToAssignment(final String assignmentAsString) {
+  static ASTAssignment createAssignment(final String assignmentAsString) {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
       return stringParser.parseAssignment(new StringReader(assignmentAsString)).get();
@@ -91,7 +78,7 @@ public class NESTMLASTCreator {
 
   }
 
-  static ASTDeclaration convertStringToDeclaration(final String declarationAsString) {
+  static ASTDeclaration createDeclaration(final String declarationAsString) {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
       return stringParser.parseDeclaration(new StringReader(declarationAsString)).get();

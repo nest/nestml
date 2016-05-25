@@ -40,7 +40,7 @@ public class NESTMLASTCreatorTest {
     final String testExpr = "P30 real = -Tau*tau_in*(Tau*h*exp(h/Tau) + Tau*tau_in*exp(h/Tau) - Tau*tau_in*exp"
         + "(h/tau_in) - "
         + "h*tau_in*exp(h/Tau))*exp(-h/tau_in - h/Tau)/(C*(Tau**2 - 2*Tau*tau_in + tau_in**2)) # PXX";
-    final ASTAliasDecl testant = converter.convertStringToAlias(testExpr);
+    final ASTAliasDecl testant = converter.createAlias(testExpr);
     assertNotNull(testant);
     assertEquals(1, testant.getDeclaration().getVars().size());
     assertEquals(P_30, testant.getDeclaration().getVars().get(0));
