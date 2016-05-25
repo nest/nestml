@@ -19,13 +19,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class SymPyOutput2NESTMLConverterTest {
+public class NESTMLASTCreatorTest {
 
   private static final String P_30 = "P30";
 
   private final static String P30_FILE = "src/test/resources/codegeneration/sympy/psc/P30.tmp";
 
-  private final SymPyOutput2NESTMLConverter converter = new SymPyOutput2NESTMLConverter();
+  private final NESTMLASTCreator converter = new NESTMLASTCreator();
 
   @Test
   public void testConvertToDeclaration() throws Exception {
@@ -40,7 +40,7 @@ public class SymPyOutput2NESTMLConverterTest {
     final String testExpr = "P30 real = -Tau*tau_in*(Tau*h*exp(h/Tau) + Tau*tau_in*exp(h/Tau) - Tau*tau_in*exp"
         + "(h/tau_in) - "
         + "h*tau_in*exp(h/Tau))*exp(-h/tau_in - h/Tau)/(C*(Tau**2 - 2*Tau*tau_in + tau_in**2)) # PXX";
-    final ASTAliasDecl testant = converter.convertStringToAlias(testExpr);
+    final ASTAliasDecl testant = converter.createAlias(testExpr);
     assertNotNull(testant);
     assertEquals(1, testant.getDeclaration().getVars().size());
     assertEquals(P_30, testant.getDeclaration().getVars().get(0));

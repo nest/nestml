@@ -29,7 +29,7 @@ public class SymPyScriptEvaluator {
   public final static String P30_FILE = "P30.tmp";
   public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValues.tmp";
   public final static String STATE_VECTOR_TMP_DECLARATIONS_FILE = "state.vector.tmp.declarations.tmp";
-  public final static String STATE_VECTOR_UPDATE_STEPS_FILES = "state.vector.update.steps.tmp";
+  public final static String STATE_VECTOR_UPDATE_STEPS_FILE = "state.vector.update.steps.tmp";
   public final static String STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE = "state.vector.tmp.back.assignments.tmp";
   public final static String STATE_VARIABLES_FILE = "state.variables.tmp";
   public final static String PROPAGATOR_MATRIX_FILE = "propagator.matrix.tmp";

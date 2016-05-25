@@ -81,7 +81,7 @@ public class ODEProcessor {
                 Paths.get(outputBase.toString(), SymPyScriptEvaluator.PROPAGATOR_MATRIX_FILE),
                 Paths.get(outputBase.toString(), SymPyScriptEvaluator.PROPAGATOR_STEP_FILE),
                 Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_TMP_DECLARATIONS_FILE),
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_UPDATE_STEPS_FILES),
+                Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_UPDATE_STEPS_FILE),
                 Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE));
       }
       else if (solutionType.equals(SolverType.NUMERIC)) {

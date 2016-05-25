@@ -55,7 +55,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
   private final static Path STATE_UPDATE_STEPS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.STATE_VECTOR_UPDATE_STEPS_FILES);
+      SymPyScriptEvaluator.STATE_VECTOR_UPDATE_STEPS_FILE);
 
   private final static Path STATE_VECTOR_BACK_ASSIGNMENTS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
