@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
+import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**
  * Helper class containing common operations concerning ast nodes.
@@ -113,6 +114,17 @@ public final class ASTNodes {
   }
 
   /**
+   * Retrieves all successor nodes of the given node.
+   * @param root The root node to start from
+   * @return The list with all successors of the given node.
+   */
+  @SuppressWarnings("unchecked") // checked by reflection
+  public static List<ASTNode> getSuccessors(ASTNode root) {
+    final Iterable<ASTNode> nodes = Util.preOrder(root, ASTNode::get_Children);
+
+    return Lists.newArrayList(nodes);
+  }
+  /**
    * Returns all variables defined in the tree starting from the astNode.
    */
   public static List<String> getVariablesNamesFromAst(final ASTCommonsNode astNode) {
@@ -142,6 +154,20 @@ public final class ASTNodes {
         .map(variableName -> VariableSymbol.resolve(variableName, scope)) // the variable existence checked by the context condition
         .filter(VariableSymbol::isAlias)
         .collect(toList());
+  }
+
+  public static Optional<VariableSymbol> getVectorizedVariable(
+      final ASTNode astNode,
+      final Scope scope) {
+    final List<ASTVariable> variables = ASTNodes
+        .getAll(astNode, ASTVariable.class).stream()
+        .filter(astVariable -> VariableSymbol.resolveIfExists(astVariable.toString(), scope).isPresent())
+        .collect(Collectors.toList());
+
+    return variables.stream()
+        .map(astVariable -> resolve(astVariable.toString(), scope))
+        .filter(variableSymbol -> variableSymbol.getVectorParameter().isPresent())
+        .findAny();
   }
 
   public static List<ASTReturnStmt> getReturnStatements(ASTBlock blockAst) {

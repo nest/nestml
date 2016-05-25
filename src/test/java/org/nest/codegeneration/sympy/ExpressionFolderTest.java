@@ -41,8 +41,8 @@ public class ExpressionFolderTest extends ModelbasedTest {
 
     Optional<ASTExpr> ast = parser.parseExpr(new StringReader(expression));
     assertTrue(ast.isPresent());
-
-    ExpressionFolder.fold(
+    final ExpressionFolder expressionFolder = new ExpressionFolder();
+    expressionFolder.fold(
         ast.get(),
         newArrayList("y1_I_shape_in", "y2_I_shape_in", "y1_I_shape_ex","y2_I_shape_ex"),
         "__P");
@@ -57,7 +57,8 @@ public class ExpressionFolderTest extends ModelbasedTest {
     Optional<ASTExpr> ast = parser.parseExpr(new StringReader(expression));
     assertTrue(ast.isPresent());
 
-    ExpressionFolder.fold(
+    final ExpressionFolder expressionFolder = new ExpressionFolder();
+    expressionFolder.fold(
         ast.get(),
         newArrayList("y1_I_shape_in", "y2_I_shape_in", "y1_I_shape_ex","y2_I_shape_ex"),
         "__P");
@@ -79,7 +80,7 @@ public class ExpressionFolderTest extends ModelbasedTest {
     final List<String> stateUpdates = Files.lines(STATE_UPDATE_STEPS_FILE).collect(toList());
     final List<ASTAssignment> stateUpdateAssignments = stateUpdates
         .stream()
-        .map(SymPyOutput2NESTMLConverter::convertStringToAssignment)
+        .map(NESTMLASTCreator::createAssignment)
         .collect(toList());
 
     final List<ASTExpr> rhsExpressions = stateUpdateAssignments
@@ -89,7 +90,9 @@ public class ExpressionFolderTest extends ModelbasedTest {
 
 
     for (final ASTExpr expr:rhsExpressions) {
-      assertTrue(ExpressionFolder.fold(expr, stateVariableNames, "__P").size() == 1);
+      final ExpressionFolder expressionFolder = new ExpressionFolder();
+      expressionFolder.fold(expr, stateVariableNames, "__P");
+      assertTrue(expressionFolder.getInternalVariables().size() == 1);
     }
   }
 
