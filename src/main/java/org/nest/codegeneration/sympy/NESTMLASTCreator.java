@@ -24,19 +24,19 @@ import java.util.stream.Collectors;
  *
  * @author plotnikov
  */
-public class SymPyOutput2NESTMLConverter {
+public class NESTMLASTCreator {
 
-  private final NESTMLParser stringParser = new NESTMLParser();
-  private final NESTMLParser fileParser = new NESTMLParser();
+  private static final NESTMLParser stringParser = new NESTMLParser();
+  private static final NESTMLParser fileParser = new NESTMLParser();
 
-  public SymPyOutput2NESTMLConverter() {
+  public NESTMLASTCreator() {
     stringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
-  List<ASTAliasDecl> convertToAliases(final Path declarationFile) {
+  static List<ASTAliasDecl> convertToAliases(final Path declarationFile) {
     try {
       return Files.lines(declarationFile)
-          .map(this::convertStringToAlias)
+          .map(NESTMLASTCreator::convertStringToAlias)
           .collect(Collectors.toList());
     }
     catch (IOException e) {
@@ -46,7 +46,7 @@ public class SymPyOutput2NESTMLConverter {
 
   }
 
-  ASTAliasDecl convertStringToAlias(final String declarationAsString) {
+  static ASTAliasDecl convertStringToAlias(final String declarationAsString) {
     try {
       final ASTDeclaration declaration = stringParser.parseDeclaration(
           new StringReader(declarationAsString)).get();
@@ -60,7 +60,7 @@ public class SymPyOutput2NESTMLConverter {
 
   }
 
-  private ASTAliasDecl convertToAliases(final ASTDeclaration astDeclaration) {
+  static private ASTAliasDecl convertToAliases(final ASTDeclaration astDeclaration) {
     final ASTAliasDecl astAliasDecl = NESTMLNodeFactory.createASTAliasDecl();
 
     astAliasDecl.setDeclaration(astDeclaration);
@@ -68,7 +68,7 @@ public class SymPyOutput2NESTMLConverter {
     return astAliasDecl;
   }
 
-  ASTAssignment convertToAssignment(final Path assignmentPath) {
+  static ASTAssignment convertToAssignment(final Path assignmentPath) {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
       return fileParser.parseAssignment(assignmentPath.toString()).get();
@@ -79,7 +79,7 @@ public class SymPyOutput2NESTMLConverter {
     }
   }
 
-  ASTAssignment convertStringToAssignment(final String assignmentAsString) {
+  static ASTAssignment convertStringToAssignment(final String assignmentAsString) {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
       return stringParser.parseAssignment(new StringReader(assignmentAsString)).get();
@@ -91,7 +91,7 @@ public class SymPyOutput2NESTMLConverter {
 
   }
 
-  ASTDeclaration convertStringToDeclaration(final String declarationAsString) {
+  static ASTDeclaration convertStringToDeclaration(final String declarationAsString) {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
       return stringParser.parseDeclaration(new StringReader(declarationAsString)).get();

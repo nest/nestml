@@ -19,13 +19,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class SymPyOutput2NESTMLConverterTest {
+public class NESTMLASTCreatorTest {
 
   private static final String P_30 = "P30";
 
   private final static String P30_FILE = "src/test/resources/codegeneration/sympy/psc/P30.tmp";
 
-  private final SymPyOutput2NESTMLConverter converter = new SymPyOutput2NESTMLConverter();
+  private final NESTMLASTCreator converter = new NESTMLASTCreator();
 
   @Test
   public void testConvertToDeclaration() throws Exception {
