@@ -20,8 +20,8 @@ neuron iaf_psc_alpha_nestml:
     tau_syn_ex ms = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
     E_L     mV = -70  # Resting potential.
-    alias V_reset mV = -70 - E_L
-    alias Theta   mV = -55 - E_L
+    V_reset mV = -70 relativeTo -E_L
+    Theta   mV = -55 relativeTo -E_L
     I_e     pA = 0     # External current.
   end
 
