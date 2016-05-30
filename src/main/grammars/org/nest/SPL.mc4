@@ -33,14 +33,21 @@ grammar SPL extends org.nest.ODE, org.nest.Units {
      compoundProduct:["*="] |
      compoundQuotient:["/="]) Expr;
 
-  // inherited PrimitiveType must be used here because otherwise the parser cannot distinguish
-  // between fqn: boolean and "keyword" boolean
+
+  /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
+   'a,b,c real = 0'. Or an alias declaration 'alias a = b + c'.
+    @attribute vars          List with variables
+    @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
+    @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
+    @attribute expr An optional initial expression, e.g. 'a rael = 10+10'
+   */
   Declaration =
     vars:Name ("," vars:Name)*
     Datatype
     ("[" sizeParameter:Name "]")?
-    ( "=" Expr )? ;
+    ( "=" Expr | "=" Relation)? ;
 
+  Relation = NumericLiteral type:Name? "relativeTo" (minus:["-"]) definingVariable:Name;
 
   ReturnStmt = "return" Expr?;
 
