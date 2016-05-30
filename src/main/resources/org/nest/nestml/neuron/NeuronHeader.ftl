@@ -418,7 +418,6 @@ void ${simpleNeuronName}::get_status(DictionaryDatum &d) const
   (*d)[nest::names::recordables] = recordablesMap_.get_list();
 }
 
-// TODO call set_status on used or internal components
 inline
 void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
 {
