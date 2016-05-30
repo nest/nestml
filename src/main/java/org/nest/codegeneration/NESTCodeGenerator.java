@@ -266,7 +266,9 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);
     glex.setGlobalValue("idemPrinter", new ExpressionsPrettyPrinter());
-    glex.setGlobalValue("parameterBlockPrinter", parameterBlockPrinter);
+    // this printer is used in one of the variable blocks. there, S_, V_, B_ structs are not defined and getters
+    // setters must be used instead.
+    glex.setGlobalValue("printerWithGetters", parameterBlockPrinter);
     return glex;
   }
 

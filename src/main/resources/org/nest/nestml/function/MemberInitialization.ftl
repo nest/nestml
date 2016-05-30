@@ -11,10 +11,10 @@
 -->
 ${signature("variable")}
 <#if variable.getDeclaringExpression().isPresent()>
-  <#if !variable.isVector()>
-    ${variable.getName()} = ${expressionsPrinter.print(variable.getDeclaringExpression().get())};
+  <#if variable.isVector()>
+    ${variable.getName()}.resize(${variable.getVectorParameter().get()}, ${printerWithGetters.print(variable.getDeclaringExpression().get())});
   <#else>
-    ${variable.getName()}.resize(${variable.getVectorParameter().get()}, ${expressionsPrinter.print(variable.getDeclaringExpression().get())});
+    ${variable.getName()} = ${printerWithGetters.print(variable.getDeclaringExpression().get())};
   </#if>
 <#else>
   <#if !variable.isVector()>

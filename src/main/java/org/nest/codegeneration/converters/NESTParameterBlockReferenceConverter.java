@@ -42,12 +42,7 @@ public class NESTParameterBlockReferenceConverter extends NESTReferenceConverter
     else {
       final VariableSymbol variableSymbol = resolve(variableName, scope);
 
-      if (variableSymbol.isAlias()) {
-        return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
-      }
-      else {
-        return variableName +  (variableSymbol.isVector()?"[i]":"");
-      }
+      return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
 
 
     }
