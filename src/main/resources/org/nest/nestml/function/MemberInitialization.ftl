@@ -16,5 +16,10 @@ ${signature("variable")}
   <#else>
     ${variable.getName()}.resize(${variable.getVectorParameter().get()}, ${expressionsPrinter.print(variable.getDeclaringExpression().get())});
   </#if>
-
+<#else>
+  <#if !variable.isVector()>
+    ${variable.getName()} = 0;
+  <#else>
+    ${variable.getName()}.resize(${variable.getVectorParameter().get()}, 0);
+  </#if>
 </#if>
