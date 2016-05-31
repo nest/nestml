@@ -93,7 +93,7 @@ neuron mat2_exp_neuron:
         V_th_1 = V_th_1 + alpha_1 # short time
         V_th_2 = V_th_2 + alpha_2 # long time
 
-        emitSpike()
+        emit_spike()
       else:
         r = r -1 # neuron is totally refractory (cannot generate spikes)
 

@@ -35,7 +35,7 @@ neuron izhikevich_nestml:
     if V_m >= 30:
       V_m = c
       u += d
-      emitSpike()
+      emit_spike()
     end
   end
 

@@ -8,7 +8,6 @@ package org.nest.nestml.symboltable;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
-import de.monticore.symboltable.Symbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.*;
@@ -186,7 +185,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue(fromModelScope.isPresent());
 
     final Optional<MethodSymbol> withPredicate
-        = NESTMLSymbols.resolveMethod(modelScope, "exp", Lists.newArrayList("real"));
+        = NESTMLSymbols.resolveMethod("exp", Lists.newArrayList("real"), modelScope);
     assertTrue(withPredicate.isPresent());
   }
 
@@ -241,22 +240,19 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
 
     scope.resolve(PredefinedFunctions.I_SUM, MethodSymbol.KIND);
     final Optional<MethodSymbol> method1 = resolveMethod(
-        scope,
-        PredefinedFunctions.I_SUM,
-        Lists.newArrayList("real", "Buffer"));
+        PredefinedFunctions.I_SUM, Lists.newArrayList("real", "Buffer"), scope
+    );
 
     assertTrue(method1.isPresent());
 
     final Optional<MethodSymbol> method2 = resolveMethod(
-        scope,
-        PredefinedFunctions.INTEGRATE,
-        Lists.newArrayList("boolean"));
+        PredefinedFunctions.INTEGRATE, Lists.newArrayList("boolean"), scope
+    );
     assertFalse(method2.isPresent());
 
     final Optional<MethodSymbol> method3 = resolveMethod(
-        scope,
-        PredefinedFunctions.INTEGRATE,
-        Lists.newArrayList("real"));
+        PredefinedFunctions.INTEGRATE, Lists.newArrayList("real"), scope
+    );
     assertTrue(method3.isPresent());
   }
 

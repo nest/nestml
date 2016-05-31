@@ -9,6 +9,7 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -80,14 +81,13 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return "numerics::expm1(%s)";
     }
 
-    if (functionName.contains("emitSpike")) {
+    if (functionName.contains(PredefinedFunctions.EMIT_SPIKE)) {
       return "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" +
           "nest::SpikeEvent se;\n" +
           "network()->send(*this, se, lag);";
     }
 
-    final List<String> callTypes = ASTNodes.getParameterTypes(astFunctionCall);
-    final Optional<MethodSymbol> functionSymbol = NESTMLSymbols.resolveMethod(scope, functionName, callTypes);
+    final Optional<MethodSymbol> functionSymbol = NESTMLSymbols.resolveMethod(astFunctionCall);
 
     if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell
 
@@ -144,7 +144,6 @@ public class NESTReferenceConverter implements IReferenceConverter {
 
   }
 
-
   @Override
   public String convertConstant(final String constantName) {
     if ("inf".equals(constantName)) {
@@ -157,13 +156,9 @@ public class NESTReferenceConverter implements IReferenceConverter {
 
   @Override
   public boolean needsArguments(final ASTFunctionCall astFunctionCall) {
-    final String functionName = astFunctionCall.getCalleeName();
-    if (functionName.contains("emitSpike")) { // TODO it cannot work!
-      return false;
-    }
-    else {
-      return true;
-    }
+    final Optional<MethodSymbol> methodSymbol = NESTMLSymbols.resolveMethod(astFunctionCall);
+    checkState(methodSymbol.isPresent(), "Cannot resolve the function call: " + astFunctionCall.getCalleeName());
+    return methodSymbol.get().getParameterTypes().size() > 0;
   }
 
 }

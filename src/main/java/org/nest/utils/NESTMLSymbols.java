@@ -11,6 +11,7 @@ import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -21,17 +22,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
  * Provides convenience methods
  *
  * @author plotnikov
  */
 public class NESTMLSymbols {
+  public static Optional<MethodSymbol> resolveMethod(final ASTFunctionCall astFunctionCall) {
+    checkArgument(astFunctionCall.getEnclosingScope().isPresent(), "Run symbol table creator");
 
+    final List<String> callTypes = ASTNodes.getParameterTypes(astFunctionCall);
+    return resolveMethod(astFunctionCall.getCalleeName(), callTypes, astFunctionCall.getEnclosingScope().get());
+  }
   public static Optional<MethodSymbol> resolveMethod(
-      final Scope scope,
-      final String methodName,
-      final List<String> parameterTypes) {
+      final String methodName, final List<String> parameterTypes, final Scope scope) {
 
     final MethodSignaturePredicate signaturePredicate = new MethodSignaturePredicate(methodName,
         parameterTypes);
@@ -94,9 +100,8 @@ public class NESTMLSymbols {
       final Scope scope) {
     final String setterName = "set_" + aliasVar;
     final Optional<MethodSymbol> setter = NESTMLSymbols.resolveMethod(
-        scope,
-        setterName,
-        Lists.newArrayList(varTypeName));
+        setterName, Lists.newArrayList(varTypeName), scope
+    );
 
     if (!setter.isPresent()) {
       return false;

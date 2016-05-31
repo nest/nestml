@@ -58,7 +58,7 @@ neuron iaf_neuron_ode:
     if V >= Theta:
         r = RefractoryCounts
         V = delta_V_reset
-        emitSpike()
+        emit_spike()
     end
 
   end

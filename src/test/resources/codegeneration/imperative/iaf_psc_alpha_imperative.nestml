@@ -117,7 +117,7 @@ neuron iaf_psc_alpha_mc_imperative:
           # The reset at the time of threshold crossing enables accurate integration
           # independent of the computation step size, see [2,3] for details.
           # TODO why does it work iaf_neuron and not in this
-          emitSpike()
+          emit_spike()
       end
 
       # set new input current

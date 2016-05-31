@@ -76,7 +76,7 @@ neuron iaf_cond_alpha_implicit:
     elif V_m >= V_th:
       r = RefractoryCounts
       V_m = V_reset # clamp potential
-      emitSpike()
+      emit_spike()
 
     end
 

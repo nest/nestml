@@ -51,9 +51,8 @@ public class NESTFunctionPrinter {
     }
 
     final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
-        scope,
-        astFunction.getName(),
-        parameterNestmlTypes);
+        astFunction.getName(), parameterNestmlTypes, scope
+    );
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
@@ -94,7 +93,7 @@ public class NESTFunctionPrinter {
     }
 
     final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
-        scope, astFunction.getName(), parameterNestmlTypes);
+        astFunction.getName(), parameterNestmlTypes, scope);
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {

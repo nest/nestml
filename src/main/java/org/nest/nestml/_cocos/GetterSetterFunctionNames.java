@@ -92,7 +92,7 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
 
     }
 
-    methodSymbol = resolveMethod(scope, fun.getName(), parameters);
+    methodSymbol = resolveMethod(fun.getName(), parameters, scope);
     checkState(methodSymbol.isPresent(), "Cannot resolve the method: " + fun.getName());
     return methodSymbol.get();
   }

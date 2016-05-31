@@ -67,7 +67,7 @@ neuron glif_2:
     if V >= Theta: # threshold crossing
         r = RefractoryCounts
         V = V_reset
-        emitSpike()
+        emit_spike()
         Theta = max(Theta, Theta_reset)
         I_a_1 = kappa_1*I_a_1 + Alpha_1
         I_a_2 = kappa_2*I_a_2 + Alpha_2

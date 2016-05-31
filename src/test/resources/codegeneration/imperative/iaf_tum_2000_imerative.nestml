@@ -83,7 +83,7 @@ neuron iaf_tum_2000_neuron:
             r_tot = RefrCountTot
             V_m    = V_reset
 
-            emitSpike()
+            emit_spike()
         end
     else:
         r_tot = r_tot - 1

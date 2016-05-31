@@ -79,7 +79,7 @@ neuron iaf_psc_delta_neuron:
       y3 = V_reset
 
       # EX: must compute spike time
-      emitSpike()
+      emit_spike()
     end
 
   end

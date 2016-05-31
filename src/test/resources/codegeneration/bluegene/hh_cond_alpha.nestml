@@ -101,7 +101,7 @@ neuron hh_cond_alpha:
       V_m = V_reset # clamp potential
     elif V_m > 0. and V_old > V_m:
       r = RefractoryCounts
-      emitSpike()
+      emit_spike()
     end
   end
 
