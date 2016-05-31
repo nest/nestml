@@ -25,7 +25,7 @@ public class PredefinedFunctions {
 
   private static final String TIME_RESOLUTION = "resolution";
   private static final String TIME_STEPS = "steps";
-  private static final String EMIT_SPIKE = "emitSpike";
+  private static final String EMIT_SPIKE = "emit_spike";
   private static final String PRINT = "print";
   private static final String PRINTLN = "println";
   private static final String POW = "pow";

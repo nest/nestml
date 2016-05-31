@@ -80,7 +80,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return "numerics::expm1(%s)";
     }
 
-    if (functionName.contains("emitSpike")) {
+    if (functionName.contains("emit_spike")) {
       return "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" +
           "nest::SpikeEvent se;\n" +
           "network()->send(*this, se, lag);";
@@ -158,7 +158,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
   @Override
   public boolean needsArguments(final ASTFunctionCall astFunctionCall) {
     final String functionName = astFunctionCall.getCalleeName();
-    if (functionName.contains("emitSpike")) { // TODO it cannot work!
+    if (functionName.contains("emit_spike")) { // TODO it cannot work!
       return false;
     }
     else {

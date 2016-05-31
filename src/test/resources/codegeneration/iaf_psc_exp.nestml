@@ -47,7 +47,7 @@ neuron iaf_psc_exp_nestml:
     if V >= Theta: # threshold crossing
         r = RefractoryCounts
         V = V_reset
-        emitSpike()
+        emit_spike()
     end
 
   end

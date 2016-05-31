@@ -81,7 +81,7 @@ neuron aeif_cond_alpha_neuron:
     elif V_m >= V_th:
       r = RefractoryCounts
       V_m = V_reset # clamp potential
-      emitSpike()
+      emit_spike()
     end
 
     DGE = DGE + spikeExc.getSum() * PSConInit_E;

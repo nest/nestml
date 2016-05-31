@@ -80,7 +80,7 @@ neuron iaf_psc_exp_ms_imperative_nestml:
       r_ref = RefractoryCounts
       V_m = V_reset
 
-      emitSpike()
+      emit_spike()
     end
 
     # TODO this must be represented

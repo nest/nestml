@@ -73,7 +73,7 @@ neuron iaf_psc_exp_multisynapse_nestml:
       r_ref = RefractoryCounts
       V_m = V_reset
 
-      emitSpike()
+      emit_spike()
     end
 
     # set new input current

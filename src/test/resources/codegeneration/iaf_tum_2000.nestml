@@ -54,7 +54,7 @@ neuron iaf_tum_2000_nestml:
           r_abs = RefractoryCountsAbs
           r_tot = RefractoryCountsTot
           V = V_reset
-          emitSpike()
+          emit_spike()
       end
     else:
       r_tot -= 1
