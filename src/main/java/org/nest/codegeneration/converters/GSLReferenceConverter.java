@@ -20,8 +20,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class GSLReferenceConverter implements IReferenceConverter {
 
-  public static final String INDEX_VARIABLE_POSTFIX = "_INDEX";
-
+  private static final String INDEX_VARIABLE_POSTFIX = "_INDEX";
   private static final Double MAXIMAL_EXPONENT = 10.0;
 
   @Override
