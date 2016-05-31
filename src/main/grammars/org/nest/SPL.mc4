@@ -40,28 +40,19 @@ grammar SPL extends org.nest.ODE, org.nest.Units {
     @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
     @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
     @attribute expr An optional initial expression, e.g. 'a real = 10+10'
-    @attribute expr An optional Relation, e.g. 'a real = 10 relativeTo -E0'
    */
   Declaration =
     vars:Name ("," vars:Name)*
     Datatype
     ("[" sizeParameter:Name "]")?
-    ( "=" Expr | "=" Relation)? ;
-
-  /** ASTRelation Relation, e.g. 'a real = 10 relativeTo -E0'
-
-    @attribute NumericLiteral An initial value for the variable
-    @attribute type An optional type for SI literals
-    @attribute DefiningVariable signed variable name to which the current value is related to
-   */
-  Relation = NumericLiteral type:Name? "relativeTo" DefiningVariable;
+    ( "=" Expr)? ;
 
   /** ASTDefiningVariable Signed variable name
 
     @attribute minus An optional sing
     @attribute definingVariable Name of the variable
    */
-  DefiningVariable = (minus:["-"]) definingVariable:Name;
+  DefiningVariable = (minus:["-"])? definingVariable:Name;
 
   /** ATReturnStmt Models the return statement in a function.
 
