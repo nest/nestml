@@ -144,7 +144,6 @@ public class NESTReferenceConverter implements IReferenceConverter {
 
   }
 
-
   @Override
   public String convertConstant(final String constantName) {
     if ("inf".equals(constantName)) {
