@@ -18,7 +18,9 @@ public interface IReferenceConverter {
 
   String convertConstant(final String constantName);
 
-  boolean needsArguments(final ASTFunctionCall astFunctionCall);
+  default boolean needsArguments(ASTFunctionCall astFunctionCall) {
+    return astFunctionCall.getArgs().size() > 0;
+  }
 
 
 }

@@ -154,11 +154,4 @@ public class NESTReferenceConverter implements IReferenceConverter {
     }
   }
 
-  @Override
-  public boolean needsArguments(final ASTFunctionCall astFunctionCall) {
-    final Optional<MethodSymbol> methodSymbol = NESTMLSymbols.resolveMethod(astFunctionCall);
-    checkState(methodSymbol.isPresent(), "Cannot resolve the function call: " + astFunctionCall.getCalleeName());
-    return methodSymbol.get().getParameterTypes().size() > 0;
-  }
-
 }

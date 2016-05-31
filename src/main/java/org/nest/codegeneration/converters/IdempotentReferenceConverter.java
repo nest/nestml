@@ -45,7 +45,4 @@ public class IdempotentReferenceConverter implements IReferenceConverter {
     return constantName;
   }
 
-  @Override public boolean needsArguments(ASTFunctionCall astFunctionCall) {
-    return astFunctionCall.getArgs().size() > 0;
-  }
 }

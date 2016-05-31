@@ -38,10 +38,6 @@ public class GSLReferenceConverter implements IReferenceConverter {
     if ("pow".equals(functionName)) {
       return "pow(%s)";
     }
-    if ("I_sum".equals(functionName)) {
-      return "%s)";
-    }
-
 
     throw new UnsupportedOperationException("Cannot map the function: '" + functionName +"'");
   }
@@ -85,18 +81,5 @@ public class GSLReferenceConverter implements IReferenceConverter {
   public String convertConstant(final String constantName) {
     return constantName;
   }
-
-  @Override
-  public boolean needsArguments(final ASTFunctionCall astFunctionCall) {
-    final String functionName = astFunctionCall.getCalleeName();
-    if ("exp".equals(functionName)) {
-      return true;
-    }
-    if ("pow".equals(functionName)) {
-      return true;
-    }
-    throw new UnsupportedOperationException();
-  }
-
 
 }
