@@ -15,7 +15,7 @@ public class NESTML2NESTTypeConverter {
     return doConvert(nestmlType);
   }
 
-  public String doConvert(final TypeSymbol nestmlType) {
+  private String doConvert(final TypeSymbol nestmlType) {
     if (PredefinedTypes.getStringType().equals(nestmlType)) {
       return "std::string";
     }

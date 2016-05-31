@@ -27,5 +27,4 @@ public interface IReferenceConverter {
     return astFunctionCall.getArgs().size() > 0;
   }
 
-
 }

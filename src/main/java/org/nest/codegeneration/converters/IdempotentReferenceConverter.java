@@ -21,8 +21,7 @@ public class IdempotentReferenceConverter implements IReferenceConverter {
   }
 
   @Override
-  public String convertFunctionCall(
-      final ASTFunctionCall astFunctionCall) {
+  public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
     final StringBuilder result = new StringBuilder();
     result.append(astFunctionCall.getCalleeName());
 
@@ -32,6 +31,7 @@ public class IdempotentReferenceConverter implements IReferenceConverter {
     else {
       result.append("()");
     }
+
     return result.toString();
   }
 
