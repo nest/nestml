@@ -1,0 +1,77 @@
+neuron mat2_psc_exp_nestml:
+
+  state:
+    V mV
+    V_th_alpha_1 mV
+    V_th_alpha_2 mV
+    I_shape_in, I_shape_ex real
+    alias V_m mV = V + E_L # Membrane potential.
+  end
+
+  equations:
+    I_shape_in = exp(-1/tau_syn_in*t)
+    I_shape_ex = exp(-1/tau_syn_ex*t)
+
+    V_th_alpha_1' = -V_th_alpha_1/tau_1
+    V_th_alpha_2' = -V_th_alpha_2/tau_2
+
+    V' = -1/Tau * V + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+  end
+
+  parameter:
+    Tau     ms = 5    # Membrane time constant.
+    C_m          pF = 100.0pF # Capacity of the membrane in pF
+    E_L          mV = - 70.0mV # Resting potential in mV
+    tau_m        ms # Membrane time constant in ms
+    tau_syn_ex   ms # Time constant of postsynaptic excitatory currents in ms
+    tau_syn_in   ms # Time constant of postsynaptic inhibitory currents in ms
+    t_ref        ms # Duration of absolute refractory period (no spiking) in ms
+    I_e          pA # Constant input current in pA
+    t_spike      ms # Point in time of last spike in ms
+    tau_1        ms # Short time constant of adaptive threshold in ms
+    tau_2        ms # Long time constant of adaptive threshold in ms
+    alpha_1      mV # Amplitude of short time threshold adaption in mV [3]
+    alpha_2      mV # Amplitude of long time threshold adaption in mV [3]
+    omega        mV # Resting spike threshold in mV (absolute value, not relative to E_L)
+  end
+
+  internal:
+    r integer
+    h integer
+    P11th real = exp( -h / tau_1 )
+    P22th real = exp( -h / tau_2 )
+    RefractoryCounts integer = steps(t_ref)
+  end
+
+  input:
+    ex_spikes   <- excitatory spike
+    in_spikes   <- inhibitory spike
+    currents    <- current
+  end
+
+  output: spike
+
+  update:
+    integrate(V)
+    integrate(V_th_alpha_1)
+    integrate(V_th_alpha_2)
+    V_th_alpha_1 *= P11th
+    V_th_alpha_2 *= P22th
+
+    if r == 0: # not refractory
+      if V >= omega + V_th_alpha_1 + V_th_alpha_2: # threshold crossing
+          r = RefractoryCounts
+
+          # procedure for adaptive potential
+          V_th_alpha_1 += alpha_1 # short time
+          V_th_alpha_2 += alpha_2 # long time
+
+          emit_spike()
+      end
+    else:
+        r = r - 1
+    end
+
+  end
+
+end
