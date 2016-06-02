@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+s
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
@@ -289,8 +289,12 @@ public final class ASTNodes {
     }
     else if (astDatatype.getUnitType().isPresent()) {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
-      checkState(unitType.getUnit().isPresent());
-      return unitType.getUnit().get();
+      if(unitType.getUnit().isPresent()){
+        typeName = unitType.getUnit().get();
+      }else {
+        typeName = "unit";
+      }
+
     }
     else {
       checkState(false, "Is not possible through the grammar construction.");

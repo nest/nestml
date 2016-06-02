@@ -10,6 +10,7 @@ import de.monticore.symboltable.SymbolKind;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +26,7 @@ public class MethodSymbol extends CommonScopeSpanningSymbol {
   private NeuronSymbol declaringNeuron;
   private List<TypeSymbol> parameters = new ArrayList<>();
   private boolean isDynamics = false;
+  private Optional<String> unitDescriptor;
 
   public MethodSymbol(final String name) {
     super(name, KIND);
@@ -45,6 +47,14 @@ public class MethodSymbol extends CommonScopeSpanningSymbol {
         getParameterTypes().stream()
             .map(Object::toString)
             .collect(Collectors.joining(",")) + "]";
+  }
+
+  public Optional<String> getUnitDescriptor() {
+    return unitDescriptor;
+  }
+
+  public void setUnitDescriptor(String unitDescriptor) {
+    this.unitDescriptor = Optional.of(unitDescriptor);
   }
 
   public TypeSymbol getReturnType() {

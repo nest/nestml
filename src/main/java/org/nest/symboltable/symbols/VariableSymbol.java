@@ -37,6 +37,8 @@ public class VariableSymbol extends CommonSymbol {
 
   private TypeSymbol type;
 
+  private Optional<String> unitDescriptor;
+
   private NeuronSymbol declaringType;
 
   private boolean isAlias;
@@ -92,6 +94,10 @@ public class VariableSymbol extends CommonSymbol {
   public void setType(TypeSymbol type) {
     this.type = type;
   }
+
+  public Optional<String> getUnitDescriptor() {return unitDescriptor;}
+
+  public void setUnitDescriptor(String unitDescriptor) { this.unitDescriptor = Optional.of(unitDescriptor); }
 
   public void setDeclaringType(NeuronSymbol declaringType) {
     this.declaringType = declaringType;

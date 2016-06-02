@@ -8,7 +8,6 @@ package org.nest.nestml._cocos;
 import de.se_rwth.commons.Names;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -19,6 +18,8 @@ import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.units._visitor.UnitsTranslationVisitor;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -98,13 +99,18 @@ public class NESTMLCoCosTest extends ModelbasedTest {
 
   }
   //TODO: Remove this test
-  @Ignore
   @Test
   public void testUnit() {
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
         "src/test/resources/org/nest/units/units.nestml", TEST_MODEL_PATH);
     assertTrue(validRoot.isPresent());
+
+    //check that unit types are correct:
+    UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
+    unitsSIVisitor.handle(validRoot.get());
+
     scopeCreator.runSymbolTableCreator(validRoot.get());
+
     final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
 
     //nestmlCoCoChecker.addCoCo(aliasHasNoSetter);

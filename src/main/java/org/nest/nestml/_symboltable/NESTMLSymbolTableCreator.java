@@ -7,21 +7,25 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTParameter;
+import org.nest.spl._cocos.IllegalExpression;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
-import org.nest.symboltable.symbols.references.TypeSymbolReference;
+import org.nest.units._visitor.UnitsTranslationVisitor;
+import sun.management.counter.Units;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.trace;
 import static de.se_rwth.commons.logging.Log.warn;
 import static java.util.Objects.requireNonNull;
@@ -279,20 +283,29 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     addToScopeAndLinkWithNode(methodSymbol, funcAst);
 
+    UnitsTranslationVisitor unitsTranslationVisitor = new UnitsTranslationVisitor();
+
     // Parameters
     if (funcAst.getParameters().isPresent()) {
       for (ASTParameter p : funcAst.getParameters().get().getParameters()) {
-        TypeSymbol type = new TypeSymbolReference(
-            computeTypeName(p.getDatatype()),
-            TypeSymbol.Type.PRIMITIVE,
-            this.currentScope().get());
+        String typeName = computeTypeName(p.getDatatype());
+        Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
 
-        methodSymbol.addParameterType(type);
+        checkState(type.isPresent());
+
+        methodSymbol.addParameterType(type.get());
 
         // add a var entry for method body
         VariableSymbol var = new VariableSymbol(p.getName());
         var.setAstNode(p);
-        var.setType(type);
+        var.setType(type.get());
+
+        if (p.getDatatype().getUnitType().isPresent()){
+          unitsTranslationVisitor.handle(p.getDatatype().getUnitType().get());
+          String unit = unitsTranslationVisitor.getResult();
+          var.setUnitDescriptor(unit);
+        }
+
         var.setDeclaringType(null); // TOOD: make the variable optional or define a public type
         var.setBlockType(VariableSymbol.BlockType.LOCAL);
         addToScopeAndLinkWithNode(var, p);
@@ -303,11 +316,18 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     // return type
     if (funcAst.getReturnType().isPresent()) {
       final String returnTypeName = computeTypeName(funcAst.getReturnType().get());
-      TypeSymbol returnType = new TypeSymbolReference(
-          returnTypeName,
-          TypeSymbol.Type.PRIMITIVE,
-          currentScope().get());
-      methodSymbol.setReturnType(returnType);
+      Optional<TypeSymbol> returnType = PredefinedTypes.getTypeIfExists(returnTypeName);
+
+      checkState(returnType.isPresent());
+
+      methodSymbol.setReturnType(returnType.get());
+
+      if (funcAst.getReturnType().get().getUnitType().isPresent()){
+        unitsTranslationVisitor.handle(funcAst.getReturnType().get().getUnitType().get());
+        String unit = unitsTranslationVisitor.getResult();
+        methodSymbol.setUnitDescriptor(unit);
+      }
+
     }
     else {
       methodSymbol.setReturnType(PredefinedTypes.getVoidType());
@@ -438,22 +458,22 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       final NeuronSymbol currentTypeSymbol,
       final ASTAliasDecl aliasDeclAst,
       final VariableSymbol.BlockType blockType) {
+    UnitsTranslationVisitor unitsTranslationVisitor = new UnitsTranslationVisitor();
     final String typeName =  computeTypeName(astDeclaration.getDatatype());
+    Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
 
     for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible
-       Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
-
-      if (!type.isPresent()) {
-        type = Optional.of(new TypeSymbolReference(typeName, TypeSymbol.Type.PRIMITIVE, getFirstCreatedScope()));
-        warn("The variable " + varName + " at " + astDeclaration.get_SourcePositionStart() +
-            " Its type is " + typeName + "it either an unit, nor a predefined type.");
-      }
 
       final VariableSymbol var = new VariableSymbol(varName);
-
       var.setAstNode(astDeclaration);
       var.setType(type.get());
       var.setDeclaringType(currentTypeSymbol);
+
+      if (astDeclaration.getDatatype().getUnitType().isPresent()){
+        unitsTranslationVisitor.handle(astDeclaration.getDatatype().getUnitType().get());
+        String unit = unitsTranslationVisitor.getResult();
+        var.setUnitDescriptor(unit);
+      }
 
       boolean isLoggableStateVariable = blockType == STATE && !aliasDeclAst.isSuppress();
       boolean isLoggableNonStateVariable

@@ -9,6 +9,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.units._visitor.UnitsVisitor;
+import org.nest.units.unitrepresentation.SIData;
 
 import java.util.Collection;
 import java.util.Map;
@@ -64,15 +67,18 @@ public class PredefinedTypes {
     return implicitTypes.get("Buffer");
   }
 
+  public static TypeSymbol getUnitType() {return implicitTypes.get("unit");}
+
   private static void registerSITypes() {
-    registerType("mV", TypeSymbol.Type.UNIT);
-    registerType("pA", TypeSymbol.Type.UNIT);
+    registerType("unit", TypeSymbol.Type.UNIT);
+    /*registerType("mV", TypeSymbol.Type.UNIT);
+    ;
     registerType("mA", TypeSymbol.Type.UNIT);
     registerType("pF", TypeSymbol.Type.UNIT);
     registerType("pF", TypeSymbol.Type.UNIT);
-    registerType("ms", TypeSymbol.Type.UNIT);
+
     registerType("mm", TypeSymbol.Type.UNIT);
-    registerType("nS", TypeSymbol.Type.UNIT);
+    registerType("nS", TypeSymbol.Type.UNIT);*/
   }
 
   private static void registerPrimitiveTypes() {
@@ -111,6 +117,7 @@ public class PredefinedTypes {
 
     if (predefinedType.isPresent()) {
       return predefinedType.get();
+
     }
     else {
       throw new RuntimeException("Cannot resolve the predefined type: " + typeName);
@@ -122,7 +129,10 @@ public class PredefinedTypes {
     if (implicitTypes.containsKey(typeName)) {
       return Optional.of(implicitTypes.get(typeName));
     }
-    else {
+    else if(SIData.getCorrectSIUnits().contains(typeName)){
+      registerType(typeName, TypeSymbol.Type.UNIT);
+      return Optional.of(implicitTypes.get(typeName));
+    } else {
       return Optional.empty();
     }
 
