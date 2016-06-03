@@ -8,7 +8,7 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
@@ -33,7 +33,7 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
     if (alias.isAlias()) {
       // per default aliases have only a single variable. it is checked by the AliasHasOneVar coco.
       final String aliasVar = decl.getVars().get(0);
-      final String varTypeName = ASTNodes.computeTypeName(decl.getDatatype());
+      final String varTypeName = ASTUtils.computeTypeName(decl.getDatatype());
       if (!isSetterPresent(aliasVar, varTypeName, scope)) {
         CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this,aliasVar,varTypeName);

@@ -1,20 +1,17 @@
 package org.nest.nestml.prettyprinter;
 
-import de.monticore.ast.ASTCNode;
 import de.monticore.ast.ASTNode;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
-import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTParameter;
 import org.nest.spl._ast.ASTParameters;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
@@ -395,7 +392,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
       for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
         boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
         final ASTParameter curParameter = astParameters.get(curParameterIndex);
-        print(curParameter.getName() + " " + ASTNodes.computeTypeName(curParameter.getDatatype()));
+        print(curParameter.getName() + " " + ASTUtils.computeTypeName(curParameter.getDatatype()));
         if (!isLastParameter) {
           print(", ");
         }
@@ -408,7 +405,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   private void printOptionalReturnValue(final ASTFunction astFunction) {
     if (astFunction.getReturnType().isPresent()) {
-      print(ASTNodes.computeTypeName(astFunction.getReturnType().get()));
+      print(ASTUtils.computeTypeName(astFunction.getReturnType().get()));
     }
 
   }

@@ -21,7 +21,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import java.util.Optional;
 
 import static org.abego.treelayout.internal.util.Contract.checkState;
-import static org.nest.utils.ASTNodes.computeTypeName;
+import static org.nest.utils.ASTUtils.computeTypeName;
 
 /**
  * Only predefined types must be used in a declaration.

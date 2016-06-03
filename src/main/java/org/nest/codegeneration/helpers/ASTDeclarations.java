@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.*;
-import static org.nest.utils.ASTNodes.computeTypeName;
+import static org.nest.utils.ASTUtils.computeTypeName;
 
 /**
  * This class is used in the code generator to convert NESTML types to the NEST types

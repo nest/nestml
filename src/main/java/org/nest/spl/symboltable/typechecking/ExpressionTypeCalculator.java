@@ -14,7 +14,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import java.util.Optional;
 
@@ -261,7 +261,7 @@ public class ExpressionTypeCalculator {
       }
       else {
         final String errorMsg = "This operation expects both operands of the type integer in the "
-            + "expression" + ASTNodes.toString(expr);
+            + "expression" + ASTUtils.toString(expr);
         return Either.right(errorMsg);
       }
     }

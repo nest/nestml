@@ -10,7 +10,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class I_SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
 
   @Override
   public void check(final ASTOdeDeclaration odeDeclaration) {
-    final List<ASTFunctionCall> functions = ASTNodes.getAll(odeDeclaration, ASTFunctionCall.class)
+    final List<ASTFunctionCall> functions = ASTUtils.getAll(odeDeclaration, ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))
         .collect(toList());
@@ -49,7 +49,7 @@ public class I_SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
    */
   private void error(final ASTExpr exprArgument) {
     CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
-    final String msg = errorStrings.getErrorMsg(this,ASTNodes.toString(exprArgument));
+    final String msg = errorStrings.getErrorMsg(this, ASTUtils.toString(exprArgument));
 
     Log.error(msg);
   }

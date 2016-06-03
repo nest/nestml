@@ -14,8 +14,9 @@ neuron iaf_psc_alpha_nestml:
   end
 
   parameter:
+
     C_m     pF = 250   # Capacity of the membrane
-    Tau     ms = 10    # Membrane time constant.
+    Tau     ms = 10     # Membrane time constant.
     tau_syn_in ms = 2     # Time constant of synaptic current.
     tau_syn_ex ms = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.

@@ -22,6 +22,7 @@ import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTUtils;
 
 import java.util.List;
 
@@ -142,7 +143,7 @@ public class VariableDoesNotExist implements
     node.getEquations().forEach(
         ode-> {
           checkVariableByName(ode.getLhs().getName().toString(), node);
-          org.nest.utils.ASTNodes.getAll(ode.getRhs(), ASTVariable.class).forEach(
+          ASTUtils.getAll(ode.getRhs(), ASTVariable.class).forEach(
               variable -> checkVariableByName(Names.getQualifiedName(variable.getName().getParts()), node));
         }
 

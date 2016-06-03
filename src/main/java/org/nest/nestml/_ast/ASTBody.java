@@ -22,7 +22,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.utils.ASTNodes.printComment;
+import static org.nest.utils.ASTUtils.printComment;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar

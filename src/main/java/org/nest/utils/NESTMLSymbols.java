@@ -33,7 +33,7 @@ public class NESTMLSymbols {
   public static Optional<MethodSymbol> resolveMethod(final ASTFunctionCall astFunctionCall) {
     checkArgument(astFunctionCall.getEnclosingScope().isPresent(), "Run symbol table creator");
 
-    final List<String> callTypes = ASTNodes.getParameterTypes(astFunctionCall);
+    final List<String> callTypes = ASTUtils.getParameterTypes(astFunctionCall);
     return resolveMethod(astFunctionCall.getCalleeName(), callTypes, astFunctionCall.getEnclosingScope().get());
   }
   public static Optional<MethodSymbol> resolveMethod(

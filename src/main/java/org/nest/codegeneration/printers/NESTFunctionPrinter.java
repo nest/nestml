@@ -13,7 +13,7 @@ import org.nest.nestml._ast.ASTFunction;
 import org.nest.spl._ast.ASTParameter;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 import org.nest.utils.NESTMLSymbols;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class NESTFunctionPrinter {
     List<String> parameterNestTypes = Lists.newArrayList();
     if (astFunction.getParameters().isPresent()) {
       for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
-        String parameterTypeFqn = ASTNodes.computeTypeName(astFunction.getParameters().get().getParameters().get(i).getDatatype());
+        String parameterTypeFqn = ASTUtils.computeTypeName(astFunction.getParameters().get().getParameters().get(i).getDatatype());
 
         Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
         checkState(parameterType.isPresent(),
@@ -56,7 +56,7 @@ public class NESTFunctionPrinter {
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
-      declaration.append("//").append(ASTNodes.printComment(astFunction)).append("\n");
+      declaration.append("//").append(ASTUtils.printComment(astFunction)).append("\n");
       final String returnType = new NESTML2NESTTypeConverter().convert(method.get().getReturnType()).replace(
           ".", "::");
       declaration.append(returnType);
@@ -82,7 +82,7 @@ public class NESTFunctionPrinter {
     if (astFunction.getParameters().isPresent()) {
       for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
         final ASTParameter functionParameter = astFunction.getParameters().get().getParameters().get(i);
-        String parameterTypeFqn = ASTNodes.computeTypeName(functionParameter.getDatatype());
+        String parameterTypeFqn = ASTUtils.computeTypeName(functionParameter.getDatatype());
         Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
         checkState(parameterType.isPresent(),
             "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
@@ -97,7 +97,7 @@ public class NESTFunctionPrinter {
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
-      declaration.append("//").append(ASTNodes.printComment(astFunction)).append("\n");
+      declaration.append("//").append(ASTUtils.printComment(astFunction)).append("\n");
       final String returnType = new NESTML2NESTTypeConverter().convert(method.get().getReturnType()).replace(
           ".", "::");
       declaration.append(returnType);

@@ -12,7 +12,7 @@ import org.nest.codegeneration.converters.IdempotentReferenceConverter;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ public class ExpressionsPrettyPrinter {
   public String print(final ASTExpr expr) {
     checkNotNull(expr);
 
-    return doPrint(expr) + ASTNodes.printComment(expr);
+    return doPrint(expr) + ASTUtils.printComment(expr);
 
   }
 

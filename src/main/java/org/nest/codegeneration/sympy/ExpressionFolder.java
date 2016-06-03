@@ -1,12 +1,11 @@
 package org.nest.codegeneration.sympy;
 
-import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -46,7 +45,7 @@ class ExpressionFolder {
 
       for (int i = 0; i < expressionVisitor.getNodesToReplace().size(); ++i) {
         final ASTExpr child = expressionVisitor.getNodesToReplace().get(0);
-        final Optional<ASTNode> parent = ASTNodes.getParent(child, expr);
+        final Optional<ASTNode> parent = ASTUtils.getParent(child, expr);
         checkState(parent.isPresent(), "Should not happen by construction.");
         checkState(parent.get() instanceof ASTExpr, "Should not happen by construction.");
 
@@ -81,12 +80,12 @@ class ExpressionFolder {
     @Override
     public void visit(final ASTExpr expr) {
 
-      final Optional<ASTVariable> stateVariable = ASTNodes.getAll(expr, ASTVariable.class)
+      final Optional<ASTVariable> stateVariable = ASTUtils.getAll(expr, ASTVariable.class)
           .stream()
           .filter(astVariable -> stateVariableNames.contains(astVariable.toString()))
           .findAny();
 
-      boolean canBeFolded = !stateVariable.isPresent() && ASTNodes.getAll(expr, ASTVariable.class).size() > 1;
+      boolean canBeFolded = !stateVariable.isPresent() && ASTUtils.getAll(expr, ASTVariable.class).size() > 1;
 
       if (canBeFolded) {
         addCandidate(expr);
@@ -103,7 +102,7 @@ class ExpressionFolder {
     }
 
     private boolean isParentOf(final ASTNode parent, final ASTNode child) {
-      return ASTNodes.getSuccessors(parent).contains(child);
+      return ASTUtils.getSuccessors(parent).contains(child);
     }
   }
 

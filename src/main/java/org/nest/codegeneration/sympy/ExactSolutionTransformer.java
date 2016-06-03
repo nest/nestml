@@ -18,7 +18,7 @@ import org.nest.spl._ast.*;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,7 +32,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.*;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
-import static org.nest.utils.ASTNodes.getVectorizedVariable;
+import static org.nest.utils.ASTUtils.getVectorizedVariable;
 
 /**
  * Takes SymPy result and the source AST. Produces an altered AST with the the exact solution.
@@ -290,7 +290,7 @@ public class ExactSolutionTransformer {
   }
 
   private void addUpdatesWithPSCInitialValue(final Path pathPSCInitialValueFile, final ASTBody body) {
-    final List<ASTFunctionCall> i_sumCalls = ASTNodes.getAll(body.getEquations().get(), ASTFunctionCall.class)
+    final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(body.getEquations().get(), ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
         .collect(toList());
@@ -301,9 +301,9 @@ public class ExactSolutionTransformer {
       final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
       final String shapeName = variableName.substring(variableName.indexOf("_") + 1, variableName.length());
       for (ASTFunctionCall i_sum_call:i_sumCalls) {
-        final String shapeNameInCall = ASTNodes.toString(i_sum_call.getArgs().get(0));
+        final String shapeNameInCall = ASTUtils.toString(i_sum_call.getArgs().get(0));
         if (shapeNameInCall.equals(shapeName)) {
-          final String bufferName = ASTNodes.toString(i_sum_call.getArgs().get(1));
+          final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
           final ASTAssignment pscUpdateStep = createAssignment(variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".getSum(t)");
           addAssignmentToDynamics(body, pscUpdateStep);
         }
@@ -345,12 +345,12 @@ public class ExactSolutionTransformer {
       odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
 
       if (odeCollector.getFoundOde().isPresent()) {
-        final Optional<ASTNode> smallStatement = ASTNodes.getParent(odeCollector.getFoundOde().get(), astNeuron);
+        final Optional<ASTNode> smallStatement = ASTUtils.getParent(odeCollector.getFoundOde().get(), astNeuron);
         checkState(smallStatement.isPresent());
         checkState(smallStatement.get() instanceof ASTSmall_Stmt);
         final ASTSmall_Stmt integrateCall = (ASTSmall_Stmt) smallStatement.get();
 
-        final Optional<ASTNode> simpleStatement = ASTNodes.getParent(smallStatement.get(), astNeuron);
+        final Optional<ASTNode> simpleStatement = ASTUtils.getParent(smallStatement.get(), astNeuron);
         checkState(simpleStatement.isPresent());
         checkState(simpleStatement.get() instanceof ASTSimple_Stmt);
         final ASTSimple_Stmt astSimpleStatement = (ASTSimple_Stmt) simpleStatement.get();
