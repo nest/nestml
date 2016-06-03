@@ -4,6 +4,6 @@
   @param ast ASTAliasDecl
   @param tc templatecontroller
 -->
-if ( !(${parameterBlockPrinter.print(ast)}) ) {
+if ( !(${printerWithGetters.print(ast)}) ) {
   throw nest::BadProperty("The invariant '${idemPrinter.print(ast)}' is violated!");
 }
