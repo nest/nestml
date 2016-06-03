@@ -12,7 +12,7 @@ import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,7 +43,7 @@ public class ExpressionTypeCalculatorTest {
     final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root.get());
     final ExpressionTypeCalculator calculator = new ExpressionTypeCalculator();
-    final List<ASTDeclaration> declarations = ASTNodes.getAll(root.get(), ASTDeclaration.class);
+    final List<ASTDeclaration> declarations = ASTUtils.getAll(root.get(), ASTDeclaration.class);
 
     // b real = 1.0
     final Either<TypeSymbol, String> typeOfB = calculator.computeType(
@@ -127,7 +127,7 @@ public class ExpressionTypeCalculatorTest {
     final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root.get());
     final ExpressionTypeCalculator calculator = new ExpressionTypeCalculator();
-    final List<ASTDeclaration> declarations = ASTNodes.getAll(root.get(), ASTDeclaration.class);
+    final List<ASTDeclaration> declarations = ASTUtils.getAll(root.get(), ASTDeclaration.class);
 
     // a real = ((( 1.0 | (-3+6%2) & ~(0x4fa) | 0x23 ^ 12) >> 2) << 2)
     final Either<TypeSymbol, String> typeOfA = calculator.computeType(

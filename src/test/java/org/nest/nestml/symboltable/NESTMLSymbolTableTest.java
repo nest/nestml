@@ -18,7 +18,7 @@ import org.nest.spl._ast.ASTAssignment;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 import org.nest.utils.NESTMLSymbols;
 
 import java.io.IOException;
@@ -273,7 +273,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     Optional<VariableSymbol> importedVariable = neuronSymbol.getSpannedScope().resolve("r", VariableSymbol.KIND);
     assertTrue(importedVariable.isPresent());
 */
-    final Optional<ASTAssignment> astAssignment = ASTNodes.getAny(root, ASTAssignment.class);
+    final Optional<ASTAssignment> astAssignment = ASTUtils.getAny(root, ASTAssignment.class);
     assertTrue(astAssignment.isPresent());
     final Optional<VariableSymbol> fromAssignment = astAssignment.get().getEnclosingScope().get()
         .resolve("r", VariableSymbol.KIND);

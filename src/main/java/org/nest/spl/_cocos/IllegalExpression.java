@@ -7,23 +7,19 @@ package org.nest.spl._cocos;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.Symbol;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
-
-import java.util.Optional;
+import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
-import static org.nest.utils.ASTNodes.computeTypeName;
+import static org.nest.utils.ASTUtils.computeTypeName;
 
 /**
  * Check that the type of the loop variable is an integer.
@@ -80,7 +76,7 @@ public class IllegalExpression implements
       }
       else {
         final String errorDescription = initializerExpressionType.getRight().get() +
-            "Problem with the expression: " + ASTNodes.toString(node.getExpr().get());
+            "Problem with the expression: " + ASTUtils.toString(node.getExpr().get());
         undefinedTypeError(node, errorDescription);
       }
 
@@ -99,7 +95,7 @@ public class IllegalExpression implements
 
     if (exprType.isRight()) {
       final String errorDescription = exprType.getRight().get() +
-          "Problem with the expression: " + ASTNodes.toString(node.getExpr());
+          "Problem with the expression: " + ASTUtils.toString(node.getExpr());
       undefinedTypeError(node, exprType.getRight().get());
     }
 

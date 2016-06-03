@@ -16,7 +16,7 @@
 
         <!-- Monticore versions and dependencies -->
         <antlr.version>4.5</antlr.version>
-        <monticore.version>4.4.0</monticore.version>
+        <monticore.version>4.4.0.1</monticore.version>
 
         <!-- .. Plugins ....................................................... -->
         <compiler.plugin>3.5.1</compiler.plugin>

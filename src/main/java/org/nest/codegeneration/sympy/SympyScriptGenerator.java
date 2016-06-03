@@ -20,7 +20,7 @@ import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -38,7 +38,7 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
-import static org.nest.utils.ASTNodes.getVariableSymbols;
+import static org.nest.utils.ASTUtils.getVariableSymbols;
 
 /**
  * Wrapps the logic how to extract and generate SymPy script..
@@ -116,11 +116,11 @@ public class SympyScriptGenerator {
 
     final Set<VariableSymbol> variables = new HashSet<>(getVariableSymbols(astOdeDeclaration));
 
-    final List<VariableSymbol> aliases = ASTNodes.getAliasSymbols(astOdeDeclaration);
+    final List<VariableSymbol> aliases = ASTUtils.getAliasSymbols(astOdeDeclaration);
 
     List<VariableSymbol> symbolsInAliasDeclaration = aliases
         .stream()
-        .flatMap(alias -> ASTNodes.getVariableSymbols(alias.getDeclaringExpression().get()).stream())
+        .flatMap(alias -> ASTUtils.getVariableSymbols(alias.getDeclaringExpression().get()).stream())
         .collect(Collectors.toList());
     variables.addAll(symbolsInAliasDeclaration);
 
@@ -143,7 +143,7 @@ public class SympyScriptGenerator {
   }
 
   static ASTEquation replace_I_sum(final ASTEquation astOde) {
-    final List<ASTFunctionCall> functions = ASTNodes.getAll(astOde, ASTFunctionCall.class)
+    final List<ASTFunctionCall> functions = ASTUtils.getAll(astOde, ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))
         .collect(toList());
@@ -153,7 +153,7 @@ public class SympyScriptGenerator {
   }
 
   private static void replaceFunctionCallThroughFirstArgument(ASTEquation astOde, ASTFunctionCall node) {
-    final Optional<ASTNode> parent = ASTNodes.getParent(node, astOde);
+    final Optional<ASTNode> parent = ASTUtils.getParent(node, astOde);
     checkState(parent.isPresent());
     final ASTExpr expr = (ASTExpr) parent.get();
     expr.setFunctionCall(null);

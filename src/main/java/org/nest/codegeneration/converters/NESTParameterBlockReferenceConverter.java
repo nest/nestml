@@ -6,21 +6,12 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
-import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
-import org.nest.utils.NESTMLSymbols;
-
-import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static org.nest.codegeneration.helpers.VariableHelper.printOrigin;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**

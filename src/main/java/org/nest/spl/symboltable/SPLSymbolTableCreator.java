@@ -18,7 +18,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
-import static org.nest.utils.ASTNodes.computeTypeName;
+import static org.nest.utils.ASTUtils.computeTypeName;
 
 /**
  * Visitor that creates symbols for SPLTypes, SPLVariables from an SPL model.

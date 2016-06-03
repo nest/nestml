@@ -18,6 +18,7 @@ import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTODENode;
 import org.nest.spl._ast.ASTBlock;
@@ -32,6 +33,8 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +51,7 @@ import static org.nest.symboltable.symbols.VariableSymbol.resolve;
  * 
  * @author plotnikov, oberhoff
  */
-public final class ASTNodes {
+public final class ASTUtils {
 
   /**
    * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the right order
@@ -159,7 +162,7 @@ public final class ASTNodes {
   public static Optional<VariableSymbol> getVectorizedVariable(
       final ASTNode astNode,
       final Scope scope) {
-    final List<ASTVariable> variables = ASTNodes
+    final List<ASTVariable> variables = ASTUtils
         .getAll(astNode, ASTVariable.class).stream()
         .filter(astVariable -> VariableSymbol.resolveIfExists(astVariable.toString(), scope).isPresent())
         .collect(Collectors.toList());
@@ -288,7 +291,35 @@ public final class ASTNodes {
   public static boolean isInvertableExpression(final ASTExpr astExpr) {
     // todo: check user defined functions
     // check: comparison and relational operations
-    return true;
+    boolean isAtomicVariables =
+        astExpr.getLeft().isPresent() && astExpr.getLeft().get().getVariable().isPresent() &&
+        astExpr.getRight().isPresent() && astExpr.getRight().get().getVariable().isPresent();
+
+    boolean isInvertableFOperation = astExpr.isPlusOp() || astExpr.isMinusOp();
+    return isAtomicVariables && isInvertableFOperation;
+  }
+
+  public static ASTExpr getInversedExpression(final ASTExpr astExpr) {
+    checkArgument(astExpr.isPlusOp() || astExpr.isMinusOp());
+    checkArgument(astExpr.getLeft().isPresent() && astExpr.getLeft().get().getVariable().isPresent());
+    checkArgument(astExpr.getRight().isPresent() && astExpr.getRight().get().getVariable().isPresent());
+
+    final NESTMLParser nestmlParser = new NESTMLParser();
+
+    // todo: check user defined functions
+
+    try {
+      if (astExpr.isPlusOp()) {
+        return nestmlParser.parseExpr(new StringReader("")).get();
+      }
+      else {
+        return nestmlParser.parseExpr(new StringReader("")).get();
+      }
+
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot parse computed inverse expression. Should not happen by constructions.");
+    }
+
   }
 
   /**

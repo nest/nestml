@@ -26,7 +26,7 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 import org.nest.utils.NESTMLSymbols;
 
 import java.io.File;
@@ -38,7 +38,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.info;
-import static org.nest.utils.ASTNodes.getAllNeurons;
+import static org.nest.utils.ASTUtils.getAllNeurons;
 
 /**
  * Generates C++ implementation and model integration code for NEST.
@@ -304,7 +304,7 @@ public class NESTCodeGenerator {
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
     glex.setGlobalValue("nestmlSymbols", new NESTMLSymbols());
-    glex.setGlobalValue("astNodes", new ASTNodes());
+    glex.setGlobalValue("astNodes", new ASTUtils());
 
   }
 
