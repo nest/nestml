@@ -15,7 +15,7 @@ neuron iaf_cond_alpha_implicit_new:
     GE' = GE' + -1/tau_synE * GE
 
     V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - \
-            1/C_m * Sum_cond(GE, spikeInh) * (V_m-V_reversalE) + (I_e + I_stim)/C_m
+            1/C_m * Cond_sum(GE, spikeInh) * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
 
 

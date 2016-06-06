@@ -8,6 +8,7 @@ package org.nest.codegeneration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nest.base.GenerationBasedTest;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -92,6 +93,8 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
 
     Assert.assertTrue(ASTUtils.isInvertableExpression(v_m_alias.getDeclaringExpression().get()));
 
+    final ASTExpr invesedExpression = ASTUtils.inverse(v_m_alias.getDeclaringExpression().get());
+    System.out.printf("");
   }
 
 }
