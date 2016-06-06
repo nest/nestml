@@ -34,11 +34,7 @@ neuron iaf_cond_alpha_neuron:
    I_stim pA = 0
   end
 
-  function set_Tau(v ms):
-  end
-
   internal:
-    h   ms   = resolution()
     r integer
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
