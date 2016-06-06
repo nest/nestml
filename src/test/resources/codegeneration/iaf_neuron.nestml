@@ -100,11 +100,6 @@ neuron iaf_neuron_nestml:
         r = r - 1
     end
 
-
-  end
-
-  # Dummy function to test comment printing
-  function test() void:
   end
 
 end

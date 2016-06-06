@@ -18,7 +18,6 @@ neuron iaf_cond_alpha_implicit_new:
             1/C_m * Cond_sum(GE, spikeInh) * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
 
-
   parameter:
     V_th mV = -55.0      # Threshold Potential in mV
     V_reset mV = -60.0   # Reset Potential in mV
@@ -40,8 +39,6 @@ neuron iaf_cond_alpha_implicit_new:
   end
 
   internal:
-    h   ms   = resolution()
-
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
     PSConInit_E real = 1.0 * e / tau_synE
