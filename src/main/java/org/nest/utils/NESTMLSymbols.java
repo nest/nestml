@@ -12,6 +12,7 @@ import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -23,6 +24,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Provides convenience methods
@@ -36,6 +38,24 @@ public class NESTMLSymbols {
     final List<String> callTypes = ASTUtils.getParameterTypes(astFunctionCall);
     return resolveMethod(astFunctionCall.getCalleeName(), callTypes, astFunctionCall.getEnclosingScope().get());
   }
+
+  public static Optional<MethodSymbol> resolveMethod(final ASTFunction astFunction) {
+    checkArgument(astFunction.getEnclosingScope().isPresent(), "Run symbol table creator");
+
+    final List<String> callTypes;
+    if (astFunction.getParameters().isPresent()) {
+      callTypes = astFunction.getParameters().get().getParameters()
+          .stream()
+          .map(astParameter -> ASTUtils.computeTypeName(astParameter.getDatatype()))
+          .collect(toList());
+    }
+    else {
+      callTypes = Lists.newArrayList();
+    }
+
+    return resolveMethod(astFunction.getName(), callTypes, astFunction.getEnclosingScope().get());
+  }
+
   public static Optional<MethodSymbol> resolveMethod(
       final String methodName, final List<String> parameterTypes, final Scope scope) {
 
@@ -46,7 +66,7 @@ public class NESTMLSymbols {
         methodName, MethodSymbol.KIND, signaturePredicate)
         .stream()
         .filter(signaturePredicate) // TODO is it a bug in MC?
-        .collect(Collectors.toList());
+        .collect(toList());
 
 
     final String calleeVariableNameCandidate = Names.getQualifier(methodName);

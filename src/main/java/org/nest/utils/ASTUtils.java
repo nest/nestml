@@ -154,7 +154,7 @@ public final class ASTUtils {
     final List<String> names = getVariablesNamesFromAst(astNode);
     return names.stream()
         .filter(name -> !name.contains("'"))
-        .map(variableName -> VariableSymbol.resolve(variableName, scope)) // the variable existence checked by the context condition
+        .map(variableName -> resolve(variableName, scope)) // the variable existence checked by the context condition
         .filter(VariableSymbol::isAlias)
         .collect(toList());
   }
@@ -283,43 +283,73 @@ public final class ASTUtils {
       final String variableName = astVariable.toString();
       final Scope scope = astVariable.getEnclosingScope().get();
 
-      variables.add(VariableSymbol.resolve(variableName, scope));
+      variables.add(resolve(variableName, scope));
     }
 
   }
 
   public static boolean isInvertableExpression(final ASTExpr astExpr) {
+    checkArgument(astExpr.getEnclosingScope().isPresent(), "Run symboltable creator.");
     // todo: check user defined functions
     // check: comparison and relational operations
-    boolean isAtomicVariables =
+    boolean isAtomicOperands =
         astExpr.getLeft().isPresent() && astExpr.getLeft().get().getVariable().isPresent() &&
         astExpr.getRight().isPresent() && astExpr.getRight().get().getVariable().isPresent();
+    if (!isAtomicOperands) {
+      return false;
+    }
 
-    boolean isInvertableFOperation = astExpr.isPlusOp() || astExpr.isMinusOp();
-    return isAtomicVariables && isInvertableFOperation;
+    boolean isInvertableOperation = astExpr.isPlusOp() || astExpr.isMinusOp();
+    if (!isInvertableOperation) {
+      return false;
+    }
+
+    final Scope scope = astExpr.getEnclosingScope().get();
+    final VariableSymbol rightOperand = resolve(astExpr.getRight().get().getVariable().get().toString(), scope);
+    boolean isRightParameterTerm = rightOperand.getBlockType().equals(VariableSymbol.BlockType.PARAMETER);
+    return isRightParameterTerm;
   }
 
-  public static ASTExpr getInversedExpression(final ASTExpr astExpr) {
-    checkArgument(astExpr.isPlusOp() || astExpr.isMinusOp());
-    checkArgument(astExpr.getLeft().isPresent() && astExpr.getLeft().get().getVariable().isPresent());
-    checkArgument(astExpr.getRight().isPresent() && astExpr.getRight().get().getVariable().isPresent());
-
+  public static ASTExpr inverse(final ASTExpr astExpr) {
+    checkArgument(isInvertableExpression(astExpr));
     final NESTMLParser nestmlParser = new NESTMLParser();
-
+    final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
     // todo: check user defined functions
-
     try {
       if (astExpr.isPlusOp()) {
-        return nestmlParser.parseExpr(new StringReader("")).get();
+        final String setOperation = printer.print(astExpr.getLeft().get()) + " - " + printer.print(astExpr.getRight().get());
+        return nestmlParser.parseExpr(new StringReader(setOperation)).get();
       }
-      else {
-        return nestmlParser.parseExpr(new StringReader("")).get();
+      else { // is a '-' operation
+        final String setOperation = printer.print(astExpr.getLeft().get()) + " + " + printer.print(astExpr.getRight().get());
+        return nestmlParser.parseExpr(new StringReader(setOperation)).get();
       }
 
     } catch (IOException e) {
       throw new RuntimeException("Cannot parse computed inverse expression. Should not happen by constructions.");
     }
 
+  }
+
+
+  /**
+   * Collects all neuron ASTs from every model root
+   * @param modelRoots list with nestml roots
+   * @return List with all neurons from roots.
+   */
+  public static List<ASTNeuron> getAllNeurons(final List<ASTNESTMLCompilationUnit> modelRoots) {
+    return modelRoots.stream()
+        .flatMap(root -> root.getNeurons().stream())
+        .collect(Collectors.toList());
+  }
+
+  public static String printComment(final ASTNode astNode) {
+    final StringBuilder output = new StringBuilder();
+
+    astNode.get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
+    astNode.get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
+
+    return output.toString();
   }
 
   /**
@@ -352,26 +382,6 @@ public final class ASTUtils {
       checkState(false, "Is not possible through the grammar construction.");
     }
     return typeName;
-  }
-
-  /**
-   * Collects all neuron ASTs from every model root
-   * @param modelRoots list with nestml roots
-   * @return List with all neurons from roots.
-   */
-  public static List<ASTNeuron> getAllNeurons(final List<ASTNESTMLCompilationUnit> modelRoots) {
-    return modelRoots.stream()
-        .flatMap(root -> root.getNeurons().stream())
-        .collect(Collectors.toList());
-  }
-
-  public static String printComment(final ASTNode astNode) {
-    final StringBuilder output = new StringBuilder();
-
-    astNode.get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
-    astNode.get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
-
-    return output.toString();
   }
 
 }

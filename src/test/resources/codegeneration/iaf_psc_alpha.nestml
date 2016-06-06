@@ -7,14 +7,13 @@ neuron iaf_psc_alpha_nestml:
   end
 
   equations:
-      I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-      I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+    I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
-      V' = -1/Tau * V + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+    V' = -1/Tau * V + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
   end
 
   parameter:
-
     C_m     pF = 250   # Capacity of the membrane
     Tau     ms = 10     # Membrane time constant.
     tau_syn_in ms = 2     # Time constant of synaptic current.
