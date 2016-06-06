@@ -9,13 +9,15 @@ neuron iaf_cond_alpha_implicit_new:
   equations:
     # Implicit
     GI'' = GI'*-1/tau_synI
-    GI' = GI'' + GI *-1/tau_synI
+    GI' = GI' + GI *-1/tau_synI
+
     GE'' = GE'*-1/tau_synE
-    GE' = GE'' + GE *-1/tau_synE
+    GE' = GE' + -1/tau_synE * GE
 
     V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - \
-            1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
+            1/C_m * Sum_cond(GE, spikeInh) * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
+
 
   parameter:
     V_th mV = -55.0      # Threshold Potential in mV
@@ -35,9 +37,6 @@ neuron iaf_cond_alpha_implicit_new:
     # This variable is used to transport the current applied into the
     # _dynamics function computing the derivative of the state vector.
     I_stim pA = 0
-  end
-
-  function set_Tau(v ms):
   end
 
   internal:

@@ -12,8 +12,8 @@ neuron mat2_psc_exp_nestml:
     I_shape_in = exp(-1/tau_syn_in*t)
     I_shape_ex = exp(-1/tau_syn_ex*t)
 
-    V_th_alpha_1' = -V_th_alpha_1/tau_1
-    V_th_alpha_2' = -V_th_alpha_2/tau_2
+    # V_th_alpha_1' = -V_th_alpha_1/tau_1
+    # V_th_alpha_2' = -V_th_alpha_2/tau_2
 
     V' = -1/Tau * V + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
   end
@@ -55,6 +55,7 @@ neuron mat2_psc_exp_nestml:
     integrate(V)
     integrate(V_th_alpha_1)
     integrate(V_th_alpha_2)
+
     V_th_alpha_1 *= P11th
     V_th_alpha_2 *= P22th
 
