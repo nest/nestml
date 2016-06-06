@@ -13,7 +13,6 @@ neuron iaf_cond_alpha_implicit:
     DGE' = DGE*-1/tau_synE
     GE' = DGE + GE *-1/tau_synE
 
-
     V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - \
             1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
