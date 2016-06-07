@@ -1,26 +1,43 @@
 <#--
-  Generates a code snippet that retrieves a data from dictionary and sets it the the provided
+  Generates a code snippet that retrieves a data from dictionary and sets it the the model variable.
 
-  @param var VariableSymbol
-  @param tc templatecontroller
+  @param variable VariableSymbol
   @result C++ Block
 -->
-${signature("var")}
+${signature("variable")}
 
-<#if var.isAlias() && var.hasSetter()>
-  // handles an alias
-  ${declarations.printVariableType(var)} tmp_${var.getName()};
-    if (updateValue<${declarations.printVariableType(var)}>(d, "${var.getName()}", tmp_${var.getName()})) {
-    set_${var.getName()}(tmp_${var.getName()});
+<#if variable.isAlias() && variable.hasSetter()>
+  // handles an alias with the user defined setter
+  ${declarations.printVariableType(variable)} tmp_${variable.getName()};
+  if (updateValue<${declarations.printVariableType(variable)}>(d, "${variable.getName()}", tmp_${variable.getName()})) {
+    set_${variable.getName()}(tmp_${variable.getName()});
   }
-  else {
-    set_${var.getName()}(old_${var.getName()});
-  }
-<#elseif !var.isAlias()>
-  ${declarations.printVariableType(var)} tmp_${var.getName()};
-    if (updateValue<${declarations.printVariableType(var)}>(d, "${var.getName()}", tmp_${var.getName()})) {
-    ${var.getName()} = tmp_${var.getName()};
+<#elseif variable.isAlias() && aliasInverter.isInvertableExpression(variable.getDeclaringExpression().get())>
+  <#assign baseVariable = aliasInverter.baseVariable(variable.getDeclaringExpression().get())>
+  <#assign base = aliasInverter.baseVariable(variable.getDeclaringExpression().get()).getName()>
+  <#assign offset = aliasInverter.offsetVariable(variable.getDeclaringExpression().get()).getName()>
+  <#assign inverseOperation = aliasInverter.inverseOperation(variable.getDeclaringExpression().get())>
+
+  <#if baseVariable.isInState()>
+    if ( updateValue< double >( d, "${base}", ${base} ) ) {
+      ${base} ${inverseOperation}= p.${offset};
+    }
+    else {
+      ${base} ${inverseOperation}= delta_${offset};
+    }
+  <#else>
+    if ( updateValue< double >( d, "${base}", ${base} ) ) {
+      ${base} ${inverseOperation}= ${offset};
+    }
+    else {
+      ${base} ${inverseOperation}= delta_${offset};
+    }
+  </#if>
+<#elseif !variable.isAlias()>
+  ${declarations.printVariableType(variable)} tmp_${variable.getName()};
+    if (updateValue<${declarations.printVariableType(variable)}>(d, "${variable.getName()}", tmp_${variable.getName()})) {
+    ${variable.getName()} = tmp_${variable.getName()};
   }
 <#else>
-  // ignores '${var.getName()}' ${declarations.printVariableType(var)}' since it is an alias and setter isn't defined
+  // ignores '${variable.getName()}' ${declarations.printVariableType(variable)}' since it is an alias and setter isn't defined
 </#if>
