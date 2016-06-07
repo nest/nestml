@@ -240,8 +240,12 @@ protected:
   */
   struct State_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::State_ </#if> {
     <#list body.getStateNonAliasSymbols() as variable>
-    ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
+      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
+    <#list body.getStateNonAliasSymbols() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
+    </#list>
+
     State_();
 
     /** Store state values in dictionary. */
@@ -257,9 +261,7 @@ protected:
     </#list>
     );
 
-    <#list body.getStateNonAliasSymbols() as variable>
-    ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
-    </#list>
+
   };
 
   /**
