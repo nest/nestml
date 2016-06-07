@@ -1,5 +1,5 @@
 <#--
-  Generates a code snippet that retrieves a data from dictionary and sets it the the provided
+  Generates a code snippet that retrieves a data from dictionary and sets it the the model variable.
 
   @param var VariableSymbol
   @param tc templatecontroller
