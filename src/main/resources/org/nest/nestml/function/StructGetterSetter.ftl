@@ -8,5 +8,16 @@
   @result TODO
 -->
 ${signature("variable")}
-inline ${declarations.printVariableType(variable)} get_${variable.getName()}() const { return ${variable.getName()} ; }
-inline void set_${variable.getName()}(const ${declarations.printVariableType(variable)} ${variable.getName()}) { this->${variable.getName()} = ${variable.getName()} ; }
+<#if variable.isAlias()>
+inline ${declarations.printVariableType(variable)} get_${variable.getName()}() const {
+  return ${expressionsPrinter.print(variable.getDeclaringExpression().get())};
+}
+<#else>
+inline ${declarations.printVariableType(variable)} get_${variable.getName()}() const {
+  return ${variable.getName()};
+}
+inline void set_${variable.getName()}(const ${declarations.printVariableType(variable)} ${variable.getName()}) {
+  this->${variable.getName()} = ${variable.getName()};
+}
+</#if>
+

@@ -19,7 +19,7 @@ ${signature("variable")}
   <#assign inverseOperation = aliasInverter.inverseOperation(variable.getDeclaringExpression().get())>
 
   <#if baseVariable.isInState()>
-    if ( updateValue< double >( d, "${base}", ${base} ) ) {
+    if ( updateValue< double >( d, "${variable.getName()}", ${base} ) ) {
       ${base} ${inverseOperation}= p.${offset};
     }
     else {

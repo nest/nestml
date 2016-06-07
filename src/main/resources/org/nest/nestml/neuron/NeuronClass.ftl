@@ -92,12 +92,7 @@ ${simpleNeuronName}::State_::State_()
 void
 ${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
 {
-  <#if neuronSymbol.getBaseNeuron().isPresent()>
-  ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::get(d);
-  </#if>
-  <#list body.getParameterNonAliasSymbols() as parameter>
-  ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
-  </#list>
+//TODO Remove me
 }
 
 void
@@ -121,12 +116,7 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d
 void
 ${simpleNeuronName}::State_::get(DictionaryDatum &d) const
 {
-  <#if neuronSymbol.getBaseNeuron().isPresent()>
-  ${neuronSymbol.getBaseNeuron().get().getName()}::State_::get(d);
-  </#if>
-  <#list body.getStateNonAliasSymbols() as state>
-  ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
-  </#list>
+// TODO: remove me
 }
 
 void
