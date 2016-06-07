@@ -288,49 +288,6 @@ public final class ASTUtils {
 
   }
 
-  public static boolean isInvertableExpression(final ASTExpr astExpr) {
-    checkArgument(astExpr.getEnclosingScope().isPresent(), "Run symboltable creator.");
-    // todo: check user defined functions
-    // check: comparison and relational operations
-    boolean isAtomicOperands =
-        astExpr.getLeft().isPresent() && astExpr.getLeft().get().getVariable().isPresent() &&
-        astExpr.getRight().isPresent() && astExpr.getRight().get().getVariable().isPresent();
-    if (!isAtomicOperands) {
-      return false;
-    }
-
-    boolean isInvertableOperation = astExpr.isPlusOp() || astExpr.isMinusOp();
-    if (!isInvertableOperation) {
-      return false;
-    }
-
-    final Scope scope = astExpr.getEnclosingScope().get();
-    final VariableSymbol rightOperand = resolve(astExpr.getRight().get().getVariable().get().toString(), scope);
-    boolean isRightParameterTerm = rightOperand.getBlockType().equals(VariableSymbol.BlockType.PARAMETER);
-    return isRightParameterTerm;
-  }
-
-  public static ASTExpr inverse(final ASTExpr astExpr) {
-    checkArgument(isInvertableExpression(astExpr));
-    final NESTMLParser nestmlParser = new NESTMLParser();
-    final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
-    // todo: check user defined functions
-    try {
-      if (astExpr.isPlusOp()) {
-        final String setOperation = printer.print(astExpr.getLeft().get()) + " - " + printer.print(astExpr.getRight().get());
-        return nestmlParser.parseExpr(new StringReader(setOperation)).get();
-      }
-      else { // is a '-' operation
-        final String setOperation = printer.print(astExpr.getLeft().get()) + " + " + printer.print(astExpr.getRight().get());
-        return nestmlParser.parseExpr(new StringReader(setOperation)).get();
-      }
-
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot parse computed inverse expression. Should not happen by constructions.");
-    }
-
-  }
-
 
   /**
    * Collects all neuron ASTs from every model root

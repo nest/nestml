@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
+import org.nest.codegeneration.helpers.AliasInverter;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
@@ -22,6 +23,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static org.nest.codegeneration.helpers.AliasInverter.isInvertableExpression;
 import static org.nest.utils.ASTUtils.printComment;
 
 /**
@@ -298,7 +300,7 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   public List<ASTOutput> getOutputs() {
-    List<ASTOutput> result = this.getBodyElements().stream()
+    final List<ASTOutput> result = this.getBodyElements().stream()
         .filter(be -> be instanceof ASTOutput)
         .map(be -> (ASTOutput) be)
         .collect(Collectors.toList());
@@ -307,7 +309,7 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   public List<ASTStructureLine> getStructure() {
-    List<ASTStructureLine> result = new ArrayList<ASTStructureLine>();
+    final List<ASTStructureLine> result = new ArrayList<ASTStructureLine>();
 
     for (ASTBodyElement be : this.getBodyElements()) {
       if (be instanceof ASTStructure) {
@@ -321,5 +323,19 @@ public class ASTBody extends ASTBodyTOP {
     return ImmutableList.copyOf(result);
   }
 
+  public List<VariableSymbol> getAllOffsetVariables() {
+    final List<VariableSymbol> aliases = Lists.newArrayList();
+    aliases.addAll(getParameterAliasSymbols());
+    aliases.addAll(getStateAliasSymbols());
+    final List<VariableSymbol> invertableAliases = aliases.stream()
+        .filter(variable -> isInvertableExpression(variable.getDeclaringExpression().get()))
+        .collect(Collectors.toList());
+
+    final List<VariableSymbol> offsets = invertableAliases.stream()
+        .map(alias -> AliasInverter.offsetVariable(alias.getDeclaringExpression().get()))
+        .collect(Collectors.toList());
+
+    return offsets;
+  }
 
 }

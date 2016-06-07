@@ -8,6 +8,7 @@ package org.nest.codegeneration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nest.base.GenerationBasedTest;
+import org.nest.codegeneration.helpers.AliasInverter;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -69,32 +70,5 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     generator.generateNESTModuleCode(newArrayList(root), "cond", outputFolder);
   }
 
-  @Test
-  public void testComputationOfInverseFunction() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE);
-    scopeCreator.runSymbolTableCreator(root);
-
-    VariableSymbol v_alias = root.getNeurons().get(0)
-        .getBody()
-        .getParameterSymbols()
-        .stream()
-        .filter(varialbe -> varialbe.getName().equals("tau_syn_in"))
-        .findAny()
-        .get();
-    Assert.assertFalse(ASTUtils.isInvertableExpression(v_alias.getDeclaringExpression().get()));
-
-    VariableSymbol v_m_alias = root.getNeurons().get(0)
-        .getBody()
-        .getStateAliasSymbols()
-        .stream()
-        .filter(alias -> alias.getName().equals("V_m"))
-        .findAny()
-        .get();
-
-    Assert.assertTrue(ASTUtils.isInvertableExpression(v_m_alias.getDeclaringExpression().get()));
-
-    final ASTExpr invesedExpression = ASTUtils.inverse(v_m_alias.getDeclaringExpression().get());
-    System.out.printf("");
-  }
 
 }

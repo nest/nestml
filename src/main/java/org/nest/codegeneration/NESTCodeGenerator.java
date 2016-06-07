@@ -304,7 +304,8 @@ public class NESTCodeGenerator {
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
     glex.setGlobalValue("nestmlSymbols", new NESTMLSymbols());
-    glex.setGlobalValue("astNodes", new ASTUtils());
+    glex.setGlobalValue("astUtils", new ASTUtils());
+    glex.setGlobalValue("aliasInverter", new AliasInverter());
 
   }
 

@@ -101,7 +101,11 @@ ${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
 }
 
 void
-${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
+${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d
+<#list body.getAllOffsetVariables() as offset>
+  , ${declarations.printVariableType(offset)} delta_${offset.getName()}
+</#list>
+)
 {
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::set(d);
@@ -126,12 +130,16 @@ ${simpleNeuronName}::State_::get(DictionaryDatum &d) const
 }
 
 void
-${simpleNeuronName}::State_::set(const DictionaryDatum& d)
+${simpleNeuronName}::State_::set(const DictionaryDatum& d, const Parameters_& p
+<#list body.getAllOffsetVariables() as offset>
+  , ${declarations.printVariableType(offset)} delta_${offset.getName()}
+</#list>
+)
 {
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::State_::set(d);
   </#if>
-  <#list body.getStateNonAliasSymbols() as state>
+  <#list body.getStateSymbols() as state>
   ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [state])}
   </#list>
 }

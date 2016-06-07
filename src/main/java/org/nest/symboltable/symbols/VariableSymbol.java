@@ -22,19 +22,11 @@ import static org.nest.utils.NESTMLSymbols.isSetterPresent;
  * @author plotnikov
  */
 public class VariableSymbol extends CommonSymbol {
-  public enum BlockType {
-    STATE,
-    PARAMETER,
-    INTERNAL,
-    LOCAL,
-    INPUT_BUFFER_CURRENT,
-    INPUT_BUFFER_SPIKE,
-    OUTPUT
-  }
+
 
   public static final VariableSymbolKind KIND = new VariableSymbolKind();
 
-  private Optional<ASTExpr> declaringExpression = Optional.empty();
+  private ASTExpr declaringExpression = null;
 
   private TypeSymbol type;
 
@@ -65,7 +57,7 @@ public class VariableSymbol extends CommonSymbol {
   public void setDeclaringExpression(final ASTExpr declaringExpression) {
     Objects.requireNonNull(declaringExpression);
 
-    this.declaringExpression = Optional.of(declaringExpression);
+    this.declaringExpression = declaringExpression;
   }
 
   public VariableSymbol(String name) {
@@ -74,7 +66,7 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public Optional<ASTExpr> getDeclaringExpression() {
-    return declaringExpression;
+    return Optional.ofNullable(declaringExpression);
   }
 
   public Optional<String> getVectorParameter() {
@@ -156,8 +148,7 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public static Optional<VariableSymbol> resolveIfExists(final String variableName, final Scope scope) {
-    final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);
-    return variableSymbol;
+    return scope.resolve(variableName, VariableSymbol.KIND);
   }
 
   /**
@@ -169,4 +160,15 @@ public class VariableSymbol extends CommonSymbol {
     }
 
   }
+
+  public enum BlockType {
+    STATE,
+    PARAMETER,
+    INTERNAL,
+    LOCAL,
+    INPUT_BUFFER_CURRENT,
+    INPUT_BUFFER_SPIKE,
+    OUTPUT
+  }
+
 }
