@@ -18,7 +18,7 @@ ${signature("variable")}
   <#assign offset = aliasInverter.offsetVariable(variable.getDeclaringExpression().get()).getName()>
   <#assign inverseOperation = aliasInverter.inverseOperation(variable.getDeclaringExpression().get())>
 
-  <#if baseVariable.isInState()>
+  <#if baseVariable.isState()>
     if ( updateValue< double >( d, "${variable.getName()}", ${base} ) ) {
       ${base} ${inverseOperation}= p.${offset};
     }

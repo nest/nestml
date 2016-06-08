@@ -10,6 +10,7 @@
   @param tc templatecontroller
 -->
 ${signature("variable")}
+
 <#if variable.getDeclaringExpression().isPresent()>
   <#if variable.isVector()>
     ${variable.getName()}.resize(${variable.getVectorParameter().get()}, ${printerWithGetters.print(variable.getDeclaringExpression().get())});

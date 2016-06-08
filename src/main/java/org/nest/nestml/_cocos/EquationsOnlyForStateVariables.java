@@ -30,7 +30,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
     final Scope scope = astEq.getEnclosingScope().get();
     final Optional<VariableSymbol> variableSymbol = scope.resolve(astEq.getLhs().toString(), VariableSymbol.KIND);
     if (variableSymbol.isPresent()) {
-      if (!variableSymbol.get().isInState()) {
+      if (!variableSymbol.get().isState()) {
         final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());
 
         Log.error(msg, astEq.get_SourcePositionStart());

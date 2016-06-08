@@ -201,6 +201,10 @@ protected:
     <#list body.getParameterNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
+
+    <#list body.getAllRelativeParameters() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
+    </#list>
     /** Initialize parameters to their default values. */
     Parameters_();
 
@@ -421,7 +425,7 @@ void ${simpleNeuronName}::get_status(DictionaryDatum &d) const
   ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
   </#list>
   S_.get(d);
-  <#list body.getStateAliasSymbols() as state>
+  <#list body.getStateSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
   </#list>
 

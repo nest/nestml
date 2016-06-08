@@ -75,6 +75,9 @@ ${simpleNeuronName}::Parameters_::Parameters_()
 <#list body.getParameterNonAliasSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
 </#list>
+<#list body.getAllRelativeParameters() as parameter>
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
+</#list>
 }
 
 ${simpleNeuronName}::State_::State_()

@@ -108,7 +108,11 @@ public class VariableSymbol extends CommonSymbol {
     return getVectorParameter().isPresent();
   }
 
-  public boolean isInState() {
+  public boolean isState() {
+    return blockType == BlockType.STATE;
+  }
+
+  public boolean isParameter() {
     return blockType == BlockType.STATE;
   }
 
