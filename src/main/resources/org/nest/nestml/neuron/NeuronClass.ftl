@@ -75,6 +75,7 @@ ${simpleNeuronName}::Parameters_::Parameters_()
 <#list body.getParameterNonAliasSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
 </#list>
+
 <#list body.getAllRelativeParameters() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
 </#list>
@@ -108,7 +109,7 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::set(d);
   </#if>
-  <#list body.getParameterNonAliasSymbols() as parameter>
+  <#list body.getParameterSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
   </#list>
 

@@ -71,7 +71,19 @@ public class AliasInverter {
     return !isAtomicOperands;
   }
 
-  public static String inverseOperation(final ASTExpr astExpr) {
+  public static String operator(final ASTExpr astExpr) {
+    checkArgument(astExpr.isPlusOp() || astExpr.isMinusOp());
+
+    if (astExpr.isPlusOp()) {
+      return "+";
+    }
+    else {
+      return "-";
+    }
+
+  }
+
+  public static String inverseOperator(final ASTExpr astExpr) {
     checkArgument(astExpr.isPlusOp() || astExpr.isMinusOp());
 
     if (astExpr.isPlusOp()) {

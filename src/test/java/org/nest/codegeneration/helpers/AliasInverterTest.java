@@ -48,7 +48,7 @@ public class AliasInverterTest extends GenerationBasedTest {
 
     Assert.assertTrue(AliasInverter.isInvertableExpression(v_m_alias.getDeclaringExpression().get()));
 
-    final String inversedOperation = AliasInverter.inverseOperation(v_m_alias.getDeclaringExpression().get());
+    final String inversedOperation = AliasInverter.inverseOperator(v_m_alias.getDeclaringExpression().get());
     assertEquals("-", inversedOperation);
 
 
@@ -82,7 +82,7 @@ public class AliasInverterTest extends GenerationBasedTest {
 
     Assert.assertTrue(AliasInverter.isRelativeExpression(v_reset.getDeclaringExpression().get()));
 
-    final String inversedOperation = AliasInverter.inverseOperation(v_reset.getDeclaringExpression().get());
+    final String inversedOperation = AliasInverter.inverseOperator(v_reset.getDeclaringExpression().get());
     assertEquals("+", inversedOperation);
 
     final List<VariableSymbol> offests = root.getNeurons().get(0)
