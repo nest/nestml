@@ -58,4 +58,37 @@ public class AliasInverterTest extends GenerationBasedTest {
     assertTrue(offests.size() == 1);
   }
 
+  @Test
+  public void testRelativeDefinition() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE);
+    scopeCreator.runSymbolTableCreator(root);
+
+    VariableSymbol v_alias = root.getNeurons().get(0)
+        .getBody()
+        .getStateSymbols()
+        .stream()
+        .filter(varialbe -> varialbe.getName().equals("V_m"))
+        .findAny()
+        .get();
+    Assert.assertFalse(AliasInverter.isRelativeExpression(v_alias.getDeclaringExpression().get()));
+
+    VariableSymbol v_reset = root.getNeurons().get(0)
+        .getBody()
+        .getParameterSymbols()
+        .stream()
+        .filter(alias -> alias.getName().equals("V_reset"))
+        .findAny()
+        .get();
+
+    Assert.assertTrue(AliasInverter.isRelativeExpression(v_reset.getDeclaringExpression().get()));
+
+    final String inversedOperation = AliasInverter.inverseOperation(v_reset.getDeclaringExpression().get());
+    assertEquals("+", inversedOperation);
+
+    final List<VariableSymbol> offests = root.getNeurons().get(0)
+        .getBody()
+        .getAllOffsetVariables();
+    assertTrue(offests.size() == 1);
+  }
+
 }

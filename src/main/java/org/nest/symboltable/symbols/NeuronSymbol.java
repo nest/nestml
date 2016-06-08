@@ -52,7 +52,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   public List<VariableSymbol> getStateVariables() {
     return getSpannedScope().<VariableSymbol> resolveLocally(VariableSymbol.KIND)
         .stream()
-        .filter(VariableSymbol::isInState)
+        .filter(VariableSymbol::isState)
         .collect(toList());
   }
 

@@ -19,11 +19,13 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.helpers.AliasInverter.isInvertableExpression;
+import static org.nest.codegeneration.helpers.AliasInverter.isRelativeExpression;
 import static org.nest.utils.ASTUtils.printComment;
 
 /**
@@ -323,19 +325,32 @@ public class ASTBody extends ASTBodyTOP {
     return ImmutableList.copyOf(result);
   }
 
+  /**
+   * TODO It is very NEST related. Factor it out
+   * @return
+   */
   public List<VariableSymbol> getAllOffsetVariables() {
     final List<VariableSymbol> aliases = Lists.newArrayList();
     aliases.addAll(getParameterAliasSymbols());
     aliases.addAll(getStateAliasSymbols());
+
     final List<VariableSymbol> invertableAliases = aliases.stream()
-        .filter(variable -> isInvertableExpression(variable.getDeclaringExpression().get()))
+        .filter(variable -> isInvertableExpression(variable.getDeclaringExpression().get()) ||
+               variable.isParameter() && isRelativeExpression(variable.getDeclaringExpression().get()))
         .collect(Collectors.toList());
 
-    final List<VariableSymbol> offsets = invertableAliases.stream()
+    // Use sets to filter double variables, e.g. a variable that is used twice on the right side
+    final Set<VariableSymbol> offsets = invertableAliases.stream()
         .map(alias -> AliasInverter.offsetVariable(alias.getDeclaringExpression().get()))
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
 
-    return offsets;
+    return Lists.newArrayList(offsets);
+  }
+
+  public List<VariableSymbol> getAllRelativeParameters() {
+    return  getParameterAliasSymbols().stream()
+        .filter(variable -> isRelativeExpression(variable.getDeclaringExpression().get()))
+        .collect(Collectors.toList());
   }
 
 }
