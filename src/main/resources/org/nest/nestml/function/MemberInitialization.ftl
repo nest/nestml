@@ -21,6 +21,6 @@ ${signature("variable")}
   <#if !variable.isVector()>
     ${variable.getName()} = 0;
   <#else>
-    ${variable.getName()}.resize(${variable.getVectorParameter().get()}, 0);
+    ${variable.getName()}.resize(0);
   </#if>
 </#if>

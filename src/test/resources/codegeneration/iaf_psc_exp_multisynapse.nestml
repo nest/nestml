@@ -6,10 +6,6 @@ neuron iaf_psc_exp_multisynapse_nestml:
     alias V_m mV = V + E_L # Membrane potential.
   end
 
-  function set_V_m(V_m mV):
-    V = V_m - E_L
-  end
-
   equations:
       I_shape = exp(-1/tau_syn*t)
       V' = -1/Tau * V + 1/C_m * (I_sum(I_shape, spikes) + I_e + currents)
