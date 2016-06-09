@@ -20,7 +20,7 @@ neuron iaf_psc_delta_nestml:
     I_e     pA = 0       # External current.
     alias V_reset mV = -70 - E_L
     alias Theta   mV = -55 - E_L
-    V_min = -inf
+    V_min mV = -inf
   end
 
   internal:
