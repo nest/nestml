@@ -15,31 +15,29 @@ neuron mat2_psc_exp_nestml:
     # V_th_alpha_1' = -V_th_alpha_1/tau_1
     # V_th_alpha_2' = -V_th_alpha_2/tau_2
 
-    V' = -1/Tau * V + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+    V' = -1/tau_m * V + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
   end
 
   parameter:
-    Tau     ms = 5    # Membrane time constant.
-    C_m          pF = 100.0pF # Capacity of the membrane in pF
-    E_L          mV = - 70.0mV # Resting potential in mV
-    tau_m        ms # Membrane time constant in ms
-    tau_syn_ex   ms # Time constant of postsynaptic excitatory currents in ms
-    tau_syn_in   ms # Time constant of postsynaptic inhibitory currents in ms
-    t_ref        ms # Duration of absolute refractory period (no spiking) in ms
-    I_e          pA # Constant input current in pA
-    t_spike      ms # Point in time of last spike in ms
-    tau_1        ms # Short time constant of adaptive threshold in ms
-    tau_2        ms # Long time constant of adaptive threshold in ms
-    alpha_1      mV # Amplitude of short time threshold adaption in mV [3]
-    alpha_2      mV # Amplitude of long time threshold adaption in mV [3]
-    omega        mV # Resting spike threshold in mV (absolute value, not relative to E_L)
+    tau_m        ms =     5ms  # Membrane time constant in ms
+    C_m          pF =   100pF  # Capacity of the membrane in pF
+    t_ref        ms =     2ms  # Duration of absolute refractory period (no spiking) in ms
+    E_L          mV = -70.0mV  # Resting potential in mV
+    I_e          pA =     0pA  # Constant input current in pA
+    tau_syn_ex   ms =     1ms  # Time constant of postsynaptic excitatory currents in ms
+    tau_syn_in   ms =     3ms  # Time constant of postsynaptic inhibitory currents in ms
+    tau_1        ms =    10ms  # Short time constant of adaptive threshold in ms
+    tau_2        ms =   200ms  # Long time constant of adaptive threshold in ms
+    alpha_1      mV =  37.0ms  # Amplitude of short time threshold adaption in mV [3]
+    alpha_2      mV =   2.0ms  # Amplitude of long time threshold adaption in mV [3]
+    omega        mV =   19.0ms # Resting spike threshold in mV (absolute value, not relative to E_L)
   end
 
   internal:
     r integer
-    h integer
-    P11th real = exp( -h / tau_1 )
-    P22th real = exp( -h / tau_2 )
+    h_new ms = resolution()
+    P11th real = exp( -h_new / tau_1 )
+    P22th real = exp( -h_new / tau_2 )
     RefractoryCounts integer = steps(t_ref)
   end
 
@@ -53,8 +51,8 @@ neuron mat2_psc_exp_nestml:
 
   update:
     integrate(V)
-    integrate(V_th_alpha_1)
-    integrate(V_th_alpha_2)
+    #integrate(V_th_alpha_1)
+    #integrate(V_th_alpha_2)
 
     V_th_alpha_1 *= P11th
     V_th_alpha_2 *= P22th
