@@ -8,18 +8,19 @@ neuron iaf_psc_delta_nestml:
 
   equations:
     G = delta(t, tau_syn)
-    V' = -1/Tau * V + 1/C_m * (I_sum(G, in_spikes) + I_e + currents)
+    V' = -1/tau_m * V + 1/C_m * (I_sum(G, in_spikes) + I_e + currents)
   end
 
   parameter:
-    C_m     pF = 250   # Capacity of the membrane
-    Tau     ms = 10    # Membrane time constant.
-    tau_syn ms = 2     # Time constant of synaptic current.
-    t_ref   ms = 2     # Refractory period.
-    E_L     mV = -70  # Resting potential.
+    tau_m     ms = 10    # Membrane time constant.
+    C_m     pF = 250     # Capacity of the membrane
+    t_ref   ms = 2       # Refractory period.
+    tau_syn ms = 2       # Time constant of synaptic current.
+    E_L     mV = -70     # Resting potential.
+    I_e     pA = 0       # External current.
     alias V_reset mV = -70 - E_L
     alias Theta   mV = -55 - E_L
-    I_e     pA = 0     # External current.
+    V_min mV = -inf
   end
 
   internal:
