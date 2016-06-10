@@ -341,4 +341,40 @@ public final class ASTUtils {
     return typeName;
   }
 
+  public static Optional<ASTFunctionCall> getFunctionCall(final String functionName, final ASTNESTMLNode node) {
+    final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector(functionName);
+    odeCollector.startVisitor(node);
+    return odeCollector.getFunctionCall();
+  }
+  /**
+   * Integrate function give the connection between a buffer and shape. Therefore, it is needed to generate
+   * correct update with the PSCInitialValues.
+   */
+  private static class IntegrateFunctionCollector implements NESTMLInheritanceVisitor {
+    private final String functionName;
+
+    // Initialized by null and set to the actual value
+    private ASTFunctionCall foundOde = null;
+
+    private IntegrateFunctionCollector(String functionName) {
+      this.functionName = functionName;
+    }
+
+    void startVisitor(ASTNESTMLNode node) {
+      node.accept(this);
+    }
+
+    @Override
+    public void visit(final ASTFunctionCall astFunctionCall) {
+      // TODO actually works only for the first ode
+      if (astFunctionCall.getCalleeName().equals(functionName)) {
+        foundOde = astFunctionCall;
+      }
+    }
+
+    Optional<ASTFunctionCall> getFunctionCall() {
+      return Optional.ofNullable(foundOde);
+    }
+
+  }
 }

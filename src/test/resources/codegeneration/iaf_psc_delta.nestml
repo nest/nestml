@@ -7,7 +7,7 @@ neuron iaf_psc_delta_nestml:
   end
 
   equations:
-    G = delta(t, tau_syn)
+    G = delta(t, tau_m)
     V' = -1/tau_m * V + 1/C_m * (I_sum(G, in_spikes) + I_e + currents)
   end
 

@@ -42,6 +42,10 @@ public class ODEProcessor {
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
     if (astBody.getEquations().isPresent()) {
+      
+      if () {
+
+      }
       return handleNeuronWithODE(astNeuron, outputBase);
     }
     else {
