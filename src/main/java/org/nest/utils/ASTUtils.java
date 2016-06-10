@@ -346,6 +346,12 @@ public final class ASTUtils {
     odeCollector.startVisitor(node);
     return odeCollector.getFunctionCall();
   }
+
+  public static Optional<ASTFunctionCall> getFunctionCall(final String functionName, final ASTODENode node) {
+    final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector(functionName);
+    odeCollector.startVisitor(node);
+    return odeCollector.getFunctionCall();
+  }
   /**
    * Integrate function give the connection between a buffer and shape. Therefore, it is needed to generate
    * correct update with the PSCInitialValues.
@@ -361,6 +367,10 @@ public final class ASTUtils {
     }
 
     void startVisitor(ASTNESTMLNode node) {
+      node.accept(this);
+    }
+
+    void startVisitor(ASTODENode node) {
       node.accept(this);
     }
 

@@ -2,17 +2,17 @@ neuron iaf_psc_delta_nestml:
 
   state:
     V mV
-    G, G_in, G_ex real
+    G real
     alias V_m mV = V + E_L # Membrane potential.
   end
 
   equations:
     G = delta(t, tau_m)
-    V' = -1/tau_m * V + 1/C_m * (I_sum(G, in_spikes) + I_e + currents)
+    V' = -1/tau_m * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 
   parameter:
-    tau_m     ms = 10    # Membrane time constant.
+    tau_m   ms = 10    # Membrane time constant.
     C_m     pF = 250     # Capacity of the membrane
     t_ref   ms = 2       # Refractory period.
     tau_syn ms = 2       # Time constant of synaptic current.
@@ -29,9 +29,8 @@ neuron iaf_psc_delta_nestml:
   end
 
   input:
-    ex_spikes   <- excitatory spike
-    in_spikes   <- inhibitory spike
-    currents    <- current
+    spikes   <- spike
+    currents <- current
   end
 
   output: spike
