@@ -7,8 +7,11 @@ package org.nest.codegeneration.sympy;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.SolverType;
+import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.utils.ASTUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,7 +45,13 @@ public class ODEProcessor {
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
     if (astBody.getEquations().isPresent()) {
-      return handleNeuronWithODE(astNeuron, outputBase);
+      final Optional<ASTFunctionCall> deltaShape = ASTUtils.getFunctionCall(PredefinedFunctions.DELTA, astBody.getEquations().get());
+      if (deltaShape.isPresent()) {
+        return handleDeltaShape(astNeuron, outputBase);
+      }
+      else {
+        return handleNeuronWithODE(astNeuron, outputBase);
+      }
     }
     else {
       final String msg = "The neuron: " + astNeuron.getName() + " doesn't contain ODE. "
@@ -51,6 +60,10 @@ public class ODEProcessor {
       return astNeuron;
     }
 
+  }
+
+  private ASTNeuron handleDeltaShape(final ASTNeuron astNeuron, final Path outputBase) {
+    return null;
   }
 
   protected ASTNeuron handleNeuronWithODE(

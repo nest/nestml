@@ -33,7 +33,7 @@ import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyOD
  */
 public class SympyScriptGeneratorTest extends ModelbasedTest {
   private static final String PATH_TO_PSC_MODEL
-      = "src/test/resources/codegeneration/iaf_neuron.nestml";
+      = "src/test/resources/codegeneration/iaf_psc_delta.nestml";
   private static final String PATH_TO_COND_MODEL
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
   private static final String PATH_TO_COND_IMPLICIT_MODEL

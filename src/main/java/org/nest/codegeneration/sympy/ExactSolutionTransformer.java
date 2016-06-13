@@ -335,27 +335,31 @@ public class ExactSolutionTransformer {
   ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, final Path updateStepFile) {
 
     final ASTBody astBodyDecorator = astNeuron.getBody();
-    final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector();
+
 
     try {
       final List<ASTSmall_Stmt> propagatorSteps = Files.lines(updateStepFile)
           .map(NESTMLASTCreator::createAssignment)
-          .map(this::convertToSmallStatement)
+          .map(this::smallStatement)
           .collect(toList());
-      odeCollector.startVisitor(astBodyDecorator.getDynamics().get(0));
 
-      if (odeCollector.getFoundOde().isPresent()) {
-        final Optional<ASTNode> smallStatement = ASTUtils.getParent(odeCollector.getFoundOde().get(), astNeuron);
+      // It must work for multiple integrate calls!
+      final Optional<ASTFunctionCall> integrateCall = ASTUtils.getFunctionCall(
+          PredefinedFunctions.INTEGRATE,
+          astBodyDecorator.getDynamics().get(0));
+
+      if (integrateCall.isPresent()) {
+        final Optional<ASTNode> smallStatement = ASTUtils.getParent(integrateCall.get(), astNeuron);
         checkState(smallStatement.isPresent());
         checkState(smallStatement.get() instanceof ASTSmall_Stmt);
-        final ASTSmall_Stmt integrateCall = (ASTSmall_Stmt) smallStatement.get();
+        final ASTSmall_Stmt integrateCallStatement = (ASTSmall_Stmt) smallStatement.get();
 
         final Optional<ASTNode> simpleStatement = ASTUtils.getParent(smallStatement.get(), astNeuron);
         checkState(simpleStatement.isPresent());
         checkState(simpleStatement.get() instanceof ASTSimple_Stmt);
         final ASTSimple_Stmt astSimpleStatement = (ASTSimple_Stmt) simpleStatement.get();
-        int integrateFunction = astSimpleStatement.getSmall_Stmts().indexOf(integrateCall);
-        astSimpleStatement.getSmall_Stmts().remove(integrateCall);
+        int integrateFunction = astSimpleStatement.getSmall_Stmts().indexOf(integrateCallStatement);
+        astSimpleStatement.getSmall_Stmts().remove(integrateCallStatement);
         astSimpleStatement.getSmall_Stmts().addAll(integrateFunction, propagatorSteps);
 
         return astNeuron;
@@ -364,42 +368,16 @@ public class ExactSolutionTransformer {
         return astNeuron;
       }
     } catch (IOException e) {
-      final String msg = "Cannot parse assignment statement.";
-      throw new RuntimeException(msg, e);
+      throw new RuntimeException("Cannot parse assignment statement.", e);
     }
 
   }
 
-  private ASTSmall_Stmt convertToSmallStatement(final ASTAssignment astAssignment) {
+  private ASTSmall_Stmt smallStatement(final ASTAssignment astAssignment) {
     final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
     astSmall_stmt.setAssignment(astAssignment);
     return astSmall_stmt;
   }
 
-  /**
-   * Integrate function give the connection between a buffer and shape. Therefore, it is needed to generate
-   * correct update with the PSCInitialValues.
-   */
-  private class IntegrateFunctionCollector implements NESTMLInheritanceVisitor {
-    // Initialized by null and set to the actual value
-    private ASTFunctionCall foundOde = null;
-
-    void startVisitor(ASTNESTMLNode node) {
-      node.accept(this);
-    }
-
-    @Override
-    public void visit(final ASTFunctionCall astFunctionCall) {
-      // TODO actually works only for the first ode
-      if (astFunctionCall.getCalleeName().equals("integrate")) {
-        foundOde = astFunctionCall;
-      }
-    }
-
-    Optional<ASTFunctionCall> getFoundOde() {
-      return Optional.ofNullable(foundOde);
-    }
-
-  }
 
 }

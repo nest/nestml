@@ -35,7 +35,7 @@ public class PredefinedFunctions {
   private static final String RANDOM = "random";
   private static final String RANDOM_INT = "randomInt";
   private static final String EXPM1 = "expm1";
-  private static final String DELTA = "delta";
+  public static final String DELTA = "delta";
   private static final String MAX = "max";
   public static final String INTEGRATE = "integrate";
   public static final String I_SUM = "I_sum";
