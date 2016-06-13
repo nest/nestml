@@ -119,7 +119,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     generateNESTModuleCode(roots);
   }
 
-
   @Ignore
   @Test
   public void testCondImplicitForm() {
