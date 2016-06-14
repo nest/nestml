@@ -29,7 +29,7 @@ public class NESTMLASTCreatorTest {
 
   @Test
   public void testConvertToDeclaration() throws Exception {
-    final ASTAliasDecl testant = converter.convertToAliases(Paths.get(P30_FILE)).get(0);
+    final ASTAliasDecl testant = converter.createAliases(Paths.get(P30_FILE)).get(0);
     assertEquals(testant.getDeclaration().getVars().get(0), P_30);
     assertTrue(testant.getDeclaration().getExpr().isPresent());
 

@@ -33,6 +33,8 @@ import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyOD
  */
 public class SympyScriptGeneratorTest extends ModelbasedTest {
   private static final String PATH_TO_PSC_MODEL
+      = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
+  private static final String PATH_TO_PSC_DELTA_MODEL
       = "src/test/resources/codegeneration/iaf_psc_delta.nestml";
   private static final String PATH_TO_COND_MODEL
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
@@ -45,6 +47,11 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
   @Test
   public void generateSymPySolverForPSCModel() throws IOException {
     generateAndCheck(PATH_TO_PSC_MODEL);
+  }
+
+  @Test
+  public void generateSymPySolverForDeltaModel() throws IOException {
+    generateAndCheck(PATH_TO_PSC_DELTA_MODEL);
   }
 
   @Test

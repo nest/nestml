@@ -1,7 +1,7 @@
 from sympy import *
 from sympy.matrices import zeros
 
-__a__, h = symbols('__a__ h')
+__a__, __h__ = symbols('__a__ __h__')
 <#compress>
     <#list variables as variable> ${variable.getName()} , </#list> = symbols('<#list variables as variable> ${variable.getName()} </#list>')
 </#compress>
@@ -126,7 +126,7 @@ if dev_t_dev${ode.getLhs()} == 0:
         print("A Matrix:")
         print(str(simplify(A)))
         print("Begins long running computation of the propagatormatrix.")
-        Ps[shape_index] = simplify(exp(A * h))
+        Ps[shape_index] = simplify(exp(A * __h__))
         print "Computed propagatormatrix is:"
         print Ps[shape_index]
 
@@ -171,11 +171,11 @@ if dev_t_dev${ode.getLhs()} == 0:
                     simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
 
     f = open('P30.tmp', 'w')
-    f.write("P30 real = " + str(simplify(c2 / c1 * (exp(h * c1) - 1))) + "# P00 expression")
+    f.write("P30 real = " + str(simplify(c2 / c1 * (exp(__h__ * c1) - 1))) + "# P00 expression")
 
     updateStep = open('propagator.step.tmp', 'w')
     # the result matrix of matrix with 1 element. therefore, take it by [] operator
-    updateStep.write("V = P30 * (" + str(constantInputs) + ") + " + str(
+    updateStep.write("${ode.getLhs()} = P30 * (" + str(constantInputs) + ") + " + str(
         (Ps[0][orders[0], orders[0]] * stateVectors.col(0)[orders[0]])) + "\n")
 
     propagatorMatrixFile = open('propagator.matrix.tmp', 'w')

@@ -30,9 +30,9 @@ public class ExpressionFolderTest extends ModelbasedTest {
 
   private static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
   private final static Path STATE_VARIABLES_FILE = Paths.get("src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.STATE_VARIABLES_FILE);
+      LinearSolutionTransformer.STATE_VARIABLES_FILE);
   private final static Path STATE_UPDATE_STEPS_FILE = Paths.get("src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.STATE_VECTOR_UPDATE_STEPS_FILE);
+      LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE);
 
   @Test
   public void testExpressionFolding() throws IOException {
