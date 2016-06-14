@@ -25,51 +25,51 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plonikov
  */
-public class ExactSolutionTransformerTest extends ModelbasedTest {
+public class LinearSolutionTransformerTest extends ModelbasedTest {
 
   private static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
   private final static Path P30_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.P30_FILE);
+      LinearSolutionTransformer.P30_FILE);
 
   private final static Path PSC_INITIAL_VALUE_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE);
+      LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE);
 
   private final static Path STATE_VARIABLES_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.STATE_VARIABLES_FILE);
+      LinearSolutionTransformer.STATE_VARIABLES_FILE);
 
   private final static Path PROPAGATPR_MATRIX_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.PROPAGATOR_MATRIX_FILE);
+      LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE);
 
   private final static Path PROPAGATPR_STEP_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.PROPAGATOR_STEP_FILE);
+      LinearSolutionTransformer.PROPAGATOR_STEP_FILE);
 
   private final static Path STATE_VECTOR_TMP_DECLARATIONS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.STATE_VECTOR_TMP_DECLARATIONS_FILE);
+      LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE);
 
   private final static Path STATE_UPDATE_STEPS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.STATE_VECTOR_UPDATE_STEPS_FILE);
+      LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE);
 
   private final static Path STATE_VECTOR_BACK_ASSIGNMENTS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      SymPyScriptEvaluator.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE);
+      LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE);
 
   private static final String NEURON_NAME = "iaf_psc_alpha_nestml";
   private static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
 
   @Test
   public void testExactSolutionTransformation() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    exactSolutionTransformer.addExactSolution(
+    linearSolutionTransformer.addExactSolution(
         modelRoot.getNeurons().get(0),
         P30_FILE,
         PSC_INITIAL_VALUE_FILE,
@@ -107,10 +107,10 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
   @Test
   public void testAddingP00Value() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    exactSolutionTransformer.addP30(modelRoot.getNeurons().get(0), P30_FILE);
+    linearSolutionTransformer.addAliasToInternals(modelRoot.getNeurons().get(0), P30_FILE);
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
@@ -129,10 +129,10 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
   @Test
   public void testReplaceODEThroughMatrixMultiplication() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    exactSolutionTransformer.replaceODEPropagationStep(
+    linearSolutionTransformer.replaceODEPropagationStep(
         modelRoot.getNeurons().get(0),
         PROPAGATPR_STEP_FILE);
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
@@ -142,10 +142,10 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
   @Test
   public void testAddingPSCInitialValue() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseAndBuildSymboltable(MODEL_FILE_PATH);
-    exactSolutionTransformer.addDeclarationsInternalBlock(
+    linearSolutionTransformer.addDeclarationsInternalBlock(
         modelRoot.getNeurons().get(0),
         PSC_INITIAL_VALUE_FILE);
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
@@ -164,11 +164,11 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
   @Test
   public void testAddingStateVariables() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
 
-    exactSolutionTransformer.addStateVariables(STATE_VARIABLES_FILE, modelRoot.getNeurons().get(0));
+    linearSolutionTransformer.addStateVariables(STATE_VARIABLES_FILE, modelRoot.getNeurons().get(0));
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 

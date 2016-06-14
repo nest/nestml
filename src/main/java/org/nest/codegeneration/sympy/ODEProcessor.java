@@ -11,7 +11,6 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.utils.ASTUtils;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,7 +19,9 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.warn;
+import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateODEAnalyserForDeltaShape;
 import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyODEAnalyzer;
+import static org.nest.utils.ASTUtils.getFunctionCall;
 
 /**
  * Analyzes a neuron for defined ODE. If an ode is defined, it produces a temporary NESTML model
@@ -31,7 +32,8 @@ import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyOD
 public class ODEProcessor {
   private final String LOG_NAME = ODEProcessor.class.getName();
 
-  private final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
+  private final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
+  private final DeltaSolutionTransformer deltaSolutionTransformer = new DeltaSolutionTransformer();
 
   /**
    * Dependent of the ODE kind either computes the exact solution or brings to the form which can
@@ -45,13 +47,17 @@ public class ODEProcessor {
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
     if (astBody.getEquations().isPresent()) {
-      final Optional<ASTFunctionCall> deltaShape = ASTUtils.getFunctionCall(PredefinedFunctions.DELTA, astBody.getEquations().get());
+      final Optional<ASTFunctionCall> deltaShape = getFunctionCall(
+          PredefinedFunctions.DELTA,
+          astBody.getEquations().get());
+
       if (deltaShape.isPresent()) {
         return handleDeltaShape(astNeuron, outputBase);
       }
       else {
         return handleNeuronWithODE(astNeuron, outputBase);
       }
+
     }
     else {
       final String msg = "The neuron: " + astNeuron.getName() + " doesn't contain ODE. "
@@ -63,7 +69,34 @@ public class ODEProcessor {
   }
 
   private ASTNeuron handleDeltaShape(final ASTNeuron astNeuron, final Path outputBase) {
-    return null;
+    final Optional<Path> generatedScript = generateODEAnalyserForDeltaShape(astNeuron.deepClone(), outputBase);
+    if(generatedScript.isPresent()) {
+      info("The solver script is generated: " + generatedScript.get(), LOG_NAME);
+
+      final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
+      boolean successfulExecution = evaluator.evaluateScript(generatedScript.get());
+      info("The solver script is evaluated. Results are under " + generatedScript.get().getParent(), LOG_NAME);
+
+      checkState(successfulExecution, "Error during solver script evaluation.");
+
+      final Path odeTypePath = Paths.get(outputBase.toString(), DeltaSolutionTransformer.ODE_TYPE);
+      final SolverType solutionType = SolverType.fromFile(odeTypePath);
+
+      if (solutionType.equals(SolverType.EXACT)) {
+        Log.info(
+            astNeuron.getName() + " has a delta shape function with a linear ODE. It will be solved exactly.",
+            LOG_NAME);
+        deltaSolutionTransformer.addExactSolution(
+            astNeuron,
+            Paths.get(outputBase.toString(), DeltaSolutionTransformer.P30_FILE),
+            Paths.get(outputBase.toString(), DeltaSolutionTransformer.PROPAGATOR_STEP));
+      }
+      else {
+        Log.warn(astNeuron.getName() + " has a delta shape function with a non-linear ODE.");
+      }
+    }
+
+    return astNeuron;
   }
 
   protected ASTNeuron handleNeuronWithODE(
@@ -75,27 +108,27 @@ public class ODEProcessor {
 
       final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
       boolean successfulExecution = evaluator.evaluateScript(generatedScript.get());
-      info("The solver script is evaluated. Results are under " + generatedScript.get().getParent(), LOG_NAME);
+      info("The solver script is evaluated. Results are stored under " + generatedScript.get().getParent(), LOG_NAME);
 
       checkState(successfulExecution, "Error during solver script evaluation.");
 
-      final Path odeTypePath = Paths.get(outputBase.toString(), SymPyScriptEvaluator.ODE_TYPE);
+      final Path odeTypePath = Paths.get(outputBase.toString(), LinearSolutionTransformer.ODE_TYPE);
       final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
       if (solutionType.equals(SolverType.EXACT)) {
         info("ODE is solved exactly.", LOG_NAME);
 
-        return exactSolutionTransformer
+        return linearSolutionTransformer
             .addExactSolution(
                 astNeuron,
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.P30_FILE),
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.PSC_INITIAL_VALUE_FILE),
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VARIABLES_FILE),
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.PROPAGATOR_MATRIX_FILE),
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.PROPAGATOR_STEP_FILE),
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_TMP_DECLARATIONS_FILE),
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_UPDATE_STEPS_FILE),
-                Paths.get(outputBase.toString(), SymPyScriptEvaluator.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE));
+                Paths.get(outputBase.toString(), LinearSolutionTransformer.P30_FILE),
+                Paths.get(outputBase.toString(), LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE),
+                Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VARIABLES_FILE),
+                Paths.get(outputBase.toString(), LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE),
+                Paths.get(outputBase.toString(), LinearSolutionTransformer.PROPAGATOR_STEP_FILE),
+                Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE),
+                Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE),
+                Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE));
       }
       else if (solutionType.equals(SolverType.NUMERIC)) {
         info("ODE is solved numerically.", LOG_NAME);
@@ -111,10 +144,13 @@ public class ODEProcessor {
       return astNeuron;
     }
 
-
   }
 
-  protected ExactSolutionTransformer getExactSolutionTransformer() {
-    return exactSolutionTransformer;
+  /**
+   * This method can be overloaded in tests and return a mock instead of real transformer.
+   */
+  protected LinearSolutionTransformer getLinearSolutionTransformer() {
+    return linearSolutionTransformer;
   }
+
 }

@@ -27,7 +27,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ExpressionsPrettyPrinter {
 
-  final IReferenceConverter referenceConverter;
+  private final IReferenceConverter referenceConverter;
 
   public ExpressionsPrettyPrinter() {
     this.referenceConverter = new IdempotentReferenceConverter();

@@ -8,12 +8,12 @@ package org.nest.codegeneration.sympy;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.ScopeSpanningSymbol;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.nestml._ast.*;
-import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.nestml._ast.ASTBody;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.*;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedFunctions;
@@ -35,11 +35,22 @@ import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 import static org.nest.utils.ASTUtils.getVectorizedVariable;
 
 /**
- * Takes SymPy result and the source AST. Produces an altered AST with the the exact solution.
+ * Takes SymPy result with the linear solution of the ODE and the source AST.
+ * Produces an altered AST with the the exact solution.
  *
  * @author plotnikov
  */
-public class ExactSolutionTransformer {
+public class LinearSolutionTransformer extends TransformerBase {
+
+  public final static String P30_FILE = "P30.tmp";
+  public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValues.tmp";
+  public final static String STATE_VECTOR_TMP_DECLARATIONS_FILE = "state.vector.tmp.declarations.tmp";
+  public final static String STATE_VECTOR_UPDATE_STEPS_FILE = "state.vector.update.steps.tmp";
+  public final static String STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE = "state.vector.tmp.back.assignments.tmp";
+  public final static String STATE_VARIABLES_FILE = "state.variables.tmp";
+  public final static String PROPAGATOR_MATRIX_FILE = "propagator.matrix.tmp";
+  public final static String PROPAGATOR_STEP_FILE = "propagator.step.tmp";
+  final static String ODE_TYPE = "solverType.tmp";
 
   public ASTNeuron addExactSolution(
       final ASTNeuron astNeuron,
@@ -51,8 +62,8 @@ public class ExactSolutionTransformer {
       final Path stateVectorTmpDeclarationsFile,
       final Path stateVectorUpdateStepsFile,
       final Path stateVectorTmpBackAssignmentsFile) {
-    ASTNeuron workingVersion = addP30(astNeuron, P00File);
-    astNeuron.getBody().addToInternalBlock(createAlias("h ms = resolution()"));
+    ASTNeuron workingVersion = addAliasToInternals(astNeuron, P00File);
+    workingVersion.getBody().addToInternalBlock(createAlias("__h__ ms = resolution()"));
 
     workingVersion = addDeclarationsInternalBlock(workingVersion, PSCInitialValueFile);
     workingVersion = addDeclarationsInternalBlock(workingVersion, propagatorMatrixFile);
@@ -72,44 +83,6 @@ public class ExactSolutionTransformer {
     return workingVersion;
   }
 
-
-  /**
-   * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
-   */
-  ASTNeuron addP30(
-      final ASTNeuron astNeuron,
-      final Path pathToP00File) {
-
-    final ASTAliasDecl p00Declaration = convertToAliases(pathToP00File).get(0);
-
-    astNeuron.getBody().addToInternalBlock(p00Declaration);
-    return astNeuron;
-  }
-
-  /**
-   * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
-   */
-  ASTNeuron addDeclarationsInternalBlock(
-      final ASTNeuron astNeuron,
-      final Path pathPSCInitialValueFile) {
-    checkState(astNeuron.getSymbol().isPresent());
-    final Scope scope = ((ScopeSpanningSymbol)astNeuron.getSymbol().get()).getSpannedScope(); // valid, after the symboltable is created
-
-    final List<ASTAliasDecl> pscInitialValues = convertToAliases(pathPSCInitialValueFile);
-    for (final ASTAliasDecl astAliasDecl:pscInitialValues) {
-      // filter step: filter all variables, which very added during model analysis, but not added to the symbol table
-      Optional<VariableSymbol> vectorizedVariable = getVectorizedVariable(astAliasDecl.getDeclaration(), scope);
-      if (vectorizedVariable.isPresent()) {
-        // the existence of the array parameter is ensured by the query
-        astAliasDecl.getDeclaration().setSizeParameter(vectorizedVariable.get().getVectorParameter().get());
-      }
-
-    }
-
-    pscInitialValues.stream().forEach(initialValue -> astNeuron.getBody().addToInternalBlock(initialValue));
-
-    return astNeuron;
-  }
 
   ASTNeuron addStateVariableUpdatesToDynamics(
       final ASTNeuron astNeuron,
@@ -295,7 +268,7 @@ public class ExactSolutionTransformer {
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
         .collect(toList());
 
-    final List<ASTAliasDecl> pscInitialValues = convertToAliases(pathPSCInitialValueFile);
+    final List<ASTAliasDecl> pscInitialValues = createAliases(pathPSCInitialValueFile);
     for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
       final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
       final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
@@ -332,52 +305,6 @@ public class ExactSolutionTransformer {
     astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }
 
-  ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, final Path updateStepFile) {
-
-    final ASTBody astBodyDecorator = astNeuron.getBody();
-
-
-    try {
-      final List<ASTSmall_Stmt> propagatorSteps = Files.lines(updateStepFile)
-          .map(NESTMLASTCreator::createAssignment)
-          .map(this::smallStatement)
-          .collect(toList());
-
-      // It must work for multiple integrate calls!
-      final Optional<ASTFunctionCall> integrateCall = ASTUtils.getFunctionCall(
-          PredefinedFunctions.INTEGRATE,
-          astBodyDecorator.getDynamics().get(0));
-
-      if (integrateCall.isPresent()) {
-        final Optional<ASTNode> smallStatement = ASTUtils.getParent(integrateCall.get(), astNeuron);
-        checkState(smallStatement.isPresent());
-        checkState(smallStatement.get() instanceof ASTSmall_Stmt);
-        final ASTSmall_Stmt integrateCallStatement = (ASTSmall_Stmt) smallStatement.get();
-
-        final Optional<ASTNode> simpleStatement = ASTUtils.getParent(smallStatement.get(), astNeuron);
-        checkState(simpleStatement.isPresent());
-        checkState(simpleStatement.get() instanceof ASTSimple_Stmt);
-        final ASTSimple_Stmt astSimpleStatement = (ASTSimple_Stmt) simpleStatement.get();
-        int integrateFunction = astSimpleStatement.getSmall_Stmts().indexOf(integrateCallStatement);
-        astSimpleStatement.getSmall_Stmts().remove(integrateCallStatement);
-        astSimpleStatement.getSmall_Stmts().addAll(integrateFunction, propagatorSteps);
-
-        return astNeuron;
-      } else {
-        Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
-        return astNeuron;
-      }
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot parse assignment statement.", e);
-    }
-
-  }
-
-  private ASTSmall_Stmt smallStatement(final ASTAssignment astAssignment) {
-    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
-    astSmall_stmt.setAssignment(astAssignment);
-    return astSmall_stmt;
-  }
 
 
 }

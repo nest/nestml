@@ -48,10 +48,11 @@ public class SympyScriptGenerator {
 
   private final static String LOG_NAME = SympyScriptGenerator.class.getName();
 
-  private static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.SympySolver";
+  private static final String ODE_SOLVER_GENERATOR_TEMPLATE = "org.nest.sympy.ODESolver";
+  private static final String DELTA_SHAPE_SOLVER_GENERATOR_TEMPLATE = "org.nest.sympy.DeltaShapeSolver";
 
   /**
-   * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
+   * Runs code generation for the sympy script to solve an arbitrary ODE
    *
    * @param neuron Neuron from the nestml model (must be part of the root)
    * @param outputDirectory Base directory for the output
@@ -66,9 +67,10 @@ public class SympyScriptGenerator {
     final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getEquations();
 
     if (odeDefinition.isPresent()) {
-      final Path generatedScriptFile = generateSolverScript(
+      final Path generatedScriptFile = generateSympyScript(
           createGLEXConfiguration(),
-          neuron.deepClone(),
+          neuron.deepClone(), // is necessary because the model is altered inplace, e.g replacing I_sum(Buffer, Shape)
+          ODE_SOLVER_GENERATOR_TEMPLATE,
           odeDefinition.get(),
           setup);
 
@@ -90,9 +92,51 @@ public class SympyScriptGenerator {
 
   }
 
-  private static Path generateSolverScript(
+  /**
+   * Runs code generation for the sympy script to solve an arbitrary ODE
+   *
+   * @param neuron Neuron from the nestml model (must be part of the root)
+   * @param outputDirectory Base directory for the output
+   * @return Path to the generated script of @code{empty()} if there is no ODE definition.
+   */
+  public static Optional<Path> generateODEAnalyserForDeltaShape(
+      final ASTNeuron neuron,
+      final Path outputDirectory) {
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
+
+    final ASTBody astBodyDecorator = (neuron.getBody());
+    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getEquations();
+
+    if (odeDefinition.isPresent()) {
+      final Path generatedScriptFile = generateSympyScript(
+          createGLEXConfiguration(),
+          neuron.deepClone(), // is necessary because the model is altered inplace, e.g replacing I_sum(Buffer, Shape)
+          DELTA_SHAPE_SOLVER_GENERATOR_TEMPLATE,
+          odeDefinition.get(),
+          setup);
+
+      final String msg = String.format(
+          "Successfully generated solver script for neuron %s under %s",
+          neuron.getName(),
+          generatedScriptFile.toString());
+      info(msg, LOG_NAME);
+
+      return of(generatedScriptFile);
+    }
+    else {
+      final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
+          + "is skipped.", neuron.getName());
+      Log.warn(msg);
+
+      return empty();
+    }
+
+  }
+
+  private static Path generateSympyScript(
       final GlobalExtensionManagement glex,
       final ASTNeuron neuron,
+      final String templateName,
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
     checkArgument(neuron.getEnclosingScope().isPresent(), "Run symboltable creator");
@@ -120,7 +164,7 @@ public class SympyScriptGenerator {
 
     List<VariableSymbol> symbolsInAliasDeclaration = aliases
         .stream()
-        .flatMap(alias -> ASTUtils.getVariableSymbols(alias.getDeclaringExpression().get()).stream())
+        .flatMap(alias -> getVariableSymbols(alias.getDeclaringExpression().get()).stream())
         .collect(Collectors.toList());
     variables.addAll(symbolsInAliasDeclaration);
 
@@ -137,7 +181,7 @@ public class SympyScriptGenerator {
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("printer", expressionsPrinter);
 
-    generator.generate(SCRIPT_GENERATOR_TEMPLATE, solverSubPath, astOdeDeclaration);
+    generator.generate(templateName, solverSubPath, astOdeDeclaration);
 
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
   }

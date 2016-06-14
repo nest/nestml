@@ -6,6 +6,7 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.NESTMLNodeFactory;
 import org.nest.nestml._parser.NESTMLParser;
@@ -19,19 +20,24 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
- * Takes output from the SymPy script and converts into the NESTML ASTs.
+ * Takes a string or file serialization of an NESTML model and creates a corresponding AST from it.
  *
  * @author plotnikov
  */
 class NESTMLASTCreator {
 
-  private static final NESTMLParser stringParser = new NESTMLParser();
+  private static final NESTMLParser PARSER = new NESTMLParser();
+
   static {
-    stringParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
+    PARSER.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
-  static List<ASTAliasDecl> convertToAliases(final Path declarationFile) {
+  static List<ASTAliasDecl> createAliases(final Path declarationFile) {
+    checkArgument(Files.exists(declarationFile));
+
     try {
       return Files.lines(declarationFile)
           .map(NESTMLASTCreator::createAlias)
@@ -44,12 +50,14 @@ class NESTMLASTCreator {
 
   }
 
-  static ASTAliasDecl createAlias(final String declarationAsString) {
+  static ASTAliasDecl createAlias(final String declaration) {
     try {
-      final ASTDeclaration declaration = stringParser.parseDeclaration(
-          new StringReader(declarationAsString)).get();
+      final ASTDeclaration astDeclaration = PARSER.parseDeclaration(new StringReader(declaration)).get();
       // it is ok to call get, since otherwise it is an error in the file structure
-      return convertToAliases(declaration);
+      final ASTAliasDecl astAliasDecl = NESTMLNodeFactory.createASTAliasDecl();
+      astAliasDecl.setDeclaration(astDeclaration);
+
+      return astAliasDecl;
     }
     catch (IOException e) {
       final String msg = "Cannot parse declaration statement.";
@@ -58,18 +66,10 @@ class NESTMLASTCreator {
 
   }
 
-  static private ASTAliasDecl convertToAliases(final ASTDeclaration astDeclaration) {
-    final ASTAliasDecl astAliasDecl = NESTMLNodeFactory.createASTAliasDecl();
-    astAliasDecl.setDeclaration(astDeclaration);
-
-    return astAliasDecl;
-  }
-
-
   static ASTAssignment createAssignment(final String assignmentAsString) {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
-      return stringParser.parseAssignment(new StringReader(assignmentAsString)).get();
+      return PARSER.parseAssignment(new StringReader(assignmentAsString)).get();
     }
     catch (IOException e) {
       final String msg = "Cannot parse assignment statement.";
@@ -81,7 +81,7 @@ class NESTMLASTCreator {
   static ASTDeclaration createDeclaration(final String declarationAsString) {
     try {
       // it is ok to call get, since otherwise it is an error in the file structure
-      return stringParser.parseDeclaration(new StringReader(declarationAsString)).get();
+      return PARSER.parseDeclaration(new StringReader(declarationAsString)).get();
     }
     catch (IOException e) {
       final String msg = "Cannot parse assignment statement.";
@@ -90,4 +90,15 @@ class NESTMLASTCreator {
 
   }
 
+  static ASTExpr createExpression(final String expression) {
+    try {
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return PARSER.parseExpr(new StringReader(expression)).get();
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+
+  }
 }
