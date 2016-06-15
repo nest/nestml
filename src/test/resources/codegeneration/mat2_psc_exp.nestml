@@ -4,13 +4,12 @@ neuron mat2_psc_exp_nestml:
     V mV
     V_th_alpha_1 mV
     V_th_alpha_2 mV
-    I_shape_in, I_shape_ex real
     alias V_m mV = V + E_L # Membrane potential.
   end
 
   equations:
-    I_shape_in = exp(-1/tau_syn_in*t)
-    I_shape_ex = exp(-1/tau_syn_ex*t)
+    shape I_shape_in = exp(-1/tau_syn_in*t)
+    shape I_shape_ex = exp(-1/tau_syn_ex*t)
 
     # V_th_alpha_1' = -V_th_alpha_1/tau_1
     # V_th_alpha_2' = -V_th_alpha_2/tau_2

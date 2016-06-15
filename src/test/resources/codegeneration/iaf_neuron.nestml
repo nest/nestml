@@ -50,13 +50,12 @@ neuron iaf_neuron_nestml:
   # Captures the dynamic state of the neuron
   state:
     V mV
-    G real
     alias V_m mV = V + E_L # Membrane potential.
   end
 
   # Declarative description of the updates rules
   equations:
-      G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+      shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
       V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 

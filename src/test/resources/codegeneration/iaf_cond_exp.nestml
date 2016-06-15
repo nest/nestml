@@ -1,14 +1,14 @@
 neuron iaf_cond_exp:
 
   state:
-    GI, GE, V_m real = 0
+    V_m mV = 0
 
   end
 
   equations:
     # Explicit
-    GI = exp(-1/tau_syn_in*t)
-    GE = exp(-1/tau_syn_ex*t)
+    shape GI = exp(-1/tau_syn_in*t)
+    shape GE = exp(-1/tau_syn_ex*t)
     V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (GI* (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim))
   end
 

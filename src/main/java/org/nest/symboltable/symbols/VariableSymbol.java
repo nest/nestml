@@ -9,11 +9,13 @@ import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.utils.ASTUtils;
 
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.*;
+import static org.nest.utils.ASTUtils.getVectorizedVariable;
 import static org.nest.utils.NESTMLSymbols.isSetterPresent;
 
 /**
@@ -69,14 +71,7 @@ public class VariableSymbol extends CommonSymbol {
     return Optional.ofNullable(declaringExpression);
   }
 
-  public Optional<String> getVectorParameter() {
-    return Optional.ofNullable(arraySizeParameter);
-  }
 
-  public void setVectorParameter(final String arraySizeParameter) {
-    checkNotNull(arraySizeParameter);
-    this.arraySizeParameter = arraySizeParameter;
-  }
 
   @Override
   public String toString() {
@@ -105,7 +100,36 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isVector() {
-    return getVectorParameter().isPresent();
+    if (blockType != BlockType.SHAPE) {
+      return getVectorParameter().isPresent();
+    }
+    else {
+      // declaring expression exists by construction from symbol table creator
+      // there no shape without declaring expression
+      return getVectorizedVariable(getDeclaringExpression().get(), getEnclosingScope()).isPresent();
+    }
+
+  }
+
+  public Optional<String> getVectorParameter() {
+    if (blockType != BlockType.SHAPE) {
+      return Optional.ofNullable(arraySizeParameter);
+    }
+    else {
+      final Optional<VariableSymbol> vectorizedVariable = getVectorizedVariable(getDeclaringExpression().get(), getEnclosingScope());
+      if (vectorizedVariable.isPresent()) {
+        return vectorizedVariable.get().getVectorParameter();
+      }
+      else {
+        return Optional.empty();
+      }
+    }
+
+  }
+
+  public void setVectorParameter(final String arraySizeParameter) {
+    checkNotNull(arraySizeParameter);
+    this.arraySizeParameter = arraySizeParameter;
   }
 
   public boolean isState() {
@@ -172,7 +196,8 @@ public class VariableSymbol extends CommonSymbol {
     LOCAL,
     INPUT_BUFFER_CURRENT,
     INPUT_BUFFER_SPIKE,
-    OUTPUT
+    OUTPUT,
+    SHAPE
   }
 
 }

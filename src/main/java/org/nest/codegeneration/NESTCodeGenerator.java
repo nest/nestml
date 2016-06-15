@@ -88,7 +88,7 @@ public class NESTCodeGenerator {
     final ASTBody astBody = astNeuron.getBody();
     final Optional<ASTOdeDeclaration> odesBlock = astBody.getEquations();
     if (odesBlock.isPresent()) {
-      if (odesBlock.get().getEqs().size() == 0) {
+      if (odesBlock.get().getShapes().size() == 0) {
         info("The model will be solved numerically with a GSL solver.", LOG_NAME);
         return astNeuron;
       }
@@ -313,7 +313,7 @@ public class NESTCodeGenerator {
     final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
     if (astBody.getEquations().isPresent()) {
-      if (astBody.getEquations().get().getEqs().size() == 0) {
+      if (astBody.getEquations().get().getShapes().size() == 0) {
         glex.setGlobalValue("useGSL", true);
         glex.setGlobalValue("ODEs", astBody.getEquations().get().getODEs());
       }

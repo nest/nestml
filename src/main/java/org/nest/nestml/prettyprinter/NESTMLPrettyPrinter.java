@@ -6,6 +6,9 @@ import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.ode._ast.ASTEquation;
+import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTParameter;
 import org.nest.spl._ast.ASTParameters;
@@ -248,19 +251,24 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    *   OdeDeclaration
    * BLOCK_CLOSE;
    *
-   * OdeDeclaration  = (Eq | ODE | NEWLINE)+;
-   * Eq = lhsVariable:Name "=" rhs:Expr;
-   * ODE = lhsVariable:Name "\'" "=" rhs:Expr;
+   * OdeDeclaration  = (Eq | Shape | NEWLINE)+;
+   * Shape = "shape" lhsVariable:Name "=" rhs:Expr;
+   * ODE = lhsVariable:Variable  "=" rhs:Expr;
    */
   @Override
-  public void visit(final ASTEquations astEquations) {
+  public void visit(final ASTOdeDeclaration astOdeDeclaration) {
     println("equations" + BLOCK_OPEN);
     indent();
+  }
 
-    astEquations
-        .getOdeDeclaration()
-        .getEquations()
-        .forEach(eq -> println(eq.getLhs().printFullName() + " = " + expressionsPrinter.print(eq.getRhs())));
+  @Override
+  public void visit(final ASTEquation astEquation) {
+    println(astEquation.getLhs().printFullName() + " = " + expressionsPrinter.print(astEquation.getRhs()));
+  }
+
+  @Override
+  public void visit(final ASTShape astShape) {
+    println("shape " + astShape.getLhs().printFullName() + " = " + expressionsPrinter.print(astShape.getRhs()));
   }
 
   @Override

@@ -2,13 +2,12 @@ neuron iaf_psc_delta_nestml:
 
   state:
     V mV = 0 mV
-    G real
     refr_spikes_buffer mV = 0 mV
     alias V_m mV = V + E_L # Membrane potential.
   end
 
   equations:
-    G = delta(t, tau_m)
+    shape G = delta(t, tau_m)
     V' = -1/tau_m * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 
