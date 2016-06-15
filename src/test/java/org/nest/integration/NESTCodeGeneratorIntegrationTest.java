@@ -27,7 +27,8 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
       "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
       "src/test/resources/codegeneration/iaf_psc_exp.nestml",
       "src/test/resources/codegeneration/iaf_tum_2000.nestml",
-      "src/test/resources/codegeneration/iaf_psc_delta.nestml"
+      "src/test/resources/codegeneration/iaf_psc_delta.nestml",
+      "src/test/resources/codegeneration/mat2_psc_exp.nestml"
   );
 
   private final List<String> multisynapseModels = Lists.newArrayList(
