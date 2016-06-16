@@ -20,6 +20,7 @@ import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTODENode;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
@@ -44,6 +45,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
+import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**

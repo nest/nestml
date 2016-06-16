@@ -37,6 +37,7 @@ ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode 
   </#list>
 
   <#list ODEs as ode>
+    ${odeTransformer.replace_I_sum(ode)}
     f[ ${ode.getLhs()}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(ode.getRhs())};
   </#list>
 

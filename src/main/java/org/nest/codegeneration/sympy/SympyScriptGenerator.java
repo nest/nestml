@@ -5,14 +5,11 @@
  */
 package org.nest.codegeneration.sympy;
 
-import de.monticore.ast.ASTNode;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.ode._ast.ASTEquation;
@@ -36,8 +33,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static java.util.stream.Collectors.toList;
-import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
 import static org.nest.utils.ASTUtils.getVariableSymbols;
 
 /**
@@ -144,7 +139,7 @@ public class SympyScriptGenerator {
       Log.warn("It works only for a single ODE. Only the first equation will be used.");
     }
 
-    final ASTEquation workingVersion = replace_I_sum(astOdeDeclaration.getODEs().get(0));
+    final ASTEquation workingVersion = ODETransformer.replace_I_sum(astOdeDeclaration.getODEs().get(0));
 
     glex.setGlobalValue("ode", workingVersion);
     glex.setGlobalValue("EQs", astOdeDeclaration.getShapes());
@@ -184,24 +179,6 @@ public class SympyScriptGenerator {
     generator.generate(templateName, solverSubPath, astOdeDeclaration);
 
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
-  }
-
-  static ASTEquation replace_I_sum(final ASTEquation astOde) {
-    final List<ASTFunctionCall> functions = ASTUtils.getAll(astOde, ASTFunctionCall.class)
-        .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))
-        .collect(toList());
-
-    functions.stream().forEach(node -> replaceFunctionCallThroughFirstArgument(astOde, node));
-    return astOde;
-  }
-
-  private static void replaceFunctionCallThroughFirstArgument(ASTEquation astOde, ASTFunctionCall node) {
-    final Optional<ASTNode> parent = ASTUtils.getParent(node, astOde);
-    checkState(parent.isPresent());
-    final ASTExpr expr = (ASTExpr) parent.get();
-    expr.setFunctionCall(null);
-    expr.setVariable(node.getArgs().get(0).getVariable().get());
   }
 
 
