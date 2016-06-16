@@ -5,6 +5,7 @@
  */
 package org.nest.utils;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
@@ -389,4 +390,29 @@ public final class ASTUtils {
     }
 
   }
+
+  /**
+   * Converts the name of the
+   *
+   */
+  public static String convertToSimpleName(final ASTVariable astVariable) {
+    if (astVariable.getDifferentialOrder().size() <= 1) {
+      return astVariable.getName().toString();
+    }
+    else {
+      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size() - 1) + astVariable.toString();
+    }
+  }
+
+  public static String convertDevrivativeNameToSimpleName(final ASTVariable astVariable) {
+    if (astVariable.getDifferentialOrder().size() > 0) {
+      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.toString();
+
+    }
+    else {
+      return astVariable.toString();
+    }
+
+  }
+
 }

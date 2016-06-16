@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import org.nest.codegeneration.helpers.AliasInverter;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
@@ -16,10 +17,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -179,9 +177,11 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   public List<VariableSymbol> getStateNonAliasSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get())
+    final Collection<VariableSymbol> variableSymbols = getEnclosingScope().get().resolveLocally(VariableSymbol.KIND);
+    return variableSymbols
         .stream()
-        .filter(variable -> !variable.isAlias())
+        .filter(VariableSymbol::isState)
+        .filter(variableSymbol -> !variableSymbol.isAlias())
         .collect(Collectors.toList());
   }
 
@@ -347,10 +347,28 @@ public class ASTBody extends ASTBodyTOP {
     return Lists.newArrayList(offsets);
   }
 
+  /**
+   * TODO It is very NEST related. Factor it out
+   * @return
+   */
   public List<VariableSymbol> getAllRelativeParameters() {
     return  getParameterAliasSymbols().stream()
         .filter(variable -> isRelativeExpression(variable.getDeclaringExpression().get()))
         .collect(Collectors.toList());
+  }
+
+  public Optional<ASTEquations> getODEBlock() {
+    final Optional<ASTBodyElement> odeBlock = bodyElements
+        .stream()
+        .filter(astBodyElement -> astBodyElement instanceof ASTEquations)
+        .findAny();
+    if (odeBlock.isPresent()) {
+      return Optional.of((ASTEquations) odeBlock.get()); // checked by the filter conditions
+    }
+    else {
+      return Optional.empty();
+    }
+
   }
 
 }

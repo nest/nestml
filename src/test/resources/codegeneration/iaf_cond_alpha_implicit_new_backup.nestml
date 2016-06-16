@@ -14,8 +14,7 @@ neuron iaf_cond_alpha_implicit_new:
     GE'' = -GE'/tau_synE
     GE' = GE'  -GE/tau_synE
 
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - \
-            1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
+    V_m' = -1/Tau * (V_m - E_L)  - (V_m-V_reversalI)/C_m * (Cond_sum(GI, spikeInh)  - Cond_sum(GE, spikeInh) + (I_e + I_stim))
   end
 
   parameter:
@@ -64,6 +63,7 @@ neuron iaf_cond_alpha_implicit_new:
   update:
 
     integrate(V_m)
+
     if r != 0: # not refractory
       r =  r - 1
       V_m = V_reset # clamp potential
@@ -75,8 +75,8 @@ neuron iaf_cond_alpha_implicit_new:
 
     end
 
-    #DGE = DGE + spikeExc.getSum() * PSConInit_E;
-    #DGI = DGI + spikeInh.getSum() * PSConInit_I;
+    # GE' = GE' + spikeExc.getSum() * PSConInit_E;
+    # GI' = GI' + spikeInh.getSum() * PSConInit_I;
     I_stim = currents.getSum()
   end
 

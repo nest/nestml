@@ -10,6 +10,7 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 
@@ -44,7 +45,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
   @Override
   public String convertNameReference(final ASTVariable astVariable) {
     checkState(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
-    final String variableName = astVariable.toString();
+    final String variableName = ASTUtils.convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
     final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
     if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&

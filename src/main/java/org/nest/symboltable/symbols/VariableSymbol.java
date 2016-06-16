@@ -71,8 +71,6 @@ public class VariableSymbol extends CommonSymbol {
     return Optional.ofNullable(declaringExpression);
   }
 
-
-
   @Override
   public String toString() {
     return "VariableSymbol(" + getName() + ", " + getType() + ", "
