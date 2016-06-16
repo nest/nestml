@@ -13,6 +13,8 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.nest.utils.ASTUtils.convertDevrivativeNameToSimpleName;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Makes a conversion for the GSL solver.
@@ -45,9 +47,9 @@ public class GSLReferenceConverter implements IReferenceConverter {
   @Override
   public String convertNameReference(final ASTVariable astVariable) {
     checkState(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
-    final String variableName = ASTUtils.convertDevrivativeNameToSimpleName(astVariable);
+    final String variableName = convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
-    final VariableSymbol variableSymbol = VariableSymbol.resolve(astVariable.toString(), scope);
+    final VariableSymbol variableSymbol = VariableSymbol.resolve(convertDevrivativeNameToSimpleName(astVariable), scope);
     if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
         !variableSymbol.isAlias()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
@@ -77,6 +79,8 @@ public class GSLReferenceConverter implements IReferenceConverter {
     }
 
   }
+
+
 
   @Override
   public String convertConstant(final String constantName) {

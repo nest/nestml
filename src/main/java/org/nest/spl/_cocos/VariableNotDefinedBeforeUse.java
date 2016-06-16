@@ -17,6 +17,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.Names.getQualifiedName;
 import static de.se_rwth.commons.logging.Log.error;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 public class VariableNotDefinedBeforeUse implements
     SPLASTAssignmentCoCo,
@@ -34,7 +35,7 @@ public class VariableNotDefinedBeforeUse implements
 
   @Override
   public void check(final ASTAssignment assignment) {
-      check(assignment.getLhsVarialbe(), assignment);
+      check(convertToSimpleName(assignment.getLhsVarialbe()), assignment);
   }
 
   @Override

@@ -6,6 +6,7 @@
 package org.nest.ode._ast;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import de.monticore.types.types._ast.ASTQualifiedName;
 
 import java.util.List;
@@ -28,7 +29,8 @@ public class ASTDerivative extends ASTDerivativeTOP {
 
   @Override
   public String toString() {
-    return name.toString() + Joiner.on("'").join(getDifferentialOrder());
+
+    return name.toString() + Strings.repeat("'", getDifferentialOrder().size());
   }
 
   public String getSimpleName() {
