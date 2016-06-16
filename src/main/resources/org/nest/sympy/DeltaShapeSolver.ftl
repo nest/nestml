@@ -13,7 +13,7 @@ ${alias.getName()} = ${printer.print(alias.getDeclaringExpression().get())}
 
 # Shapes must be symbolic for the differetiation step
 rhsTmp = ${printer.print(ode.getRhs())}
-constantInputs = simplify(1/diff(rhsTmp, ${EQs[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs()})*${ode.getLhs()}) - (
+constantInputs = simplify(1/diff(rhsTmp, ${EQs[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs().getSimpleName()})*${ode.getLhs().getSimpleName()}) - (
 <#assign operator = "">
 <#compress> <#list EQs as eq>
 ${operator} ${eq.getLhs()}
@@ -26,15 +26,15 @@ ${operator} ${eq.getLhs()}
 ${eq.getLhs()} = ${printer.print(eq.getRhs())}
 </#list>
 rhs = ${printer.print(ode.getRhs())}
-dev${ode.getLhs()} = diff(rhs, ${ode.getLhs()})
-dev_t_dev${ode.getLhs()} = diff(dev${ode.getLhs()}, t)
+dev${ode.getLhs().getSimpleName()} = diff(rhs, ${ode.getLhs().getSimpleName()})
+dev_t_dev${ode.getLhs().getSimpleName()} = diff(dev${ode.getLhs().getSimpleName()}, t)
 
-if dev_t_dev${ode.getLhs()} == 0:
+if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
     solverType = open('solverType.tmp', 'w')
     solverType.write("exact")
 
     propagatorStepFile = open('propagator.step.tmp', 'w')
-    propagatorStepFile.write("${ode.getLhs()} = P30 * (" + str(constantInputs) + ") ")
+    propagatorStepFile.write("${ode.getLhs().getSimpleName()} = P30 * (" + str(constantInputs) + ") ")
     # calculate -1/Tau
     c1 = diff(rhs, V)
     # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative

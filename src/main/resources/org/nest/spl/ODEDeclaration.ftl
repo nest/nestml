@@ -20,7 +20,7 @@ while ( t < step_ )
 double stateVector[${stateSize}];
 <#assign index = 0>
 <#list ast.getODEs() as ode>
-  stateVector[${ode.getLhs()}_${indexPostfix}] = S_.${ode.getLhs()};
+  stateVector[${astUtils.convertToSimpleName(ode.getLhs())}_${indexPostfix}] = S_.${astUtils.convertToSimpleName(ode.getLhs())};
   <#assign index = index + 1>
 </#list>
 
@@ -34,7 +34,7 @@ double stateVector[${stateSize}];
   stateVector );               // neuronal state
 <#assign index = 0>
 <#list ast.getODEs() as ode>
-  S_.${ode.getLhs()} = stateVector[${ode.getLhs()}_${indexPostfix}];
+  S_.${astUtils.convertToSimpleName(ode.getLhs())} = stateVector[${astUtils.convertToSimpleName(ode.getLhs())}_${indexPostfix}];
   <#assign index = index + 1>
 </#list>
 }

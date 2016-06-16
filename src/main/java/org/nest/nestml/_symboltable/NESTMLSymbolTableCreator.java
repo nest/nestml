@@ -5,10 +5,13 @@
  */
 package org.nest.nestml._symboltable;
 
+import com.google.common.base.Strings;
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
@@ -17,8 +20,10 @@ import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 import org.nest.symboltable.symbols.references.TypeSymbolReference;
+import org.nest.utils.ASTUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +38,7 @@ import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.LOCAL;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;
 import static org.nest.utils.ASTUtils.computeTypeName;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Creates NESTML symbols.
@@ -79,7 +85,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     trace(msg, LOGGER_NAME);
   }
 
-  List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
+  private List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
     final List<ImportStatement> imports = new ArrayList<>();
 
     compilationUnitAst.getImports().stream().forEach(importStatement -> {
@@ -113,9 +119,51 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     trace("Add symbol for the neuron:  " + astNeuron.getName(), LOGGER_NAME);
   }
 
-  public void endVisit(final ASTNeuron neuron) {
+  public void endVisit(final ASTNeuron astNeuron) {
+    addVariablesFromODEBlock(astNeuron.getBody());
     removeCurrentScope();
     currentTypeSymbol = empty();
+  }
+
+  /**
+   * Analyzes the ode block and add all variables, which are defined through ODEs. E.g.:
+   *   state:
+   *     GI nS = 0
+   *   end
+   *   equations:
+   *      GI'' = -GI'/tau_synI
+   *      GI' = GI' - GI/tau_synI
+   *   end
+   * Results in an additional variable for G' (first equations G''). For the sake of the simplicity
+   */
+  private void addVariablesFromODEBlock(final ASTBody astBody) {
+    if (astBody.getODEBlock().isPresent()) {
+      astBody.getODEBlock().get().getOdeDeclaration().getODEs()
+          .stream()
+          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
+          .forEach(this::addODEVariable);
+    }
+
+  }
+
+  private void addODEVariable(final ASTEquation ode) {
+    final String variableName = convertToSimpleName(ode.getLhs());
+
+    final TypeSymbol type = PredefinedTypes.getType("real");
+    final VariableSymbol var = new VariableSymbol(variableName);
+
+    var.setAstNode(ode.getLhs());
+    var.setType(type);
+    var.setDeclaringType(currentTypeSymbol.get());
+    var.setLoggable(true);
+    var.setAlias(false);
+    //var.setDeclaringExpression(ode.getRhs());
+    var.setBlockType(VariableSymbol.BlockType.STATE);
+
+    addToScopeAndLinkWithNode(var, ode.getLhs());
+
+    trace("Adds new shape variable '" + var.getFullName() + "'.", LOGGER_NAME);
+
   }
 
   public void visit(final ASTComponent componentAst) {
@@ -432,7 +480,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       }
 
       var.setBlockType(blockType);
-
       addToScopeAndLinkWithNode(var, astDeclaration);
 
       trace("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
@@ -444,8 +491,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   @Override
   public void visit(final ASTShape astShape) {
     final TypeSymbol type = PredefinedTypes.getType("real");
-
-
     final VariableSymbol var = new VariableSymbol(astShape.getLhs().toString());
 
     var.setAstNode(astShape);
@@ -454,7 +499,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     var.setLoggable(true);
     var.setAlias(false);
     var.setDeclaringExpression(astShape.getRhs());
-
     var.setBlockType(VariableSymbol.BlockType.SHAPE);
 
     addToScopeAndLinkWithNode(var, astShape);

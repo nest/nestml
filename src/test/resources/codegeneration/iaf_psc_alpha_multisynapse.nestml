@@ -48,5 +48,4 @@ neuron iaf_psc_alpha_multisynapse_nestml:
     end
 
   end
-
 end

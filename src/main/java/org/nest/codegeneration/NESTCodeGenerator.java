@@ -17,6 +17,7 @@ import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.printers.NESTFunctionPrinter;
 import org.nest.codegeneration.sympy.ODEProcessor;
+import org.nest.codegeneration.sympy.ODETransformer;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -293,6 +294,7 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("declarations", declarations);
     glex.setGlobalValue("bufferHelper", new ASTBuffers());
     glex.setGlobalValue("variableHelper", new VariableHelper());
+    glex.setGlobalValue("odeTransformer", new ODETransformer());
 
     glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron.getBody()));
     glex.setGlobalValue("isOutputEventPresent", ASTOutputs.isOutputEventPresent(neuron.getBody()));

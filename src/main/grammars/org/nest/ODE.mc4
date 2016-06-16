@@ -19,7 +19,9 @@ grammar ODE extends org.nest.Commons {
     @attribute lhs      Left hand side, e.g. a Variable.
     @attribute rhs      Expression defining the right hand side.
   */
-  Equation = lhs:Variable "=" rhs:Expr;
+  Equation = lhs:Derivative "=" rhs:Expr;
+
+  Derivative = name:QualifiedName (differentialOrder:"\'")*;
 
   Shape = "shape" lhs:Variable "=" rhs:Expr;
 

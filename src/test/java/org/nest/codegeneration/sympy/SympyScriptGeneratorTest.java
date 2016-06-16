@@ -77,7 +77,7 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
     assertTrue(i_sum);
 
-    final ASTEquation testant = SympyScriptGenerator.replace_I_sum(ode.get());
+    final ASTEquation testant = ODETransformer.replace_I_sum(ode.get());
     i_sum = ASTUtils.getAll(testant, ASTFunctionCall.class)
         .stream()
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
@@ -93,7 +93,8 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(
-            root.get().getNeurons().get(0), OUTPUT_SCRIPT_DIRECTORY);
+        root.get().getNeurons().get(0),
+        OUTPUT_SCRIPT_DIRECTORY);
 
     assertTrue(generatedScript.isPresent());
   }

@@ -13,7 +13,7 @@ ${alias.getName()} = ${printer.print(alias.getDeclaringExpression().get())}
 
 # Shapes must be symbolic for the differetiation step
 rhsTmp = ${printer.print(ode.getRhs())}
-constantInputs = simplify(1/diff(rhsTmp, ${EQs[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs()})*${ode.getLhs()}) - (
+constantInputs = simplify(1/diff(rhsTmp, ${EQs[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs().getSimpleName()})*${ode.getLhs().getSimpleName()}) - (
 <#assign operator = "">
 <#compress> <#list EQs as eq>
 ${operator} ${eq.getLhs()}
@@ -26,10 +26,10 @@ ${operator} ${eq.getLhs()}
 ${eq.getLhs()} = ${printer.print(eq.getRhs())}
 </#list>
 rhs = ${printer.print(ode.getRhs())}
-dev${ode.getLhs()} = diff(rhs, ${ode.getLhs()})
-dev_t_dev${ode.getLhs()} = diff(dev${ode.getLhs()}, t)
+dev${ode.getLhs().getSimpleName()} = diff(rhs, ${ode.getLhs().getSimpleName()})
+dev_t_dev${ode.getLhs().getSimpleName()} = diff(dev${ode.getLhs().getSimpleName()}, t)
 
-if dev_t_dev${ode.getLhs()} == 0:
+if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
     print 'We have a linear differential equation!'
 
     order = None
@@ -175,7 +175,7 @@ if dev_t_dev${ode.getLhs()} == 0:
 
     updateStep = open('propagator.step.tmp', 'w')
     # the result matrix of matrix with 1 element. therefore, take it by [] operator
-    updateStep.write("${ode.getLhs()} = P30 * (" + str(constantInputs) + ") + " + str(
+    updateStep.write("${ode.getLhs().getSimpleName()} = P30 * (" + str(constantInputs) + ") + " + str(
         (Ps[0][orders[0], orders[0]] * stateVectors.col(0)[orders[0]])) + "\n")
 
     propagatorMatrixFile = open('propagator.matrix.tmp', 'w')
@@ -244,7 +244,7 @@ else:
         print 'We have a problem'
         exit(1)
 
-    c1 = diff(rhs, ${ode.getLhs()})
+    c1 = diff(rhs, ${ode.getLhs().getSimpleName()})
     ${eq.getLhs()} = symbols("${eq.getLhs()}")
     c2 = diff(${printer.print(ode.getRhs())}, ${eq.getLhs()})
 
