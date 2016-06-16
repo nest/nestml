@@ -47,7 +47,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
     checkState(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
     final String variableName = ASTUtils.convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
-    final VariableSymbol variableSymbol = VariableSymbol.resolve(variableName, scope);
+    final VariableSymbol variableSymbol = VariableSymbol.resolve(astVariable.toString(), scope);
     if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
         !variableSymbol.isAlias()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";

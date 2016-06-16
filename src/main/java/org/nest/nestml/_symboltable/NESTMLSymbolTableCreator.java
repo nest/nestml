@@ -38,6 +38,7 @@ import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.LOCAL;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;
 import static org.nest.utils.ASTUtils.computeTypeName;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Creates NESTML symbols.
@@ -146,7 +147,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   }
 
   private void addODEVariable(final ASTEquation ode) {
-    final String variableName = ASTUtils.convertToSimpleName(ode.getLhs());
+    final String variableName = convertToSimpleName(ode.getLhs());
 
     final TypeSymbol type = PredefinedTypes.getType("real");
     final VariableSymbol var = new VariableSymbol(variableName);

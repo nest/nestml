@@ -3,11 +3,10 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.commons._ast;
+package org.nest.ode._ast;
 
 import com.google.common.base.Joiner;
 import de.monticore.types.types._ast.ASTQualifiedName;
-import de.se_rwth.commons.Names;
 
 import java.util.List;
 
@@ -16,20 +15,24 @@ import java.util.List;
  *
  * @author plotnikov
  */
-public class ASTVariable extends ASTVariableTOP {
+public class ASTDerivative extends ASTDerivativeTOP {
 
-  public ASTVariable(
+  public ASTDerivative(
       final ASTQualifiedName name,
       final List<String> differentialOrder) {
     super(name, differentialOrder);
   }
 
-  public ASTVariable() {
+  public ASTDerivative() {
   }
 
   @Override
   public String toString() {
     return name.toString() + Joiner.on("'").join(getDifferentialOrder());
+  }
+
+  public String getSimpleName() {
+    return name.toString();
   }
 
 }

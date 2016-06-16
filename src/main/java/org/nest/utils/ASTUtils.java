@@ -21,6 +21,7 @@ import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTODENode;
 import org.nest.spl._ast.ASTBlock;
@@ -395,7 +396,7 @@ public final class ASTUtils {
    * Converts the name of the
    *
    */
-  public static String convertToSimpleName(final ASTVariable astVariable) {
+  public static String convertToSimpleName(final ASTDerivative astVariable) {
     if (astVariable.getDifferentialOrder().size() <= 1) {
       return astVariable.getName().toString();
     }

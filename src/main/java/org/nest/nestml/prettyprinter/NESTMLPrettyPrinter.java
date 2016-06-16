@@ -263,12 +263,12 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   @Override
   public void visit(final ASTEquation astEquation) {
-    println(astEquation.getLhs().printFullName() + " = " + expressionsPrinter.print(astEquation.getRhs()));
+    println(astEquation.getLhs() + " = " + expressionsPrinter.print(astEquation.getRhs()));
   }
 
   @Override
   public void visit(final ASTShape astShape) {
-    println("shape " + astShape.getLhs().printFullName() + " = " + expressionsPrinter.print(astShape.getRhs()));
+    println("shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs()));
   }
 
   @Override

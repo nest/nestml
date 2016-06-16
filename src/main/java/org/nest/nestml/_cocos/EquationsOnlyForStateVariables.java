@@ -10,6 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._cocos.ODEASTEquationCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTUtils;
 
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
   public void check(final ASTEquation astEq) {
     checkArgument(astEq.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astEq.getEnclosingScope().get();
-    final Optional<VariableSymbol> variableSymbol = scope.resolve(astEq.getLhs().toString(), VariableSymbol.KIND);
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(ASTUtils.convertToSimpleName(astEq.getLhs()), VariableSymbol.KIND);
     if (variableSymbol.isPresent()) {
       if (!variableSymbol.get().isState()) {
         final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());

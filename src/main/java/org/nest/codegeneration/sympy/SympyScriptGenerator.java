@@ -166,7 +166,7 @@ public class SympyScriptGenerator {
     final Scope scope = astOdeDeclaration.getEnclosingScope().get();
 
     for (final ASTEquation ode:astOdeDeclaration.getODEs()) {
-      final VariableSymbol lhsSymbol = VariableSymbol.resolve(ode.getLhs().toString(), scope);
+      final VariableSymbol lhsSymbol = VariableSymbol.resolve(ASTUtils.convertToSimpleName(ode.getLhs()), scope);
       variables.add(lhsSymbol);
     }
 

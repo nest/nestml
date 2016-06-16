@@ -93,7 +93,8 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(
-            root.get().getNeurons().get(0), OUTPUT_SCRIPT_DIRECTORY);
+        root.get().getNeurons().get(0),
+        OUTPUT_SCRIPT_DIRECTORY);
 
     assertTrue(generatedScript.isPresent());
   }

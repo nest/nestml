@@ -37,7 +37,7 @@ public class IdempotentReferenceConverter implements IReferenceConverter {
 
   @Override
   public String convertNameReference(final ASTVariable astVariable) {
-    return astVariable.printFullName();
+    return astVariable.toString();
   }
 
   @Override
