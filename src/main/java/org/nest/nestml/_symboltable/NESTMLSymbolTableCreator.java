@@ -5,10 +5,8 @@
  */
 package org.nest.nestml._symboltable;
 
-import com.google.common.base.Strings;
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
-import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
@@ -20,10 +18,8 @@ import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 import org.nest.symboltable.symbols.references.TypeSymbolReference;
-import org.nest.utils.ASTUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,7 +159,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     addToScopeAndLinkWithNode(var, ode.getLhs());
 
     trace("Adds new shape variable '" + var.getFullName() + "'.", LOGGER_NAME);
-
   }
 
   public void visit(final ASTComponent componentAst) {

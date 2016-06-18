@@ -28,6 +28,7 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Checks that a referenced variable is also declared.
@@ -110,7 +111,7 @@ public class VariableDoesNotExist implements
 
   @Override
   public void check(final ASTAssignment astAssignment) {
-    checkVariableByName(astAssignment.getLhsVarialbe(), astAssignment);
+    checkVariableByName(convertToSimpleName(astAssignment.getLhsVarialbe()), astAssignment);
     checkExpression(astAssignment.getExpr());
   }
 

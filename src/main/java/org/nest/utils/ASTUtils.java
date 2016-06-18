@@ -401,13 +401,26 @@ public final class ASTUtils {
       return astVariable.getName().toString();
     }
     else {
-      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size() - 1) + astVariable.toString();
+      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size() - 1) + astVariable.getName().toString();
+    }
+  }
+
+  /**
+   * Converts the name of the
+   *
+   */
+  public static String convertToSimpleName(final ASTVariable astVariable) {
+    if (astVariable.getDifferentialOrder().size() == 0) {
+      return astVariable.getName().toString();
+    }
+    else {
+      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName().toString();
     }
   }
 
   public static String convertDevrivativeNameToSimpleName(final ASTVariable astVariable) {
     if (astVariable.getDifferentialOrder().size() > 0) {
-      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.toString();
+      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName().toString();
 
     }
     else {
