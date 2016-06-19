@@ -10,11 +10,11 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.NESTMLSymbols;
-
-import java.util.Optional;
+import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.nest.utils.ASTUtils.convertDevrivativeNameToSimpleName;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Makes a conversion for the GSL solver.
@@ -23,8 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class GSLReferenceConverter implements IReferenceConverter {
 
-  public static final String INDEX_VARIABLE_POSTFIX = "_INDEX";
-
+  private static final String INDEX_VARIABLE_POSTFIX = "_INDEX";
   private static final Double MAXIMAL_EXPONENT = 10.0;
 
   @Override
@@ -41,15 +40,16 @@ public class GSLReferenceConverter implements IReferenceConverter {
     if ("pow".equals(functionName)) {
       return "pow(%s)";
     }
-    throw new UnsupportedOperationException();
+
+    throw new UnsupportedOperationException("Cannot map the function: '" + functionName +"'");
   }
 
   @Override
   public String convertNameReference(final ASTVariable astVariable) {
     checkState(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
-    final String variableName = astVariable.toString();
-    final VariableSymbol variableSymbol
-        = resolveVariable(variableName, astVariable.getEnclosingScope().get());
+    final String variableName = convertDevrivativeNameToSimpleName(astVariable);
+    final Scope scope = astVariable.getEnclosingScope().get();
+    final VariableSymbol variableSymbol = VariableSymbol.resolve(convertDevrivativeNameToSimpleName(astVariable), scope);
     if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
         !variableSymbol.isAlias()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
@@ -65,7 +65,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
           return variableName;
         }
         else {
-          if (variableSymbol.getArraySizeParameter().isPresent()) {
+          if (variableSymbol.getVectorParameter().isPresent()) {
             return "node.get_" + variableName + "()[i]";
           }
           else {
@@ -77,28 +77,14 @@ public class GSLReferenceConverter implements IReferenceConverter {
       }
 
     }
+
   }
+
+
 
   @Override
   public String convertConstant(final String constantName) {
     return constantName;
   }
 
-  @Override
-  public boolean needsArguments(final ASTFunctionCall astFunctionCall) {
-    final String functionName = astFunctionCall.getCalleeName();
-    if ("exp".equals(functionName)) {
-      return true;
-    }
-    if ("pow".equals(functionName)) {
-      return true;
-    }
-    throw new UnsupportedOperationException();
-  }
-
-  private VariableSymbol resolveVariable(final String variableName, final Scope scope) {
-    final Optional<VariableSymbol> variableSymbol = NESTMLSymbols.resolve(variableName, scope);
-    checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
-    return variableSymbol.get();
-  }
 }

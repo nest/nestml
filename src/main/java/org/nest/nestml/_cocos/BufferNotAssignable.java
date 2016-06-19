@@ -14,10 +14,12 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Checks that buffers cannot be assigned a value.
@@ -28,13 +30,12 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
 
   public static final String ERROR_CODE = "NESTML_SPL_BUFFER_NOT_ASSIGNABLE";
 
-  public void check(final ASTAssignment assignment) {
-    final Optional<? extends Scope> enclosingScope = assignment.getEnclosingScope();
-    checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + assignment);
-    final String varName = Names.getQualifiedName(assignment.getVariableName().getParts());
+  public void check(final ASTAssignment astAssignment) {
+    checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symboltable creator. ");
+    final Scope enclosingScope = astAssignment.getEnclosingScope().get();
+    final String varName = convertToSimpleName(astAssignment.getLhsVarialbe());
 
-    final Optional<VariableSymbol> var = enclosingScope.get()
-        .resolve(varName, VariableSymbol.KIND);
+    final Optional<VariableSymbol> var = enclosingScope.resolve(varName, VariableSymbol.KIND);
 
     if (!var.isPresent()) {
       Log.warn("Cannot resolve the variable: " + varName + " . Thereofore, the coco is skipped.");
@@ -44,7 +45,7 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
       CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
       String msg = errorStrings.getErrorMsg(this,var.get().getName());
 
-      error(msg, assignment.get_SourcePositionStart());
+      error(msg, astAssignment.get_SourcePositionStart());
 
     }
 

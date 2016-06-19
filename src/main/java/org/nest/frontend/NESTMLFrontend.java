@@ -10,7 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.utils.FileHelper;
+import org.nest.utils.FilesHelper;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -41,6 +41,7 @@ public class NESTMLFrontend {
   private final static String LOG_NAME = NESTMLFrontend.class.getName();
   private static final String HELP_ARGUMENT = "help";
   private static final String TARGET_PATH = "target";
+  private static final String PYTHON_INTERPRETER = "python ";
 
   private final Options options = new Options();
   private final HelpFormatter formatter = new HelpFormatter();
@@ -68,7 +69,7 @@ public class NESTMLFrontend {
     final CLIConfiguration cliConfiguration = createCLIConfiguration(args);
 
     if (checkEnvironment(cliConfiguration)) {
-      handleConsoleArguments(cliConfiguration);
+      executeConfiguration(cliConfiguration);
 
     } else {
       Log.error("The execution environment is not installed properly.");
@@ -91,7 +92,7 @@ public class NESTMLFrontend {
   }
 
   public static boolean checkEnvironment(final CLIConfiguration cliConfiguration) {
-    FileHelper.createFolders(cliConfiguration.getTargetPath());
+    FilesHelper.createFolders(cliConfiguration.getTargetPath());
     cleanUpTmpFiles(cliConfiguration);
 
     boolean isError = false;
@@ -123,14 +124,14 @@ public class NESTMLFrontend {
 
   private static void cleanUpTmpFiles(final CLIConfiguration cliConfiguration) {
     if (!Files.exists(cliConfiguration.getTargetPath())) {
-      FileHelper.createFolders(cliConfiguration.getTargetPath());
+      FilesHelper.createFolders(cliConfiguration.getTargetPath());
     }
     else {
-      final List<Path> tmps = FileHelper.collectFiles(
+      final List<Path> tmps = FilesHelper.collectFiles(
           cliConfiguration.getTargetPath(),
           file -> file.endsWith(".tmp"));
 
-      tmps.stream().forEach(FileHelper::deleteFile);
+      tmps.stream().forEach(FilesHelper::deleteFile);
     }
   }
 
@@ -170,7 +171,7 @@ public class NESTMLFrontend {
       long start = System.nanoTime();
       final Process res;
       res = Runtime.getRuntime().exec(
-          "python2.7 " + copiedScriptName,
+          PYTHON_INTERPRETER + copiedScriptName,
           new String[0],
           outputFolder.toFile());
       res.waitFor();
@@ -194,14 +195,14 @@ public class NESTMLFrontend {
       final String checkerScript,
       final String copiedScriptName,
       final Path outputFolder) throws IOException {
-    ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
+    final ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
     final InputStream is = classloader.getResourceAsStream(checkerScript);
     byte[] buffer = new byte[is.available()];
     if (is.read(buffer) < 0) {
       Log.error("Cannot copy the script " + checkerScript);
     }
 
-    OutputStream outStream = new FileOutputStream(
+    final OutputStream outStream = new FileOutputStream(
         Paths.get(outputFolder.toString(), copiedScriptName).toString());
     outStream.write(buffer);
   }
@@ -211,7 +212,7 @@ public class NESTMLFrontend {
     return in.lines().collect(Collectors.toList());
   }
 
-  private void handleConsoleArguments(final CLIConfiguration CLIConfiguration) {
+  private void executeConfiguration(final CLIConfiguration CLIConfiguration) {
     final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(CLIConfiguration.getInputBase());

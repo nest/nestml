@@ -9,20 +9,22 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
+import org.nest.codegeneration.helpers.AliasInverter;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.utils.ASTNodes.printComment;
+import static org.nest.codegeneration.helpers.AliasInverter.isInvertableExpression;
+import static org.nest.codegeneration.helpers.AliasInverter.isRelativeExpression;
+import static org.nest.utils.ASTUtils.printComment;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
@@ -175,9 +177,11 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   public List<VariableSymbol> getStateNonAliasSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get())
+    final Collection<VariableSymbol> variableSymbols = getEnclosingScope().get().resolveLocally(VariableSymbol.KIND);
+    return variableSymbols
         .stream()
-        .filter(variable -> !variable.isAlias())
+        .filter(VariableSymbol::isState)
+        .filter(variableSymbol -> !variableSymbol.isAlias())
         .collect(Collectors.toList());
   }
 
@@ -237,10 +241,7 @@ public class ASTBody extends ASTBodyTOP {
       final Scope scope) {
     return aliasDeclarations.stream()
         .flatMap(alias -> alias.getDeclaration().getVars().stream()) // get all variables form the declaration
-        .map(variable -> {
-          Optional<VariableSymbol> varSymbol = scope.resolve(variable, VariableSymbol.KIND);
-          return varSymbol.get(); // assumes the all condition are fullfiled and the variable exists
-        })
+        .map(variable -> VariableSymbol.resolve(variable, scope))
         .collect(toList());
   }
 
@@ -301,7 +302,7 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   public List<ASTOutput> getOutputs() {
-    List<ASTOutput> result = this.getBodyElements().stream()
+    final List<ASTOutput> result = this.getBodyElements().stream()
         .filter(be -> be instanceof ASTOutput)
         .map(be -> (ASTOutput) be)
         .collect(Collectors.toList());
@@ -310,7 +311,7 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   public List<ASTStructureLine> getStructure() {
-    List<ASTStructureLine> result = new ArrayList<ASTStructureLine>();
+    final List<ASTStructureLine> result = new ArrayList<ASTStructureLine>();
 
     for (ASTBodyElement be : this.getBodyElements()) {
       if (be instanceof ASTStructure) {
@@ -324,5 +325,50 @@ public class ASTBody extends ASTBodyTOP {
     return ImmutableList.copyOf(result);
   }
 
+  /**
+   * TODO It is very NEST related. Factor it out
+   * @return
+   */
+  public List<VariableSymbol> getAllOffsetVariables() {
+    final List<VariableSymbol> aliases = Lists.newArrayList();
+    aliases.addAll(getParameterAliasSymbols());
+    aliases.addAll(getStateAliasSymbols());
+
+    final List<VariableSymbol> invertableAliases = aliases.stream()
+        .filter(variable -> isInvertableExpression(variable.getDeclaringExpression().get()) ||
+               variable.isParameter() && isRelativeExpression(variable.getDeclaringExpression().get()))
+        .collect(Collectors.toList());
+
+    // Use sets to filter double variables, e.g. a variable that is used twice on the right side
+    final Set<VariableSymbol> offsets = invertableAliases.stream()
+        .map(alias -> AliasInverter.offsetVariable(alias.getDeclaringExpression().get()))
+        .collect(Collectors.toSet());
+
+    return Lists.newArrayList(offsets);
+  }
+
+  /**
+   * TODO It is very NEST related. Factor it out
+   * @return
+   */
+  public List<VariableSymbol> getAllRelativeParameters() {
+    return  getParameterAliasSymbols().stream()
+        .filter(variable -> isRelativeExpression(variable.getDeclaringExpression().get()))
+        .collect(Collectors.toList());
+  }
+
+  public Optional<ASTEquations> getODEBlock() {
+    final Optional<ASTBodyElement> odeBlock = bodyElements
+        .stream()
+        .filter(astBodyElement -> astBodyElement instanceof ASTEquations)
+        .findAny();
+    if (odeBlock.isPresent()) {
+      return Optional.of((ASTEquations) odeBlock.get()); // checked by the filter conditions
+    }
+    else {
+      return Optional.empty();
+    }
+
+  }
 
 }

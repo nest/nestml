@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Disables exit on error and provides base services for parsing and symbol table.
@@ -34,13 +37,10 @@ public class ModelbasedTest {
   protected final NESTMLParser parser = new NESTMLParser(TEST_MODEL_PATH);
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
-  @BeforeClass
-  public static void disableFailQuick() {
-    Log.enableFailQuick(false);
-  }
 
   @Before
   public void clearLog() {
+    Log.enableFailQuick(false);
     Log.getFindings().clear();
   }
 
@@ -53,6 +53,19 @@ public class ModelbasedTest {
       throw new RuntimeException("Cannot parse the NESTML model: " + pathToModel, e);
     }
 
+  }
+
+  protected ASTNESTMLCompilationUnit parseAndBuildSymboltable(final String pathToModel) {
+    final Optional<ASTNESTMLCompilationUnit> root;
+    try {
+      root = parser.parse(pathToModel);
+      assertTrue(root.isPresent());
+      scopeCreator.runSymbolTableCreator(root.get());
+      return root.get();
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   protected void printModelToFile(

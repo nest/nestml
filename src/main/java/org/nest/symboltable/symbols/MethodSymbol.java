@@ -6,12 +6,15 @@
 package org.nest.symboltable.symbols;
 
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
+import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Represents functions, e.g. dynamics, getter/setter, and predefined functions like pow.
@@ -121,6 +124,12 @@ public class MethodSymbol extends CommonScopeSpanningSymbol {
   {
     return com.google.common.base.Objects.hashCode(
         this.getName(), this.returnType, declaringType, declaringNeuron, isDynamics, this.parameters);
+  }
+
+  public static MethodSymbol resolve(final String methodName, final Scope scope) {
+    final Optional<MethodSymbol> variableSymbol = scope.resolve(methodName, MethodSymbol.KIND);
+    checkState(variableSymbol.isPresent(), "Cannot resolve the method or function: " + methodName);
+    return variableSymbol.get();
   }
 
   private static class MethodSymbolKind implements SymbolKind {

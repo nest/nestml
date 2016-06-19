@@ -6,17 +6,22 @@
 -->
 ${signature("var")}
 
-<#if !var.isAlias()>
-inline ${declarations.printVariableType(var)} get_${var.getName()}() const {
-  return ${declarations.getAliasOrigin(var)}.get_${var.getName()}() ;
-}
+<#if var.isAlias()>
+  <#if aliasInverter.isRelativeExpression(var.getDeclaringExpression().get())>
+    inline ${declarations.printVariableType(var)} get_${var.getName()}() const {
+      return ${variableHelper.printOrigin(var)} ${var.getName()};
+    }
+  <#else>
+    inline ${declarations.printVariableType(var)} get_${var.getName()}() const {
+      return ${tc.include("org.nest.spl.expr.Expr", var.getDeclaringExpression().get())};
+    }
+  </#if>
 <#else>
-inline ${declarations.printVariableType(var)} get_${var.getName()}() const {
-  return ${tc.include("org.nest.spl.expr.Expr", var.getDeclaringExpression().get())};
-}
-</#if>
-<#if !var.isAlias()>
-inline void set_${var.getName()}(const ${declarations.printVariableType(var)} v) {
-  ${declarations.getAliasOrigin(var)}.set_${var.getName()}( v ) ;
-}
+  inline ${declarations.printVariableType(var)} get_${var.getName()}() const {
+    return ${variableHelper.printOrigin(var)} ${var.getName()};
+  }
+
+  inline void set_${var.getName()}(const ${declarations.printVariableType(var)} v) {
+    ${variableHelper.printOrigin(var)} ${var.getName()} = v;
+  }
 </#if>

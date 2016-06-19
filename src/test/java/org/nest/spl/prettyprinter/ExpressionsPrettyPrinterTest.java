@@ -6,11 +6,16 @@
 package org.nest.spl.prettyprinter;
 
 import org.junit.Test;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
+import org.nest.utils.ASTUtils;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -35,8 +40,15 @@ public class ExpressionsPrettyPrinterTest {
     SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     splScopeCreator.runSymbolTableCreator(root.get());// do I need symbol table for the pretty printer
 
-    expressionsPrettyPrinter.print(root.get().getBlock().getStmts().get(4).getSimple_Stmt().get()
-            .getSmall_Stmts().get(0).getDeclaration().get().getExpr().get());
+    final NESTMLParser parser = new NESTMLParser();
+    final List<ASTExpr> expressions = ASTUtils.getAll(root.get(), ASTExpr.class);
+    for(final ASTExpr expr:expressions) {
+      final String printedExpression = expressionsPrettyPrinter.print(expr);
+
+      System.out.println(printedExpression);
+      final Optional<ASTExpr> testant = parser.parseExpr(new StringReader(printedExpression));
+      assertTrue(testant.isPresent());
+    }
   }
   
 }

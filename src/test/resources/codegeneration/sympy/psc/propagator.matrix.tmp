@@ -1,0 +1,9 @@
+P00 real = exp(-__h__/tau_syn_ex)
+P01 real = 0
+P02 real = 0
+P10 real = __h__*exp(-__h__/tau_syn_ex)
+P11 real = exp(-__h__/tau_syn_ex)
+P12 real = 0
+P20 real = -Tau*tau_syn_ex*(Tau*__h__*exp(__h__/Tau) + Tau*tau_syn_ex*exp(__h__/Tau) - Tau*tau_syn_ex*exp(__h__/tau_syn_ex) - __h__*tau_syn_ex*exp(__h__/Tau))*exp(-__h__/tau_syn_ex - __h__/Tau)/(C_m*(Tau**2 - 2*Tau*tau_syn_ex + tau_syn_ex**2))
+P21 real = -Tau*tau_syn_ex*(exp(__h__/Tau) - exp(__h__/tau_syn_ex))*exp(-__h__/tau_syn_ex - __h__/Tau)/(C_m*(Tau - tau_syn_ex))
+P22 real = exp(-__h__/Tau)

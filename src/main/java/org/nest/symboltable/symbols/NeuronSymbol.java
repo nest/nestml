@@ -5,11 +5,10 @@
  */
 package org.nest.symboltable.symbols;
 
+import de.monticore.ast.Comment;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.MutableScope;
-import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolKind;
-import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import org.nest.symboltable.NeuronScope;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 
@@ -53,7 +52,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   public List<VariableSymbol> getStateVariables() {
     return getSpannedScope().<VariableSymbol> resolveLocally(VariableSymbol.KIND)
         .stream()
-        .filter(VariableSymbol::isInState)
+        .filter(VariableSymbol::isState)
         .collect(toList());
   }
 
@@ -73,11 +72,25 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   @SuppressWarnings("unused") // it is used within freemarker templates
   public List<VariableSymbol> getSpikeBuffers() {
-    final Collection<VariableSymbol> variableSymbols
-        = spannedScope.resolveLocally(VariableSymbol.KIND);
+    final Collection<VariableSymbol> variableSymbols = spannedScope.resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_SPIKE))
         .collect(toList());
+  }
+
+  @SuppressWarnings("unused") // it is used within freemarker templates
+  public boolean isMultisynapseSpikes() {
+    return getSpikeBuffers()
+        .stream()
+        .filter(VariableSymbol::isVector)
+        .findAny()
+        .isPresent();
+  }
+
+  public MethodSymbol getUpdateBlock() {
+    // the existence is checked by a context condition
+    final Optional<MethodSymbol> methodSymbol = spannedScope.resolveLocally("dynamics", MethodSymbol.KIND);
+    return methodSymbol.get();
   }
 
   @Override
@@ -94,14 +107,29 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     return Optional.ofNullable(baseNeuron);
   }
 
+  @SuppressWarnings("unused") // it is used in the NeuronHeader.ftl generator template
   public String printComment() {
-    final StringBuffer output = new StringBuffer();
-    if(getAstNode().isPresent()) {
-      getAstNode().get().get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
-      getAstNode().get().get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
+    final StringBuilder output = new StringBuilder();
+    if(getAstNode().isPresent()) {//
+      escapeAndPrintComment(getAstNode().get().get_PreComments(), output);
+      escapeAndPrintComment(getAstNode().get().get_PostComments(), output);
+      getAstNode().get().get_PostComments()
+          .stream()
+          .map(comment -> comment.getText().replace("/*", "//").replace("*/", "//"))
+          .forEach(output::append);
     }
 
     return output.toString();
+  }
+
+  /**
+   * Replaces the multiline comment characters and prints it as string to output.
+   * @param output Adds comments to this output
+   */
+  private void escapeAndPrintComment(final List<Comment> comments, final StringBuilder output) {
+    comments.stream()
+        .map(comment -> comment.getText().replace("/*", "//").replace("*/", "//"))
+        .forEach(output::append);
   }
 
   /**

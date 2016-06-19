@@ -1,16 +1,14 @@
 <#--
-  Generates C++ declaration
-  @grammar: AliasDecl = ([hide:"-"])? ([alias:"alias"])?
-                        Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
-                        Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
-  @param ast ASTAliasDecl
-  @param tc templatecontroller
-  @result TODO
+  Generates code that
+
+  @param variable VariableSymbol
 -->
 ${signature("variable")}
-
-<#if !variable.isAlias() && !variable.isInState()>
-def<${declarations.printVariableType(variable)}>(d, "${variable.getName()}", get_${variable.getName()}());
+<#if variable.isAlias() && aliasInverter.isRelativeExpression(variable.getDeclaringExpression().get())>
+  <#assign baseVariable = variable.getName()>
+  <#assign offset = aliasInverter.offsetVariable(variable.getDeclaringExpression().get()).getName()>
+  <#assign inverseOperation = aliasInverter.inverseOperator(variable.getDeclaringExpression().get())>
+  def< ${declarations.printVariableType(variable)} >(d, "${variable.getName()}", get_${variable.getName()}() ${inverseOperation} get_${offset}());
 <#else>
-// do not export ${variable.getName()}
+  def< ${declarations.printVariableType(variable)} >(d, "${variable.getName()}", get_${variable.getName()}());
 </#if>

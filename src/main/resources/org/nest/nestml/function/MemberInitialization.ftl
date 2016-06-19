@@ -1,13 +1,26 @@
 <#--
   Generates C++ declaration
-  @grammar: Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
-  @param ast ASTDeclaration
+  @grammar:  Declaration =
+                vars:Name ("," vars:Name)*
+                Datatype
+                ("[" sizeParameter:Name "]")?
+                ( "=" Expr )? ;
+
+  @param variable VariableSymbol
   @param tc templatecontroller
-  @result TODO
 -->
 ${signature("variable")}
+
 <#if variable.getDeclaringExpression().isPresent()>
-  ${variable.getName()}_( ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())} )
+  <#if variable.isVector()>
+    ${variable.getName()}.resize(${variable.getVectorParameter().get()}, ${printerWithGetters.print(variable.getDeclaringExpression().get())});
+  <#else>
+    ${variable.getName()} = ${printerWithGetters.print(variable.getDeclaringExpression().get())};
+  </#if>
 <#else>
-  ${variable.getName()}_()
+  <#if !variable.isVector()>
+    ${variable.getName()} = 0;
+  <#else>
+    ${variable.getName()}.resize(0);
+  </#if>
 </#if>

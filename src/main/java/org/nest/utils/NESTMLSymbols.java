@@ -11,6 +11,8 @@ import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -21,34 +23,57 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.stream.Collectors.toList;
+
 /**
  * Provides convenience methods
  *
  * @author plotnikov
  */
 public class NESTMLSymbols {
+  public static Optional<MethodSymbol> resolveMethod(final ASTFunctionCall astFunctionCall) {
+    checkArgument(astFunctionCall.getEnclosingScope().isPresent(), "Run symbol table creator");
+
+    final List<String> callTypes = ASTUtils.getParameterTypes(astFunctionCall);
+    return resolveMethod(astFunctionCall.getCalleeName(), callTypes, astFunctionCall.getEnclosingScope().get());
+  }
+
+  public static Optional<MethodSymbol> resolveMethod(final ASTFunction astFunction) {
+    checkArgument(astFunction.getEnclosingScope().isPresent(), "Run symbol table creator");
+
+    final List<String> callTypes;
+    if (astFunction.getParameters().isPresent()) {
+      callTypes = astFunction.getParameters().get().getParameters()
+          .stream()
+          .map(astParameter -> ASTUtils.computeTypeName(astParameter.getDatatype()))
+          .collect(toList());
+    }
+    else {
+      callTypes = Lists.newArrayList();
+    }
+
+    return resolveMethod(astFunction.getName(), callTypes, astFunction.getEnclosingScope().get());
+  }
 
   public static Optional<MethodSymbol> resolveMethod(
-      final Scope scope,
-      final String methodName,
-      final List<String> parameterTypes) {
-    // it is OK. The cast is secured through the symboltable infrastructure
-    MethodSignaturePredicate signaturePredicate = new MethodSignaturePredicate(methodName,
+      final String methodName, final List<String> parameterTypes, final Scope scope) {
+
+    final MethodSignaturePredicate signaturePredicate = new MethodSignaturePredicate(methodName,
         parameterTypes);
     @SuppressWarnings("unchecked")
     final Collection<Symbol> standAloneFunction = scope.resolveMany(
-        methodName,
-        MethodSymbol.KIND,
-         signaturePredicate).stream().filter(signaturePredicate) // TODO is it a bug in MC?
-        .collect(Collectors.toList());
+        methodName, MethodSymbol.KIND, signaturePredicate)
+        .stream()
+        .filter(signaturePredicate) // TODO is it a bug in MC?
+        .collect(toList());
 
 
     final String calleeVariableNameCandidate = Names.getQualifier(methodName);
     final String simpleMethodName = Names.getSimpleName(methodName);
 
     if (!calleeVariableNameCandidate.isEmpty()) {
-      final Optional<VariableSymbol> calleeVariableSymbol
-          = scope.resolve(calleeVariableNameCandidate, VariableSymbol.KIND);
+      final Optional<VariableSymbol> calleeVariableSymbol = scope.resolve(calleeVariableNameCandidate, VariableSymbol.KIND);
       if (calleeVariableSymbol.isPresent()) {
 
         final Optional<MethodSymbol> builtInMethod
@@ -95,9 +120,8 @@ public class NESTMLSymbols {
       final Scope scope) {
     final String setterName = "set_" + aliasVar;
     final Optional<MethodSymbol> setter = NESTMLSymbols.resolveMethod(
-        scope,
-        setterName,
-        Lists.newArrayList(varTypeName));
+        setterName, Lists.newArrayList(varTypeName), scope
+    );
 
     if (!setter.isPresent()) {
       return false;

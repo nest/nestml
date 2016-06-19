@@ -7,11 +7,13 @@ package org.nest.nestml._cocos;
 
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
+import org.nest.utils.NESTMLSymbols;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,61 +39,51 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
     checkState(enclosingScope.isPresent(),
         "There is no scope assigned to the AST node: " + fun.getName());
 
-    MethodSymbol methodSymbol = getMethodEntry(fun, enclosingScope.get());
+    Optional<MethodSymbol> methodSymbol = NESTMLSymbols.resolveMethod(fun);
 
-    if (methodSymbol.getDeclaringNeuron().getType() == NeuronSymbol.Type.COMPONENT
-        && funName.equals("get_instance")
-        && methodSymbol.getParameterTypes().size() == 0) {
+    if (methodSymbol.isPresent()) {
+      if (methodSymbol.get().getDeclaringNeuron().getType() == NeuronSymbol.Type.COMPONENT
+          && funName.equals("get_instance")
+          && methodSymbol.get().getParameterTypes().size() == 0) {
 
-      final String msg = errorStrings.getErrorMsgGet_InstanceDefined(this);
+        final String msg = errorStrings.getErrorMsgGet_InstanceDefined(this);
 
-      error(msg, fun.get_SourcePositionStart());
-      return;
-    }
+        error(msg, fun.get_SourcePositionStart());
+        return;
+      }
 
-    if (funName.startsWith("get_") || funName.startsWith("set_")) {
-      String varName = funName.substring(4);
+      if (funName.startsWith("get_") || funName.startsWith("set_")) {
+        String varName = funName.substring(4);
 
-      Optional<VariableSymbol> var = enclosingScope.get()
-          .resolve(varName, VariableSymbol.KIND);
+        final Optional<VariableSymbol> var = enclosingScope.get().resolve(varName, VariableSymbol.KIND);
 
-      if (var.isPresent()) {
-        if (funName.startsWith("set_") &&
-            methodSymbol.getParameterTypes().size() == 1 &&
-            !var.get().isAlias()) {
-          final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
+        if (var.isPresent()) {
+          if (funName.startsWith("set_") &&
+              methodSymbol.get().getParameterTypes().size() == 1 &&
+              !var.get().isAlias()) {
+            final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
 
-          error(msg, fun.get_SourcePositionStart());
+            error(msg, fun.get_SourcePositionStart());
+          }
+
+          if (funName.startsWith("get_") && methodSymbol.get().getParameterTypes().size() == 0) {
+            final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
+
+            error(msg, fun.get_SourcePositionStart());
+          }
+
         }
-
-        if (funName.startsWith("get_") && methodSymbol.getParameterTypes().size() == 0) {
-          final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
-
-          error(msg, fun.get_SourcePositionStart());
+        else {
+          Log.warn(ERROR_CODE + ":" + "Cannot resolve the variable: " + varName);
         }
 
       }
 
     }
-
-  }
-
-  private MethodSymbol getMethodEntry(final ASTFunction fun, final Scope scope) {
-    final Optional<MethodSymbol> methodSymbol;
-
-    List<String> parameters = Lists.newArrayList();
-    if (fun.getParameters().isPresent()) {
-      for (int i = 0; i < fun.getParameters().get().getParameters().size(); ++i) {
-        String parameterTypeFqn = ASTNodes.computeTypeName(
-            fun.getParameters().get().getParameters().get(i).getDatatype());
-        parameters.add(parameterTypeFqn);
-      }
-
+    else {
+      Log.warn("The function is" + funName + " undefined.");
     }
 
-    methodSymbol = resolveMethod(scope, fun.getName(), parameters);
-    checkState(methodSymbol.isPresent(), "Cannot resolve the method: " + fun.getName());
-    return methodSymbol.get();
   }
 
 }

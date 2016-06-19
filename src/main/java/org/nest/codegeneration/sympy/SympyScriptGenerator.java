@@ -5,22 +5,19 @@
  */
 package org.nest.codegeneration.sympy;
 
-import de.monticore.ast.ASTNode;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.ode._ast.ASTODE;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -31,13 +28,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static java.util.stream.Collectors.toList;
-import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
-import static org.nest.utils.ASTNodes.getVariableSymbols;
+import static org.nest.utils.ASTUtils.getVariableSymbols;
 
 /**
  * Wrapps the logic how to extract and generate SymPy script..
@@ -47,10 +43,11 @@ public class SympyScriptGenerator {
 
   private final static String LOG_NAME = SympyScriptGenerator.class.getName();
 
-  private static final String SCRIPT_GENERATOR_TEMPLATE = "org.nest.sympy.SympySolver";
+  private static final String ODE_SOLVER_GENERATOR_TEMPLATE = "org.nest.sympy.ODESolver";
+  private static final String DELTA_SHAPE_SOLVER_GENERATOR_TEMPLATE = "org.nest.sympy.DeltaShapeSolver";
 
   /**
-   * Runs code generation for the codegeneration.sympy script, if the particular neuron contains an ODE definition.
+   * Runs code generation for the sympy script to solve an arbitrary ODE
    *
    * @param neuron Neuron from the nestml model (must be part of the root)
    * @param outputDirectory Base directory for the output
@@ -65,9 +62,10 @@ public class SympyScriptGenerator {
     final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getEquations();
 
     if (odeDefinition.isPresent()) {
-      final Path generatedScriptFile = generateSolverScript(
+      final Path generatedScriptFile = generateSympyScript(
           createGLEXConfiguration(),
-          neuron.deepClone(),
+          neuron.deepClone(), // is necessary because the model is altered inplace, e.g replacing I_sum(Buffer, Shape)
+          ODE_SOLVER_GENERATOR_TEMPLATE,
           odeDefinition.get(),
           setup);
 
@@ -79,23 +77,72 @@ public class SympyScriptGenerator {
 
       return of(generatedScriptFile);
     }
+    else {
+      final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
+          + "is skipped.", neuron.getName());
+      Log.warn(msg);
 
-    final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
-        + "is skipped.", neuron.getName());
-    Log.warn(msg);
+      return empty();
+    }
 
-    return empty();
   }
 
-  private static Path generateSolverScript(
+  /**
+   * Runs code generation for the sympy script to solve an arbitrary ODE
+   *
+   * @param neuron Neuron from the nestml model (must be part of the root)
+   * @param outputDirectory Base directory for the output
+   * @return Path to the generated script of @code{empty()} if there is no ODE definition.
+   */
+  public static Optional<Path> generateODEAnalyserForDeltaShape(
+      final ASTNeuron neuron,
+      final Path outputDirectory) {
+    final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
+
+    final ASTBody astBodyDecorator = (neuron.getBody());
+    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getEquations();
+
+    if (odeDefinition.isPresent()) {
+      final Path generatedScriptFile = generateSympyScript(
+          createGLEXConfiguration(),
+          neuron.deepClone(), // is necessary because the model is altered inplace, e.g replacing I_sum(Buffer, Shape)
+          DELTA_SHAPE_SOLVER_GENERATOR_TEMPLATE,
+          odeDefinition.get(),
+          setup);
+
+      final String msg = String.format(
+          "Successfully generated solver script for neuron %s under %s",
+          neuron.getName(),
+          generatedScriptFile.toString());
+      info(msg, LOG_NAME);
+
+      return of(generatedScriptFile);
+    }
+    else {
+      final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
+          + "is skipped.", neuron.getName());
+      Log.warn(msg);
+
+      return empty();
+    }
+
+  }
+
+  private static Path generateSympyScript(
       final GlobalExtensionManagement glex,
       final ASTNeuron neuron,
+      final String templateName,
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
+    checkArgument(neuron.getEnclosingScope().isPresent(), "Run symboltable creator");
+    if (astOdeDeclaration.getODEs().size() >= 1) {
+      Log.warn("It works only for a single ODE. Only the first equation will be used.");
+    }
 
-    checkState(astOdeDeclaration.getODEs().size() == 1, "It works only for a single ODE.");
-    glex.setGlobalValue("ode", replace_I_sum(astOdeDeclaration.getODEs().get(0)));
-    glex.setGlobalValue("EQs", astOdeDeclaration.getEqs());
+    final ASTEquation workingVersion = ODETransformer.replace_I_sum(astOdeDeclaration.getODEs().get(0));
+
+    glex.setGlobalValue("ode", workingVersion);
+    glex.setGlobalValue("EQs", astOdeDeclaration.getShapes());
     glex.setGlobalValue("predefinedVariables", PredefinedVariables.gerVariables());
 
     setup.setGlex(glex);
@@ -108,21 +155,19 @@ public class SympyScriptGenerator {
 
     final Set<VariableSymbol> variables = new HashSet<>(getVariableSymbols(astOdeDeclaration));
 
-    final List<VariableSymbol> aliases = ASTNodes.getAliasSymbols(astOdeDeclaration);
+    final List<VariableSymbol> aliases = ASTUtils.getAliasSymbols(astOdeDeclaration);
+
     List<VariableSymbol> symbolsInAliasDeclaration = aliases
         .stream()
-        .flatMap(alias -> ASTNodes.getVariableSymbols(alias.getDeclaringExpression().get()).stream())
+        .flatMap(alias -> getVariableSymbols(alias.getDeclaringExpression().get()).stream())
         .collect(Collectors.toList());
     variables.addAll(symbolsInAliasDeclaration);
 
-    Optional<? extends Scope> scope = astOdeDeclaration.getEnclosingScope();
-    if (scope.isPresent()) {
-      for (final ASTODE ode:astOdeDeclaration.getODEs()) {
-        final Optional<VariableSymbol> lhsSymbol = scope.get().resolve(
-            ode.getLhs().toString(),
-            VariableSymbol.KIND);
-        lhsSymbol.ifPresent(variables::add);
-      }
+    final Scope scope = astOdeDeclaration.getEnclosingScope().get();
+
+    for (final ASTEquation ode:astOdeDeclaration.getODEs()) {
+      final VariableSymbol lhsSymbol = VariableSymbol.resolve(ASTUtils.convertToSimpleName(ode.getLhs()), scope);
+      variables.add(lhsSymbol);
     }
 
     glex.setGlobalValue("variables", variables);
@@ -131,26 +176,11 @@ public class SympyScriptGenerator {
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("printer", expressionsPrinter);
 
-    generator.generate(SCRIPT_GENERATOR_TEMPLATE, solverSubPath, astOdeDeclaration);
+    generator.generate(templateName, solverSubPath, astOdeDeclaration);
 
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());
   }
 
-  static ASTODE replace_I_sum(final ASTODE astOde) {
-    final List<ASTFunctionCall> functions = ASTNodes.getAll(astOde, ASTFunctionCall.class)
-        .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))
-        .collect(toList());
-
-    functions.stream().forEach(node -> {
-      final Optional<ASTNode> parent = ASTNodes.getParent(node, astOde);
-      checkState(parent.isPresent());
-      final ASTExpr expr = (ASTExpr) parent.get();
-      expr.setFunctionCall(null);
-      expr.setVariable(node.getArgs().get(0).getVariable().get());
-    });
-    return astOde;
-  }
 
   private static GlobalExtensionManagement createGLEXConfiguration() {
     return new GlobalExtensionManagement();

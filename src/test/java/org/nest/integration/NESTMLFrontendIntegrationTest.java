@@ -10,65 +10,70 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.frontend.CLIConfiguration;
 import org.nest.frontend.NESTMLFrontend;
+import org.nest.utils.FilesHelper;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * TODO
+ * Tests the entire pipeline.
  *
  * @author plotnikov
  */
-@Ignore("Don't run this tests on github")
+@Ignore("Don't run this tests on github. PIP uses to outdated sympy package.")
 public class NESTMLFrontendIntegrationTest {
   private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
 
   @Test
   public void testRunUserDefinedOutputFolder() {
-    nestmlFrontend.start(new String[] {
-        "src/test/resources/command_line_base",
-        "--target", Paths.get("target","tmpOutput").toString()});
+    Path outputPath = Paths.get("target", "tmpOutput");
+    FilesHelper.deleteFilesInFolder(outputPath);
+    nestmlFrontend.start(new String[] {"src/test/resources/command_line_base", "--target", outputPath.toString()});
   }
 
   @Test
   public void testInheritance() {
-    nestmlFrontend.start(new String[] {
-        "src/test/resources/inheritance",
-        "--target", Paths.get("target","tmpOutput").toString()});
+    Path outputPath = Paths.get("target", "tmpOutput");
+    FilesHelper.deleteFilesInFolder(outputPath);
+    nestmlFrontend.start(new String[] {"src/test/resources/inheritance", "--target", outputPath.toString()});
   }
 
   @Test
   public void testBluegeneModels() {
-    nestmlFrontend.start(new String[] {
-        "src/test/resources/codegeneration/bluegene",
-        "--target", Paths.get("target", "codegeneration/bluegene").toString()});
+    Path outputPath = Paths.get("target", "tmpOutput");
+    FilesHelper.deleteFilesInFolder(outputPath);
+    nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/bluegene", "--target", outputPath.toString()});
   }
 
   @Test
   public void testModelsWithInheritance() {
-    nestmlFrontend.start(new String[] {
-        "src/test/resources/inheritance",
-        "--target", Paths.get("target", "codegeneration/inheritance").toString()});
+    Path outputPath = Paths.get("target", "tmpOutput");
+    FilesHelper.deleteFilesInFolder(outputPath);
+    nestmlFrontend.start(new String[] {"src/test/resources/inheritance",  "--target", outputPath.toString()});
   }
 
   @Test
   public void testIzhikevichModel() {
-    nestmlFrontend.start(new String[] {
-        "src/test/resources/codegeneration/izhikevich",
-        "--target", Paths.get("target", "codegeneration/izhikevich").toString()});
+    Path outputPath = Paths.get("target", "tmpOutput");
+    FilesHelper.deleteFilesInFolder(outputPath);
+    nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/izhikevich", "--target", outputPath.toString()});
   }
+
 
   @Test
   public void testGIFModel() {
-    nestmlFrontend.start(new String[] {
-        "src/test/resources/codegeneration/gif",
-        "--target", Paths.get("target", "codegeneration/gif").toString()});
+    Path outputPath = Paths.get("target", "tmpOutput");
+    FilesHelper.deleteFilesInFolder(outputPath);
+    nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/gif", "--target", outputPath.toString()});
   }
 
   @Test
   public void testInfrastructure() {
+    Path outputPath = Paths.get("target", "tmpOutput");
+    FilesHelper.deleteFilesInFolder(outputPath);
     final CLIConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
         "src/test/resources/codegeneration/gif",
-        "--target", Paths.get("target", "codegeneration/gif").toString()});
+        "--target", outputPath.toString()});
     Assert.assertTrue(NESTMLFrontend.checkEnvironment(cliConfiguration));
   }
 

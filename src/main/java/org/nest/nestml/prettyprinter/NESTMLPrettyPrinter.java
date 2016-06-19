@@ -1,22 +1,20 @@
 package org.nest.nestml.prettyprinter;
 
-import de.monticore.ast.ASTCNode;
 import de.monticore.ast.ASTNode;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
-import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.ode._ast.ASTEq;
-import org.nest.ode._ast.ASTODE;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTParameter;
 import org.nest.spl._ast.ASTParameters;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
@@ -253,24 +251,24 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    *   OdeDeclaration
    * BLOCK_CLOSE;
    *
-   * OdeDeclaration  = (Eq | ODE | NEWLINE)+;
-   * Eq = lhsVariable:Name "=" rhs:Expr;
-   * ODE = lhsVariable:Name "\'" "=" rhs:Expr;
+   * OdeDeclaration  = (Eq | Shape | NEWLINE)+;
+   * Shape = "shape" lhsVariable:Name "=" rhs:Expr;
+   * ODE = lhsVariable:Variable  "=" rhs:Expr;
    */
   @Override
-  public void visit(final ASTEquations astEquations) {
+  public void visit(final ASTOdeDeclaration astOdeDeclaration) {
     println("equations" + BLOCK_OPEN);
     indent();
+  }
 
-    astEquations
-        .getOdeDeclaration()
-        .getEqs()
-        .forEach(eq -> println(eq.getLhs() + " = " + expressionsPrinter.print(eq.getRhs())));
+  @Override
+  public void visit(final ASTEquation astEquation) {
+    println(astEquation.getLhs() + " = " + expressionsPrinter.print(astEquation.getRhs()));
+  }
 
-    astEquations
-        .getOdeDeclaration()
-        .getODEs()
-        .forEach(ode -> println(ode.getLhs() + "' = " + expressionsPrinter.print(ode.getRhs())));
+  @Override
+  public void visit(final ASTShape astShape) {
+    println("shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs()));
   }
 
   @Override
@@ -286,7 +284,9 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTInputLine astInputLine) {
-    print(astInputLine.getName() + " <- ");
+    print(astInputLine.getName());
+    printArrayParameter(astInputLine);
+    print(" <- ");
     printInputTypes(astInputLine.getInputTypes());
     printOutputType(astInputLine);
     println();
@@ -303,6 +303,10 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
     }
 
+  }
+
+  private void printArrayParameter(final ASTInputLine astInputLine) {
+    astInputLine.getSizeParameter().ifPresent(parameter -> print("[" + parameter + "]"));
   }
 
   private void printOutputType(final ASTInputLine astInputLine) {
@@ -396,7 +400,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
       for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
         boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
         final ASTParameter curParameter = astParameters.get(curParameterIndex);
-        print(curParameter.getName() + " " + ASTNodes.computeTypeName(curParameter.getDatatype()));
+        print(curParameter.getName() + " " + ASTUtils.computeTypeName(curParameter.getDatatype()));
         if (!isLastParameter) {
           print(", ");
         }
@@ -409,7 +413,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   private void printOptionalReturnValue(final ASTFunction astFunction) {
     if (astFunction.getReturnType().isPresent()) {
-      print(ASTNodes.computeTypeName(astFunction.getReturnType().get()));
+      print(ASTUtils.computeTypeName(astFunction.getReturnType().get()));
     }
 
   }
@@ -439,21 +443,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     unindent();
     println();
     println(BLOCK_CLOSE);
-  }
-
-  @Override
-  public void visit(ASTEq node) {
-
-  }
-
-  @Override
-  public void visit(ASTODE node) {
-
-  }
-
-  @Override
-  public void visit(ASTOdeDeclaration node) {
-
   }
 
 }

@@ -12,7 +12,7 @@ import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
-import org.nest.utils.FileHelper;
+import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -39,7 +39,8 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
 
   @Before
   public void cleanUpGeneratedFolder() {
-    FileHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
+    Log.enableFailQuick(false);
+    FilesHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
   }
 
   protected void invokeCodeGenerator(final String pathToModel) {
@@ -47,24 +48,11 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
   }
 
-  protected ASTNESTMLCompilationUnit parseAndBuildSymboltable(final String pathToModel) {
-    final Optional<ASTNESTMLCompilationUnit> root;
-    try {
-      root = parser.parse(pathToModel);
-      assertTrue(root.isPresent());
-      scopeCreator.runSymbolTableCreator(root.get());
-      return root.get();
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
   protected void generateNESTModuleCode(final List<ASTNESTMLCompilationUnit> modelRoots) {
     generator.generateNESTModuleCode(modelRoots, MODULE_NAME, CODE_GEN_OUTPUT);
   }
 
-  public void checkCocos(final String pathToModel) {
+  protected void checkCocos(final String pathToModel) {
     final Optional<ASTNESTMLCompilationUnit> root;
     try {
       root = parser.parse(pathToModel);

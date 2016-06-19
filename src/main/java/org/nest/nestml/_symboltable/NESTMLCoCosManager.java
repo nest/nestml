@@ -117,6 +117,9 @@ public class NESTMLCoCosManager {
     final I_SumHasCorrectParameter i_sumHasCorrectParameter = new I_SumHasCorrectParameter();
     nestmlCoCoChecker.addCoCo(i_sumHasCorrectParameter);
 
+    final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
+    // TODO nestmlCoCoChecker.addChecker(equationsOnlyForStateVariables);
+
     return nestmlCoCoChecker;
   }
 

@@ -10,6 +10,8 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
+import org.nest.ode._ast.ASTEquation;
+import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTParameter;
@@ -30,11 +32,13 @@ import static de.se_rwth.commons.logging.Log.trace;
 import static de.se_rwth.commons.logging.Log.warn;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
+import static java.util.Optional.of;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.COMPONENT;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.LOCAL;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;
-import static org.nest.utils.ASTNodes.computeTypeName;
+import static org.nest.utils.ASTUtils.computeTypeName;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Creates NESTML symbols.
@@ -43,38 +47,14 @@ import static org.nest.utils.ASTNodes.computeTypeName;
  */
 public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implements NESTMLVisitor {
   private String LOGGER_NAME = NESTMLSymbolTableCreator.class.getName();
-  private ASTNESTMLCompilationUnit root;
-  private Optional<ASTAliasDecl> astAliasDeclaration = Optional.empty();
-  private Optional<ASTVar_Block> astVariableBlockType = Optional.empty();
+  private Optional<ASTAliasDecl> astAliasDeclaration = empty();
+  private Optional<ASTVar_Block> astVariableBlockType = empty();
+  private Optional<NeuronSymbol> currentTypeSymbol = empty();
 
   public NESTMLSymbolTableCreator(
       final ResolverConfiguration resolverConfig,
       final MutableScope enclosingScope) {
     super(resolverConfig, enclosingScope);
-  }
-
-  public void setRoot(ASTNESTMLCompilationUnit root) {
-    this.root = root;
-  }
-
-  public ASTNESTMLCompilationUnit getRoot() {
-    return root;
-  }
-
-  void setAliasDeclaration(final Optional<ASTAliasDecl> astAliasDeclaration) {
-    this.astAliasDeclaration = astAliasDeclaration;
-  }
-
-  Optional<ASTAliasDecl> getAliasDeclaration() {
-    return astAliasDeclaration;
-  }
-
-  void setVariableBlockType(Optional<ASTVar_Block> variableBlockType) {
-    astVariableBlockType = variableBlockType;
-  }
-
-  Optional<ASTVar_Block> getVariableBlockType() {
-    return astVariableBlockType;
   }
 
   /**
@@ -92,11 +72,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
 
   public void visit(final ASTNESTMLCompilationUnit compilationUnitAst) {
-    setRoot(compilationUnitAst);
-
     final List<ImportStatement> imports = computeImportStatements(compilationUnitAst);
 
-    setRoot(compilationUnitAst);
     final MutableScope artifactScope = new ArtifactScope(
         empty(),
         compilationUnitAst.getFullName(),
@@ -108,7 +85,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     trace(msg, LOGGER_NAME);
   }
 
-  List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
+  private List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
     final List<ImportStatement> imports = new ArrayList<>();
 
     compilationUnitAst.getImports().stream().forEach(importStatement -> {
@@ -127,8 +104,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   }
 
   public void visit(final ASTNeuron astNeuron) {
-    trace("Processes the neuron:  " + astNeuron.getName(), LOGGER_NAME);
-
     final NeuronSymbol neuronSymbol = new NeuronSymbol(astNeuron.getName(), NEURON);
 
     if (astNeuron.getBase().isPresent()) {
@@ -139,15 +114,61 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       );
       neuronSymbol.setBaseNeuron(baseSymbol);
     }
+    currentTypeSymbol = Optional.of(neuronSymbol);
     addToScopeAndLinkWithNode(neuronSymbol, astNeuron);
+    trace("Add symbol for the neuron:  " + astNeuron.getName(), LOGGER_NAME);
   }
 
-  public void endVisit(final ASTNeuron neuron) {
+  public void endVisit(final ASTNeuron astNeuron) {
+    addVariablesFromODEBlock(astNeuron.getBody());
     removeCurrentScope();
+    currentTypeSymbol = empty();
+  }
+
+  /**
+   * Analyzes the ode block and add all variables, which are defined through ODEs. E.g.:
+   *   state:
+   *     GI nS = 0
+   *   end
+   *   equations:
+   *      GI'' = -GI'/tau_synI
+   *      GI' = GI' - GI/tau_synI
+   *   end
+   * Results in an additional variable for G' (first equations G''). For the sake of the simplicity
+   */
+  private void addVariablesFromODEBlock(final ASTBody astBody) {
+    if (astBody.getODEBlock().isPresent()) {
+      astBody.getODEBlock().get().getOdeDeclaration().getODEs()
+          .stream()
+          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
+          .forEach(this::addODEVariable);
+    }
+
+  }
+
+  private void addODEVariable(final ASTEquation ode) {
+    final String variableName = convertToSimpleName(ode.getLhs());
+
+    final TypeSymbol type = PredefinedTypes.getType("real");
+    final VariableSymbol var = new VariableSymbol(variableName);
+
+    var.setAstNode(ode.getLhs());
+    var.setType(type);
+    var.setDeclaringType(currentTypeSymbol.get());
+    var.setLoggable(true);
+    var.setAlias(false);
+    //var.setDeclaringExpression(ode.getRhs());
+    var.setBlockType(VariableSymbol.BlockType.STATE);
+
+    addToScopeAndLinkWithNode(var, ode.getLhs());
+
+    trace("Adds new shape variable '" + var.getFullName() + "'.", LOGGER_NAME);
   }
 
   public void visit(final ASTComponent componentAst) {
     final NeuronSymbol componentSymbol = new NeuronSymbol(componentAst.getName(), COMPONENT);
+    currentTypeSymbol = of(componentSymbol);
+
     addToScopeAndLinkWithNode(componentSymbol, componentAst);
 
     trace("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
@@ -155,6 +176,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   public void endVisit(final ASTComponent componentAst) {
     removeCurrentScope();
+    currentTypeSymbol = empty();
   }
 
   /**
@@ -174,7 +196,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    */
   public void visit(final ASTUSE_Stmt useAst) {
     checkState(this.currentScope().isPresent());
-    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
     final String referencedTypeName = Names.getQualifiedName(useAst.getName().getParts());
@@ -192,22 +213,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   }
 
 
-  // TODO: use the visitor approach
-  @SuppressWarnings("unchecked") // It is OK to suppress this warning, since it is checked in the if block
-  private Optional<NeuronSymbol> computeNeuronSymbolIfExists(final Scope mutableScope) {
-    if (mutableScope.getSpanningSymbol().isPresent() &&
-        mutableScope.getSpanningSymbol().get() instanceof NeuronSymbol) {
-
-      return (Optional<NeuronSymbol>) mutableScope.getSpanningSymbol();
-    }
-    else if (mutableScope.getEnclosingScope().isPresent()) {
-      return computeNeuronSymbolIfExists(mutableScope.getEnclosingScope().get());
-    }
-    else {
-      return empty();
-    }
-
-  }
   /**
    * {@code
    * Grammar:
@@ -219,14 +224,14 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   public void visit(final ASTAliasDecl aliasDeclAst) {
     checkState(this.currentScope().isPresent());
 
-    setAliasDeclaration(Optional.of(aliasDeclAst));
+    astAliasDeclaration = Optional.of(aliasDeclAst);
     final String msg = "Sets parent alias at the position: " + aliasDeclAst.get_SourcePositionStart();
     trace(msg, LOGGER_NAME);
 
   }
 
   public void endVisit(final ASTAliasDecl aliasDeclAst) {
-    setAliasDeclaration(empty());
+    astAliasDeclaration = empty();
   }
 
   /**
@@ -244,7 +249,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    */
   public void visit(final ASTInputLine inputLineAst) {
     checkState(this.currentScope().isPresent());
-    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent());
 
     final TypeSymbol bufferType = PredefinedTypes.getBufferType();
@@ -263,7 +267,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     }
 
     if (inputLineAst.getSizeParameter().isPresent()) {
-      var.setArraySizeParameter(inputLineAst.getSizeParameter().get());
+      var.setVectorParameter(inputLineAst.getSizeParameter().get());
     }
 
     addToScopeAndLinkWithNode(var, inputLineAst);
@@ -272,7 +276,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   public void visit(final ASTFunction funcAst) {
     checkState(this.currentScope().isPresent());
-    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
     trace(LOGGER_NAME, "Begins processing of the function: " + funcAst.getName());
@@ -341,7 +344,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   public void visit(final ASTDynamics dynamicsAst) {
     checkState(this.currentScope().isPresent());
-    final Optional<NeuronSymbol> currentTypeSymbol = computeNeuronSymbolIfExists(this.currentScope().get());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
     final MethodSymbol methodEntry = new MethodSymbol("dynamics");
@@ -362,7 +364,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   @Override
   public void visit(final ASTVar_Block astVarBlock) {
-    setVariableBlockType(Optional.of(astVarBlock));
+    astVariableBlockType = Optional.of(astVarBlock);
     trace("Handled variable_block", LOGGER_NAME);
   }
 
@@ -370,7 +372,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   @Override
   public void endVisit(final ASTVar_Block astVarBlock) {
-    setVariableBlockType(empty());
+    astVariableBlockType = empty();
   }
 
 
@@ -394,42 +396,38 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   // TODO replication, refactor it
   @Override
   public void visit(final ASTDeclaration astDeclaration) {
-    final NeuronSymbol currentTypeSymbol = computeNeuronSymbolIfExists(
-        this.currentScope().get()).orElse(null);
+    checkState(currentTypeSymbol.isPresent());
+    if (this.astAliasDeclaration.isPresent()) {
+      checkState(astVariableBlockType.isPresent(), "Declaration is not inside a block.");
+      ASTVar_Block blockAst = astVariableBlockType.get();
 
-    final Optional<ASTAliasDecl> aliasDeclAst = getAliasDeclaration();
 
-    if (aliasDeclAst.isPresent()) {
-      Optional<ASTVar_Block> blockAst = getVariableBlockType();
-
-      checkState(blockAst.isPresent(), "Declaration is not inside a block.");
-
-      if (blockAst.get().isState()) {
+      if (blockAst.isState()) {
         addVariablesFromDeclaration(
             astDeclaration,
-            currentTypeSymbol,
-            aliasDeclAst.orElse(null),
+            currentTypeSymbol.get(),
+            astAliasDeclaration.orElse(null),
             STATE);
       }
-      else if (blockAst.get().isParameter()) {
+      else if (blockAst.isParameter()) {
         addVariablesFromDeclaration(
             astDeclaration,
-            currentTypeSymbol,
-            aliasDeclAst.orElse(null),
+            currentTypeSymbol.get(),
+            astAliasDeclaration.orElse(null),
             VariableSymbol.BlockType.PARAMETER);
       }
-      else if (blockAst.get().isInternal()) {
+      else if (blockAst.isInternal()) {
         addVariablesFromDeclaration(
             astDeclaration,
-            currentTypeSymbol,
-            aliasDeclAst.orElse(null),
+            currentTypeSymbol.get(),
+            astAliasDeclaration.orElse(null),
             VariableSymbol.BlockType.INTERNAL);
       }
       else {
         addVariablesFromDeclaration(
             astDeclaration,
-            currentTypeSymbol,
-            aliasDeclAst.orElse(null),
+            currentTypeSymbol.get(),
+            astAliasDeclaration.orElse(null),
             VariableSymbol.BlockType.LOCAL);
       }
 
@@ -438,8 +436,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     else { // the declaration is defined inside a method
       addVariablesFromDeclaration(
           astDeclaration,
-          currentTypeSymbol,
-          aliasDeclAst.orElse(null),
+          currentTypeSymbol.get(),
+          astAliasDeclaration.orElse(null),
           VariableSymbol.BlockType.LOCAL);
 
     }
@@ -449,7 +447,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   /**
    * Adds variables from a declaration. Distinguishes between the place of the declaration, e.g.
    * local, state, ...
-   * @param currentTypeSymbol Nullable neuron declaration.
    * @param aliasDeclAst Nullable declaration which can be empty if a variable defined in a function
    *                     and not in a variable block.
    */
@@ -476,8 +473,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       }
 
       boolean isLoggableStateVariable = blockType == STATE && !aliasDeclAst.isSuppress();
-      boolean isLoggableNonStateVariable
-          = blockType == LOCAL || !(blockType == STATE) && aliasDeclAst.isLog();
+      boolean isLoggableNonStateVariable = blockType == LOCAL || !(blockType == STATE) && aliasDeclAst.isLog();
       if (isLoggableStateVariable || isLoggableNonStateVariable) {
         // otherwise is set to false.
         var.setLoggable(true);
@@ -495,21 +491,34 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       }
 
       if (astDeclaration.getSizeParameter().isPresent()) {
-        var.setArraySizeParameter(astDeclaration.getSizeParameter().get());
+        var.setVectorParameter(astDeclaration.getSizeParameter().get());
       }
 
       var.setBlockType(blockType);
-      if (aliasDeclAst != null) {
-        addToScopeAndLinkWithNode(var, aliasDeclAst);
-      }
-      else {
-        addToScopeAndLinkWithNode(var, astDeclaration);
-      }
+      addToScopeAndLinkWithNode(var, astDeclaration);
 
       trace("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
 
     }
 
+  }
+
+  @Override
+  public void visit(final ASTShape astShape) {
+    final TypeSymbol type = PredefinedTypes.getType("real");
+    final VariableSymbol var = new VariableSymbol(astShape.getLhs().toString());
+
+    var.setAstNode(astShape);
+    var.setType(type);
+    var.setDeclaringType(currentTypeSymbol.get());
+    var.setLoggable(true);
+    var.setAlias(false);
+    var.setDeclaringExpression(astShape.getRhs());
+    var.setBlockType(VariableSymbol.BlockType.SHAPE);
+
+    addToScopeAndLinkWithNode(var, astShape);
+
+    trace("Adds new shape variable '" + var.getFullName() + "'.", LOGGER_NAME);
   }
 
 }

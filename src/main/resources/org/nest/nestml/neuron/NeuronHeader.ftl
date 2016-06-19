@@ -177,45 +177,6 @@ protected:
   friend class nest::UniversalDataLogger<${simpleNeuronName}>;
 
   /**
-  * Dynamic state of the neuron.
-  *
-  * ${body.printStateComment()}
-  *
-  * These are the state variables that are advanced in time by calls to
-  * @c update(). In many models, some or all of them can be set by the user
-  * through @c SetStatus. The state variables are initialized from the model
-  * prototype when the node is created. State variables are reset by @c ResetNetwork.
-  *
-  * @note State_ need neither copy constructor nor @c operator=(), since
-  *       all its members are copied properly by the default copy constructor
-  *       and assignment operator. Important:
-  *       - If State_ contained @c Time members, you need to define the
-  *         assignment operator to recalibrate all members of type @c Time . You
-  *         may also want to define the assignment operator.
-  *       - If State_ contained members that cannot copy themselves, such
-  *         as C-style arrays, you need to define the copy constructor and
-  *         assignment operator to copy those members.
-  */
-  struct State_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::State_ </#if> {
-    <#list body.getStateNonAliasSymbols() as variable>
-    ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
-    </#list>
-    State_();
-
-    /** Store state values in dictionary. */
-    void get(DictionaryDatum&) const;
-
-    /**
-    * Set state values from dictionary.
-    */
-    void set(const DictionaryDatum&);
-
-    <#list body.getStateNonAliasSymbols() as variable>
-    ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
-    </#list>
-  };
-
-  /**
   * Free parameters of the neuron.
   *
   * ${body.printParameterComment()}
@@ -240,6 +201,10 @@ protected:
     <#list body.getParameterNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
+
+    <#list body.getAllRelativeParameters() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
+    </#list>
     /** Initialize parameters to their default values. */
     Parameters_();
 
@@ -247,11 +212,60 @@ protected:
     void get(DictionaryDatum&) const;
 
     /** Set parameter values from dictionary. */
-    void set(const DictionaryDatum&);
+    void set(const DictionaryDatum&
+    <#list body.getAllOffsetVariables() as offset>
+      , ${declarations.printVariableType(offset)} ${offset.getName()}
+    </#list>);
 
     <#list body.getParameterNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
     </#list>
+  };
+
+  /**
+  * Dynamic state of the neuron.
+  *
+  * ${body.printStateComment()}
+  *
+  * These are the state variables that are advanced in time by calls to
+  * @c update(). In many models, some or all of them can be set by the user
+  * through @c SetStatus. The state variables are initialized from the model
+  * prototype when the node is created. State variables are reset by @c ResetNetwork.
+  *
+  * @note State_ need neither copy constructor nor @c operator=(), since
+  *       all its members are copied properly by the default copy constructor
+  *       and assignment operator. Important:
+  *       - If State_ contained @c Time members, you need to define the
+  *         assignment operator to recalibrate all members of type @c Time . You
+  *         may also want to define the assignment operator.
+  *       - If State_ contained members that cannot copy themselves, such
+  *         as C-style arrays, you need to define the copy constructor and
+  *         assignment operator to copy those members.
+  */
+  struct State_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::State_ </#if> {
+    <#list body.getStateNonAliasSymbols() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
+    </#list>
+    <#list body.getStateNonAliasSymbols() as variable>
+      ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
+    </#list>
+
+    State_();
+
+    /** Store state values in dictionary. */
+    void get(DictionaryDatum&) const;
+
+    /**
+    * Set state values from dictionary.
+    */
+    void set(const DictionaryDatum&,
+             const Parameters_&
+    <#list body.getAllOffsetVariables() as offset>
+      , ${declarations.printVariableType(offset)} ${offset.getName()}
+    </#list>
+    );
+
+
   };
 
   /**
@@ -355,13 +369,22 @@ nest::port ${simpleNeuronName}::send_test_event(nest::Node& target, nest::rport 
 inline
 nest::port ${simpleNeuronName}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
-  // You should usually not change the code in this function.
-  // It confirms to the connection management system that we are able
-  // to handle @c SpikeEvent on port 0. You need to extend the function
-  // if you want to differentiate between input ports.
-  if (receptor_type != 0)
-  throw nest::UnknownReceptorType(receptor_type, get_name());
-  return 0;
+
+  <#if neuronSymbol.isMultisynapseSpikes()>
+    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_${neuronSymbol.getSpikeBuffers()[0].getVectorParameter().get()}()) ) // TODO refactor me. The code assumes that there is only one. Check by coco.
+        throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
+
+    return receptor_type;
+  <#else>
+    // You should usually not change the code in this function.
+    // It confirms to the connection management system that we are able
+    // to handle @c SpikeEvent on port 0. You need to extend the function
+    // if you want to differentiate between input ports.
+    if (receptor_type != 0)
+      throw nest::UnknownReceptorType(receptor_type, get_name());
+    return 0;
+  </#if>
+
 }
 </#if>
 
@@ -402,48 +425,39 @@ void ${simpleNeuronName}::get_status(DictionaryDatum &d) const
   ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
   </#list>
   S_.get(d);
-  <#list body.getStateAliasSymbols() as state>
+  <#list body.getStateSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
   </#list>
 
   (*d)[nest::names::recordables] = recordablesMap_.get_list();
 }
 
-// TODO call set_status on used or internal components
 inline
 void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
 {
-  <#list body.getParameterAliasSymbols() as parameter>
-    ${tc.includeArgs("org.nest.nestml.function.SetOldAliasState", [parameter])}
-  </#list>
-  <#list body.getStateAliasSymbols() as state>
-    ${tc.includeArgs("org.nest.nestml.function.SetOldAliasState", [state])}
+  <#list body.getAllOffsetVariables() as offset>
+    ${tc.includeArgs("org.nest.nestml.function.StoreDeltaValue", [offset])}
   </#list>
 
   Parameters_ ptmp = P_;  // temporary copy in case of errors
-  ptmp.set(d);            // throws if BadProperty
-
-  // alias setter-functions perform the set on the member-variable P_, hence
-  // we swap ptmp and P_ and 're-swap' afterwards.
-  std::swap(P_, ptmp);
-
-  <#list body.getParameterAliasSymbols() as parameter>
-  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
+  ptmp.set(d
+  <#list body.getAllOffsetVariables() as offset>
+    , delta_${offset.getName()}
   </#list>
+  );            // throws BadProperty
 
   State_      stmp = S_;  // temporary copy in case of errors
-  stmp.set(d);            // throws if BadProperty
-
-  // alias setter-functions perform the set on the member-variable S_, hence
-  // we swap stmp and S_ and 're-swap' afterwards.
-  // P_ and ptmp stay swaped, since the alias might access parameters
-  std::swap(S_, stmp);
-  <#list body.getStateAliasSymbols() as state>
-  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [state])}
+  stmp.set(d, ptmp
+  <#list body.getAllOffsetVariables() as offset>
+    , delta_${offset.getName()}
   </#list>
-  // 're-swap' when everything is ok (TODO: check for tests)
-  std::swap(P_, ptmp);
-  std::swap(S_, stmp);
+  );            // throws BadProperty
+
+  // We now know that (ptmp, stmp) are consistent. We do not
+  // write them back to (P_, S_) before we are also sure that
+  // the properties to be set in the parent class are internally
+  // consistent.
+  Archiving_Node::set_status( d );
 
   // if we get here, temporaries contain consistent set of properties
   P_ = ptmp;

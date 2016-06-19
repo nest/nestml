@@ -26,22 +26,39 @@ grammar SPL extends org.nest.ODE, org.nest.Units {
              | Declaration
              | ReturnStmt;
 
-  Assignment = variableName:QualifiedName
+  Assignment = lhsVarialbe:Variable
     (assignment:["="]       |
      compoundSum:["+="]     |
      compoundMinus:["-="]   |
      compoundProduct:["*="] |
      compoundQuotient:["/="]) Expr;
 
-  // inherited PrimitiveType must be used here because otherwise the parser cannot distinguish
-  // between fqn: boolean and "keyword" boolean
+
+  /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
+   'a,b,c real = 0'. Or an alias declaration 'alias a = b + c'.
+    @attribute vars          List with variables
+    @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
+    @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
+    @attribute expr An optional initial expression, e.g. 'a real = 10+10'
+   */
   Declaration =
     vars:Name ("," vars:Name)*
     Datatype
     ("[" sizeParameter:Name "]")?
-    ( "=" Expr )? ;
+    ( "=" Expr)? ;
 
+  /** ASTDefiningVariable Signed variable name
 
+    @attribute minus An optional sing
+    @attribute definingVariable Name of the variable
+   */
+  DefiningVariable = (minus:["-"])? definingVariable:Name;
+
+  /** ATReturnStmt Models the return statement in a function.
+
+    @attribute minus An optional sing
+    @attribute definingVariable Name of the variable
+   */
   ReturnStmt = "return" Expr?;
 
   IF_Stmt = IF_Clause

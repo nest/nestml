@@ -6,13 +6,16 @@
 package org.nest.symboltable.symbols;
 
 import de.monticore.symboltable.CommonSymbol;
+import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.utils.ASTUtils;
 
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.*;
+import static org.nest.utils.ASTUtils.getVectorizedVariable;
 import static org.nest.utils.NESTMLSymbols.isSetterPresent;
 
 /**
@@ -21,19 +24,11 @@ import static org.nest.utils.NESTMLSymbols.isSetterPresent;
  * @author plotnikov
  */
 public class VariableSymbol extends CommonSymbol {
+
+
   public static final VariableSymbolKind KIND = new VariableSymbolKind();
 
-  private Optional<ASTExpr> declaringExpression = Optional.empty();
-
-  public enum BlockType {
-    STATE,
-    PARAMETER,
-    INTERNAL,
-    LOCAL,
-    INPUT_BUFFER_CURRENT,
-    INPUT_BUFFER_SPIKE,
-    OUTPUT
-  }
+  private ASTExpr declaringExpression = null;
 
   private TypeSymbol type;
 
@@ -49,8 +44,14 @@ public class VariableSymbol extends CommonSymbol {
 
   private String arraySizeParameter = null;
 
+  public boolean isBuffer() {
+    return blockType == BlockType.INPUT_BUFFER_CURRENT || blockType == BlockType.INPUT_BUFFER_SPIKE;
+  }
+
   public boolean isLoggable() {
-    return isLoggable;
+    // TODO: check whether the logic is correct. At the moment, the vector datatypes are not supported by the code
+    // generator.
+    return isLoggable && !isVector();
   }
 
   public void setLoggable(boolean loggable) {
@@ -60,7 +61,7 @@ public class VariableSymbol extends CommonSymbol {
   public void setDeclaringExpression(final ASTExpr declaringExpression) {
     Objects.requireNonNull(declaringExpression);
 
-    this.declaringExpression = Optional.of(declaringExpression);
+    this.declaringExpression = declaringExpression;
   }
 
   public VariableSymbol(String name) {
@@ -69,16 +70,7 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public Optional<ASTExpr> getDeclaringExpression() {
-    return declaringExpression;
-  }
-
-  public Optional<String> getArraySizeParameter() {
-    return Optional.ofNullable(arraySizeParameter);
-  }
-
-  public void setArraySizeParameter(final String arraySizeParameter) {
-    checkNotNull(arraySizeParameter);
-    this.arraySizeParameter = arraySizeParameter;
+    return Optional.ofNullable(declaringExpression);
   }
 
   @Override
@@ -111,7 +103,44 @@ public class VariableSymbol extends CommonSymbol {
     return isAlias;
   }
 
-  public boolean isInState() {
+  public boolean isVector() {
+    if (blockType != BlockType.SHAPE) {
+      return getVectorParameter().isPresent();
+    }
+    else {
+      // declaring expression exists by construction from symbol table creator
+      // there no shape without declaring expression
+      return getVectorizedVariable(getDeclaringExpression().get(), getEnclosingScope()).isPresent();
+    }
+
+  }
+
+  public Optional<String> getVectorParameter() {
+    if (blockType != BlockType.SHAPE) {
+      return Optional.ofNullable(arraySizeParameter);
+    }
+    else {
+      final Optional<VariableSymbol> vectorizedVariable = getVectorizedVariable(getDeclaringExpression().get(), getEnclosingScope());
+      if (vectorizedVariable.isPresent()) {
+        return vectorizedVariable.get().getVectorParameter();
+      }
+      else {
+        return Optional.empty();
+      }
+    }
+
+  }
+
+  public void setVectorParameter(final String arraySizeParameter) {
+    checkNotNull(arraySizeParameter);
+    this.arraySizeParameter = arraySizeParameter;
+  }
+
+  public boolean isState() {
+    return blockType == BlockType.STATE;
+  }
+
+  public boolean isParameter() {
     return blockType == BlockType.STATE;
   }
 
@@ -144,6 +173,16 @@ public class VariableSymbol extends CommonSymbol {
     return output.toString();
   }
 
+  public static VariableSymbol resolve(final String variableName, final Scope scope) {
+    final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);
+    checkState(variableSymbol.isPresent(), "Cannot resolve the variable: " + variableName);
+    return variableSymbol.get();
+  }
+
+  public static Optional<VariableSymbol> resolveIfExists(final String variableName, final Scope scope) {
+    return scope.resolve(variableName, VariableSymbol.KIND);
+  }
+
   /**
    * Technical class for the symobol table.
    */
@@ -153,4 +192,16 @@ public class VariableSymbol extends CommonSymbol {
     }
 
   }
+
+  public enum BlockType {
+    STATE,
+    PARAMETER,
+    INTERNAL,
+    LOCAL,
+    INPUT_BUFFER_CURRENT,
+    INPUT_BUFFER_SPIKE,
+    OUTPUT,
+    SHAPE
+  }
+
 }

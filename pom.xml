@@ -6,7 +6,7 @@
 
     <groupId>nestml</groupId>
     <artifactId>nestml-core</artifactId>
-    <version>0.0.4-SNAPSHOT</version>
+    <version>0.0.5-SNAPSHOT</version>
 
     <properties>
         <!-- .. Libraries ..................................................... -->
@@ -16,7 +16,7 @@
 
         <!-- Monticore versions and dependencies -->
         <antlr.version>4.5</antlr.version>
-        <monticore.version>4.4.0</monticore.version>
+        <monticore.version>4.4.0.1</monticore.version>
 
         <!-- .. Plugins ....................................................... -->
         <compiler.plugin>3.5.1</compiler.plugin>
@@ -205,12 +205,7 @@
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
             <version>${groovy.version}</version>
-        </dependency><dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>RELEASE</version>
-        <scope>test</scope>
-    </dependency>
+        </dependency>
 
     </dependencies>
 

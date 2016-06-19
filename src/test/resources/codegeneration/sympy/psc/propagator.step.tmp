@@ -1,0 +1,3 @@
+V = P30 * (I_e + currents) + V*exp(-__h__/Tau)
+V += P20*y1_I_shape_in + P21*y2_I_shape_in
+V += P20*y1_I_shape_ex + P21*y2_I_shape_ex

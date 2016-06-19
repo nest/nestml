@@ -47,16 +47,15 @@ relevant measures analytically.
 */
 neuron iaf_neuron_nestml:
 
-  # Captures the dynamik state of the neuron
+  # Captures the dynamic state of the neuron
   state:
     V mV
-    G real
     alias V_m mV = V + E_L # Membrane potential.
   end
 
   # Declarative description of the updates rules
   equations:
-      G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+      shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
       V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 
@@ -74,9 +73,8 @@ neuron iaf_neuron_nestml:
 
   # helper calculations
   internal:
-    h   ms   = resolution()
-    r  integer
     RefractoryCounts integer = steps(t_ref)
+    r  integer
   end
 
   # input sources
@@ -92,20 +90,15 @@ neuron iaf_neuron_nestml:
   update:
     if r == 0: # not refractory
         integrate(V)
-
+        if V >= Theta: # threshold crossing
+          r = RefractoryCounts
+          V = V_reset
+        emit_spike()
+    end
     else:
         r = r - 1
     end
-    if V >= Theta: # threshold crossing
-        r = RefractoryCounts
-        V = V_reset
-        emitSpike()
-    end
 
-  end
-
-  # Dummy function to test comment printing
-  function test() void:
   end
 
 end

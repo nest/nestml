@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
+import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
 
@@ -64,9 +64,7 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
 
   @Test
   public void testCodegenerationModels() throws IOException {
-    final List<Path> models = collectNESTMLModelFilenames(
-        Paths.get(TEST_MODEL_PATH.toString(),
-            "codegeneration"));
+    final List<Path> models = collectNESTMLModelFilenames(Paths.get(TEST_MODEL_PATH.toString(), "codegeneration"));
     models.stream().forEach(this::checkModel);
   }
 

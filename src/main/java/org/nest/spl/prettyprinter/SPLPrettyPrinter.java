@@ -7,12 +7,11 @@ package org.nest.spl.prettyprinter;
 
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
-import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLVisitor;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
@@ -152,7 +151,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    * Assignment = variableName:QualifiedName "=" Expr;
    */
   public void printAssignment(final ASTAssignment astAssignment) {
-    final String lhsVariableName = Names.getQualifiedName(astAssignment.getVariableName().getParts());
+    final String lhsVariableName = astAssignment.getLhsVarialbe().toString();
     final String rhsOfAssignment = expressionsPrettyPrinter.print(astAssignment.getExpr());
     if (astAssignment.isAssignment()) {
       println(lhsVariableName + " = " + rhsOfAssignment);
@@ -236,10 +235,12 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   }
 
   private void printDeclarationType(final ASTDeclaration astDeclaration) {
-    print(ASTNodes.computeTypeName(astDeclaration.getDatatype()));
+    print(ASTUtils.computeTypeName(astDeclaration.getDatatype()));
+    if (astDeclaration.getSizeParameter().isPresent()) {
+      print(" [" + astDeclaration.getSizeParameter().get() + "]");
+    }
+
   }
-
-
 
   private void printOptionalInitializationExpression(final ASTDeclaration astDeclaration) {
     if (astDeclaration.getExpr().isPresent()) {

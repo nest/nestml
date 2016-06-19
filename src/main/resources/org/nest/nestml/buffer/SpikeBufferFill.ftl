@@ -15,6 +15,7 @@
   //get_${ast.getName()}().add_value(e.get_rel_delivery_steps( network()->get_slice_origin()),
   //             weight * multiplicity );
   <#if bufferHelper.isVector(ast)>
+  // 1
     for (size_t i=0; i < P_.${bufferHelper.vectorParameter(ast)}; i++)
     {
       if (B_.receptor_types_${ast.getName()}[i] == e.get_rport()) {
@@ -24,7 +25,7 @@
 
     }
   <#else>
-
+  // 2
     <#if bufferHelper.isExcitatory(ast)>
     if ( weight >= 0.0 ) // excitatory
     {

@@ -22,7 +22,7 @@ neuron my_iaf_neuron extends iaf_base:
       r = RefractoryCounts
       y3 = delta_V_reset
 
-      emitSpike()
+      emit_spike()
     end
 
     # set new input current

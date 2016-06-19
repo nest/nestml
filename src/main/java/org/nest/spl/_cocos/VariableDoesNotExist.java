@@ -13,6 +13,7 @@ import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
@@ -21,13 +22,13 @@ import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTUtils;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
-import static java.util.stream.Collectors.toList;
+import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Checks that a referenced variable is also declared.
@@ -106,22 +107,11 @@ public class VariableDoesNotExist implements
 
   }
 
-  private void checkVariableByName(final String fqn, final ASTNode node) {
-    checkState(node.getEnclosingScope().isPresent());
-    final Scope scope = node.getEnclosingScope().get();
 
-    if (!exists(fqn, scope)) {
-      error(ERROR_CODE + ":" +
-              String.format(ERROR_MSG_FORMAT, fqn, scope.getName().orElse("")),
-          node.get_SourcePositionStart());
-    }
-
-  }
 
   @Override
   public void check(final ASTAssignment astAssignment) {
-    final String lhsVariables = Names.getQualifiedName(astAssignment.getVariableName().getParts());
-    checkVariableByName(lhsVariables, astAssignment);
+    checkVariableByName(convertToSimpleName(astAssignment.getLhsVarialbe()), astAssignment);
     checkExpression(astAssignment.getExpr());
   }
 
@@ -149,38 +139,28 @@ public class VariableDoesNotExist implements
 
   }
 
-  protected List<ASTQualifiedName> getVariablesFromExpressions(final ASTExpr expression) {
-    final List<ASTQualifiedName> names = ASTNodes
-        .getSuccessors(expression, ASTQualifiedName.class);
+  @Override
+  public void check(final ASTOdeDeclaration node) {
+    node.getEquations().forEach(
+        ode-> {
+          checkVariableByName(ode.getLhs().getName().toString(), node);
+          ASTUtils.getAll(ode.getRhs(), ASTVariable.class).forEach(
+              variable -> checkVariableByName(Names.getQualifiedName(variable.getName().getParts()), node));
+        }
 
-    final List<String> functions = ASTNodes
-        .getSuccessors(expression, ASTFunctionCall.class).stream()
-        .map(ASTFunctionCall::getCalleeName)
-        .collect(Collectors.toList());
+    );
 
-    return names.stream()
-        .filter(name -> !functions.contains(Names.getQualifiedName(name.getParts())))
-        .collect(toList());
   }
 
-  @Override
-  public void check(ASTOdeDeclaration node) {
-    node.getODEs().forEach(
-        ode-> {
-          checkVariableByName(ode.getLhs().toString(), node);
-          getVariablesFromExpressions(ode.getRhs()).forEach(
-              variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
-        }
+  private void checkVariableByName(final String variableName, final ASTNode node) {
+    checkState(node.getEnclosingScope().isPresent());
+    final Scope scope = node.getEnclosingScope().get();
 
-    );
+    if (!exists(variableName, scope)) {
+      error(ERROR_CODE + ":" +
+              String.format(ERROR_MSG_FORMAT, variableName, scope.getName().orElse("")),
+          node.get_SourcePositionStart());
+    }
 
-    node.getEqs().forEach(
-        eq-> {
-          checkVariableByName(eq.getLhs().toString(), node);
-          getVariablesFromExpressions(eq.getRhs()).forEach(
-              variable -> checkVariableByName(Names.getQualifiedName(variable.getParts()), node));
-        }
-
-    );
   }
 }

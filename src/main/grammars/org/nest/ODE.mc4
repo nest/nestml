@@ -11,20 +11,18 @@ package org.nest;
 grammar ODE extends org.nest.Commons {
   /** ASTOdeDeclaration. Represents a block of equations and differential equations.
 
-    @attribute Eq      List with equations, e.g. "I = exp(t)".
-    @attribute ODE     List with differential equations, e.g. "V_m' = V_m+1".
+    @attribute Equation      List with equations, e.g. "I = exp(t)" od differential equations.
   */
-  OdeDeclaration  = (Eq | ODE | NEWLINE)+;
+  OdeDeclaration  = (Equation | Shape | NEWLINE)+;
 
-  /** ASTeq Represents an equation, e.g. "I = exp(t)".
+  /** ASTeq Represents an equation, e.g. "I = exp(t)" or epresents an differential equations, e.g. "V_m' = V_m+1"..
     @attribute lhs      Left hand side, e.g. a Variable.
     @attribute rhs      Expression defining the right hand side.
   */
-  Eq = lhs:Variable "=" rhs:Expr;
+  Equation = lhs:Derivative "=" rhs:Expr;
 
-  /** ASTeq Represents an differential equations, e.g. "V_m' = V_m+1".
-      @attribute lhs      Left hand side, e.g. a Variable.
-      @attribute rhs      Expression defining the right hand side.
-    */
-  ODE = lhs:Variable "\'" "=" rhs:Expr;
+  Derivative = name:QualifiedName (differentialOrder:"\'")*;
+
+  Shape = "shape" lhs:Variable "=" rhs:Expr;
+
 }

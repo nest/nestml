@@ -5,28 +5,16 @@
   @param tc templatecontroller
   @result TODO
 -->
-<#if assignments.isLocal(ast)>
-${assignments.printVariableName(ast)} ${assignments.printAssignmentsOperation(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
-<#else>
-  <#if assignments.isVector(ast) || declarations.isVectorLHS(ast)>
-  for (size_t i=0; i < declarations.printSizeParameter(ast); i++) {
-    <#if declarations.isVectorLHS(ast)>
-      ${assignments.printGetterName(ast)}()[i] = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
-    <#else>
-      ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
-    </#if>
 
-  }
+<#if assignments.isVector(ast) || assignments.isVectorLHS(ast)>
+for (size_t i=0; i < P_.${assignments.printSizeParameter(ast)}; i++) {
+  <#if assignments.isVectorLHS(ast)>
+    ${assignments.printOrigin(ast)} ${assignments.printLHS(ast)}[i]
   <#else>
-    <#if assignments.isCompoundAssignment(ast)>
-      ${assignments.printSetterName(ast)}(
-      ${assignments.printGetterName(ast)}()
-      ${assignments.printCompoundOperation(ast)}
-      ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
-    <#else>
-    ${assignments.printSetterName(ast)}(${tc.include("org.nest.spl.expr.Expr", ast.getExpr())});
-    </#if>
-
+    ${assignments.printOrigin(ast)} ${assignments.printLHS(ast)}
   </#if>
-
+  ${assignments.printAssignmentsOperation(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
+}
+<#else>
+  ${assignments.printOrigin(ast)} ${assignments.printLHS(ast)} ${assignments.printAssignmentsOperation(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
 </#if>

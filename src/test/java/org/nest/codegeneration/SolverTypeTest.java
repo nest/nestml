@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  * @author plotnikov
  */
 public class SolverTypeTest {
-  private final static String SOLVER_TYPE_FILE = "src/test/resources/codegeneration/sympy/psc/solverType.property";
+  private final static String SOLVER_TYPE_FILE = "src/test/resources/codegeneration/sympy/psc/solverType.tmp";
 
   @Test
   public void testLoadTypeFromFile() {

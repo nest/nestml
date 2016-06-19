@@ -17,7 +17,7 @@ import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.info;
 
 /**
- * The class is responsible for the execution of the PYTHON_VERSION code which
+ * The class is responsible for the execution of the PYTHON_INTERPRETER code which
  * was generated from the neuron model.
  *
  * @author plotnikov
@@ -25,15 +25,7 @@ import static de.se_rwth.commons.logging.Log.info;
 public class SymPyScriptEvaluator {
   private final static String LOG_NAME = SymPyScriptEvaluator.class.getName();
 
-  public final static String P30_FILE = "P30.mat";
-   final static String ODE_TYPE = "solverType.property";
-  static final String CONSTANT_TERM = "constantTerm.mat";
-  public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValue.mat";
-  public final static String STATE_VECTOR_FILE = "state.vector.mat";
-  public final static String STATE_VARIABLES_FILE = "state.variables.mat";
-  public final static String UPDATE_STEP_FILE = "update.step.mat";
-
-  private final static String PYTHON_VERSION = "python2.7";
+  private final static String PYTHON_INTERPRETER = "python";
 
   public boolean evaluateScript(final Path generatedScript) {
     try {
@@ -41,8 +33,7 @@ public class SymPyScriptEvaluator {
       long start = System.nanoTime();
 
       final ProcessBuilder processBuilder = new ProcessBuilder(
-          PYTHON_VERSION,
-          generatedScript.getFileName().toString())
+          PYTHON_INTERPRETER, generatedScript.getFileName().toString())
           .directory(generatedScript.getParent().toFile());
 
       final Process res = processBuilder.start();

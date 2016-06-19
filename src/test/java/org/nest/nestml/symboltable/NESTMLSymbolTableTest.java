@@ -8,7 +8,6 @@ package org.nest.nestml.symboltable;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
-import de.monticore.symboltable.Symbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.*;
@@ -19,7 +18,7 @@ import org.nest.spl._ast.ASTAssignment;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
-import org.nest.utils.ASTNodes;
+import org.nest.utils.ASTUtils;
 import org.nest.utils.NESTMLSymbols;
 
 import java.io.IOException;
@@ -186,7 +185,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue(fromModelScope.isPresent());
 
     final Optional<MethodSymbol> withPredicate
-        = NESTMLSymbols.resolveMethod(modelScope, "exp", Lists.newArrayList("real"));
+        = NESTMLSymbols.resolveMethod("exp", Lists.newArrayList("real"), modelScope);
     assertTrue(withPredicate.isPresent());
   }
 
@@ -241,22 +240,19 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
 
     scope.resolve(PredefinedFunctions.I_SUM, MethodSymbol.KIND);
     final Optional<MethodSymbol> method1 = resolveMethod(
-        scope,
-        PredefinedFunctions.I_SUM,
-        Lists.newArrayList("real", "Buffer"));
+        PredefinedFunctions.I_SUM, Lists.newArrayList("real", "Buffer"), scope
+    );
 
     assertTrue(method1.isPresent());
 
     final Optional<MethodSymbol> method2 = resolveMethod(
-        scope,
-        PredefinedFunctions.INTEGRATE,
-        Lists.newArrayList("boolean"));
+        PredefinedFunctions.INTEGRATE, Lists.newArrayList("boolean"), scope
+    );
     assertFalse(method2.isPresent());
 
     final Optional<MethodSymbol> method3 = resolveMethod(
-        scope,
-        PredefinedFunctions.INTEGRATE,
-        Lists.newArrayList("real"));
+        PredefinedFunctions.INTEGRATE, Lists.newArrayList("real"), scope
+    );
     assertTrue(method3.isPresent());
   }
 
@@ -277,7 +273,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     Optional<VariableSymbol> importedVariable = neuronSymbol.getSpannedScope().resolve("r", VariableSymbol.KIND);
     assertTrue(importedVariable.isPresent());
 */
-    final Optional<ASTAssignment> astAssignment = ASTNodes.getAny(root, ASTAssignment.class);
+    final Optional<ASTAssignment> astAssignment = ASTUtils.getAny(root, ASTAssignment.class);
     assertTrue(astAssignment.isPresent());
     final Optional<VariableSymbol> fromAssignment = astAssignment.get().getEnclosingScope().get()
         .resolve("r", VariableSymbol.KIND);

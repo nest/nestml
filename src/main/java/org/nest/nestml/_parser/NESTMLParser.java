@@ -53,6 +53,8 @@ public class NESTMLParser extends NESTMLParserTOP {
 
     if (res.isPresent()) {
       setModelPackage(filename, res.get());
+      // in case of no importstatements the first comment, that should belong to neuron, is interpreted as artifact
+      // //comment
       forwardModelComment(res.get());
     }
 
@@ -87,7 +89,7 @@ public class NESTMLParser extends NESTMLParserTOP {
     }
   }
 
-  protected Optional<String> computePackageName(Path artifactPath, Path modelPath) {
+  Optional<String> computePackageName(Path artifactPath, Path modelPath) {
     artifactPath = artifactPath.normalize().toAbsolutePath();
     modelPath = modelPath.normalize().toAbsolutePath();
 
@@ -102,7 +104,7 @@ public class NESTMLParser extends NESTMLParserTOP {
 
   }
 
-  protected String computeArtifactName(final Path artifactPath) {
+  String computeArtifactName(final Path artifactPath) {
     final String filename = artifactPath.getFileName().getName(0).toString();
     if (filename.endsWith(".nestml")) {
       return filename.substring(0, filename.indexOf(".nestml"));

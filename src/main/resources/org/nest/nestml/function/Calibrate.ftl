@@ -1,17 +1,17 @@
 <#--
-  Generates C++ declaration
+
   @grammar: AliasDecl = ([hide:"-"])? ([alias:"alias"])?
                         Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
                         Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
-  @param ast ASTAliasDecl
-  @param tc templatecontroller
-  @result TODO
+  @param variable VariableSymbol
+  @result Generates C++ declaration
 -->
 ${signature("variable")}
 
-<#if variable.getArraySizeParameter().isPresent()>
-for (size_t i=0; i < variable.getArraySizeParameter().get(); i++) {
-  get_${variable.getName()}()[i] =
+<#if variable.getVectorParameter().isPresent()>
+${variableHelper.printOrigin(variable)} ${variable.getName()}.resize(P_.${variable.getVectorParameter().get()});
+for (size_t i=0; i < get_${variable.getVectorParameter().get()}(); i++) {
+  ${variableHelper.printOrigin(variable)} ${variable.getName()}[i] =
     <#if variable.getDeclaringExpression().isPresent()>
     ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())}
     <#else>
@@ -20,10 +20,10 @@ for (size_t i=0; i < variable.getArraySizeParameter().get(); i++) {
   ;
 }
 <#else>
-set_${variable.getName()}(
+${variableHelper.printOrigin(variable)} ${variable.getName()} =
   <#if variable.getDeclaringExpression().isPresent()>
     ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())}
   <#else>
   0
-  </#if> );
+  </#if>;
 </#if>

@@ -8,8 +8,8 @@ package org.nest.codegeneration;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import org.nest.codegeneration.helpers.NESTMLDeclarations;
-import org.nest.codegeneration.helpers.SPLForNodes;
+import org.nest.codegeneration.helpers.ASTDeclarations;
+import org.nest.codegeneration.helpers.ASTForNodes;
 import org.nest.codegeneration.helpers.ASTAssignments;
 import org.nest.codegeneration.helpers.SPLFunctionCalls;
 import org.nest.spl._ast.ASTAssignment;
@@ -38,9 +38,9 @@ public class SPL2NESTCodeGenerator {
 
     final ExpressionsPrettyPrinter prettyPrinter = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("assignments", new ASTAssignments());
-    glex.setGlobalValue("declarations", new NESTMLDeclarations() );
+    glex.setGlobalValue("declarations", new ASTDeclarations() );
     glex.setGlobalValue("expressionsPrinter", prettyPrinter);
-    glex.setGlobalValue("forDeclarationHelper", new SPLForNodes());
+    glex.setGlobalValue("forDeclarationHelper", new ASTForNodes());
     glex.setGlobalValue("functions", new SPLFunctionCalls());
 
     setup.setGlex(glex);

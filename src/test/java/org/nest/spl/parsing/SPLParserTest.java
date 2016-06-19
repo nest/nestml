@@ -12,8 +12,6 @@ import org.nest.base.ModelbasedTest;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
-import org.nest.spl._symboltable.SPLLanguage;
-import org.nest.utils.FileHelper;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -23,8 +21,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.nest.utils.FileHelper.collectFiles;
-import static org.nest.utils.FileHelper.collectSPLModelFilenames;
+import static org.nest.utils.FilesHelper.collectSPLModelFilenames;
 
 /**
  * Tests whether the model can be parsed or not

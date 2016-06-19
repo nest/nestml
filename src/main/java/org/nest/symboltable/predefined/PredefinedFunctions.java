@@ -25,7 +25,7 @@ public class PredefinedFunctions {
 
   private static final String TIME_RESOLUTION = "resolution";
   private static final String TIME_STEPS = "steps";
-  private static final String EMIT_SPIKE = "emitSpike";
+  public static final String EMIT_SPIKE = "emit_spike";
   private static final String PRINT = "print";
   private static final String PRINTLN = "println";
   private static final String POW = "pow";
@@ -35,9 +35,11 @@ public class PredefinedFunctions {
   private static final String RANDOM = "random";
   private static final String RANDOM_INT = "randomInt";
   private static final String EXPM1 = "expm1";
-  private static final String DELTA = "delta";
+  public static final String DELTA = "delta";
+  private static final String MAX = "max";
   public static final String INTEGRATE = "integrate";
   public static final String I_SUM = "I_sum";
+  public static final String COND_SUM = "Cond_sum";
 
 
   private static final Map<String, MethodSymbol> name2FunctionSymbol = Maps.newHashMap();
@@ -106,6 +108,12 @@ public class PredefinedFunctions {
     delta.setReturnType(getType("real"));
     name2FunctionSymbol.put(DELTA, delta);
 
+    final MethodSymbol max = createFunctionSymbol(MAX);
+    max.addParameterType(getType("mV"));
+    max.addParameterType(getType("mV"));
+    max.setReturnType(getType("mV"));
+    name2FunctionSymbol.put(MAX, max);
+
     final MethodSymbol integrate = createFunctionSymbol(INTEGRATE);
     integrate.addParameterType(getRealType());
     integrate.setReturnType(getVoidType());
@@ -116,6 +124,12 @@ public class PredefinedFunctions {
     i_sum.addParameterType(getBufferType());
     i_sum.setReturnType(getType("pA"));
     name2FunctionSymbol.put(I_SUM, i_sum);
+
+    final MethodSymbol cond_sum = createFunctionSymbol(COND_SUM);
+    cond_sum.addParameterType(getType("nS"));
+    cond_sum.addParameterType(getBufferType());
+    cond_sum.setReturnType(getType("pA"));
+    name2FunctionSymbol.put(COND_SUM, cond_sum);
   }
 
   private static MethodSymbol createFunctionSymbol(final String functionName) {

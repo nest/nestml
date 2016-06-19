@@ -8,18 +8,16 @@ package org.nest.codegeneration.sympy;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
+import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.ode._ast.ASTODE;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.utils.ASTNodes;
-import org.nest.utils.FileHelper;
+import org.nest.utils.ASTUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -34,18 +32,26 @@ import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyOD
  * @author plotnikov
  */
 public class SympyScriptGeneratorTest extends ModelbasedTest {
-  public static final String PATH_TO_PSC_MODEL
-      = "src/test/resources/codegeneration/iaf_neuron.nestml";
-  public static final String PATH_TO_COND_MODEL
+  private static final String PATH_TO_PSC_MODEL
+      = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
+  private static final String PATH_TO_PSC_DELTA_MODEL
+      = "src/test/resources/codegeneration/iaf_psc_delta.nestml";
+  private static final String PATH_TO_COND_MODEL
       = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
-  public static final String PATH_TO_COND_IMPLICIT_MODEL
+  private static final String PATH_TO_COND_IMPLICIT_MODEL
       = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
 
   private static final String OUTPUT_FOLDER = "target";
+  private static final Path OUTPUT_SCRIPT_DIRECTORY = Paths.get(OUTPUT_FOLDER, "sympy");
 
   @Test
   public void generateSymPySolverForPSCModel() throws IOException {
     generateAndCheck(PATH_TO_PSC_MODEL);
+  }
+
+  @Test
+  public void generateSymPySolverForDeltaModel() throws IOException {
+    generateAndCheck(PATH_TO_PSC_DELTA_MODEL);
   }
 
   @Test
@@ -63,16 +69,16 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
   public void testReplacement() throws IOException {
     final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
     final String ODE_DECLARATION = "V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + ext_currents)";
-    final Optional<ASTODE> ode = p.parseODE(new StringReader(ODE_DECLARATION));
+    final Optional<ASTEquation> ode = p.parseEquation(new StringReader(ODE_DECLARATION));
     assertTrue(ode.isPresent());
 
-    boolean i_sum = ASTNodes.getAll(ode.get(), ASTFunctionCall.class)
+    boolean i_sum = ASTUtils.getAll(ode.get(), ASTFunctionCall.class)
         .stream()
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
     assertTrue(i_sum);
 
-    final ASTODE testant = SympyScriptGenerator.replace_I_sum(ode.get());
-    i_sum = ASTNodes.getAll(testant, ASTFunctionCall.class)
+    final ASTEquation testant = ODETransformer.replace_I_sum(ode.get());
+    i_sum = ASTUtils.getAll(testant, ASTFunctionCall.class)
         .stream()
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
     assertFalse(i_sum);
@@ -88,7 +94,7 @@ public class SympyScriptGeneratorTest extends ModelbasedTest {
 
     final Optional<Path> generatedScript = generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
-        Paths.get(OUTPUT_FOLDER, "sympy"));
+        OUTPUT_SCRIPT_DIRECTORY);
 
     assertTrue(generatedScript.isPresent());
   }

@@ -14,15 +14,18 @@ import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static org.nest.utils.FileHelper.collectNESTMLModelFilenames;
+import static de.se_rwth.commons.logging.Log.info;
+import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
 /**
  * Interprets the provided configuration by collecting models and executing parsing, context
@@ -45,7 +48,13 @@ public class CLIConfigurationExecutor {
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getInputBase());
 
+    cleanUpWorkingFolder(config.getTargetPath());
     processNestmlModels(modelRoots, config, scopeCreator, generator);
+    formatGeneratedCode(config.getTargetPath());
+  }
+
+  private void cleanUpWorkingFolder(final Path targetPath) {
+    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith("tmp"));
   }
 
   private List<ASTNESTMLCompilationUnit> parseModels(
@@ -98,7 +107,6 @@ public class CLIConfigurationExecutor {
       Log.warn("Cannot generate module code, since there is no parsable neuron in " + config.getInputBase());
     }
 
-
   }
 
   private List<Finding> checkCocosForModel(final ASTNESTMLCompilationUnit root) {
@@ -136,6 +144,31 @@ public class CLIConfigurationExecutor {
       Log.error(modelName + " contains the following errors: ");
       nestmlErrorFindings.forEach(finding -> Log.warn(finding.toString()));
     }
+  }
+
+  private List<String> getListFromStream(final InputStream inputStream) throws IOException {
+    final BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+    return in.lines().collect(Collectors.toList());
+  }
+
+  private void formatGeneratedCode(final Path targetPath) {
+    // "/bin/sh", "-c" is necessary because of the wild cards in the clang-format command.
+    // otherwise, the command is not evaluated correctly
+    final List<String> formatCommand = Lists.newArrayList("/bin/sh", "-c", "clang-format -style=\"{Standard: Cpp03}\"  -i *.cpp *.h");
+
+    try {
+
+      final ProcessBuilder processBuilder = new ProcessBuilder(formatCommand).directory(targetPath.toFile());
+
+      final Process res = processBuilder.start();
+      res.waitFor();
+      getListFromStream(res.getInputStream()).forEach(m -> Log.trace("Log: " + m, LOG_NAME));
+      getListFromStream(res.getErrorStream()).forEach(m -> Log.warn("Error: " + m));
+      info("Formatted generates sources in: " + targetPath.toString(), LOG_NAME);
+    } catch (IOException | InterruptedException e) {
+      Log.warn("Cannot format generated sources in: " + targetPath.toString(), e);
+    }
+
   }
 
 }

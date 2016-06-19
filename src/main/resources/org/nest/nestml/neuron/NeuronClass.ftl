@@ -70,23 +70,23 @@ namespace nest
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
 
-<#assign start="">
 ${simpleNeuronName}::Parameters_::Parameters_()
-<#if body.getParameterNonAliasSymbols()?size != 0>:</#if>
+{
 <#list body.getParameterNonAliasSymbols() as parameter>
-  ${start} ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
-  <#assign start=",">
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
 </#list>
-{}
 
-<#assign start="">
-${simpleNeuronName}::State_::State_()
-<#if body.getStateNonAliasSymbols()?size != 0>:</#if>
-<#list body.getStateNonAliasSymbols() as state>
-  ${start} ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state])}
-  <#assign start=",">
+<#list body.getAllRelativeParameters() as parameter>
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
 </#list>
-{}
+}
+
+${simpleNeuronName}::State_::State_()
+{
+<#list body.getStateNonAliasSymbols() as state>
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state])}
+</#list>
+}
 
 
 /* ----------------------------------------------------------------
@@ -96,21 +96,20 @@ ${simpleNeuronName}::State_::State_()
 void
 ${simpleNeuronName}::Parameters_::get(DictionaryDatum &d) const
 {
-  <#if neuronSymbol.getBaseNeuron().isPresent()>
-  ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::get(d);
-  </#if>
-  <#list body.getParameterNonAliasSymbols() as parameter>
-  ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
-  </#list>
+//TODO Remove me
 }
 
 void
-${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
+${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d
+<#list body.getAllOffsetVariables() as offset>
+  , ${declarations.printVariableType(offset)} delta_${offset.getName()}
+</#list>
+)
 {
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::set(d);
   </#if>
-  <#list body.getParameterNonAliasSymbols() as parameter>
+  <#list body.getParameterSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
   </#list>
 
@@ -121,21 +120,20 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& d)
 void
 ${simpleNeuronName}::State_::get(DictionaryDatum &d) const
 {
-  <#if neuronSymbol.getBaseNeuron().isPresent()>
-  ${neuronSymbol.getBaseNeuron().get().getName()}::State_::get(d);
-  </#if>
-  <#list body.getStateNonAliasSymbols() as state>
-  ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
-  </#list>
+// TODO: remove me
 }
 
 void
-${simpleNeuronName}::State_::set(const DictionaryDatum& d)
+${simpleNeuronName}::State_::set(const DictionaryDatum& d, const Parameters_& p
+<#list body.getAllOffsetVariables() as offset>
+  , ${declarations.printVariableType(offset)} delta_${offset.getName()}
+</#list>
+)
 {
   <#if neuronSymbol.getBaseNeuron().isPresent()>
   ${neuronSymbol.getBaseNeuron().get().getName()}::State_::set(d);
   </#if>
-  <#list body.getStateNonAliasSymbols() as state>
+  <#list body.getStateSymbols() as state>
   ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [state])}
   </#list>
 }
@@ -241,7 +239,7 @@ ${simpleNeuronName}::init_buffers_()
 
 void
 ${simpleNeuronName}::calibrate()
-{ // TODO init internal variables
+{
   B_.logger_.init();
   <#if neuronSymbol.getBaseNeuron().isPresent()>
     ${neuronSymbol.getBaseNeuron().get().getName()}::calibrate();
@@ -250,8 +248,16 @@ ${simpleNeuronName}::calibrate()
   <#list body.getInternalNonAliasSymbols() as variable>
     ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
   </#list>
+
+  <#list body.getStateNonAliasSymbols() as variable>
+    <#if variable.isVector()>
+      ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
+    </#if>
+  </#list>
+
   <#list body.getInputLines() as inputLine>
     <#if bufferHelper.isVector(inputLine)>
+        B_.${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
         B_.receptor_types_${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
         for (size_t i=0; i < P_.${bufferHelper.vectorParameter(inputLine)}; i++)
         {
@@ -301,9 +307,23 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
 {
   assert(e.get_delay() > 0);
 
-  const double_t weight = e.get_weight();
-  const double_t multiplicity = e.get_multiplicity();
-  ${tc.include("org.nest.nestml.buffer.SpikeBufferFill", body.getInputLines())}
+  <#if neuronSymbol.isMultisynapseSpikes()>
+    <#assign spikeBuffer = neuronSymbol.getSpikeBuffers()[0]>
+
+    for ( size_t i = 0; i < P_.${spikeBuffer.getVectorParameter().get()}; ++i )
+      {
+        if ( B_.receptor_types_${spikeBuffer.getName()}[ i ] == e.get_rport() )
+        {
+            B_.${spikeBuffer.getName()}[i].add_value(
+              e.get_rel_delivery_steps( network()->get_slice_origin() ),
+              e.get_weight() * e.get_multiplicity() );
+        }
+      }
+  <#else>
+      const double_t weight = e.get_weight();
+      const double_t multiplicity = e.get_multiplicity();
+      ${tc.include("org.nest.nestml.buffer.SpikeBufferFill", body.getInputLines())}
+  </#if>
 }
 </#if>
 
