@@ -1,26 +1,9 @@
 package org.nest.units._visitor;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.UncheckedTimeoutException;
-import de.monticore.symboltable.SymbolKind;
-import de.se_rwth.commons.Symbol;
-import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTUnitType;
-import org.nest.units._visitor.UnitsSIVisitor;
-import org.nest.units._visitor.UnitsVisitor;
 import org.nest.units.unitrepresentation.SIData;
 import org.nest.units.unitrepresentation.UnitRepresentation;
-import org.nest.utils.PrettyPrinterBase;
-import sun.management.counter.Units;
 
 /**
  * @author ptraeder
@@ -29,7 +12,7 @@ import sun.management.counter.Units;
 public class UnitsTranslationVisitor implements NESTMLVisitor,UnitsVisitor {
 
   UnitRepresentation left,right,base;
-  static UnitRepresentation lastResult;
+  UnitRepresentation lastResult;
 
   private int getMagnitude(String pre){
     return SIData.getPrefixMagnitudes().get(pre);
