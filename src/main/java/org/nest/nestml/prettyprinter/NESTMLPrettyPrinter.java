@@ -1,6 +1,5 @@
 package org.nest.nestml.prettyprinter;
 
-import de.monticore.ast.ASTNode;
 import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
@@ -21,6 +20,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.nest.spl.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
+import static org.nest.utils.ASTUtils.printMultilineComments;
+import static org.nest.utils.ASTUtils.printSingleLineComment;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
@@ -45,6 +46,8 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTNESTMLCompilationUnit node) {
+    print(printMultilineComments(node));
+    print(printSingleLineComment(node));
   }
 
   /**
@@ -158,7 +161,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     printAliasPrefix(astAliasDecl);
     printDeclarationStatement(astAliasDecl);
     printInvariants(astAliasDecl);
-    printSingleLineComment(astAliasDecl);
+    print(printSingleLineComment(astAliasDecl));
 
   }
 
@@ -192,21 +195,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
       print("]]");
 
     }
-  }
-
-  private void printSingleLineComment(final ASTNode astAliasDecl) {
-    final String lineBreak = System.getProperty("line.separator");
-    // comments are returned with linebreaks, therefore, relace them
-    astAliasDecl.get_PreComments().forEach( comment -> print(comment.getText().replace(lineBreak, "") ));
-    astAliasDecl.get_PostComments().forEach( comment -> print(comment.getText().replace(lineBreak, "") ));
-    println();
-  }
-
-  // TODO It works only with multiline comments
-  private void printMultilineComments(final ASTNode astNeuron) {
-    astNeuron.get_PreComments().forEach( comment -> print(comment.getText()));
-    astNeuron.get_PostComments().forEach( comment -> print(comment.getText()));
-    println();
   }
 
   /**
