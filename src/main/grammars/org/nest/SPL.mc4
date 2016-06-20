@@ -19,7 +19,7 @@ grammar SPL extends org.nest.ODE, org.nest.Units {
                 | FOR_Stmt
                 | WHILE_Stmt;
 
-  Simple_Stmt = Small_Stmt (";" Small_Stmt)* (";")? NEWLINE?;
+  Simple_Stmt = Small_Stmt (";" Small_Stmt)* (";")? ;
 
   Small_Stmt = Assignment
              | FunctionCall
