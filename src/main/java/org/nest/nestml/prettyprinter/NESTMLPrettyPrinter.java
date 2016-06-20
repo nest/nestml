@@ -158,11 +158,17 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTAliasDecl astAliasDecl) {
+    printDeclarationComment(astAliasDecl);
     printAliasPrefix(astAliasDecl);
     printDeclarationStatement(astAliasDecl);
     printInvariants(astAliasDecl);
-    print(printSingleLineComment(astAliasDecl));
 
+  }
+
+  private void printDeclarationComment(ASTAliasDecl astAliasDecl) {
+    print(ASTUtils.printSingleLineComment(astAliasDecl));
+    //print(ASTUtils.printMultilineComments(astAliasDecl));
+    println();
   }
 
   private void printAliasPrefix(final ASTAliasDecl astAliasDecl) {

@@ -232,8 +232,6 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     printDeclarationVariables(astDeclaration);
     printDeclarationType(astDeclaration);
     printOptionalInitializationExpression(astDeclaration);
-    ASTUtils.printSingleLineComment(astDeclaration);
-    ASTUtils.printMultilineComments(astDeclaration);
 
   }
 

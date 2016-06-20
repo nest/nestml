@@ -319,7 +319,7 @@ public final class ASTUtils {
     // comments are returned with linebreaks, therefore, relace them
     astAliasDecl.get_PreComments().forEach( comment -> output.append(comment.getText().replace(lineBreak, "") ));
     astAliasDecl.get_PostComments().forEach( comment -> output.append(comment.getText().replace(lineBreak, "") ));
-    return output.append("\n").toString();
+    return output.toString();
   }
 
   // TODO It works only with multiline comments
