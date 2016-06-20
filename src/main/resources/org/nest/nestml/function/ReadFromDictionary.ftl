@@ -19,14 +19,14 @@ ${signature("variable")}
   <#assign inverseOperation = aliasInverter.inverseOperator(variable.getDeclaringExpression().get())>
 
   <#if baseVariable.isState()>
-    if ( updateValue< ${declarations.printVariableType(variable)} >( d, "${variable.getName()}", ${base} ) ) {
+    if ( updateValue< ${declarations.printVariableType(variable)} >( __d, "${variable.getName()}", ${base} ) ) {
       ${base} ${inverseOperation}= p.${offset};
     }
     else {
       ${base} ${inverseOperation}= delta_${offset};
     }
   <#else>
-    if ( updateValue< double >( d, "${base}", ${base} ) ) {
+    if ( updateValue< double >( __d, "${base}", ${base} ) ) {
       ${base} ${inverseOperation}= ${offset};
     }
     else {
@@ -37,7 +37,7 @@ ${signature("variable")}
 
   <#assign offset = aliasInverter.offsetVariable(variable.getDeclaringExpression().get()).getName()>
   <#assign operator = aliasInverter.operator(variable.getDeclaringExpression().get())>
-  if ( updateValue< ${declarations.printVariableType(variable)} >( d, "${variable.getName()}", ${variable.getName()} ) ) {
+  if ( updateValue< ${declarations.printVariableType(variable)} >( __d, "${variable.getName()}", ${variable.getName()} ) ) {
     ${variable.getName()} ${operator}= ${offset};
   }
   else {
@@ -45,7 +45,7 @@ ${signature("variable")}
   }
 <#elseif !variable.isAlias()>
   ${declarations.printVariableType(variable)} tmp_${variable.getName()};
-    if (updateValue<${declarations.printVariableType(variable)}>(d, "${variable.getName()}", tmp_${variable.getName()})) {
+    if (updateValue<${declarations.printVariableType(variable)}>(__d, "${variable.getName()}", tmp_${variable.getName()})) {
     ${variable.getName()} = tmp_${variable.getName()};
   }
 <#else>
