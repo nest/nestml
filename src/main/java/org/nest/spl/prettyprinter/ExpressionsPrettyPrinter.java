@@ -40,7 +40,7 @@ public class ExpressionsPrettyPrinter {
   public String print(final ASTExpr expr) {
     checkNotNull(expr);
 
-    return doPrint(expr) + ASTUtils.printComment(expr);
+    return doPrint(expr);
 
   }
 

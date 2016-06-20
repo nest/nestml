@@ -60,8 +60,7 @@ public class IllegalExpression implements
       final String varNameFromDeclaration = node.getVars().get(0);
       final String declarationTypeName = computeTypeName(node.getDatatype());
 
-      final Either<TypeSymbol, String> initializerExpressionType
-          = typeCalculator.computeType(node.getExpr().get());
+      final Either<TypeSymbol, String> initializerExpressionType = typeCalculator.computeType(node.getExpr().get());
       final TypeSymbol variableDeclarationType;
 
       if (initializerExpressionType.isLeft()) {

@@ -418,36 +418,36 @@ nest::port receptor_type)
 
 // TODO call get_status on used or internal components
 inline
-void ${simpleNeuronName}::get_status(DictionaryDatum &d) const
+void ${simpleNeuronName}::get_status(DictionaryDatum &__d) const
 {
-  P_.get(d);
+  P_.get(__d);
   <#list body.getParameterSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
   </#list>
-  S_.get(d);
+  S_.get(__d);
   <#list body.getStateSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
   </#list>
 
-  (*d)[nest::names::recordables] = recordablesMap_.get_list();
+  (*__d)[nest::names::recordables] = recordablesMap_.get_list();
 }
 
 inline
-void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
+void ${simpleNeuronName}::set_status(const DictionaryDatum &__d)
 {
   <#list body.getAllOffsetVariables() as offset>
     ${tc.includeArgs("org.nest.nestml.function.StoreDeltaValue", [offset])}
   </#list>
 
   Parameters_ ptmp = P_;  // temporary copy in case of errors
-  ptmp.set(d
+  ptmp.set(__d
   <#list body.getAllOffsetVariables() as offset>
     , delta_${offset.getName()}
   </#list>
   );            // throws BadProperty
 
   State_      stmp = S_;  // temporary copy in case of errors
-  stmp.set(d, ptmp
+  stmp.set(__d, ptmp
   <#list body.getAllOffsetVariables() as offset>
     , delta_${offset.getName()}
   </#list>
@@ -457,7 +457,7 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
   // write them back to (P_, S_) before we are also sure that
   // the properties to be set in the parent class are internally
   // consistent.
-  Archiving_Node::set_status( d );
+  Archiving_Node::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
   P_ = ptmp;

@@ -15,6 +15,7 @@ import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTUtils;
+import org.nest.utils.NESTMLSymbols;
 
 import java.util.Optional;
 
@@ -73,8 +74,7 @@ public class ExpressionTypeCalculator {
     else if (expr.getFunctionCall().isPresent()) { // function
       final String functionName = expr.getFunctionCall().get().getCalleeName();
 
-      final Optional<MethodSymbol> methodSymbol = scope.resolve(functionName,
-          MethodSymbol.KIND);
+      final Optional<MethodSymbol> methodSymbol = NESTMLSymbols.resolveMethod(expr.getFunctionCall().get());
       if (!methodSymbol.isPresent()) {
         final String msg = "Cannot resolve the method: " + functionName;
         return Either.right(msg);
