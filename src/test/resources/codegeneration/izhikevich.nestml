@@ -1,7 +1,7 @@
 neuron izhikevich_nestml:
 
   state:
-    V_m mV = -65mv
+    V_m mV = -65mV
     U_m real = 0
     I_syn mA = 0mA
     I mA = 0mA
