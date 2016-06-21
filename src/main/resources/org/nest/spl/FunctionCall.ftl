@@ -7,7 +7,7 @@
   @result TODO
 -->
 <#if functions.isIntegrate(ast)>
-${tc.include("org.nest.spl.ODEDeclaration", body.getEquations().get())}
+${tc.include("org.nest.spl.ODEDeclaration", body.getODEBlock().get())}
 <#else>
 ${expressionsPrinter.printMethodCall(ast)};
 </#if>

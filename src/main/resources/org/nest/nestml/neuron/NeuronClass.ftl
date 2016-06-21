@@ -30,7 +30,7 @@
 #include "universal_data_logger_impl.h"
 
 #include <limits>
-<#assign stateSize = body.getStateNonAliasSymbols()?size>
+<#assign stateSize = body.getEquations()?size>
 #include "${simpleNeuronName}.h"
 
 /* ----------------------------------------------------------------
@@ -195,8 +195,7 @@ ${simpleNeuronName}::init_state_(const Node& proto)
 }
 
 <#if useGSL>
-<#assign ODEs = body.getEquations().get().getODEs>
-${tc.include("org.nest.nestml.function.GSLDifferentiationFunction",body)}
+${tc.include("org.nest.nestml.function.GSLDifferentiationFunction", body)}
 </#if>
 
 

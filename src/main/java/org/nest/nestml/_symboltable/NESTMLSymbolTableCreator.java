@@ -134,7 +134,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    */
   private void addVariablesFromODEBlock(final ASTBody astBody) {
     if (astBody.getODEBlock().isPresent()) {
-      astBody.getODEBlock().get().getOdeDeclaration().getODEs()
+      astBody.getODEBlock().get().getODEs()
           .stream()
           .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
           .forEach(this::addODEVariable);

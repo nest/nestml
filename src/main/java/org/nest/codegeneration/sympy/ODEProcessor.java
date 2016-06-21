@@ -46,10 +46,10 @@ public class ODEProcessor {
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
-    if (astBody.getEquations().isPresent()) {
+    if (astBody.getODEBlock().isPresent()) {
       final Optional<ASTFunctionCall> deltaShape = getFunctionCall(
           PredefinedFunctions.DELTA,
-          astBody.getEquations().get());
+          astBody.getODEBlock().get());
 
       if (deltaShape.isPresent()) {
         return handleDeltaShape(astNeuron, outputBase);
