@@ -48,7 +48,7 @@ public class LinearSolutionTransformer extends TransformerBase {
   public final static String STATE_VARIABLES_FILE = "state.variables.tmp";
   public final static String PROPAGATOR_MATRIX_FILE = "propagator.matrix.tmp";
   public final static String PROPAGATOR_STEP_FILE = "propagator.step.tmp";
-  final static String ODE_TYPE = "solverType.tmp";
+
 
   public ASTNeuron addExactSolution(
       final ASTNeuron astNeuron,

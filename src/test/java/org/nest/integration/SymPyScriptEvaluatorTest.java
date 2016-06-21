@@ -5,16 +5,17 @@
  */
 package org.nest.integration;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.codegeneration.sympy.SympyScriptGenerator;
+import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -38,7 +39,6 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
 
   private static final Path SYMPY_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "sympy");
 
-  @Ignore("Doesn't work at the moment")
   @Test
   public void testPSC_ALPHA_MODEL() throws IOException {
     generateAndEvaluate(IAF_PSC_ALPHA);
@@ -77,6 +77,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
 
     assertTrue(evaluator.evaluateScript(generatedScript.get()));
+    assertTrue(Files.exists(Paths.get(SYMPY_OUTPUT.toString(), TransformerBase.SOLVER_TYPE)));
   }
 
 }
