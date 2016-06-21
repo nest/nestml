@@ -1,14 +1,15 @@
 neuron izhikevich_nestml:
 
   state:
-    V_m mV = -65mv
-    u real
-    I_syn mV = 0
+    V_m mV = -65mV
+    U_m real = 0
+    I_syn mA = 0mA
+    I mA = 0mA
   end
 
   equations:
-    V_m' = 0.04 * V_m*V_m + 5.0 * V_m + 140 - u + I_e + I_syn
-    u' = a*(b*V_m-u)
+    V_m' = 0.04 * V_m*V_m + 5.0 * V_m + 140 - U_m + (I + I_e + I_syn)
+    U_m' = a*(b*V_m-U_m)
   end
 
   parameter:
@@ -16,9 +17,6 @@ neuron izhikevich_nestml:
     b real = 0.2
     c mV = -65
     d real = 8.0
-  end
-
-  internal:
     I_e mA = 0mA
   end
 
@@ -31,12 +29,16 @@ neuron izhikevich_nestml:
 
   update:
     I_syn = spikes.getSum()
+    I = currents.getSum()
     integrate(V_m)
+    V_m += I_syn
+
     if V_m >= 30:
       V_m = c
-      u += d
+      U_m += d
       emit_spike()
     end
+
   end
 
 end

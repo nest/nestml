@@ -13,13 +13,14 @@
   @param expressionsPrinterForGSL Pretty printer for the GSL function calls
   @result C++ Function
 -->
-
+<#assign ODEs = ast.getEquations()>
 <#assign index = 0>
 <#assign indexPostfix = "INDEX">
-<#list ODEs as ode>
-const int ${astUtils.convertToSimpleName(ode.getLhs())}_${indexPostfix} = ${index};
+<#list ast.getStateNonAliasSymbols() as stateVariable>
+const int ${stateVariable.getName()}_${indexPostfix} = ${index};
  <#assign index = index + 1>
 </#list>
+
 extern "C" inline int
 ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode )
 {

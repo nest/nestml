@@ -61,7 +61,7 @@ class DeltaSolutionTransformer extends TransformerBase {
     // the function there, because otherwise this query wouldn't be made
     ASTFunctionCall deltaShape = getFunctionCall(
         PredefinedFunctions.DELTA,
-        astNeuron.getBody().getEquations().get()).get();
+        astNeuron.getBody().getODEBlock().get()).get();
     // delta is define as delta(t, tau) -> get the second argument
     // per context condition must be checked, that only 'simple' argument, e.g. qualified name, is provided
     final String tauConstant = deltaShape.getArgs().get(1).getVariable().get().toString();
@@ -79,7 +79,7 @@ class DeltaSolutionTransformer extends TransformerBase {
       propagatorSteps.add(smallStatement(updateAssignemt));
 
 
-      final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(astNeuron.getBody().getEquations().get(), ASTFunctionCall.class)
+      final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(astNeuron.getBody().getODEBlock().get(), ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
           .collect(toList());

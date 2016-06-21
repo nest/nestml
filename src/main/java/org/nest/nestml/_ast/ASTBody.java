@@ -14,6 +14,7 @@ import org.nest.codegeneration.helpers.AliasInverter;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -126,13 +127,13 @@ public class ASTBody extends ASTBodyTOP {
     return printBlockComment(getInternalBlock());
   }
 
-  public Optional<ASTOdeDeclaration> getEquations() {
+  public List<ASTEquation> getEquations() {
     final Optional<ASTEquations> equations = findEquationsBlock();
     if (equations.isPresent()) {
-      return Optional.of(equations.get().getOdeDeclaration());
+      return equations.get().getOdeDeclaration().getODEs();
     }
     else {
-      return Optional.empty();
+      return Lists.newArrayList();
     }
   }
 
@@ -149,11 +150,6 @@ public class ASTBody extends ASTBodyTOP {
       return Optional.empty();
     }
   }
-
-  public String printEquationsComment() {
-    return printBlockComment(getEquations());
-  }
-
 
   private String printBlockComment(final Optional<? extends ASTNode> block) {
     if (block.isPresent()) {
@@ -357,13 +353,13 @@ public class ASTBody extends ASTBodyTOP {
         .collect(Collectors.toList());
   }
 
-  public Optional<ASTEquations> getODEBlock() {
+  public Optional<ASTOdeDeclaration> getODEBlock() {
     final Optional<ASTBodyElement> odeBlock = bodyElements
         .stream()
         .filter(astBodyElement -> astBodyElement instanceof ASTEquations)
         .findAny();
     if (odeBlock.isPresent()) {
-      return Optional.of((ASTEquations) odeBlock.get()); // checked by the filter conditions
+      return Optional.of(((ASTEquations) odeBlock.get()).getOdeDeclaration()); // checked by the filter conditions
     }
     else {
       return Optional.empty();

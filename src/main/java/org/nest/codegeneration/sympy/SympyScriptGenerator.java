@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -59,7 +58,7 @@ public class SympyScriptGenerator {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
 
     final ASTBody astBodyDecorator = (neuron.getBody());
-    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getEquations();
+    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getODEBlock();
 
     if (odeDefinition.isPresent()) {
       final Path generatedScriptFile = generateSympyScript(
@@ -100,7 +99,7 @@ public class SympyScriptGenerator {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
 
     final ASTBody astBodyDecorator = (neuron.getBody());
-    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getEquations();
+    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getODEBlock();
 
     if (odeDefinition.isPresent()) {
       final Path generatedScriptFile = generateSympyScript(
