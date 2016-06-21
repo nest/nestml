@@ -1,35 +1,49 @@
-neuron iaf_cond_alpha_implicit:
+neuron iaf_cond_alpha_implicit_new:
 
   state:
-    V_m real = -70
-    DGI, GI real = 0
-    DGE, GE real = 0
+    # membrane potential
+    V_m mV = -70
+    # inputs from the inh conductance
+    GI nS = 0
+    # inputs from the exc conductance
+    GE nS = 0
   end
 
   equations:
     # Implicit
-    DGI' = DGI*-1/tau_synI
-    GI' = DGI + GI *-1/tau_synI
-    DGE' = DGE*-1/tau_synE
-    GE' = DGE + GE *-1/tau_synE
+    GI'' = -GI'/tau_synI
+    GI' = GI' - GI/tau_synI
 
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - \
-            1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
+    GE'' = -GE'/tau_synE
+    GE' = GE'  -GE/tau_synE
+
+    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * ( GI * (V_m-V_reversalI) + GE * (V_m-V_reversalE) - (I_e + I_stim))
   end
 
   parameter:
-    V_th mV = -55.0      # Threshold Potential in mV
-    V_reset mV = -60.0   # Reset Potential in mV
-    t_ref ms = 2.0       # Refractory period in ms
-    g_L ms = 16.6667     # Leak Conductance in nS
-    C_m pF = 250.0       # Membrane Capacitance in pF
+    # Threshold Potential in mV
+    V_th mV = -55.0
+    # Reset Potential in mV
+    V_reset mV = -60.0
+    # Refractory period in ms
+    t_ref ms = 2.0
+    # Leak Conductance in nS
+    g_L ms = 16.6667
+    # Membrane Capacitance in pF
+    C_m pF = 250.0
     alias Tau ms = (1 / g_L) * C_m
-    V_reversalE mV = 0          # Excitatory reversal Potential in mV
-    V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
-    E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
-    tau_synE ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
-    tau_synI ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0           # Constant Current in pA
+    # Excitatory reversal Potential in mV
+    V_reversalE mV = 0
+    # Inhibitory reversal Potential in mV
+    V_reversalI mV = -85.0
+    # Leak reversal Potential (aka resting potential) in mV
+    E_L mV = -70.0
+    # Synaptic Time Constant Excitatory Synapse in ms
+    tau_synE ms = 0.2
+    # Synaptic Time Constant for Inhibitory Synapse in ms
+    tau_synI ms = 2.0
+    # Constant Current in pA
+    I_e pA = 0
 
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
@@ -74,8 +88,8 @@ neuron iaf_cond_alpha_implicit:
 
     end
 
-    DGE = DGE + spikeExc.getSum() * PSConInit_E;
-    DGI = DGI + spikeInh.getSum() * PSConInit_I;
+    GE' += spikeExc.getSum() * PSConInit_E;
+    GI' += spikeInh.getSum() * PSConInit_I;
     I_stim = currents.getSum()
   end
 

@@ -313,6 +313,24 @@ public final class ASTUtils {
     return output.toString();
   }
 
+  public static String printSingleLineComment(final ASTNode astAliasDecl) {
+    final StringBuilder output = new StringBuilder();
+    final String lineBreak = System.getProperty("line.separator");
+    // comments are returned with linebreaks, therefore, relace them
+    astAliasDecl.get_PreComments().forEach( comment -> output.append(comment.getText().replace(lineBreak, "") ));
+    astAliasDecl.get_PostComments().forEach( comment -> output.append(comment.getText().replace(lineBreak, "") ));
+    return output.toString();
+  }
+
+  // TODO It works only with multiline comments
+  public static String printMultilineComments(final ASTNode astNeuron) {
+    final StringBuilder output = new StringBuilder();
+    astNeuron.get_PreComments().forEach( comment -> output.append(comment.getText()));
+    astNeuron.get_PostComments().forEach( comment -> output.append(comment.getText()));
+    return output.append("\n").toString();
+  }
+
+
   /**
    * Computes the typename for the declaration ast. It is defined in one of the grammar
    * alternatives.
