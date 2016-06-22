@@ -8,7 +8,7 @@ neuron izhikevich_nestml:
   end
 
   equations:
-    V_m' = 0.04 * V_m*V_m + 5.0 * V_m + 140 - U_m + (I + I_e + I_syn)
+    V_m' = 0.04 * V_m*V_m + 5.0 * V_m + 140 - U_m + (I + I_e)
     U_m' = a*(b*V_m-U_m)
   end
 
@@ -28,10 +28,10 @@ neuron izhikevich_nestml:
   output: spike
 
   update:
-    I_syn = spikes.getSum()
     I = currents.getSum()
+
     integrate(V_m)
-    V_m += I_syn
+    V_m += spikes.getSum()
 
     if V_m >= 30:
       V_m = c
