@@ -32,7 +32,8 @@ import static org.nest.utils.ASTUtils.getVectorizedVariable;
  *
  * @author plotnikov
  */
-class TransformerBase {
+public class TransformerBase {
+  public final static String SOLVER_TYPE = "solverType.tmp";
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
