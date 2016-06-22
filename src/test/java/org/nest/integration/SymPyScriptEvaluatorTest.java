@@ -5,6 +5,7 @@
  */
 package org.nest.integration;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
@@ -50,12 +51,13 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
   }
 
   @Test
-  public void generateAndExecuteSympyScriptForPSC() throws IOException {
+  public void testIAF_NEURON() throws IOException {
     generateAndEvaluate(PSC_MODEL_FILE);
   }
 
+  @Ignore
   @Test
-  public void generateAndExecuteSympyScriptForCOND() throws IOException {
+  public void testIAF_COND_ALPHA() throws IOException {
     generateAndEvaluate(COND_MODEL_FILE);
   }
 

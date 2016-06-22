@@ -195,7 +195,6 @@ public class NESTCodeGenerator {
     final GlobalExtensionManagement glex = getGlexConfiguration();
     glex.setGlobalValue("neurons", neurons);
     glex.setGlobalValue("moduleName", moduleName);
-    glex.setGlobalValue("names", new Names());
 
     setup.setGlex(glex);
 

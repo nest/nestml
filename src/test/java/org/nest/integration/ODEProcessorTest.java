@@ -7,6 +7,7 @@ package org.nest.integration;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.ODEProcessor;
@@ -47,6 +48,7 @@ public class ODEProcessorTest extends ModelbasedTest {
     assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
   }
 
+  @Ignore
   @Test
   public void testCondModel() throws Exception {
     processModel(COND_MODEL_FILE);

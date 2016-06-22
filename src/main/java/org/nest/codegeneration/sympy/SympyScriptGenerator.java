@@ -141,7 +141,7 @@ public class SympyScriptGenerator {
     final ASTEquation workingVersion = ODETransformer.replace_I_sum(astOdeDeclaration.getODEs().get(0));
 
     glex.setGlobalValue("ode", workingVersion);
-    glex.setGlobalValue("EQs", astOdeDeclaration.getShapes());
+    glex.setGlobalValue("shapes", astOdeDeclaration.getShapes());
     glex.setGlobalValue("predefinedVariables", PredefinedVariables.gerVariables());
 
     setup.setGlex(glex);
