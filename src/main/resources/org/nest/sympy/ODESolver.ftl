@@ -171,25 +171,26 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
     f = open('P30.tmp', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(__h__ * c1) - 1))) + "# P00 expression")
 
-    updateStep = open('propagator.step.tmp', 'w')
-    # the result matrix of matrix with 1 element. therefore, take it by [] operator
-    updateStep.write("${ode.getLhs().getSimpleName()} = P30 * (" + str(constantInputs) + ") + " + str(
-        (Ps[0][orders[0], orders[0]] * stateVectors.col(0)[orders[0]])) + "\n")
-
     propagatorMatrixFile = open('propagator.matrix.tmp', 'w')
-    tmpPropagator = zeros(len(Ps[shapeIndex].row(0)), len(Ps[shapeIndex].col(0)))
+    tmpPropagator = [None]*len(shapes)
+    for shapeIndex in range(0, len(shapes)):
+       tmpPropagator[shapeIndex] = zeros(len(Ps[0].row(0)), len(Ps[0].col(0)))
+       for rowIndex in range(0, len(Ps[shapeIndex].row(0))):
+           for colIndex in range(0, len(Ps[shapeIndex].col(0))):
+               propagatorMatrixFile.write(
+                   "P_" + shapes[shapeIndex] + "_" + str(rowIndex) + str(colIndex) + " real = " + str(Ps[shapeIndex][rowIndex, colIndex]) + "\n")
+               tmpPropagator[shapeIndex][rowIndex, colIndex] = symbols("P_" + shapes[shapeIndex] + "_" + str(rowIndex) + str(colIndex));
 
-    for rowIndex in range(0, len(Ps[shapeIndex].row(0))):
-        for colIndex in range(0, len(Ps[shapeIndex].col(0))):
-            propagatorMatrixFile.write(
-                "P" + str(rowIndex) + str(colIndex) + " real = " + str(Ps[shapeIndex][rowIndex, colIndex]) + "\n")
-            tmpPropagator[rowIndex, colIndex] = symbols("P" + str(rowIndex) + str(colIndex));
-    print(str(tmpPropagator))
+    updateStep = open('propagator.step.tmp', 'w')
+
+    # the multiplication only once. It is computation related to lefthandside of the ode.
+    tmp = Ps[0][orders[shapeIndex], orders[shapeIndex]] * stateVectors.col(shapeIndex)[orders[shapeIndex]]
+    updateStep.write("${ode.getLhs().getSimpleName()} = P30 * (" + str(constantInputs) + ") + " + str(simplify(tmp)) + "\n")
 
     for shapeIndex in range(0, len(shapes)):
-        updateStep.write("${ode.getLhs().getSimpleName()} += " + str((tmpPropagator[1:(orders[shapeIndex] + 1),
-                                        0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex],
-                                                                  0])[orders[shapeIndex] - 1]) + "\n")
+       updateStep.write("${ode.getLhs().getSimpleName()} += " + str((tmpPropagator[shapeIndex][1:(orders[shapeIndex] + 1),
+                                       0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex],
+                                                                 0])[orders[shapeIndex] - 1]) + "\n")
 
     solverType = open('solverType.tmp', 'w')
     solverType.write("exact")

@@ -332,7 +332,7 @@ public class ASTBody extends ASTBodyTOP {
 
     final List<VariableSymbol> invertableAliases = aliases.stream()
         .filter(variable -> isInvertableExpression(variable.getDeclaringExpression().get()) ||
-               variable.isParameter() && isRelativeExpression(variable.getDeclaringExpression().get()))
+               (variable.isParameter() && isRelativeExpression(variable.getDeclaringExpression().get())))
         .collect(Collectors.toList());
 
     // Use sets to filter double variables, e.g. a variable that is used twice on the right side

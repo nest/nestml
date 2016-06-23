@@ -135,7 +135,7 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isParameter() {
-    return blockType == BlockType.STATE;
+    return blockType == BlockType.PARAMETER;
   }
 
   public void setAlias(boolean isAlias) {
