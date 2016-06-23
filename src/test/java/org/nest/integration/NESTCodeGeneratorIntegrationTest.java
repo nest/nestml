@@ -86,7 +86,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   }
 
   @Test
-  public void testMultisynapseModel() throws IOException {
+  public void testMultisynapseModels() throws IOException {
     multisynapseModels.forEach(this::checkCocos);
     multisynapseModels.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = multisynapseModels.stream()
@@ -159,7 +159,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testManually() {
-    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/izhikevich.nestml");
+    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/iaf_tum_2000.nestml");
     modelName.forEach(this::checkCocos);
     modelName.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
