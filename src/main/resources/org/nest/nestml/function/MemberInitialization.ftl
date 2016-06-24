@@ -18,9 +18,9 @@ ${signature("variable")}
     ${variable.getName()} = ${printerWithGetters.print(variable.getDeclaringExpression().get())};
   </#if>
 <#else>
-  <#if !variable.isVector()>
-    ${variable.getName()} = 0;
-  <#else>
+  <#if variable.isVector()>
     ${variable.getName()}.resize(0);
+  <#else>
+    ${variable.getName()} = 0;
   </#if>
 </#if>

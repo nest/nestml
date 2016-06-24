@@ -2,7 +2,7 @@ neuron iaf_cond_alpha_implicit:
 
   state:
     # membrane potential
-    V_m mV = -70
+    V_m mV
     # inputs from the inh conductance
     GI nS = 0
     # inputs from the exc conductance
@@ -61,7 +61,6 @@ neuron iaf_cond_alpha_implicit:
 
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
-
     r integer
   end
 
