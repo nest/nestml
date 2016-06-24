@@ -28,7 +28,12 @@ public class GSLReferenceConverter implements IReferenceConverter {
 
   @Override
   public String convertBinaryOperator(String binaryOperator) {
-    return "(%s)" + binaryOperator + "(%s)";
+    if (binaryOperator.equals("**")) {
+      return "pow(%s, %s)";
+    }
+    else {
+      return "(%s)" + binaryOperator + "(%s)";
+    }
   }
 
   @Override
