@@ -1,26 +1,31 @@
-neuron aeif_cond_alpha_neuron:
+neuron aeif_cond_alpha_implicit:
 
   state:
-    V_m, w real = 0
+    V_m, w real = E_L
     alias exp_arg real = (V_m-V_th)/delta_T
     alias I_spike real = delta_T*exp(exp_arg)
     # alias I_spike = delta_T*exp(min(exp_arg, MAX_EXP_ARG))
+
+    # inputs from the inh conductance
+    GI nS = 0
+    # inputs from the exc conductance
+    GE nS = 0
+    alias I_syn_exc real =   GE * ( V_m - E_ex )
+    alias I_syn_inh real =   GI * ( V_m - E_in )
   end
 
   equations:
-    # Explicit
-    shape GI = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape GE = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
-
+    # Implicit
+    # shape GI = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     GI'' = -GI'/tau_syn_in
     GI' = GI' - GI/tau_syn_in
-
+    # shape GE = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
     GE'' = -GE'/tau_syn_ex
     GE' = GE'  -GE/tau_syn_ex
 
 
+    V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) - 1/C_m * Cond_sum(GE, spikeExc) * (V_m-E_ex) + (I_e + I_stim) - w)
 
   end
 
@@ -39,7 +44,7 @@ neuron aeif_cond_alpha_neuron:
    alias Tau ms = (1 / g_L) * C_m
    delta_T mV = 2.0
    tau_w ms = 144.0
-   V_th mV = -50.4      # Threshold Potential in mV
+   V_th mV = -55.4      # Threshold Potential in mV
    V_peak mV = 0
 
    # synaptic parameters
@@ -77,24 +82,24 @@ neuron aeif_cond_alpha_neuron:
   output: spike
 
   update:
-    if r == 0: # not refractory
-      # TODO intagrate
+    integrate(V_m)
 
-    else:
+    if r > 0: # refractory
       r = r - 1
     end
 
-    if r != 0: # not refractory
-      r =  r - 1
+    if r > 0: # not refractory
       V_m = V_reset # clamp potential
-
-    elif V_m >= V_th:
+    elif V_m >= V_peak:
       r = RefractoryCounts
       V_m = V_reset # clamp potential
+      w += b
       emit_spike()
-
     end
 
+    GE' += spikeExc.getSum() * PSConInit_E;
+    GI' += spikeInh.getSum() * PSConInit_I;
+    I_stim = currents.getSum()
   end
 
 end

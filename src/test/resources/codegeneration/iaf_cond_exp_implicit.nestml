@@ -1,8 +1,9 @@
-neuron iaf_cond_alpha_implicit:
+neuron iaf_cond_exp_implicit:
 
   state:
     # membrane potential
-    V_m mV
+    V mV = 0
+    alias V_m mV = V + 0
     # inputs from the inh conductance
     GI nS = 0
     # inputs from the exc conductance
@@ -11,12 +12,10 @@ neuron iaf_cond_alpha_implicit:
 
   equations:
     # Implicit
-    GI'' = -GI'/tau_synI
     GI' = GI' - GI/tau_synI
-
-    GE'' = -GE'/tau_synE
     GE' = GE'  -GE/tau_synE
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * ( GI * (V_m-V_reversalI) + GE * (V_m-V_reversalE) - (I_e + I_stim))
+
+    V' = -1/Tau * (V - E_L)  - 1/C_m * ( GI * (V-V_reversalI) + GE * (V-V_reversalE) - (I_e + I_stim))
   end
 
   parameter:
@@ -61,6 +60,7 @@ neuron iaf_cond_alpha_implicit:
 
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
+
     r integer
   end
 
@@ -74,20 +74,20 @@ neuron iaf_cond_alpha_implicit:
 
   update:
 
-    integrate(V_m)
+    integrate(V)
     if r != 0: # not refractory
       r =  r - 1
-      V_m = V_reset # clamp potential
+      V = V_reset # clamp potential
 
-    elif V_m >= V_th:
+    elif V >= V_th:
       r = RefractoryCounts
-      V_m = V_reset # clamp potential
+      V = V_reset # clamp potential
       emit_spike()
 
     end
 
-    GE' += spikeExc.getSum() * PSConInit_E;
-    GI' += spikeInh.getSum() * PSConInit_I;
+    GE += spikeExc.getSum()
+    GI += spikeInh.getSum()
     I_stim = currents.getSum()
   end
 
