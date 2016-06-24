@@ -1,7 +1,8 @@
 neuron aeif_cond_alpha_neuron:
 
   state:
-    V_m, w real = 0
+    V_m mV = E_L
+    w real = 0
     alias exp_arg real = (V_m-V_th)/delta_T
     alias I_spike real = delta_T*exp(exp_arg)
     # alias I_spike = delta_T*exp(min(exp_arg, MAX_EXP_ARG))
