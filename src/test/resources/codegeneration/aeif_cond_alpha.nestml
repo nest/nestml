@@ -12,11 +12,11 @@ neuron aeif_cond_alpha_neuron:
     shape GI = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape GE = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
-    GI'' = -GI'/tau_synI
-    GI' = GI' - GI/tau_synI
+    GI'' = -GI'/tau_syn_in
+    GI' = GI' - GI/tau_syn_in
 
-    GE'' = -GE'/tau_synE
-    GE' = GE'  -GE/tau_synE
+    GE'' = -GE'/tau_syn_ex
+    GE' = GE'  -GE/tau_syn_ex
 
 
     w' = (a*(V_m - E_L) - w)/tau_w

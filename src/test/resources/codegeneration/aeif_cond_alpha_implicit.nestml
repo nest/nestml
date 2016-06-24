@@ -1,7 +1,7 @@
 neuron aeif_cond_alpha_implicit:
 
   state:
-    V_m, w real = 0
+    V_m, w real = E_L
     alias exp_arg real = (V_m-V_th)/delta_T
     alias I_spike real = delta_T*exp(exp_arg)
     # alias I_spike = delta_T*exp(min(exp_arg, MAX_EXP_ARG))
@@ -10,6 +10,8 @@ neuron aeif_cond_alpha_implicit:
     GI nS = 0
     # inputs from the exc conductance
     GE nS = 0
+    alias I_syn_exc real =   GE * ( V_m - E_ex )
+    alias I_syn_inh real =   GI * ( V_m - E_in )
   end
 
   equations:
@@ -21,7 +23,8 @@ neuron aeif_cond_alpha_implicit:
     GE'' = -GE'/tau_syn_ex
     GE' = GE'  -GE/tau_syn_ex
 
-    V_m' = -1/Tau * (V_m - E_L - I_spike)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) - 1/C_m * Cond_sum(GE, spikeExc) * (V_m-E_ex) + (I_e + I_stim) - w)
+
+    V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
 
   end

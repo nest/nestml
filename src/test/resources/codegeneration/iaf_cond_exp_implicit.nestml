@@ -86,8 +86,8 @@ neuron iaf_cond_exp_implicit:
 
     end
 
-    GE' += spikeExc.getSum() * PSConInit_E;
-    GI' += spikeInh.getSum() * PSConInit_I;
+    GE += spikeExc.getSum()
+    GI += spikeInh.getSum()
     I_stim = currents.getSum()
   end
 
