@@ -250,7 +250,7 @@ protected:
       ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
     </#list>
 
-    State_();
+    State_(Parameters_ __p);
 
     /** Store state values in dictionary. */
     void get(DictionaryDatum&) const;
@@ -446,7 +446,7 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &__d)
   </#list>
   );            // throws BadProperty
 
-  State_      stmp = S_;  // temporary copy in case of errors
+  State_      stmp = State_(ptmp);  // temporary copy in case of errors
   stmp.set(__d, ptmp
   <#list body.getAllOffsetVariables() as offset>
     , delta_${offset.getName()}

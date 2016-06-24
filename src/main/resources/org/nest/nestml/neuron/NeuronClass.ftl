@@ -73,18 +73,18 @@ namespace nest
 ${simpleNeuronName}::Parameters_::Parameters_()
 {
 <#list body.getParameterNonAliasSymbols() as parameter>
-  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
 </#list>
 
 <#list body.getAllRelativeParameters() as parameter>
-  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter])}
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
 </#list>
 }
 
-${simpleNeuronName}::State_::State_()
+${simpleNeuronName}::State_::State_(Parameters_ __p)
 {
 <#list body.getStateNonAliasSymbols() as state>
-  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state])}
+  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state, stateBlockPrettyPrinter])}
 </#list>
 }
 
@@ -165,7 +165,7 @@ ${neuronSymbol.getBaseNeuron().get().getName()}(),
 Archiving_Node(),
 </#if>
 P_(),
-S_(),
+S_(P_),
 B_(*this)
 {
   recordablesMap_.create();

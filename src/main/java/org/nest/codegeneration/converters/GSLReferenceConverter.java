@@ -8,9 +8,9 @@ package org.nest.codegeneration.converters;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.spl.prettyprinter.IReferenceConverter;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.utils.ASTUtils.convertDevrivativeNameToSimpleName;

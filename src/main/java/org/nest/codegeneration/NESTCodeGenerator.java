@@ -8,14 +8,14 @@ package org.nest.codegeneration;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.se_rwth.commons.Names;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
-import org.nest.codegeneration.converters.IReferenceConverter;
+import org.nest.codegeneration.converters.NESTStateBlockReferenceConverter;
+import org.nest.spl.prettyprinter.IReferenceConverter;
 import org.nest.codegeneration.converters.NESTParameterBlockReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.printers.NESTFunctionPrinter;
+import org.nest.codegeneration.helpers.NESTFunctionPrinter;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.codegeneration.sympy.ODETransformer;
 import org.nest.nestml._ast.ASTBody;
@@ -263,12 +263,17 @@ public class NESTCodeGenerator {
 
     final IReferenceConverter parameterBlockConverter = new NESTParameterBlockReferenceConverter();
     final ExpressionsPrettyPrinter parameterBlockPrinter = new ExpressionsPrettyPrinter(parameterBlockConverter);
+
+    final IReferenceConverter stateBlockReferenceConverter = new NESTStateBlockReferenceConverter();
+    final ExpressionsPrettyPrinter stateBlockPrettyPrinter = new ExpressionsPrettyPrinter(stateBlockReferenceConverter);
+
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);
     glex.setGlobalValue("idemPrinter", new ExpressionsPrettyPrinter());
     // this printer is used in one of the variable blocks. there, S_, V_, B_ structs are not defined and getters
     // setters must be used instead.
     glex.setGlobalValue("printerWithGetters", parameterBlockPrinter);
+    glex.setGlobalValue("stateBlockPrettyPrinter", stateBlockPrettyPrinter);
     return glex;
   }
 

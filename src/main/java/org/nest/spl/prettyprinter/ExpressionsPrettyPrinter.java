@@ -7,12 +7,9 @@ package org.nest.spl.prettyprinter;
 
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
-import org.nest.codegeneration.converters.IReferenceConverter;
-import org.nest.codegeneration.converters.IdempotentReferenceConverter;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.utils.ASTUtils;
 
 import java.util.List;
 
