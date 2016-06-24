@@ -1,0 +1,100 @@
+neuron aeif_cond_alpha_neuron:
+
+  state:
+    V_m, w real = 0
+    alias exp_arg real = (V_m-V_th)/delta_T
+    alias I_spike real = delta_T*exp(exp_arg)
+    # alias I_spike = delta_T*exp(min(exp_arg, MAX_EXP_ARG))
+  end
+
+  equations:
+    # Explicit
+    shape GI = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+    shape GE = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+
+    GI'' = -GI'/tau_synI
+    GI' = GI' - GI/tau_synI
+
+    GE'' = -GE'/tau_synE
+    GE' = GE'  -GE/tau_synE
+
+
+    w' = (a*(V_m - E_L) - w)/tau_w
+    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Sum_cond(GI, spikeInh)* (V_m-E_in) - 1/C_m * Sum_cond(GE, spikeExc) * (V_m-E_ex) + (I_e + I_stim) - w)
+
+  end
+
+  parameter:
+   # membrane parameters
+   C_m   pF = 281.0       # Membrane Capacitance in pF
+   t_ref ms = 0.0       # Refractory period in ms
+   V_reset mV = -60.0   # Reset Potential in mV
+   g_L nS = 30.0        # Leak Conductance in nS
+   E_L mV = -70.6       # Leak reversal Potential (aka resting potential) in mV
+   I_e pA = 0           # Constant Current in pA
+
+   # spike adaptation parameters
+   a nS = 40
+   b pA = 80.5
+   alias Tau ms = (1 / g_L) * C_m
+   delta_T mV = 2.0
+   tau_w ms = 144.0
+   V_th mV = -55.4      # Threshold Potential in mV
+   V_peak mV = 0
+
+   # synaptic parameters
+   E_ex mV = 0            # Excitatory reversal Potential in mV
+   tau_syn_ex ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
+   E_in mV = -85.0        # Inhibitory reversal Potential in mV
+   tau_syn_in ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+   # Input current injected by CurrentEvent.
+   # This variable is used to transport the current applied into the
+   # _dynamics function computing the derivative of the state vector.
+   I_stim pA = 0
+  end
+
+  internal:
+    r integer
+
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_E real = 1.0 * e / tau_syn_ex
+
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_I real = 1.0 * e / tau_syn_in
+
+    # refractory time in steps
+    RefractoryCounts integer = steps(t_ref)
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  update:
+    if r == 0: # not refractory
+      # TODO intagrate
+
+    else:
+      r = r - 1
+    end
+
+    if r != 0: # not refractory
+      r =  r - 1
+      V_m = V_reset # clamp potential
+
+    elif V_m >= V_th:
+      r = RefractoryCounts
+      V_m = V_reset # clamp potential
+      emit_spike()
+
+    end
+
+  end
+
+end
