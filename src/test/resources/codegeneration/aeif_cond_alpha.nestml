@@ -39,7 +39,7 @@ neuron aeif_cond_alpha_neuron:
    alias Tau ms = (1 / g_L) * C_m
    delta_T mV = 2.0
    tau_w ms = 144.0
-   V_th mV = -55.4      # Threshold Potential in mV
+   V_th mV = -50.4      # Threshold Potential in mV
    V_peak mV = 0
 
    # synaptic parameters
