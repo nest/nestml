@@ -24,10 +24,12 @@ neuron aeif_cond_alpha_implicit:
     GE'' = -GE'/tau_syn_ex
     GE' = GE'  -GE/tau_syn_ex
     # Equation as defined in NEST model
-    V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
 
-    # NESTML style
-    #V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) + Cond_sum(GE, spikeExc) * (V_m-E_ex) + (I_e + I_stim) - w)
+
+    #NESTML style
+    # results in worse precision
+    #V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) + Cond_sum(GE, spikeExc) * (V_m-E_ex) - (I_e + I_stim) + w + I_spike)
+    V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
 
   end
