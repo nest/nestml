@@ -1,0 +1,93 @@
+neuron iaf_cond_beta_neuron:
+
+
+  state:
+    # membrane potential
+    V_m mV
+    # inputs from the inh conductance
+    GI nS = 0
+    # inputs from the exc conductance
+    GE nS = 0
+  end
+
+  equations:
+    # Implicit
+    GI'' = -GI'/tau_syn_rise_I
+    GI' = GI' - GI/tau_syn_decay_I
+
+    GE'' = -GE'/tau_syn_rise_E
+    GE' = GE'  -GE/tau_syn_decayE
+
+    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * ( GI * (V_m-V_reversalI) + GE * (V_m-V_reversalE) - (I_e + I_stim))
+  end
+
+  parameter:
+   V_th mV = -55.0      # Threshold Potential in mV
+   V_reset mV = -60.0   # Reset Potential in mV
+   t_ref ms = 2.0       # Refractory period in ms
+   g_L ms = 16.6667     # Leak Conductance in nS
+   C_m pF = 250.0       # Membrane Capacitance in pF
+   alias Tau ms = (1 / g_L) * C_m
+   V_reversalE mV = 0          # Excitatory reversal Potential in mV
+   V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
+   E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
+   tau_syn_rise_E ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
+   tau_syn_decay_I ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+   tau_syn_rise_E ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
+   tau_syn_decay_I ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+   I_e pA = 0           # Constant Current in pA
+
+   # Input current injected by CurrentEvent.
+   # This variable is used to transport the current applied into the
+   # _dynamics function computing the derivative of the state vector.
+   I_stim pA = 0
+  end
+
+  internal:
+    r integer
+
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_E real = 1.0 * e / tau_synE
+
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_I real = 1.0 * e / tau_synI
+
+    # refractory time in steps
+    RefractoryCounts integer = steps(t_ref)
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  update:
+    if r == 0: # not refractory
+      # TODO intagrate
+
+    else:
+      r = r - 1
+    end
+
+    if r != 0: # not refractory
+      r =  r - 1
+      V_m = V_reset # clamp potential
+
+    elif V_m >= V_th:
+      r = RefractoryCounts
+      V_m = V_reset # clamp potential
+      emit_spike()
+
+    end
+
+    # TODO DGE = DGE + spikeExc.getSum() * PSConInit_E;
+    # TODO DGI = DGI + spikeInh.getSum() * PSConInit_I;
+    I_stim = currents.getSum()
+  end
+
+end
