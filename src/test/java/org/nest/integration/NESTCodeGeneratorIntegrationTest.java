@@ -50,8 +50,9 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
       "src/test/resources/codegeneration/iaf_cond_alpha.nestml"
   );
 
-  private final List<String> nestmlCondModelExplicit = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml"
+  private final List<String> nestmlCondImplicitModels = Lists.newArrayList(
+      "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml",
+      "src/test/resources/codegeneration/aeif_cond_alpha_implicit.nestml"
   );
 
   private final List<String> blueGene = Lists.newArrayList(
@@ -71,7 +72,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     pscModelsWithOde.forEach(this::checkCocos);
     imperativeModels.forEach(this::checkCocos);
     nestmlCondModels.forEach(this::checkCocos);
-    nestmlCondModelExplicit.forEach(this::checkCocos);
+    nestmlCondImplicitModels.forEach(this::checkCocos);
     blueGene.forEach(this::checkCocos);
   }
 
@@ -122,10 +123,10 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore
   @Test
   public void testCondImplicitForm() {
-    nestmlCondModelExplicit.forEach(this::checkCocos);
-    nestmlCondModelExplicit.forEach(this::invokeCodeGenerator);
+    nestmlCondImplicitModels.forEach(this::checkCocos);
+    nestmlCondImplicitModels.forEach(this::invokeCodeGenerator);
 
-    final List<ASTNESTMLCompilationUnit> roots = nestmlCondModelExplicit.stream()
+    final List<ASTNESTMLCompilationUnit> roots = nestmlCondImplicitModels.stream()
         .map(this::parseAndBuildSymboltable)
         .collect(Collectors.toList());
     generateNESTModuleCode(roots);
@@ -159,7 +160,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testManually() {
-    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/aeif_cond_alpha_implicit.nestml");
+    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/hh_psc_alpha.nestml");
     modelName.forEach(this::checkCocos);
     modelName.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
