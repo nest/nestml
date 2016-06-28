@@ -216,15 +216,19 @@ ${simpleNeuronName}::init_buffers_()
     else
     gsl_odeiv_step_reset( B_.s_ );
 
-    if ( B_.c_ == 0 )
-    B_.c_ = gsl_odeiv_control_y_new( 1e-3, 0.0 );
-    else
-    gsl_odeiv_control_init( B_.c_, 1e-3, 0.0, 1.0, 0.0 );
+    if ( B_.c_ == 0 ) {
+      B_.c_ = gsl_odeiv_control_y_new( 1e-6, 0.0 );
+    }
+    else {
+      gsl_odeiv_control_init( B_.c_, 1e-6, 0.0, 1.0, 0.0 );
+    }
 
-    if ( B_.e_ == 0 )
-    B_.e_ = gsl_odeiv_evolve_alloc( ${stateSize} );
-    else
-    gsl_odeiv_evolve_reset( B_.e_ );
+    if ( B_.e_ == 0 ) {
+      B_.e_ = gsl_odeiv_evolve_alloc( ${stateSize} );
+    }
+    else {
+      gsl_odeiv_evolve_reset( B_.e_ );
+    }
 
     B_.sys_.function = ${simpleNeuronName}_dynamics;
     B_.sys_.jacobian = NULL;
