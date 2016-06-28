@@ -1,9 +1,9 @@
-neuron hh_psc_alpha:
+neuron hh_psc_alpha_nestml:
 
   state:
     V_m mV = -65. mV
 
-    I_EXC,  I_INH pA
+    I_ex,  I_in pA
 
     alias alpha_n real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
     alias beta_n real = 0.125 * exp( -( V_m + 65. ) / 80. )
@@ -22,7 +22,18 @@ neuron hh_psc_alpha:
   end
 
   equations:
-    # Explicit
+    V_m' =( -( I_Na + I_K + I_L ) + I_stim + I_e + I_ex + I_in ) / C_m
+
+    Act_m' = alpha_m * ( 1 - Act_m ) - beta_m * Act_m # m-variable
+    Act_h' = alpha_h * ( 1 - Act_h ) - beta_h * Act_h # h-variable
+    Inact_n' = alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n # n-variable
+
+    # synapses: alpha functions
+    I_ex'' = -I_ex' / tau_syn_ex
+    I_ex' = I_ex' - ( I_ex / tau_syn_ex )
+
+    I_in'' = -I_in' / tau_syn_in
+    I_in' = I_in' - ( I_in / tau_syn_in )
   end
 
   parameter:
@@ -71,13 +82,16 @@ neuron hh_psc_alpha:
     integrate(V_m)
 
     if r > 0:
-      r += 1
+      r -= 1
     elif V_m > 0 and U_old > V_m:
       r = RefractoryCounts
       emit_spike()
     end
 
     I_stim = currents.getSum()
+
+    I_ex' += spikeExc.getSum() * PSConInit_E;
+    I_in' += spikeInh.getSum() * PSConInit_I;
   end
 
 end
