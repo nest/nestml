@@ -27,7 +27,7 @@ neuron aeif_cond_alpha_neuron:
    I_e pA = 0           # Constant Current in pA
 
    # spike adaptation parameters
-   a nS = 40
+   a nS = 4
    b pA = 80.5
    alias Tau ms = (1 / g_L) * C_m
    delta_T mV = 2.0
