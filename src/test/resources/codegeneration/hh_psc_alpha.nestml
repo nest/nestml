@@ -1,7 +1,24 @@
 neuron hh_psc_alpha:
 
   state:
-    V_m, HH_M, HH_H, HH_N, DI_EXC, I_EXC, DI_INH, I_INH real
+    V_m mV = -65. mV
+
+    I_EXC,  I_INH pA
+
+    alias alpha_n real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
+    alias beta_n real = 0.125 * exp( -( V_m + 65. ) / 80. )
+    alias alpha_m  real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
+    alias beta_m  real = 4. * exp( -( V_m + 65. ) / 18. )
+    alias alpha_h  real = 0.07 * exp( -( V_m + 65. ) / 20. )
+    alias beta_h  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
+
+    Act_m real =  alpha_m / ( alpha_m + beta_m )
+    Act_h real = alpha_h / ( alpha_h + beta_h )
+    Inact_n real =  alpha_n / ( alpha_n + beta_n )
+
+    alias I_Na  real = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na );
+    alias I_K   real  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K );
+    alias I_L   real = g_L * ( V_m - E_L );
   end
 
   equations:
@@ -9,37 +26,36 @@ neuron hh_psc_alpha:
   end
 
   parameter:
-   t_ref ms = 2.0       # Refractory period in ms
-   g_Na nS = 12000.0      # Threshold Potential in mV
-   g_K nS = 3600.0
-   g_L nS = 30
-   C_m pF = 100.0       # Membrane Capacitance in pF
-   E_Na mV = 40
-   E_K mV = -77.
-   E_L mV = -54.402     # Leak reversal Potential (aka resting potential) in mV
-   tau_synE ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
-   tau_synI ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
-   I_e pA = 0           # Constant Current in pA
-
-   alias Tau ms = (1 / g_L) * C_m
-   V_reversalE mV = 0          # Excitatory reversal Potential in mV
-   V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
-
-   end
+    t_ref ms = 2.0       # Refractory period in ms
+    g_Na nS = 12000.0      # Threshold Potential in mV
+    g_K nS = 3600.0
+    g_L nS = 30
+    C_m pF = 100.0       # Membrane Capacitance in pF
+    E_Na mV = 50
+    E_K mV = -77.
+    E_L mV = -54.402     # Leak reversal Potential (aka resting potential) in mV
+    tau_syn_ex ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_in ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+    I_e pA = 0           # Constant Current in pA
+  end
 
   internal:
-    r integer
-
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_synE
+    PSConInit_E real = 1.0 * e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_synI
+    PSConInit_I real = 1.0 * e / tau_syn_in
 
     # refractory time in steps
+    r integer
     RefractoryCounts integer = steps(t_ref)
+
+   # Input current injected by CurrentEvent.
+   # This variable is used to transport the current applied into the
+   # _dynamics function computing the derivative of the state vector.
+   I_stim pA = 0
   end
 
   input:
@@ -51,7 +67,17 @@ neuron hh_psc_alpha:
   output: spike
 
   update:
+    U_old mV = V_m
+    integrate(V_m)
 
+    if r > 0:
+      r += 1
+    elif V_m > 0 and U_old > V_m:
+      r = RefractoryCounts
+      emit_spike()
+    end
+
+    I_stim = currents.getSum()
   end
 
 end
