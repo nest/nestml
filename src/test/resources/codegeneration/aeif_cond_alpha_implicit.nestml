@@ -27,7 +27,7 @@ neuron aeif_cond_alpha_implicit:
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
 
     # NESTML style
-    #V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) - 1/C_m * Cond_sum(GE, spikeExc) * (V_m-E_ex) + (I_e + I_stim) - w)
+    #V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) + Cond_sum(GE, spikeExc) * (V_m-E_ex) + (I_e + I_stim) - w)
     w' = (a*(V_m - E_L) - w)/tau_w
 
   end
