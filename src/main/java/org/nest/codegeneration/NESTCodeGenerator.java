@@ -200,6 +200,24 @@ public class NESTCodeGenerator {
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
+    final Path cmakeLists = Paths.get("CMakeLists.txt");
+    generator.generate(
+        "org.nest.nestml.module.CMakeLists",
+        cmakeLists,
+        neurons.get(0)); // an arbitrary AST to match the signature
+
+    final Path cmakeModuleHeader = Paths.get(moduleName + ".h");
+    generator.generate(
+        "org.nest.nestml.module.ModuleHeaderCMake",
+        cmakeModuleHeader,
+        neurons.get(0)); // an arbitrary AST to match the signature
+
+    final Path cmakeModuleClass = Paths.get(moduleName + ".cpp");
+    generator.generate(
+        "org.nest.nestml.module.ModuleClassCMake",
+        cmakeModuleClass,
+        neurons.get(0)); // an arbitrary AST to match the signature
+
     final Path makefileFile = Paths.get("Makefile.am");
     generator.generate(
         "org.nest.nestml.module.Makefile",
@@ -312,6 +330,8 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("nestmlSymbols", new NESTMLSymbols());
     glex.setGlobalValue("astUtils", new ASTUtils());
     glex.setGlobalValue("aliasInverter", new AliasInverter());
+
+    glex.setGlobalValue("nestVersion", 3);
 
   }
 
