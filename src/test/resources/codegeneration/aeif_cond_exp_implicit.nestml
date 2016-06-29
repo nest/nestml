@@ -1,0 +1,99 @@
+neuron aeif_cond_exp_implicit:
+
+  state:
+    V_m mV = E_L
+    w real = 0
+    alias exp_arg real = (V_m-V_th)/delta_T
+    alias I_spike real = delta_T*exp(exp_arg)
+    # alias I_spike = delta_T*exp(min(exp_arg, MAX_EXP_ARG))
+
+    # inputs from the inh conductance
+    GI nS = 0
+    # inputs from the exc conductance
+    GE nS = 0
+    alias I_syn_exc real =   GE * ( V_m - E_ex )
+    alias I_syn_inh real =   GI * ( V_m - E_in )
+  end
+
+  equations:
+    # Implicit
+    GI' = -GI/tau_syn_in
+    # shape GE = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    GE' = -GE/tau_syn_ex
+    # Equation as defined in NEST model
+
+
+    #NESTML style
+    # results in worse precision
+    #V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) + Cond_sum(GE, spikeExc) * (V_m-E_ex) - (I_e + I_stim) + w + I_spike)
+    V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
+    w' = (a*(V_m - E_L) - w)/tau_w
+
+  end
+
+  parameter:
+   # membrane parameters
+   C_m   pF = 281.0       # Membrane Capacitance in pF
+   t_ref ms = 0.0       # Refractory period in ms
+   V_reset mV = -60.0   # Reset Potential in mV
+   g_L nS = 30.0        # Leak Conductance in nS
+   E_L mV = -70.6       # Leak reversal Potential (aka resting potential) in mV
+   I_e pA = 0           # Constant Current in pA
+
+   # spike adaptation parameters
+   a nS = 4
+   b pA = 80.5
+   alias Tau ms = (1 / g_L) * C_m
+   delta_T mV = 2.0
+   tau_w ms = 144.0
+   V_th mV = -50.4      # Threshold Potential in mV
+   V_peak mV = 0
+
+   # synaptic parameters
+   E_ex mV = 0            # Excitatory reversal Potential in mV
+   tau_syn_ex ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
+   E_in mV = -85.0        # Inhibitory reversal Potential in mV
+   tau_syn_in ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+   # Input current injected by CurrentEvent.
+   # This variable is used to transport the current applied into the
+   # _dynamics function computing the derivative of the state vector.
+   I_stim pA = 0
+  end
+
+  internal:
+    r integer
+
+    # refractory time in steps
+    RefractoryCounts integer = steps(t_ref)
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  update:
+    integrate(V_m)
+
+    if r > 0: # refractory
+      r = r - 1
+    end
+
+    if r > 0: # not refractory
+      V_m = V_reset # clamp potential
+    elif V_m >= V_peak:
+      r = RefractoryCounts
+      V_m = V_reset # clamp potential
+      w += b
+      emit_spike()
+    end
+
+    GE += spikeExc.getSum()
+    GI += spikeInh.getSum()
+    I_stim = currents.getSum()
+  end
+
+end
