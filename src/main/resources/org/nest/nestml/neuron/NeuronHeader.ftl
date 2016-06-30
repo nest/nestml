@@ -43,11 +43,15 @@
 #include <gsl/gsl_odeiv.h>
 </#if>
 
-#include "nest.h"
-#include "event.h"
+// Includes from nestkernel:
 #include "archiving_node.h"
 #include "connection.h"
+#include "event.h"
+#include "nest_types.h"
+#include "ring_buffer.h"
 #include "universal_data_logger.h"
+
+// Includes from sli:
 #include "dictdatum.h"
 
 /* BeginDocumentation

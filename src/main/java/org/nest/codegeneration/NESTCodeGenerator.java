@@ -218,37 +218,7 @@ public class NESTCodeGenerator {
         cmakeModuleClass,
         neurons.get(0)); // an arbitrary AST to match the signature
 
-    final Path makefileFile = Paths.get("Makefile.am");
-    generator.generate(
-        "org.nest.nestml.module.Makefile",
-        makefileFile,
-        neurons.get(0)); // an arbitrary AST to match the signature
-
-    final Path bootstrappingFile = Paths.get("bootstrap.sh");
-    generator.generate(
-        "org.nest.nestml.module.Bootstrap",
-        bootstrappingFile,
-        neurons.get(0)); // an arbitrary AST to match the signature
-
-    final Path configureFile = Paths.get("configure.ac");
-    generator.generate(
-        "org.nest.nestml.module.Configure",
-        configureFile,
-        neurons.get(0)); // an arbitrary AST to match the signature
-
-    final Path moduleClass = Paths.get(moduleName + "Config.cpp");
-    generator.generate(
-        "org.nest.nestml.module.ModuleClass",
-        moduleClass,
-        neurons.get(0)); // an arbitrary AST to match the signature
-
-    final Path moduleHeader = Paths.get( moduleName + "Config.h");
-    generator.generate(
-        "org.nest.nestml.module.ModuleHeader",
-        moduleHeader,
-        neurons.get(0)); // an arbitrary AST to match the signature
-
-    final Path initSLI = Paths.get( moduleName + "-init.sli");
+    final Path initSLI = Paths.get("sli", moduleName + "-init.sli");
     generator.generate(
         "org.nest.nestml.module.SLI_Init",
         initSLI,

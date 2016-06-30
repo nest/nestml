@@ -28,9 +28,9 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class ODEProcessorTest extends ModelbasedTest {
-  private static final String COND_MODEL_FILE = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
-  private static final String PSC_MODEL_FILE = "src/test/resources/codegeneration/iaf_neuron.nestml";
-  private static final String PSC_DELTA_MODEL_FILE = "src/test/resources/codegeneration/iaf_psc_delta.nestml";
+  private static final String COND_MODEL_FILE = "models/iaf_cond_alpha.nestml";
+  private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
+  private static final String PSC_DELTA_MODEL_FILE = "models/iaf_psc_delta.nestml";
   private static final String PSC_NEURON_NAME = "iaf_neuron_nestml";
 
   private final ODEProcessor testant = new ODEProcessor();
@@ -68,7 +68,7 @@ public class ODEProcessorTest extends ModelbasedTest {
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(pathToModel);
     scopeCreator.runSymbolTableCreator(modelRoot);
     final String modelFolder = modelRoot.getFullName();
-    final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(modelFolder));
+    final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(pathToModel.toString()));
     FilesHelper.deleteFilesInFolder(outputBase);
 
     testant.solveODE(modelRoot.getNeurons().get(0), outputBase);

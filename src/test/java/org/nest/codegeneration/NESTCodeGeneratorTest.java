@@ -30,9 +30,9 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
   private static final Path OUTPUT_DIRECTORY = Paths.get("target", "build");
   private static final PSCMock pscMock = new PSCMock();
 
-  private static final String PSC_MODEL_WITH_ODE = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
+  private static final String PSC_MODEL_WITH_ODE = "models/iaf_psc_alpha.nestml";
   private static final String PSC_MODEL_IMPERATIVE = "src/test/resources/codegeneration/imperative/iaf_psc_alpha_imperative.nestml";
-  private static final String COND_MODEL_IMPLICIT = "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml";
+  private static final String COND_MODEL_IMPLICIT = "models/iaf_cond_alpha_implicit.nestml";
 
   @Test
   public void testPSCModelWithoutOde() {

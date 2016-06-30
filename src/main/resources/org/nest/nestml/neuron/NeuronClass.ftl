@@ -20,19 +20,27 @@
 *
 */
 
-#include "exceptions.h"
-#include "network.h"
-#include "dict.h"
-#include "integerdatum.h"
-#include "doubledatum.h"
-#include "dictutils.h"
+// C++ includes:
+#include <limits>
+
+// Includes from libnestutil:
 #include "numerics.h"
+
+// Includes from nestkernel:
+#include "exceptions.h"
+#include "kernel_manager.h"
 #include "universal_data_logger_impl.h"
 
-#include <limits>
-<#assign stateSize = body.getEquations()?size>
+// Includes from sli:
+#include "dict.h"
+#include "dictutils.h"
+#include "doubledatum.h"
+#include "integerdatum.h"
+#include "lockptrdatum.h"
+
 #include "${simpleNeuronName}.h"
 
+<#assign stateSize = body.getEquations()?size>
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
@@ -318,7 +326,7 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
         if ( B_.receptor_types_${spikeBuffer.getName()}[ i ] == e.get_rport() )
         {
             B_.${spikeBuffer.getName()}[i].add_value(
-              e.get_rel_delivery_steps( network()->get_slice_origin() ),
+              e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
               e.get_weight() * e.get_multiplicity() );
         }
       }

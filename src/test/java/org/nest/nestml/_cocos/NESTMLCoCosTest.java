@@ -6,11 +6,13 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
@@ -33,9 +35,16 @@ import static org.nest.utils.LogHelper.countWarningsByPrefix;
  *
  * @author plotnikov
  */
-public class NESTMLCoCosTest extends ModelbasedTest {
+public class NESTMLCoCosTest  {
+
+  @Before
+  public void clearLog() {
+    Log.enableFailQuick(false);
+    Log.getFindings().clear();
+  }
 
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/";
+  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources"));
 
   private NESTMLCoCoChecker nestmlCoCoChecker;
 
@@ -54,7 +63,7 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     // just take an arbitrary nestml model with an import: nestml*
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
         Paths.get(TEST_MODELS_FOLDER, "resolvePredefinedTypes.nestml").toString(),
-        TEST_MODEL_PATH);
+        Paths.get(TEST_MODELS_FOLDER));
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -69,7 +78,7 @@ public class NESTMLCoCosTest extends ModelbasedTest {
   @Test
   public void testAliasHasNoSetter() {
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        TEST_MODELS_FOLDER + "aliasHasNoSetter/valid.nestml", TEST_MODEL_PATH);
+        TEST_MODELS_FOLDER + "aliasHasNoSetter/valid.nestml", Paths.get(TEST_MODELS_FOLDER));
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
     final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
@@ -81,7 +90,7 @@ public class NESTMLCoCosTest extends ModelbasedTest {
     assertEquals(Integer.valueOf(0), errorsFound);
 
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
-        TEST_MODELS_FOLDER + "aliasHasNoSetter/invalid.nestml", TEST_MODEL_PATH);
+        TEST_MODELS_FOLDER + "aliasHasNoSetter/invalid.nestml", Paths.get(TEST_MODELS_FOLDER));
         assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
 
@@ -504,6 +513,7 @@ public class NESTMLCoCosTest extends ModelbasedTest {
         2);
   }
 
+
   @Test
   public void testUsesOnlyComponents() {
     final UsesOnlyComponents usesOnlyComponents = new UsesOnlyComponents();
@@ -701,7 +711,7 @@ public class NESTMLCoCosTest extends ModelbasedTest {
       final NESTMLCoCoChecker nestmlCoCoChecker,
       final String expectedErrorCode,
       final Integer expectedNumberCount) {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel.toString(), TEST_MODEL_PATH);
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel.toString(), Paths.get(TEST_MODELS_FOLDER));
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 

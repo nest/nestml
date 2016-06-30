@@ -35,13 +35,13 @@ cmake_minimum_required( VERSION 2.8.12 )
 set( SHORT_NAME ${moduleName} )
 
 #    the complete module name is here:
-set( MODULE_NAME ${r"$"}{SHORT_NAME}module )
+set( MODULE_NAME ${r"$"}{SHORT_NAME} )
 
 # 2) Add all your sources here
 set( MODULE_SOURCES
     ${moduleName}.h ${moduleName}.cpp
     <#list neurons as neuron>
-      ${neuron.getName()}.cpp ${neuron.getName()}.h <#if neuron_has_next>\</#if>
+      ${neuron.getName()}.cpp ${neuron.getName()}.h <#if neuron_has_next> </#if>
     </#list>
     )
 

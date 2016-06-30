@@ -36,7 +36,7 @@ ENV MAVEN_HOME /usr/share/maven
 
 # Define working directory.
 WORKDIR /data
-RUN wget https://github.com/nest/nestml/releases/download/0.0.4/nestml.jar
+RUN wget https://github.com/nest/nestml/releases/download/0.0.5/nestml.jar
 
 # create a non-root user named tester, 
 # give them the password "tester" put them in the sudo group

@@ -1,4 +1,4 @@
-/* BeginDocumentation
+/*
 Name: iaf_neuron - Leaky integrate-and-fire neuron model.
 
 Description:
