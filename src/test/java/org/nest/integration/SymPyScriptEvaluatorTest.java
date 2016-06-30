@@ -29,14 +29,10 @@ import static org.junit.Assert.assertTrue;
  * @author plonikov
  */
 public class SymPyScriptEvaluatorTest extends ModelbasedTest {
-  private static final String IAF_PSC_EXP
-      = "src/test/resources/codegeneration/iaf_psc_exp.nestml";
-  private static final String IAF_PSC_ALPHA
-      = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
-  private static final String PSC_MODEL_FILE
-      = "src/test/resources/codegeneration/iaf_neuron.nestml";
-  private static final String COND_MODEL_FILE
-      = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
+  private static final String IAF_PSC_EXP = "models/iaf_psc_exp.nestml";
+  private static final String IAF_PSC_ALPHA = "models/iaf_psc_alpha.nestml";
+  private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
+  private static final String COND_MODEL_FILE = "models/iaf_cond_alpha.nestml";
 
   private static final Path SYMPY_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "sympy");
 

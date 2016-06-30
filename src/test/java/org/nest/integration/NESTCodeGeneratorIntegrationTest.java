@@ -23,17 +23,17 @@ import java.util.stream.Collectors;
 public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_neuron.nestml",
-      "src/test/resources/codegeneration/iaf_psc_alpha.nestml",
-      "src/test/resources/codegeneration/iaf_psc_exp.nestml",
-      "src/test/resources/codegeneration/iaf_tum_2000.nestml",
-      "src/test/resources/codegeneration/iaf_psc_delta.nestml",
-      "src/test/resources/codegeneration/mat2_psc_exp.nestml"
+      "models/iaf_neuron.nestml",
+      "models/iaf_psc_alpha.nestml",
+      "models/iaf_psc_exp.nestml",
+      "models/iaf_tum_2000.nestml",
+      "models/iaf_psc_delta.nestml",
+      "models/mat2_psc_exp.nestml"
   );
 
   private final List<String> multisynapseModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_psc_alpha_multisynapse.nestml",
-      "src/test/resources/codegeneration/iaf_psc_exp_multisynapse.nestml"
+      "models/iaf_psc_alpha_multisynapse.nestml",
+      "models/iaf_psc_exp_multisynapse.nestml"
   );
 
   private final List<String> imperativeModels = Lists.newArrayList(
@@ -47,15 +47,15 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   );
 
   private final List<String> nestmlCondModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_cond_alpha.nestml"
+      "models/iaf_cond_alpha.nestml"
   );
 
   private final List<String> nestmlCondImplicitModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/iaf_cond_alpha_implicit.nestml",
-      "src/test/resources/codegeneration/iaf_cond_exp_implicit.nestml",
-      "src/test/resources/codegeneration/aeif_cond_alpha_implicit.nestml",
-      "src/test/resources/codegeneration/aeif_cond_exp_implicit.nestml",
-      "src/test/resources/codegeneration/hh_psc_alpha.nestml"
+      "models/iaf_cond_alpha_implicit.nestml",
+      "models/iaf_cond_exp_implicit.nestml",
+      "models/aeif_cond_alpha_implicit.nestml",
+      "models/aeif_cond_exp_implicit.nestml",
+      "models/hh_psc_alpha.nestml"
 
   );
 
@@ -152,7 +152,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   @Test
   public void testIzhikevich() {
-    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/izhikevich.nestml");
+    final List<String> modelName = Lists.newArrayList("models/izhikevich.nestml");
     modelName.forEach(this::checkCocos);
     modelName.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
@@ -164,7 +164,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testManually() {
-    final List<String> modelName = Lists.newArrayList("src/test/resources/codegeneration/iaf_cond_exp_implicit.nestml");
+    final List<String> modelName = Lists.newArrayList("models/iaf_cond_exp_implicit.nestml");
     modelName.forEach(this::checkCocos);
     modelName.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = modelName.stream()

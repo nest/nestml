@@ -62,7 +62,7 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
       LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE);
 
   private static final String NEURON_NAME = "iaf_psc_alpha_nestml";
-  private static final String MODEL_FILE_PATH = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
+  private static final String MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
 
   @Test
   public void testExactSolutionTransformation() {

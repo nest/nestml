@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class AliasInverterTest extends GenerationBasedTest {
-  private static final String PSC_MODEL_WITH_ODE = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
+  private static final String PSC_MODEL_WITH_ODE = "models/iaf_psc_alpha.nestml";
 
   @Test
   public void testComputationOfInverseFunction() {
