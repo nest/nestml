@@ -84,7 +84,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
     if (functionName.contains(PredefinedFunctions.EMIT_SPIKE)) {
       return "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" +
           "nest::SpikeEvent se;\n" +
-          "network()->send(*this, se, lag);";
+          "nest::kernel().event_delivery_manager.send(*this, se, lag);";
     }
 
     final Optional<MethodSymbol> functionSymbol = NESTMLSymbols.resolveMethod(astFunctionCall);
