@@ -28,7 +28,9 @@ docker build -t nestml_release -f ./DockerfileRelease .
 If everything goes well, then command 'docker images' container should list a 'nestml_release' container.
 
 Currently, the container is built in the way, that is automatically processes a volume that is mounted at start up. E.g. a NESTML model (https://github.com/nest/nestml/blob/master/models/iaf_cond_alpha_implicit.nestml) can be placed into a folder called 'testing'. Then, the following command will execute model analysis and codegeneration for NEST target (currently, only the NEST master is supported, for earlier version use releases prio 0.1.0):
+```
 docker run -v ~/testing/:/nestml nestml_release
+```
 
 It creates a subfolder 'result' in the 'testing' folder that contains the generated code. Per default, the module for the generated stuff is called 'nestml'. In order to integrate the model into nest, use the following commands (assumption, you switched to the 'testing/result'):
 ```
