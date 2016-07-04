@@ -95,7 +95,7 @@ public class IllegalExpression implements
     if (exprType.isRight()) {
       final String errorDescription = exprType.getRight().get() +
           "Problem with the expression: " + ASTUtils.toString(node.getExpr());
-      undefinedTypeError(node, exprType.getRight().get());
+      undefinedTypeError(node, errorDescription);
     }
 
   }
@@ -107,17 +107,17 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTIF_Clause node) {
-    try {
-      if (typeCalculator.computeType(node.getExpr()).getLeft().get() != getBooleanType()) {
-        final String msg = "Cannot use non boolean expression in an if statement " +
-            "@" + node.get_SourcePositionStart();
-       error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
-      }
+    final Either<TypeSymbol, String> exprType = typeCalculator.computeType(node.getExpr());
+
+    if (exprType.isLeft() && exprType.getLeft().get() != getBooleanType()) {
+      final String msg = "Cannot use non boolean expression of type " + exprType.getLeft();
+      error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
     }
-    catch (RuntimeException e) {
-      final String msg = "Cannot use the expression in the if clause. " + e.getMessage() +
-          "@" + node.get_SourcePositionStart();
-     error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+
+    if (exprType.isRight()) {
+      final String errorDescription = exprType.getRight().get() +
+          "Problem with the expression: " + ASTUtils.toString(node.getExpr());
+      undefinedTypeError(node, errorDescription);
     }
 
   }
