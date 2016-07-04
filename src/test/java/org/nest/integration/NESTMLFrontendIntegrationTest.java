@@ -39,13 +39,6 @@ public class NESTMLFrontendIntegrationTest {
   }
 
   @Test
-  public void testBluegeneModels() {
-    Path outputPath = Paths.get("target", "tmpOutput");
-    FilesHelper.deleteFilesInFolder(outputPath);
-    nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/bluegene", "--target", outputPath.toString()});
-  }
-
-  @Test
   public void testModelsWithInheritance() {
     Path outputPath = Paths.get("target", "tmpOutput");
     FilesHelper.deleteFilesInFolder(outputPath);

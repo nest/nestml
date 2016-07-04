@@ -276,7 +276,8 @@ public class ExpressionTypeCalculator {
         return rhsType;
       }
 
-      if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get())) {
+      if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get()) ||
+          isBoolean(lhsType.getLeft().get()) && isBoolean(rhsType.getLeft().get())) {
         return Either.left(getBooleanType());
       }
       else {
@@ -322,6 +323,14 @@ public class ExpressionTypeCalculator {
     return type.equals(getIntegerType()) ||
         type.equals(getRealType()) ||
         type.getType().equals(TypeSymbol.Type.UNIT);
+
+  }
+
+  /**
+   * Checks if the type is a numeric type, e.g. Integer or Real.
+   */
+  private boolean isBoolean(final TypeSymbol type) {
+    return type.equals(getBooleanType());
 
   }
 

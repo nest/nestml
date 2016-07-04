@@ -55,20 +55,16 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
       "models/iaf_cond_exp_implicit.nestml",
       "models/aeif_cond_alpha_implicit.nestml",
       "models/aeif_cond_exp_implicit.nestml",
-      "models/hh_psc_alpha.nestml"
-
-  );
-
-  private final List<String> blueGene = Lists.newArrayList(
-      "src/test/resources/codegeneration/bluegene/aeif_cond_alpha_neuron.nestml",
-      "src/test/resources/codegeneration/bluegene/hh_cond_alpha.nestml"
+      "models/iaf_chxk_2008_implicit.nestml",
+      "models/hh_cond_exp_traub.nestml",
+      "models/hh_psc_alpha.nestml",
+      "models/iaf_cond_exp_sfa_rr_implicit.nestml"
   );
 
   private final List<String> glf = Lists.newArrayList(
       "src/test/resources/codegeneration/gif/glif.nestml",
       "src/test/resources/codegeneration/gif/glif_2.nestml",
       "src/test/resources/codegeneration/gif/glif_extended.nestml"
-
   );
 
   @Test
@@ -77,7 +73,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     imperativeModels.forEach(this::checkCocos);
     nestmlCondModels.forEach(this::checkCocos);
     nestmlCondImplicitModels.forEach(this::checkCocos);
-    blueGene.forEach(this::checkCocos);
   }
 
   @Test
@@ -136,12 +131,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     generateNESTModuleCode(roots);
   }
 
-  @Ignore
-  @Test
-  public void testBluegeneModels() {
-    blueGene.forEach(this::checkCocos);
-    blueGene.forEach(this::invokeCodeGenerator);
-  }
 
   @Ignore("Don't run this tests on github")
   @Test
@@ -164,7 +153,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testManually() {
-    final List<String> modelName = Lists.newArrayList("models/hh_cond_exp_traub.nestml");
+    final List<String> modelName = Lists.newArrayList("models/iaf_cond_exp_sfa_rr_implicit.nestml");
     modelName.forEach(this::checkCocos);
     modelName.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
