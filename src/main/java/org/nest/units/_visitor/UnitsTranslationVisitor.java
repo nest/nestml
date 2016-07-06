@@ -1,5 +1,7 @@
 package org.nest.units._visitor;
 import java.util.Optional;
+
+import com.google.common.base.Preconditions;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units.unitrepresentation.SIData;
@@ -13,27 +15,6 @@ public class UnitsTranslationVisitor implements NESTMLVisitor,UnitsVisitor {
 
   UnitRepresentation left,right,base;
   UnitRepresentation lastResult;
-
-  private int getMagnitude(String pre){
-    return SIData.getPrefixMagnitudes().get(pre);
-  }
-
-  private Optional<UnitRepresentation> getUnitRepresentation(String unit){
-    for (String pre: SIData.getSIPrefixes()){
-      if(pre.regionMatches(false,0,unit,0,pre.length())){
-        //See if remaining unit name matches a valid SI Unit. Since some prefixes are not unique
-        String remainder = unit.substring(pre.length());
-        if(SIData.getBaseRepresentations().containsKey(remainder)){
-          int magnitude = getMagnitude(pre);
-          UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(remainder));
-          result.addMagnitude(magnitude);
-          return Optional.of(result);
-        }
-      }
-    }
-    //should never happen
-    return Optional.empty();
-  }
 
   public String getResult(){
     return lastResult.toString();
@@ -80,10 +61,9 @@ public class UnitsTranslationVisitor implements NESTMLVisitor,UnitsVisitor {
       }
       else {
         String unit = node.getUnit().get();
-        Optional<UnitRepresentation> thisUnit = getUnitRepresentation(unit);
-        if (thisUnit.isPresent()) {
-          lastResult = thisUnit.get();
-        }
+        Optional<UnitRepresentation> thisUnit = UnitRepresentation.lookupName(unit);
+        Preconditions.checkState(thisUnit.isPresent());
+        lastResult = thisUnit.get();
       }
     }
 }

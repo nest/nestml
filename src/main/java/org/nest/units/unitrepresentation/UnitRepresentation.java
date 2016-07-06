@@ -2,6 +2,7 @@ package org.nest.units.unitrepresentation;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,6 +24,23 @@ public class UnitRepresentation {
   public String toString() {
     int[] result = { K, s, m, g, cd, mol, A, magnitude };
     return Arrays.toString(result);
+  }
+
+  static public Optional<UnitRepresentation> lookupName(String unit){
+    for (String pre: SIData.getSIPrefixes()){
+      if(pre.regionMatches(false,0,unit,0,pre.length())){
+        //See if remaining unit name matches a valid SI Unit. Since some prefixes are not unique
+        String remainder = unit.substring(pre.length());
+        if(SIData.getBaseRepresentations().containsKey(remainder)){
+          int magnitude = SIData.getPrefixMagnitudes().get(pre);
+          UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(remainder));
+          result.addMagnitude(magnitude);
+          return Optional.of(result);
+        }
+      }
+    }
+    //should never happen
+    return Optional.empty();
   }
 
   public UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude) {
@@ -48,18 +66,25 @@ public class UnitRepresentation {
   }
 
   public UnitRepresentation(String serialized){
-    Pattern parse = Pattern.compile("(-?[0-9]+)");
+    Pattern parse = Pattern.compile("-?[0-9]+");
     Matcher matcher = parse.matcher(serialized);
-    Preconditions.checkState(matcher.groupCount() == 8);
 
-    this.K = Integer.parseInt(matcher.group(0));
-    this.s = Integer.parseInt(matcher.group(1));
-    this.m = Integer.parseInt(matcher.group(2));
-    this.g = Integer.parseInt(matcher.group(3));
-    this.cd = Integer.parseInt(matcher.group(4));
-    this.mol = Integer.parseInt(matcher.group(5));
-    this.A = Integer.parseInt(matcher.group(6));
-    this.magnitude = Integer.parseInt(matcher.group(7));
+    Preconditions.checkState(matcher.find());
+    this.K = Integer.parseInt(matcher.group());
+    Preconditions.checkState(matcher.find());
+    this.s = Integer.parseInt(matcher.group());
+    Preconditions.checkState(matcher.find());
+    this.m = Integer.parseInt(matcher.group());
+    Preconditions.checkState(matcher.find());
+    this.g = Integer.parseInt(matcher.group());
+    Preconditions.checkState(matcher.find());
+    this.cd = Integer.parseInt(matcher.group());
+    Preconditions.checkState(matcher.find());
+    this.mol = Integer.parseInt(matcher.group());
+    Preconditions.checkState(matcher.find());
+    this.A = Integer.parseInt(matcher.group());
+    Preconditions.checkState(matcher.find());
+    this.magnitude = Integer.parseInt(matcher.group());
   }
 
   public UnitRepresentation divideBy(UnitRepresentation denominator){
