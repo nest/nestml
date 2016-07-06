@@ -101,7 +101,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
           }
           else {
             final String calleeObject = Names.getQualifier(functionName);
-            return "B_." + calleeObject + ".get_value(lag)";
+            return "get_" + calleeObject + "().get_value(lag)";
           }
 
         }
@@ -118,23 +118,24 @@ public class NESTReferenceConverter implements IReferenceConverter {
     checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symboltable creator");
     final String variableName = ASTUtils.convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
+
     if (PredefinedVariables.E_CONSTANT.equals(variableName)) {
       return "numerics::e";
     }
     else {
       final VariableSymbol variableSymbol = resolve(variableName, scope);
-
       if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
         return variableName + (variableSymbol.isVector()?"[i]":"");
       }
       else if(variableSymbol.isBuffer()) {
-        return "B_." + variableName + ".get_value( lag )";
+        return "get_" + variableName + "().get_value( lag )";
       }
       else {
         if (variableSymbol.isAlias()) {
           return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {
+
           return printOrigin(variableSymbol) + variableName +  (variableSymbol.isVector()?"[i]":"");
         }
 

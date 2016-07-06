@@ -44,9 +44,22 @@ public class ModelbasedTest {
     Log.getFindings().clear();
   }
 
-  public ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
+  protected ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
 
     try {
+      return parser.parse(pathToModel).get();
+    }
+    catch (final IOException e) {
+      throw new RuntimeException("Cannot parse the NESTML model: " + pathToModel, e);
+    }
+
+  }
+
+  protected ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel, final String modelPath)  {
+
+    try {
+      final NESTMLParser parser= new NESTMLParser(Paths.get(modelPath));
+
       return parser.parse(pathToModel).get();
     }
     catch (final IOException e) {

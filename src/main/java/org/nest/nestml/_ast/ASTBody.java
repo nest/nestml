@@ -9,7 +9,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.Symbol;
 import org.nest.codegeneration.helpers.AliasInverter;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
@@ -365,6 +364,23 @@ public class ASTBody extends ASTBodyTOP {
       return Optional.empty();
     }
 
+  }
+
+  public List<VariableSymbol> getSameTypeBuffer() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(VariableSymbol::isSpikeBuffer)
+        .filter(VariableSymbol::isInhAndExc)
+        .collect(Collectors.toList());
+  }
+
+  public List<VariableSymbol> getCurrentBuffers() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(VariableSymbol::isCurrentBuffer)
+        .collect(Collectors.toList());
   }
 
 }

@@ -9,6 +9,9 @@ import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.nestml._ast.ASTInput;
+import org.nest.nestml._ast.ASTInputLine;
+import org.nest.nestml._ast.ASTInputType;
 import org.nest.utils.ASTUtils;
 
 import java.util.Objects;
@@ -95,6 +98,30 @@ public class VariableSymbol extends CommonSymbol {
 
   public boolean isAlias() {
     return isAlias;
+  }
+
+  public boolean isSpikeBuffer() {
+    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
+      return astInputLine.isSpike();
+    }
+    return false;
+  }
+
+  public boolean isCurrentBuffer() {
+    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
+      return astInputLine.isCurrent();
+    }
+    return false;
+  }
+
+  public boolean isInhAndExc() {
+    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
+      return ASTUtils.isInhExc(astInputLine);
+    }
+    return false;
   }
 
   public boolean isVector() {
