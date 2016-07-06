@@ -337,10 +337,7 @@ public final class ASTUtils {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
       if(unitType.getUnit().isPresent()){
         typeName = unitType.getUnit().get();
-      }else {
-        typeName = "unit";
       }
-
     }
     else {
       checkState(false, "Is not possible through the grammar construction.");

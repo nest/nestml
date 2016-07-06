@@ -9,9 +9,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.units._visitor.UnitsSIVisitor;
-import org.nest.units._visitor.UnitsVisitor;
 import org.nest.units.unitrepresentation.SIData;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.Collection;
 import java.util.Map;
@@ -26,8 +25,7 @@ public class PredefinedTypes {
 
   private final static Map<String, TypeSymbol> implicitTypes = Maps.newHashMap();
 
-  static  {
-    registerSITypes();
+  static {
     registerPrimitiveTypes();
     registerBufferType();
   }
@@ -42,6 +40,7 @@ public class PredefinedTypes {
   public static TypeSymbol getBooleanType() {
     return implicitTypes.get("boolean");
   }
+
   // predefined types
   public static TypeSymbol getVoidType() {
     return implicitTypes.get("void");
@@ -67,18 +66,8 @@ public class PredefinedTypes {
     return implicitTypes.get("Buffer");
   }
 
-  public static TypeSymbol getUnitType() {return implicitTypes.get("unit");}
-
-  private static void registerSITypes() {
-    registerType("unit", TypeSymbol.Type.UNIT);
-    /*registerType("mV", TypeSymbol.Type.UNIT);
-    ;
-    registerType("mA", TypeSymbol.Type.UNIT);
-    registerType("pF", TypeSymbol.Type.UNIT);
-    registerType("pF", TypeSymbol.Type.UNIT);
-
-    registerType("mm", TypeSymbol.Type.UNIT);
-    registerType("nS", TypeSymbol.Type.UNIT);*/
+  public static TypeSymbol getUnitType() {
+    return implicitTypes.get("unit");
   }
 
   private static void registerPrimitiveTypes() {
@@ -125,15 +114,34 @@ public class PredefinedTypes {
 
   }
 
+  /*Return a TypeSymbol for
+        -registered types
+        -Correct SI Units in name ("ms")
+        -Correct Serializations of a UnitRepresentation
+
+        In Case of UNITS always return a TS with serialization as name*/
   public static Optional<TypeSymbol> getTypeIfExists(final String typeName) {
     if (implicitTypes.containsKey(typeName)) {
       return Optional.of(implicitTypes.get(typeName));
     }
-    else if(SIData.getCorrectSIUnits().contains(typeName)){
-      registerType(typeName, TypeSymbol.Type.UNIT);
-      return Optional.of(implicitTypes.get(typeName));
-    } else {
+    else if (SIData.getCorrectSIUnits().contains(typeName)) {
+      Optional<UnitRepresentation> unitRepresentation = UnitRepresentation.lookupName(typeName);
+      if (unitRepresentation.isPresent()) {
+        registerType(unitRepresentation.toString(), TypeSymbol.Type.UNIT);
+        return Optional.of(implicitTypes.get(unitRepresentation.toString()));
+      }
       return Optional.empty();
+    }
+    else {
+      try {
+        UnitRepresentation unitRepresentation;
+        unitRepresentation = new UnitRepresentation(typeName);
+        registerType(unitRepresentation.toString(), TypeSymbol.Type.UNIT);
+      }
+      catch (IllegalStateException e){
+        return Optional.empty();
+      }
+      return Optional.of(implicitTypes.get(typeName));
     }
 
   }

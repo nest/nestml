@@ -11,6 +11,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getUnitType;
 
 /**
  * Helper routine to calculate the category of the particular type.
@@ -35,9 +36,7 @@ public class TypeChecker {
         rhsType.equals(PredefinedTypes.getIntegerType())) {
       return true;
     }
-    else if (lhsType.equals(PredefinedTypes.getIntegerType()) && rhsType.getType().equals(
-        TypeSymbol.Type.UNIT) ||
-        rhsType.equals(PredefinedTypes.getIntegerType()) && lhsType.getType().equals(
+    else if (rhsType.equals(PredefinedTypes.getIntegerType()) && lhsType.getType().equals(
             TypeSymbol.Type.UNIT)) {
       return true;
     }
@@ -99,7 +98,10 @@ public class TypeChecker {
   }
 
   public boolean checkUnit(final TypeSymbol rType) {
-    Log.warn("!!!!!!!! boolean checkUnit(TypeSymbol rType) unimplemented: " + rType);
+    if (rType != null) {
+      return rType.getType().equals(TypeSymbol.Type.UNIT);
+      //return rType.getName().equals(getUnitType().getName()); // TODO use prover equals implementation
+    }
     return false;
   }
 

@@ -7,7 +7,6 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
@@ -15,21 +14,16 @@ import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTParameter;
-import org.nest.spl._cocos.IllegalExpression;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
-import org.nest.units._visitor.UnitsTranslationVisitor;
-import sun.management.counter.Units;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
-import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.trace;
-import static de.se_rwth.commons.logging.Log.warn;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -286,8 +280,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     addToScopeAndLinkWithNode(methodSymbol, funcAst);
 
-    UnitsTranslationVisitor unitsTranslationVisitor = new UnitsTranslationVisitor();
-
     // Parameters
     if (funcAst.getParameters().isPresent()) {
       for (ASTParameter p : funcAst.getParameters().get().getParameters()) {
@@ -302,12 +294,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
         VariableSymbol var = new VariableSymbol(p.getName());
         var.setAstNode(p);
         var.setType(type.get());
-
-        if (p.getDatatype().getUnitType().isPresent()){
-          unitsTranslationVisitor.handle(p.getDatatype().getUnitType().get());
-          String unit = unitsTranslationVisitor.getResult();
-          var.setUnitDescriptor(unit);
-        }
 
         var.setDeclaringType(null); // TOOD: make the variable optional or define a public type
         var.setBlockType(VariableSymbol.BlockType.LOCAL);
@@ -325,13 +311,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
       methodSymbol.setReturnType(returnType.get());
 
-      if (funcAst.getReturnType().get().getUnitType().isPresent()){
-        unitsTranslationVisitor.handle(funcAst.getReturnType().get().getUnitType().get());
-        String unit = unitsTranslationVisitor.getResult();
-        methodSymbol.setUnitDescriptor(unit);
-      }
-
-    }
+     }
     else {
       methodSymbol.setReturnType(PredefinedTypes.getVoidType());
     }
@@ -455,7 +435,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       final NeuronSymbol currentTypeSymbol,
       final ASTAliasDecl aliasDeclAst,
       final VariableSymbol.BlockType blockType) {
-    UnitsTranslationVisitor unitsTranslationVisitor = new UnitsTranslationVisitor();
     final String typeName =  computeTypeName(astDeclaration.getDatatype());
     Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
 
@@ -465,12 +444,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       var.setAstNode(astDeclaration);
       var.setType(type.get());
       var.setDeclaringType(currentTypeSymbol);
-
-      if (astDeclaration.getDatatype().getUnitType().isPresent()){
-        unitsTranslationVisitor.handle(astDeclaration.getDatatype().getUnitType().get());
-        String unit = unitsTranslationVisitor.getResult();
-        var.setUnitDescriptor(unit);
-      }
 
       boolean isLoggableStateVariable = blockType == STATE && !aliasDeclAst.isSuppress();
       boolean isLoggableNonStateVariable = blockType == LOCAL || !(blockType == STATE) && aliasDeclAst.isLog();
