@@ -47,6 +47,7 @@
 #include "ring_buffer.h"
 #include "universal_data_logger.h"
 
+
 // Includes from sli:
 #include "dictdatum.h"
 
@@ -466,6 +467,15 @@ void ${simpleNeuronName}::get_status(DictionaryDatum &__d) const
   <#list body.getStateSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
   </#list>
+
+  <#if (body.getSameTypeBuffer()?size > 1) >
+
+    DictionaryDatum __receptor_type = new Dictionary();
+    <#list body.getSameTypeBuffer() as spikeBuffer>
+    ( *__receptor_type )[ "${spikeBuffer.getName()?upper_case}" ] = ${spikeBuffer.getName()?upper_case};
+    </#list>
+    ( *__d )[ "receptor_types" ] = __receptor_type;
+  </#if>
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
 }
