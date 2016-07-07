@@ -32,10 +32,6 @@
 <#-- TODO make it depend on the ODE declaration -->
 #include "config.h"
 
-<#if neuronSymbol.getBaseNeuron().isPresent()>
-#include "${neuronSymbol.getBaseNeuron().get().getName()}.h"
-</#if>
-
 <#if useGSL>
 #ifdef HAVE_GSL
 #include <gsl/gsl_errno.h>
@@ -75,13 +71,7 @@ Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if>Data
 SeeAlso:
 Empty
 */
-class ${simpleNeuronName}
-<#if neuronSymbol.getBaseNeuron().isPresent()>
-: public ${neuronSymbol.getBaseNeuron().get().getName()}
-<#else>
-: public nest::Archiving_Node
-</#if>
-
+class ${simpleNeuronName} : public nest::Archiving_Node
 {
 public:
   /**
@@ -200,7 +190,7 @@ protected:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct Parameters_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_ </#if>
+  struct Parameters_
   {
     <#list body.getParameterNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
@@ -246,7 +236,8 @@ protected:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct State_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::State_ </#if> {
+  struct State_
+  {
     <#list body.getStateNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
@@ -283,7 +274,7 @@ protected:
   *       since it is initialized by @c calibrate(). If Variables_ has members that
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
-  struct Variables_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Variables_ </#if> {
+  struct Variables_ {
     <#list body.getInternalNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
@@ -303,23 +294,36 @@ protected:
     *       since it is initialized by @c init_nodes_(). If Buffers_ has members that
     *       cannot destroy themselves, Buffers_ will need a destructor.
     */
-  struct Buffers_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Buffers_ </#if> {
+  struct Buffers_ {
     Buffers_(${simpleNeuronName}&);
     Buffers_(const Buffers_ &, ${simpleNeuronName}&);
-    <#list body.getInputLines() as inputLine>
-      ${bufferHelper.printBufferGetter(inputLine, true)}
-    </#list>
+    <#if (body.getSameTypeBuffer()?size > 1) >
+      /** buffers and sums up incoming spikes/currents */
+      std::vector< nest::RingBuffer > spike_inputs_;
+
+      <#list body.getInputLines() as inputLine>
+        ${bufferHelper.printBufferArrayGetter(inputLine)}
+      </#list>
+
+      <#list body.getCurrentBuffers() as inputLine>
+        ${bufferHelper.printBufferDeclaration(inputLine)};
+      </#list>
+    <#else>
+      <#list body.getInputLines() as inputLine>
+        ${bufferHelper.printBufferGetter(inputLine, true)}
+      </#list>
+
+      <#list body.getInputLines() as inputLine>
+        ${bufferHelper.printBufferDeclaration(inputLine)};
+      </#list>
+    </#if>
 
     /** Logger for all analog data */
     nest::UniversalDataLogger<${simpleNeuronName}> logger_;
 
-    <#list body.getInputLines() as inputLine>
-      ${bufferHelper.printBufferDeclaration(inputLine)};
-    </#list>
 
-    <#list body.getInputLines() as inputLine>
-      ${bufferHelper.printBufferTypesVariables(inputLine)};
-    </#list>
+
+    std::vector<long> receptor_types_;
 
     <#if useGSL>
     /* GSL ODE stuff */
@@ -332,6 +336,25 @@ protected:
 
   };
 private:
+
+
+
+  <#if (body.getSameTypeBuffer()?size > 1) >
+  /**
+   * Synapse types to connect to
+   * @note Excluded upper and lower bounds are defined as INF_, SUP_.
+   *       Excluding port 0 avoids accidental connections.
+   */
+  enum SynapseTypes
+  {
+    INF_SPIKE_RECEPTOR = 0,
+    <#list body.getSameTypeBuffer() as buffer>
+      ${buffer.getName()?upper_case} ,
+    </#list>
+    SUP_SPIKE_RECEPTOR
+  };
+  </#if>
+
   /**
   * @defgroup pif_members Member variables of neuron model.
   * Each model neuron should have precisely the following four data members,
@@ -379,6 +402,17 @@ nest::port ${simpleNeuronName}::handles_test_event(nest::SpikeEvent&, nest::port
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
 
     return receptor_type;
+  <#elseif (body.getSameTypeBuffer()?size > 1)>
+    assert( B_.spike_inputs_.size() == ${body.getSameTypeBuffer()?size } );
+
+    if ( !( INF_SPIKE_RECEPTOR < receptor_type && receptor_type < SUP_SPIKE_RECEPTOR ) )
+    {
+      throw nest::UnknownReceptorType( receptor_type, get_name() );
+      return 0;
+    }
+    else {
+      return receptor_type - 1;
+    }
   <#else>
     // You should usually not change the code in this function.
     // It confirms to the connection management system that we are able

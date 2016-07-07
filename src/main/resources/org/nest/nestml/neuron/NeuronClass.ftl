@@ -64,13 +64,6 @@ namespace nest
       ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [parameter])}
     </#list>
 
-    // TODO It is a hack and handle inheritance correctly
-    <#if neuronSymbol.getBaseNeuron().isPresent()>
-      <#list neuronSymbol.getBaseNeuron().get().getStateVariables() as var>
-        insert_("${var.getName()}", &${simpleNeuronName}::get_${var.getName()});
-      </#list>
-    </#if>
-
   }
 }
 
@@ -114,9 +107,7 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& __d
 </#list>
 )
 {
-  <#if neuronSymbol.getBaseNeuron().isPresent()>
-  ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_::set(__d);
-  </#if>
+
   <#list body.getParameterSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
   </#list>
@@ -138,56 +129,27 @@ ${simpleNeuronName}::State_::set(const DictionaryDatum& __d, const Parameters_& 
 </#list>
 )
 {
-  <#if neuronSymbol.getBaseNeuron().isPresent()>
-  ${neuronSymbol.getBaseNeuron().get().getName()}::State_::set(__d);
-  </#if>
   <#list body.getStateSymbols() as state>
   ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [state])}
   </#list>
 }
 
-${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n)
-<#if neuronSymbol.getBaseNeuron().isPresent()>
-: ${neuronSymbol.getBaseNeuron().get().getName()}::Buffers_(n), logger_(n)
-<#else>
-: logger_(n)
-</#if>
+${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
 {}
 
-${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n)
-<#if neuronSymbol.getBaseNeuron().isPresent()>
-: ${neuronSymbol.getBaseNeuron().get().getName()}::Buffers_(n), logger_(n)
-<#else>
-: logger_(n)
-</#if>
+${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger_(n)
 {}
 
 /* ----------------------------------------------------------------
 * Default and copy constructor for node
 * ---------------------------------------------------------------- */
 // TODO inner components
-${simpleNeuronName}::${simpleNeuronName}():
-<#if neuronSymbol.getBaseNeuron().isPresent()>
-${neuronSymbol.getBaseNeuron().get().getName()}(),
-<#else>
-Archiving_Node(),
-</#if>
-P_(),
-S_(P_),
-B_(*this)
+${simpleNeuronName}::${simpleNeuronName}():Archiving_Node(), P_(), S_(P_), B_(*this)
 {
   recordablesMap_.create();
 }
 
-${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n):
-<#if neuronSymbol.getBaseNeuron().isPresent()>
-${neuronSymbol.getBaseNeuron().get().getName()}(),
-<#else>
-Archiving_Node(),
-</#if>
-    P_(n.P_),
-    S_(n.S_),
-    B_(n.B_, *this)
+${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n): Archiving_Node(), P_(n.P_), S_(n.S_), B_(n.B_, *this)
 {}
 
 /* ----------------------------------------------------------------
@@ -210,9 +172,7 @@ ${tc.include("org.nest.nestml.function.GSLDifferentiationFunction", body)}
 void
 ${simpleNeuronName}::init_buffers_()
 {
-  <#if neuronSymbol.getBaseNeuron().isPresent()>
-    ${neuronSymbol.getBaseNeuron().get().getName()}::init_buffers_();
-  </#if>
+
   <#list body.getInputLines() as input>
   ${bufferHelper.printBufferInitialization(input)}
   </#list>
@@ -247,14 +207,11 @@ ${simpleNeuronName}::init_buffers_()
 
 }
 
-
 void
 ${simpleNeuronName}::calibrate()
 {
   B_.logger_.init();
-  <#if neuronSymbol.getBaseNeuron().isPresent()>
-    ${neuronSymbol.getBaseNeuron().get().getName()}::calibrate();
-  </#if>
+  B_.receptor_types_.resize(1, 0);
 
   <#list body.getInternalNonAliasSymbols() as variable>
     ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
@@ -269,10 +226,10 @@ ${simpleNeuronName}::calibrate()
   <#list body.getInputLines() as inputLine>
     <#if bufferHelper.isVector(inputLine)>
         B_.${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
-        B_.receptor_types_${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
+        B_.receptor_types_.resize(P_.${bufferHelper.vectorParameter(inputLine)});
         for (size_t i=0; i < P_.${bufferHelper.vectorParameter(inputLine)}; i++)
         {
-          B_.receptor_types_${inputLine.getName()}[i] = i+1;
+          B_.receptor_types_[i] = i+1;
         }
     </#if>
 
@@ -323,7 +280,7 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
 
     for ( size_t i = 0; i < P_.${spikeBuffer.getVectorParameter().get()}; ++i )
       {
-        if ( B_.receptor_types_${spikeBuffer.getName()}[ i ] == e.get_rport() )
+        if ( B_.receptor_types_[ i ] == e.get_rport() )
         {
             B_.${spikeBuffer.getName()}[i].add_value(
               e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),

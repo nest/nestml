@@ -10,6 +10,7 @@ import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -70,6 +71,10 @@ public class ASTBuffers {
     final Scope scope = astInputLine.getEnclosingScope().get();
     final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
 
+    return printBufferGetter(buffer, isInStruct);
+  }
+
+  private String printBufferGetter(VariableSymbol buffer, boolean isInStruct) {
     final StringBuilder functionDeclaration = new StringBuilder();
     functionDeclaration.append("inline ");
 
@@ -82,24 +87,52 @@ public class ASTBuffers {
       functionDeclaration.append(nestml2NESTTypeConverter.convert(buffer.getType()) + "&");
     }
 
-    functionDeclaration.append(" get_"+astInputLine.getName() + "() {");
+    functionDeclaration.append(" get_"+buffer.getName() + "() {");
 
     if (isInStruct) {
-      functionDeclaration.append("return " + astInputLine.getName() + "; ");
+      functionDeclaration.append("return " + buffer.getName() + "; ");
     }
     else {
-      functionDeclaration.append("return B_.get_" + astInputLine.getName() + "(); ");
+      functionDeclaration.append("return B_.get_" + buffer.getName() + "(); ");
     }
 
     functionDeclaration.append("}");
     return functionDeclaration.toString();
   }
 
+  public String printBufferArrayGetter(final ASTInputLine astInputLine) {
+    if (astInputLine.isSpike() && ASTUtils.isInhExc(astInputLine)) {
+      checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
+      final Scope scope = astInputLine.getEnclosingScope().get();
+      final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
+
+      final StringBuilder functionDeclaration = new StringBuilder();
+      functionDeclaration.append("inline ");
+
+
+      functionDeclaration.append(nestml2NESTTypeConverter.convert(buffer.getType()) + "&")
+          .append(" get_" + astInputLine.getName() + "() {")
+          .append("return spike_inputs_[" + astInputLine.getName().toUpperCase() + "]; ");
+
+      functionDeclaration.append("}");
+      return functionDeclaration.toString();
+    }
+    else {
+      return printBufferGetter(astInputLine, true);
+    }
+  }
+
+
+
   public String printBufferDeclaration(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
     final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
 
+    return printBufferDeclaration(buffer);
+  }
+
+  public String printBufferDeclaration(VariableSymbol buffer) {
     String bufferType;
     if (buffer.getVectorParameter().isPresent()) {
       bufferType = "std::vector< " + nestml2NESTTypeConverter.convert(buffer.getType()) + " >";
@@ -109,14 +142,8 @@ public class ASTBuffers {
     }
     bufferType = bufferType.replace(".", "::"); // TODO review
 
-    return bufferType + " " + astInputLine.getName() + ";" +
+    return bufferType + " " + buffer.getName() + ";" +
         "\n//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
-  }
-
-  public String printBufferTypesVariables(final ASTInputLine astInputLine) {
-    checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
-
-    return "std::vector<long> receptor_types_" + astInputLine.getName();
   }
 
   public String printBufferInitialization(final ASTInputLine astInputLine) {

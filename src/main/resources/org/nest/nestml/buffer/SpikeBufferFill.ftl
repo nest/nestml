@@ -1,11 +1,12 @@
 <#--
+  Creates code that describes how to handle incoming spike
   @param ast ASTInputLine
-  @grammar
+  @grammar:
     InputLine =
       Name
-      ("<" sizeParameter:Name ">")?
+      ("[" sizeParameter:Name "]")?
       "<-" InputType*
-      (["spike"] | ["current"]);
+      (["spike"] | ["current"]););
 
     InputType = (["inhibitory"] | ["excitatory"]);
   @result
@@ -14,7 +15,7 @@
   <#if bufferHelper.isVector(ast)>
     for (size_t i=0; i < P_.${bufferHelper.vectorParameter(ast)}; i++)
     {
-      if (B_.receptor_types_${ast.getName()}[i] == e.get_rport()) {
+      if (B_.receptor_types_[i] == e.get_rport()) {
       get_${ast.getName()}()[i].add_value(e.get_rel_delivery_steps(nest::kernel().simulation_manager.get_slice_origin()),
       e.get_weight() * e.get_multiplicity());
       }

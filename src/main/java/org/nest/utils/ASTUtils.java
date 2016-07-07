@@ -16,9 +16,7 @@ import org.nest.commons._ast.ASTCommonsNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTNESTMLNode;
-import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTDerivative;
@@ -445,6 +443,21 @@ public final class ASTUtils {
       return astVariable.toString();
     }
 
+  }
+
+  public static boolean isInhExc(final ASTInputLine astInputLine ) {
+    boolean isInh =false, isExc = false;
+    for (final ASTInputType astInputType:astInputLine.getInputTypes()) {
+      if (astInputType.isInhibitory()) {
+        isInh = true;
+      }
+
+      if (astInputType.isExcitatory()) {
+        isExc = true;
+      }
+
+    }
+    return (!isInh && !isExc) || (isInh && isExc);
   }
 
 }
