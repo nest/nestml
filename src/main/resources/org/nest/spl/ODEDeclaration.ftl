@@ -13,6 +13,7 @@
 
 double step_ = nest::Time::get_resolution().get_ms();
 double IntegrationStep_ = nest::Time::get_resolution().get_ms();
+double t = 0;
 
 while ( t < step_ )
 {
