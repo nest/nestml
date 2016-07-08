@@ -135,10 +135,19 @@ ${simpleNeuronName}::State_::set(const DictionaryDatum& __d, const Parameters_& 
 }
 
 ${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
-{}
+<#if (body.getSameTypeBuffer()?size > 1) >
+  , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
+</#if>
+{
+
+}
 
 ${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger_(n)
-{}
+<#if (body.getSameTypeBuffer()?size > 1) >
+  , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
+</#if>
+{
+}
 
 /* ----------------------------------------------------------------
 * Default and copy constructor for node
@@ -168,11 +177,9 @@ ${simpleNeuronName}::init_state_(const Node& proto)
 ${tc.include("org.nest.nestml.function.GSLDifferentiationFunction", body)}
 </#if>
 
-
 void
 ${simpleNeuronName}::init_buffers_()
 {
-
   <#list body.getInputLines() as input>
   ${bufferHelper.printBufferInitialization(input)}
   </#list>
@@ -287,6 +294,12 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
               e.get_weight() * e.get_multiplicity() );
         }
       }
+  <#elseif (body.getSameTypeBuffer()?size > 1)>
+    assert( e.get_rport() < static_cast< nest::int_t >( B_.spike_inputs_.size() ) );
+
+    B_.spike_inputs_[ e.get_rport() ].add_value(
+      e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+      e.get_weight() * e.get_multiplicity() );
   <#else>
       const double_t weight = e.get_weight();
       const double_t multiplicity = e.get_multiplicity();

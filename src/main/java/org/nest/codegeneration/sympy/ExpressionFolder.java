@@ -27,15 +27,15 @@ class ExpressionFolder {
   private final List<ASTExpr> nodesToReplace = newArrayList();
   private final List<String> internalVariables = newArrayList();
 
-  public List<ASTExpr> getNodesToReplace() {
+  List<ASTExpr> getNodesToReplace() {
     return nodesToReplace;
   }
 
-  public List<String> getInternalVariables() {
+  List<String> getInternalVariables() {
     return internalVariables;
   }
 
-  public void fold(
+  void fold(
       final ASTExpr expr,
       final List<String> stateVariableNames,
       final String variablePrefix) {

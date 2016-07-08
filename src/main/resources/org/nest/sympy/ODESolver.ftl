@@ -155,7 +155,11 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
         for i in reversed(range(0, orders[shapeIndex])):
             stateVectors[i, shapeIndex] = stateVariables[i] + shapes[shapeIndex]
 
-        if orders[shapeIndex] > 2:
+        if orders[shapeIndex] < 3: # in this case use the fact that there is a lower triangle matrix
+            for i in reversed(range(0, orders[shapeIndex])):
+                stateVectorUpdateSteps.write(stateVariables[i] + shapes[shapeIndex] + " = " + str(
+                    simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
+        else:
             for i in reversed(range(0, orders[shapeIndex])):
                 stateVectorTmpDeclarationsFile.write(stateVariables[i] + shapes[shapeIndex] + "_tmp real\n")
             for i in reversed(range(0, orders[shapeIndex])):
@@ -163,10 +167,6 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
             for i in reversed(range(0, orders[shapeIndex])):
                 stateVectorTmpBackAssignmentsFile.write(stateVariables[i] + shapes[shapeIndex] + " = " + stateVariables[i] + shapes[shapeIndex] + "_tmp" + "\n")
 
-        else:
-            for i in reversed(range(0, orders[shapeIndex])):
-                stateVectorUpdateSteps.write(stateVariables[i] + shapes[shapeIndex] + " = " + str(
-                    simplify(Ps[shapeIndex] * stateVectors[:, shapeIndex])[i]) + "\n")
 
     f = open('P30.tmp', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(__h__ * c1) - 1))) + "# P00 expression")
