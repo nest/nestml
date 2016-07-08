@@ -112,7 +112,7 @@ public class ASTBuffers {
 
       functionDeclaration.append(nestml2NESTTypeConverter.convert(buffer.getType()) + "&")
           .append(" get_" + astInputLine.getName() + "() {")
-          .append("return spike_inputs_[" + astInputLine.getName().toUpperCase() + "]; ");
+          .append("return spike_inputs_[" + astInputLine.getName().toUpperCase() + " - 1]; ");
 
       functionDeclaration.append("}");
       return functionDeclaration.toString();

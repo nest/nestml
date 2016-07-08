@@ -2,7 +2,7 @@ neuron iaf_cond_alpha_implicit:
 
   state:
     # membrane potential
-    V_m mV
+    V_m mV = E_L
     # inputs from the inh conductance
     GI nS = 0
     # inputs from the exc conductance
