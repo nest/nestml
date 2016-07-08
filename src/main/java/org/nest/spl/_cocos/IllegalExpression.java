@@ -68,8 +68,9 @@ public class IllegalExpression implements
         variableDeclarationType = PredefinedTypes.getType(declarationTypeName);
         // TODO write a helper get assignable
         if (!isCompatible(variableDeclarationType, initializerExpressionType.getLeft().get())) {
-          final String msg = "Cannot initialize variable with an expression of type: " +
-              varNameFromDeclaration + " with the type " + initializerExpressionType +
+          final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
+              +variableDeclarationType +" with an expression of type: " +
+              initializerExpressionType.getLeft().get() +
               node.get_SourcePositionStart();
           error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
         }
