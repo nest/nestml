@@ -11,13 +11,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units._visitor.UnitsSIVisitor;
-import org.nest.units._visitor.UnitsTranslationVisitor;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -99,8 +99,10 @@ public class NESTMLCoCosTest extends ModelbasedTest {
   //TODO: Remove this test
   @Test
   public void testUnit() {
+    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
+    final NESTMLCoCoChecker completeChecker= nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "src/test/resources/org/nest/units/units.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/validExpressions.nestml", TEST_MODEL_PATH);
     assertTrue(validRoot.isPresent());
 
     //check that unit types are correct:
@@ -109,10 +111,7 @@ public class NESTMLCoCosTest extends ModelbasedTest {
 
     scopeCreator.runSymbolTableCreator(validRoot.get());
 
-    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
-
-    //nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
-    nestmlCoCoChecker.checkAll(validRoot.get());
+    completeChecker.checkAll(validRoot.get());
 
     Integer errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(0), errorsFound);

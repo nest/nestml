@@ -127,8 +127,8 @@ public class PredefinedTypes {
     else if (SIData.getCorrectSIUnits().contains(typeName)) {
       Optional<UnitRepresentation> unitRepresentation = UnitRepresentation.lookupName(typeName);
       if (unitRepresentation.isPresent()) {
-        registerType(unitRepresentation.toString(), TypeSymbol.Type.UNIT);
-        return Optional.of(implicitTypes.get(unitRepresentation.toString()));
+        registerType(unitRepresentation.get().toString(), TypeSymbol.Type.UNIT);
+        return Optional.of(implicitTypes.get(unitRepresentation.get().toString()));
       }
       return Optional.empty();
     }

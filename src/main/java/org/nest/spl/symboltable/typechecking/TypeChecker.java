@@ -11,6 +11,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getUnitType;
 
 /**
@@ -97,7 +98,7 @@ public class TypeChecker {
     return false;
   }
 
-  public boolean checkUnit(final TypeSymbol rType) {
+  public static boolean checkUnit(final TypeSymbol rType) {
     if (rType != null) {
       return rType.getType().equals(TypeSymbol.Type.UNIT);
       //return rType.getName().equals(getUnitType().getName()); // TODO use prover equals implementation
@@ -108,6 +109,13 @@ public class TypeChecker {
   public static boolean isInteger(TypeSymbol typeSymbol) {
     if (typeSymbol != null) {
       return typeSymbol.getName().equals(getIntegerType().getName()); // TODO use prover equals implementation
+    }
+    return false;
+  }
+
+  public static boolean isReal(TypeSymbol typeSymbol) {
+    if (typeSymbol != null) {
+      return typeSymbol.getName().equals(getRealType().getName()); // TODO use prover equals implementation
     }
     return false;
   }

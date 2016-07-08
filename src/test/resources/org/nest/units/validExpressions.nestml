@@ -1,0 +1,39 @@
+neuron validExpressionTest:
+
+  state:
+#Simple expressions
+#V_4 V = 20kJ /10000 C #magnitudes dont match but physical Unit is compatible
+    V_1 mV = 10 mV
+ #   V_2 mV = 10 A * 30 mOhm
+  #  V_3 V = 20 J / 10 C
+ #   A_1 A = V_3 / 10 Ohm
+  #  V_6 mV = V_2+V_1 - 20 mV
+    
+
+#Exotic Uses
+    
+   # V_5 (kg*m*m)/(A*s**3) = 10 V   #verbose Type
+    
+  end
+
+  function foo(amp A, ohm Ohm) V:  
+    return amp * ohm
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  internal:
+   # S_1 ms   = resolution() #predefined Functions
+  end
+
+  update:
+    V_1 V= foo(1 A,2 Ohm)
+  end
+
+end

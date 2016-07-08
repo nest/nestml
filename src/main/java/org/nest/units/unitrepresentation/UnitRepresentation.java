@@ -38,6 +38,9 @@ public class UnitRepresentation {
           return Optional.of(result);
         }
       }
+    }if(SIData.getBaseRepresentations().containsKey(unit)) { //No prefix present, see if whole name matches
+      UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(unit));
+      return Optional.of(result);
     }
     //should never happen
     return Optional.empty();

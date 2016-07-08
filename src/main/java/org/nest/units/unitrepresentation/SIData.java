@@ -64,6 +64,12 @@ public class SIData {
         CorrectSIUnits.add(pre+unit);
       }
     }
+    for(String unit:SIUnits){  //also add plain Units
+      CorrectSIUnits.add(unit);
+    }
+    for (String unit: SIUnitsDerived){
+      CorrectSIUnits.add(unit);
+    }
 
   }
 

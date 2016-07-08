@@ -1,18 +1,11 @@
 package org.nest.units._visitor;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.google.common.base.Preconditions;
-import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units.unitrepresentation.SIData;
+import org.nest.units.unitrepresentation.UnitTranslator;
 
 /**
  * Type checking visitor for the UNITS grammar.
@@ -21,7 +14,7 @@ import org.nest.units.unitrepresentation.SIData;
  */
 public class UnitsSIVisitor implements NESTMLVisitor {
 
-  UnitsTranslationVisitor translator = new UnitsTranslationVisitor();
+  UnitTranslator translator = new UnitTranslator();
 
 
   public boolean isSIUnit(String unit){
@@ -39,8 +32,7 @@ public class UnitsSIVisitor implements NESTMLVisitor {
           Preconditions.checkState(isSIUnit(unit),
               "The unit " + unit + " is not an SI unit.");
       }
-    translator.handle(node);
-    node.setUnit(translator.getResult());
+    node.setUnit(translator.calculateUnitType(node));
   }
 
   public void visit(ASTExpr expr){
