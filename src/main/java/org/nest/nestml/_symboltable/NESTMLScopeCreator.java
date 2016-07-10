@@ -12,6 +12,7 @@ import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
 import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,6 +51,9 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     final NESTMLSymbolTableCreator symbolTableCreator = new NESTMLSymbolTableCreator(
         resolverConfiguration,
         globalScope);
+
+    UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
+    unitsSIVisitor.handle(compilationUnit);
 
     return symbolTableCreator.createFromAST(compilationUnit);
   }
