@@ -1,0 +1,168 @@
+/*
+Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
+
+Description:
+
+ hh_cond_exp_traub is an implementation of a modified Hodkin-Huxley model
+
+ (1) Post-synaptic currents
+ Incoming spike events induce a post-synaptic change of conductance modeled
+ by an exponential function. The exponential function is normalized such that an
+ event of weight 1.0 results in a peak current of 1 nS.
+
+ (2) Spike Detection
+ Spike detection is done by a combined threshold-and-local-maximum search: if
+ there is a local maximum above a certain threshold of the membrane potential,
+ it is considered a spike.
+
+Problems/Todo:
+Only the channel variables m,h,n are implemented. The original
+contains variables called y,s,r,q and \chi.
+
+Parameters:
+
+ The following parameters can be set in the status dictionary.
+
+ V_m        double - Membrane potential in mV
+ V_T        double - Voltage offset that controls dynamics. For default
+                     parameters, V_T = -63mV results in a threshold around
+                     -50mV.
+ E_L        double - Leak reversal potential in mV.
+ C_m        double - Capacity of the membrane in pF.
+ g_L        double - Leak conductance in nS.
+ tau_syn_ex double - Time constant of the excitatory synaptic exponential
+                     function in ms.
+ tau_syn_in double - Time constant of the inhibitory synaptic exponential
+                     function in ms.
+ E_ex       double - Excitatory synaptic reversal potential in mV.
+ E_in       double - Inhibitory synaptic reversal potential in mV.
+ E_Na       double - Sodium reversal potential in mV.
+ g_Na       double - Sodium peak conductance in nS.
+ E_K        double - Potassium reversal potential in mV.
+ g_K        double - Potassium peak conductance in nS.
+ I_e        double - External input current in pA.
+
+References:
+
+Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
+Cambridge University Press, Cambridge UK.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+Author: Schrader
+
+SeeAlso: hh_psc_alpha
+*/
+neuron iaf_chxk_2008_implicit:
+
+  state:
+    # membrane potential
+    V_m mV = E_L
+    # inputs from the inh conductance
+    GI nS = 0
+    # inputs from the exc conductance
+    GE nS = 0
+    G_ahp nS
+  end
+
+  equations:
+    # Implicit
+    GI'' = -GI'/tau_synI
+    GI' = GI' - GI/tau_synI
+
+    GE'' = -GE'/tau_synE
+    GE' = GE'  -GE/tau_synE
+
+    G_ahp'' = -G_ahp' / tau_ahp
+    G_ahp' = G_ahp' - ( G_ahp / tau_ahp )
+
+    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * ( GI * (V_m-V_reversalI) + GE * (V_m-V_reversalE) - (I_e + I_stim))
+  end
+
+  parameter:
+    # Threshold Potential in mV
+    V_th mV = -45.0mV
+    # Leak Conductance in nS
+    g_L nS = 100nS
+    # Membrane Capacitance in pF
+    C_m pF = 1000.0
+    alias Tau ms = (1 / g_L) * C_m
+    # Excitatory reversal Potential in mV
+    V_reversalE mV = 20mV
+    # Inhibitory reversal Potential in mV
+    V_reversalI mV = -90.0mV
+    # Leak reversal Potential (aka resting potential) in mV
+    E_L mV = -60.0
+    # Synaptic Time Constant Excitatory Synapse in ms
+    tau_synE ms = 1ms
+    # Synaptic Time Constant for Inhibitory Synapse in ms
+    tau_synI ms = 1ms
+    # Constant Current in pA
+    I_e pA = 0
+
+    tau_ahp ms = 0.5ms   # Afterhyperpolarization (AHP) time constant
+    g_ahp nS = 443.8nS   # AHP conductance
+    E_ahp mV = -95mV     # AHP potential
+    ahp_bug boolean = false      # If true, discard AHP conductance value from previous spikes
+
+    # Input current injected by CurrentEvent.
+    # This variable is used to transport the current applied into the
+    # _dynamics function computing the derivative of the state vector.
+    I_stim pA = 0
+  end
+
+  internal:
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_E real = 1.0 * e / tau_synE
+
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_I real = 1.0 * e / tau_synI
+
+    PSConInit_AHP real = g_ahp * e / tau_ahp;
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  update:
+
+    vm_prev mV = V_m
+    integrate(V_m)
+    if vm_prev < V_th and V_m >= V_th:
+      # neuron is not absolute refractory
+
+      # Find precise spike time using linear interpolation
+      sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev );
+
+      alpha real = exp( -sigma / tau_ahp );
+
+      delta_g_ahp real = PSConInit_AHP * sigma * alpha;
+      delta_dg_ahp real = PSConInit_AHP * alpha;
+
+      if ahp_bug == true:
+        # Bug in original code ignores AHP conductance from previous spikes
+        G_ahp  = delta_g_ahp;
+        G_ahp' = delta_dg_ahp;
+      else:
+        G_ahp  += delta_g_ahp;
+        G_ahp' += delta_dg_ahp;
+      end
+
+      emit_spike()
+    end
+
+    GE' += spikeExc.getSum() * PSConInit_E;
+    GI' += spikeInh.getSum() * PSConInit_I;
+    I_stim = currents.getSum()
+  end
+
+end

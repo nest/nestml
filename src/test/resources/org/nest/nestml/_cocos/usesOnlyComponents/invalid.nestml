@@ -1,7 +1,7 @@
-import org.nest.nestml.symboltable.iaf_neuron.iaf_neuron
+import org.nest.nestml._cocos.usesOnlyComponents.importedNeuron.ImportedNeuron
 
 neuron UsesNeuron:
-    use iaf_neuron as blaa
+    use ImportedNeuron as blaa
 
     update:
     end

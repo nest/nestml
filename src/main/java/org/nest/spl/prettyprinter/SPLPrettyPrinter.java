@@ -114,6 +114,18 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     unindent();
   }
 
+  @Override
+  public void visit(final ASTSimple_Stmt astSimpleStmt ) {
+    ASTUtils.printSingleLineComment(astSimpleStmt);
+    ASTUtils.printMultilineComments(astSimpleStmt);
+  }
+
+  @Override
+  public void visit(final ASTStmt astStmt) {
+    ASTUtils.printSingleLineComment(astStmt);
+    ASTUtils.printMultilineComments(astStmt);
+  }
+
   /**
    * Small_Stmt = Assignment
    * | FunctionCall
@@ -122,6 +134,8 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    */
   @Override
   public void visit(final ASTSmall_Stmt astSmallStmt ) {
+    ASTUtils.printSingleLineComment(astSmallStmt);
+    ASTUtils.printMultilineComments(astSmallStmt);
     if (astSmallStmt.getAssignment().isPresent()) {
       printAssignment(astSmallStmt.getAssignment().get());
     } else if (astSmallStmt.getFunctionCall().isPresent()) {
@@ -209,6 +223,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
   }
 
+
   /**
    * Grammar
    * Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
@@ -217,6 +232,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     printDeclarationVariables(astDeclaration);
     printDeclarationType(astDeclaration);
     printOptionalInitializationExpression(astDeclaration);
+
   }
 
   private void printDeclarationVariables(final ASTDeclaration astDeclaration) {

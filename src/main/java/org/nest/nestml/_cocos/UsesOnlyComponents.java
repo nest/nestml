@@ -45,10 +45,13 @@ public class UsesOnlyComponents implements NESTMLASTUSE_StmtCoCo {
 
     final Optional<NeuronSymbol> neuronType = scope.resolve(typeName, NeuronSymbol.KIND);
 
-    if (neuronType.isPresent() && !neuronType.get().getType().equals(NeuronSymbol.Type.COMPONENT)) {
-      final String msg = errorStrings.getErrorMsgOnlyComponentsForComponents(this, typeName);
+    if (neuronType.isPresent()) {
+      if (!neuronType.get().getType().equals(NeuronSymbol.Type.COMPONENT)) {
+        final String msg = errorStrings.getErrorMsgOnlyComponentsForComponents(this, typeName);
+        Log.error(msg, use.get_SourcePositionStart());
 
-      Log.error(msg, use.get_SourcePositionStart());
+      }
+
     }
     // Undefined type of the name
   }

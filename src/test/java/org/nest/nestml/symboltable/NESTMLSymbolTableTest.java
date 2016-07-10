@@ -45,7 +45,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
   private static final String MODEL_WITH_INHERITANCE =
       "src/test/resources/inheritance/iaf_neuron.nestml";
 
-  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources"));
 
   @Test
   public void testCreationOfSymtabAndResolvingOfSymbols() throws IOException {

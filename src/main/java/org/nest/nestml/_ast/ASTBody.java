@@ -9,11 +9,11 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.Symbol;
 import org.nest.codegeneration.helpers.AliasInverter;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -126,13 +126,13 @@ public class ASTBody extends ASTBodyTOP {
     return printBlockComment(getInternalBlock());
   }
 
-  public Optional<ASTOdeDeclaration> getEquations() {
+  public List<ASTEquation> getEquations() {
     final Optional<ASTEquations> equations = findEquationsBlock();
     if (equations.isPresent()) {
-      return Optional.of(equations.get().getOdeDeclaration());
+      return equations.get().getOdeDeclaration().getODEs();
     }
     else {
-      return Optional.empty();
+      return Lists.newArrayList();
     }
   }
 
@@ -149,11 +149,6 @@ public class ASTBody extends ASTBodyTOP {
       return Optional.empty();
     }
   }
-
-  public String printEquationsComment() {
-    return printBlockComment(getEquations());
-  }
-
 
   private String printBlockComment(final Optional<? extends ASTNode> block) {
     if (block.isPresent()) {
@@ -336,7 +331,7 @@ public class ASTBody extends ASTBodyTOP {
 
     final List<VariableSymbol> invertableAliases = aliases.stream()
         .filter(variable -> isInvertableExpression(variable.getDeclaringExpression().get()) ||
-               variable.isParameter() && isRelativeExpression(variable.getDeclaringExpression().get()))
+               (variable.isParameter() && isRelativeExpression(variable.getDeclaringExpression().get())))
         .collect(Collectors.toList());
 
     // Use sets to filter double variables, e.g. a variable that is used twice on the right side
@@ -357,18 +352,35 @@ public class ASTBody extends ASTBodyTOP {
         .collect(Collectors.toList());
   }
 
-  public Optional<ASTEquations> getODEBlock() {
+  public Optional<ASTOdeDeclaration> getODEBlock() {
     final Optional<ASTBodyElement> odeBlock = bodyElements
         .stream()
         .filter(astBodyElement -> astBodyElement instanceof ASTEquations)
         .findAny();
     if (odeBlock.isPresent()) {
-      return Optional.of((ASTEquations) odeBlock.get()); // checked by the filter conditions
+      return Optional.of(((ASTEquations) odeBlock.get()).getOdeDeclaration()); // checked by the filter conditions
     }
     else {
       return Optional.empty();
     }
 
+  }
+
+  public List<VariableSymbol> getSameTypeBuffer() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(VariableSymbol::isSpikeBuffer)
+        .filter(VariableSymbol::isInhAndExc)
+        .collect(Collectors.toList());
+  }
+
+  public List<VariableSymbol> getCurrentBuffers() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(VariableSymbol::isCurrentBuffer)
+        .collect(Collectors.toList());
   }
 
 }

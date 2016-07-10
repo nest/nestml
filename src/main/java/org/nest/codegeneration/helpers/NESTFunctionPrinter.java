@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.codegeneration.printers;
+package org.nest.codegeneration.helpers;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;

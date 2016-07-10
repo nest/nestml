@@ -16,9 +16,7 @@ import org.nest.commons._ast.ASTCommonsNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTNESTMLNode;
-import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTDerivative;
@@ -312,6 +310,24 @@ public final class ASTUtils {
     return output.toString();
   }
 
+  public static String printSingleLineComment(final ASTNode astAliasDecl) {
+    final StringBuilder output = new StringBuilder();
+    final String lineBreak = System.getProperty("line.separator");
+    // comments are returned with linebreaks, therefore, relace them
+    astAliasDecl.get_PreComments().forEach( comment -> output.append(comment.getText().replace(lineBreak, "") ));
+    astAliasDecl.get_PostComments().forEach( comment -> output.append(comment.getText().replace(lineBreak, "") ));
+    return output.toString();
+  }
+
+  // TODO It works only with multiline comments
+  public static String printMultilineComments(final ASTNode astNeuron) {
+    final StringBuilder output = new StringBuilder();
+    astNeuron.get_PreComments().forEach( comment -> output.append(comment.getText()));
+    astNeuron.get_PostComments().forEach( comment -> output.append(comment.getText()));
+    return output.append("\n").toString();
+  }
+
+
   /**
    * Computes the typename for the declaration ast. It is defined in one of the grammar
    * alternatives.
@@ -427,6 +443,21 @@ public final class ASTUtils {
       return astVariable.toString();
     }
 
+  }
+
+  public static boolean isInhExc(final ASTInputLine astInputLine ) {
+    boolean isInh =false, isExc = false;
+    for (final ASTInputType astInputType:astInputLine.getInputTypes()) {
+      if (astInputType.isInhibitory()) {
+        isInh = true;
+      }
+
+      if (astInputType.isExcitatory()) {
+        isExc = true;
+      }
+
+    }
+    return (!isInh && !isExc) || (isInh && isExc);
   }
 
 }

@@ -9,6 +9,7 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.spl.prettyprinter.IReferenceConverter;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
@@ -83,7 +84,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
     if (functionName.contains(PredefinedFunctions.EMIT_SPIKE)) {
       return "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" +
           "nest::SpikeEvent se;\n" +
-          "network()->send(*this, se, lag);";
+          "nest::kernel().event_delivery_manager.send(*this, se, lag);";
     }
 
     final Optional<MethodSymbol> functionSymbol = NESTMLSymbols.resolveMethod(astFunctionCall);
@@ -100,7 +101,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
           }
           else {
             final String calleeObject = Names.getQualifier(functionName);
-            return "B_." + calleeObject + ".get_value(lag)";
+            return "get_" + calleeObject + "().get_value(lag)";
           }
 
         }
@@ -117,23 +118,24 @@ public class NESTReferenceConverter implements IReferenceConverter {
     checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symboltable creator");
     final String variableName = ASTUtils.convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
+
     if (PredefinedVariables.E_CONSTANT.equals(variableName)) {
       return "numerics::e";
     }
     else {
       final VariableSymbol variableSymbol = resolve(variableName, scope);
-
       if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
         return variableName + (variableSymbol.isVector()?"[i]":"");
       }
       else if(variableSymbol.isBuffer()) {
-        return "B_." + variableName + ".get_value( lag )";
+        return "get_" + variableName + "().get_value( lag )";
       }
       else {
         if (variableSymbol.isAlias()) {
           return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {
+
           return printOrigin(variableSymbol) + variableName +  (variableSymbol.isVector()?"[i]":"");
         }
 

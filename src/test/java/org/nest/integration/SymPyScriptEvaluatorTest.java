@@ -10,11 +10,13 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.codegeneration.sympy.SympyScriptGenerator;
+import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -27,18 +29,13 @@ import static org.junit.Assert.assertTrue;
  * @author plonikov
  */
 public class SymPyScriptEvaluatorTest extends ModelbasedTest {
-  private static final String IAF_PSC_EXP
-      = "src/test/resources/codegeneration/iaf_psc_exp.nestml";
-  private static final String IAF_PSC_ALPHA
-      = "src/test/resources/codegeneration/iaf_psc_alpha.nestml";
-  private static final String PSC_MODEL_FILE
-      = "src/test/resources/codegeneration/iaf_neuron.nestml";
-  private static final String COND_MODEL_FILE
-      = "src/test/resources/codegeneration/iaf_cond_alpha.nestml";
+  private static final String IAF_PSC_EXP = "models/iaf_psc_exp.nestml";
+  private static final String IAF_PSC_ALPHA = "models/iaf_psc_alpha.nestml";
+  private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
+  private static final String COND_MODEL_FILE = "models/iaf_cond_alpha.nestml";
 
   private static final Path SYMPY_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "sympy");
 
-  @Ignore("Doesn't work at the moment")
   @Test
   public void testPSC_ALPHA_MODEL() throws IOException {
     generateAndEvaluate(IAF_PSC_ALPHA);
@@ -50,12 +47,13 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
   }
 
   @Test
-  public void generateAndExecuteSympyScriptForPSC() throws IOException {
+  public void testIAF_NEURON() throws IOException {
     generateAndEvaluate(PSC_MODEL_FILE);
   }
 
+  @Ignore
   @Test
-  public void generateAndExecuteSympyScriptForCOND() throws IOException {
+  public void testIAF_COND_ALPHA() throws IOException {
     generateAndEvaluate(COND_MODEL_FILE);
   }
 
@@ -77,6 +75,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
 
     assertTrue(evaluator.evaluateScript(generatedScript.get()));
+    assertTrue(Files.exists(Paths.get(SYMPY_OUTPUT.toString(), TransformerBase.SOLVER_TYPE)));
   }
 
 }

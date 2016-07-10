@@ -1,7 +1,8 @@
 neuron aeif_cond_alpha_neuron:
 
   state:
-    V_m, w real = 0
+    V_m mV = E_L
+    w real = 0
     alias exp_arg real = (V_m-V_th)/delta_T
     alias I_spike real = delta_T*exp(exp_arg)
     # alias I_spike = delta_T*exp(min(exp_arg, MAX_EXP_ARG))
@@ -11,8 +12,16 @@ neuron aeif_cond_alpha_neuron:
     # Explicit
     shape GI = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape GE = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+
+    GI'' = -GI'/tau_syn_in
+    GI' = GI' - GI/tau_syn_in
+
+    GE'' = -GE'/tau_syn_ex
+    GE' = GE'  -GE/tau_syn_ex
+
+
     w' = (a*(V_m - E_L) - w)/tau_w
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (GI* (V_m-E_in) - 1/C_m * GE * (V_m-E_ex) + (I_e + I_stim) - w)
+    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) - 1/C_m * Cond_sum(GE, spikeExc) * (V_m-E_ex) + (I_e + I_stim) - w)
 
   end
 
@@ -31,7 +40,7 @@ neuron aeif_cond_alpha_neuron:
    alias Tau ms = (1 / g_L) * C_m
    delta_T mV = 2.0
    tau_w ms = 144.0
-   V_th mV = -55.4      # Threshold Potential in mV
+   V_th mV = -50.4      # Threshold Potential in mV
    V_peak mV = 0
 
    # synaptic parameters

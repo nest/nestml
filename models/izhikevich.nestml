@@ -1,0 +1,44 @@
+neuron izhikevich_nestml:
+
+  state:
+    V_m mV = -65mV
+    U_m real = 0
+    I_syn mA = 0mA
+    I mA = 0mA
+  end
+
+  equations:
+    V_m' = 0.04 * V_m*V_m + 5.0 * V_m + 140 - U_m + (I + I_e)
+    U_m' = a*(b*V_m-U_m)
+  end
+
+  parameter:
+    a real = 0.02
+    b real = 0.2
+    c mV = -65
+    d real = 8.0
+    I_e mA = 0mA
+  end
+
+  input:
+    spikes   <- spike
+    currents <- current
+  end
+
+  output: spike
+
+  update:
+    I = currents.getSum()
+
+    integrate(V_m)
+    V_m += spikes.getSum()
+
+    if V_m >= 30:
+      V_m = c
+      U_m += d
+      emit_spike()
+    end
+
+  end
+
+end

@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ModelbasedTest {
   protected static final Path OUTPUT_FOLDER = Paths.get("target");
-  protected static final Path TEST_MODEL_PATH = Paths.get("src/test/resources/");
+  protected static final Path TEST_MODEL_PATH = Paths.get("models");
   protected final NESTMLParser parser = new NESTMLParser(TEST_MODEL_PATH);
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
 
@@ -44,9 +44,22 @@ public class ModelbasedTest {
     Log.getFindings().clear();
   }
 
-  public ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
+  protected ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
 
     try {
+      return parser.parse(pathToModel).get();
+    }
+    catch (final IOException e) {
+      throw new RuntimeException("Cannot parse the NESTML model: " + pathToModel, e);
+    }
+
+  }
+
+  protected ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel, final String modelPath)  {
+
+    try {
+      final NESTMLParser parser= new NESTMLParser(Paths.get(modelPath));
+
       return parser.parse(pathToModel).get();
     }
     catch (final IOException e) {

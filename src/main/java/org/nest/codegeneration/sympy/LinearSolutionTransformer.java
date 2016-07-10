@@ -6,9 +6,7 @@
 package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
-import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTAliasDecl;
@@ -50,7 +48,7 @@ public class LinearSolutionTransformer extends TransformerBase {
   public final static String STATE_VARIABLES_FILE = "state.variables.tmp";
   public final static String PROPAGATOR_MATRIX_FILE = "propagator.matrix.tmp";
   public final static String PROPAGATOR_STEP_FILE = "propagator.step.tmp";
-  final static String ODE_TYPE = "solverType.tmp";
+
 
   public ASTNeuron addExactSolution(
       final ASTNeuron astNeuron,
@@ -84,7 +82,7 @@ public class LinearSolutionTransformer extends TransformerBase {
   }
 
 
-  ASTNeuron addStateVariableUpdatesToDynamics(
+  private ASTNeuron addStateVariableUpdatesToDynamics(
       final ASTNeuron astNeuron,
       final Path pathPSCInitialValueFile,
       final Path stateVectorTmpDeclarationsFile,
@@ -92,7 +90,7 @@ public class LinearSolutionTransformer extends TransformerBase {
       final Path stateVectorUpdateStepsFile,
       final Path stateVectorTmpBackAssignmentsFile) {
     try {
-      checkState(astNeuron.getBody().getEquations().isPresent(),  "The model has no ODES.");
+      checkState(astNeuron.getBody().getODEBlock().isPresent(),  "The model has no ODES.");
       final ASTBody body = astNeuron.getBody();
 
       addStateUpdates(
@@ -263,7 +261,7 @@ public class LinearSolutionTransformer extends TransformerBase {
   }
 
   private void addUpdatesWithPSCInitialValue(final Path pathPSCInitialValueFile, final ASTBody body) {
-    final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(body.getEquations().get(), ASTFunctionCall.class)
+    final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(body.getODEBlock().get(), ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
         .collect(toList());

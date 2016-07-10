@@ -8,9 +8,9 @@ package org.nest.codegeneration.converters;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.spl.prettyprinter.IReferenceConverter;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.utils.ASTUtils.convertDevrivativeNameToSimpleName;
@@ -28,7 +28,12 @@ public class GSLReferenceConverter implements IReferenceConverter {
 
   @Override
   public String convertBinaryOperator(String binaryOperator) {
-    return "(%s)" + binaryOperator + "(%s)";
+    if (binaryOperator.equals("**")) {
+      return "pow(%s, %s)";
+    }
+    else {
+      return "(%s)" + binaryOperator + "(%s)";
+    }
   }
 
   @Override
@@ -50,6 +55,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
     final String variableName = convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
     final VariableSymbol variableSymbol = VariableSymbol.resolve(convertDevrivativeNameToSimpleName(astVariable), scope);
+
     if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
         !variableSymbol.isAlias()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";

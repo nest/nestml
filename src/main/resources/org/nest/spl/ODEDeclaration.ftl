@@ -13,14 +13,15 @@
 
 double step_ = nest::Time::get_resolution().get_ms();
 double IntegrationStep_ = nest::Time::get_resolution().get_ms();
+double t = 0;
 
 while ( t < step_ )
 {
 
 double stateVector[${stateSize}];
 <#assign index = 0>
-<#list ast.getODEs() as ode>
-  stateVector[${astUtils.convertToSimpleName(ode.getLhs())}_${indexPostfix}] = S_.${astUtils.convertToSimpleName(ode.getLhs())};
+<#list body.getStateNonAliasSymbols() as stateVariable>
+  stateVector[${stateVariable.getName()}_${indexPostfix}] = S_.${stateVariable.getName()};
   <#assign index = index + 1>
 </#list>
 
@@ -33,8 +34,8 @@ double stateVector[${stateSize}];
   &IntegrationStep_, // integration step size
   stateVector );               // neuronal state
 <#assign index = 0>
-<#list ast.getODEs() as ode>
-  S_.${astUtils.convertToSimpleName(ode.getLhs())} = stateVector[${astUtils.convertToSimpleName(ode.getLhs())}_${indexPostfix}];
+<#list body.getStateNonAliasSymbols() as stateVariable>
+  S_.${stateVariable.getName()} = stateVector[${stateVariable.getName()}_${indexPostfix}];
   <#assign index = index + 1>
 </#list>
 }

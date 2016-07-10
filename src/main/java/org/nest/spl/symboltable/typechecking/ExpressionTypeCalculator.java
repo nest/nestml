@@ -16,6 +16,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.ASTUtils;
+import org.nest.utils.NESTMLSymbols;
 
 import java.util.Optional;
 
@@ -80,8 +81,7 @@ public class ExpressionTypeCalculator {
     else if (expr.getFunctionCall().isPresent()) { // function
       final String functionName = expr.getFunctionCall().get().getCalleeName();
 
-      final Optional<MethodSymbol> methodSymbol = scope.resolve(functionName,
-          MethodSymbol.KIND);
+      final Optional<MethodSymbol> methodSymbol = NESTMLSymbols.resolveMethod(expr.getFunctionCall().get());
       if (!methodSymbol.isPresent()) {
         final String msg = "Cannot resolve the method: " + functionName;
         return Either.right(msg);
@@ -352,7 +352,8 @@ public class ExpressionTypeCalculator {
         return rhsType;
       }
 
-      if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get())) {
+      if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get()) ||
+          isBoolean(lhsType.getLeft().get()) && isBoolean(rhsType.getLeft().get())) {
         return Either.left(getBooleanType());
       }
       else {
@@ -401,56 +402,63 @@ public class ExpressionTypeCalculator {
 
   }
 
-  private Either<Integer,String> calculateNumericalValue(ASTExpr expr){
+  private Either<Integer,String> calculateNumericalValue(ASTExpr expr) {
     if (expr.leftParenthesesIsPresent()) {
       return calculateNumericalValue(expr.getExpr().get());
     }
-    else if(expr.getNESTMLNumericLiteral().isPresent()){
-      if(expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof  ASTIntLiteral){
+    else if (expr.getNESTMLNumericLiteral().isPresent()) {
+      if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
         ASTIntLiteral literal = (ASTIntLiteral) expr.getNESTMLNumericLiteral().get().getNumericLiteral();
         return Either.left(literal.getValue());
-      }else{
+      }
+      else {
         return Either.right("No floating point values allowed in the exponent to a UNIT base");
       }
     }
-    else if(expr.isDivOp() || expr.isTimesOp() || expr.isMinusOp() || expr.isPlusOp()){
-      Either<Integer,String> lhs = calculateNumericalValue(expr.getLeft().get());
-      Either<Integer,String> rhs = calculateNumericalValue(expr.getRight().get());
-      if(lhs.isRight()) {
+    else if (expr.isDivOp() || expr.isTimesOp() || expr.isMinusOp() || expr.isPlusOp()) {
+      Either<Integer, String> lhs = calculateNumericalValue(expr.getLeft().get());
+      Either<Integer, String> rhs = calculateNumericalValue(expr.getRight().get());
+      if (lhs.isRight()) {
         return lhs;
       }
-      if(rhs.isRight()){
+      if (rhs.isRight()) {
         return rhs;
       }
-      if(expr.isDivOp())
-        return Either.left(lhs.getLeft().get().intValue()/rhs.getLeft().get().intValue()); //int division!
-      if(expr.isTimesOp())
-        return Either.left(lhs.getLeft().get().intValue()*rhs.getLeft().get().intValue());
-      if(expr.isPlusOp())
-        return Either.left(lhs.getLeft().get().intValue()+rhs.getLeft().get().intValue());
-      if(expr.isMinusOp())
-        return Either.left(lhs.getLeft().get().intValue()-rhs.getLeft().get().intValue());
+      if (expr.isDivOp())
+        return Either.left(lhs.getLeft().get().intValue() / rhs.getLeft().get().intValue()); //int division!
+      if (expr.isTimesOp())
+        return Either.left(lhs.getLeft().get().intValue() * rhs.getLeft().get().intValue());
+      if (expr.isPlusOp())
+        return Either.left(lhs.getLeft().get().intValue() + rhs.getLeft().get().intValue());
+      if (expr.isMinusOp())
+        return Either.left(lhs.getLeft().get().intValue() - rhs.getLeft().get().intValue());
     }
-    else if(expr.isPow()){
-      Either<Integer,String> base = calculateNumericalValue(expr.getBase().get());
-      Either<Integer,String> exponent = calculateNumericalValue(expr.getExponent().get());
-      if(base.isRight()) {
+    else if (expr.isPow()) {
+      Either<Integer, String> base = calculateNumericalValue(expr.getBase().get());
+      Either<Integer, String> exponent = calculateNumericalValue(expr.getExponent().get());
+      if (base.isRight()) {
         return base;
       }
-      if(exponent.isRight()){
+      if (exponent.isRight()) {
         return exponent;
       }
-      return Either.left((int) Math.pow(base.getLeft().get().intValue(),exponent.getLeft().get().intValue()));
+      return Either.left((int) Math.pow(base.getLeft().get().intValue(), exponent.getLeft().get().intValue()));
     }
-    else if(expr.isUnaryMinus()){
-      Either<Integer,String> term = calculateNumericalValue(expr.getTerm().get());
-      if(term.isRight()){
+    else if (expr.isUnaryMinus()) {
+      Either<Integer, String> term = calculateNumericalValue(expr.getTerm().get());
+      if (term.isRight()) {
         return term;
       }
       return Either.left(-term.getLeft().get().intValue());
     }
 
     return Either.right("Cannot calculate value of exponent. Must be a static value!");
+  }
+  /**
+   * Checks if the type is a numeric type, e.g. Integer or Real.
+   */
+  private boolean isBoolean(final TypeSymbol type) {
+    return type.equals(getBooleanType());
 
   }
 

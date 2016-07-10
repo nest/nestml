@@ -1,4 +1,4 @@
-neuron iaf_psc_exp_multisynapse_nestml:
+neuron iaf_psc_alpha_multisynapse_nestml:
 
   state:
     V_1 mV
@@ -6,7 +6,7 @@ neuron iaf_psc_exp_multisynapse_nestml:
   end
 
   equations:
-      shape I_shape = exp(-1/tau_syn*t)
+      shape I_shape = (e/tau_syn) * t * exp(-1/tau_syn*t)
       V_1' = -1/Tau * V_1 + 1/C_m * (I_sum(I_shape, spikes) + I_e + currents)
   end
 
@@ -16,9 +16,9 @@ neuron iaf_psc_exp_multisynapse_nestml:
     Tau     ms = 10    # Membrane time constant.
     suppress tau_syn ms[receptors] = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
-    E_L     mV = 0  # Resting potential.
-    alias V_reset mV = -55.0 - E_L
-    alias Theta   mV = -70.0 - E_L
+    E_L     mV = -70   # Resting potential.
+    alias V_reset mV = -70.0 - E_L
+    alias Theta   mV = -55.0 - E_L
     I_e     pA = 0     # External current.
   end
 
@@ -34,14 +34,13 @@ neuron iaf_psc_exp_multisynapse_nestml:
     Theta = val
   end
 
-
   internal:
     r  integer
     RefractoryCounts integer = steps(t_ref)
   end
 
   input:
-    spikes[receptors]   <- excitatory spike
+    spikes[receptors]   <- spike
     currents <- current
   end
 
@@ -61,5 +60,4 @@ neuron iaf_psc_exp_multisynapse_nestml:
     end
 
   end
-
 end

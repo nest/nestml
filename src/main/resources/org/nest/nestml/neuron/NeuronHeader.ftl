@@ -32,10 +32,6 @@
 <#-- TODO make it depend on the ODE declaration -->
 #include "config.h"
 
-<#if neuronSymbol.getBaseNeuron().isPresent()>
-#include "${neuronSymbol.getBaseNeuron().get().getName()}.h"
-</#if>
-
 <#if useGSL>
 #ifdef HAVE_GSL
 #include <gsl/gsl_errno.h>
@@ -43,11 +39,16 @@
 #include <gsl/gsl_odeiv.h>
 </#if>
 
-#include "nest.h"
-#include "event.h"
+// Includes from nestkernel:
 #include "archiving_node.h"
 #include "connection.h"
+#include "event.h"
+#include "nest_types.h"
+#include "ring_buffer.h"
 #include "universal_data_logger.h"
+
+
+// Includes from sli:
 #include "dictdatum.h"
 
 /* BeginDocumentation
@@ -71,13 +72,7 @@ Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if>Data
 SeeAlso:
 Empty
 */
-class ${simpleNeuronName}
-<#if neuronSymbol.getBaseNeuron().isPresent()>
-: public ${neuronSymbol.getBaseNeuron().get().getName()}
-<#else>
-: public nest::Archiving_Node
-</#if>
-
+class ${simpleNeuronName} : public nest::Archiving_Node
 {
 public:
   /**
@@ -196,7 +191,7 @@ protected:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct Parameters_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Parameters_ </#if>
+  struct Parameters_
   {
     <#list body.getParameterNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
@@ -242,7 +237,8 @@ protected:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct State_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::State_ </#if> {
+  struct State_
+  {
     <#list body.getStateNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
@@ -250,7 +246,7 @@ protected:
       ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
     </#list>
 
-    State_();
+    State_(Parameters_ __p);
 
     /** Store state values in dictionary. */
     void get(DictionaryDatum&) const;
@@ -279,7 +275,7 @@ protected:
   *       since it is initialized by @c calibrate(). If Variables_ has members that
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
-  struct Variables_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Variables_ </#if> {
+  struct Variables_ {
     <#list body.getInternalNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
@@ -299,23 +295,36 @@ protected:
     *       since it is initialized by @c init_nodes_(). If Buffers_ has members that
     *       cannot destroy themselves, Buffers_ will need a destructor.
     */
-  struct Buffers_ <#if neuronSymbol.getBaseNeuron().isPresent()> : ${neuronSymbol.getBaseNeuron().get().getName()}::Buffers_ </#if> {
+  struct Buffers_ {
     Buffers_(${simpleNeuronName}&);
     Buffers_(const Buffers_ &, ${simpleNeuronName}&);
-    <#list body.getInputLines() as inputLine>
-      ${bufferHelper.printBufferGetter(inputLine, true)}
-    </#list>
+    <#if (body.getSameTypeBuffer()?size > 1) >
+      /** buffers and sums up incoming spikes/currents */
+      std::vector< nest::RingBuffer > spike_inputs_;
+
+      <#list body.getInputLines() as inputLine>
+        ${bufferHelper.printBufferArrayGetter(inputLine)}
+      </#list>
+
+      <#list body.getCurrentBuffers() as inputLine>
+        ${bufferHelper.printBufferDeclaration(inputLine)};
+      </#list>
+    <#else>
+      <#list body.getInputLines() as inputLine>
+        ${bufferHelper.printBufferGetter(inputLine, true)}
+      </#list>
+
+      <#list body.getInputLines() as inputLine>
+        ${bufferHelper.printBufferDeclaration(inputLine)};
+      </#list>
+    </#if>
 
     /** Logger for all analog data */
     nest::UniversalDataLogger<${simpleNeuronName}> logger_;
 
-    <#list body.getInputLines() as inputLine>
-      ${bufferHelper.printBufferDeclaration(inputLine)};
-    </#list>
 
-    <#list body.getInputLines() as inputLine>
-      ${bufferHelper.printBufferTypesVariables(inputLine)};
-    </#list>
+
+    std::vector<long> receptor_types_;
 
     <#if useGSL>
     /* GSL ODE stuff */
@@ -328,6 +337,25 @@ protected:
 
   };
 private:
+
+
+
+  <#if (body.getSameTypeBuffer()?size > 1) >
+  /**
+   * Synapse types to connect to
+   * @note Excluded upper and lower bounds are defined as INF_, SUP_.
+   *       Excluding port 0 avoids accidental connections.
+   */
+  enum SynapseTypes
+  {
+    INF_SPIKE_RECEPTOR = 0,
+    <#list body.getSameTypeBuffer() as buffer>
+      ${buffer.getName()?upper_case} ,
+    </#list>
+    SUP_SPIKE_RECEPTOR
+  };
+  </#if>
+
   /**
   * @defgroup pif_members Member variables of neuron model.
   * Each model neuron should have precisely the following four data members,
@@ -375,6 +403,17 @@ nest::port ${simpleNeuronName}::handles_test_event(nest::SpikeEvent&, nest::port
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
 
     return receptor_type;
+  <#elseif (body.getSameTypeBuffer()?size > 1)>
+    assert( B_.spike_inputs_.size() == ${body.getSameTypeBuffer()?size } );
+
+    if ( !( INF_SPIKE_RECEPTOR < receptor_type && receptor_type < SUP_SPIKE_RECEPTOR ) )
+    {
+      throw nest::UnknownReceptorType( receptor_type, get_name() );
+      return 0;
+    }
+    else {
+      return receptor_type - 1;
+    }
   <#else>
     // You should usually not change the code in this function.
     // It confirms to the connection management system that we are able
@@ -418,36 +457,45 @@ nest::port receptor_type)
 
 // TODO call get_status on used or internal components
 inline
-void ${simpleNeuronName}::get_status(DictionaryDatum &d) const
+void ${simpleNeuronName}::get_status(DictionaryDatum &__d) const
 {
-  P_.get(d);
+  P_.get(__d);
   <#list body.getParameterSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
   </#list>
-  S_.get(d);
+  S_.get(__d);
   <#list body.getStateSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
   </#list>
 
-  (*d)[nest::names::recordables] = recordablesMap_.get_list();
+  <#if (body.getSameTypeBuffer()?size > 1) >
+
+    DictionaryDatum __receptor_type = new Dictionary();
+    <#list body.getSameTypeBuffer() as spikeBuffer>
+    ( *__receptor_type )[ "${spikeBuffer.getName()?upper_case}" ] = ${spikeBuffer.getName()?upper_case};
+    </#list>
+    ( *__d )[ "receptor_types" ] = __receptor_type;
+  </#if>
+
+  (*__d)[nest::names::recordables] = recordablesMap_.get_list();
 }
 
 inline
-void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
+void ${simpleNeuronName}::set_status(const DictionaryDatum &__d)
 {
   <#list body.getAllOffsetVariables() as offset>
     ${tc.includeArgs("org.nest.nestml.function.StoreDeltaValue", [offset])}
   </#list>
 
   Parameters_ ptmp = P_;  // temporary copy in case of errors
-  ptmp.set(d
+  ptmp.set(__d
   <#list body.getAllOffsetVariables() as offset>
     , delta_${offset.getName()}
   </#list>
   );            // throws BadProperty
 
-  State_      stmp = S_;  // temporary copy in case of errors
-  stmp.set(d, ptmp
+  State_      stmp = State_(ptmp);  // temporary copy in case of errors
+  stmp.set(__d, ptmp
   <#list body.getAllOffsetVariables() as offset>
     , delta_${offset.getName()}
   </#list>
@@ -457,7 +505,7 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &d)
   // write them back to (P_, S_) before we are also sure that
   // the properties to be set in the parent class are internally
   // consistent.
-  Archiving_Node::set_status( d );
+  Archiving_Node::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
   P_ = ptmp;

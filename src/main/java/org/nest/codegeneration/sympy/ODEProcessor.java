@@ -46,10 +46,10 @@ public class ODEProcessor {
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
-    if (astBody.getEquations().isPresent()) {
+    if (astBody.getODEBlock().isPresent()) {
       final Optional<ASTFunctionCall> deltaShape = getFunctionCall(
           PredefinedFunctions.DELTA,
-          astBody.getEquations().get());
+          astBody.getODEBlock().get());
 
       if (deltaShape.isPresent()) {
         return handleDeltaShape(astNeuron, outputBase);
@@ -112,7 +112,7 @@ public class ODEProcessor {
 
       checkState(successfulExecution, "Error during solver script evaluation.");
 
-      final Path odeTypePath = Paths.get(outputBase.toString(), LinearSolutionTransformer.ODE_TYPE);
+      final Path odeTypePath = Paths.get(outputBase.toString(), LinearSolutionTransformer.SOLVER_TYPE);
       final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
       if (solutionType.equals(SolverType.EXACT)) {
