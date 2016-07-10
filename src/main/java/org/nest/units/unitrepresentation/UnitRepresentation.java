@@ -21,9 +21,45 @@ public class UnitRepresentation {
     this.magnitude += magnitude;
   }
 
-  public String toString() {
+  public String serialize() {
     int[] result = { K, s, m, g, cd, mol, A, magnitude };
     return Arrays.toString(result);
+  }
+
+  public String prettyPrint(){
+    String numerator =
+        (K==1? "K * " : K>0? "K^"+K+" * " :"")
+        + (s==1? "s * " : s>0? "s^"+s+" * " :"")
+        + (m==1? "m * " : m>0? "m^"+m+" * " :"")
+        + (g==1? "g * " : g>0? "g^"+g+" * " :"")
+        + (cd==1? "cd * " : cd>0? "cd^"+cd+" * " :"")
+        + (mol==1? "mol * " : mol>0? "mol^"+mol+" * " :"")
+        + (A==1? "A * " : A>0? "A^"+A+" * " :"");
+    if(numerator.length() > 0 ){
+      numerator = numerator.substring(0,numerator.length()-3);
+      if(numerator.contains("*")){
+        numerator = "("+numerator+")";
+      }
+    }else{
+      numerator ="1";
+    }
+    String denominator =
+        (K==-1? "K * " : K<0? "K^"+-K+" * " :"")
+        + (s==-1? "s * " : s<0? "s^"+-s+" * " :"")
+        + (m==-1? "m * " : m<0? "m^"+-m+" * " :"")
+        + (g==-1? "g * " : g<0? "g^"+-g+" * " :"")
+        + (cd==-1? "cd * " : cd<0? "cd^"+-cd+" * " :"")
+        + (mol==-1? "mol * " : mol<0? "mol^"+-mol+" * " :"")
+        + (A==-1? "A * " : A<0? "A^"+-A+" * " :"");
+    if(denominator.length()>1){
+      denominator = denominator.substring(0,denominator.length()- 3);
+      if(denominator.contains("*")){
+        denominator = "("+denominator+")";
+      }
+    }else{
+      denominator ="";
+    }
+    return (magnitude!=0? "10^"+magnitude:"")+ numerator + (denominator.length()>0? " / "+denominator : "");
   }
 
   static public Optional<UnitRepresentation> lookupName(String unit){
