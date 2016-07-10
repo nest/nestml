@@ -161,4 +161,8 @@ public class UnitRepresentation {
         this.A + factor.A,
         this.magnitude + factor.magnitude);
   }
+
+  public UnitRepresentation invert(){
+    return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude);
+  }
 }

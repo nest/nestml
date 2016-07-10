@@ -24,6 +24,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
@@ -127,6 +128,9 @@ public class ExpressionTypeCalculator {
       final Either<TypeSymbol, String> lhsType = computeType(expr.getLeft().get());
       final Either<TypeSymbol, String> rhsType = computeType(expr.getRight().get());
 
+      final String errorMsg = "Cannot determine the type of the operation with types: " + lhsType
+          + ", " + rhsType + " at " + expr.get_SourcePositionStart() + ">";
+
       if (lhsType.isRight()) {
         return lhsType;
       }
@@ -143,10 +147,17 @@ public class ExpressionTypeCalculator {
         }
         if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get())) {
           // in this case, neither of the sides is a String
-          if (lhsType.getLeft().get() == getRealType() ||
-              lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT ||
-              rhsType.getLeft().get() == getRealType() ||
+          //both are units
+          if (lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT &&
               rhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
+            if(isCompatible(lhsType.getLeft().get(),rhsType.getLeft().get())) {
+              return lhsType; //return either of the (same) unit types
+            }else{
+              return Either.right(errorMsg);
+            }
+          }
+          if (lhsType.getLeft().get() == getRealType() ||
+              rhsType.getLeft().get() == getRealType()) {
             return Either.left(getRealType());
           }
           // e.g. both are integers, but check to be sure
@@ -154,10 +165,6 @@ public class ExpressionTypeCalculator {
               rhsType.getLeft().get() == (getIntegerType())) {
             return  Either.left(getIntegerType());
           }
-
-          final String errorMsg = "Cannot determine the type of the operation with types: " + lhsType
-              + ", " + rhsType + " at " + expr.get_SourcePositionStart() + ">";
-
           return Either.right(errorMsg);
         }
         // in this case, neither of the sides is a String
@@ -172,15 +179,13 @@ public class ExpressionTypeCalculator {
         }
 
         // TODO should be not possible
-        final String errorMsg = "Cannot determine the type of the Expression-Node @<" + expr.get_SourcePositionStart() +
-            ", " + expr.get_SourcePositionStart() + ">";
-
         return Either.right(errorMsg);
       }
 
     }
     else if (expr.isMinusOp()) {
-
+      final String errorMsg = "Cannot determine the type of the Expression-Node @<"
+          + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
 
       final Either<TypeSymbol, String> lhsType = computeType(expr.getLeft().get());
       final Either<TypeSymbol, String> rhsType = computeType(expr.getRight().get());
@@ -193,10 +198,17 @@ public class ExpressionTypeCalculator {
       }
 
       if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get())) {
-        if (lhsType.getLeft().get() == getRealType() ||
-            rhsType.getLeft().get() == getRealType() ||
-            lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT ||
+        //both are units
+        if (lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT &&
             rhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
+          if(isCompatible(lhsType.getLeft().get(),rhsType.getLeft().get())) {
+            return lhsType; //return either of the (same) unit types
+          }else{
+            return Either.right(errorMsg);
+          }
+        }
+        if (lhsType.getLeft().get() == getRealType() ||
+            rhsType.getLeft().get() == getRealType()) {
           return Either.left(getRealType());
         }
         // e.g. both are integers, but check to be sure
@@ -204,15 +216,9 @@ public class ExpressionTypeCalculator {
             rhsType.getLeft().get() == (getIntegerType())) {
           return  Either.left(getIntegerType());
         }
-
-        final String errorMsg = "Cannot determine the type of the Expression-Node @<"
-            + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
-
         return Either.right(errorMsg);
       }
       else {
-        final String errorMsg = "Cannot determine the type of the Expression-Node at"
-            + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd() ;
         return Either.right(errorMsg);
       }
 
@@ -246,12 +252,20 @@ public class ExpressionTypeCalculator {
             return  Either.left(returnType);
           }
         }
-        //if either one is Unit, return the same Unit
+        //if left one is Unit, and the other real or integer, return same Unit
         if (lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
           return Either.left(lhsType.getLeft().get());
         }
+        //if right is Unit and left a number, return right for timesOP and inverted right for DivOp
         if (rhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
-          return Either.left(rhsType.getLeft().get());
+          if(expr.isTimesOp()){
+            return Either.left(rhsType.getLeft().get());
+          }else if(expr.isDivOp()){
+            UnitRepresentation rightRep = new UnitRepresentation(rhsType.getLeft().get().getName());
+            TypeSymbol returnType = getTypeIfExists((rightRep.invert()).serialize()).get();//Register type on the fly
+            return Either.left(returnType);
+          }
+
         }
         //if no Units are involved, Real takes priority
         if(lhsType.getLeft().get() == getRealType() ||
