@@ -1,0 +1,165 @@
+/*
+   Name: ht_neuron - Neuron model after Hill & Tononi (2005).
+
+   Description:
+   This model neuron implements a slightly modified version of the
+   neuron model described in [1]. The most important properties are:
+
+   - Integrate-and-fire with threshold that is increased on spiking
+     and decays back to an equilibrium value.
+   - No hard reset, but repolarizing potassium current.
+   - AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
+     beta-function (difference of two exponentials) time course.
+   - Intrinsic currents I_h (pacemaker), I_T (low-threshold calcium),
+     I_Na(p) (persistent sodium), and I_KNa (depolarization-activated
+     potassium).
+
+   In comparison to the model described in the paper, the following
+   modifications were mare:
+
+   - NMDA conductance is given by g(t) = g_peak * m(V), where
+
+       m(V) = 1 / ( 1 + exp( - ( V - NMDA_Vact ) / NMDA_Sact ) )
+
+     This is an approximation to the NMDA model used in [2].
+
+   - Several apparent typographical errors in the descriptions of
+     the intrinsic currents were fixed, hopefully in a meaningful
+     way.
+
+   I'd like to thank Sean Hill for giving me access to his
+   simulator source code.
+
+   See examples/hilltononi for usage examples.
+
+   Warning:
+   THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY!
+
+   Parameters:
+   V_m            -  membrane potential
+   spike_duration - duration of re-polarizing potassium current
+   Tau_m          - membrane time constant applying to all currents but
+                    repolarizing K-current (see [1, p 1677])
+   Tau_spike      - membrane time constant applying to repolarizing K-current
+   Theta, Theta_eq, Tau_theta - Threshold, equilibrium value, time constant
+   g_KL, E_K, g_NaL, E_Na     - conductances and reversal potentials for K and
+   Na
+                                leak currents
+
+   {AMPA,NMDA,GABA_A,GABA_B}_{E_rev,g_peak,Tau_1,Tau_2}
+                                - reversal potentials, peak conductances and
+                                  time constants for synapses (Tau_1: rise time,
+                                  Tau_2: decay time, Tau_1 < Tau_2)
+   NMDA_Sact, NMDA_Vact         - Parameters for voltage dependence of NMDA-
+                                  synapse, see eq. above
+   {h,T,NaP,KNa}_{E_rev,g_peak} - reversal potential and peak conductance for
+                                  intrinsic currents
+   receptor_types               - dictionary mapping synapse names to ports on
+                                  neuron model
+   recordables                  - list of recordable quantities.
+
+   Author: Hans Ekkehard Plesser
+
+   Sends: SpikeEvent
+
+   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+   FirstVersion: October 2009
+
+   References:
+   [1] S Hill and G Tononi (2005). J Neurophysiol 93:1671-1698.
+   [2] ED Lumer, GM Edelman, and G Tononi (1997). Cereb Cortex 7:207-227.
+
+   SeeAlso: ht_synapse
+*/
+neuron ht_neuron_nestml:
+
+  state:
+    VM mV
+    THETA mV
+    G_AMPA nS
+    G_NMDA nS
+    G_GABA_A nS
+    G_GABA_B nS
+    IKNa_D pA
+    IT_m pA
+    IT_h pA
+    Ih_m pA
+
+    r_potassium integer
+
+    g_spike boolean
+
+    I_NaP pA # Persistent Na current; member only to allow recording
+    I_KNa pA # Depol act. K current; member only to allow recording
+    I_T pA   # Low-thresh Ca current; member only to allow recording
+    I_h pA   # Pacemaker current; member only to allow recording
+
+  end
+
+  equations:
+
+  end
+
+  parameter:
+    E_Na mV = 30.0
+    E_K mV = -90.0
+    g_NaL real =  0.2
+    g_KL real = 1.0
+    Tau_m ms = 16.0
+    Theta_eq mV = -51.0
+    Tau_theta ms = 2.0
+    Tau_spike ms = 1.75
+    t_spike ms = 2.0
+    AMPA_g_peak real = 0.1
+    AMPA_Tau_1 ms = 0.5
+    AMPA_Tau_2 ms = 2.4
+    AMPA_E_rev mV = 0.0
+    NMDA_g_peak real = 0.075
+    NMDA_Tau_1 ms = 4.0
+    NMDA_Tau_2 ms = 40.0
+    NMDA_E_rev mV = 0.0
+    NMDA_Vact mV = -58.0
+    NMDA_Sact mV = 2.5
+    GABA_A_g_peak real = 0.33
+    GABA_A_Tau_1 ms = 1.0
+    GABA_A_Tau_2 ms = 7.0
+    GABA_A_E_rev mV = -70.0
+    GABA_B_g_peak real = 0.0132
+    GABA_B_Tau_1 ms = 60.0
+    GABA_B_Tau_2 ms = 200.0
+    GABA_B_E_rev mV = -90.0
+    NaP_g_peak real = 1.0
+    NaP_E_rev mV = 30.0
+    KNa_g_peak real = 1.0
+    KNa_E_rev real = -90.0
+    T_g_peak real = 1.0
+    T_E_rev mV = 0.0
+    h_g_peak real = 1.0
+    h_E_rev mV = -40.0
+    KNa_D_EQ real = 0.001;
+  end
+
+  internal:
+
+   # Input current injected by CurrentEvent.
+   # This variable is used to transport the current applied into the
+   # _dynamics function computing the derivative of the state vector.
+   I_stim pA = 0
+  end
+
+  input:
+      AMPA   <- spike
+      NMDA   <- spike
+      GABA_A <- spike
+      GABA_B <- spike
+      currents <- current
+  end
+
+  output: spike
+
+  update:
+
+  end
+
+end
