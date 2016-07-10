@@ -2,11 +2,7 @@ package org.nest.units.unitrepresentation;
 import java.util.Optional;
 
 import com.google.common.base.Preconditions;
-import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.units._ast.ASTUnitType;
-import org.nest.units.unitrepresentation.SIData;
-import org.nest.units.unitrepresentation.UnitRepresentation;
-import org.nest.utils.PrettyPrinterBase;
 
 /**
  * @author ptraeder
@@ -15,7 +11,7 @@ import org.nest.utils.PrettyPrinterBase;
 public class UnitTranslator {
 
   public String calculateUnitType(ASTUnitType node){
-    return getRecursive(node).toString();
+    return getRecursive(node).serialize();
   }
 
 

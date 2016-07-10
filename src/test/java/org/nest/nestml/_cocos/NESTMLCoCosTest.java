@@ -96,27 +96,6 @@ public class NESTMLCoCosTest extends ModelbasedTest {
 
 
   }
-  //TODO: Remove this test
-  @Test
-  public void testUnit() {
-    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
-    final NESTMLCoCoChecker completeChecker= nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
-    final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "src/test/resources/org/nest/units/validExpressions.nestml", TEST_MODEL_PATH);
-    assertTrue(validRoot.isPresent());
-
-    //check that unit types are correct:
-    UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
-    unitsSIVisitor.handle(validRoot.get());
-
-    scopeCreator.runSymbolTableCreator(validRoot.get());
-
-    completeChecker.checkAll(validRoot.get());
-
-    Integer errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
-    assertEquals(Integer.valueOf(0), errorsFound);
-  }
-
 
   @Test
   public void testAliasHasOneVar() {

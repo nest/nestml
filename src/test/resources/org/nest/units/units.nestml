@@ -1,7 +1,7 @@
 neuron aeif_cond_alpha_neuron:
 
   state:
-    V_m mV = 70 nS
+    V_m mV = 70 kkA
     GE, GI nS = 0
     DGE, DGI nS/ms = 0. 
     w pA = 0.
@@ -15,6 +15,9 @@ neuron aeif_cond_alpha_neuron:
     V_m' = -(V_m - E_L)/Tau + Delta_T/Tau*exp((V_m - V_th)/Delta_T) - (GI*(V_m-V_reversalI) + \
            GE*(V_m-V_reversalE))/C_m + (I_e + I_stim)/C_m
     w'   = (a*(V_m-E_L) - w)/tau_w
+  end
+
+  function set_Tau(v ms):
   end
 
   parameter:
@@ -45,7 +48,7 @@ neuron aeif_cond_alpha_neuron:
     h   ms   = resolution()
     a real = 0.5
 
-    n, m real = 0.5
+    n, k real = 0.5
     r integer
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude

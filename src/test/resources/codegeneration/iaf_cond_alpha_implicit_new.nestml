@@ -18,13 +18,17 @@ neuron iaf_cond_alpha_implicit_new:
             1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
 
+  function set_Tau(time ms):
+    Tau = t
+  end
+
   parameter:
     V_th mV = -55.0      # Threshold Potential in mV
     V_reset mV = -60.0   # Reset Potential in mV
     t_ref ms = 2.0       # Refractory period in ms
     g_L ms = 16.6667     # Leak Conductance in nS
     C_m pF = 250.0       # Membrane Capacitance in pF
-    alias Tau ms = (1 / g_L) * C_m
+    alias Tau ms = 10 ms
     V_reversalE mV = 0          # Excitatory reversal Potential in mV
     V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
     E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV

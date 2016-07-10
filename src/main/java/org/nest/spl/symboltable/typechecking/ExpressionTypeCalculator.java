@@ -239,10 +239,10 @@ public class ExpressionTypeCalculator {
           UnitRepresentation leftRep = new UnitRepresentation(lhsType.getLeft().get().getName());
           UnitRepresentation rightRep = new UnitRepresentation(rhsType.getLeft().get().getName());
           if(expr.isTimesOp()){
-            TypeSymbol returnType = getTypeIfExists((leftRep.multiplyBy(rightRep)).toString()).get();//Register type on the fly
+            TypeSymbol returnType = getTypeIfExists((leftRep.multiplyBy(rightRep)).serialize()).get();//Register type on the fly
             return  Either.left(returnType);
           }else if(expr.isDivOp()){
-            TypeSymbol returnType = getTypeIfExists((leftRep.divideBy(rightRep)).toString()).get();//Register type on the fly
+            TypeSymbol returnType = getTypeIfExists((leftRep.divideBy(rightRep)).serialize()).get();//Register type on the fly
             return  Either.left(returnType);
           }
         }
@@ -299,7 +299,7 @@ public class ExpressionTypeCalculator {
             UnitRepresentation baseRep = new UnitRepresentation(baseType.getLeft().get().getName());
             Either<Integer, String> numericValue = calculateNumericalValue(expr.getExponent().get());//calculate exponent value if exponent composed of literals
             if(numericValue.isLeft()) {
-              return Either.left(getTypeIfExists((baseRep.pow(numericValue.getLeft().get().intValue())).toString()).get());
+              return Either.left(getTypeIfExists((baseRep.pow(numericValue.getLeft().get().intValue())).serialize()).get());
             }else{
               return Either.right(numericValue.getRight().get());
             }

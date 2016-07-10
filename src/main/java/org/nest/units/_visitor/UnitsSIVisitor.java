@@ -2,6 +2,7 @@ package org.nest.units._visitor;
 
 import com.google.common.base.Preconditions;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units.unitrepresentation.SIData;
@@ -33,9 +34,5 @@ public class UnitsSIVisitor implements NESTMLVisitor {
               "The unit " + unit + " is not an SI unit.");
       }
     node.setUnit(translator.calculateUnitType(node));
-  }
-
-  public void visit(ASTExpr expr){
-
   }
 }

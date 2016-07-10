@@ -55,7 +55,7 @@ public class PredefinedTypes {
   }
 
   public static TypeSymbol getMS() {
-    return implicitTypes.get("ms");
+    return getTypeIfExists("ms").get();
   }
 
   public static TypeSymbol getIntegerType() {
@@ -127,8 +127,8 @@ public class PredefinedTypes {
     else if (SIData.getCorrectSIUnits().contains(typeName)) {
       Optional<UnitRepresentation> unitRepresentation = UnitRepresentation.lookupName(typeName);
       if (unitRepresentation.isPresent()) {
-        registerType(unitRepresentation.get().toString(), TypeSymbol.Type.UNIT);
-        return Optional.of(implicitTypes.get(unitRepresentation.get().toString()));
+        registerType(unitRepresentation.get().serialize(), TypeSymbol.Type.UNIT);
+        return Optional.of(implicitTypes.get(unitRepresentation.get().serialize()));
       }
       return Optional.empty();
     }
@@ -136,7 +136,7 @@ public class PredefinedTypes {
       try {
         UnitRepresentation unitRepresentation;
         unitRepresentation = new UnitRepresentation(typeName);
-        registerType(unitRepresentation.toString(), TypeSymbol.Type.UNIT);
+        registerType(unitRepresentation.serialize(), TypeSymbol.Type.UNIT);
       }
       catch (IllegalStateException e){
         return Optional.empty();
