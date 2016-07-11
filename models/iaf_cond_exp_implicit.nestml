@@ -24,7 +24,7 @@ neuron iaf_cond_exp_implicit:
     # Refractory period in ms
     t_ref ms = 2.0
     # Leak Conductance in nS
-    g_L ms = 16.6667
+    g_L nS = 16.6667
     # Membrane Capacitance in pF
     C_m pF = 250.0
     alias Tau ms = (1 / g_L) * C_m

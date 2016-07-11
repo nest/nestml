@@ -57,16 +57,16 @@ neuron hh_cond_exp_traub_nestml:
 
   state:
     V_m mV = E_L
-    alias V mV = V_m - V_T
-    G_ex,  G_in pA
+    alias V_1 mV = V_m - V_T
+    G_ex,  G_in nS
 
     # equilibrium values for (in)activation variables
-    alias alpha_n real = 0.032 * ( 15. - V ) / ( exp( ( 15. - V ) / 5. ) - 1. )
-    alias beta_n real = 0.5 * exp( ( 10. - V ) / 40. )
-    alias alpha_m real = 0.32 * ( 13. - V ) / ( exp( ( 13. - V ) / 4. ) - 1. )
-    alias beta_m real = 0.28 * ( V - 40. ) / ( exp( ( V - 40. ) / 5. ) - 1. )
-    alias alpha_h real = 0.128 * exp( ( 17. - V ) / 18. )
-    alias beta_h real = 4. / ( 1. + exp( ( 40. - V ) / 5. ) )
+    alias alpha_n real = 0.032 * ( 15. - V_1 ) / ( exp( ( 15. - V_1 ) / 5. ) - 1. )
+    alias beta_n real = 0.5 * exp( ( 10. - V_1 ) / 40. )
+    alias alpha_m real = 0.32 * ( 13. - V_1 ) / ( exp( ( 13. - V_1 ) / 4. ) - 1. )
+    alias beta_m real = 0.28 * ( V_1 - 40. ) / ( exp( ( V_1 - 40. ) / 5. ) - 1. )
+    alias alpha_h real = 0.128 * exp( ( 17. - V_1 ) / 18. )
+    alias beta_h real = 4. / ( 1. + exp( ( 40. - V_1 ) / 5. ) )
 
 
     alias alpha_n_init real = 0.032 * ( 15. - V_m ) / ( exp( ( 15. - V_m ) / 5. ) - 1. )
@@ -84,7 +84,7 @@ neuron hh_cond_exp_traub_nestml:
     alias I_K   real  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K );
     alias I_L   real = g_L * ( V_m - E_L );
     
-    alias I_syn_exc pA = G_ex  * ( V_m - E_ex )
+    alias I_syn_exc pA = G_ex  * ( V_m - E_ex ) 
     alias I_syn_inh pA = G_in * ( V_m - E_in )
 
   end
@@ -110,7 +110,7 @@ neuron hh_cond_exp_traub_nestml:
     E_Na mV = 50mV #  Reversal potentials
     E_K mV = -90.mV
     E_L mV = -60.mV     # Leak reversal Potential (aka resting potential) in mV
-    V_T mV = -63.0ms       # adjusts threshold to around -50 mV
+    V_T mV = -63.0mV       # adjusts threshold to around -50 mV
     tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
     I_e pA = 0pA           # Constant Current in pA

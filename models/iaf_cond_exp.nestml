@@ -16,7 +16,7 @@ neuron iaf_cond_exp:
    V_th mV = -55.0      # Threshold Potential in mV
    V_reset mV = -60.0   # Reset Potential in mV
    t_ref ms = 2.0       # Refractory period in ms
-   g_L ms = 16.6667     # Leak Conductance in nS
+   g_L nS = 16.6667     # Leak Conductance in nS
    C_m pF = 250.0       # Membrane Capacitance in pF
 
    alias Tau ms = (1 / g_L) * C_m

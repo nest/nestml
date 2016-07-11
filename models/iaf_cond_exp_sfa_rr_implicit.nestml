@@ -95,16 +95,16 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     # Refractory period in ms
     t_ref ms = 0.5ms
     # Leak Conductance in nS
-    g_L ms = 28.95ms
+    g_L nS = 28.95nS
     # Membrane Capacitance in pF
     C_m pF = 289.5pF
     alias Tau ms = (1 / g_L) * C_m
     # Excitatory reversal Potential in mV
-    V_reversalE mV = 0ns
+    V_reversalE mV = 0 mV
     # Inhibitory reversal Potential in mV
     V_reversalI mV = -75.0mV
     # Leak reversal Potential (aka resting potential) in mV
-    E_L mV = -70.0ms
+    E_L mV = -70.0mV
     # Synaptic Time Constant Excitatory Synapse in ms
     tau_synE ms = 1.5ms
     # Synaptic Time Constant for Inhibitory Synapse in ms

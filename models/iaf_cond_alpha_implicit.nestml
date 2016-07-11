@@ -19,10 +19,6 @@ neuron iaf_cond_alpha_implicit:
     V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * ( GI * (V_m-V_reversalI) + GE * (V_m-V_reversalE) - (I_e + I_stim))
   end
 
-  function set_Tau(time ms):
-    Tau = t
-  end
-
   parameter:
     # Threshold Potential in mV
     V_th mV = -55.0
@@ -31,7 +27,7 @@ neuron iaf_cond_alpha_implicit:
     # Refractory period in ms
     t_ref ms = 2.0
     # Leak Conductance in nS
-    g_L ms = 16.6667
+    g_L nS = 16.6667
     # Membrane Capacitance in pF
     C_m pF = 250.0
     alias Tau ms = (1 / g_L) * C_m
