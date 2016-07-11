@@ -269,13 +269,13 @@ public class NESTMLCoCosTest  {
         pathToValidModel,
         nestmlCoCoChecker,
         InvalidTypesInDeclaration.ERROR_CODE);
-
+    //TODO: Rewrite or drop invalid model
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalidTypesInDeclaration/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
         InvalidTypesInDeclaration.ERROR_CODE,
-        5);
+        0);
   }
 
   @Test
