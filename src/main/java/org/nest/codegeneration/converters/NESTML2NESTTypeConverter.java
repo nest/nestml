@@ -48,7 +48,7 @@ public class NESTML2NESTTypeConverter {
       return "nest::Time";
     }
     final String name = nestmlType.getName();
-
+    PredefinedTypes.getRealType().equals(nestmlType);
     return name.replaceAll("\\.", "::");
   }
 }

@@ -194,7 +194,7 @@ public final class ASTUtils {
       }
       else {
         // TODO print the value of the expression
-        throw new RuntimeException("Cannot determine the type of the expression");
+        throw new RuntimeException("Cannot determine the type of parameters in the function call at:  " + astFunctionCall.get_SourcePositionStart() + argType.getRight().get());
       }
 
     }

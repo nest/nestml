@@ -49,5 +49,8 @@ public class TypeSymbolReference extends TypeSymbol implements
     return typeReference.getReferencedSymbol().getType();
   }
 
-
+  @Override
+  public boolean equals(Object obj) {
+    return typeReference.getReferencedSymbol().equals(obj);
+  }
 }

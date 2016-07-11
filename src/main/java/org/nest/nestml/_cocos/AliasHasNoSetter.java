@@ -6,6 +6,7 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.utils.ASTUtils;
@@ -38,7 +39,7 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
         CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this,aliasVar,varTypeName);
 
-        warn(msg, alias.get_SourcePositionStart());
+        Log.trace(msg + " at " + alias.get_SourcePositionStart().toString(), ERROR_CODE);
       }
 
     }

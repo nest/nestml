@@ -69,12 +69,16 @@ public class NESTReferenceConverter implements IReferenceConverter {
       return "nest::Time(nest::Time::ms(%s)).get_steps()";
     }
 
-    if ("pow".equals(functionName)) {
+    if (PredefinedFunctions.POW.equals(functionName)) {
       return "std::pow(%s)";
     }
 
-    if ("exp".equals(functionName)) {
+    if (PredefinedFunctions.EXP.equals(functionName)) {
       return "std::exp(%s)";
+    }
+
+    if (PredefinedFunctions.LOG.equals(functionName)) {
+      return "std::log(%s)";
     }
 
     if ("expm1".equals(functionName)) {

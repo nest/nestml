@@ -141,9 +141,7 @@ public class IllegalExpression implements
   }
 
   private void undefinedTypeError(final ASTNode node, final String reason) {
-    final String msg = "Cannot determine the type of the initializer expression. "
-        + "Reason: " + reason;
-    error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+    error(ERROR_CODE + ":" +  reason, node.get_SourcePositionStart());
   }
 
 }

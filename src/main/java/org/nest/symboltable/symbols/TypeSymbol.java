@@ -8,6 +8,7 @@ package org.nest.symboltable.symbols;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.SymbolKind;
+import org.nest.symboltable.symbols.references.TypeSymbolReference;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -51,20 +52,27 @@ public class TypeSymbol extends CommonSymbol {
   }
 
   @Override
-  public boolean equals(Object obj)
-  {
+  public boolean equals(Object obj) {
     if (obj == null)
     {
       return false;
     }
-    if (getClass() != obj.getClass())
-    {
+
+    if (obj instanceof TypeSymbolReference) {
+      final TypeSymbol other = ((TypeSymbolReference) obj).getReferencedSymbol();
+
+      return com.google.common.base.Objects.equal(this.getName(), other.getName());
+    }
+    else if (obj instanceof TypeSymbol) {
+      final TypeSymbol other = (TypeSymbol) obj;
+      return com.google.common.base.Objects.equal(this.getName(), other.getName());
+    }
+    else {
       return false;
     }
-    final TypeSymbol other = (TypeSymbol) obj;
 
-    return com.google.common.base.Objects.equal(this.type, other.type)
-        && com.google.common.base.Objects.equal(this.getName(), other.getName());
+
+
   }
 
   @Override

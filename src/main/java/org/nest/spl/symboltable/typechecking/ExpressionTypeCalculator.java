@@ -204,6 +204,7 @@ public class ExpressionTypeCalculator {
         return Either.right(errorMsg);
       }
       else {
+        isNumeric(lhsType.getLeft().get());
         final String errorMsg = "Cannot determine the type of the Expression-Node at"
             + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd() ;
         return Either.right(errorMsg);
