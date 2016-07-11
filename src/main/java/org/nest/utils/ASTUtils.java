@@ -327,12 +327,15 @@ public final class ASTUtils {
     return output.append("\n").toString();
   }
 
-
+  public static String computeTypeName(final ASTDatatype astDatatype){ //TODO: Better solution
+    return computeTypeName(astDatatype,false);
+  }
   /**
    * Computes the typename for the declaration ast. It is defined in one of the grammar
    * alternatives.
    */
-  public static String computeTypeName(final ASTDatatype astDatatype) {
+  public static String computeTypeName(final ASTDatatype astDatatype,
+      boolean generate) {
     String typeName = null;
     if (astDatatype.isBoolean()) {
       typeName = "boolean";
@@ -351,7 +354,9 @@ public final class ASTUtils {
     }
     else if (astDatatype.getUnitType().isPresent()) {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
-      if(unitType.getUnit().isPresent()){
+      if(generate){
+        typeName = "real";
+      }else if(unitType.getUnit().isPresent()){
         typeName = unitType.getUnit().get();
       }
     }

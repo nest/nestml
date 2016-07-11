@@ -251,7 +251,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   }
 
   private void printDeclarationType(final ASTDeclaration astDeclaration) {
-    print(ASTUtils.computeTypeName(astDeclaration.getDatatype()));
+    print(ASTUtils.computeTypeName(astDeclaration.getDatatype(),true));
     if (astDeclaration.getSizeParameter().isPresent()) {
       print(" [" + astDeclaration.getSizeParameter().get() + "]");
     }

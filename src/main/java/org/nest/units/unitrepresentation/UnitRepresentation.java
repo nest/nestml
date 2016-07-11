@@ -28,13 +28,13 @@ public class UnitRepresentation {
 
   public String prettyPrint(){
     String numerator =
-        (K==1? "K * " : K>0? "K^"+K+" * " :"")
-        + (s==1? "s * " : s>0? "s^"+s+" * " :"")
-        + (m==1? "m * " : m>0? "m^"+m+" * " :"")
-        + (g==1? "g * " : g>0? "g^"+g+" * " :"")
-        + (cd==1? "cd * " : cd>0? "cd^"+cd+" * " :"")
-        + (mol==1? "mol * " : mol>0? "mol^"+mol+" * " :"")
-        + (A==1? "A * " : A>0? "A^"+A+" * " :"");
+        (K==1? "K * " : K>0? "(K**"+K+") * " :"")
+        + (s==1? "s * " : s>0? "(s**"+s+") * " :"")
+        + (m==1? "m * " : m>0? "(m**"+m+") * " :"")
+        + (g==1? "g * " : g>0? "(g**"+g+") * " :"")
+        + (cd==1? "cd * " : cd>0? "(cd**"+cd+") * " :"")
+        + (mol==1? "mol * " : mol>0? "(mol**"+mol+") * " :"")
+        + (A==1? "A * " : A>0? "(A**"+A+") * " :"");
     if(numerator.length() > 0 ){
       numerator = numerator.substring(0,numerator.length()-3);
       if(numerator.contains("*")){
@@ -44,13 +44,13 @@ public class UnitRepresentation {
       numerator ="1";
     }
     String denominator =
-        (K==-1? "K * " : K<0? "K^"+-K+" * " :"")
-        + (s==-1? "s * " : s<0? "s^"+-s+" * " :"")
-        + (m==-1? "m * " : m<0? "m^"+-m+" * " :"")
-        + (g==-1? "g * " : g<0? "g^"+-g+" * " :"")
-        + (cd==-1? "cd * " : cd<0? "cd^"+-cd+" * " :"")
-        + (mol==-1? "mol * " : mol<0? "mol^"+-mol+" * " :"")
-        + (A==-1? "A * " : A<0? "A^"+-A+" * " :"");
+        (K==-1? "K * " : K<0? "(K**"+-K+") * " :"")
+        + (s==-1? "s * " : s<0? "(s**"+-s+") * " :"")
+        + (m==-1? "m * " : m<0? "(m**"+-m+") * " :"")
+        + (g==-1? "g * " : g<0? "(g**"+-g+") * " :"")
+        + (cd==-1? "cd * " : cd<0? "(cd**"+-cd+") * " :"")
+        + (mol==-1? "mol * " : mol<0? "(mol**"+-mol+") * " :"")
+        + (A==-1? "A * " : A<0? "(A**"+-A+") * " :"");
     if(denominator.length()>1){
       denominator = denominator.substring(0,denominator.length()- 3);
       if(denominator.contains("*")){
@@ -59,7 +59,7 @@ public class UnitRepresentation {
     }else{
       denominator ="";
     }
-    return (magnitude!=0? "10^"+magnitude:"")+ numerator + (denominator.length()>0? " / "+denominator : "");
+    return (magnitude!=0? "e"+magnitude+"*":"")+ numerator + (denominator.length()>0? " / "+denominator : "");
   }
 
   static public Optional<UnitRepresentation> lookupName(String unit){
@@ -74,10 +74,24 @@ public class UnitRepresentation {
           return Optional.of(result);
         }
       }
-    }if(SIData.getBaseRepresentations().containsKey(unit)) { //No prefix present, see if whole name matches
+    }if(unit.regionMatches(false,0,"e",0,1)) {//explicitly check for exponent
+      UnitRepresentation result =  new UnitRepresentation(SIData.getBaseRepresentations().get("e"));
+      try{
+        Integer exponent = Integer.parseInt(unit.substring(1));
+        result.addMagnitude(exponent);
+        return Optional.of(result);
+      }catch(NumberFormatException e){
+        Preconditions.checkState(false,unit+ " is not recognized.");
+      }
+    }
+    if(SIData.getBaseRepresentations().containsKey(unit)) { //No prefix present, see if whole name matches
       UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(unit));
       return Optional.of(result);
     }
+    try{
+      UnitRepresentation unitRepresentation = new UnitRepresentation(unit);
+      return Optional.of(unitRepresentation);
+    }catch(Exception e){}
     //should never happen
     return Optional.empty();
   }
