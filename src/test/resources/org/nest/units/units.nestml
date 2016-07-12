@@ -1,7 +1,7 @@
 neuron aeif_cond_alpha_neuron:
 
   state:
-    V_m mV = 70 kkA
+    V_m mV = 70 kA
     GE, GI nS = 0
     DGE, DGI nS/ms = 0. 
     w pA = 0.

@@ -1,5 +1,6 @@
 package org.nest.units;
 
+import static de.se_rwth.commons.logging.Log.getErrorCount;
 import static de.se_rwth.commons.logging.Log.getFindings;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -8,7 +9,9 @@ import static org.nest.utils.LogHelper.countWarningsByPrefix;
 
 import java.util.Optional;
 
+import de.se_rwth.commons.logging.Log;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -22,6 +25,12 @@ import org.nest.units._visitor.UnitsSIVisitor;
  */
 public class UnitsTest extends ModelbasedTest {
 
+  @Before
+  public void clearLog() {
+    Log.enableFailQuick(false);
+    Log.getFindings().clear();
+  }
+
   @After
   public void printErrorMessage() {
     getFindings().forEach(e -> System.out.println("Error found: " + e));
@@ -32,19 +41,28 @@ public class UnitsTest extends ModelbasedTest {
     final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
     final NESTMLCoCoChecker completeChecker= nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "src/test/resources/org/nest/units/units.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/validExpressions.nestml", TEST_MODEL_PATH);
+
     assertTrue(validRoot.isPresent());
-
-    //check that unit types are correct:
-    UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
-    unitsSIVisitor.handle(validRoot.get());
-
     scopeCreator.runSymbolTableCreator(validRoot.get());
-
     completeChecker.checkAll(validRoot.get());
 
-    //Integer errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
-    //assertEquals(Integer.valueOf(0), errorsFound);
+    long errorsFound = getErrorCount();
+    assertEquals(0, errorsFound);
+  }
+  @Test
+  public void test_iaf_cond_alpha() {
+    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
+    final NESTMLCoCoChecker completeChecker= nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
+    final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
+        "models/iaf_cond_alpha.nestml", TEST_MODEL_PATH);
+
+    assertTrue(validRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(validRoot.get());
+    completeChecker.checkAll(validRoot.get());
+
+    long errorsFound = getErrorCount();
+    assertEquals(0, errorsFound);
   }
 
 }

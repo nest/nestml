@@ -1,22 +1,15 @@
 neuron validExpressionTest:
-
   state:
-#Simple expressions
-#V_4 V = 20kJ /10000 C #magnitudes dont match but physical Unit is compatible
-    V_1 mV = 10 mV
- #   V_2 mV = 10 A * 30 mOhm
-  #  V_3 V = 20 J / 10 C
- #   A_1 A = V_3 / 10 Ohm
-  #  V_6 mV = V_2+V_1 - 20 mV
-    
-
-#Exotic Uses
-    
-   # V_5 (kg*m*m)/(A*s**3) = 10 V   #verbose Type
-    
+    V1 (kg*m*m)/(A*s**3) = 10 V   #verbose Type
+    #V2 (kg*m*m)/(A*s**(2+1)) = 10 V   #TODO: this should work
+    W1 MW = 10kJ / 5ms #magnitude     
+   
+    hertz Hz = 7 / 1s #does this even work?
+    newton N = 10kg* 1m / 1 s**2
+    pascal Pa =  7 * newton / 2m**2
   end
 
-  function foo(amp A, ohm Ohm) V:  
+  function foo(amp A, ohm Ohm) V:  #Unit type in functions
     return amp * ohm
   end
 
@@ -26,14 +19,19 @@ neuron validExpressionTest:
       currents <- current
   end
 
+  parameter:
+    Resist Ohm = 8
+    V2 V = foo(3 A,Resist) #function call    
+  end
+
   output: spike
 
   internal:
-   # S_1 ms   = resolution() #predefined Functions
+    S_1 ms   = resolution() #predefined Functions
   end
 
   update:
-    V_1 V= foo(1 A,2 Ohm)
+    
   end
 
 end
