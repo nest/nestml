@@ -36,14 +36,12 @@ public class ExpressionsPrettyPrinter {
 
   public String print(final ASTExpr expr) {
     checkNotNull(expr);
-
     return doPrint(expr);
-
   }
 
   private String doPrint(final ASTExpr expr) {
-    if (expr.getNumericLiteral().isPresent()) { // number
-      return typesPrinter().prettyprint(expr.getNumericLiteral().get());
+    if (expr.getNESTMLNumericLiteral().isPresent()) { // number
+      return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
     }
     if (expr.isInf()) {
       return handleConstant("inf");

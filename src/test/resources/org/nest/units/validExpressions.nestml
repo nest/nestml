@@ -1,0 +1,37 @@
+neuron validExpressionTest:
+  state:
+    V1 (kg*m*m)/(A*s**3) = 10 V   #verbose Type
+    #V2 (kg*m*m)/(A*s**(2+1)) = 10 V   #TODO: this should work
+    W1 MW = 10kJ / 5ms #magnitude     
+   
+    hertz Hz = 7 / 1s #does this even work?
+    newton N = 10kg* 1m / 1 s**2
+    pascal Pa =  7 * newton / 2m**2
+  end
+
+  function foo(amp A, ohm Ohm) V:  #Unit type in functions
+    return amp * ohm
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  parameter:
+    Resist Ohm = 8
+    V2 V = foo(3 A,Resist) #function call    
+  end
+
+  output: spike
+
+  internal:
+    S_1 ms   = resolution() #predefined Functions
+  end
+
+  update:
+    
+  end
+
+end

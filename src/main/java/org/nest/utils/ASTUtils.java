@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
@@ -328,12 +327,15 @@ public final class ASTUtils {
     return output.append("\n").toString();
   }
 
-
+  public static String computeTypeName(final ASTDatatype astDatatype){ //TODO: Better solution
+    return computeTypeName(astDatatype,false);
+  }
   /**
    * Computes the typename for the declaration ast. It is defined in one of the grammar
    * alternatives.
    */
-  public static String computeTypeName(final ASTDatatype astDatatype) {
+  public static String computeTypeName(final ASTDatatype astDatatype,
+      boolean generate) {
     String typeName = null;
     if (astDatatype.isBoolean()) {
       typeName = "boolean";
@@ -352,8 +354,11 @@ public final class ASTUtils {
     }
     else if (astDatatype.getUnitType().isPresent()) {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
-      checkState(unitType.getUnit().isPresent());
-      return unitType.getUnit().get();
+      if(generate){
+        typeName = "real";
+      }else if(unitType.getUnit().isPresent()){
+        typeName = unitType.getUnit().get();
+      }
     }
     else {
       checkState(false, "Is not possible through the grammar construction.");

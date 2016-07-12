@@ -52,10 +52,12 @@ grammar Commons extends de.monticore.types.Types {
          | left:Expr logicalOr:["or"] right:Expr
          | FunctionCall
          | BooleanLiteral // true & false;
-         | NumericLiteral type:Name?
+         | NESTMLNumericLiteral
          | StringLiteral
          | ["inf"]
          | Variable;
+
+  NESTMLNumericLiteral = NumericLiteral type:Name?;
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.

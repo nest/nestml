@@ -18,7 +18,7 @@ neuron mat2_exp_neuron:
     # Membrane time constant
     Tau ms = 5.0
     # Membrane capacitance in pF
-    C pF = 100.0
+    C_1 pF = 100.0
     # Refractory period
     tau_ref ms = 2.0
     # Resting potential
@@ -48,10 +48,10 @@ neuron mat2_exp_neuron:
     P11in real = exp(-h/tau_in)
 
     # these depend on the above. Please do not change the order.
-    P21ex real = - Tau/(C*(1.0-Tau/tau_ex)) * P11ex * expm1(h*(1.0/tau_ex-1.0/Tau))
-    P21in real = - Tau/(C*(1.0-Tau/tau_in)) * P11in * expm1(h*(1.0/tau_in-1.0/Tau))
+    P21ex real = - Tau/(C_1*(1.0-Tau/tau_ex)) * P11ex * expm1(h*(1.0/tau_ex-1.0/Tau))
+    P21in real = - Tau/(C_1*(1.0-Tau/tau_in)) * P11in * expm1(h*(1.0/tau_in-1.0/Tau))
     P22_expm1 real = expm1(-h/Tau);
-    P20 real = - Tau/C * P22_expm1 # constant currents
+    P20 real = - Tau/C_1 * P22_expm1 # constant currents
 
     # --------------------
     # adaptive threshold
