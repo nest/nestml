@@ -17,7 +17,6 @@ import org.nest.spl._ast.ASTParameter;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
-import org.nest.symboltable.symbols.references.TypeSymbolReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,6 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.trace;
-import static de.se_rwth.commons.logging.Log.warn;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -285,17 +283,18 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     // Parameters
     if (funcAst.getParameters().isPresent()) {
       for (ASTParameter p : funcAst.getParameters().get().getParameters()) {
-        TypeSymbol type = new TypeSymbolReference(
-            computeTypeName(p.getDatatype()),
-            TypeSymbol.Type.PRIMITIVE,
-            this.currentScope().get());
+        String typeName = computeTypeName(p.getDatatype());
+        Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
 
-        methodSymbol.addParameterType(type);
+        checkState(type.isPresent());
+
+        methodSymbol.addParameterType(type.get());
 
         // add a var entry for method body
         VariableSymbol var = new VariableSymbol(p.getName());
         var.setAstNode(p);
-        var.setType(type);
+        var.setType(type.get());
+
         var.setDeclaringType(null); // TOOD: make the variable optional or define a public type
         var.setBlockType(VariableSymbol.BlockType.LOCAL);
         addToScopeAndLinkWithNode(var, p);
@@ -306,12 +305,13 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     // return type
     if (funcAst.getReturnType().isPresent()) {
       final String returnTypeName = computeTypeName(funcAst.getReturnType().get());
-      TypeSymbol returnType = new TypeSymbolReference(
-          returnTypeName,
-          TypeSymbol.Type.PRIMITIVE,
-          currentScope().get());
-      methodSymbol.setReturnType(returnType);
-    }
+      Optional<TypeSymbol> returnType = PredefinedTypes.getTypeIfExists(returnTypeName);
+
+      checkState(returnType.isPresent());
+
+      methodSymbol.setReturnType(returnType.get());
+
+     }
     else {
       methodSymbol.setReturnType(PredefinedTypes.getVoidType());
     }
@@ -436,18 +436,11 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       final ASTAliasDecl aliasDeclAst,
       final VariableSymbol.BlockType blockType) {
     final String typeName =  computeTypeName(astDeclaration.getDatatype());
+    Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
 
     for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible
-      Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
-
-      if (!type.isPresent()) {
-        type = Optional.of(new TypeSymbolReference(typeName, TypeSymbol.Type.PRIMITIVE, getFirstCreatedScope()));
-        warn("The variable " + varName + " at " + astDeclaration.get_SourcePositionStart() +
-            " Its type is " + typeName + "it either an unit, nor a predefined type.");
-      }
 
       final VariableSymbol var = new VariableSymbol(varName);
-
       var.setAstNode(astDeclaration);
       var.setType(type.get());
       var.setDeclaringType(currentTypeSymbol);

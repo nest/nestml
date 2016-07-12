@@ -5,16 +5,16 @@ component InvalidTypes:
   use Test as TestRef
 
   state:
-    a Test # error 1
-    alias b TestRef # error 2
+   # a Test # error 1
+   # alias b TestRef # error 2
     c boolean
     d string
-    l Logger # TODO better error description
+    #l Logger # TODO better error description
   end
 
-  function foo(bar Test) TestRef: # error 3, 4
+  #function foo(bar Test) TestRef: # error 3, 4
     #n org.nest.nestml.parsing.iaf_neuron.iaf_neuron TODO enable me
     #n org.nest.nestml.parsing.iaf_neuron.iaf_neuron TODO enable me
 
-  end
+  #end
 end

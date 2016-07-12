@@ -36,14 +36,12 @@ public class ExpressionsPrettyPrinter {
 
   public String print(final ASTExpr expr) {
     checkNotNull(expr);
-
     return doPrint(expr);
-
   }
 
   private String doPrint(final ASTExpr expr) {
-    if (expr.getNumericLiteral().isPresent()) { // number
-      return typesPrinter().prettyprint(expr.getNumericLiteral().get());
+    if (expr.getNESTMLNumericLiteral().isPresent()) { // number
+      return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
     }
     if (expr.isInf()) {
       return handleConstant("inf");
@@ -71,7 +69,7 @@ public class ExpressionsPrettyPrinter {
     else if (expr.isUnaryTilde()) {
       return "(" + "~" + print(expr.getTerm().get()) + ")";
     }
-    else if (expr.leftParenthesesIsPresent() && expr.leftParenthesesIsPresent()) {
+    else if (expr.isLeftParentheses() && expr.isRightParentheses()) {
       return "(" +  print(expr.getExpr().get()) + ")";
     }
     else if (expr.isPlusOp() || expr.isMinusOp() || expr.isTimesOp() || expr.isDivOp()) {

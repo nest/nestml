@@ -13,6 +13,8 @@ import org.nest.spl._ast.ASTParameter;
 import org.nest.spl._ast.ASTParameters;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
+import org.nest.units._ast.ASTUnitType;
+import org.nest.units.prettyprinter.TypesPrettyPrinter;
 import org.nest.utils.ASTUtils;
 import org.nest.utils.PrettyPrinterBase;
 
@@ -32,9 +34,11 @@ import static org.nest.utils.ASTUtils.printSingleLineComment;
  */
 public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInheritanceVisitor {
   private final ExpressionsPrettyPrinter expressionsPrinter;
+  private final TypesPrettyPrinter typesPrettyPrinter;
 
   protected NESTMLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrinter) {
     this.expressionsPrinter = expressionsPrinter;
+    typesPrettyPrinter = new TypesPrettyPrinter();
   }
 
   /**
@@ -394,7 +398,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
       for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
         boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
         final ASTParameter curParameter = astParameters.get(curParameterIndex);
-        print(curParameter.getName() + " " + ASTUtils.computeTypeName(curParameter.getDatatype()));
+        print(curParameter.getName() + " " +  ASTUtils.computeTypeName(curParameter.getDatatype(),true));
         if (!isLastParameter) {
           print(", ");
         }
@@ -407,7 +411,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   private void printOptionalReturnValue(final ASTFunction astFunction) {
     if (astFunction.getReturnType().isPresent()) {
-      print(ASTUtils.computeTypeName(astFunction.getReturnType().get()));
+      print(ASTUtils.computeTypeName(astFunction.getReturnType().get(),true));
     }
 
   }

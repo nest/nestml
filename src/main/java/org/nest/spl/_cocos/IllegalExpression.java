@@ -12,6 +12,7 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units.prettyprinter.TypesPrettyPrinter;
 import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -53,6 +54,8 @@ public class IllegalExpression implements
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Scope scope = node.getEnclosingScope().get();
 
+    TypesPrettyPrinter typesPrettyPrinter = new TypesPrettyPrinter();
+
     // compute the symbol of the var from the declaration.
     // take an arbitrary var since the variables in the declaration
     // share the same type
@@ -67,8 +70,9 @@ public class IllegalExpression implements
         variableDeclarationType = PredefinedTypes.getType(declarationTypeName);
         // TODO write a helper get assignable
         if (!isCompatible(variableDeclarationType, initializerExpressionType.getLeft().get())) {
-          final String msg = "Cannot initialize variable with an expression of type: " +
-              varNameFromDeclaration + " with the type " + initializerExpressionType +
+          final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
+              + typesPrettyPrinter.print(variableDeclarationType) +" with an expression of type: " +
+              typesPrettyPrinter.print(initializerExpressionType.getLeft().get()) +
               node.get_SourcePositionStart();
           error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
         }

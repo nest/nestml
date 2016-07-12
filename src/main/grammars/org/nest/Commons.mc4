@@ -31,7 +31,7 @@ grammar Commons extends de.monticore.types.Types {
 
   BLOCK_CLOSE = "end";
 
-  Expr = leftParentheses:"(" Expr rightParentheses:")"
+  Expr = leftParentheses:["("] Expr rightParentheses:[")"]
          | <rightassoc> base:Expr pow:["**"] exponent:Expr
          | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
          | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
@@ -52,10 +52,12 @@ grammar Commons extends de.monticore.types.Types {
          | left:Expr logicalOr:["or"] right:Expr
          | FunctionCall
          | BooleanLiteral // true & false;
-         | NumericLiteral type:Name?
+         | NESTMLNumericLiteral
          | StringLiteral
          | ["inf"]
          | Variable;
+
+  NESTMLNumericLiteral = NumericLiteral type:Name?;
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.

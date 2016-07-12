@@ -49,14 +49,14 @@ neuron iaf_neuron_nestml:
 
   # Captures the dynamic state of the neuron
   state:
-    V mV
-    alias V_m mV = V + E_L # Membrane potential.
+    V_1 mV
+    alias V_m mV = V_1 + E_L # Membrane potential.
   end
 
   # Declarative description of the updates rules
   equations:
       shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-      V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+      V_1' = -1/Tau * V_1 + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 
   # these parameter are adjusted from outside
@@ -89,10 +89,10 @@ neuron iaf_neuron_nestml:
   # Describes how the state evolves in the time
   update:
     if r == 0: # not refractory
-        integrate(V)
-        if V >= Theta: # threshold crossing
+        integrate(V_1)
+        if V_1 >= Theta: # threshold crossing
           r = RefractoryCounts
-          V = V_reset
+          V_1 = V_reset
         emit_spike()
     end
     else:

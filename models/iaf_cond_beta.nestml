@@ -55,7 +55,7 @@ neuron iaf_cond_beta_neuron:
 
     alias I_syn_exc pA = (F_E + GE) * ( V_m - E_ex )
     alias I_syn_inh pA = (F_I + GI) * ( V_m - E_in )
-    alias I_leak pA = g_L * ( V_m - E_L )
+    alias I_leak pA = g_L * ( V_m - E_L ) # pa = nS * mV
   end
 
   equations:

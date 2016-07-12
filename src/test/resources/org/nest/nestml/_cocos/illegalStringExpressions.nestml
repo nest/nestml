@@ -1,6 +1,6 @@
 component IllegalStringExpressions:
   internal:
-    i IllegalNumberExpressions
+    #i IllegalNumberExpressions
   end
 
   function foo():
@@ -16,7 +16,7 @@ component IllegalStringExpressions:
     barbar string = "" + 3 - "!"
 
     # error
-    foofoo string = "" + i
+   # foofoo string = "" + i
 
     correct string = "Hello " + (3 * 4.0)**6 + " " + "Welt!"
   end

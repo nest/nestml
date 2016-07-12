@@ -14,6 +14,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.ASTUtils;
 import org.nest.utils.NESTMLSymbols;
 
@@ -21,7 +22,9 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
@@ -39,17 +42,25 @@ public class ExpressionTypeCalculator {
     checkArgument(expr.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Scope scope = expr.getEnclosingScope().get();
 
-    if (expr.leftParenthesesIsPresent()) {
+    if (expr.isLeftParentheses()) {
       return computeType(expr.getExpr().get());
     }
-    else if (expr.getNumericLiteral().isPresent()) { // number
-      if (expr.getNumericLiteral().get() instanceof ASTDoubleLiteral) {
+    if (expr.isUnaryMinus() || expr.isUnaryPlus()) {
+      return computeType(expr.getTerm().get());
+    }
+    else if (expr.getNESTMLNumericLiteral().isPresent()) { // number
+      if(expr.getNESTMLNumericLiteral().get().getType().isPresent()) {
+        Optional<TypeSymbol> exprType = getTypeIfExists(expr.getNESTMLNumericLiteral().get().getType().get());
+        if (exprType.isPresent() && checkUnit(exprType.get())) { //Try Unit Type
+          return Either.left(exprType.get());
+        }
+      }
+      else if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTDoubleLiteral) {
         return Either.left(getRealType());
       }
-      else if (expr.getNumericLiteral().get() instanceof ASTIntLiteral) {
+      else if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
         return Either.left(getIntegerType());
       }
-
     }
     else if(expr.isInf()) {
       return Either.left(getRealType());
@@ -120,6 +131,9 @@ public class ExpressionTypeCalculator {
       final Either<TypeSymbol, String> lhsType = computeType(expr.getLeft().get());
       final Either<TypeSymbol, String> rhsType = computeType(expr.getRight().get());
 
+      final String errorMsg = "Cannot determine the type of the operation with types: " + lhsType
+          + ", " + rhsType + " at " + expr.get_SourcePositionStart() + ">";
+
       if (lhsType.isRight()) {
         return lhsType;
       }
@@ -136,10 +150,17 @@ public class ExpressionTypeCalculator {
         }
         if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get())) {
           // in this case, neither of the sides is a String
-          if (lhsType.getLeft().get() == getRealType() ||
-              lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT ||
-              rhsType.getLeft().get() == getRealType() ||
+          //both are units
+          if (lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT &&
               rhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
+            if(isCompatible(lhsType.getLeft().get(),rhsType.getLeft().get())) {
+              return lhsType; //return either of the (same) unit types
+            }else{
+              return Either.right(errorMsg);
+            }
+          }
+          if (lhsType.getLeft().get() == getRealType() ||
+              rhsType.getLeft().get() == getRealType()) {
             return Either.left(getRealType());
           }
           // e.g. both are integers, but check to be sure
@@ -147,10 +168,6 @@ public class ExpressionTypeCalculator {
               rhsType.getLeft().get() == (getIntegerType())) {
             return  Either.left(getIntegerType());
           }
-
-          final String errorMsg = "Cannot determine the type of the operation with types: " + lhsType
-              + ", " + rhsType + " at " + expr.get_SourcePositionStart() + ">";
-
           return Either.right(errorMsg);
         }
         // in this case, neither of the sides is a String
@@ -165,14 +182,52 @@ public class ExpressionTypeCalculator {
         }
 
         // TODO should be not possible
-        final String errorMsg = "Cannot determine the type of the Expression-Node @<" + expr.get_SourcePositionStart() +
-            ", " + expr.get_SourcePositionStart() + ">";
-
         return Either.right(errorMsg);
       }
 
     }
-    else if (expr.isMinusOp() || expr.isTimesOp() || expr.isDivOp()) {
+    else if (expr.isMinusOp()) {
+      final Either<TypeSymbol, String> lhsType = computeType(expr.getLeft().get());
+      final Either<TypeSymbol, String> rhsType = computeType(expr.getRight().get());
+
+      if (lhsType.isRight()) {
+        return lhsType;
+      }
+      if (rhsType.isRight()) {
+        return rhsType;
+      }
+
+      final String errorMsg = "Cannot determine the type of the Expression-Node @<"
+          + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
+      if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get())) {
+        //both are units
+        if (lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT &&
+            rhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
+          if(isCompatible(lhsType.getLeft().get(),rhsType.getLeft().get())) {
+            return lhsType; //return either of the (same) unit types
+          }
+          else{
+            return Either.right(errorMsg);
+          }
+        }
+        if (lhsType.getLeft().get() == getRealType() ||
+            rhsType.getLeft().get() == getRealType()) {
+          return Either.left(getRealType());
+        }
+        // e.g. both are integers, but check to be sure
+        if (lhsType.getLeft().get() == (getIntegerType()) ||
+            rhsType.getLeft().get() == (getIntegerType())) {
+          return  Either.left(getIntegerType());
+        }
+        return Either.right(errorMsg);
+      }
+      else {
+        return Either.right(errorMsg);
+      }
+
+    }
+
+    else if (expr.isTimesOp() || expr.isDivOp()) {
 
 
       final Either<TypeSymbol, String> lhsType = computeType(expr.getLeft().get());
@@ -186,10 +241,38 @@ public class ExpressionTypeCalculator {
       }
 
       if (isNumeric(lhsType.getLeft().get()) && isNumeric(rhsType.getLeft().get())) {
-        if (lhsType.getLeft().get() == getRealType() ||
-            rhsType.getLeft().get() == getRealType() ||
-            lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT ||
-            rhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
+
+        // If both are units, calculate resulting Type
+        if(lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT &&
+            rhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT){
+          UnitRepresentation leftRep = new UnitRepresentation(lhsType.getLeft().get().getName());
+          UnitRepresentation rightRep = new UnitRepresentation(rhsType.getLeft().get().getName());
+          if(expr.isTimesOp()){
+            TypeSymbol returnType = getTypeIfExists((leftRep.multiplyBy(rightRep)).serialize()).get();//Register type on the fly
+            return  Either.left(returnType);
+          }else if(expr.isDivOp()){
+            TypeSymbol returnType = getTypeIfExists((leftRep.divideBy(rightRep)).serialize()).get();//Register type on the fly
+            return  Either.left(returnType);
+          }
+        }
+        //if left one is Unit, and the other real or integer, return same Unit
+        if (lhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
+          return Either.left(lhsType.getLeft().get());
+        }
+        //if right is Unit and left a number, return right for timesOP and inverted right for DivOp
+        if (rhsType.getLeft().get().getType() == TypeSymbol.Type.UNIT) {
+          if(expr.isTimesOp()){
+            return Either.left(rhsType.getLeft().get());
+          }else if(expr.isDivOp()){
+            UnitRepresentation rightRep = new UnitRepresentation(rhsType.getLeft().get().getName());
+            TypeSymbol returnType = getTypeIfExists((rightRep.invert()).serialize()).get();//Register type on the fly
+            return Either.left(returnType);
+          }
+
+        }
+        //if no Units are involved, Real takes priority
+        if(lhsType.getLeft().get() == getRealType() ||
+            rhsType.getLeft().get() == getRealType()){
           return Either.left(getRealType());
         }
         // e.g. both are integers, but check to be sure
@@ -204,7 +287,7 @@ public class ExpressionTypeCalculator {
         return Either.right(errorMsg);
       }
       else {
-        isNumeric(lhsType.getLeft().get());
+
         final String errorMsg = "Cannot determine the type of the Expression-Node at"
             + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd() ;
         return Either.right(errorMsg);
@@ -227,12 +310,22 @@ public class ExpressionTypeCalculator {
       else if (isNumeric(baseType.getLeft().get()) && isNumeric(exponentType.getLeft().get())) {
         if (isInteger(baseType.getLeft().get()) && isInteger(exponentType.getLeft().get())) {
           return Either.left(getIntegerType());
-        } else {
+        } else if(checkUnit(baseType.getLeft().get())){
+            if(!isInteger(exponentType.getLeft().get())){
+              return Either.right("With a Unit base, the exponent must be an Integer!");
+            }
+            UnitRepresentation baseRep = new UnitRepresentation(baseType.getLeft().get().getName());
+            Either<Integer, String> numericValue = calculateNumericalValue(expr.getExponent().get());//calculate exponent value if exponent composed of literals
+            if(numericValue.isLeft()) {
+              return Either.left(getTypeIfExists((baseRep.pow(numericValue.getLeft().get().intValue())).serialize()).get());
+            }else{
+              return Either.right(numericValue.getRight().get());
+            }
+        }else{
           return Either.left(getRealType());
         }
       }
       else {
-
         final String errorMsg = "Cannot determine the type of the expression." ;
         return Either.right(errorMsg);
       }
@@ -327,6 +420,58 @@ public class ExpressionTypeCalculator {
 
   }
 
+  private Either<Integer,String> calculateNumericalValue(ASTExpr expr) {
+    if (expr.isLeftParentheses()) {
+      return calculateNumericalValue(expr.getExpr().get());
+    }
+    else if (expr.getNESTMLNumericLiteral().isPresent()) {
+      if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
+        ASTIntLiteral literal = (ASTIntLiteral) expr.getNESTMLNumericLiteral().get().getNumericLiteral();
+        return Either.left(literal.getValue());
+      }
+      else {
+        return Either.right("No floating point values allowed in the exponent to a UNIT base");
+      }
+    }
+    else if (expr.isDivOp() || expr.isTimesOp() || expr.isMinusOp() || expr.isPlusOp()) {
+      Either<Integer, String> lhs = calculateNumericalValue(expr.getLeft().get());
+      Either<Integer, String> rhs = calculateNumericalValue(expr.getRight().get());
+      if (lhs.isRight()) {
+        return lhs;
+      }
+      if (rhs.isRight()) {
+        return rhs;
+      }
+      if (expr.isDivOp())
+        return Either.left(lhs.getLeft().get().intValue() / rhs.getLeft().get().intValue()); //int division!
+      if (expr.isTimesOp())
+        return Either.left(lhs.getLeft().get().intValue() * rhs.getLeft().get().intValue());
+      if (expr.isPlusOp())
+        return Either.left(lhs.getLeft().get().intValue() + rhs.getLeft().get().intValue());
+      if (expr.isMinusOp())
+        return Either.left(lhs.getLeft().get().intValue() - rhs.getLeft().get().intValue());
+    }
+    else if (expr.isPow()) {
+      Either<Integer, String> base = calculateNumericalValue(expr.getBase().get());
+      Either<Integer, String> exponent = calculateNumericalValue(expr.getExponent().get());
+      if (base.isRight()) {
+        return base;
+      }
+      if (exponent.isRight()) {
+        return exponent;
+      }
+      return Either.left((int) Math.pow(base.getLeft().get().intValue(), exponent.getLeft().get().intValue()));
+    }
+    else if (expr.isUnaryMinus()) {
+      Either<Integer, String> term = calculateNumericalValue(expr.getTerm().get());
+      if (term.isRight()) {
+        return term;
+      }
+      return Either.left(-term.getLeft().get().intValue());
+    }
+
+    return Either.right("Cannot calculate value of exponent. Must be a static value!");
+  }
   /**
    * Checks if the type is a numeric type, e.g. Integer or Real.
    */

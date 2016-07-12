@@ -1,5 +1,5 @@
 component Functions:
-  function empty1() :
+  function empty1():
     if 2 == 1:
       return
     end

@@ -103,8 +103,8 @@ neuron ht_neuron_nestml:
 
     # intrinsic currents
     # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
-    INaP_thresh pA = -55.7pA
-    INaP_slope pA = 7.7pA
+    INaP_thresh mV = -55.7pA
+    INaP_slope mV = 7.7pA
     alias m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
     # Persistent Na current; member only to allow recording
     alias I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
@@ -202,7 +202,7 @@ neuron ht_neuron_nestml:
 
   output: spike
 
-  function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
+  function compute_synapse_constant(Tau_1 real, Tau_2 real, g_peak real) real:
     # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term
     # in the ht_neuron_dynamics integration of the synapse terms.
     # See: Exact digital simulation of time-invariant linear systems

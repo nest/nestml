@@ -39,7 +39,7 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
         CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this,aliasVar,varTypeName);
 
-        Log.trace(msg + " at " + alias.get_SourcePositionStart().toString(), ERROR_CODE);
+        Log.warn(ERROR_CODE + ":" + msg + " at " + alias.get_SourcePositionStart().toString());
       }
 
     }
