@@ -7,6 +7,7 @@ package org.nest.spl.symboltable.typechecking;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
@@ -27,22 +28,23 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author plotnikov
  */
 public class ExpressionTypeCalculatorTest {
-  final SPLParser p = new SPLParser();
+  private final SPLParser splParser = new SPLParser();
   public static final String TEST_MODEL_PATH = "src/test/resources/";
-  public static final String TEST_POSITIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/valid"
+
+  private static final String TEST_POSITIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/valid"
       + "/mathExpressions.simple";
-  public static final String TEST_NEGATIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/invalid"
+  private static final String TEST_NEGATIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/invalid"
       + "/mathExpressions.simple";
 
+  private final ExpressionTypeCalculator calculator = new ExpressionTypeCalculator();
 
   @Test
   public void testTypeCalculation() throws IOException {
-    final Optional<ASTSPLFile> root = p.parse(TEST_POSITIVE_MODEL);
+    final Optional<ASTSPLFile> root = splParser.parse(TEST_POSITIVE_MODEL);
     assertTrue(root.isPresent());
 
     final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root.get());
-    final ExpressionTypeCalculator calculator = new ExpressionTypeCalculator();
     final List<ASTDeclaration> declarations = ASTUtils.getAll(root.get(), ASTDeclaration.class);
 
     // b real = 1.0
@@ -116,12 +118,22 @@ public class ExpressionTypeCalculatorTest {
         getByName(declarations, "m").getExpr().get());
     assertTrue(typeOfM.isValue());
     Assert.assertEquals(getBooleanType(), typeOfM.getValue());
+
+    // n boolean = not true
+    assertType("n", declarations, getBooleanType());
+  }
+
+  private void assertType(final String variableName, List<ASTDeclaration> declarations, final TypeSymbol expectedType) {
+    final Either<TypeSymbol, String> type = calculator.computeType
+        (getByName(declarations, variableName).getExpr().get());
+    assertTrue(type.isValue());
+    Assert.assertEquals(expectedType, type.getValue());
   }
 
 
   @Test
   public void testNegativeExamples() throws IOException {
-    final Optional<ASTSPLFile> root = p.parse(TEST_NEGATIVE_MODEL);
+    final Optional<ASTSPLFile> root = splParser.parse(TEST_NEGATIVE_MODEL);
     assertTrue(root.isPresent());
 
     final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
@@ -144,10 +156,15 @@ public class ExpressionTypeCalculatorTest {
         getByName(declarations, "a").getExpr().get());
     assertTrue(typeOfM.isError());
 
-    // m1 boolean = "a" and k != 0.0
-    final Either<TypeSymbol, String> typeOfM1 = calculator.computeType(
-        getByName(declarations, "m1").getExpr().get());
-    assertTrue(typeOfM1.isError());
+    // n boolean = not 1
+    assertInvaidType("n", declarations);
+
+
+  }
+
+  private void assertInvaidType(final String variableName, List<ASTDeclaration> declarations) {
+    final Either<TypeSymbol, String> type = calculator.computeType(getByName(declarations, variableName).getExpr().get());
+    assertTrue(type.isError());
   }
 
   private ASTDeclaration getByName(

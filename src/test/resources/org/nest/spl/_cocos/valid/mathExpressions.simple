@@ -11,3 +11,4 @@ i integer = ~1
 P11ex real = pow(1.0, 1.0) # TODO **,h / pow(E, (-h / tau_syn_ex))
 tmp string = ("")
 m boolean = true and l != 0.0
+n boolean = not true

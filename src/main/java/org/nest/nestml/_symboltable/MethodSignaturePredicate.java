@@ -8,13 +8,16 @@ package org.nest.nestml._symboltable;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolPredicate;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Objects.requireNonNull;
+import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 public class MethodSignaturePredicate implements SymbolPredicate {
 
@@ -41,7 +44,8 @@ public class MethodSignaturePredicate implements SymbolPredicate {
           final String expectedType = expectedParameterTypes.get(i);
           final String actualType = methodSymbol.getParameterTypes().get(i).getFullName();
 
-          if (!TypeChecker.isCompatible(actualType, expectedType)) {
+          if (!TypeChecker.isCompatible(actualType, expectedType) &&
+              !(methodSymbol.getParameterTypes().get(i).getType().equals(TypeSymbol.Type.UNIT) && getType(expectedType).equals(getRealType()))) {
             return false;
           }
         }
