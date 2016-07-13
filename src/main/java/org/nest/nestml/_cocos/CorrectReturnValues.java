@@ -21,12 +21,13 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.checkString;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.checkVoid;
 
 /**
  * The type of the return expression must conform to the declaration type.
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
 public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
@@ -46,11 +47,9 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
     // get all return statements in block
     final List<ASTReturnStmt> returns = ASTUtils.getReturnStatements(fun.getBlock());
 
-    final TypeChecker tc = new TypeChecker();
-
     for (ASTReturnStmt r : returns) {
       // no return expression
-      if (!r.getExpr().isPresent() && !tc.checkVoid(functionReturnType)) {
+      if (!r.getExpr().isPresent() && !checkVoid(functionReturnType)) {
         // void return value
         final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
 
@@ -60,21 +59,20 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
       if (r.getExpr().isPresent()) {
 
-        final Either<TypeSymbol, String> returnExpressionType
-            = typeCalculator.computeType(r.getExpr().get());
-        if (returnExpressionType.isRight()) {
+        final Either<TypeSymbol, String> returnExpressionType = typeCalculator.computeType(r.getExpr().get());
+        if (returnExpressionType.isError()) {
           final String msg = errorStrings.getErrorMsgCannotDetermineExpressionType(this);
 
           Log.warn(msg, r.getExpr().get().get_SourcePositionStart());
           return;
         }
 
-        if (functionReturnType.getName() == returnExpressionType.getLeft().get().getName() ||
-            TypeChecker.isCompatible(functionReturnType, returnExpressionType.getLeft().get())) {
+        if (functionReturnType.getName().equals( returnExpressionType.getValue().getName()) ||
+            TypeChecker.isCompatible(functionReturnType, returnExpressionType.getValue())) {
           return;
         }
 
-        if (tc.checkVoid(functionReturnType) && !tc.checkVoid(returnExpressionType.getLeft().get())) {
+        if (checkVoid(functionReturnType) && !checkVoid(returnExpressionType.getValue())) {
           // should return nothing, but does not
           final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
 
@@ -82,21 +80,21 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
         }
 
         // same type is ok (e.g. string, boolean,integer, real,...)
-        if (tc.checkString(functionReturnType) && !tc.checkString(returnExpressionType.getLeft().get())) {
+        if (checkString(functionReturnType) && !checkString(returnExpressionType.getValue())) {
           // should return string, but does not
           final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
 
          error(msg, r.get_SourcePositionStart());
         }
 
-        if (tc.isBoolean(functionReturnType) && !tc.isBoolean(returnExpressionType.getLeft().get())) {
+        if (TypeChecker.isBoolean(functionReturnType) && !TypeChecker.isBoolean(returnExpressionType.getValue())) {
           // should return bool, but does not
           final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
 
          error(msg, r.get_SourcePositionStart());
         }
 
-        if (tc.checkUnit(functionReturnType) && !tc.checkUnit(returnExpressionType.getLeft().get())) {
+        if (TypeChecker.checkUnit(functionReturnType) && !TypeChecker.checkUnit(returnExpressionType.getValue())) {
           // should return numeric, but does not
           final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
 
@@ -105,7 +103,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
         // real rType and integer eType is ok, since more general
         // integer rType and real eType is not ok
-        final String msg = errorStrings.getErrorMsgCannotConvertReturnValue(this,returnExpressionType.getLeft().get().getName(),functionReturnType.getName());
+        final String msg = errorStrings.getErrorMsgCannotConvertReturnValue(this,returnExpressionType.getValue().getName(),functionReturnType.getName());
 
        error(msg, r.get_SourcePositionStart());
       }

@@ -17,10 +17,8 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.*;
-import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTDerivative;
-import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTODENode;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
@@ -34,17 +32,15 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
-import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**
@@ -55,7 +51,7 @@ import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 public final class ASTUtils {
 
   /**
-   * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the right order
+   * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the error order
    * @param queryNode The node direct parent of the given node
    * @param root The node that is an ancestor of the {@code queryNode}
    *
@@ -180,7 +176,7 @@ public final class ASTUtils {
     return splNodesCollector.getReturnStmts();
   }
 
-  public static List<String> getParameterTypes(final ASTFunctionCall astFunctionCall) {
+  static List<String> getParameterTypes(final ASTFunctionCall astFunctionCall) {
     final List<String> argTypeNames = Lists.newArrayList();
 
     final ExpressionTypeCalculator typeCalculator =  new ExpressionTypeCalculator();
@@ -188,12 +184,12 @@ public final class ASTUtils {
     for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
       final ASTExpr argExpr = astFunctionCall.getArgs().get(i);
       final Either<TypeSymbol, String> argType = typeCalculator.computeType(argExpr);
-      if (argType.isLeft()) {
-        argTypeNames.add(argType.getLeft().get().getName());
+      if (argType.isValue()) {
+        argTypeNames.add(argType.getValue().getName());
       }
       else {
         // TODO print the value of the expression
-        throw new RuntimeException("Cannot determine the type of parameters in the function call at:  " + astFunctionCall.get_SourcePositionStart() + argType.getRight().get());
+        throw new RuntimeException("Cannot determine the type of parameters in the function call at:  " + astFunctionCall.get_SourcePositionStart() + argType.getError());
       }
 
     }
