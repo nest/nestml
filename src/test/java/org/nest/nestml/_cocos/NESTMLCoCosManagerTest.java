@@ -102,7 +102,7 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
     }
   }
 
-  public void checkNESTMLCocosOnly(File file, Optional<ASTNESTMLCompilationUnit> root) {
+  private void checkNESTMLCocosOnly(File file, Optional<ASTNESTMLCompilationUnit> root) {
     final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
     final NESTMLCoCoChecker checker = nestmlCoCosManager.createDefaultChecker();
     checker.checkAll(root.get());
@@ -113,7 +113,7 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
     Assert.assertTrue(msg, nestmlErrorFindings.isEmpty());
   }
 
-  public void checkNESTMLWithSPLCocos(
+  private void checkNESTMLWithSPLCocos(
       final File file,
       final Optional<ASTNESTMLCompilationUnit> root) {
 
