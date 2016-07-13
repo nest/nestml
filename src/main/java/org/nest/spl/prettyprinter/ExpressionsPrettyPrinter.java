@@ -130,13 +130,18 @@ public class ExpressionsPrettyPrinter {
       }
 
     }
+    else if (expr.isLogicalNot()) {
+      return "not " + print(expr.getExpr().get());
+    }
 
-    final String errorMsg = "Cannot determine the type of the Expression-Node @{" + expr.get_SourcePositionStart() +
-        ", " + expr.get_SourcePositionEnd() + "}";
+    final String errorMsg = "Unsupported grammar element. PrettyPrinter must be fixed " + expr.get_SourcePositionStart() + "}";
 
     throw new RuntimeException(errorMsg);
   }
 
+  /**
+   * This method must be public, since it is used in Freemarker template
+   */
   public String printMethodCall(final ASTFunctionCall astFunctionCall) {
     final String nestFunctionName = referenceConverter.convertFunctionCall(astFunctionCall);
 
@@ -149,6 +154,9 @@ public class ExpressionsPrettyPrinter {
     }
   }
 
+  /**
+   * This method must be public, since it is used in Freemarker template
+   */
   public StringBuilder printFunctionCallArguments(final ASTFunctionCall astFunctionCall) {
     final StringBuilder argsListAsString = new StringBuilder();
 

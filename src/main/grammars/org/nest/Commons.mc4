@@ -47,7 +47,7 @@ grammar Commons extends de.monticore.types.Types {
                       ne2:["<>"] |
                       ge:[">="] |
                       gt:[">"]) right:Expr
-         | "not" Expr
+         | logicalNot:["not"] Expr
          | left:Expr logicalAnd:["and"] right:Expr
          | left:Expr logicalOr:["or"] right:Expr
          | FunctionCall

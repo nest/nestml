@@ -59,8 +59,7 @@ public class NESTMLSymbols {
   public static Optional<MethodSymbol> resolveMethod(
       final String methodName, final List<String> parameterTypes, final Scope scope) {
 
-    final MethodSignaturePredicate signaturePredicate = new MethodSignaturePredicate(methodName,
-        parameterTypes);
+    final MethodSignaturePredicate signaturePredicate = new MethodSignaturePredicate(methodName, parameterTypes);
     @SuppressWarnings("unchecked")
     final Collection<Symbol> standAloneFunction = scope.resolveMany(
         methodName, MethodSymbol.KIND, signaturePredicate)

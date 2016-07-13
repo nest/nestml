@@ -114,7 +114,13 @@ public class NESTReferenceConverter implements IReferenceConverter {
 
     }
 
-    return functionName;
+    if (needsArguments(astFunctionCall)) {
+      return functionName + "(%s)";
+    }
+    else {
+      return functionName + "()";
+    }
+
   }
 
   @Override

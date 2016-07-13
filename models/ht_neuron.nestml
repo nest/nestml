@@ -89,8 +89,6 @@ neuron ht_neuron_nestml:
     r_potassium integer
     g_spike boolean
 
-
-
     alias I_syn_ampa pA = -G_AMPA * ( V_m - AMPA_E_rev )
     alias I_syn_nmda pA = -G_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) );
     alias I_syn_gaba_a pA = -G_GABA_A * ( V_m - GABA_A_E_rev );
@@ -186,10 +184,16 @@ neuron ht_neuron_nestml:
 
   internal:
 
-   # Input current injected by CurrentEvent.
-   # This variable is used to transport the current applied into the
-   # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0
+    AMPAInitialValue real = compute_synapse_constant( AMPA_Tau_1, AMPA_Tau_2, AMPA_g_peak )
+    NMDAInitialValue real = compute_synapse_constant( NMDA_Tau_1, NMDA_Tau_2, NMDA_g_peak )
+
+    GABA_AInitialValue real = compute_synapse_constant( GABA_A_Tau_1, GABA_A_Tau_2, GABA_A_g_peak )
+    GABA_BInitialValue real = compute_synapse_constant( GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak )
+    PotassiumRefractoryCounts integer = steps(t_spike)
+    # Input current injected by CurrentEvent.
+    # This variable is used to transport the current applied into the
+    # _dynamics function computing the derivative of the state vector.
+    I_stim pA = 0
   end
 
   input:
@@ -202,7 +206,44 @@ neuron ht_neuron_nestml:
 
   output: spike
 
-  function compute_synapse_constant(Tau_1 real, Tau_2 real, g_peak real) real:
+  update:
+    integrate(V_m)
+    # Deactivate potassium current after spike time have expired
+
+    if (r_potassium > 0) and ((r_potassium-1) == 0):
+      g_spike = false # Deactivate potassium current.
+    end
+    r_potassium -= 1
+
+    G_AMPA += AMPAInitialValue * AMPA
+    G_NMDA += NMDAInitialValue * NMDA
+    G_GABA_A += GABA_AInitialValue * GABA_A
+    G_GABA_B += GABA_BInitialValue * GABA_B
+
+    if (not g_spike) and V_m >= THETA:
+      # Set V and Theta to the sodium reversal potential.
+      V_m = E_Na
+      THETA = E_Na;
+
+      # Activate fast potassium current. Drives the
+      # membrane potential towards the potassium reversal
+      # potential (activate only if duration is non-zero).
+      if PotassiumRefractoryCounts > 0:
+        g_spike = true
+      else:
+        g_spike = false
+      end
+
+      r_potassium = PotassiumRefractoryCounts
+
+      emit_spike()
+    end
+
+
+    I_stim = currents.getSum()
+  end
+
+  function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
     # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term
     # in the ht_neuron_dynamics integration of the synapse terms.
     # See: Exact digital simulation of time-invariant linear systems
@@ -214,16 +255,6 @@ neuron ht_neuron_nestml:
     normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) );
 
     return g_peak * normalisation_factor * exact_integration_adjustment
-  end
-
-  update:
-    integrate(V_m)
-    # Deactivate potassium current after spike time have expired
-
-    if (r_potassium > 0) and ((r_potassium-1) == 0):
-      g_spike = false # Deactivate potassium current.
-    end
-    I_stim = currents.getSum()
   end
 
 end
