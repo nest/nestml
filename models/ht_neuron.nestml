@@ -1,0 +1,229 @@
+/*
+   Name: ht_neuron - Neuron model after Hill & Tononi (2005).
+
+   Description:
+   This model neuron implements a slightly modified version of the
+   neuron model described in [1]. The most important properties are:
+
+   - Integrate-and-fire with threshold that is increased on spiking
+     and decays back to an equilibrium value.
+   - No hard reset, but repolarizing potassium current.
+   - AMPA, NMDA, GABA_A, and GABA_B conductance-based synapses with
+     beta-function (difference of two exponentials) time course.
+   - Intrinsic currents I_h (pacemaker), I_T (low-threshold calcium),
+     I_Na(p) (persistent sodium), and I_KNa (depolarization-activated
+     potassium).
+
+   In comparison to the model described in the paper, the following
+   modifications were mare:
+
+   - NMDA conductance is given by g(t) = g_peak * m(V), where
+
+       m(V) = 1 / ( 1 + exp( - ( V - NMDA_Vact ) / NMDA_Sact ) )
+
+     This is an approximation to the NMDA model used in [2].
+
+   - Several apparent typographical errors in the descriptions of
+     the intrinsic currents were fixed, hopefully in a meaningful
+     way.
+
+   I'd like to thank Sean Hill for giving me access to his
+   simulator source code.
+
+   See examples/hilltononi for usage examples.
+
+   Warning:
+   THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY!
+
+   Parameters:
+   V_m            -  membrane potential
+   spike_duration - duration of re-polarizing potassium current
+   Tau_m          - membrane time constant applying to all currents but
+                    repolarizing K-current (see [1, p 1677])
+   Tau_spike      - membrane time constant applying to repolarizing K-current
+   Theta, Theta_eq, Tau_theta - Threshold, equilibrium value, time constant
+   g_KL, E_K, g_NaL, E_Na     - conductances and reversal potentials for K and
+   Na
+                                leak currents
+
+   {AMPA,NMDA,GABA_A,GABA_B}_{E_rev,g_peak,Tau_1,Tau_2}
+                                - reversal potentials, peak conductances and
+                                  time constants for synapses (Tau_1: rise time,
+                                  Tau_2: decay time, Tau_1 < Tau_2)
+   NMDA_Sact, NMDA_Vact         - Parameters for voltage dependence of NMDA-
+                                  synapse, see eq. above
+   {h,T,NaP,KNa}_{E_rev,g_peak} - reversal potential and peak conductance for
+                                  intrinsic currents
+   receptor_types               - dictionary mapping synapse names to ports on
+                                  neuron model
+   recordables                  - list of recordable quantities.
+
+   Author: Hans Ekkehard Plesser
+
+   Sends: SpikeEvent
+
+   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+   FirstVersion: October 2009
+
+   References:
+   [1] S Hill and G Tononi (2005). J Neurophysiol 93:1671-1698.
+   [2] ED Lumer, GM Edelman, and G Tononi (1997). Cereb Cortex 7:207-227.
+
+   SeeAlso: ht_synapse
+*/
+neuron ht_neuron_nestml:
+
+  state:
+    V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL )
+    THETA mV = Theta_eq
+    G_AMPA nS
+    G_NMDA nS
+    G_GABA_A nS
+    G_GABA_B nS
+    IKNa_D pA
+    IT_m pA
+    IT_h pA
+    Ih_m pA
+
+    r_potassium integer
+    g_spike boolean
+
+
+
+    alias I_syn_ampa pA = -G_AMPA * ( V_m - AMPA_E_rev )
+    alias I_syn_nmda pA = -G_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) );
+    alias I_syn_gaba_a pA = -G_GABA_A * ( V_m - GABA_A_E_rev );
+    alias I_syn_gaba_b pA = -G_GABA_B * ( V_m - GABA_B_E_rev );
+    alias I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
+
+    # The spike current is only activate immediately after a spike.
+    # TODO const double_t I_spike = node.S_.g_spike_ ? -( V - node.P_.E_K ) / node.P_.Tau_spike : 0;
+    alias I_spike mV = 0
+
+    # intrinsic currents
+    # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
+    INaP_thresh mV = -55.7pA
+    INaP_slope mV = 7.7pA
+    alias m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
+    # Persistent Na current; member only to allow recording
+    alias I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
+
+    # I_DK
+    d_half real = 0.25;
+    alias m_inf_KNa real = 1.0 / ( 1.0 + pow( d_half / IKNa_D, 3.5 ) )
+    # Depol act. K current; member only to allow recording
+    alias I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
+
+    # I_T
+    m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m + 59.0 ) / 6.2 ) )
+    h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m + 83.0 ) / 4 ) )
+    # Low-thresh Ca current; member only to allow recording
+    alias I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
+    alias tau_m_T real = 0.22 / ( exp( -( V_m + 132.0 ) / 16.7 ) + exp( ( V_m + 16.8 ) / 18.2 ) ) + 0.13;
+    alias tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m + 86.0 ) / 3.2 ) );
+
+    # I_h
+    I_h_Vthreshold real = -75.0
+    alias m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m - I_h_Vthreshold ) / 5.5 ) )
+    alias I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
+    tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m ) + exp( -1.87 + 0.0701 * V_m ) );
+    # I_KNa
+    D_influx_peak real = 0.025;
+    tau_D real = 1250.0 # yes, 1.25s
+    D_thresh real = -10.0
+    D_slope real = 5.0;
+    alias D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) );
+  end
+
+  equations:
+    # equation modified from y[](1-D_eq) to (y[]-D_eq), since we'd not
+    # be converging to equilibrium otherwise
+    IKNa_D' = D_influx_peak * D_influx - ( IKNa_D  - KNa_D_EQ ) / tau_D
+    IT_m' = ( m_inf_T - IT_m ) / tau_m_T
+    IT_h' = ( h_inf_T - IT_h ) / tau_h_T
+    Ih_m' = ( m_inf_h - Ih_m ) / tau_m_h
+  end
+
+  parameter:
+    E_Na mV = 30.0mV
+    E_K mV = -90.0mV
+    g_NaL real =  0.2
+    g_KL real = 1.0
+    Tau_m ms = 16.0ms
+    Theta_eq mV = -51.0mV
+    Tau_theta ms = 2.0ms
+    Tau_spike ms = 1.75ms
+    t_spike ms = 2.0ms
+    AMPA_g_peak real = 0.1
+    AMPA_Tau_1 ms = 0.5ms
+    AMPA_Tau_2 ms = 2.4ms
+    AMPA_E_rev mV = 0.0mV
+    NMDA_g_peak real = 0.075
+    NMDA_Tau_1 ms = 4.0ms
+    NMDA_Tau_2 ms = 40.0ms
+    NMDA_E_rev mV = 0.0mV
+    NMDA_Vact mV = -58.0mV
+    NMDA_Sact mV = 2.5mV
+    GABA_A_g_peak real = 0.33
+    GABA_A_Tau_1 ms = 1.0ms
+    GABA_A_Tau_2 ms = 7.0ms
+    GABA_A_E_rev mV = -70.0mV
+    GABA_B_g_peak real = 0.0132
+    GABA_B_Tau_1 ms = 60.0ms
+    GABA_B_Tau_2 ms = 200.0ms
+    GABA_B_E_rev mV = -90.0mV
+    NaP_g_peak real = 1.0
+    NaP_E_rev mV = 30.0mV
+    KNa_g_peak real = 1.0
+    KNa_E_rev real = -90.0
+    T_g_peak real = 1.0
+    T_E_rev mV = 0.0mV
+    h_g_peak real = 1.0
+    h_E_rev mV = -40.0mV
+    KNa_D_EQ real = 0.001;
+  end
+
+  internal:
+
+   # Input current injected by CurrentEvent.
+   # This variable is used to transport the current applied into the
+   # _dynamics function computing the derivative of the state vector.
+   I_stim pA = 0
+  end
+
+  input:
+      AMPA   <- spike
+      NMDA   <- spike
+      GABA_A <- spike
+      GABA_B <- spike
+      currents <- current
+  end
+
+  output: spike
+
+  function compute_synapse_constant(Tau_1 real, Tau_2 real, g_peak real) real:
+    # Factor used to account for the missing 1/((1/Tau_2)-(1/Tau_1)) term
+    # in the ht_neuron_dynamics integration of the synapse terms.
+    # See: Exact digital simulation of time-invariant linear systems
+    # with applications to neuronal modeling, Rotter and Diesmann,
+    # section 3.1.2.
+    exact_integration_adjustment real = ( 1 / Tau_2 ) - ( 1 / Tau_1 );\
+
+    t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 );
+    normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) );
+
+    return g_peak * normalisation_factor * exact_integration_adjustment
+  end
+
+  update:
+    integrate(V_m)
+    # Deactivate potassium current after spike time have expired
+
+    if (r_potassium > 0) and ((r_potassium-1) == 0):
+      g_spike = false # Deactivate potassium current.
+    end
+    I_stim = currents.getSum()
+  end
+
+end

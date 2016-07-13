@@ -6,7 +6,6 @@
 package org.nest.spl._cocos;
 
 import de.monticore.ast.ASTNode;
-import de.monticore.symboltable.Scope;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
@@ -16,8 +15,8 @@ import org.nest.units.prettyprinter.TypesPrettyPrinter;
 import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
+import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.utils.ASTUtils.computeTypeName;
@@ -52,7 +51,6 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTDeclaration node) {
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
-    final Scope scope = node.getEnclosingScope().get();
 
     TypesPrettyPrinter typesPrettyPrinter = new TypesPrettyPrinter();
 
@@ -66,19 +64,31 @@ public class IllegalExpression implements
       final Either<TypeSymbol, String> initializerExpressionType = typeCalculator.computeType(node.getExpr().get());
       final TypeSymbol variableDeclarationType;
 
-      if (initializerExpressionType.isLeft()) {
+      if (initializerExpressionType.isValue()) {
         variableDeclarationType = PredefinedTypes.getType(declarationTypeName);
         // TODO write a helper get assignable
-        if (!isCompatible(variableDeclarationType, initializerExpressionType.getLeft().get())) {
-          final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
-              + typesPrettyPrinter.print(variableDeclarationType) +" with an expression of type: " +
-              typesPrettyPrinter.print(initializerExpressionType.getLeft().get()) +
-              node.get_SourcePositionStart();
-          error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+        if (!isCompatible(variableDeclarationType, initializerExpressionType.getValue())) {
+          if (variableDeclarationType.getType().equals(TypeSymbol.Type.UNIT) &&
+              initializerExpressionType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
+            final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
+                + typesPrettyPrinter.print(variableDeclarationType) +" with an expression of type: " +
+                typesPrettyPrinter.print(initializerExpressionType.getValue()) +
+                node.get_SourcePositionStart();
+            warn(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+          }
+          else {
+            final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
+                + typesPrettyPrinter.print(variableDeclarationType) +" with an expression of type: " +
+                typesPrettyPrinter.print(initializerExpressionType.getValue()) +
+                node.get_SourcePositionStart();
+            error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+          }
+
         }
+
       }
       else {
-        final String errorDescription = initializerExpressionType.getRight().get() +
+        final String errorDescription = initializerExpressionType.getError() +
             "Problem with the expression: " + ASTUtils.toString(node.getExpr().get());
         undefinedTypeError(node, errorDescription);
       }
@@ -91,13 +101,13 @@ public class IllegalExpression implements
   public void check(final ASTELIF_Clause node) {
     final Either<TypeSymbol, String> exprType = typeCalculator.computeType(node.getExpr());
 
-    if (exprType.isLeft() && exprType.getLeft().get() != getBooleanType()) {
-      final String msg = "Cannot use non boolean expression of type " + exprType.getLeft();
+    if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
+      final String msg = "Cannot use non boolean expression of type " + exprType.getValue();
       error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
     }
 
-    if (exprType.isRight()) {
-      final String errorDescription = exprType.getRight().get() +
+    if (exprType.isError()) {
+      final String errorDescription = exprType.getError() +
           "Problem with the expression: " + ASTUtils.toString(node.getExpr());
       undefinedTypeError(node, errorDescription);
     }
@@ -113,13 +123,13 @@ public class IllegalExpression implements
   public void check(final ASTIF_Clause node) {
     final Either<TypeSymbol, String> exprType = typeCalculator.computeType(node.getExpr());
 
-    if (exprType.isLeft() && exprType.getLeft().get() != getBooleanType()) {
-      final String msg = "Cannot use non boolean expression of type " + exprType.getLeft();
+    if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
+      final String msg = "Cannot use non boolean expression of type " + exprType.getValue();
       error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
     }
 
-    if (exprType.isRight()) {
-      final String errorDescription = exprType.getRight().get() +
+    if (exprType.isError()) {
+      final String errorDescription = exprType.getError() +
           "Problem with the expression: " + ASTUtils.toString(node.getExpr());
       undefinedTypeError(node, errorDescription);
     }
@@ -129,7 +139,7 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTWHILE_Stmt node) {
     try {
-      if (typeCalculator.computeType(node.getExpr()).getLeft().get() != getBooleanType()) {
+      if (typeCalculator.computeType(node.getExpr()).getValue() != getBooleanType()) {
         final String msg = "Cannot use non boolean expression in a while statement " +
             "@" + node.get_SourcePositionStart();
        error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
@@ -145,9 +155,7 @@ public class IllegalExpression implements
   }
 
   private void undefinedTypeError(final ASTNode node, final String reason) {
-    final String msg = "Cannot determine the type of the initializer expression. "
-        + "Reason: " + reason;
-    error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+    error(ERROR_CODE + ":" +  reason, node.get_SourcePositionStart());
   }
 
 }

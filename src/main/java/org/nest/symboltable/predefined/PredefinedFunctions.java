@@ -28,8 +28,9 @@ public class PredefinedFunctions {
   public static final String EMIT_SPIKE = "emit_spike";
   private static final String PRINT = "print";
   private static final String PRINTLN = "println";
-  private static final String POW = "pow";
-  private static final String EXP = "exp";
+  public static final String POW = "pow";
+  public static final String EXP = "exp";
+  public static final String LOG = "log";
   private static final String LOGGER_INFO = "info";
   private static final String LOGGER_WARNING = "warning";
   private static final String RANDOM = "random";
@@ -74,6 +75,11 @@ public class PredefinedFunctions {
     expMethod.addParameterType(getRealType()); // base
     expMethod.setReturnType(getRealType());
     name2FunctionSymbol.put(EXP, expMethod);
+
+    final MethodSymbol logMethod = createFunctionSymbol(LOG);
+    logMethod.addParameterType(getRealType()); // base
+    logMethod.setReturnType(getRealType());
+    name2FunctionSymbol.put(LOG, logMethod);
 
     final MethodSymbol loggerInfoMethod = createFunctionSymbol(LOGGER_INFO);
     loggerInfoMethod.addParameterType(getStringType());

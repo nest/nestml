@@ -48,74 +48,74 @@ public class ExpressionTypeCalculatorTest {
     // b real = 1.0
     final Either<TypeSymbol, String> typeOfB = calculator.computeType(
         getByName(declarations, "b").getExpr().get());
-    assertTrue(typeOfB.isLeft());
-    Assert.assertEquals(getRealType(), typeOfB.getLeft().get());
+    assertTrue(typeOfB.isValue());
+    Assert.assertEquals(getRealType(), typeOfB.getValue());
 
     // Retrieves line: c = 1
     final Either<TypeSymbol, String> typeOfC = calculator.computeType(
         getByName(declarations, "c").getExpr().get());
-    assertTrue(typeOfC.isLeft());
-    Assert.assertEquals(getIntegerType(), typeOfC.getLeft().get());
+    assertTrue(typeOfC.isValue());
+    Assert.assertEquals(getIntegerType(), typeOfC.getValue());
 
     // Retrieves line: d = "test"
     final Either<TypeSymbol, String> typeOfD = calculator.computeType(
         getByName(declarations, "d").getExpr().get());
-    assertTrue(typeOfD.isLeft());
-    Assert.assertEquals(getStringType(), typeOfD.getLeft().get());
+    assertTrue(typeOfD.isValue());
+    Assert.assertEquals(getStringType(), typeOfD.getValue());
 
     // Retrieves line: e = 1 + 1
     final Either<TypeSymbol, String> typeOfE = calculator.computeType(
         getByName(declarations, "c").getExpr().get());
-    assertTrue(typeOfE.isLeft());
-    Assert.assertEquals(getIntegerType(), typeOfE.getLeft().get());
+    assertTrue(typeOfE.isValue());
+    Assert.assertEquals(getIntegerType(), typeOfE.getValue());
 
     // Retrieves line: f = 1 + 1.0
     final Either<TypeSymbol, String> typeOfF = calculator.computeType(
         getByName(declarations, "f").getExpr().get());
-    assertTrue(typeOfF.isLeft());
-    Assert.assertEquals(getRealType(), typeOfF.getLeft().get());
+    assertTrue(typeOfF.isValue());
+    Assert.assertEquals(getRealType(), typeOfF.getValue());
 
     // Retrieves line: g = 1.0 + 1
     final Either<TypeSymbol, String> typeOfG = calculator.computeType(
         getByName(declarations, "g").getExpr().get());
-    assertTrue(typeOfG.isLeft());
-    Assert.assertEquals(getRealType(), typeOfG.getLeft().get());
+    assertTrue(typeOfG.isValue());
+    Assert.assertEquals(getRealType(), typeOfG.getValue());
 
     // Retrieves line: h real = 1 + 1 + 1 + 1 + 1.0
     final Either<TypeSymbol, String> typeOfH = calculator.computeType(
         getByName(declarations, "h").getExpr().get());
-    assertTrue(typeOfH.isLeft());
-    Assert.assertEquals(getRealType(), typeOfH.getLeft().get());
+    assertTrue(typeOfH.isValue());
+    Assert.assertEquals(getRealType(), typeOfH.getValue());
 
     // l real = 1 ** 2.5
     final Either<TypeSymbol, String> typeOfL = calculator.computeType(
         getByName(declarations, "l").getExpr().get());
-    assertTrue(typeOfL.isLeft());
-    Assert.assertEquals(getRealType(), typeOfL.getLeft().get());
+    assertTrue(typeOfL.isValue());
+    Assert.assertEquals(getRealType(), typeOfL.getValue());
 
     // Retrieves line: i = ~1 l is integer
     final Either<TypeSymbol, String> typeOfI = calculator.computeType(
         getByName(declarations, "i").getExpr().get());
-    assertTrue(typeOfG.isLeft());
-    Assert.assertEquals(getIntegerType(), typeOfI.getLeft().get());
+    assertTrue(typeOfG.isValue());
+    Assert.assertEquals(getIntegerType(), typeOfI.getValue());
 
     // Retrieves line: P11ex real = pow(1.0, 1.0)
     final Either<TypeSymbol, String> typeOfP11ex = calculator.computeType(
         getByName(declarations, "P11ex").getExpr().get());
-    assertTrue(typeOfP11ex.isLeft());
-    Assert.assertEquals(getRealType(), typeOfP11ex.getLeft().get());
+    assertTrue(typeOfP11ex.isValue());
+    Assert.assertEquals(getRealType(), typeOfP11ex.getValue());
 
     // Retrieves line: tmp string = ("")
     final Either<TypeSymbol, String> typeOfTmp = calculator.computeType(
         getByName(declarations, "tmp").getExpr().get());
-    assertTrue(typeOfTmp.isLeft());
-    Assert.assertEquals(getStringType(), typeOfTmp.getLeft().get());
+    assertTrue(typeOfTmp.isValue());
+    Assert.assertEquals(getStringType(), typeOfTmp.getValue());
 
     // Retrieves line: m boolean = true and l != 0.0
     final Either<TypeSymbol, String> typeOfM = calculator.computeType(
         getByName(declarations, "m").getExpr().get());
-    assertTrue(typeOfM.isLeft());
-    Assert.assertEquals(getBooleanType(), typeOfM.getLeft().get());
+    assertTrue(typeOfM.isValue());
+    Assert.assertEquals(getBooleanType(), typeOfM.getValue());
   }
 
 
@@ -132,22 +132,22 @@ public class ExpressionTypeCalculatorTest {
     // a real = ((( 1.0 | (-3+6%2) & ~(0x4fa) | 0x23 ^ 12) >> 2) << 2)
     final Either<TypeSymbol, String> typeOfA = calculator.computeType(
         getByName(declarations, "a").getExpr().get());
-    assertTrue(typeOfA.isRight());
+    assertTrue(typeOfA.isError());
 
     // k integer = ~1.0
     final Either<TypeSymbol, String> typeOfK = calculator.computeType(
         getByName(declarations, "k").getExpr().get());
-    assertTrue(typeOfK.isRight());
+    assertTrue(typeOfK.isError());
 
     // m real = 1 ** "a"
     final Either<TypeSymbol, String> typeOfM = calculator.computeType(
         getByName(declarations, "a").getExpr().get());
-    assertTrue(typeOfM.isRight());
+    assertTrue(typeOfM.isError());
 
     // m1 boolean = "a" and k != 0.0
     final Either<TypeSymbol, String> typeOfM1 = calculator.computeType(
         getByName(declarations, "m1").getExpr().get());
-    assertTrue(typeOfM1.isRight());
+    assertTrue(typeOfM1.isError());
   }
 
   private ASTDeclaration getByName(

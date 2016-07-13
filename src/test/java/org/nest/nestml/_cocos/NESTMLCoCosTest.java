@@ -97,7 +97,7 @@ public class NESTMLCoCosTest  {
 
     nestmlCoCoChecker.checkAll(invalidRoot.get());
 
-    errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
+    errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, Log.getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
 
 

@@ -30,9 +30,9 @@ class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
     if (alias.getInvariant().isPresent()) {
       final Either<TypeSymbol, String> expressionType = expressionTypeCalculator.computeType(alias.getInvariant().get());
 
-      if (expressionType.isLeft()) {
+      if (expressionType.isValue()) {
 
-        if (!expressionType.getLeft().get().equals(PredefinedTypes.getBooleanType())) {
+        if (!expressionType.getValue().equals(PredefinedTypes.getBooleanType())) {
           final String msg = errorStrings.getErrorMsgInvariantMustBeBoolean(this,expressionType.toString());
 
           Log.error(msg, alias.getInvariant().get().get_SourcePositionStart());

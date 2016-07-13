@@ -31,7 +31,7 @@ grammar Commons extends de.monticore.types.Types {
 
   BLOCK_CLOSE = "end";
 
-  Expr = leftParentheses:"(" Expr rightParentheses:")"
+  Expr = leftParentheses:["("] Expr rightParentheses:[")"]
          | <rightassoc> base:Expr pow:["**"] exponent:Expr
          | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
          | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr

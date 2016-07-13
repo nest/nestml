@@ -69,7 +69,7 @@ public class ExpressionsPrettyPrinter {
     else if (expr.isUnaryTilde()) {
       return "(" + "~" + print(expr.getTerm().get()) + ")";
     }
-    else if (expr.leftParenthesesIsPresent() && expr.leftParenthesesIsPresent()) {
+    else if (expr.isLeftParentheses() && expr.isRightParentheses()) {
       return "(" +  print(expr.getExpr().get()) + ")";
     }
     else if (expr.isPlusOp() || expr.isMinusOp() || expr.isTimesOp() || expr.isDivOp()) {

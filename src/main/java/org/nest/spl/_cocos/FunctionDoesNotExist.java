@@ -46,8 +46,8 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
     for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
       final ASTExpr arg = astFunctionCall.getArgs().get(i);
       final Either<TypeSymbol, String> argType = expressionTypeCalculator.computeType(arg);
-      if (argType.isLeft()) {
-        argTypeNames.add(argType.getLeft().get().getName());
+      if (argType.isValue()) {
+        argTypeNames.add(argType.getValue().getName());
       }
       else {
         Log.warn(ERROR_CODE + ": Cannot compute the type: " + arg);

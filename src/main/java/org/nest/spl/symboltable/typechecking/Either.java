@@ -13,45 +13,45 @@ import java.util.Optional;
  * @author plotnikov
  */
 public class Either<A, B> {
-  private Optional<A> left;
-  private Optional<B> right;
+  private Optional<A> value;
+  private Optional<B> error;
 
   /**
    * Use static factory methods instead.
 
    */
-  private Either(final Optional<A> left, final Optional<B> right) {
-    this.left = left;
-    this.right = right;
+  private Either(final Optional<A> value, final Optional<B> error) {
+    this.value = value;
+    this.error = error;
   }
 
-  public static <LType, RType> Either<LType, RType> left(final LType left) {
+  public static <LType, RType> Either<LType, RType> value(final LType left) {
     return new Either<>(Optional.of(left), Optional.empty());
   }
 
-  public static <LType, RType> Either<LType, RType> right(final RType right) {
+  public static <LType, RType> Either<LType, RType> error(final RType right) {
     return new Either<>(Optional.empty(), Optional.of(right));
   }
 
-  public Optional<A> getLeft() {
-    return left;
+  public A getValue() {
+    return value.get();
   }
 
-  public Optional<B> getRight() {
-    return right;
+  public B getError() {
+    return error.get();
   }
 
-  public boolean isLeft() {
-    return left.isPresent();
+  public boolean isValue() {
+    return value.isPresent();
   }
 
-  public boolean isRight() {
-    return right.isPresent();
+  public boolean isError() {
+    return error.isPresent();
   }
 
   public String toString()
   {
-    return "(" + left + ", " + right + ")";
+    return "(" + value + ", " + error + ")";
   }
 
 }
