@@ -9,9 +9,7 @@ import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.nestml._ast.ASTInput;
 import org.nest.nestml._ast.ASTInputLine;
-import org.nest.nestml._ast.ASTInputType;
 import org.nest.utils.ASTUtils;
 
 import java.util.Objects;
@@ -33,6 +31,8 @@ public class VariableSymbol extends CommonSymbol {
 
   private ASTExpr declaringExpression = null;
 
+  private ASTExpr odeDeclaration = null;
+
   private TypeSymbol type;
 
   private NeuronSymbol declaringType;
@@ -49,10 +49,19 @@ public class VariableSymbol extends CommonSymbol {
     return blockType == BlockType.INPUT_BUFFER_CURRENT || blockType == BlockType.INPUT_BUFFER_SPIKE;
   }
 
+  @SuppressWarnings({"unused"}) // used in templates
   public boolean isLoggable() {
     // TODO: check whether the logic is correct. At the moment, the vector datatypes are not supported by the code
     // generator.
     return isLoggable && !isVector();
+  }
+
+  public void setOdeDeclaration(final ASTExpr odeDeclaration) {
+    this.odeDeclaration = odeDeclaration;
+  }
+
+  public boolean definedByODE() {
+    return odeDeclaration != null;
   }
 
   public void setLoggable(boolean loggable) {
@@ -177,6 +186,7 @@ public class VariableSymbol extends CommonSymbol {
     this.blockType = blockType;
   }
 
+  @SuppressWarnings({"unused"}) // used in templates
   public boolean hasSetter() {
     checkState(getAstNode().isPresent(), "Symbol table must set the AST node.");
     checkArgument(getAstNode().get().getEnclosingScope().isPresent(), "Run symboltable creator.");
@@ -184,6 +194,7 @@ public class VariableSymbol extends CommonSymbol {
     return isSetterPresent(getName(), getType().getName(), getAstNode().get().getEnclosingScope().get());
   }
 
+  @SuppressWarnings({"unused"}) // used in templates
   public String printComment() {
     final StringBuffer output = new StringBuffer();
     if(getAstNode().isPresent()) {

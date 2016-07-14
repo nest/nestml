@@ -132,9 +132,18 @@ neuron ht_neuron_nestml:
     D_thresh real = -10.0
     D_slope real = 5.0;
     alias D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) );
+
+    alias I_Na real = -g_NaL * ( V_m - E_Na )
+    alias I_K real = -g_KL * ( V_m - E_K )
   end
 
   equations:
+    # delta V
+    V_m'  = ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike
+
+    # delta Theta
+    THETA' = -( THETA - Theta_eq ) / Tau_theta
+
     # equation modified from y[](1-D_eq) to (y[]-D_eq), since we'd not
     # be converging to equilibrium otherwise
     IKNa_D' = D_influx_peak * D_influx - ( IKNa_D  - KNa_D_EQ ) / tau_D
