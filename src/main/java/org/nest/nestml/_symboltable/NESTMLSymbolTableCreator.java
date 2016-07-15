@@ -7,6 +7,7 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
@@ -164,6 +165,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   private void assignOdeToVariables(final ASTBody astBody) {
     if (astBody.getODEBlock().isPresent()) {
       astBody.getODEBlock().get().getODEs()
+          .stream()
           .forEach(this::addOdeToVariable);
 
     }
@@ -175,8 +177,14 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     final Scope scope = currentScope().get();
     final String variableName = convertToSimpleName(ode.getLhs());
-    final VariableSymbol stateVariable = VariableSymbol.resolve(variableName, scope);
-    stateVariable.setOdeDeclaration(ode.getRhs());
+    final Optional<VariableSymbol> stateVariable = scope.resolve(variableName, VariableSymbol.KIND);
+
+    if (stateVariable.isPresent()) {
+      stateVariable.get().setOdeDeclaration(ode.getRhs());
+    }
+    else {
+      Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " + variableName);
+    }
 
   }
 
