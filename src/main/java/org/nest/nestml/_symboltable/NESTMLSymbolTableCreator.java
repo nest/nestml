@@ -7,6 +7,7 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
@@ -82,7 +83,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   private List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
     final List<ImportStatement> imports = new ArrayList<>();
 
-    compilationUnitAst.getImports().stream().forEach(importStatement -> {
+    compilationUnitAst.getImports().forEach(importStatement -> {
       final String importAsString = Names.getQualifiedName(importStatement.getQualifiedName().getParts());
       imports.add(new ImportStatement(importAsString, importStatement.isStar()));
     });
@@ -115,6 +116,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   public void endVisit(final ASTNeuron astNeuron) {
     addVariablesFromODEBlock(astNeuron.getBody());
+    assignOdeToVariables(astNeuron.getBody());
     removeCurrentScope();
     currentTypeSymbol = empty();
   }
@@ -135,12 +137,12 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       astBody.getODEBlock().get().getODEs()
           .stream()
           .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
-          .forEach(this::addODEVariable);
+          .forEach(this::addDerivedVariable);
     }
 
   }
 
-  private void addODEVariable(final ASTEquation ode) {
+  private void addDerivedVariable(final ASTEquation ode) {
     final String variableName = convertToSimpleName(ode.getLhs());
 
     final TypeSymbol type = PredefinedTypes.getType("real");
@@ -151,12 +153,39 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     var.setDeclaringType(currentTypeSymbol.get());
     var.setLoggable(true);
     var.setAlias(false);
+
     //var.setDeclaringExpression(ode.getRhs());
     var.setBlockType(VariableSymbol.BlockType.STATE);
 
     addToScopeAndLinkWithNode(var, ode.getLhs());
 
     trace("Adds new shape variable '" + var.getFullName() + "'.", LOGGER_NAME);
+  }
+
+  private void assignOdeToVariables(final ASTBody astBody) {
+    if (astBody.getODEBlock().isPresent()) {
+      astBody.getODEBlock().get().getODEs()
+          .stream()
+          .forEach(this::addOdeToVariable);
+
+    }
+
+  }
+
+  private void addOdeToVariable(final ASTEquation ode) {
+    checkState(this.currentScope().isPresent());
+
+    final Scope scope = currentScope().get();
+    final String variableName = convertToSimpleName(ode.getLhs());
+    final Optional<VariableSymbol> stateVariable = scope.resolve(variableName, VariableSymbol.KIND);
+
+    if (stateVariable.isPresent()) {
+      stateVariable.get().setOdeDeclaration(ode.getRhs());
+    }
+    else {
+      Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " + variableName);
+    }
+
   }
 
   public void visit(final ASTComponent componentAst) {
