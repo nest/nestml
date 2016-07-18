@@ -32,7 +32,7 @@ public class SPLParserTest extends ModelbasedTest {
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = collectSPLModelFilenames(TEST_MODEL_PATH);
+    final List<Path> filenames = collectSPLModelFilenames(Paths.get("src/test/resources/org/nest/spl"));
 
     filenames.forEach(this::parseAndCheck);
   }

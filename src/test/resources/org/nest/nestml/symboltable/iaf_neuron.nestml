@@ -16,6 +16,7 @@ neuron iaf_neuron:
 
   equations:
     y0' = y0 + 1
+    y0'' = y0' + 1
   end
 
   parameter:

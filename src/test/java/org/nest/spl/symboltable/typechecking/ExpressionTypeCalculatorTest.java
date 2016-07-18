@@ -121,6 +121,12 @@ public class ExpressionTypeCalculatorTest {
 
     // n boolean = not true
     assertType("n", declarations, getBooleanType());
+
+    // o1 real = true? 13:14
+    assertType("o1", declarations, getIntegerType());
+
+    // o2 string = true?"test1":"test"
+    assertType("o2", declarations, getStringType());
   }
 
   private void assertType(final String variableName, List<ASTDeclaration> declarations, final TypeSymbol expectedType) {
@@ -159,6 +165,11 @@ public class ExpressionTypeCalculatorTest {
     // n boolean = not 1
     assertInvaidType("n", declarations);
 
+    //o1 real = 12? 13:14
+    assertInvaidType("o1", declarations);
+
+    //o2 real = true?13:"test"
+    assertInvaidType("o2", declarations);
 
   }
 

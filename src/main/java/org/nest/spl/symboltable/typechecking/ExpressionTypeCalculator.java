@@ -396,6 +396,30 @@ public class ExpressionTypeCalculator {
       }
 
     }
+    else if (expr.getCondition().isPresent()) {
+
+      final Either<TypeSymbol, String> condition = computeType(expr.getCondition().get());
+      final Either<TypeSymbol, String> ifTrue = computeType(expr.getIfTure().get()); // guaranteed by the grammar
+      final Either<TypeSymbol, String> ifNot = computeType(expr.getIfNot().get()); // guaranteed by the grammar
+
+      if (condition.isError()) {
+        return condition;
+      }
+      if (ifTrue.isError()) {
+        return ifTrue;
+      }
+
+      if (ifNot.isError()) {
+        return ifNot;
+      }
+      if (!condition.getValue().equals(getBooleanType())) {
+        return Either.error("The ternary operator condition must be a boolean: " + ASTUtils.toString(expr) + ".  And not a: " + condition.getValue());
+      }
+      if (!isCompatible(ifTrue.getValue(), (ifNot.getValue()))) {
+        return Either.error("The ternary operator results must be of the same type: " + ASTUtils.toString(expr) + ".  And not: " + ifTrue.getValue() + " and " + ifNot.getValue());
+      }
+      return ifTrue;
+    }
 
     final String errorMsg = "This operation for expressions is not supported yet.";
 

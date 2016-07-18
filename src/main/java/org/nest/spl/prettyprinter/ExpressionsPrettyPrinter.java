@@ -133,8 +133,14 @@ public class ExpressionsPrettyPrinter {
     else if (expr.isLogicalNot()) {
       return "not " + print(expr.getExpr().get());
     }
+    else if (expr.getCondition().isPresent()) {
+      final String condition = print(expr.getCondition().get());
+      final String ifTrue = print(expr.getIfTure().get()); // guaranteed by grammar
+      final String ifNot = print(expr.getIfNot().get()); // guaranteed by grammar
+      return "(" + condition + ")?(" + ifTrue + "):(" + ifNot + ")";
+    }
 
-    final String errorMsg = "Unsupported grammar element. PrettyPrinter must be fixed " + expr.get_SourcePositionStart() + "}";
+    final String errorMsg = "Unsupported grammar element:  PrettyPrinter must be fixed " + expr.get_SourcePositionStart();
 
     throw new RuntimeException(errorMsg);
   }

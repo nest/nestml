@@ -68,6 +68,11 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue(y1Varialbe.isPresent());
     assertFalse(y1Varialbe.get().definedByODE());
 
+    // Checks that the derived variable is also resolvable
+    final Optional<VariableSymbol> Dy0Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("__Dy0", VariableSymbol.KIND);
+    assertTrue(Dy0Varialbe.isPresent());
+    assertTrue(Dy0Varialbe.get().definedByODE());
+
     final Optional<NeuronSymbol> testComponentOptional = modelScope.resolve(
         "TestComponent",
         NeuronSymbol.KIND);
