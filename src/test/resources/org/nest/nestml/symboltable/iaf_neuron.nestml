@@ -14,6 +14,10 @@ neuron iaf_neuron:
     alias V_m mV = y3 + E_L
   end
 
+  equations:
+    y0' = y0 + 1
+  end
+
   parameter:
     # Capacity of the membrane
     C_m       pF = 250
