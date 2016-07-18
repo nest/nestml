@@ -6,7 +6,7 @@
 
     <groupId>nestml</groupId>
     <artifactId>nestml-core</artifactId>
-    <version>0.1.1</version>
+    <version>1.1.2-SNAPSHOT</version>
 
     <properties>
         <!-- .. Libraries ..................................................... -->
