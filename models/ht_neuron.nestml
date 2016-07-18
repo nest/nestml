@@ -81,7 +81,7 @@ neuron ht_neuron_nestml:
     G_NMDA nS
     G_GABA_A nS
     G_GABA_B nS
-    IKNa_D pA
+    IKNa_D pA = KNa_D_EQ
     IT_m pA
     IT_h pA
     Ih_m pA
@@ -97,7 +97,7 @@ neuron ht_neuron_nestml:
 
     # The spike current is only activate immediately after a spike.
     # TODO const double_t I_spike = node.S_.g_spike_ ? -( V - node.P_.E_K ) / node.P_.Tau_spike : 0;
-    alias I_spike mV = 0
+    alias I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0;
 
     # intrinsic currents
     # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
@@ -188,7 +188,7 @@ neuron ht_neuron_nestml:
     T_E_rev mV = 0.0mV
     h_g_peak real = 1.0
     h_E_rev mV = -40.0mV
-    KNa_D_EQ real = 0.001;
+    KNa_D_EQ pA = 0.001pA;
   end
 
   internal:

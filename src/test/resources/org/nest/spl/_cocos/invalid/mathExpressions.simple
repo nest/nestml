@@ -4,3 +4,5 @@ k integer = ~1.0
 m real = 1 ** "a"
 m1 boolean = "a" and k != 0.0
 n boolean = not 1
+o1 real = 12? 13:14
+o2 real = true?13:"test"

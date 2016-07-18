@@ -6,9 +6,10 @@
 <#assign ODEs = ast.getEquations()>
 <#assign index = 0>
 <#assign indexPostfix = "INDEX">
-<#list ast.getStateNonAliasSymbols() as stateVariable>
-const int ${stateVariable.getName()}_${indexPostfix} = ${index};
- <#assign index = index + 1>
+
+<#list ast.variablesDefinedByODE() as odeVariable>
+const int ${odeVariable.getName()}_${indexPostfix} = ${index};
+<#assign index = index + 1>
 </#list>
 
 extern "C" inline int

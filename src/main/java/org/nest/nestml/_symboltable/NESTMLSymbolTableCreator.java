@@ -164,8 +164,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   private void assignOdeToVariables(final ASTBody astBody) {
     if (astBody.getODEBlock().isPresent()) {
-      astBody.getODEBlock().get().getODEs()
-          .stream()
+      astBody.getODEBlock().get()
+          .getODEs()
           .forEach(this::addOdeToVariable);
 
     }
@@ -174,8 +174,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   private void addOdeToVariable(final ASTEquation ode) {
     checkState(this.currentScope().isPresent());
-
     final Scope scope = currentScope().get();
+
     final String variableName = convertToSimpleName(ode.getLhs());
     final Optional<VariableSymbol> stateVariable = scope.resolve(variableName, VariableSymbol.KIND);
 

@@ -11,3 +11,4 @@ RefractoryCounts integer = steps(t_ref)
 # it is a pre-comment 1
 print("" + ((( C_m | (-3+6%2) & ~(0x4fa) | 0x23) >> 2) << 2)) # it is a post comment 1
 # it is a post commet 2
+tmp real = (11 > 12)?13:14

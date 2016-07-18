@@ -136,6 +136,14 @@ public class ASTBody extends ASTBodyTOP {
     }
   }
 
+  @SuppressWarnings("unused") // used in freemarker templates
+  public List<VariableSymbol> variablesDefinedByODE() {
+    return getStateSymbols()
+        .stream()
+        .filter(VariableSymbol::definedByODE)
+        .collect(toList());
+  }
+
   private Optional<ASTEquations> findEquationsBlock() {
     final Optional<ASTBodyElement> equations = this.getBodyElements()
         .stream()
@@ -161,7 +169,12 @@ public class ASTBody extends ASTBodyTOP {
 
   // STATE variables handling
   public List<VariableSymbol> getStateSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get());
+    return this.getEnclosingScope().get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(stateSymbol -> (VariableSymbol) stateSymbol)
+        .filter(VariableSymbol::isState)
+        .collect(toList());
+
   }
 
   public List<VariableSymbol> getStateAliasSymbols() {

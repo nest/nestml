@@ -50,6 +50,7 @@ grammar Commons extends de.monticore.types.Types {
          | logicalNot:["not"] Expr
          | left:Expr logicalAnd:["and"] right:Expr
          | left:Expr logicalOr:["or"] right:Expr
+         | condition:Expr "?" ifTure:Expr ":" ifNot:Expr
          | FunctionCall
          | BooleanLiteral // true & false;
          | NESTMLNumericLiteral

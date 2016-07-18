@@ -8,6 +8,7 @@ package org.nest.nestml.symboltable;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
+import de.monticore.symboltable.Symbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.*;
@@ -55,12 +56,24 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     Collection<TypeSymbol> nestmlTypes = modelScope.resolveLocally(NeuronSymbol.KIND);
     assertEquals(2, nestmlTypes.size());
 
-    final Optional<TypeSymbol> neuronTypeOptional = modelScope.resolve(
+    final Optional<NeuronSymbol> neuronTypeOptional = modelScope.resolve(
         "iaf_neuron",
         NeuronSymbol.KIND);
     assertTrue(neuronTypeOptional.isPresent());
+    final Optional<VariableSymbol> y0TVariable = neuronTypeOptional.get().getSpannedScope().resolve("y0", VariableSymbol.KIND);
+    final Optional<VariableSymbol> y1Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y1", VariableSymbol.KIND);
+    assertTrue(y0TVariable.isPresent());
+    assertTrue(y0TVariable.get().definedByODE());
 
-    final Optional<TypeSymbol> testComponentOptional = modelScope.resolve(
+    assertTrue(y1Varialbe.isPresent());
+    assertFalse(y1Varialbe.get().definedByODE());
+
+    // Checks that the derived variable is also resolvable
+    final Optional<VariableSymbol> Dy0Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("__Dy0", VariableSymbol.KIND);
+    assertTrue(Dy0Varialbe.isPresent());
+    assertTrue(Dy0Varialbe.get().definedByODE());
+
+    final Optional<NeuronSymbol> testComponentOptional = modelScope.resolve(
         "TestComponent",
         NeuronSymbol.KIND);
     assertTrue(testComponentOptional.isPresent());

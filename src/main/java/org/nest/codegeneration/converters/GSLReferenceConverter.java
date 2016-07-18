@@ -24,7 +24,12 @@ import static org.nest.utils.ASTUtils.convertToSimpleName;
 public class GSLReferenceConverter implements IReferenceConverter {
 
   private static final String INDEX_VARIABLE_POSTFIX = "_INDEX";
+  private final boolean isUseUpperBound;
   private static final Double MAXIMAL_EXPONENT = 10.0;
+
+  public GSLReferenceConverter() {
+    isUseUpperBound = false; // TODO make it parametrizable
+  }
 
   @Override
   public String convertBinaryOperator(String binaryOperator) {
@@ -39,8 +44,17 @@ public class GSLReferenceConverter implements IReferenceConverter {
   @Override
   public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
     final String functionName = astFunctionCall.getCalleeName();
+
     if ("exp".equals(functionName)) {
-      return "std::exp(std::min(%s, " + MAXIMAL_EXPONENT + "))";
+
+      if (isUseUpperBound) {
+        return "std::exp(std::min(%s, " + MAXIMAL_EXPONENT + "))";
+      }
+      else {
+        return "std::exp(%s)";
+
+      }
+
     }
     if ("pow".equals(functionName)) {
       return "pow(%s)";
@@ -56,8 +70,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
     final Scope scope = astVariable.getEnclosingScope().get();
     final VariableSymbol variableSymbol = VariableSymbol.resolve(convertDevrivativeNameToSimpleName(astVariable), scope);
 
-    if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
-        !variableSymbol.isAlias()) {
+    if (variableSymbol.definedByODE()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
     }
     else {
