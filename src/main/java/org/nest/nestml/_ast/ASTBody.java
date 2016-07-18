@@ -169,7 +169,12 @@ public class ASTBody extends ASTBodyTOP {
 
   // STATE variables handling
   public List<VariableSymbol> getStateSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get());
+    return this.getEnclosingScope().get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(stateSymbol -> (VariableSymbol) stateSymbol)
+        .filter(VariableSymbol::isState)
+        .collect(toList());
+
   }
 
   public List<VariableSymbol> getStateAliasSymbols() {
