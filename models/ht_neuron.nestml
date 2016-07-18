@@ -87,7 +87,7 @@ neuron ht_neuron_nestml:
     Ih_m pA
 
     r_potassium integer
-    g_spike boolean
+    g_spike boolean = false
 
     alias I_syn_ampa pA = -G_AMPA * ( V_m - AMPA_E_rev )
     alias I_syn_nmda pA = -G_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) );
@@ -114,8 +114,8 @@ neuron ht_neuron_nestml:
     alias I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
 
     # I_T
-    m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m + 59.0 ) / 6.2 ) )
-    h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m + 83.0 ) / 4 ) )
+    alias m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m + 59.0 ) / 6.2 ) )
+    alias h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m + 83.0 ) / 4 ) )
     # Low-thresh Ca current; member only to allow recording
     alias I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
     alias tau_m_T real = 0.22 / ( exp( -( V_m + 132.0 ) / 16.7 ) + exp( ( V_m + 16.8 ) / 18.2 ) ) + 0.13;
@@ -125,7 +125,7 @@ neuron ht_neuron_nestml:
     I_h_Vthreshold real = -75.0
     alias m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m - I_h_Vthreshold ) / 5.5 ) )
     alias I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
-    tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m ) + exp( -1.87 + 0.0701 * V_m ) );
+    alias tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m ) + exp( -1.87 + 0.0701 * V_m ) );
     # I_KNa
     D_influx_peak real = 0.025;
     tau_D real = 1250.0 # yes, 1.25s
@@ -143,6 +143,22 @@ neuron ht_neuron_nestml:
 
     # delta Theta
     THETA' = -( THETA - Theta_eq ) / Tau_theta
+
+    # AMPA
+    G_AMPA'' = -G_AMPA' / AMPA_Tau_1
+    G_AMPA' = G_AMPA' - G_AMPA  / AMPA_Tau_2
+
+    # NMDA
+    G_NMDA'' = -G_NMDA' / NMDA_Tau_1
+    G_NMDA' = G_NMDA' - G_NMDA / NMDA_Tau_2
+
+    # GABA_A
+    G_GABA_A'' = -G_GABA_A' / GABA_A_Tau_1
+    G_GABA_A' = G_GABA_A' - G_GABA_A / GABA_A_Tau_2
+
+    # GABA_B
+    G_GABA_B'' = -G_GABA_B' / GABA_B_Tau_1
+    G_GABA_B' = G_GABA_B' - G_GABA_B /GABA_B_Tau_2
 
     # equation modified from y[](1-D_eq) to (y[]-D_eq), since we'd not
     # be converging to equilibrium otherwise
@@ -224,10 +240,10 @@ neuron ht_neuron_nestml:
     end
     r_potassium -= 1
 
-    G_AMPA += AMPAInitialValue * AMPA
-    G_NMDA += NMDAInitialValue * NMDA
-    G_GABA_A += GABA_AInitialValue * GABA_A
-    G_GABA_B += GABA_BInitialValue * GABA_B
+    G_AMPA' += AMPAInitialValue * AMPA
+    G_NMDA' += NMDAInitialValue * NMDA
+    G_GABA_A' += GABA_AInitialValue * GABA_A
+    G_GABA_B' += GABA_BInitialValue * GABA_B
 
     if (not g_spike) and V_m >= THETA:
       # Set V and Theta to the sodium reversal potential.
