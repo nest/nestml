@@ -56,8 +56,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
     final Scope scope = astVariable.getEnclosingScope().get();
     final VariableSymbol variableSymbol = VariableSymbol.resolve(convertDevrivativeNameToSimpleName(astVariable), scope);
 
-    if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.STATE) &&
-        !variableSymbol.isAlias()) {
+    if (variableSymbol.definedByODE()) {
       return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
     }
     else {
