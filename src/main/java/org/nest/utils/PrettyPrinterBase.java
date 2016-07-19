@@ -18,13 +18,14 @@ public class PrettyPrinterBase {
     this.indentionLevel = indentionLevel;
   }
 
-  public int getIndentionLevel() {
+  protected int getIndentionLevel() {
     return indentionLevel;
   }
 
   public void print(String s) {
     result += (indent + s);
     indent = "";
+    calcIndention();
   }
 
   public void println() {
@@ -37,19 +38,19 @@ public class PrettyPrinterBase {
     calcIndention();
   }
 
-  public void calcIndention() {
+  private void calcIndention() {
     indent = "";
     for (int i = 0; i < indentionLevel; i++) {
       indent += "  ";
     }
   }
 
-  public void indent() {
+  protected void indent() {
     indentionLevel++;
     calcIndention();
   }
 
-  public void unindent() {
+  protected void unindent() {
     indentionLevel--;
     calcIndention();
   }

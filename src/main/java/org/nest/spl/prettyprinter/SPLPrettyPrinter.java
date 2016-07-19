@@ -116,14 +116,12 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
   @Override
   public void visit(final ASTSimple_Stmt astSimpleStmt ) {
-    ASTUtils.printSingleLineComment(astSimpleStmt);
-    ASTUtils.printMultilineComments(astSimpleStmt);
+    print(ASTUtils.printComments(astSimpleStmt));
   }
 
   @Override
   public void visit(final ASTStmt astStmt) {
-    ASTUtils.printSingleLineComment(astStmt);
-    ASTUtils.printMultilineComments(astStmt);
+    print(ASTUtils.printComments(astStmt));
   }
 
   /**
@@ -134,8 +132,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    */
   @Override
   public void visit(final ASTSmall_Stmt astSmallStmt ) {
-    ASTUtils.printSingleLineComment(astSmallStmt);
-    ASTUtils.printMultilineComments(astSmallStmt);
+    print(ASTUtils.printComments(astSmallStmt));
     if (astSmallStmt.getAssignment().isPresent()) {
       printAssignment(astSmallStmt.getAssignment().get());
     } else if (astSmallStmt.getFunctionCall().isPresent()) {
@@ -164,7 +161,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    * Grammar:
    * Assignment = variableName:QualifiedName "=" Expr;
    */
-  public void printAssignment(final ASTAssignment astAssignment) {
+  private void printAssignment(final ASTAssignment astAssignment) {
     final String lhsVariableName = astAssignment.getLhsVarialbe().toString();
     final String rhsOfAssignment = expressionsPrettyPrinter.print(astAssignment.getExpr());
     if (astAssignment.isAssignment()) {
@@ -191,7 +188,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    * FunctionCall = QualifiedName "(" ArgList ")";
    * ArgList = (args:Expr ("," args:Expr)*)?;
    */
-  public void printFunctionCall(final ASTFunctionCall astFunctionCall) {
+  private void printFunctionCall(final ASTFunctionCall astFunctionCall) {
     final String functionName = astFunctionCall.getCalleeName();
     print(functionName + "(");
     final List<ASTExpr> functionArguments = astFunctionCall.getArgs();
@@ -211,7 +208,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   /**
    * ReturnStmt = "return" Expr?;
    */
-  public void printReturnStatement(final ASTReturnStmt astReturnStmt) {
+  private void printReturnStatement(final ASTReturnStmt astReturnStmt) {
 
     if (astReturnStmt.getExpr().isPresent()) {
       final String returnExpressionAsString = expressionsPrettyPrinter.print(astReturnStmt.getExpr().get());
@@ -222,7 +219,6 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     }
 
   }
-
 
   /**
    * Grammar

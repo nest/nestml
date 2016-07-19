@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.helpers.AliasInverter.isInvertableExpression;
 import static org.nest.codegeneration.helpers.AliasInverter.isRelativeExpression;
-import static org.nest.utils.ASTUtils.printComment;
+import static org.nest.utils.ASTUtils.printComments;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
@@ -160,7 +160,7 @@ public class ASTBody extends ASTBodyTOP {
 
   private String printBlockComment(final Optional<? extends ASTNode> block) {
     if (block.isPresent()) {
-      return printComment(block.get());
+      return printComments(block.get());
     }
     else {
       return "";

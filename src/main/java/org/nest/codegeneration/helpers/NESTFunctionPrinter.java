@@ -56,7 +56,7 @@ public class NESTFunctionPrinter {
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
-      declaration.append("//").append(ASTUtils.printComment(astFunction)).append("\n");
+      declaration.append("//").append(ASTUtils.printComments(astFunction)).append("\n");
       final String returnType = new NESTML2NESTTypeConverter().convert(method.get().getReturnType()).replace(
           ".", "::");
       declaration.append(returnType);
@@ -97,7 +97,7 @@ public class NESTFunctionPrinter {
 
     final StringBuilder declaration = new StringBuilder();
     if (method.isPresent()) {
-      declaration.append("//").append(ASTUtils.printComment(astFunction)).append("\n");
+      declaration.append("//").append(ASTUtils.printComments(astFunction)).append("\n");
       final String returnType = new NESTML2NESTTypeConverter().convert(method.get().getReturnType()).replace(
           ".", "::");
       declaration.append(returnType);
