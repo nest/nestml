@@ -208,7 +208,6 @@ neuron ht_neuron_nestml:
   end
 
   internal:
-
     AMPAInitialValue real = compute_synapse_constant( AMPA_Tau_1, AMPA_Tau_2, AMPA_g_peak )
     NMDAInitialValue real = compute_synapse_constant( NMDA_Tau_1, NMDA_Tau_2, NMDA_g_peak )
 

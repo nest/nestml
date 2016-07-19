@@ -1,4 +1,4 @@
 module org.nest.spl.parsing.returnInWhile
 # This is a comment
-if A > B:
+if 1 > 2:
 end
