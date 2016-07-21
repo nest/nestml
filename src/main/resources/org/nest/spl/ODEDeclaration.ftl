@@ -32,7 +32,9 @@ while ( t < step_ )
   &IntegrationStep_, // integration step size
   stateVector );               // neuronal state
 <#assign index = 0>
-
+  if ( status != GSL_SUCCESS ) {
+    throw nest::GSLSolverFailure( get_name(), status );
+  }
 }
 <#list body.variablesDefinedByODE() as odeVariable>
   S_.${odeVariable.getName()} = stateVector[${odeVariable.getName()}_${indexPostfix}];

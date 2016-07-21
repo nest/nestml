@@ -117,12 +117,6 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& __d
 }
 
 void
-${simpleNeuronName}::State_::get(DictionaryDatum &__d) const
-{
-// TODO: remove me
-}
-
-void
 ${simpleNeuronName}::State_::set(const DictionaryDatum& __d, const Parameters_& p
 <#list body.getAllOffsetVariables() as offset>
   , ${declarations.printVariableType(offset)} delta_${offset.getName()}
