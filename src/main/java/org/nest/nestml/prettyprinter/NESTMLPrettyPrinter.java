@@ -13,8 +13,6 @@ import org.nest.spl._ast.ASTParameter;
 import org.nest.spl._ast.ASTParameters;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
-import org.nest.units._ast.ASTUnitType;
-import org.nest.units.prettyprinter.TypesPrettyPrinter;
 import org.nest.utils.ASTUtils;
 import org.nest.utils.PrettyPrinterBase;
 
@@ -22,8 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.nest.spl.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
-import static org.nest.utils.ASTUtils.printMultilineComments;
-import static org.nest.utils.ASTUtils.printSingleLineComment;
+import static org.nest.utils.ASTUtils.printComments;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
@@ -34,11 +31,9 @@ import static org.nest.utils.ASTUtils.printSingleLineComment;
  */
 public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInheritanceVisitor {
   private final ExpressionsPrettyPrinter expressionsPrinter;
-  private final TypesPrettyPrinter typesPrettyPrinter;
 
   protected NESTMLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrinter) {
     this.expressionsPrinter = expressionsPrinter;
-    typesPrettyPrinter = new TypesPrettyPrinter();
   }
 
   /**
@@ -50,8 +45,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTNESTMLCompilationUnit node) {
-    print(printMultilineComments(node));
-    print(printSingleLineComment(node));
+    print(printComments(node));
   }
 
   /**
@@ -74,7 +68,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTNeuron astNeuron) {
-    printMultilineComments(astNeuron);
+    print(printComments(astNeuron));
     print("neuron " + astNeuron.getName());
     astNeuron.getBase().ifPresent(
         baseNeuron -> print(" extends " + baseNeuron));
@@ -121,7 +115,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   @Override
   public void visit(final ASTBodyElement astBodyElement) {
-    printSingleLineComment(astBodyElement);
+    print(printComments(astBodyElement));
   }
   /**
    * Var_Block implements BodyElement =
@@ -170,7 +164,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   private void printDeclarationComment(ASTAliasDecl astAliasDecl) {
-    print(ASTUtils.printSingleLineComment(astAliasDecl));
+    print(printComments(astAliasDecl));
     //print(ASTUtils.printMultilineComments(astAliasDecl));
     println();
   }

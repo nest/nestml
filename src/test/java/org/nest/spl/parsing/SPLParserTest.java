@@ -30,6 +30,12 @@ public class SPLParserTest extends ModelbasedTest {
   private final static  String LOG_NAME = SPLParserTest.class.getName();
   private final SPLParser parser = new SPLParser();
 
+
+  @Test
+  public void test() {
+    parseAndCheck(Paths.get("src/test/resources/org/nest/spl/parsing/comment.simple"));
+  }
+
   @Test
   public void testParsableModels() throws IOException {
     final List<Path> filenames = collectSPLModelFilenames(Paths.get("src/test/resources/org/nest/spl"));
