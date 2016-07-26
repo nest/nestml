@@ -52,13 +52,13 @@ neuron iaf_neuron_nestml:
     V_syn mV   = 0mV  # psp waveform, variable 2
     V_spike mV = 0mV  # post spike reset waveform, variable 3
 
-    alias V_m mV = V_syn + V_spike + noise_term
   end
 
   # Declarative description of the updates rules
   equations:
       shape G = (V_epsp * e/tau_epsp) * t * exp(-1/tau_epsp*t)
-      V_1' = -1/Tau * V_1 + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+      shape own_G = -V_reset*exp(-t/tau_reset)
+      V_m = I_sum(G, spikes_ex) + I_sum(own_G, spikes_own) + noise_term
   end
 
   # these parameter are adjusted from outside
@@ -86,6 +86,7 @@ neuron iaf_neuron_nestml:
   # input sources
   input:
     spikes_ex   <- spike
+    spikes_own  <- spike own
     currents <- current
   end
 
@@ -100,6 +101,7 @@ neuron iaf_neuron_nestml:
           r = RefractoryCounts
           V_1 = V_reset
           emit_spike()
+          spikes_own.addSpike()
         end
     else:
         r = r - 1

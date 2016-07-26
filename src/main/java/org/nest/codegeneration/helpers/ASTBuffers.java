@@ -165,4 +165,5 @@ public class ASTBuffers {
 
     return buffer.getVectorParameter().isPresent();
   }
+
 }
