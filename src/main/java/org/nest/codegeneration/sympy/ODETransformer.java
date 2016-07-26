@@ -20,16 +20,18 @@ import java.util.stream.Collectors;
  * @author plotnikov
  */
 public class ODETransformer {
-  public static ASTEquation replace_I_sum(final ASTEquation astOde) {
-    final List<ASTFunctionCall> functions = ASTUtils.getAll(astOde, ASTFunctionCall.class)
+  // this function is used in freemarker templates und must be public
+  public static ASTEquation replaceSumCalls(final ASTEquation astOde) {
+    final ASTEquation workingCopy = astOde.deepClone();
+    final List<ASTFunctionCall> functions = ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall ->
             astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM) ||
             astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
         .collect(Collectors.toList());
 
-    functions.stream().forEach(node -> replaceFunctionCallThroughFirstArgument(astOde, node));
-    return astOde;
+    functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
+    return workingCopy;
   }
 
   private static void replaceFunctionCallThroughFirstArgument(ASTEquation astOde, ASTFunctionCall node) {

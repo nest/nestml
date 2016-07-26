@@ -138,7 +138,7 @@ public class SympyScriptGenerator {
       Log.warn("It works only for a single ODE. Only the first equation will be used.");
     }
 
-    final ASTEquation workingVersion = ODETransformer.replace_I_sum(astOdeDeclaration.getODEs().get(0));
+    final ASTEquation workingVersion = ODETransformer.replaceSumCalls(astOdeDeclaration.getODEs().get(0));
 
     glex.setGlobalValue("ode", workingVersion);
     glex.setGlobalValue("shapes", astOdeDeclaration.getShapes());

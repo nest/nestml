@@ -153,7 +153,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   @Ignore("Don't run this tests on github")
   @Test
   public void testManually() {
-    final List<String> modelName = Lists.newArrayList("models/ht_neuron.nestml");
+    final List<String> modelName = Lists.newArrayList("models/iaf_cond_alpha_implicit.nestml");
     modelName.forEach(this::checkCocos);
     modelName.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = modelName.stream()

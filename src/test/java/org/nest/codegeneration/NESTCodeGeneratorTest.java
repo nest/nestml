@@ -9,11 +9,7 @@ import org.junit.Test;
 import org.nest.base.GenerationBasedTest;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLParser;
 import org.nest.utils.FilesHelper;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -73,6 +69,5 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
   }
-
 
 }

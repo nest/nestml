@@ -74,8 +74,8 @@ public class NESTCodeGenerator {
 
     workingVersion = printAndReadModel(outputBase, workingVersion);
     // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
-    workingVersion.getNeurons()
-        .stream()
+    workingVersion
+        .getNeurons()
         .forEach(astNeuron -> generateNESTCode(astNeuron, outputBase));
 
     final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
@@ -301,9 +301,8 @@ public class NESTCodeGenerator {
     glex.setGlobalValue("astUtils", new ASTUtils());
     glex.setGlobalValue("aliasInverter", new AliasInverter());
 
-    glex.setGlobalValue("nestVersion", 3);
-
   }
+
 
   private void defineSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
     final ASTBody astBody = neuron.getBody();

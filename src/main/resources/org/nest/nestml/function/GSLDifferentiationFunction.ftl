@@ -29,7 +29,7 @@ ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode 
     double ${alias.getName()} = ${expressionsPrinterForGSL.print(alias.getDeclaringExpression().get())};
   </#list>
   <#list ODEs as ode>
-    <#assign simpleOde = odeTransformer.replace_I_sum(ode)>
+    <#assign simpleOde = odeTransformer.replaceSumCalls(ode)>
     f[ ${astUtils.convertToSimpleName(simpleOde.getLhs())}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(simpleOde.getRhs())};
   </#list>
 
