@@ -8,6 +8,7 @@ package org.nest.symboltable.symbols;
 import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
+import org.nest.codegeneration.helpers.ASTBuffers;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.utils.ASTUtils;
@@ -123,6 +124,22 @@ public class VariableSymbol extends CommonSymbol {
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
       return astInputLine.isCurrent();
+    }
+    return false;
+  }
+
+  public boolean isExcitatory() {
+    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
+      return ASTBuffers.isExcitatory(astInputLine);
+    }
+    return false;
+  }
+
+  public boolean isInhibitory() {
+    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
+      return ASTBuffers.isInhibitory(astInputLine);
     }
     return false;
   }

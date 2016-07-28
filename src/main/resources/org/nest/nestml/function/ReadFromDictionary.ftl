@@ -9,7 +9,7 @@ ${signature("variable")}
 <#if variable.isAlias() && variable.hasSetter()> // TODO: cannot work. It is called from Struct constructor
   // handles an alias with the user defined setter
   ${declarations.printVariableType(variable)} tmp_${variable.getName()};
-  if (updateValue<${declarations.printVariableType(variable)}>(d, "${variable.getName()}", tmp_${variable.getName()})) {
+  if (updateValue<${declarations.printVariableType(variable)}>(__d, "${variable.getName()}", tmp_${variable.getName()})) {
     set_${variable.getName()}(tmp_${variable.getName()});
   }
 <#elseif variable.isAlias() && aliasInverter.isInvertableExpression(variable.getDeclaringExpression().get())>

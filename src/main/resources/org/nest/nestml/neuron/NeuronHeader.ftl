@@ -147,8 +147,8 @@ public:
   ${tc.includeArgs("org.nest.nestml.function.MemberVariableGetterSetter", [internal])}
   </#list>
 
-  <#list body.getInputLines() as inputLine>
-  ${bufferHelper.printBufferGetter(inputLine, false)};
+  <#list body.getInputBuffers() as buffer>
+  ${bufferHelper.printBufferGetter(buffer, false)};
   </#list>
 
 protected:
@@ -302,7 +302,7 @@ protected:
       /** buffers and sums up incoming spikes/currents */
       std::vector< nest::RingBuffer > spike_inputs_;
 
-      <#list body.getInputLines() as inputLine>
+      <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferArrayGetter(inputLine)}
       </#list>
 
@@ -310,11 +310,11 @@ protected:
         ${bufferHelper.printBufferDeclaration(inputLine)};
       </#list>
     <#else>
-      <#list body.getInputLines() as inputLine>
+      <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferGetter(inputLine, true)}
       </#list>
 
-      <#list body.getInputLines() as inputLine>
+      <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferDeclaration(inputLine)};
       </#list>
     </#if>

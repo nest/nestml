@@ -32,6 +32,7 @@ import static org.nest.utils.ASTUtils.printComments;
  *
  * @author plotnikov
  */
+@SuppressWarnings({"unused"}) // function are used in freemarker templates
 public class ASTBody extends ASTBodyTOP {
 
   public ASTBody() {
@@ -136,7 +137,6 @@ public class ASTBody extends ASTBodyTOP {
     }
   }
 
-  @SuppressWarnings("unused") // used in freemarker templates
   public List<VariableSymbol> variablesDefinedByODE() {
     return getStateSymbols()
         .stream()
@@ -254,7 +254,6 @@ public class ASTBody extends ASTBodyTOP {
   }
 
 
-  @SuppressWarnings("unused") // used in templates
   public List<ASTExpr> getParameterInvariants() {
     return getParameterDeclarations().stream()
         .filter(param -> param.getInvariant().isPresent())
@@ -379,11 +378,27 @@ public class ASTBody extends ASTBodyTOP {
 
   }
 
+  public List<VariableSymbol> getInputBuffers() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(inputBuffer -> inputBuffer.isSpikeBuffer() || inputBuffer.isCurrentBuffer())
+        .collect(Collectors.toList());
+  }
+
   public List<VariableSymbol> getSpikeBuffers() {
     return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
         .stream()
         .map(inputBuffer -> (VariableSymbol) inputBuffer)
         .filter(VariableSymbol::isSpikeBuffer)
+        .collect(Collectors.toList());
+  }
+
+  public List<VariableSymbol> getCurrentBuffers() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(VariableSymbol::isCurrentBuffer)
         .collect(Collectors.toList());
   }
 
@@ -393,14 +408,6 @@ public class ASTBody extends ASTBodyTOP {
         .map(inputBuffer -> (VariableSymbol) inputBuffer)
         .filter(VariableSymbol::isSpikeBuffer)
         .filter(VariableSymbol::isInhAndExc)
-        .collect(Collectors.toList());
-  }
-
-  public List<VariableSymbol> getCurrentBuffers() {
-    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
-        .stream()
-        .map(inputBuffer -> (VariableSymbol) inputBuffer)
-        .filter(VariableSymbol::isCurrentBuffer)
         .collect(Collectors.toList());
   }
 

@@ -10,7 +10,6 @@ import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -28,7 +27,7 @@ import static com.google.common.base.Preconditions.checkState;
  *
  * @author plotnikov
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused"})
 public class ASTBuffers {
 
   private final NESTML2NESTTypeConverter nestml2NESTTypeConverter;
@@ -37,7 +36,7 @@ public class ASTBuffers {
     nestml2NESTTypeConverter = new NESTML2NESTTypeConverter();
   }
 
-  public boolean isInhibitory(final ASTInputLine buffer) {
+  public static boolean isInhibitory(final ASTInputLine buffer) {
     boolean isInhibitory = false, isExcitatory = false;
     for (final ASTInputType inputType : buffer.getInputTypes()) {
       if (inputType.isInhibitory()) {
@@ -52,7 +51,7 @@ public class ASTBuffers {
 
   }
 
-  public boolean isExcitatory(final ASTInputLine buffer) {
+  public static boolean isExcitatory(final ASTInputLine buffer) {
     boolean isInhibitory = false, isExcitatory = false;
     for (final ASTInputType inputType : buffer.getInputTypes()) {
       if (inputType.isInhibitory()) {
@@ -66,15 +65,7 @@ public class ASTBuffers {
     return !isInhibitory && !isExcitatory || isExcitatory;
   }
 
-  public String printBufferGetter(final ASTInputLine astInputLine, boolean isInStruct) {
-    checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
-    final Scope scope = astInputLine.getEnclosingScope().get();
-    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
-
-    return printBufferGetter(buffer, isInStruct);
-  }
-
-  private String printBufferGetter(VariableSymbol buffer, boolean isInStruct) {
+  public String printBufferGetter(VariableSymbol buffer, boolean isInStruct) {
     final StringBuilder functionDeclaration = new StringBuilder();
     functionDeclaration.append("inline ");
 
@@ -100,25 +91,16 @@ public class ASTBuffers {
     return functionDeclaration.toString();
   }
 
-  public String printBufferArrayGetter(final ASTInputLine astInputLine) {
-    if (astInputLine.isSpike() && ASTUtils.isInhExc(astInputLine)) {
-      checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
-      final Scope scope = astInputLine.getEnclosingScope().get();
-      final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
+  public String printBufferArrayGetter(final VariableSymbol buffer) {
+    if (buffer.isSpikeBuffer() && buffer.isInhAndExc()) {
 
-      final StringBuilder functionDeclaration = new StringBuilder();
-      functionDeclaration.append("inline ");
-
-
-      functionDeclaration.append(nestml2NESTTypeConverter.convert(buffer.getType()) + "&")
-          .append(" get_" + astInputLine.getName() + "() {")
-          .append("return spike_inputs_[" + astInputLine.getName().toUpperCase() + " - 1]; ");
-
-      functionDeclaration.append("}");
-      return functionDeclaration.toString();
+      return "inline " + nestml2NESTTypeConverter.convert(buffer.getType()) + "&" +
+             " get_" + buffer.getName() + "() {" +
+             "  return spike_inputs_[" + buffer.getName().toUpperCase() + " - 1]; " +
+             "}";
     }
     else {
-      return printBufferGetter(astInputLine, true);
+      return printBufferGetter(buffer, true);
     }
   }
 
@@ -146,8 +128,8 @@ public class ASTBuffers {
         "\n//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
   }
 
-  public String printBufferInitialization(final ASTInputLine astInputLine) {
-    return "get_" + astInputLine.getName() + "().clear(); //includes resize";
+  public String printBufferInitialization(final VariableSymbol buffer) {
+    return "get_" + buffer.getName() + "().clear(); //includes resize";
   }
 
   public String vectorParameter(final ASTInputLine astInputLine) {

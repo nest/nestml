@@ -174,8 +174,8 @@ ${tc.include("org.nest.nestml.function.GSLDifferentiationFunction", body)}
 void
 ${simpleNeuronName}::init_buffers_()
 {
-  <#list body.getInputLines() as input>
-  ${bufferHelper.printBufferInitialization(input)}
+  <#list body.getInputBuffers() as buffer>
+  ${bufferHelper.printBufferInitialization(buffer)}
   </#list>
   B_.logger_.reset(); // includes resize
   Archiving_Node::clear_history();
@@ -224,11 +224,11 @@ ${simpleNeuronName}::calibrate()
     </#if>
   </#list>
 
-  <#list body.getInputLines() as inputLine>
-    <#if bufferHelper.isVector(inputLine)>
-        B_.${inputLine.getName()}.resize(P_.${bufferHelper.vectorParameter(inputLine)});
-        B_.receptor_types_.resize(P_.${bufferHelper.vectorParameter(inputLine)});
-        for (size_t i=0; i < P_.${bufferHelper.vectorParameter(inputLine)}; i++)
+  <#list body.getInputBuffers() as buffer>
+    <#if buffer.isVector()>
+        B_.${buffer.getName()}.resize(P_.${buffer.getVectorParameter().get()});
+        B_.receptor_types_.resize(P_.${buffer.getVectorParameter().get()});
+        for (size_t i=0; i < P_.${buffer.getVectorParameter().get()}}; i++)
         {
           B_.receptor_types_[i] = i+1;
         }
@@ -297,7 +297,10 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
   <#else>
       const double_t weight = e.get_weight();
       const double_t multiplicity = e.get_multiplicity();
-      ${tc.include("org.nest.nestml.buffer.SpikeBufferFill", body.getInputLines())}
+      <#list body.getSpikeBuffers() as buffer>
+        ${tc.includeArgs("org.nest.nestml.buffer.SpikeBufferFill", [buffer])}
+      </#list>
+
   </#if>
 }
 </#if>
@@ -312,6 +315,10 @@ ${simpleNeuronName}::handle(nest::CurrentEvent& e)
   const double_t weight=e.get_weight();
 
   // add weighted current; HEP 2002-10-04
-  ${tc.include("org.nest.nestml.buffer.CurrentBufferFill", body.getInputLines())}
+  <#list body.getCurrentBuffers() as buffer>
+    get_${buffer.getName()}().add_value(
+               e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+               weight * current );
+  </#list>
 }
 </#if>
