@@ -34,7 +34,8 @@ ${signature("buffer")}
   if ( weight < 0.0 ) // inhibitory
   {
     get_${buffer.getName()}().add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
-                 weight * multiplicity );
+                <#if buffer.isConductanceBased()> // ensure conductance is positive </#if>
+                <#if buffer.isConductanceBased()> -1 * </#if> weight * multiplicity );
   }
   </#if>
 </#if>

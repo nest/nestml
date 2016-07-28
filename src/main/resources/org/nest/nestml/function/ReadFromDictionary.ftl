@@ -6,7 +6,7 @@
 -->
 ${signature("variable")}
 
-<#if variable.isAlias() && variable.hasSetter()> // TODO: cannot work. It is called from Struct constructor
+<#if variable.isAlias() && variable.hasSetter()>
   // handles an alias with the user defined setter
   ${declarations.printVariableType(variable)} tmp_${variable.getName()};
   if (updateValue<${declarations.printVariableType(variable)}>(__d, "${variable.getName()}", tmp_${variable.getName()})) {
