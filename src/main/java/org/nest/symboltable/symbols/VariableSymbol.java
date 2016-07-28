@@ -8,6 +8,7 @@ package org.nest.symboltable.symbols;
 import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
+import org.nest.codegeneration.helpers.ASTBuffers;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.utils.ASTUtils;
@@ -44,6 +45,8 @@ public class VariableSymbol extends CommonSymbol {
   private BlockType blockType;
 
   private String arraySizeParameter = null;
+
+  private boolean conductanceBased = false;
 
   public boolean isBuffer() {
     return blockType == BlockType.INPUT_BUFFER_CURRENT || blockType == BlockType.INPUT_BUFFER_SPIKE;
@@ -121,6 +124,22 @@ public class VariableSymbol extends CommonSymbol {
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
       return astInputLine.isCurrent();
+    }
+    return false;
+  }
+
+  public boolean isExcitatory() {
+    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
+      return ASTBuffers.isExcitatory(astInputLine);
+    }
+    return false;
+  }
+
+  public boolean isInhibitory() {
+    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
+      return ASTBuffers.isInhibitory(astInputLine);
     }
     return false;
   }
@@ -213,6 +232,14 @@ public class VariableSymbol extends CommonSymbol {
 
   public static Optional<VariableSymbol> resolveIfExists(final String variableName, final Scope scope) {
     return scope.resolve(variableName, VariableSymbol.KIND);
+  }
+
+  public boolean isConductanceBased() {
+    return conductanceBased;
+  }
+
+  public void setConductanceBased(boolean conductanceBased) {
+    this.conductanceBased = conductanceBased;
   }
 
   /**

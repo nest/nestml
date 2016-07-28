@@ -23,15 +23,26 @@ public class ODETransformer {
   // this function is used in freemarker templates und must be public
   public static ASTEquation replaceSumCalls(final ASTEquation astOde) {
     final ASTEquation workingCopy = astOde.deepClone();
-    final List<ASTFunctionCall> functions = ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
-        .stream()
-        .filter(astFunctionCall ->
-            astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM) ||
-            astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
-        .collect(Collectors.toList());
+    final List<ASTFunctionCall> functions = getSumFunctionCalls(workingCopy);
 
     functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
     return workingCopy;
+  }
+
+  public static List<ASTFunctionCall> getSumFunctionCalls(ASTEquation workingCopy) {
+    return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
+          .stream()
+          .filter(astFunctionCall ->
+              astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM) ||
+              astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
+          .collect(Collectors.toList());
+  }
+
+  public static List<ASTFunctionCall> getCondSumFunctionCall(ASTEquation workingCopy) {
+    return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
+        .stream()
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
+        .collect(Collectors.toList());
   }
 
   private static void replaceFunctionCallThroughFirstArgument(ASTEquation astOde, ASTFunctionCall node) {
