@@ -45,6 +45,8 @@ public class VariableSymbol extends CommonSymbol {
 
   private String arraySizeParameter = null;
 
+  private boolean conductanceBased = false;
+
   public boolean isBuffer() {
     return blockType == BlockType.INPUT_BUFFER_CURRENT || blockType == BlockType.INPUT_BUFFER_SPIKE;
   }
@@ -213,6 +215,14 @@ public class VariableSymbol extends CommonSymbol {
 
   public static Optional<VariableSymbol> resolveIfExists(final String variableName, final Scope scope) {
     return scope.resolve(variableName, VariableSymbol.KIND);
+  }
+
+  public boolean isConductanceBased() {
+    return conductanceBased;
+  }
+
+  public void setConductanceBased(boolean conductanceBased) {
+    this.conductanceBased = conductanceBased;
   }
 
   /**

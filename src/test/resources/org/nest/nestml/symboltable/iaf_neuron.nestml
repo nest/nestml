@@ -17,6 +17,7 @@ neuron iaf_neuron:
   equations:
     y0' = y0 + 1;
     y0'' = y0' + 1
+    y3' = Cond_sum(y1, spikeBuffer)
   end
 
   parameter:

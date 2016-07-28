@@ -8,12 +8,10 @@ package org.nest.nestml.symboltable;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
-import de.monticore.symboltable.Symbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.symboltable.predefined.PredefinedFunctions;
@@ -238,8 +236,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
 
     List<String> parameters = Lists.newArrayList("mV");
 
-    final Optional<MethodSymbol> standAloneFunction = (Optional<MethodSymbol>)
-        stateScope.resolve(new MethodSignaturePredicate(PredefinedFunctions.INTEGRATE, parameters));
+    final Optional<MethodSymbol> standAloneFunction = NESTMLSymbols.resolveMethod(PredefinedFunctions.INTEGRATE, parameters, stateScope);
     standAloneFunction.isPresent();
   }
 
@@ -273,19 +270,19 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
   public void testResolvingFromSupertype() throws IOException {
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources/inheritance"));
     final NESTMLParser nestmlParser = new NESTMLParser(Paths.get("src/test/resources/inheritance"));
-    final ASTNESTMLCompilationUnit root = nestmlParser.parse(MODEL_WITH_INHERITANCE.toString()).get();
+    final ASTNESTMLCompilationUnit root = nestmlParser.parse(MODEL_WITH_INHERITANCE).get();
     assertEquals(1, root.getNeurons().size());
     scopeCreator.runSymbolTableCreator(root);
     ASTNeuron astNeuron = root.getNeurons().get(0);
     assertTrue( astNeuron.getSymbol().isPresent());
     assertTrue( astNeuron.getSymbol().get() instanceof NeuronSymbol);
     final NeuronSymbol neuronSymbol = (NeuronSymbol) astNeuron.getSymbol().get();
-    /*Optional<VariableSymbol> internalVariable = neuronSymbol.getSpannedScope().resolve("tau_m", VariableSymbol.KIND);
+    Optional<VariableSymbol> internalVariable = neuronSymbol.getSpannedScope().resolve("tau_m", VariableSymbol.KIND);
     assertTrue(internalVariable.isPresent());
 
     Optional<VariableSymbol> importedVariable = neuronSymbol.getSpannedScope().resolve("r", VariableSymbol.KIND);
     assertTrue(importedVariable.isPresent());
-*/
+
     final Optional<ASTAssignment> astAssignment = ASTUtils.getAny(root, ASTAssignment.class);
     assertTrue(astAssignment.isPresent());
     final Optional<VariableSymbol> fromAssignment = astAssignment.get().getEnclosingScope().get()
@@ -294,4 +291,14 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue(fromAssignment.isPresent());
   }
 
+  @Test
+  public void testRecognitionOfConductanceBasedBuffers() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    assertEquals(1, root.getNeurons().size());
+    scopeCreator.runSymbolTableCreator(root);
+
+    final List<VariableSymbol> spikeBuffers = root.getNeurons().get(0).getBody().getSpikeBuffers();
+    assertTrue(spikeBuffers.size() == 1);
+    assertTrue(spikeBuffers.get(0).isConductanceBased());
+  }
 }

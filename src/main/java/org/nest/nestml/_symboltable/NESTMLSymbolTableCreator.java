@@ -20,14 +20,17 @@ import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.trace;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static org.nest.codegeneration.sympy.ODETransformer.getCondSumFunctionCall;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.COMPONENT;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.LOCAL;
@@ -117,6 +120,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   public void endVisit(final ASTNeuron astNeuron) {
     addVariablesFromODEBlock(astNeuron.getBody());
     assignOdeToVariables(astNeuron.getBody());
+    markConductanceBasedBuffers(astNeuron.getBody());
     removeCurrentScope();
     currentTypeSymbol = empty();
   }
@@ -142,6 +146,11 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   }
 
+  /**
+   * Adds a variable that results from a right hand side an ODE: e.g. g_I'' -> g_I' is the new variable.
+   * The corresponding ODE is added in {@code addOdeToVariable}
+   *
+   */
   private void addDerivedVariable(final ASTEquation ode) {
     final String variableName = convertToSimpleName(ode.getLhs());
 
@@ -154,17 +163,17 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     var.setLoggable(true);
     var.setAlias(false);
 
-    //var.setDeclaringExpression(ode.getRhs());
     var.setBlockType(VariableSymbol.BlockType.STATE);
 
-    addToScopeAndLinkWithNode(var, ode.getLhs());
+    addToScopeAndLinkWithNode(var, ode);
 
-    trace("Adds new shape variable '" + var.getFullName() + "'.", LOGGER_NAME);
+    trace("Add new variable derived from the ODE: '" + var.getFullName() + "'.", LOGGER_NAME);
   }
 
   private void assignOdeToVariables(final ASTBody astBody) {
     if (astBody.getODEBlock().isPresent()) {
-      astBody.getODEBlock().get()
+      astBody.getODEBlock()
+          .get()
           .getODEs()
           .forEach(this::addOdeToVariable);
 
@@ -184,6 +193,48 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     }
     else {
       Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " + variableName);
+    }
+
+  }
+
+  /**
+   * For each buffer, if it is used in the Cond_sum function, a conductance flag is added. E.g. in
+   * equations:
+   *   V_m = Cond_sum(GI, spikes)
+   * end
+   * input:
+   *   spikes <- spike
+   * end
+   *
+   * spikes buffer is marked conductanceBased
+   */
+  private void markConductanceBasedBuffers(final ASTBody astBody) {
+    checkState(currentScope().isPresent());
+
+    if (astBody.getODEBlock().isPresent() && !astBody.getInputLines().isEmpty()) {
+
+      final List<ASTEquation> equations = astBody.getODEBlock().get().getODEs();
+      final Collection<VariableSymbol> bufferSymbols = currentScope().get().resolveLocally(VariableSymbol.KIND);
+
+      final Collection<VariableSymbol> spikeBuffers = bufferSymbols
+          .stream()
+          .filter(VariableSymbol::isSpikeBuffer)
+          .collect(Collectors.toList());
+      for (VariableSymbol spikeBuffer:spikeBuffers) {
+        final Optional<?> bufferInCondSumCall = equations
+            .stream()
+            .flatMap(astEquation -> getCondSumFunctionCall(astEquation).stream())
+            // that there is one parameter which is the simple name is granted by cocos
+            .map(astFunctionCall -> astFunctionCall.getArgs().get(1).getVariable().get())
+            .filter(variable -> variable.getName().toString().equals(spikeBuffer.getName()))
+            .findAny();
+
+        if (bufferInCondSumCall.isPresent()) {
+          spikeBuffer.setConductanceBased(true);
+        }
+
+      }
+
     }
 
   }

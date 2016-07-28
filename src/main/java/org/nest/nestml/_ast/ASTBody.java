@@ -379,6 +379,14 @@ public class ASTBody extends ASTBodyTOP {
 
   }
 
+  public List<VariableSymbol> getSpikeBuffers() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(VariableSymbol::isSpikeBuffer)
+        .collect(Collectors.toList());
+  }
+
   public List<VariableSymbol> getSameTypeBuffer() {
     return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
         .stream()
