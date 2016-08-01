@@ -88,56 +88,62 @@ neuron ht_neuron_nestml:
 
     r_potassium integer
     g_spike boolean = false
+  end
 
-    alias I_syn_ampa pA = -G_AMPA * ( V_m - AMPA_E_rev )
-    alias I_syn_nmda pA = -G_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) );
-    alias I_syn_gaba_a pA = -G_GABA_A * ( V_m - GABA_A_E_rev );
-    alias I_syn_gaba_b pA = -G_GABA_B * ( V_m - GABA_B_E_rev );
-    alias I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
+  equations:
+    ####
+    # HELPER constructs
+    ####
+    I_syn_ampa pA = -G_AMPA * ( V_m - AMPA_E_rev )
+    I_syn_nmda pA = -G_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+    I_syn_gaba_a pA = -G_GABA_A * ( V_m - GABA_A_E_rev )
+    I_syn_gaba_b pA = -G_GABA_B * ( V_m - GABA_B_E_rev )
+    I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
     # The spike current is only activate immediately after a spike.
     # TODO const double_t I_spike = node.S_.g_spike_ ? -( V - node.P_.E_K ) / node.P_.Tau_spike : 0;
-    alias I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0;
+    I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
 
     # intrinsic currents
     # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
     INaP_thresh mV = -55.7pA
     INaP_slope mV = 7.7pA
-    alias m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
+    m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
     # Persistent Na current; member only to allow recording
-    alias I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
+    I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
 
     # I_DK
-    d_half real = 0.25;
-    alias m_inf_KNa real = 1.0 / ( 1.0 + pow( d_half / IKNa_D, 3.5 ) )
+    d_half real = 0.25
+    m_inf_KNa real = 1.0 / ( 1.0 + pow( d_half / IKNa_D, 3.5 ) )
     # Depol act. K current; member only to allow recording
-    alias I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
+    I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
 
     # I_T
-    alias m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m + 59.0 ) / 6.2 ) )
-    alias h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m + 83.0 ) / 4 ) )
+    m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m + 59.0 ) / 6.2 ) )
+    h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m + 83.0 ) / 4 ) )
     # Low-thresh Ca current; member only to allow recording
-    alias I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
-    alias tau_m_T real = 0.22 / ( exp( -( V_m + 132.0 ) / 16.7 ) + exp( ( V_m + 16.8 ) / 18.2 ) ) + 0.13;
-    alias tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m + 86.0 ) / 3.2 ) );
+    I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
+    tau_m_T real = 0.22 / ( exp( -( V_m + 132.0 ) / 16.7 ) + exp( ( V_m + 16.8 ) / 18.2 ) ) + 0.13
+    tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m + 86.0 ) / 3.2 ) )
 
     # I_h
     I_h_Vthreshold real = -75.0
-    alias m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m - I_h_Vthreshold ) / 5.5 ) )
-    alias I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
-    alias tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m ) + exp( -1.87 + 0.0701 * V_m ) );
+    m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m - I_h_Vthreshold ) / 5.5 ) )
+    I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
+     tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m ) + exp( -1.87 + 0.0701 * V_m ) )
     # I_KNa
-    D_influx_peak real = 0.025;
+    D_influx_peak real = 0.025
     tau_D real = 1250.0 # yes, 1.25s
     D_thresh real = -10.0
-    D_slope real = 5.0;
-    alias D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) );
+    D_slope real = 5.0
+    D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) )
 
-    alias I_Na real = -g_NaL * ( V_m - E_Na )
-    alias I_K real = -g_KL * ( V_m - E_K )
-  end
+    I_Na real = -g_NaL * ( V_m - E_Na )
+    I_K real = -g_KL * ( V_m - E_K )
 
-  equations:
+    ####
+    # ODES specification
+    ####
     # delta V
     V_m'  = ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike
 

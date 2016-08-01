@@ -311,9 +311,9 @@ public final class ASTUtils {
   /**
    * Computes the typename for the declaration ast. It is defined in one of the grammar
    * alternatives.
+   * TODO: must be better type! Why do I shift it?
    */
-  public static String computeTypeName(final ASTDatatype astDatatype,
-      boolean generate) {
+  public static String computeTypeName(final ASTDatatype astDatatype, boolean isCodeGeneration) {
     String typeName = null;
     if (astDatatype.isBoolean()) {
       typeName = "boolean";
@@ -332,7 +332,7 @@ public final class ASTUtils {
     }
     else if (astDatatype.getUnitType().isPresent()) {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
-      if(generate){
+      if(isCodeGeneration){
         typeName = "real";
       }else if(unitType.getUnit().isPresent()){
         typeName = unitType.getUnit().get();

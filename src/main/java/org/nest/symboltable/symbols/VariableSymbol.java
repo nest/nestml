@@ -189,6 +189,10 @@ public class VariableSymbol extends CommonSymbol {
     return blockType == BlockType.STATE;
   }
 
+  public boolean isInEquation() {
+    return blockType == BlockType.EQUATION;
+  }
+
   public boolean isParameter() {
     return blockType == BlockType.PARAMETER;
   }
@@ -256,6 +260,7 @@ public class VariableSymbol extends CommonSymbol {
     STATE,
     PARAMETER,
     INTERNAL,
+    EQUATION,
     LOCAL,
     INPUT_BUFFER_CURRENT,
     INPUT_BUFFER_SPIKE,
