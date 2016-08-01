@@ -24,12 +24,14 @@ import static de.se_rwth.commons.Names.getQualifiedName;
  * @author plotnikov
  */
 public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
-
   private final ExpressionsPrettyPrinter expressionsPrettyPrinter;
-
 
   protected SPLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrettyPrinter) {
     this.expressionsPrettyPrinter = expressionsPrettyPrinter;
+  }
+
+  public ExpressionsPrettyPrinter getExpressionsPrettyPrinter() {
+    return expressionsPrettyPrinter;
   }
 
   public void print(final ASTSPLNode node) {

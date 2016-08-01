@@ -12,8 +12,7 @@ neuron aeif_exp_alpha_neuron:
     shape GI = exp(-1/tau_syn_in*t)
     shape GE = exp(-1/tau_syn_ex*t)
     w' = (a*(V_m - E_L) - w)/tau_w
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (GI* (V_m-E_in) - 1/C_m * GE * (V_m-E_ex) + (I_e + I_stim) - w)
-
+    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (Cond_sum(GI, spikeInh)* (V_m-E_in) + Cond_sum(GE, spikeExc) * (V_m-E_ex) + (I_e + I_stim) - w)
   end
 
   parameter:
@@ -69,24 +68,22 @@ neuron aeif_exp_alpha_neuron:
   output: spike
 
   update:
-    if r == 0: # not refractory
-      # TODO intagrate
+    integrate(V_m)
 
-    else:
+    if r > 0: # refractory
       r = r - 1
     end
 
-    if r != 0: # not refractory
-      r =  r - 1
+    if r > 0: # not refractory
       V_m = V_reset # clamp potential
-
-    elif V_m >= V_th:
+    elif V_m >= V_peak:
       r = RefractoryCounts
       V_m = V_reset # clamp potential
+      w += b
       emit_spike()
-
     end
 
+    I_stim = currents.getSum()
   end
 
 end

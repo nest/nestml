@@ -11,6 +11,8 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
+import org.nest.ode._ast.ASTODEAlias;
+import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
@@ -118,15 +120,21 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   }
 
   public void endVisit(final ASTNeuron astNeuron) {
-    addVariablesFromODEBlock(astNeuron.getBody());
-    assignOdeToVariables(astNeuron.getBody());
-    markConductanceBasedBuffers(astNeuron.getBody());
+    if (astNeuron.getBody().getODEBlock().isPresent()) {
+      addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
+      addAliasesFromODEBlock(astNeuron.getBody().getODEBlock().get());
+      assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
+      markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
+    }
+
     removeCurrentScope();
     currentTypeSymbol = empty();
   }
 
+
+
   /**
-   * Analyzes the ode block and add all variables, which are defined through ODEs. E.g.:
+   * Analyzes the ode block and adds all variables, which are defined through ODEs. E.g.:
    *   state:
    *     GI nS = 0
    *   end
@@ -136,14 +144,40 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    *   end
    * Results in an additional variable for G' (first equations G''). For the sake of the simplicity
    */
-  private void addVariablesFromODEBlock(final ASTBody astBody) {
-    if (astBody.getODEBlock().isPresent()) {
-      astBody.getODEBlock().get().getODEs()
+  private void addVariablesFromODEBlock(final ASTOdeDeclaration astOdeDeclaration) {
+    astOdeDeclaration.getODEs()
           .stream()
           .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
           .forEach(this::addDerivedVariable);
-    }
 
+  }
+  /**
+   * Analyzes the ode block and add all aliases. E.g.:
+   *   equations:
+   *      I_syn pA = I_exc - I_inh # <- inplace alias
+   *      V_m mV = I_syn / 1 ms
+   *   end
+   * Results in an additional variable for G' (first equations G''). For the sake of the simplicity
+   */
+  private void addAliasesFromODEBlock(final ASTOdeDeclaration astOdeDeclaration) {
+    for (final ASTODEAlias astOdeAlias:astOdeDeclaration.getODEAliass()) {
+      final VariableSymbol var = new VariableSymbol(astOdeAlias.getVariableName());
+      var.setAstNode(astOdeAlias);
+      final String typeName =  computeTypeName(astOdeAlias.getDatatype());
+      Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
+
+      var.setType(type.get());
+      var.setDeclaringType(currentTypeSymbol.get());
+      var.setLoggable(false);
+      var.setAlias(true);
+      var.setDeclaringExpression(astOdeAlias.getExpr());
+
+      var.setBlockType(VariableSymbol.BlockType.EQUATION);
+
+      addToScopeAndLinkWithNode(var, astOdeAlias);
+
+      trace("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
+    }
   }
 
   /**
@@ -170,14 +204,10 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     trace("Add new variable derived from the ODE: '" + var.getFullName() + "'.", LOGGER_NAME);
   }
 
-  private void assignOdeToVariables(final ASTBody astBody) {
-    if (astBody.getODEBlock().isPresent()) {
-      astBody.getODEBlock()
-          .get()
+  private void assignOdeToVariables(final ASTOdeDeclaration astOdeDeclaration) {
+      astOdeDeclaration
           .getODEs()
           .forEach(this::addOdeToVariable);
-
-    }
 
   }
 
@@ -208,12 +238,12 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    *
    * spikes buffer is marked conductanceBased
    */
-  private void markConductanceBasedBuffers(final ASTBody astBody) {
+  private void markConductanceBasedBuffers(final ASTOdeDeclaration astOdeDeclaration, List<ASTInputLine> inputLines) {
     checkState(currentScope().isPresent());
 
-    if (astBody.getODEBlock().isPresent() && !astBody.getInputLines().isEmpty()) {
+    if (!inputLines.isEmpty()) {
 
-      final List<ASTEquation> equations = astBody.getODEBlock().get().getODEs();
+      final List<ASTEquation> equations = astOdeDeclaration.getODEs();
       final Collection<VariableSymbol> bufferSymbols = currentScope().get().resolveLocally(VariableSymbol.KIND);
 
       final Collection<VariableSymbol> spikeBuffers = bufferSymbols

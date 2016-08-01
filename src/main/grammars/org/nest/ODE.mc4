@@ -8,12 +8,14 @@ package org.nest;
 /**
   Grammar representing ODE expressions.
 */
-grammar ODE extends org.nest.Commons {
+grammar ODE extends org.nest.Commons, org.nest.Units {
   /** ASTOdeDeclaration. Represents a block of equations and differential equations.
 
     @attribute Equation      List with equations, e.g. "I = exp(t)" od differential equations.
   */
-  OdeDeclaration  = (Equation | Shape | NEWLINE)+;
+  OdeDeclaration  = (Equation | Shape | ODEAlias | NEWLINE)+;
+
+  ODEAlias = variableName:Name Datatype "=" Expr (";")?;
 
   /** ASTeq Represents an equation, e.g. "I = exp(t)" or epresents an differential equations, e.g. "V_m' = V_m+1"..
     @attribute lhs      Left hand side, e.g. a Variable.

@@ -378,6 +378,14 @@ public class ASTBody extends ASTBodyTOP {
 
   }
 
+  public List<VariableSymbol> getODEAliases() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(variable -> (VariableSymbol) variable)
+        .filter(variable -> variable.isAlias() && variable.isInEquation())
+        .collect(Collectors.toList());
+  }
+
   public List<VariableSymbol> getInputBuffers() {
     return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
         .stream()

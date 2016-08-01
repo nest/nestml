@@ -6,6 +6,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTEquation;
+import org.nest.ode._ast.ASTODEAlias;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
@@ -243,24 +244,33 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    *   OdeDeclaration
    * BLOCK_CLOSE;
    *
-   * OdeDeclaration  = (Eq | Shape | NEWLINE)+;
-   * Shape = "shape" lhsVariable:Name "=" rhs:Expr;
-   * ODE = lhsVariable:Variable  "=" rhs:Expr;
+   * OdeDeclaration  = (Eq | Shape | ODEAlias | NEWLINE)+;
+   * Equation = lhs:Derivative "=" rhs:Expr (";")?;
+   * Derivative = name:QualifiedName (differentialOrder:"\'")*;
+   * ODEAlias = variableName:Name Datatype "=" Expr;
    */
   @Override
   public void visit(final ASTOdeDeclaration astOdeDeclaration) {
     println("equations" + BLOCK_OPEN);
+    astOdeDeclaration.getODEAliass().forEach(this::printODEAlias);
+    astOdeDeclaration.getODEs().forEach(this::printEquation);
+    astOdeDeclaration.getShapes().forEach(this::printShape);
+
     indent();
   }
 
-  @Override
-  public void visit(final ASTEquation astEquation) {
+  private void printEquation(final ASTEquation astEquation) {
     println(astEquation.getLhs() + " = " + expressionsPrinter.print(astEquation.getRhs()));
   }
 
-  @Override
-  public void visit(final ASTShape astShape) {
+  public void printShape(final ASTShape astShape) {
     println("shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs()));
+  }
+
+  public void printODEAlias(final ASTODEAlias astOdeAlias) {
+    final String datatype = ASTUtils.computeTypeName(astOdeAlias.getDatatype(), true);
+    final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
+    println(astOdeAlias.getVariableName() + " " + datatype + " = " + initExpression);
   }
 
   @Override

@@ -39,7 +39,6 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
   /**
    * Parses the model and returns ast.
    *
-   * @throws java.io.IOException
    */
   private Optional<ASTNESTMLCompilationUnit> getAstRoot(String modelPath) throws IOException {
     final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
