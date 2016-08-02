@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 public class ODETransformer {
   // this function is used in freemarker templates und must be public
   public static ASTEquation replaceSumCalls(final ASTEquation astOde) {
+    // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
     final ASTEquation workingCopy = astOde.deepClone();
     final List<ASTFunctionCall> functions = getSumFunctionCalls(workingCopy);
 
@@ -29,7 +30,8 @@ public class ODETransformer {
     return workingCopy;
   }
 
-  public static List<ASTFunctionCall> getSumFunctionCalls(ASTEquation workingCopy) {
+
+  public static List<ASTFunctionCall> getSumFunctionCalls(final ASTNode workingCopy) {
     return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall ->
@@ -38,14 +40,23 @@ public class ODETransformer {
           .collect(Collectors.toList());
   }
 
-  public static List<ASTFunctionCall> getCondSumFunctionCall(ASTEquation workingCopy) {
+  public static ASTExpr replaceSumCalls(final ASTExpr astExpr) {
+    // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
+    final ASTExpr workingCopy = astExpr.deepClone();
+    final List<ASTFunctionCall> functions = getSumFunctionCalls(workingCopy);
+
+    functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
+    return workingCopy;
+  }
+
+  public static List<ASTFunctionCall> getCondSumFunctionCall(final ASTNode workingCopy) {
     return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
         .collect(Collectors.toList());
   }
 
-  private static void replaceFunctionCallThroughFirstArgument(ASTEquation astOde, ASTFunctionCall node) {
+  private static void replaceFunctionCallThroughFirstArgument(final ASTNode astOde, final ASTFunctionCall node) {
     final Optional<ASTNode> parent = ASTUtils.getParent(node, astOde);
     Preconditions.checkState(parent.isPresent());
     final ASTExpr expr = (ASTExpr) parent.get();

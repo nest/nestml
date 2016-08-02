@@ -5,6 +5,8 @@
  */
 package org.nest.nestml._symboltable;
 
+import com.google.common.collect.Lists;
+import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
@@ -243,13 +245,16 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     if (!inputLines.isEmpty()) {
 
-      final List<ASTEquation> equations = astOdeDeclaration.getODEs();
       final Collection<VariableSymbol> bufferSymbols = currentScope().get().resolveLocally(VariableSymbol.KIND);
 
       final Collection<VariableSymbol> spikeBuffers = bufferSymbols
           .stream()
           .filter(VariableSymbol::isSpikeBuffer)
           .collect(Collectors.toList());
+      final List<ASTNode> equations = Lists.newArrayList();
+      equations.addAll(astOdeDeclaration.getODEs());
+      equations.addAll(astOdeDeclaration.getODEAliass());
+
       for (VariableSymbol spikeBuffer:spikeBuffers) {
         final Optional<?> bufferInCondSumCall = equations
             .stream()
@@ -262,6 +267,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
         if (bufferInCondSumCall.isPresent()) {
           spikeBuffer.setConductanceBased(true);
         }
+
+
 
       }
 
