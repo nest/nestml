@@ -22,15 +22,18 @@ ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode 
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
   <#list body.getStateAliasSymbols() as alias>
-    double ${alias.getName()} = ${expressionsPrinterForGSL.print(alias.getDeclaringExpression().get())};
+    <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
+    double ${alias.getName()} = ${expressionsPrinterForGSL.print(declaringExpression)};
   </#list>
 
   <#list body.getParameterAliasSymbols() as alias>
-    double ${alias.getName()} = ${expressionsPrinterForGSL.print(alias.getDeclaringExpression().get())};
+    <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
+    double ${alias.getName()} = ${expressionsPrinterForGSL.print(declaringExpression)};
   </#list>
 
   <#list body.getODEAliases() as alias>
-    double ${alias.getName()} = ${expressionsPrinterForGSL.print(alias.getDeclaringExpression().get())};
+    <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
+    double ${alias.getName()} = ${expressionsPrinterForGSL.print(declaringExpression)};
   </#list>
 
   <#list ODEs as ode>
