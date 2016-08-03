@@ -1,4 +1,4 @@
-/* BeginDocumentation
+/*
 Name: aeif_cond_alpha -  Conductance based exponential integrate-and-fire neuron
                          model according to Brette and Gerstner (2005).
 
@@ -77,9 +77,9 @@ neuron aeif_cond_alpha_implicit:
     w real = 0
 
     # inputs from the inh conductance
-    GI nS = 0
+    GI nS = 0nS
     # inputs from the exc conductance
-    GE nS = 0
+    GE nS = 0nS
 
   end
 
@@ -92,11 +92,12 @@ neuron aeif_cond_alpha_implicit:
     GE'' = -GE'/tau_syn_ex
     GE' = GE'  -GE/tau_syn_ex
 
-    # Shortcuts
+    # Adds aliases for
     exp_arg real = (V_m-V_th)/delta_T
-    I_spike real = delta_T*exp(exp_arg)
-    I_syn_exc real =   Cond_sum(GE, spikeExc) * ( V_m - E_ex )
-    I_syn_inh real =   Cond_sum(GI, spikeInh) * ( V_m - E_in )
+    I_spike pA = delta_T*exp(exp_arg)
+    I_syn_exc pA =   Cond_sum(GE, spikeExc) * ( V_m - E_ex )
+    I_syn_inh pA =   Cond_sum(GI, spikeInh) * ( V_m - E_in )
+
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
 
@@ -104,30 +105,31 @@ neuron aeif_cond_alpha_implicit:
 
   parameter:
    # membrane parameters
-   C_m   pF = 281.0       # Membrane Capacitance in pF
-   t_ref ms = 0.0       # Refractory period in ms
-   V_reset mV = -60.0   # Reset Potential in mV
-   g_L nS = 30.0        # Leak Conductance in nS
-   E_L mV = -70.6       # Leak reversal Potential (aka resting potential) in mV
-   I_e pA = 0           # Constant Current in pA
+   C_m   pF = 281.0pF       # Membrane Capacitance in pF
+   t_ref ms = 0.0ms         # Refractory period in ms
+   V_reset mV = -60.0mV     # Reset Potential in mV
+   g_L nS = 30.0nS          # Leak Conductance in nS
+   E_L mV = -70.6mV         # Leak reversal Potential (aka resting potential) in mV
+   I_e pA = 0pA             # Constant Current in pA
 
    # spike adaptation parameters
-   a nS = 4
-   b pA = 80.5
-   delta_T mV = 2.0
-   tau_w ms = 144.0
-   V_th mV = -50.4      # Threshold Potential in mV
-   V_peak mV = 0
+   a nS = 4nS
+   b pA = 80.5pA
+   delta_T mV = 2.0mV
+   tau_w ms = 144.0ms
+   V_th mV = -50.4mV      # Threshold Potential in mV
+   V_peak mV = 0mV
 
    # synaptic parameters
-   E_ex mV = 0            # Excitatory reversal Potential in mV
-   tau_syn_ex ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
-   E_in mV = -85.0        # Inhibitory reversal Potential in mV
-   tau_syn_in ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+   E_ex mV = 0mV            # Excitatory reversal Potential in mV
+   tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
+   E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
+   tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+
    # Input current injected by CurrentEvent.
    # This variable is used to transport the current applied into the
    # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0
+   I_stim pA = 0pA
   end
 
   internal:
