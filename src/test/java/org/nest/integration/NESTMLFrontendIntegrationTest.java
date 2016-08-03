@@ -23,31 +23,27 @@ import java.nio.file.Paths;
 @Ignore("Don't run this tests on github. PIP uses to outdated sympy package.")
 public class NESTMLFrontendIntegrationTest {
   private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
-
+  private static final Path outputPath = Paths.get("target", "integration");
   @Test
   public void testRunUserDefinedOutputFolder() {
-    Path outputPath = Paths.get("target", "tmpOutput");
     FilesHelper.deleteFilesInFolder(outputPath);
     nestmlFrontend.start(new String[] {"src/test/resources/command_line_base", "--target", outputPath.toString()});
   }
 
   @Test
   public void testInheritance() {
-    Path outputPath = Paths.get("target", "tmpOutput");
     FilesHelper.deleteFilesInFolder(outputPath);
     nestmlFrontend.start(new String[] {"src/test/resources/inheritance", "--target", outputPath.toString()});
   }
 
   @Test
   public void testModelsWithInheritance() {
-    Path outputPath = Paths.get("target", "tmpOutput");
     FilesHelper.deleteFilesInFolder(outputPath);
     nestmlFrontend.start(new String[] {"src/test/resources/inheritance",  "--target", outputPath.toString()});
   }
 
   @Test
   public void testIzhikevichModel() {
-    Path outputPath = Paths.get("target", "tmpOutput");
     FilesHelper.deleteFilesInFolder(outputPath);
     nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/izhikevich", "--target", outputPath.toString()});
   }
@@ -55,19 +51,28 @@ public class NESTMLFrontendIntegrationTest {
 
   @Test
   public void testGIFModel() {
-    Path outputPath = Paths.get("target", "tmpOutput");
     FilesHelper.deleteFilesInFolder(outputPath);
     nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/gif", "--target", outputPath.toString()});
   }
 
   @Test
   public void testInfrastructure() {
-    Path outputPath = Paths.get("target", "tmpOutput");
+
     FilesHelper.deleteFilesInFolder(outputPath);
     final CLIConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
         "src/test/resources/codegeneration/gif",
         "--target", outputPath.toString()});
     Assert.assertTrue(NESTMLFrontend.checkEnvironment(cliConfiguration));
+  }
+
+  @Test
+  public void testManually() {
+    final String[] args = new String[] {
+        "models/aeif_cond_alpha_implicit.nestml",
+        "--target", outputPath.toString()};
+
+    new NESTMLFrontend().start(args);
+
   }
 
 }
