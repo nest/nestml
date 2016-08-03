@@ -29,7 +29,8 @@ public class CLIConfiguration {
   }
 
   Path getInputBase() {
-    return inputBasePath;
+
+      return inputBasePath;
   }
 
   Path getTargetPath() {
@@ -41,32 +42,32 @@ public class CLIConfiguration {
     private Path inputBasePath;
     private Path targetPath;
 
-    public Builder withCoCos() {
+    Builder withCoCos() {
       this.checkCoCos = true;
       return this;
     }
 
-    public Builder withCoCos(boolean checkCoCos) {
+    Builder withCoCos(boolean checkCoCos) {
       this.checkCoCos = checkCoCos;
       return this;
     }
 
-    public Builder withInputBasePath(final String inputBasePath) {
+    Builder withInputBasePath(final String inputBasePath) {
       this.inputBasePath = Paths.get(inputBasePath);
       return this;
     }
 
-    public Builder withInputBasePath(final Path inputBasePath) {
+    Builder withInputBasePath(final Path inputBasePath) {
       this.inputBasePath = inputBasePath;
       return this;
     }
 
-    public Builder withTargetPath(final String targetPath) {
+    Builder withTargetPath(final String targetPath) {
       this.targetPath = Paths.get(targetPath);
       return this;
     }
 
-    public Builder withTargetPath(final Path targetPath) {
+    Builder withTargetPath(final Path targetPath) {
       this.targetPath = targetPath;
       return this;
     }

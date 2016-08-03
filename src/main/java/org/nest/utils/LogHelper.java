@@ -53,7 +53,7 @@ public class LogHelper {
         .filter(error -> error.getMsg().startsWith(errorCode))
         .count();
     // it is unlikely that the number of issues is greater than the domain of int!    Integer result = 0;
-    return safeLongToInt(occurrences);
+    return toInt(occurrences);
 
   }
 
@@ -63,10 +63,9 @@ public class LogHelper {
    * as an int.
    * @throws  IllegalArgumentException if the {@l} is greater than the biggest int
    */
-  private static int safeLongToInt(long l) {
+  private static int toInt(long l) {
     if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
-      throw new IllegalArgumentException
-              (l + " cannot be cast to int without changing its value.");
+      throw new IllegalArgumentException(l + " cannot be cast to int without changing its value.");
     }
     return (int) l;
   }
@@ -76,6 +75,14 @@ public class LogHelper {
       final List<Finding> findings) {
     return findings.stream()
         .filter(finding -> finding.getType().equals(Finding.Type.ERROR) && finding.getMsg().startsWith(prefix))
+        .collect(Collectors.toList());
+  }
+
+  public static Collection<Finding> getWarningsByPrefix(
+      final String prefix,
+      final List<Finding> findings) {
+    return findings.stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.WARNING) && finding.getMsg().startsWith(prefix))
         .collect(Collectors.toList());
   }
 

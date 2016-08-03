@@ -18,6 +18,7 @@ import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -100,7 +101,13 @@ public class CLIConfigurationExecutor {
     }
 
     if (modelRoots.size() > 0) {
-      final String modelName = config.getInputBase().getFileName().toString();
+      final String modelName;
+      if (Files.isRegularFile(config.getInputBase())) {
+        modelName = config.getInputBase().getName(config.getInputBase().getNameCount() - 2 ).toString();
+      }
+      else {
+        modelName = config.getInputBase().getFileName().toString();
+      }
       generator.generateNESTModuleCode(modelRoots, modelName, config.getTargetPath());
     }
     else {
@@ -118,14 +125,25 @@ public class CLIConfigurationExecutor {
     errors.addAll(LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
     errors.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
-    evaluateCocosLog(
+    printFindingsFromLog(
         root.getFullName(),
         "NESTML",
         LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
-    evaluateCocosLog(
+
+    printFindingsFromLog(
         root.getFullName(),
         "SPL",
         LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
+
+    printFindingsFromLog(
+        root.getFullName(),
+        "NESTML",
+        LogHelper.getWarningsByPrefix("NESTML_", Log.getFindings()));
+
+    printFindingsFromLog(
+        root.getFullName(),
+        "SPL",
+        LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
     return errors;
   }
 
@@ -134,14 +152,14 @@ public class CLIConfigurationExecutor {
     cocosChecker.checkAll(root);
   }
 
-  private void evaluateCocosLog(
+  private void printFindingsFromLog(
       final String modelName,
-      final String errorClass,
+      final String language,
       final Collection<Finding> nestmlErrorFindings) {
     if (nestmlErrorFindings.isEmpty()) {
-      Log.info(modelName + " contains no '" +  errorClass + "' errors", LOG_NAME);
+      Log.info(modelName + " contains no '" +  language + "' findings", LOG_NAME);
     } else {
-      Log.error(modelName + " contains the following errors: ");
+      Log.error(modelName + " contains the following finding: ");
       nestmlErrorFindings.forEach(finding -> Log.warn(finding.toString()));
     }
   }
