@@ -85,12 +85,12 @@ neuron aeif_cond_alpha_implicit_implicit:
 
   equations:
     # alpha function
-    GI'' = -GI'/tau_syn_in
-    GI' = GI' - GI/tau_syn_in
+    GI'' = -GI'/tau_syn
+    GI' = GI' - GI/tau_syn
 
     # alpha function
-    GE'' = -GE'/tau_syn_ex
-    GE' = GE'  -GE/tau_syn_ex
+    GE'' = -GE'/tau_syn
+    GE' = GE'  -GE/tau_syn
 
     # Adds aliases for
     exp_arg real = (V_m-V_th)/delta_T
@@ -123,9 +123,8 @@ neuron aeif_cond_alpha_implicit_implicit:
 
    # synaptic parameters
    E_ex mV = 0mV            # Excitatory reversal Potential in mV
-   tau_syn_ex ms[receptors] = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
    E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
-   tau_syn_in ms[receptors] = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+   tau_syn ms[receptors] = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
 
    # Input current injected by CurrentEvent.
    # This variable is used to transport the current applied into the
@@ -138,11 +137,11 @@ neuron aeif_cond_alpha_implicit_implicit:
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_syn_ex
+    PSConInit_E real[receptors] = 1.0 * e / tau_syn
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_syn_in
+    PSConInit_I real[receptors] = 1.0 * e / tau_syn
 
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
