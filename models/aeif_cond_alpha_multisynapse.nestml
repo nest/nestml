@@ -130,7 +130,7 @@ neuron aeif_cond_alpha_implicit_implicit:
    # Input current injected by CurrentEvent.
    # This variable is used to transport the current applied into the
    # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0pA
+    I_stim pA = 0pA
   end
 
   internal:

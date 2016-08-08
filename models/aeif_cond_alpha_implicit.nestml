@@ -104,32 +104,32 @@ neuron aeif_cond_alpha_implicit:
   end
 
   parameter:
-   # membrane parameters
-   C_m   pF = 281.0pF       # Membrane Capacitance in pF
-   t_ref ms = 0.0ms         # Refractory period in ms
-   V_reset mV = -60.0mV     # Reset Potential in mV
-   g_L nS = 30.0nS          # Leak Conductance in nS
-   E_L mV = -70.6mV         # Leak reversal Potential (aka resting potential) in mV
-   I_e pA = 0pA             # Constant Current in pA
+    # membrane parameters
+    C_m   pF = 281.0pF       # Membrane Capacitance in pF
+    t_ref ms = 0.0ms         # Refractory period in ms
+    V_reset mV = -60.0mV     # Reset Potential in mV
+    g_L nS = 30.0nS          # Leak Conductance in nS
+    E_L mV = -70.6mV         # Leak reversal Potential (aka resting potential) in mV
+    I_e pA = 0pA             # Constant Current in pA
 
-   # spike adaptation parameters
-   a nS = 4nS
-   b pA = 80.5pA
-   delta_T mV = 2.0mV
-   tau_w ms = 144.0ms
-   V_th mV = -50.4mV      # Threshold Potential in mV
-   V_peak mV = 0mV
+    # spike adaptation parameters
+    a nS = 4nS
+    b pA = 80.5pA
+    delta_T mV = 2.0mV
+    tau_w ms = 144.0ms
+    V_th mV = -50.4mV      # Threshold Potential in mV
+    V_peak mV = 0mV
 
-   # synaptic parameters
-   E_ex mV = 0mV            # Excitatory reversal Potential in mV
-   tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
-   E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
-   tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+    # synaptic parameters
+    E_ex mV = 0mV            # Excitatory reversal Potential in mV
+    tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
+    E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
+    tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
 
-   # Input current injected by CurrentEvent.
-   # This variable is used to transport the current applied into the
-   # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0pA
+    # Input current injected by CurrentEvent.
+    # This variable is used to transport the current applied into the
+    # _dynamics function computing the derivative of the state vector.
+    I_stim pA = 0pA
   end
 
   internal:
@@ -148,9 +148,9 @@ neuron aeif_cond_alpha_implicit:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
-      currents <- current
+    spikeInh   <- inhibitory spike
+    spikeExc   <- excitatory spike
+    currents <- current
   end
 
   output: spike
