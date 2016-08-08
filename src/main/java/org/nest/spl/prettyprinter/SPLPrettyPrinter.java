@@ -7,6 +7,7 @@ package org.nest.spl.prettyprinter;
 
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
+import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.spl._ast.*;
@@ -28,10 +29,6 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
   protected SPLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrettyPrinter) {
     this.expressionsPrettyPrinter = expressionsPrettyPrinter;
-  }
-
-  public ExpressionsPrettyPrinter getExpressionsPrettyPrinter() {
-    return expressionsPrettyPrinter;
   }
 
   public void print(final ASTSPLNode node) {
@@ -76,8 +73,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   public void visit(final ASTIF_Clause astIfClause) {
     print("if" + " ");
     final String conditionExpression = expressionsPrettyPrinter.print(astIfClause.getExpr());
-    println(conditionExpression + BLOCK_OPEN);
-    indent();
+    print(conditionExpression);
   }
 
   @Override
@@ -92,8 +88,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    public void visit(final ASTELIF_Clause astElifNode) {
     print("elif" + " ");
     final String conditionExpression = expressionsPrettyPrinter.print(astElifNode.getExpr());
-    println(conditionExpression + BLOCK_OPEN);
-    indent();
+    println(conditionExpression);
   }
 
   @Override
@@ -107,8 +102,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    */
   @Override
   public void visit(final ASTELSE_Clause astElseClause) {
-    println("else:");
-    indent();
+    println("else");
   }
 
   @Override
@@ -279,8 +273,6 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
       print(" step ");
       print(createPrettyPrinterForTypes().prettyprint(astForStmt.getStep().get()));
     }
-    println(BLOCK_OPEN);
-    indent();
   }
 
   @Override
@@ -297,14 +289,26 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   public void visit(final ASTWHILE_Stmt astWhileStmt) {
     print("while ");
     print(expressionsPrettyPrinter.print(astWhileStmt.getExpr()));
-    println(BLOCK_OPEN);
-    indent();
   }
 
   @Override
   public void endVisit(final ASTWHILE_Stmt node) {
     unindent();
     println(BLOCK_CLOSE);
+  }
+
+  @Override
+  public void endVisit(final ASTBLOCK_OPEN astBlockOpen) {
+
+    final String comment = ASTUtils.printComments(astBlockOpen);
+    if (comment.isEmpty()) {
+      println(":");
+    }
+    else {
+      println(":" +  comment);
+    }
+
+    indent();
   }
 
   private TypesPrettyPrinterConcreteVisitor createPrettyPrinterForTypes() {

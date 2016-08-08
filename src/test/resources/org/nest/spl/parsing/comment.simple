@@ -1,4 +1,6 @@
 module org.nest.spl.parsing.returnInWhile
-# This is a comment
-if 1 > 2:
+
+# Commet 1
+if 1 > 2:# Commet 2
+# Comment 3
 end
