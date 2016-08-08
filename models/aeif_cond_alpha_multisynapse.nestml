@@ -1,49 +1,135 @@
-neuron aeif_cond_alpha_neuron:
+/*
+Name: aeif_cond_alpha_implicit_implicit -  Conductance based exponential integrate-and-fire neuron
+                         model according to Brette and Gerstner (2005).
+
+Description:
+aeif_cond_alpha is the adaptive exponential integrate and fire neuron according
+to Brette and Gerstner (2005).
+Synaptic conductances are modelled as alpha-functions.
+
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
+adaptive step size to integrate the differential equation.
+
+The membrane potential is given by the following differential equation:
+C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
+                                                     -g_i(t)(V-E_i)-w +I_e
+
+and
+
+tau_w * dw/dt= a(V-E_L) -W
+
+Parameters:
+The following parameters can be set in the status dictionary.
+
+Dynamic state variables:
+  V_m        double - Membrane potential in mV
+  g_ex       double - Excitatory synaptic conductance in nS.
+  dg_ex      double - First derivative of g_ex in nS/ms
+  g_in       double - Inhibitory synaptic conductance in nS.
+  dg_in      double - First derivative of g_in in nS/ms.
+  w          double - Spike-adaptation current in pA.
+
+Membrane Parameters:
+  C_m        double - Capacity of the membrane in pF
+  t_ref      double - Duration of refractory period in ms.
+  V_reset    double - Reset value for V_m after a spike. In mV.
+  E_L        double - Leak reversal potential in mV.
+  g_L        double - Leak conductance in nS.
+  I_e        double - Constant external input current in pA.
+
+Spike adaptation parameters:
+  a          double - Subthreshold adaptation in nS.
+  b          double - Spike-triggered adaptation in pA.
+  Delta_T    double - Slope factor in mV
+  tau_w      double - Adaptation time constant in ms
+  V_th       double - Spike initiation threshold in mV
+  V_peak     double - Spike detection threshold in mV.
+
+Synaptic parameters
+  E_ex       double - Excitatory reversal potential in mV.
+  tau_syn_ex double - Rise time of excitatory synaptic conductance in ms (alpha
+                      function).
+  E_in       double - Inhibitory reversal potential in mV.
+  tau_syn_in double - Rise time of the inhibitory synaptic conductance in ms
+                      (alpha function).
+
+Integration parameters
+  gsl_error_tol  double - This parameter controls the admissible error of the
+                          GSL integrator. Reduce it if NEST complains about
+                          numerical instabilities.
+
+Author: Marc-Oliver Gewaltig
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+References: Brette R and Gerstner W (2005) Adaptive Exponential
+            Integrate-and-Fire Model as an Effective Description of Neuronal
+            Activity. J Neurophysiol 94:3637-3642
+
+SeeAlso: iaf_cond_alpha, aeif_cond_exp
+*/
+neuron aeif_cond_alpha_implicit_implicit:
 
   state:
-    V_m, w real = 0
+    V_m mV = E_L
+    w real = 0
 
-    alias exp_arg real = (V_m-V_th)/delta_T
-    alias I_spike real = delta_T*exp(exp_arg)
-    # alias I_spike = delta_T*exp(min(exp_arg, MAX_EXP_ARG))
+    # inputs from the inh conductance
+    GI nS = 0nS
+    # inputs from the exc conductance
+    GE nS = 0nS
+
   end
 
   equations:
-    # Explicit
-    shape GI = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape GE = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    # alpha function
+    GI'' = -GI'/tau_syn
+    GI' = GI' - GI/tau_syn
+
+    # alpha function
+    GE'' = -GE'/tau_syn
+    GE' = GE'  -GE/tau_syn
+
+    # Adds aliases for
+    exp_arg real = (V_m-V_th)/delta_T
+    I_spike pA = delta_T*exp(exp_arg)
+    I_syn_exc pA =   Cond_sum(GE, spikeExc) * ( V_m - E_ex )
+    I_syn_inh pA =   Cond_sum(GI, spikeInh) * ( V_m - E_in )
+
+    V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (GI* (V_m-E_in) - 1/C_m * GE * (V_m-E_ex) + (I_e + I_stim) - w)
 
   end
 
   parameter:
+   receptors integer = 100
    # membrane parameters
-   C_m   pF = 281.0       # Membrane Capacitance in pF
-   t_ref ms = 0.0       # Refractory period in ms
-   V_reset mV = -60.0   # Reset Potential in mV
-   g_L nS = 30.0        # Leak Conductance in nS
-   E_L mV = -70.6       # Leak reversal Potential (aka resting potential) in mV
-   I_e pA = 0           # Constant Current in pA
+   C_m   pF = 281.0pF       # Membrane Capacitance in pF
+   t_ref ms = 0.0ms         # Refractory period in ms
+   V_reset mV = -60.0mV     # Reset Potential in mV
+   g_L nS = 30.0nS          # Leak Conductance in nS
+   E_L mV = -70.6mV         # Leak reversal Potential (aka resting potential) in mV
+   I_e pA = 0pA             # Constant Current in pA
 
    # spike adaptation parameters
-   a nS = 4
-   b pA = 80.5
-   alias Tau ms = (1 / g_L) * C_m
-   delta_T mV = 2.0
-   tau_w ms = 144.0
-   V_th mV = -55.4      # Threshold Potential in mV
-   V_peak mV = 0
+   a nS = 4nS
+   b pA = 80.5pA
+   delta_T mV = 2.0mV
+   tau_w ms = 144.0ms
+   V_th mV = -50.4mV      # Threshold Potential in mV
+   V_peak mV = 0mV
 
    # synaptic parameters
-   E_ex mV = 0            # Excitatory reversal Potential in mV
-   tau_syn_ex ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
-   E_in mV = -85.0        # Inhibitory reversal Potential in mV
-   tau_syn_in ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
+   E_ex mV = 0mV            # Excitatory reversal Potential in mV
+   E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
+   tau_syn ms[receptors] = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+
    # Input current injected by CurrentEvent.
    # This variable is used to transport the current applied into the
    # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0
+    I_stim pA = 0pA
   end
 
   internal:
@@ -51,42 +137,43 @@ neuron aeif_cond_alpha_neuron:
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_syn_ex
+    PSConInit_E real[receptors] = 1.0 * e / tau_syn
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_syn_in
+    PSConInit_I real[receptors] = 1.0 * e / tau_syn
 
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
   end
 
   input:
-      spikes[receptors]   <- spike
+      spikeInh[receptors]   <- inhibitory spike
+      spikeExc[receptors]   <- excitatory spike
       currents <- current
   end
 
   output: spike
 
   update:
-    if r == 0: # not refractory
-      # TODO intagrate
+    integrate(V_m)
 
-    else:
+    if r > 0: # refractory
       r = r - 1
     end
 
-    if r != 0: # not refractory
-      r =  r - 1
+    if r > 0: # not refractory
       V_m = V_reset # clamp potential
-
-    elif V_m >= V_th:
+    elif V_m >= V_peak:
       r = RefractoryCounts
       V_m = V_reset # clamp potential
+      w += b
       emit_spike()
-
     end
 
+    GE' += spikeExc.getSum() * PSConInit_E;
+    GI' += spikeInh.getSum() * PSConInit_I;
+    I_stim = currents.getSum()
   end
 
 end
