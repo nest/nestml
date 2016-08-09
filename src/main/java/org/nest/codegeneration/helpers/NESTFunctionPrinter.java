@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTFunction;
-import org.nest.spl._ast.ASTParameter;
+import org.nest.nestml._ast.ASTParameter;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.ASTUtils;
@@ -61,7 +61,7 @@ public class NESTFunctionPrinter {
           ".", "::");
       declaration.append(returnType);
       declaration.append(" ");
-      declaration.append(astFunction.getName() + "(");
+      declaration.append(astFunction.getName()).append("(");
       declaration.append(Joiner.on(", ").join(parameterNestTypes));
       declaration.append(")\n");
     }
@@ -106,7 +106,7 @@ public class NESTFunctionPrinter {
         declaration.append(namespace).append("::");
       }
 
-      declaration.append(astFunction.getName() + "(");
+      declaration.append(astFunction.getName()).append("(");
       declaration.append(Joiner.on(", ").join(parameterNestTypes));
       declaration.append(")\n");
     }

@@ -317,21 +317,6 @@ public class ASTBody extends ASTBodyTOP {
     return ImmutableList.copyOf(result);
   }
 
-  public List<ASTStructureLine> getStructure() {
-    final List<ASTStructureLine> result = new ArrayList<ASTStructureLine>();
-
-    for (ASTBodyElement be : this.getBodyElements()) {
-      if (be instanceof ASTStructure) {
-        ASTStructure st = (ASTStructure) be;
-        for (ASTStructureLine stline : st.getStructureLines()) {
-          result.add(stline);
-        }
-      }
-    }
-
-    return ImmutableList.copyOf(result);
-  }
-
   /**
    * TODO It is very NEST related. Factor it out
    * @return

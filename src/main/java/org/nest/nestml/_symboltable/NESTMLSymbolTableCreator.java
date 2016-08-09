@@ -18,7 +18,6 @@ import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTParameter;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
