@@ -1,4 +1,20 @@
 module org.nest.spl.parsing.returnInWhile
-# This is a comment
-if 1 > 2:
-end
+
+# Comment 1
+if 1 > 2:# Comment 2
+  # Comment 3
+  if 3 > 4:
+    # Comment 4
+  elif 5>6:
+    # Comment 5
+  else:
+    # Comment 6
+  end # Comment 7
+
+  if true:
+    # Comment 8
+  end
+  # Comment 9
+  # Comment 9
+  a integer = 11
+end # Comment 10

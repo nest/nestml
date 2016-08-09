@@ -235,7 +235,7 @@ public class NESTCodeGenerator {
 
     final File prettyPrintedModelFile = new File(outputFile);
     try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.result());
     }
     catch (IOException e) {
       final String msg = "Cannot write the prettyprinted model to the file: " + outputFile;

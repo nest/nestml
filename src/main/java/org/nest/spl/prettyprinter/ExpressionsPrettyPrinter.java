@@ -44,7 +44,7 @@ public class ExpressionsPrettyPrinter {
       return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
     }
     if (expr.isInf()) {
-      return handleConstant("inf");
+      return convertConstant("inf");
     }
     else if (expr.getStringLiteral().isPresent()) { // string
       return typesPrinter().prettyprint(expr.getStringLiteral().get());
@@ -53,7 +53,7 @@ public class ExpressionsPrettyPrinter {
       return typesPrinter().prettyprint(expr.getBooleanLiteral().get());
     }
     else if (expr.getVariable().isPresent()) { // var
-      return handleQualifiedName(expr.getVariable().get());
+      return convertVariableName(expr.getVariable().get());
     }
     else if (expr.getFunctionCall().isPresent()) { // function
       final ASTFunctionCall astFunctionCall = expr.getFunctionCall().get();
@@ -163,7 +163,7 @@ public class ExpressionsPrettyPrinter {
   /**
    * This method must be public, since it is used in Freemarker template
    */
-  public StringBuilder printFunctionCallArguments(final ASTFunctionCall astFunctionCall) {
+  private StringBuilder printFunctionCallArguments(final ASTFunctionCall astFunctionCall) {
     final StringBuilder argsListAsString = new StringBuilder();
 
     final List<ASTExpr> functionArgs = astFunctionCall.getArgs();
@@ -182,11 +182,11 @@ public class ExpressionsPrettyPrinter {
     return argsListAsString;
   }
 
-  protected String handleConstant(final String constantName) {
+  private String convertConstant(final String constantName) {
     return referenceConverter.convertConstant(constantName);
   }
 
-  protected String handleQualifiedName(final ASTVariable astVariableName) {
+  private String convertVariableName(final ASTVariable astVariableName) {
     return referenceConverter.convertNameReference(astVariableName);
   }
 

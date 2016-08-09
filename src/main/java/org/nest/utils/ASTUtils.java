@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
@@ -58,6 +59,8 @@ public final class ASTUtils {
    * @return Parent of the queryNode or an Absent value if the parent was not found
    */
   public static Optional<ASTNode> getParent(ASTNode queryNode, ASTNode root) {
+    checkNotNull(queryNode);
+    checkNotNull(root);
 
     final Deque<ASTNode> successors = Queues.newArrayDeque();
 
@@ -300,9 +303,9 @@ public final class ASTUtils {
   // TODO It works only with multiline comments
   public static String printComments(final ASTNode astNeuron) {
     final StringBuilder output = new StringBuilder();
-    astNeuron.get_PreComments().forEach( comment -> output.append(comment.getText()));
-    astNeuron.get_PostComments().forEach( comment -> output.append(comment.getText()));
-    return output.append("\n").toString();
+    astNeuron.get_PreComments().forEach(comment -> output.append(comment.getText()));
+    astNeuron.get_PostComments().forEach(comment -> output.append(comment.getText()));
+    return output.toString();
   }
 
   public static String computeTypeName(final ASTDatatype astDatatype){ //TODO: Better solution
