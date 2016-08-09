@@ -11,9 +11,9 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
+import org.nest.nestml._ast.ASTParameter;
 import org.nest.nestml._ast.ASTUSE_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTParameter;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -79,7 +79,7 @@ public class InvalidTypesInDeclaration implements
 
   }
 
-  public void checkIfValidType(ASTNode astNode, String typeName, Optional<TypeSymbol> type) {
+  private void checkIfValidType(ASTNode astNode, String typeName, Optional<TypeSymbol> type) {
     if (!type.isPresent() || type.isPresent() && type.get().getName().endsWith("Logger")) {
       CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
       String msg = errorStrings.getErrorMsg(this,typeName);

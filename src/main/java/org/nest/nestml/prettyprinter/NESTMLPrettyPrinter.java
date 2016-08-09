@@ -1,6 +1,5 @@
 package org.nest.nestml.prettyprinter;
 
-import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
@@ -10,8 +9,6 @@ import org.nest.ode._ast.ASTODEAlias;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
-import org.nest.spl._ast.ASTParameter;
-import org.nest.spl._ast.ASTParameters;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.utils.ASTUtils;
@@ -261,10 +258,16 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     println(astEquation.getLhs() + " = " + expressionsPrinter.print(astEquation.getRhs()));
   }
 
+  /**
+   * This method is used in freemaker template
+   */
   public void printShape(final ASTShape astShape) {
     println("shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs()));
   }
 
+  /**
+   * This method is used in freemaker template
+   */
   public void printODEAlias(final ASTODEAlias astOdeAlias) {
     final String datatype = ASTUtils.computeTypeName(astOdeAlias.getDatatype(), true);
     final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
@@ -334,43 +337,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     }
 
     println();
-  }
-
-  /**
-   * Grammar:
-   * Structure implements BodyElement = "structure"
-   * BLOCK_OPEN
-   *  (StructureLine | SL_COMMENT | NEWLINE)*
-   * BLOCK_CLOSE;
-   */
-  @Override
-  public void visit(final ASTStructure astStructure) {
-    println("structure" + BLOCK_OPEN);
-    indent();
-  }
-
-  @Override
-  public void endVisit(final ASTStructure astStructure) {
-    unindent();
-    println(BLOCK_CLOSE);
-  }
-
-  /**
-   * StructureLine = compartments:QualifiedName ("-" compartments:QualifiedName)*;
-   */
-  @Override
-  public void visit(final ASTStructureLine astStructureLine) {
-    final List<ASTQualifiedName> compartments = astStructureLine.getCompartments();
-    for (int curCompartmentsIndex = 0; curCompartmentsIndex < compartments.size(); ++ curCompartmentsIndex) {
-      final ASTQualifiedName compartmentName = compartments.get(curCompartmentsIndex);
-      boolean isLastCompartment = (curCompartmentsIndex + 1) == compartments.size();
-      print(Names.getQualifiedName(compartmentName.getParts()) +  " ");
-      if (!isLastCompartment) {
-        print("- ");
-      }
-
-    }
-
   }
 
   /**
