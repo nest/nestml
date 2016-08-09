@@ -85,9 +85,9 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
     nestmlScopeCreator.runSymbolTableCreator(splModelRoot.get());
     splModelRoot.get().accept(splPrettyPrinter);
 
-    //System.out.println(splPrettyPrinter.getResult());
+    //System.out.println(splPrettyPrinter.result());
 
-    final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseStringAsSPLFile(splPrettyPrinter.getResult());
+    final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseStringAsSPLFile(splPrettyPrinter.result());
     if (!prettyPrintedRoot.isPresent()) {
       System.out.println();
     }

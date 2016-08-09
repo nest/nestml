@@ -1,7 +1,14 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.utils;
 
 /**
- * Created by user on 31.05.15.
+ * Defines the base for NESTML related pretty printer.
+ *
+ * @author plotnikov
  */
 public class PrettyPrinterBase {
   protected static final String BLOCK_CLOSE = "end";
@@ -25,11 +32,12 @@ public class PrettyPrinterBase {
   public void print(String s) {
     result += (indent + s);
     indent = "";
-    calcIndention();
   }
 
   public void println() {
-    println("");
+    println("\n");
+    indent = "";
+    calcIndention();
   }
 
   public void println(String s) {
@@ -55,7 +63,7 @@ public class PrettyPrinterBase {
     calcIndention();
   }
 
-  public String getResult() {
+  public String result() {
     return result;
   }
 }

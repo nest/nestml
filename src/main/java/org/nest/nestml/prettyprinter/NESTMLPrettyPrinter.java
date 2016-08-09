@@ -46,7 +46,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTNESTMLCompilationUnit node) {
-    print(printComments(node));
+    println(printComments(node));
   }
 
   /**
@@ -69,7 +69,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTNeuron astNeuron) {
-    print(printComments(astNeuron));
+    println(printComments(astNeuron));
     print("neuron " + astNeuron.getName());
     astNeuron.getBase().ifPresent(
         baseNeuron -> print(" extends " + baseNeuron));
@@ -116,7 +116,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   @Override
   public void visit(final ASTBodyElement astBodyElement) {
-    print(printComments(astBodyElement));
+    println(printComments(astBodyElement));
   }
   /**
    * Var_Block implements BodyElement =
@@ -165,9 +165,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   private void printDeclarationComment(ASTAliasDecl astAliasDecl) {
-    print(printComments(astAliasDecl));
-    //print(ASTUtils.printMultilineComments(astAliasDecl));
-    println();
+    println(printComments(astAliasDecl));
   }
 
   private void printAliasPrefix(final ASTAliasDecl astAliasDecl) {
@@ -188,7 +186,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     final SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
     splPrettyPrinter.printDeclaration(astAliasDecl.getDeclaration()); // TODO refactor as soon a the visitor is
     // generated
-    print(splPrettyPrinter.getResult());
+    print(splPrettyPrinter.result());
   }
 
 
@@ -422,11 +420,10 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
 
   private void printSplBlock(final ASTBlock astBlock) {
-    final  SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
+    final  SPLPrettyPrinter splPrinter = createDefaultPrettyPrinter(getIndentionLevel());
+    splPrinter.print(astBlock);
 
-    astBlock.accept(splPrettyPrinter);
-
-    print(splPrettyPrinter.getResult());
+    print(splPrinter.result());
   }
 
   /**
