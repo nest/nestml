@@ -295,7 +295,7 @@ public class NESTMLCoCosTest  {
         pathToInvalidModel,
         nestmlCoCoChecker,
         MemberVariableDefinedMultipleTimes.ERROR_CODE,
-        2);
+        3);
   }
 
   @Test

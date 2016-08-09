@@ -10,5 +10,9 @@ neuron NeuronInTest:
     input:
        z <- spike
     end
+
+    equations:
+       g real = 12
+    end
 end
 

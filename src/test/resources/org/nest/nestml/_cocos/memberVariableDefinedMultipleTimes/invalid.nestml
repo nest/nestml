@@ -11,5 +11,9 @@ neuron NeuronInTest:
     input:
        y <- spike
     end
+
+    equations:
+       x real = 12
+    end
 end
 
