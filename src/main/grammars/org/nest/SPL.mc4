@@ -5,7 +5,7 @@
  */
 package org.nest;
 
-grammar SPL extends org.nest.ODE, org.nest.Units {
+grammar SPL extends org.nest.Units {
 
   SPLFile = ModuleDefinitionStatement Block;
 

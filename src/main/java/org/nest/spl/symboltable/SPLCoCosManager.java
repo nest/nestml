@@ -20,21 +20,21 @@ public class SPLCoCosManager {
   /**
    * @return A checker with all SPL context conditions
    */
-  public SPLCoCoChecker createDefaultChecker() {
+  SPLCoCoChecker createDefaultChecker() {
     final SPLCoCoChecker splCoCoChecker = new SPLCoCoChecker();
 
     createCoCosForSPL(splCoCoChecker);
     return splCoCoChecker;
   }
 
-  public void createCoCosForSPL(SPLCoCoChecker splCoCoChecker) {
+  private void createCoCosForSPL(SPLCoCoChecker splCoCoChecker) {
     final VariableDoesNotExist variableExists = new VariableDoesNotExist();
     splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
     splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
+    //splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
     splCoCoChecker.addCoCo(variableDefinedMultipleTimes);

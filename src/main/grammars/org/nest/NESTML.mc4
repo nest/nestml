@@ -9,7 +9,7 @@ package org.nest;
   Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
   language which leans on the Python syntax.
 */
-grammar NESTML extends org.nest.SPL {
+grammar NESTML extends org.nest.SPL, org.nest.ODE {
 
   /** ASTNESTMLCompilationUnit represents the complete entire file with neuron and component models.
     @attribute packageName      The qualified name to artifact

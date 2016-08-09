@@ -77,7 +77,7 @@ public class SPLCoCosTest {
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
     splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-    splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
+    //splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
 
     splCoCoChecker.checkAll(ast);
 
