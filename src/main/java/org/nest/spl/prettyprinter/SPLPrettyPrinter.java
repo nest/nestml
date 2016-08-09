@@ -143,7 +143,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     }  else if (astSmallStmt.getReturnStmt().isPresent()) {
       printReturnStatement(astSmallStmt.getReturnStmt().get());
     }
-
+    println();
   }
 
   /**
@@ -154,19 +154,19 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     final String lhsVariableName = astAssignment.getLhsVarialbe().toString();
     final String rhsOfAssignment = expressionsPrettyPrinter.print(astAssignment.getExpr());
     if (astAssignment.isAssignment()) {
-      println(lhsVariableName + " = " + rhsOfAssignment);
+      print(lhsVariableName + " = " + rhsOfAssignment);
     }
     if (astAssignment.isCompoundSum()) {
-      println(lhsVariableName + " += " + rhsOfAssignment);
+      print(lhsVariableName + " += " + rhsOfAssignment);
     }
     if (astAssignment.isCompoundMinus()) {
-      println(lhsVariableName + " -= " + rhsOfAssignment);
+      print(lhsVariableName + " -= " + rhsOfAssignment);
     }
     if (astAssignment.isCompoundProduct()) {
-      println(lhsVariableName + " *= " + rhsOfAssignment);
+      print(lhsVariableName + " *= " + rhsOfAssignment);
     }
     if (astAssignment.isCompoundQuotient()) {
-      println(lhsVariableName + " /= " + rhsOfAssignment);
+      print(lhsVariableName + " /= " + rhsOfAssignment);
     }
 
 
@@ -190,7 +190,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
       }
 
     }
-    println(")");
+    print(")");
   }
 
   /**
@@ -200,10 +200,10 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
     if (astReturnStmt.getExpr().isPresent()) {
       final String returnExpressionAsString = expressionsPrettyPrinter.print(astReturnStmt.getExpr().get());
-      println("return " + returnExpressionAsString);
+      print("return " + returnExpressionAsString);
     }
     else {
-      println("return");
+      print("return");
     }
 
   }
@@ -216,7 +216,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     printDeclarationVariables(astDeclaration);
     printDeclarationType(astDeclaration);
     printOptionalInitializationExpression(astDeclaration);
-    println();
+
   }
 
   private void printDeclarationVariables(final ASTDeclaration astDeclaration) {
