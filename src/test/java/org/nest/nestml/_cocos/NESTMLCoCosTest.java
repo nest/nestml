@@ -594,21 +594,20 @@ public class NESTMLCoCosTest  {
 
   @Test
   public void testUndefinedVariablesInEquations() {
-    final NESTMLCoCoChecker nestmlCoCoCheckerWithSPLCocos = new NESTMLCoCoChecker();
-    final SPLCoCosManager splCoCosManager  = new SPLCoCosManager();
-    splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoCheckerWithSPLCocos);
+    final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
+    nestmlCoCoChecker.addCoCo(variableDoesNotExist);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "equations/validEquations.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
-        nestmlCoCoCheckerWithSPLCocos,
-        "SPL_");
+        nestmlCoCoChecker,
+        "NESTML_");
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equations/invalidEquations.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
-        nestmlCoCoCheckerWithSPLCocos,
-        "SPL_",
+        nestmlCoCoChecker,
+        "NESTML_",
         4);
 
   }

@@ -74,7 +74,6 @@ public class SPLCoCosManager {
     nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
     nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
     nestmlCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-    nestmlCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
     nestmlCoCoChecker.addCoCo(variableDefinedMultipleTimes);

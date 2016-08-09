@@ -40,54 +40,10 @@ public class VariableDoesNotExist implements
     CommonsASTFunctionCallCoCo,
     SPLASTDeclarationCoCo,
     SPLASTReturnStmtCoCo,
-    SPLASTCompound_StmtCoCo,
-    ODEASTOdeDeclarationCoCo {
+    SPLASTCompound_StmtCoCo {
 
   public static final String ERROR_CODE = "SPL_VARIABLE_DOES_NOT_EXIST";
-
   private static final String ERROR_MSG_FORMAT = "The variable %s is not defined in %s.";
-
-  /**
-   * Checks if the expression contains an undefined variables.
-   * TODO refactor me
-   */
-  private void checkExpression(final ASTExpr expr) {
-    checkState(expr.getEnclosingScope().isPresent());
-    final Scope scope = expr.getEnclosingScope().get();
-    final List<ASTQualifiedName> variables = ASTNodes.getSuccessors(expr, ASTQualifiedName.class);
-    final List<ASTFunctionCall> functionCallAsts = ASTNodes
-        .getSuccessors(expr, ASTFunctionCall.class);
-    final List<String> functionNames = Lists.newArrayList();
-
-    functionCallAsts.stream().forEach(astFunctionCall ->
-        functionNames.add(astFunctionCall.getCalleeName())
-    );
-
-    for (final ASTQualifiedName variable : variables) {
-      final String variableName = Names.getQualifiedName(variable.getParts());
-      if (isVariableName(functionNames, variableName)) {
-
-        if (!exists(variableName, scope)) {
-          final String errorMsg = ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, variableName,
-              scope.getName().orElse(""));
-          error(errorMsg, variable.get_SourcePositionStart());
-        }
-
-      }
-
-    }
-
-  }
-
-  private boolean exists(final String variableName, final Scope scope) {
-    return scope.resolve(variableName, VariableSymbol.KIND).isPresent();
-  }
-
-  private boolean isVariableName(
-      final List<String> functionNames,
-      final String variableName) {
-    return !functionNames.contains(variableName);
-  }
 
   @Override
   public void check(final ASTCompound_Stmt node) {
@@ -106,8 +62,6 @@ public class VariableDoesNotExist implements
     }
 
   }
-
-
 
   @Override
   public void check(final ASTAssignment astAssignment) {
@@ -139,16 +93,24 @@ public class VariableDoesNotExist implements
 
   }
 
-  @Override
-  public void check(final ASTOdeDeclaration node) {
-    node.getEquations().forEach(
-        ode-> {
-          checkVariableByName(ode.getLhs().getName().toString(), node);
-          ASTUtils.getAll(ode.getRhs(), ASTVariable.class).forEach(
-              variable -> checkVariableByName(Names.getQualifiedName(variable.getName().getParts()), node));
-        }
+  /**
+   * Checks if the expression contains an undefined variables.
+   */
+  private void checkExpression(final ASTExpr expr) {
+    checkState(expr.getEnclosingScope().isPresent());
+    final Scope scope = expr.getEnclosingScope().get();
+    final List<ASTVariable> variables = ASTNodes.getSuccessors(expr, ASTVariable.class);
 
-    );
+    for (final ASTVariable variable : variables) {
+      final String variableName = variable.toString();
+
+      if (!exists(variableName, scope)) {
+        final String errorMsg = ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, variableName,
+            scope.getName().orElse(""));
+        error(errorMsg, variable.get_SourcePositionStart());
+      }
+
+    }
 
   }
 
@@ -162,5 +124,9 @@ public class VariableDoesNotExist implements
           node.get_SourcePositionStart());
     }
 
+  }
+
+  private boolean exists(final String variableName, final Scope scope) {
+    return scope.resolve(variableName, VariableSymbol.KIND).isPresent();
   }
 }

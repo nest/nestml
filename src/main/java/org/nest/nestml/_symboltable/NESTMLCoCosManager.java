@@ -7,7 +7,6 @@ package org.nest.nestml._symboltable;
 
 import org.nest.nestml._cocos.*;
 import org.nest.nestml._cocos.BufferNotAssignable;
-import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.symboltable.SPLCoCosManager;
@@ -118,7 +117,10 @@ public class NESTMLCoCosManager {
     nestmlCoCoChecker.addCoCo(i_sumHasCorrectParameter);
 
     final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
-    // TODO nestmlCoCoChecker.addChecker(equationsOnlyForStateVariables);
+    nestmlCoCoChecker.addCoCo(equationsOnlyForStateVariables);
+
+    final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
+    nestmlCoCoChecker.addCoCo(variableDoesNotExist);
 
     return nestmlCoCoChecker;
   }
