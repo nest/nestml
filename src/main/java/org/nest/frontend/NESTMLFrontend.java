@@ -101,11 +101,11 @@ public class NESTMLFrontend {
         PYTHON_CHECK_SCRIPT,
         PYTHON_VERSION_TEST_OUTPUT,
         cliConfiguration.getTargetPath())) {
-      Log.error("Install Python in minimal version 2.7");
+      Log.error("Install Python the in minimal version 2.7");
       isError = true;
     }
     else {
-      Log.info("Python is installed", LOG_NAME);
+      Log.info("Correct python version is installed", LOG_NAME);
     }
 
     if (!evaluateCheckScript(

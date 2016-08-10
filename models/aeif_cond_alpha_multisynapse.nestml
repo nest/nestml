@@ -1,22 +1,43 @@
 /*
-Name: aeif_cond_alpha_implicit_implicit -  Conductance based exponential integrate-and-fire neuron
-                         model according to Brette and Gerstner (2005).
+aeif_cond_alpha_multisynapse  In contrast to most other neuron models, this
+one allow an arbitrary number of synaptic time constant.
 
-Description:
-aeif_cond_alpha is the adaptive exponential integrate and fire neuron according
-to Brette and Gerstner (2005).
-Synaptic conductances are modelled as alpha-functions.
+The time constants are supplied by two arrays tau_ex and tau_in for
+the excitatory and inhibitory synapses, respectively.  Port numbers
+are then automatically assigned and there range is from 1 to n.  (n
+being the index of the last element of the tau_ex and tau_in
+arrays).
+During connection, the ports are selected with the property "receptor_type".
 
-This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
-adaptive step size to integrate the differential equation.
+Examples:
+% PyNEST example, of how to assign a synaptic time constant to a receptor type.
 
-The membrane potential is given by the following differential equation:
-C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
-                                                     -g_i(t)(V-E_i)-w +I_e
+nest.SetDefaults('aeif_cond_alpha_multisynapse', {'HMIN':0.001})
+nest.SetDefaults('aeif_cond_alpha_multisynapse', {'MAXERR':1e-10})
 
-and
+neuron = nest.Create('aeif_cond_alpha_multisynapse')
+nest.SetStatus(neuron, {"V_peak": 0.0, "a": 4.0, "b":80.5})
+nest.SetStatus(neuron, {'taus_syn':[0.2,2.0,20.0,20.0]})
 
-tau_w * dw/dt= a(V-E_L) -W
+spike = nest.Create('spike_generator', params = {'spike_times':
+                                                           np.array([100.0])})
+voltmeter = nest.Create('voltmeter', 1, {'withgid': True})
+
+nest.CopyModel("static_synapse", "synapse1", {"weight":1.0, "delay":1.0,
+ 'receptor_type': 1})
+nest.CopyModel("static_synapse", "synapse2", {"weight":1.0, "delay":100.0,
+ 'receptor_type': 2})
+nest.CopyModel("static_synapse", "synapse3", {"weight":1.0, "delay":300.0,
+ 'receptor_type': 3})
+nest.CopyModel("static_synapse", "synapse4", {"weight":-1.0, "delay":500.0,
+ 'receptor_type': 4})
+
+nest.Connect(spike, neuron, model="synapse1")
+nest.Connect(spike, neuron, model="synapse2")
+nest.Connect(spike, neuron, model="synapse3")
+nest.Connect(spike, neuron, model="synapse4")
+
+nest.Connect(voltmeter, neuron)
 
 Parameters:
 The following parameters can be set in the status dictionary.
