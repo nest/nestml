@@ -20,7 +20,6 @@ import java.nio.file.Paths;
  *
  * @author plotnikov
  */
-@Ignore("Don't run this tests on github. PIP uses to outdated sympy package.")
 public class NESTMLFrontendIntegrationTest {
   private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
   private static final Path outputPath = Paths.get("target", "integration");
@@ -37,25 +36,6 @@ public class NESTMLFrontendIntegrationTest {
   }
 
   @Test
-  public void testModelsWithInheritance() {
-    FilesHelper.deleteFilesInFolder(outputPath);
-    nestmlFrontend.start(new String[] {"src/test/resources/inheritance",  "--target", outputPath.toString()});
-  }
-
-  @Test
-  public void testIzhikevichModel() {
-    FilesHelper.deleteFilesInFolder(outputPath);
-    nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/izhikevich", "--target", outputPath.toString()});
-  }
-
-
-  @Test
-  public void testGIFModel() {
-    FilesHelper.deleteFilesInFolder(outputPath);
-    nestmlFrontend.start(new String[] {"src/test/resources/codegeneration/gif", "--target", outputPath.toString()});
-  }
-
-  @Test
   public void testInfrastructure() {
 
     FilesHelper.deleteFilesInFolder(outputPath);
@@ -68,7 +48,7 @@ public class NESTMLFrontendIntegrationTest {
   @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/aeif_cond_alpha_implicit.nestml",
+        "models/aeif_cond_exp_implicit.nestml",
         "--target", outputPath.toString()};
 
     new NESTMLFrontend().start(args);
