@@ -74,13 +74,9 @@ neuron aeif_cond_exp_implicit:
 
   state:
     V_m mV = E_L
-    w real = 0
-
-    # inputs from the inh conductance
-    GI nS = 0
-    # inputs from the exc conductance
-    GE nS = 0
-
+    w pA = 0pA
+    GI nS = 0nS # inputs from the inh conductance
+    GE nS = 0nS # inputs from the exc conductance
   end
 
   equations:
@@ -90,9 +86,9 @@ neuron aeif_cond_exp_implicit:
     GE' = -GE/tau_syn_ex
 
     exp_arg real = (V_m-V_th)/delta_T
-    I_spike real = delta_T*exp(exp_arg)
-    I_syn_exc real =   Cond_sum(GE, spikeExc) * ( V_m - E_ex )
-    I_syn_inh real =   Cond_sum(GI, spikeInh) * ( V_m - E_in )
+    I_spike pA = delta_T*exp(exp_arg)
+    I_syn_exc pA = Cond_sum(GE, spikeExc) * ( V_m - E_ex )
+    I_syn_inh pA = Cond_sum(GI, spikeInh) * ( V_m - E_in )
 
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
