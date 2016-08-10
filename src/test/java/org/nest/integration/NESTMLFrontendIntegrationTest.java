@@ -35,6 +35,7 @@ public class NESTMLFrontendIntegrationTest {
     nestmlFrontend.start(new String[] {"src/test/resources/inheritance", "--target", outputPath.toString()});
   }
 
+  @Ignore("PIP supports only 1.0.0 sympy")
   @Test
   public void testInfrastructure() {
 
