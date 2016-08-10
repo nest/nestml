@@ -1,16 +1,16 @@
 /*
 Name: aeif_cond_exp_implicit -  Conductance based exponential integrate-and-fire neuron
-                         model according to Brette and Gerstner (2005).
+                         model according to Brette and g_exrstner (2005).
 
 Description:
 aeif_cond_exp_implicit is the adaptive exponential integrate and fire neuron according
-to Brette and Gerstner (2005).
+to Brette and g_exrstner (2005).
 Synaptic conductances are modelled as alpha-functions.
 
-This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
+This implementation uses the embedded 4th order Rung_ex-Kutta-Fehlberg solver with
 adaptive step size to integrate the differential equation.
 
-The membrane potential is given by the following differential equation:
+The membrane potential is g_inven by the following differential equation:
 C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
                                                      -g_i(t)(V-E_i)-w +I_e
 
@@ -39,7 +39,7 @@ Membrane Parameters:
 
 Spike adaptation parameters:
   a          double - Subthreshold adaptation in nS.
-  b          double - Spike-triggered adaptation in pA.
+  b          double - Spike-trigg_exred adaptation in pA.
   Delta_T    double - Slope factor in mV
   tau_w      double - Adaptation time constant in ms
   V_th       double - Spike initiation threshold in mV
@@ -58,13 +58,13 @@ Integration parameters
                           GSL integrator. Reduce it if NEST complains about
                           numerical instabilities.
 
-Author: Marc-Oliver Gewaltig
+Author: Marc-Oliver g_exwaltig
 
 Sends: SpikeEvent
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+Receives: SpikeEvent, CurrentEvent, DataLogg_inngRequest
 
-References: Brette R and Gerstner W (2005) Adaptive Exponential
+References: Brette R and g_exrstner W (2005) Adaptive Exponential
             Integrate-and-Fire Model as an Effective Description of Neuronal
             Activity. J Neurophysiol 94:3637-3642
 
@@ -75,20 +75,20 @@ neuron aeif_cond_exp_implicit:
   state:
     V_m mV = E_L
     w pA = 0pA
-    GI nS = 0nS # inputs from the inh conductance
-    GE nS = 0nS # inputs from the exc conductance
+    g_in nS = 0nS # inputs from the inh conductance
+    g_ex nS = 0nS # inputs from the exc conductance
   end
 
   equations:
     # Implicit
-    GI' = -GI/tau_syn_in
-    # shape GE = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
-    GE' = -GE/tau_syn_ex
+    g_in' = -g_in/tau_syn_in
+    # shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    g_ex' = -g_ex/tau_syn_ex
 
     exp_arg real = (V_m-V_th)/delta_T
     I_spike pA = delta_T*exp(exp_arg)
-    I_syn_exc pA = Cond_sum(GE, spikeExc) * ( V_m - E_ex )
-    I_syn_inh pA = Cond_sum(GI, spikeInh) * ( V_m - E_in )
+    I_syn_exc pA = Cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+    I_syn_inh pA = Cond_sum(g_in, spikeInh) * ( V_m - E_in )
 
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
@@ -106,7 +106,7 @@ neuron aeif_cond_exp_implicit:
 
    # spike adaptation parameters
    a nS = 4nS             # Subthreshold adaptation.
-   b pA = 80.5pA          # Spike-triggered adaptation.
+   b pA = 80.5pA          # Spike-trigg_exred adaptation.
    delta_T mV = 2.0mV     # Slope factor
    tau_w ms = 144.0ms     # Adaptation time constant in
    V_th mV = -50.4mV      # Threshold Potential
@@ -125,9 +125,9 @@ neuron aeif_cond_exp_implicit:
   end
 
   internal:
-    r integer
+    r integ_exr
     # refractory time in steps
-    RefractoryCounts integer = steps(t_ref)
+    RefractoryCounts integ_exr = steps(t_ref)
   end
 
   input:
@@ -154,9 +154,9 @@ neuron aeif_cond_exp_implicit:
       emit_spike()
     end
 
-    GE += spikeExc.getSum()
-    GI += spikeInh.getSum()
-    I_stim = currents.getSum()
+    g_ex += spikeExc.g_extSum()
+    g_in += spikeInh.g_extSum()
+    I_stim = currents.g_extSum()
   end
 
 end
