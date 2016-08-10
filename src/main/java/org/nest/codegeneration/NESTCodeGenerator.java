@@ -43,6 +43,7 @@ import static org.nest.utils.ASTUtils.getAllNeurons;
 
 /**
  * Generates C++ implementation and model integration code for NEST.
+ *
  * @author plotnikov
  */
 public class NESTCodeGenerator {
