@@ -91,7 +91,7 @@ public class NESTCodeGenerator {
     final Optional<ASTOdeDeclaration> odesBlock = astBody.getODEBlock();
     if (odesBlock.isPresent()) {
       if (odesBlock.get().getShapes().size() == 0) {
-        info("The model will be solved numerically with a GSL solver.", LOG_NAME);
+        info("The model will be solved numerically with GSL solver.", LOG_NAME);
         return astNeuron;
       }
       else {
@@ -145,7 +145,7 @@ public class NESTCodeGenerator {
   }
 
   /**
-   * This action is done for 2 Reasons:
+   * Model is printed and read again due 2 reasons:
    * a) Technically it is necessary to build a new symbol table
    * b) The model developer can view how the solution was computed.
    * @return New root node of the altered model with an initialized symbol table
@@ -156,16 +156,14 @@ public class NESTCodeGenerator {
     try {
       final Path outputTmpPath = Paths.get(modulePath.toString(), root.getFullName() + ".nestml");
       printModelToFile(root, outputTmpPath.toString());
-      info("Printed analysed model into: " + outputTmpPath, LOG_NAME);
+      info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
       final NESTMLParser parser = new NESTMLParser(modulePath);
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
       withSolvedOde.setArtifactName(root.getArtifactName());
+
       if (root.getPackageName().isPresent()) {
         withSolvedOde.setPackageName(root.getPackageName().get());
-      }
-      else {
-        withSolvedOde.removePackageName();
       }
 
       scopeCreator.runSymbolTableCreator(withSolvedOde);
@@ -176,20 +174,17 @@ public class NESTCodeGenerator {
     }
   }
 
+  /**
+   * Generates code that is necessary to integrate neuron models into the NEST infrastructure.
+   * @param modelRoots List with neurons
+   * @param moduleName The name of the nest module, which is then used in nest.Install(moduleName)
+   * @param outputDirectory Directory to write the output
+   */
   public void generateNESTModuleCode(
       final List<ASTNESTMLCompilationUnit> modelRoots,
       final String moduleName,
       final Path outputDirectory) {
     final List<ASTNeuron> neurons = getAllNeurons(modelRoots);
-    generateModuleCodeForNeurons(neurons, moduleName, outputDirectory);
-  }
-
-  private void generateModuleCodeForNeurons(
-      final List<ASTNeuron> neurons,
-      final String moduleName,
-      final Path outputDirectory) {
-    checkArgument(!neurons.isEmpty());
-
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
     setup.setTracing(false);
 
