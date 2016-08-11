@@ -1,52 +1,76 @@
+/* BeginDocumentation
+Name: iaf_cond_alpha_implicit - Simple conductance based leaky integrate-and-fire neuron
+                       model.
+
+Description:
+iaf_cond_alpha is an implementation of a spiking neuron using IAF dynamics with
+conductance-based synapses. Incoming spike events induce a post-synaptic change
+of conductance modelled by an alpha function. The alpha function
+is normalised such that an event of weight 1.0 results in a peak current of 1 nS
+at t = tau_syn.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+References:
+
+Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
+model for the large, fluctuating synaptic conductance state typical of
+neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+
+Bernander, O ., Douglas, R. J., Martin, K. A. C., & Koch, C. (1991).
+Synaptic background activity influences spatiotemporal integration in
+single pyramidal cells.  Proc. Natl. Acad. Sci. USA, 88(24),
+11569-11573.
+
+Kuhn, Aertsen, Rotter (2004) Neuronal Integration of Synaptic Input in
+the Fluctuation- Driven Regime. Jneurosci 24(10) 2345-2356
+
+Author: Schrader, Plesser
+
+SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
+*/
 neuron iaf_cond_alpha_implicit:
 
   state:
-    # membrane potential
-    V_m mV = E_L
-    # inputs from the inh conductance
-    GI nS = 0
-    # inputs from the exc conductance
-    GE nS = 0
+    V_m mV = E_L   # membrane potential
+    g_in nS = 0    # inputs from the inh conductance
+    g_ex nS = 0    # inputs from the exc conductance
   end
 
   equations:
-    # Implicit
-    GI'' = -GI'/tau_synI
-    GI' = GI' - GI/tau_synI
+    # alpha function for the g_in
+    g_in'' = -g_in'/tau_synI
+    g_in' = g_in' - g_in/tau_synI
 
-    GE'' = -GE'/tau_synE
-    GE' = GE'  -GE/tau_synE
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * ( Cond_sum(GI, spikeInh) * (V_m-V_reversalI) + Cond_sum(GE, spikeExc) * (V_m-V_reversalE) - (I_e + I_stim))
+    # alpha function for the g_ex
+    g_ex'' = -g_ex'/tau_synE
+    g_ex' = g_ex'  -g_ex/tau_synE
+
+    I_syn_exc pA = Cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
+    I_syn_inh pA =  Cond_sum(g_in, spikeInh)  * ( V_m - E_in )
+    I_leak pA = g_L * ( V_m - E_L )
+
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
   end
 
   parameter:
-    # Threshold Potential in mV
-    V_th mV = -55.0
-    # Reset Potential in mV
-    V_reset mV = -60.0
-    # Refractory period in ms
-    t_ref ms = 2.0
-    # Leak Conductance in nS
-    g_L nS = 16.6667
-    # Membrane Capacitance in pF
-    C_m pF = 250.0
-    alias Tau ms = (1 / g_L) * C_m
-    # Excitatory reversal Potential in mV
-    V_reversalE mV = 0
-    # Inhibitory reversal Potential in mV
-    V_reversalI mV = -85.0
-    # Leak reversal Potential (aka resting potential) in mV
-    E_L mV = -70.0
-    # Synaptic Time Constant Excitatory Synapse in ms
-    tau_synE ms = 0.2
-    # Synaptic Time Constant for Inhibitory Synapse in ms
-    tau_synI ms = 2.0
-    # Constant Current in pA
-    I_e pA = 0
+    V_th mV = -55.0mV    # Threshold Potential in mV
+    V_reset mV = -60.0mV # Reset Potential in mV
+    t_ref ms = 2.0mV     # Refractory period in ms
+    g_L nS = 16.6667nS   # Leak Conductance in nS
+    C_m pF = 250.0       # Membrane Capacitance in pF
+    E_ex mV = 0mV        # Excitatory reversal Potential in mV
+    E_in mV = -85.0mV    # Inhibitory reversal Potential in mV
+    E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential) in mV
+    tau_synE ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse in ms
+    tau_synI ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse in ms
+    I_e pA = 0pA           # Constant Current in pA
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
     # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0
+    I_stim pA = 0pA
   end
 
   internal:
@@ -85,8 +109,8 @@ neuron iaf_cond_alpha_implicit:
 
     end
 
-    GE' += spikeExc.getSum() * PSConInit_E;
-    GI' += spikeInh.getSum() * PSConInit_I;
+    g_ex' += spikeExc.getSum() * PSConInit_E;
+    g_in' += spikeInh.getSum() * PSConInit_I;
     I_stim = currents.getSum()
   end
 

@@ -58,76 +58,70 @@ SeeAlso: hh_psc_alpha
 neuron iaf_chxk_2008_implicit:
 
   state:
-    # membrane potential
-    V_m mV = E_L
-    # inputs from the inh conductance
-    GI nS = 0
-    # inputs from the exc conductance
-    GE nS = 0
-    G_ahp nS
+
+    V_m mV = E_L   # membrane potential
+    g_in nS        # inputs from the inh conductance
+    g_ex nS        # inputs from the exc conductance
+    G_ahp nS       # AHP conductance
   end
 
   equations:
     # Implicit
-    GI'' = -GI'/tau_synI
-    GI' = GI' - GI/tau_synI
+    g_in'' = -g_in'/tau_syn_in
+    g_in' = g_in' - g_in/tau_syn_in
 
-    GE'' = -GE'/tau_synE
-    GE' = GE'  -GE/tau_synE
+    g_ex'' = -g_ex'/tau_syn_ex
+    g_ex' = g_ex'  -g_ex/tau_syn_ex
 
     G_ahp'' = -G_ahp' / tau_ahp
     G_ahp' = G_ahp' - ( G_ahp / tau_ahp )
 
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * ( GI * (V_m-V_reversalI) + GE * (V_m-V_reversalE) - (I_e + I_stim))
+    I_syn_exc pA = Cond_sum(g_ex, spikesInh) * ( V_m - E_ex )
+    I_syn_inh pA = Cond_sum(g_in, spikesEx) * ( V_m - E_in )
+    I_ahp pA = G_ahp * ( V_m - E_ahp )
+    I_leak pA = g_L * ( V_m - E_L )
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_stim + I_e ) / C_m
   end
 
   parameter:
-    # Threshold Potential in mV
-    V_th mV = -45.0mV
-    # Leak Conductance in nS
-    g_L nS = 100nS
-    # Membrane Capacitance in pF
-    C_m pF = 1000.0
-    alias Tau ms = (1 / g_L) * C_m
-    # Excitatory reversal Potential in mV
-    V_reversalE mV = 20mV
-    # Inhibitory reversal Potential in mV
-    V_reversalI mV = -90.0mV
-    # Leak reversal Potential (aka resting potential) in mV
-    E_L mV = -60.0
-    # Synaptic Time Constant Excitatory Synapse in ms
-    tau_synE ms = 1ms
-    # Synaptic Time Constant for Inhibitory Synapse in ms
-    tau_synI ms = 1ms
-    # Constant Current in pA
-    I_e pA = 0
+    V_th mV = -45.0mV     # Threshold Potential in mV
+    E_ex mV = 20mV        # Excitatory reversal potential in mV.
+    E_in mV = -90mv       # Inhibitory reversal potential in mV.
+    g_L nS = 100nS        # Leak Conductance in nS
+    C_m pF = 1000.0pf     # Membrane Capacitance
+    V_reversalE mV = 20mV # Excitatory reversal Potential in mV
 
-    tau_ahp ms = 0.5ms   # Afterhyperpolarization (AHP) time constant
-    g_ahp nS = 443.8nS   # AHP conductance
-    E_ahp mV = -95mV     # AHP potential
-    ahp_bug boolean = false      # If true, discard AHP conductance value from previous spikes
+    V_reversalI mV = -90.0mV # Inhibitory reversal Potential in mV
+    E_L mV = -60.0mV         # Leak reversal Potential (aka resting potential) in mV
+    tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse in ms
+    tau_ahp ms = 0.5ms       # Afterhyperpolarization (AHP) time constant
+    g_ahp nS = 443.8nS       # AHP conductance
+    E_ahp mV = -95mV         # AHP potential
+    ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
 
+    I_e pA = 0 pA            # Constant Current in pA
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
     # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0
+    I_stim pA = 0pA
   end
 
   internal:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_synE
+    PSConInit_E real = 1.0 * e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_synI
+    PSConInit_I real = 1.0 * e / tau_syn_in
 
     PSConInit_AHP real = g_ahp * e / tau_ahp;
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikesInh   <- inhibitory spike
+      spikesExc   <- excitatory spike
       currents <- current
   end
 
@@ -160,8 +154,8 @@ neuron iaf_chxk_2008_implicit:
       emit_spike()
     end
 
-    GE' += spikeExc.getSum() * PSConInit_E;
-    GI' += spikeInh.getSum() * PSConInit_I;
+    g_ex' += spikesExc.getSum() * PSConInit_E;
+    g_in' += spikesInh.getSum() * PSConInit_I;
     I_stim = currents.getSum()
   end
 
