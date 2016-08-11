@@ -267,8 +267,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
           spikeBuffer.setConductanceBased(true);
         }
 
-
-
       }
 
     }
