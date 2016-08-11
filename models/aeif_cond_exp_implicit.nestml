@@ -154,9 +154,9 @@ neuron aeif_cond_exp_implicit:
       emit_spike()
     end
 
-    g_ex += spikeExc.g_extSum()
-    g_in += spikeInh.g_extSum()
-    I_stim = currents.g_extSum()
+    g_ex += spikeExc.getSum()
+    g_in += spikeInh.getSum()
+    I_stim = currents.getSum()
   end
 
 end
