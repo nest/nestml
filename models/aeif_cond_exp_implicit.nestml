@@ -21,44 +21,7 @@ tau_w * dw/dt= a(V-E_L) -W
 Parameters:
 The following parameters can be set in the status dictionary.
 
-Dynamic state variables:
-  V_m        double - Membrane potential in mV
-  g_ex       double - Excitatory synaptic conductance in nS.
-  dg_ex      double - First derivative of g_ex in nS/ms
-  g_in       double - Inhibitory synaptic conductance in nS.
-  dg_in      double - First derivative of g_in in nS/ms.
-  w          double - Spike-adaptation current in pA.
-
-Membrane Parameters:
-  C_m        double - Capacity of the membrane in pF
-  t_ref      double - Duration of refractory period in ms.
-  V_reset    double - Reset value for V_m after a spike. In mV.
-  E_L        double - Leak reversal potential in mV.
-  g_L        double - Leak conductance in nS.
-  I_e        double - Constant external input current in pA.
-
-Spike adaptation parameters:
-  a          double - Subthreshold adaptation in nS.
-  b          double - Spike-trigg_exred adaptation in pA.
-  Delta_T    double - Slope factor in mV
-  tau_w      double - Adaptation time constant in ms
-  V_th       double - Spike initiation threshold in mV
-  V_peak     double - Spike detection threshold in mV.
-
-Synaptic parameters
-  E_ex       double - Excitatory reversal potential in mV.
-  tau_syn_ex double - Rise time of excitatory synaptic conductance in ms (alpha
-                      function).
-  E_in       double - Inhibitory reversal potential in mV.
-  tau_syn_in double - Rise time of the inhibitory synaptic conductance in ms
-                      (alpha function).
-
-Integration parameters
-  gsl_error_tol  double - This parameter controls the admissible error of the
-                          GSL integrator. Reduce it if NEST complains about
-                          numerical instabilities.
-
-Author: Marc-Oliver g_exwaltig
+Author: Marc-Oliver Gewaltig
 
 Sends: SpikeEvent
 
@@ -73,61 +36,60 @@ SeeAlso: iaf_cond_alpha, aeif_cond_exp
 neuron aeif_cond_exp_implicit:
 
   state:
-    V_m mV = E_L
-    w pA = 0pA
-    g_in nS = 0nS # inputs from the inh conductance
-    g_ex nS = 0nS # inputs from the exc conductance
+    V_m mV = E_L  # Membrane potential
+    w pA = 0pA    # Spike-adaptation current
+    g_in nS = 0nS # Inhibitory synaptic conductance
+    g_ex nS = 0nS # Excitatory synaptic conductance
   end
 
   equations:
-    # Implicit
+    # exp function for the g_in, g_ex
     g_in' = -g_in/tau_syn_in
-    # shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
     g_ex' = -g_ex/tau_syn_ex
 
+    w' = (a*(V_m - E_L) - w)/tau_w
+
+    # Add aliases to simplify the equation definition of V_m
     exp_arg real = (V_m-V_th)/delta_T
     I_spike pA = delta_T*exp(exp_arg)
     I_syn_exc pA = Cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
     I_syn_inh pA = Cond_sum(g_in, spikeInh) * ( V_m - E_in )
 
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
-    w' = (a*(V_m - E_L) - w)/tau_w
-
   end
 
   parameter:
-   # membrane parameters
-   C_m   pF = 281.0pF     # Membrane Capacitance in pF
-   t_ref ms = 0.0ms       # Refractory period in ms
-   V_reset mV = -60.0mV   # Reset Potential in mV
-   g_L nS = 30.0nS        # Leak Conductance in nS
-   E_L mV = -70.6mV       # Leak reversal Potential (aka resting potential) in mV
-   I_e pA = 0pA           # Constant Current in pA
+    # membrane parameters
+    C_m   pF = 281.0pF     # Membrane Capacitance in pF
+    t_ref ms = 0.0ms       # Refractory period in ms
+    V_reset mV = -60.0mV   # Reset Potential in mV
+    g_L nS = 30.0nS        # Leak Conductance in nS
+    E_L mV = -70.6mV       # Leak reversal Potential (aka resting potential) in mV
+    I_e pA = 0pA           # Constant Current in pA
 
-   # spike adaptation parameters
-   a nS = 4nS             # Subthreshold adaptation.
-   b pA = 80.5pA          # Spike-trigg_exred adaptation.
-   delta_T mV = 2.0mV     # Slope factor
-   tau_w ms = 144.0ms     # Adaptation time constant in
-   V_th mV = -50.4mV      # Threshold Potential
-   V_peak mV = 0mV        # Spike detection threshold in mV.
+    # spike adaptation parameters
+    a nS = 4nS             # Subthreshold adaptation.
+    b pA = 80.5pA          # Spike-trigg_exred adaptation.
+    delta_T mV = 2.0mV     # Slope factor
+    tau_w ms = 144.0ms     # Adaptation time constant in
+    V_th mV = -50.4mV      # Threshold Potential
+    V_peak mV = 0mV        # Spike detection threshold in mV.
 
-   # synaptic parameters
-   E_ex mV = 0mV            # Excitatory reversal Potential in mV
-   tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
-   E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
-   tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+    # synaptic parameters
+    E_ex mV = 0mV            # Excitatory reversal Potential in mV
+    tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
+    E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
+    tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
 
-   # Input current injected by CurrentEvent.
-   # This variable is used to transport the current applied into the
-   # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0pA
+    # Input current injected by CurrentEvent.
+    # This variable is used to transport the current applied into the
+    # _dynamics function computing the derivative of the state vector.
+    I_stim pA = 0pA
   end
 
   internal:
-    r integer
-    # refractory time in steps
-    RefractoryCounts integer = steps(t_ref)
+    r integer                               # counts number of tick during the refractory period
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
   input:

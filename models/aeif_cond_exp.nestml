@@ -70,7 +70,7 @@ References: Brette R and Gerstner W (2005) Adaptive Exponential
 
 SeeAlso: iaf_cond_alpha, aeif_cond_exp
 */
-neuron aeif_exp_alpha_neuron:
+neuron aeif_cond_exp_neuron:
 
   state:
     V_m mV = E_L
@@ -121,6 +121,7 @@ neuron aeif_exp_alpha_neuron:
   end
 
   internal:
+    # counts number of tick during the refractory period
     r integer
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
