@@ -1,4 +1,4 @@
-/* BeginDocumentation
+/*
 Name: iaf_cond_alpha_implicit - Simple conductance based leaky integrate-and-fire neuron
                        model.
 
