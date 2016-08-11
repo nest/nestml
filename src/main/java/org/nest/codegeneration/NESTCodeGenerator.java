@@ -10,12 +10,10 @@ import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
-import org.nest.codegeneration.converters.NESTStateBlockReferenceConverter;
-import org.nest.spl.prettyprinter.IReferenceConverter;
 import org.nest.codegeneration.converters.NESTParameterBlockReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
+import org.nest.codegeneration.converters.NESTStateBlockReferenceConverter;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.helpers.NESTFunctionPrinter;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.codegeneration.sympy.ODETransformer;
 import org.nest.nestml._ast.ASTBody;
@@ -24,9 +22,9 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.spl.prettyprinter.IReferenceConverter;
 import org.nest.utils.ASTUtils;
 import org.nest.utils.NESTMLSymbols;
 
@@ -226,7 +224,7 @@ public class NESTCodeGenerator {
   private void printModelToFile(
       final ASTNESTMLCompilationUnit root,
       final String outputFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
+    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
     root.accept(prettyPrinter);
 
     final File prettyPrintedModelFile = new File(outputFile);
