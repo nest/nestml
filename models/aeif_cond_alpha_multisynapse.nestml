@@ -55,7 +55,7 @@ neuron aeif_cond_alpha_implicit_implicit:
 
   state:
     V_m mV = E_L      # Membrane potential
-    w pA = 0          # Spike-adaptation current
+    w pA = 0pA          # Spike-adaptation current
     g_in nS[receptors] = 0nS     # Excitatory synaptic conductance
     g_ex nS[receptors] = 0nS     # Inhibitory synaptic conductance in nS
   end
