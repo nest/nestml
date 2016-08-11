@@ -1,0 +1,30 @@
+neuron invalidExpressionTest:
+  state:
+    Resist Ohm = 8A #Declaration with wrong type
+    Ampere A = 3 #Declaration without explicit unit type
+  end
+
+  function foo(amp A, ohm Ohm) V:  
+    return amp * ohm
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  parameter:
+    V2 V = foo(3,2) #Omitted types in literal function parameters
+  end
+
+  output: spike
+
+  internal:
+  end
+
+  update:
+    Ampere = 8 #Assignment without explicit unit type
+  end
+
+end

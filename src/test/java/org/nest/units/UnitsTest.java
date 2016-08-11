@@ -16,6 +16,7 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.AliasHasNoSetter;
+import org.nest.nestml._cocos.LiteralsHaveTypes;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.units._visitor.UnitsSIVisitor;
@@ -47,8 +48,18 @@ public class UnitsTest extends ModelbasedTest {
     scopeCreator.runSymbolTableCreator(validRoot.get());
     completeChecker.checkAll(validRoot.get());
 
-    long errorsFound = getErrorCount();
-    assertEquals(0, errorsFound);
+    long findings = getFindings().size();
+    assertEquals(0, findings);
+
+    final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
+        "src/test/resources/org/nest/units/invalidExpressions.nestml", TEST_MODEL_PATH);
+
+    assertTrue(invalidRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(invalidRoot.get());
+    completeChecker.checkAll(invalidRoot.get());
+
+    findings = getFindings().size();
+    assertEquals(3, findings);
   }
   @Test
   public void test_iaf_cond_alpha() {

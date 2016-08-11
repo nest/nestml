@@ -20,6 +20,10 @@ public class CocoErrorStrings {
     return instance;
   }
 
+  String getErrorMsg(LiteralsHaveTypes coco){
+    return LiteralsHaveTypes.ERROR_CODE + ": Assignment of a literal to a UNIT type variable must carry a Unit Symbol";
+  }
+
   String getErrorMsg(AliasHasDefiningExpression coco) {
     return AliasHasDefiningExpression.ERROR_CODE + ":" + "'alias' must be defined through an expression.";
   }
