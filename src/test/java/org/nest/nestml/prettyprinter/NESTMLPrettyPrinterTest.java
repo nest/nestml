@@ -39,7 +39,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
-    parseAndCheckNestmlModel("src/test/resources/inheritance/iaf_neuron.nestml");
+    parseAndCheckNestmlModel("models/iaf_cond_alpha_implicit.nestml");
   }
 
   @Test
@@ -77,7 +77,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
   private void parseAndCheckNestmlModel(String pathToModel) throws IOException {
     System.out.println("Handles the model: " + pathToModel);
 
-    final NESTMLPrettyPrinter splPrettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
+    final NESTMLPrettyPrinter splPrettyPrinter = NESTMLPrettyPrinter.Builder.build();
     final Optional<ASTNESTMLCompilationUnit> splModelRoot = nestmlParser.parse(pathToModel);
     assertTrue("Cannot parse the model: " + pathToModel, splModelRoot.isPresent());
 
@@ -85,12 +85,9 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
     nestmlScopeCreator.runSymbolTableCreator(splModelRoot.get());
     splModelRoot.get().accept(splPrettyPrinter);
 
-    //System.out.println(splPrettyPrinter.result());
+    System.out.println(splPrettyPrinter.result());
 
     final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseStringAsSPLFile(splPrettyPrinter.result());
-    if (!prettyPrintedRoot.isPresent()) {
-      System.out.println();
-    }
     assertTrue(prettyPrintedRoot.isPresent());
   }
 
