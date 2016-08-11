@@ -92,17 +92,17 @@ neuron hh_psc_alpha_nestml:
   end
 
   parameter:
-    t_ref ms = 2.0       # Refractory period
-    g_Na nS = 12000.0    # Sodium peak conductance
-    g_K nS = 3600.0      # Potassium peak conductance
-    g_L nS = 30          # Leak conductance
-    C_m pF = 100.0       # Membrane Capacitance
-    E_Na mV = 50         # Sodium reversal potential
-    E_K mV = -77.        # Potassium reversal potentia
-    E_L mV = -54.402     # Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 0.2  # Rise time of the excitatory synaptic alpha function i
-    tau_syn_in ms = 2.0  # Rise time of the inhibitory synaptic alpha function
-    I_e pA = 0           # Constant Current in pA
+    t_ref ms = 2.0 ms      # Refractory period
+    g_Na nS = 12000.0nS    # Sodium peak conductance
+    g_K nS = 3600.0nS      # Potassium peak conductance
+    g_L nS = 30nS          # Leak conductance
+    C_m pF = 100.0pF       # Membrane Capacitance
+    E_Na mV = 50mV         # Sodium reversal potential
+    E_K mV = -77.mV        # Potassium reversal potentia
+    E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential) in mV
+    tau_syn_ex ms = 0.2ms  # Rise time of the excitatory synaptic alpha function i
+    tau_syn_in ms = 2.0ms  # Rise time of the inhibitory synaptic alpha function
+    I_e pA = 0pA           # Constant Current in pA
   end
 
   internal:
