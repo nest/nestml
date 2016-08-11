@@ -91,7 +91,6 @@ neuron aeif_cond_alpha_implicit:
   end
 
   internal:
-    r integer
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
@@ -103,6 +102,8 @@ neuron aeif_cond_alpha_implicit:
 
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
+    # counts number of tick during the refractory period
+    r integer
   end
 
   input:

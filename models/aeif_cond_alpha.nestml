@@ -88,8 +88,6 @@ neuron aeif_cond_alpha_neuron:
   end
 
   internal:
-    r integer
-
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
     PSConInit_E real = 1.0 * e / tau_syn_ex
@@ -100,6 +98,8 @@ neuron aeif_cond_alpha_neuron:
 
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
+    # counts number of tick during the refractory period
+    r integer
   end
 
   input:
