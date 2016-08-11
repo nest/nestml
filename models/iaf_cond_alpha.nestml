@@ -1,14 +1,51 @@
+/*
+Name: iaf_cond_alpha_neuron - Simple conductance based leaky integrate-and-fire neuron
+                       model.
+
+Description:
+iaf_cond_alpha is an implementation of a spiking neuron using IAF dynamics with
+conductance-based synapses. Incoming spike events induce a post-synaptic change
+of conductance modelled by an alpha function. The alpha function
+is normalised such that an event of weight 1.0 results in a peak current of 1 nS
+at t = tau_syn.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+References:
+
+Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
+model for the large, fluctuating synaptic conductance state typical of
+neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+
+Bernander, O ., Douglas, R. J., Martin, K. A. C., & Koch, C. (1991).
+Synaptic background activity influences spatiotemporal integration in
+single pyramidal cells.  Proc. Natl. Acad. Sci. USA, 88(24),
+11569-11573.
+
+Kuhn, Aertsen, Rotter (2004) Neuronal Integration of Synaptic Input in
+the Fluctuation- Driven Regime. Jneurosci 24(10) 2345-2356
+
+Author: Schrader, Plesser
+
+SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
+*/
 neuron iaf_cond_alpha_neuron:
 
   state:
-    V_m mV = -70mV
+    V_m mV = E_L   # membrane potential
   end
 
   equations:
-    # Explicit
-    shape GI = (e/tau_synI) * t * exp(-1/tau_synI*t)
-    shape GE = (e/tau_synE) * t * exp(-1/tau_synE*t)
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (GI* (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim))
+    shape g_in = (e/tau_synI) * t * exp(-1/tau_synI*t)
+    shape g_ex = (e/tau_synE) * t * exp(-1/tau_synE*t)
+
+    I_syn_exc pA = Cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
+    I_syn_inh pA =  Cond_sum(g_in, spikeInh)  * ( V_m - E_in )
+    I_leak pA = g_L * ( V_m - E_L )
+
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
   end
 
   parameter:
@@ -55,12 +92,7 @@ neuron iaf_cond_alpha_neuron:
   output: spike
 
   update:
-    if r == 0: # not refractory
-      # TODO intagrate
-
-    else:
-      r = r - 1
-    end
+    integrate(V_m)
 
     if r != 0: # not refractory
       r =  r - 1
@@ -73,8 +105,6 @@ neuron iaf_cond_alpha_neuron:
 
     end
 
-    # TODO DGE = DGE + spikeExc.getSum() * PSConInit_E;
-    # TODO DGI = DGI + spikeInh.getSum() * PSConInit_I;
     I_stim = currents.getSum()
   end
 

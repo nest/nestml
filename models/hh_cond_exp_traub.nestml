@@ -1,4 +1,5 @@
-/*  Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
+/*
+Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
 
 Description:
 
@@ -17,30 +18,6 @@ Description:
 Problems/Todo:
 Only the channel variables m,h,n are implemented. The original
 contains variables called y,s,r,q and \chi.
-
-Parameters:
-
- The following parameters can be set in the status dictionary.
-
- V_m        double - Membrane potential in mV
- V_T        double - Voltage offset that controls dynamics. For default
-                     parameters, V_T = -63mV results in a threshold around
-                     -50mV.
- E_L        double - Leak reversal potential in mV.
- C_m        double - Capacity of the membrane in pF.
- g_L        double - Leak conductance in nS.
- tau_syn_ex double - Time constant of the excitatory synaptic exponential
-                     function in ms.
- tau_syn_in double - Time constant of the inhibitory synaptic exponential
-                     function in ms.
- E_ex       double - Excitatory synaptic reversal potential in mV.
- E_in       double - Inhibitory synaptic reversal potential in mV.
- E_Na       double - Sodium reversal potential in mV.
- g_Na       double - Sodium peak conductance in nS.
- E_K        double - Potassium reversal potential in mV.
- g_K        double - Potassium peak conductance in nS.
- I_e        double - External input current in pA.
-
 References:
 
 Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
@@ -52,23 +29,17 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
 Author: Schrader
 
-SeeAlso: hh_psc_alpha*/
+SeeAlso: hh_psc_alpha
+*/
 neuron hh_cond_exp_traub_nestml:
 
   state:
-    V_m mV = E_L
-    alias V_1 mV = V_m - V_T
-    G_ex,  G_in nS
+    V_m mV = E_L #  Membrane potential
 
-    # equilibrium values for (in)activation variables
-    alias alpha_n real = 0.032 * ( 15. - V_1 ) / ( exp( ( 15. - V_1 ) / 5. ) - 1. )
-    alias beta_n real = 0.5 * exp( ( 10. - V_1 ) / 40. )
-    alias alpha_m real = 0.32 * ( 13. - V_1 ) / ( exp( ( 13. - V_1 ) / 4. ) - 1. )
-    alias beta_m real = 0.28 * ( V_1 - 40. ) / ( exp( ( V_1 - 40. ) / 5. ) - 1. )
-    alias alpha_h real = 0.128 * exp( ( 17. - V_1 ) / 18. )
-    alias beta_h real = 4. / ( 1. + exp( ( 40. - V_1 ) / 5. ) )
+    g_in nS = 0nS # Inhibitory synaptic conductance
+    g_ex nS = 0nS # Excitatory synaptic conductance
 
-
+    # TODO: it should be possible, to define these variables in the internal block
     alias alpha_n_init real = 0.032 * ( 15. - V_m ) / ( exp( ( 15. - V_m ) / 5. ) - 1. )
     alias beta_n_init real = 0.5 * exp( ( 10. - V_m ) / 40. )
     alias alpha_m_init real = 0.32 * ( 13. - V_m ) / ( exp( ( 13. - V_m ) / 4. ) - 1. )
@@ -79,51 +50,56 @@ neuron hh_cond_exp_traub_nestml:
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
     Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init )
-
-    alias I_Na  real = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na );
-    alias I_K   real  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K );
-    alias I_L   real = g_L * ( V_m - E_L );
-    
-    alias I_syn_exc pA = G_ex  * ( V_m - E_ex ) 
-    alias I_syn_inh pA = G_in * ( V_m - E_in )
-
   end
 
   equations:
+    # Add aliases to simplify the equation definition of V_m
+    I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na );
+    I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K );
+    I_L   pA = g_L * ( V_m - E_L )
+    I_syn_exc pA = Cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+    I_syn_inh pA = Cond_sum(g_in, spikeInh) * ( V_m - E_in )
+
     V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
+
+    # equilibrium values for (in)activation variables
+    V_rel mV = V_m - V_T
+    alpha_n real = 0.032 * ( 15. - V_rel ) / ( exp( ( 15. - V_rel ) / 5. ) - 1. )
+    beta_n real = 0.5 * exp( ( 10. - V_rel ) / 40. )
+    alpha_m real = 0.32 * ( 13. - V_rel ) / ( exp( ( 13. - V_rel ) / 4. ) - 1. )
+    beta_m real = 0.28 * ( V_rel - 40. ) / ( exp( ( V_rel - 40. ) / 5. ) - 1. )
+    alpha_h real = 0.128 * exp( ( 17. - V_rel ) / 18. )
+    beta_h real = 4. / ( 1. + exp( ( 40. - V_rel ) / 5. ) )
 
     Act_m' = alpha_m - ( alpha_m + beta_m ) * Act_m
     Act_h' = alpha_h - ( alpha_h + beta_h ) * Act_h
     Inact_n = alpha_n - ( alpha_n + beta_n ) * Inact_n
 
-    # synapses: alpha functions
-    G_ex' = -G_ex / tau_syn_ex
-
-    G_in' = -G_in / tau_syn_in
+    # synapses: exponential conductance
+    g_ex' = -g_ex / tau_syn_ex
+    g_in' = -g_in / tau_syn_in
   end
 
   parameter:
-    g_Na nS = 20000.0nS     # Threshold Potential in mV
-    g_K nS = 6000.0nS # K Conductance
-    g_L nS = 10nS # Leak Conductance
-    C_m pF = 200.0pF       # Membrane Capacitance in pF
-    E_Na mV = 50mV #  Reversal potentials
-    E_K mV = -90.mV
-    E_L mV = -60.mV     # Leak reversal Potential (aka resting potential) in mV
-    V_T mV = -63.0mV       # adjusts threshold to around -50 mV
+    g_Na nS = 20000.0nS       # Threshold Potential in mV
+    g_K nS = 6000.0nS         # K Conductance
+    g_L nS = 10nS             # Leak Conductance
+    C_m pF = 200.0pF          # Membrane Capacitance in pF
+    E_Na mV = 50mV            # Reversal potentials
+    E_K mV = -90.mV           # Potassium reversal potential
+    E_L mV = -60.mV           # Leak reversal Potential (aka resting potential) in mV
+    V_T mV = -63.0mV          # Voltage offset that controls dynamics. For default
+                              # parameters, V_T = -63mV results in a threshold around -50mV.
     tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA           # Constant Current in pA
-    E_ex mV = 0.0 mV
-    E_in mV = -80.0mV
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0
+    I_e pA = 0pA              # Constant Current in pA
+    E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
+    E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
+    I_stim pA = 0pA           # External input current
   end
 
   internal:
-    r integer
+    r integer # counts number of tick during the refractory period
     RefractoryCounts integer = 20
   end
 
@@ -139,17 +115,19 @@ neuron hh_cond_exp_traub_nestml:
     U_old mV = V_m
     integrate(V_m)
 
+    # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:
       r -= 1
-    elif V_m > V_T + 30 and U_old > V_m:
+    elif V_m > V_T + 30mV and U_old > V_m:
       r = RefractoryCounts
       emit_spike()
     end
 
+    # set new input current
     I_stim = currents.getSum()
 
-    G_ex += spikeExc.getSum()
-    G_in += spikeInh.getSum()
+    g_ex += spikeExc.getSum()
+    g_in += spikeInh.getSum()
   end
 
 end

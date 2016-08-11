@@ -43,6 +43,7 @@ import static org.nest.utils.ASTUtils.getAllNeurons;
 
 /**
  * Generates C++ implementation and model integration code for NEST.
+ *
  * @author plotnikov
  */
 public class NESTCodeGenerator {
@@ -235,7 +236,7 @@ public class NESTCodeGenerator {
 
     final File prettyPrintedModelFile = new File(outputFile);
     try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.result());
     }
     catch (IOException e) {
       final String msg = "Cannot write the prettyprinted model to the file: " + outputFile;

@@ -1,6 +1,5 @@
 package org.nest.nestml.prettyprinter;
 
-import de.monticore.types.types._ast.ASTQualifiedName;
 import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
@@ -46,7 +45,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTNESTMLCompilationUnit node) {
-    print(printComments(node));
+    println(printComments(node));
   }
 
   /**
@@ -69,7 +68,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTNeuron astNeuron) {
-    print(printComments(astNeuron));
+    println(printComments(astNeuron));
     print("neuron " + astNeuron.getName());
     astNeuron.getBase().ifPresent(
         baseNeuron -> print(" extends " + baseNeuron));
@@ -116,7 +115,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   @Override
   public void visit(final ASTBodyElement astBodyElement) {
-    print(printComments(astBodyElement));
+    println(printComments(astBodyElement));
   }
   /**
    * Var_Block implements BodyElement =
@@ -165,9 +164,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   private void printDeclarationComment(ASTAliasDecl astAliasDecl) {
-    print(printComments(astAliasDecl));
-    //print(ASTUtils.printMultilineComments(astAliasDecl));
-    println();
+    println(printComments(astAliasDecl));
   }
 
   private void printAliasPrefix(final ASTAliasDecl astAliasDecl) {
@@ -188,7 +185,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     final SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
     splPrettyPrinter.printDeclaration(astAliasDecl.getDeclaration()); // TODO refactor as soon a the visitor is
     // generated
-    print(splPrettyPrinter.getResult());
+    print(splPrettyPrinter.result());
   }
 
 
@@ -263,10 +260,16 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     println(astEquation.getLhs() + " = " + expressionsPrinter.print(astEquation.getRhs()));
   }
 
+  /**
+   * This method is used in freemaker template
+   */
   public void printShape(final ASTShape astShape) {
     println("shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs()));
   }
 
+  /**
+   * This method is used in freemaker template
+   */
   public void printODEAlias(final ASTODEAlias astOdeAlias) {
     final String datatype = ASTUtils.computeTypeName(astOdeAlias.getDatatype(), true);
     final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
@@ -339,43 +342,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   /**
-   * Grammar:
-   * Structure implements BodyElement = "structure"
-   * BLOCK_OPEN
-   *  (StructureLine | SL_COMMENT | NEWLINE)*
-   * BLOCK_CLOSE;
-   */
-  @Override
-  public void visit(final ASTStructure astStructure) {
-    println("structure" + BLOCK_OPEN);
-    indent();
-  }
-
-  @Override
-  public void endVisit(final ASTStructure astStructure) {
-    unindent();
-    println(BLOCK_CLOSE);
-  }
-
-  /**
-   * StructureLine = compartments:QualifiedName ("-" compartments:QualifiedName)*;
-   */
-  @Override
-  public void visit(final ASTStructureLine astStructureLine) {
-    final List<ASTQualifiedName> compartments = astStructureLine.getCompartments();
-    for (int curCompartmentsIndex = 0; curCompartmentsIndex < compartments.size(); ++ curCompartmentsIndex) {
-      final ASTQualifiedName compartmentName = compartments.get(curCompartmentsIndex);
-      boolean isLastCompartment = (curCompartmentsIndex + 1) == compartments.size();
-      print(Names.getQualifiedName(compartmentName.getParts()) +  " ");
-      if (!isLastCompartment) {
-        print("- ");
-      }
-
-    }
-
-  }
-
-  /**
    * Function implements BodyElement =
      "function" Name "(" Parameters? ")" (returnType:QualifiedName | PrimitiveType)?
      BLOCK_OPEN
@@ -422,11 +388,10 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
 
   private void printSplBlock(final ASTBlock astBlock) {
-    final  SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
+    final  SPLPrettyPrinter splPrinter = createDefaultPrettyPrinter(getIndentionLevel());
+    splPrinter.print(astBlock);
 
-    astBlock.accept(splPrettyPrinter);
-
-    print(splPrettyPrinter.getResult());
+    print(splPrinter.result());
   }
 
   /**

@@ -5,8 +5,11 @@
  */
 package org.nest.spl.prettyprinter;
 
+import de.monticore.ast.ASTNode;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
+import org.nest.commons._ast.ASTBLOCK_CLOSE;
+import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.spl._ast.*;
@@ -15,6 +18,7 @@ import org.nest.utils.ASTUtils;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
+import java.util.Optional;
 
 import static de.se_rwth.commons.Names.getQualifiedName;
 
@@ -25,26 +29,16 @@ import static de.se_rwth.commons.Names.getQualifiedName;
  */
 public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   private final ExpressionsPrettyPrinter expressionsPrettyPrinter;
+  private ASTSPLNode root;
 
   protected SPLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrettyPrinter) {
     this.expressionsPrettyPrinter = expressionsPrettyPrinter;
   }
 
-  public ExpressionsPrettyPrinter getExpressionsPrettyPrinter() {
-    return expressionsPrettyPrinter;
-  }
-
   public void print(final ASTSPLNode node) {
+    root = node;
     node.accept(this);
-  }
 
-  /**
-   * Grammar
-   * SPLFile = ModuleDefinitionStatement Block;
-   */
-  @Override
-  public void visit(final ASTSPLFile astFile) {
-    // at the moment do nothing
   }
 
   /**
@@ -58,31 +52,34 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
   /**
    * Grammar:
-   *   IF_Stmt = IF_Clause
-   *             ELIF_Clause*
-   *             (ELSE_Clause)?
-   *             BLOCK_CLOSE;
-   */
-  @Override
-  public void endVisit(final ASTIF_Stmt node) {
-    println(BLOCK_CLOSE);
-  }
-
-  /**
-   * Grammar:
    *   IF_Clause = "if" Expr BLOCK_OPEN Block;
    */
   @Override
   public void visit(final ASTIF_Clause astIfClause) {
     print("if" + " ");
     final String conditionExpression = expressionsPrettyPrinter.print(astIfClause.getExpr());
-    println(conditionExpression + BLOCK_OPEN);
-    indent();
+    print(conditionExpression);
   }
 
+  /**
+   * This method unidents the output.
+   */
   @Override
   public void endVisit(final ASTIF_Clause astIfClause) {
-    unindent();
+    Optional<ASTNode> parent = ASTUtils.getParent(astIfClause, root);
+    if (parent.isPresent() && parent.get() instanceof ASTIF_Stmt) {
+      final ASTIF_Stmt astIfStmt = (ASTIF_Stmt) parent.get();
+      final boolean isSingleIfClause = !astIfStmt.getELSE_Clause().isPresent() && !astIfStmt.getELIF_Clauses().isEmpty();
+      // any other form of if clause ends with an 'end' keyword and is handled in the corresponding visit method.
+      if (!isSingleIfClause) {
+        unindent();
+      }
+
+    }
+    else {
+      unindent();
+    }
+
   }
 
   /**
@@ -92,10 +89,12 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    public void visit(final ASTELIF_Clause astElifNode) {
     print("elif" + " ");
     final String conditionExpression = expressionsPrettyPrinter.print(astElifNode.getExpr());
-    println(conditionExpression + BLOCK_OPEN);
-    indent();
+    print(conditionExpression);
   }
 
+  /**
+   * Doesn't terminate with 'end' and must be unindented manually
+   */
   @Override
   public void endVisit(final ASTELIF_Clause astElifNode) {
     unindent();
@@ -107,34 +106,34 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    */
   @Override
   public void visit(final ASTELSE_Clause astElseClause) {
-    println("else:");
-    indent();
-  }
-
-  @Override
-  public void endVisit(final ASTELSE_Clause astElseClause) {
-    unindent();
+    print("else");
   }
 
   @Override
   public void visit(final ASTSimple_Stmt astSimpleStmt ) {
-    print(ASTUtils.printComments(astSimpleStmt));
+    final String comment = ASTUtils.printComments(astSimpleStmt);
+    if (!comment.isEmpty()) {
+      println(comment);
+    }
+
   }
 
   @Override
   public void visit(final ASTStmt astStmt) {
-    print(ASTUtils.printComments(astStmt));
+    final String comment = ASTUtils.printComments(astStmt);
+    if (!comment.isEmpty()) {
+      println(comment);
+    }
+
   }
 
   /**
-   * Small_Stmt = Assignment
-   * | FunctionCall
-   * | Declaration
-   * | ReturnStmt;
+   * Small_Stmt = Assignment| FunctionCall | Declaration | ReturnStmt;
    */
   @Override
   public void visit(final ASTSmall_Stmt astSmallStmt ) {
     print(ASTUtils.printComments(astSmallStmt));
+
     if (astSmallStmt.getAssignment().isPresent()) {
       printAssignment(astSmallStmt.getAssignment().get());
     } else if (astSmallStmt.getFunctionCall().isPresent()) {
@@ -144,18 +143,6 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     }  else if (astSmallStmt.getReturnStmt().isPresent()) {
       printReturnStatement(astSmallStmt.getReturnStmt().get());
     }
-
-  }
-
-
-  /**
-   * Small_Stmt = Assignment
-   * | FunctionCall
-   * | Declaration
-   * | ReturnStmt;
-   */
-  @Override
-  public void endVisit(final ASTSmall_Stmt astSmallStmt ) {
     println();
   }
 
@@ -167,19 +154,19 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     final String lhsVariableName = astAssignment.getLhsVarialbe().toString();
     final String rhsOfAssignment = expressionsPrettyPrinter.print(astAssignment.getExpr());
     if (astAssignment.isAssignment()) {
-      println(lhsVariableName + " = " + rhsOfAssignment);
+      print(lhsVariableName + " = " + rhsOfAssignment);
     }
     if (astAssignment.isCompoundSum()) {
-      println(lhsVariableName + " += " + rhsOfAssignment);
+      print(lhsVariableName + " += " + rhsOfAssignment);
     }
     if (astAssignment.isCompoundMinus()) {
-      println(lhsVariableName + " -= " + rhsOfAssignment);
+      print(lhsVariableName + " -= " + rhsOfAssignment);
     }
     if (astAssignment.isCompoundProduct()) {
-      println(lhsVariableName + " *= " + rhsOfAssignment);
+      print(lhsVariableName + " *= " + rhsOfAssignment);
     }
     if (astAssignment.isCompoundQuotient()) {
-      println(lhsVariableName + " /= " + rhsOfAssignment);
+      print(lhsVariableName + " /= " + rhsOfAssignment);
     }
 
 
@@ -204,7 +191,6 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
     }
     print(")");
-    println();
   }
 
   /**
@@ -214,10 +200,10 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
     if (astReturnStmt.getExpr().isPresent()) {
       final String returnExpressionAsString = expressionsPrettyPrinter.print(astReturnStmt.getExpr().get());
-      println("return " + returnExpressionAsString);
+      print("return " + returnExpressionAsString);
     }
     else {
-      println("return");
+      print("return");
     }
 
   }
@@ -277,16 +263,8 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     print(expressionsPrettyPrinter.print(astForStmt.getTo()));
     if (astForStmt.getStep().isPresent()) {
       print(" step ");
-      print(createPrettyPrinterForTypes().prettyprint(astForStmt.getStep().get()));
+      print(typesPrinter().prettyprint(astForStmt.getStep().get()));
     }
-    println(BLOCK_OPEN);
-    indent();
-  }
-
-  @Override
-  public void endVisit(final ASTFOR_Stmt node) {
-    unindent();
-    println(BLOCK_CLOSE);
   }
 
   /**
@@ -297,17 +275,43 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   public void visit(final ASTWHILE_Stmt astWhileStmt) {
     print("while ");
     print(expressionsPrettyPrinter.print(astWhileStmt.getExpr()));
-    println(BLOCK_OPEN);
-    indent();
   }
 
   @Override
-  public void endVisit(final ASTWHILE_Stmt node) {
-    unindent();
-    println(BLOCK_CLOSE);
+  public void visit(final ASTBlock astBlock ) {
+    final String comment = ASTUtils.printComments(astBlock);
+    if (!comment.isEmpty()) {
+      println(comment);
+    }
   }
 
-  private TypesPrettyPrinterConcreteVisitor createPrettyPrinterForTypes() {
+  @Override
+  public void visit(final ASTBLOCK_OPEN astBlockOpen) {
+    final String comment = ASTUtils.printComments(astBlockOpen);
+    if (comment.isEmpty()) {
+      println(BLOCK_OPEN);
+    }
+    else {
+      println(BLOCK_OPEN + " " + comment);
+    }
+    indent();
+
+  }
+
+  @Override
+  public void endVisit(final ASTBLOCK_CLOSE astBlockClose) {
+    unindent();
+    final String comment = ASTUtils.printComments(astBlockClose);
+    if (comment.isEmpty()) {
+      println(BLOCK_CLOSE);
+    }
+    else {
+      println(BLOCK_CLOSE + " " +  comment);
+    }
+
+  }
+
+  private TypesPrettyPrinterConcreteVisitor typesPrinter() {
     final IndentPrinter printer = new IndentPrinter();
     return new TypesPrettyPrinterConcreteVisitor(printer);
   }

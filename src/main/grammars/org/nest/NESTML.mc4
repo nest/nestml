@@ -9,7 +9,7 @@ package org.nest;
   Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
   language which leans on the Python syntax.
 */
-grammar NESTML extends org.nest.SPL {
+grammar NESTML extends org.nest.SPL, org.nest.ODE {
 
   /** ASTNESTMLCompilationUnit represents the complete entire file with neuron and component models.
     @attribute packageName      The qualified name to artifact
@@ -157,23 +157,29 @@ grammar NESTML extends org.nest.SPL {
     */
   Output implements BodyElement = "output" BLOCK_OPEN (["spike"] | ["current"]) ;
 
-  /** ASTStructure TODO
-        output: spike
-      @attribute StructureLine List of structure lines.
-    */
-  Structure implements BodyElement = "structure"
-              BLOCK_OPEN
-                  (StructureLine | NEWLINE)*
-              BLOCK_CLOSE;
-
-  /** ASTStructureLine represents the output block of the neuron:
-        output: spike
-      @attribute compartments Lists with compartments.
-   */
-  StructureLine = compartments:QualifiedName ("-" compartments:QualifiedName)*;
-
+  /** ASTFunction a function definition:
+      function set_V_m(v mV):
+        y3 = v - E_L
+      end
+    @attribute name Functionname.
+    @attribute parameters List with function parameters.
+    @attribute returnType Complex return type, e.g. String
+    @attribute primitiveType Primitive return type, e.g. int
+    @attribute block Implementation of the function.
+  */
   Function implements BodyElement = "function" Name "(" Parameters? ")" (returnType:Datatype)?
-                                               BLOCK_OPEN
-                                                 Block
-                                               BLOCK_CLOSE;
+           BLOCK_OPEN
+             Block
+           BLOCK_CLOSE;
+
+  /** ASTParameters models parameter list in function declaration.
+    @attribute parameters List with parameters.
+  */
+  Parameters = Parameter ("," Parameter)*;
+
+  /** ASTParameter represents singe:
+      output: spike
+    @attribute compartments Lists with compartments.
+  */
+  Parameter = Name Datatype;
 }

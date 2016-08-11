@@ -5,23 +5,18 @@
  */
 package org.nest.base;
 
-import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
-import org.nest.spl._symboltable.SPLLanguage;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -89,7 +84,7 @@ public class ModelbasedTest {
 
     final File prettyPrintedModelFile = new File(outputModelFile);
     try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.getResult());
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.result());
     }
     catch (IOException e) {
       throw new RuntimeException("Cannot write the prettyprinted model to the file: " + outputModelFile, e);

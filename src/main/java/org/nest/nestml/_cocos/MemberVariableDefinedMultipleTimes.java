@@ -45,14 +45,11 @@ public class MemberVariableDefinedMultipleTimes implements
 
   private void check(ASTBody body) {
     Map<String, SourcePosition> varNames = Maps.newHashMap();
-    body.getStateDeclarations()
-        .forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    body.getParameterDeclarations()
-        .forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    body.getInternalDeclarations()
-        .forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    body.getInputLines()
-        .forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
+    body.getStateDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
+    body.getParameterDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
+    body.getInternalDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
+    body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
+    body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
   }
 
   private void addNames(
@@ -61,6 +58,14 @@ public class MemberVariableDefinedMultipleTimes implements
     for (final String var : decl.getVars()) {
       addVariable(var, names, decl);
     }
+
+  }
+
+  private void addName(
+      final Map<String, SourcePosition> names,
+      final String variableName,
+      final ASTNode decl) {
+    addVariable(variableName, names, decl);
 
   }
 

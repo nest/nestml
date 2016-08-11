@@ -79,7 +79,7 @@ public class InvalidTypesInDeclaration implements
 
   }
 
-  public void checkIfValidType(ASTNode astNode, String typeName, Optional<TypeSymbol> type) {
+  private void checkIfValidType(ASTNode astNode, String typeName, Optional<TypeSymbol> type) {
     if (!type.isPresent() || type.isPresent() && type.get().getName().endsWith("Logger")) {
       CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
       String msg = errorStrings.getErrorMsg(this,typeName);
