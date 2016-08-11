@@ -77,7 +77,7 @@ neuron iaf_chxk_2008_implicit:
     G_ahp' = G_ahp' - ( G_ahp / tau_ahp )
 
     I_syn_exc pA = Cond_sum(g_ex, spikesInh) * ( V_m - E_ex )
-    I_syn_inh pA = Cond_sum(g_in, spikesEx) * ( V_m - E_in )
+    I_syn_inh pA = Cond_sum(g_in, spikesExc) * ( V_m - E_in )
     I_ahp pA = G_ahp * ( V_m - E_ahp )
     I_leak pA = g_L * ( V_m - E_L )
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_stim + I_e ) / C_m
@@ -86,9 +86,9 @@ neuron iaf_chxk_2008_implicit:
   parameter:
     V_th mV = -45.0mV     # Threshold Potential in mV
     E_ex mV = 20mV        # Excitatory reversal potential in mV.
-    E_in mV = -90mv       # Inhibitory reversal potential in mV.
+    E_in mV = -90mV       # Inhibitory reversal potential in mV.
     g_L nS = 100nS        # Leak Conductance in nS
-    C_m pF = 1000.0pf     # Membrane Capacitance
+    C_m pF = 1000.0pF     # Membrane Capacitance
     V_reversalE mV = 20mV # Excitatory reversal Potential in mV
 
     V_reversalI mV = -90.0mV # Inhibitory reversal Potential in mV
