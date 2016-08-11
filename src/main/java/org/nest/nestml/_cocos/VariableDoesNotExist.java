@@ -32,11 +32,25 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
 
   @Override
   public void check(final ASTOdeDeclaration node) {
+    node.getODEAliass().forEach(
+        oderAlias-> {
+          checkVariableByName(oderAlias.getVariableName(), node);
+          ASTUtils
+              .getAll(oderAlias.getExpr(), ASTVariable.class)
+              .forEach(variable -> checkVariableByName(variable.toString(), node));
+        }
+    );
+    node.getShapes().forEach(
+        ode-> ASTUtils
+            .getAll(ode.getRhs(), ASTVariable.class)
+            .forEach(variable -> checkVariableByName(variable.toString(), node))
+    );
     node.getEquations().forEach(
         ode-> {
           checkVariableByName(ode.getLhs().getName().toString(), node);
-          ASTUtils.getAll(ode.getRhs(), ASTVariable.class).forEach(
-              variable -> checkVariableByName(Names.getQualifiedName(variable.getName().getParts()), node));
+          ASTUtils
+              .getAll(ode.getRhs(), ASTVariable.class)
+              .forEach(variable -> checkVariableByName(ASTUtils.convertToSimpleName(variable), node)); // it can be a D'' variable
         }
 
     );
