@@ -125,9 +125,9 @@ neuron aeif_cond_exp_implicit:
   end
 
   internal:
-    r integ_exr
+    r integer
     # refractory time in steps
-    RefractoryCounts integ_exr = steps(t_ref)
+    RefractoryCounts integer = steps(t_ref)
   end
 
   input:
