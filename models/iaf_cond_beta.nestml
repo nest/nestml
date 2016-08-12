@@ -7,28 +7,6 @@ of conductance modelled by an beta function. The beta function
 is normalised such that an event of weight 1.0 results in a peak current of 1 nS
 at t = tau_syn.
 
-Parameters:
-The following parameters can be set in the status dictionary.
-E_L          double - Leak reversal potential in mV.
-C_m          double - Capacity of the membrane in pF
-t_ref        double - Duration of refractory period in ms.
-V_th         double - Spike threshold in mV.
-V_reset      double - Reset potential of the membrane in mV.
-E_ex         double - Excitatory reversal potential in mV.
-E_in         double - Inhibitory reversal potential in mV.
-g_L          double - Leak conductance in nS;
-tau_ex_rise  double - Rise time of the excitatory synaptic beta function in ms (rise time).
-tau_ex_decay double - Time constant of the excitatory synaptic exponential function in ms (decay time).
-tau_in_rise  double - Rise time of the inhibitory synaptic beta function in ms (rise time).
-tau_in_decay double - Time constant of the excitatory synaptic exponential function in ms (decay time).
-I_e          double - Constant input current in pA.
-F_E          double - Constant External input conductance in nS (excitatory).
-F_I          double - Constant External input conductance in nS (inhibitory).
-
-Sends: SpikeEvent
-
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
-
 References:
 Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
 model for the large, fluctuating synaptic conductance state typical of
@@ -43,19 +21,11 @@ Author: Schrader, Plesser
 SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha */
 
 neuron iaf_cond_beta_neuron:
-
-
   state:
-    # membrane potential
-    V_m mV = E_L
-    # inputs from the inh conductance
-    GI nS = 0
-    # inputs from the exc conductance
-    GE nS = 0
+    V_m mV = E_L # membrane potential
+    GI nS = 0 # inputs from the inh conductance
+    GE nS = 0 # inputs from the exc conductance
 
-    alias I_syn_exc pA = (F_E + GE) * ( V_m - E_ex )
-    alias I_syn_inh pA = (F_I + GI) * ( V_m - E_in )
-    alias I_leak pA = g_L * ( V_m - E_L ) # pa = nS * mV
   end
 
   equations:
@@ -65,6 +35,9 @@ neuron iaf_cond_beta_neuron:
       GE'' = -GE'/tau_syn_rise_E
       GE' = GE' -GE/tau_syn_decay_E
 
+      I_syn_exc pA = (F_E + Cond_sum(GE, spikeExc)) * ( V_m - E_ex )
+      I_syn_inh pA = (F_I + Cond_sum(GI, spikeInh)) * ( V_m - E_in )
+      I_leak pA = g_L * ( V_m - E_L ) # pa = nS * mV
       V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
   end
 
@@ -76,18 +49,17 @@ neuron iaf_cond_beta_neuron:
     V_reset mV = -60.0mV   # Reset Potential in mV
     E_ex mV = 0mV          # Excitatory reversal Potential in mV
     E_in mV = -85.0mV      # Inhibitory reversal Potential in mV
-    g_L nS = 16.6667nS       # Leak Conductance in nS
+    g_L nS = 16.6667nS     # Leak Conductance in nS
     tau_syn_rise_I ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_decay_I ms = 2.0ms   # Synaptic Time Constant for Inhibitory Synapse in ms
     tau_syn_rise_E ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_decay_E ms = 2.0ms   # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA           # Constant Current in pA
+    I_e pA = 0pA            # Constant Current in pA
     F_E nS = 0nS            # Constant External input conductance in nS (excitatory).
-    F_I nS = 0nS           # - Constant External input conductance in nS (inhibitory).
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0pA
+    F_I nS = 0nS            # Constant External input conductance in nS (inhibitory).
+    I_stim pA = 0pA # Input current injected by CurrentEvent.
+                    # This variable is used to transport the current applied into the
+                    # _dynamics function computing the derivative of the state vector.
   end
 
   internal:
