@@ -5,6 +5,7 @@
  */
 package org.nest.nestml._symboltable;
 
+import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._cocos.*;
 import org.nest.nestml._cocos.BufferNotAssignable;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
@@ -66,6 +67,8 @@ public class NESTMLCoCosManager {
     final LiteralsHaveTypes literalsHaveTypes = new LiteralsHaveTypes();
     nestmlCoCoChecker.addCoCo((SPLASTAssignmentCoCo)literalsHaveTypes);
     nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo)literalsHaveTypes);
+    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo)literalsHaveTypes);
+    nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCoCo)literalsHaveTypes);
 
     final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes
         = new MemberVariableDefinedMultipleTimes();

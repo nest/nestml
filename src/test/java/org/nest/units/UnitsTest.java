@@ -59,7 +59,7 @@ public class UnitsTest extends ModelbasedTest {
     completeChecker.checkAll(invalidRoot.get());
 
     findings = getFindings().size();
-    assertEquals(3, findings);
+    assertEquals(6, findings);
   }
   @Test
   public void test_iaf_cond_alpha() {

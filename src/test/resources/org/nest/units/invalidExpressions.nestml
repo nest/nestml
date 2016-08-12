@@ -2,10 +2,12 @@ neuron invalidExpressionTest:
   state:
     Resist Ohm = 8A #Declaration with wrong type
     Ampere A = 3 #Declaration without explicit unit type
+    Newton kg*m/s**2 = 3 kg* 1m/ 2s #Declaration with mismatched verbose types
+  
   end
 
   function foo(amp A, ohm Ohm) V:  
-    return amp * ohm
+    return 7 #Omitted types in return value
   end
 
   input:
@@ -15,7 +17,7 @@ neuron invalidExpressionTest:
   end
 
   parameter:
-    V2 V = foo(3,2) #Omitted types in literal function parameters
+    V2 V = foo(3 A,2) #Omitted type in literal function parameters
   end
 
   output: spike

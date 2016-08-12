@@ -20,8 +20,16 @@ public class CocoErrorStrings {
     return instance;
   }
 
-  String getErrorMsg(LiteralsHaveTypes coco){
+  String getErrorMsgAssignment(LiteralsHaveTypes coco){
     return LiteralsHaveTypes.ERROR_CODE + ": Assignment of a literal to a UNIT type variable must carry a Unit Symbol";
+  }
+
+  String getErrorMsgReturn(LiteralsHaveTypes coco){
+    return LiteralsHaveTypes.ERROR_CODE + ": Return statement must specify unit type";
+  }
+
+  String getErrorMsgCall(LiteralsHaveTypes coco){
+    return LiteralsHaveTypes.ERROR_CODE + ": Parameters to function calls must specify unit type";
   }
 
   String getErrorMsg(AliasHasDefiningExpression coco) {
