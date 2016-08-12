@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.nestml.parsing;
+package org.nest.nestml._parser;
 
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
@@ -22,8 +22,8 @@ import static org.nest.utils.FilesHelper.collectFiles;
 /**
  * Tests whether the nestml model can be parsed
  */
-public class NESTMLParserTest extends ModelbasedTest {
-  private final static  String LOG_NAME = NESTMLParserTest.class.getName();
+public class NESTMLParserModelCoverage extends ModelbasedTest {
+  private final static  String LOG_NAME = NESTMLParserModelCoverage.class.getName();
 
 
   @Test

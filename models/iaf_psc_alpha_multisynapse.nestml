@@ -14,7 +14,7 @@ neuron iaf_psc_alpha_multisynapse_nestml:
     receptors integer  = 100
     C_m     pF = 250   # Capacity of the membrane
     Tau     ms = 10    # Membrane time constant.
-    suppress tau_syn ms[receptors] = 2     # Time constant of synaptic current.
+    tau_syn ms[receptors] = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
     E_L     mV = -70   # Resting potential.
     alias V_reset mV = -70.0 - E_L
