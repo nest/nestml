@@ -37,6 +37,7 @@ neuron iaf_cond_alpha_neuron:
     V_m mV = E_L   # membrane potential
   end
 
+  # equations
   equations:
     shape g_in = (e/tau_synI) * t * exp(-1/tau_synI*t)
     shape g_ex = (e/tau_synE) * t * exp(-1/tau_synE*t)
@@ -48,6 +49,7 @@ neuron iaf_cond_alpha_neuron:
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
   end
 
+  # parameter
   parameter:
     V_th mV = -55.0mV    # Threshold Potential in mV
     V_reset mV = -60.0mV # Reset Potential in mV
@@ -66,6 +68,7 @@ neuron iaf_cond_alpha_neuron:
     I_stim pA = 0pA
   end
 
+  # internal
   internal:
     r integer
 
@@ -81,14 +84,17 @@ neuron iaf_cond_alpha_neuron:
     RefractoryCounts integer = steps(t_ref)
   end
 
+  # input
   input:
       spikeInh   <- inhibitory spike
       spikeExc   <- excitatory spike
       currents <- current
   end
 
+  # output
   output: spike
 
+  #update
   update:
     integrate(V_m)
 

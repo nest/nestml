@@ -1,4 +1,4 @@
-/* BeginDocumentation
+/*
 Name: iaf_cond_alpha_implicit - Simple conductance based leaky integrate-and-fire neuron
                        model.
 
@@ -32,11 +32,11 @@ Author: Schrader, Plesser
 SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
 */
 neuron iaf_cond_alpha_implicit:
-
+  # state variables which change due to neuron's dynamics model
   state:
     V_m mV = E_L   # membrane potential
-    g_in nS = 0    # inputs from the inh conductance
-    g_ex nS = 0    # inputs from the exc conductance
+    g_in nS = 0nS    # inputs from the inh conductance
+    g_ex nS = 0nS    # inputs from the exc conductance
   end
 
   equations:
@@ -49,7 +49,7 @@ neuron iaf_cond_alpha_implicit:
     g_ex' = g_ex'  -g_ex/tau_synE
 
     I_syn_exc pA = Cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
-    I_syn_inh pA =  Cond_sum(g_in, spikeInh)  * ( V_m - E_in )
+    I_syn_inh pA = Cond_sum(g_in, spikeInh)  * ( V_m - E_in )
     I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m

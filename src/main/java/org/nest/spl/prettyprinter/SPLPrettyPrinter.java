@@ -69,15 +69,12 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     Optional<ASTNode> parent = ASTUtils.getParent(astIfClause, root);
     if (parent.isPresent() && parent.get() instanceof ASTIF_Stmt) {
       final ASTIF_Stmt astIfStmt = (ASTIF_Stmt) parent.get();
-      final boolean isSingleIfClause = !astIfStmt.getELSE_Clause().isPresent() && !astIfStmt.getELIF_Clauses().isEmpty();
+      final boolean isSingleIfClause = !astIfStmt.getELSE_Clause().isPresent() && astIfStmt.getELIF_Clauses().isEmpty();
       // any other form of if clause ends with an 'end' keyword and is handled in the corresponding visit method.
       if (!isSingleIfClause) {
         unindent();
       }
 
-    }
-    else {
-      unindent();
     }
 
   }
@@ -168,7 +165,6 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     if (astAssignment.isCompoundQuotient()) {
       print(lhsVariableName + " /= " + rhsOfAssignment);
     }
-
 
   }
 

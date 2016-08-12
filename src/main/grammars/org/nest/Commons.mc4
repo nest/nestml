@@ -8,18 +8,18 @@ package org.nest;
 grammar Commons extends de.monticore.types.Types {
 
   token SL_COMMENT =
-      "#" (~('\n' |
-        '\r' )
-      )* :
-      { _channel = HIDDEN;
-        if (getCompiler() != null) {
-          de.monticore.ast.Comment _comment = new de.monticore.ast.Comment(getText());
-          de.se_rwth.commons.SourcePosition startPos = new de.se_rwth.commons.SourcePosition(_tokenStartLine, _tokenStartCharPositionInLine);
-          _comment.set_SourcePositionStart(startPos);
-          _comment.set_SourcePositionEnd(getCompiler().computeEndPosition(startPos, getText()));
-          getCompiler().addComment(_comment);
-        }
-      };
+    "#" (~('\n' |
+      '\r' )
+    )* :
+    { _channel = HIDDEN;
+      if (getCompiler() != null) {
+        de.monticore.ast.Comment _comment = new de.monticore.ast.Comment(getText());
+        de.se_rwth.commons.SourcePosition startPos = new de.se_rwth.commons.SourcePosition(_tokenStartLine, _tokenStartCharPositionInLine);
+        _comment.set_SourcePositionStart(startPos);
+        _comment.set_SourcePositionEnd(getCompiler().computeEndPosition(startPos, getText()));
+        getCompiler().addComment(_comment);
+      }
+    };
 
   token NEWLINE = ('\r' '\n' | '\r' | '\n' );
 

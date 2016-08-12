@@ -35,7 +35,7 @@ public class PrettyPrinterBase {
   }
 
   public void println() {
-    println("\n");
+    print("\n");
     indent = "";
     calcIndention();
   }

@@ -12,11 +12,11 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinterFactory;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -79,7 +79,7 @@ public class ModelbasedTest {
   protected void printModelToFile(
       final ASTNESTMLCompilationUnit root,
       final String outputModelFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinterFactory.createNESTMLPrettyPrinter();
+    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
     root.accept(prettyPrinter);
 
     final File prettyPrintedModelFile = new File(outputModelFile);

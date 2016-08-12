@@ -5,6 +5,7 @@
  */
 package org.nest.nestml._parser;
 
+import com.google.common.collect.Lists;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
@@ -66,10 +67,12 @@ public class NESTMLParser extends NESTMLParserTOP {
    * neuron. As a workaround put this comment also to the first neuron.
    */
   private void forwardModelComment(final ASTNESTMLCompilationUnit root) {
-    if ((!root.get_PostComments().isEmpty() || !root.get_PreComments().isEmpty()) && !root.getNeurons().isEmpty()) {
+    if (!root.get_PreComments().isEmpty() && !root.getNeurons().isEmpty()) {
       final ASTNeuron astNeuron = root.getNeurons().get(0);
-      astNeuron.set_PostComments(root.get_PostComments());
-      astNeuron.set_PreComments(root.get_PreComments());
+      astNeuron.set_PreComments(Lists.newArrayList(root.get_PreComments()));
+      // copy of the list was necessary, since otherwise the list would be cleared in both nodes!
+      root.get_PreComments().clear();
+
     }
 
   }
