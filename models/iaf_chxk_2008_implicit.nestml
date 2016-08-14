@@ -116,7 +116,7 @@ neuron iaf_chxk_2008_implicit:
     # conductance excursion.
     PSConInit_I real = 1.0 * e / tau_syn_in
 
-    PSConInit_AHP real = g_ahp * e / tau_ahp;
+    PSConInit_AHP real = g_ahp * e / tau_ahp
   end
 
   input:
@@ -135,27 +135,27 @@ neuron iaf_chxk_2008_implicit:
       # neuron is not absolute refractory
 
       # Find precise spike time using linear interpolation
-      sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev );
+      sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev )
 
-      alpha real = exp( -sigma / tau_ahp );
+      alpha real = exp( -sigma / tau_ahp )
 
-      delta_g_ahp real = PSConInit_AHP * sigma * alpha;
-      delta_dg_ahp real = PSConInit_AHP * alpha;
+      delta_g_ahp real = PSConInit_AHP * sigma * alpha
+      delta_dg_ahp real = PSConInit_AHP * alpha
 
       if ahp_bug == true:
         # Bug in original code ignores AHP conductance from previous spikes
-        G_ahp  = delta_g_ahp;
-        G_ahp' = delta_dg_ahp;
+        G_ahp  = delta_g_ahp
+        G_ahp' = delta_dg_ahp
       else:
-        G_ahp  += delta_g_ahp;
-        G_ahp' += delta_dg_ahp;
+        G_ahp  += delta_g_ahp
+        G_ahp' += delta_dg_ahp
       end
 
       emit_spike()
     end
 
-    g_ex' += spikesExc.getSum() * PSConInit_E;
-    g_in' += spikesInh.getSum() * PSConInit_I;
+    g_ex' += spikesExc.getSum() * PSConInit_E
+    g_in' += spikesInh.getSum() * PSConInit_I
     I_stim = currents.getSum()
   end
 

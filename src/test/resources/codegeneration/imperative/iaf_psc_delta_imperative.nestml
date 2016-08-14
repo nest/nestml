@@ -5,7 +5,7 @@ neuron iaf_psc_delta_neuron:
     y3 real = 0.0 #!< This is the membrane potential RELATIVE TO RESTING POTENTIAL.
 
     # decay until end of refractory period.
-    refr_spikes_buffer real = 0;
+    refr_spikes_buffer real = 0
   end
 
   parameter:
@@ -24,9 +24,9 @@ neuron iaf_psc_delta_neuron:
     V_th mV = -55 - E_L
     # Lower bound, RELATIVE TO RESTING POTENTAIL(!).
     #    I.e. the real lower bound is (V_min+V_th). */
-    V_min real = -inf;
+    V_min real = -inf
     # reset value of the membrane potential
-    V_reset real = -70.0-E_L;
+    V_reset real = -70.0-E_L
     with_refr_input boolean = false  #!< spikes arriving during refractory period are counted
   end
 

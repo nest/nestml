@@ -15,7 +15,7 @@ neuron iaf_neuron:
   end
 
   equations:
-    y0' = y0 + 1;
+    y0' = y0 + 1
     y0'' = y0' + 1
     y3_tmp real = Cond_sum(y1, spikeBuffer)
     y3' = y3_tmp
@@ -94,7 +94,7 @@ neuron iaf_neuron:
     end
 
     # set new input current
-    y0 = currentBuffer.getSum(t);
+    y0 = currentBuffer.getSum(t)
     newVarInMethod real = 1.0
   end
 

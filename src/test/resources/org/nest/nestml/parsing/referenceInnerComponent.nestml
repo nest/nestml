@@ -11,7 +11,7 @@ neuron TestSoma:
   use SomaComponent as soma
 
   function testHelloWorld():
-    #soma.helloWorld();
+    #soma.helloWorld()
     #info("Diameter = " + soma.diameter5)
   end
 

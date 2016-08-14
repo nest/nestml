@@ -8,10 +8,7 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.spl._ast.ASTSimple_Stmt;
-import org.nest.spl._ast.ASTSmall_Stmt;
-import org.nest.spl._ast.SPLNodeFactory;
+import org.nest.spl._ast.*;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTUtils;
@@ -73,9 +70,9 @@ public class TransformerBase {
   }
   ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, final Path updateStepFile) {
     try {
-    final List<ASTSmall_Stmt> propagatorSteps = Files.lines(updateStepFile)
+    final List<ASTStmt> propagatorSteps = Files.lines(updateStepFile)
         .map(NESTMLASTCreator::createAssignment)
-        .map(this::smallStatement)
+        .map(this::statement)
         .collect(toList());
       return replaceODEPropagationStep(astNeuron, propagatorSteps);
 
@@ -84,7 +81,7 @@ public class TransformerBase {
     }
   }
 
-  ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, List<ASTSmall_Stmt> propagatorSteps) {
+  ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, List<ASTStmt> propagatorSteps) {
 
     final ASTBody astBodyDecorator = astNeuron.getBody();
 
@@ -97,15 +94,23 @@ public class TransformerBase {
       final Optional<ASTNode> smallStatement = ASTUtils.getParent(integrateCall.get(), astNeuron);
       checkState(smallStatement.isPresent());
       checkState(smallStatement.get() instanceof ASTSmall_Stmt);
-      final ASTSmall_Stmt integrateCallStatement = (ASTSmall_Stmt) smallStatement.get();
 
-      final Optional<ASTNode> simpleStatement = ASTUtils.getParent(smallStatement.get(), astNeuron);
-      checkState(simpleStatement.isPresent());
-      checkState(simpleStatement.get() instanceof ASTSimple_Stmt);
-      final ASTSimple_Stmt astSimpleStatement = (ASTSimple_Stmt) simpleStatement.get();
-      int integrateFunction = astSimpleStatement.getSmall_Stmts().indexOf(integrateCallStatement);
-      astSimpleStatement.getSmall_Stmts().remove(integrateCallStatement);
-      astSimpleStatement.getSmall_Stmts().addAll(integrateFunction, propagatorSteps);
+      final Optional<ASTNode> statement = ASTUtils.getParent(smallStatement.get(), astNeuron);
+      checkState(statement.isPresent());
+      checkState(statement.get() instanceof ASTStmt);
+
+      final Optional<ASTNode> block = ASTUtils.getParent(statement.get(), astNeuron);
+      checkState(block.isPresent());
+      checkState(block.get() instanceof ASTBlock);
+
+      final ASTBlock astBlock = (ASTBlock) block.get();
+      for (int i = 0; i < astBlock.getStmts().size(); ++i) {
+        if (astBlock.getStmts().get(i).equals(statement.get())) {
+          astBlock.getStmts().remove(i);
+          astBlock.getStmts().addAll(i, propagatorSteps);
+          break;
+        }
+      }
 
       return astNeuron;
     } else {
@@ -116,10 +121,12 @@ public class TransformerBase {
 
   }
 
-  ASTSmall_Stmt smallStatement(final ASTAssignment astAssignment) {
+  ASTStmt statement(final ASTAssignment astAssignment) {
     final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
+    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
     astSmall_stmt.setAssignment(astAssignment);
-    return astSmall_stmt;
+    astStmt.setSmall_Stmt(astSmall_stmt);
+    return astStmt;
   }
 
 }

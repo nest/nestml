@@ -1,8 +1,8 @@
 neuron iaf_psc_exp_multisynapse_nestml:
   state:
-    suppress i_syn real[num_of_receptors] = 0;
-    suppress i_0 real = 0.0;
-    V_m real = 0.0;
+    suppress i_syn real[num_of_receptors] = 0
+    suppress i_0 real = 0.0
+    V_m real = 0.0
 
   end
 
@@ -42,7 +42,7 @@ neuron iaf_psc_exp_multisynapse_nestml:
     h   ms   = resolution()
     r_ref integer = 0
     P11_syn real[num_of_receptors] = -h / tau_syn
-    P21_syn real[num_of_receptors] = Tau/(C_1*(1.0-Tau/tau_syn)) * P11_syn * (1.0 - exp(h*(1.0/tau_syn-1.0/Tau)));
+    P21_syn real[num_of_receptors] = Tau/(C_1*(1.0-Tau/tau_syn)) * P11_syn * (1.0 - exp(h*(1.0/tau_syn-1.0/Tau)))
     P20 real = exp(-h/Tau)
     P22 real = Tau/C_1*(1.0 - P22)
     RefractoryCounts real = steps(t_ref) [[RefractoryCounts >= 0]]
@@ -65,7 +65,7 @@ neuron iaf_psc_exp_multisynapse_nestml:
       r_ref = r_ref - 1 # neuron is absolute refractory
     end
 
-    i_syn = i_syn * P11_syn;
+    i_syn = i_syn * P11_syn
     # collect spikes
     i_syn = i_syn + spikeBufferInh.getSum() # not sure about this
 

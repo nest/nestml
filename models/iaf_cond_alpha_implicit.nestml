@@ -32,9 +32,9 @@ Author: Schrader, Plesser
 SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
 */
 neuron iaf_cond_alpha_implicit:
-  # state variables which change due to neuron's dynamics model
+
   state:
-    V_m mV = E_L   # membrane potential
+    V_m mV = E_L     # membrane potential
     g_in nS = 0nS    # inputs from the inh conductance
     g_ex nS = 0nS    # inputs from the exc conductance
   end
@@ -109,8 +109,8 @@ neuron iaf_cond_alpha_implicit:
 
     end
 
-    g_ex' += spikeExc.getSum() * PSConInit_E;
-    g_in' += spikeInh.getSum() * PSConInit_I;
+    g_ex' += spikeExc.getSum() * PSConInit_E
+    g_in' += spikeInh.getSum() * PSConInit_I
     I_stim = currents.getSum()
   end
 

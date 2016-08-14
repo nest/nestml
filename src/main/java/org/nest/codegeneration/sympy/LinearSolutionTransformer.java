@@ -5,7 +5,6 @@
  */
 package org.nest.codegeneration.sympy;
 
-import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
@@ -247,13 +246,8 @@ public class LinearSolutionTransformer extends TransformerBase {
       final ASTBody astBodyDecorator,
       final ASTDeclaration astDeclaration) {
     final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
-    final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
-    final List<ASTSmall_Stmt> astSmallStmts = Lists.newArrayList();
     final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
-
-    astStmt.setSimple_Stmt(astSimpleStmt);
-    astSmallStmts.add(astSmall_stmt);
-    astSimpleStmt.setSmall_Stmts(astSmallStmts);
+    astStmt.setSmall_Stmt(astSmall_stmt);
 
     astSmall_stmt.setDeclaration(astDeclaration);
 
@@ -289,13 +283,9 @@ public class LinearSolutionTransformer extends TransformerBase {
       final ASTBody astBodyDecorator,
       final ASTAssignment yVarAssignment) {
     final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
-    final ASTSimple_Stmt astSimpleStmt = SPLNodeFactory.createASTSimple_Stmt();
-    final List<ASTSmall_Stmt> astSmallStmts = Lists.newArrayList();
     final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
 
-    astStmt.setSimple_Stmt(astSimpleStmt);
-    astSmallStmts.add(astSmall_stmt);
-    astSimpleStmt.setSmall_Stmts(astSmallStmts);
+    astStmt.setSmall_Stmt(astSmall_stmt);
 
     // Goal: add the y-assignments at the end of the expression
     astSmall_stmt.setAssignment(yVarAssignment);

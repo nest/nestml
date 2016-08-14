@@ -34,8 +34,8 @@ neuron izhikevich_neuron:
     # use standard forward Euler numerics in this case
     spikesSum real = spikes.getSum()
     if consistent_integration:
-      v_old = V_m;
-      u_old = U_m;
+      v_old = V_m
+      u_old = U_m
 
       V_m = V_m + h *( 0.04*v_old*v_old + 5.0*v_old + 140.0 - u_old + I + I_e) + spikesSum
       U_m = U_m + h * a * (b * v_old - u_old)

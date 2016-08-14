@@ -50,15 +50,15 @@ neuron mat2_exp_neuron:
     # these depend on the above. Please do not change the order.
     P21ex real = - Tau/(C_1*(1.0-Tau/tau_ex)) * P11ex * expm1(h*(1.0/tau_ex-1.0/Tau))
     P21in real = - Tau/(C_1*(1.0-Tau/tau_in)) * P11in * expm1(h*(1.0/tau_in-1.0/Tau))
-    P22_expm1 real = expm1(-h/Tau);
+    P22_expm1 real = expm1(-h/Tau)
     P20 real = - Tau/C_1 * P22_expm1 # constant currents
 
     # --------------------
     # adaptive threshold
     # --------------------
-    P11th real = exp(-h/tau_1);
-    P22th real = exp(-h/tau_2);
-    RefractoryCountsTot integer = steps(tau_ref);
+    P11th real = exp(-h/tau_1)
+    P22th real = exp(-h/tau_2)
+    RefractoryCountsTot integer = steps(tau_ref)
   end
 
   input:
@@ -71,11 +71,11 @@ neuron mat2_exp_neuron:
 
   update:
     # evolve membrane potential
-    V_m = V_m*P22_expm1 + V_m + i_syn_ex*P21ex + i_syn_in*P21in + (I_e+i_0)*P20;
+    V_m = V_m*P22_expm1 + V_m + i_syn_ex*P21ex + i_syn_in*P21in + (I_e+i_0)*P20
 
     # evolve adaptive threshold
-    V_th_1 = V_th_1 * P11th;
-    V_th_2 = V_th_2 * P22th;
+    V_th_1 = V_th_1 * P11th
+    V_th_2 = V_th_2 * P22th
 
     # exponential decaying PSCs
     i_syn_ex = i_syn_ex * P11ex
@@ -87,7 +87,7 @@ neuron mat2_exp_neuron:
 
     if r == 0: # neuron is allowed to fire
       if V_m >= (omega + V_th_2 + V_th_1 ): # threshold crossing
-        r = RefractoryCountsTot;
+        r = RefractoryCountsTot
 
         # procedure for adaptive potential
         V_th_1 = V_th_1 + alpha_1 # short time
