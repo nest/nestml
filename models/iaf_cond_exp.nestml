@@ -76,8 +76,8 @@ neuron iaf_cond_exp:
 
     end
 
-    # TODO DGE = DGE + spikeExc.getSum() * PSConInit_E;
-    # TODO DGI = DGI + spikeInh.getSum() * PSConInit_I;
+    # TODO DGE = DGE + spikeExc.getSum() * PSConInit_E
+    # TODO DGI = DGI + spikeInh.getSum() * PSConInit_I
     I_stim = currents.getSum()
   end
 

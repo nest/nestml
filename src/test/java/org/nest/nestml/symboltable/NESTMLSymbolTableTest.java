@@ -157,8 +157,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
             .getIF_Clause()
             .getBlock()
             .getStmts().get(0)
-            .getSimple_Stmt().get()
-            .getSmall_Stmts().get(0)
+            .getSmall_Stmt().get()
             .getDeclaration().get()
             .getEnclosingScope().get()
             .resolve("scopeTestVar", VariableSymbol.KIND);

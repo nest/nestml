@@ -233,7 +233,7 @@ neuron ht_neuron_nestml:
     if (not g_spike) and V_m >= Theta:
       # Set V and Theta to the sodium reversal potential.
       V_m = E_Na
-      Theta = E_Na;
+      Theta = E_Na
 
       # Activate fast potassium current. Drives the
       # membrane potential towards the potassium reversal
@@ -258,10 +258,10 @@ neuron ht_neuron_nestml:
     # See: Exact digital simulation of time-invariant linear systems
     # with applications to neuronal modeling, Rotter and Diesmann,
     # section 3.1.2.
-    exact_integration_adjustment real = ( 1 / Tau_2 ) - ( 1 / Tau_1 );\
+    exact_integration_adjustment real = ( 1 / Tau_2 ) - ( 1 / Tau_1 )
 
-    t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 );
-    normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) );
+    t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 )
+    normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
 
     return g_peak * normalisation_factor * exact_integration_adjustment
   end

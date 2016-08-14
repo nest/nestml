@@ -5,8 +5,8 @@
   @result TODO
 -->
 // ${astUtils.printComments(ast)}
-<#if ast.getSimple_Stmt().isPresent()>
-${tc.include("org.nest.spl.SimpleStmt", ast.getSimple_Stmt().get())}
+<#if ast.getSmall_Stmt().isPresent()>
+${tc.include("org.nest.spl.SmallStatement", ast.getSmall_Stmt().get())}
 <#elseif ast.getCompound_Stmt().isPresent()>
 ${tc.include("org.nest.spl.CompoundStatement", ast.getCompound_Stmt().get())}
 </#if>

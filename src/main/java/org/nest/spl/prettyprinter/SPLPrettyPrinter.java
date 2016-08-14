@@ -107,15 +107,6 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   }
 
   @Override
-  public void visit(final ASTSimple_Stmt astSimpleStmt ) {
-    final String comment = ASTUtils.printComments(astSimpleStmt);
-    if (!comment.isEmpty()) {
-      println(comment);
-    }
-
-  }
-
-  @Override
   public void visit(final ASTStmt astStmt) {
     final String comment = ASTUtils.printComments(astStmt);
     if (!comment.isEmpty()) {

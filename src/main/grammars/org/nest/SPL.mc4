@@ -13,13 +13,11 @@ grammar SPL extends org.nest.Units {
 
   Block = ( Stmt | NEWLINE )*;
 
-  Stmt = Simple_Stmt | Compound_Stmt;
+  Stmt = Small_Stmt | Compound_Stmt;
 
   Compound_Stmt = IF_Stmt
                 | FOR_Stmt
                 | WHILE_Stmt;
-
-  Simple_Stmt = Small_Stmt (";" Small_Stmt)* (";")? ;
 
   Small_Stmt = Assignment
              | FunctionCall
@@ -45,7 +43,7 @@ grammar SPL extends org.nest.Units {
     vars:Name ("," vars:Name)*
     Datatype
     ("[" sizeParameter:Name "]")?
-    ( "=" Expr)? ;
+    ( "=" Expr)? SL_COMMENT?;
 
   /** ASTDefiningVariable Signed variable name
 

@@ -29,7 +29,7 @@ V_th       double - Spike threshold in mV.
 V_reset    double - Reset potential of the membrane in mV.
 E_ex       double - Excitatory reversal potential in mV.
 E_in       double - Inhibitory reversal potential in mV.
-g_L        double - Leak conductance in nS;
+g_L        double - Leak conductance in nS
 tau_syn_ex double - Time constant of the excitatory synaptic exponential
                     function in ms.
 tau_syn_in double - Time constant of the inhibitory synaptic exponential
@@ -155,8 +155,8 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     elif V_m >= V_th:
       r = RefractoryCounts
       V_m = V_reset # clamp potential
-      G_sfa += q_sfa;
-      G_rr += q_rr;
+      G_sfa += q_sfa
+      G_rr += q_rr
       emit_spike()
 
     end

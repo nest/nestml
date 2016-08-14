@@ -74,7 +74,7 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
   Var_Block implements BodyElement =
     (["state"]|["parameter"]|["internal"])
     BLOCK_OPEN
-      (AliasDecl (";")? | NEWLINE)*
+      (AliasDecl | NEWLINE)*
     BLOCK_CLOSE;
 
   /** ASTDynamics a special function definition:

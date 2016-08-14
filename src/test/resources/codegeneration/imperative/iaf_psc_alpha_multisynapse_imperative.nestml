@@ -20,7 +20,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
                                 # I.e. the real threshold is (U0_+Theta_).
     # Lower bound, RELATIVE TO RESTING POTENTIAL(!).
     # I.e. the real lower bound is (LowerBound_+Theta_).
-    LowerBound mV = -inf;
+    LowerBound mV = -inf
     tau_syn ms[num_of_receptors]    # Time constants of synaptic currents
     has_connections boolean = false # boolean flag which indicates whether the neuron has connections
   end
@@ -37,9 +37,9 @@ neuron iaf_psc_alpha_multisynapse_neuron:
     h   ms   = resolution()
     r integer = 0 # Number of refractory steps remaining
     P11_syn real[num_of_receptors] = -h / tau_syn
-    P21_syn real[num_of_receptors] = Tau/(C_1*(1.0-Tau/tau_syn)) * P11_syn * (1.0 - exp(h*(1.0/tau_syn-1.0/Tau)));
+    P21_syn real[num_of_receptors] = Tau/(C_1*(1.0-Tau/tau_syn)) * P11_syn * (1.0 - exp(h*(1.0/tau_syn-1.0/Tau)))
     P20 real = exp(-h/Tau)
-    P22 real = Tau/C_1*(1.0 - P22);
+    P22 real = Tau/C_1*(1.0 - P22)
 
     RefractoryCounts integer = 0
     #PSCInitialValues real<num_of_receptors> = steps(t_ref)

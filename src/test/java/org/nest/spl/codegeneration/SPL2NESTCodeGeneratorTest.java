@@ -64,8 +64,7 @@ public class SPL2NESTCodeGeneratorTest {
     // tests code generation for a spldeclaration
     final Optional<ASTDeclaration> wahrDeclaration = root.get()
         .getBlock().getStmts().get(0)
-        .getSimple_Stmt().get()
-        .getSmall_Stmts().get(0)
+        .getSmall_Stmt().get()
         .getDeclaration();
     assertTrue(wahrDeclaration.isPresent());
     generator.handle(wahrDeclaration.get(), outputFile);
@@ -73,8 +72,7 @@ public class SPL2NESTCodeGeneratorTest {
     // tests code generation for a spldeclaration with an expression
     final Optional<ASTDeclaration> realDeclaration = root.get()
         .getBlock().getStmts().get(2)
-        .getSimple_Stmt().get()
-        .getSmall_Stmts().get(0)
+        .getSmall_Stmt().get()
         .getDeclaration();
     assertTrue(realDeclaration.isPresent());
     generator.handle(realDeclaration.get(), outputFile);

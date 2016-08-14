@@ -43,8 +43,8 @@ neuron iaf_psc_delta_nestml:
       # if we have accumulated spikes from refractory period,
       # add and reset accumulator
       if with_refr_input and refr_spikes_buffer != 0.0:
-        V_1 += refr_spikes_buffer;
-        refr_spikes_buffer = 0.0 mV;
+        V_1 += refr_spikes_buffer
+        refr_spikes_buffer = 0.0 mV
       end
       # lower bound of membrane potential
       if V_1 < V_min:
@@ -54,7 +54,7 @@ neuron iaf_psc_delta_nestml:
       # read spikes from buffer and accumulate them, discounting
       # for decay until end of refractory period
       if with_refr_input:
-        refr_spikes_buffer += spikes * exp(r * h / tau_m);
+        refr_spikes_buffer += spikes * exp(r * h / tau_m)
       else:
         spikes.getSum() # clear buffer entry, ignore spike
       end

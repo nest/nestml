@@ -63,11 +63,11 @@ neuron iaf_psc_exp_ms_imperative_nestml:
     end
 
     # exponential decaying PSCs
-    i_syn_ex = i_syn_ex * P11ex;
-    i_syn_in = i_syn_in * P11in;
+    i_syn_ex = i_syn_ex * P11ex
+    i_syn_in = i_syn_in * P11in
 
     # add evolution of presynaptic input current
-    i_syn_ex = i_syn_ex + (1.0 - P11ex) * i_1;
+    i_syn_ex = i_syn_ex + (1.0 - P11ex) * i_1
 
     # the spikes arriving at T+1 have an immediate effect on the state of the neuron
     weighted_spikes_ex = spikeBufferExc.getSum()
@@ -84,8 +84,8 @@ neuron iaf_psc_exp_ms_imperative_nestml:
     end
 
     # TODO this must be represented
-    #   S_.i_0_ = B_.currents_[0].get_value(lag);
-    #   S_.i_1_ = B_.currents_[1].get_value(lag);
+    #   S_.i_0_ = B_.currents_[0].get_value(lag)
+    #   S_.i_1_ = B_.currents_[1].get_value(lag)
     i_0 = currentBuffer.getSum(t)
     i_1 = currentBuffer.getSum(t)
   end
