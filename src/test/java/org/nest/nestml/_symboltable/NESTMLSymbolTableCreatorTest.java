@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.nestml.symboltable;
+package org.nest.nestml._symboltable;
 
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
@@ -34,11 +33,11 @@ import static org.nest.utils.NESTMLSymbols.resolveMethod;
  *
  * @author plotnikov
  */
-public class NESTMLSymbolTableTest extends ModelbasedTest {
+public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
-  private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/symboltable/"
+  private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/_symboltable/"
       + "iaf_neuron.nestml";
-  private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/symboltable/"
+  private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/_symboltable/"
       + "importingNeuron.nestml";
 
   private static final String MODEL_WITH_INHERITANCE =
@@ -62,9 +61,11 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     final Optional<VariableSymbol> y1Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y1", VariableSymbol.KIND);
     assertTrue(y0TVariable.isPresent());
     assertTrue(y0TVariable.get().definedByODE());
+    assertFalse(y0TVariable.get().isLoggable());
 
     assertTrue(y1Varialbe.isPresent());
     assertFalse(y1Varialbe.get().definedByODE());
+    assertTrue(y1Varialbe.get().isLoggable());
 
     // Checks that the derived variable is also resolvable
     final Optional<VariableSymbol> Dy0Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("__Dy0", VariableSymbol.KIND);
@@ -77,8 +78,16 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue(testComponentOptional.isPresent());
 
     final Optional<TypeSymbol> testComponentFromGlobalScope = scopeCreator.getGlobalScope().resolve(
-        "org.nest.nestml.symboltable.iaf_neuron.TestComponent", NeuronSymbol.KIND);
+        "org.nest.nestml._symboltable.iaf_neuron.TestComponent", NeuronSymbol.KIND);
     assertTrue(testComponentFromGlobalScope.isPresent());
+
+    final Optional<VariableSymbol> C_mVarialbe = neuronTypeOptional.get().getSpannedScope().resolve("C_m", VariableSymbol.KIND);
+    assertTrue(C_mVarialbe.isPresent());
+    assertTrue(C_mVarialbe.get().isLoggable());
+
+    final Optional<VariableSymbol> y3_tmpVarialbe = neuronTypeOptional.get().getSpannedScope().resolve("y3_tmp", VariableSymbol.KIND);
+    assertTrue(y3_tmpVarialbe.isPresent());
+    assertTrue(y3_tmpVarialbe.get().isLoggable());
   }
 
   @Test
@@ -204,7 +213,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(USING_NEURON_FILE);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
     final Optional<NeuronSymbol> usingNeuronSymbol = modelScope
-        .resolve("org.nest.nestml.symboltable.importingNeuron.UsingNeuron", NeuronSymbol.KIND);
+        .resolve("org.nest.nestml._symboltable.importingNeuron.UsingNeuron", NeuronSymbol.KIND);
     assertTrue(usingNeuronSymbol.isPresent());
     final Scope neuronScope = usingNeuronSymbol.get().getSpannedScope();
 
