@@ -65,8 +65,8 @@ neuron hh_psc_alpha_nestml:
   end
 
   equations:
-    I_syn_exc pA = g_ex # TODO I_sum(g_ex, spikeExc)
-    I_syn_inh pA = g_in # TODO I_sum(g_in, spikeInh)
+    I_syn_exc pA = I_sum(g_ex, spikeExc)
+    I_syn_inh pA = I_sum(g_in, spikeExc)
     I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     I_L   pA = g_L * ( V_m - E_L )
