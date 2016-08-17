@@ -1,59 +1,26 @@
 /*
-Name: hh_cond_exp_traub - Hodgin Huxley based model, Traub modified.
+Name: iaf_chxk_2008 - Conductance based leaky integrate-and-fire neuron model
+                      used in Casti et al 2008.
 
 Description:
-
- hh_cond_exp_traub is an implementation of a modified Hodkin-Huxley model
-
- (1) Post-synaptic currents
- Incoming spike events induce a post-synaptic change of conductance modeled
- by an exponential function. The exponential function is normalized such that an
- event of weight 1.0 results in a peak current of 1 nS.
-
- (2) Spike Detection
- Spike detection is done by a combined threshold-and-local-maximum search: if
- there is a local maximum above a certain threshold of the membrane potential,
- it is considered a spike.
-
-Problems/Todo:
-Only the channel variables m,h,n are implemented. The original
-contains variables called y,s,r,q and \chi.
-
-Parameters:
-
- The following parameters can be set in the status dictionary.
-
- V_m        double - Membrane potential in mV
- V_T        double - Voltage offset that controls dynamics. For default
-                     parameters, V_T = -63mV results in a threshold around
-                     -50mV.
- E_L        double - Leak reversal potential in mV.
- C_m        double - Capacity of the membrane in pF.
- g_L        double - Leak conductance in nS.
- tau_syn_ex double - Time constant of the excitatory synaptic exponential
-                     function in ms.
- tau_syn_in double - Time constant of the inhibitory synaptic exponential
-                     function in ms.
- E_ex       double - Excitatory synaptic reversal potential in mV.
- E_in       double - Inhibitory synaptic reversal potential in mV.
- E_Na       double - Sodium reversal potential in mV.
- g_Na       double - Sodium peak conductance in nS.
- E_K        double - Potassium reversal potential in mV.
- g_K        double - Potassium peak conductance in nS.
- I_e        double - External input current in pA.
+iaf_chxk_2008 is an implementation of a spiking neuron using IAF dynamics with
+conductance-based synapses [1]. It is modeled after iaf_cond_alpha with the
+addition of after hyper-polarization current instead of a membrane potential
+reset. Incoming spike events induce a post-synaptic change of conductance
+modeled by an alpha function. The alpha function is normalized such that an
+event of weight 1.0 results in a peak current of 1 nS at t = tau_syn.
 
 References:
-
-Traub, R.D. and Miles, R. (1991) Neuronal Networks of the Hippocampus.
-Cambridge University Press, Cambridge UK.
+[1] Casti A, Hayot F, Xiao Y, and Kaplan E (2008) A simple model of retina-LGN
+transmission. J Comput Neurosci 24:235-252.
 
 Sends: SpikeEvent
 
-Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+Receives: SpikeEvent, CurrentEvent
 
-Author: Schrader
+Author: Heiberg
 
-SeeAlso: hh_psc_alpha
+SeeAlso: iaf_cond_alpha
 */
 neuron iaf_chxk_2008_implicit:
 
@@ -66,7 +33,6 @@ neuron iaf_chxk_2008_implicit:
   end
 
   equations:
-    # Implicit
     g_in'' = -g_in'/tau_syn_in
     g_in' = g_in' - g_in/tau_syn_in
 
@@ -74,24 +40,22 @@ neuron iaf_chxk_2008_implicit:
     g_ex' = g_ex'  -g_ex/tau_syn_ex
 
     G_ahp'' = -G_ahp' / tau_ahp
-    G_ahp' = G_ahp' - ( G_ahp / tau_ahp )
+    G_ahp' = G_ahp' -  G_ahp / tau_ahp
 
     I_syn_exc pA = Cond_sum(g_ex, spikesInh) * ( V_m - E_ex )
     I_syn_inh pA = Cond_sum(g_in, spikesExc) * ( V_m - E_in )
     I_ahp pA = G_ahp * ( V_m - E_ahp )
     I_leak pA = g_L * ( V_m - E_L )
+
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_stim + I_e ) / C_m
   end
 
   parameter:
-    V_th mV = -45.0mV     # Threshold Potential in mV
-    E_ex mV = 20mV        # Excitatory reversal potential in mV.
-    E_in mV = -90mV       # Inhibitory reversal potential in mV.
-    g_L nS = 100nS        # Leak Conductance in nS
-    C_m pF = 1000.0pF     # Membrane Capacitance
-    V_reversalE mV = 20mV # Excitatory reversal Potential in mV
-
-    V_reversalI mV = -90.0mV # Inhibitory reversal Potential in mV
+    V_th mV = -45.0mV        # Threshold Potential
+    E_ex mV = 20mV           # Excitatory reversal potential
+    E_in mV = -90mV          # Inhibitory reversal potential
+    g_L nS = 100nS           # Leak Conductance in nS
+    C_m pF = 1000.0pF        # Membrane Capacitance
     E_L mV = -60.0mV         # Leak reversal Potential (aka resting potential) in mV
     tau_syn_ex ms = 1ms      # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_in ms = 1ms      # Synaptic Time Constant for Inhibitory Synapse in ms
@@ -99,7 +63,6 @@ neuron iaf_chxk_2008_implicit:
     g_ahp nS = 443.8nS       # AHP conductance
     E_ahp mV = -95mV         # AHP potential
     ahp_bug boolean = false  # If true, discard AHP conductance value from previous spikes
-
     I_e pA = 0 pA            # Constant Current in pA
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
