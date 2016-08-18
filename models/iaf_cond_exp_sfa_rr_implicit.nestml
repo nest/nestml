@@ -86,9 +86,8 @@ neuron iaf_cond_exp_sfa_rr_implicit:
   end
 
   internal:
-    # refractory time in steps
-    RefractoryCounts integer = steps(t_ref)
-    r integer
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
   end
 
   input:

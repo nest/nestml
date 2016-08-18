@@ -27,13 +27,11 @@ neuron iaf_cond_exp:
 
   state:
     V_m mV = E_L     # membrane potential
-    g_in nS = 0nS    # inputs from the inh conductance
-    g_ex nS = 0nS    # inputs from the exc conductance
   end
 
   equations:
-    shape g_in = exp(-1/tau_syn_in*t)
-    shape g_ex = exp(-1/tau_syn_in*t)
+    shape g_in = exp(-1/tau_syn_in*t) # inputs from the inh conductance
+    shape g_ex = exp(-1/tau_syn_in*t) # inputs from the exc conductance
 
     I_syn_exc pA = Cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
     I_syn_inh pA = Cond_sum(g_in, spikeInh)  * ( V_m - E_in )
@@ -61,15 +59,14 @@ neuron iaf_cond_exp:
   internal:
     # Impulse to add to g_ex' on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_synE
+    PSConInit_E real = 1.0 * e / tau_syn_ex
 
     # Impulse to add to g_in' on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_synI
+    PSConInit_I real = 1.0 * e / tau_syn_in
 
-    # refractory time in steps
-    RefractoryCounts integer = steps(t_ref)
-    r integer
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -91,9 +88,6 @@ neuron iaf_cond_exp:
       emit_spike()
     end
 
-    # add incoming spikes
-    g_ex' += spikeExc.getSum()
-    g_in' += spikeInh.getSum()
     # set new input current
     I_stim = currents.getSum()
   end
