@@ -1,5 +1,5 @@
 /* BeginDocumentation
-Name: iaf_cond_exp_sfa_rr - Simple conductance based leaky integrate-and-fire
+Name: iaf_cond_exp_sfa_rr_implicit - Simple conductance based leaky integrate-and-fire
                             neuron model.
 
 Description:
@@ -17,34 +17,6 @@ Outgoing spike events induce a change of the adaptation and relative
 refractory conductances by q_sfa and q_rr, respectively.  Otherwise
 these conductances decay exponentially with time constants tau_sfa
 and tau_rr, respectively.
-
-Parameters:
-The following parameters can be set in the status dictionary.
-
-V_m        double - Membrane potential in mV
-E_L        double - Leak reversal potential in mV.
-C_m        double - Capacity of the membrane in pF
-t_ref      double - Duration of refractory period in ms.
-V_th       double - Spike threshold in mV.
-V_reset    double - Reset potential of the membrane in mV.
-E_ex       double - Excitatory reversal potential in mV.
-E_in       double - Inhibitory reversal potential in mV.
-g_L        double - Leak conductance in nS
-tau_syn_ex double - Time constant of the excitatory synaptic exponential
-                    function in ms.
-tau_syn_in double - Time constant of the inhibitory synaptic exponential
-                    function in ms.
-q_sfa      double - Outgoing spike activated quantal spike-frequency adaptation
-                    conductance increase in nS.
-q_rr       double - Outgoing spike activated quantal relative refractory
-                    conductance increase in nS.
-tau_sfa    double - Time constant of spike-frequency adaptation in ms.
-tau_rr     double - Time constant of the relative refractory mechanism in ms.
-E_sfa      double - spike-frequency adaptation conductance reversal potential in
-                    mV.
-E_rr       double - relative refractory mechanism conductance reversal potential
-                    in mV.
-I_e        double - an external stimulus current in pA.
 
 Sends: SpikeEvent
 
@@ -67,79 +39,61 @@ iaf_cond_alpha
 neuron iaf_cond_exp_sfa_rr_implicit:
 
   state:
-    # membrane potential
-    V_m mV = E_L
-    # inputs from the inh conductance
-    GI nS = 0nS
-    # inputs from the exc conductance
-    GE nS = 0nS
-    G_sfa nS
-    G_rr nS
+    V_m mV = E_L # membrane potential
+    g_in nS      # inputs from the inh conductance
+    g_ex nS      # inputs from the exc conductance
+    g_sfa nS     # inputs from the sfa conductance
+    g_rr nS      # inputs from the rr conductance
   end
 
   equations:
-    # Implicit
-    GI' = -GI/tau_synI
-    GE' = -GE/tau_synE
-    G_sfa' = -G_sfa / tau_sfa
-    G_rr' = G_rr / tau_rr
+    g_in' = -g_in/tau_syn_in
+    g_ex' = -g_ex/tau_syn_ex
+    g_sfa' = -g_sfa / tau_sfa
+    g_rr' = g_rr / tau_rr
 
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * ( GI * (V_m-V_reversalI) + GE * (V_m-V_reversalE) - (I_e + I_stim))
+    I_syn_exc pA = Cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
+    I_syn_inh pA = Cond_sum(g_in, spikesInh) * ( V_m - E_in )
+    I_L pA = g_L * ( V_m - E_L )
+    I_sfa pA = g_sfa * ( V_m - E_sfa )
+    I_rr pA = g_rr * ( V_m - E_rr )
+
+    # V dot
+    V_m' = ( -I_L + I_stim + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
   parameter:
-    # Threshold Potential in mV
-    V_th mV = -57.0mV
-    # Reset Potential in mV
-    V_reset mV = -70.0mV
-    # Refractory period in ms
-    t_ref ms = 0.5ms
-    # Leak Conductance in nS
-    g_L nS = 28.95nS
-    # Membrane Capacitance in pF
-    C_m pF = 289.5pF
-    alias Tau ms = (1 / g_L) * C_m
-    # Excitatory reversal Potential in mV
-    V_reversalE mV = 0 mV
-    # Inhibitory reversal Potential in mV
-    V_reversalI mV = -75.0mV
-    # Leak reversal Potential (aka resting potential) in mV
-    E_L mV = -70.0mV
-    # Synaptic Time Constant Excitatory Synapse in ms
-    tau_synE ms = 1.5ms
-    # Synaptic Time Constant for Inhibitory Synapse in ms
-    tau_synI ms = 10.0ms
-    # Outgoing spike activated quantal spike-frequency adaptation conductance increase
-    q_sfa nS = 14.48nS
-    # Outgoing spike activated quantal relative refractory conductance increase.
-    q_rr nS = 3214nS
-    # Time constant of spike-frequency adaptation in ms.
-    tau_sfa ms = 110ms
-    # Time constant of the relative refractory mechanism.
-    tau_rr ms = 1.97ms
-    # spike-frequency adaptation conductance reversal potential
-    E_sfa mV = -70mV
-    # relative refractory mechanism conductance reversal potential
-    E_rr mV = -70mV
-
-    # Constant Current in pA
-    I_e pA = 0
-
+    V_th mV = -57.0mV      # Threshold Potential in mV
+    V_reset mV = -70.0mV   # Reset Potential in mV
+    t_ref ms = 0.5ms       # Refractory period in ms
+    g_L nS = 28.95nS       # Leak Conductance in nS
+    C_m pF = 289.5pF       # Membrane Capacitance in pF
+    E_ex mV = 0 mV         # Excitatory reversal Potential in mV
+    E_in mV = -75.0mV      # Inhibitory reversal Potential in mV
+    E_L mV = -70.0mV       # Leak reversal Potential (aka resting potential) in mV
+    tau_syn_ex ms = 1.5ms  # Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_in ms = 10.0ms # Synaptic Time Constant for Inhibitory Synapse in ms
+    q_sfa nS = 14.48nS     # Outgoing spike activated quantal spike-frequency adaptation conductance increase
+    q_rr nS = 3214.0nS       # Outgoing spike activated quantal relative refractory conductance increase.
+    tau_sfa ms = 110.0ms     # Time constant of spike-frequency adaptation in ms.
+    tau_rr ms = 1.97ms     # Time constant of the relative refractory mechanism.
+    E_sfa mV = -70.0mV       # spike-frequency adaptation conductance reversal potential
+    E_rr mV = -70.0mV        # relative refractory mechanism conductance reversal potential
+    I_e pA = 0pA           # Constant Current
+    I_stim pA = 0pA # Input current injected by CurrentEvent.
+                    # This variable is used to transport the current applied into the
+                    # _dynamics function computing the derivative of the state vector.
   end
 
   internal:
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
     r integer
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikesInh   <- inhibitory spike
+      spikesExc   <- excitatory spike
       currents <- current
   end
 
@@ -148,21 +102,21 @@ neuron iaf_cond_exp_sfa_rr_implicit:
   update:
 
     integrate(V_m)
-    if r != 0: # not refractory
+    if r != 0:  # neuron is absolute refractory
       r =  r - 1
       V_m = V_reset # clamp potential
 
-    elif V_m >= V_th:
+    elif V_m >= V_th: # neuron is not absolute refractory
       r = RefractoryCounts
       V_m = V_reset # clamp potential
-      G_sfa += q_sfa
-      G_rr += q_rr
+      g_sfa += q_sfa
+      g_rr += q_rr
       emit_spike()
 
     end
 
-    GE += spikeExc.getSum()
-    GI += spikeInh.getSum()
+    g_ex += spikesExc.getSum()
+    g_in += spikesInh.getSum()
     I_stim = currents.getSum()
   end
 
