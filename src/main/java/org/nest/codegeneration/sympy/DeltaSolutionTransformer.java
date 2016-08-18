@@ -51,7 +51,7 @@ class DeltaSolutionTransformer extends TransformerBase {
   /**
    * P33 can be computed from the delta shape definition as: exp(__h__/tau) where tau is the membrane time constant
    */
-  private void addP33ToInternals(ASTNeuron astNeuron) {
+  private void addP33ToInternals(final ASTNeuron astNeuron) {
     // the function there, because otherwise this query wouldn't be made
     ASTFunctionCall deltaShape = getFunctionCall(
         PredefinedFunctions.DELTA,
@@ -69,9 +69,13 @@ class DeltaSolutionTransformer extends TransformerBase {
     try {
       final List<ASTStmt> propagatorSteps = Lists.newArrayList();
 
+
+
       final ASTAssignment updateAssignemt = NESTMLASTCreator.createAssignment(Files.lines(propagatorStepFile).findFirst().get());
       propagatorSteps.add(statement(updateAssignemt));
 
+      final ASTAssignment applyP33 = NESTMLASTCreator.createAssignment(updateAssignemt.getLhsVarialbe() + "+=" + updateAssignemt.getLhsVarialbe() + "* P33" );
+      propagatorSteps.add(statement(applyP33));
 
       final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(astNeuron.getBody().getODEBlock().get(), ASTFunctionCall.class)
           .stream()
