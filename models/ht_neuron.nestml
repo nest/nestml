@@ -218,7 +218,7 @@ neuron ht_neuron_nestml:
     integrate(V_m)
 
     # Deactivate potassium current after spike time have expired
-    if r_potassium = 0 and (r_potassium-1 == 0):
+    if (r_potassium > 0) and (r_potassium-1 == 0):
       g_spike = false # Deactivate potassium current.
     end
     r_potassium -= 1

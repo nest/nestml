@@ -90,6 +90,9 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertTrue(y3_tmpVarialbe.get().isLoggable());
   }
 
+  /**
+   * Tests the resolving of the variables which are 'shadowed' in inner blocks
+   */
   @Test
   public void testResolvingFromSeparateBlocks() throws IOException {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
@@ -204,8 +207,22 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertTrue(fromModelScope.isPresent());
 
     final Optional<MethodSymbol> withPredicate
-        = NESTMLSymbols.resolveMethod("exp", Lists.newArrayList("real"), modelScope);
+        = resolveMethod("exp", Lists.newArrayList("real"), modelScope);
     assertTrue(withPredicate.isPresent());
+
+    Optional<MethodSymbol> I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
+    assertTrue(I_sumOptional.isPresent());
+    I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
+    assertFalse(I_sumOptional.isPresent());
+    I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("pA", "real"), modelScope);
+    assertFalse(I_sumOptional.isPresent());
+
+    Optional<MethodSymbol> Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
+    assertTrue(Cond_sumOptional.isPresent());
+    Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
+    assertFalse(Cond_sumOptional.isPresent());
+    Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "real"), modelScope);
+    assertFalse(Cond_sumOptional.isPresent());
   }
 
   @Test
@@ -244,7 +261,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
     List<String> parameters = Lists.newArrayList("mV");
 
-    final Optional<MethodSymbol> standAloneFunction = NESTMLSymbols.resolveMethod(PredefinedFunctions.INTEGRATE, parameters, stateScope);
+    final Optional<MethodSymbol> standAloneFunction = resolveMethod(PredefinedFunctions.INTEGRATE, parameters, stateScope);
     standAloneFunction.isPresent();
   }
 
@@ -254,14 +271,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertEquals(1, root.getNeurons().size());
     scopeCreator.runSymbolTableCreator(root);
     final ScopeSpanningSymbol symbol = (ScopeSpanningSymbol) root.getNeurons().get(0).getSymbol().get();
-    final Scope scope = symbol.getSpannedScope();//scopeCreator.runSymbolTableCreator(root);
-
-    scope.resolve(PredefinedFunctions.I_SUM, MethodSymbol.KIND);
-    final Optional<MethodSymbol> method1 = resolveMethod(
-        PredefinedFunctions.I_SUM, Lists.newArrayList("real", "Buffer"), scope
-    );
-
-    assertTrue(method1.isPresent());
+    final Scope scope = symbol.getSpannedScope();
 
     final Optional<MethodSymbol> method2 = resolveMethod(
         PredefinedFunctions.INTEGRATE, Lists.newArrayList("boolean"), scope
@@ -269,8 +279,9 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertFalse(method2.isPresent());
 
     final Optional<MethodSymbol> method3 = resolveMethod(
-        PredefinedFunctions.INTEGRATE, Lists.newArrayList("real"), scope
-    );
+        PredefinedFunctions.INTEGRATE,
+        Lists.newArrayList("real"),
+        scope);
     assertTrue(method3.isPresent());
   }
 
