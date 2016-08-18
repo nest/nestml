@@ -147,6 +147,10 @@ public:
   ${tc.includeArgs("org.nest.nestml.function.MemberVariableGetterSetter", [internal])}
   </#list>
 
+  <#list body.getODEAliases() as odeAlias>
+    ${tc.includeArgs("org.nest.nestml.function.MemberVariableGetterSetter", [odeAlias])}
+  </#list>
+
   <#list body.getInputBuffers() as buffer>
   ${bufferHelper.printBufferGetter(buffer, false)};
   </#list>

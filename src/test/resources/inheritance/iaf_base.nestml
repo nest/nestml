@@ -30,7 +30,7 @@ neuron iaf_base:
   internal:
     h   ms   = resolution()
     r integer
-    log P11 real = exp(-h / tau_syn)
+    P11 real = exp(-h / tau_syn)
     P22 real = P11
     P33 real = exp(-h / tau_m)
     P21 real = h * P11

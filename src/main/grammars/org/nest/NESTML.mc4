@@ -113,7 +113,7 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
     @attribute invariants List with optional invariants.
   */
   AliasDecl =
-    ([log:"log"] | [suppress:"suppress"])? (["alias"])?
+    ([record:"record"] | [suppress:"suppress"])? (["alias"])?
     Declaration
     ("[[" invariant:Expr "]]")?;
 

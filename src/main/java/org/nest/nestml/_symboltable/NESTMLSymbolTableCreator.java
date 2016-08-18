@@ -169,7 +169,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
       var.setType(type.get());
       var.setDeclaringType(currentTypeSymbol.get());
-      var.setLoggable(false);
+      var.setLoggable(astOdeAlias.isRecord());
       var.setAlias(true);
       var.setDeclaringExpression(astOdeAlias.getExpr());
 
@@ -560,7 +560,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       var.setDeclaringType(currentTypeSymbol);
 
       boolean isLoggableStateVariable = blockType == STATE && !aliasDeclAst.isSuppress();
-      boolean isLoggableNonStateVariable = blockType == LOCAL || !(blockType == STATE) && aliasDeclAst.isLog();
+      boolean isLoggableNonStateVariable = blockType != LOCAL && blockType != STATE && aliasDeclAst.isRecord();
       if (isLoggableStateVariable || isLoggableNonStateVariable) {
         // otherwise is set to false.
         var.setLoggable(true);

@@ -63,8 +63,11 @@ namespace nest
     <#list body.getParameterSymbols() as parameter>
       ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [parameter])}
     </#list>
-
+    <#list body.getODEAliases() as odeAlias>
+      ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [odeAlias])}
+    </#list>
   }
+
 }
 
 /* ----------------------------------------------------------------

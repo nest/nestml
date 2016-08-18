@@ -47,7 +47,7 @@ public class AliasInverter {
   }
 
   public static boolean isInvertableExpression(final ASTExpr astExpr) {
-    checkArgument(astExpr.getEnclosingScope().isPresent(), "Run symboltable creator.");
+    checkArgument(astExpr.getEnclosingScope().isPresent(), "Run _symboltable creator.");
     // todo: check user defined functions
     // check: comparison and relational operations
     if (isAtomicOperand(astExpr))

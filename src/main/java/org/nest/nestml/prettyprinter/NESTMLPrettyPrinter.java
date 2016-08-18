@@ -178,8 +178,8 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   private void printAliasPrefix(final ASTAliasDecl astAliasDecl) {
-    if (astAliasDecl.isLog()) {
-      print("log ");
+    if (astAliasDecl.isRecord()) {
+      print("record ");
     }
 
     if (astAliasDecl.isSuppress()) {
@@ -283,6 +283,9 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   public void printODEAlias(final ASTODEAlias astOdeAlias) {
     final String datatype = ASTUtils.computeTypeName(astOdeAlias.getDatatype(), true);
     final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
+    if (astOdeAlias.isRecord()) {
+      print("record ");
+    }
     println(astOdeAlias.getVariableName() + " " + datatype + " = " + initExpression);
   }
 
