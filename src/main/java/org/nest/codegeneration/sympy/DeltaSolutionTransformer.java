@@ -60,7 +60,7 @@ class DeltaSolutionTransformer extends TransformerBase {
     // per context condition must be checked, that only 'simple' argument, e.g. qualified name, is provided
     final String tauConstant = deltaShape.getArgs().get(1).getVariable().get().toString();
     // TODO it could be a vector
-    final String p33Declaration = "P33 real = exp(__h__ / " + tauConstant + ")";
+    final String p33Declaration = "__P33__ real = exp(-__h__ / " + tauConstant + ")";
     final ASTAliasDecl astDeclaration =  NESTMLASTCreator.createAlias(p33Declaration);
     astNeuron.getBody().addToInternalBlock(astDeclaration);
   }
@@ -70,21 +70,21 @@ class DeltaSolutionTransformer extends TransformerBase {
       final List<ASTStmt> propagatorSteps = Lists.newArrayList();
 
 
+      final ASTAssignment updateAssignment = NESTMLASTCreator.createAssignment(Files.lines(propagatorStepFile).findFirst().get());
+      final ASTAssignment applyP33 = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "*=" +  "__P33__" );
 
-      final ASTAssignment updateAssignemt = NESTMLASTCreator.createAssignment(Files.lines(propagatorStepFile).findFirst().get());
-      propagatorSteps.add(statement(updateAssignemt));
-
-      final ASTAssignment applyP33 = NESTMLASTCreator.createAssignment(updateAssignemt.getLhsVarialbe() + "+=" + updateAssignemt.getLhsVarialbe() + "* P33" );
       propagatorSteps.add(statement(applyP33));
+      propagatorSteps.add(statement(updateAssignment));
 
       final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(astNeuron.getBody().getODEBlock().get(), ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
           .collect(toList());
 
+      // Apply spikes from the buffer to the state variable
       for (ASTFunctionCall i_sum_call : i_sumCalls) {
         final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
-        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignemt.getLhsVarialbe() + "+=" + bufferName + ".getSum(t)");
+        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName + ".getSum(t)");
         propagatorSteps.add(statement(applySpikes));
       }
 
