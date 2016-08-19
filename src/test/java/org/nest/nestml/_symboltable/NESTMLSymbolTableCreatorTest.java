@@ -3,7 +3,7 @@
  *
  * http://www.se-rwth.de/
  */
-package org.nest.nestml.symboltable;
+package org.nest.nestml._symboltable;
 
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
@@ -34,11 +33,11 @@ import static org.nest.utils.NESTMLSymbols.resolveMethod;
  *
  * @author plotnikov
  */
-public class NESTMLSymbolTableTest extends ModelbasedTest {
+public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
-  private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/symboltable/"
+  private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/_symboltable/"
       + "iaf_neuron.nestml";
-  private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/symboltable/"
+  private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/_symboltable/"
       + "importingNeuron.nestml";
 
   private static final String MODEL_WITH_INHERITANCE =
@@ -62,9 +61,11 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     final Optional<VariableSymbol> y1Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y1", VariableSymbol.KIND);
     assertTrue(y0TVariable.isPresent());
     assertTrue(y0TVariable.get().definedByODE());
+    assertFalse(y0TVariable.get().isLoggable());
 
     assertTrue(y1Varialbe.isPresent());
     assertFalse(y1Varialbe.get().definedByODE());
+    assertTrue(y1Varialbe.get().isLoggable());
 
     // Checks that the derived variable is also resolvable
     final Optional<VariableSymbol> Dy0Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("__Dy0", VariableSymbol.KIND);
@@ -77,10 +78,21 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue(testComponentOptional.isPresent());
 
     final Optional<TypeSymbol> testComponentFromGlobalScope = scopeCreator.getGlobalScope().resolve(
-        "org.nest.nestml.symboltable.iaf_neuron.TestComponent", NeuronSymbol.KIND);
+        "org.nest.nestml._symboltable.iaf_neuron.TestComponent", NeuronSymbol.KIND);
     assertTrue(testComponentFromGlobalScope.isPresent());
+
+    final Optional<VariableSymbol> C_mVarialbe = neuronTypeOptional.get().getSpannedScope().resolve("C_m", VariableSymbol.KIND);
+    assertTrue(C_mVarialbe.isPresent());
+    assertTrue(C_mVarialbe.get().isLoggable());
+
+    final Optional<VariableSymbol> y3_tmpVarialbe = neuronTypeOptional.get().getSpannedScope().resolve("y3_tmp", VariableSymbol.KIND);
+    assertTrue(y3_tmpVarialbe.isPresent());
+    assertTrue(y3_tmpVarialbe.get().isLoggable());
   }
 
+  /**
+   * Tests the resolving of the variables which are 'shadowed' in inner blocks
+   */
   @Test
   public void testResolvingFromSeparateBlocks() throws IOException {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
@@ -157,8 +169,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
             .getIF_Clause()
             .getBlock()
             .getStmts().get(0)
-            .getSimple_Stmt().get()
-            .getSmall_Stmts().get(0)
+            .getSmall_Stmt().get()
             .getDeclaration().get()
             .getEnclosingScope().get()
             .resolve("scopeTestVar", VariableSymbol.KIND);
@@ -196,8 +207,22 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertTrue(fromModelScope.isPresent());
 
     final Optional<MethodSymbol> withPredicate
-        = NESTMLSymbols.resolveMethod("exp", Lists.newArrayList("real"), modelScope);
+        = resolveMethod("exp", Lists.newArrayList("real"), modelScope);
     assertTrue(withPredicate.isPresent());
+
+    Optional<MethodSymbol> I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
+    assertTrue(I_sumOptional.isPresent());
+    I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
+    assertFalse(I_sumOptional.isPresent());
+    I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("pA", "real"), modelScope);
+    assertFalse(I_sumOptional.isPresent());
+
+    Optional<MethodSymbol> Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
+    assertTrue(Cond_sumOptional.isPresent());
+    Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
+    assertFalse(Cond_sumOptional.isPresent());
+    Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "real"), modelScope);
+    assertFalse(Cond_sumOptional.isPresent());
   }
 
   @Test
@@ -205,7 +230,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(USING_NEURON_FILE);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
     final Optional<NeuronSymbol> usingNeuronSymbol = modelScope
-        .resolve("org.nest.nestml.symboltable.importingNeuron.UsingNeuron", NeuronSymbol.KIND);
+        .resolve("org.nest.nestml._symboltable.importingNeuron.UsingNeuron", NeuronSymbol.KIND);
     assertTrue(usingNeuronSymbol.isPresent());
     final Scope neuronScope = usingNeuronSymbol.get().getSpannedScope();
 
@@ -236,7 +261,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
 
     List<String> parameters = Lists.newArrayList("mV");
 
-    final Optional<MethodSymbol> standAloneFunction = NESTMLSymbols.resolveMethod(PredefinedFunctions.INTEGRATE, parameters, stateScope);
+    final Optional<MethodSymbol> standAloneFunction = resolveMethod(PredefinedFunctions.INTEGRATE, parameters, stateScope);
     standAloneFunction.isPresent();
   }
 
@@ -246,14 +271,7 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertEquals(1, root.getNeurons().size());
     scopeCreator.runSymbolTableCreator(root);
     final ScopeSpanningSymbol symbol = (ScopeSpanningSymbol) root.getNeurons().get(0).getSymbol().get();
-    final Scope scope = symbol.getSpannedScope();//scopeCreator.runSymbolTableCreator(root);
-
-    scope.resolve(PredefinedFunctions.I_SUM, MethodSymbol.KIND);
-    final Optional<MethodSymbol> method1 = resolveMethod(
-        PredefinedFunctions.I_SUM, Lists.newArrayList("real", "Buffer"), scope
-    );
-
-    assertTrue(method1.isPresent());
+    final Scope scope = symbol.getSpannedScope();
 
     final Optional<MethodSymbol> method2 = resolveMethod(
         PredefinedFunctions.INTEGRATE, Lists.newArrayList("boolean"), scope
@@ -261,8 +279,9 @@ public class NESTMLSymbolTableTest extends ModelbasedTest {
     assertFalse(method2.isPresent());
 
     final Optional<MethodSymbol> method3 = resolveMethod(
-        PredefinedFunctions.INTEGRATE, Lists.newArrayList("real"), scope
-    );
+        PredefinedFunctions.INTEGRATE,
+        Lists.newArrayList("real"),
+        scope);
     assertTrue(method3.isPresent());
   }
 

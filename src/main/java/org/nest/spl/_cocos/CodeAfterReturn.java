@@ -58,22 +58,19 @@ public class CodeAfterReturn implements SPLASTBlockCoCo {
         return r;
       }
       // Stmt = Simple_Stmt | Compound_Stmt;
-      if (stmt.getSimple_Stmt().isPresent() &&
-          stmt.getSimple_Stmt().get().getSmall_Stmts().size() > 0) {
-        // Simple_Stmt = Small_Stmt (Small_Stmt)* (";")?;
-        for (ASTSmall_Stmt small : stmt.getSimple_Stmt().get().getSmall_Stmts()) {
-          // error, if return found in line and new small found
-          if (r != null) {
-            addReport("Code after a return statement is not reachable!",
-                    r.get_SourcePositionStart());
-            return r;
-          }
-          // Small_Stmt = (DottedName "=") => Assignment |
-          // FunctionCall | Declaration | ReturnStmt;
-          if (small.getReturnStmt().isPresent()) {
-            // return found!
-            r = small.getReturnStmt().get();
-          }
+      if (stmt.getSmall_Stmt().isPresent()) {
+        final ASTSmall_Stmt small = stmt.getSmall_Stmt().get();
+        // error, if return found in line and new small found
+        if (r != null) {
+          addReport("Code after a return statement is not reachable!",
+                  r.get_SourcePositionStart());
+          return r;
+        }
+        // Small_Stmt = (DottedName "=") => Assignment |
+        // FunctionCall | Declaration | ReturnStmt;
+        if (small.getReturnStmt().isPresent()) {
+          // return found!
+          r = small.getReturnStmt().get();
         }
       }
       else if (stmt.getCompound_Stmt().isPresent()) {

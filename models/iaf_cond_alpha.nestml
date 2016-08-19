@@ -67,18 +67,12 @@ neuron iaf_cond_alpha_neuron:
   end
 
   internal:
-    r integer
-
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_synE
-
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_synI
-
-    # refractory time in steps
-    RefractoryCounts integer = steps(t_ref)
+    PSConInit_E real = 1.0 * e / tau_synE   # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+                                            # conductance excursion.
+    PSConInit_I real = 1.0 * e / tau_synI   # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+                                            # conductance excursion.
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -91,18 +85,15 @@ neuron iaf_cond_alpha_neuron:
 
   update:
     integrate(V_m)
-
-    if r != 0: # not refractory
+    if r != 0: # neuron is absolute refractory
       r =  r - 1
       V_m = V_reset # clamp potential
-
-    elif V_m >= V_th:
+    elif V_m >= V_th:  # neuron is not absolute refractory
       r = RefractoryCounts
       V_m = V_reset # clamp potential
       emit_spike()
-
     end
-
+    # set new input current
     I_stim = currents.getSum()
   end
 

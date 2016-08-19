@@ -74,15 +74,15 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
   Var_Block implements BodyElement =
     (["state"]|["parameter"]|["internal"])
     BLOCK_OPEN
-      (AliasDecl (";" AliasDecl)* (";")? | NEWLINE)*
+      (AliasDecl | NEWLINE)*
     BLOCK_CLOSE;
 
   /** ASTDynamics a special function definition:
-       update:
-            if r == 0: # not refractory
-              integrate(V)
-            end
+      update:
+        if r == 0: # not refractory
+          integrate(V)
         end
+      end
      @attribute block Implementation of the dynamics.
    */
   Dynamics implements BodyElement =
@@ -93,9 +93,9 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
 
   /** ASTEquations a special function definition:
        equations:
-             G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-             V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
-         end
+         G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+         V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+       end
      @attribute ddeDeclaration Block with equations and differential equations.
    */
   Equations implements BodyElement =
@@ -113,7 +113,7 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
     @attribute invariants List with optional invariants.
   */
   AliasDecl =
-    ([log:"log"] | [suppress:"suppress"])? (["alias"])?
+    ([record:"record"] | [suppress:"suppress"])? (["alias"])?
     Declaration
     ("[[" invariant:Expr "]]")?;
 

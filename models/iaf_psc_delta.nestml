@@ -1,33 +1,101 @@
+/*
+   Name: iaf_psc_delta -Leaky integrate-and-fire neuron with delta-shaped PSCs.
+
+   Description:
+
+   iaf_psc_delta is an implementation of a leaky integrate-and-fire model
+   where the potential jumps on each spike arrival.
+
+   The threshold crossing is followed by an absolute refractory period
+   during which the membrane potential is clamped to the resting potential.
+
+   Spikes arriving while the neuron is refractory, are discarded by
+   default. If the property "refractory_input" is set to true, such
+   spikes are added to the membrane potential at the end of the
+   refractory period, dampened according to the interval between
+   arrival and end of refractoriness.
+
+   The linear subthresold dynamics is integrated by the Exact
+   Integration scheme [1]. The neuron dynamics is solved on the time
+   grid given by the computation step size. Incoming as well as emitted
+   spikes are forced to that grid.
+
+   An additional state variable and the corresponding differential
+   equation represents a piecewise constant external current.
+
+   The general framework for the consistent formulation of systems with
+   neuron like dynamics interacting by point events is described in
+   [1].  A flow chart can be found in [2].
+
+   Critical tests for the formulation of the neuron model are the
+   comparisons of simulation results for different computation step
+   sizes. sli/testsuite/nest contains a number of such tests.
+
+   The iaf_psc_delta is the standard model used to check the consistency
+   of the nest simulation kernel because it is at the same time complex
+   enough to exhibit non-trivial dynamics and simple enough compute
+   relevant measures analytically.
+
+   Remarks:
+
+   The present implementation uses individual variables for the
+   components of the state vector and the non-zero matrix elements of
+   the propagator.  Because the propagator is a lower triangular matrix
+   no full matrix multiplication needs to be carried out and the
+   computation can be done "in place" i.e. no temporary state vector
+   object is required.
+
+   The template support of recent C++ compilers enables a more succinct
+   formulation without loss of runtime performance already at minimal
+   optimization levels. A future version of iaf_psc_delta will probably
+   address the problem of efficient usage of appropriate vector and
+   matrix objects.
+
+   References:
+   [1] Rotter S & Diesmann M (1999) Exact digital simulation of time-invariant
+   linear systems with applications to neuronal modeling. Biologial Cybernetics
+   81:381-402.
+   [2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001) State space
+   analysis of synchronous spiking in cortical neural networks.
+   Neurocomputing 38-40:565-571.
+
+   Sends: SpikeEvent
+
+   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+   Author:  September 1999, Diesmann, Gewaltig
+   SeeAlso: iaf_psc_alpha, iaf_psc_exp, iaf_neuron, iaf_psc_delta_canon
+*/
 neuron iaf_psc_delta_nestml:
 
   state:
-    V_1 mV = 0 mV
+    V_abs mV = 0 mV
     refr_spikes_buffer mV = 0 mV
-    alias V_m mV = V_1 + E_L # Membrane potential.
+    alias V_m mV = V_abs + E_L # Membrane potential.
   end
 
   equations:
     shape G = delta(t, tau_m)
-    V_1' = -1/tau_m * V_1 + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+    V_abs' = -1/tau_m * V_abs + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 
   parameter:
-    h       ms = resolution()
-    tau_m   ms = 10    # Membrane time constant.
-    C_m     pF = 250     # Capacity of the membrane
-    t_ref   ms = 2       # Refractory period.
-    tau_syn ms = 2       # Time constant of synaptic current.
-    E_L     mV = -70     # Resting potential.
-    I_e     pA = 0       # External current.
-    alias V_reset mV = -70 - E_L
-    alias Theta   mV = -55 - E_L
-    V_min mV = -inf
-    with_refr_input boolean = false
+    tau_m   ms = 10ms      # Membrane time constant.
+    C_m     pF = 250pF     # Capacity of the membrane
+    t_ref   ms = 2ms       # Duration of refractory period in ms.
+    tau_syn ms = 2ms       # Time constant of synaptic current.
+    E_L     mV = -70mV     # Resting membrane potential in mV.
+    I_e     pA = 0pA       # Constant input current in pA.
+    alias V_reset mV = -70 - E_L # Reset potential of the membrane.
+    alias Theta   mV = -55 - E_L # Spike threshold .
+    V_min mV = -inf              # Absolute lower value for the membrane potential
+    with_refr_input boolean = false # If true, do not discard input during  refractory period. Default: false.
   end
 
   internal:
-    r  integer
-    RefractoryCounts integer = steps(t_ref)
+    h ms = resolution()
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -38,32 +106,33 @@ neuron iaf_psc_delta_nestml:
   output: spike
 
   update:
-    if r == 0: # not refractory
-      integrate(V_1)
+    if r == 0: # neuron not refractory
+      integrate(V_abs)
+
       # if we have accumulated spikes from refractory period,
       # add and reset accumulator
-      if with_refr_input and refr_spikes_buffer != 0.0:
-        V_1 += refr_spikes_buffer;
-        refr_spikes_buffer = 0.0 mV;
+      if with_refr_input and refr_spikes_buffer != 0.0mV:
+        V_abs += refr_spikes_buffer
+        refr_spikes_buffer = 0.0mV
       end
+
       # lower bound of membrane potential
-      if V_1 < V_min:
-        V_1 = V_min
-      end
+      V_abs = V_abs < V_min?V_min:V_abs
+
     else: # neuron is absolute refractory
       # read spikes from buffer and accumulate them, discounting
       # for decay until end of refractory period
       if with_refr_input:
-        refr_spikes_buffer += spikes * exp(r * h / tau_m);
+        refr_spikes_buffer += spikes * exp(-r * h / tau_m)
       else:
         spikes.getSum() # clear buffer entry, ignore spike
       end
       r -= 1
     end
 
-    if V_1 >= Theta: # threshold crossing
+    if V_abs >= Theta: # threshold crossing
         r = RefractoryCounts
-        V_1 = V_reset
+        V_abs = V_reset
         emit_spike()
     end
 

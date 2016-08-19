@@ -1,4 +1,4 @@
-import org.nest.nestml.symboltable.importedComponent.ImportedComponent
+import org.nest.nestml._symboltable.importedComponent.ImportedComponent
 
 neuron UsingNeuron:
   use ImportedComponent as TestReference

@@ -6,13 +6,11 @@
 package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
-import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTAssignment;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTSmall_Stmt;
+import org.nest.spl._ast.ASTStmt;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.ASTUtils;
 
@@ -20,13 +18,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAlias;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAssignment;
 import static org.nest.utils.ASTUtils.getFunctionCall;
 
 /**
@@ -57,7 +51,7 @@ class DeltaSolutionTransformer extends TransformerBase {
   /**
    * P33 can be computed from the delta shape definition as: exp(__h__/tau) where tau is the membrane time constant
    */
-  private void addP33ToInternals(ASTNeuron astNeuron) {
+  private void addP33ToInternals(final ASTNeuron astNeuron) {
     // the function there, because otherwise this query wouldn't be made
     ASTFunctionCall deltaShape = getFunctionCall(
         PredefinedFunctions.DELTA,
@@ -66,28 +60,32 @@ class DeltaSolutionTransformer extends TransformerBase {
     // per context condition must be checked, that only 'simple' argument, e.g. qualified name, is provided
     final String tauConstant = deltaShape.getArgs().get(1).getVariable().get().toString();
     // TODO it could be a vector
-    final String p33Declaration = "P33 real = exp(__h__ / " + tauConstant + ")";
+    final String p33Declaration = "__P33__ real = exp(-__h__ / " + tauConstant + ")";
     final ASTAliasDecl astDeclaration =  NESTMLASTCreator.createAlias(p33Declaration);
     astNeuron.getBody().addToInternalBlock(astDeclaration);
   }
 
   private void addPropagatorStep(ASTNeuron astNeuron, Path propagatorStepFile) {
     try {
-      final List<ASTSmall_Stmt> propagatorSteps = Lists.newArrayList();
+      final List<ASTStmt> propagatorSteps = Lists.newArrayList();
 
-      final ASTAssignment updateAssignemt = NESTMLASTCreator.createAssignment(Files.lines(propagatorStepFile).findFirst().get());
-      propagatorSteps.add(smallStatement(updateAssignemt));
 
+      final ASTAssignment updateAssignment = NESTMLASTCreator.createAssignment(Files.lines(propagatorStepFile).findFirst().get());
+      final ASTAssignment applyP33 = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "*=" +  "__P33__" );
+
+      propagatorSteps.add(statement(applyP33));
+      propagatorSteps.add(statement(updateAssignment));
 
       final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(astNeuron.getBody().getODEBlock().get(), ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
           .collect(toList());
 
+      // Apply spikes from the buffer to the state variable
       for (ASTFunctionCall i_sum_call : i_sumCalls) {
         final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
-        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignemt.getLhsVarialbe() + "+=" + bufferName + ".getSum(t)");
-        propagatorSteps.add(smallStatement(applySpikes));
+        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName + ".getSum(t)");
+        propagatorSteps.add(statement(applySpikes));
       }
 
       replaceODEPropagationStep(astNeuron, propagatorSteps);

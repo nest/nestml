@@ -9,7 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * TODO
+ * HC Class that encapsulates several comfort features to work with package definition in nestml.
  *
  * @author plotnikov
  */
@@ -61,12 +61,4 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
 
   }
 
-  /**
-   * During model transformation the file is printed and read again. For this temporary folders
-   * and file names are used. Therefore, this method provides the possibility to remove it technical
-   * name from the model
-   */
-  public void removePackageName() {
-    this.packageName = Optional.empty();
-  }
 }

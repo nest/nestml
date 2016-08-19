@@ -6,7 +6,6 @@
 package org.nest.spl._cocos;
 
 import com.google.common.collect.Maps;
-import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTBlock;
@@ -32,12 +31,8 @@ public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
   public void check(ASTBlock block) {
     if (block != null && block.getStmts() != null) {
       resetNames();
-      additionalNames(block);
       doCheck(block);
     }
-  }
-
-  public void additionalNames(ASTBlock block) {
   }
 
   /**
@@ -45,17 +40,16 @@ public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
    *
    * @param block
    */
-  protected void doCheck(ASTBlock block) {
+  private void doCheck(ASTBlock block) {
     for (ASTStmt stmt : block.getStmts()) {
-      if (stmt.getSimple_Stmt().isPresent() && stmt.getSimple_Stmt().get().getSmall_Stmts() != null) {
-        for (ASTSmall_Stmt small : stmt.getSimple_Stmt().get().getSmall_Stmts()) {
-          if (small.getDeclaration().isPresent()) {
+        if (stmt.getSmall_Stmt().isPresent()) {
+        ASTSmall_Stmt small = stmt.getSmall_Stmt().get();
+        if (small.getDeclaration().isPresent()) {
             for (String var : small.getDeclaration().get().getVars()) {
               addVariable(var, small.getDeclaration().get().get_SourcePositionStart(), getNames());
             }
           }
         }
-      }
     }
   }
 

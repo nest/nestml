@@ -86,17 +86,17 @@ neuron ht_neuron_nestml:
     INaP_slope mV = 7.7pA
     m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
     # Persistent Na current; member only to allow recording
-    I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
+    record I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
 
     d_half real = 0.25
     m_inf_KNa real = 1.0 / ( 1.0 + pow( d_half / IKNa_D, 3.5 ) )
     # Depol act. K current; member only to allow recording
-    I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
+    record I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
 
     # Low-thresh Ca current; member only to allow recording
-    I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
+    record I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
 
-    I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
+    record I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
     # The spike current is only activate immediately after a spike.
     I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
     V_m'  = ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike
@@ -124,7 +124,6 @@ neuron ht_neuron_nestml:
     # be converging to equilibrium otherwise
     IKNa_D' = D_influx_peak * D_influx - ( IKNa_D  - KNa_D_EQ ) / tau_D
 
-
     tau_m_T real = 0.22 / ( exp( -( V_m + 132.0 ) / 16.7 ) + exp( ( V_m + 16.8 ) / 18.2 ) ) + 0.13
     tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m + 86.0 ) / 3.2 ) )
     I_h_Vthreshold real = -75.0
@@ -133,19 +132,18 @@ neuron ht_neuron_nestml:
     IT_h' = ( h_inf_T - IT_h ) / tau_h_T
     Ih_m' = ( m_inf_h - Ih_m ) / tau_m_h
 
-    # AMPA
+    #############
+    # Synapses
+    #############
     G_AMPA'' = -G_AMPA' / AMPA_Tau_1
     G_AMPA' = G_AMPA' - G_AMPA  / AMPA_Tau_2
 
-    # NMDA
     G_NMDA'' = -G_NMDA' / NMDA_Tau_1
     G_NMDA' = G_NMDA' - G_NMDA / NMDA_Tau_2
 
-    # GABA_A
     G_GABA_A'' = -G_GABA_A' / GABA_A_Tau_1
     G_GABA_A' = G_GABA_A' - G_GABA_A / GABA_A_Tau_2
 
-    # GABA_B
     G_GABA_B'' = -G_GABA_B' / GABA_B_Tau_1
     G_GABA_B' = G_GABA_B' - G_GABA_B /GABA_B_Tau_2
   end
@@ -154,12 +152,12 @@ neuron ht_neuron_nestml:
     E_Na mV = 30.0mV
     E_K mV = -90.0mV
     g_NaL nS =  0.2nS
-    g_KL nS = 1.0nS
-    Tau_m ms = 16.0ms # membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])
+    g_KL nS = 1.0nS       # 1.0 - 1.85
+    Tau_m ms = 16.0ms     # membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])
     Theta_eq mV = -51.0mV # equilibrium value
     Tau_theta ms = 2.0ms  # time constant
-    Tau_spike ms = 1.75ms #  membrane time constant applying to repolarizing K-current
-    t_spike ms = 2.0ms
+    Tau_spike ms = 1.75ms # membrane time constant applying to repolarizing K-current
+    t_spike ms = 2.0ms    # duration of re-polarizing potassium current
 
     # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
     AMPA_g_peak nS = 0.1nS      # peak conductance
@@ -218,9 +216,9 @@ neuron ht_neuron_nestml:
 
   update:
     integrate(V_m)
-    # Deactivate potassium current after spike time have expired
 
-    if (r_potassium > 0) and ((r_potassium-1) == 0):
+    # Deactivate potassium current after spike time have expired
+    if (r_potassium > 0) and (r_potassium-1 == 0):
       g_spike = false # Deactivate potassium current.
     end
     r_potassium -= 1
@@ -233,7 +231,7 @@ neuron ht_neuron_nestml:
     if (not g_spike) and V_m >= Theta:
       # Set V and Theta to the sodium reversal potential.
       V_m = E_Na
-      Theta = E_Na;
+      Theta = E_Na
 
       # Activate fast potassium current. Drives the
       # membrane potential towards the potassium reversal
@@ -258,10 +256,10 @@ neuron ht_neuron_nestml:
     # See: Exact digital simulation of time-invariant linear systems
     # with applications to neuronal modeling, Rotter and Diesmann,
     # section 3.1.2.
-    exact_integration_adjustment real = ( 1 / Tau_2 ) - ( 1 / Tau_1 );\
+    exact_integration_adjustment real = ( 1 / Tau_2 ) - ( 1 / Tau_1 )
 
-    t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 );
-    normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) );
+    t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 )
+    normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
 
     return g_peak * normalisation_factor * exact_integration_adjustment
   end

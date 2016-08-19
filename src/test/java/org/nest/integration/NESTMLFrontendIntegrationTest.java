@@ -49,11 +49,10 @@ public class NESTMLFrontendIntegrationTest {
   @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/aeif_cond_exp_implicit.nestml",
+        "models/iaf_chxk_2008_implicit.nestml",
         "--target", outputPath.toString()};
 
     new NESTMLFrontend().start(args);
-
   }
 
 }

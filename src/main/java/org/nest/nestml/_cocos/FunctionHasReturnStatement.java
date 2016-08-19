@@ -7,12 +7,11 @@ package org.nest.nestml._cocos;
 
 import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTNode;
-import static de.se_rwth.commons.logging.Log.error;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.spl._ast.*;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.ASTUtils;
 
@@ -30,7 +29,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "NESTML_FUNCTION_HAS_RETURN_STATEMENT";
-
 
 
   @Override
@@ -53,7 +51,7 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
       // if block not returning:
       if (isReturnBlock(fun.getBlock()) == null) {
         CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this,fun.getName(),fun.getReturnType().get().toString());
+        final String msg = errorStrings.getErrorMsg(this, fun.getName(), fun.getReturnType().get().toString());
 
         Log.error(msg, fun.get_SourcePositionStart());
       }
@@ -68,17 +66,14 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
     for (ASTStmt stmt : block.getStmts()) {
 
       // Stmt = Simple_Stmt | Compound_Stmt;
-      if (stmt.getSimple_Stmt().isPresent() && stmt.getSimple_Stmt().get().getSmall_Stmts() != null) {
-        // Simple_Stmt = Small_Stmt (options {greedy=true;}:";" Small_Stmt)* (";")?;
-        for (ASTSmall_Stmt small : stmt.getSimple_Stmt().get().getSmall_Stmts()) {
-          // Small_Stmt = (DottedName "=") => Assignment |
-          // FunctionCall | Declaration | ReturnStmt;
-          if (small.getReturnStmt().isPresent()) {
-            // return found!
-            return small.getReturnStmt().get();
-          }
+      if (stmt.small_StmtIsPresent()) {
+        final ASTSmall_Stmt small = stmt.getSmall_Stmt().get();
+        if (small.getReturnStmt().isPresent()) {
+          // return found!
+          return small.getReturnStmt().get();
         }
-      } else if (stmt.getCompound_Stmt().isPresent()) {
+      }
+      else if (stmt.getCompound_Stmt().isPresent()) {
         ASTNode r = isReturnCompound(stmt.getCompound_Stmt().get());
         if (r != null) {
           return r;
@@ -92,11 +87,13 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
     // Compound_Stmt = IF_Stmt | FOR_Stmt | WHILE_Stmt;
     if (compound.getIF_Stmt().isPresent()) {
       return isIFReturn(compound.getIF_Stmt().get());
-    } else if (compound.getFOR_Stmt().isPresent()
-            && isReturnBlock(compound.getFOR_Stmt().get().getBlock()) != null) {
+    }
+    else if (compound.getFOR_Stmt().isPresent()
+             && isReturnBlock(compound.getFOR_Stmt().get().getBlock()) != null) {
       return compound.getFOR_Stmt().get();
-    } else if (compound.getWHILE_Stmt().isPresent()
-            && isReturnBlock(compound.getWHILE_Stmt().get().getBlock()) != null) {
+    }
+    else if (compound.getWHILE_Stmt().isPresent()
+             && isReturnBlock(compound.getWHILE_Stmt().get().getBlock()) != null) {
       return compound.getWHILE_Stmt().get();
     }
 
@@ -114,8 +111,9 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
     allReturn = allReturn && isReturnBlock(ifStmt.getIF_Clause().getBlock()) != null;
     if (ifStmt.getELSE_Clause().isPresent()) {
       allReturn = allReturn
-              && isReturnBlock(ifStmt.getELSE_Clause().get().getBlock()) != null;
-    } else {
+                  && isReturnBlock(ifStmt.getELSE_Clause().get().getBlock()) != null;
+    }
+    else {
       return null;
     }
 
