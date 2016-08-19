@@ -34,7 +34,7 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
     solverType.write("exact")
 
     propagatorStepFile = open('propagator.step.tmp', 'w')
-    propagatorStepFile.write("${ode.getLhs().getSimpleName()} = P30 * (" + str(constantInputs) + ") ")
+    propagatorStepFile.write("${ode.getLhs().getSimpleName()} += P30 * (" + str(constantInputs) + ") ")
     # calculate -1/Tau
     c1 = diff(rhs, ${ode.getLhs().getSimpleName()})
     # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative
