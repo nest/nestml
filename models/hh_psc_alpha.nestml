@@ -115,8 +115,8 @@ neuron hh_psc_alpha_nestml:
     PSConInit_I real = 1.0 * e / tau_syn_in
 
 
-    r integer # number of steps in the current refractory phase
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer # number of steps in the current refractory phase
 
    # Input current injected by CurrentEvent.
    # This variable is used to transport the current applied into the

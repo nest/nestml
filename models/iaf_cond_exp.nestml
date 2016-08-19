@@ -1,52 +1,72 @@
+/*
+Name: iaf_cond_exp_implicit - Simple conductance based leaky integrate-and-fire neuron
+                              model.
+
+Description:
+iaf_cond_exp is an implementation of a spiking neuron using IAF dynamics with
+conductance-based synapses. Incoming spike events induce a post-synaptic change
+of conductance modelled by an exponential function. The exponential function
+is normalised such that an event of weight 1.0 results in a peak conductance of
+1 nS.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+References:
+
+Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
+model for the large, fluctuating synaptic conductance state typical of
+neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+
+Author: Sven Schrader
+
+SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
+*/
 neuron iaf_cond_exp:
 
   state:
-    V_m mV = 0
-
+    V_m mV = E_L     # membrane potential
   end
 
   equations:
-    # Explicit
-    shape GI = exp(-1/tau_syn_in*t)
-    shape GE = exp(-1/tau_syn_ex*t)
-    V_m' = -1/Tau * (V_m - E_L)  - 1/C_m * (GI* (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim))
+    shape g_in = exp(-1/tau_syn_in*t) # inputs from the inh conductance
+    shape g_ex = exp(-1/tau_syn_in*t) # inputs from the exc conductance
+
+    I_syn_exc pA = Cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
+    I_syn_inh pA = Cond_sum(g_in, spikeInh)  * ( V_m - E_in )
+    I_leak pA = g_L * ( V_m - E_L )
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
   end
 
   parameter:
-   V_th mV = -55.0      # Threshold Potential in mV
-   V_reset mV = -60.0   # Reset Potential in mV
-   t_ref ms = 2.0       # Refractory period in ms
-   g_L nS = 16.6667     # Leak Conductance in nS
-   C_m pF = 250.0       # Membrane Capacitance in pF
-
-   alias Tau ms = (1 / g_L) * C_m
-
-   V_reversalE mV = 0          # Excitatory reversal Potential in mV
-   V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
-   E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
-   tau_syn_in ms = 0.2    # Synaptic Time Constant Excitatory Synapse in ms
-   tau_syn_ex ms = 2.0    # Synaptic Time Constant for Inhibitory Synapse in ms
-   I_e pA = 0           # Constant Current in pA
-
-   # Input current injected by CurrentEvent.
-   # This variable is used to transport the current applied into the
-   # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0
+    V_th mV = -55.0mV    # Threshold Potential in mV
+    V_reset mV = -60.0mV # Reset Potential in mV
+    t_ref ms = 2.0mV     # Refractory period in ms
+    g_L nS = 16.6667nS   # Leak Conductance in nS
+    C_m pF = 250.0       # Membrane Capacitance in pF
+    E_ex mV = 0mV        # Excitatory reversal Potential in mV
+    E_in mV = -85.0mV    # Inhibitory reversal Potential in mV
+    E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential) in mV
+    tau_syn_ex ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_in ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse in ms
+    I_e pA = 0pA           # Constant Current in pA
+    I_stim pA = 0pA # Input current injected by CurrentEvent.
+                    # This variable is used to transport the current applied into the
+                    # _dynamics function computing the derivative of the state vector.
   end
 
   internal:
-    r integer
-
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    # Impulse to add to g_ex' on spike arrival to evoke unit-amplitude
     # conductance excursion.
     PSConInit_E real = 1.0 * e / tau_syn_ex
 
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    # Impulse to add to g_in' on spike arrival to evoke unit-amplitude
     # conductance excursion.
     PSConInit_I real = 1.0 * e / tau_syn_in
 
-    # refractory time in steps
-    RefractoryCounts integer = steps(t_ref)
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -58,26 +78,17 @@ neuron iaf_cond_exp:
   output: spike
 
   update:
-    if r == 0: # not refractory
-      # TODO intagrate
-
-    else:
-      r = r - 1
-    end
-
-    if r != 0: # not refractory
+    integrate(V_m)
+    if r != 0: # neuron is absolute refractory
       r =  r - 1
       V_m = V_reset # clamp potential
-
-    elif V_m >= V_th:
+    elif V_m >= V_th:  # neuron is not absolute refractory
       r = RefractoryCounts
       V_m = V_reset # clamp potential
       emit_spike()
-
     end
 
-    # TODO DGE = DGE + spikeExc.getSum() * PSConInit_E
-    # TODO DGI = DGI + spikeInh.getSum() * PSConInit_I
+    # set new input current
     I_stim = currents.getSum()
   end
 

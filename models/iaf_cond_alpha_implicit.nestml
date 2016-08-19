@@ -66,11 +66,10 @@ neuron iaf_cond_alpha_implicit:
     E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential) in mV
     tau_synE ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse in ms
     tau_synI ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA           # Constant Current in pA
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0pA
+    I_e pA = 0pA          # Constant Current in pA
+    I_stim pA = 0pA # Input current injected by CurrentEvent.
+                    # This variable is used to transport the current applied into the
+                    # _dynamics function computing the derivative of the state vector.
   end
 
   internal:
@@ -82,9 +81,8 @@ neuron iaf_cond_alpha_implicit:
     # conductance excursion.
     PSConInit_I real = 1.0 * e / tau_synI
 
-    # refractory time in steps
-    RefractoryCounts integer = steps(t_ref)
-    r integer
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -98,19 +96,19 @@ neuron iaf_cond_alpha_implicit:
   update:
 
     integrate(V_m)
-    if r != 0: # not refractory
+    if r != 0: # neuron is absolute refractory
       r =  r - 1
       V_m = V_reset # clamp potential
-
-    elif V_m >= V_th:
+    elif V_m >= V_th:  # neuron is not absolute refractory
       r = RefractoryCounts
       V_m = V_reset # clamp potential
       emit_spike()
-
     end
 
+    # add incoming spikes
     g_ex' += spikeExc.getSum() * PSConInit_E
     g_in' += spikeInh.getSum() * PSConInit_I
+    # set new input current
     I_stim = currents.getSum()
   end
 

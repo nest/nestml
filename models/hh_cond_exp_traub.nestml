@@ -99,8 +99,8 @@ neuron hh_cond_exp_traub_nestml:
   end
 
   internal:
-    r integer # counts number of tick during the refractory period
     RefractoryCounts integer = 20
+    r integer # counts number of tick during the refractory period
   end
 
   input:

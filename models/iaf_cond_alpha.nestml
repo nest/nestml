@@ -37,7 +37,6 @@ neuron iaf_cond_alpha_neuron:
     V_m mV = E_L   # membrane potential
   end
 
-  # equations
   equations:
     shape g_in = (e/tau_synI) * t * exp(-1/tau_synI*t)
     shape g_ex = (e/tau_synE) * t * exp(-1/tau_synE*t)
@@ -49,7 +48,6 @@ neuron iaf_cond_alpha_neuron:
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
   end
 
-  # parameter
   parameter:
     V_th mV = -55.0mV    # Threshold Potential in mV
     V_reset mV = -60.0mV # Reset Potential in mV
@@ -68,47 +66,34 @@ neuron iaf_cond_alpha_neuron:
     I_stim pA = 0pA
   end
 
-  # internal
   internal:
-    r integer
-
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_synE
-
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_synI
-
-    # refractory time in steps
-    RefractoryCounts integer = steps(t_ref)
+    PSConInit_E real = 1.0 * e / tau_synE   # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+                                            # conductance excursion.
+    PSConInit_I real = 1.0 * e / tau_synI   # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+                                            # conductance excursion.
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
   end
 
-  # input
   input:
       spikeInh   <- inhibitory spike
       spikeExc   <- excitatory spike
       currents <- current
   end
 
-  # output
   output: spike
 
-  #update
   update:
     integrate(V_m)
-
-    if r != 0: # not refractory
+    if r != 0: # neuron is absolute refractory
       r =  r - 1
       V_m = V_reset # clamp potential
-
-    elif V_m >= V_th:
+    elif V_m >= V_th:  # neuron is not absolute refractory
       r = RefractoryCounts
       V_m = V_reset # clamp potential
       emit_spike()
-
     end
-
+    # set new input current
     I_stim = currents.getSum()
   end
 

@@ -1,5 +1,5 @@
 /*
-Name: iaf_neuron - Leaky integrate-and-fire neuron model.
+Name: iaf_neuron_nestml - Leaky integrate-and-fire neuron model.
 
 Description:
 
@@ -44,19 +44,44 @@ The iaf_neuron is the standard model used to check the consistency
 of the nest simulation kernel because it is at the same time complex
 enough to exhibit non-trivial dynamics and simple enough to compute
 relevant measures analytically.
+
+
+Remarks:
+If tau_m is very close to tau_syn, the model will numerically behave as if
+tau_m is equal to tau_syn to avoid numerical instabilities.
+For details, please see IAF_Neruons_Singularity.ipynb in
+the NEST source code (docs/model_details).
+
+References:
+[1] Rotter S & Diesmann M (1999) Exact simulation of time-invariant linear
+    systems with applications to neuronal modeling. Biologial Cybernetics
+    81:381-402.
+[2] Diesmann M, Gewaltig M-O, Rotter S, & Aertsen A (2001) State space
+    analysis of synchronous spiking in cortical neural networks.
+    Neurocomputing 38-40:565-571.
+[3] Morrison A, Straube S, Plesser H E, & Diesmann M (2007) Exact subthreshold
+    integration with continuous spike times in discrete time neural network
+    simulations. Neural Computation 19:47-79.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+Author:  September 1999, Diesmann, Gewaltig
+SeeAlso: iaf_psc_alpha, testsuite::test_iaf
 */
 neuron iaf_neuron_nestml:
 
   # Captures the dynamic state of the neuron
   state:
-    V_1 mV
-    alias V_m mV = V_1 + E_L # Membrane potential.
+    V_abs mV
+    alias V_m mV = V_abs + E_L # Membrane potential.
   end
 
   # Declarative description of the updates rules
   equations:
       shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-      V_1' = -1/Tau * V_1 + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+      V_abs' = -1/Tau * V_abs + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 
   # these parameter are adjusted from outside
@@ -73,8 +98,8 @@ neuron iaf_neuron_nestml:
 
   # helper calculations
   internal:
-    RefractoryCounts integer = steps(t_ref)
-    r  integer
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
   end
 
   # input sources
@@ -89,12 +114,16 @@ neuron iaf_neuron_nestml:
   # Describes how the state evolves in the time
   update:
     if r == 0: # not refractory
-        integrate(V_1)
-        if V_1 >= Theta: # threshold crossing
+        integrate(V_abs)
+        if V_abs >= Theta: # threshold crossing
           r = RefractoryCounts
-          V_1 = V_reset
-        emit_spike()
-    end
+          V_abs = V_reset
+          # A supra-threshold membrane potential should never be observable.
+          # The reset at the time of threshold crossing enables accurate
+          # integration independent of the computation step size, see [2,3] for
+          # details.
+          emit_spike()
+        end
     else:
         r = r - 1
     end
