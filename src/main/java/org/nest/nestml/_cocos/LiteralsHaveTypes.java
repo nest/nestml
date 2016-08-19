@@ -145,8 +145,8 @@ public class LiteralsHaveTypes implements
 
         //if return Type is unit, iterate over return statements
         for (ASTStmt statement : node.getBlock().getStmts()) {
-          if (statement.simple_StmtIsPresent()) {
-            for (ASTSmall_Stmt small_stmt : statement.getSimple_Stmt().get().getSmall_Stmts()) {
+          if (statement.small_StmtIsPresent()) {
+            ASTSmall_Stmt small_stmt = statement.getSmall_Stmt().get();
               if (small_stmt.returnStmtIsPresent()) {
                 //found a return statement inside the function
                 ASTReturnStmt returnStmt = small_stmt.getReturnStmt().get();
@@ -160,7 +160,7 @@ public class LiteralsHaveTypes implements
                   }
                 }
               }
-            }
+
           }
         }
       }
