@@ -2,8 +2,7 @@ neuron validExpressionTest:
   state:
     V1 (kg*m*m)/(A*s**3) = 10 V   #verbose Type
     #V2 (kg*m*m)/(A*s**(2+1)) = 10 V   #TODO: this should work
-    W1 MW = 10kJ / 5ms #magnitude    
-    noValue pA =  ""
+    W1 MW = 10kJ / 5ms #magnitude   
      
     hertz Hz = 7 / 1s #does this even work?
     newton N = 10kg* 1m / 1 s**2
