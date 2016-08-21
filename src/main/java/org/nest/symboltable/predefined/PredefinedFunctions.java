@@ -100,7 +100,7 @@ public class PredefinedFunctions {
     name2FunctionSymbol.put(RANDOM_INT, randomIntMethod);
 
     final MethodSymbol timeResolution = createFunctionSymbol(TIME_RESOLUTION);
-    timeResolution.setReturnType(getRealType());
+    timeResolution.setReturnType(getType("ms"));
     name2FunctionSymbol.put(TIME_RESOLUTION, timeResolution);
 
     final MethodSymbol expm1 = createFunctionSymbol(EXPM1);
