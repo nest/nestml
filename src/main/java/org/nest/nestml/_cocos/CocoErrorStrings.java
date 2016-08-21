@@ -28,6 +28,10 @@ public class CocoErrorStrings {
     return LiteralsHaveTypes.ERROR_CODE + ": Return statement must specify unit type";
   }
 
+  public String getErrorMsgConditional(LiteralsHaveTypes coco) {
+    return LiteralsHaveTypes.ERROR_CODE + ": Literals without a UNIT type cannot be compared to a UNIT type variable.";
+  }
+
   String getErrorMsgCall(LiteralsHaveTypes coco){
     return LiteralsHaveTypes.ERROR_CODE + ": Parameters to function calls must specify unit type";
   }
@@ -215,4 +219,6 @@ public class CocoErrorStrings {
     return UsesOnlyComponents.ERROR_CODE + ":" + "Only components can be used by components and not " + typeName + " that is a neuron, not a "
         + "component";
   }
+
+
 }

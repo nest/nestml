@@ -6,53 +6,69 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._cocos.CommonsASTExprCoCo;
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._ast.ASTELIF_Clause;
+import org.nest.spl._ast.ASTIF_Clause;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._ast.ASTSmall_Stmt;
 import org.nest.spl._ast.ASTStmt;
+import org.nest.spl._ast.ASTWHILE_Stmt;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
+import org.nest.spl._cocos.SPLASTELIF_ClauseCoCo;
+import org.nest.spl._cocos.SPLASTIF_ClauseCoCo;
+import org.nest.spl._cocos.SPLASTWHILE_StmtCoCo;
+import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 /**
  * @author ptraeder
+ *
  */
 public class LiteralsHaveTypes implements
     SPLASTAssignmentCoCo,
     CommonsASTFunctionCallCoCo,
     SPLASTDeclarationCoCo,
-    NESTMLASTFunctionCoCo{
+    NESTMLASTFunctionCoCo,
+    CommonsASTExprCoCo{
   public static final String ERROR_CODE = "NESTML_LITERALS_MUST_HAVE_TYPES";
-
+  ExpressionTypeCalculator typeCalculator = new ExpressionTypeCalculator();
   @Override
   /**
-   * For Variable assignments, check that a rhs literal carries unit information
+   * For Variable assignments, check that a rhs expression carries unit information
    *
    * Valid: Ampere = 8 A
    * Invalid: Ampere = 8
    */
   public void check(ASTAssignment node) {
     final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
-      checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
-      Optional<VariableSymbol> var = enclosingScope.get().resolve(node.getLhsVarialbe().getName().toString(),VariableSymbol.KIND);
-      if(var.isPresent()) {
-        if (var.get().getType().getType() == TypeSymbol.Type.UNIT) {
-          if (node.getExpr().nESTMLNumericLiteralIsPresent()) {
-            if (!node.getExpr().getNESTMLNumericLiteral().get().getType().isPresent()) {
-
-              CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
-              final String msg = errorStrings.getErrorMsgAssignment(this);
-              Log.warn(msg, node.get_SourcePositionStart());
-            }
-          }
+    checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
+    Optional<VariableSymbol> var = enclosingScope.get().resolve(node.getLhsVarialbe().getName().toString(),VariableSymbol.KIND);
+    if(var.isPresent()) {
+      if (var.get().getType().getType() == TypeSymbol.Type.UNIT) {
+        Either<TypeSymbol,String> exprType;
+        if (!node.getExpr().getType().isPresent()) {
+          exprType = typeCalculator.computeType(node.getExpr());
+        }else{
+          exprType = node.getExpr().getType().get();
+        }
+        if (exprType.isValue() &&
+           // !exprType.getValue().equals(var.get().getType())) {
+            !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
+          CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+          final String msg = errorStrings.getErrorMsgAssignment(this);
+          Log.warn(msg, node.get_SourcePositionStart());
         }
       }
-
+    }
   }
 
   @Override
@@ -70,8 +86,15 @@ public class LiteralsHaveTypes implements
     if(var.isPresent()) {
       if (var.get().getType().getType() == TypeSymbol.Type.UNIT) {
         if (node.getExpr().isPresent()) {
-          if(node.getExpr().get().getNESTMLNumericLiteral().isPresent())
-          if (!node.getExpr().get().getNESTMLNumericLiteral().get().getType().isPresent()) {
+          Either<TypeSymbol,String> exprType;
+          if (!node.getExpr().get().getType().isPresent()) {
+            exprType = typeCalculator.computeType(node.getExpr().get());
+          }else{
+            exprType = node.getExpr().get().getType().get();
+          }
+          if (exprType.isValue() &&
+              // !exprType.getValue().equals(var.get().getType())) {
+              !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
             CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
             final String msg = errorStrings.getErrorMsgAssignment(this);
             Log.warn(msg, node.get_SourcePositionStart());
@@ -103,15 +126,21 @@ public class LiteralsHaveTypes implements
     Optional<MethodSymbol> methodSymbol  = enclosingScope.get().resolve(node.getCalleeName(),MethodSymbol.KIND);
     if(methodSymbol.isPresent()) {
       for( int it = 0; it<methodSymbol.get().getParameterTypes().size();it++){
-        TypeSymbol typeSymbol = methodSymbol.get().getParameterTypes().get(it);
+        TypeSymbol parameterType = methodSymbol.get().getParameterTypes().get(it);
         ASTExpr parameterExpr = node.getArgs().get(it);
-        if(typeSymbol.getType() == TypeSymbol.Type.UNIT){
-          if(parameterExpr.nESTMLNumericLiteralIsPresent()){
-            if(!parameterExpr.getNESTMLNumericLiteral().get().typeIsPresent()){
-              CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
-              final String msg = errorStrings.getErrorMsgCall(this);
-              Log.warn(msg, node.get_SourcePositionStart());
-            }
+        if(parameterType.getType() == TypeSymbol.Type.UNIT){
+          Either<TypeSymbol,String> exprType;
+          if (!parameterExpr.getType().isPresent()) {
+            exprType = typeCalculator.computeType(parameterExpr);
+          }else{
+            exprType = parameterExpr.getType().get();
+          }
+          if (exprType.isValue() &&
+              //!exprType.getValue().equals(parameterType)) {
+              !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
+            CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+            final String msg = errorStrings.getErrorMsgCall(this);
+            Log.warn(msg, node.get_SourcePositionStart());
           }
         }
       }
@@ -142,7 +171,7 @@ public class LiteralsHaveTypes implements
     Optional<MethodSymbol> methodSymbol  = enclosingScope.get().resolve(node.getName(),MethodSymbol.KIND);
     if(methodSymbol.isPresent()) {
       if (methodSymbol.get().getReturnType().getType() == TypeSymbol.Type.UNIT) {
-
+        //TypeSymbol methodReturnType = methodSymbol.get().getReturnType();
         //if return Type is unit, iterate over return statements
         for (ASTStmt statement : node.getBlock().getStmts()) {
           if (statement.small_StmtIsPresent()) {
@@ -151,12 +180,18 @@ public class LiteralsHaveTypes implements
                 //found a return statement inside the function
                 ASTReturnStmt returnStmt = small_stmt.getReturnStmt().get();
                 if(returnStmt.exprIsPresent()){
-                  if(returnStmt.getExpr().get().nESTMLNumericLiteralIsPresent()){
-                    if(!returnStmt.getExpr().get().getNESTMLNumericLiteral().get().typeIsPresent()){
-                      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
-                      final String msg = errorStrings.getErrorMsgReturn(this);
-                      Log.warn(msg, node.get_SourcePositionStart());
-                    }
+                  Either<TypeSymbol,String> returnType;
+                  if (!returnStmt.getExpr().get().getType().isPresent()) {
+                    returnType = typeCalculator.computeType(returnStmt.getExpr().get());
+                  }else{
+                    returnType = returnStmt.getExpr().get().getType().get();
+                  }
+                  if (returnType.isValue() &&
+                     // !exprType.getValue().equals(returnType)) {
+                      !returnType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
+                    CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+                    final String msg = errorStrings.getErrorMsgReturn(this);
+                    Log.warn(msg, node.get_SourcePositionStart());
                   }
                 }
               }
@@ -166,4 +201,64 @@ public class LiteralsHaveTypes implements
       }
     }
   }
+
+/*  @Override public void check(ASTIF_Clause node) {
+    final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
+    checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
+    ASTExpr expr = node.getExpr();
+    checkConditionalExpression(expr);
+  }
+
+  @Override public void check(ASTELIF_Clause node) {
+    final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
+    checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
+    ASTExpr expr = node.getExpr();
+    checkConditionalExpression(expr);
+  }
+
+  void checkConditionalExpression(ASTExpr expr){
+    if(expr.isLogicalAnd() || expr.isLogicalOr()){
+      checkConditionalExpression(expr.getLeft().get());
+      checkConditionalExpression(expr.getRight().get());
+    }
+    if(expr.nESTMLNumericLiteralIsPresent()){
+      if(!expr.getNESTMLNumericLiteral().get().getType().isPresent()){
+        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        final String msg = errorStrings.getErrorMsgConditional(this);
+        Log.warn(msg, expr.get_SourcePositionStart());
+      }
+    }
+  }*/
+
+  @Override public void check(ASTExpr node) {
+    if(node.isLt() || node.isLe() || node.isEq() || node.isNe() ||
+        node.isNe2() || node.isGe() || node.isGt()){
+      final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
+      checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
+      Either<TypeSymbol,String> leftType,rightType;
+      if (!node.getLeft().get().getType().isPresent()) {
+        leftType = typeCalculator.computeType(node.getLeft().get());
+      }else{
+        leftType = node.getLeft().get().getType().get();
+      }
+      if (!node.getRight().get().getType().isPresent()) {
+        rightType = typeCalculator.computeType(node.getRight().get());
+      }else{
+        rightType = node.getRight().get().getType().get();
+      }
+      if (leftType.isValue() && rightType.isValue()){ // Types are Recognized
+        if(leftType.getValue().getType() == TypeSymbol.Type.UNIT ||
+            rightType.getValue().getType() == TypeSymbol.Type.UNIT) {// at least one of the involved types is UNIT
+          if(!leftType.getValue().getType().equals(TypeSymbol.Type.UNIT)||
+              !rightType.getValue().getType().equals(TypeSymbol.Type.UNIT)){ //BOTH are NOT units
+            CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+            final String msg = errorStrings.getErrorMsgConditional(this);
+            Log.warn(msg, node.get_SourcePositionStart());
+          }
+        }
+      }
+
+    }
+  }
 }
+
