@@ -37,6 +37,7 @@ neuron iaf_cond_alpha_implicit:
     V_m mV = E_L     # membrane potential
     g_in nS = 0nS    # inputs from the inh conductance
     g_ex nS = 0nS    # inputs from the exc conductance
+    alias a integer = 1
   end
 
   equations:

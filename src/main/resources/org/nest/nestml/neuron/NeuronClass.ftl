@@ -87,7 +87,7 @@ ${simpleNeuronName}::Parameters_::Parameters_()
 
 ${simpleNeuronName}::State_::State_(Parameters_ __p)
 {
-<#list body.getStateSymbols() as state>
+<#list body.getStateNonAliasSymbols() as state>
   ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state, stateBlockPrettyPrinter])}
 </#list>
 }
