@@ -6,6 +6,7 @@
 package org.nest.spl.symboltable;
 
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
+import org.nest.nestml._cocos.LiteralsHaveTypes;
 import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._cocos.*;

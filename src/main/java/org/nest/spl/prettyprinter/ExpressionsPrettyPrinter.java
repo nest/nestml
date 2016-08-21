@@ -135,7 +135,7 @@ public class ExpressionsPrettyPrinter {
     }
     else if (expr.getCondition().isPresent()) {
       final String condition = print(expr.getCondition().get());
-      final String ifTrue = print(expr.getIfTure().get()); // guaranteed by grammar
+      final String ifTrue = print(expr.getIfTrue().get()); // guaranteed by grammar
       final String ifNot = print(expr.getIfNot().get()); // guaranteed by grammar
       return "(" + condition + ")?(" + ifTrue + "):(" + ifNot + ")";
     }

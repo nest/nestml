@@ -1,9 +1,12 @@
 neuron validExpressionTest:
   state:
+    Resist Ohm = 8Ohm 
+    Ampere A = 3A 
+
     V1 (kg*m*m)/(A*s**3) = 10 V   #verbose Type
     #V2 (kg*m*m)/(A*s**(2+1)) = 10 V   #TODO: this should work
-    W1 MW = 10kJ / 5ms #magnitude     
-   
+    W1 MW = 10kJ / 5ms #magnitude   
+     
     hertz Hz = 7 / 1s #does this even work?
     newton N = 10kg* 1m / 1 s**2
     pascal Pa =  7 * newton / 2m**2
@@ -20,8 +23,7 @@ neuron validExpressionTest:
   end
 
   parameter:
-    Resist Ohm = 8
-    V2 V = foo(3 A,Resist) #function call    
+    V2 V = foo(7 A,2 Ohm) #function call    
   end
 
   output: spike
@@ -31,7 +33,13 @@ neuron validExpressionTest:
   end
 
   update:
-    
+    Ampere = 7A #Assignment
+
+    if Resist > 3Ohm: # Comparison
+     #NOOP
+    elif 8A >= Ampere:  #Comparison
+      emit_spike()
+    end
   end
 
 end

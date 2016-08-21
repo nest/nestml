@@ -118,7 +118,7 @@ public class CLIConfigurationExecutor {
 
   private List<Finding> checkCocosForModel(final ASTNESTMLCompilationUnit root) {
 
-    final NESTMLCoCoChecker cocosChecker = nestmlCoCosManager.createDefaultChecker();
+    final NESTMLCoCoChecker cocosChecker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
 
     checkNESTMLCocos(root, cocosChecker);
     final List<Finding> errors = Lists.newArrayList();
@@ -134,6 +134,11 @@ public class CLIConfigurationExecutor {
         root.getFullName(),
         "SPL",
         LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
+
+    printFindingsFromLog(
+        root.getFullName(),
+        "SPL",
+        LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
 
     printFindingsFromLog(
         root.getFullName(),

@@ -74,15 +74,6 @@ public class UnitRepresentation {
           return Optional.of(result);
         }
       }
-    }if(unit.regionMatches(false,0,"e",0,1)) {//explicitly check for exponent
-      UnitRepresentation result =  new UnitRepresentation(SIData.getBaseRepresentations().get("e"));
-      try{
-        Integer exponent = Integer.parseInt(unit.substring(1));
-        result.addMagnitude(exponent);
-        return Optional.of(result);
-      }catch(NumberFormatException e){
-        Preconditions.checkState(false,unit+ " is not recognized.");
-      }
     }
     if(SIData.getBaseRepresentations().containsKey(unit)) { //No prefix present, see if whole name matches
       UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(unit));

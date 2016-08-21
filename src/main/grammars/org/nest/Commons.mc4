@@ -46,11 +46,11 @@ grammar Commons extends de.monticore.types.Types {
                       ne:["!="] |
                       ne2:["<>"] |
                       ge:[">="] |
-                      gt:[">"]) right:Expr
+                      gt:[">"]) right:Expr 
          | logicalNot:["not"] Expr
          | left:Expr logicalAnd:["and"] right:Expr
          | left:Expr logicalOr:["or"] right:Expr
-         | condition:Expr "?" ifTure:Expr ":" ifNot:Expr
+         | condition:Expr "?" ifTrue:Expr ":" ifNot:Expr
          | FunctionCall
          | BooleanLiteral // true & false;
          | NESTMLNumericLiteral
