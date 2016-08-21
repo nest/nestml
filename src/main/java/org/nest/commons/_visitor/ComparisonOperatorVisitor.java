@@ -39,7 +39,7 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
 
     //Error message specific to equals
     if (expr.isEq() ) {
-      final String errorMsg = "Only variables of the same type can be checked for the equality. And not: " +
+      final String errorMsg = "Only expressions of the same type can be checked for equality. And not: " +
           lhsType.getValue() + " and " + rhsType.getValue();
       expr.setType(Either.error(errorMsg));
       return;
