@@ -53,7 +53,7 @@ neuron iaf_cond_alpha_neuron:
     V_reset mV = -60.0mV # Reset Potential in mV
     t_ref ms = 2.0mV     # Refractory period in ms
     g_L nS = 16.6667nS   # Leak Conductance in nS
-    C_m pF = 250.0       # Membrane Capacitance in pF
+    C_m pF = 250.0 pF      # Membrane Capacitance in pF
     E_ex mV = 0mV        # Excitatory reversal Potential in mV
     E_in mV = -85.0mV    # Inhibitory reversal Potential in mV
     E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential) in mV

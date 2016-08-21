@@ -12,7 +12,6 @@ import java.util.List;
 public class SIData {
 
   private static SIData instance=null;
-  private UnitRepresentation exponent = new UnitRepresentation(0,0,0,0,0,0,0,0);
   private UnitRepresentation lumen = new UnitRepresentation(0,0,0,0,1,0,0,0);
   private UnitRepresentation siemens = new UnitRepresentation(0,3,-2,-1,0,0,2,0);
   private UnitRepresentation farad = new UnitRepresentation(0,4,-2,-1,0,0,2,0);
@@ -71,7 +70,6 @@ public class SIData {
     for (String unit: SIUnitsDerived){
       CorrectSIUnits.add(unit);
     }
-    CorrectSIUnits.add("e"); //add the exponent explicitly
 
   }
 
@@ -110,7 +108,6 @@ public class SIData {
 
   SIData(){
     populateUnitsList();
-    baseRepresentations.put("e",exponent);
     baseRepresentations.put("Hz",hertz);
     baseRepresentations.put("N",newton);
     baseRepresentations.put("Pa",pascal);

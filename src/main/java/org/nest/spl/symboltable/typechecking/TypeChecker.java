@@ -78,8 +78,9 @@ public class TypeChecker {
     return rType != null && rType.getType().equals(UNIT);
   }
 
-  static boolean isInteger(TypeSymbol typeSymbol) {
+  public static boolean isInteger(TypeSymbol typeSymbol) {
     // TODO use prover equals implementation
     return typeSymbol != null && typeSymbol.equals(getIntegerType());
   }
+
 }

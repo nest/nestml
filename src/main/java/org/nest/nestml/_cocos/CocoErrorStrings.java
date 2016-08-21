@@ -20,6 +20,22 @@ public class CocoErrorStrings {
     return instance;
   }
 
+  String getErrorMsgAssignment(LiteralsHaveTypes coco){
+    return LiteralsHaveTypes.ERROR_CODE + ": Assignment of a literal to a UNIT type variable must carry a Unit Symbol";
+  }
+
+  String getErrorMsgReturn(LiteralsHaveTypes coco){
+    return LiteralsHaveTypes.ERROR_CODE + ": Return statement must specify unit type";
+  }
+
+  public String getErrorMsgConditional(LiteralsHaveTypes coco) {
+    return LiteralsHaveTypes.ERROR_CODE + ": Literals without a UNIT type cannot be compared to a UNIT type variable.";
+  }
+
+  String getErrorMsgCall(LiteralsHaveTypes coco){
+    return LiteralsHaveTypes.ERROR_CODE + ": Parameters to function calls must specify unit type";
+  }
+
   String getErrorMsg(AliasHasDefiningExpression coco) {
     return AliasHasDefiningExpression.ERROR_CODE + ":" + "'alias' must be defined through an expression.";
   }
@@ -203,4 +219,6 @@ public class CocoErrorStrings {
     return UsesOnlyComponents.ERROR_CODE + ":" + "Only components can be used by components and not " + typeName + " that is a neuron, not a "
         + "component";
   }
+
+
 }
