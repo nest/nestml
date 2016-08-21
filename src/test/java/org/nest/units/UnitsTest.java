@@ -58,7 +58,7 @@ public class UnitsTest extends ModelbasedTest {
     completeChecker.checkAll(invalidRoot.get());
 
     findings = getFindings().size();
-    assertEquals(8, findings);
+    assertEquals(17, findings);
   }
   @Test
   public void test_iaf_cond_alpha() {

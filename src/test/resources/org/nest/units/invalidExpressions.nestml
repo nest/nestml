@@ -18,6 +18,8 @@ neuron invalidExpressionTest:
 
   parameter:
     V2 V = foo(3,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
+    V3 V = foo(8+8*7,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
+    V4 V = foo(7A +3,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
   end
 
   output: spike
@@ -27,11 +29,33 @@ neuron invalidExpressionTest:
 
   update:
     Ampere = 8 #NESTML_LITERALS_MUST_HAVE_TYPES: Assignment without explicit unit type
-    if Resist > 0: # !!
+    Ampere = 8+8*7 #NESTML_LITERALS_MUST_HAVE_TYPES: Assignment without explicit unit type
+
+    Ampere = 7A +3 #NESTML_LITERALS_MUST_HAVE_TYPES: Assignment without explicit unit type
+
+    if Resist > 0: # NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
      #NOOP
-    elif Ampere >= 8: #!!
+    elif Ampere >= 8: #NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
       emit_spike()
     end
+
+    if Resist > 8+8*7: # NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
+     #NOOP
+    elif Ampere >= 7A +3: #NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
+      emit_spike()
+    end
+
+    if 8+8*7 > Resist  : # NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
+     #NOOP
+    elif 7A +3 >= Ampere : #NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
+      emit_spike()
+    end
+
+    if (8 Ohm > Resist) and (Ampere == 7)  : # NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
+     #NOOP
+    end
+
+    
   end
 
 end
