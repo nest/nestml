@@ -24,7 +24,8 @@ import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAlias;
 import static org.nest.utils.ASTUtils.getFunctionCall;
 
 /**
- * Takes SymPy result with the linear solution of the ODE and the source AST.
+ * Takes SymPy result with the exact solution of the Delta-shaped PSC and integrates it into the neuron instead of
+ * the 'integrate'-call.
  * Produces an altered AST with the the exact solution.
  *
  * @author plotnikov
