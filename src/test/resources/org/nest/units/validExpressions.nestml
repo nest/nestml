@@ -20,7 +20,7 @@ neuron validExpressionTest:
   end
 
   parameter:
-    V2 V = foo(3 A,2 Ohm) #function call    
+    V2 V = foo(7 A,2 Ohm) #function call    
   end
 
   output: spike

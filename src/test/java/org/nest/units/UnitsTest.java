@@ -50,7 +50,6 @@ public class UnitsTest extends ModelbasedTest {
 
     long findings = getFindings().size();
     assertEquals(0, findings);
-
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
         "src/test/resources/org/nest/units/invalidExpressions.nestml", TEST_MODEL_PATH);
 
@@ -59,7 +58,7 @@ public class UnitsTest extends ModelbasedTest {
     completeChecker.checkAll(invalidRoot.get());
 
     findings = getFindings().size();
-    assertEquals(6, findings);
+    assertEquals(8, findings);
   }
   @Test
   public void test_iaf_cond_alpha() {
