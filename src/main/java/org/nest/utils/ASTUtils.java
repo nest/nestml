@@ -395,16 +395,12 @@ public final class ASTUtils {
   }
 
   /**
-   * Converts the name of the
+   * If the variable is ues as a RHS of an equation, e.g. g_in'' = exp(t) then a variable g_in' should be added.
    *
    */
   public static String convertToSimpleName(final ASTDerivative astVariable) {
-    if (astVariable.getDifferentialOrder().size() <= 1) {
-      return astVariable.getName().toString();
-    }
-    else {
-      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size() - 1) + astVariable.getName().toString();
-    }
+    checkArgument(astVariable.getDifferentialOrder().size() > 0);
+    return astVariable.getName().toString() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
   }
 
   /**
@@ -416,7 +412,7 @@ public final class ASTUtils {
       return astVariable.getName().toString();
     }
     else {
-      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName().toString();
+      return astVariable.getName().toString() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
     }
   }
 
@@ -430,6 +426,8 @@ public final class ASTUtils {
     }
 
   }
+
+
 
   public static boolean isInhExc(final ASTInputLine astInputLine ) {
     boolean isInh =false, isExc = false;

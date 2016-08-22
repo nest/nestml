@@ -18,7 +18,7 @@ double t = 0;
 double stateVector[${stateSize}];
 <#assign index = 0>
 <#list body.variablesDefinedByODE() as odeVariable>
-  stateVector[${odeVariable.getName()}_${indexPostfix}] = S_.${odeVariable.getName()};
+  stateVector[${names.name(odeVariable)}_${indexPostfix}] = S_.${names.name(odeVariable)};
   <#assign index = index + 1>
 </#list>
 while ( t < step_ )
@@ -37,6 +37,6 @@ while ( t < step_ )
   }
 }
 <#list body.variablesDefinedByODE() as odeVariable>
-  S_.${odeVariable.getName()} = stateVector[${odeVariable.getName()}_${indexPostfix}];
+  S_.${names.name(odeVariable)} = stateVector[${names.name(odeVariable)}_${indexPostfix}];
   <#assign index = index + 1>
 </#list>

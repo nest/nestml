@@ -152,6 +152,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
           .forEach(this::addDerivedVariable);
 
   }
+
   /**
    * Analyzes the ode block and add all aliases. E.g.:
    *   equations:

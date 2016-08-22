@@ -26,26 +26,17 @@ import static org.nest.utils.NESTMLSymbols.isSetterPresent;
  * @author plotnikov
  */
 public class VariableSymbol extends CommonSymbol {
-
-
   public static final VariableSymbolKind KIND = new VariableSymbolKind();
-
   private ASTExpr declaringExpression = null;
 
   private ASTExpr odeDeclaration = null;
 
   private TypeSymbol type;
-
   private NeuronSymbol declaringType;
-
   private boolean isAlias;
-
   private boolean isLoggable;
-
   private BlockType blockType;
-
   private String arraySizeParameter = null;
-
   private boolean conductanceBased = false;
 
   public boolean isBuffer() {
@@ -57,6 +48,9 @@ public class VariableSymbol extends CommonSymbol {
     // TODO: check whether the logic is correct. At the moment, the vector datatypes are not supported by the code
     // generator.
     return isLoggable && !isVector();
+  }
+  public Optional<ASTExpr> getOdeDeclaration() {
+    return Optional.ofNullable(odeDeclaration);
   }
 
   public void setOdeDeclaration(final ASTExpr odeDeclaration) {
@@ -83,6 +77,7 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public Optional<ASTExpr> getDeclaringExpression() {
+
     return Optional.ofNullable(declaringExpression);
   }
 

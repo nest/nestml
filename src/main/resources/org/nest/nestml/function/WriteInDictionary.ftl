@@ -8,7 +8,7 @@ ${signature("variable")}
   <#assign baseVariable = variable.getName()>
   <#assign offset = aliasInverter.offsetVariable(variable.getDeclaringExpression().get()).getName()>
   <#assign inverseOperation = aliasInverter.inverseOperator(variable.getDeclaringExpression().get())>
-  def< ${declarations.printVariableType(variable)} >(__d, "${variable.getName()}", get_${variable.getName()}() ${inverseOperation} get_${offset}());
+  def< ${declarations.printVariableType(variable)} >(__d, "${names.name(variable)}", ${names.getter(variable)}() ${inverseOperation} get_${offset}());
 <#else>
-  def< ${declarations.printVariableType(variable)} >(__d, "${variable.getName()}", get_${variable.getName()}());
+  def< ${declarations.printVariableType(variable)} >(__d, "${names.name(variable)}", ${names.getter(variable)}());
 </#if>
