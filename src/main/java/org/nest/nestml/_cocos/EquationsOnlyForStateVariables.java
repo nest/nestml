@@ -17,7 +17,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 
 /**
- * Checks that equations are used only to define state variables
+ * Checks that equations are used only for variables from the the state block.
  *
  * @author plotnikov
  */
@@ -29,7 +29,8 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
   public void check(final ASTEquation astEq) {
     checkArgument(astEq.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astEq.getEnclosingScope().get();
-    if (astEq.getLhs().getDifferentialOrder().size() > 0) {
+
+    if (astEq.getLhs().getDifferentialOrder().size() == 0) {
       final Optional<VariableSymbol> variableSymbol = scope.resolve(ASTUtils.convertToSimpleName(astEq.getLhs()), VariableSymbol.KIND);
       if (variableSymbol.isPresent()) {
         if (!variableSymbol.get().isState()) {

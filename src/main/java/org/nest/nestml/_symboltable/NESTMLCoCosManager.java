@@ -130,6 +130,9 @@ public class NESTMLCoCosManager {
     final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
     nestmlCoCoChecker.addCoCo(equationsOnlyForStateVariables);
 
+    final DerivativeOrderAtLeastOne derivativeOrderAtLeastOne = new DerivativeOrderAtLeastOne();
+    nestmlCoCoChecker.addCoCo(derivativeOrderAtLeastOne);
+
     final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
     nestmlCoCoChecker.addCoCo(variableDoesNotExist);
 

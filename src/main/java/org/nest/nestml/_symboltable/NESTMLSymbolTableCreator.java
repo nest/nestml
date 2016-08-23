@@ -228,7 +228,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       }
     }
     else {
-      Log.warn("The lefthandside of an equation must be a derivative, e.g. " + ode.getLhs().toString() + "'");
+      Log.warn("NESTMLSymbolTableCreator: The lefthandside of an equation must be a derivative, e.g. " + ode.getLhs().toString() + "'");
     }
 
 
