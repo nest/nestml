@@ -73,7 +73,7 @@ neuron hh_cond_exp_traub_nestml:
 
     Act_m' = alpha_m - ( alpha_m + beta_m ) * Act_m
     Act_h' = alpha_h - ( alpha_h + beta_h ) * Act_h
-    Inact_n = alpha_n - ( alpha_n + beta_n ) * Inact_n
+    Inact_n' = alpha_n - ( alpha_n + beta_n ) * Inact_n
 
     # synapses: exponential conductance
     g_ex' = -g_ex / tau_syn_ex

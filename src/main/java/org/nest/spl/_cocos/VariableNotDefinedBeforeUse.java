@@ -1,3 +1,8 @@
+/*
+ * Copyright (c)  RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.spl._cocos;
 
 import com.google.common.collect.Lists;
@@ -5,20 +10,23 @@ import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.spl._ast.*;
+import org.nest.spl._ast.ASTAssignment;
+import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._ast.ASTFOR_Stmt;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static de.se_rwth.commons.Names.getQualifiedName;
 import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.utils.ASTUtils.convertToSimpleName;
 
+/**
+ * Checks that a variable used in an statement is defined before.
+ *
+ * @author ippen, plotnikov
+ */
 public class VariableNotDefinedBeforeUse implements
     SPLASTAssignmentCoCo,
     SPLASTDeclarationCoCo,
@@ -35,7 +43,7 @@ public class VariableNotDefinedBeforeUse implements
 
   @Override
   public void check(final ASTAssignment assignment) {
-      check(convertToSimpleName(assignment.getLhsVarialbe()), assignment);
+      check(assignment.getLhsVarialbe().toString(), assignment);
   }
 
   @Override
@@ -45,7 +53,7 @@ public class VariableNotDefinedBeforeUse implements
 
     if (decl.getExpr().isPresent()) {
       final List<String> varsOfCurrentDecl = Lists.newArrayList(decl.getVars());
-      final List<ASTVariable> variablesNamesRHS = getVariablesFromExpressions(decl.getExpr().get());
+      final List<ASTVariable> variablesNamesRHS = ASTNodes.getSuccessors(decl.getExpr().get(), ASTVariable.class);;
       // check, if variable of the left side is used in the right side, e.g. in decl-vars
 
       for (final ASTVariable variable: variablesNamesRHS) {
@@ -68,11 +76,6 @@ public class VariableNotDefinedBeforeUse implements
       }
 
     }
-
-  }
-
-  protected List<ASTVariable> getVariablesFromExpressions(final ASTExpr expression) {
-    return ASTNodes.getSuccessors(expression, ASTVariable.class);
 
   }
 

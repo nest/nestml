@@ -7,12 +7,12 @@
   @param tc templatecontroller
   @result TODO
 -->
-${signature("var")}
+${signature("variable")}
 
-<#assign varDomain = declarations.getDomainFromType(var.getType())>
+<#assign varDomain = declarations.getDomainFromType(variable.getType())>
 
-<#if varDomain == "nest::double_t" && var.isLoggable()>
-insert_("${var.getName()}", &${simpleNeuronName}::get_${var.getName()});
+<#if varDomain == "nest::double_t" && variable.isLoggable()>
+insert_("${names.name(variable)}", &${simpleNeuronName}::${names.getter(variable)});
 <#else>
-// ignores the ${var.getName()} with the domain type ${varDomain}
+// ignores the ${variable.getName()} with the domain type ${varDomain}
 </#if>

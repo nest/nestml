@@ -5,7 +5,7 @@ neuron iaf_neuron_ode:
   end
 
   equations:
-      G = e * t
+      G' = e * t
       Tau' = -1/Tau * V + 1/C_m
   end
 

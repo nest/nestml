@@ -26,7 +26,7 @@ import static org.nest.utils.NESTMLSymbols.resolveMethod;
 /**
  * Checks that methods are defined and used with correct types.
  *
- * @author plotnikov
+ * @author ippen, plotnikov
  */
 public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
   public static final String ERROR_CODE = "SPL_FUNCTION_DOES_NOT_EXIST";

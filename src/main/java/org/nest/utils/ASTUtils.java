@@ -19,6 +19,7 @@ import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTDerivative;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTODENode;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
@@ -395,28 +396,25 @@ public final class ASTUtils {
   }
 
   /**
-   * Converts the name of the
+   * If the variable is ues as a RHS of an equation, e.g. g_in'' = exp(t) then a variable g_in' should be added.
    *
    */
   public static String convertToSimpleName(final ASTDerivative astVariable) {
-    if (astVariable.getDifferentialOrder().size() <= 1) {
-      return astVariable.getName().toString();
-    }
-    else {
-      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size() - 1) + astVariable.getName().toString();
-    }
+    checkArgument(astVariable.getDifferentialOrder().size() > 0);
+    return astVariable.getName().toString() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
   }
 
   /**
-   * Converts the name of the
+   * Computes the variable which is derived in the equation, e.g.: g_in'' = exp(t) means the derivation of the g_in'
+   * variable
    *
    */
-  public static String convertToSimpleName(final ASTVariable astVariable) {
-    if (astVariable.getDifferentialOrder().size() == 0) {
-      return astVariable.getName().toString();
+  public static String convertToSimpleName(final ASTEquation astEquation) {
+    if (astEquation.getLhs().getDifferentialOrder().size() == 0) {
+      return astEquation.getLhs().getName().toString();
     }
     else {
-      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName().toString();
+      return astEquation.getLhs().getName().toString() + Strings.repeat("'", astEquation.getLhs().getDifferentialOrder().size() - 1);
     }
   }
 
@@ -430,6 +428,8 @@ public final class ASTUtils {
     }
 
   }
+
+
 
   public static boolean isInhExc(final ASTInputLine astInputLine ) {
     boolean isInh =false, isExc = false;

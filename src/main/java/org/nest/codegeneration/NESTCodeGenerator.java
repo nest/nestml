@@ -268,6 +268,7 @@ public class NESTCodeGenerator {
 
     final String guard = (neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
+    glex.setGlobalValue("names", new Names());
     glex.setGlobalValue("simpleNeuronName", neuron.getName());
     glex.setGlobalValue("neuronSymbol", neuron.getSymbol().get());
 
