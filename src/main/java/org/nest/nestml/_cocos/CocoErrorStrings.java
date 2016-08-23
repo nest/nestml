@@ -106,8 +106,9 @@ public class CocoErrorStrings {
     return CurrentInputIsNotInhExc.ERROR_CODE + ":" + "Current input can neither be inhibitory nor excitatory.";
   }
 
-  String getErrorMsgAssignToNonState(EquationsOnlyForStateVariables coco,
-                                            String variableName) {
+  String getErrorMsgAssignToNonState(
+      final EquationsOnlyForStateVariables coco,
+      final String variableName) {
     return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "The variable '" + variableName + "' is not a state"
         + " variable and, therefore, cannot be used on the left side of an equation.";
   }

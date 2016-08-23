@@ -1,5 +1,9 @@
 neuron IAF:
+  state:
+    V_m mV
+  end
   equations:
+    V_m'' = t
     G1 = G2
     V1' = V2
   end

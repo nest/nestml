@@ -30,7 +30,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
     checkArgument(astEq.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astEq.getEnclosingScope().get();
 
-    if (astEq.getLhs().getDifferentialOrder().size() == 0) {
+    if (astEq.getLhs().getDifferentialOrder().size() > 0) {
       final Optional<VariableSymbol> variableSymbol = scope.resolve(ASTUtils.convertToSimpleName(astEq.getLhs()), VariableSymbol.KIND);
       if (variableSymbol.isPresent()) {
         if (!variableSymbol.get().isState()) {
@@ -49,6 +49,5 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
     }
 
   }
-
 
 }
