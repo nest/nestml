@@ -29,17 +29,22 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
   public void check(final ASTEquation astEq) {
     checkArgument(astEq.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
     final Scope scope = astEq.getEnclosingScope().get();
-    final Optional<VariableSymbol> variableSymbol = scope.resolve(ASTUtils.convertToSimpleName(astEq.getLhs()), VariableSymbol.KIND);
-    if (variableSymbol.isPresent()) {
-      if (!variableSymbol.get().isState()) {
-        final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());
+    if (astEq.getLhs().getDifferentialOrder().size() > 0) {
+      final Optional<VariableSymbol> variableSymbol = scope.resolve(ASTUtils.convertToSimpleName(astEq.getLhs()), VariableSymbol.KIND);
+      if (variableSymbol.isPresent()) {
+        if (!variableSymbol.get().isState()) {
+          final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());
 
-        Log.error(msg, astEq.get_SourcePositionStart());
+          Log.error(msg, astEq.get_SourcePositionStart());
+        }
+      }
+      else {
+        final String msg = errorStrings.getErrorMsgVariableNotDefined(this);
+        Log.warn(msg, astEq.get_SourcePositionStart());
       }
     }
     else {
-      final String msg = errorStrings.getErrorMsgVariableNotDefined(this);
-      Log.warn(msg, astEq.get_SourcePositionStart());
+      Log.warn(ERROR_CODE + ": The lefthandside of an equation must be a derivative, e.g. " + astEq.getLhs().toString() + "'");
     }
 
   }
