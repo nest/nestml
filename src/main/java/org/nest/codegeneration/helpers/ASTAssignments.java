@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
-import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Computes how the setter call looks like
@@ -75,7 +74,7 @@ public class ASTAssignments {
    */
   public String printLHS(final ASTAssignment astAssignment) {
 
-    return convertToSimpleName(astAssignment.getLhsVarialbe());
+    return Names.name(astAssignment.getLhsVarialbe());
   }
 
 
@@ -97,7 +96,7 @@ public class ASTAssignments {
    * Returns the textual representation of the setter invocation
    */
   public String printGetterName(final ASTAssignment astAssignment) {
-    final String variableName = convertToSimpleName(astAssignment.getLhsVarialbe());
+    final String variableName = Names.name(astAssignment.getLhsVarialbe());
     return "get_" + variableName;
   }
 

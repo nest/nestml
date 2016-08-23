@@ -17,9 +17,7 @@ import java.util.Map;
 /**
  * Checks that a referenced variable is also declared.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
 public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
   public static final String ERROR_CODE = "SPL_VARIABLE_EXISTS_MULTIPLE_TIMES";

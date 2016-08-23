@@ -1,6 +1,7 @@
 package org.nest.codegeneration.helpers;
 
 import com.google.common.base.Strings;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.ode._ast.ASTDerivative;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -17,6 +18,10 @@ public class Names {
 
   public static String name(final ASTDerivative astDerivative ) {
     return convertToCPPName(astDerivative.toString());
+  }
+
+  public static String name(final ASTVariable astVariable) {
+    return convertToCPPName(astVariable.toString());
   }
 
   public static String getter(final VariableSymbol variableSymbol) {
@@ -42,5 +47,6 @@ public class Names {
     }
 
   }
+
 
 }

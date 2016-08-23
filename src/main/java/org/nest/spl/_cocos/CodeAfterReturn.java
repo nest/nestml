@@ -6,17 +6,14 @@
 package org.nest.spl._cocos;
 
 import de.monticore.ast.ASTNode;
-import static de.se_rwth.commons.logging.Log.error;
 import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.*;
 
 /**
  * Checks that that there is no statements after the return statement.
- *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * TODO refactor, code is unmaintable
+ * @author ippen, plotnikov
  */
 public class CodeAfterReturn implements SPLASTBlockCoCo {
   public static final String ERROR_CODE = "SPL_CODE_AFTER_RETURN";
@@ -30,7 +27,7 @@ public class CodeAfterReturn implements SPLASTBlockCoCo {
 
   }
 
-  protected ASTNode isReturnBlock(ASTBlock block) {
+  private ASTNode isReturnBlock(ASTBlock block) {
     ASTNode r = null;
 
     // Block = Stmt*

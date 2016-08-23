@@ -5,30 +5,23 @@
  */
 package org.nest.spl._cocos;
 
-import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.monticore.types.types._ast.ASTQualifiedName;
 import de.monticore.utils.ASTNodes;
-import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
-import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
 
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Checks that a referenced variable is also declared.
@@ -65,7 +58,7 @@ public class VariableDoesNotExist implements
 
   @Override
   public void check(final ASTAssignment astAssignment) {
-    checkVariableByName(convertToSimpleName(astAssignment.getLhsVarialbe()), astAssignment);
+    checkVariableByName(astAssignment.getLhsVarialbe().toString(), astAssignment);
     checkExpression(astAssignment.getExpr());
   }
 
