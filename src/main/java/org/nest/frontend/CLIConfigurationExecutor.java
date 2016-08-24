@@ -95,7 +95,7 @@ public class CLIConfigurationExecutor {
       generateModuleCode(modelRoots, config, generator);
     }
     else {
-      Log.info("Models contain semantic errors, therefore,", LOG_NAME);
+      Log.info("Models contain semantic errors, therefore, no codegeneration is possible", LOG_NAME);
     }
 
   }
