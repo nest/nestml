@@ -1,8 +1,14 @@
+/*
+ * Copyright (c)  RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.commons._visitor;
 
 import java.util.Optional;
 
 
+import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
@@ -10,28 +16,32 @@ import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.utils.NESTMLSymbols;
 
 /**
- * @author ptraeder
+ * Checks all function calls in an expression. For a not-void methods returns just its return type. For a void methods,
+ * reports an error.
+ *
+ * @author plotnikov, ptraeder
  */
-public class FunctionCallVisitor implements CommonsVisitor{
+class FunctionCallVisitor implements CommonsVisitor {
 
   @Override
-  public void visit(ASTExpr expr) {
+  public void visit(final ASTExpr expr) {
     final String functionName = expr.getFunctionCall().get().getCalleeName();
 
     final Optional<MethodSymbol> methodSymbol = NESTMLSymbols.resolveMethod(expr.getFunctionCall().get());
+
     if (!methodSymbol.isPresent()) {
       final String msg = "Cannot resolve the method: " + functionName;
       expr.setType(Either.error(msg));
       return;
     }
 
-    if (new TypeChecker().checkVoid(methodSymbol.get().getReturnType())) {
-      final String errorMsg = "Function "+functionName+" with returntype 'Void'"
-          + " cannot be used in expressions. @"+expr.get_SourcePositionEnd();
+    if (TypeChecker.checkVoid(methodSymbol.get().getReturnType())) {
+      final String errorMsg = "Function " + functionName + " with the return-type 'Void'"
+                              + " cannot be used in expressions. @" + expr.get_SourcePositionEnd();
       expr.setType(Either.error(errorMsg));
       return;
     }
     expr.setType(Either.value(methodSymbol.get().getReturnType()));
-    return;
-    }
+  }
+
 }

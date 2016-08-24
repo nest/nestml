@@ -1,28 +1,29 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.units;
 
-import static de.se_rwth.commons.logging.Log.getErrorCount;
-import static de.se_rwth.commons.logging.Log.getFindings;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.nest.nestml._symboltable.NESTMLRootCreator.getAstRoot;
-import static org.nest.utils.LogHelper.countWarningsByPrefix;
-
-import java.util.Optional;
-
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._cocos.AliasHasNoSetter;
-import org.nest.nestml._cocos.LiteralsHaveTypes;
-import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
-import org.nest.units._visitor.UnitsSIVisitor;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.nest.nestml._symboltable.NESTMLRootCreator.getAstRoot;
 
 /**
- * @author ptraeder
+ * Checks that the SI unit checking works stable.
+ *
+ * @author traeder, plotnikov
  */
 public class UnitsTest extends ModelbasedTest {
 
@@ -32,46 +33,50 @@ public class UnitsTest extends ModelbasedTest {
     Log.getFindings().clear();
   }
 
-  @After
-  public void printErrorMessage() {
-    getFindings().forEach(e -> System.out.println("Error found: " + e));
-  }
-
   @Test
-  public void testUnit() {
-    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
-    final NESTMLCoCoChecker completeChecker= nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
+  public void test_unit_errors_produce_warnings() {
+    final NESTMLCoCosManager completeChecker = new NESTMLCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
         "src/test/resources/org/nest/units/validExpressions.nestml", TEST_MODEL_PATH);
 
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
-    completeChecker.checkAll(validRoot.get());
+    List<Finding> findings = completeChecker.analyzeModel(validRoot.get());
+    long errorsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+        .count();
 
-    long findings = getFindings().size();
-    assertEquals(0, findings);
+    assertEquals(0, errorsFound);
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
         "src/test/resources/org/nest/units/invalidExpressions.nestml", TEST_MODEL_PATH);
 
     assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
-    completeChecker.checkAll(invalidRoot.get());
+    findings = completeChecker.analyzeModel(invalidRoot.get());
 
-    findings = getFindings().size();
-    assertEquals(17, findings);
+    errorsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
+        .count();
+
+    assertEquals(17, errorsFound);
   }
+
   @Test
   public void test_iaf_cond_alpha() {
-    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
-    final NESTMLCoCoChecker completeChecker= nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
+    final NESTMLCoCosManager completeChecker = new NESTMLCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
         "models/iaf_cond_alpha.nestml", TEST_MODEL_PATH);
 
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
-    completeChecker.checkAll(validRoot.get());
+    final List<Finding> findings = completeChecker.analyzeModel(validRoot.get());
 
-    long errorsFound = getErrorCount();
+    long errorsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+        .count();
     assertEquals(0, errorsFound);
   }
 

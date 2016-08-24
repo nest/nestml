@@ -6,11 +6,11 @@
 package org.nest.frontend;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 public class CLIConfigurationExecutor {
 
   private static final String LOG_NAME = CLIConfigurationExecutor.class.getName();
-  private final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
+  private final NESTMLCoCosManager checker = new NESTMLCoCosManager();
 
   public CLIConfigurationExecutor() {
     Log.enableFailQuick(false); // otherwise the processing is stopped after encountering first error
@@ -89,17 +90,17 @@ public class CLIConfigurationExecutor {
       final NESTCodeGenerator generator) {
 
     modelRoots.forEach(scopeCreator::runSymbolTableCreator);
-
-    if (config.isCheckCoCos()) {
-      Log.info("Checks context conditions.", LOG_NAME);
-      modelRoots.forEach(this::checkCocosForModel);
+    if (checkModels(modelRoots, config)) {
+      generateNeuronCode(modelRoots, config, generator);
+      generateModuleCode(modelRoots, config, generator);
+    }
+    else {
+      Log.info("Models contain semantic errors, therefore,", LOG_NAME);
     }
 
-    for (final ASTNESTMLCompilationUnit root:modelRoots) {
-      Log.info("Begins codegeneration for the model: " + root.getFullName(), LOG_NAME);
-      generator.analyseAndGenerate(root, config.getTargetPath());
-    }
+  }
 
+  private void generateModuleCode(List<ASTNESTMLCompilationUnit> modelRoots, CLIConfiguration config, NESTCodeGenerator generator) {
     if (modelRoots.size() > 0) {
       final String modelName;
       if (Files.isRegularFile(config.getInputBase())) {
@@ -113,60 +114,31 @@ public class CLIConfigurationExecutor {
     else {
       Log.warn("Cannot generate module code, since there is no parsable neuron in " + config.getInputBase());
     }
-
   }
 
-  private List<Finding> checkCocosForModel(final ASTNESTMLCompilationUnit root) {
-
-    final NESTMLCoCoChecker cocosChecker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
-
-    checkNESTMLCocos(root, cocosChecker);
-    final List<Finding> errors = Lists.newArrayList();
-    errors.addAll(LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
-    errors.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
-
-    printFindingsFromLog(
-        root.getFullName(),
-        "NESTML",
-        LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()));
-
-    printFindingsFromLog(
-        root.getFullName(),
-        "SPL",
-        LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
-
-    printFindingsFromLog(
-        root.getFullName(),
-        "SPL",
-        LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
-
-    printFindingsFromLog(
-        root.getFullName(),
-        "NESTML",
-        LogHelper.getWarningsByPrefix("NESTML_", Log.getFindings()));
-
-    printFindingsFromLog(
-        root.getFullName(),
-        "SPL",
-        LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
-    return errors;
-  }
-
-  private void checkNESTMLCocos(ASTNESTMLCompilationUnit root, NESTMLCoCoChecker cocosChecker) {
-    Log.getFindings().clear();
-    cocosChecker.checkAll(root);
-  }
-
-  private void printFindingsFromLog(
-      final String modelName,
-      final String language,
-      final Collection<Finding> nestmlErrorFindings) {
-    if (nestmlErrorFindings.isEmpty()) {
-      Log.info(modelName + " contains no '" +  language + "' findings", LOG_NAME);
-    } else {
-      Log.error(modelName + " contains the following finding: ");
-      nestmlErrorFindings.forEach(finding -> Log.warn(finding.toString()));
+  private void generateNeuronCode(List<ASTNESTMLCompilationUnit> modelRoots, CLIConfiguration config, NESTCodeGenerator generator) {
+    for (final ASTNESTMLCompilationUnit root:modelRoots) {
+      Log.info("Begins codegeneration for the model: " + root.getFullName(), LOG_NAME);
+      generator.analyseAndGenerate(root, config.getTargetPath());
     }
+  }
+
+  private boolean checkModels(List<ASTNESTMLCompilationUnit> modelRoots, CLIConfiguration config) {
+    boolean anyError = false;
+    if (config.isCheckCoCos()) {
+      final Map<String, List<Finding>> findingsToModel = Maps.newHashMap();
+
+      Log.info("Checks context conditions.", LOG_NAME);
+      for (ASTNESTMLCompilationUnit root:modelRoots) {
+        findingsToModel.put(root.getFullName(), checker.analyzeModel(root));
+        if (findingsToModel.get(root.getFullName()).stream().filter(Finding::isError).findAny().isPresent()) {
+          anyError = true;
+        }
+
+      }
+
+    }
+    return !anyError;
   }
 
   private List<String> getListFromStream(final InputStream inputStream) throws IOException {

@@ -5,30 +5,44 @@
  */
 package org.nest.nestml._symboltable;
 
+import de.se_rwth.commons.logging.Finding;
+import de.se_rwth.commons.logging.Log;
 import org.nest.commons._cocos.CommonsASTExprCoCo;
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._cocos.*;
 import org.nest.nestml._cocos.BufferNotAssignable;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.symboltable.SPLCoCosManager;
+import org.nest.utils.LogHelper;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * This class is responsible for the instantiation of the NESTML context conditions.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class NESTMLCoCosManager {
+  private final SPLCoCosManager splCoCosManager = new SPLCoCosManager();
+  private final NESTMLCoCoChecker variablesChecker = new NESTMLCoCoChecker();
+  private final NESTMLCoCoChecker nestmlCoCoChecker = new NESTMLCoCoChecker();
 
-  /**
-   * @return A checker with all NESTML context conditions
-   */
-  public NESTMLCoCoChecker createDefaultChecker() {
-    final NESTMLCoCoChecker nestmlCoCoChecker = new NESTMLCoCoChecker();
+  public NESTMLCoCosManager() {
+    registerVariableExistenceChecks();
+    registerCocos();
+  }
 
+  private void registerVariableExistenceChecks() {
+    final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
+    nestmlCoCoChecker.addCoCo(variableDoesNotExist);
+    splCoCosManager.addVariableExistenceCheck(variablesChecker);
+  }
+
+  private void registerCocos() {
     final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
     nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
 
@@ -133,16 +147,18 @@ public class NESTMLCoCosManager {
     final DerivativeOrderAtLeastOne derivativeOrderAtLeastOne = new DerivativeOrderAtLeastOne();
     nestmlCoCoChecker.addCoCo(derivativeOrderAtLeastOne);
 
-    final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
-    nestmlCoCoChecker.addCoCo(variableDoesNotExist);
-
-    return nestmlCoCoChecker;
+    splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoChecker);
   }
 
-  public NESTMLCoCoChecker createNESTMLCheckerWithSPLCocos() {
-    final NESTMLCoCoChecker nestmlChecker = createDefaultChecker();
-    new SPLCoCosManager().addSPLCocosToNESTMLChecker(nestmlChecker);
-    return nestmlChecker;
+  public List<Finding> analyzeModel(final ASTNESTMLCompilationUnit root) {
+    Log.getFindings().clear();
+    variablesChecker.checkAll(root);
+    final boolean allVariablesDefined = !Log.getFindings().stream().filter(Finding::isError).findAny().isPresent();
+    if (allVariablesDefined) {
+      nestmlCoCoChecker.checkAll(root);
+    }
+    return LogHelper.getModelFindings(Log.getFindings());
+
   }
 
 }

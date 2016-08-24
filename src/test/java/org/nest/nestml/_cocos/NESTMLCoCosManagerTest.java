@@ -92,7 +92,6 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
 
       System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file.toString());
 
-      checkNESTMLCocosOnly(file.toFile(), root);
       checkNESTMLWithSPLCocos(file.toFile(), root);
       Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
       nestmlErrorFindings.forEach(System.out::println);
@@ -101,24 +100,16 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
     }
   }
 
-  private void checkNESTMLCocosOnly(File file, Optional<ASTNESTMLCompilationUnit> root) {
-    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
-    final NESTMLCoCoChecker checker = nestmlCoCosManager.createDefaultChecker();
-    checker.checkAll(root.get());
-
-    Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
-    nestmlErrorFindings.forEach(System.out::println);
-    final String msg = "The model: " + file.getPath() + "Models contain unexpected errors: " + nestmlErrorFindings.size();
-    Assert.assertTrue(msg, nestmlErrorFindings.isEmpty());
-  }
-
   private void checkNESTMLWithSPLCocos(
       final File file,
       final Optional<ASTNESTMLCompilationUnit> root) {
 
-    final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
-    final NESTMLCoCoChecker checker = nestmlCoCosManager.createNESTMLCheckerWithSPLCocos();
-    checker.checkAll(root.get());
+    final NESTMLCoCosManager checker = new NESTMLCoCosManager();
+    List<Finding> findings = checker.analyzeModel(root.get());
+    long errorsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+        .count();
 
     Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
     final String nestmlMsg = "The model: " + file.getPath() + ". Models contain unexpected "
@@ -128,7 +119,8 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
     Collection<Finding> splErrorFindings = getErrorsByPrefix("SPL_", Log.getFindings());
     final String splMsg = "The model: " + file.getPath() + ". Models contain unexpected SPL "
         + "errors: " + splErrorFindings.size();
-    Assert.assertTrue(splMsg, splErrorFindings.isEmpty());
+
+    Assert.assertEquals(splMsg, 0, errorsFound);
   }
 
 }

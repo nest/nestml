@@ -59,6 +59,7 @@ public class VariableDoesNotExist implements
   @Override
   public void check(final ASTAssignment astAssignment) {
     checkVariableByName(astAssignment.getLhsVarialbe().toString(), astAssignment);
+
     checkExpression(astAssignment.getExpr());
   }
 

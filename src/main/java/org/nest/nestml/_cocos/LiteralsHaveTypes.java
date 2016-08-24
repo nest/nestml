@@ -54,10 +54,11 @@ public class LiteralsHaveTypes implements
     Optional<VariableSymbol> var = enclosingScope.get().resolve(node.getLhsVarialbe().getName().toString(),VariableSymbol.KIND);
     if(var.isPresent()) {
       if (var.get().getType().getType() == TypeSymbol.Type.UNIT) {
-        Either<TypeSymbol,String> exprType;
+        final Either<TypeSymbol,String> exprType;
         if (!node.getExpr().getType().isPresent()) {
           exprType = typeCalculator.computeType(node.getExpr());
-        }else{
+        }
+        else{
           exprType = node.getExpr().getType().get();
         }
         if (exprType.isValue() &&
@@ -67,17 +68,20 @@ public class LiteralsHaveTypes implements
           final String msg = errorStrings.getErrorMsgAssignment(this);
           Log.warn(msg, node.get_SourcePositionStart());
         }
+
       }
+
     }
+
   }
 
-  @Override
   /**
    * For Variable declarations, check that a initializing literal carries unit information
    *
    * Valid: Ampere A = 8 A
    * Invalid Ampere A = 8
    */
+  @Override
   public void check(ASTDeclaration node) {
     final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
     checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");

@@ -28,14 +28,13 @@ public class SPLCoCosManager {
     return splCoCoChecker;
   }
 
-  private void createCoCosForSPL(SPLCoCoChecker splCoCoChecker) {
+  private void createCoCosForSPL(final SPLCoCoChecker splCoCoChecker) {
     final VariableDoesNotExist variableExists = new VariableDoesNotExist();
     splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
     splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
-    //splCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
     splCoCoChecker.addCoCo(variableDefinedMultipleTimes);
@@ -69,12 +68,6 @@ public class SPLCoCosManager {
   }
 
   public void addSPLCocosToNESTMLChecker(final NESTMLCoCoChecker nestmlCoCoChecker) {
-    final VariableDoesNotExist variableExists = new VariableDoesNotExist();
-    nestmlCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
-    nestmlCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
-    nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
-    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
-    nestmlCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
     nestmlCoCoChecker.addCoCo(variableDefinedMultipleTimes);
@@ -99,6 +92,15 @@ public class SPLCoCosManager {
     final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
     nestmlCoCoChecker.addCoCo(functionDoesNotExist);
 
+  }
+
+  public void addVariableExistenceCheck(final NESTMLCoCoChecker nestmlCoCoChecker) {
+    final VariableDoesNotExist variableExists = new VariableDoesNotExist();
+    nestmlCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
+    nestmlCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
   }
 
 }
