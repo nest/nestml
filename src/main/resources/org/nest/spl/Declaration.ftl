@@ -14,7 +14,7 @@
   <#if declarations.isVector(ast)>
     ${declarations.printVariableType(variable)} ${variable.getName()}(P_.${declarations.printSizeParameter(ast)});
     <#if ast.getExpr().isPresent()>
-      for (size_t i=0; i < get_${declarations.printSizeParameter(ast)}(); i++) {
+      for (long i=0; i < get_${declarations.printSizeParameter(ast)}(); i++) {
         ${variable.getName()}[i] = ${tc.include("org.nest.spl.expr.Expr", ast.getExpr().get())};
       }
     </#if>
