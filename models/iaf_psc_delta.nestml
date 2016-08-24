@@ -125,7 +125,7 @@ neuron iaf_psc_delta_nestml:
       if with_refr_input:
         refr_spikes_buffer += spikes * exp(-r * h / tau_m)
       else:
-        spikes.getSum() # clear buffer entry, ignore spike
+        spikes.get_sum() # clear buffer entry, ignore spike
       end
       r -= 1
     end

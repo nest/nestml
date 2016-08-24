@@ -89,12 +89,12 @@ public class PredefinedTypes {
     final TypeSymbol bufferType = new TypeSymbol("Buffer", TypeSymbol.Type.BUFFER);
     implicitTypes.put("Buffer", bufferType);
 
-    final MethodSymbol getSumMethod = new MethodSymbol("getSum");
-    getSumMethod.addParameterType(getTypeIfExists("ms").get()); // TODO smell
-    getSumMethod.setReturnType(getRealType());
+    final MethodSymbol get_sumMethod = new MethodSymbol("get_sum");
+    get_sumMethod.addParameterType(getTypeIfExists("ms").get()); // TODO smell
+    get_sumMethod.setReturnType(getRealType());
 
-    getSumMethod.setDeclaringType(bufferType);
-    bufferType.addBuiltInMethod(getSumMethod);
+    get_sumMethod.setDeclaringType(bufferType);
+    bufferType.addBuiltInMethod(get_sumMethod);
   }
 
   public static Collection<TypeSymbol> getTypes() {

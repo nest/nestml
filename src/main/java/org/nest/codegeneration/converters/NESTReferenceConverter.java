@@ -98,7 +98,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
       if (functionSymbol.get().getDeclaringType().getName().equals("Buffer")) {
         final VariableSymbol variableSymbol = resolve(Names.getQualifier(functionName), scope);
 
-        if (functionSymbol.get().getName().equals("getSum")) {
+        if (functionSymbol.get().getName().equals("get_sum")) {
           if (variableSymbol.getVectorParameter().isPresent()) {
             final String calleeObject = Names.getQualifier(functionName);
             return "B_." + calleeObject + "[i].get_value(lag)";

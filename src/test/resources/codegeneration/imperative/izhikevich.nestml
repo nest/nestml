@@ -32,7 +32,7 @@ neuron izhikevich_neuron:
     v_old, u_old real
     # neuron is never refractory
     # use standard forward Euler numerics in this case
-    spikesSum real = spikes.getSum()
+    spikesSum real = spikes.get_sum()
     if consistent_integration:
       v_old = V_m
       u_old = U_m
@@ -57,7 +57,7 @@ neuron izhikevich_neuron:
       emit_spike()
     end
 
-    I = currents.getSum()
+    I = currents.get_sum()
 
   end
 

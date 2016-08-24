@@ -269,7 +269,7 @@ public class LinearSolutionTransformer extends TransformerBase {
         final String shapeNameInCall = ASTUtils.toString(i_sum_call.getArgs().get(0));
         if (shapeNameInCall.equals(shapeName)) {
           final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
-          final ASTAssignment pscUpdateStep = createAssignment(variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".getSum(t)");
+          final ASTAssignment pscUpdateStep = createAssignment(variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".get_sum(t)");
           addAssignmentToDynamics(body, pscUpdateStep);
         }
 

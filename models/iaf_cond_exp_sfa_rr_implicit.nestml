@@ -114,9 +114,9 @@ neuron iaf_cond_exp_sfa_rr_implicit:
 
     end
 
-    g_ex += spikesExc.getSum()
-    g_in += spikesInh.getSum()
-    I_stim = currents.getSum()
+    g_ex += spikesExc.get_sum()
+    g_in += spikesInh.get_sum()
+    I_stim = currents.get_sum()
   end
 
 end

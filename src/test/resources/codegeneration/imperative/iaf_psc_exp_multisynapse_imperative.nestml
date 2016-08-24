@@ -67,7 +67,7 @@ neuron iaf_psc_exp_multisynapse_nestml:
 
     i_syn = i_syn * P11_syn
     # collect spikes
-    i_syn = i_syn + spikeBufferInh.getSum() # not sure about this
+    i_syn = i_syn + spikeBufferInh.get_sum() # not sure about this
 
     if V_m >= Theta:  # threshold crossing
       r_ref = RefractoryCounts
@@ -77,7 +77,7 @@ neuron iaf_psc_exp_multisynapse_nestml:
     end
 
     # set new input current
-    i_0 = currentBuffer.getSum()
+    i_0 = currentBuffer.get_sum()
 
   end
 

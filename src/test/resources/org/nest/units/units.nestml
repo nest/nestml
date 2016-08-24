@@ -87,9 +87,9 @@ neuron aeif_cond_alpha_neuron:
       emitSpike()
     end
 
-    DGE = DGE + spikeExc.getSum() * PSConInit_E
-    DGI = DGI + spikeInh.getSum() * PSConInit_I
-    I_stim = currents.getSum()
+    DGE = DGE + spikeExc.get_sum() * PSConInit_E
+    DGI = DGI + spikeInh.get_sum() * PSConInit_I
+    I_stim = currents.get_sum()
   end
 
 end

@@ -97,7 +97,7 @@ neuron iaf_psc_alpha_mc_imperative:
 
       # Apply spikes delivered in this step spikes arriving at T+1 have
       # an immediate effect on the state of the neuron
-      weighted_spikes_ex = spikeBufferExc.getSum()
+      weighted_spikes_ex = spikeBufferExc.get_sum()
       y1_ex = y1_ex + EPSCInitialValue * weighted_spikes_ex
 
       # alpha shape EPSCs
@@ -106,7 +106,7 @@ neuron iaf_psc_alpha_mc_imperative:
 
       # Apply spikes delivered in this step spikes arriving at T+1 have
       # an immediate effect on the state of the neuron
-      weighted_spikes_in = spikeBufferInh.getSum()
+      weighted_spikes_in = spikeBufferInh.get_sum()
       y1_in = y1_in + IPSCInitialValue * weighted_spikes_in
 
       # threshold crossing
@@ -121,7 +121,7 @@ neuron iaf_psc_alpha_mc_imperative:
       end
 
       # set new input current
-      y0 = currentBuffer.getSum(t)
+      y0 = currentBuffer.get_sum(t)
 
   end
 

@@ -24,14 +24,14 @@ public class ODETransformer {
   public static ASTEquation replaceSumCalls(final ASTEquation astOde) {
     // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
     final ASTEquation workingCopy = astOde.deepClone();
-    final List<ASTFunctionCall> functions = getSumFunctionCalls(workingCopy);
+    final List<ASTFunctionCall> functions = get_sumFunctionCalls(workingCopy);
 
     functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
     return workingCopy;
   }
 
 
-  public static List<ASTFunctionCall> getSumFunctionCalls(final ASTNode workingCopy) {
+  public static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
     return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall ->
@@ -43,7 +43,7 @@ public class ODETransformer {
   public static ASTExpr replaceSumCalls(final ASTExpr astExpr) {
     // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
     final ASTExpr workingCopy = astExpr.deepClone();
-    final List<ASTFunctionCall> functions = getSumFunctionCalls(workingCopy);
+    final List<ASTFunctionCall> functions = get_sumFunctionCalls(workingCopy);
 
     functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
     return workingCopy;

@@ -91,10 +91,10 @@ neuron iaf_cond_exp_implicit:
     end
 
     # add incoming spikes
-    g_ex += spikeExc.getSum()
-    g_in += spikeInh.getSum()
+    g_ex += spikeExc.get_sum()
+    g_in += spikeInh.get_sum()
     # set new input current
-    I_stim = currents.getSum()
+    I_stim = currents.get_sum()
   end
 
 end

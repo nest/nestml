@@ -85,7 +85,7 @@ class DeltaSolutionTransformer extends TransformerBase {
       // Apply spikes from the buffer to the state variable
       for (ASTFunctionCall i_sum_call : i_sumCalls) {
         final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
-        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName + ".getSum(t)");
+        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName + ".get_sum(t)");
         propagatorSteps.add(statement(applySpikes));
       }
 
