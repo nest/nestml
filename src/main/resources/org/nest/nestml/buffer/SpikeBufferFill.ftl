@@ -14,7 +14,7 @@
 ${signature("buffer")}
 
 <#if buffer.isVector()>
-  for (size_t i=0; i < P_.${buffer.getVectorParameter()}; i++)
+  for (long i=0; i < P_.${buffer.getVectorParameter()}; i++)
   {
     if (B_.receptor_types_[i] == e.get_rport()) {
       get_${buffer.getName()}()[i].add_value(e.get_rel_delivery_steps(nest::kernel().simulation_manager.get_slice_origin()),

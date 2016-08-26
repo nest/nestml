@@ -231,7 +231,7 @@ ${simpleNeuronName}::calibrate()
     <#if buffer.isVector()>
         B_.${buffer.getName()}.resize(P_.${buffer.getVectorParameter().get()});
         B_.receptor_types_.resize(P_.${buffer.getVectorParameter().get()});
-        for (size_t i=0; i < P_.${buffer.getVectorParameter().get()}}; i++)
+        for (long i=0; i < P_.${buffer.getVectorParameter().get()}; i++)
         {
           B_.receptor_types_[i] = i+1;
         }
@@ -282,7 +282,7 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
   <#if neuronSymbol.isMultisynapseSpikes()>
     <#assign spikeBuffer = neuronSymbol.getSpikeBuffers()[0]>
 
-    for ( size_t i = 0; i < P_.${spikeBuffer.getVectorParameter().get()}; ++i )
+    for ( long i = 0; i < P_.${spikeBuffer.getVectorParameter().get()}; ++i )
       {
         if ( B_.receptor_types_[ i ] == e.get_rport() )
         {
