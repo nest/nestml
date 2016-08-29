@@ -343,16 +343,12 @@ public final class ASTUtils {
         typeName = unitType.getUnit().get();
 
       }
-      else {
-        System.out.printf("");
-      }
+
     }
     else {
       checkState(false, "Is not possible through the grammar construction.");
     }
-    if (typeName == null) {
-      System.out.printf("");
-    }
+    
     return typeName;
   }
 
