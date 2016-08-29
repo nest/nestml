@@ -49,7 +49,7 @@ public class NESTMLFrontendIntegrationTest {
   @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/ht_neuron.nestml",
+        "models/iaf_psc_delta.nestml",
         "--target", outputPath.toString()};
 
     new NESTMLFrontend().start(args);

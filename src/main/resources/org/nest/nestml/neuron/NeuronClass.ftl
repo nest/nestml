@@ -250,7 +250,7 @@ ${simpleNeuronName}::calibrate()
 void
 ${simpleNeuronName}::update(
         nest::Time const & origin,
-        const nest::long_t from, const nest::long_t to)
+        const long from, const long to)
 {
     <#list body.getDynamics() as dynamic>
     ${tc.include("org.nest.nestml.function.DynamicsImplementation", dynamic)}
@@ -292,14 +292,14 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
         }
       }
   <#elseif (body.getSameTypeBuffer()?size > 1)>
-    assert( e.get_rport() < static_cast< nest::int_t >( B_.spike_inputs_.size() ) );
+    assert( e.get_rport() < static_cast< int >( B_.spike_inputs_.size() ) );
 
     B_.spike_inputs_[ e.get_rport() ].add_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_weight() * e.get_multiplicity() );
   <#else>
-      const double_t weight = e.get_weight();
-      const double_t multiplicity = e.get_multiplicity();
+      const double weight = e.get_weight();
+      const double multiplicity = e.get_multiplicity();
       <#list body.getSpikeBuffers() as buffer>
         ${tc.includeArgs("org.nest.nestml.buffer.SpikeBufferFill", [buffer])}
       </#list>
@@ -314,8 +314,8 @@ ${simpleNeuronName}::handle(nest::CurrentEvent& e)
 {
   assert(e.get_delay() > 0);
 
-  const double_t current=e.get_current();
-  const double_t weight=e.get_weight();
+  const double current=e.get_current();
+  const double weight=e.get_weight();
 
   // add weighted current; HEP 2002-10-04
   <#list body.getCurrentBuffers() as buffer>

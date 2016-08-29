@@ -105,8 +105,7 @@ public class SPLCoCosTest {
   @Test
   public void testVarHasTypeName() throws IOException {
     final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "varWithTypeName.simple");
-    UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
-    unitsSIVisitor.handle(ast);
+    UnitsSIVisitor.convertSiUnitsToSignature(ast);
     splScopeCreator.runSymbolTableCreator(ast);
 
     final VarHasTypeName varHasTypeName = new VarHasTypeName();

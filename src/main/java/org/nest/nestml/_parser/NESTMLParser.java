@@ -7,14 +7,17 @@ package org.nest.nestml._parser;
 
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -57,6 +60,12 @@ public class NESTMLParser extends NESTMLParserTOP {
       // in case of no importstatements the first comment, that should belong to neuron, is interpreted as artifact
       // //comment
       forwardModelComment(res.get());
+
+      List<Finding> typeFindings = UnitsSIVisitor.convertSiUnitsToSignature(res.get());
+      if (!typeFindings.isEmpty()) {
+        return Optional.empty();
+      }
+
     }
 
     return res;

@@ -9,6 +9,7 @@ import de.monticore.io.paths.ModelPath;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.logging.Finding;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
 import org.nest.symboltable.symbols.MethodSymbol;
@@ -16,6 +17,7 @@ import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Creates a artifact scope, build the symbol table and adds predifined types.
@@ -48,12 +50,10 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
         modelPath,
         nestmlLanguages,
         resolverConfiguration);
+
     final NESTMLSymbolTableCreator symbolTableCreator = new NESTMLSymbolTableCreator(
         resolverConfiguration,
         globalScope);
-
-    UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
-    unitsSIVisitor.handle(compilationUnit);
 
     return symbolTableCreator.createFromAST(compilationUnit);
   }

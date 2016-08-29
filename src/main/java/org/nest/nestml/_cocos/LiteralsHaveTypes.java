@@ -1,7 +1,10 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.nestml._cocos;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import java.util.Optional;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
@@ -9,29 +12,23 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._cocos.CommonsASTExprCoCo;
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._ast.ASTFunction;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTELIF_Clause;
-import org.nest.spl._ast.ASTIF_Clause;
-import org.nest.spl._ast.ASTReturnStmt;
-import org.nest.spl._ast.ASTSmall_Stmt;
-import org.nest.spl._ast.ASTStmt;
-import org.nest.spl._ast.ASTWHILE_Stmt;
+import org.nest.spl._ast.*;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.spl._cocos.SPLASTELIF_ClauseCoCo;
-import org.nest.spl._cocos.SPLASTIF_ClauseCoCo;
-import org.nest.spl._cocos.SPLASTWHILE_StmtCoCo;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
+import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkArgument;
+
 /**
- * @author ptraeder
  *
+ *
+ * @author ptraeder
  */
 public class LiteralsHaveTypes implements
     SPLASTAssignmentCoCo,
@@ -40,14 +37,15 @@ public class LiteralsHaveTypes implements
     NESTMLASTFunctionCoCo,
     CommonsASTExprCoCo{
   public static final String ERROR_CODE = "NESTML_LITERALS_MUST_HAVE_TYPES";
-  ExpressionTypeCalculator typeCalculator = new ExpressionTypeCalculator();
-  @Override
+  private ExpressionTypeCalculator typeCalculator = new ExpressionTypeCalculator();
+
   /**
    * For Variable assignments, check that a rhs expression carries unit information
    *
    * Valid: Ampere = 8 A
    * Invalid: Ampere = 8
    */
+  @Override
   public void check(ASTAssignment node) {
     final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
     checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
@@ -58,11 +56,11 @@ public class LiteralsHaveTypes implements
         if (!node.getExpr().getType().isPresent()) {
           exprType = typeCalculator.computeType(node.getExpr());
         }
-        else{
+        else {
           exprType = node.getExpr().getType().get();
         }
         if (exprType.isValue() &&
-           // !exprType.getValue().equals(var.get().getType())) {
+            // !exprType.getValue().equals(var.get().getType())) {
             !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
           CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
           final String msg = errorStrings.getErrorMsgAssignment(this);
@@ -103,12 +101,15 @@ public class LiteralsHaveTypes implements
             final String msg = errorStrings.getErrorMsgAssignment(this);
             Log.warn(msg, node.get_SourcePositionStart());
           }
+
         }
+
       }
+
     }
+
   }
 
-  @Override
   /**
    * For Function calls, check that a literal parameter carries
    * unit information if the parameter is of unit type
@@ -123,6 +124,7 @@ public class LiteralsHaveTypes implements
    *        foo(2,4)
    */
 
+  @Override
   public void check(ASTFunctionCall node) {
     final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
     checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
@@ -146,9 +148,13 @@ public class LiteralsHaveTypes implements
             final String msg = errorStrings.getErrorMsgCall(this);
             Log.warn(msg, node.get_SourcePositionStart());
           }
+
         }
+
       }
+
     }
+
   }
 
   /**
@@ -168,7 +174,8 @@ public class LiteralsHaveTypes implements
    *          return 8
    *        end
    */
-  @Override public void check(ASTFunction node) {
+  @Override
+  public void check(ASTFunction node) {
     final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
     checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
     //resolve method
@@ -197,13 +204,19 @@ public class LiteralsHaveTypes implements
                     final String msg = errorStrings.getErrorMsgReturn(this);
                     Log.warn(msg, node.get_SourcePositionStart());
                   }
+
                 }
+
               }
 
           }
+
         }
+
       }
+
     }
+
   }
 
 /*  @Override public void check(ASTIF_Clause node) {
@@ -234,20 +247,24 @@ public class LiteralsHaveTypes implements
     }
   }*/
 
-  @Override public void check(ASTExpr node) {
+  @Override
+  public void check(ASTExpr node) {
     if(node.isLt() || node.isLe() || node.isEq() || node.isNe() ||
         node.isNe2() || node.isGe() || node.isGt()){
       final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
       checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
-      Either<TypeSymbol,String> leftType,rightType;
+      final Either<TypeSymbol,String> leftType,rightType;
+
       if (!node.getLeft().get().getType().isPresent()) {
         leftType = typeCalculator.computeType(node.getLeft().get());
-      }else{
+      }
+      else{
         leftType = node.getLeft().get().getType().get();
       }
       if (!node.getRight().get().getType().isPresent()) {
         rightType = typeCalculator.computeType(node.getRight().get());
-      }else{
+      }
+      else{
         rightType = node.getRight().get().getType().get();
       }
       if (leftType.isValue() && rightType.isValue()){ // Types are Recognized
@@ -259,10 +276,13 @@ public class LiteralsHaveTypes implements
             final String msg = errorStrings.getErrorMsgConditional(this);
             Log.warn(msg, node.get_SourcePositionStart());
           }
+
         }
+
       }
 
     }
-  }
-}
 
+  }
+
+}

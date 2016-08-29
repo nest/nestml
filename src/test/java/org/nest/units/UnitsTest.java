@@ -41,6 +41,7 @@ public class UnitsTest extends ModelbasedTest {
 
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
+
     List<Finding> findings = completeChecker.analyzeModel(validRoot.get());
     long errorsFound = findings
         .stream()

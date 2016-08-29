@@ -26,16 +26,13 @@ import static org.nest.utils.ASTUtils.computeTypeName;
 /**
  * Only predefined types must be used in a declaration.
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
 public class InvalidTypesInDeclaration implements
     NESTMLASTUSE_StmtCoCo,
     SPLASTDeclarationCoCo,
     NESTMLASTFunctionCoCo {
-
   public static final String ERROR_CODE = "NESTML_INVALID_TYPES_DECLARATION";
-
 
   @Override
   public void check(final ASTDeclaration astDeclaration) {
