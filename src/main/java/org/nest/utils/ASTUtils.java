@@ -310,7 +310,7 @@ public final class ASTUtils {
   }
 
   public static String computeTypeName(final ASTDatatype astDatatype){ //TODO: Better solution
-    return computeTypeName(astDatatype,false);
+    return computeTypeName(astDatatype, false);
   }
   /**
    * Computes the typename for the declaration ast. It is defined in one of the grammar
@@ -338,12 +338,20 @@ public final class ASTUtils {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
       if(isCodeGeneration){
         typeName = "real";
-      }else if(unitType.getUnit().isPresent()){
+      }
+      else if(unitType.getUnit().isPresent()){
         typeName = unitType.getUnit().get();
+
+      }
+      else {
+        System.out.printf("");
       }
     }
     else {
       checkState(false, "Is not possible through the grammar construction.");
+    }
+    if (typeName == null) {
+      System.out.printf("");
     }
     return typeName;
   }

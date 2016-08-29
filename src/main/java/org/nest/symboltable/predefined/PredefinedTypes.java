@@ -134,8 +134,7 @@ public class PredefinedTypes {
     }
     else {
       try {
-        UnitRepresentation unitRepresentation;
-        unitRepresentation = new UnitRepresentation(typeName);
+        UnitRepresentation unitRepresentation = new UnitRepresentation(typeName);
         registerType(unitRepresentation.serialize(), TypeSymbol.Type.UNIT);
       }
       catch (IllegalStateException e){
