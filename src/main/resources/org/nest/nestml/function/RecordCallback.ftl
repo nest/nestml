@@ -11,7 +11,7 @@ ${signature("variable")}
 
 <#assign varDomain = declarations.getDomainFromType(variable.getType())>
 
-<#if varDomain == "nest::double_t" && variable.isLoggable()>
+<#if varDomain == "nest::double" && variable.isLoggable()>
 insert_("${names.name(variable)}", &${simpleNeuronName}::${names.getter(variable)});
 <#else>
 // ignores the ${variable.getName()} with the domain type ${varDomain}

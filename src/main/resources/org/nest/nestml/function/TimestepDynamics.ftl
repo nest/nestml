@@ -2,7 +2,7 @@
                                         BLOCK_OPEN! Block BLOCK_CLOSE!;-->
 
 
-for ( nest::long_t lag = from ; lag < to ; ++lag ) {
+for ( long lag = from ; lag < to ; ++lag ) {
 
   ${tc.include("org.nest.spl.Block", ast.getBlock())}
 
