@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.units.unitrepresentation;
 
 import java.util.ArrayList;
@@ -6,8 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author ptraeder.
  * provides access to commonly used SI data.
+ *
+ * @author ptraeder.
  */
 public class SIData {
 

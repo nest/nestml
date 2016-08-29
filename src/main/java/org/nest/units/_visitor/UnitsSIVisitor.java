@@ -25,7 +25,8 @@ public class UnitsSIVisitor implements NESTMLVisitor {
       try{
         Integer.parseInt(unit.substring(1)); // throws exception in case of missformated number
         return true;
-      }catch(NumberFormatException e){
+      }
+      catch(NumberFormatException e){
         Preconditions.checkState(false,
             "The unit " + unit + " is not an SI unit.");
       }
@@ -44,11 +45,13 @@ public class UnitsSIVisitor implements NESTMLVisitor {
    * Overwrite the nodes' "unit" field with the serialization.
    */
   public void visit(ASTUnitType node){
-      if(node.getUnit().isPresent()){
-        String unit = node.getUnit().get();
-          Preconditions.checkState(isSIUnit(unit),
-              "The unit " + unit + " is not an SI unit.");
-      }
+    if(node.getUnit().isPresent()){
+      String unit = node.getUnit().get();
+        Preconditions.checkState(isSIUnit(unit),
+            "The unit " + unit + " is not an SI unit.");
+    }
+
     node.setUnit(translator.calculateUnitType(node));
   }
+
 }
