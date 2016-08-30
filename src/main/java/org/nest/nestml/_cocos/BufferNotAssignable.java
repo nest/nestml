@@ -6,7 +6,6 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
@@ -15,11 +14,9 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
-import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Checks that buffers cannot be assigned a value.
@@ -33,7 +30,7 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
   public void check(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symboltable creator. ");
     final Scope enclosingScope = astAssignment.getEnclosingScope().get();
-    final String varName = convertToSimpleName(astAssignment.getLhsVarialbe());
+    final String varName = astAssignment.getLhsVarialbe().toString();
 
     final Optional<VariableSymbol> var = enclosingScope.resolve(varName, VariableSymbol.KIND);
 

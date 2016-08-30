@@ -6,6 +6,7 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
+import org.nest.codegeneration.helpers.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.spl.prettyprinter.IReferenceConverter;
@@ -14,7 +15,6 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.utils.ASTUtils.convertDevrivativeNameToSimpleName;
-import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Makes a conversion for the GSL solver.
@@ -68,10 +68,10 @@ public class GSLReferenceConverter implements IReferenceConverter {
     checkState(astVariable.getEnclosingScope().isPresent(), "Run symbol table creator.");
     final String variableName = convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
-    final VariableSymbol variableSymbol = VariableSymbol.resolve(convertDevrivativeNameToSimpleName(astVariable), scope);
+    final VariableSymbol variableSymbol = VariableSymbol.resolve(astVariable.toString(), scope);
 
     if (variableSymbol.definedByODE()) {
-      return "y[" + variableName + INDEX_VARIABLE_POSTFIX + "]";
+      return "y[" + Names.name(variableSymbol) + INDEX_VARIABLE_POSTFIX + "]";
     }
     else {
 

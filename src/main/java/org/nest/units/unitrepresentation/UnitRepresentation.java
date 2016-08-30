@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.units.unitrepresentation;
 
 import static java.lang.Math.abs;
@@ -8,23 +13,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
+import de.se_rwth.commons.logging.Log;
 
 /**
- * @author ptraeder
  * Helper class. Controlled way of creating base representations of derived SI units.
+ *
+ * @author plotnikov, traeder
  */
-
 public class UnitRepresentation {
   private int magnitude;
-  private int K,s,m,g,cd,mol,A;
+  private int K, s, m, g, cd, mol, A;
 
   private int[] asArray(){
     int[] result={ K, s, m, g, cd, mol, A, magnitude };
     return result;
   }
 
-  public void addMagnitude(int magnitude) {
-    this.magnitude += magnitude;
+  private void increaseMagnitude(int difference) {
+    this.magnitude += difference;
   }
 
   public String serialize() {
@@ -106,8 +112,8 @@ public class UnitRepresentation {
         //Try Inverse base Units:
         thisRemainder = this.divideBy(baseUnit.invert());
         if(smallestRemainder.isMoreComplexThan(thisRemainder)){
-          if(!(unitName == "S" && pow.get() == -1) &&//Avoid S**-1 in favor of Ohm
-              !(unitName == "Ohm" && pow.get() == -1)) { //Avoid Ohm**-1 in favor of S
+          if(unitName != "S" &&//Avoid S**-1 in favor of Ohm
+              unitName != "Ohm") { //Avoid Ohm**-1 in favor of S
             bestMatch = unitName + "**-1 * ";
             smallestRemainder = thisRemainder;
           }
@@ -158,10 +164,12 @@ public class UnitRepresentation {
         if(SIData.getBaseRepresentations().containsKey(remainder)){
           int magnitude = SIData.getPrefixMagnitudes().get(pre);
           UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(remainder));
-          result.addMagnitude(magnitude);
+          result.increaseMagnitude(magnitude);
           return Optional.of(result);
         }
+
       }
+
     }
     if(SIData.getBaseRepresentations().containsKey(unit)) { //No prefix present, see if whole name matches
       UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(unit));
@@ -170,9 +178,13 @@ public class UnitRepresentation {
     try{
       UnitRepresentation unitRepresentation = new UnitRepresentation(unit);
       return Optional.of(unitRepresentation);
-    }catch(Exception e){}
-    //should never happen
-    return Optional.empty();
+    }
+    catch(Exception e){
+      //should never happen
+      Log.error("The unit: " + unit + " doesn't exist. At this stage it must be already checked by a context condition.");
+      return Optional.empty();
+    }
+
   }
 
   public UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude) {

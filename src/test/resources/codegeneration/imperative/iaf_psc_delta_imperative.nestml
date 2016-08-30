@@ -49,7 +49,7 @@ neuron iaf_psc_delta_neuron:
 
   update:
     if r == 0: # neuron not refractory
-      y3 = P30*(y0 + I_e) + P33*y3 + spikeBufferInh.getSum()
+      y3 = P30*(y0 + I_e) + P33*y3 + spikeBufferInh.get_sum()
 
       # if we have accumulated spikes from refractory period,
       # add and reset accumulator
@@ -66,9 +66,9 @@ neuron iaf_psc_delta_neuron:
       # read spikes from buffer and accumulate them, discounting
       # for decay until end of refractory period
       if with_refr_input:
-        refr_spikes_buffer = refr_spikes_buffer + spikeBufferInh.getSum() * exp(-r * h / tau_m)
+        refr_spikes_buffer = refr_spikes_buffer + spikeBufferInh.get_sum() * exp(-r * h / tau_m)
       else:
-        spikeBufferInh.getSum()  # clear buffer entry, ignore spike
+        spikeBufferInh.get_sum()  # clear buffer entry, ignore spike
         r = r - 1
       end
     end

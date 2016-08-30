@@ -1,6 +1,7 @@
 <#--
   Creates GSL implementation of the differentiation step for the system of ODEs.
 
+  @param ast ASTBody The body of the neuron containing ODE
   @result C++ Function
 -->
 <#assign ODEs = ast.getEquations()>
@@ -8,7 +9,7 @@
 <#assign indexPostfix = "INDEX">
 
 <#list ast.variablesDefinedByODE() as odeVariable>
-const int ${odeVariable.getName()}_${indexPostfix} = ${index};
+const int ${names.name(odeVariable)}_${indexPostfix} = ${index};
 <#assign index = index + 1>
 </#list>
 
@@ -21,24 +22,25 @@ ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode 
 
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
-  <#list body.getStateAliasSymbols() as alias>
-    <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
-    double ${alias.getName()} = ${expressionsPrinterForGSL.print(declaringExpression)};
-  </#list>
 
-  <#list body.getParameterAliasSymbols() as alias>
-    <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
-    double ${alias.getName()} = ${expressionsPrinterForGSL.print(declaringExpression)};
+  <#list ODEs as ode>
+    <#assign simpleOde = odeTransformer.replaceSumCalls(ode)>
+    <#list astUtils.getAliasSymbols(ode) as alias>
+      <#if !alias.isInEquation()>
+        <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
+        double ${names.name(alias)} = ${expressionsPrinterForGSL.print(declaringExpression)};
+      </#if>
+    </#list>
   </#list>
 
   <#list body.getODEAliases() as alias>
     <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
-    double ${alias.getName()} = ${expressionsPrinterForGSL.print(declaringExpression)};
+    double ${names.name(alias)} = ${expressionsPrinterForGSL.print(declaringExpression)};
   </#list>
 
-  <#list ODEs as ode>
-    <#assign simpleOde = odeTransformer.replaceSumCalls(ode)>
-    f[ ${astUtils.convertToSimpleName(simpleOde.getLhs())}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(simpleOde.getRhs())};
+  <#list ast.variablesDefinedByODE() as odeVariable>
+    <#assign simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDeclaration().get())>
+    f[ ${names.name(odeVariable)}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(simpleOde)};
   </#list>
 
   return GSL_SUCCESS;

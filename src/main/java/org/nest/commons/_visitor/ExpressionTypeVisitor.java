@@ -11,7 +11,7 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 
 /**
- * @author ptraeder
+ * @author ptraeder, plotnikov
  */
 public class ExpressionTypeVisitor implements CommonsVisitor {
 
@@ -32,24 +32,24 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
       setRealThis(callStack.pop());
   }*/
 
-  CommonsVisitor realThis=this;
+  private CommonsVisitor realThis=this;
 
-  static UnaryVisitor unaryVisitor = new UnaryVisitor();
-  static PowVisitor powVisitor = new PowVisitor();
-  static ParenthesesVisitor parenthesesVisitor = new ParenthesesVisitor();
-  static LogicalNotVisitor logicalNotVisitor = new LogicalNotVisitor();
-  static DotOperatorVisitor dotOperatorVisitor = new DotOperatorVisitor();
-  static LineOperatorVisitor lineOperatorVisitor = new LineOperatorVisitor();
-  static NoSemantics noSemantics = new NoSemantics();
-  static ComparisonOperatorVisitor comparisonOperatorVisitor = new ComparisonOperatorVisitor();
-  static BinaryLogicVisitor binaryLogicVisitor = new BinaryLogicVisitor();
-  static ConditionVisitor conditionVisitor = new ConditionVisitor();
-  static FunctionCallVisitor functionCallVisitor = new FunctionCallVisitor();
-  static BooleanLiteralVisitor booleanLiteralVisitor = new BooleanLiteralVisitor();
-  static NESTMLNumericLiteralVisitor nESTMLNumericLiteralVisitor = new NESTMLNumericLiteralVisitor();
-  static StringLiteralVisitor stringLiteralVisitor = new StringLiteralVisitor();
-  static VariableVisitor variableVisitor = new VariableVisitor();
-  static InfVisitor infVisitor = new InfVisitor();
+  private static UnaryVisitor unaryVisitor = new UnaryVisitor();
+  private static PowVisitor powVisitor = new PowVisitor();
+  private static ParenthesesVisitor parenthesesVisitor = new ParenthesesVisitor();
+  private static LogicalNotVisitor logicalNotVisitor = new LogicalNotVisitor();
+  private static DotOperatorVisitor dotOperatorVisitor = new DotOperatorVisitor();
+  private static LineOperatorVisitor lineOperatorVisitor = new LineOperatorVisitor();
+  private static NoSemantics noSemantics = new NoSemantics();
+  private static ComparisonOperatorVisitor comparisonOperatorVisitor = new ComparisonOperatorVisitor();
+  private static BinaryLogicVisitor binaryLogicVisitor = new BinaryLogicVisitor();
+  private static ConditionVisitor conditionVisitor = new ConditionVisitor();
+  private static FunctionCallVisitor functionCallVisitor = new FunctionCallVisitor();
+  private static BooleanLiteralVisitor booleanLiteralVisitor = new BooleanLiteralVisitor();
+  private static NESTMLNumericLiteralVisitor nESTMLNumericLiteralVisitor = new NESTMLNumericLiteralVisitor();
+  private static StringLiteralVisitor stringLiteralVisitor = new StringLiteralVisitor();
+  private static VariableVisitor variableVisitor = new VariableVisitor();
+  private static InfVisitor infVisitor = new InfVisitor();
 
 
   public void handle(org.nest.commons._ast.ASTExpr node) {

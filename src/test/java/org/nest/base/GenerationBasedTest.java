@@ -10,7 +10,6 @@ import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.nest.codegeneration.NESTCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._cocos.NESTMLCoCoChecker;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
 import org.nest.utils.FilesHelper;
 
@@ -21,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.nest.utils.LogHelper.getErrorsByPrefix;
 
@@ -35,6 +35,7 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
   protected static final String MODULE_NAME = "integration";
   protected final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
   private final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
+  private final NESTMLCoCosManager checker = new NESTMLCoCosManager();
 
   @Before
   public void cleanUpGeneratedFolder() {
@@ -58,14 +59,13 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
       assertTrue(root.isPresent());
 
       scopeCreator.runSymbolTableCreator(root.get());
-      final NESTMLCoCoChecker checker = new NESTMLCoCosManager().createNESTMLCheckerWithSPLCocos();
-      checker.checkAll(root.get());
+      List<Finding> findings = checker.analyzeModel(root.get());
+      long errorsFound = findings
+          .stream()
+          .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+          .count();
 
-      Collection<Finding> errorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
-      errorFindings.addAll(getErrorsByPrefix("SPL_", Log.getFindings()));
-
-      assertTrue("Model " + pathToModel + " contain unexpected errors: " + errorFindings.size(),
-          errorFindings.isEmpty());
+      assertEquals("Model " + pathToModel + " contain unexpected errors: " + errorsFound, 0, errorsFound);
 
     }
     catch (IOException e) { // lambda functions doesn't support checked exceptions

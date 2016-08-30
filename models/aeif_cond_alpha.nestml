@@ -127,7 +127,7 @@ neuron aeif_cond_alpha_neuron:
     end
 
     # Update with initial values must be added after the model analysis
-    I_stim = currents.getSum()
+    I_stim = currents.get_sum()
   end
 
 end

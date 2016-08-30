@@ -8,10 +8,11 @@ ${signature("variable")}
 
 <#if variable.isAlias() && variable.hasSetter()>
   // handles an alias with the user defined setter
-  ${declarations.printVariableType(variable)} tmp_${variable.getName()};
-  if (updateValue<${declarations.printVariableType(variable)}>(__d, "${variable.getName()}", tmp_${variable.getName()})) {
-    set_${variable.getName()}(tmp_${variable.getName()});
+  ${declarations.printVariableType(variable)} tmp_${names.name(variable)};
+  if (updateValue<${declarations.printVariableType(variable)}>(__d, "${names.name(variable)}", tmp_${names.name(variable)})) {
+    set_${names.name(variable)}(tmp_${names.name(variable)});
   }
+
 <#elseif variable.isAlias() && aliasInverter.isInvertableExpression(variable.getDeclaringExpression().get())>
   <#assign baseVariable = aliasInverter.baseVariable(variable.getDeclaringExpression().get())>
   <#assign base = aliasInverter.baseVariable(variable.getDeclaringExpression().get()).getName()>
@@ -19,7 +20,7 @@ ${signature("variable")}
   <#assign inverseOperation = aliasInverter.inverseOperator(variable.getDeclaringExpression().get())>
 
   <#if baseVariable.isState()>
-    if ( updateValue< ${declarations.printVariableType(variable)} >( __d, "${variable.getName()}", ${base} ) ) {
+    if ( updateValue< ${declarations.printVariableType(variable)} >( __d, "${names.name(variable)}", ${base} ) ) {
       ${base} ${inverseOperation}= p.${offset};
     }
     else {
@@ -37,17 +38,17 @@ ${signature("variable")}
 
   <#assign offset = aliasInverter.offsetVariable(variable.getDeclaringExpression().get()).getName()>
   <#assign operator = aliasInverter.operator(variable.getDeclaringExpression().get())>
-  if ( updateValue< ${declarations.printVariableType(variable)} >( __d, "${variable.getName()}", ${variable.getName()} ) ) {
-    ${variable.getName()} ${operator}= ${offset};
+  if ( updateValue< ${declarations.printVariableType(variable)} >( __d, "${names.name(variable)}", ${names.name(variable)} ) ) {
+    ${names.name(variable)} ${operator}= ${offset};
   }
   else {
-    ${variable.getName()} ${operator}= delta_${offset};
+    ${names.name(variable)} ${operator}= delta_${offset};
   }
 <#elseif !variable.isAlias()>
-  ${declarations.printVariableType(variable)} tmp_${variable.getName()};
-    if (updateValue<${declarations.printVariableType(variable)}>(__d, "${variable.getName()}", tmp_${variable.getName()})) {
-    ${variable.getName()} = tmp_${variable.getName()};
+  ${declarations.printVariableType(variable)} tmp_${names.name(variable)};
+    if (updateValue<${declarations.printVariableType(variable)}>(__d, "${names.name(variable)}", tmp_${names.name(variable)})) {
+    ${names.name(variable)} = tmp_${names.name(variable)};
   }
 <#else>
-  // ignores '${variable.getName()}' ${declarations.printVariableType(variable)}' since it is an alias and setter isn't defined
+  // ignores '${names.name(variable)}' ${declarations.printVariableType(variable)}' since it is an alias and setter isn't defined
 </#if>

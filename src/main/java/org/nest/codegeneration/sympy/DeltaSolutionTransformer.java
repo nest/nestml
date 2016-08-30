@@ -24,7 +24,8 @@ import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAlias;
 import static org.nest.utils.ASTUtils.getFunctionCall;
 
 /**
- * Takes SymPy result with the linear solution of the ODE and the source AST.
+ * Takes SymPy result with the exact solution of the Delta-shaped PSC and integrates it into the neuron instead of
+ * the 'integrate'-call.
  * Produces an altered AST with the the exact solution.
  *
  * @author plotnikov
@@ -84,7 +85,7 @@ class DeltaSolutionTransformer extends TransformerBase {
       // Apply spikes from the buffer to the state variable
       for (ASTFunctionCall i_sum_call : i_sumCalls) {
         final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
-        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName + ".getSum(t)");
+        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName + ".get_sum(t)");
         propagatorSteps.add(statement(applySpikes));
       }
 

@@ -97,9 +97,9 @@ neuron iaf_cond_beta_neuron:
 
     end
 
-    GE' += spikeExc.getSum() * PSConInit_E
-    GI' += spikeInh.getSum() * PSConInit_I
-    I_stim = currents.getSum()
+    GE' += spikeExc.get_sum() * PSConInit_E
+    GI' += spikeInh.get_sum() * PSConInit_I
+    I_stim = currents.get_sum()
   end
 
 end

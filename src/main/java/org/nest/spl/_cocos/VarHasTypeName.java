@@ -17,7 +17,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 /**
  * Checks that the variable name is not a type name, e.g. integer integer = 1.
  *
- * @author plotnikov
+ * @author ippen, plotnikov
  */
 public class VarHasTypeName implements SPLASTDeclarationCoCo {
   public static final String ERROR_CODE = "SPL_VARIABLE_HAS_TYPE_NAME";

@@ -24,7 +24,7 @@ import static org.nest.utils.ASTUtils.computeTypeName;
 /**
  * Check that the type of the loop variable is an integer.
  *
- * @author plotnikov
+ * @author ippen, plotnikov
  */
 public class IllegalExpression implements
     SPLASTIF_ClauseCoCo,

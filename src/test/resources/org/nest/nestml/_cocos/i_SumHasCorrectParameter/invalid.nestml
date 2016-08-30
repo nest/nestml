@@ -5,7 +5,6 @@ neuron invalid_I_sum:
   end
 
   equations:
-    G = t
     V_m' = V_m+I_sum(G*2, spikes) # error1: G*2 is false
     V_m' = V_m+I_sum(G, spikes*2) # error2: spikes*2 is false
     V_m' = V_m+I_sum(G+G, spikes) # error3: G+G is false

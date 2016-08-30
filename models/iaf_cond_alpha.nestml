@@ -94,7 +94,7 @@ neuron iaf_cond_alpha_neuron:
       emit_spike()
     end
     # set new input current
-    I_stim = currents.getSum()
+    I_stim = currents.get_sum()
   end
 
 end

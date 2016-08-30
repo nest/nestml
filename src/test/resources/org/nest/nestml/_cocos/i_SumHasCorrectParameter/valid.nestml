@@ -5,7 +5,6 @@ neuron valid_I_sum:
   end
 
   equations:
-    G = t
     V_m' = V_m+I_sum(G, spikes)
   end
 

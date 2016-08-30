@@ -93,13 +93,8 @@ public class NESTMLCoCosTest  {
         assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
 
-
-
     nestmlCoCoChecker.checkAll(invalidRoot.get());
-
-    errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, Log.getFindings());
-    assertEquals(Integer.valueOf(2), errorsFound);
-
+    // TODO: Extend Log, make the information about infos also persistable
 
   }
 
@@ -608,7 +603,7 @@ public class NESTMLCoCosTest  {
         pathToInvalidModel,
         nestmlCoCoChecker,
         "NESTML_",
-        4);
+        4); // TODO should be 5
 
   }
 
@@ -675,6 +670,26 @@ public class NESTMLCoCosTest  {
 
   }
 
+  @Test
+  public void tesDerivativeOrderAtLeastOne() {
+    final DerivativeOrderAtLeastOne derivativeOrderAtLeastOne = new DerivativeOrderAtLeastOne();
+    nestmlCoCoChecker.addCoCo(derivativeOrderAtLeastOne);
+
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "derivativeOrderAtLeastOne/valid.nestml");
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        DerivativeOrderAtLeastOne.ERROR_CODE);
+
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "derivativeOrderAtLeastOne/invalid.nestml");
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        DerivativeOrderAtLeastOne.ERROR_CODE,
+        1);
+
+  }
+  
   @Test
   public void testI_SumHasCorrectParameter() {
     final I_SumHasCorrectParameter i_sumHasCorrectParameter

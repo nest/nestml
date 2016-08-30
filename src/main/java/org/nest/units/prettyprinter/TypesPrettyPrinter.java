@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
 package org.nest.units.prettyprinter;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -7,6 +12,7 @@ import org.nest.units.unitrepresentation.UnitRepresentation;
 
 /**
  * prints the serialized Unit typenames as readable text.
+ *
  * @author ptraeder
  */
 public class TypesPrettyPrinter {

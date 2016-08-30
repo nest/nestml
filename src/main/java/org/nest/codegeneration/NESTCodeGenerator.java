@@ -268,16 +268,15 @@ public class NESTCodeGenerator {
 
     final String guard = (neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
+    glex.setGlobalValue("names", new Names());
     glex.setGlobalValue("simpleNeuronName", neuron.getName());
     glex.setGlobalValue("neuronSymbol", neuron.getSymbol().get());
 
     final NESTFunctionPrinter functionPrinter = new NESTFunctionPrinter();
-    final ASTDeclarations declarations = new ASTDeclarations();
     glex.setGlobalValue("declarations", new ASTDeclarations() );
     glex.setGlobalValue("assignments", new ASTAssignments());
     glex.setGlobalValue("functionPrinter", functionPrinter);
     glex.setGlobalValue("functions", new SPLFunctionCalls());
-    glex.setGlobalValue("declarations", declarations);
     glex.setGlobalValue("bufferHelper", new ASTBuffers());
     glex.setGlobalValue("variableHelper", new VariableHelper());
     glex.setGlobalValue("odeTransformer", new ODETransformer());

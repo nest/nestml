@@ -13,9 +13,7 @@ import org.nest.utils.ASTUtils;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
-import static org.nest.utils.ASTUtils.convertToSimpleName;
 
 /**
  * Computes how the setter call looks like
@@ -68,7 +66,7 @@ public class ASTAssignments {
   public String printOrigin(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symbol table creator.");
     final Scope scope = astAssignment.getEnclosingScope().get();
-    return VariableHelper.printOrigin(resolve(convertToSimpleName(astAssignment.getLhsVarialbe()), scope));
+    return VariableHelper.printOrigin(resolve(astAssignment.getLhsVarialbe().toString(), scope));
   }
 
   /**
@@ -76,7 +74,7 @@ public class ASTAssignments {
    */
   public String printLHS(final ASTAssignment astAssignment) {
 
-    return convertToSimpleName(astAssignment.getLhsVarialbe());
+    return Names.name(astAssignment.getLhsVarialbe());
   }
 
 
@@ -98,7 +96,7 @@ public class ASTAssignments {
    * Returns the textual representation of the setter invocation
    */
   public String printGetterName(final ASTAssignment astAssignment) {
-    final String variableName = convertToSimpleName(astAssignment.getLhsVarialbe());
+    final String variableName = Names.name(astAssignment.getLhsVarialbe());
     return "get_" + variableName;
   }
 
@@ -106,7 +104,7 @@ public class ASTAssignments {
     checkArgument(astAssignment.getEnclosingScope().isPresent());
     final Scope scope = astAssignment.getEnclosingScope().get();
 
-    final String variableName = convertToSimpleName(astAssignment.getLhsVarialbe());
+    final String variableName = astAssignment.getLhsVarialbe().toString();
     final VariableSymbol variableSymbol = resolve(variableName, scope);
 
     if (variableSymbol.getVectorParameter().isPresent()) {
@@ -127,7 +125,7 @@ public class ASTAssignments {
   public boolean isVectorLHS(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
-    final String lhsVarName = convertToSimpleName(astAssignment.getLhsVarialbe());
+    final String lhsVarName = astAssignment.getLhsVarialbe().toString();
     final VariableSymbol lhsVarSymbol = resolve(lhsVarName, scope);
 
     return lhsVarSymbol.getVectorParameter().isPresent();
@@ -141,7 +139,7 @@ public class ASTAssignments {
         .stream()
         .filter(VariableSymbol::isVector).findAny();
     if (!vectorVariable.isPresent()) {
-      vectorVariable = Optional.of(resolve(convertToSimpleName(astAssignment.getLhsVarialbe()), astAssignment.getEnclosingScope().get()));
+      vectorVariable = Optional.of(resolve(astAssignment.getLhsVarialbe().toString(), astAssignment.getEnclosingScope().get()));
     }
     // The existence of the variable is ensured by construction
     return vectorVariable.get().getVectorParameter().get(); // Array parameter is ensured by the query

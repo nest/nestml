@@ -143,10 +143,10 @@ neuron hh_psc_alpha_nestml:
       emit_spike()
     end
 
-    I_stim = currents.getSum()
+    I_stim = currents.get_sum()
 
-    g_ex' += spikeExc.getSum() * PSConInit_E
-    g_in' += spikeInh.getSum() * PSConInit_I
+    g_ex' += spikeExc.get_sum() * PSConInit_E
+    g_in' += spikeInh.get_sum() * PSConInit_I
   end
 
 end

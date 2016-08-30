@@ -5,6 +5,7 @@
  */
 package org.nest.utils;
 
+import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 
 import java.util.Collection;
@@ -68,6 +69,16 @@ public class LogHelper {
       throw new IllegalArgumentException(l + " cannot be cast to int without changing its value.");
     }
     return (int) l;
+  }
+
+  public static List<Finding> getModelFindings(final List<Finding> findings) {
+    final List<Finding> result = Lists.newArrayList();
+    result.addAll(getErrorsByPrefix("NESTML_", findings));
+    result.addAll(getErrorsByPrefix("SPL_", findings));
+    result.addAll(getWarningsByPrefix("NESTML_", findings));
+    result.addAll(getWarningsByPrefix("SPL_", findings));
+
+    return result;
   }
 
   public static Collection<Finding> getErrorsByPrefix(

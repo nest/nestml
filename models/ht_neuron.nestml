@@ -164,7 +164,7 @@ neuron ht_neuron_nestml:
     AMPA_E_rev mV = 0.0mV       # reversal potential
     AMPA_Tau_1 ms = 0.5ms       # rise time
     AMPA_Tau_2 ms = 2.4ms       # decay time, Tau_1 < Tau_2
-    NMDA_g_peak nS = 0.075      # peak conductance
+    NMDA_g_peak nS = 0.075nS    # peak conductance
     NMDA_Tau_1 ms = 4.0ms       # rise time
     NMDA_Tau_2 ms = 40.0ms      # decay time, Tau_1 < Tau_2
     NMDA_E_rev mV = 0.0mV       # reversal potential
@@ -174,7 +174,7 @@ neuron ht_neuron_nestml:
     GABA_A_Tau_1 ms = 1.0ms     # rise time
     GABA_A_Tau_2 ms = 7.0ms     # decay time, Tau_1 < Tau_2
     GABA_A_E_rev mV = -70.0mV   # reversal potential
-    GABA_B_g_peak nS = 0.0132ns # peak conductance
+    GABA_B_g_peak nS = 0.0132nS # peak conductance
     GABA_B_Tau_1 ms = 60.0ms    # rise time
     GABA_B_Tau_2 ms = 200.0ms   # decay time, Tau_1 < Tau_2
     GABA_B_E_rev mV = -90.0mV   # reversal potential for intrinsic current
@@ -184,7 +184,7 @@ neuron ht_neuron_nestml:
     NaP_E_rev mV = 30.0mV       # reversal potential for intrinsic current
     KNa_g_peak nS = 1.0nS       # peak conductance for intrinsic current
     KNa_E_rev mV = -90.0mV      # reversal potential for intrinsic current
-    T_g_peak nS = 1.0           # peak conductance for intrinsic current
+    T_g_peak nS = 1.0nS         # peak conductance for intrinsic current
     T_E_rev mV = 0.0mV          # reversal potential for intrinsic current
     h_g_peak nS = 1.0nS         # peak conductance for intrinsic current
     h_E_rev mV = -40.0mV        # reversal potential for intrinsic current
@@ -201,7 +201,7 @@ neuron ht_neuron_nestml:
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
     # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0
+    I_stim pA = 0pA
   end
 
   input:
@@ -247,7 +247,7 @@ neuron ht_neuron_nestml:
       emit_spike()
     end
 
-    I_stim = currents.getSum()
+    I_stim = currents.get_sum()
   end
 
   function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:

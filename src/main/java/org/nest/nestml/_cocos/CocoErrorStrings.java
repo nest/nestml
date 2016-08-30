@@ -5,14 +5,17 @@
  */
 package org.nest.nestml._cocos;
 
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
+import org.nest.ode._ast.ASTEquation;
+
 /**
- * Factory for CoCo error strings.
+ * Factory for CoCo error strings. The dispatch is done by the static type of the context condition object.
  *
- * @author traeder
+ * @author plotnikov, traeder
  */
 public class CocoErrorStrings {
   private static CocoErrorStrings instance = new CocoErrorStrings();
-
+  final NESTMLPrettyPrinter printer = NESTMLPrettyPrinter.Builder.build();
   private CocoErrorStrings() {
   }
 
@@ -103,8 +106,9 @@ public class CocoErrorStrings {
     return CurrentInputIsNotInhExc.ERROR_CODE + ":" + "Current input can neither be inhibitory nor excitatory.";
   }
 
-  String getErrorMsgAssignToNonState(EquationsOnlyForStateVariables coco,
-                                            String variableName) {
+  String getErrorMsgAssignToNonState(
+      final EquationsOnlyForStateVariables coco,
+      final String variableName) {
     return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "The variable '" + variableName + "' is not a state"
         + " variable and, therefore, cannot be used on the left side of an equation.";
   }
@@ -221,4 +225,8 @@ public class CocoErrorStrings {
   }
 
 
+  public String getErrorMsg(final DerivativeOrderAtLeastOne coco, final String variableName) {
+
+    return DerivativeOrderAtLeastOne.ERROR_CODE + ":" + "The variable on the righthandside of an equation must be derivative variable, e.g. " + variableName + "'";
+  }
 }

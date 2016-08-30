@@ -7,9 +7,8 @@ package org.nest.nestml._cocos;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -47,13 +46,22 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
     );
     node.getEquations().forEach(
         ode-> {
-          checkVariableByName(ode.getLhs().getName().toString(), node);
-          ASTUtils
-              .getAll(ode.getRhs(), ASTVariable.class)
-              .forEach(variable -> checkVariableByName(ASTUtils.convertToSimpleName(variable), node)); // it can be a D'' variable
+          checkVariableByName(ode.getLhs());
+          ASTUtils.getAll(ode.getRhs(), ASTVariable.class)
+                  .forEach(variable -> checkVariableByName(variable.getName().toString(), node)); // it can be a D'' variable
         }
 
     );
+
+  }
+
+  private void checkVariableByName(final ASTDerivative astDerivative) {
+    if (astDerivative.getDifferentialOrder().size() == 0) {
+      checkVariableByName(astDerivative.toString(), astDerivative);
+    }
+    else {
+      checkVariableByName(ASTUtils.convertToSimpleName(astDerivative), astDerivative);
+    }
 
   }
 
