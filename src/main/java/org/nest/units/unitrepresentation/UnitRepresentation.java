@@ -149,6 +149,9 @@ public class UnitRepresentation {
         if(!main.contains(" * ")){ //The Unit part of the return String consists of exactly one Unit
           try {
             Integer parsedMagnitude = Integer.parseInt(magnitude);
+            if(main.contains("**-")) { //The single unit has a negative exponent
+              parsedMagnitude = -parsedMagnitude;
+            }
             String prefix = SIData.getPrefixMagnitudes().inverse().get(parsedMagnitude);
             result = prefix+main;
           }
