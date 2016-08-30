@@ -34,11 +34,11 @@ public class NESTMLCoCosManager {
 
   public NESTMLCoCosManager() {
     registerVariableExistenceChecks();
+    registerCocos();
   }
 
   public List<Finding> analyzeModel(final ASTNESTMLCompilationUnit root) {
 
-    registerCocos();
 
     Log.getFindings().clear();
     variablesExistenceChecker.checkAll(root);
