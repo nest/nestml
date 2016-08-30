@@ -123,22 +123,23 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   public void endVisit(final ASTNeuron astNeuron) {
     setEnclosingScopeOfNodes(astNeuron);
-    addAliasesFromODEBlock(astNeuron.getBody().getODEBlock().get());
+
+    if (astNeuron.getBody().getODEBlock().isPresent()) {
+      addAliasesFromODEBlock(astNeuron.getBody().getODEBlock().get());
+    }
 
     NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
     final List<Finding> findings = nestmlCoCosManager.checkVariableUniqueness(astNeuron);
     if (findings.isEmpty()) {
       if (astNeuron.getBody().getODEBlock().isPresent()) {
-
-
-
         addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
         assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
         markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
       }
+
     }
     else {
-      Log.error("Cannot correctly build the symboltable");
+      Log.error(LOGGER_NAME + ": Cannot correctly build the symboltable");
     }
 
     removeCurrentScope();
