@@ -90,7 +90,9 @@ public class CLIConfigurationExecutor {
       final NESTCodeGenerator generator) {
 
     modelRoots.forEach(scopeCreator::runSymbolTableCreator);
-    if (checkModels(modelRoots, config)) {
+    final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
+
+    if (symbolTableFindings.isEmpty() && checkModels(modelRoots, config)) {
       generateNeuronCode(modelRoots, config, generator);
       generateModuleCode(modelRoots, config, generator);
     }

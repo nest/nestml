@@ -348,7 +348,7 @@ public final class ASTUtils {
     else {
       checkState(false, "Is not possible through the grammar construction.");
     }
-    
+
     return typeName;
   }
 

@@ -11,11 +11,9 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
-import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
-import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -36,12 +34,11 @@ public class SPLCoCosTest {
 
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/spl/_cocos/";
 
-  final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
+  private final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
 
   private SPLCoCoChecker splCoCoChecker;
   /**
    * Parses the model and returns ast.
-   * @throws java.io.IOException
    */
   private ASTSPLFile getAstRoot(String modelPath) throws IOException {
     final SPLParser p = new SPLParser();
@@ -91,6 +88,7 @@ public class SPLCoCosTest {
   @Test
   public void testVarDefinedMultipleTimes() throws IOException {
     final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "varDefinedMultipleTimes.simple");
+    splScopeCreator.runSymbolTableCreator(ast);
 
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
     splCoCoChecker.addCoCo(variableDefinedMultipleTimes);
@@ -99,13 +97,13 @@ public class SPLCoCosTest {
 
     Integer errorsFound = countErrorsByPrefix(VariableDefinedMultipleTimes.ERROR_CODE,
         getFindings());
-    assertEquals(Integer.valueOf(1), errorsFound);
+    assertEquals(Integer.valueOf(6), errorsFound);
   }
 
   @Test
   public void testVarHasTypeName() throws IOException {
     final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "varWithTypeName.simple");
-    UnitsSIVisitor.convertSiUnitsToSignature(ast);
+
     splScopeCreator.runSymbolTableCreator(ast);
 
     final VarHasTypeName varHasTypeName = new VarHasTypeName();
@@ -164,7 +162,7 @@ public class SPLCoCosTest {
     splCoCoChecker.checkAll(ast);
 
     final Integer errorsFound = countErrorsByPrefix(IllegalExpression.ERROR_CODE, getFindings());
-    getFindings().forEach(f -> System.out.println("DEBUG: " + f.toString()) );
+    getFindings().forEach(f -> System.out.println("Logging: " + f.toString()) );
     // TODO must be 14
     assertEquals(Integer.valueOf(10), errorsFound);
   }
