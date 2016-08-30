@@ -146,7 +146,7 @@ public class UnitRepresentation {
         String main = parts[0];
         String magnitude = parts[1];
         main = removeTrailingMultiplication(main);
-        if(!main.contains("*")){ //The Unit part of the return String consists of exactly one Unit
+        if(!main.contains(" * ")){ //The Unit part of the return String consists of exactly one Unit
           try {
             Integer parsedMagnitude = Integer.parseInt(magnitude);
             String prefix = SIData.getPrefixMagnitudes().inverse().get(parsedMagnitude);
