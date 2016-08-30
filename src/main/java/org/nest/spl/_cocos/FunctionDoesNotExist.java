@@ -42,11 +42,13 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
     final ExpressionTypeCalculator expressionTypeCalculator =  new ExpressionTypeCalculator();
 
     final List<String> argTypeNames = Lists.newArrayList();
+    final List<String> prettyArgTypeNames = Lists.newArrayList();
 
     for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
       final ASTExpr arg = astFunctionCall.getArgs().get(i);
       final Either<TypeSymbol, String> argType = expressionTypeCalculator.computeType(arg);
       if (argType.isValue()) {
+        prettyArgTypeNames.add(argType.getValue().prettyPrint());
         argTypeNames.add(argType.getValue().getName());
       }
       else {
@@ -61,7 +63,7 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
     if (!method.isPresent()) {
       Log.error(
           ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, methodName)
-              + " with the signature '" + Joiner.on(",").join(argTypeNames) + "'",
+              + " with the signature '" + Joiner.on(",").join(prettyArgTypeNames) + "'",
           astFunctionCall.get_SourcePositionStart());
     }
 

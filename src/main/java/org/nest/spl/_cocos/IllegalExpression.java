@@ -11,7 +11,6 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.units.prettyprinter.TypesPrettyPrinter;
 import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -52,8 +51,6 @@ public class IllegalExpression implements
   public void check(final ASTDeclaration node) {
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
 
-    TypesPrettyPrinter typesPrettyPrinter = new TypesPrettyPrinter();
-
     // compute the symbol of the var from the declaration.
     // take an arbitrary var since the variables in the declaration
     // share the same type
@@ -71,15 +68,15 @@ public class IllegalExpression implements
           if (variableDeclarationType.getType().equals(TypeSymbol.Type.UNIT) &&
               initializerExpressionType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
             final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
-                + typesPrettyPrinter.print(variableDeclarationType) +" with an expression of type: " +
-                typesPrettyPrinter.print(initializerExpressionType.getValue()) +
+                + variableDeclarationType.prettyPrint()+" with an expression of type: " +
+                initializerExpressionType.getValue().prettyPrint() +
                 node.get_SourcePositionStart();
             warn(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
           }
           else {
             final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
-                + typesPrettyPrinter.print(variableDeclarationType) +" with an expression of type: " +
-                typesPrettyPrinter.print(initializerExpressionType.getValue()) +
+                + variableDeclarationType.prettyPrint() +" with an expression of type: " +
+                initializerExpressionType.getValue().prettyPrint() +
                 node.get_SourcePositionStart();
             error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
           }

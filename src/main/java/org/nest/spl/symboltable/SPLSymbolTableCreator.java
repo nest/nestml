@@ -92,13 +92,7 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
       // handle ST infrastructure
       addToScopeAndLinkWithNode(variable, astDeclaration);
 
-      if(typeSymbol.getType() == TypeSymbol.Type.UNIT){
-        UnitRepresentation typeAsUnit = new UnitRepresentation(typeName);
-        String unitName = typeAsUnit.prettyPrint();
-        Log.info("Creates a variable: " + variableName + " with the type: "+unitName +" ("+typeName+")",LOGGER_NAME);
-      }else {
-        Log.info("Creates a variable: " + variableName + " with the type: "+typeName,LOGGER_NAME);
-      }
+      Log.info("Creates a variable: " + variableName + " with the type: "+typeSymbol.prettyPrint(),LOGGER_NAME);
     }
   }
 }
