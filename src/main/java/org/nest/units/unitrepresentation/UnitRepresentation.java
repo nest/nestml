@@ -127,11 +127,40 @@ public class UnitRepresentation {
 
   }
 
-  private String calculateName() {
-    String result = this.doCalc();
+  private String removeTrailingMultiplication(String str){
+    String result = str;
     String postfix = result.substring(result.length() - 3, result.length());
     if (postfix.equals(" * ")) {
       result = result.substring(0, result.length() - 3);
+    }
+    return result;
+  }
+
+  private String calculateName() {
+    String result = this.doCalc();
+    result = removeTrailingMultiplication(result);
+    int exponentIndex = result.indexOf("e");
+    if(exponentIndex != -1){ // Exponential notation present
+      String[] parts = result.split("e");
+      if(parts.length == 2){
+        String main = parts[0];
+        String magnitude = parts[1];
+        main = removeTrailingMultiplication(main);
+        if(!main.contains("*")){ //The Unit part of the return String consists of exactly one Unit
+          try {
+            Integer parsedMagnitude = Integer.parseInt(magnitude);
+            String prefix = SIData.getPrefixMagnitudes().inverse().get(parsedMagnitude);
+            result = prefix+main;
+          }
+          catch(NumberFormatException e){
+            Log.warn("Exception in Unit name Formatting! Cannot parse magnitude String: "
+            +magnitude);
+            return result;
+          }
+
+
+        }
+      }
     }
     return result;
   }
