@@ -11,7 +11,9 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLVisitor;
 import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -84,14 +86,19 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
       VariableSymbol variable = new VariableSymbol(variableName);
       String typeName = computeTypeName(astDeclaration.getDatatype());
       variable.setAstNode(astDeclaration);
-      variable.setType(PredefinedTypes.getType(typeName)); // if exists better choice?
+      TypeSymbol typeSymbol =  PredefinedTypes.getType(typeName);// if exists better choice?
+      variable.setType(typeSymbol);
 
       // handle ST infrastructure
       addToScopeAndLinkWithNode(variable, astDeclaration);
 
-      Log.info("Creates a variable: " + variableName + " with the type: " + typeName, LOGGER_NAME);
+      if(typeSymbol.getType() == TypeSymbol.Type.UNIT){
+        UnitRepresentation typeAsUnit = new UnitRepresentation(typeName);
+        String unitName = typeAsUnit.prettyPrint();
+        Log.info("Creates a variable: " + variableName + " with the type: "+unitName +" ("+typeName+")",LOGGER_NAME);
+      }else {
+        Log.info("Creates a variable: " + variableName + " with the type: "+typeName,LOGGER_NAME);
+      }
     }
-
   }
-
 }
