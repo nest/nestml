@@ -12,6 +12,7 @@ import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLVisitor;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -40,6 +41,7 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
    */
   default Scope createFromAST(final ASTSPLNode rootNode) {
     requireNonNull(rootNode);
+    UnitsSIVisitor.convertSiUnitsToSignature(rootNode);
     rootNode.accept(this);
     return getFirstCreatedScope();
   }

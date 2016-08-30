@@ -145,7 +145,7 @@ public class CocoErrorStrings {
 
   String getErrorMsg(MemberVariableDefinedMultipleTimes coco, String varName,
                             int line, int column) {
-    return MemberVariableDefinedMultipleTimes.ERROR_CODE + ":" + "Variable '" + varName + "' defined previously defined i line: "
+    return MemberVariableDefinedMultipleTimes.ERROR_CODE + ":" + "Variable '" + varName + "' defined previously defined in line: "
         + line + ":" + column;
   }
 

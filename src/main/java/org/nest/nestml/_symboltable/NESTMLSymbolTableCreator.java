@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.*;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
@@ -47,7 +48,7 @@ import static org.nest.utils.ASTUtils.convertToSimpleName;
  * @author plotnikov
  */
 public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implements NESTMLVisitor {
-  private String LOGGER_NAME = NESTMLSymbolTableCreator.class.getName();
+  private static String LOGGER_NAME = "NESTML_SymbolTableCreator";
   private Optional<ASTAliasDecl> astAliasDeclaration = empty();
   private Optional<ASTVar_Block> astVariableBlockType = empty();
   private Optional<NeuronSymbol> currentTypeSymbol = empty();
@@ -121,17 +122,28 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   }
 
   public void endVisit(final ASTNeuron astNeuron) {
-    if (astNeuron.getBody().getODEBlock().isPresent()) {
-      addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
-      addAliasesFromODEBlock(astNeuron.getBody().getODEBlock().get());
-      assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
-      markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
+    setEnclosingScopeOfNodes(astNeuron);
+    addAliasesFromODEBlock(astNeuron.getBody().getODEBlock().get());
+
+    NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
+    final List<Finding> findings = nestmlCoCosManager.checkVariableUniqueness(astNeuron);
+    if (findings.isEmpty()) {
+      if (astNeuron.getBody().getODEBlock().isPresent()) {
+
+
+
+        addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
+        assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
+        markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
+      }
+    }
+    else {
+      Log.error("Cannot correctly build the symboltable");
     }
 
     removeCurrentScope();
     currentTypeSymbol = empty();
   }
-
 
 
   /**
