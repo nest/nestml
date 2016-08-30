@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 
 /**
  * provides access to commonly used SI data.
@@ -48,7 +52,7 @@ public class SIData {
   private UnitRepresentation ampere = new UnitRepresentation(0,0,0,0,0,0,1,0);
 
   static private HashMap<String,UnitRepresentation> baseRepresentations = new HashMap();
-  static private HashMap<String,Integer> prefixMagnitudes = new HashMap<String,Integer>();
+  static private BiMap<String, Integer> prefixMagnitudes =HashBiMap.create();
 
   private static ArrayList<String> CorrectSIUnits= new ArrayList<>();
   //ignore dimensionless units radian and steradian. Ignore degree Celsius as Kelvin exists.
@@ -105,7 +109,7 @@ public class SIData {
     return baseRepresentations;
   }
 
-  static public HashMap<String, Integer> getPrefixMagnitudes() {
+  static public BiMap<String, Integer> getPrefixMagnitudes() {
     if(instance == null) {
       instance = new SIData();
     }
