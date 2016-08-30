@@ -123,8 +123,8 @@ public class UnitRepresentation {
     if(bestMatch.equals("")) { //abort recursion
       return smallestRemainder.isZero() ? "" : smallestRemainder.naivePrint();
     }
-
     return bestMatch + smallestRemainder.doCalc();
+
   }
 
   private String calculateName() {
@@ -149,7 +149,7 @@ public class UnitRepresentation {
       result = result.substring(0,result.length()-3);
     }
 
-    return result + (magnitude!=0? "E"+magnitude:"");
+    return result + (magnitude!=0? "e"+magnitude:"");
   }
 
   public String prettyPrint() {
