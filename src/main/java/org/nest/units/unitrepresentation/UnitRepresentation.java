@@ -2,16 +2,12 @@ package org.nest.units.unitrepresentation;
 
 import static java.lang.Math.abs;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
-import javafx.util.Pair;
 
 /**
  * @author ptraeder
@@ -44,7 +40,7 @@ public class UnitRepresentation {
   }
 
   private boolean isZero(){
-    return (this.exponentSum() == 0) ? true : false;
+    return (this.exponentSum()+abs(this.magnitude) == 0) ? true : false;
   }
 
   private Optional<Integer> getExponent(UnitRepresentation base){
@@ -78,7 +74,7 @@ public class UnitRepresentation {
       return Optional.empty();
   }
 
-  private String divideIntoParts(){
+  private String doCalc(){
     String bestMatch = "";
     UnitRepresentation smallestRemainder = this;
     for (String unitName : SIData.getBaseRepresentations().keySet()){
@@ -87,11 +83,15 @@ public class UnitRepresentation {
         UnitRepresentation baseUnit = SIData.getBaseRepresentations().get(unitName);
         Optional<Integer> pow = getExponent(baseUnit);
         if(pow.isPresent()){
-          UnitRepresentation thisRemainder = this.divideBy(baseUnit.pow(pow.get()));
+          int exponent = pow.get();
+          UnitRepresentation thisRemainder = this.divideBy(baseUnit.pow(exponent));
 
           if (smallestRemainder.isMoreComplexThan(thisRemainder)) {
-            bestMatch = unitName + "**"+pow.get()+" * ";
-            smallestRemainder = thisRemainder;
+            if(!(unitName == "S" && exponent == -1) &&//Avoid S**-1 in favor of Ohm
+                !(unitName == "Ohm" && exponent == -1)){ //Avoid Ohm**-1 in favor of S
+              bestMatch = unitName + (exponent != 1 ? "**"+pow.get()+" * ": " * ");
+              smallestRemainder = thisRemainder;
+            }
           }
         }
 
@@ -106,8 +106,11 @@ public class UnitRepresentation {
         //Try Inverse base Units:
         thisRemainder = this.divideBy(baseUnit.invert());
         if(smallestRemainder.isMoreComplexThan(thisRemainder)){
-          bestMatch = unitName +"**-1 * " ;
-          smallestRemainder = thisRemainder;
+          if(!(unitName == "S" && pow.get() == -1) &&//Avoid S**-1 in favor of Ohm
+              !(unitName == "Ohm" && pow.get() == -1)) { //Avoid Ohm**-1 in favor of S
+            bestMatch = unitName + "**-1 * ";
+            smallestRemainder = thisRemainder;
+          }
         }
       }
     }
@@ -115,53 +118,36 @@ public class UnitRepresentation {
       return smallestRemainder.isZero() ? "" : smallestRemainder.naivePrint();
     }
 
-    return bestMatch + smallestRemainder.divideIntoParts();
+    return bestMatch + smallestRemainder.doCalc();
+  }
+
+  private String calculateName() {
+    String result = this.doCalc();
+    String postfix = result.substring(result.length() - 3, result.length());
+    if (postfix.equals(" * ")) {
+      result = result.substring(0, result.length() - 3);
+    }
+    return result;
   }
 
   private String naivePrint(){
-    String numerator =
-        (K==1? "K * " : K>0? "(K**"+K+") * " :"")
-            + (s==1? "s * " : s>0? "(s**"+s+") * " :"")
-            + (m==1? "m * " : m>0? "(m**"+m+") * " :"")
-            + (g==1? "g * " : g>0? "(g**"+g+") * " :"")
-            + (cd==1? "cd * " : cd>0? "(cd**"+cd+") * " :"")
-            + (mol==1? "mol * " : mol>0? "(mol**"+mol+") * " :"")
-            + (A==1? "A * " : A>0? "(A**"+A+") * " :"");
-    if(numerator.length() > 0 ){
-      numerator = numerator.substring(0,numerator.length()-3);
-      if(numerator.contains("*")){
-        numerator = "("+numerator+")";
-      }
-    }else{
-      numerator ="1";
+    String result =
+        (K==1? "K * " : K!=0? "K**"+K+" * " :"")
+            + (s==1? "s * " : s!=0? "s**"+s+" * " :"")
+            + (m==1? "m * " : m!=0? "m**"+m+" * " :"")
+            + (g==1? "g * " : g!=0? "g**"+g+" * " :"")
+            + (cd==1? "cd * " : cd!=0? "cd**"+cd+" * " :"")
+            + (mol==1? "mol * " : mol!=0? "mol**"+mol+" * " :"")
+            + (A==1? "A * " : A!=0? "A**"+A+" * " :"");
+    if(result.length() > 0 ){
+      result = result.substring(0,result.length()-3);
     }
-    String denominator =
-        (K==-1? "K * " : K<0? "(K**"+-K+") * " :"")
-            + (s==-1? "s * " : s<0? "(s**"+-s+") * " :"")
-            + (m==-1? "m * " : m<0? "(m**"+-m+") * " :"")
-            + (g==-1? "g * " : g<0? "(g**"+-g+") * " :"")
-            + (cd==-1? "cd * " : cd<0? "(cd**"+-cd+") * " :"")
-            + (mol==-1? "mol * " : mol<0? "(mol**"+-mol+") * " :"")
-            + (A==-1? "A * " : A<0? "(A**"+-A+") * " :"");
-    if(denominator.length()>1){
-      denominator = denominator.substring(0,denominator.length()- 3);
-      if(denominator.contains("*")){
-        denominator = "("+denominator+")";
-      }
-    }else{
-      denominator ="";
-    }
-    return (magnitude!=0? "e"+magnitude+"*":"")+ numerator + (denominator.length()>0? " / "+denominator : "");
+
+    return result + (magnitude!=0? "E"+magnitude:"");
   }
 
   public String prettyPrint() {
-    String result = this.divideIntoParts();
-    String postfix = result.substring(result.length()-3,result.length());
-    if(postfix.equals(" * ")){
-      return result.substring(0,result.length()-3);
-    }else{
-      return result;
-    }
+    return  calculateName();
   }
 
   static public Optional<UnitRepresentation> lookupName(String unit){
