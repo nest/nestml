@@ -76,11 +76,21 @@ public class DotOperatorVisitor implements CommonsVisitor{
           expr.setType(Either.value(getRealType()));
           return;
         }
+
         // e.g. both are integers, but check to be sure
         if (lhsType.getValue() == getIntegerType() || rhsType.getValue() == getIntegerType()) {
           expr.setType(Either.value(getIntegerType()));
           return;
         }
+      }
+      //If a buffer is involved, the other unit takes precedent TODO: is this the intended semantic?
+      if(lhsType.getValue() == getBufferType()){
+        expr.setType(Either.value(rhsType.getValue()));
+        return;
+      }
+      if(rhsType.getValue() == getBufferType()){
+        expr.setType(Either.value(lhsType.getValue()));
+        return;
       }
     }
 
