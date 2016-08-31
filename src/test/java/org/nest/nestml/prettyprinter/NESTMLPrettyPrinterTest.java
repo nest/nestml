@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,11 +80,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> splModelRoot = nestmlParser.parse(pathToModel);
     assertTrue("Cannot parse the model: " + pathToModel, splModelRoot.isPresent());
 
-    NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
-    nestmlScopeCreator.runSymbolTableCreator(splModelRoot.get());
     splModelRoot.get().accept(splPrettyPrinter);
-
-    System.out.println(splPrettyPrinter.result());
 
     final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseStringAsSPLFile(splPrettyPrinter.result());
     assertTrue(prettyPrintedRoot.isPresent());

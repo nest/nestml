@@ -275,9 +275,9 @@ public class NESTMLCoCosTest  {
 
   @Test
   public void testMemberVariableDefinedMultipleTimes() {
-    final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes = new MemberVariableDefinedMultipleTimes();
+    /*final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes = new MemberVariableDefinedMultipleTimes();
     nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) memberVariableDefinedMultipleTimes);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) memberVariableDefinedMultipleTimes);
+    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) memberVariableDefinedMultipleTimes);*/
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "memberVariableDefinedMultipleTimes/valid.nestml") ;
     checkModelAndAssertNoErrors(

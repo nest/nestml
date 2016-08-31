@@ -6,16 +6,23 @@
 package org.nest.spl._cocos;
 
 import com.google.common.collect.Maps;
+import de.monticore.ast.ASTNode;
+import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTBlock;
-import org.nest.spl._ast.ASTSmall_Stmt;
-import org.nest.spl._ast.ASTStmt;
+import org.nest.spl._ast.ASTDeclaration;
+import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.ASTUtils;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Checks that a referenced variable is also declared.
+ * Checks that variables are defined only one a a scope. Of course, they can be shadowed through the embedded scope.
  *
  * @author ippen, plotnikov
  */
@@ -23,49 +30,40 @@ public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
   public static final String ERROR_CODE = "SPL_VARIABLE_EXISTS_MULTIPLE_TIMES";
   private static final String ERROR_MSG_FORMAT = "The variable %s defined multiple times.";
 
-  private final Map<String, SourcePosition> names = Maps.newHashMap();
-
   @Override
-  public void check(ASTBlock block) {
-    if (block != null && block.getStmts() != null) {
-      resetNames();
-      doCheck(block);
+  public void check(final ASTBlock astBlock) {
+    final List<ASTDeclaration> declarations = astBlock.getStmts()
+        .stream()
+        .filter(astStmt -> astStmt.getSmall_Stmt().isPresent())
+        .map(astStmt -> astStmt.getSmall_Stmt().get())
+        .filter(astSmall_stmt -> astSmall_stmt.getDeclaration().isPresent())
+        .map(astSmall_stmt -> astSmall_stmt.getDeclaration().get())
+        .collect(Collectors.toList());
+
+    declarations.forEach(this::checkDeclaration);
+  }
+
+  private void checkDeclaration(final ASTDeclaration astDeclaration) {
+    if (astDeclaration.getEnclosingScope().isPresent()) {
+      final Scope scope = astDeclaration.getEnclosingScope().get();
+      for (String var : astDeclaration.getVars()) {
+        checkIfVariableDefinedMultipleTimes(var, scope, astDeclaration);
+
+      }
+
     }
-  }
-
-  /**
-   * TODO refactor it as the inspection suppose
-   *
-   * @param block
-   */
-  private void doCheck(ASTBlock block) {
-    for (ASTStmt stmt : block.getStmts()) {
-        if (stmt.getSmall_Stmt().isPresent()) {
-        ASTSmall_Stmt small = stmt.getSmall_Stmt().get();
-        if (small.getDeclaration().isPresent()) {
-            for (String var : small.getDeclaration().get().getVars()) {
-              addVariable(var, small.getDeclaration().get().get_SourcePositionStart(), getNames());
-            }
-          }
-        }
+    else {
+      Log.warn(ERROR_CODE + ": Run the symboltable creator before.");
     }
+
   }
 
-  protected Map<String, SourcePosition> getNames() {
-    return names;
-  }
-
-  protected void resetNames() {
-    names.clear();
-  }
-
-  protected void addVariable(String name, SourcePosition sourcePosition, Map<String, SourcePosition> names) {
-    if (names.containsKey(name)) {
-      Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, name), sourcePosition);
-
-    } else {
-      names.put(name, sourcePosition);
+  private void checkIfVariableDefinedMultipleTimes(String var, Scope scope, ASTNode astDeclaration) {
+    final Collection<Symbol> symbols = scope.resolveMany(var, VariableSymbol.KIND);
+    if (symbols.size() > 1) {
+      Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, var), astDeclaration.get_SourcePositionStart());
     }
+
   }
 
 }
