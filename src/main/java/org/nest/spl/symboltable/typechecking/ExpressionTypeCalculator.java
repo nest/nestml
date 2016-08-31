@@ -8,8 +8,12 @@ package org.nest.spl.symboltable.typechecking;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._visitor.ExpressionTypeVisitor;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.symboltable.predefined.PredefinedTypes;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
+
 
 /**
  * Compute the type of an expression by an recursive algorithm.
@@ -33,6 +37,17 @@ public class ExpressionTypeCalculator {
     if(!expr.getType().isPresent()){
       final String errorMsg = "This operation for expressions is not supported yet.";
       return Either.error(errorMsg);
+    }
+
+    //Handle unitless expressions by returning real type instead
+    if(expr.getType().get().isValue()){
+      TypeSymbol typeSymbol = expr.getType().get().getValue();
+      if(typeSymbol.getType() == TypeSymbol.Type.UNIT){
+        UnitRepresentation unit = new UnitRepresentation(typeSymbol.getName());
+        if(unit.isZero()){
+          expr.setType(Either.value(PredefinedTypes.getRealType()));
+        }
+      }
     }
 
     return expr.getType().get();

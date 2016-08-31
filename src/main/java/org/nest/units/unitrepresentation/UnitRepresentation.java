@@ -45,7 +45,7 @@ public class UnitRepresentation {
     return (this.exponentSum() > other.exponentSum()) ? true : false;
   }
 
-  private boolean isZero(){
+  public boolean isZero(){
     return (this.exponentSum()+abs(this.magnitude) == 0) ? true : false;
   }
 
