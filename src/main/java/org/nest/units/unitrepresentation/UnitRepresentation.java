@@ -302,4 +302,10 @@ public class UnitRepresentation {
   public UnitRepresentation invert(){
     return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude);
   }
+
+  public UnitRepresentation deriveT(int order) {
+    UnitRepresentation result = new UnitRepresentation(this);
+    result.s -= order;
+    return result;
+  }
 }
