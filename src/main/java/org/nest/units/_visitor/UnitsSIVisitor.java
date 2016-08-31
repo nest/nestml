@@ -64,29 +64,6 @@ public class UnitsSIVisitor implements NESTMLVisitor {
     return Lists.newArrayList(findings);
   }
 
-  private boolean isSIUnit(String unit){
-    if(SIData.getCorrectSIUnits().contains(unit)) {
-      return true;
-    }
-    if(unit.regionMatches(false,0,"e",0,1)){
-      try{
-        Integer.parseInt(unit.substring(1)); // throws exception in case of missformated number
-        return true;
-      }
-      catch(NumberFormatException e){
-        Log.error(ERROR_CODE + "The unit " + unit + " is not an SI unit.");
-      }
-
-    }
-    try{
-      new UnitRepresentation(unit); // throws an exception
-      return true;
-    }
-    catch(Exception e){
-      return false;
-    }
-
-  }
 
   /**
    * Verify that the given Unit is valid. Use TranslationVisitor to generate serialization of Unit.
