@@ -21,6 +21,7 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.trace;
+import static de.se_rwth.commons.logging.Log.warn;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -132,8 +134,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     currentTypeSymbol = empty();
   }
 
-
-
   /**
    * Analyzes the ode block and adds all variables, which are defined through ODEs. E.g.:
    *   state:
@@ -148,7 +148,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   private void addVariablesFromODEBlock(final ASTOdeDeclaration astOdeDeclaration) {
     astOdeDeclaration.getODEs()
           .stream()
-          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
+          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 0)
           .forEach(this::addDerivedVariable);
 
   }
@@ -188,9 +188,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    *
    */
   private void addDerivedVariable(final ASTEquation ode) {
-    final String variableName = convertToSimpleName(ode);
-
-    final TypeSymbol type = PredefinedTypes.getType("real");
+    final String variableName = convertToSimpleName(ode)+"'";
+    final TypeSymbol type = PredefinedTypes.getRealType();
     final VariableSymbol var = new VariableSymbol(variableName);
 
     var.setAstNode(ode.getLhs());
