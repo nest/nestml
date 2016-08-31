@@ -16,7 +16,6 @@ import org.nest.spl._ast.*;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -37,7 +36,6 @@ public class LiteralsHaveTypes implements
     NESTMLASTFunctionCoCo,
     CommonsASTExprCoCo{
   public static final String ERROR_CODE = "NESTML_LITERALS_MUST_HAVE_TYPES";
-  private ExpressionTypeCalculator typeCalculator = new ExpressionTypeCalculator();
 
   /**
    * For Variable assignments, check that a rhs expression carries unit information
@@ -54,7 +52,7 @@ public class LiteralsHaveTypes implements
       if (var.get().getType().getType() == TypeSymbol.Type.UNIT) {
         final Either<TypeSymbol,String> exprType;
         if (!node.getExpr().getType().isPresent()) {
-          exprType = typeCalculator.computeType(node.getExpr());
+          exprType = node.getExpr().computeType().get();
         }
         else {
           exprType = node.getExpr().getType().get();
@@ -90,7 +88,7 @@ public class LiteralsHaveTypes implements
         if (node.getExpr().isPresent()) {
           Either<TypeSymbol,String> exprType;
           if (!node.getExpr().get().getType().isPresent()) {
-            exprType = typeCalculator.computeType(node.getExpr().get());
+            exprType = node.getExpr().get().computeType().get();
           }else{
             exprType = node.getExpr().get().getType().get();
           }
@@ -137,7 +135,7 @@ public class LiteralsHaveTypes implements
         if(parameterType.getType() == TypeSymbol.Type.UNIT){
           Either<TypeSymbol,String> exprType;
           if (!parameterExpr.getType().isPresent()) {
-            exprType = typeCalculator.computeType(parameterExpr);
+            exprType = parameterExpr.computeType().get();
           }else{
             exprType = parameterExpr.getType().get();
           }
@@ -193,7 +191,7 @@ public class LiteralsHaveTypes implements
                 if(returnStmt.exprIsPresent()){
                   Either<TypeSymbol,String> returnType;
                   if (!returnStmt.getExpr().get().getType().isPresent()) {
-                    returnType = typeCalculator.computeType(returnStmt.getExpr().get());
+                    returnType = returnStmt.getExpr().get().computeType().get();
                   }else{
                     returnType = returnStmt.getExpr().get().getType().get();
                   }
@@ -256,13 +254,13 @@ public class LiteralsHaveTypes implements
       final Either<TypeSymbol,String> leftType,rightType;
 
       if (!node.getLeft().get().getType().isPresent()) {
-        leftType = typeCalculator.computeType(node.getLeft().get());
+        leftType = node.getLeft().get().computeType().get();
       }
       else{
         leftType = node.getLeft().get().getType().get();
       }
       if (!node.getRight().get().getType().isPresent()) {
-        rightType = typeCalculator.computeType(node.getRight().get());
+        rightType = node.getRight().get().computeType().get();
       }
       else{
         rightType = node.getRight().get().getType().get();

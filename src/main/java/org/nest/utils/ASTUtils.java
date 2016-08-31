@@ -27,7 +27,6 @@ import org.nest.spl._ast.ASTSPLNode;
 import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
@@ -183,11 +182,10 @@ public final class ASTUtils {
   static List<String> getParameterTypes(final ASTFunctionCall astFunctionCall) {
     final List<String> argTypeNames = Lists.newArrayList();
 
-    final ExpressionTypeCalculator typeCalculator =  new ExpressionTypeCalculator();
 
     for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
       final ASTExpr argExpr = astFunctionCall.getArgs().get(i);
-      final Either<TypeSymbol, String> argType = typeCalculator.computeType(argExpr);
+      final Either<TypeSymbol, String> argType = argExpr.computeType().get();
       if (argType.isValue()) {
         argTypeNames.add(argType.getValue().getName());
       }

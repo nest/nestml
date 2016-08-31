@@ -8,7 +8,6 @@ package org.nest.spl._cocos;
 import de.monticore.ast.ASTNode;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.ASTUtils;
@@ -36,12 +35,6 @@ public class IllegalExpression implements
 {
   public static final String ERROR_CODE = "SPL_ILLEGAL_EXPRESSION";
 
-  private final ExpressionTypeCalculator typeCalculator;
-
-  public IllegalExpression() {
-    typeCalculator = new ExpressionTypeCalculator();
-  }
-
   @Override
   public void check(final ASTAssignment node) {
     // TODO
@@ -58,7 +51,7 @@ public class IllegalExpression implements
       final String varNameFromDeclaration = node.getVars().get(0);
       final String declarationTypeName = computeTypeName(node.getDatatype());
 
-      final Either<TypeSymbol, String> initializerExpressionType = typeCalculator.computeType(node.getExpr().get());
+      final Either<TypeSymbol, String> initializerExpressionType = node.getExpr().get().computeType().get();
       final TypeSymbol variableDeclarationType;
 
       if (initializerExpressionType.isValue()) {
@@ -96,7 +89,7 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTELIF_Clause node) {
-    final Either<TypeSymbol, String> exprType = typeCalculator.computeType(node.getExpr());
+    final Either<TypeSymbol, String> exprType = node.getExpr().computeType().get();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
       final String msg = "Cannot use non boolean expression of type " + exprType.getValue();
@@ -118,7 +111,7 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTIF_Clause node) {
-    final Either<TypeSymbol, String> exprType = typeCalculator.computeType(node.getExpr());
+    final Either<TypeSymbol, String> exprType = node.getExpr().computeType().get();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
       final String msg = "Cannot use non boolean expression of type " + exprType.getValue();
@@ -136,7 +129,7 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTWHILE_Stmt node) {
     try {
-      if (typeCalculator.computeType(node.getExpr()).getValue() != getBooleanType()) {
+      if (node.getExpr().computeType().get().getValue() != getBooleanType()) {
         final String msg = "Cannot use non boolean expression in a while statement " +
             "@" + node.get_SourcePositionStart();
        error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());

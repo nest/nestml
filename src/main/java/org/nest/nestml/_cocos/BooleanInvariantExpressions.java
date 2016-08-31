@@ -8,7 +8,6 @@ package org.nest.nestml._cocos;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.ASTUtils;
@@ -25,10 +24,8 @@ class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
 
 
   public void check(final ASTAliasDecl alias) {
-    final ExpressionTypeCalculator expressionTypeCalculator = new ExpressionTypeCalculator();
-
     if (alias.getInvariant().isPresent()) {
-      final Either<TypeSymbol, String> expressionType = expressionTypeCalculator.computeType(alias.getInvariant().get());
+      final Either<TypeSymbol, String> expressionType = alias.getInvariant().get().computeType().get();
 
       if (expressionType.isValue()) {
 

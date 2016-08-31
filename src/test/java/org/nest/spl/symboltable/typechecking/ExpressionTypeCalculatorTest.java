@@ -36,8 +36,6 @@ public class ExpressionTypeCalculatorTest {
   private static final String TEST_NEGATIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/invalid"
       + "/mathExpressions.simple";
 
-  private final ExpressionTypeCalculator calculator = new ExpressionTypeCalculator();
-
   @Test
   public void testTypeCalculation() throws IOException {
     final Optional<ASTSPLFile> root = splParser.parse(TEST_POSITIVE_MODEL);
@@ -48,74 +46,74 @@ public class ExpressionTypeCalculatorTest {
     final List<ASTDeclaration> declarations = ASTUtils.getAll(root.get(), ASTDeclaration.class);
 
     // b real = 1.0
-    final Either<TypeSymbol, String> typeOfB = calculator.computeType(
-        getByName(declarations, "b").getExpr().get());
+    final Either<TypeSymbol, String> typeOfB =
+        getByName(declarations, "b").getExpr().get().computeType().get();
     assertTrue(typeOfB.isValue());
     Assert.assertEquals(getRealType(), typeOfB.getValue());
 
     // Retrieves line: c = 1
-    final Either<TypeSymbol, String> typeOfC = calculator.computeType(
-        getByName(declarations, "c").getExpr().get());
+    final Either<TypeSymbol, String> typeOfC =
+        getByName(declarations, "c").getExpr().get().computeType().get();
     assertTrue(typeOfC.isValue());
     Assert.assertEquals(getIntegerType(), typeOfC.getValue());
 
     // Retrieves line: d = "test"
-    final Either<TypeSymbol, String> typeOfD = calculator.computeType(
-        getByName(declarations, "d").getExpr().get());
+    final Either<TypeSymbol, String> typeOfD =
+        getByName(declarations, "d").getExpr().get().computeType().get();
     assertTrue(typeOfD.isValue());
     Assert.assertEquals(getStringType(), typeOfD.getValue());
 
     // Retrieves line: e = 1 + 1
-    final Either<TypeSymbol, String> typeOfE = calculator.computeType(
-        getByName(declarations, "c").getExpr().get());
+    final Either<TypeSymbol, String> typeOfE =
+        getByName(declarations, "c").getExpr().get().computeType().get();
     assertTrue(typeOfE.isValue());
     Assert.assertEquals(getIntegerType(), typeOfE.getValue());
 
     // Retrieves line: f = 1 + 1.0
-    final Either<TypeSymbol, String> typeOfF = calculator.computeType(
-        getByName(declarations, "f").getExpr().get());
+    final Either<TypeSymbol, String> typeOfF =
+        getByName(declarations, "f").getExpr().get().computeType().get();
     assertTrue(typeOfF.isValue());
     Assert.assertEquals(getRealType(), typeOfF.getValue());
 
     // Retrieves line: g = 1.0 + 1
-    final Either<TypeSymbol, String> typeOfG = calculator.computeType(
-        getByName(declarations, "g").getExpr().get());
+    final Either<TypeSymbol, String> typeOfG =
+        getByName(declarations, "g").getExpr().get().computeType().get();
     assertTrue(typeOfG.isValue());
     Assert.assertEquals(getRealType(), typeOfG.getValue());
 
     // Retrieves line: h real = 1 + 1 + 1 + 1 + 1.0
-    final Either<TypeSymbol, String> typeOfH = calculator.computeType(
-        getByName(declarations, "h").getExpr().get());
+    final Either<TypeSymbol, String> typeOfH =
+        getByName(declarations, "h").getExpr().get().computeType().get();
     assertTrue(typeOfH.isValue());
     Assert.assertEquals(getRealType(), typeOfH.getValue());
 
     // l real = 1 ** 2.5
-    final Either<TypeSymbol, String> typeOfL = calculator.computeType(
-        getByName(declarations, "l").getExpr().get());
+    final Either<TypeSymbol, String> typeOfL =
+        getByName(declarations, "l").getExpr().get().computeType().get();
     assertTrue(typeOfL.isValue());
     Assert.assertEquals(getRealType(), typeOfL.getValue());
 
     // Retrieves line: i = ~1 l is integer
-    final Either<TypeSymbol, String> typeOfI = calculator.computeType(
-        getByName(declarations, "i").getExpr().get());
+    final Either<TypeSymbol, String> typeOfI =
+        getByName(declarations, "i").getExpr().get().computeType().get();
     assertTrue(typeOfG.isValue());
     Assert.assertEquals(getIntegerType(), typeOfI.getValue());
 
     // Retrieves line: P11ex real = pow(1.0, 1.0)
-    final Either<TypeSymbol, String> typeOfP11ex = calculator.computeType(
-        getByName(declarations, "P11ex").getExpr().get());
+    final Either<TypeSymbol, String> typeOfP11ex =
+        getByName(declarations, "P11ex").getExpr().get().computeType().get();
     assertTrue(typeOfP11ex.isValue());
     Assert.assertEquals(getRealType(), typeOfP11ex.getValue());
 
     // Retrieves line: tmp string = ("")
-    final Either<TypeSymbol, String> typeOfTmp = calculator.computeType(
-        getByName(declarations, "tmp").getExpr().get());
+    final Either<TypeSymbol, String> typeOfTmp =
+        getByName(declarations, "tmp").getExpr().get().computeType().get();
     assertTrue(typeOfTmp.isValue());
     Assert.assertEquals(getStringType(), typeOfTmp.getValue());
 
     // Retrieves line: m boolean = true and l != 0.0
-    final Either<TypeSymbol, String> typeOfM = calculator.computeType(
-        getByName(declarations, "m").getExpr().get());
+    final Either<TypeSymbol, String> typeOfM =
+        getByName(declarations, "m").getExpr().get().computeType().get();
     assertTrue(typeOfM.isValue());
     Assert.assertEquals(getBooleanType(), typeOfM.getValue());
 
@@ -130,8 +128,8 @@ public class ExpressionTypeCalculatorTest {
   }
 
   private void assertType(final String variableName, List<ASTDeclaration> declarations, final TypeSymbol expectedType) {
-    final Either<TypeSymbol, String> type = calculator.computeType
-        (getByName(declarations, variableName).getExpr().get());
+    final Either<TypeSymbol, String> type =
+        getByName(declarations, variableName).getExpr().get().computeType().get();
     assertTrue(type.isValue());
     Assert.assertEquals(expectedType, type.getValue());
   }
@@ -144,22 +142,21 @@ public class ExpressionTypeCalculatorTest {
 
     final SPLScopeCreator scopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root.get());
-    final ExpressionTypeCalculator calculator = new ExpressionTypeCalculator();
     final List<ASTDeclaration> declarations = ASTUtils.getAll(root.get(), ASTDeclaration.class);
 
     // a real = ((( 1.0 | (-3+6%2) & ~(0x4fa) | 0x23 ^ 12) >> 2) << 2)
-    final Either<TypeSymbol, String> typeOfA = calculator.computeType(
-        getByName(declarations, "a").getExpr().get());
+    final Either<TypeSymbol, String> typeOfA =
+        getByName(declarations, "a").getExpr().get().computeType().get();
     assertTrue(typeOfA.isError());
 
     // k integer = ~1.0
-    final Either<TypeSymbol, String> typeOfK = calculator.computeType(
-        getByName(declarations, "k").getExpr().get());
+    final Either<TypeSymbol, String> typeOfK =
+        getByName(declarations, "k").getExpr().get().computeType().get();
     assertTrue(typeOfK.isError());
 
     // m real = 1 ** "a"
-    final Either<TypeSymbol, String> typeOfM = calculator.computeType(
-        getByName(declarations, "a").getExpr().get());
+    final Either<TypeSymbol, String> typeOfM =
+        getByName(declarations, "a").getExpr().get().computeType().get();
     assertTrue(typeOfM.isError());
 
     // n boolean = not 1
@@ -174,7 +171,7 @@ public class ExpressionTypeCalculatorTest {
   }
 
   private void assertInvaidType(final String variableName, List<ASTDeclaration> declarations) {
-    final Either<TypeSymbol, String> type = calculator.computeType(getByName(declarations, variableName).getExpr().get());
+    final Either<TypeSymbol, String> type = getByName(declarations, variableName).getExpr().get().computeType().get();
     assertTrue(type.isError());
   }
 

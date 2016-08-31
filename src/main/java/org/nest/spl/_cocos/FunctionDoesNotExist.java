@@ -13,7 +13,6 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 
@@ -39,14 +38,13 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
 
     final String methodName = astFunctionCall.getCalleeName();
 
-    final ExpressionTypeCalculator expressionTypeCalculator =  new ExpressionTypeCalculator();
 
     final List<String> argTypeNames = Lists.newArrayList();
     final List<String> prettyArgTypeNames = Lists.newArrayList();
 
     for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
       final ASTExpr arg = astFunctionCall.getArgs().get(i);
-      final Either<TypeSymbol, String> argType = expressionTypeCalculator.computeType(arg);
+      final Either<TypeSymbol, String> argType = arg.computeType().get();
       if (argType.isValue()) {
         prettyArgTypeNames.add(argType.getValue().prettyPrint());
         argTypeNames.add(argType.getValue().getName());
