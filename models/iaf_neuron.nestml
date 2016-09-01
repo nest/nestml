@@ -80,7 +80,7 @@ neuron iaf_neuron_nestml:
 
   # Declarative description of the updates rules
   equations:
-      shape G = 1pA * (e/tau_syn) * t * exp(-1/tau_syn*t)
+      shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
       V_abs' = -1/Tau * V_abs + 1/C_m * (I_sum(G, spikes) + I_e + currents)
   end
 
