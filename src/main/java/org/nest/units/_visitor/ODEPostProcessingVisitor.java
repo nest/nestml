@@ -1,10 +1,5 @@
 package org.nest.units._visitor;
 
-import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.utils.ASTUtils.convertToSimpleName;
-
-import java.util.Iterator;
-
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTShape;
@@ -12,6 +7,10 @@ import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
+
+import java.util.Iterator;
+
+import static de.se_rwth.commons.logging.Log.warn;
 
 /**
  * Visitor to ODE Shape and Equation nodes. Calculates implicit type and updates Symbol table.
