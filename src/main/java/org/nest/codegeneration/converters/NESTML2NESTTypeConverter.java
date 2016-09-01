@@ -32,12 +32,8 @@ public class NESTML2NESTTypeConverter {
       return "bool";
     }
 
-    if (nestmlType.getType() == TypeSymbol.Type.UNIT) {
-      return "nest::double_t";
-    }
-
-    if (PredefinedTypes.getRealType().equals(nestmlType)) {
-      return "nest::double_t";
+    if (nestmlType.getType() == TypeSymbol.Type.UNIT || PredefinedTypes.getRealType().equals(nestmlType)) {
+      return "double";
     }
 
     if (PredefinedTypes.getIntegerType().equals(nestmlType)) {

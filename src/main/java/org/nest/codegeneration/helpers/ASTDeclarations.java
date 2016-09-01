@@ -82,14 +82,7 @@ public class ASTDeclarations {
 
   public String getDomainFromType(final TypeSymbol type) {
     checkNotNull(type);
-
-    if (type.getType().equals(TypeSymbol.Type.UNIT)) {
-      return  "nest::double_t";
-    }
-    else {
-      return typeConverter.convert(type);
-    }
-
+    return typeConverter.convert(type);
   }
 
 }

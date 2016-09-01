@@ -60,7 +60,7 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
       checkVariableByName(astDerivative.toString(), astDerivative);
     }
     else {
-      checkVariableByName(ASTUtils.convertToSimpleName(astDerivative), astDerivative);
+      checkVariableByName(ASTUtils.getNameOfLHS(astDerivative), astDerivative);
     }
 
   }

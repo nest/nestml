@@ -12,6 +12,7 @@ import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._ast.*;
 import org.nest.spl._ast.ASTDeclaration;
+import org.nest.utils.ASTUtils;
 
 import java.util.Map;
 
@@ -50,6 +51,11 @@ public class MemberVariableDefinedMultipleTimes implements
     body.getInternalDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
     body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
     body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
+    // only for equations of order more then 1 a variable will be declared
+    body.getEquations()
+        .stream()
+        .filter(astEquation -> astEquation.getLhs().getDifferentialOrder().size() > 1)
+        .forEach(astEquation -> addVariable(ASTUtils.getNameOfLHS(astEquation), varNames, astEquation));
   }
 
   private void addNames(

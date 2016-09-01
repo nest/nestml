@@ -31,7 +31,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
     final Scope scope = astEq.getEnclosingScope().get();
 
     if (astEq.getLhs().getDifferentialOrder().size() > 0) {
-      final Optional<VariableSymbol> variableSymbol = scope.resolve(ASTUtils.convertToSimpleName(astEq.getLhs()), VariableSymbol.KIND);
+      final Optional<VariableSymbol> variableSymbol = scope.resolve(ASTUtils.getNameOfLHS(astEq.getLhs()), VariableSymbol.KIND);
       if (variableSymbol.isPresent()) {
         if (!variableSymbol.get().isState()) {
           final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());

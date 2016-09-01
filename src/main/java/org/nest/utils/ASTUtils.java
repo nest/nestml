@@ -401,7 +401,7 @@ public final class ASTUtils {
    * If the variable is ues as a RHS of an equation, e.g. g_in'' = exp(t) then a variable g_in' should be added.
    *
    */
-  public static String convertToSimpleName(final ASTDerivative astVariable) {
+  public static String getNameOfLHS(final ASTDerivative astVariable) {
     checkArgument(astVariable.getDifferentialOrder().size() > 0);
     return astVariable.getName().toString() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
   }
@@ -411,9 +411,9 @@ public final class ASTUtils {
    * variable
    *
    */
-  public static String convertToSimpleName(final ASTEquation astEquation) {
+  public static String getNameOfLHS(final ASTEquation astEquation) {
     if (astEquation.getLhs().getDifferentialOrder().size() == 0) {
-      return astEquation.getLhs().getName().toString();
+      return astEquation.getLhs().getName().toString(); // it is sometimes used in context conditions
     }
     else {
       return astEquation.getLhs().getName().toString() + Strings.repeat("'", astEquation.getLhs().getDifferentialOrder().size() - 1);
