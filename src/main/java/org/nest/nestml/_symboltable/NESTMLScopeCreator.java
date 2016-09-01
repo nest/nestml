@@ -13,13 +13,9 @@ import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
-import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.units._visitor.ODEPostProcessingVisitor;
-import org.nest.units._visitor.UnitsSIVisitor;
-import org.nest.utils.LogHelper;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -6,7 +6,6 @@
 package org.nest.nestml._cocos;
 
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.ode._ast.ASTEquation;
 
 /**
  * Factory for CoCo error strings. The dispatch is done by the static type of the context condition object.

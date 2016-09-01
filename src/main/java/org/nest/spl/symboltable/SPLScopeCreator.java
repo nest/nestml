@@ -12,8 +12,6 @@ import de.monticore.symboltable.Scope;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._symboltable.SPLLanguage;
 import org.nest.symboltable.ScopeCreatorBase;
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.nio.file.Paths;
 

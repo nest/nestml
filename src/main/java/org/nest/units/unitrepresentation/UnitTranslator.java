@@ -4,11 +4,10 @@
  * http://www.se-rwth.de/
  */
 package org.nest.units.unitrepresentation;
-import java.util.Optional;
 
-import com.google.common.base.Preconditions;
 import org.nest.units._ast.ASTUnitType;
-import org.nest.units._visitor.UnitsSIVisitor;
+
+import java.util.Optional;
 
 /**
  * This visitor translates unit definitions into their internal representation

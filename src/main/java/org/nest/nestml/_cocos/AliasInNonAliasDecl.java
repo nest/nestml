@@ -5,12 +5,12 @@
  */
 package org.nest.nestml._cocos;
 
+import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 

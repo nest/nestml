@@ -13,8 +13,6 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
-import static de.se_rwth.commons.logging.Log.error;
-import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.utils.NESTMLSymbols.isSetterPresent;
 
 /**

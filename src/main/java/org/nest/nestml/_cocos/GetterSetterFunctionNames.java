@@ -5,22 +5,18 @@
  */
 package org.nest.nestml._cocos;
 
-import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
 import org.nest.utils.NESTMLSymbols;
 
-import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.utils.NESTMLSymbols.resolveMethod;
 
 /**
  * Prohibits definition of setter/getters for declared variables which are not aliases.

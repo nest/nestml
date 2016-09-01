@@ -5,7 +5,6 @@
  */
 package org.nest.ode._ast;
 
-import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import de.monticore.types.types._ast.ASTQualifiedName;
 

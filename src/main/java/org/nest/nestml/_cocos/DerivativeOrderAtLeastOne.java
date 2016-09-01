@@ -5,16 +5,9 @@
  */
 package org.nest.nestml._cocos;
 
-import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._cocos.ODEASTEquationCoCo;
-import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
-
-import java.util.Optional;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Syntactically it is possible to define an equation:

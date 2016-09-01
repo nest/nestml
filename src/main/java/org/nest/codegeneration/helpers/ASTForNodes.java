@@ -8,7 +8,6 @@ import org.nest.spl._ast.ASTFOR_Stmt;
 import java.math.BigDecimal;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
 /**

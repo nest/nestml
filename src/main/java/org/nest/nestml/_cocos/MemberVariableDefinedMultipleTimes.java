@@ -6,15 +6,17 @@
 package org.nest.nestml._cocos;
 
 import com.google.common.collect.Maps;
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
-import org.nest.nestml._ast.*;
+import org.nest.nestml._ast.ASTBody;
+import org.nest.nestml._ast.ASTComponent;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.utils.ASTUtils;
 
 import java.util.Map;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * This context condition checks, whether the state/parameter/internal-variables

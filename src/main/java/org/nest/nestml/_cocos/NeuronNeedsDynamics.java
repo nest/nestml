@@ -5,9 +5,10 @@
  */
 package org.nest.nestml._cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Neuron must have dynamics.

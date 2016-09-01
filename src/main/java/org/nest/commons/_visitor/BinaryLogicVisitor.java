@@ -1,12 +1,12 @@
 package org.nest.commons._visitor;
 
-import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
-
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
+
 import static com.google.common.base.Preconditions.checkState;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
+import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 
 
 /**

@@ -5,20 +5,16 @@
  */
 package org.nest.spl._cocos;
 
-import com.google.common.collect.Maps;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
-import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

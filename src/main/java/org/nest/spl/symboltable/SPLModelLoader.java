@@ -9,15 +9,11 @@ import de.monticore.symboltable.ArtifactScope;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._symboltable.SPLLanguage;
 
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Strings.isNullOrEmpty;
 import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.warn;
 

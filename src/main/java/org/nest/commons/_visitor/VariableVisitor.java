@@ -1,14 +1,11 @@
 package org.nest.commons._visitor;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
-import java.util.Optional;
-
-import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.VariableSymbol;
+
+import java.util.Optional;
 
 /**
  * @author ptraeder

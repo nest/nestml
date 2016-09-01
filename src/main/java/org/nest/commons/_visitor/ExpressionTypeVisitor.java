@@ -1,14 +1,12 @@
 package org.nest.commons._visitor;
 
-import static org.nest.symboltable.predefined.PredefinedTypes.*;
-
-import java.util.Optional;
-import java.util.Stack;
-
 import de.monticore.literals.literals._ast.ASTIntLiteral;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
+
+import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
  * @author ptraeder, plotnikov

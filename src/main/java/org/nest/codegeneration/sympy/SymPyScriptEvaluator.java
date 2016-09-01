@@ -7,14 +7,15 @@ package org.nest.codegeneration.sympy;
 
 import de.se_rwth.commons.logging.Log;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static de.se_rwth.commons.logging.Log.debug;
-import static de.se_rwth.commons.logging.Log.error;
-import static de.se_rwth.commons.logging.Log.info;
+import static de.se_rwth.commons.logging.Log.*;
 
 /**
  * The class is responsible for the execution of the PYTHON_INTERPRETER code which

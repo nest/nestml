@@ -12,8 +12,6 @@ import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.ASTSPLNode;
 import org.nest.units._ast.ASTUnitType;
-import org.nest.units.unitrepresentation.SIData;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.units.unitrepresentation.UnitTranslator;
 import org.nest.utils.LogHelper;
 
