@@ -21,9 +21,9 @@ import java.util.stream.Collectors;
  */
 public class ODETransformer {
   // this function is used in freemarker templates und must be public
-  public static ASTEquation replaceSumCalls(final ASTEquation astOde) {
+  public static <T extends ASTNode> T replaceSumCalls(final T astOde) {
     // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
-    final ASTEquation workingCopy = astOde.deepClone();
+    final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepClone returns T
     final List<ASTFunctionCall> functions = get_sumFunctionCalls(workingCopy);
 
     functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
@@ -31,7 +31,7 @@ public class ODETransformer {
   }
 
 
-  public static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
+  private static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
     return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall ->
@@ -40,14 +40,14 @@ public class ODETransformer {
           .collect(Collectors.toList());
   }
 
-  public static ASTExpr replaceSumCalls(final ASTExpr astExpr) {
+  /*public static ASTExpr replaceSumCalls(final ASTExpr astExpr) {
     // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
     final ASTExpr workingCopy = astExpr.deepClone();
     final List<ASTFunctionCall> functions = get_sumFunctionCalls(workingCopy);
 
     functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
     return workingCopy;
-  }
+  }*/
 
   public static List<ASTFunctionCall> getCondSumFunctionCall(final ASTNode workingCopy) {
     return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
