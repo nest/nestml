@@ -5,12 +5,13 @@
  */
 package org.nest.nestml._cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTOutput;
 
 import java.util.List;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Neurons must have output block.

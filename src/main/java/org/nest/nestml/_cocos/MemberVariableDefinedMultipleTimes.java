@@ -6,14 +6,17 @@
 package org.nest.nestml._cocos;
 
 import com.google.common.collect.Maps;
-import static de.se_rwth.commons.logging.Log.error;
-
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
-import org.nest.nestml._ast.*;
+import org.nest.nestml._ast.ASTBody;
+import org.nest.nestml._ast.ASTComponent;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTDeclaration;
+import org.nest.utils.ASTUtils;
 
 import java.util.Map;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * This context condition checks, whether the state/parameter/internal-variables
@@ -50,6 +53,11 @@ public class MemberVariableDefinedMultipleTimes implements
     body.getInternalDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
     body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
     body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
+    // only for equations of order more then 1 a variable will be declared
+    body.getEquations()
+        .stream()
+        .filter(astEquation -> astEquation.getLhs().getDifferentialOrder().size() > 1)
+        .forEach(astEquation -> addVariable(ASTUtils.getNameOfLHS(astEquation), varNames, astEquation));
   }
 
   private void addNames(

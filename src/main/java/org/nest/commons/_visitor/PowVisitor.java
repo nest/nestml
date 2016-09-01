@@ -6,10 +6,9 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.calculateNumericValue;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.handleDefaultError;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
+import static org.nest.commons._visitor.ExpressionTypeVisitor.*;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**

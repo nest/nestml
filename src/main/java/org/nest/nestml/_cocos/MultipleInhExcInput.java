@@ -5,9 +5,10 @@
  */
 package org.nest.nestml._cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Prohibits expression line a <- inhibitory inhibitory spike

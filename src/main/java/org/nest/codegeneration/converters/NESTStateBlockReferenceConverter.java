@@ -7,7 +7,6 @@ package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;

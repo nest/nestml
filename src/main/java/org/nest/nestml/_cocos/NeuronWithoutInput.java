@@ -5,13 +5,13 @@
  */
 package org.nest.nestml._cocos;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTNeuron;
 
 import java.util.List;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Neurons must have input block.

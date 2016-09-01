@@ -10,15 +10,15 @@ import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Finding;
+import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
-import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.units._visitor.ODEPostProcessingVisitor;
-import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Creates a artifact scope, build the symbol table and adds predifined types.
@@ -26,10 +26,12 @@ import java.util.List;
  * @author plotnikov
  */
 public class NESTMLScopeCreator extends ScopeCreatorBase {
+  private final static String LOG_NAME = "NESTML_" + NESTMLScopeCreator.class.getName();
   private GlobalScope globalScope;
   private final ModelPath modelPath;
   private final ResolverConfiguration resolverConfiguration;
   private final NESTMLLanguage nestmlLanguages;
+  private final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
 
   public GlobalScope getGlobalScope() {
     return globalScope;
@@ -57,8 +59,21 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
         globalScope);
 
     Scope result = symbolTableCreator.createFromAST(compilationUnit);
-    ODEPostProcessingVisitor odePostProcessingVisitor = new ODEPostProcessingVisitor();
-    compilationUnit.accept(odePostProcessingVisitor);
+
+    final List<Finding> findings = compilationUnit.getNeurons()
+        .stream()
+        .map(nestmlCoCosManager::checkVariableUniqueness)
+        .flatMap(Collection::stream)
+        .collect(Collectors.toList());
+
+    if (findings.isEmpty()) {
+      final ODEPostProcessingVisitor odePostProcessingVisitor = new ODEPostProcessingVisitor();
+      compilationUnit.accept(odePostProcessingVisitor);
+    }
+    else {
+      Log.error(LOG_NAME + ": The symboltable is built incorrectly, skip the step of processing ODEs.");
+    }
+
     return result;
   }
 

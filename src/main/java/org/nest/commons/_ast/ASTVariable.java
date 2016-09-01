@@ -7,7 +7,6 @@ package org.nest.commons._ast;
 
 import com.google.common.base.Joiner;
 import de.monticore.types.types._ast.ASTQualifiedName;
-import de.se_rwth.commons.Names;
 
 import java.util.List;
 

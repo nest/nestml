@@ -1,17 +1,15 @@
 package org.nest.commons._visitor;
 
-import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
-import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getTypeIfExists;
-
-import java.util.Optional;
-
 import de.monticore.literals.literals._ast.ASTDoubleLiteral;
 import de.monticore.literals.literals._ast.ASTIntLiteral;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
+
+import java.util.Optional;
+
+import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
+import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
  * @author ptraeder

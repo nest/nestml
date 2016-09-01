@@ -15,7 +15,6 @@ import de.se_rwth.commons.Names;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.symboltable.symbols.*;
 
-import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Set;
 

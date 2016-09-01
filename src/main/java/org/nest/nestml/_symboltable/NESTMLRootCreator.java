@@ -10,7 +10,6 @@ import org.nest.nestml._parser.NESTMLParser;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static de.se_rwth.commons.logging.Log.error;

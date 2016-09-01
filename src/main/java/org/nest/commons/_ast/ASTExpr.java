@@ -1,10 +1,5 @@
 package org.nest.commons._ast;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import java.util.Optional;
-
 import de.monticore.literals.literals._ast.ASTBooleanLiteral;
 import de.monticore.literals.literals._ast.ASTStringLiteral;
 import org.nest.commons._visitor.ExpressionTypeVisitor;
@@ -12,6 +7,8 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
+
+import java.util.Optional;
 
 /**
  * @author ptraeder

@@ -22,7 +22,6 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.trace;
-import static de.se_rwth.commons.logging.Log.warn;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
@@ -42,7 +40,7 @@ import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.LOCAL;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;
 import static org.nest.utils.ASTUtils.computeTypeName;
-import static org.nest.utils.ASTUtils.convertToSimpleName;
+import static org.nest.utils.ASTUtils.getNameOfLHS;
 
 /**
  * Creates NESTML symbols.
@@ -130,18 +128,31 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       addAliasesFromODEBlock(astNeuron.getBody().getODEBlock().get());
     }
 
+    // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
     NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
     final List<Finding> findings = nestmlCoCosManager.checkVariableUniqueness(astNeuron);
     if (findings.isEmpty()) {
       if (astNeuron.getBody().getODEBlock().isPresent()) {
         addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
-        assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
-        markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
+
+        final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkVariableUniqueness(astNeuron);
+        if (afterAddingDerivedVariables.isEmpty()) {
+          assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
+          markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
+        }
+        else {
+          final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one variable is " +
+                             "defined multiple times";
+          Log.error(msg);
+        }
+
       }
 
     }
     else {
-      Log.error(LOGGER_NAME + ": Cannot correctly build the symboltable");
+      final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one variable is " +
+                         "defined multiple times";
+      Log.error(msg);
     }
 
     removeCurrentScope();
@@ -162,7 +173,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   private void addVariablesFromODEBlock(final ASTOdeDeclaration astOdeDeclaration) {
     astOdeDeclaration.getODEs()
           .stream()
-          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 0)
+          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
           .forEach(this::addDerivedVariable);
 
   }
@@ -202,7 +213,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    *
    */
   private void addDerivedVariable(final ASTEquation ode) {
-    final String variableName = convertToSimpleName(ode)+"'";
+    final String variableName = getNameOfLHS(ode);
     final TypeSymbol type = PredefinedTypes.getRealType();
     final VariableSymbol var = new VariableSymbol(variableName);
 
@@ -230,18 +241,18 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     checkState(this.currentScope().isPresent());
     final Scope scope = currentScope().get();
     if (ode.getLhs().getDifferentialOrder().size() > 0) {
-      final String variableName = convertToSimpleName(ode.getLhs());
+      final String variableName = getNameOfLHS(ode.getLhs());
       final Optional<VariableSymbol> stateVariable = scope.resolve(variableName, VariableSymbol.KIND);
 
       if (stateVariable.isPresent()) {
         stateVariable.get().setOdeDeclaration(ode.getRhs());
       }
       else {
-        Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " + variableName);
+        Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " + variableName, ode.get_SourcePositionStart());
       }
     }
     else {
-      Log.warn("NESTMLSymbolTableCreator: The lefthandside of an equation must be a derivative, e.g. " + ode.getLhs().toString() + "'");
+      Log.warn("NESTMLSymbolTableCreator: The lefthandside of an equation must be a derivative, e.g. " + ode.getLhs().toString() + "'", ode.get_SourcePositionStart());
     }
 
 

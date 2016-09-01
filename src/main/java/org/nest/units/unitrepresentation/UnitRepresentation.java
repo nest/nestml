@@ -5,15 +5,15 @@
  */
 package org.nest.units.unitrepresentation;
 
-import static java.lang.Math.abs;
+import com.google.common.base.Preconditions;
+import de.se_rwth.commons.logging.Log;
 
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.base.Preconditions;
-import de.se_rwth.commons.logging.Log;
+import static java.lang.Math.abs;
 
 /**
  * Helper class. Controlled way of creating base representations of derived SI units.

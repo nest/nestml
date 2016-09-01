@@ -16,7 +16,8 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.nest.utils.ASTUtils.computeTypeName;
 
 /**
@@ -82,14 +83,7 @@ public class ASTDeclarations {
 
   public String getDomainFromType(final TypeSymbol type) {
     checkNotNull(type);
-
-    if (type.getType().equals(TypeSymbol.Type.UNIT)) {
-      return  "nest::double_t";
-    }
-    else {
-      return typeConverter.convert(type);
-    }
-
+    return typeConverter.convert(type);
   }
 
 }

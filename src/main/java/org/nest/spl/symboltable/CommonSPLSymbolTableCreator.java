@@ -8,7 +8,6 @@ package org.nest.spl.symboltable;
 import de.monticore.symboltable.CommonSymbolTableCreator;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolverConfiguration;
-import org.nest.symboltable.predefined.PredefinedTypes;
 
 /**
  * TODO why must I write this class?.

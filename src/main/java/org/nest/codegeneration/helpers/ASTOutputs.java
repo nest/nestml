@@ -6,15 +6,12 @@
 package org.nest.codegeneration.helpers;
 
 import de.monticore.ast.ASTNode;
-import groovyjarjarantlr.collections.AST;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTOutput;
 
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Computes the type of the output for neurons and neuron components.

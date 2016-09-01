@@ -275,9 +275,6 @@ public class NESTMLCoCosTest  {
 
   @Test
   public void testMemberVariableDefinedMultipleTimes() {
-    /*final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes = new MemberVariableDefinedMultipleTimes();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) memberVariableDefinedMultipleTimes);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) memberVariableDefinedMultipleTimes);*/
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "memberVariableDefinedMultipleTimes/valid.nestml") ;
     checkModelAndAssertNoErrors(
@@ -290,7 +287,7 @@ public class NESTMLCoCosTest  {
         pathToInvalidModel,
         nestmlCoCoChecker,
         MemberVariableDefinedMultipleTimes.ERROR_CODE,
-        3);
+        8); // 4 errors, but the process is invoked twice
   }
 
   @Test
@@ -603,7 +600,7 @@ public class NESTMLCoCosTest  {
         pathToInvalidModel,
         nestmlCoCoChecker,
         "NESTML_",
-        5); // TODO should be 6
+        4); // TODO should be 4
 
   }
 

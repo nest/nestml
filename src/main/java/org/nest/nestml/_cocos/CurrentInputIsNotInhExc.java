@@ -5,8 +5,9 @@
  */
 package org.nest.nestml._cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTInputLine;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Current input lines cannot be inhibitory aor excitatory:

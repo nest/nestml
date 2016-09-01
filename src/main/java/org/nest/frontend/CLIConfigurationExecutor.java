@@ -17,7 +17,10 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -97,7 +100,7 @@ public class CLIConfigurationExecutor {
       generateModuleCode(modelRoots, config, generator);
     }
     else {
-      Log.info("Models contain semantic errors, therefore, no codegeneration is possible", LOG_NAME);
+      Log.error(LOG_NAME + ": Models contain semantic errors, therefore, no codegeneration is possible");
     }
 
   }

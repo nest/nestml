@@ -5,15 +5,13 @@
  */
 package org.nest.commons._visitor;
 
-import java.util.Optional;
-
-
-import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.utils.NESTMLSymbols;
+
+import java.util.Optional;
 
 /**
  * Checks all function calls in an expression. For a not-void methods returns just its return type. For a void methods,

@@ -6,11 +6,11 @@
 package org.nest.nestml._cocos;
 
 import com.google.common.collect.ImmutableSet;
-import static de.se_rwth.commons.logging.Log.error;
-
 import org.nest.nestml._ast.ASTFunction;
 
 import java.util.Set;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Checks collisions with generated functions.

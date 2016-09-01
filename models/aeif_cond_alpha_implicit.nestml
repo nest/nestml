@@ -37,7 +37,6 @@ neuron aeif_cond_alpha_implicit:
     w pA = 0          # Spike-adaptation current
     g_in nS = 0nS     # Excitatory synaptic conductance
     g_ex nS = 0nS     # Inhibitory synaptic conductance in nS
-
   end
 
   equations:

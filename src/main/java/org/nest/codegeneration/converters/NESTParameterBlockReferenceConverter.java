@@ -11,7 +11,6 @@ import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**

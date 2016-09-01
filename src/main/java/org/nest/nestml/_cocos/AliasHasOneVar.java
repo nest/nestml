@@ -5,8 +5,9 @@
  */
 package org.nest.nestml._cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
 import org.nest.nestml._ast.ASTAliasDecl;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * Every alias declaration has exactly one variable

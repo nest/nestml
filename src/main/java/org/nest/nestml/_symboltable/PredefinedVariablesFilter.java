@@ -9,9 +9,7 @@ import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolKind;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.monticore.symboltable.resolving.ResolvingInfo;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
