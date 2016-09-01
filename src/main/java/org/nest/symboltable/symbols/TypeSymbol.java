@@ -8,6 +8,7 @@ package org.nest.symboltable.symbols;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.SymbolKind;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -48,6 +49,14 @@ public class TypeSymbol extends CommonSymbol {
   @Override
   public String toString() {
     return "TypeSymbol(" + getFullName() + "," + type + ")";
+  }
+
+  public String prettyPrint() {
+    if (getType().equals(TypeSymbol.Type.UNIT)) {
+      UnitRepresentation unitRepresentation = new UnitRepresentation(getName());
+      return unitRepresentation.prettyPrint();
+    }
+    return getName(); //primitive and buffer
   }
 
   @Override

@@ -10,7 +10,6 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.spl.symboltable.typechecking.ExpressionTypeCalculator;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -32,7 +31,6 @@ import static org.nest.spl.symboltable.typechecking.TypeChecker.checkVoid;
 public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "SPL_CORRECT_RETURN_VALUES";
-  private final ExpressionTypeCalculator typeCalculator = new ExpressionTypeCalculator();
   CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
 
   public void check(final ASTFunction fun) {
@@ -59,7 +57,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
       if (r.getExpr().isPresent()) {
 
-        final Either<TypeSymbol, String> returnExpressionType = typeCalculator.computeType(r.getExpr().get());
+        final Either<TypeSymbol, String> returnExpressionType = r.getExpr().get().computeType().get();
         if (returnExpressionType.isError()) {
           final String msg = errorStrings.getErrorMsgCannotDetermineExpressionType(this);
 

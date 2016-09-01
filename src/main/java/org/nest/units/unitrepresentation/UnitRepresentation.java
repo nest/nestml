@@ -45,7 +45,7 @@ public class UnitRepresentation {
     return (this.exponentSum() > other.exponentSum()) ? true : false;
   }
 
-  private boolean isZero(){
+  public boolean isZero(){
     return (this.exponentSum()+abs(this.magnitude) == 0) ? true : false;
   }
 
@@ -123,15 +123,47 @@ public class UnitRepresentation {
     if(bestMatch.equals("")) { //abort recursion
       return smallestRemainder.isZero() ? "" : smallestRemainder.naivePrint();
     }
-
     return bestMatch + smallestRemainder.doCalc();
+
+  }
+
+  private String removeTrailingMultiplication(String str){
+    String result = str;
+    String postfix = result.substring(result.length() - 3, result.length());
+    if (postfix.equals(" * ")) {
+      result = result.substring(0, result.length() - 3);
+    }
+    return result;
   }
 
   private String calculateName() {
     String result = this.doCalc();
-    String postfix = result.substring(result.length() - 3, result.length());
-    if (postfix.equals(" * ")) {
-      result = result.substring(0, result.length() - 3);
+    result = removeTrailingMultiplication(result);
+    int exponentIndex = result.indexOf("e");
+    if(exponentIndex != -1){ // Exponential notation present
+      String[] parts = result.split("e");
+      if(parts.length == 2){
+        String main = parts[0];
+        String magnitude = parts[1];
+        main = removeTrailingMultiplication(main);
+        if(!main.contains(" * ")){ //The Unit part of the return String consists of exactly one Unit
+          try {
+            Integer parsedMagnitude = Integer.parseInt(magnitude);
+            if(main.contains("**-")) { //The single unit has a negative exponent
+              parsedMagnitude = -parsedMagnitude;
+            }
+            String prefix = SIData.getPrefixMagnitudes().inverse().get(parsedMagnitude);
+            result = prefix+main;
+          }
+          catch(NumberFormatException e){
+            Log.warn("Exception in Unit name Formatting! Cannot parse magnitude String: "
+            +magnitude);
+            return result;
+          }
+
+
+        }
+      }
     }
     return result;
   }
@@ -149,7 +181,7 @@ public class UnitRepresentation {
       result = result.substring(0,result.length()-3);
     }
 
-    return result + (magnitude!=0? "E"+magnitude:"");
+    return result + (magnitude!=0? "e"+magnitude:"");
   }
 
   public String prettyPrint() {
@@ -269,5 +301,11 @@ public class UnitRepresentation {
 
   public UnitRepresentation invert(){
     return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude);
+  }
+
+  public UnitRepresentation deriveT(int order) {
+    UnitRepresentation result = new UnitRepresentation(this);
+    result.s -= order;
+    return result;
   }
 }

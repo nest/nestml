@@ -13,6 +13,7 @@ import de.se_rwth.commons.logging.Finding;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
 import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.units._visitor.ODEPostProcessingVisitor;
 import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.nio.file.Path;
@@ -55,7 +56,10 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
         resolverConfiguration,
         globalScope);
 
-    return symbolTableCreator.createFromAST(compilationUnit);
+    Scope result = symbolTableCreator.createFromAST(compilationUnit);
+    ODEPostProcessingVisitor odePostProcessingVisitor = new ODEPostProcessingVisitor();
+    compilationUnit.accept(odePostProcessingVisitor);
+    return result;
   }
 
 }

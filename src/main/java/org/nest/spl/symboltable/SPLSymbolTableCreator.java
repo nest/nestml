@@ -11,13 +11,13 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLVisitor;
 import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 import static org.nest.utils.ASTUtils.computeTypeName;
 
@@ -86,14 +86,13 @@ interface SPLSymbolTableCreator extends SymbolTableCreator, SPLVisitor {
       VariableSymbol variable = new VariableSymbol(variableName);
       String typeName = computeTypeName(astDeclaration.getDatatype());
       variable.setAstNode(astDeclaration);
-      variable.setType(PredefinedTypes.getType(typeName)); // if exists better choice?
+      TypeSymbol typeSymbol =  PredefinedTypes.getType(typeName);// if exists better choice?
+      variable.setType(typeSymbol);
 
       // handle ST infrastructure
       addToScopeAndLinkWithNode(variable, astDeclaration);
 
-      Log.info("Creates a variable: " + variableName + " with the type: " + typeName, LOGGER_NAME);
+      Log.info("Creates a variable: " + variableName + " with the type: "+typeSymbol.prettyPrint(),LOGGER_NAME);
     }
-
   }
-
 }

@@ -69,7 +69,6 @@ public class UnitsTest extends ModelbasedTest {
     final NESTMLCoCosManager completeChecker = new NESTMLCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
         "models/iaf_cond_alpha.nestml", TEST_MODEL_PATH);
-
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
     final List<Finding> findings = completeChecker.analyzeModel(validRoot.get());

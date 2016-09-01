@@ -1,11 +1,17 @@
 package org.nest.commons._ast;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.Optional;
 
 import de.monticore.literals.literals._ast.ASTBooleanLiteral;
 import de.monticore.literals.literals._ast.ASTStringLiteral;
+import org.nest.commons._visitor.ExpressionTypeVisitor;
 import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 /**
  * @author ptraeder
@@ -13,6 +19,40 @@ import org.nest.symboltable.symbols.TypeSymbol;
 public class ASTExpr extends ASTExprTOP {
 
   private Optional<Either<TypeSymbol,String>> type = Optional.empty();
+
+  private void doComputeType() {
+//    checkArgument(getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
+
+    if(!type.isPresent()){
+      //no type set yet. Run Visitor.
+      ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+      accept(expressionTypeVisitor);
+    }
+
+    //Just to be sure. Should never happen
+    if(!type.isPresent()){
+      final String errorMsg = "This operation for expressions is not supported yet.";
+      type= Optional.of(Either.error(errorMsg));
+    }
+
+    //Handle unitless expressions by returning real type instead
+    if(type.get().isValue()){
+      TypeSymbol typeSymbol = type.get().getValue();
+      if(typeSymbol.getType() == TypeSymbol.Type.UNIT){
+        UnitRepresentation unit = new UnitRepresentation(typeSymbol.getName());
+        if(unit.isZero()){
+         type =Optional.of(Either.value(PredefinedTypes.getRealType()));
+        }
+      }
+    }
+  }
+  public Optional<Either<TypeSymbol,String>> computeType(){
+    if(!type.isPresent()) {
+      doComputeType();
+    }
+    return type;
+  }
+
 
   public Optional<Either<TypeSymbol,String>> getType(){
     return type;
