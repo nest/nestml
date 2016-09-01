@@ -1,6 +1,13 @@
 neuron NeuronInTest:
     state:
         x mV
+        g_z mV
+    end
+
+    equations:
+      x mV = 1
+      g_z'' = t
+      g_z'' = t*2
     end
 
     parameter:

@@ -1,18 +1,23 @@
 neuron NeuronInTest:
-    state:
-        x mV
-    end
+  state:
+    x mV
+    g_z mV
+  end
 
-    parameter:
-        y real
-    end
+  equations:
+    g_z'' = t
+  end
 
-    input:
-       z <- spike
-    end
+  parameter:
+    y real
+  end
 
-    equations:
-       g real = 12
-    end
+  input:
+    z <- spike
+  end
+
+  equations:
+    g real = 12
+  end
 end
 

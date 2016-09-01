@@ -173,7 +173,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   private void addVariablesFromODEBlock(final ASTOdeDeclaration astOdeDeclaration) {
     astOdeDeclaration.getODEs()
           .stream()
-          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 0)
+          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
           .forEach(this::addDerivedVariable);
 
   }
@@ -248,11 +248,11 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
         stateVariable.get().setOdeDeclaration(ode.getRhs());
       }
       else {
-        Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " + variableName);
+        Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " + variableName, ode.get_SourcePositionStart());
       }
     }
     else {
-      Log.warn("NESTMLSymbolTableCreator: The lefthandside of an equation must be a derivative, e.g. " + ode.getLhs().toString() + "'");
+      Log.warn("NESTMLSymbolTableCreator: The lefthandside of an equation must be a derivative, e.g. " + ode.getLhs().toString() + "'", ode.get_SourcePositionStart());
     }
 
 
