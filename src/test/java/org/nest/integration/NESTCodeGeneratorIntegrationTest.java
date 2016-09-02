@@ -150,16 +150,4 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     generateNESTModuleCode(roots);
   }
 
-  @Ignore("Don't run this tests on github")
-  @Test
-  public void testManually() {
-    final List<String> modelName = Lists.newArrayList("models/iaf_psc_alpha.nestml");
-    modelName.forEach(this::checkCocos);
-    modelName.forEach(this::invokeCodeGenerator);
-    final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
-        .map(this::parseAndBuildSymboltable)
-        .collect(Collectors.toList());
-    generateNESTModuleCode(roots);
-  }
-
 }

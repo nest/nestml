@@ -30,7 +30,7 @@ neuron iaf_psc_exp_multisynapse_nestml:
 
   equations:
       shape I_shape = exp(-1/tau_syn*t)
-      I_syn mV = (I_sum(I_shape, spikes) + I_e + currents)
+      I_syn pA = (I_sum(I_shape, spikes) + I_e + currents)
       V_abs' = -1/tau_m * V_abs + 1/C_m * I_syn
   end
 
