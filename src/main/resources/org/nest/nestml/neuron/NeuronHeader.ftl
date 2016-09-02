@@ -403,8 +403,10 @@ nest::port ${simpleNeuronName}::handles_test_event(nest::SpikeEvent&, nest::port
 {
 
   <#if neuronSymbol.isMultisynapseSpikes()>
-    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_${neuronSymbol.getSpikeBuffers()[0].getVectorParameter().get()}()) ) // TODO refactor me. The code assumes that there is only one. Check by coco.
+    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_${neuronSymbol.getSpikeBuffers()[0].getVectorParameter().get()}()) ) {
+        // TODO refactor me. The code assumes that there is only one. Check by coco.
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
+    }
 
     return receptor_type;
   <#elseif (body.getSameTypeBuffer()?size > 1)>
