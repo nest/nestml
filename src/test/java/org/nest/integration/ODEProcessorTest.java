@@ -67,7 +67,6 @@ public class ODEProcessorTest extends ModelbasedTest {
   private Scope processModel(final String pathToModel) {
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(pathToModel);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    final String modelFolder = modelRoot.getFullName();
     final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(pathToModel.toString()));
     FilesHelper.deleteFilesInFolder(outputBase);
 
