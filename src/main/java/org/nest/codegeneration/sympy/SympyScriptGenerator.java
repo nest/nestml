@@ -138,9 +138,7 @@ public class SympyScriptGenerator {
       Log.warn("It works only for a single ODE. Only the first equation will be used.");
     }
 
-    final ASTEquation workingVersion = ODETransformer.replaceSumCalls(astOdeDeclaration.getODEs().get(0));
-
-    glex.setGlobalValue("ode", workingVersion);
+    glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));
     glex.setGlobalValue("shapes", astOdeDeclaration.getShapes());
     glex.setGlobalValue("predefinedVariables", PredefinedVariables.gerVariables());
 
@@ -148,12 +146,7 @@ public class SympyScriptGenerator {
     setup.setCommentStart(Optional.of("#"));
     setup.setCommentEnd(Optional.empty());
 
-    final GeneratorEngine generator = new GeneratorEngine(setup);
-
-    final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
-
     final Set<VariableSymbol> variables = new HashSet<>(getVariableSymbols(astOdeDeclaration));
-
     final List<VariableSymbol> aliases = ASTUtils.getAliasSymbols(astOdeDeclaration);
 
     List<VariableSymbol> symbolsInAliasDeclaration = aliases
@@ -174,7 +167,10 @@ public class SympyScriptGenerator {
 
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("printer", expressionsPrinter);
+    glex.setGlobalValue("odeTransformer", new ODETransformer());
 
+    final GeneratorEngine generator = new GeneratorEngine(setup);
+    final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
     generator.generate(templateName, solverSubPath, astOdeDeclaration);
 
     return Paths.get(setup.getOutputDirectory().getPath(), solverSubPath.toString());

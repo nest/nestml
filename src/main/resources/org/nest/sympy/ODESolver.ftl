@@ -8,11 +8,11 @@ __a__, __h__ = symbols('__a__ __h__')
 
 # Handle aliases
 <#list aliases as alias>
-${alias.getName()} = ${printer.print(alias.getDeclaringExpression().get())}
+${alias.getName()} = ${printer.print(odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get()))}
 </#list>
 
 # Shapes must be symbolic for the differetiation step
-rhsTmp = ${printer.print(ode.getRhs())}
+rhsTmp = ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))}
 constantInputs = simplify(1/diff(rhsTmp, ${shapes[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs().getSimpleName()})*${ode.getLhs().getSimpleName()}) - (
 <#assign operator = "">
 <#compress> <#list shapes as eq>
@@ -23,9 +23,9 @@ ${operator} ${eq.getLhs()}
 
 # TODO take the comment for the source model
 <#list shapes as eq>
-${eq.getLhs()} = ${printer.print(eq.getRhs())}
+${eq.getLhs()} = ${printer.print(odeTransformer.replaceSumCalls(eq.getRhs()))}
 </#list>
-rhs = ${printer.print(ode.getRhs())}
+rhs = ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))}
 dev${ode.getLhs().getSimpleName()} = diff(rhs, ${ode.getLhs().getSimpleName()})
 dev_t_dev${ode.getLhs().getSimpleName()} = diff(dev${ode.getLhs().getSimpleName()}, t)
 
@@ -99,7 +99,7 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
         c1 = diff(rhs, ${ode.getLhs().getSimpleName()})
         # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative
         ${shapes[0].getLhs()} = symbols("${shapes[0].getLhs()}")
-        c2 = diff( ${printer.print(ode.getRhs())} , ${shapes[0].getLhs()})
+        c2 = diff( ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))} , ${shapes[0].getLhs()})
 
         # define matrices depending on order
         # for order 1 and 2 A is lower triangular matrix

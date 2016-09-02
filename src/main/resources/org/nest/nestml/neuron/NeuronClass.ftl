@@ -215,7 +215,6 @@ void
 ${simpleNeuronName}::calibrate()
 {
   B_.logger_.init();
-  B_.receptor_types_.resize(1, 0);
 
   <#list body.getInternalNonAliasSymbols() as variable>
     ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
