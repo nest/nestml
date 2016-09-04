@@ -6,11 +6,6 @@ __a__, __h__ = symbols('__a__ __h__')
     <#list variables as variable> ${variable.getName()} , </#list> = symbols('<#list variables as variable> ${variable.getName()} </#list>')
 </#compress>
 
-# Handle aliases
-<#list aliases as alias>
-${alias.getName()} = ${printer.print(odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get()))}
-</#list>
-
 # Shapes must be symbolic for the differetiation step
 rhsTmp = ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))}
 constantInputs = simplify(1/diff(rhsTmp, ${shapes[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs().getSimpleName()})*${ode.getLhs().getSimpleName()}) - (
@@ -21,9 +16,12 @@ ${operator} ${eq.getLhs()}
 </#list> </#compress>
 ))
 
-# TODO take the comment for the source model
+
 <#list shapes as eq>
 ${eq.getLhs()} = ${printer.print(odeTransformer.replaceSumCalls(eq.getRhs()))}
+</#list>
+<#list aliases as alias>
+${alias.getName()} = ${printer.print(odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get()))}
 </#list>
 rhs = ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))}
 dev${ode.getLhs().getSimpleName()} = diff(rhs, ${ode.getLhs().getSimpleName()})
@@ -259,3 +257,23 @@ else:
         if orders[shape_index] is None:
             print 'The equations will be solved numerically.'
             exit(1) # TODO jump to X
+
+    shapes = [<#compress> <#list shapes as eq> "${eq.getLhs()}", </#list> </#compress>]
+    prefixes = ["", "__D", "__D__D", "__D__D__D"]
+    def transform(expression):
+        return expression.replace("__D", "\'")
+    for shape_index in range(0, len(shapes)):
+        shape = shapes[shape_index]
+        implicitFormFile = open(shape + '_implicit_form.tmp', 'w')
+
+        derivatives = [None]*(orders[shape_index] + 1)
+
+        for i in range(0, len(derivatives)):
+            derivatives[i] = symbols(shape + prefixes[i] )
+
+        odeOrder = orders[shape_index]
+        implicitFormFile.write(transform(str(derivatives[odeOrder]) + " = "))
+        rhs = 0
+        for order in range(0, orders[shape_index]):
+            rhs += VecA[order] * derivatives[order]
+        implicitFormFile.write( transform(str(simplify(rhs))))
