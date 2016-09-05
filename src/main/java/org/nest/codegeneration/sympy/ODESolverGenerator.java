@@ -38,9 +38,9 @@ import static org.nest.utils.ASTUtils.getVariableSymbols;
  * Wrapps the logic how to extract and generate SymPy script..
  * @author plotnikov
  */
-public class SympyScriptGenerator {
+public class ODESolverGenerator {
 
-  private final static String LOG_NAME = SympyScriptGenerator.class.getName();
+  private final static String LOG_NAME = ODESolverGenerator.class.getName();
 
   private static final String ODE_SOLVER_GENERATOR_TEMPLATE = "org.nest.sympy.ODESolver";
   private static final String DELTA_SHAPE_SOLVER_GENERATOR_TEMPLATE = "org.nest.sympy.DeltaShapeSolver";
@@ -134,6 +134,8 @@ public class SympyScriptGenerator {
       final ASTOdeDeclaration astOdeDeclaration,
       final GeneratorSetup setup) {
     checkArgument(neuron.getEnclosingScope().isPresent(), "Run symboltable creator");
+    final Scope scope = astOdeDeclaration.getEnclosingScope().get();
+
     if (astOdeDeclaration.getODEs().size() >= 1) {
       Log.warn("It works only for a single ODE. Only the first equation will be used.");
     }
@@ -147,15 +149,10 @@ public class SympyScriptGenerator {
     setup.setCommentEnd(Optional.empty());
 
     final Set<VariableSymbol> variables = new HashSet<>(getVariableSymbols(astOdeDeclaration));
-    final List<VariableSymbol> aliases = ASTUtils.getAliasSymbols(astOdeDeclaration);
-
-    List<VariableSymbol> symbolsInAliasDeclaration = aliases
+    final List<VariableSymbol> aliases =  astOdeDeclaration.getODEAliass()
         .stream()
-        .flatMap(alias -> getVariableSymbols(alias.getDeclaringExpression().get()).stream())
+        .map(alias -> VariableSymbol.resolve(alias.getVariableName(), scope))
         .collect(Collectors.toList());
-    variables.addAll(symbolsInAliasDeclaration);
-
-    final Scope scope = astOdeDeclaration.getEnclosingScope().get();
 
     for (final ASTEquation ode:astOdeDeclaration.getODEs()) {
       final VariableSymbol lhsSymbol = VariableSymbol.resolve(ASTUtils.getNameOfLHS(ode.getLhs()), scope);
