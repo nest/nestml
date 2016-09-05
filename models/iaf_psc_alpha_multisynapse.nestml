@@ -42,15 +42,15 @@ neuron iaf_psc_alpha_multisynapse_nestml:
 
   parameter:
     receptors integer  = 100 # Number of receptors
-    C_m     pF = 250pF       # Capacity of the membrane
-    tau_m     ms = 10ms        # Membrane time constant.
-    tau_syn ms[receptors] = 2ms      # Time constant of synaptic current.
-    t_ref   ms = 2ms                 # Refractory period.
-    E_L     mV = -70mV               # Resting potential.
+    C_m     pF = 250pF          # Capacity of the membrane
+    tau_m   ms = 10ms           # Membrane time constant.
+    tau_syn ms[receptors] = 2ms # Time constant of synaptic current.
+    t_ref   ms = 2ms            # Refractory period.
+    E_L     mV = -70mV          # Resting potential.
     alias V_reset mV = -70.0mV - E_L # Reset value of the membrane potential
     alias V_th   mV = -55.0mV - E_L # Threshold, RELATIVE TO RESTING POTENTIAL(!).
-                                     # I.e. the real threshold is (E_L+V_th).
-    I_e     pA = 0pA     # External current.
+                                    # I.e. the real threshold is (E_L+V_th).
+    I_e     pA = 0pA # External current.
   end
 
   internal:

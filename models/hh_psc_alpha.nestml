@@ -61,10 +61,16 @@ neuron hh_psc_alpha_nestml:
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Activation variable h
     Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init ) # Inactivation variable n
-
   end
 
   equations:
+    # synapses: alpha functions
+    g_ex'' = -g_ex' / tau_syn_ex
+    g_ex' = g_ex' - ( g_ex / tau_syn_ex )
+
+    g_in'' = -g_in' / tau_syn_in
+    g_in' = g_in' - ( g_in / tau_syn_in )
+
     I_syn_exc pA = I_sum(g_ex, spikeExc)
     I_syn_inh pA = I_sum(g_in, spikeExc)
     I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
@@ -72,23 +78,20 @@ neuron hh_psc_alpha_nestml:
     I_L   pA = g_L * ( V_m - E_L )
     V_m' =( -( I_Na + I_K + I_L ) + I_stim + I_e + I_syn_inh + I_syn_exc ) / C_m
 
+    # Inact_n
     alpha_n real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
     beta_n  real = 0.125 * exp( -( V_m + 65. ) / 80. )
-    alpha_m real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
-    beta_m  real = 4. * exp( -( V_m + 65. ) / 18. )
-    alpha_h real = 0.07 * exp( -( V_m + 65. ) / 20. )
-    beta_h  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
-
-    Act_m' = alpha_m * ( 1 - Act_m ) - beta_m * Act_m # m-variable
-    Act_h' = alpha_h * ( 1 - Act_h ) - beta_h * Act_h # h-variable
     Inact_n' = alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n # n-variable
 
-    # synapses: alpha functions
-    g_ex'' = -g_ex' / tau_syn_ex
-    g_ex' = g_ex' - ( g_ex / tau_syn_ex )
+    # Act_m
+    alpha_m real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
+    beta_m  real = 4. * exp( -( V_m + 65. ) / 18. )
+    Act_m' = alpha_m * ( 1 - Act_m ) - beta_m * Act_m # m-variable
 
-    g_in'' = -g_in' / tau_syn_in
-    g_in' = g_in' - ( g_in / tau_syn_in )
+    # Act_h'
+    alpha_h real = 0.07 * exp( -( V_m + 65. ) / 20. )
+    beta_h  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
+    Act_h' = alpha_h * ( 1 - Act_h ) - beta_h * Act_h # h-variable
   end
 
   parameter:

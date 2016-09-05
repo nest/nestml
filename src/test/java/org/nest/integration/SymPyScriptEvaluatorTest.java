@@ -9,7 +9,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
-import org.nest.codegeneration.sympy.SympyScriptGenerator;
+import org.nest.codegeneration.sympy.ODESolverGenerator;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -67,7 +67,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
 
     FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
 
-    final Optional<Path> generatedScript = SympyScriptGenerator.generateSympyODEAnalyzer(
+    final Optional<Path> generatedScript = ODESolverGenerator.generateSympyODEAnalyzer(
         root.get().getNeurons().get(0),
         SYMPY_OUTPUT);
 

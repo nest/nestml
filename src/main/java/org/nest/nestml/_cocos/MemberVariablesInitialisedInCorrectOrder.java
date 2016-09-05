@@ -64,7 +64,8 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
   }
 
   private void checkVariables(
-      final VariableSymbol lhsSymbol, final List<ASTVariable> variablesNames,
+      final VariableSymbol lhsSymbol,
+      final List<ASTVariable> variablesNames,
       final Scope enclosingScope) {
     for (final ASTVariable astVariable : variablesNames) {
       final String rhsVariableName = astVariable.toString();

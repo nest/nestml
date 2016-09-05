@@ -19,8 +19,8 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateODEAnalyserForDeltaShape;
-import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyODEAnalyzer;
+import static org.nest.codegeneration.sympy.ODESolverGenerator.generateODEAnalyserForDeltaShape;
+import static org.nest.codegeneration.sympy.ODESolverGenerator.generateSympyODEAnalyzer;
 import static org.nest.utils.ASTUtils.getFunctionCall;
 
 /**

@@ -25,14 +25,14 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.nest.codegeneration.sympy.SympyScriptGenerator.generateSympyODEAnalyzer;
+import static org.nest.codegeneration.sympy.ODESolverGenerator.generateSympyODEAnalyzer;
 
 /**
  * Tests that the solver script is generated from an ODE based model.
  *
  * @author plotnikov
  */
-public class SympyScriptGeneratorTest extends ModelbasedTest {
+public class ODESolverGeneratorTest extends ModelbasedTest {
   private static final String PATH_TO_PSC_MODEL = "models/iaf_psc_alpha.nestml";
   private static final String PATH_TO_PSC_DELTA_MODEL = "models/iaf_psc_delta.nestml";
   private static final String PATH_TO_COND_MODEL = "models/iaf_cond_alpha.nestml";
