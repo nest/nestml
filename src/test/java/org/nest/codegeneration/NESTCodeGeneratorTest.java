@@ -5,8 +5,10 @@
  */
 package org.nest.codegeneration;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.nest.base.GenerationBasedTest;
+import org.nest.mocks.CondMock;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.utils.FilesHelper;
@@ -20,12 +22,19 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class NESTCodeGeneratorTest extends GenerationBasedTest {
   private static final PSCMock pscMock = new PSCMock();
+  private static final CondMock condMock  = new CondMock();
 
   private static final String PSC_MODEL_WITH_ODE = "models/iaf_psc_alpha.nestml";
   private static final String PSC_MODEL_IMPERATIVE = "src/test/resources/codegeneration/imperative/iaf_psc_alpha_imperative.nestml";
   private static final String PSC_MODEL_THREE_BUFFERS = "src/test/resources/codegeneration/iaf_psc_alpha_three_buffers.nestml";
   private static final String COND_MODEL_IMPLICIT = "models/iaf_cond_alpha_implicit.nestml";
+  private static final String COND_MODEL_WITH_ODE = "models/iaf_cond_alpha.nestml";
   private static final String MODEL_PATH = "src/test/resources";
+
+  @Before
+  public void cleanUp() {
+    FilesHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
+  }
 
   @Test
   public void testPSCModelWithoutOde() {
@@ -43,7 +52,6 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
 
-    FilesHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
   }
@@ -52,9 +60,18 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
   public void testCondModelWithImplicitOdes() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_IMPLICIT, MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
 
-    FilesHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
+    generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
+    generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
+  }
+
+  @Test
+  public void testCondModelWithShapes() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_WITH_ODE, MODEL_PATH);
+    scopeCreator.runSymbolTableCreator(root);
+    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, condMock);
+
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
   }
@@ -65,7 +82,6 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
     scopeCreator.runSymbolTableCreator(root);
     final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
 
-    FilesHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
   }

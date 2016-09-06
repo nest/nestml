@@ -59,7 +59,7 @@ public class CLIConfigurationExecutor {
   }
 
   private void cleanUpWorkingFolder(final Path targetPath) {
-    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith("tmp"));
+    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith(".tmp"));
   }
 
   private List<ASTNESTMLCompilationUnit> parseModels(

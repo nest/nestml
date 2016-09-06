@@ -5,6 +5,8 @@
  */
 package org.nest.codegeneration;
 
+import de.se_rwth.commons.logging.Log;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,12 +17,12 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 
 /**
- * Determines
+ * Determine the type of the supported solver.
  *
  * @author plotnikov
  */
 public enum SolverType {
-  EXACT, NUMERIC, NONE, result;
+  EXACT, NUMERIC, NONE;
 
   public static SolverType fromFile(final Path solverTypeFile) {
     try {
@@ -34,9 +36,10 @@ public enum SolverType {
       return type.orElse(NONE);
     }
     catch (IOException e) {
-      throw new RuntimeException("Cannot open the property file: " + solverTypeFile.toString());
+      Log.error("Cannot open the property file: " + solverTypeFile.toString(), e);
+      return NONE;
     }
 
-
   }
+
 }

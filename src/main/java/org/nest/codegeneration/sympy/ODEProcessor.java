@@ -112,7 +112,7 @@ public class ODEProcessor {
 
       checkState(successfulExecution, "Error during solver script evaluation.");
 
-      final Path odeTypePath = Paths.get(outputBase.toString(), LinearSolutionTransformer.SOLVER_TYPE);
+      final Path odeTypePath = Paths.get(outputBase.toString(), TransformerBase.SOLVER_TYPE);
       final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
       if (solutionType.equals(SolverType.EXACT)) {

@@ -32,48 +32,19 @@ import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 import static org.nest.utils.ASTUtils.getVectorizedVariable;
 
 /**
- * Takes SymPy result with the linear solution of the ODE and the source AST.
- * Produces an altered AST with the the exact solution.
+ * Takes SymPy result with the implicit form of ODEs (e.g replace shapes through a series of ODES) and replaces
+ * the shapes through
  *
  * @author plotnikov
  */
-public class LinearSolutionTransformer extends TransformerBase {
-  public final static String P30_FILE = "P30.tmp";
-  public final static String STATE_VECTOR_TMP_DECLARATIONS_FILE = "state.vector.tmp.declarations.tmp";
-  public final static String STATE_VECTOR_UPDATE_STEPS_FILE = "state.vector.update.steps.tmp";
-  public final static String STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE = "state.vector.tmp.back.assignments.tmp";
-  public final static String STATE_VARIABLES_FILE = "state.variables.tmp";
-  public final static String PROPAGATOR_MATRIX_FILE = "propagator.matrix.tmp";
-  public final static String PROPAGATOR_STEP_FILE = "propagator.step.tmp";
+public class ImplicitFormTransformer extends TransformerBase {
+  public final static String EQUATIONS_FILE = "equations.tmp";
 
-
-  public ASTNeuron addExactSolution(
+  public ASTNeuron transformToImplicitForm(
       final ASTNeuron astNeuron,
-      final Path P00File,
-      final Path PSCInitialValueFile,
-      final Path stateVariablesFile,
-      final Path propagatorMatrixFile,
-      final Path propagatorStepFile,
-      final Path stateVectorTmpDeclarationsFile,
-      final Path stateVectorUpdateStepsFile,
-      final Path stateVectorTmpBackAssignmentsFile) {
-    ASTNeuron workingVersion = addAliasToInternals(astNeuron, P00File);
-    workingVersion.getBody().addToInternalBlock(createAlias("__h__ ms = resolution()"));
-
-    workingVersion = addDeclarationsToInternals(workingVersion, PSCInitialValueFile);
-    workingVersion = addDeclarationsToInternals(workingVersion, propagatorMatrixFile);
-
-    workingVersion = addStateVariableUpdatesToDynamics(
-        workingVersion,
-        PSCInitialValueFile,
-        stateVectorTmpDeclarationsFile,
-        stateVariablesFile,
-        stateVectorUpdateStepsFile,
-        stateVectorTmpBackAssignmentsFile);
-    // oder is important, otherwise addStateVariableUpdatesToDynamics will try to resolve state variables,
-    // for which nor symbol are added. TODO filter them
-    workingVersion = addStateVariables(stateVariablesFile, workingVersion);
-    workingVersion = replaceODEPropagationStep(workingVersion, propagatorStepFile);
+      final Path pscInitialValuesFile,
+      final Path equationsFile) {
+    ASTNeuron workingVersion = addDeclarationsToInternals(astNeuron, pscInitialValuesFile);
 
     return workingVersion;
   }

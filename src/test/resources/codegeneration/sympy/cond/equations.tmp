@@ -1,0 +1,4 @@
+g_in'' = -(g_in + 2*g_in'*tau_syn_ex)/tau_syn_ex**2
+g_in'' = -g_in'
+g_ex'' = -(g_ex + 2*g_ex'*tau_syn_ex)/tau_syn_ex**2
+g_ex'' = -g_ex'

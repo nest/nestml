@@ -31,6 +31,7 @@ import static org.nest.utils.ASTUtils.getVectorizedVariable;
  */
 public class TransformerBase {
   public final static String SOLVER_TYPE = "solverType.tmp";
+  public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValues.tmp";
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
@@ -47,7 +48,7 @@ public class TransformerBase {
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  ASTNeuron addDeclarationsInternalBlock(
+  ASTNeuron addDeclarationsToInternals(
       final ASTNeuron astNeuron,
       final Path declarationsFile) {
     checkState(astNeuron.getSymbol().isPresent());
@@ -64,10 +65,11 @@ public class TransformerBase {
 
     }
 
-    pscInitialValues.stream().forEach(initialValue -> astNeuron.getBody().addToInternalBlock(initialValue));
+    pscInitialValues.forEach(initialValue -> astNeuron.getBody().addToInternalBlock(initialValue));
 
     return astNeuron;
   }
+
   ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, final Path updateStepFile) {
     try {
     final List<ASTStmt> propagatorSteps = Files.lines(updateStepFile)
