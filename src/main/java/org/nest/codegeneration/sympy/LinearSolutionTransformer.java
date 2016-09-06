@@ -7,15 +7,12 @@ package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.*;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.*;
+import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAlias;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 import static org.nest.utils.ASTUtils.getVectorizedVariable;
 
@@ -38,9 +35,7 @@ import static org.nest.utils.ASTUtils.getVectorizedVariable;
  * @author plotnikov
  */
 public class LinearSolutionTransformer extends TransformerBase {
-
   public final static String P30_FILE = "P30.tmp";
-  public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValues.tmp";
   public final static String STATE_VECTOR_TMP_DECLARATIONS_FILE = "state.vector.tmp.declarations.tmp";
   public final static String STATE_VECTOR_UPDATE_STEPS_FILE = "state.vector.update.steps.tmp";
   public final static String STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE = "state.vector.tmp.back.assignments.tmp";
@@ -62,8 +57,8 @@ public class LinearSolutionTransformer extends TransformerBase {
     ASTNeuron workingVersion = addAliasToInternals(astNeuron, P00File);
     workingVersion.getBody().addToInternalBlock(createAlias("__h__ ms = resolution()"));
 
-    workingVersion = addDeclarationsInternalBlock(workingVersion, PSCInitialValueFile);
-    workingVersion = addDeclarationsInternalBlock(workingVersion, propagatorMatrixFile);
+    workingVersion = addDeclarationsToInternals(workingVersion, PSCInitialValueFile);
+    workingVersion = addDeclarationsToInternals(workingVersion, propagatorMatrixFile);
 
     workingVersion = addStateVariableUpdatesToDynamics(
         workingVersion,
@@ -99,7 +94,7 @@ public class LinearSolutionTransformer extends TransformerBase {
           stateVectorTmpBackAssignmentsFile,
           body);
 
-      addUpdatesWithPSCInitialValue(pathPSCInitialValueFile, body);
+      addUpdatesWithPSCInitialValue(pathPSCInitialValueFile, body, name -> name);
 
       return astNeuron;
     }
@@ -250,45 +245,6 @@ public class LinearSolutionTransformer extends TransformerBase {
     astStmt.setSmall_Stmt(astSmall_stmt);
 
     astSmall_stmt.setDeclaration(astDeclaration);
-
-    astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
-  }
-
-  private void addUpdatesWithPSCInitialValue(final Path pathPSCInitialValueFile, final ASTBody body) {
-    final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(body.getODEBlock().get(), ASTFunctionCall.class)
-        .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
-        .collect(toList());
-
-    final List<ASTAliasDecl> pscInitialValues = createAliases(pathPSCInitialValueFile);
-    for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
-      final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
-      final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
-      final String shapeName = variableName.substring(variableName.indexOf("_") + 1, variableName.length());
-      for (ASTFunctionCall i_sum_call:i_sumCalls) {
-        final String shapeNameInCall = ASTUtils.toString(i_sum_call.getArgs().get(0));
-        if (shapeNameInCall.equals(shapeName)) {
-          final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
-          final ASTAssignment pscUpdateStep = createAssignment(variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".get_sum(t)");
-          addAssignmentToDynamics(body, pscUpdateStep);
-        }
-
-      }
-
-    }
-
-  }
-
-  private void addAssignmentToDynamics(
-      final ASTBody astBodyDecorator,
-      final ASTAssignment yVarAssignment) {
-    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
-    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
-
-    astStmt.setSmall_Stmt(astSmall_stmt);
-
-    // Goal: add the y-assignments at the end of the expression
-    astSmall_stmt.setAssignment(yVarAssignment);
 
     astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }

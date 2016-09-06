@@ -10,6 +10,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.NESTMLNodeFactory;
 import org.nest.nestml._parser.NESTMLParser;
+import org.nest.ode._ast.ASTEquation;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 
@@ -58,6 +59,19 @@ class NESTMLASTCreator {
       astAliasDecl.setDeclaration(astDeclaration);
 
       return astAliasDecl;
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse declaration statement.";
+      throw new RuntimeException(msg, e);
+    }
+
+  }
+
+  static ASTEquation createEquation(final String equation) {
+    try {
+      final ASTEquation astEquation = PARSER.parseEquation(new StringReader(equation)).get();
+
+      return astEquation;
     }
     catch (IOException e) {
       final String msg = "Cannot parse declaration statement.";

@@ -145,7 +145,7 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
     final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseAndBuildSymboltable(MODEL_FILE_PATH);
-    linearSolutionTransformer.addDeclarationsInternalBlock(
+    linearSolutionTransformer.addDeclarationsToInternals(
         modelRoot.getNeurons().get(0),
         PSC_INITIAL_VALUE_FILE);
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
