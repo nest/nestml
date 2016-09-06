@@ -58,10 +58,22 @@ public class ImplicitFormTransformerTest extends ModelbasedTest {
 
     Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
     assertTrue(neuronSymbol.isPresent());
-    final Optional<VariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("g_in__DPSCInitialValue");
-    assertTrue(pscInitialValue.isPresent());
-    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    final Optional<VariableSymbol> pscInitialValue1 = neuronSymbol.get().getVariableByName("g_in__D_PSCInitialValue");
+    assertTrue(pscInitialValue1.isPresent());
+    assertTrue(pscInitialValue1.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+
+    final Optional<VariableSymbol> pscInitialValue2 = neuronSymbol.get().getVariableByName("g_ex__D_PSCInitialValue");
+    assertTrue(pscInitialValue2.isPresent());
+    assertTrue(pscInitialValue2.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+
+    final Optional<VariableSymbol> shapeAsState = neuronSymbol.get().getVariableByName("g_ex");
+    assertTrue(shapeAsState.isPresent());
+    assertTrue(shapeAsState.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
+
+    final Optional<VariableSymbol> derivedStateVariable = neuronSymbol.get().getVariableByName("g_ex'");
+    assertTrue(derivedStateVariable.isPresent());
+    assertTrue(derivedStateVariable.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
 
   }
-  
+
 }

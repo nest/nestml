@@ -33,6 +33,7 @@ public class ODEProcessor {
   private final String LOG_NAME = ODEProcessor.class.getName();
 
   private final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
+  private final ImplicitFormTransformer implicitFormTransformer = new ImplicitFormTransformer();
   private final DeltaSolutionTransformer deltaSolutionTransformer = new DeltaSolutionTransformer();
 
   /**
@@ -151,6 +152,13 @@ public class ODEProcessor {
    */
   protected LinearSolutionTransformer getLinearSolutionTransformer() {
     return linearSolutionTransformer;
+  }
+
+  /**
+   * This method can be overloaded in tests and return a mock instead of real transformer.
+   */
+  protected ImplicitFormTransformer getImplicitFormTransformer() {
+    return implicitFormTransformer;
   }
 
 }

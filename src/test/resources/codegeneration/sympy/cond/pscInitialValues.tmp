@@ -1,2 +1,2 @@
-g_in__DPSCInitialValue real = e/tau_syn_in# PSCInitial value
-g_ex__DPSCInitialValue real = e/tau_syn_ex# PSCInitial value
+g_in__D_PSCInitialValue real = e/tau_syn_in# PSCInitial value
+g_ex__D_PSCInitialValue real = e/tau_syn_ex# PSCInitial value

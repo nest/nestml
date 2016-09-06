@@ -18,10 +18,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAliases;
+import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAssignment;
 import static org.nest.utils.ASTUtils.getVectorizedVariable;
 
 /**
@@ -121,6 +123,57 @@ public class TransformerBase {
     }
 
 
+  }
+
+  /**
+   * Add updates of state variables with the PSC initial value and corresponding inputs from buffers.
+   *
+   * @param pathPSCInitialValueFile File with a list of PSC initial values for the corresponding shapes
+   * @param body The astnode of the neuron to which update assignments must be added
+   * @param nameHandler In some cases the name of the state variable extracted from the assignment must be transformed
+   *                    (G'_PSCInitialValue would be an invalid name, therefore, G__D_PSCInitialValue is used, where
+   *                    G' is the name of the state variable)
+   */
+  void addUpdatesWithPSCInitialValue(
+      final Path pathPSCInitialValueFile,
+      final ASTBody body,
+      final Function<String, String> nameHandler) {
+    final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(body.getODEBlock().get(), ASTFunctionCall.class)
+        .stream()
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
+        .collect(toList());
+
+    final List<ASTAliasDecl> pscInitialValues = createAliases(pathPSCInitialValueFile);
+    for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
+      final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
+      final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
+      final String shapeName = variableName.substring(variableName.indexOf("_") + 1, variableName.length());
+      for (ASTFunctionCall i_sum_call:i_sumCalls) {
+        final String shapeNameInCall = ASTUtils.toString(i_sum_call.getArgs().get(0));
+        if (shapeNameInCall.equals(shapeName)) {
+          final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
+          final ASTAssignment pscUpdateStep = createAssignment(nameHandler.apply(variableName) + " += " +  pscInitialValueAsString + " * "+ bufferName + ".get_sum(t)");
+          addAssignmentToDynamics(body, pscUpdateStep);
+        }
+
+      }
+
+    }
+
+  }
+
+  void addAssignmentToDynamics(
+      final ASTBody astBodyDecorator,
+      final ASTAssignment yVarAssignment) {
+    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
+    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
+
+    astStmt.setSmall_Stmt(astSmall_stmt);
+
+    // Goal: add the y-assignments at the end of the expression
+    astSmall_stmt.setAssignment(yVarAssignment);
+
+    astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }
 
   ASTStmt statement(final ASTAssignment astAssignment) {
