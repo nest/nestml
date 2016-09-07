@@ -41,7 +41,7 @@ public class NESTMLFrontendIntegrationTest {
   public void testInfrastructure() {
     FilesHelper.deleteFilesInFolder(outputPath);
     final CLIConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
-        "src/test/resources/codegeneration/gif",
+        "models",
         "--target", outputPath.toString()});
     Assert.assertTrue(NESTMLFrontend.checkEnvironment(cliConfiguration));
   }
@@ -58,7 +58,7 @@ public class NESTMLFrontendIntegrationTest {
   @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/aeif_cond_alpha.nestml",
+        "models/mat2_psc_exp.nestml",
         "--target", outputPath.toString()};
 
     new NESTMLFrontend().start(args);

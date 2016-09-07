@@ -87,6 +87,14 @@ ${simpleNeuronName}::Parameters_::Parameters_()
 
 ${simpleNeuronName}::State_::State_(Parameters_ __p)
 {
+
+<#list body.getStateAliasSymbols() as variable>
+  <#if !aliasInverter.isInvertableExpression(variable.getDeclaringExpression().get())>
+    ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
+    ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [variable, stateBlockPrettyPrinter])}
+  </#if>
+</#list>
+
 <#list body.getStateNonAliasSymbols() as state>
   ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state, stateBlockPrettyPrinter])}
 </#list>
