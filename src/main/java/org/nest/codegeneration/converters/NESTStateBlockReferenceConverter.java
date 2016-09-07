@@ -6,6 +6,7 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
+import org.nest.codegeneration.helpers.Names;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -26,7 +27,7 @@ public class NESTStateBlockReferenceConverter extends NESTReferenceConverter {
     final Scope scope = astVariable.getEnclosingScope().get();
     final VariableSymbol variableSymbol = resolve(variableName, scope);
 
-    return (variableSymbol.isParameter()?"__p.":"") + "get_" + variableName + "()";
+    return (variableSymbol.isParameter()?"__p.":"") + Names.name(astVariable);
   }
 
 }

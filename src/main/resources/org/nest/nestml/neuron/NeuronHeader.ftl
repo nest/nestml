@@ -146,11 +146,11 @@ public:
   <#list body.getInternalSymbols() as internal>
   ${tc.includeArgs("org.nest.nestml.function.MemberVariableGetterSetter", [internal])}
   </#list>
-  <#-- DO I NEED THEM?
+
   <#list body.getODEAliases() as odeAlias>
     ${tc.includeArgs("org.nest.nestml.function.MemberVariableGetterSetter", [odeAlias])}
   </#list>
-  -->
+
   <#list body.getInputBuffers() as buffer>
   ${bufferHelper.printBufferGetter(buffer, false)};
   </#list>
@@ -308,6 +308,7 @@ protected:
 
       <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferArrayGetter(inputLine)}
+
       </#list>
 
       <#list body.getCurrentBuffers() as inputLine>
@@ -321,12 +322,14 @@ protected:
       <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferDeclaration(inputLine)};
       </#list>
+
+      <#list body.getInputBuffers() as inputLine>
+        double __${inputLine.getName()}_last_value = 0;
+      </#list>
     </#if>
 
     /** Logger for all analog data */
     nest::UniversalDataLogger<${simpleNeuronName}> logger_;
-
-
 
     std::vector<long> receptor_types_;
 
