@@ -26,9 +26,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
       "models/iaf_neuron.nestml",
       "models/iaf_psc_alpha.nestml",
       "models/iaf_psc_exp.nestml",
-      "models/iaf_tum_2000.nestml",
-      "models/iaf_psc_delta.nestml",
-      "models/mat2_psc_exp.nestml"
+      "models/iaf_psc_delta.nestml"
   );
 
   private final List<String> multisynapseModels = Lists.newArrayList(
@@ -51,20 +49,7 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   );
 
   private final List<String> nestmlCondImplicitModels = Lists.newArrayList(
-      "models/iaf_cond_alpha_implicit.nestml",
-      "models/iaf_cond_exp_implicit.nestml",
-      "models/aeif_cond_alpha_implicit.nestml",
-      "models/aeif_cond_exp_implicit.nestml",
-      "models/iaf_chxk_2008_implicit.nestml",
-      "models/hh_cond_exp_traub.nestml",
-      "models/hh_psc_alpha.nestml",
-      "models/iaf_cond_exp_sfa_rr_implicit.nestml"
-  );
-
-  private final List<String> glf = Lists.newArrayList(
-      "src/test/resources/codegeneration/gif/glif.nestml",
-      "src/test/resources/codegeneration/gif/glif_2.nestml",
-      "src/test/resources/codegeneration/gif/glif_extended.nestml"
+      "models/iaf_cond_alpha_implicit.nestml"
   );
 
   @Test
@@ -107,7 +92,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     generateNESTModuleCode(roots);
   }
 
-  @Ignore("Doesn't work at the moments")
   @Test
   public void testCondModel() {
     nestmlCondModels.forEach(this::checkCocos);
@@ -129,14 +113,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
         .map(this::parseAndBuildSymboltable)
         .collect(Collectors.toList());
     generateNESTModuleCode(roots);
-  }
-
-
-  @Ignore("Don't run this tests on github")
-  @Test
-  public void testGlifModel() {
-    glf.forEach(this::checkCocos);
-    glf.forEach(this::invokeCodeGenerator);
   }
 
   @Test

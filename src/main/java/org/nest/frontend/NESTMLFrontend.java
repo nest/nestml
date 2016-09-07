@@ -131,7 +131,7 @@ public class NESTMLFrontend {
           cliConfiguration.getTargetPath(),
           file -> file.endsWith(".tmp"));
 
-      tmps.stream().forEach(FilesHelper::deleteFile);
+      tmps.forEach(FilesHelper::deleteFile);
     }
   }
 

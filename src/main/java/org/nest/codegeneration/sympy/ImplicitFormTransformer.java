@@ -5,6 +5,7 @@
  */
 package org.nest.codegeneration.sympy;
 
+import com.google.common.base.Strings;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.ode._ast.ASTEquation;
@@ -29,7 +30,17 @@ import static java.util.stream.Collectors.toList;
 public class ImplicitFormTransformer extends TransformerBase {
   public final static String EQUATIONS_FILE = "equations.tmp";
   private static final String DIFFERENTIATION_SIGN_PLACEHOLDER = "__D";
+
   private final Function<String, String> mapNameToOdeNotation = name -> name.replaceAll(DIFFERENTIATION_SIGN_PLACEHOLDER, "'");
+  private final Function<String, String> variableNameExtracter = initialValue -> {
+    final String variableNameRaw = initialValue.substring(0, initialValue.indexOf("_PSCInitialValue"));
+    return mapNameToOdeNotation.apply(variableNameRaw);
+  };
+
+  private final Function<String, String> shapeNameExtracter = initialValue -> {
+    final String variableNameRaw = initialValue.substring(0, initialValue.indexOf("_PSCInitialValue"));
+    return variableNameRaw.replaceAll("__D", "");
+  };
 
   public ASTNeuron transformToImplicitForm(
       final ASTNeuron astNeuron,
@@ -39,7 +50,11 @@ public class ImplicitFormTransformer extends TransformerBase {
 
     ASTNeuron workingVersion = addDeclarationsToInternals(astNeuron, pscInitialValuesFile);
     workingVersion = replaceShapesThroughVariables(workingVersion);
-    addUpdatesWithPSCInitialValue(pscInitialValuesFile, workingVersion.getBody(), mapNameToOdeNotation);
+    addUpdatesWithPSCInitialValue(
+        pscInitialValuesFile,
+        workingVersion.getBody(),
+        variableNameExtracter,
+        shapeNameExtracter);
     addEquationsToOdeBlock(equationsFile, astNeuron.getBody().getODEBlock().get());
     return workingVersion;
   }

@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 public class NESTMLFrontendIntegrationTest {
   private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
   private static final Path outputPath = Paths.get("target", "integration");
+
   @Test
   public void testRunUserDefinedOutputFolder() {
     FilesHelper.deleteFilesInFolder(outputPath);
@@ -38,7 +39,6 @@ public class NESTMLFrontendIntegrationTest {
   @Ignore("PIP supports only 1.0.0 sympy")
   @Test
   public void testInfrastructure() {
-
     FilesHelper.deleteFilesInFolder(outputPath);
     final CLIConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
         "src/test/resources/codegeneration/gif",
@@ -47,9 +47,18 @@ public class NESTMLFrontendIntegrationTest {
   }
 
   @Test
+  public void testAllModels() {
+    final String[] args = new String[] {
+        "models",
+        "--target", outputPath.toString()};
+
+    new NESTMLFrontend().start(args);
+  }
+
+  @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/iaf_cond_alpha.nestml",
+        "models/aeif_cond_alpha.nestml",
         "--target", outputPath.toString()};
 
     new NESTMLFrontend().start(args);

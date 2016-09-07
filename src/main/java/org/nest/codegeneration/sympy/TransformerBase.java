@@ -137,22 +137,23 @@ public class TransformerBase {
   void addUpdatesWithPSCInitialValue(
       final Path pathPSCInitialValueFile,
       final ASTBody body,
-      final Function<String, String> nameHandler) {
-    final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(body.getODEBlock().get(), ASTFunctionCall.class)
-        .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
-        .collect(toList());
+      final Function<String, String> stateVariableNameExtracter,
+      final Function<String, String> shapeNameExtracter) {
+    final List<ASTFunctionCall> i_sumCalls = ODETransformer.get_sumFunctionCalls(body.getODEBlock().get());
 
     final List<ASTAliasDecl> pscInitialValues = createAliases(pathPSCInitialValueFile);
     for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
       final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
-      final String variableName = pscInitialValueAsString.substring(0, pscInitialValueAsString.indexOf("PSCInitialValue"));
-      final String shapeName = variableName.substring(variableName.indexOf("_") + 1, variableName.length());
+
+
+      final String shapeName = shapeNameExtracter.apply(pscInitialValueAsString);
+      final String variableName = stateVariableNameExtracter.apply(pscInitialValueAsString);
       for (ASTFunctionCall i_sum_call:i_sumCalls) {
         final String shapeNameInCall = ASTUtils.toString(i_sum_call.getArgs().get(0));
         if (shapeNameInCall.equals(shapeName)) {
           final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
-          final ASTAssignment pscUpdateStep = createAssignment(nameHandler.apply(variableName) + " += " +  pscInitialValueAsString + " * "+ bufferName + ".get_sum(t)");
+          final ASTAssignment pscUpdateStep = createAssignment(
+              variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".get_sum(t)");
           addAssignmentToDynamics(body, pscUpdateStep);
         }
 

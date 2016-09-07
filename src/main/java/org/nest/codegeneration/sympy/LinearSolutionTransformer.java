@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -42,6 +43,12 @@ public class LinearSolutionTransformer extends TransformerBase {
   public final static String STATE_VARIABLES_FILE = "state.variables.tmp";
   public final static String PROPAGATOR_MATRIX_FILE = "propagator.matrix.tmp";
   public final static String PROPAGATOR_STEP_FILE = "propagator.step.tmp";
+
+  private final Function<String, String> variableNameExtracter = initialValue -> initialValue.substring(0, initialValue.indexOf("PSCInitialValue"));
+  private final Function<String, String> shapeNameExtracter = initialValue -> {
+    final String variableName = initialValue.substring(0, initialValue.indexOf("PSCInitialValue"));
+    return variableName.substring(variableName.indexOf("_") + 1, variableName.length());
+  };
 
 
   public ASTNeuron addExactSolution(
@@ -75,7 +82,6 @@ public class LinearSolutionTransformer extends TransformerBase {
     return workingVersion;
   }
 
-
   private ASTNeuron addStateVariableUpdatesToDynamics(
       final ASTNeuron astNeuron,
       final Path pathPSCInitialValueFile,
@@ -94,7 +100,11 @@ public class LinearSolutionTransformer extends TransformerBase {
           stateVectorTmpBackAssignmentsFile,
           body);
 
-      addUpdatesWithPSCInitialValue(pathPSCInitialValueFile, body, name -> name);
+      addUpdatesWithPSCInitialValue(
+          pathPSCInitialValueFile,
+          body,
+          variableNameExtracter,
+          shapeNameExtracter);
 
       return astNeuron;
     }

@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 import static java.nio.file.FileSystems.getDefault;
 
 /**
- * Provides base methods to work with model files: collect.
+ * Provides base methods to work with model files: collect and delete files, create folders.
  *
  * @author plotnikov
  */
@@ -37,21 +37,17 @@ public class FilesHelper {
   }
 
   public static void deleteFilesInFolder(final Path file) {
-    FilesHelper.collectFiles(file, f -> true)
-        .stream()
-        .forEach(FilesHelper::deleteFile);
+    FilesHelper.collectFiles(file, f -> true).forEach(FilesHelper::deleteFile);
   }
 
   public static void deleteFilesInFolder(final Path file, final Predicate<Path> predicate) {
-    FilesHelper.collectFiles(file, predicate)
-            .stream()
-            .forEach(FilesHelper::deleteFile);
+    FilesHelper.collectFiles(file, predicate).forEach(FilesHelper::deleteFile);
   }
 
   public static void deleteFile(final Path file) {
     try {
       Files.delete(file);
-      Log.trace("Deleted  file: " + file.toString(), LOG_NAME);
+      Log.trace("Deleted file: " + file.toString(), LOG_NAME);
     }
     catch (IOException e) {
       Log.error("Cannot delete file: " + file.toString(), e);
