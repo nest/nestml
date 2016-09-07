@@ -133,7 +133,10 @@ public class ODEProcessor {
       }
       else if (solutionType.equals(SolverType.NUMERIC)) {
         info("ODE is solved numerically.", LOG_NAME);
-        return astNeuron;
+        return implicitFormTransformer.transformToImplicitForm(
+            astNeuron,
+            Paths.get(outputBase.toString(),ImplicitFormTransformer.PSC_INITIAL_VALUE_FILE),
+            Paths.get(outputBase.toString(),ImplicitFormTransformer.EQUATIONS_FILE));
       }
       else {
         warn(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.");

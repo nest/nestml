@@ -47,9 +47,18 @@ public class NESTMLFrontendIntegrationTest {
   }
 
   @Test
+  public void testAllModels() {
+    final String[] args = new String[] {
+        "models",
+        "--target", outputPath.toString()};
+
+    new NESTMLFrontend().start(args);
+  }
+
+  @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/iaf_cond_alpha.nestml",
+        "models/aeif_cond_alpha.nestml",
         "--target", outputPath.toString()};
 
     new NESTMLFrontend().start(args);

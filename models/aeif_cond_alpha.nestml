@@ -46,8 +46,6 @@ neuron aeif_cond_alpha_neuron:
     shape g_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t) # Excitatory synaptic conductance in nS
     shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t) # Inhibitory synaptic conductance in nS
 
-    w' = (a*(V_m - E_L) - w)/tau_w
-
     # Add aliases to simplify the equation definition of V_m
     exp_arg real = (V_m-V_th)/delta_T
     I_spike pA = delta_T*exp(exp_arg)
@@ -56,6 +54,7 @@ neuron aeif_cond_alpha_neuron:
 
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
 
+    w' = (a*(V_m - E_L) - w)/tau_w
   end
 
   parameter:

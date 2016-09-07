@@ -279,13 +279,16 @@ else:
 
         pscInitialValues = tmp_diffs[shape_index]
         for i in range(0, orders[shape_index]):
-            initialValue = simplify(pscInitialValues[orders[shape_index] - i - 1].subs(t, 0))
+            initialValue = simplify(pscInitialValues[i].subs(t, 0))
             if initialValue != 0:
-                initialValuesFile.write(str(derivatives[i + 1]) + "_PSCInitialValue real = " + str(initialValue) + "# PSCInitial value\n")
+                initialValuesFile.write(str(derivatives[i]) + "_PSCInitialValue real = " + str(initialValue) + "# PSCInitial value\n")
 
         rhs = 0
-        for order in range(0, odeOrder):
-            rhs += VecA[order] * derivatives[order]
+        if odeOrder == 1:
+            rhs = a_1[0] * derivatives[0] # TODO: Review with Inga, in that case the VecA is not defined
+        else:
+            for order in range(0, odeOrder):
+                rhs += VecA[order] * derivatives[order]
         implicitFormFile.write(transform(str(derivatives[odeOrder]) + " = " + str(simplify(rhs)) + "\n"))
         for order in range(1, odeOrder):
             implicitFormFile.write(transform(str(derivatives[order]) + " = -" + str(derivatives[order-1]) + "\n"))
