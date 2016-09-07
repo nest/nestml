@@ -7,7 +7,7 @@
 ${signature("var")}
 
 <#if var.isAlias()>
-  <#if aliasInverter.isRelativeExpression(var.getDeclaringExpression().get())>
+  <#if aliasInverter.isRelativeExpression(var.getDeclaringExpression().get()) || var.isInEquation()>
     inline ${declarations.printVariableType(var)} ${names.getter(var)}() const {
       return ${variableHelper.printOrigin(var)} ${names.name(var)};
     }

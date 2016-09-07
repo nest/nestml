@@ -246,6 +246,9 @@ protected:
     <#list body.getStateNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
+    <#list body.getODEAliases() as odeAlias>
+      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [odeAlias])}
+    </#list>
     <#list body.getStateNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
     </#list>
@@ -323,9 +326,6 @@ protected:
         ${bufferHelper.printBufferDeclaration(inputLine)};
       </#list>
 
-      <#list body.getInputBuffers() as inputLine>
-        double __${inputLine.getName()}_last_value = 0;
-      </#list>
     </#if>
 
     /** Logger for all analog data */

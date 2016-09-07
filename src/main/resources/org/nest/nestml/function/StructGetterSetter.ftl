@@ -6,7 +6,7 @@
   @result C++ function
 -->
 ${signature("variable")}
-<#if variable.isAlias()>
+<#if variable.isAlias() && !variable.isInEquation()>
 inline ${declarations.printVariableType(variable)} ${names.getter(variable)}() const {
   return ${expressionsPrinter.print(variable.getDeclaringExpression().get())};
 }

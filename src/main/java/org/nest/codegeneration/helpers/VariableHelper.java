@@ -10,6 +10,7 @@ public class VariableHelper {
   static public String printOrigin(final VariableSymbol variableSymbol) {
     switch (variableSymbol.getBlockType()) {
       case STATE:
+      case EQUATION:
         return  "S_.";
       case PARAMETER:
         return  "P_.";
