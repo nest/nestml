@@ -196,6 +196,7 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
 
     solverType = open('solverType.tmp', 'w')
     solverType.write("exact")
+    print('Successfully solved the ODE with shapes ' + str(shapes) + ' exactly.')
 else:
     print 'This differential equation will be converted into the implicit form'
 
@@ -266,18 +267,28 @@ else:
     prefixes = ["", "__D", "__D__D", "__D__D__D"]
     def transform(expression):
         return expression.replace("__D", "\'")
+    initialValuesFile = open('pscInitialValues.tmp', 'w')
+    implicitFormFile = open('equations.tmp', 'w')
     for shape_index in range(0, len(shapes)):
+        odeOrder = orders[shape_index]
         shape = shapes[shape_index]
-        implicitFormFile = open(shape + '_implicit_form.tmp', 'w')
 
-        derivatives = [None]*(orders[shape_index] + 1)
-
+        derivatives = [None]*(odeOrder + 1)
         for i in range(0, len(derivatives)):
             derivatives[i] = symbols(shape + prefixes[i] )
 
-        odeOrder = orders[shape_index]
-        implicitFormFile.write(transform(str(derivatives[odeOrder]) + " = "))
+        pscInitialValues = tmp_diffs[shape_index]
+        for i in range(0, orders[shape_index]):
+            initialValue = simplify(pscInitialValues[orders[shape_index] - i - 1].subs(t, 0))
+            if initialValue != 0:
+                initialValuesFile.write(str(derivatives[i + 1]) + "_PSCInitialValue real = " + str(initialValue) + "# PSCInitial value\n")
+
         rhs = 0
-        for order in range(0, orders[shape_index]):
+        for order in range(0, odeOrder):
             rhs += VecA[order] * derivatives[order]
-        implicitFormFile.write( transform(str(simplify(rhs))))
+        implicitFormFile.write(transform(str(derivatives[odeOrder]) + " = " + str(simplify(rhs)) + "\n"))
+        for order in range(1, odeOrder):
+            implicitFormFile.write(transform(str(derivatives[order]) + " = -" + str(derivatives[order-1]) + "\n"))
+    solverType = open('solverType.tmp', 'w')
+    solverType.write("numeric")
+    print('Successfully converted shapes ' + str(shapes) + ' into the implicit from.')

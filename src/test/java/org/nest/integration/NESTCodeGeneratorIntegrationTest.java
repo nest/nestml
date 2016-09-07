@@ -107,7 +107,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     generateNESTModuleCode(roots);
   }
 
-  @Ignore("Doesn't work at the moments")
   @Test
   public void testCondModel() {
     nestmlCondModels.forEach(this::checkCocos);

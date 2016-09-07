@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 public class NESTMLFrontendIntegrationTest {
   private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
   private static final Path outputPath = Paths.get("target", "integration");
+
   @Test
   public void testRunUserDefinedOutputFolder() {
     FilesHelper.deleteFilesInFolder(outputPath);
@@ -38,7 +39,6 @@ public class NESTMLFrontendIntegrationTest {
   @Ignore("PIP supports only 1.0.0 sympy")
   @Test
   public void testInfrastructure() {
-
     FilesHelper.deleteFilesInFolder(outputPath);
     final CLIConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
         "src/test/resources/codegeneration/gif",

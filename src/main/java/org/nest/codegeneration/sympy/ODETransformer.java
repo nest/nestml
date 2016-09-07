@@ -31,7 +31,7 @@ public class ODETransformer {
   }
 
 
-  private static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
+  public static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
     return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall ->
@@ -39,15 +39,6 @@ public class ODETransformer {
               astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
           .collect(Collectors.toList());
   }
-
-  /*public static ASTExpr replaceSumCalls(final ASTExpr astExpr) {
-    // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
-    final ASTExpr workingCopy = astExpr.deepClone();
-    final List<ASTFunctionCall> functions = get_sumFunctionCalls(workingCopy);
-
-    functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
-    return workingCopy;
-  }*/
 
   public static List<ASTFunctionCall> getCondSumFunctionCall(final ASTNode workingCopy) {
     return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
