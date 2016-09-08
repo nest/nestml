@@ -600,8 +600,8 @@ public class NESTMLCoCosTest  {
         pathToInvalidModel,
         nestmlCoCoChecker,
         "NESTML_",
-        4); // TODO should be 4
-
+        5);
+    
   }
 
   @Test
