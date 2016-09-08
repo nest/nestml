@@ -60,7 +60,7 @@
 
    SeeAlso: ht_synapse
 */
-neuron ht_neuron_nestml:
+neuron ht_neuron_neuron:
 
   state:
     V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential

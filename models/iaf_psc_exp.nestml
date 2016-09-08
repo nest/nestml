@@ -74,7 +74,7 @@
   FirstVersion: March 2006
   Author: Moritz Helias
 */
-neuron iaf_psc_exp_nestml:
+neuron iaf_psc_exp_neuron:
 
   state:
     V_abs mV

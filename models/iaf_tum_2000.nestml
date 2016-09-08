@@ -89,7 +89,7 @@
   FirstVersion: March 2006
   Author: Moritz Helias
 */
-neuron iaf_tum_2000_nestml:
+neuron iaf_tum_2000_neuron:
 
   state:
     V_m mV # Membrane potential

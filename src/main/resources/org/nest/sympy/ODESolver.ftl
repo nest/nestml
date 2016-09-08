@@ -23,6 +23,10 @@ ${operator} ${eq.getLhs()}
 <#list shapes as eq>
 ${eq.getLhs()} = ${printer.print(odeTransformer.replaceSumCalls(eq.getRhs()))}
 </#list>
+# also aliases must be defined in terms of new shapes
+<#list aliases as alias>
+${alias.getName()} = ${printer.print(odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get()))}
+</#list>
 
 rhs = ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))}
 dev${ode.getLhs().getSimpleName()} = diff(rhs, ${ode.getLhs().getSimpleName()})

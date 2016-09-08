@@ -204,6 +204,7 @@ protected:
     <#list body.getAllRelativeParameters() as variable>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
+
     /** Initialize parameters to their default values. */
     Parameters_();
 
@@ -216,6 +217,7 @@ protected:
       , ${declarations.printVariableType(offset)} ${offset.getName()}
     </#list>);
 
+    // TODO only for invariants
     <#list body.getParameterNonAliasSymbols() as variable>
       ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
     </#list>
@@ -249,11 +251,8 @@ protected:
     <#list body.getODEAliases() as odeAlias>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [odeAlias])}
     </#list>
-    <#list body.getStateNonAliasSymbols() as variable>
-      ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
-    </#list>
 
-    State_(Parameters_ __p);
+    State_();
 
     /** Store state values in dictionary. */
     void get(DictionaryDatum&) const;
@@ -267,8 +266,6 @@ protected:
       , ${declarations.printVariableType(offset)} ${offset.getName()}
     </#list>
     );
-
-
   };
 
   /**
@@ -311,7 +308,6 @@ protected:
 
       <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferArrayGetter(inputLine)}
-
       </#list>
 
       <#list body.getCurrentBuffers() as inputLine>
@@ -334,33 +330,30 @@ protected:
     std::vector<long> receptor_types_;
 
     <#if useGSL>
-    /* GSL ODE stuff */
-    gsl_odeiv_step* s_;    //!< stepping function
-    gsl_odeiv_control* c_; //!< adaptive stepsize control function
-    gsl_odeiv_evolve* e_;  //!< evolution function
-    gsl_odeiv_system sys_; //!< struct describing system
+      /* GSL ODE stuff */
+      gsl_odeiv_step* s_;    //!< stepping function
+      gsl_odeiv_control* c_; //!< adaptive stepsize control function
+      gsl_odeiv_evolve* e_;  //!< evolution function
+      gsl_odeiv_system sys_; //!< struct describing system
     </#if>
-
 
   };
 private:
 
-
-
   <#if (body.getSameTypeBuffer()?size > 1) >
-  /**
-   * Synapse types to connect to
-   * @note Excluded upper and lower bounds are defined as INF_, SUP_.
-   *       Excluding port 0 avoids accidental connections.
-   */
-  enum SynapseTypes
-  {
-    INF_SPIKE_RECEPTOR = 0,
-    <#list body.getSameTypeBuffer() as buffer>
-      ${buffer.getName()?upper_case} ,
-    </#list>
-    SUP_SPIKE_RECEPTOR
-  };
+    /**
+     * Synapse types to connect to
+     * @note Excluded upper and lower bounds are defined as INF_, SUP_.
+     *       Excluding port 0 avoids accidental connections.
+     */
+    enum SynapseTypes
+    {
+      INF_SPIKE_RECEPTOR = 0,
+      <#list body.getSameTypeBuffer() as buffer>
+        ${buffer.getName()?upper_case} ,
+      </#list>
+      SUP_SPIKE_RECEPTOR
+    };
   </#if>
 
   /**
@@ -503,7 +496,7 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &__d)
   </#list>
   );            // throws BadProperty
 
-  State_      stmp = State_(ptmp);  // temporary copy in case of errors
+  State_      stmp = S_;  // temporary copy in case of errors
   stmp.set(__d, ptmp
   <#list body.getAllOffsetVariables() as offset>
     , delta_${offset.getName()}
