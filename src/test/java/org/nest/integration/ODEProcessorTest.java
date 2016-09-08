@@ -61,13 +61,11 @@ public class ODEProcessorTest extends ModelbasedTest {
 
   /**
    * Parses model, builds symboltable, cleanups output folder by deleting tmp file and processes ODEs from model.i
-   * @param pathToModel
-   * @return
    */
   private Scope processModel(final String pathToModel) {
     final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(pathToModel);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(pathToModel.toString()));
+    final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(pathToModel));
     FilesHelper.deleteFilesInFolder(outputBase);
 
     testant.solveODE(modelRoot.getNeurons().get(0), outputBase);

@@ -48,7 +48,7 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
         ode-> {
           checkVariableByName(ode.getLhs());
           ASTUtils.getAll(ode.getRhs(), ASTVariable.class)
-                  .forEach(variable -> checkVariableByName(variable.getName().toString(), node)); // it can be a D'' variable
+                  .forEach(variable -> checkVariableByName(variable.toString(), node)); // it can be a D'' variable
         }
 
     );
