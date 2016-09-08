@@ -74,32 +74,9 @@ namespace nest
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
 
-${simpleNeuronName}::Parameters_::Parameters_()
-{
-<#list body.getParameterNonAliasSymbols() as parameter>
-  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
-</#list>
+${simpleNeuronName}::Parameters_::Parameters_() { }
 
-<#list body.getAllRelativeParameters() as parameter>
-  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
-</#list>
-}
-
-${simpleNeuronName}::State_::State_(Parameters_ __p)
-{
-
-<#list body.getStateAliasSymbols() as variable>
-  <#if !aliasInverter.isInvertableExpression(variable.getDeclaringExpression().get())>
-    ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
-    ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [variable, stateBlockPrettyPrinter])}
-  </#if>
-</#list>
-
-<#list body.getStateNonAliasSymbols() as state>
-  ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state, stateBlockPrettyPrinter])}
-</#list>
-}
-
+${simpleNeuronName}::State_::State_() { }
 
 /* ----------------------------------------------------------------
 * Parameter and state extractions and manipulation functions
@@ -158,9 +135,22 @@ ${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): 
 * Default and copy constructor for node
 * ---------------------------------------------------------------- */
 // TODO inner components
-${simpleNeuronName}::${simpleNeuronName}():Archiving_Node(), P_(), S_(P_), B_(*this)
+${simpleNeuronName}::${simpleNeuronName}():Archiving_Node(), P_(), S_(), B_(*this)
 {
   recordablesMap_.create();
+
+  <#list body.getParameterNonAliasSymbols() as parameter>
+    ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
+  </#list>
+
+  <#list body.getAllRelativeParameters() as parameter>
+    ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
+  </#list>
+
+  <#list body.getStateNonAliasSymbols() as state>
+    ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state, printerWithGetters])}
+  </#list>
+
 }
 
 ${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n): Archiving_Node(), P_(n.P_), S_(n.S_), B_(n.B_, *this)

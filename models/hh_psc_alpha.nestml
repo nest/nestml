@@ -44,7 +44,7 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Authors: Schrader
 SeeAlso: hh_cond_exp_traub
 */
-neuron hh_psc_alpha_nestml:
+neuron hh_psc_alpha_neuron:
 
   state:
     V_m mV = -65. mV # Membrane potential
