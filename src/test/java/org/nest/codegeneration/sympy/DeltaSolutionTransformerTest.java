@@ -33,7 +33,7 @@ public class DeltaSolutionTransformerTest extends ModelbasedTest {
   private final static Path PROPAGATPR_STEP_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
       LinearSolutionTransformer.PROPAGATOR_STEP_FILE);
-  private static final String NEURON_NAME = "iaf_psc_delta_nestml";
+  private static final String NEURON_NAME = "iaf_psc_delta_neuron";
   private static final String MODEL_FILE_PATH = "models/iaf_psc_delta.nestml";
 
   @Test

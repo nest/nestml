@@ -31,7 +31,7 @@ public class ODEProcessorTest extends ModelbasedTest {
   private static final String COND_MODEL_FILE = "models/iaf_cond_alpha.nestml";
   private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
   private static final String PSC_DELTA_MODEL_FILE = "models/iaf_psc_delta.nestml";
-  private static final String PSC_NEURON_NAME = "iaf_neuron_nestml";
+  private static final String PSC_NEURON_NAME = "iaf_neuron_neuron";
 
   private final ODEProcessor testant = new ODEProcessor();
 
