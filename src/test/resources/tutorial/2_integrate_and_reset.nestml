@@ -1,0 +1,36 @@
+/*
+  A straight forward implementation of the RC circuit approach.
+  Extends the integrate method with a threshold and fire behaviour.
+*/
+neuron iaf_reset:
+
+  state:
+    V_m mV = -63mV
+    I_syn pA = 10
+  end
+
+  equations:
+      V_m' = -V_m/tau_m + I_syn/C_m
+  end
+
+  parameter:
+    C_m   pF = 250pF
+    tau_m ms = 10ms
+    V_reset mV = -70 mV
+    V_th    mV = -55 mV
+  end
+
+  input:
+    spikes   <- spike
+  end
+
+  output: spike
+
+  update:
+    integrate(V_m)
+    if V_m > V_th:
+      V_m = V_reset
+    end
+  end
+
+end
