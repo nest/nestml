@@ -1,0 +1,30 @@
+/*
+  A straight forward implementation of the RC circuit approach
+*/
+neuron iaf:
+
+  state:
+    V_m mV = -63mV
+    I_syn pA = 10pA
+  end
+
+  equations:
+      V_m' = -V_m/tau_m + I_syn/C_m
+  end
+
+  parameter:
+    C_m   pF = 250pF
+    tau_m ms = 10ms
+  end
+
+  input:
+    spikes   <- spike
+  end
+
+  output: spike
+
+  update:
+    integrate(V_m)
+  end
+
+end
