@@ -6,7 +6,7 @@ neuron iaf_reset:
 
   state:
     V_m mV = -63mV
-    I_syn pA = 10
+    I_syn pA = 10pA
   end
 
   equations:
@@ -17,7 +17,7 @@ neuron iaf_reset:
     C_m   pF = 250pF
     tau_m ms = 10ms
     V_reset mV = -70 mV
-    V_th    mV = -55 mV
+    V_th    mV = -5 mV
   end
 
   input:
