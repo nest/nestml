@@ -5,19 +5,21 @@
 neuron iaf_reset:
 
   state:
-    V_m mV = -63mV
-    I_syn pA = 10pA
+    V_abs mV = 0mV
+    alias V_m mV = V_abs + E_L
+    I_syn pA = 0pA
   end
 
   equations:
-      V_m' = -V_m/tau_m + I_syn/C_m
+      V_abs' = -1/tau_m * V_abs + 1/C_m*I_syn
   end
 
   parameter:
+    E_L   mV = -65mV
     C_m   pF = 250pF
     tau_m ms = 10ms
-    V_reset mV = -70 mV
-    V_th    mV = -5 mV
+    alias V_th mV =  55mV + E_L
+    alias V_reset mV =  10mV + E_L
   end
 
   input:
@@ -27,10 +29,11 @@ neuron iaf_reset:
   output: spike
 
   update:
-    integrate(V_m)
-    if V_m > V_th:
-      V_m = V_reset
+    integrate(V_abs)
+    if V_abs > V_th:
+      V_abs = V_reset
     end
+    I_syn = spikes.get_sum()
   end
 
 end
