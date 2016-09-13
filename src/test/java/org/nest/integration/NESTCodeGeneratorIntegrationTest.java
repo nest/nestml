@@ -35,8 +35,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   );
 
   private final List<String> imperativeModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/imperative/iaf_psc_alpha_multisynapse_imperative.nestml",
-      "src/test/resources/codegeneration/imperative/iaf_psc_delta_imperative.nestml",
       "src/test/resources/codegeneration/imperative/iaf_psc_exp_imperative.nestml",
       "src/test/resources/codegeneration/imperative/iaf_psc_exp_multisynapse_imperative.nestml",
       "src/test/resources/codegeneration/imperative/mat2_psc_exp_imperative.nestml"

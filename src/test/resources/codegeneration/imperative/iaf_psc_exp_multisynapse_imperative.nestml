@@ -30,14 +30,6 @@ neuron iaf_psc_exp_multisynapse_nestml:
     currentValue pA = 0
   end
 
-  function set_V_reset(v mV):
-      V_reset = v - U0
-  end
-
-  function set_Theta(v mV):
-      Theta = v - U0
-  end
-
   internal:
     h   ms   = resolution()
     r_ref integer = 0
