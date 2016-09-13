@@ -23,11 +23,8 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author  plotnikov
  */
 public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
-
   public static final String ERROR_CODE = "NESTML_VARIABLE_DOESNT_EXIST";
   private static final String ERROR_MSG_FORMAT = "The variable %s is not defined in %s.";
-
-
 
   @Override
   public void check(final ASTOdeDeclaration node) {

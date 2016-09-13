@@ -1,0 +1,10 @@
+neuron A:
+  state:
+    alias a ms = 15.0
+  end
+
+  update:
+    aa ms
+    aa = a
+  end
+end

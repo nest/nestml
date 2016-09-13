@@ -80,6 +80,14 @@ public class UnitsSIVisitor implements NESTMLVisitor {
       }
     }
 
+    final Optional<String> translatedUnit = translator.calculateUnitType(astUnitType);
+    if (translatedUnit.isPresent()) {
+      astUnitType.setUnit(translatedUnit.get());
+    }
+    else {
+      Log.error(ERROR_CODE + "The unit used in the expression is not an SI unit.", astUnitType.get_SourcePositionStart());
+    }
+
   }
 
 }

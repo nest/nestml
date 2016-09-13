@@ -689,8 +689,7 @@ public class NESTMLCoCosTest  {
   
   @Test
   public void testI_SumHasCorrectParameter() {
-    final I_SumHasCorrectParameter i_sumHasCorrectParameter
-        = new I_SumHasCorrectParameter();
+    final I_SumHasCorrectParameter i_sumHasCorrectParameter = new I_SumHasCorrectParameter();
     nestmlCoCoChecker.addCoCo(i_sumHasCorrectParameter);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "i_SumHasCorrectParameter/valid.nestml");
@@ -705,6 +704,26 @@ public class NESTMLCoCosTest  {
         nestmlCoCoChecker,
         I_SumHasCorrectParameter.ERROR_CODE,
         3);
+
+  }
+
+  @Test
+  public void testAssignmentToAlias() {
+    final AssignmentToAlias assignmentToAlias = new AssignmentToAlias();
+    nestmlCoCoChecker.addCoCo(assignmentToAlias);
+
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/assignmentToAlias.nestml");
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        AssignmentToAlias.ERROR_CODE);
+
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/assignmentToAlias.nestml");
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        AssignmentToAlias.ERROR_CODE,
+        1);
 
   }
 

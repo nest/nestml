@@ -86,7 +86,7 @@ neuron iaf_neuron_neuron:
 
   # these parameter are adjusted from outside
   parameter:
-    C_m     pF = 250 pF [[C_m > 0 pF]]   # ERROR: pf is wrong
+    C_m     pf = 250 pF [[C_m > 0 pF]]   # ERROR: pf is wrong
     Tau     ms = 10 MS    # ERROR: MS is wrong
     tau_syn ms = 2 ms     # Time constant of synaptic current.
     t_ref   ms = 2 ms    # Refractory period.
