@@ -9,6 +9,7 @@ import de.monticore.modelloader.ModelingLanguageModelLoader;
 import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
+import org.nest.nestml._symboltable.PredefinedTypesFilter;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl.symboltable.CommonSPLSymbolTableCreator;
 import org.nest.symboltable.symbols.MethodSymbol;
@@ -20,9 +21,7 @@ import java.util.Optional;
 /**
  * Frontend for the Simple Programming Language (SPL)
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since 0.0.1
+ * @author plotnikov
  */
 public class SPLLanguage extends org.nest.spl._symboltable.SPLLanguageTOP {
 
@@ -45,7 +44,7 @@ public class SPLLanguage extends org.nest.spl._symboltable.SPLLanguageTOP {
 
   @Override protected void initResolvingFilters() {
     super.initResolvingFilters();
-    addResolver(CommonResolvingFilter.create(TypeSymbol.class, TypeSymbol.KIND));
+    addResolver(new PredefinedTypesFilter(TypeSymbol.KIND));
     addResolver(CommonResolvingFilter.create(VariableSymbol.class, VariableSymbol.KIND));
     addResolver(CommonResolvingFilter.create(MethodSymbol.class, MethodSymbol.KIND));
   }

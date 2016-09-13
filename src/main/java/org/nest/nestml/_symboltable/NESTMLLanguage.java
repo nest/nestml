@@ -39,14 +39,13 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
     addResolver(CommonResolvingFilter.create(NeuronSymbol.class, NeuronSymbol.KIND));
 
     addResolver(new PredefinedTypesFilter(TypeSymbol.KIND));
-
     addResolver(new PredefinedMethodsFilter(MethodSymbol.KIND));
     addResolver(CommonResolvingFilter.create(MethodSymbol.KIND));
 
-    addResolver(CommonResolvingFilter.create(VariableSymbol.class, VariableSymbol.KIND));
+    addResolver(CommonResolvingFilter.create(VariableSymbol.KIND));
     addResolver(new PredefinedVariablesFilter(VariableSymbol.class, VariableSymbol.KIND));
 
-    addResolver(CommonResolvingFilter.create(UsageSymbol.class, UsageSymbol.KIND));
+    addResolver(CommonResolvingFilter.create( UsageSymbol.KIND));
 
     setModelNameCalculator(new CommonModelNameCalculator() {
 

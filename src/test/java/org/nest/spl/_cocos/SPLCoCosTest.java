@@ -6,7 +6,6 @@
 package org.nest.spl._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,6 +15,8 @@ import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 
 import static de.se_rwth.commons.logging.Log.getFindings;
@@ -29,22 +30,25 @@ import static org.nest.utils.LogHelper.countErrorsByPrefix;
  * @author plotnikov
  */
 public class SPLCoCosTest {
-
-  public static final String TEST_MODEL_PATH = "src/test/resources/";
-
+  private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/spl/_cocos/";
-
   private final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
-
   private SPLCoCoChecker splCoCoChecker;
   /**
    * Parses the model and returns ast.
    */
-  private ASTSPLFile getAstRoot(String modelPath) throws IOException {
+  private ASTSPLFile getAstRoot(String modelPath)  {
     final SPLParser p = new SPLParser();
-    final Optional<ASTSPLFile> ast = p.parse(modelPath);
-    assertTrue(ast.isPresent());
-    return ast.get();
+    final Optional<ASTSPLFile> ast;
+    try {
+      ast = p.parse(modelPath);
+      assertTrue(ast.isPresent());
+      return ast.get();
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
   }
 
   @BeforeClass
@@ -58,16 +62,8 @@ public class SPLCoCosTest {
     splCoCoChecker = new SPLCoCoChecker();
   }
 
-  @After
-  public void printErrorMessage() {
-    getFindings().forEach(e -> System.out.println("Error found: " + e));
-  }
-
   @Test
   public void testVariableDoesNotExist() throws IOException {
-    final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "varNotDefined.simple");
-    splScopeCreator.runSymbolTableCreator(ast);
-
     final VariableDoesNotExist variableExists = new VariableDoesNotExist();
     splCoCoChecker.addCoCo((SPLASTCompound_StmtCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableExists);
@@ -75,44 +71,36 @@ public class SPLCoCosTest {
     splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableExists);
     splCoCoChecker.addCoCo((SPLASTReturnStmtCoCo) variableExists);
 
-
-    splCoCoChecker.checkAll(ast);
-
-    Integer errorsFound = countErrorsByPrefix(
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_MODELS_FOLDER, "varNotDefined.simple"),
+        splCoCoChecker,
         VariableDoesNotExist.ERROR_CODE,
-        getFindings());
-    assertEquals(Integer.valueOf(5), errorsFound);
+        5);
   }
 
 
   @Test
   public void testVarDefinedMultipleTimes() throws IOException {
-    final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "varDefinedMultipleTimes.simple");
-    splScopeCreator.runSymbolTableCreator(ast);
-
     final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
     splCoCoChecker.addCoCo(variableDefinedMultipleTimes);
 
-    splCoCoChecker.checkAll(ast);
-
-    Integer errorsFound = countErrorsByPrefix(VariableDefinedMultipleTimes.ERROR_CODE,
-        getFindings());
-    assertEquals(Integer.valueOf(6), errorsFound);
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_MODELS_FOLDER, "varDefinedMultipleTimes.simple"),
+        splCoCoChecker,
+        VariableDefinedMultipleTimes.ERROR_CODE,
+        6);
   }
 
   @Test
   public void testVarHasTypeName() throws IOException {
-    final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "varWithTypeName.simple");
-
-    splScopeCreator.runSymbolTableCreator(ast);
-
     final VarHasTypeName varHasTypeName = new VarHasTypeName();
     splCoCoChecker.addCoCo(varHasTypeName);
 
-    splCoCoChecker.checkAll(ast);
-
-    Integer errorsFound = countErrorsByPrefix(VarHasTypeName.ERROR_CODE, getFindings());
-    assertEquals(Integer.valueOf(0), errorsFound); //TODO clear resovling issues in spl modules
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_MODELS_FOLDER, "varWithTypeName.simple"),
+        splCoCoChecker,
+        VarHasTypeName.ERROR_CODE,
+        2);
   }
 
   @Test
@@ -126,11 +114,11 @@ public class SPLCoCosTest {
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableNotDefinedBeforeUse);
     splCoCoChecker.addCoCo((SPLASTFOR_StmtCoCo) variableNotDefinedBeforeUse);
 
-    splCoCoChecker.checkAll(ast);
-
-    Integer errorsFound = countErrorsByPrefix(VariableNotDefinedBeforeUse.ERROR_CODE,
-        getFindings());
-    assertEquals(Integer.valueOf(5), errorsFound);
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_MODELS_FOLDER, "varNotDefinedBeforeUse.simple"),
+        splCoCoChecker,
+        VariableNotDefinedBeforeUse.ERROR_CODE,
+        5);
   }
 
   @Test
@@ -141,17 +129,15 @@ public class SPLCoCosTest {
     final IllegalVarInFor illegalVarInFor = new IllegalVarInFor();
     splCoCoChecker.addCoCo(illegalVarInFor);
 
-    splCoCoChecker.checkAll(ast);
-
-    Integer errorsFound = countErrorsByPrefix(IllegalVarInFor.ERROR_CODE, getFindings());
-    assertEquals(Integer.valueOf(1), errorsFound);
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_MODELS_FOLDER, "illegalVarInFor.simple"),
+        splCoCoChecker,
+        IllegalVarInFor.ERROR_CODE,
+        1);
   }
 
   @Test
   public void testIllegalExpression() throws IOException {
-    final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "illegalNumberExpressions.simple");
-    splScopeCreator.runSymbolTableCreator(ast);
-
     final IllegalExpression illegalExpression = new IllegalExpression();
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) illegalExpression);
@@ -159,25 +145,24 @@ public class SPLCoCosTest {
     splCoCoChecker.addCoCo((SPLASTFOR_StmtCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTIF_ClauseCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTWHILE_StmtCoCo) illegalExpression);
-    splCoCoChecker.checkAll(ast);
 
-    final Integer errorsFound = countErrorsByPrefix(IllegalExpression.ERROR_CODE, getFindings());
-    getFindings().forEach(f -> System.out.println("Logging: " + f.toString()) );
-    // TODO must be 14
-    assertEquals(Integer.valueOf(10), errorsFound);
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_MODELS_FOLDER, "illegalNumberExpressions.simple"),
+        splCoCoChecker,
+        IllegalExpression.ERROR_CODE,
+        10);
   }
 
   @Test
   public void testCodeAfterReturn() throws IOException {
-    final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "codeAfterReturn.simple");
-
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
     splCoCoChecker.addCoCo(codeAfterReturn);
 
-    splCoCoChecker.checkAll(ast);
-
-    final Integer errorsFound = countErrorsByPrefix(CodeAfterReturn.ERROR_CODE, getFindings());
-    assertEquals(Integer.valueOf(1), errorsFound);
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_MODELS_FOLDER, "codeAfterReturn.simple"),
+        splCoCoChecker,
+        CodeAfterReturn.ERROR_CODE,
+        1);
   }
 
   @Test
@@ -194,4 +179,26 @@ public class SPLCoCosTest {
     assertEquals(Integer.valueOf(3), errorsFound);
   }
 
+  private void checkModelAndAssertNoErrors(
+      final Path pathToModel,
+      final SPLCoCoChecker splCoCoChecker,
+      final String expectedErrorCode) {
+    checkModelAndAssertWithErrors(pathToModel, splCoCoChecker, expectedErrorCode, 0);
+
+  }
+
+  private void checkModelAndAssertWithErrors(
+      final Path pathToModel,
+      final SPLCoCoChecker nestmlCoCoChecker,
+      final String expectedErrorCode,
+      final Integer expectedNumberCount) {
+    final ASTSPLFile ast = getAstRoot(pathToModel.toString());
+    splScopeCreator.runSymbolTableCreator(ast);
+
+    nestmlCoCoChecker.checkAll(ast);
+
+    Integer errorsFound = countErrorsByPrefix(expectedErrorCode, getFindings());
+    assertEquals(expectedNumberCount, errorsFound);
+
+  }
 }

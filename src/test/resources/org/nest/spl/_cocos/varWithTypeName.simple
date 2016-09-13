@@ -1,4 +1,4 @@
 module org.nest.spl._cocos.varWithTypeName
-# real real = 15 TODO: can be improved or replace
+#real real = 15 #TODO: can be improved or replace
 ms ms = 15
 V integer = 11

@@ -80,7 +80,6 @@ public class UnitsSIVisitor implements NESTMLVisitor {
       }
     }
 
-    astUnitType.setUnit(translator.calculateUnitType(astUnitType).get());
   }
 
 }

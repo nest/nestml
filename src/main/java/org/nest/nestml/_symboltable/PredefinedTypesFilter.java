@@ -38,7 +38,6 @@ public class PredefinedTypesFilter extends CommonResolvingFilter<TypeSymbol> {
     else {
       return Optional.empty();
     }
-
   }
 
 }
