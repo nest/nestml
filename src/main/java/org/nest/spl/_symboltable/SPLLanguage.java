@@ -44,9 +44,9 @@ public class SPLLanguage extends org.nest.spl._symboltable.SPLLanguageTOP {
 
   @Override protected void initResolvingFilters() {
     super.initResolvingFilters();
-    addResolver(new PredefinedTypesFilter(TypeSymbol.KIND));
-    addResolver(CommonResolvingFilter.create(VariableSymbol.class, VariableSymbol.KIND));
-    addResolver(CommonResolvingFilter.create(MethodSymbol.class, MethodSymbol.KIND));
+    addResolver(new PredefinedTypesFilter());
+    addResolver(CommonResolvingFilter.create(VariableSymbol.KIND));
+    addResolver(CommonResolvingFilter.create(MethodSymbol.KIND));
   }
 
   @Override protected ModelingLanguageModelLoader<ASTSPLFile> provideModelLoader() {

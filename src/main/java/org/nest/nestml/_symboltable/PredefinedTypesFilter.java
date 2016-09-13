@@ -12,25 +12,23 @@ import de.monticore.symboltable.resolving.ResolvingInfo;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
- * TODO
+ * All types in NESTML are predefined. This filter matches the type by name and returns if one exists
  *
  * @author plotnikov
  */
 public class PredefinedTypesFilter extends CommonResolvingFilter<TypeSymbol> {
-  public PredefinedTypesFilter(
-      final SymbolKind targetKind) {
-    super(targetKind);
+  public PredefinedTypesFilter() {
+    super(TypeSymbol.KIND);
   }
 
   @Override
-  public Optional<Symbol> filter(
-      final ResolvingInfo resolvingInfo,
-      final String name,
-      final List<Symbol> symbols) {
+  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, Map<String, Collection<Symbol>> symbols) {
     final Optional<TypeSymbol> typeSymbol = PredefinedTypes.getTypeIfExists(name);
     if (typeSymbol.isPresent()) {
       return Optional.of(typeSymbol.get());

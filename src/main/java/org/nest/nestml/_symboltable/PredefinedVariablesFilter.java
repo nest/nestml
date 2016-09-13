@@ -12,28 +12,23 @@ import de.monticore.symboltable.resolving.ResolvingInfo;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
- * TODO
+ * Returns a predefined variable (e.g. 't') if one exists.
  *
- * @author (last commit) $$Author$$
- * @version $$Revision$$, $$Date$$
- * @since TODO
+ * @author plotnikov
  */
 public class PredefinedVariablesFilter extends CommonResolvingFilter<VariableSymbol> {
-  public PredefinedVariablesFilter(
-      final Class<VariableSymbol> symbolClass,
-      final SymbolKind targetKind) {
-    super(targetKind);
+  public PredefinedVariablesFilter() {
+    super(VariableSymbol.KIND);
   }
 
   @Override
-  public Optional<Symbol> filter(
-      final ResolvingInfo resolvingInfo,
-      final String name,
-      final List<Symbol> symbols) {
+  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, Map<String, Collection<Symbol>> symbols) {
     final Optional<VariableSymbol> predefinedVariable = PredefinedVariables.getVariableIfExists(name);
     if (predefinedVariable.isPresent()) {
       return Optional.of(predefinedVariable.get());
