@@ -6,10 +6,14 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
+import org.nest.utils.FilesHelper;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -60,14 +64,10 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
   }
 
   private void parseAllNESTMLModelsFromFolder(final String folderPath) throws IOException {
-    final File parserModelsFolder = new File(folderPath);
-
-    for (File splModelFile : parserModelsFolder.listFiles()) {
-      if (!splModelFile.isDirectory()) {
-        System.out.println("Current model: " +  splModelFile.getName());
-        parseAndCheckNestmlModel(splModelFile.getPath());
-
-      }
+    final List<Path> nestmlModels = FilesHelper.collectNESTMLModelFilenames(Paths.get(folderPath));
+    for (final Path splModelFile : nestmlModels) {
+      System.out.println("Current model: " +  splModelFile.toString());
+      parseAndCheckNestmlModel(splModelFile.toString());
 
     }
 
