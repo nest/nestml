@@ -58,7 +58,7 @@ public class NESTMLFrontendIntegrationTest {
   @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/iaf_tum_2000.nestml",
+        "models/iaf_psc_exp.nestml",
         "--target", outputPath.toString()};
 
     new NESTMLFrontend().start(args);

@@ -1,8 +1,11 @@
 package org.nest.nestml._parser;
 
+import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.utils.LogHelper;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -88,4 +91,17 @@ public class NESTMLParserTest extends ModelbasedTest {
     assertFalse(wrongFolderStructure.isPresent());
   }
 
+  @Test
+  public void testNonExistentType() throws IOException {
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/unparsable/wrongTypes.nestml");
+    assertFalse(ast.isPresent());
+  }
+
+  @Test
+  public void testMultipleVariablesWithSameName() throws IOException {
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/unparsable/multipleVariablesWithSameName.nestml");
+    assertTrue(ast.isPresent());
+    scopeCreator.runSymbolTableCreator(ast.get());
+    assertTrue(LogHelper.getModelFindings(Log.getFindings()).size() > 0);
+  }
 }

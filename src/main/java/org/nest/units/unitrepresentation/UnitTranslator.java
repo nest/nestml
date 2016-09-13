@@ -18,7 +18,6 @@ public class UnitTranslator {
   public Optional<String> calculateUnitType(final ASTUnitType node){
     final Optional<UnitRepresentation> result = getRecursive(node);
     if (result.isPresent()) {
-
       return Optional.of(result.get().serialize());
     }
     else {

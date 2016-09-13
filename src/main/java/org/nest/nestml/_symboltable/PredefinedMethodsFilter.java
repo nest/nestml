@@ -11,28 +11,28 @@ import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.monticore.symboltable.resolving.ResolvingInfo;
 import org.nest.symboltable.symbols.MethodSymbol;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.nest.symboltable.predefined.PredefinedFunctions.getMethodSymbolIfExists;
 
 /**
- * TODO
+ * Returns a predefined methods if one exists: e.g. pow, exp, ...
  *
  * @author plotnikov
  */
 public class PredefinedMethodsFilter extends CommonResolvingFilter<MethodSymbol> {
 
-  public PredefinedMethodsFilter(
-      final SymbolKind targetKind) {
-    super(targetKind);
+  public PredefinedMethodsFilter() {
+    super(MethodSymbol.KIND);
 
 
   }
 
   @Override
-  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name,
-      List<Symbol> symbols) {
+  public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, Map<String, Collection<Symbol>> symbols) {
     final Optional<MethodSymbol> foundPredefinedMethod = getMethodSymbolIfExists(name);
 
     if (foundPredefinedMethod.isPresent()) {

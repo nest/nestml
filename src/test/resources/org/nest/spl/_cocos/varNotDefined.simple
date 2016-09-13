@@ -1,13 +1,13 @@
 module org.nest.spl._cocos.varNotDefined
-x real = 3 * y
+x real = 3 * y # ERROR: y not defined
 
-for a in 1 ... 10 step 1:
+for a in 1 ... 10 step 1: # ERROR: a not defined
 # blaa
 end
 
-if xx:
+if xx: # ERROR: xx not defined
 end
 
-while yy:
+while yy: # ERROR: yy not defined
 end
-steps(t_ref)
+steps(t_ref) # ERROR: t_ref not defined
