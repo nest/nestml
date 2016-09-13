@@ -8,10 +8,12 @@ package org.nest.units._visitor;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.ASTSPLNode;
 import org.nest.units._ast.ASTUnitType;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.units.unitrepresentation.UnitTranslator;
 import org.nest.utils.LogHelper;
 
@@ -25,7 +27,7 @@ import java.util.Optional;
  * @author ptraeder
  */
 public class UnitsSIVisitor implements NESTMLVisitor {
-  private final static String ERROR_CODE = "NESTML_" + UnitsSIVisitor.class.getName();
+  private final static String ERROR_CODE = "NESTML_UnitsSIVisitor";
   private UnitTranslator translator = new UnitTranslator();
 
   /**
@@ -86,6 +88,19 @@ public class UnitsSIVisitor implements NESTMLVisitor {
     }
     else {
       Log.error(ERROR_CODE + "The unit used in the expression is not an SI unit.", astUnitType.get_SourcePositionStart());
+    }
+
+  }
+
+  public void visit(ASTNESTMLNumericLiteral astNestmlNumericLiteral) {
+    if (astNestmlNumericLiteral.getType().isPresent()) {
+      final String unitName = astNestmlNumericLiteral.getType().get();
+      final Optional<UnitRepresentation> unit = UnitRepresentation.lookupName(unitName);
+      if (!unit.isPresent()) {
+        final String msg = ERROR_CODE + "The unit used in the '" + unitName + "' literal is not an SI unit.";
+        Log.error(msg, astNestmlNumericLiteral.get_SourcePositionStart());
+      }
+
     }
 
   }
