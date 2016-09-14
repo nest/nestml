@@ -21,6 +21,7 @@ import static java.lang.Math.abs;
  * @author plotnikov, traeder
  */
 public class UnitRepresentation {
+  private static final String LOG_NAME = "NESTML_UNIT_REPRESENTATION";
   private int magnitude;
   private int K, s, m, g, cd, mol, A;
 
@@ -213,7 +214,7 @@ public class UnitRepresentation {
     }
     catch(Exception e){
       //should never happen
-      Log.error("The unit: " + unit + " doesn't exist. At this stage it must be already checked by a context condition.");
+      Log.error(LOG_NAME + ": The unit: " + unit + " doesn't exist. At this stage it must be already checked by a context condition.");
       return Optional.empty();
     }
 

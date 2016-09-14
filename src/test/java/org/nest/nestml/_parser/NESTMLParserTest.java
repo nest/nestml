@@ -1,5 +1,6 @@
 package org.nest.nestml._parser;
 
+import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
@@ -95,6 +96,8 @@ public class NESTMLParserTest extends ModelbasedTest {
   public void testNonExistentType() throws IOException {
     final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/unparsable/wrongTypes.nestml");
     assertFalse(ast.isPresent());
+    List<Finding> findings = LogHelper.getModelFindings(Log.getFindings());
+    assertEquals(4, findings.size()); // two error are reported twice due to the visitor structure
   }
 
   @Test
