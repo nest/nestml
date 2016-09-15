@@ -1,0 +1,37 @@
+/*
+  A straight forward implementation of the RC circuit approach.
+  Extends the integrate method with a threshold and fire behaviour.
+*/
+neuron rc_fire:
+
+  state:
+    V_abs mV = 0mV
+    alias V_m mV = V_abs + E_L
+
+  end
+
+  equations:
+      V_abs' = -1/tau_m * V_abs + 1/C_m*I_syn
+  end
+
+  parameter:
+    E_L   mV = -70mV
+    C_m   pF = 250pF
+    tau_m ms = 10ms
+    I_syn pA = 0pA
+    alias V_th mV =  -55mV - E_L
+    alias V_reset mV =  -65mV - E_L
+  end
+
+  input:
+    spikes   <- spike
+  end
+
+  output: spike
+
+  update:
+    integrate(V_abs)
+
+  end
+
+end
