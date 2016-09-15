@@ -66,7 +66,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
     }
     // Time.steps -> nest::Time(nest::Time::ms( args )).get_steps());
     if ("steps".equals(functionName)) {
-      return "nest::Time(nest::Time::ms(%s)).get_steps()";
+      return "nest::Time(nest::Time::ms((double) %s)).get_steps()";
     }
 
     if (PredefinedFunctions.POW.equals(functionName)) {
