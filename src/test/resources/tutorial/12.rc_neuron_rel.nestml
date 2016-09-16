@@ -1,12 +1,11 @@
 /*
   A straight forward implementation of the RC circuit approach
 */
-neuron iaf:
+neuron rc_neuron_rel:
 
   state:
     V_abs mV = 0mV
-    alias V_m mV = V_abs - E_L
-    I_syn pA = 0pA
+    alias V_m mV = V_abs + E_L
   end
 
   equations:
@@ -14,9 +13,10 @@ neuron iaf:
   end
 
   parameter:
-    E_L   mV = -65mV
+    E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms
+    I_syn pA = 10pA
   end
 
   input:
@@ -27,7 +27,6 @@ neuron iaf:
 
   update:
     integrate(V_abs)
-    I_syn = spikes.get_sum()
   end
 
 end

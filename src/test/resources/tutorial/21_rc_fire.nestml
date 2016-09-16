@@ -2,12 +2,11 @@
   A straight forward implementation of the RC circuit approach.
   Extends the integrate method with a threshold and fire behaviour.
 */
-neuron iaf_reset:
+neuron rc_fire:
 
   state:
     V_abs mV = 0mV
     alias V_m mV = V_abs + E_L
-    I_syn pA = 0pA
   end
 
   equations:
@@ -15,11 +14,12 @@ neuron iaf_reset:
   end
 
   parameter:
-    E_L   mV = -65mV
+    E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms
-    alias V_th mV =  55mV + E_L
-    alias V_reset mV =  10mV + E_L
+    I_syn pA = 10pA
+    alias V_th mV =  -55mV - E_L
+    alias V_reset mV =  -65mV - E_L
   end
 
   input:
@@ -32,8 +32,9 @@ neuron iaf_reset:
     integrate(V_abs)
     if V_abs > V_th:
       V_abs = V_reset
+      emit_spike()
     end
-    I_syn = spikes.get_sum()
   end
+
 
 end
