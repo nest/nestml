@@ -1,56 +1,47 @@
-# Pull base image.
-FROM ubuntu:16.04
+FROM alpine:3.4
 
-ENV DEBIAN_FRONTEND noninteractive
+RUN apk update
+RUN apk --update add openjdk8
+RUN apk --update add git
+RUN apk --update add wget
+RUN apk --update add python-dev
+RUN apk --update add clang # for clang-format
+RUN apk --update add g++   # is required by sympy
 
-# Install developer tools, alse add-re
-RUN apt-get update
-# install basics
-RUN apt-get install -y software-properties-common
-RUN apt-get install -y git
-RUN apt-get install -y wget
-RUN apt-get install -y gcc
-RUN apt-get install -y python
-RUN apt-get install -y python-dev
-RUN apt-get install -y clang-format
+# Set environment
+#ENV JAVA_HOME /usr/bin/java
+#ENV PATH ${PATH}:${JAVA_HOME}/bin
 
-# install oracle java
-RUN add-apt-repository -y ppa:webupd8team/java
-RUN apt-get update
-RUN echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
-RUN apt-get install -y oracle-java8-installer
-
+# Install mpmath, required by sympy
 WORKDIR /tmp
-RUN wget https://bootstrap.pypa.io/get-pip.py
-RUN python get-pip.py
-RUN pip install numpy
-RUN pip install mpmath
+RUN git clone https://github.com/fredrik-johansson/mpmath.git
+WORKDIR /tmp/mpmath
+RUN python setup.py install
+
+# Install sympy, required by sympy
+WORKDIR /tmp
 RUN git clone https://github.com/sympy/sympy.git
 WORKDIR /tmp/sympy
 RUN python setup.py install
-WORKDIR /tmp
 
+WORKDIR /tmp
 ENV MAVEN_VERSION 3.3.9
 RUN mkdir -p /usr/share/maven
-RUN wget http://mirror.softaculous.com/apache/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz
-RUN tar -xzf apache-maven-$MAVEN_VERSION-bin.tar.gz -C /usr/share/maven --strip-components=1
-RUN ln -s /usr/share/maven/bin/mvn /usr/bin/mvn
-
-# Define commonly used JAVA_HOME variable
-ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+RUN wget http://mirror.softaculous.com/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+RUN tar -xzf apache-maven-$MAVEN_VERSION-bin.tar.gz -C /usr/share/maven
+RUN ln -s /usr/share/maven//apache-maven-$MAVEN_VERSION/bin/mvn /usr/bin/mvn
 ENV MAVEN_HOME /usr/share/maven
 
 # Define working directory.
 WORKDIR /data
 RUN git clone https://github.com/nest/nestml.git
-
 WORKDIR /data/nestml
 RUN mvn install
-ENV NESTML 'java -jar /data/nestml/target/nestml.jar'
 
-# create a non-root user named tester, 
+# create a non-root user named tester,
 # give them the password "tester" put them in the sudo group
-RUN useradd -d /home/tester -m -s /bin/bash tester && echo "tester:tester" | chpasswd && adduser tester sudo
+RUN adduser tester -h /home/tester -D
+USER tester
 
 # start working in the "tester" home directory
 WORKDIR /home/tester
