@@ -43,4 +43,4 @@ RUN chown -R tester:tester /home/tester
 USER tester
 
 # Define default command.
-ENTRYPOINT ["java", "-jar", "/data/nestml.jar", "/nestml", "--target", "/nestml/result"]
+
