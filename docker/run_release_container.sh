@@ -1,0 +1,1 @@
+docker run -v ~/testing/:/nestml nestml_release --entrypoint="java -version"

@@ -1,0 +1,1 @@
+docker build -t nestml_release -f ./DockerfileRelease .
