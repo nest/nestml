@@ -44,18 +44,18 @@ import static org.nest.utils.ASTUtils.getAllNeurons;
  *
  * @author plotnikov
  */
-public class NESTCodeGenerator {
-  private final String LOG_NAME = NESTCodeGenerator.class.getName();
+public class NestCodeGenerator {
+  private final String LOG_NAME = NestCodeGenerator.class.getName();
   private final ODEProcessor odeProcessor;
 
   private final NESTMLScopeCreator scopeCreator;
 
-  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
+  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= odeProcessor;
   }
 
-  public NESTCodeGenerator(final NESTMLScopeCreator scopeCreator) {
+  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= new ODEProcessor();
   }
@@ -72,10 +72,10 @@ public class NESTCodeGenerator {
     }
 
     workingVersion = printAndReadModel(outputBase, workingVersion);
-    // TODO re-enable me workingVersion = computeSetterForAliases(workingVersion, scopeCreator, outputBase);
+
     workingVersion
         .getNeurons()
-        .forEach(astNeuron -> generateNESTCode(astNeuron, outputBase));
+        .forEach(astNeuron -> generateNestCode(astNeuron, outputBase));
 
     final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
         + outputBase.toAbsolutePath().toString() + "'";
@@ -104,7 +104,7 @@ public class NESTCodeGenerator {
 
   }
 
-  private void generateNESTCode(
+  private void generateNestCode(
       final ASTNeuron astNeuron,
       final Path outputBase) {
 

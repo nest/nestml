@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  *
  * @author plotnikov
  */
-public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
+public class NestCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
       "models/iaf_neuron.nestml",

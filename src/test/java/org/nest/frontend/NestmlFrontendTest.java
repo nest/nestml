@@ -14,13 +14,13 @@ import java.nio.file.Paths;
 import static org.junit.Assert.*;
 
 /**
- * Tests various modis of the {@code NESTMLFrontend} class. For this, several combinations of
+ * Tests various modis of the {@code NestmlFrontend} class. For this, several combinations of
  * CLI parameters also invalid combination are provided to the frontend.
  *
  * @author plotnikov
  */
-public class NESTMLFrontendTest {
-  private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
+public class NestmlFrontendTest {
+  private final NestmlFrontend nestmlFrontend = new NestmlFrontend();
 
   @Test
   public void testCreationOfConfiguration() throws Exception {
@@ -28,7 +28,7 @@ public class NESTMLFrontendTest {
     final Path testInputModelsPath = Paths.get("testInputModelsPath");
     final Path targetPath = Paths.get("targetPath");
 
-    final CLIConfiguration testant = nestmlFrontend.createCLIConfiguration(new String[] {
+    final CliConfiguration testant = nestmlFrontend.createCLIConfiguration(new String[] {
         testInputModelsPath.toString(),
         "--target", targetPath.toString()
     });
@@ -45,6 +45,8 @@ public class NESTMLFrontendTest {
         new String[] { "--target",  inputModelsPath});
     final String testant = nestmlFrontend.interpretTargetPathArgument(cliArguments);
     assertEquals(inputModelsPath, testant);
+
+    cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--target",  inputModelsPath});
 
   }
 

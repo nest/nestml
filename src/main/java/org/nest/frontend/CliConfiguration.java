@@ -13,12 +13,12 @@ import java.nio.file.Paths;
  *
  * @author plotnikov
  */
-public class CLIConfiguration {
+public class CliConfiguration {
   private final boolean checkCoCos;
   private final Path inputBasePath;
   private final Path targetPath;
 
-  public CLIConfiguration(final Builder builder) {
+  public CliConfiguration(final Builder builder) {
     this.checkCoCos = builder.checkCoCos;
     this.inputBasePath = builder.inputBasePath;
     this.targetPath = builder.targetPath;
@@ -72,8 +72,8 @@ public class CLIConfiguration {
       return this;
     }
 
-    public CLIConfiguration build() {
-      return new CLIConfiguration(this);
+    public CliConfiguration build() {
+      return new CliConfiguration(this);
     }
 
   }
