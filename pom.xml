@@ -120,7 +120,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.nest.frontend.NESTMLFrontend</mainClass>
+                            <mainClass>org.nest.frontend.NestmlFrontend</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

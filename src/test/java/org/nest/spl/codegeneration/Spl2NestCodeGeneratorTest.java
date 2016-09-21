@@ -9,7 +9,7 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nest.codegeneration.helpers.ASTDeclarations;
-import org.nest.codegeneration.SPL2NESTCodeGenerator;
+import org.nest.codegeneration.Spl2NestCodeGenerator;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class SPL2NESTCodeGeneratorTest {
+public class Spl2NestCodeGeneratorTest {
 
   private static final String TEST_MODEL_PATH = "src/test/resources/";
 
@@ -57,7 +57,7 @@ public class SPL2NESTCodeGeneratorTest {
     splScopeCreator.runSymbolTableCreator(root.get());
 
     final GlobalExtensionManagement glex = createGLEXConfiguration();
-    final SPL2NESTCodeGenerator generator = new SPL2NESTCodeGenerator(glex, outputFolder);
+    final Spl2NestCodeGenerator generator = new Spl2NestCodeGenerator(glex, outputFolder);
     final ASTDeclarations declarations = new ASTDeclarations();
     glex.setGlobalValue("declarations", declarations);
 

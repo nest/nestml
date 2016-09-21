@@ -25,14 +25,14 @@ import java.nio.file.Path;
  * Code-Generator for the SPL sublanguage. Templates are reused in the NESTML generator.
  * @author plotnikov
  */
-public class SPL2NESTCodeGenerator {
+public class Spl2NestCodeGenerator {
   private static final String DECLARATION_TEMPLATE = "org.nest.spl.Declaration";
   private static final String ASSIGNMENT_TEMPLATE = "org.nest.spl.Assignment";
   private static final String BLOCK_TEMPLATE = "org.nest.spl.Block";
 
   private final GeneratorEngine generator;
 
-  public SPL2NESTCodeGenerator(
+  public Spl2NestCodeGenerator(
       final GlobalExtensionManagement glex,
       final File outputDirectory) {
     GeneratorSetup setup = new GeneratorSetup(outputDirectory);

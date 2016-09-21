@@ -9,7 +9,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.codegeneration.NESTCodeGenerator;
+import org.apache.commons.io.FilenameUtils;
+import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLCoCosManager;
@@ -27,9 +28,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static de.se_rwth.commons.logging.Log.info;
+import static java.util.stream.Collectors.toList;
 import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
 /**
@@ -38,16 +39,17 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
  *
  * @author plotnikov
  */
-public class CLIConfigurationExecutor {
+public class CliConfigurationExecutor {
 
-  private static final String LOG_NAME = CLIConfigurationExecutor.class.getName();
+  private static final String LOG_NAME = CliConfigurationExecutor.class.getName();
   private final NESTMLCoCosManager checker = new NESTMLCoCosManager();
+  private final Reporter reporter = Reporter.get();
 
-  public CLIConfigurationExecutor() {
+  public CliConfigurationExecutor() {
     Log.enableFailQuick(false); // otherwise the processing is stopped after encountering first error
   }
 
-  void execute(final NESTCodeGenerator generator, final CLIConfiguration config) {
+  void execute(final NestCodeGenerator generator, final CliConfiguration config) {
     final NESTMLParser parser =  new NESTMLParser(config.getInputBase());
     final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
@@ -56,10 +58,7 @@ public class CLIConfigurationExecutor {
     cleanUpWorkingFolder(config.getTargetPath());
     processNestmlModels(modelRoots, config, scopeCreator, generator);
     formatGeneratedCode(config.getTargetPath());
-  }
-
-  private void cleanUpWorkingFolder(final Path targetPath) {
-    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith(".tmp"));
+    reporter.printReports(System.out, System.out);
   }
 
   private List<ASTNESTMLCompilationUnit> parseModels(
@@ -71,14 +70,26 @@ public class CLIConfigurationExecutor {
         final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelFile.toString());
         if (root.isPresent()) {
           modelRoots.add(root.get());
+          reporter.addArtifactInfo(
+              FilenameUtils.removeExtension(modelFile.getFileName().toString()),
+              "The artifact was parsed successfully.",
+              Reporter.Level.INFO);
         }
         else {
-          Log.warn("Cannot parse the model " + modelFile.toString() + " due to parser errors.");
+          Log.error("Cannot parse the artifact " + modelFile.toString() + " due to parser errors.");
+          reporter.addArtifactInfo(
+              FilenameUtils.removeExtension(modelFile.getFileName().toString()),
+              "The artifact is unparsable, cf. log.",
+              Reporter.Level.ERROR);
         }
 
       }
       catch (IOException e) {
-        Log.warn("Cannot parse the model: " + modelFile.toString(), e);
+        Log.error("Cannot parse the artifact: " + modelFile.toString(), e);
+        reporter.addArtifactInfo(
+            FilenameUtils.removeExtension(modelFile.getFileName().toString()),
+            "The artifact is unparsable, cf. log.",
+            Reporter.Level.ERROR);
       }
 
     }
@@ -86,13 +97,27 @@ public class CLIConfigurationExecutor {
     return modelRoots;
   }
 
+  private void cleanUpWorkingFolder(final Path targetPath) {
+    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith(".tmp"));
+  }
+
   private void processNestmlModels(
       final List<ASTNESTMLCompilationUnit> modelRoots,
-      final CLIConfiguration config,
+      final CliConfiguration config,
       final NESTMLScopeCreator scopeCreator,
-      final NESTCodeGenerator generator) {
+      final NestCodeGenerator generator) {
 
-    modelRoots.forEach(scopeCreator::runSymbolTableCreator);
+    for (ASTNESTMLCompilationUnit modelRoot:modelRoots) {
+      scopeCreator.runSymbolTableCreator(modelRoot);
+      final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
+      if (symbolTableFindings.isEmpty()) {
+        reporter.addArtifactInfo(modelRoot.getArtifactName(), "Successfully built the symboltable.", Reporter.Level.INFO);
+      } else {
+        reporter.addArtifactInfo(modelRoot.getArtifactName(), "Cannot built the symboltable.", Reporter.Level.INFO);
+      }
+
+    }
+
     final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
 
     if (symbolTableFindings.isEmpty() && checkModels(modelRoots, config)) {
@@ -105,7 +130,7 @@ public class CLIConfigurationExecutor {
 
   }
 
-  private void generateModuleCode(List<ASTNESTMLCompilationUnit> modelRoots, CLIConfiguration config, NESTCodeGenerator generator) {
+  private void generateModuleCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     if (modelRoots.size() > 0) {
       final String modelName;
       if (Files.isRegularFile(config.getInputBase())) {
@@ -119,26 +144,36 @@ public class CLIConfigurationExecutor {
     else {
       Log.warn("Cannot generate module code, since there is no parsable neuron in " + config.getInputBase());
     }
+
   }
 
-  private void generateNeuronCode(List<ASTNESTMLCompilationUnit> modelRoots, CLIConfiguration config, NESTCodeGenerator generator) {
+  private void generateNeuronCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
-      Log.info("Begins codegeneration for the model: " + root.getFullName(), LOG_NAME);
       generator.analyseAndGenerate(root, config.getTargetPath());
+      final String msg = "NEST code for the artifact: " + root.getFullName() + " is generated.";
+      Log.info(msg, LOG_NAME);
+      reporter.addArtifactInfo(root.getArtifactName(), msg, Reporter.Level.INFO);
     }
+
   }
 
-  private boolean checkModels(List<ASTNESTMLCompilationUnit> modelRoots, CLIConfiguration config) {
+  private boolean checkModels(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config) {
     boolean anyError = false;
     if (config.isCheckCoCos()) {
       final Map<String, List<Finding>> findingsToModel = Maps.newHashMap();
 
       Log.info("Checks context conditions.", LOG_NAME);
+
       for (ASTNESTMLCompilationUnit root:modelRoots) {
-        findingsToModel.put(root.getFullName(), checker.analyzeModel(root));
-        if (findingsToModel.get(root.getFullName()).stream().filter(Finding::isError).findAny().isPresent()) {
+        Log.getFindings().clear(); // clear it to determine which errors are produced through the current model
+
+        final List<Finding> modelFindings = checker.analyzeModel(root);
+        findingsToModel.put(root.getArtifactName(), modelFindings);
+
+        if (findingsToModel.get(root.getArtifactName()).stream().filter(Finding::isError).findAny().isPresent()) {
           anyError = true;
         }
+        reporter.addArtifactFindings(root.getArtifactName(), modelFindings);
 
       }
 
@@ -148,7 +183,7 @@ public class CLIConfigurationExecutor {
 
   private List<String> getListFromStream(final InputStream inputStream) throws IOException {
     final BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-    return in.lines().collect(Collectors.toList());
+    return in.lines().collect(toList());
   }
 
   private void formatGeneratedCode(final Path targetPath) {
@@ -165,7 +200,8 @@ public class CLIConfigurationExecutor {
       getListFromStream(res.getInputStream()).forEach(m -> Log.trace("Log: " + m, LOG_NAME));
       getListFromStream(res.getErrorStream()).forEach(m -> Log.warn("Error: " + m));
       info("Formatted generates sources in: " + targetPath.toString(), LOG_NAME);
-    } catch (IOException | InterruptedException e) {
+    }
+    catch (IOException | InterruptedException e) {
       Log.warn("Cannot format generated sources in: " + targetPath.toString(), e);
     }
 

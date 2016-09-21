@@ -38,8 +38,6 @@ public class NESTMLCoCosManager {
   }
 
   public List<Finding> analyzeModel(final ASTNESTMLCompilationUnit root) {
-
-
     Log.getFindings().clear();
     variablesExistenceChecker.checkAll(root);
     final boolean allVariablesDefined = !Log.getFindings().stream().filter(Finding::isError).findAny().isPresent();

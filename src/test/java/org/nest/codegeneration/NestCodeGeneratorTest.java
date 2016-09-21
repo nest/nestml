@@ -20,7 +20,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *
  * @author plotnikov
  */
-public class NESTCodeGeneratorTest extends GenerationBasedTest {
+public class NestCodeGeneratorTest extends GenerationBasedTest {
   private static final PSCMock pscMock = new PSCMock();
   private static final CondMock condMock  = new CondMock();
 
@@ -40,7 +40,7 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
   public void testPSCModelWithoutOde() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_IMPERATIVE, MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock);
 
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
@@ -50,7 +50,7 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
   public void testPSCModelWithOde() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE, MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock);
 
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
@@ -60,7 +60,7 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
   public void testCondModelWithImplicitOdes() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_IMPLICIT, MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator);
+    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator);
 
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
@@ -70,7 +70,7 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
   public void testCondModelWithShapes() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_WITH_ODE, MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, condMock);
+    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, condMock);
 
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
@@ -80,7 +80,7 @@ public class NESTCodeGeneratorTest extends GenerationBasedTest {
   public void testPSCModelWithThreeBuffers() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_THREE_BUFFERS, MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root);
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock);
 
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);

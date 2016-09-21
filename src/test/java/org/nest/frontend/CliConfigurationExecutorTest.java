@@ -8,7 +8,7 @@ package org.nest.frontend;
 import org.junit.Assert;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.codegeneration.NESTCodeGenerator;
+import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.mocks.PSCMock;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
@@ -23,16 +23,16 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
  *
  * @author plotnikov
  */
-public class CLIConfigurationExecutorTest extends ModelbasedTest {
+public class CliConfigurationExecutorTest extends ModelbasedTest {
   private static final Path TEST_INPUT_PATH = Paths.get("src/test/resources/command_line_base/");
   private static final Path TARGET_FOLDER = Paths.get("target/build");
   private final PSCMock pscMock = new PSCMock();
-  private final CLIConfiguration testConfig;
-  private final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
+  private final CliConfiguration testConfig;
+  private final CliConfigurationExecutor executor = new CliConfigurationExecutor();
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_INPUT_PATH);
 
-  public CLIConfigurationExecutorTest() {
-    testConfig = new CLIConfiguration.Builder()
+  public CliConfigurationExecutorTest() {
+    testConfig = new CliConfiguration.Builder()
         .withCoCos()
         .withInputBasePath(TEST_INPUT_PATH)
         .withTargetPath(TARGET_FOLDER)
@@ -41,7 +41,7 @@ public class CLIConfigurationExecutorTest extends ModelbasedTest {
 
   @Test
   public void testExecutionTestConfiguration() {
-    final NESTCodeGenerator generator = new NESTCodeGenerator(scopeCreator, pscMock);
+    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock);
     executor.execute(generator, testConfig);
   }
 
