@@ -98,7 +98,7 @@ public class CliConfigurationExecutor {
   }
 
   private void cleanUpWorkingFolder(final Path targetPath) {
-    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith(".tmp"));
+    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith(".tmp") || file.endsWith(".nestml"));
   }
 
   private void processNestmlModels(
