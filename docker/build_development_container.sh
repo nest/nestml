@@ -1,1 +1,1 @@
-docker build -t nestml_development -f ./Dockerfile .
+docker build -t nestml_development -f ./DockerfileDevelopment .
