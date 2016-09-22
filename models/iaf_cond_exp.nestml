@@ -31,7 +31,7 @@ neuron iaf_cond_exp_neuron:
 
   equations:
     shape g_in = exp(-1/tau_syn_in*t) # inputs from the inh conductance
-    shape g_ex = exp(-1/tau_syn_in*t) # inputs from the exc conductance
+    shape g_ex = exp(-1/tau_syn_ex*t) # inputs from the exc conductance
 
     I_syn_exc pA = Cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
     I_syn_inh pA = Cond_sum(g_in, spikeInh)  * ( V_m - E_in )

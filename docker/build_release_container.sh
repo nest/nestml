@@ -1,1 +1,1 @@
-docker build -t nestml_release -f ./DockerfileRelease .
+docker build --no-cache -t nestml_release -f ./DockerfileRelease .
