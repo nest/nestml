@@ -41,7 +41,9 @@ public class NestCodeGeneratorIntegrationTest extends GenerationBasedTest {
   );
 
   private final List<String> nestmlCondModels = Lists.newArrayList(
-      "models/iaf_cond_alpha.nestml"
+      "models/iaf_cond_alpha.nestml",
+      "models/iaf_cond_exp.nestml"
+
   );
 
   private final List<String> nestmlCondImplicitModels = Lists.newArrayList(
@@ -113,7 +115,7 @@ public class NestCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   @Test
   public void testIzhikevich() {
-    final List<String> modelName = Lists.newArrayList("models/izhikevich.nestml");
+    final List<String> modelName = Lists.newArrayList("models/iaf_psc_alpha.nestml");
     modelName.forEach(this::checkCocos);
     modelName.forEach(this::invokeCodeGenerator);
     final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
