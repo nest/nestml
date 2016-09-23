@@ -17,7 +17,6 @@ import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.utils.ASTUtils;
-import org.nest.utils.NESTMLSymbols;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-import static org.nest.utils.NESTMLSymbols.resolveMethod;
+import static org.nest.symboltable.NESTMLSymbols.resolveMethod;
 
 /**
  *  Tests the symbol table infrastructure of the NESTML language

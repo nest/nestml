@@ -9,7 +9,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.utils.NESTMLSymbols;
+import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.Optional;
 

@@ -15,7 +15,7 @@ import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTUtils;
-import org.nest.utils.NESTMLSymbols;
+import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.Optional;
 
