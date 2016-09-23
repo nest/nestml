@@ -46,8 +46,6 @@ public class NestmlFrontendTest {
     final String testant = nestmlFrontend.interpretTargetPathArgument(cliArguments);
     assertEquals(inputModelsPath, testant);
 
-    cliArguments = nestmlFrontend.parseCLIArguments(new String[] { "--target",  inputModelsPath});
-
   }
 
   @Test
@@ -57,4 +55,12 @@ public class NestmlFrontendTest {
         "--target", Paths.get("target", "cli_unparsable").toString()});
   }
 
+  @Test
+  public void testInvalidPath() {
+    nestmlFrontend.start(new String[] {
+        "//bla/blu",
+        "--target", Paths.get("target", "cli_unparsable").toString()});
+
+    nestmlFrontend.start(new String[] {});
+  }
 }

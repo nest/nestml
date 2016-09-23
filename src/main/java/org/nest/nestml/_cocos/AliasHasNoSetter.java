@@ -13,7 +13,7 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.utils.ASTUtils;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.nest.utils.NESTMLSymbols.isSetterPresent;
+import static org.nest.symboltable.NESTMLSymbols.isSetterPresent;
 
 /**
  * Informs tha
