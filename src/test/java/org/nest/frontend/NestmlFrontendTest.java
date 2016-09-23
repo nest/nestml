@@ -60,5 +60,7 @@ public class NestmlFrontendTest {
     nestmlFrontend.start(new String[] {
         "//bla/blu",
         "--target", Paths.get("target", "cli_unparsable").toString()});
+
+    nestmlFrontend.start(new String[] {});
   }
 }
