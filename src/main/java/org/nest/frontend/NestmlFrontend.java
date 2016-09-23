@@ -13,6 +13,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 
 import java.io.*;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.trace;
 
 /**
@@ -67,19 +69,29 @@ public class NestmlFrontend {
   }
 
   public void start(final String[] args) {
-    final CliConfiguration cliConfiguration = createCLIConfiguration(args);
+    if (args.length > 0) {
+      final CliConfiguration cliConfiguration = createCLIConfiguration(args);
 
-    if (checkEnvironment(cliConfiguration)) {
-      executeConfiguration(cliConfiguration);
+      if (checkEnvironment(cliConfiguration)) {
+        executeConfiguration(cliConfiguration);
 
-    } else {
-      final String msg = "The execution environment is not installed properly.";
-      Log.error(msg);
-      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+      }
+      else {
+        final String msg = "The execution environment is not installed properly.";
+        Log.error(msg);
+        reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+      }
+
     }
+    else {
+      reporter.addSystemInfo("The tool must get one argumet with the path to the model folder", Reporter.Level.ERROR);
+      formatter.printHelp("NESTML frontend: ", options);
+    }
+
   }
 
   public CliConfiguration createCLIConfiguration(String[] args) {
+    checkArgument(args.length > 0);
     final CommandLine commandLineParameters = parseCLIArguments(args);
     interpretHelpArgument(commandLineParameters);
 
@@ -99,7 +111,16 @@ public class NestmlFrontend {
   }
 
   public static boolean checkEnvironment(final CliConfiguration cliConfiguration) {
-    FilesHelper.createFolders(cliConfiguration.getTargetPath());
+    try {
+      FilesHelper.createFolders(cliConfiguration.getTargetPath());
+    }
+    catch (final Exception e) {
+      Log.error("Cannot create output folder. If you are running from docker, check if the folder provided" +
+                "exists and/or the corresponding user", e);
+      reporter.addSystemInfo("Cannot create folders and artifacts due to missing permissions", Reporter.Level.ERROR);
+      return false;
+    }
+
     cleanUpTmpFiles(cliConfiguration);
 
     boolean isError = false;
