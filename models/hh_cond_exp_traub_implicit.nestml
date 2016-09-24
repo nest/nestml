@@ -36,6 +36,9 @@ neuron hh_cond_exp_traub_neuron:
   state:
     V_m mV = E_L #  Membrane potential
 
+    g_in nS = 0nS # Inhibitory synaptic conductance
+    g_ex nS = 0nS # Excitatory synaptic conductance
+
     # TODO: it should be possible, to define these variables in the internal block
     alias alpha_n_init real = 0.032 * ( 15. - V_m ) / ( exp( ( 15. - V_m ) / 5. ) - 1. )
     alias beta_n_init real = 0.5 * exp( ( 10. - V_m ) / 40. )
@@ -57,9 +60,6 @@ neuron hh_cond_exp_traub_neuron:
     I_syn_exc pA = Cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
     I_syn_inh pA = Cond_sum(g_in, spikeInh) * ( V_m - E_in )
 
-    shape g_in = exp(-1/tau_syn_in*t)
-    shape g_ex = exp(-1/tau_syn_ex*t)
-
     V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
 
     # equilibrium values for (in)activation variables
@@ -75,6 +75,9 @@ neuron hh_cond_exp_traub_neuron:
     Act_h' = alpha_h - ( alpha_h + beta_h ) * Act_h
     Inact_n' = alpha_n - ( alpha_n + beta_n ) * Inact_n
 
+    # synapses: exponential conductance
+    g_ex' = -g_ex / tau_syn_ex
+    g_in' = -g_in / tau_syn_in
   end
 
   parameter:
@@ -123,6 +126,8 @@ neuron hh_cond_exp_traub_neuron:
     # set new input current
     I_stim = currents.get_sum()
 
+    g_ex += spikeExc.get_sum()
+    g_in += spikeInh.get_sum()
   end
 
 end
