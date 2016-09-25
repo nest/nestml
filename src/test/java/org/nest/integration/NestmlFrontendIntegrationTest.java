@@ -58,7 +58,7 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/iaf_chxk_2008.nestml",
+        "models/iaf_chxk_2008_implicit.nestml",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
