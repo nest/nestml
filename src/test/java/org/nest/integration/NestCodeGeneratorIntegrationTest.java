@@ -41,7 +41,7 @@ public class NestCodeGeneratorIntegrationTest extends GenerationBasedTest {
   private final List<String> nestmlCondModels = Lists.newArrayList(
       "models/iaf_cond_alpha.nestml",
       "models/iaf_cond_exp.nestml",
-      "models/aeif_cond_alpha"
+      "models/aeif_cond_alpha.nestml"
   );
 
   private final List<String> nestmlCondImplicitModels = Lists.newArrayList(
