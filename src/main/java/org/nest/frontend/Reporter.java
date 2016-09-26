@@ -71,7 +71,8 @@ class Reporter {
     systemReports.forEach(report -> printEntry(report, info, err));
     info.println("-----------------Artifact summary-------------------------");
     artifactReports.entries().forEach(entry -> printEntry(entry, info, err));
-    info.println("Overall " + artifactReports.entries().size() + " NESTML artifacts found and processed");
+    info.println("-----------------Statistics ------------------------------");
+    info.println("Overall " + artifactReports.keySet().size() + " NESTML artifact(s) found and processed");
   }
 
   private void printEntry(final String message, final PrintStream info, final PrintStream err) {
