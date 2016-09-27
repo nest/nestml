@@ -335,9 +335,8 @@ public final class ASTUtils {
       if(isCodeGeneration){
         typeName = "real";
       }
-      else if(unitType.getUnit().isPresent()){
-        typeName = unitType.getUnit().get();
-
+      else{
+        typeName = unitType.getSerializedUnit(); //guaranteed to exist after successful NESTMLParser run.
       }
 
     }

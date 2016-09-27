@@ -5,7 +5,7 @@
  */
 package org.nest;
 
-grammar Commons extends de.monticore.types.Types {
+grammar Commons extends de.monticore.types.Types, org.nest.Units {
 
   token SL_COMMENT =
     "#" (~('\n' |
@@ -58,7 +58,8 @@ grammar Commons extends de.monticore.types.Types {
          | ["inf"]
          | Variable;
 
-  NESTMLNumericLiteral = NumericLiteral type:Name?;
+  NESTMLNumericLiteral = NumericLiteral ("["type:UnitType"]"|plainType:Name)?;
+
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.

@@ -5,6 +5,9 @@ import de.monticore.literals.literals._ast.ASTIntLiteral;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units._ast.ASTUnitType;
+import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.units.unitrepresentation.UnitTranslator;
 
 import java.util.Optional;
 
@@ -15,16 +18,22 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class NESTMLNumericLiteralVisitor implements CommonsVisitor{
-
+  UnitTranslator unitTranslator = new UnitTranslator();
   @Override
   public void visit(ASTExpr expr) {
+    Optional<TypeSymbol> exprType = Optional.empty();
+
     if (expr.getNESTMLNumericLiteral().get().getType().isPresent()) {
-      Optional<TypeSymbol> exprType = getTypeIfExists(expr.getNESTMLNumericLiteral().get().getType().get());
-      if (exprType.isPresent() && checkUnit(exprType.get())) { //Try Unit Type
-        expr.setType(Either.value(exprType.get()));
-        return;
-      }
+      String unitName = expr.getNESTMLNumericLiteral().get().getType().get().getSerializedUnit(); //guaranteed after successful NESTML Parser run
+      exprType = getTypeIfExists(unitName);
+
     }
+
+    if (exprType.isPresent() && checkUnit(exprType.get())) { //Try Unit Type
+      expr.setType(Either.value(exprType.get()));
+      return;
+    }
+
     else if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTDoubleLiteral) {
       expr.setType(Either.value(getRealType()));
       return;
