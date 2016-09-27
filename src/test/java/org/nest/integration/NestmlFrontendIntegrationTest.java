@@ -56,9 +56,18 @@ public class NestmlFrontendIntegrationTest {
   }
 
   @Test
+  public void testTutorialModels() {
+    final String[] args = new String[] {
+        "src/test/resources/tutorial",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/iaf_chxk_2008_implicit.nestml",
+        "src/test/resources/tutorial",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
