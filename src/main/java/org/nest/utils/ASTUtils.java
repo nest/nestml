@@ -177,7 +177,7 @@ public final class ASTUtils {
     return splNodesCollector.getReturnStmts();
   }
 
-  static List<String> getParameterTypes(final ASTFunctionCall astFunctionCall) {
+  public static List<String> getParameterTypes(final ASTFunctionCall astFunctionCall) {
     final List<String> argTypeNames = Lists.newArrayList();
 
 

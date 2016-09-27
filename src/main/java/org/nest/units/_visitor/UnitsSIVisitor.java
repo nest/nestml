@@ -31,7 +31,7 @@ import java.util.Optional;
  * @author ptraeder
  */
 public class UnitsSIVisitor implements NESTMLVisitor {
-  private final static String ERROR_CODE = "NESTML_" + UnitsSIVisitor.class.getName();
+  private final static String ERROR_CODE = "NESTML_UnitsSIVisitor";
   private UnitTranslator translator = new UnitTranslator();
 
   /**
@@ -101,7 +101,7 @@ public class UnitsSIVisitor implements NESTMLVisitor {
     else {
       Log.error(ERROR_CODE + "The unit " +( astUnitType.unitIsPresent()? astUnitType.getUnit().get() : astUnitType.toString() )+ " is not an SI unit.", astUnitType.get_SourcePositionStart());
     }
-
+    
   }
 
 }

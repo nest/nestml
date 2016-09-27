@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.nest.utils.NESTMLSymbols.resolveMethod;
+import static org.nest.symboltable.NESTMLSymbols.resolveMethod;
 
 /**
  * Checks that methods are defined and used with correct types.

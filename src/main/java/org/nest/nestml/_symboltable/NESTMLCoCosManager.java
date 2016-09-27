@@ -38,8 +38,6 @@ public class NESTMLCoCosManager {
   }
 
   public List<Finding> analyzeModel(final ASTNESTMLCompilationUnit root) {
-
-
     Log.getFindings().clear();
     variablesExistenceChecker.checkAll(root);
     final boolean allVariablesDefined = !Log.getFindings().stream().filter(Finding::isError).findAny().isPresent();
@@ -162,11 +160,14 @@ public class NESTMLCoCosManager {
     final DerivativeOrderAtLeastOne derivativeOrderAtLeastOne = new DerivativeOrderAtLeastOne();
     nestmlCoCoChecker.addCoCo(derivativeOrderAtLeastOne);
 
+    final AssignmentToAlias assignmentToAlias = new AssignmentToAlias();
+    nestmlCoCoChecker.addCoCo(assignmentToAlias);
+
     final SPLCoCosManager splCoCosManager = new SPLCoCosManager();
     splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoChecker);
   }
 
-  public List<Finding> checkVariableUniqueness(final ASTNeuron astNeuron) {
+  List<Finding> checkVariableUniqueness(final ASTNeuron astNeuron) {
     Log.getFindings().clear();
 
     uniquenessChecker.addCoCo(new VariableDefinedMultipleTimes());

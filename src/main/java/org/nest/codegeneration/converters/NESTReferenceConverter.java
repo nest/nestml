@@ -15,7 +15,7 @@ import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.ASTUtils;
-import org.nest.utils.NESTMLSymbols;
+import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.Optional;
 
@@ -66,7 +66,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
     }
     // Time.steps -> nest::Time(nest::Time::ms( args )).get_steps());
     if ("steps".equals(functionName)) {
-      return "nest::Time(nest::Time::ms(%s)).get_steps()";
+      return "nest::Time(nest::Time::ms((double) %s)).get_steps()";
     }
 
     if (PredefinedFunctions.POW.equals(functionName)) {

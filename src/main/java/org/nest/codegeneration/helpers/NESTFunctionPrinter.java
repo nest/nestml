@@ -14,7 +14,7 @@ import org.nest.nestml._ast.ASTParameter;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.ASTUtils;
-import org.nest.utils.NESTMLSymbols;
+import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.List;
 import java.util.Optional;

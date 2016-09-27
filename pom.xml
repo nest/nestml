@@ -6,7 +6,7 @@
 
     <groupId>nestml</groupId>
     <artifactId>nestml-core</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.2.2-SNAPSHOT</version>
 
     <properties>
         <!-- .. Libraries ..................................................... -->
@@ -16,7 +16,7 @@
 
         <!-- Monticore versions and dependencies -->
         <antlr.version>4.5</antlr.version>
-        <monticore.version>4.4.1</monticore.version>
+        <monticore.version>4.4.2</monticore.version>
 
         <!-- .. Plugins ....................................................... -->
         <compiler.plugin>3.5.1</compiler.plugin>
@@ -120,7 +120,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>org.nest.frontend.NESTMLFrontend</mainClass>
+                            <mainClass>org.nest.frontend.NestmlFrontend</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

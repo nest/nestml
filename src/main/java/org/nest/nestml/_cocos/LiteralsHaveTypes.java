@@ -62,7 +62,7 @@ public class LiteralsHaveTypes implements
             !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
           CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
           final String msg = errorStrings.getErrorMsgAssignment(this);
-          Log.warn(msg, node.get_SourcePositionStart());
+          Log.warn(msg + " at " + node.get_SourcePositionStart(), node.get_SourcePositionStart());
         }
 
       }
@@ -97,7 +97,7 @@ public class LiteralsHaveTypes implements
               !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
             CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
             final String msg = errorStrings.getErrorMsgAssignment(this);
-            Log.warn(msg, node.get_SourcePositionStart());
+            Log.warn(msg + " at " + node.get_SourcePositionStart() , node.get_SourcePositionStart());
           }
 
         }
@@ -144,7 +144,7 @@ public class LiteralsHaveTypes implements
               !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
             CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
             final String msg = errorStrings.getErrorMsgCall(this);
-            Log.warn(msg, node.get_SourcePositionStart());
+            Log.warn(msg + " at " + node.get_SourcePositionStart(), node.get_SourcePositionStart());
           }
 
         }

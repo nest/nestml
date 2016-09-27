@@ -228,4 +228,8 @@ public class CocoErrorStrings {
 
     return DerivativeOrderAtLeastOne.ERROR_CODE + ":" + "The variable on the righthandside of an equation must be derivative variable, e.g. " + variableName + "'";
   }
+
+  public String getErrorMsg(AssignmentToAlias assignmentToAlias, final String variableName) {
+    return AssignmentToAlias.ERROR_CODE + ":" + "You cannot assign a value to an alias: " + variableName;
+  }
 }

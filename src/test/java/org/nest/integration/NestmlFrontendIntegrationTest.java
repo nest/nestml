@@ -8,8 +8,8 @@ package org.nest.integration;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.nest.frontend.CLIConfiguration;
-import org.nest.frontend.NESTMLFrontend;
+import org.nest.frontend.CliConfiguration;
+import org.nest.frontend.NestmlFrontend;
 import org.nest.utils.FilesHelper;
 
 import java.nio.file.Path;
@@ -20,8 +20,8 @@ import java.nio.file.Paths;
  *
  * @author plotnikov
  */
-public class NESTMLFrontendIntegrationTest {
-  private final NESTMLFrontend nestmlFrontend = new NESTMLFrontend();
+public class NestmlFrontendIntegrationTest {
+  private final NestmlFrontend nestmlFrontend = new NestmlFrontend();
   private static final Path outputPath = Paths.get("target", "integration");
 
   @Test
@@ -40,10 +40,10 @@ public class NESTMLFrontendIntegrationTest {
   @Test
   public void testInfrastructure() {
     FilesHelper.deleteFilesInFolder(outputPath);
-    final CLIConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
+    final CliConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
         "models",
         "--target", outputPath.toString()});
-    Assert.assertTrue(NESTMLFrontend.checkEnvironment(cliConfiguration));
+    Assert.assertTrue(NestmlFrontend.checkEnvironment(cliConfiguration));
   }
 
   @Test
@@ -52,16 +52,16 @@ public class NESTMLFrontendIntegrationTest {
         "models",
         "--target", outputPath.toString()};
 
-    new NESTMLFrontend().start(args);
+    new NestmlFrontend().start(args);
   }
 
   @Test
   public void testManually() {
     final String[] args = new String[] {
-        "models/iaf_tum_2000.nestml",
+        "models/iaf_chxk_2008_implicit.nestml",
         "--target", outputPath.toString()};
 
-    new NESTMLFrontend().start(args);
+    new NestmlFrontend().start(args);
   }
 
 }

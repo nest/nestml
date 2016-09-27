@@ -11,7 +11,7 @@ import org.nest.nestml._ast.ASTFunction;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.NESTMLSymbols;
+import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.Optional;
 

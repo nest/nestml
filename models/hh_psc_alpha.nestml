@@ -48,8 +48,6 @@ neuron hh_psc_alpha_neuron:
 
   state:
     V_m mV = -65. mV # Membrane potential
-    g_ex pA  # inputs from the exc conductance
-    g_in pA  # inputs from the inh conductance
 
     alias alpha_n_init real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
     alias beta_n_init  real = 0.125 * exp( -( V_m + 65. ) / 80. )
@@ -65,11 +63,8 @@ neuron hh_psc_alpha_neuron:
 
   equations:
     # synapses: alpha functions
-    g_ex'' = -g_ex' / tau_syn_ex
-    g_ex' = g_ex' - ( g_ex / tau_syn_ex )
-
-    g_in'' = -g_in' / tau_syn_in
-    g_in' = g_in' - ( g_in / tau_syn_in )
+    shape g_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+    shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
     I_syn_exc pA = I_sum(g_ex, spikeExc)
     I_syn_inh pA = I_sum(g_in, spikeExc)
@@ -124,7 +119,7 @@ neuron hh_psc_alpha_neuron:
    # Input current injected by CurrentEvent.
    # This variable is used to transport the current applied into the
    # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0
+   I_stim pA = 0pA
   end
 
   input:
@@ -147,9 +142,6 @@ neuron hh_psc_alpha_neuron:
     end
 
     I_stim = currents.get_sum()
-
-    g_ex' += spikeExc.get_sum() * PSConInit_E
-    g_in' += spikeInh.get_sum() * PSConInit_I
   end
 
 end

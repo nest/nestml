@@ -8,11 +8,12 @@ package org.nest.frontend;
 import com.google.common.base.Joiner;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
-import org.nest.codegeneration.NESTCodeGenerator;
+import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 
 import java.io.*;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.trace;
 
 /**
@@ -28,8 +30,7 @@ import static de.se_rwth.commons.logging.Log.trace;
  *
  * @author plotnikov
  */
-public class NESTMLFrontend {
-
+public class NestmlFrontend {
   private static final String PYTHON_VERSION_TEST_OUTPUT = "pythonVersion.tmp";
   private static final String PYTHON_CHECK_SCRIPT = "pythonChecker.py";
   private static final String PYTHON_CHECK_SCRIPT_SOURCE = "checks/pythonChecker.py";
@@ -38,7 +39,7 @@ public class NESTMLFrontend {
   private static final String SYMPY_CHECK_SCRIPT = "sympyChecker.py";
   private static final String SYMPY_CHECK_SCRIPT_SOURCE = "checks/sympyChecker.py";
 
-  private final static String LOG_NAME = NESTMLFrontend.class.getName();
+  private final static String LOG_NAME = NestmlFrontend.class.getName();
   private static final String HELP_ARGUMENT = "help";
   private static final String TARGET_PATH = "target";
   private static final String PYTHON_INTERPRETER = "python ";
@@ -46,7 +47,9 @@ public class NESTMLFrontend {
   private final Options options = new Options();
   private final HelpFormatter formatter = new HelpFormatter();
 
-  public NESTMLFrontend() {
+  private final static Reporter reporter = Reporter.get();
+
+  public NestmlFrontend() {
     Log.enableFailQuick(false); // otherwise error terminates the java vm
 
     options.addOption(Option.builder(TARGET_PATH)
@@ -62,28 +65,44 @@ public class NESTMLFrontend {
   }
 
   public static void main(final String[] args) {
-    new NESTMLFrontend().start(args);
+    new NestmlFrontend().start(args);
   }
 
   public void start(final String[] args) {
-    final CLIConfiguration cliConfiguration = createCLIConfiguration(args);
+    if (args.length > 0) {
+      final CliConfiguration cliConfiguration = createCLIConfiguration(args);
 
-    if (checkEnvironment(cliConfiguration)) {
-      executeConfiguration(cliConfiguration);
+      if (checkEnvironment(cliConfiguration)) {
+        executeConfiguration(cliConfiguration);
 
-    } else {
-      Log.error("The execution environment is not installed properly.");
+      }
+      else {
+        final String msg = "The execution environment is not installed properly.";
+        Log.error(msg);
+        reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+      }
 
     }
+    else {
+      reporter.addSystemInfo("The tool must get one argumet with the path to the model folder", Reporter.Level.ERROR);
+      formatter.printHelp("NESTML frontend: ", options);
+    }
+
   }
 
-  public CLIConfiguration createCLIConfiguration(String[] args) {
+  public CliConfiguration createCLIConfiguration(String[] args) {
+    checkArgument(args.length > 0);
     final CommandLine commandLineParameters = parseCLIArguments(args);
     interpretHelpArgument(commandLineParameters);
 
     final String targetPath = interpretTargetPathArgument(commandLineParameters);
 
-    return new CLIConfiguration
+    final String inputPathMsg = "The input modelpath: " + Paths.get(args[0]).toAbsolutePath().toString();
+    reporter.addSystemInfo(inputPathMsg, Reporter.Level.INFO);
+    final String outputPathMsg = "The base output path: " + Paths.get(targetPath).toAbsolutePath().toString();
+    reporter.addSystemInfo(outputPathMsg, Reporter.Level.INFO);
+
+    return new CliConfiguration
         .Builder()
         .withCoCos(true)
         .withInputBasePath(args[0])
@@ -91,8 +110,17 @@ public class NESTMLFrontend {
         .build();
   }
 
-  public static boolean checkEnvironment(final CLIConfiguration cliConfiguration) {
-    FilesHelper.createFolders(cliConfiguration.getTargetPath());
+  public static boolean checkEnvironment(final CliConfiguration cliConfiguration) {
+    try {
+      FilesHelper.createFolders(cliConfiguration.getTargetPath());
+    }
+    catch (final Exception e) {
+      Log.error("Cannot create output folder. If you are running from docker, check if the folder provided" +
+                "exists and/or the corresponding user", e);
+      reporter.addSystemInfo("Cannot create folders and artifacts due to missing permissions", Reporter.Level.ERROR);
+      return false;
+    }
+
     cleanUpTmpFiles(cliConfiguration);
 
     boolean isError = false;
@@ -101,11 +129,15 @@ public class NESTMLFrontend {
         PYTHON_CHECK_SCRIPT,
         PYTHON_VERSION_TEST_OUTPUT,
         cliConfiguration.getTargetPath())) {
-      Log.error("Install Python the in minimal version 2.7");
+      final String msg = "Install Python the in minimal version 2.7";
+      Log.error(msg);
+      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       isError = true;
     }
     else {
-      Log.info("Correct python version is installed", LOG_NAME);
+      final String msg = "Correct python version is installed";
+      Log.info(msg, LOG_NAME);
+      reporter.addSystemInfo(msg, Reporter.Level.INFO);
     }
 
     if (!evaluateCheckScript(
@@ -113,16 +145,21 @@ public class NESTMLFrontend {
         SYMPY_CHECK_SCRIPT,
         SYMPY_VERSION_TEST_OUTPUT,
         cliConfiguration.getTargetPath())) {
-      Log.error("Install SymPy in minimal version 1.0.0");
+      final String msg = "Install SymPy in minimal version 1.0.1.dev, e.g. from github";
+      Log.error(msg);
+      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       isError = true;
     }
     else {
-      Log.info("SymPy is installed.", LOG_NAME);
+      final String msg = "Correct SymPy is installed.";
+      Log.info(msg, LOG_NAME);
+      reporter.addSystemInfo(msg, Reporter.Level.INFO);
     }
+
     return !isError;
   }
 
-  private static void cleanUpTmpFiles(final CLIConfiguration cliConfiguration) {
+  private static void cleanUpTmpFiles(final CliConfiguration cliConfiguration) {
     if (!Files.exists(cliConfiguration.getTargetPath())) {
       FilesHelper.createFolders(cliConfiguration.getTargetPath());
     }
@@ -153,7 +190,9 @@ public class NESTMLFrontend {
       pythonStatus = Files.readAllLines(file);
     }
     catch (IOException e) {
-      Log.error("Cannot read python check file.", e);
+      final String msg = "Cannot read python check file.";
+      Log.error(msg, e);
+      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       return false;
     }
 
@@ -178,7 +217,7 @@ public class NESTMLFrontend {
       long end = System.nanoTime();
       long elapsedTime = end - start;
       final String msg = "Successfully evaluated script. Elapsed time: "
-          + (double)elapsedTime / 1000000000.0 +  " [s]";
+          + (double) elapsedTime / 1000000000.0 +  " [s]";
       trace(msg, LOG_NAME);
 
       getListFromStream(res.getErrorStream()).forEach(Log::error);
@@ -195,7 +234,7 @@ public class NESTMLFrontend {
       final String checkerScript,
       final String copiedScriptName,
       final Path outputFolder) throws IOException {
-    final ClassLoader classloader = NESTMLFrontend.class.getClassLoader();
+    final ClassLoader classloader = NestmlFrontend.class.getClassLoader();
     final InputStream is = classloader.getResourceAsStream(checkerScript);
     byte[] buffer = new byte[is.available()];
     if (is.read(buffer) < 0) {
@@ -212,13 +251,13 @@ public class NESTMLFrontend {
     return in.lines().collect(Collectors.toList());
   }
 
-  private void executeConfiguration(final CLIConfiguration CLIConfiguration) {
-    final CLIConfigurationExecutor executor = new CLIConfigurationExecutor();
+  private void executeConfiguration(final CliConfiguration CliConfiguration) {
+    final CliConfigurationExecutor executor = new CliConfigurationExecutor();
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(CLIConfiguration.getInputBase());
-    final NESTCodeGenerator nestCodeGenerator = new NESTCodeGenerator(nestmlScopeCreator);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(CliConfiguration.getInputBase());
+    final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(nestmlScopeCreator);
 
-    executor.execute(nestCodeGenerator, CLIConfiguration);
+    executor.execute(nestCodeGenerator, CliConfiguration);
   }
 
   CommandLine parseCLIArguments(String[] args) {
@@ -241,6 +280,7 @@ public class NESTMLFrontend {
     if (cmd.hasOption(HELP_ARGUMENT)) {
       formatter.printHelp("NESTML frontend", options);
     }
+
   }
 
   String interpretTargetPathArgument(final CommandLine cmd) {
@@ -249,8 +289,7 @@ public class NESTMLFrontend {
 
   private Optional<String> interpretPathArgument(CommandLine cmd, String argumentName) {
     if (cmd.hasOption(argumentName)) {
-      Log.info("'" + argumentName + "' option is set to: " + cmd.getOptionValue(argumentName),
-          LOG_NAME);
+      Log.trace("'" + argumentName + "' option is set to: " + cmd.getOptionValue(argumentName), LOG_NAME);
       return  Optional.of(cmd.getOptionValue(argumentName));
     }
     else {

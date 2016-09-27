@@ -209,7 +209,7 @@ else:
     Ps = [None]*len(shapes)
     # list of list of derivatives of elements in "shapes" from 0 to order-1
     tmp_diffs = [None]*len(shapes)
-
+    VecAs = [None] * len(shapes)
     # Goal: produce a propagator matrix for each shape
     for shape_index in range(0, len(shapes)):
         # tmp_diffs is needed to calculate PSCInitialValues and the propagator matrix
@@ -222,6 +222,7 @@ else:
         if SUM == 0:
             # we have a first order linear differential equation
             orders[shape_index] = 1
+            VecAs[shape_index] = a_1
         else:
             # we check if this element in shape sastisfies a linear differential equation upto order 10
             for n in range(2, 10):
@@ -249,6 +250,7 @@ else:
                     # TODO jump to X
                     exit(1)
                 VecA = X.inv() * Y
+                VecAs[shape_index] = VecA
                 SUM = 0
                 # SUM equals 0 iff. this element of shape is the solution of  a nth order linear differential equations
                 for k in range(0, n):
@@ -285,14 +287,12 @@ else:
                 initialValuesFile.write(str(derivatives[i]) + "_PSCInitialValue real = " + str(initialValue) + "# PSCInitial value\n")
 
         rhs = 0
-        if odeOrder == 1:
-            rhs = a_1[0] * derivatives[0] # TODO: Review with Inga, in that case the VecA is not defined
-        else:
-            for order in range(0, odeOrder):
-                rhs += VecA[order] * derivatives[order]
+        VecA = VecAs[shape_index]
+        for order in range(0, odeOrder):
+            rhs += VecA[order] * derivatives[order]
         implicitFormFile.write(transform(str(derivatives[odeOrder]) + " = " + str(simplify(rhs)) + "\n"))
         for order in range(1, odeOrder):
-            implicitFormFile.write(transform(str(derivatives[order]) + " = -" + str(derivatives[order-1]) + "\n"))
+            implicitFormFile.write(transform(str(derivatives[order]) + " = " + transform(str(derivatives[order])) + "\n"))
     solverType = open('solverType.tmp', 'w')
     solverType.write("numeric")
     print('Successfully converted shapes ' + str(shapes) + ' into the implicit from.')

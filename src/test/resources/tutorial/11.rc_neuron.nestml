@@ -1,0 +1,31 @@
+/*
+  A straight forward implementation of the RC circuit approach
+*/
+neuron rc_neuron:
+
+  state:
+    V_abs mV = 0mV
+  end
+
+  equations:
+      V_abs' = -1/tau_m * V_abs + 1/C_m*I_syn
+  end
+
+  parameter:
+    E_L   mV = -65mV
+    C_m   pF = 250pF
+    tau_m ms = 10ms
+    I_syn pA = 10pA
+  end
+
+  input:
+    spikes   <- spike
+  end
+
+  output: spike
+
+  update:
+    integrate(V_abs)
+  end
+
+end

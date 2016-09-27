@@ -20,13 +20,11 @@ import java.util.stream.Collectors;
  *
  * @author plotnikov
  */
-public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
+public class NestCodeGeneratorIntegrationTest extends GenerationBasedTest {
 
   private final List<String> pscModelsWithOde = Lists.newArrayList(
-      "models/iaf_neuron.nestml",
       "models/iaf_psc_alpha.nestml",
-      "models/iaf_psc_exp.nestml",
-      "models/iaf_psc_delta.nestml"
+      "models/iaf_psc_exp.nestml"
   );
 
   private final List<String> multisynapseModels = Lists.newArrayList(
@@ -35,17 +33,15 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
   );
 
   private final List<String> imperativeModels = Lists.newArrayList(
-      "src/test/resources/codegeneration/imperative/iaf_tum_2000_imerative.nestml",
-      "src/test/resources/codegeneration/imperative/iaf_psc_alpha_multisynapse_imperative.nestml",
-      "src/test/resources/codegeneration/imperative/iaf_psc_delta_imperative.nestml",
       "src/test/resources/codegeneration/imperative/iaf_psc_exp_imperative.nestml",
       "src/test/resources/codegeneration/imperative/iaf_psc_exp_multisynapse_imperative.nestml",
-      "src/test/resources/codegeneration/imperative/iaf_tum_2000_imerative.nestml",
       "src/test/resources/codegeneration/imperative/mat2_psc_exp_imperative.nestml"
   );
 
   private final List<String> nestmlCondModels = Lists.newArrayList(
-      "models/iaf_cond_alpha.nestml"
+      "models/iaf_cond_alpha.nestml",
+      "models/iaf_cond_exp.nestml",
+      "models/aeif_cond_alpha.nestml"
   );
 
   private final List<String> nestmlCondImplicitModels = Lists.newArrayList(
@@ -110,17 +106,6 @@ public class NESTCodeGeneratorIntegrationTest extends GenerationBasedTest {
     nestmlCondImplicitModels.forEach(this::invokeCodeGenerator);
 
     final List<ASTNESTMLCompilationUnit> roots = nestmlCondImplicitModels.stream()
-        .map(this::parseAndBuildSymboltable)
-        .collect(Collectors.toList());
-    generateNESTModuleCode(roots);
-  }
-
-  @Test
-  public void testIzhikevich() {
-    final List<String> modelName = Lists.newArrayList("models/izhikevich.nestml");
-    modelName.forEach(this::checkCocos);
-    modelName.forEach(this::invokeCodeGenerator);
-    final List<ASTNESTMLCompilationUnit> roots = modelName.stream()
         .map(this::parseAndBuildSymboltable)
         .collect(Collectors.toList());
     generateNESTModuleCode(roots);

@@ -1,8 +1,9 @@
 <#--
-  Generates C++ declaration
+  In general case creates an
 
-  @param variable VariableSymbol
-  @param tc templatecontroller
+  @param variable VariableSymbol Variable for which the initialization should be done
+  @param printer The particular pretty printer which prints expressions. Is used to handel differences where the
+                 variable is declared (inside a struct or in another method)
 -->
 ${signature("variable", "printer")}
 
