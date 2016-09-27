@@ -122,7 +122,7 @@ public class UnitRepresentation {
       }
     }
     if(bestMatch.equals("")) { //abort recursion
-      return smallestRemainder.isZero() ? "" : smallestRemainder.naivePrint();
+      return smallestRemainder.isZero() ? "" : smallestRemainder.defaultPrint();
     }
     return bestMatch + smallestRemainder.doCalc();
 
@@ -169,7 +169,7 @@ public class UnitRepresentation {
     return result;
   }
 
-  private String naivePrint(){
+  private String defaultPrint(){
     String result =
         (K==1? "K * " : K!=0? "K**"+K+" * " :"")
             + (s==1? "s * " : s!=0? "s**"+s+" * " :"")
@@ -214,7 +214,6 @@ public class UnitRepresentation {
     }
     catch(Exception e){
       //should never happen
-      Log.error(LOG_NAME + ": The unit: " + unit + " doesn't exist. At this stage it must be already checked by a context condition.");
       return Optional.empty();
     }
 

@@ -97,7 +97,7 @@ public class NESTMLParserTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/unparsable/wrongTypes.nestml");
     assertFalse(ast.isPresent());
     List<Finding> findings = LogHelper.getModelFindings(Log.getFindings());
-    assertEquals(4, findings.size()); // two error are reported twice due to the visitor structure
+    assertEquals(2, findings.size());
   }
 
   @Test
