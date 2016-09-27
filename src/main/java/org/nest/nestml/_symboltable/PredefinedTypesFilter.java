@@ -27,7 +27,7 @@ public class PredefinedTypesFilter extends CommonResolvingFilter<TypeSymbol> {
     super(TypeSymbol.KIND);
   }
 
-  @Override
+
   public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, Map<String, Collection<Symbol>> symbols) {
     final Optional<TypeSymbol> typeSymbol = PredefinedTypes.getTypeIfExists(name);
     if (typeSymbol.isPresent()) {

@@ -27,7 +27,7 @@ public class PredefinedVariablesFilter extends CommonResolvingFilter<VariableSym
     super(VariableSymbol.KIND);
   }
 
-  @Override
+
   public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, Map<String, Collection<Symbol>> symbols) {
     final Optional<VariableSymbol> predefinedVariable = PredefinedVariables.getVariableIfExists(name);
     if (predefinedVariable.isPresent()) {
