@@ -17,7 +17,6 @@ import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.utils.ASTUtils;
-import org.nest.utils.NESTMLSymbols;
 
 import java.io.IOException;
 import java.nio.file.Paths;

@@ -68,8 +68,7 @@ public class UnitTranslator {
       return UnitRepresentation.lookupName(unit);
     }
 
-    throw new UnsupportedOperationException("This situation is impossible through the grammar construction. All possible " +
-                                            "alternatives are handled in the if-blocks.");
+    throw new UnsupportedOperationException("This situation is impossible through the grammar construction.");
   }
 
 }
