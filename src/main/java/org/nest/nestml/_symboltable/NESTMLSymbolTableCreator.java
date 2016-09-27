@@ -22,6 +22,7 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
+import org.nest.units._visitor.UnitsSIVisitor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,6 +69,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    */
   Scope createFromAST(final ASTNESTMLNode rootNode) {
     requireNonNull(rootNode);
+    //TODO Maybe find a better place for this
+    UnitsSIVisitor.convertSiUnitsToSignature(rootNode);
     rootNode.accept(this);
     return getFirstCreatedScope();
   }
