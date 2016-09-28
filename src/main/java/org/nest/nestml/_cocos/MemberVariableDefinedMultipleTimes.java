@@ -8,6 +8,7 @@ package org.nest.nestml._cocos;
 import com.google.common.collect.Maps;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
+import groovyjarjarantlr.collections.AST;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
@@ -53,11 +54,13 @@ public class MemberVariableDefinedMultipleTimes implements
     body.getInternalDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
     body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
     body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
+
     // only for equations of order more then 1 a variable will be declared
     body.getEquations()
         .stream()
         .filter(astEquation -> astEquation.getLhs().getDifferentialOrder().size() > 1)
         .forEach(astEquation -> addVariable(ASTUtils.getNameOfLHS(astEquation), varNames, astEquation));
+    body.getShapes().forEach(astShape -> addVariable(ASTUtils.getNameOfLHS(astShape), varNames, astShape));
   }
 
   private void addNames(

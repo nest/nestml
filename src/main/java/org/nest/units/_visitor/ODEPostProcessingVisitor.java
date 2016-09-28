@@ -27,9 +27,12 @@ import static de.se_rwth.commons.logging.Log.warn;
  */
 public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
+  private static final String ERROR_CODE = "NESTML_ODEPostProcessingVisitor";
+
   public void visit(ASTShape astShape) {
     if(astShape.getRhs().getType().get().isError()){
-      warn("Error in Expression type calculation: "+astShape.getRhs().getType().get().getError());
+      warn(ERROR_CODE + ": Error in Expression type calculation: " + astShape.getRhs().getType().get().getError());
+
       return;
     }
     final TypeSymbol type = astShape.getRhs().getType().get().getValue();
@@ -43,11 +46,12 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
   public void visit(ASTEquation astEquation) {
     if(astEquation.getRhs().getType().get().isError()){
-      warn("Error in Expression type calculation: "+astEquation.getRhs().getType().get().getError());
+      warn(ERROR_CODE + ": Error in Expression type calculation: " + astEquation.getRhs().getType().get().getError());
+
       return;
     }
     if(!astEquation.getEnclosingScope().isPresent()){
-      warn("Enclosing scope not present. Run ScopeCreator");
+      warn(ERROR_CODE +"Enclosing scope not present. Run ScopeCreator");
       return;
     }
 
@@ -60,7 +64,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     if(varSymbol.isPresent()){
        originalVarType = varSymbol.get().getType();
     }else{
-      warn("Error while resolving the variable to be derived in ODE: " + varName);
+      warn(ERROR_CODE +" Error while resolving the variable to be derived in ODE: " + varName);
       return;
     }
 

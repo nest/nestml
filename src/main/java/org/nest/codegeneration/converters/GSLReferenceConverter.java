@@ -73,6 +73,9 @@ public class GSLReferenceConverter implements IReferenceConverter {
     if (variableSymbol.definedByODE()) {
       return "y[" + Names.name(variableSymbol) + INDEX_VARIABLE_POSTFIX + "]";
     }
+    else if (variableSymbol.isBuffer()) {
+      return "node.B_." + Names.bufferValue(variableSymbol);
+    }
     else {
 
       if (PredefinedVariables.E_CONSTANT.equals(variableName)) {

@@ -37,6 +37,8 @@
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv.h>
+// forwards the declaration of the function
+extern "C" inline int ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode );
 </#if>
 
 // Includes from nestkernel:
@@ -308,18 +310,13 @@ protected:
 
       <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferArrayGetter(inputLine)}
-      </#list>
-
-      <#list body.getCurrentBuffers() as inputLine>
         ${bufferHelper.printBufferDeclaration(inputLine)};
       </#list>
     <#else>
       <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferGetter(inputLine, true)}
-      </#list>
-
-      <#list body.getInputBuffers() as inputLine>
         ${bufferHelper.printBufferDeclaration(inputLine)};
+        ${bufferHelper.printBufferDeclarationValue(inputLine)};
       </#list>
 
     </#if>
@@ -374,7 +371,9 @@ private:
   //! Mapping of recordables names to access functions
   static nest::RecordablesMap<${simpleNeuronName}> recordablesMap_;
 
-
+  <#if useGSL>
+    friend int ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode );
+  </#if>
 /** @} */
 }; /* neuron ${simpleNeuronName} */
 
