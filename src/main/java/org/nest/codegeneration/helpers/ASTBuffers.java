@@ -104,10 +104,8 @@ public class ASTBuffers {
     }
   }
 
-
-
   public String printBufferDeclaration(final ASTInputLine astInputLine) {
-    checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
+    checkArgument(astInputLine.getEnclosingScope().isPresent(), "Run symboltable creator!");
     final Scope scope = astInputLine.getEnclosingScope().get();
     final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
 
@@ -126,6 +124,11 @@ public class ASTBuffers {
 
     return bufferType + " " + buffer.getName() + ";" +
         "\n//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
+  }
+
+  public String printBufferDeclarationValue(final VariableSymbol bufferSymbol) {
+
+    return "double " + Names.bufferValue(bufferSymbol);
   }
 
   public String printBufferInitialization(final VariableSymbol buffer) {

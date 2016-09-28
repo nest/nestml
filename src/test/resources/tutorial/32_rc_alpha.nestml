@@ -13,7 +13,8 @@ neuron rc_alpha:
   equations:
     g_ex'' = -g_ex' / tau_syn_ex
     g_ex' = g_ex' - ( g_ex / tau_syn_ex )
-    V_abs' = -1/tau_m * V_abs + 1/C_m*g_ex
+    I_syn pA = g_ex + currents
+    V_abs' = -V_abs/tau_m  + I_syn/C_m
   end
 
   parameter:
@@ -34,6 +35,7 @@ neuron rc_alpha:
 
   input:
     spikes   <- spike
+    currents <- current
   end
 
   output: spike
@@ -50,7 +52,7 @@ neuron rc_alpha:
       refractory_counts -= 1
     end
 
-    g_ex' = PSConInit_E * spikes.get_sum()
+    g_ex' = PSConInit_E * spikes
   end
 
 end

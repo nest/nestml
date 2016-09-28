@@ -20,9 +20,12 @@ import static de.se_rwth.commons.logging.Log.warn;
  */
 public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
+  private static final String ERROR_CODE = "NESTML_ODEPostProcessingVisitor";
+
   public void visit(ASTShape astShape) {
     if(astShape.getRhs().computeType().get().isError()){
-      warn("Error in Expression type calculation: "+astShape.getRhs().getType().get().getError());
+      warn(ERROR_CODE + ": Error in Expression type calculation: " + astShape.getRhs().getType().get().getError());
+
       return;
     }
     final TypeSymbol type = astShape.getRhs().getType().get().getValue();
@@ -36,7 +39,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
   public void visit(ASTEquation astEquation) {
     if(astEquation.getRhs().computeType().get().isError()){
-      warn("Error in Expression type calculation: "+astEquation.getRhs().getType().get().getError());
+      warn(ERROR_CODE + ": Error in Expression type calculation: " + astEquation.getRhs().getType().get().getError());
       return;
     }
 
