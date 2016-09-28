@@ -45,7 +45,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     nestmlLanguages = new NESTMLLanguage();
 
     resolverConfiguration = new ResolverConfiguration();
-    resolverConfiguration.addTopScopeResolvers(nestmlLanguages.getResolvers());
+    resolverConfiguration.addDefaultFilters(nestmlLanguages.getResolvers());
   }
 
   public Scope runSymbolTableCreator(final ASTNESTMLCompilationUnit compilationUnit) {
