@@ -52,7 +52,7 @@ neuron rc_alpha:
       refractory_counts -= 1
     end
 
-    g_ex' = PSConInit_E * spikes.get_sum()
+    g_ex' = PSConInit_E * spikes
   end
 
 end
