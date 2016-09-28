@@ -51,7 +51,7 @@ public class IllegalExpression implements
       final String varNameFromDeclaration = node.getVars().get(0);
       final String declarationTypeName = computeTypeName(node.getDatatype());
 
-      final Either<TypeSymbol, String> initializerExpressionType = node.getExpr().get().computeType().get();
+      final Either<TypeSymbol, String> initializerExpressionType = node.getExpr().get().getType().get();
       final TypeSymbol variableDeclarationType;
 
       if (initializerExpressionType.isValue()) {
@@ -89,7 +89,7 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTELIF_Clause node) {
-    final Either<TypeSymbol, String> exprType = node.getExpr().computeType().get();
+    final Either<TypeSymbol, String> exprType = node.getExpr().getType().get();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
       final String msg = "Cannot use non boolean expression of type " + exprType.getValue();
@@ -111,7 +111,7 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTIF_Clause node) {
-    final Either<TypeSymbol, String> exprType = node.getExpr().computeType().get();
+    final Either<TypeSymbol, String> exprType = node.getExpr().getType().get();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
       final String msg = "Cannot use non boolean expression of type " + exprType.getValue();
@@ -129,7 +129,7 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTWHILE_Stmt node) {
     try {
-      if (node.getExpr().computeType().get().getValue() != getBooleanType()) {
+      if (node.getExpr().getType().get().getValue() != getBooleanType()) {
         final String msg = "Cannot use non boolean expression in a while statement " +
             "@" + node.get_SourcePositionStart();
        error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());

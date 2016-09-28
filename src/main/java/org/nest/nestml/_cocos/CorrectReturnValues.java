@@ -57,7 +57,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
       if (r.getExpr().isPresent()) {
 
-        final Either<TypeSymbol, String> returnExpressionType = r.getExpr().get().computeType().get();
+        final Either<TypeSymbol, String> returnExpressionType = r.getExpr().get().getType().get();
         if (returnExpressionType.isError()) {
           final String msg = errorStrings.getErrorMsgCannotDetermineExpressionType(this);
 

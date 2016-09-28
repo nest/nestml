@@ -5,7 +5,6 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.handleDefaultError;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 
@@ -49,7 +48,9 @@ public class UnaryVisitor implements CommonsVisitor {
         }
     }
     //Catch-all if no case has matched
-    handleDefaultError(expr);
+    String msg = "Cannot determine the type of the Expression-Node @<"
+        + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
+    expr.setType(Either.error(msg));
   }
 }
 

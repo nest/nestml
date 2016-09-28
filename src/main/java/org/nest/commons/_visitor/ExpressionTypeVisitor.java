@@ -221,13 +221,6 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
     return Either.error("Cannot calculate value of exponent. Must be a static value!");
   }
 
-  public static void handleDefaultError(ASTExpr expr){
-    if(!expr.getType().isPresent()){
-      String msg = "Cannot determine the type of the Expression-Node @<"
-          + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
-      expr.setType(Either.error(msg));
-    }
-  }
   /**
    * Checks if the type is a numeric type, e.g. Integer or Real.
    */

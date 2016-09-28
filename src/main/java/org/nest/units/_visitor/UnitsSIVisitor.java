@@ -101,7 +101,7 @@ public class UnitsSIVisitor implements NESTMLVisitor {
     else {
       Log.error(ERROR_CODE + "The unit " +( astUnitType.unitIsPresent()? astUnitType.getUnit().get() : astUnitType.toString() )+ " is not an SI unit.", astUnitType.get_SourcePositionStart());
     }
-    
+
   }
 
 }

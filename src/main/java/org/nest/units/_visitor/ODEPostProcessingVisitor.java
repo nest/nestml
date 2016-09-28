@@ -21,7 +21,7 @@ import static de.se_rwth.commons.logging.Log.warn;
 public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
   public void visit(ASTShape astShape) {
-    if(astShape.getRhs().computeType().get().isError()){
+    if(astShape.getRhs().getType().get().isError()){
       warn("Error in Expression type calculation: "+astShape.getRhs().getType().get().getError());
       return;
     }
@@ -35,7 +35,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
 
   public void visit(ASTEquation astEquation) {
-    if(astEquation.getRhs().computeType().get().isError()){
+    if(astEquation.getRhs().getType().get().isError()){
       warn("Error in Expression type calculation: "+astEquation.getRhs().getType().get().getError());
       return;
     }

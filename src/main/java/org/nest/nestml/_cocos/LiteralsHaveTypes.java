@@ -52,7 +52,7 @@ public class LiteralsHaveTypes implements
       if (var.get().getType().getType() == TypeSymbol.Type.UNIT) {
         final Either<TypeSymbol,String> exprType;
         if (!node.getExpr().getType().isPresent()) {
-          exprType = node.getExpr().computeType().get();
+          exprType = node.getExpr().getType().get();
         }
         else {
           exprType = node.getExpr().getType().get();
@@ -88,7 +88,7 @@ public class LiteralsHaveTypes implements
         if (node.getExpr().isPresent()) {
           Either<TypeSymbol,String> exprType;
           if (!node.getExpr().get().getType().isPresent()) {
-            exprType = node.getExpr().get().computeType().get();
+            exprType = node.getExpr().get().getType().get();
           }else{
             exprType = node.getExpr().get().getType().get();
           }
@@ -135,7 +135,7 @@ public class LiteralsHaveTypes implements
         if(parameterType.getType() == TypeSymbol.Type.UNIT){
           Either<TypeSymbol,String> exprType;
           if (!parameterExpr.getType().isPresent()) {
-            exprType = parameterExpr.computeType().get();
+            exprType = parameterExpr.getType().get();
           }else{
             exprType = parameterExpr.getType().get();
           }
@@ -191,7 +191,7 @@ public class LiteralsHaveTypes implements
                 if(returnStmt.exprIsPresent()){
                   Either<TypeSymbol,String> returnType;
                   if (!returnStmt.getExpr().get().getType().isPresent()) {
-                    returnType = returnStmt.getExpr().get().computeType().get();
+                    returnType = returnStmt.getExpr().get().getType().get();
                   }else{
                     returnType = returnStmt.getExpr().get().getType().get();
                   }
@@ -254,13 +254,13 @@ public class LiteralsHaveTypes implements
       final Either<TypeSymbol,String> leftType,rightType;
 
       if (!node.getLeft().get().getType().isPresent()) {
-        leftType = node.getLeft().get().computeType().get();
+        leftType = node.getLeft().get().getType().get();
       }
       else{
         leftType = node.getLeft().get().getType().get();
       }
       if (!node.getRight().get().getType().isPresent()) {
-        rightType = node.getRight().get().computeType().get();
+        rightType = node.getRight().get().getType().get();
       }
       else{
         rightType = node.getRight().get().getType().get();

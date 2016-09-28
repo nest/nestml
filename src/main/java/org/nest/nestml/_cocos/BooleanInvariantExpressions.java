@@ -25,7 +25,7 @@ class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
 
   public void check(final ASTAliasDecl alias) {
     if (alias.getInvariant().isPresent()) {
-      final Either<TypeSymbol, String> expressionType = alias.getInvariant().get().computeType().get();
+      final Either<TypeSymbol, String> expressionType = alias.getInvariant().get().getType().get();
 
       if (expressionType.isValue()) {
 

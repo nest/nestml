@@ -46,17 +46,13 @@ public class ASTExpr extends ASTExprTOP {
       }
     }
   }
-  public Optional<Either<TypeSymbol,String>> computeType(){
+  public Optional<Either<TypeSymbol,String>> getType(){
     if(!type.isPresent()) {
       doComputeType();
     }
     return type;
   }
 
-
-  public Optional<Either<TypeSymbol,String>> getType(){
-    return type;
-  }
   public void setType(Either<TypeSymbol,String> type) {
     this.type = Optional.of(type);
   }
