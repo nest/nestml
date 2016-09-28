@@ -21,6 +21,7 @@ import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTODENode;
+import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._ast.ASTSPLNode;
@@ -201,6 +202,7 @@ public final class ASTUtils {
     final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
     return printer.print(expr);
   }
+
 
   private final static class SPLNodesCollector implements SPLInheritanceVisitor {
 
@@ -402,6 +404,14 @@ public final class ASTUtils {
   public static String getNameOfLHS(final ASTDerivative astVariable) {
     checkArgument(astVariable.getDifferentialOrder().size() > 0);
     return astVariable.getName().toString() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
+  }
+
+  /**
+   * Returns the name of the shape, 'shape g_in = t' -> g_n
+   *
+   */
+  public static String getNameOfLHS(ASTShape astShape) {
+    return astShape.getLhs().toString();
   }
 
   /**

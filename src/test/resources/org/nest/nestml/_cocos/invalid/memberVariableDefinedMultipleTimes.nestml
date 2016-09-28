@@ -2,12 +2,14 @@ neuron NeuronInTest:
     state:
         x mV
         g_z mV
+        g_ex mV # this error is reported because of the shape g_ex
     end
 
     equations:
       x mV = 1
+      shape g_ex = t # error, g_z is already defined
       g_z'' = t
-      g_z'' = t*2
+      g_z'' = t*2 # error, g_z' is defined by the last definition
     end
 
     parameter:
