@@ -28,6 +28,10 @@ public class Names {
     return "get_" + convertToCPPName(variableSymbol.getName());
   }
 
+  public static String bufferValue(final VariableSymbol buffer) {
+    return buffer.getName() + "_last_value_;";
+  }
+
   public static String setter(final VariableSymbol variableSymbol) {
     return "set_" + convertToCPPName(variableSymbol.getName());
   }

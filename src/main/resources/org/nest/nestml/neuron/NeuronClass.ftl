@@ -249,9 +249,14 @@ ${simpleNeuronName}::update(
         nest::Time const & origin,
         const long from, const long to)
 {
-    <#list body.getDynamics() as dynamic>
-    ${tc.include("org.nest.nestml.function.DynamicsImplementation", dynamic)}
-    </#list>
+    <#assign dynamics = body.getDynamicsBlock().get()>
+    for ( long lag = from ; lag < to ; ++lag ) {
+
+      ${tc.include("org.nest.spl.Block", dynamics.getBlock())}
+
+      // voltage logging
+      B_.logger_.record_data(origin.get_steps()+lag);
+    }
 }
 
 
