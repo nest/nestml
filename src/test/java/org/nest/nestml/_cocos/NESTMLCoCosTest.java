@@ -52,11 +52,6 @@ public class NESTMLCoCosTest  {
     nestmlCoCoChecker = new NESTMLCoCoChecker();
   }
 
-  @After
-  public void printErrorMessage() {
-    getFindings().forEach(e -> System.out.println("Error found: " + e));
-  }
-
   @Test
   public void testResolvingOfPredefinedTypes() {
     // just take an arbitrary nestml model with an import: nestml*
@@ -276,18 +271,18 @@ public class NESTMLCoCosTest  {
   @Test
   public void testMemberVariableDefinedMultipleTimes() {
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "memberVariableDefinedMultipleTimes/valid.nestml") ;
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/memberVariableDefinedMultipleTimes.nestml") ;
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         MemberVariableDefinedMultipleTimes.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "memberVariableDefinedMultipleTimes/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/memberVariableDefinedMultipleTimes.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
         MemberVariableDefinedMultipleTimes.ERROR_CODE,
-        8); // 4 errors, but the process is invoked twice
+        10); // some of the errors is reported twice
   }
 
   @Test

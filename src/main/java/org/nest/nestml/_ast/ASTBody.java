@@ -15,6 +15,7 @@ import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.ode._ast.ASTShape;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.*;
@@ -131,6 +132,16 @@ public class ASTBody extends ASTBodyTOP {
     final Optional<ASTEquations> equations = findEquationsBlock();
     if (equations.isPresent()) {
       return equations.get().getOdeDeclaration().getODEs();
+    }
+    else {
+      return Lists.newArrayList();
+    }
+  }
+
+  public List<ASTShape> getShapes() {
+    final Optional<ASTEquations> equations = findEquationsBlock();
+    if (equations.isPresent()) {
+      return equations.get().getOdeDeclaration().getShapes();
     }
     else {
       return Lists.newArrayList();

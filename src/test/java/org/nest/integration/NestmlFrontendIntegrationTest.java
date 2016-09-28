@@ -64,13 +64,4 @@ public class NestmlFrontendIntegrationTest {
     new NestmlFrontend().start(args);
   }
 
-  @Test
-  public void testManually() {
-    final String[] args = new String[] {
-        "src/test/resources/tutorial",
-        "--target", outputPath.toString()};
-
-    new NestmlFrontend().start(args);
-  }
-
 }
