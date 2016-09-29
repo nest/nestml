@@ -304,13 +304,20 @@ protected:
   struct Buffers_ {
     Buffers_(${simpleNeuronName}&);
     Buffers_(const Buffers_ &, ${simpleNeuronName}&);
+
     <#if (body.getSameTypeBuffer()?size > 1) >
       /** buffers and sums up incoming spikes/currents */
       std::vector< nest::RingBuffer > spike_inputs_;
 
-      <#list body.getInputBuffers() as inputLine>
+      <#list body.getSpikeBuffers() as inputLine>
         ${bufferHelper.printBufferArrayGetter(inputLine)}
+        ${bufferHelper.printBufferDeclarationValue(inputLine)};
+      </#list>
+
+      <#list body.getCurrentBuffers() as inputLine>
         ${bufferHelper.printBufferDeclaration(inputLine)};
+        ${bufferHelper.printBufferGetter(inputLine, true)}
+        ${bufferHelper.printBufferDeclarationValue(inputLine)};
       </#list>
     <#else>
       <#list body.getInputBuffers() as inputLine>

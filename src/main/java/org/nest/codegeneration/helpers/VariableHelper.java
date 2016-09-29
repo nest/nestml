@@ -16,6 +16,8 @@ public class VariableHelper {
         return  "P_.";
       case INTERNAL:
         return  "V_.";
+      case INPUT_BUFFER_CURRENT: case INPUT_BUFFER_SPIKE:
+        return "B_.";
       default:
         return "";
     }

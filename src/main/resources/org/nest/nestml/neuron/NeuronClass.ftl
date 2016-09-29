@@ -252,7 +252,10 @@ ${simpleNeuronName}::update(
     <#assign dynamics = body.getDynamicsBlock().get()>
     for ( long lag = from ; lag < to ; ++lag ) {
       <#list body.getInputBuffers() as inputLine>
-        B_.${names.bufferValue(inputLine)} = get_${names.name(inputLine)}().get_value( lag );
+         <#if !inputLine.isVector()>
+           // TODO this case must be handled uniformly, also NESTReferenceConverter must be adopted
+           B_.${names.bufferValue(inputLine)} = get_${names.name(inputLine)}().get_value( lag );
+         </#if>
       </#list>
 
       ${tc.include("org.nest.spl.Block", dynamics.getBlock())}
