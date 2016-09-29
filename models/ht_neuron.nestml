@@ -60,12 +60,12 @@
 
    SeeAlso: ht_synapse
 */
-neuron ht_neuron_neuron:
+neuron ht_neuron_nestml:
 
   state:
     V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
     Theta mV = Theta_eq # Threshold
-    G_AMPA, G_NMDA, G_GABA_A, G_GABA_B, IKNa_D, IT_m, IT_h, Ih_m nS
+    g_AMPA, g_NMDA, g_GABAA, g_GABAB, IKNa_D, IT_m, IT_h, Ih_m nS
 
     r_potassium integer
     g_spike boolean = false
@@ -75,10 +75,10 @@ neuron ht_neuron_neuron:
     #############
     # V_m
     #############
-    I_syn_ampa pA = -G_AMPA * ( V_m - AMPA_E_rev )
-    I_syn_nmda pA = -G_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
-    I_syn_gaba_a pA = -G_GABA_A * ( V_m - GABA_A_E_rev )
-    I_syn_gaba_b pA = -G_GABA_B * ( V_m - GABA_B_E_rev )
+    I_syn_ampa pA = -g_AMPA * ( V_m - AMPA_E_rev )
+    I_syn_nmda pA = -g_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+    I_syn_gaba_a pA = -g_GABAA * ( V_m - GABA_A_E_rev )
+    I_syn_gaba_b pA = -g_GABAB * ( V_m - GABA_B_E_rev )
     I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
 
     # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
@@ -135,17 +135,17 @@ neuron ht_neuron_neuron:
     #############
     # Synapses
     #############
-    G_AMPA'' = -G_AMPA' / AMPA_Tau_1
-    G_AMPA' = G_AMPA' - G_AMPA  / AMPA_Tau_2
+    g_AMPA'' = -g_AMPA' / AMPA_Tau_1
+    g_AMPA' = g_AMPA' - g_AMPA  / AMPA_Tau_2
 
-    G_NMDA'' = -G_NMDA' / NMDA_Tau_1
-    G_NMDA' = G_NMDA' - G_NMDA / NMDA_Tau_2
+    g_NMDA'' = -g_NMDA' / NMDA_Tau_1
+    g_NMDA' = g_NMDA' - g_NMDA / NMDA_Tau_2
 
-    G_GABA_A'' = -G_GABA_A' / GABA_A_Tau_1
-    G_GABA_A' = G_GABA_A' - G_GABA_A / GABA_A_Tau_2
+    g_GABAA'' = -g_GABAA' / GABA_A_Tau_1
+    g_GABAA' = g_GABAA' - g_GABAA / GABA_A_Tau_2
 
-    G_GABA_B'' = -G_GABA_B' / GABA_B_Tau_1
-    G_GABA_B' = G_GABA_B' - G_GABA_B /GABA_B_Tau_2
+    g_GABAB'' = -g_GABAB' / GABA_B_Tau_1
+    g_GABAB' = g_GABAB' - g_GABAB /GABA_B_Tau_2
   end
 
   parameter:
@@ -223,10 +223,10 @@ neuron ht_neuron_neuron:
     end
     r_potassium -= 1
 
-    G_AMPA' += AMPAInitialValue * AMPA
-    G_NMDA' += NMDAInitialValue * NMDA
-    G_GABA_A' += GABA_AInitialValue * GABA_A
-    G_GABA_B' += GABA_BInitialValue * GABA_B
+    g_AMPA' += AMPAInitialValue * AMPA
+    g_NMDA' += NMDAInitialValue * NMDA
+    g_GABAA' += GABA_AInitialValue * GABA_A
+    g_GABAB' += GABA_BInitialValue * GABA_B
 
     if (not g_spike) and V_m >= Theta:
       # Set V and Theta to the sodium reversal potential.
