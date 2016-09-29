@@ -138,7 +138,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return variableName + (variableSymbol.isVector()?"[i]":"");
       }
       else if(variableSymbol.isBuffer()) {
-        return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) ;
+        return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) ;
       }
       else {
         if (variableSymbol.isAlias()) {

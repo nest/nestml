@@ -47,7 +47,7 @@ public class NestmlFrontendIntegrationTest {
   }
 
   @Test
-  public void testAllModels() {
+  public void testModelsFolder() {
     final String[] args = new String[] {
         "models",
         "--target", outputPath.toString()};
@@ -64,4 +64,12 @@ public class NestmlFrontendIntegrationTest {
     new NestmlFrontend().start(args);
   }
 
+  @Test
+  public void testManually() {
+    final String[] args = new String[] {
+        "models/iaf_psc_alpha_multisynapse.nestml",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
 }
