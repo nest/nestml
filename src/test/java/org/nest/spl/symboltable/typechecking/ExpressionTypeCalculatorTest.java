@@ -7,7 +7,6 @@ package org.nest.spl.symboltable.typechecking;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.nest.commons._ast.ASTExpr;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
@@ -47,73 +46,73 @@ public class ExpressionTypeCalculatorTest {
 
     // b real = 1.0
     final Either<TypeSymbol, String> typeOfB =
-        getByName(declarations, "b").getExpr().get().computeType().get();
+        getByName(declarations, "b").getExpr().get().getType().get();
     assertTrue(typeOfB.isValue());
     Assert.assertEquals(getRealType(), typeOfB.getValue());
 
     // Retrieves line: c = 1
     final Either<TypeSymbol, String> typeOfC =
-        getByName(declarations, "c").getExpr().get().computeType().get();
+        getByName(declarations, "c").getExpr().get().getType().get();
     assertTrue(typeOfC.isValue());
     Assert.assertEquals(getIntegerType(), typeOfC.getValue());
 
     // Retrieves line: d = "test"
     final Either<TypeSymbol, String> typeOfD =
-        getByName(declarations, "d").getExpr().get().computeType().get();
+        getByName(declarations, "d").getExpr().get().getType().get();
     assertTrue(typeOfD.isValue());
     Assert.assertEquals(getStringType(), typeOfD.getValue());
 
     // Retrieves line: e = 1 + 1
     final Either<TypeSymbol, String> typeOfE =
-        getByName(declarations, "c").getExpr().get().computeType().get();
+        getByName(declarations, "c").getExpr().get().getType().get();
     assertTrue(typeOfE.isValue());
     Assert.assertEquals(getIntegerType(), typeOfE.getValue());
 
     // Retrieves line: f = 1 + 1.0
     final Either<TypeSymbol, String> typeOfF =
-        getByName(declarations, "f").getExpr().get().computeType().get();
+        getByName(declarations, "f").getExpr().get().getType().get();
     assertTrue(typeOfF.isValue());
     Assert.assertEquals(getRealType(), typeOfF.getValue());
 
     // Retrieves line: g = 1.0 + 1
     final Either<TypeSymbol, String> typeOfG =
-        getByName(declarations, "g").getExpr().get().computeType().get();
+        getByName(declarations, "g").getExpr().get().getType().get();
     assertTrue(typeOfG.isValue());
     Assert.assertEquals(getRealType(), typeOfG.getValue());
 
     // Retrieves line: h real = 1 + 1 + 1 + 1 + 1.0
     final Either<TypeSymbol, String> typeOfH =
-        getByName(declarations, "h").getExpr().get().computeType().get();
+        getByName(declarations, "h").getExpr().get().getType().get();
     assertTrue(typeOfH.isValue());
     Assert.assertEquals(getRealType(), typeOfH.getValue());
 
     // l real = 1 ** 2.5
     final Either<TypeSymbol, String> typeOfL =
-        getByName(declarations, "l").getExpr().get().computeType().get();
+        getByName(declarations, "l").getExpr().get().getType().get();
     assertTrue(typeOfL.isValue());
     Assert.assertEquals(getRealType(), typeOfL.getValue());
 
     // Retrieves line: i = ~1 l is integer
     final Either<TypeSymbol, String> typeOfI =
-        getByName(declarations, "i").getExpr().get().computeType().get();
+        getByName(declarations, "i").getExpr().get().getType().get();
     assertTrue(typeOfG.isValue());
     Assert.assertEquals(getIntegerType(), typeOfI.getValue());
 
     // Retrieves line: P11ex real = pow(1.0, 1.0)
     final Either<TypeSymbol, String> typeOfP11ex =
-        getByName(declarations, "P11ex").getExpr().get().computeType().get();
+        getByName(declarations, "P11ex").getExpr().get().getType().get();
     assertTrue(typeOfP11ex.isValue());
     Assert.assertEquals(getRealType(), typeOfP11ex.getValue());
 
     // Retrieves line: tmp string = ("")
     final Either<TypeSymbol, String> typeOfTmp =
-        getByName(declarations, "tmp").getExpr().get().computeType().get();
+        getByName(declarations, "tmp").getExpr().get().getType().get();
     assertTrue(typeOfTmp.isValue());
     Assert.assertEquals(getStringType(), typeOfTmp.getValue());
 
     // Retrieves line: m boolean = true and l != 0.0
     final Either<TypeSymbol, String> typeOfM =
-        getByName(declarations, "m").getExpr().get().computeType().get();
+        getByName(declarations, "m").getExpr().get().getType().get();
     assertTrue(typeOfM.isValue());
     Assert.assertEquals(getBooleanType(), typeOfM.getValue());
 
@@ -129,7 +128,7 @@ public class ExpressionTypeCalculatorTest {
 
   private void assertType(final String variableName, List<ASTDeclaration> declarations, final TypeSymbol expectedType) {
     final Either<TypeSymbol, String> type =
-        getByName(declarations, variableName).getExpr().get().computeType().get();
+        getByName(declarations, variableName).getExpr().get().getType().get();
     assertTrue(type.isValue());
     Assert.assertEquals(expectedType, type.getValue());
   }
@@ -146,17 +145,17 @@ public class ExpressionTypeCalculatorTest {
 
     // a real = ((( 1.0 | (-3+6%2) & ~(0x4fa) | 0x23 ^ 12) >> 2) << 2)
     final Either<TypeSymbol, String> typeOfA =
-        getByName(declarations, "a").getExpr().get().computeType().get();
+        getByName(declarations, "a").getExpr().get().getType().get();
     assertTrue(typeOfA.isError());
 
     // k integer = ~1.0
     final Either<TypeSymbol, String> typeOfK =
-        getByName(declarations, "k").getExpr().get().computeType().get();
+        getByName(declarations, "k").getExpr().get().getType().get();
     assertTrue(typeOfK.isError());
 
     // m real = 1 ** "a"
     final Either<TypeSymbol, String> typeOfM =
-        getByName(declarations, "a").getExpr().get().computeType().get();
+        getByName(declarations, "a").getExpr().get().getType().get();
     assertTrue(typeOfM.isError());
 
     // n boolean = not 1
@@ -171,7 +170,7 @@ public class ExpressionTypeCalculatorTest {
   }
 
   private void assertInvaidType(final String variableName, List<ASTDeclaration> declarations) {
-    final Either<TypeSymbol, String> type = getByName(declarations, variableName).getExpr().get().computeType().get();
+    final Either<TypeSymbol, String> type = getByName(declarations, variableName).getExpr().get().getType().get();
     assertTrue(type.isError());
   }
 

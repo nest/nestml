@@ -184,7 +184,7 @@ public final class ASTUtils {
 
     for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
       final ASTExpr argExpr = astFunctionCall.getArgs().get(i);
-      final Either<TypeSymbol, String> argType = argExpr.computeType().get();
+      final Either<TypeSymbol, String> argType = argExpr.getType().get();
       if (argType.isValue()) {
         argTypeNames.add(argType.getValue().getName());
       }
@@ -337,9 +337,8 @@ public final class ASTUtils {
       if(isCodeGeneration){
         typeName = "real";
       }
-      else if(unitType.getUnit().isPresent()){
-        typeName = unitType.getUnit().get();
-
+      else{
+        typeName = unitType.getSerializedUnit(); //guaranteed to exist after successful NESTMLParser run.
       }
 
     }

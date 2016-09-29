@@ -8,7 +8,7 @@ package org.nest;
 /**
   Grammar representing ODE expressions.
 */
-grammar Units extends org.nest.Commons {
+grammar Units extends de.monticore.types.Types {
 
   /**
     ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
@@ -30,4 +30,5 @@ grammar Units extends org.nest.Commons {
            | base:UnitType pow:["**"] exponent:IntLiteral
            | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
            | unit:Name;
+
 }

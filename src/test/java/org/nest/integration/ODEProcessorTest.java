@@ -7,13 +7,16 @@ package org.nest.integration;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
+import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.ODEProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.units._visitor.UnitsSIVisitor;
 import org.nest.utils.FilesHelper;
 
 import java.nio.file.Path;
@@ -69,6 +72,8 @@ public class ODEProcessorTest extends ModelbasedTest {
     FilesHelper.deleteFilesInFolder(outputBase);
 
     testant.solveODE(modelRoot.getNeurons().get(0), outputBase);
+
+    UnitsSIVisitor.convertSiUnitsToSignature(modelRoot);
 
     return scopeCreator.runSymbolTableCreator(modelRoot);
   }

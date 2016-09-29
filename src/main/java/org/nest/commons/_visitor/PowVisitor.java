@@ -58,6 +58,8 @@ public class PowVisitor implements CommonsVisitor{
       }
     }
     //Catch-all if no case has matched
-    handleDefaultError(expr);
+    String msg = "Cannot determine the type of the Expression-Node @<"
+        + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
+    expr.setType(Either.error(msg));
   }
 }

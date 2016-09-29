@@ -6,11 +6,14 @@ import org.nest.commons._visitor.ExpressionTypeVisitor;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units._ast.ASTUnitType;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.Optional;
 
 /**
+ * HW extension of the AST class. Provides method to compute the Expression type.
+ *
  * @author ptraeder
  */
 public class ASTExpr extends ASTExprTOP {
@@ -43,21 +46,16 @@ public class ASTExpr extends ASTExprTOP {
       }
     }
   }
-  public Optional<Either<TypeSymbol,String>> computeType(){
+  public Optional<Either<TypeSymbol,String>> getType(){
     if(!type.isPresent()) {
       doComputeType();
     }
     return type;
   }
 
-
-  public Optional<Either<TypeSymbol,String>> getType(){
-    return type;
-  }
   public void setType(Either<TypeSymbol,String> type) {
     this.type = Optional.of(type);
   }
-
 
   public ASTExpr(){}
 
@@ -68,7 +66,7 @@ public class ASTExpr extends ASTExprTOP {
   ASTExpr left,
   ASTExpr right,
   ASTExpr condition,
-  ASTExpr ifTure,
+  ASTExpr ifTrue,
   ASTExpr ifNot,
   ASTFunctionCall functionCall,
   ASTBooleanLiteral booleanLiteral,
@@ -103,7 +101,7 @@ public class ASTExpr extends ASTExprTOP {
   boolean leftParentheses,
   boolean rightParentheses)  {
 
-    super(base,exponent,term,expr,left,right,condition,ifTure,ifNot,functionCall,booleanLiteral,nESTMLNumericLiteral,stringLiteral,
+    super(base,exponent,term,expr,left,right,condition,ifTrue,ifNot,functionCall,booleanLiteral,nESTMLNumericLiteral,stringLiteral,
         variable,inf,logicalOr,logicalAnd,logicalNot,gt,ge,ne2,ne,eq,le,lt,bitOr,bitXor,bitAnd,shiftRight,shiftLeft,minusOp,
         plusOp,moduloOp,divOp,timesOp,unaryTilde,unaryMinus,unaryPlus,pow,leftParentheses,rightParentheses);
   }

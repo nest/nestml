@@ -1,8 +1,8 @@
 neuron invalidExpressionTest:
   state:
-    Resist Ohm = 8A #SPL_ILLEGAL_EXPRESSION: Declaration with wrong type
+    Resist Ohm = 8A*2Ohm #SPL_ILLEGAL_EXPRESSION: Declaration with wrong type
     Ampere A = 3 #NESTML_LITERALS_MUST_HAVE_TYPES: Declaration without explicit unit type
-    Newton g* kg *km /s**2 = 1/ (1N*1s)  #SPL_ILLEGAL_EXPRESSION: Declaration with mismatched verbose types
+    Newton  g *km /s**2 = 1/ (1kN)  #SPL_ILLEGAL_EXPRESSION: Declaration with mismatched verbose types
   
   end
 
@@ -17,6 +17,7 @@ neuron invalidExpressionTest:
   end
 
   parameter:
+    test real = 3 Ohm
     V2 V = foo(3,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
     V3 V = foo(8+8*7,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
     V4 V = foo(7A +3,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters

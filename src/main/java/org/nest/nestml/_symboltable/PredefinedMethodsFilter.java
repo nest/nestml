@@ -31,7 +31,6 @@ public class PredefinedMethodsFilter extends CommonResolvingFilter<MethodSymbol>
 
   }
 
-  @Override
   public Optional<Symbol> filter(ResolvingInfo resolvingInfo, String name, Map<String, Collection<Symbol>> symbols) {
     final Optional<MethodSymbol> foundPredefinedMethod = getMethodSymbolIfExists(name);
 
