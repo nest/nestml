@@ -1,36 +1,37 @@
 /*
   A straight forward implementation of the RC circuit approach.
-  Extends firing model with an additional refractory state. It is entered directly after a spike is fired.
+  Adds alpha shapes for synaptic currents.
 */
 neuron rc_alpha:
 
   state:
     V_abs mV = 0mV
     alias V_m mV = V_abs + E_L
-    g_ex pA = 0pA    # inputs from the inh conductance
+    g_ex pA = 0pA
   end
 
   equations:
-    g_ex'' = -g_ex' / tau_syn_ex
-    g_ex' = g_ex' - ( g_ex / tau_syn_ex )
-    I_syn pA = g_ex + currents
+    g_ex'' = -g_ex' / tau_syn
+    g_ex' = g_ex' - ( g_ex / tau_syn )
+    I_syn pA = g_ex + currents + I_e
     V_abs' = -V_abs/tau_m  + I_syn/C_m
   end
 
   parameter:
-    E_L   mV = -65mV
+    E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms
+    tau_syn ms = 2.0ms
 
     alias V_th mV = -55mV - E_L
-    alias V_reset mV = -65mV - E_L
-    refractory_timeout ms = 5ms
+    alias V_reset mV = -70mV - E_L
+    refractory_timeout ms = 2ms
     refractory_counts integer = 0
+    I_e pA = 0pA
   end
 
   internal:
-    tau_syn_ex ms = 2.0ms
-    PSConInit_E real = 1.0 * e / tau_syn_ex
+    PSConInit_E real = 1.0 * e / tau_syn
   end
 
   input:
@@ -52,7 +53,7 @@ neuron rc_alpha:
       refractory_counts -= 1
     end
 
-    g_ex' = PSConInit_E * spikes
+    g_ex' += PSConInit_E * spikes
   end
 
 end
