@@ -10,6 +10,7 @@ import org.nest.codegeneration.helpers.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.spl.prettyprinter.IReferenceConverter;
+import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
@@ -44,6 +45,27 @@ public class GSLReferenceConverter implements IReferenceConverter {
   @Override
   public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
     final String functionName = astFunctionCall.getCalleeName();
+
+    // Time.resolution() -> nestml::Time::get_resolution().get_ms
+    if ("resolution".equals(functionName)) {
+      return "nest::Time::get_resolution().get_ms()";
+    }
+    // Time.steps -> nest::Time(nest::Time::ms( args )).get_steps());
+    if ("steps".equals(functionName)) {
+      return "nest::Time(nest::Time::ms((double) %s)).get_steps()";
+    }
+
+    if (PredefinedFunctions.POW.equals(functionName)) {
+      return "std::pow(%s)";
+    }
+
+    if (PredefinedFunctions.LOG.equals(functionName)) {
+      return "std::log(%s)";
+    }
+
+    if ("expm1".equals(functionName)) {
+      return "numerics::expm1(%s)";
+    }
 
     if ("exp".equals(functionName)) {
 
@@ -82,8 +104,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
         return "numerics::e";
       }
       else {
-        if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL) ||
-            variableSymbol.isAlias()) {
+        if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL) || variableSymbol.isAlias()) {
           return variableName;
         }
         else {

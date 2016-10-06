@@ -260,9 +260,9 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     println("equations" + BLOCK_OPEN);
     indent();
 
+    astOdeDeclaration.getShapes().forEach(this::printShape);
     astOdeDeclaration.getODEAliass().forEach(this::printODEAlias);
     astOdeDeclaration.getODEs().forEach(this::printEquation);
-    astOdeDeclaration.getShapes().forEach(this::printShape);
 
   }
 
