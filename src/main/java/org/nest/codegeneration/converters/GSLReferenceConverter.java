@@ -104,8 +104,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
         return "numerics::e";
       }
       else {
-        if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL) ||
-            variableSymbol.isAlias()) {
+        if (variableSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL) || variableSymbol.isAlias()) {
           return variableName;
         }
         else {

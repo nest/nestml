@@ -99,13 +99,12 @@ public class NESTReferenceConverter implements IReferenceConverter {
         final VariableSymbol variableSymbol = resolve(Names.getQualifier(functionName), scope);
 
         if (functionSymbol.get().getName().equals("get_sum")) {
+          final String calleeObject = Names.getQualifier(functionName);
           if (variableSymbol.getVectorParameter().isPresent()) {
-            final String calleeObject = Names.getQualifier(functionName);
             return "B_." + calleeObject + "[i].get_value(lag)";
           }
           else {
-            final String calleeObject = Names.getQualifier(functionName);
-            return "get_" + calleeObject + "().get_value(lag)";
+            return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol);
           }
 
         }
