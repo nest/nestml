@@ -170,7 +170,7 @@ ${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n): Archivin
 * Destructors
 * ---------------------------------------------------------------- */
 
-~${simpleNeuronName}::${simpleNeuronName}()
+${simpleNeuronName}::~${simpleNeuronName}()
 {
   <#if useGSL>
     // GSL structs may not have been allocated, so we need to protect destruction

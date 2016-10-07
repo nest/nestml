@@ -93,7 +93,7 @@ public:
   /**
   * Releases resources.
   */
-  ~${simpleNeuronName}::${simpleNeuronName}();
+  ~${simpleNeuronName}();
   /**
   * Import sets of overloaded virtual functions.
   * This is necessary to ensure proper overload and overriding resolution.
