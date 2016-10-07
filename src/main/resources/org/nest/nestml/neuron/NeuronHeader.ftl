@@ -91,6 +91,10 @@ public:
   ${simpleNeuronName}(const ${simpleNeuronName}&);
 
   /**
+  * Releases resources.
+  */
+  ~${simpleNeuronName}::${simpleNeuronName}();
+  /**
   * Import sets of overloaded virtual functions.
   * This is necessary to ensure proper overload and overriding resolution.
   * @see http://www.gotw.ca/gotw/005.htm.
