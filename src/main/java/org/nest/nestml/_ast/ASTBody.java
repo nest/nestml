@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.helpers.AliasInverter.isInvertableExpression;
 import static org.nest.codegeneration.helpers.AliasInverter.isRelativeExpression;
-import static org.nest.utils.ASTUtils.printComments;
+import static org.nest.utils.AstUtils.printComments;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar

@@ -64,4 +64,13 @@ public class NestmlFrontendIntegrationTest {
     new NestmlFrontend().start(args);
   }
 
+  @Test
+  public void manually() {
+    final String[] args = new String[] {
+        "models/iaf_psc_exp.nestml",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
+
 }

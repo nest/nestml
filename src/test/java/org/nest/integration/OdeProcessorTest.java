@@ -7,13 +7,11 @@ package org.nest.integration;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.codegeneration.sympy.ODEProcessor;
+import org.nest.codegeneration.sympy.OdeProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._visitor.UnitsSIVisitor;
@@ -30,13 +28,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class ODEProcessorTest extends ModelbasedTest {
+public class OdeProcessorTest extends ModelbasedTest {
   private static final String COND_MODEL_FILE = "models/iaf_cond_alpha.nestml";
   private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
   private static final String PSC_DELTA_MODEL_FILE = "models/iaf_psc_delta.nestml";
   private static final String PSC_NEURON_NAME = "iaf_neuron_nestml";
 
-  private final ODEProcessor testant = new ODEProcessor();
+  private final OdeProcessor testant = new OdeProcessor();
 
   @Test
   public void testPscModel() throws Exception {
@@ -71,7 +69,7 @@ public class ODEProcessorTest extends ModelbasedTest {
     final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(pathToModel));
     FilesHelper.deleteFilesInFolder(outputBase);
 
-    testant.solveODE(modelRoot.getNeurons().get(0), outputBase);
+    testant.solveODE(modelRoot.getNeurons().get(0), modelRoot, outputBase);
 
     UnitsSIVisitor.convertSiUnitsToSignature(modelRoot);
 

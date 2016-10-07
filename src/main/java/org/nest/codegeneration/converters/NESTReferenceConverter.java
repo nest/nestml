@@ -14,7 +14,7 @@ import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.Optional;
@@ -125,7 +125,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
   @Override
   public String convertNameReference(final ASTVariable astVariable) {
     checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symboltable creator");
-    final String variableName = ASTUtils.convertDevrivativeNameToSimpleName(astVariable);
+    final String variableName = AstUtils.convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
 
     if (PredefinedVariables.E_CONSTANT.equals(variableName)) {

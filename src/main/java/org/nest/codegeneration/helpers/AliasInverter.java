@@ -9,7 +9,7 @@ import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
@@ -39,7 +39,7 @@ public class AliasInverter {
   private static boolean isConstantAndVariable(ASTExpr astExpr) {
     if (astExpr.getLeft().isPresent()) {
       // the second condition must be checked, because the constant can be in parentheses, e.g. V_reset = ((-10)) + E_L
-      boolean numericTerm = !ASTUtils.getAny(astExpr.getLeft().get(), ASTVariable.class).isPresent();
+      boolean numericTerm = !AstUtils.getAny(astExpr.getLeft().get(), ASTVariable.class).isPresent();
       return numericTerm && astExpr.getRight().isPresent() && astExpr.getRight().get().getVariable().isPresent();
 
     }

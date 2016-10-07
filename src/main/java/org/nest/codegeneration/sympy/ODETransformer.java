@@ -4,9 +4,8 @@ import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.ode._ast.ASTEquation;
 import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,35 +22,36 @@ public class ODETransformer {
   // this function is used in freemarker templates und must be public
   public static <T extends ASTNode> T replaceSumCalls(final T astOde) {
     // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
-    final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepClone returns T
-    final List<ASTFunctionCall> functions = get_sumFunctionCalls(workingCopy);
+    final List<ASTFunctionCall> functions = get_sumFunctionCalls(astOde);
 
-    functions.forEach(node -> replaceFunctionCallThroughFirstArgument(workingCopy, node));
-    return workingCopy;
+    final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepClone returns T
+    functions.forEach(node -> replaceFunctionCallThroughFirstArgument(astOde, node)); // TODO deepClone
+    return astOde;
   }
 
-
-  public static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
-    return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
-          .stream()
-          .filter(astFunctionCall ->
-              astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM) ||
-              astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
-          .collect(Collectors.toList());
+  // this function is used in freemarker templates und must be public
+  static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
+    return AstUtils.getAll(workingCopy, ASTFunctionCall.class)
+        .stream()
+        .filter(astFunctionCall ->
+            astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM) ||
+            astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
+        .collect(Collectors.toList());
   }
 
   public static List<ASTFunctionCall> getCondSumFunctionCall(final ASTNode workingCopy) {
-    return ASTUtils.getAll(workingCopy, ASTFunctionCall.class)
+    return AstUtils.getAll(workingCopy, ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
         .collect(Collectors.toList());
   }
 
   private static void replaceFunctionCallThroughFirstArgument(final ASTNode astOde, final ASTFunctionCall node) {
-    final Optional<ASTNode> parent = ASTUtils.getParent(node, astOde);
+    final Optional<ASTNode> parent = AstUtils.getParent(node, astOde);
     Preconditions.checkState(parent.isPresent());
     final ASTExpr expr = (ASTExpr) parent.get();
     expr.setFunctionCall(null);
     expr.setVariable(node.getArgs().get(0).getVariable().get());
   }
+
 }

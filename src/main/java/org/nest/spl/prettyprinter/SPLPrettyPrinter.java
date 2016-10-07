@@ -14,7 +14,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.spl._ast.*;
 import org.nest.spl._visitor.SPLVisitor;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
@@ -66,7 +66,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    */
   @Override
   public void endVisit(final ASTIF_Clause astIfClause) {
-    Optional<ASTNode> parent = ASTUtils.getParent(astIfClause, root);
+    Optional<ASTNode> parent = AstUtils.getParent(astIfClause, root);
     if (parent.isPresent() && parent.get() instanceof ASTIF_Stmt) {
       final ASTIF_Stmt astIfStmt = (ASTIF_Stmt) parent.get();
       final boolean isSingleIfClause = !astIfStmt.getELSE_Clause().isPresent() && astIfStmt.getELIF_Clauses().isEmpty();
@@ -108,7 +108,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
   @Override
   public void visit(final ASTStmt astStmt) {
-    final String comment = ASTUtils.printComments(astStmt);
+    final String comment = AstUtils.printComments(astStmt);
     if (!comment.isEmpty()) {
       println(comment);
     }
@@ -120,7 +120,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    */
   @Override
   public void visit(final ASTSmall_Stmt astSmallStmt ) {
-    print(ASTUtils.printComments(astSmallStmt));
+    print(AstUtils.printComments(astSmallStmt));
 
     if (astSmallStmt.getAssignment().isPresent()) {
       printAssignment(astSmallStmt.getAssignment().get());
@@ -222,7 +222,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   }
 
   private void printDeclarationType(final ASTDeclaration astDeclaration) {
-    print(ASTUtils.computeTypeName(astDeclaration.getDatatype(),true));
+    print(AstUtils.computeTypeName(astDeclaration.getDatatype(),true));
     if (astDeclaration.getSizeParameter().isPresent()) {
       print(" [" + astDeclaration.getSizeParameter().get() + "]");
     }
@@ -266,7 +266,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
   @Override
   public void visit(final ASTBlock astBlock ) {
-    final String comment = ASTUtils.printComments(astBlock);
+    final String comment = AstUtils.printComments(astBlock);
     if (!comment.isEmpty()) {
       println(comment);
     }
@@ -274,7 +274,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
   @Override
   public void visit(final ASTBLOCK_OPEN astBlockOpen) {
-    final String comment = ASTUtils.printComments(astBlockOpen);
+    final String comment = AstUtils.printComments(astBlockOpen);
     if (comment.isEmpty()) {
       println(BLOCK_OPEN);
     }
@@ -288,7 +288,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   @Override
   public void endVisit(final ASTBLOCK_CLOSE astBlockClose) {
     unindent();
-    final String comment = ASTUtils.printComments(astBlockClose);
+    final String comment = AstUtils.printComments(astBlockClose);
     if (comment.isEmpty()) {
       println(BLOCK_CLOSE);
     }

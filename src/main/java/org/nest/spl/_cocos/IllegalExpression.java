@@ -10,14 +10,14 @@ import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
-import static org.nest.utils.ASTUtils.computeTypeName;
+import static org.nest.utils.AstUtils.computeTypeName;
 
 /**
  * Check that the type of the loop variable is an integer.
@@ -79,7 +79,7 @@ public class IllegalExpression implements
       }
       else {
         final String errorDescription = initializerExpressionType.getError() +
-            "Problem with the expression: " + ASTUtils.toString(node.getExpr().get());
+                                        "Problem with the expression: " + AstUtils.toString(node.getExpr().get());
         undefinedTypeError(node, errorDescription);
       }
 
@@ -98,7 +98,7 @@ public class IllegalExpression implements
 
     if (exprType.isError()) {
       final String errorDescription = exprType.getError() +
-          "Problem with the expression: " + ASTUtils.toString(node.getExpr());
+                                      "Problem with the expression: " + AstUtils.toString(node.getExpr());
       undefinedTypeError(node, errorDescription);
     }
 
@@ -120,7 +120,7 @@ public class IllegalExpression implements
 
     if (exprType.isError()) {
       final String errorDescription = exprType.getError() +
-          "Problem with the expression: " + ASTUtils.toString(node.getExpr());
+                                      "Problem with the expression: " + AstUtils.toString(node.getExpr());
       undefinedTypeError(node, errorDescription);
     }
 

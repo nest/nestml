@@ -151,6 +151,7 @@ public class CliConfigurationExecutor {
   private void generateNeuronCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
       generator.analyseAndGenerate(root, config.getTargetPath());
+
       final String msg = "NEST code for the artifact: " + root.getFullName() + " is generated.";
       Log.info(msg, LOG_NAME);
       reporter.addArtifactInfo(root.getArtifactName(), msg, Reporter.Level.INFO);

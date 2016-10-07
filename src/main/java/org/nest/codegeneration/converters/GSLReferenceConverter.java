@@ -15,7 +15,7 @@ import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkState;
-import static org.nest.utils.ASTUtils.convertDevrivativeNameToSimpleName;
+import static org.nest.utils.AstUtils.convertDevrivativeNameToSimpleName;
 
 /**
  * Makes a conversion for the GSL solver.

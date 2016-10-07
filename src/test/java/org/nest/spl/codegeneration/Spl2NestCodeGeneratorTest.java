@@ -16,7 +16,7 @@ import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -80,7 +80,7 @@ public class Spl2NestCodeGeneratorTest {
 
     // tests code generation for an assignment
     // retrieves: intVar = 2
-    final ASTAssignment intVarAssignment = ASTUtils.getAll(root.get(), ASTAssignment.class).get(0);
+    final ASTAssignment intVarAssignment = AstUtils.getAll(root.get(), ASTAssignment.class).get(0);
     generator.handle(intVarAssignment, outputFile);
 
     // tests code generation for the entire Block

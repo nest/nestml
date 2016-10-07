@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
-import static org.nest.utils.ASTUtils.computeTypeName;
+import static org.nest.utils.AstUtils.computeTypeName;
 
 /**
  * Visitor that creates symbols for SPLTypes, SPLVariables from an SPL model.
