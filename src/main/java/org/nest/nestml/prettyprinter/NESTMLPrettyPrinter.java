@@ -16,14 +16,14 @@ import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.nest.spl.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
-import static org.nest.utils.ASTUtils.printComments;
+import static org.nest.utils.AstUtils.printComments;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
@@ -281,7 +281,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    * This method is used in freemaker template
    */
   public void printODEAlias(final ASTODEAlias astOdeAlias) {
-    final String datatype = ASTUtils.computeTypeName(astOdeAlias.getDatatype(), true);
+    final String datatype = AstUtils.computeTypeName(astOdeAlias.getDatatype(), true);
     final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
     if (astOdeAlias.isRecord()) {
       print("record ");
@@ -381,7 +381,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
       for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
         boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
         final ASTParameter curParameter = astParameters.get(curParameterIndex);
-        print(curParameter.getName() + " " +  ASTUtils.computeTypeName(curParameter.getDatatype(),true));
+        print(curParameter.getName() + " " + AstUtils.computeTypeName(curParameter.getDatatype(),true));
         if (!isLastParameter) {
           print(", ");
         }
@@ -394,7 +394,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   private void printOptionalReturnValue(final ASTFunction astFunction) {
     if (astFunction.getReturnType().isPresent()) {
-      print(ASTUtils.computeTypeName(astFunction.getReturnType().get(),true));
+      print(AstUtils.computeTypeName(astFunction.getReturnType().get(),true));
     }
 
   }

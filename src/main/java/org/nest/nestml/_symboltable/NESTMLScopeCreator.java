@@ -37,8 +37,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     return globalScope;
   }
 
-  public   NESTMLScopeCreator(
-      final Path modelPathAsString) {
+  public NESTMLScopeCreator(final Path modelPathAsString) {
 
     modelPath = new ModelPath(modelPathAsString);
 

@@ -11,7 +11,7 @@ import org.nest.nestml._parser.NESTMLParser;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._parser.SPLParser;
 import org.nest.spl.symboltable.SPLScopeCreator;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -41,7 +41,7 @@ public class ExpressionsPrettyPrinterTest {
     splScopeCreator.runSymbolTableCreator(root.get());// do I need symbol table for the pretty printer
 
     final NESTMLParser parser = new NESTMLParser();
-    final List<ASTExpr> expressions = ASTUtils.getAll(root.get(), ASTExpr.class);
+    final List<ASTExpr> expressions = AstUtils.getAll(root.get(), ASTExpr.class);
     for(final ASTExpr expr:expressions) {
       final String printedExpression = expressionsPrettyPrinter.print(expr);
 

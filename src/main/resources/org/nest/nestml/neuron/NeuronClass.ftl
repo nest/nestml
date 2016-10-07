@@ -117,6 +117,11 @@ ${simpleNeuronName}::State_::set(const DictionaryDatum& __d, const Parameters_& 
 }
 
 ${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
+<#if useGSL>
+  , s_( 0 )
+  , c_( 0 )
+  , e_( 0 )
+</#if>
 <#if (body.getSameTypeBuffer()?size > 1) >
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 </#if>
@@ -125,6 +130,11 @@ ${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
 }
 
 ${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger_(n)
+<#if useGSL>
+  , s_( 0 )
+  , c_( 0 )
+  , e_( 0 )
+</#if>
 <#if (body.getSameTypeBuffer()?size > 1) >
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 </#if>
@@ -155,6 +165,23 @@ ${simpleNeuronName}::${simpleNeuronName}():Archiving_Node(), P_(), S_(), B_(*thi
 
 ${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n): Archiving_Node(), P_(n.P_), S_(n.S_), B_(n.B_, *this)
 {}
+
+/* ----------------------------------------------------------------
+* Destructors
+* ---------------------------------------------------------------- */
+
+${simpleNeuronName}::~${simpleNeuronName}()
+{
+  <#if useGSL>
+    // GSL structs may not have been allocated, so we need to protect destruction
+    if ( B_.s_ )
+      gsl_odeiv_step_free( B_.s_ );
+    if ( B_.c_ )
+      gsl_odeiv_control_free( B_.c_ );
+    if ( B_.e_ )
+      gsl_odeiv_evolve_free( B_.e_ );
+  </#if>
+}
 
 /* ----------------------------------------------------------------
 * Node initialization functions

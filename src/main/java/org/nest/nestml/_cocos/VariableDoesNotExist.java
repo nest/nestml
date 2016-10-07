@@ -12,7 +12,7 @@ import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
@@ -31,20 +31,20 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
     node.getODEAliass().forEach(
         oderAlias-> {
           checkVariableByName(oderAlias.getVariableName(), node);
-          ASTUtils
+          AstUtils
               .getAll(oderAlias.getExpr(), ASTVariable.class)
               .forEach(variable -> checkVariableByName(variable.toString(), node));
         }
     );
     node.getShapes().forEach(
-        ode-> ASTUtils
+        ode-> AstUtils
             .getAll(ode.getRhs(), ASTVariable.class)
             .forEach(variable -> checkVariableByName(variable.toString(), node))
     );
     node.getEquations().forEach(
         ode-> {
           checkVariableByName(ode.getLhs());
-          ASTUtils.getAll(ode.getRhs(), ASTVariable.class)
+          AstUtils.getAll(ode.getRhs(), ASTVariable.class)
                   .forEach(variable -> checkVariableByName(variable.toString(), node)); // it can be a D'' variable
         }
 
@@ -57,7 +57,7 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
       checkVariableByName(astDerivative.toString(), astDerivative);
     }
     else {
-      checkVariableByName(ASTUtils.getNameOfLHS(astDerivative), astDerivative);
+      checkVariableByName(AstUtils.getNameOfLHS(astDerivative), astDerivative);
     }
 
   }

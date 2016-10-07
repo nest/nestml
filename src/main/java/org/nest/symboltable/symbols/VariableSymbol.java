@@ -11,13 +11,13 @@ import de.monticore.symboltable.SymbolKind;
 import org.nest.codegeneration.helpers.ASTBuffers;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.*;
-import static org.nest.utils.ASTUtils.getVectorizedVariable;
+import static org.nest.utils.AstUtils.getVectorizedVariable;
 import static org.nest.symboltable.NESTMLSymbols.isSetterPresent;
 
 /**
@@ -142,7 +142,7 @@ public class VariableSymbol extends CommonSymbol {
   public boolean isInhAndExc() {
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
-      return ASTUtils.isInhExc(astInputLine);
+      return AstUtils.isInhExc(astInputLine);
     }
     return false;
   }

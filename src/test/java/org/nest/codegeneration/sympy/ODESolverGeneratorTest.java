@@ -14,7 +14,7 @@ import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
@@ -69,13 +69,13 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
     final Optional<ASTEquation> ode = p.parseEquation(new StringReader(ODE_DECLARATION));
     assertTrue(ode.isPresent());
 
-    boolean i_sum = ASTUtils.getAll(ode.get(), ASTFunctionCall.class)
+    boolean i_sum = AstUtils.getAll(ode.get(), ASTFunctionCall.class)
         .stream()
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
     assertTrue(i_sum);
 
     final ASTEquation testant = ODETransformer.replaceSumCalls(ode.get());
-    i_sum = ASTUtils.getAll(testant, ASTFunctionCall.class)
+    i_sum = AstUtils.getAll(testant, ASTFunctionCall.class)
         .stream()
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
     assertFalse(i_sum);

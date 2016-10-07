@@ -3,7 +3,7 @@ package org.nest.commons._visitor;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
@@ -38,11 +38,11 @@ public class ConditionVisitor implements CommonsVisitor{
       }
 
       if (!condition.getValue().equals(getBooleanType())) {
-        expr.setType(Either.error("The ternary operator condition must be a boolean: " + ASTUtils.toString(expr) + ".  And not a: " + condition.getValue()));
+        expr.setType(Either.error("The ternary operator condition must be a boolean: " + AstUtils.toString(expr) + ".  And not a: " + condition.getValue()));
         return;
       }
       if (!isCompatible(ifTrue.getValue(), (ifNot.getValue()))) {
-        expr.setType(Either.error("The ternary operator results must be of the same type: " + ASTUtils.toString(expr) + ".  And not: " + ifTrue.getValue() + " and " + ifNot.getValue()));
+        expr.setType(Either.error("The ternary operator results must be of the same type: " + AstUtils.toString(expr) + ".  And not: " + ifTrue.getValue() + " and " + ifNot.getValue()));
         return;
       }
       expr.setType(ifTrue);

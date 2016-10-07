@@ -16,7 +16,7 @@ import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -43,7 +43,7 @@ public class Spl2NestCodeGenerator {
     glex.setGlobalValue("expressionsPrinter", prettyPrinter);
     glex.setGlobalValue("forDeclarationHelper", new ASTForNodes());
     glex.setGlobalValue("functions", new SPLFunctionCalls());
-    glex.setGlobalValue("astUtils", new ASTUtils());
+    glex.setGlobalValue("astUtils", new AstUtils());
 
     setup.setGlex(glex);
     generator = new GeneratorEngine(setup);

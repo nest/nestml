@@ -7,9 +7,8 @@ package org.nest.mocks;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.sympy.ImplicitFormTransformer;
-import org.nest.codegeneration.sympy.ImplicitFormTransformerTest;
-import org.nest.codegeneration.sympy.LinearSolutionTransformer;
-import org.nest.codegeneration.sympy.ODEProcessor;
+import org.nest.codegeneration.sympy.OdeProcessor;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 
 import java.nio.file.Path;
@@ -20,11 +19,11 @@ import java.nio.file.Paths;
  *
  * @author plotnikov
  */
-public class CondMock extends ODEProcessor {
+public class CondMock extends OdeProcessor {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/cond/";
 
   @Override
-  protected ASTNeuron handleNeuronWithODE(final ASTNeuron root, final Path outputBase) {
+  protected ASTNeuron handleNeuronWithODE(final ASTNeuron root, ASTNESTMLCompilationUnit artifactRoot, final Path outputBase) {
     Log.trace("Uses COND mock", this.getClass().getName());
     return getImplicitFormTransformer().transformToImplicitForm(
             root,

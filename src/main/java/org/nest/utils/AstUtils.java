@@ -10,14 +10,19 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
+import de.monticore.symboltable.EnclosingScopeOfNodesInitializer;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Util;
+import org.apache.commons.io.FileUtils;
 import org.nest.commons._ast.ASTCommonsNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.*;
+import org.nest.nestml._parser.NESTMLParser;
+import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTODENode;
@@ -33,6 +38,10 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +49,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.*;
+import static de.se_rwth.commons.logging.Log.info;
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
@@ -48,7 +58,9 @@ import static org.nest.symboltable.symbols.VariableSymbol.resolve;
  * 
  * @author plotnikov, oberhoff
  */
-public final class ASTUtils {
+public final class AstUtils {
+
+  private static final String LOG_NAME = AstUtils.class.getName();
 
   /**
    * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the error order
@@ -161,7 +173,7 @@ public final class ASTUtils {
   public static Optional<VariableSymbol> getVectorizedVariable(
       final ASTNode astNode,
       final Scope scope) {
-    final List<ASTVariable> variables = ASTUtils
+    final List<ASTVariable> variables = AstUtils
         .getAll(astNode, ASTVariable.class).stream()
         .filter(astVariable -> VariableSymbol.resolveIfExists(astVariable.toString(), scope).isPresent())
         .collect(Collectors.toList());
@@ -453,6 +465,60 @@ public final class ASTUtils {
 
     }
     return (!isInh && !isExc) || (isInh && isExc);
+  }
+
+  public static void printModelToFile(
+      final ASTNESTMLCompilationUnit root,
+      final Path outputFile) {
+    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
+    root.accept(prettyPrinter);
+
+    final File prettyPrintedModelFile = outputFile.toFile();
+    try {
+      FileUtils.write(prettyPrintedModelFile, prettyPrinter.result());
+    }
+    catch (IOException e) {
+      final String msg = "Cannot write the prettyprinted model to the file: " + outputFile;
+      throw new RuntimeException(msg, e);
+    }
+
+  }
+
+  public static void setEnclosingScopeOfNodes(final ASTNode root) {
+    EnclosingScopeOfNodesInitializer v = new EnclosingScopeOfNodesInitializer();
+    v.handle(root);
+  }
+
+  /**
+   * Model is printed and read again due 2 reasons:
+   * a) Technically it is necessary to build a new symbol table
+   * b) The model developer can view how the solution was computed.
+   * @return New root node of the altered model with an initialized symbol table
+   */
+  public static ASTNESTMLCompilationUnit deepClone(
+      final ASTNESTMLCompilationUnit nestmlModel,
+      final NESTMLScopeCreator scopeCreator,
+      final Path temporaryFolder) {
+    try {
+      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getFullName() + ".nestml");
+      printModelToFile(nestmlModel, outputTmpPath);
+      info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
+      final NESTMLParser parser = new NESTMLParser(temporaryFolder);
+
+      final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
+      withSolvedOde.setArtifactName(nestmlModel.getArtifactName());
+
+      if (nestmlModel.getPackageName().isPresent()) {
+        withSolvedOde.setPackageName(nestmlModel.getPackageName().get());
+      }
+
+      scopeCreator.runSymbolTableCreator(withSolvedOde);
+      return withSolvedOde;
+    }
+    catch (IOException e) {
+      throw  new RuntimeException(e);
+    }
+
   }
 
 }

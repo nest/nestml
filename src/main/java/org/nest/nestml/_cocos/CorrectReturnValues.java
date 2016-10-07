@@ -13,7 +13,7 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +43,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
     final TypeSymbol functionReturnType = mEntry.get().getReturnType();
 
     // get all return statements in block
-    final List<ASTReturnStmt> returns = ASTUtils.getReturnStatements(fun.getBlock());
+    final List<ASTReturnStmt> returns = AstUtils.getReturnStatements(fun.getBlock());
 
     for (ASTReturnStmt r : returns) {
       // no return expression

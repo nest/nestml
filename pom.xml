@@ -15,8 +15,8 @@
         <junit.version>4.12</junit.version>
 
         <!-- Monticore versions and dependencies -->
-        <antlr.version>4.5</antlr.version>
-        <monticore.version>4.4.2</monticore.version>
+        <antlr.version>4.5.1</antlr.version>
+        <monticore.version>4.5.0</monticore.version>
 
         <!-- .. Plugins ....................................................... -->
         <compiler.plugin>3.5.1</compiler.plugin>

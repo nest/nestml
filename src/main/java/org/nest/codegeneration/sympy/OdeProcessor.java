@@ -9,19 +9,24 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.SolverType;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTBody;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.codegeneration.sympy.ODESolverGenerator.generateODEAnalyserForDeltaShape;
 import static org.nest.codegeneration.sympy.ODESolverGenerator.generateSympyODEAnalyzer;
-import static org.nest.utils.ASTUtils.getFunctionCall;
+import static org.nest.utils.AstUtils.deepClone;
+import static org.nest.utils.AstUtils.getFunctionCall;
+import static org.nest.utils.AstUtils.setEnclosingScopeOfNodes;
 
 /**
  * Analyzes a neuron for defined ODE. If an ode is defined, it produces a temporary NESTML model
@@ -29,8 +34,8 @@ import static org.nest.utils.ASTUtils.getFunctionCall;
  *
  * @author plotnikov
  */
-public class ODEProcessor {
-  private final String LOG_NAME = ODEProcessor.class.getName();
+public class OdeProcessor {
+  private final String LOG_NAME = OdeProcessor.class.getName();
 
   private final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
   private final ImplicitFormTransformer implicitFormTransformer = new ImplicitFormTransformer();
@@ -40,23 +45,23 @@ public class ODEProcessor {
    * Dependent of the ODE kind either computes the exact solution or brings to the form which can
    * be directly utilized in a solver. The result is stored directly in the provided neuron AST.
    * @param astNeuron Input neuron.
-   * @param outputBase Folder where the solverscript is generated
-   * @return Exactly solved neuron.
+   * @param artifactRoot is used to prettyprint the model
+   * @param outputBase Folder where the solverscript is generated  @return Exactly solved neuron.
    */
   public ASTNeuron solveODE(
       final ASTNeuron astNeuron,
+      final ASTNESTMLCompilationUnit artifactRoot,
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
     if (astBody.getODEBlock().isPresent()) {
       final Optional<ASTFunctionCall> deltaShape = getFunctionCall(
-          PredefinedFunctions.DELTA,
-          astBody.getODEBlock().get());
+          PredefinedFunctions.DELTA, astBody.getODEBlock().get());
 
       if (deltaShape.isPresent()) {
-        return handleDeltaShape(astNeuron, outputBase);
+        return handleDeltaShape(astNeuron, artifactRoot, outputBase);
       }
       else {
-        return handleNeuronWithODE(astNeuron, outputBase);
+        return handleNeuronWithODE(astNeuron, artifactRoot, outputBase);
       }
 
     }
@@ -69,8 +74,23 @@ public class ODEProcessor {
 
   }
 
-  private ASTNeuron handleDeltaShape(final ASTNeuron astNeuron, final Path outputBase) {
-    final Optional<Path> generatedScript = generateODEAnalyserForDeltaShape(astNeuron.deepClone(), outputBase);
+  private ASTNeuron deepCloneNeuron(
+      final ASTNeuron astNeuron,
+      final ASTNESTMLCompilationUnit artifactRoot,
+      final Path outputBase) {
+    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(outputBase); // TODO cannot work in an arbitrary case
+    final ASTNESTMLCompilationUnit tmp = deepClone(artifactRoot, scopeCreator, outputBase);
+
+    return tmp.getNeurons().stream().filter(neuron -> neuron.getName().equals(astNeuron.getName())).findAny().get(); // ensured by construction
+  }
+
+  private ASTNeuron handleDeltaShape(
+      final ASTNeuron astNeuron,
+      final ASTNESTMLCompilationUnit artifactRoot,
+      final Path outputBase) {
+    final Optional<Path> generatedScript = generateODEAnalyserForDeltaShape(
+        deepCloneNeuron(astNeuron, artifactRoot, outputBase),
+        outputBase);// TODO must be deepcloned
     if(generatedScript.isPresent()) {
       info("The solver script is generated: " + generatedScript.get(), LOG_NAME);
 
@@ -102,8 +122,12 @@ public class ODEProcessor {
 
   protected ASTNeuron handleNeuronWithODE(
       final ASTNeuron astNeuron,
+      final ASTNESTMLCompilationUnit artifactRoot,
       final Path outputBase) {
-    final Optional<Path> generatedScript = generateSympyODEAnalyzer(astNeuron.deepClone(), outputBase);
+    final Optional<Path> generatedScript = generateSympyODEAnalyzer(
+        deepCloneNeuron(astNeuron, artifactRoot, outputBase),
+        outputBase); // TODO here must be deepclone
+
     if(generatedScript.isPresent()) {
       info("The solver script is generated: " + generatedScript.get(), LOG_NAME);
 
@@ -119,17 +143,16 @@ public class ODEProcessor {
       if (solutionType.equals(SolverType.EXACT)) {
         info("ODE is solved exactly.", LOG_NAME);
 
-        return linearSolutionTransformer
-            .addExactSolution(
-                astNeuron,
-                Paths.get(outputBase.toString(), LinearSolutionTransformer.P30_FILE),
-                Paths.get(outputBase.toString(), LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE),
-                Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VARIABLES_FILE),
-                Paths.get(outputBase.toString(), LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE),
-                Paths.get(outputBase.toString(), LinearSolutionTransformer.PROPAGATOR_STEP_FILE),
-                Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE),
-                Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE),
-                Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE));
+        return linearSolutionTransformer.addExactSolution(
+            astNeuron,
+            Paths.get(outputBase.toString(), LinearSolutionTransformer.P30_FILE),
+            Paths.get(outputBase.toString(), LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE),
+            Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VARIABLES_FILE),
+            Paths.get(outputBase.toString(), LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE),
+            Paths.get(outputBase.toString(), LinearSolutionTransformer.PROPAGATOR_STEP_FILE),
+            Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE),
+            Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE),
+            Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE));
       }
       else if (solutionType.equals(SolverType.NUMERIC)) {
         info("ODE is solved numerically.", LOG_NAME);

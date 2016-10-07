@@ -8,7 +8,7 @@ package org.nest.codegeneration.helpers;
 import de.monticore.symboltable.Scope;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.util.Optional;
 
@@ -112,7 +112,7 @@ public class ASTAssignments {
     }
 
     // TODO to complex logic, refactor
-    final Optional<String> arrayVariable = ASTUtils.getVariablesNamesFromAst(astAssignment.getExpr())
+    final Optional<String> arrayVariable = AstUtils.getVariablesNamesFromAst(astAssignment.getExpr())
         .stream()
         .filter(variableNameInExpression -> resolve(variableNameInExpression, scope)
             .getVectorParameter()
@@ -135,7 +135,7 @@ public class ASTAssignments {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
 
-    Optional<VariableSymbol> vectorVariable = ASTUtils.getVariableSymbols(astAssignment.getExpr())
+    Optional<VariableSymbol> vectorVariable = AstUtils.getVariableSymbols(astAssignment.getExpr())
         .stream()
         .filter(VariableSymbol::isVector).findAny();
     if (!vectorVariable.isPresent()) {
