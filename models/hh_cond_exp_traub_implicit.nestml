@@ -31,7 +31,7 @@ Author: Schrader
 
 SeeAlso: hh_psc_alpha
 */
-neuron hh_cond_exp_traub_neuron_implicit:
+neuron hh_cond_exp_traub_implicit:
 
   state:
     V_m mV = E_L #  Membrane potential
