@@ -500,7 +500,7 @@ public final class AstUtils {
       final NESTMLScopeCreator scopeCreator,
       final Path temporaryFolder) {
     try {
-      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getFullName() + ".nestml");
+      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getFullName() + ".tmp");
       printModelToFile(nestmlModel, outputTmpPath);
       info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
       final NESTMLParser parser = new NESTMLParser(temporaryFolder);
