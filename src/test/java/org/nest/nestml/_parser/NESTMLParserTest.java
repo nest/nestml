@@ -83,9 +83,6 @@ public class NESTMLParserTest extends ModelbasedTest {
    */
   @Test
   public void testFasleArtifactHandling() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> withoutExtension
-        = parser.parse(Paths.get("test","falseFileExtension.tmp").toString());
-    assertFalse(withoutExtension.isPresent());
 
     final Optional<ASTNESTMLCompilationUnit> wrongFolderStructure
         = parser.parse("falseFileExtension.nestml");
