@@ -10,7 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._symboltable.NESTMLCoCosManager;
+import org.nest.nestml._symboltable.NestmlCoCosManager;
 import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
   protected static final String MODULE_NAME = "integration";
   protected final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
   private final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator);
-  private final NESTMLCoCosManager checker = new NESTMLCoCosManager();
+  private final NestmlCoCosManager checker = new NestmlCoCosManager();
 
   @Before
   public void cleanUpGeneratedFolder() {

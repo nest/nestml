@@ -26,13 +26,13 @@ import java.util.List;
  *
  * @author plotnikov
  */
-public class NESTMLCoCosManager {
+public class NestmlCoCosManager {
 
   private final NESTMLCoCoChecker variablesExistenceChecker = new NESTMLCoCoChecker();
   private final NESTMLCoCoChecker nestmlCoCoChecker = new NESTMLCoCoChecker();
   private final NESTMLCoCoChecker uniquenessChecker = new NESTMLCoCoChecker();
 
-  public NESTMLCoCosManager() {
+  public NestmlCoCosManager() {
     registerVariableExistenceChecks();
     registerCocos();
   }

@@ -31,7 +31,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   private final ModelPath modelPath;
   private final ResolverConfiguration resolverConfiguration;
   private final NESTMLLanguage nestmlLanguages;
-  private final NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
+  private final NestmlCoCosManager nestmlCoCosManager = new NestmlCoCosManager();
 
   public GlobalScope getGlobalScope() {
     return globalScope;

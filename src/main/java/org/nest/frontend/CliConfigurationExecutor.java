@@ -13,7 +13,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.nestml._symboltable.NESTMLCoCosManager;
+import org.nest.nestml._symboltable.NestmlCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
@@ -42,7 +42,7 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 public class CliConfigurationExecutor {
 
   private static final String LOG_NAME = CliConfigurationExecutor.class.getName();
-  private final NESTMLCoCosManager checker = new NESTMLCoCosManager();
+  private final NestmlCoCosManager checker = new NestmlCoCosManager();
   private final Reporter reporter = Reporter.get();
 
   public CliConfigurationExecutor() {
