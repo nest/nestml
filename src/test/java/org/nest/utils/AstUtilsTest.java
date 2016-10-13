@@ -17,7 +17,7 @@ import java.util.Optional;
 /**
  * @author plotnikov
  */
-public class ASTUtilsTest extends ModelbasedTest {
+public class AstUtilsTest extends ModelbasedTest {
   private static final String PSC_MODEL_WITH_ODE = "models/ht_neuron.nestml";
 
   @Test
@@ -25,7 +25,7 @@ public class ASTUtilsTest extends ModelbasedTest {
     final ASTNESTMLCompilationUnit astCompilationUnit = parseAndBuildSymboltable(PSC_MODEL_WITH_ODE);
     Assert.assertTrue(astCompilationUnit.getNeurons().get(0).getBody().getODEBlock().isPresent());
 
-    final List<VariableSymbol> aliasesIn = ASTUtils.getAliasSymbols(astCompilationUnit.getNeurons().get(0).getBody().getODEBlock().get());
+    final List<VariableSymbol> aliasesIn = AstUtils.getAliasSymbols(astCompilationUnit.getNeurons().get(0).getBody().getODEBlock().get());
     final Optional<VariableSymbol> testant = aliasesIn.stream().filter(alias -> alias.getName().equals("I_syn_ampa")).findAny();
     Assert.assertTrue(testant.isPresent());
   }

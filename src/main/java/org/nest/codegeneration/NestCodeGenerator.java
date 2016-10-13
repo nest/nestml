@@ -8,28 +8,24 @@ package org.nest.codegeneration;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import org.apache.commons.io.FileUtils;
 import org.nest.codegeneration.converters.GSLReferenceConverter;
 import org.nest.codegeneration.converters.NESTParameterBlockReferenceConverter;
 import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.converters.NESTStateBlockReferenceConverter;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.sympy.ODEProcessor;
+import org.nest.codegeneration.sympy.OdeProcessor;
 import org.nest.codegeneration.sympy.ODETransformer;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.IReferenceConverter;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 import org.nest.symboltable.NESTMLSymbols;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -37,7 +33,8 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.info;
-import static org.nest.utils.ASTUtils.getAllNeurons;
+import static org.nest.utils.AstUtils.deepClone;
+import static org.nest.utils.AstUtils.getAllNeurons;
 
 /**
  * Generates C++ implementation and model integration code for NEST.
@@ -46,18 +43,18 @@ import static org.nest.utils.ASTUtils.getAllNeurons;
  */
 public class NestCodeGenerator {
   private final String LOG_NAME = NestCodeGenerator.class.getName();
-  private final ODEProcessor odeProcessor;
+  private final OdeProcessor odeProcessor;
 
   private final NESTMLScopeCreator scopeCreator;
 
-  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator, final ODEProcessor odeProcessor) {
+  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator, final OdeProcessor odeProcessor) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= odeProcessor;
   }
 
   public NestCodeGenerator(final NESTMLScopeCreator scopeCreator) {
     this.scopeCreator = scopeCreator;
-    this.odeProcessor= new ODEProcessor();
+    this.odeProcessor= new OdeProcessor();
   }
 
   public void analyseAndGenerate(
@@ -67,12 +64,11 @@ public class NestCodeGenerator {
 
     ASTNESTMLCompilationUnit workingVersion = root;
     for (int i = 0; i < root.getNeurons().size(); ++i) {
-      final ASTNeuron solvedNeuron = solveODESInNeuron(root.getNeurons().get(i), outputBase);
+      final ASTNeuron solvedNeuron = solveODESInNeuron(root.getNeurons().get(i), root, outputBase);
       root.getNeurons().set(i, solvedNeuron);
     }
 
-    workingVersion = printAndReadModel(outputBase, workingVersion);
-
+    workingVersion = deepClone(workingVersion, scopeCreator, outputBase);
     workingVersion
         .getNeurons()
         .forEach(astNeuron -> generateNestCode(astNeuron, outputBase));
@@ -84,6 +80,7 @@ public class NestCodeGenerator {
 
   private ASTNeuron solveODESInNeuron(
       final ASTNeuron astNeuron,
+      final ASTNESTMLCompilationUnit artifactRoot,
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
     final Optional<ASTOdeDeclaration> odesBlock = astBody.getODEBlock();
@@ -94,7 +91,7 @@ public class NestCodeGenerator {
       }
       else {
         info("The model will be analysed.", LOG_NAME);
-        return odeProcessor.solveODE(astNeuron, outputBase);
+        return odeProcessor.solveODE(astNeuron, artifactRoot, outputBase);
       }
 
     }
@@ -140,36 +137,6 @@ public class NestCodeGenerator {
         classImplementationFile,
         astNeuron);
 
-  }
-
-  /**
-   * Model is printed and read again due 2 reasons:
-   * a) Technically it is necessary to build a new symbol table
-   * b) The model developer can view how the solution was computed.
-   * @return New root node of the altered model with an initialized symbol table
-   */
-  private ASTNESTMLCompilationUnit printAndReadModel(
-      final Path modulePath,
-      final ASTNESTMLCompilationUnit root) {
-    try {
-      final Path outputTmpPath = Paths.get(modulePath.toString(), root.getFullName() + ".nestml");
-      printModelToFile(root, outputTmpPath.toString());
-      info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
-      final NESTMLParser parser = new NESTMLParser(modulePath);
-
-      final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
-      withSolvedOde.setArtifactName(root.getArtifactName());
-
-      if (root.getPackageName().isPresent()) {
-        withSolvedOde.setPackageName(root.getPackageName().get());
-      }
-
-      scopeCreator.runSymbolTableCreator(withSolvedOde);
-      return withSolvedOde;
-    }
-    catch (IOException e) {
-      throw  new RuntimeException(e);
-    }
   }
 
   /**
@@ -219,23 +186,6 @@ public class NestCodeGenerator {
         neurons.get(0)); // an arbitrary AST to match the signature
 
     info("Successfully generated NEST module code in " + outputDirectory, LOG_NAME);
-  }
-
-  private void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
-      final String outputFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
-    root.accept(prettyPrinter);
-
-    final File prettyPrintedModelFile = new File(outputFile);
-    try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.result());
-    }
-    catch (IOException e) {
-      final String msg = "Cannot write the prettyprinted model to the file: " + outputFile;
-      throw new RuntimeException(msg, e);
-    }
-
   }
 
   private GlobalExtensionManagement getGlexConfiguration() {
@@ -291,7 +241,7 @@ public class NestCodeGenerator {
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
     glex.setGlobalValue("nestmlSymbols", new NESTMLSymbols());
-    glex.setGlobalValue("astUtils", new ASTUtils());
+    glex.setGlobalValue("astUtils", new AstUtils());
     glex.setGlobalValue("aliasInverter", new AliasInverter());
 
   }

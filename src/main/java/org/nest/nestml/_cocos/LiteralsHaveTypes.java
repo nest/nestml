@@ -271,7 +271,7 @@ public class LiteralsHaveTypes implements
           if(!leftType.getValue().getType().equals(TypeSymbol.Type.UNIT)||
               !rightType.getValue().getType().equals(TypeSymbol.Type.UNIT)){ //BOTH are NOT units
             CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
-            final String msg = errorStrings.getErrorMsgConditional(this);
+            final String msg = errorStrings.getErrorMsgConditional(this) + ": " + node.get_SourcePositionStart();
             Log.warn(msg, node.get_SourcePositionStart());
           }
 

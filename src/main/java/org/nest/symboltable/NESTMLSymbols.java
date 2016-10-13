@@ -32,7 +32,7 @@ import org.nest.nestml._symboltable.MethodSignaturePredicate;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +50,7 @@ public class NESTMLSymbols {
   public static Optional<MethodSymbol> resolveMethod(final ASTFunctionCall astFunctionCall) {
     checkArgument(astFunctionCall.getEnclosingScope().isPresent(), "Run symbol table creator");
 
-    final List<String> callTypes = ASTUtils.getParameterTypes(astFunctionCall);
+    final List<String> callTypes = AstUtils.getParameterTypes(astFunctionCall);
     return resolveMethod(astFunctionCall.getCalleeName(), callTypes, astFunctionCall.getEnclosingScope().get());
   }
 
@@ -61,7 +61,7 @@ public class NESTMLSymbols {
     if (astFunction.getParameters().isPresent()) {
       callTypes = astFunction.getParameters().get().getParameters()
           .stream()
-          .map(astParameter -> ASTUtils.computeTypeName(astParameter.getDatatype()))
+          .map(astParameter -> AstUtils.computeTypeName(astParameter.getDatatype()))
           .collect(toList());
     }
     else {

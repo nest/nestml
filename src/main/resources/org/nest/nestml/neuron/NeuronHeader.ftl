@@ -91,6 +91,10 @@ public:
   ${simpleNeuronName}(const ${simpleNeuronName}&);
 
   /**
+  * Releases resources.
+  */
+  ~${simpleNeuronName}();
+  /**
   * Import sets of overloaded virtual functions.
   * This is necessary to ensure proper overload and overriding resolution.
   * @see http://www.gotw.ca/gotw/005.htm.
@@ -304,13 +308,20 @@ protected:
   struct Buffers_ {
     Buffers_(${simpleNeuronName}&);
     Buffers_(const Buffers_ &, ${simpleNeuronName}&);
+
     <#if (body.getSameTypeBuffer()?size > 1) >
       /** buffers and sums up incoming spikes/currents */
       std::vector< nest::RingBuffer > spike_inputs_;
 
-      <#list body.getInputBuffers() as inputLine>
+      <#list body.getSpikeBuffers() as inputLine>
         ${bufferHelper.printBufferArrayGetter(inputLine)}
+        ${bufferHelper.printBufferDeclarationValue(inputLine)};
+      </#list>
+
+      <#list body.getCurrentBuffers() as inputLine>
         ${bufferHelper.printBufferDeclaration(inputLine)};
+        ${bufferHelper.printBufferGetter(inputLine, true)}
+        ${bufferHelper.printBufferDeclarationValue(inputLine)};
       </#list>
     <#else>
       <#list body.getInputBuffers() as inputLine>

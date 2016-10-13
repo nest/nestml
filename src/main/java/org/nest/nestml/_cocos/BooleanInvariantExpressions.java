@@ -10,7 +10,7 @@ import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 /**
  * Invariants expressions must be of the type boolea.
@@ -37,7 +37,7 @@ class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
       }
       else {
         final String msg = errorStrings.getErrorMsgCannotComputeType(this,
-                ASTUtils.toString(alias.getInvariant().get()));
+                AstUtils.toString(alias.getInvariant().get()));
 
         Log.warn(msg);
       }

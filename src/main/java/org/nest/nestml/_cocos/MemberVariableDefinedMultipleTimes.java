@@ -8,12 +8,11 @@ package org.nest.nestml._cocos;
 import com.google.common.collect.Maps;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
-import groovyjarjarantlr.collections.AST;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.util.Map;
 
@@ -59,8 +58,8 @@ public class MemberVariableDefinedMultipleTimes implements
     body.getEquations()
         .stream()
         .filter(astEquation -> astEquation.getLhs().getDifferentialOrder().size() > 1)
-        .forEach(astEquation -> addVariable(ASTUtils.getNameOfLHS(astEquation), varNames, astEquation));
-    body.getShapes().forEach(astShape -> addVariable(ASTUtils.getNameOfLHS(astShape), varNames, astShape));
+        .forEach(astEquation -> addVariable(AstUtils.getNameOfLHS(astEquation), varNames, astEquation));
+    body.getShapes().forEach(astShape -> addVariable(AstUtils.getNameOfLHS(astShape), varNames, astShape));
   }
 
   private void addNames(

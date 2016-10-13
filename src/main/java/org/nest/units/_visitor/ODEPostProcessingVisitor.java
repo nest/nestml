@@ -83,8 +83,9 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     if(astEquation.getSymbol().isPresent()){
       final VariableSymbol var = (VariableSymbol) astEquation.getSymbol().get();
       var.setType(typeFromExpression);
-    }else{
-      warn("Symboltable seems to be missing when running ODEPostProcessingVisitor");
+    }
+    else{
+      warn(ERROR_CODE+ ": Symboltable seems to be missing when running ODEPostProcessingVisitor " + astEquation.get_SourcePositionStart());
       return;
     }
   }

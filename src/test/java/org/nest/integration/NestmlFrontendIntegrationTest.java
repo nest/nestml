@@ -47,7 +47,7 @@ public class NestmlFrontendIntegrationTest {
   }
 
   @Test
-  public void testAllModels() {
+  public void testModelsFolder() {
     final String[] args = new String[] {
         "models",
         "--target", outputPath.toString()};
@@ -59,6 +59,24 @@ public class NestmlFrontendIntegrationTest {
   public void testTutorialModels() {
     final String[] args = new String[] {
         "src/test/resources/tutorial",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
+  public void manually() {
+    final String[] args = new String[] {
+        "models/terub_neuron_gpe.nestml",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
+  public void testFailingTypeErrorDetection() {
+    final String[] args = new String[] {
+        "src/test/resources/codegeneration/terub_neuron_stn.nestml",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);

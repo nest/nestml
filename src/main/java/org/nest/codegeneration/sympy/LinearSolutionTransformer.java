@@ -27,7 +27,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAlias;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
-import static org.nest.utils.ASTUtils.getVectorizedVariable;
+import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**
  * Takes SymPy result with the linear solution of the ODE and the source AST.

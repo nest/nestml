@@ -48,10 +48,6 @@ public class NESTMLParser extends NESTMLParserTOP {
       Log.error(msg);
       return Optional.empty();
     }
-    if (!filename.endsWith(".nestml")) {
-      Log.error("NESTML models must be stored in artifacts with '.nestml' file extension.");
-      return Optional.empty();
-    }
 
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
 

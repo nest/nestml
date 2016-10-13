@@ -10,7 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._cocos.ODEASTEquationCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.util.Optional;
 
@@ -31,7 +31,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
     final Scope scope = astEq.getEnclosingScope().get();
 
     if (astEq.getLhs().getDifferentialOrder().size() > 0) {
-      final Optional<VariableSymbol> variableSymbol = scope.resolve(ASTUtils.getNameOfLHS(astEq.getLhs()), VariableSymbol.KIND);
+      final Optional<VariableSymbol> variableSymbol = scope.resolve(AstUtils.getNameOfLHS(astEq.getLhs()), VariableSymbol.KIND);
       if (variableSymbol.isPresent()) {
         if (!variableSymbol.get().isState()) {
           final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());

@@ -14,7 +14,7 @@ import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.Optional;
@@ -99,13 +99,12 @@ public class NESTReferenceConverter implements IReferenceConverter {
         final VariableSymbol variableSymbol = resolve(Names.getQualifier(functionName), scope);
 
         if (functionSymbol.get().getName().equals("get_sum")) {
+          final String calleeObject = Names.getQualifier(functionName);
           if (variableSymbol.getVectorParameter().isPresent()) {
-            final String calleeObject = Names.getQualifier(functionName);
             return "B_." + calleeObject + "[i].get_value(lag)";
           }
           else {
-            final String calleeObject = Names.getQualifier(functionName);
-            return "get_" + calleeObject + "().get_value(lag)";
+            return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol);
           }
 
         }
@@ -126,7 +125,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
   @Override
   public String convertNameReference(final ASTVariable astVariable) {
     checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symboltable creator");
-    final String variableName = ASTUtils.convertDevrivativeNameToSimpleName(astVariable);
+    final String variableName = AstUtils.convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
 
     if (PredefinedVariables.E_CONSTANT.equals(variableName)) {
@@ -138,7 +137,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return variableName + (variableSymbol.isVector()?"[i]":"");
       }
       else if(variableSymbol.isBuffer()) {
-        return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) ;
+        return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) ;
       }
       else {
         if (variableSymbol.isAlias()) {

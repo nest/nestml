@@ -10,7 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.helpers.AliasInverter;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.symboltable.NESTMLSymbols.isSetterPresent;
@@ -33,7 +33,7 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
     if (alias.isAlias()) {
       // per default aliases have only a single variable. it is checked by the AliasHasOneVar coco.
       final String aliasVar = decl.getVars().get(0);
-      final String varTypeName = ASTUtils.computeTypeName(decl.getDatatype());
+      final String varTypeName = AstUtils.computeTypeName(decl.getDatatype());
       if (isSetterPresent(aliasVar, varTypeName, scope) || AliasInverter.isRelativeExpression(decl.getExpr().get())) {
         Log.trace("The setter will be generated or used for the alias  at " + alias.get_SourcePositionStart().toString(), ERROR_CODE);
       }

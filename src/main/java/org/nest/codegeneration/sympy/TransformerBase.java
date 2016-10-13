@@ -11,7 +11,7 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.*;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,7 +24,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAliases;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAssignment;
-import static org.nest.utils.ASTUtils.getVectorizedVariable;
+import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**
  * Provides common methods for solver transformations.
@@ -90,20 +90,20 @@ public class TransformerBase {
     final ASTBody astBodyDecorator = astNeuron.getBody();
 
     // It must work for multiple integrate calls!
-    final Optional<ASTFunctionCall> integrateCall = ASTUtils.getFunctionCall(
+    final Optional<ASTFunctionCall> integrateCall = AstUtils.getFunctionCall(
         PredefinedFunctions.INTEGRATE,
         astBodyDecorator.getDynamics().get(0));
 
     if (integrateCall.isPresent()) {
-      final Optional<ASTNode> smallStatement = ASTUtils.getParent(integrateCall.get(), astNeuron);
+      final Optional<ASTNode> smallStatement = AstUtils.getParent(integrateCall.get(), astNeuron);
       checkState(smallStatement.isPresent());
       checkState(smallStatement.get() instanceof ASTSmall_Stmt);
 
-      final Optional<ASTNode> statement = ASTUtils.getParent(smallStatement.get(), astNeuron);
+      final Optional<ASTNode> statement = AstUtils.getParent(smallStatement.get(), astNeuron);
       checkState(statement.isPresent());
       checkState(statement.get() instanceof ASTStmt);
 
-      final Optional<ASTNode> block = ASTUtils.getParent(statement.get(), astNeuron);
+      final Optional<ASTNode> block = AstUtils.getParent(statement.get(), astNeuron);
       checkState(block.isPresent());
       checkState(block.get() instanceof ASTBlock);
 
@@ -149,9 +149,9 @@ public class TransformerBase {
       final String shapeName = shapeNameExtracter.apply(pscInitialValueAsString);
       final String variableName = stateVariableNameExtracter.apply(pscInitialValueAsString);
       for (ASTFunctionCall i_sum_call:i_sumCalls) {
-        final String shapeNameInCall = ASTUtils.toString(i_sum_call.getArgs().get(0));
+        final String shapeNameInCall = AstUtils.toString(i_sum_call.getArgs().get(0));
         if (shapeNameInCall.equals(shapeName)) {
-          final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
+          final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
           final ASTAssignment pscUpdateStep = createAssignment(
               variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".get_sum(t)");
           addAssignmentToDynamics(body, pscUpdateStep);

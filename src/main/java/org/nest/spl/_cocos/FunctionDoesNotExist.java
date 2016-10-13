@@ -15,6 +15,7 @@ import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.utils.AstUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
         argTypeNames.add(argType.getValue().getName());
       }
       else {
-        Log.warn(ERROR_CODE + ": Cannot compute the type: " + arg);
+        Log.warn(ERROR_CODE + ": Cannot compute the type: " + AstUtils.toString(arg) + " : " + arg.get_SourcePositionStart());
         return;
       }
 

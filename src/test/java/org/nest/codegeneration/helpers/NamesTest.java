@@ -1,16 +1,14 @@
 package org.nest.codegeneration.helpers;
 
 import de.monticore.symboltable.Scope;
-import org.junit.Assert;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.ode._ast.ASTDerivative;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -37,7 +35,7 @@ public class NamesTest extends ModelbasedTest {
     assertEquals("set___D_g_in", names.setter(Dg_in.get()));
     assertEquals("get___D_g_in", names.getter(Dg_in.get()));
 
-    final Optional<ASTDerivative> derivative = ASTUtils
+    final Optional<ASTDerivative> derivative = AstUtils
         .getAll(root, ASTDerivative.class)
         .stream()
         .filter(tmp -> tmp.toString().equals("g_in''"))

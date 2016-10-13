@@ -1,19 +1,17 @@
 /*
   A straight forward implementation of the RC circuit approach.
-  Adds alpha shapes for synaptic currents.
+  Adds alpha shapes for synaptic currents which is modelled as an excplicit function.
 */
-neuron rc_alpha:
+neuron rc_shape:
 
   state:
     V_abs mV = 0mV
     alias V_m mV = V_abs + E_L
-    g_ex pA = 0pA
   end
 
   equations:
-    g_ex'' = -g_ex' / tau_syn
-    g_ex' = g_ex' - ( g_ex / tau_syn )
-    I_syn pA = g_ex + currents + I_e
+    shape g_ex = (e/tau_syn) * t * exp(-1/tau_syn*t)
+    I_syn pA = I_sum(g_ex, spikes) + currents + I_e
     V_abs' = -V_abs/tau_m  + I_syn/C_m
   end
 
@@ -53,7 +51,6 @@ neuron rc_alpha:
       refractory_counts -= 1
     end
 
-    g_ex' += PSConInit_E * spikes
   end
 
 end

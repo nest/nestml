@@ -12,7 +12,7 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTStmt;
 import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.utils.ASTUtils;
+import org.nest.utils.AstUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +21,7 @@ import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAlias;
-import static org.nest.utils.ASTUtils.getFunctionCall;
+import static org.nest.utils.AstUtils.getFunctionCall;
 
 /**
  * Takes SymPy result with the exact solution of the Delta-shaped PSC and integrates it into the neuron instead of
@@ -77,14 +77,14 @@ class DeltaSolutionTransformer extends TransformerBase {
       propagatorSteps.add(statement(applyP33));
       propagatorSteps.add(statement(updateAssignment));
 
-      final List<ASTFunctionCall> i_sumCalls = ASTUtils.getAll(astNeuron.getBody().getODEBlock().get(), ASTFunctionCall.class)
+      final List<ASTFunctionCall> i_sumCalls = AstUtils.getAll(astNeuron.getBody().getODEBlock().get(), ASTFunctionCall.class)
           .stream()
           .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
           .collect(toList());
 
       // Apply spikes from the buffer to the state variable
       for (ASTFunctionCall i_sum_call : i_sumCalls) {
-        final String bufferName = ASTUtils.toString(i_sum_call.getArgs().get(1));
+        final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
         final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName + ".get_sum(t)");
         propagatorSteps.add(statement(applySpikes));
       }
