@@ -307,6 +307,11 @@ public final class ASTUtils {
     return output.toString();
   }
 
+  /**
+   * Wrapper around computeTypeName that is used exclusively in generation.
+   * Calculates unit name from the serialized representation after the wrapped call
+   *
+   */
   public static String computeTypeName(final ASTDatatype astDatatype){ //TODO: Better solution
     return computeTypeName(astDatatype, false);
   }

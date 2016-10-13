@@ -50,6 +50,20 @@ public class UnitRepresentation {
     return (this.exponentSum()+abs(this.magnitude) == 0) ? true : false;
   }
 
+  /** calculates, if existent, the power of the base unit that this represents.
+   * I.e. calculates x in:
+   *
+   *    base**x = this
+   *
+   *    iff x is a integer
+   *
+   *
+   * TODO: rewrite to not require exact matching for a more intuitive overall match
+   * i.e. account for:
+   *    this = base**x * y
+   *
+   *    where x is an integer and y is a unit type.
+   */
   private Optional<Integer> getExponent(UnitRepresentation base){
     int[] thisUnits = this.asArray();
     int[] baseUnits = base.asArray();
@@ -65,7 +79,7 @@ public class UnitRepresentation {
         if(thisValue % baseValue != 0) {
           return Optional.empty();
         }
-        //At this point we know that both modulo of both (nonzero) components is 0
+        //At this point we know that modulo of both (nonzero) components is 0
         if(factor == null) {
           factor = thisValue / baseValue;
         }
@@ -129,6 +143,9 @@ public class UnitRepresentation {
   }
 
   private String removeTrailingMultiplication(String str){
+    if(str.length() <3){
+      return str;
+    }
     String result = str;
     String postfix = result.substring(result.length() - 3, result.length());
     if (postfix.equals(" * ")) {
@@ -136,6 +153,7 @@ public class UnitRepresentation {
     }
     return result;
   }
+
 
   private String calculateName() {
     String result = this.doCalc();
@@ -147,22 +165,32 @@ public class UnitRepresentation {
         String main = parts[0];
         String magnitude = parts[1];
         main = removeTrailingMultiplication(main);
-        if(!main.contains(" * ")){ //The Unit part of the return String consists of exactly one Unit
-          try {
-            Integer parsedMagnitude = Integer.parseInt(magnitude);
-            if(main.contains("**-")) { //The single unit has a negative exponent
-              parsedMagnitude = -parsedMagnitude;
-            }
-            String prefix = SIData.getPrefixMagnitudes().inverse().get(parsedMagnitude);
-            result = prefix+main;
-          }
-          catch(NumberFormatException e){
-            Log.warn("Exception in Unit name Formatting! Cannot parse magnitude String: "
-            +magnitude);
-            return result;
-          }
 
+        result ="";
+        String lastUnit="";
 
+        if(main.contains(" * ")){  //There is more than one Unit in the calculated name -> Isolate the last one.
+          String[] mainParts = main.split(" \\* ");
+          for(int i = 0; i<mainParts.length-1; i++){
+            result += mainParts[i] + " * ";
+          }
+          lastUnit = mainParts[mainParts.length-1];
+        }else{
+          lastUnit = main;
+        }
+
+        try {
+          Integer parsedMagnitude = Integer.parseInt(magnitude);
+          if(lastUnit.contains("**-")) { //The single/last  unit has a negative exponent
+            parsedMagnitude = -parsedMagnitude;
+          }
+          String prefix = SIData.getPrefixMagnitudes().inverse().get(parsedMagnitude);
+          return result+prefix+lastUnit;
+        }
+        catch(NumberFormatException e){
+          Log.warn("Exception in Unit name Formatting! Cannot parse magnitude String: "
+              +magnitude);
+          return result;
         }
       }
     }

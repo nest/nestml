@@ -8,6 +8,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTShape;
+import org.nest.symboltable.NESTMLSymbols;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -58,7 +59,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     //Get Type of original Variable
     String varName = astEquation.getLhs().getSimpleName();
     Scope enclosingScope = astEquation.getEnclosingScope().get();
-    Optional<VariableSymbol> varSymbol = enclosingScope.resolve(varName,VariableSymbol.KIND);
+    Optional<VariableSymbol> varSymbol = NESTMLSymbols.resolve(varName,enclosingScope);
 
     TypeSymbol originalVarType;
     if(varSymbol.isPresent()){
@@ -69,10 +70,10 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     }
 
 
-    //Calculate type implicit from expression:
+    //Calculate LHS type implicit from expression:
     UnitRepresentation derivativeUnit = new UnitRepresentation(0,0,0,0,0,0,0,0);
-
     TypeSymbol typeFromExpression = astEquation.getRhs().getType().get().getValue();
+
     if(typeFromExpression.getType() == TypeSymbol.Type.UNIT){
       derivativeUnit = new UnitRepresentation(typeFromExpression.getName());
     }
@@ -86,7 +87,6 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
       warn("Symboltable seems to be missing when running ODEPostProcessingVisitor");
       return;
     }
-
   }
 
   @Override
