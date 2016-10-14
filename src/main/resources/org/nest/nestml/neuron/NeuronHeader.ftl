@@ -214,9 +214,6 @@ protected:
     /** Initialize parameters to their default values. */
     Parameters_();
 
-    /** Store parameter values in dictionary. */
-    void get(DictionaryDatum&) const;
-
     /** Set parameter values from dictionary. */
     void set(const DictionaryDatum&
     <#list body.getAllOffsetVariables() as offset>
@@ -259,9 +256,6 @@ protected:
     </#list>
 
     State_();
-
-    /** Store state values in dictionary. */
-    void get(DictionaryDatum&) const;
 
     /**
     * Set state values from dictionary.
@@ -471,11 +465,9 @@ nest::port receptor_type)
 inline
 void ${simpleNeuronName}::get_status(DictionaryDatum &__d) const
 {
-  P_.get(__d);
   <#list body.getParameterSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [parameter])}
   </#list>
-  S_.get(__d);
   <#list body.getStateSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.function.WriteInDictionary", [state])}
   </#list>
