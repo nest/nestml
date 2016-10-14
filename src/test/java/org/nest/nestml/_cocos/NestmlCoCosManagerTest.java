@@ -13,7 +13,7 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.nestml._symboltable.NESTMLCoCosManager;
+import org.nest.nestml._symboltable.NestmlCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.io.File;
@@ -33,7 +33,7 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  *
  * @author plotnikov
  */
-public class NESTMLCoCosManagerTest extends ModelbasedTest {
+public class NestmlCoCosManagerTest extends ModelbasedTest {
 
 
   /**
@@ -75,7 +75,7 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
   }
 
   private void checkModel(final Path file)  {
-    System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file);
+    System.out.println("NestmlCoCosManagerTest.testGoodModels: " + file);
 
     if (file.toFile().isFile()) {
       final Optional<ASTNESTMLCompilationUnit> root;
@@ -90,7 +90,7 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
       final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
       scopeCreator.runSymbolTableCreator(root.get());
 
-      System.out.println("NESTMLCoCosManagerTest.testGoodModels: " + file.toString());
+      System.out.println("NestmlCoCosManagerTest.testGoodModels: " + file.toString());
 
       checkNESTMLWithSPLCocos(file.toFile(), root);
       Collection<Finding> nestmlErrorFindings = getErrorsByPrefix("NESTML_", Log.getFindings());
@@ -104,7 +104,7 @@ public class NESTMLCoCosManagerTest extends ModelbasedTest {
       final File file,
       final Optional<ASTNESTMLCompilationUnit> root) {
 
-    final NESTMLCoCosManager checker = new NESTMLCoCosManager();
+    final NestmlCoCosManager checker = new NestmlCoCosManager();
     List<Finding> findings = checker.analyzeModel(root.get());
     long errorsFound = findings
         .stream()

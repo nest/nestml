@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._symboltable.NESTMLCoCosManager;
+import org.nest.nestml._symboltable.NestmlCoCosManager;
 
 import java.util.List;
 import java.util.Optional;
@@ -35,7 +35,7 @@ public class UnitsTest extends ModelbasedTest {
 
   @Test
   public void test_unit_errors_produce_warnings() {
-    final NESTMLCoCosManager completeChecker = new NESTMLCoCosManager();
+    final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
         "src/test/resources/org/nest/units/validExpressions.nestml", TEST_MODEL_PATH);
 
@@ -66,7 +66,7 @@ public class UnitsTest extends ModelbasedTest {
 
   @Test
   public void test_iaf_cond_alpha() {
-    final NESTMLCoCosManager completeChecker = new NESTMLCoCosManager();
+    final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
         "models/iaf_cond_alpha.nestml", TEST_MODEL_PATH);
     assertTrue(validRoot.isPresent());
