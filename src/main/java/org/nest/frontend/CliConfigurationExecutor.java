@@ -126,7 +126,9 @@ public class CliConfigurationExecutor {
       generateModuleCode(modelRoots, config, generator);
     }
     else {
-      Log.error(LOG_NAME + ": Models contain semantic errors, therefore, no codegeneration is possible");
+      final String msg = " Models contain semantic error(s), therefore, no codegeneration is possible";
+      Log.error(LOG_NAME + ":" + msg);
+      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
     }
 
   }
