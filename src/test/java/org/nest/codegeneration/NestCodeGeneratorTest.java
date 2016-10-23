@@ -27,6 +27,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
   private static final String PSC_MODEL_WITH_ODE = "models/iaf_psc_alpha.nestml";
   private static final String PSC_MODEL_IMPERATIVE = "src/test/resources/codegeneration/imperative/iaf_psc_alpha_imperative.nestml";
   private static final String PSC_MODEL_THREE_BUFFERS = "src/test/resources/codegeneration/iaf_psc_alpha_three_buffers.nestml";
+  private static final String NEURON_WITH_SETTER = "src/test/resources/codegeneration/neuron_with_setter.nestml";
   private static final String COND_MODEL_IMPLICIT = "models/iaf_cond_alpha_implicit.nestml";
   private static final String COND_MODEL_WITH_ODE = "models/iaf_cond_alpha.nestml";
   private static final String MODEL_PATH = "src/test/resources";
@@ -86,4 +87,13 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
     generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
   }
 
+  @Test
+  public void testNeuronWithSetter() {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(NEURON_WITH_SETTER, MODEL_PATH);
+    scopeCreator.runSymbolTableCreator(root);
+    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock);
+
+    generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
+    generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
+  }
 }

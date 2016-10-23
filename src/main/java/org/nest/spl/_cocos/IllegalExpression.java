@@ -79,7 +79,7 @@ public class IllegalExpression implements
       }
       else {
         final String errorDescription = initializerExpressionType.getError() +
-                                        "Problem with the expression: " + AstUtils.toString(node.getExpr().get());
+                                        ": Problem with the expression: " + AstUtils.toString(node.getExpr().get());
         undefinedTypeError(node, errorDescription);
       }
 
@@ -98,7 +98,7 @@ public class IllegalExpression implements
 
     if (exprType.isError()) {
       final String errorDescription = exprType.getError() +
-                                      "Problem with the expression: " + AstUtils.toString(node.getExpr());
+                                      ". Problem with the expression: " + AstUtils.toString(node.getExpr());
       undefinedTypeError(node, errorDescription);
     }
 
@@ -120,7 +120,7 @@ public class IllegalExpression implements
 
     if (exprType.isError()) {
       final String errorDescription = exprType.getError() +
-                                      "Problem with the expression: " + AstUtils.toString(node.getExpr());
+                                      ". Problem with the expression: " + AstUtils.toString(node.getExpr());
       undefinedTypeError(node, errorDescription);
     }
 
