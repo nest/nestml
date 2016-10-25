@@ -59,12 +59,18 @@ class Reporter {
     return reporter;
   }
 
+  public void repostProgress(final String message) {
+    System.out.printf(message);
+  }
+
   void addSystemInfo(final String message, final Level level) {
     systemReports.add(level + ": " + message);
+    System.out.println(level + ": " + message);
   }
 
   void addArtifactInfo(final String artifactName, final String message, final Level level) {
     artifactReports.put(artifactName, level + ": " + message);
+    System.out.println(artifactName + " : " + level + " : " + message);
   }
 
   void printReports(final PrintStream info, final PrintStream err) {
