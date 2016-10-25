@@ -54,4 +54,4 @@ USER tester
 
 
 # Define default command.
-ENTRYPOINT ["java", "-jar", "/data/nestml/target/nestml.jar", "/nestml", "--target", "/nestml/result"]
+# Entry point is constructed in the invoking script
