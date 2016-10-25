@@ -43,4 +43,4 @@ RUN chown -R tester:tester /home/tester
 USER tester
 
 # Define default command.
-
+# Entry point is constructed in the invoking script
