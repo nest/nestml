@@ -13,8 +13,8 @@ import org.apache.commons.io.FilenameUtils;
 import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.nestml._symboltable.NestmlCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.nestml._symboltable.NestmlCoCosManager;
 import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static de.se_rwth.commons.logging.Log.info;
 import static java.util.stream.Collectors.toList;
 import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
@@ -53,11 +52,20 @@ public class CliConfigurationExecutor {
     final NESTMLParser parser =  new NESTMLParser(config.getInputBase());
     final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getInputBase());
 
-    cleanUpWorkingFolder(config.getTargetPath());
-    processNestmlModels(modelRoots, config, scopeCreator, generator);
-    formatGeneratedCode(config.getTargetPath());
+    if (!modelRoots.isEmpty()) {
+      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getInputBase());
+      reporter.reportProgress("Finished parsing nestml mdoels...");
+      reporter.reportProgress("Remove temporary files...");
+      cleanUpWorkingFolder(config.getTargetPath());
+
+      processNestmlModels(modelRoots, config, scopeCreator, generator);
+
+      reporter.reportProgress("Format generated code...");
+      formatGeneratedCode(config.getTargetPath());
+
+    }
+
     reporter.printReports(System.out, System.out);
   }
 
@@ -65,6 +73,7 @@ public class CliConfigurationExecutor {
       final List<Path> nestmlModelFiles,
       final NESTMLParser parser) {
     final List<ASTNESTMLCompilationUnit> modelRoots = Lists.newArrayList();
+    boolean isError = false;
     for (final Path modelFile:nestmlModelFiles) {
       try {
         final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelFile.toString());
@@ -76,25 +85,30 @@ public class CliConfigurationExecutor {
               Reporter.Level.INFO);
         }
         else {
-          Log.error("Cannot parse the artifact " + modelFile.toString() + " due to parser errors.");
           reporter.addArtifactInfo(
-              FilenameUtils.removeExtension(modelFile.getFileName().toString()),
+              modelFile.getFileName().toString(),
               "The artifact is unparsable, cf. log.",
               Reporter.Level.ERROR);
+          isError = true;
         }
 
       }
       catch (IOException e) {
-        Log.error("Cannot parse the artifact: " + modelFile.toString(), e);
         reporter.addArtifactInfo(
             FilenameUtils.removeExtension(modelFile.getFileName().toString()),
             "The artifact is unparsable, cf. log.",
             Reporter.Level.ERROR);
+        isError = true;
       }
 
     }
+    if (!isError) {
+      return modelRoots;
+    }
+    else {
+      return Lists.newArrayList();
+    }
 
-    return modelRoots;
   }
 
   private void cleanUpWorkingFolder(final Path targetPath) {
@@ -108,6 +122,7 @@ public class CliConfigurationExecutor {
       final NestCodeGenerator generator) {
 
     for (ASTNESTMLCompilationUnit modelRoot:modelRoots) {
+
       scopeCreator.runSymbolTableCreator(modelRoot);
       final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
       if (symbolTableFindings.isEmpty()) {
@@ -127,7 +142,6 @@ public class CliConfigurationExecutor {
     }
     else {
       final String msg = " Models contain semantic error(s), therefore, no codegeneration is possible";
-      Log.error(LOG_NAME + ":" + msg);
       reporter.addSystemInfo(msg, Reporter.Level.ERROR);
     }
 
@@ -145,17 +159,16 @@ public class CliConfigurationExecutor {
       generator.generateNESTModuleCode(modelRoots, modelName, config.getTargetPath());
     }
     else {
-      Log.warn("Cannot generate module code, since there is no parsable neuron in " + config.getInputBase());
+      reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getInputBase());
     }
 
   }
 
   private void generateNeuronCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
+      reporter.reportProgress("Generate NEST code from the artifact: " + root.getFullName() + "...");
       generator.analyseAndGenerate(root, config.getTargetPath());
-
       final String msg = "NEST code for the artifact: " + root.getFullName() + " is generated.";
-      Log.info(msg, LOG_NAME);
       reporter.addArtifactInfo(root.getArtifactName(), msg, Reporter.Level.INFO);
     }
 
@@ -166,8 +179,7 @@ public class CliConfigurationExecutor {
     if (config.isCheckCoCos()) {
       final Map<String, List<Finding>> findingsToModel = Maps.newHashMap();
 
-      Log.info("Checks context conditions.", LOG_NAME);
-
+      reporter.reportProgress("Check context conditions...");
       for (ASTNESTMLCompilationUnit root:modelRoots) {
         Log.getFindings().clear(); // clear it to determine which errors are produced through the current model
 
@@ -203,10 +215,10 @@ public class CliConfigurationExecutor {
       res.waitFor();
       getListFromStream(res.getInputStream()).forEach(m -> Log.trace("Log: " + m, LOG_NAME));
       getListFromStream(res.getErrorStream()).forEach(m -> Log.warn("Error: " + m));
-      info("Formatted generates sources in: " + targetPath.toString(), LOG_NAME);
+      reporter.addSystemInfo("Formatted generates sources in: " + targetPath.toString(), Reporter.Level.INFO);
     }
     catch (IOException | InterruptedException e) {
-      Log.warn("Cannot format generated sources in: " + targetPath.toString(), e);
+      reporter.addSystemInfo("Formatted generates sources in: " + targetPath.toString(), Reporter.Level.INFO);
     }
 
   }
