@@ -13,7 +13,6 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 
 import java.io.*;
-import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,7 +21,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static de.se_rwth.commons.logging.Log.trace;
 
 /**
  * Handles available options set at the tool invocation. Makes minimal checks of the infrastructure:
@@ -77,14 +75,13 @@ public class NestmlFrontend {
 
       }
       else {
-        final String msg = "The execution environment is not installed properly.";
-        Log.error(msg);
+        final String msg = "The execution environment is not installed properly. Execution will be terminated.";
         reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       }
 
     }
     else {
-      reporter.addSystemInfo("The tool must get one argumet with the path to the model folder", Reporter.Level.ERROR);
+      reporter.addSystemInfo("The tool must get one argument with the path to the model folder", Reporter.Level.ERROR);
       formatter.printHelp("NESTML frontend: ", options);
     }
 
@@ -114,10 +111,11 @@ public class NestmlFrontend {
     try {
       FilesHelper.createFolders(cliConfiguration.getTargetPath());
     }
+
     catch (final Exception e) {
-      Log.error("Cannot create output folder. If you are running from docker, check if the folder provided" +
-                "exists and/or the corresponding user", e);
-      reporter.addSystemInfo("Cannot create folders and artifacts due to missing permissions", Reporter.Level.ERROR);
+      final String msg = "Cannot create output folder. If you are running from docker, check if the folder provided " +
+                         "exists and/or the corresponding user. Execution will be terminated.";
+      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       return false;
     }
 
@@ -129,14 +127,12 @@ public class NestmlFrontend {
         PYTHON_CHECK_SCRIPT,
         PYTHON_VERSION_TEST_OUTPUT,
         cliConfiguration.getTargetPath())) {
-      final String msg = "Install Python the in minimal version 2.7";
-      Log.error(msg);
+      final String msg = "Install Python the in minimal version 2.7. Execution will be terminated.";
       reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       isError = true;
     }
     else {
       final String msg = "Correct python version is installed";
-      Log.info(msg, LOG_NAME);
       reporter.addSystemInfo(msg, Reporter.Level.INFO);
     }
 
@@ -146,13 +142,11 @@ public class NestmlFrontend {
         SYMPY_VERSION_TEST_OUTPUT,
         cliConfiguration.getTargetPath())) {
       final String msg = "Install SymPy in minimal version 1.0.1.dev, e.g. from github";
-      Log.error(msg);
       reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       isError = true;
     }
     else {
       final String msg = "Correct SymPy is installed.";
-      Log.info(msg, LOG_NAME);
       reporter.addSystemInfo(msg, Reporter.Level.INFO);
     }
 
@@ -191,7 +185,6 @@ public class NestmlFrontend {
     }
     catch (IOException e) {
       final String msg = "Cannot read python check file.";
-      Log.error(msg, e);
       reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       return false;
     }
@@ -203,7 +196,6 @@ public class NestmlFrontend {
       final String checkScript,
       final String copiedScriptName,
       final Path outputFolder) {
-    trace("Evaluate script " + copiedScriptName, LOG_NAME);
     try {
       copyScript(checkScript, copiedScriptName, outputFolder);
 
@@ -218,7 +210,7 @@ public class NestmlFrontend {
       long elapsedTime = end - start;
       final String msg = "Successfully evaluated script. Elapsed time: "
           + (double) elapsedTime / 1000000000.0 +  " [s]";
-      trace(msg, LOG_NAME);
+      Log.trace(msg, LOG_NAME);
 
       getListFromStream(res.getErrorStream()).forEach(Log::error);
       getListFromStream(res.getInputStream()).forEach(entry -> Log.info(entry, LOG_NAME));
