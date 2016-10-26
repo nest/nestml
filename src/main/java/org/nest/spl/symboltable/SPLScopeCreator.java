@@ -18,43 +18,37 @@ import java.nio.file.Paths;
 /**
  * TODO: Write me!
  *
- * @author plotnikov
- * @since 0.0.2
  */
 public class SPLScopeCreator extends ScopeCreatorBase {
 
-  private static final String LOGGER_NAME = SPLScopeCreator.class.getName();
-
-  private final GlobalScope globalScope;
-
-  final SPLSymbolTableCreator symbolTableCreator;
+  private GlobalScope globalScope;
+  private final ModelPath modelPath;
+  private final ResolverConfiguration resolverConfiguration;
+  final SPLLanguage splLanguage;
 
   public GlobalScope getGlobalScope() {
     return globalScope;
   }
 
   public SPLScopeCreator(final String modelPathAsString) {
+    modelPath = new ModelPath(Paths.get(modelPathAsString));
 
-    final ModelPath modelPath = new ModelPath(Paths.get(modelPathAsString));
+    splLanguage = new SPLLanguage();
+    resolverConfiguration = new ResolverConfiguration();
+    resolverConfiguration.addDefaultFilters(splLanguage.getResolvers());
+  }
 
-    final SPLLanguage splLanguage = new SPLLanguage();
-
-    final ResolverConfiguration resolverConfiguration = new ResolverConfiguration();
-    resolverConfiguration.addTopScopeResolvers(splLanguage.getResolvers());
-
+  public Scope runSymbolTableCreator(final ASTSPLFile compilationUnit) {
     globalScope = new GlobalScope(
         modelPath,
         splLanguage,
         resolverConfiguration);
 
-    addPredefinedTypes(globalScope);
-    addPredefinedFunctions(globalScope);
-    addPredefinedVariables(globalScope);
+    final CommonSPLSymbolTableCreator symbolTableCreator = new CommonSPLSymbolTableCreator(
+        resolverConfiguration,
+        globalScope);
 
-    symbolTableCreator = new CommonSPLSymbolTableCreator(resolverConfiguration, globalScope);
-  }
-
-  public Scope runSymbolTableCreator(final ASTSPLFile compilationUnit) {
+    Scope result = symbolTableCreator.createFromAST(compilationUnit);
     return symbolTableCreator.createFromAST(compilationUnit);
   }
 

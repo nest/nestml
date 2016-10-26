@@ -1,0 +1,4 @@
+module org.nest.spl._cocos.varWithTypeName
+#real real = 15 #TODO: can be improved or replace
+MSS ms = 15
+VV integer = 11

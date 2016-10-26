@@ -35,16 +35,16 @@ public class VariableDoesNotExist implements
     SPLASTReturnStmtCoCo,
     SPLASTCompound_StmtCoCo {
 
-  public static final String ERROR_CODE = "SPL_VARIABLE_DOES_NOT_EXIST";
-  private static final String ERROR_MSG_FORMAT = "The variable %s is not defined in %s.";
-
   @Override
   public void check(final ASTCompound_Stmt node) {
     if (node.getIF_Stmt().isPresent()) {
       checkExpression(node.getIF_Stmt().get().getIF_Clause().getExpr());
+      node.getIF_Stmt().get().getELIF_Clauses().forEach(elifAst -> checkExpression(elifAst.getExpr()));
     }
     else if (node.getFOR_Stmt().isPresent()) {
       checkVariableByName(node.getFOR_Stmt().get().getVar(), node);
+      checkExpression(node.getFOR_Stmt().get().getFrom());
+      checkExpression(node.getFOR_Stmt().get().getTo());
     }
     else if (node.getWHILE_Stmt().isPresent()) {
       checkExpression(node.getWHILE_Stmt().get().getExpr());
@@ -99,8 +99,7 @@ public class VariableDoesNotExist implements
       final String variableName = variable.toString();
 
       if (!exists(variableName, scope)) {
-        final String errorMsg = ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, variableName,
-            scope.getName().orElse(""));
+        final String errorMsg = SplCocoStrings.message(this, variableName, expr.get_SourcePositionStart());
         error(errorMsg, variable.get_SourcePositionStart());
       }
 
@@ -113,9 +112,8 @@ public class VariableDoesNotExist implements
     final Scope scope = node.getEnclosingScope().get();
 
     if (!exists(variableName, scope)) {
-      error(ERROR_CODE + ":" +
-              String.format(ERROR_MSG_FORMAT, variableName, scope.getName().orElse("")),
-          node.get_SourcePositionStart());
+      final String errorMsg = SplCocoStrings.message(this, variableName, node.get_SourcePositionStart());
+      error(errorMsg, node.get_SourcePositionStart());
     }
 
   }

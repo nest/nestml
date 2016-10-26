@@ -5,8 +5,6 @@
  */
 package org.nest.nestml._cocos;
 
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-
 /**
  * Factory for CoCo error strings. The dispatch is done by the static type of the context condition object.
  *
@@ -14,7 +12,6 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
  */
 public class CocoErrorStrings {
   private static CocoErrorStrings instance = new CocoErrorStrings();
-  final NESTMLPrettyPrinter printer = NESTMLPrettyPrinter.Builder.build();
   private CocoErrorStrings() {
   }
 

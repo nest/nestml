@@ -21,8 +21,6 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getTypeIfExists;
  * @author ippen, plotnikov
  */
 public class VarHasTypeName implements SPLASTDeclarationCoCo {
-  public static final String ERROR_CODE = "SPL_VARIABLE_HAS_TYPE_NAME";
-  private static final String ERROR_MSG_FORMAT = "Variable '%s' cannot have the same name as a type.";
 
   @Override
   public void check(final ASTDeclaration astDeclaration) {
@@ -35,14 +33,12 @@ public class VarHasTypeName implements SPLASTDeclarationCoCo {
       Optional<TypeSymbol> tmp = getTypeIfExists(var);
       // could resolve type as variable, report an error
       if (res.isPresent()) {
-        Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, var),
+        Log.error(SplCocoStrings.message(this, var, astDeclaration.get_SourcePositionStart()),
             astDeclaration.get_SourcePositionEnd());
       }
 
     }
 
   }
-
-
 
 }

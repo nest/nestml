@@ -1,0 +1,18 @@
+module org.nest.spl._cocos.varDefinedMultipleTimes
+z real
+if 1>0 :
+  x real
+  z real
+end
+
+x real
+while true:
+  zz real
+end
+
+t real
+h integer
+for h in 0 ... 10:
+  t1 integer
+  t2 integer
+end
