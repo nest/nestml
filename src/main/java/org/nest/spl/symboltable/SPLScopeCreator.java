@@ -43,12 +43,14 @@ public class SPLScopeCreator extends ScopeCreatorBase {
         modelPath,
         splLanguage,
         resolverConfiguration);
+    addPredefinedFunctions(globalScope);
+    addPredefinedTypes(globalScope);
+    addPredefinedVariables(globalScope);
 
     final CommonSPLSymbolTableCreator symbolTableCreator = new CommonSPLSymbolTableCreator(
         resolverConfiguration,
         globalScope);
 
-    Scope result = symbolTableCreator.createFromAST(compilationUnit);
     return symbolTableCreator.createFromAST(compilationUnit);
   }
 
