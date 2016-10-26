@@ -55,12 +55,12 @@ class Reporter {
    *
    * @return the instance of the reporter
    */
-  public static Reporter get() {
+public static Reporter get() {
     return reporter;
   }
 
-  public void repostProgress(final String message) {
-    System.out.printf(message);
+  void reportProgress(final String message) {
+    System.out.println(message);
   }
 
   void addSystemInfo(final String message, final Level level) {
@@ -70,7 +70,6 @@ class Reporter {
 
   void addArtifactInfo(final String artifactName, final String message, final Level level) {
     artifactReports.put(artifactName, level + ": " + message);
-    System.out.println(artifactName + " : " + level + " : " + message);
   }
 
   void printReports(final PrintStream info, final PrintStream err) {
@@ -84,7 +83,7 @@ class Reporter {
     systemReports.forEach(report -> printEntry(report, info, err));
     error.ifPresent(errorMessage -> err.println(
         errorMessage.getKey() + " contains some errors: " + errorMessage.getValue() + ". Code generation was canceled."));
-    info.println("-----------------Artifact summary-------------------------");
+    info.println("-----------------Neurons---------------------------------");
     artifactReports.entries().forEach(entry -> printEntry(entry, info, err));
     info.println("-----------------Statistics ------------------------------");
     info.println("Overall " + artifactReports.keySet().size() + " NESTML artifact(s) found and processed");
