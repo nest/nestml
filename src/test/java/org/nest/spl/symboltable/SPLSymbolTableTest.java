@@ -35,7 +35,6 @@ public class SPLSymbolTableTest {
         "src/test/resources/org/nest/spl/parsing/decl.simple");
     assertTrue(root.isPresent());
 
-
     SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
     splScopeCreator.runSymbolTableCreator(root.get());
 

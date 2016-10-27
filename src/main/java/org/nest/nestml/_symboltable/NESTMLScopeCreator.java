@@ -30,7 +30,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   private GlobalScope globalScope;
   private final ModelPath modelPath;
   private final ResolverConfiguration resolverConfiguration;
-  private final NESTMLLanguage nestmlLanguages;
+  private final NESTMLLanguage nestmlLanguage;
   private final NestmlCoCosManager nestmlCoCosManager = new NestmlCoCosManager();
 
   public GlobalScope getGlobalScope() {
@@ -41,16 +41,16 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
 
     modelPath = new ModelPath(modelPathAsString);
 
-    nestmlLanguages = new NESTMLLanguage();
+    nestmlLanguage = new NESTMLLanguage();
 
     resolverConfiguration = new ResolverConfiguration();
-    resolverConfiguration.addDefaultFilters(nestmlLanguages.getResolvers());
+    resolverConfiguration.addDefaultFilters(nestmlLanguage.getResolvers());
   }
 
   public Scope runSymbolTableCreator(final ASTNESTMLCompilationUnit compilationUnit) {
     globalScope = new GlobalScope(
         modelPath,
-        nestmlLanguages,
+        nestmlLanguage,
         resolverConfiguration);
 
     final NESTMLSymbolTableCreator symbolTableCreator = new NESTMLSymbolTableCreator(

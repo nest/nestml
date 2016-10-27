@@ -23,8 +23,6 @@ import java.util.stream.Collectors;
  * @author ippen, plotnikov
  */
 public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
-  public static final String ERROR_CODE = "SPL_VARIABLE_EXISTS_MULTIPLE_TIMES";
-  private static final String ERROR_MSG_FORMAT = "The variable %s defined multiple times.";
 
   @Override
   public void check(final ASTBlock astBlock) {
@@ -44,12 +42,11 @@ public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
       final Scope scope = astDeclaration.getEnclosingScope().get();
       for (String var : astDeclaration.getVars()) {
         checkIfVariableDefinedMultipleTimes(var, scope, astDeclaration);
-
       }
 
     }
     else {
-      Log.warn(ERROR_CODE + ": Run the symboltable creator before.");
+      Log.warn(SplCocoStrings.code(this) + ": Run the symboltable creator before.");
     }
 
   }
@@ -57,7 +54,7 @@ public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
   private void checkIfVariableDefinedMultipleTimes(String var, Scope scope, ASTNode astDeclaration) {
     final Collection<Symbol> symbols = scope.resolveMany(var, VariableSymbol.KIND);
     if (symbols.size() > 1) {
-      Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, var), astDeclaration.get_SourcePositionStart());
+      Log.error(SplCocoStrings.message(this, var, astDeclaration.get_SourcePositionStart()));
     }
 
   }

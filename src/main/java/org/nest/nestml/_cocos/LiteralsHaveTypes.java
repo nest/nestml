@@ -238,7 +238,7 @@ public class LiteralsHaveTypes implements
     }
     if(expr.nESTMLNumericLiteralIsPresent()){
       if(!expr.getNESTMLNumericLiteral().get().getType().isPresent()){
-        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        SplCocoStrings errorStrings = SplCocoStrings.getInstance();
         final String msg = errorStrings.getErrorMsgConditional(this);
         Log.warn(msg, expr.get_SourcePositionStart());
       }
