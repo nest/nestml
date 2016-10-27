@@ -10,12 +10,12 @@ package org.nest.nestml._cocos;
  *
  * @author plotnikov, traeder
  */
-public class CocoErrorStrings {
-  private static CocoErrorStrings instance = new CocoErrorStrings();
-  private CocoErrorStrings() {
+public class NestmlErrorStrings {
+  private static NestmlErrorStrings instance = new NestmlErrorStrings();
+  private NestmlErrorStrings() {
   }
 
-  public static CocoErrorStrings getInstance() {
+  public static NestmlErrorStrings getInstance() {
     return instance;
   }
 

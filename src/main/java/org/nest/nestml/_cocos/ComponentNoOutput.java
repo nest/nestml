@@ -25,7 +25,7 @@ public class ComponentNoOutput implements NESTMLASTComponentCoCo {
     ASTBody bodyDecorator = (comp.getBody());
     if (bodyDecorator.getOutputs() != null) {
       if (!bodyDecorator.getOutputs().isEmpty()) {
-        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this);
 
        error(msg, comp.get_SourcePositionStart());

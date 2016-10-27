@@ -34,7 +34,7 @@ public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
     if (iter.isPresent()) {
       TypeChecker tc = new TypeChecker();
       if (!tc.checkNumber(iter.get().getType())) {
-        final String msg = SplCocoStrings.message(
+        final String msg = SplErrorStrings.message(
             this,
             iterName,
             iter.get().getType().getName(),
@@ -43,7 +43,7 @@ public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
       }
     }
     else {
-      Log.warn(SplCocoStrings.code(this) + ": Cannot check coco, since the variable " + iterName + " is undefined.");
+      Log.warn(SplErrorStrings.code(this) + ": Cannot check coco, since the variable " + iterName + " is undefined.");
     }
 
   }

@@ -24,7 +24,7 @@ public class CurrentInputIsNotInhExc implements NESTMLASTInputLineCoCo {
   public void check(ASTInputLine inputLine) {
     if (inputLine.isCurrent() ) {
       if (!inputLine.getInputTypes().isEmpty()) {
-        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this);
        error(msg, inputLine.get_SourcePositionStart());
       }

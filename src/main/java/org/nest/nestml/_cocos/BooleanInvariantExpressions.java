@@ -20,7 +20,7 @@ import org.nest.utils.AstUtils;
 class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
 
   public static final String ERROR_CODE = "NESTML_INVARIANTS_WITH_CORRECT_VARIABLES";
-  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
 
   public void check(final ASTAliasDecl alias) {
