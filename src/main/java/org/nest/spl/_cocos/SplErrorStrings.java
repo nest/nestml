@@ -125,10 +125,18 @@ public class SplErrorStrings {
       final String realType,
       final String expressionType,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "Cannot initialize variable  %s of type " + realType +
-                                    " with an expression of type %s" ;
+    final String ERROR_MSG_FORMAT = "Cannot initialize variable %s of type %s with an expression of type %s" ;
 
-    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
+    return code(coco) + " " + sourcePosition + " : " + String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
+  }
+
+  static String messageNonBoolean(
+      final IllegalExpression coco,
+      final String expressionType,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "Cannot use non boolean expression of type %s";
+
+    return code(coco) + " " + sourcePosition + " : " + String.format(ERROR_MSG_FORMAT, expressionType);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
