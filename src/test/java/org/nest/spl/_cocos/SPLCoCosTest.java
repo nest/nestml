@@ -176,7 +176,7 @@ public class SPLCoCosTest {
     checkModelAndAssertWithErrors(
         Paths.get(TEST_INVALID_MODELS_FOLDER, "illegalNumberExpressions.simple"),
         splCoCoChecker,
-        SPL_ILLEGAL_EXPRESSION.ERROR_CODE,
+        SplErrorStrings.code(illegalExpression),
         10);
   }
 

@@ -119,14 +119,16 @@ public class SplErrorStrings {
   }
 
 
-  static String message(
+  static String messageInitType(
       final IllegalExpression coco,
       final String variable,
-      final String type,
+      final String realType,
+      final String expressionType,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "The type of the iterator variable %s in a for-loop must be numeric and not: '%s' .";
+    final String ERROR_MSG_FORMAT = "Cannot initialize variable  %s of type " + realType +
+                                    " with an expression of type %s" ;
 
-    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
+    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
