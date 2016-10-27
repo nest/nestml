@@ -60,11 +60,14 @@ public class IllegalExpression implements
         if (!isCompatible(variableDeclarationType, initializerExpressionType.getValue())) {
           if (variableDeclarationType.getType().equals(TypeSymbol.Type.UNIT) &&
               initializerExpressionType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
-            final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
-                + variableDeclarationType.prettyPrint()+" with an expression of type: " +
-                initializerExpressionType.getValue().prettyPrint() +
-                node.get_SourcePositionStart();
-            warn(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+
+            final String msg = SplErrorStrings.messageInitType(
+                this,
+                varNameFromDeclaration,
+                variableDeclarationType.prettyPrint(),
+                initializerExpressionType.getValue().prettyPrint(),
+                node.get_SourcePositionStart());
+            warn(msg, node.get_SourcePositionStart());
           }
           else {
             final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
@@ -97,8 +100,7 @@ public class IllegalExpression implements
     }
 
     if (exprType.isError()) {
-      final String errorDescription = exprType.getError() +
-                                      ". Problem with the expression: " + AstUtils.toString(node.getExpr());
+      final String errorDescription = exprType.getError() + ". Problem with the expression: " + AstUtils.toString(node.getExpr());
       undefinedTypeError(node, errorDescription);
     }
 

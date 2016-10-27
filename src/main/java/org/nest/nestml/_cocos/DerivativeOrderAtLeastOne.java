@@ -19,7 +19,7 @@ import org.nest.ode._cocos.ODEASTEquationCoCo;
  */
 public class DerivativeOrderAtLeastOne implements ODEASTEquationCoCo {
   public static final String ERROR_CODE = "NESTML_DERIVATIVE_ORDER_AT_LEAST_ONE";
-  private final CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  private final NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   @Override
   public void check(final ASTEquation astEq) {

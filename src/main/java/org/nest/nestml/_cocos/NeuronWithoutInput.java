@@ -28,7 +28,7 @@ public class NeuronWithoutInput implements NESTMLASTNeuronCoCo {
     final List<ASTInputLine> inputs = bodyDecorator.getInputLines();
 
     if (inputs.isEmpty()) {
-      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
       final String msg = errorStrings.getErrorMsg(this);
 
      error(msg, neuron.get_SourcePositionStart());

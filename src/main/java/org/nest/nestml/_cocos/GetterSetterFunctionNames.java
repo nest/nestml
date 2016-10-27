@@ -26,7 +26,7 @@ import static de.se_rwth.commons.logging.Log.error;
 public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "NESTML_GETTER_SETTER_FUNCTION_NAMES";
-  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTFunction fun) {
     String funName = fun.getName();

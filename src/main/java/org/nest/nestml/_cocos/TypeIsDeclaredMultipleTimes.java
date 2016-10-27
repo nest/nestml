@@ -43,7 +43,7 @@ public class TypeIsDeclaredMultipleTimes implements NESTMLASTComponentCoCo, NEST
       node.getEnclosingScope().get().resolve(name, NeuronSymbol.KIND);
     }
     catch (ResolvedSeveralEntriesException e) {
-      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
       final String msg = errorStrings.getErrorMsg(this, name);
 
      error(msg, node.get_SourcePositionEnd());

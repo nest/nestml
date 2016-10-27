@@ -84,7 +84,7 @@ public class MemberVariableDefinedMultipleTimes implements
       final Map<String, SourcePosition> names,
       final ASTNode astNode) {
     if (names.containsKey(var)) {
-      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
       final String msg = errorStrings.getErrorMsg(this,var,
               names.get(var).getLine(),
               names.get(var).getColumn());

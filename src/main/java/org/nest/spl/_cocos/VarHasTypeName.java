@@ -33,7 +33,7 @@ public class VarHasTypeName implements SPLASTDeclarationCoCo {
       Optional<TypeSymbol> tmp = getTypeIfExists(var);
       // could resolve type as variable, report an error
       if (res.isPresent()) {
-        Log.error(SplCocoStrings.message(this, var, astDeclaration.get_SourcePositionStart()),
+        Log.error(SplErrorStrings.message(this, var, astDeclaration.get_SourcePositionStart()),
             astDeclaration.get_SourcePositionEnd());
       }
 

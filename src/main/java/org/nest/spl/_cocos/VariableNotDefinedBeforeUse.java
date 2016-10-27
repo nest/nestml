@@ -58,13 +58,13 @@ public class VariableNotDefinedBeforeUse implements
         final VariableSymbol variableSymbol =VariableSymbol.resolve(varRHS, scope);
         // e.g. x real = 2 * x
         if (varsOfCurrentDecl.contains(varRHS)) {
-          final String logMsg = SplCocoStrings.messageOwnAssignment(this, varRHS, decl.get_SourcePositionStart());
+          final String logMsg = SplErrorStrings.messageOwnAssignment(this, varRHS, decl.get_SourcePositionStart());
           error(logMsg, decl.get_SourcePositionStart());
         }
         else if (variable.get_SourcePositionStart().compareTo(variableSymbol.getAstNode().get().get_SourcePositionStart()) < 0) {
           // y real = 5 * x
           // x integer = 1
-          final String logMsg = SplCocoStrings.messageDefinedBeforeUse(this, variable.toString(), decl.get_SourcePositionStart());
+          final String logMsg = SplErrorStrings.messageDefinedBeforeUse(this, variable.toString(), decl.get_SourcePositionStart());
           error(logMsg, decl.get_SourcePositionStart());
         }
 
@@ -83,7 +83,7 @@ public class VariableNotDefinedBeforeUse implements
     if(varOptional.isPresent()) {
       // exists
       if (node.get_SourcePositionStart().compareTo(varOptional.get().getSourcePosition()) < 0) {
-        final String msg = SplCocoStrings.messageDefinedBeforeUse(
+        final String msg = SplErrorStrings.messageDefinedBeforeUse(
             this,
             varName,
             node.get_SourcePositionStart(),
@@ -93,7 +93,7 @@ public class VariableNotDefinedBeforeUse implements
 
     }
     else {
-      Log.warn(SplCocoStrings.code(this) + ": " +  "Variable " + varName + " couldn't be resolved.");
+      Log.warn(SplErrorStrings.code(this) + ": " + "Variable " + varName + " couldn't be resolved.");
     }
 
   }

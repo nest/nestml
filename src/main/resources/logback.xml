@@ -7,14 +7,6 @@
             <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <appender name="default.file" class="org.apache.log4j.FileAppender">
-        <param name="file" value="nestml_log.log" />
-        <param name="append" value="false" />
-        <param name="threshold" value="trace" />
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n" />
-        </layout>
-    </appender>
 
     <root level="error">
         <appender-ref ref="STDOUT" />

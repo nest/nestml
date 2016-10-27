@@ -20,7 +20,7 @@ public class NeuronNeedsDynamics implements NESTMLASTNeuronCoCo {
 
 
   public static final String ERROR_CODE = "NESTML_NEURON_NEEDS_DYNAMICS";
-  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
 
   public void check(final ASTNeuron neuron) {

@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
   public static final String ERROR_CODE = "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
-  private final CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  private final NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   @Override
   public void check(final ASTEquation astEq) {
