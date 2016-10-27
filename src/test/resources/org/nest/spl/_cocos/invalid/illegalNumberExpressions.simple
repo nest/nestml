@@ -24,6 +24,11 @@ elif "abc" > "bca": # ok? 14 no comparison
 
 end
 
+while 1ms:
+end
 # TODO refactor it into good models
 if true and true:
 end
+
+foo1 string = 1mS
+foo2 integer = 1ms

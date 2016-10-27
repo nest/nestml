@@ -56,7 +56,10 @@ public class TypeSymbol extends CommonSymbol {
       UnitRepresentation unitRepresentation = new UnitRepresentation(getName());
       return unitRepresentation.prettyPrint();
     }
-    return getName(); //primitive and buffer
+    else {
+      return getName(); //primitive and buffer
+    }
+
   }
 
   @Override
