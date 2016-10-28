@@ -48,6 +48,6 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
     //Error message for any other operation
     final String errorMsg = "This operation expects both operands of a numeric type.";
     expr.setType(Either.error(errorMsg));
-    return;
   }
+
 }
