@@ -7,6 +7,7 @@ RUN apk --update add wget
 RUN apk --update add python-dev
 RUN apk --update add clang # for clang-format
 RUN apk --update add g++   # is required by sympy
+RUN apk --update add sudo
 
 # Set environment
 ENV JAVA_HOME /usr/bin/java
@@ -28,19 +29,8 @@ RUN python setup.py install
 WORKDIR /data
 RUN wget https://github.com/nest/nestml/releases/download/1.2.3/nestml.jar
 
-# create a non-root user named tester,
-# give them the password "tester" put them in the sudo group
-RUN adduser tester -h /home/tester -D
-USER tester
-
-# start working in the "tester" home directory
-WORKDIR /home/tester
-
-# Make the files owned by tester
-RUN chown -R tester:tester /home/tester
-
-# Switch to your new user in the docker image
-USER tester
-
 # Define default command.
 # Entry point is constructed in the invoking script
+
+COPY ./entrypoint.sh /
+ENTRYPOINT ["/entrypoint.sh"]

@@ -1,15 +1,30 @@
 #!/bin/sh
-if [ $# -eq 1 ] 
-then
-    echo "Runs the release container"
-    echo "Please, provide one folder which contains models to process as script argument"
-    echo "Only an absolute path is supported at the moment"
-    export INPUT=$1
-    MOUNTED=/$(basename $INPUT)
-    echo "Uses model folder: " $INPUT
-    echo "Uses module name: " $MOUNTED
-    echo "Docker command: docker run -v "$INPUT":/"$MOUNTED" --entrypoint=java nestml_release -jar /data/nestml.jar "$MOUNTED" --target "$MOUNTED"/build"
-    docker run -v $INPUT:$MOUNTED --entrypoint=java nestml_release -jar /data/nestml.jar $MOUNTED --target $MOUNTED/build
-else
-    echo "Invalid arguments. Please pass only one argument pointing to the model fodler."
+
+if [ $# -ne 1 ]; then
+    echo "Error: wrong number of arguments."
+    echo "Usage: $0 <dir>"
+    exit 1
 fi
+
+if [ ! -d $1 ]; then
+    echo "Error: '$1' is not a directory."
+    echo "Usage: $0 <dir>"
+    exit 1
+fi
+
+echo "Executing the NESTML release container"
+
+hostpath=`cd $1; pwd`
+mountpath=`basename $hostpath`
+
+uid=`id -u`
+volume="$hostpath:/$mountpath"
+docker_img="nestml_release"
+
+echo "Running docker image $docker_img"
+echo "  Volume : $volume"
+echo "  User ID: $uid"
+
+cmd="docker run -v $volume -e UID=$uid $docker_img /$mountpath --target /$mountpath/build"
+
+echo $cmd
