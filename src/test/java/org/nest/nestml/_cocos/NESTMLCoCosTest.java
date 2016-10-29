@@ -7,7 +7,6 @@ package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
@@ -15,7 +14,7 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.spl._cocos.SplCocoStrings;
+import org.nest.spl._cocos.SplErrorStrings;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
@@ -551,13 +550,13 @@ public class NESTMLCoCosTest  {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        SplCocoStrings.code(varHasTypeName));
+        SplErrorStrings.code(varHasTypeName));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "varHasTypeName/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        SplCocoStrings.code(varHasTypeName),
+        SplErrorStrings.code(varHasTypeName),
         2);
   }
 

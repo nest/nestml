@@ -48,7 +48,7 @@ public class I_SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
    * Creates an error message for the {@code exprArgument}.
    */
   private void error(final ASTExpr exprArgument) {
-    CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+    NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
     final String msg = errorStrings.getErrorMsg(this, AstUtils.toString(exprArgument));
 
     Log.error(msg);

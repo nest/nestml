@@ -31,7 +31,7 @@ import static org.nest.spl.symboltable.typechecking.TypeChecker.checkVoid;
 public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "SPL_CORRECT_RETURN_VALUES";
-  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTFunction fun) {
     checkState(fun.getEnclosingScope().isPresent(),

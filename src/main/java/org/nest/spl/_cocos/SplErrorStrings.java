@@ -28,12 +28,12 @@ import de.se_rwth.commons.SourcePosition;
  *
  * @author plotnikov, traeder
  */
-public class SplCocoStrings {
+public class SplErrorStrings {
 
   /**
    * Use static methods to get codes and errors
    */
-  private SplCocoStrings() {
+  private SplErrorStrings() {
   }
 
   static String message(final VariableDoesNotExist coco, final String variable, SourcePosition sourcePosition){
@@ -116,5 +116,31 @@ public class SplCocoStrings {
   @SuppressWarnings({"unused"}) // used for the routing
   public static String code(final IllegalVarInFor coco) {
     return "SPL_ILLEGAL_VAR_IN_FOR";
+  }
+
+
+  static String messageInitType(
+      final IllegalExpression coco,
+      final String variable,
+      final String realType,
+      final String expressionType,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "Cannot initialize variable %s of type %s with an expression of type %s" ;
+
+    return code(coco) + " " + sourcePosition + " : " + String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
+  }
+
+  static String messageNonBoolean(
+      final IllegalExpression coco,
+      final String expressionType,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "Cannot use non boolean expression of type %s";
+
+    return code(coco) + " " + sourcePosition + " : " + String.format(ERROR_MSG_FORMAT, expressionType);
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  public static String code(final IllegalExpression coco) {
+    return "SPL_ILLEGAL_EXPRESSION";
   }
 }

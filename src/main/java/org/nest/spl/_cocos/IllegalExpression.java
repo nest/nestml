@@ -58,28 +58,27 @@ public class IllegalExpression implements
         variableDeclarationType = PredefinedTypes.getType(declarationTypeName);
         // TODO write a helper get assignable
         if (!isCompatible(variableDeclarationType, initializerExpressionType.getValue())) {
+          final String msg = SplErrorStrings.messageInitType(
+            this,
+            varNameFromDeclaration,
+            variableDeclarationType.prettyPrint(),
+            initializerExpressionType.getValue().prettyPrint(),
+            node.get_SourcePositionStart());
           if (variableDeclarationType.getType().equals(TypeSymbol.Type.UNIT) &&
               initializerExpressionType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
-            final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
-                + variableDeclarationType.prettyPrint()+" with an expression of type: " +
-                initializerExpressionType.getValue().prettyPrint() +
-                node.get_SourcePositionStart();
-            warn(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+            warn(msg, node.get_SourcePositionStart());
           }
           else {
-            final String msg = "Cannot initialize variable " +varNameFromDeclaration+" of type "
-                + variableDeclarationType.prettyPrint() +" with an expression of type: " +
-                initializerExpressionType.getValue().prettyPrint() +
-                node.get_SourcePositionStart();
-            error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+            error(msg, node.get_SourcePositionStart());
           }
 
         }
 
       }
       else {
-        final String errorDescription = initializerExpressionType.getError() +
-                                        ": Problem with the expression: " + AstUtils.toString(node.getExpr().get());
+        final String errorDescription = "Error hint: " + initializerExpressionType.getError()
+                                        + ". Problem with the following expression: "
+                                        + AstUtils.toString(node.getExpr().get());
         undefinedTypeError(node, errorDescription);
       }
 
@@ -92,13 +91,16 @@ public class IllegalExpression implements
     final Either<TypeSymbol, String> exprType = node.getExpr().getType().get();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
-      final String msg = "Cannot use non boolean expression of type " + exprType.getValue();
-      error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+
+      final String msg = SplErrorStrings.messageNonBoolean(
+          this,
+          exprType.getValue().prettyPrint(),
+          node.get_SourcePositionStart());
+      error(msg, node.get_SourcePositionStart());
     }
 
     if (exprType.isError()) {
-      final String errorDescription = exprType.getError() +
-                                      ". Problem with the expression: " + AstUtils.toString(node.getExpr());
+      final String errorDescription = exprType.getError() + ". Problem with the expression: " + AstUtils.toString(node.getExpr());
       undefinedTypeError(node, errorDescription);
     }
 
@@ -114,8 +116,12 @@ public class IllegalExpression implements
     final Either<TypeSymbol, String> exprType = node.getExpr().getType().get();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
-      final String msg = "Cannot use non boolean expression of type " + exprType.getValue();
-      error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
+      final String msg = SplErrorStrings.messageNonBoolean(
+          this,
+          exprType.getValue().prettyPrint(),
+          node.get_SourcePositionStart());
+      error(msg, node.get_SourcePositionStart());
+
     }
 
     if (exprType.isError()) {
@@ -128,19 +134,14 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTWHILE_Stmt node) {
-    try {
-      if (node.getExpr().getType().get().getValue() != getBooleanType()) {
-        final String msg = "Cannot use non boolean expression in a while statement " +
-            "@" + node.get_SourcePositionStart();
-       error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
-      }
-    }
-    catch (RuntimeException e) {
-      final String msg = "Cannot initialize variable with an expression of type: " +
-          "@" + node.get_SourcePositionStart();
-     error(ERROR_CODE + ":" +  msg, node.get_SourcePositionStart());
-    }
+    if (node.getExpr().getType().get().getValue() != getBooleanType()) {
+      final String msg = SplErrorStrings.messageNonBoolean(
+          this,
+          node.getExpr().getType().get().getValue().prettyPrint(),
+          node.get_SourcePositionStart());
+      error(msg, node.get_SourcePositionStart());
 
+    }
 
   }
 

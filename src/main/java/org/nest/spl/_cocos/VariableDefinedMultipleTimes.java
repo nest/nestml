@@ -46,7 +46,7 @@ public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
 
     }
     else {
-      Log.warn(SplCocoStrings.code(this) + ": Run the symboltable creator before.");
+      Log.warn(SplErrorStrings.code(this) + ": Run the symboltable creator before.");
     }
 
   }
@@ -54,7 +54,7 @@ public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
   private void checkIfVariableDefinedMultipleTimes(String var, Scope scope, ASTNode astDeclaration) {
     final Collection<Symbol> symbols = scope.resolveMany(var, VariableSymbol.KIND);
     if (symbols.size() > 1) {
-      Log.error(SplCocoStrings.message(this, var, astDeclaration.get_SourcePositionStart()));
+      Log.error(SplErrorStrings.message(this, var, astDeclaration.get_SourcePositionStart()));
     }
 
   }

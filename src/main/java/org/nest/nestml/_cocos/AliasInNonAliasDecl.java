@@ -81,7 +81,7 @@ public class AliasInNonAliasDecl implements NESTMLASTNeuronCoCo, NESTMLASTCompon
 
         // used is set here
         if (used.get().isAlias() && used.get().isVector()) {
-          CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+          NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
           final String msg = errorStrings.getErrorMsg(this,used.get().getName());
           error(msg, decl.get_SourcePositionStart());
         }

@@ -25,7 +25,9 @@ component IllegalNumberExpressions:
 
     elif "abc" > "bca": # ok?
 
-      end
+    end
+
+    foo1 ms = 1
   end
 
   function bar() integer:

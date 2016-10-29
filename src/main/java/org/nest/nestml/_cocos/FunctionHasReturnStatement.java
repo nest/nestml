@@ -50,7 +50,7 @@ public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
       // non void return type
       // if block not returning:
       if (isReturnBlock(fun.getBlock()) == null) {
-        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this, fun.getName(), fun.getReturnType().get().toString());
 
         Log.error(msg, fun.get_SourcePositionStart());
