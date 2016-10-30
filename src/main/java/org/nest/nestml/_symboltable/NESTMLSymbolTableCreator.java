@@ -132,7 +132,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     }
 
     // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
-    NESTMLCoCosManager nestmlCoCosManager = new NESTMLCoCosManager();
+    NestmlCoCosManager nestmlCoCosManager = new NestmlCoCosManager();
     final List<Finding> findings = nestmlCoCosManager.checkVariableUniqueness(astNeuron);
     if (findings.isEmpty()) {
       if (astNeuron.getBody().getODEBlock().isPresent()) {

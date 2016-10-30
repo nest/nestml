@@ -28,6 +28,7 @@ import de.se_rwth.commons.logging.Finding;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Collects all finding and statuses for artifacts and containing neurons.
@@ -54,12 +55,17 @@ class Reporter {
    *
    * @return the instance of the reporter
    */
-  public static Reporter get() {
+public static Reporter get() {
     return reporter;
+  }
+
+  void reportProgress(final String message) {
+    System.out.println(message);
   }
 
   void addSystemInfo(final String message, final Level level) {
     systemReports.add(level + ": " + message);
+    System.out.println(level + ": " + message);
   }
 
   void addArtifactInfo(final String artifactName, final String message, final Level level) {
@@ -67,14 +73,24 @@ class Reporter {
   }
 
   void printReports(final PrintStream info, final PrintStream err) {
+    Optional<Map.Entry<String, String>> error = artifactReports.
+        entries()
+        .stream()
+        .filter(message -> message.getValue().startsWith(Level.ERROR.toString()))
+        .findAny();
     info.println("----------------------------------------------------------");
-    info.println("-----------------Environment summary----------------------");
+    info.println("-----------------Execution summary------------------------");
     systemReports.forEach(report -> printEntry(report, info, err));
-    info.println("-----------------Artifact summary-------------------------");
+    error.ifPresent(errorMessage -> err.println(
+        errorMessage.getKey() + " contains some errors: " + errorMessage.getValue() + ". Code generation was canceled."));
+    info.println("-----------------Neurons---------------------------------");
     artifactReports.entries().forEach(entry -> printEntry(entry, info, err));
     info.println("-----------------Statistics ------------------------------");
     info.println("Overall " + artifactReports.keySet().size() + " NESTML artifact(s) found and processed");
+
     info.println("----------------------------------------------------------");
+    error.ifPresent(errorMessage -> err.println(
+        errorMessage.getKey() + " contains some errors: " + errorMessage.getValue() + ". Code generation was canceled."));
   }
 
   private void printEntry(final String message, final PrintStream info, final PrintStream err) {

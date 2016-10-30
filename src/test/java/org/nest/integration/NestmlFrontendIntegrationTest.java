@@ -47,7 +47,7 @@ public class NestmlFrontendIntegrationTest {
   }
 
   @Test
-  public void testModelsFolder() {
+  public void testModelsgFolder() {
     final String[] args = new String[] {
         "models",
         "--target", outputPath.toString()};
@@ -67,7 +67,7 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void manually() {
     final String[] args = new String[] {
-        "models/terub_neuron_gpe.nestml",
+        "STNGPeGPi",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);

@@ -27,7 +27,7 @@ public class MultipleOutputs implements NESTMLASTNeuronCoCo {
     final List<ASTOutput> outputs = bodyDecorator.getOutputs();
 
     if (outputs.size() > 1) {
-      CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
       final String msg = errorStrings.getErrorMsg(this,outputs.size());
 
       Log.error(msg, neuron.get_SourcePositionStart());

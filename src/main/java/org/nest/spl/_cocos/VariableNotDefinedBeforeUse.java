@@ -32,9 +32,6 @@ public class VariableNotDefinedBeforeUse implements
     SPLASTDeclarationCoCo,
     SPLASTFOR_StmtCoCo {
 
-  public static final String ERROR_CODE = "SPL_VARIABLE_NOT_DEFINED_BEFORE_USE";
-  private static final String ERROR_MSG_FORMAT = "Variable '%s' not defined yet. It is defined at line '%d'";
-
   @Override
   public void check(final ASTFOR_Stmt forstmt) {
     String fullName = forstmt.getVar();
@@ -53,7 +50,7 @@ public class VariableNotDefinedBeforeUse implements
 
     if (decl.getExpr().isPresent()) {
       final List<String> varsOfCurrentDecl = Lists.newArrayList(decl.getVars());
-      final List<ASTVariable> variablesNamesRHS = ASTNodes.getSuccessors(decl.getExpr().get(), ASTVariable.class);;
+      final List<ASTVariable> variablesNamesRHS = ASTNodes.getSuccessors(decl.getExpr().get(), ASTVariable.class);
       // check, if variable of the left side is used in the right side, e.g. in decl-vars
 
       for (final ASTVariable variable: variablesNamesRHS) {
@@ -61,16 +58,14 @@ public class VariableNotDefinedBeforeUse implements
         final VariableSymbol variableSymbol =VariableSymbol.resolve(varRHS, scope);
         // e.g. x real = 2 * x
         if (varsOfCurrentDecl.contains(varRHS)) {
-          final String logMsg = "Cannot use variable '%s' in the assignment of its own declaration.";
-          error(ERROR_CODE + ":" + String.format(logMsg, varRHS),
-              decl.get_SourcePositionStart());
+          final String logMsg = SplErrorStrings.messageOwnAssignment(this, varRHS, decl.get_SourcePositionStart());
+          error(logMsg, decl.get_SourcePositionStart());
         }
         else if (variable.get_SourcePositionStart().compareTo(variableSymbol.getAstNode().get().get_SourcePositionStart()) < 0) {
           // y real = 5 * x
           // x integer = 1
-          final String logMsg = "Cannot use variable '%s' before its usage.";
-          error(ERROR_CODE + ":" + String.format(logMsg, variable),
-              decl.get_SourcePositionStart());
+          final String logMsg = SplErrorStrings.messageDefinedBeforeUse(this, variable.toString(), decl.get_SourcePositionStart());
+          error(logMsg, decl.get_SourcePositionStart());
         }
 
       }
@@ -88,14 +83,17 @@ public class VariableNotDefinedBeforeUse implements
     if(varOptional.isPresent()) {
       // exists
       if (node.get_SourcePositionStart().compareTo(varOptional.get().getSourcePosition()) < 0) {
-        Log.error(ERROR_CODE + ":" +
-                String
-                    .format(ERROR_MSG_FORMAT, varName, varOptional.get().getSourcePosition().getLine()),
-            node.get_SourcePositionEnd());
+        final String msg = SplErrorStrings.messageDefinedBeforeUse(
+            this,
+            varName,
+            node.get_SourcePositionStart(),
+            varOptional.get().getSourcePosition());
+        Log.error(msg, node.get_SourcePositionEnd());
       }
+
     }
     else {
-      Log.warn(ERROR_CODE +  "Variable " + varName + " couldn't be resolved.");
+      Log.warn(SplErrorStrings.code(this) + ": " + "Variable " + varName + " couldn't be resolved.");
     }
 
   }

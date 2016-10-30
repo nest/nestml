@@ -19,7 +19,7 @@ import static de.se_rwth.commons.logging.Log.error;
 public class MultipleInhExcInput implements NESTMLASTInputLineCoCo {
 
   public static final String ERROR_CODE = "NESTML_MULTIPLE_INH_EXC_INPUT";
-  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTInputLine inputLine) {
     if (inputLine.isSpike()) {

@@ -26,7 +26,7 @@ RUN python setup.py install
 
 # Define working directory.doc
 WORKDIR /data
-RUN wget https://github.com/nest/nestml/releases/download/1.2.1/nestml.jar
+RUN wget https://github.com/nest/nestml/releases/download/1.2.3/nestml.jar
 
 # create a non-root user named tester,
 # give them the password "tester" put them in the sudo group
@@ -43,4 +43,4 @@ RUN chown -R tester:tester /home/tester
 USER tester
 
 # Define default command.
-
+# Entry point is constructed in the invoking script

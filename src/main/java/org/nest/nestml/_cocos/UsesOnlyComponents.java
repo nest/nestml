@@ -25,7 +25,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class UsesOnlyComponents implements NESTMLASTUSE_StmtCoCo {
 
   public final static String ERROR_CODE = "NESTML_USES_ONLY_COMPONENTS";
-  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTUSE_Stmt use) {
     checkArgument(use.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");

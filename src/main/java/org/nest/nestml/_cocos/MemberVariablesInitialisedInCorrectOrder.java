@@ -27,7 +27,7 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasDeclCoCo {
   public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
-  CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTAliasDecl alias) {
     final Optional<? extends Scope> enclosingScope = alias.getEnclosingScope();

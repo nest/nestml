@@ -38,7 +38,7 @@ public class NESTFunctionNameChecker implements NESTMLASTFunctionCoCo {
       final String funName = fun.getName();
 
       if (nestFunNames.contains(funName)) {
-        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this,funName);
 
         error(msg, fun.get_SourcePositionStart());

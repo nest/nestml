@@ -84,7 +84,8 @@ public class VariableSymbol extends CommonSymbol {
   @Override
   public String toString() {
     return "VariableSymbol(" + getName() + ", " + getType() + ", "
-        + getBlockType() + "," + "array parameter: " + arraySizeParameter + ")";
+           + getBlockType() + "," + "array parameter: " + arraySizeParameter
+           + (getAstNode().isPresent()?getAstNode().get().get_SourcePositionStart():"") + ")";
   }
 
   public TypeSymbol getType() {

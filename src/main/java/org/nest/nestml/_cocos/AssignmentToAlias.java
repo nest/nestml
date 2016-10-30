@@ -6,7 +6,6 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
-import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._cocos.SPLASTAssignmentCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -31,7 +30,7 @@ public class AssignmentToAlias implements SPLASTAssignmentCoCo {
     final String variableName = astAssignment.getLhsVarialbe().toString();
     final VariableSymbol lhsVariable = VariableSymbol.resolve(variableName, scope);
     if (lhsVariable.isAlias()) {
-      String msg = CocoErrorStrings.getInstance().getErrorMsg(this, variableName);
+      String msg = NestmlErrorStrings.getInstance().getErrorMsg(this, variableName);
 
       error(msg, astAssignment.get_SourcePositionStart());
     }

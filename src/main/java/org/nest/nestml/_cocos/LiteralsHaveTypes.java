@@ -60,7 +60,7 @@ public class LiteralsHaveTypes implements
         if (exprType.isValue() &&
             // !exprType.getValue().equals(var.get().getType())) {
             !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
-          CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+          NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
           final String msg = errorStrings.getErrorMsgAssignment(this);
           Log.warn(msg + " at " + node.get_SourcePositionStart(), node.get_SourcePositionStart());
         }
@@ -95,7 +95,7 @@ public class LiteralsHaveTypes implements
           if (exprType.isValue() &&
               // !exprType.getValue().equals(var.get().getType())) {
               !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
-            CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+            NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
             final String msg = errorStrings.getErrorMsgAssignment(this);
             Log.warn(msg + " at " + node.get_SourcePositionStart() , node.get_SourcePositionStart());
           }
@@ -142,7 +142,7 @@ public class LiteralsHaveTypes implements
           if (exprType.isValue() &&
               //!exprType.getValue().equals(parameterType)) {
               !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
-            CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+            NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
             final String msg = errorStrings.getErrorMsgCall(this);
             Log.warn(msg + " at " + node.get_SourcePositionStart(), node.get_SourcePositionStart());
           }
@@ -198,7 +198,7 @@ public class LiteralsHaveTypes implements
                   if (returnType.isValue() &&
                      // !exprType.getValue().equals(returnType)) {
                       !returnType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
-                    CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+                    NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
                     final String msg = errorStrings.getErrorMsgReturn(this);
                     Log.warn(msg, node.get_SourcePositionStart());
                   }
@@ -238,7 +238,7 @@ public class LiteralsHaveTypes implements
     }
     if(expr.nESTMLNumericLiteralIsPresent()){
       if(!expr.getNESTMLNumericLiteral().get().getType().isPresent()){
-        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        SplErrorStrings errorStrings = SplErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsgConditional(this);
         Log.warn(msg, expr.get_SourcePositionStart());
       }
@@ -270,7 +270,7 @@ public class LiteralsHaveTypes implements
             rightType.getValue().getType() == TypeSymbol.Type.UNIT) {// at least one of the involved types is UNIT
           if(!leftType.getValue().getType().equals(TypeSymbol.Type.UNIT)||
               !rightType.getValue().getType().equals(TypeSymbol.Type.UNIT)){ //BOTH are NOT units
-            CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+            NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
             final String msg = errorStrings.getErrorMsgConditional(this) + ": " + node.get_SourcePositionStart();
             Log.warn(msg, node.get_SourcePositionStart());
           }

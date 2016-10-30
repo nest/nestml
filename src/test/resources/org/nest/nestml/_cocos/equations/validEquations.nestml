@@ -7,4 +7,8 @@ neuron IAF:
     G1 = G2
     V1' = V2
   end
+
+  update:
+    exp(1.0) # y is undefined
+  end
 end

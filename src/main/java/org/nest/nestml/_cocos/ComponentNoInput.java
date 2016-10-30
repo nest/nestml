@@ -26,7 +26,7 @@ public class ComponentNoInput implements NESTMLASTComponentCoCo {
 
     if (bodyDecorator.getInputLines() != null) { // TODO null check makes no sense
       if (!bodyDecorator.getInputLines().isEmpty()) {
-        CocoErrorStrings errorStrings = CocoErrorStrings.getInstance();
+        NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this);
 
        error(msg, comp.get_SourcePositionStart());

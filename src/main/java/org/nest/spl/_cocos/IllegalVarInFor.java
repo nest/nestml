@@ -21,9 +21,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author ippen, plotnikov
  */
 public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
-  public static final String ERROR_CODE = "SPL_ILLEGAL_VAR_IN_FOR";
 
-  private static final String ERROR_MSG_FORMAT = "The type of the iterator in a for-loop must be numeric and not: '%s' .";
 
   @Override
   public void check(final ASTFOR_Stmt astfor) {
@@ -36,11 +34,16 @@ public class IllegalVarInFor implements SPLASTFOR_StmtCoCo {
     if (iter.isPresent()) {
       TypeChecker tc = new TypeChecker();
       if (!tc.checkNumber(iter.get().getType())) {
-        Log.error(ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, iter.get().getType()), astfor.get_SourcePositionEnd());
+        final String msg = SplErrorStrings.message(
+            this,
+            iterName,
+            iter.get().getType().getName(),
+            astfor.get_SourcePositionStart());
+        Log.error(msg);
       }
     }
     else {
-      Log.warn(ERROR_CODE + ": Cannot check coco, since the variable " + iterName + " is undefined.");
+      Log.warn(SplErrorStrings.code(this) + ": Cannot check coco, since the variable " + iterName + " is undefined.");
     }
 
   }

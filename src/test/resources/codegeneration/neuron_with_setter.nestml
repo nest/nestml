@@ -79,7 +79,9 @@ neuron iaf_psc_alpha_neuron:
     alias V_m mV = V_abs + E_L # Membrane potential.
   end
 
-
+  function set_V_m(V_m mV):
+    V_abs = V_m + V_abs
+  end
 
   equations:
     shape I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
