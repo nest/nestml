@@ -37,6 +37,8 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
+import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.io.File;
 import java.io.IOException;
@@ -352,7 +354,10 @@ public final class AstUtils {
     else if (astDatatype.getUnitType().isPresent()) {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
       if(isCodeGeneration){
-        typeName = "real";
+        if(unitType.getSerializedUnit() == null){
+          UnitsSIVisitor.convertSiUnitsToSignature(unitType);
+        }
+        typeName = new UnitRepresentation(unitType.getSerializedUnit()).prettyPrint();
       }
       else{
         typeName = unitType.getSerializedUnit(); //guaranteed to exist after successful NESTMLParser run.
