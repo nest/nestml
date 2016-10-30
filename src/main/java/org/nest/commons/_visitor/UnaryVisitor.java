@@ -31,7 +31,7 @@ public class UnaryVisitor implements CommonsVisitor {
         return;
       }
       else {
-        String errorMsg = "Cannot perform a math operation on the not numeric type";
+        String errorMsg = "Cannot perform an arithmetic operation on a non-numeric type";
         expr.setType(Either.error(errorMsg));
         return;
       }
@@ -42,7 +42,7 @@ public class UnaryVisitor implements CommonsVisitor {
           return;
         }
         else {
-          String errorMsg = "Cannot perform a math operation on the not numeric type";
+          String errorMsg = "Cannot perform an arithmetic operation on a non-numeric type";
           expr.setType(Either.error(errorMsg));
           return;
         }
