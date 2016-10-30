@@ -72,7 +72,7 @@ case $mode in
 	fi
 
 	# Provision the docker container
-	cmd="docker build -t $container -f $dockerfile"
+	cmd="docker build -t $container -f $dockerfile ."
 	echo
 	echo "Creating docker image '$container'"
 	$cmd
