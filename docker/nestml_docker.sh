@@ -75,7 +75,7 @@ case $mode in
 	cmd="docker build -t $container -f $dockerfile"
 	echo
 	echo "Creating docker image '$container'"
-	echo $cmd
+	$cmd
 	;;
     run)
 	# For the 'run' command, we allow the following arguments:
@@ -131,7 +131,7 @@ case $mode in
 	    cmd="docker run $vol $uid $container $opt"
 	    echo
 	    echo "Running docker image '$container'"
-	    echo $cmd
+	    $cmd
 	done
 	;;
 esac
