@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import static de.se_rwth.commons.logging.Log.warn;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
  * Visitor to ODE Shape and Equation nodes. Calculates implicit type and updates Symbol table.
@@ -65,8 +66,9 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     //Derive varType
     varType = varSymbol.get().getType();
 
-    if(varType.getType() != TypeSymbol.Type.UNIT){
-      warn(ERROR_CODE+ "Type of LHS Variable in ODE is primitive at: "+astEquation.get_SourcePositionStart()+". Skipping.");
+    if(varType.getType() != TypeSymbol.Type.UNIT &&
+        varType != getRealType()){
+      warn(ERROR_CODE+ "Type of LHS Variable in ODE is neither a Unit nor real at: "+astEquation.get_SourcePositionStart()+". Skipping.");
       return;
     }
 
@@ -76,8 +78,9 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     //get type of RHS expression
     TypeSymbol typeFromExpression = astEquation.getRhs().getType().get().getValue();
 
-    if(typeFromExpression.getType() != TypeSymbol.Type.UNIT) {
-      warn(ERROR_CODE+ "Type of ODE is primitive at: "+astEquation.get_SourcePositionStart());
+    if(typeFromExpression.getType() != TypeSymbol.Type.UNIT &&
+        typeFromExpression != getRealType()) {
+      warn(ERROR_CODE+ "Type of ODE is neither a Unit nor real at: "+astEquation.get_SourcePositionStart());
       return;
     }
     UnitRepresentation unitFromExpression = new UnitRepresentation(typeFromExpression.getName());

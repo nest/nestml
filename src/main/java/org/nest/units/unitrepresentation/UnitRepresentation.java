@@ -15,6 +15,8 @@ import java.util.regex.Pattern;
 
 import static de.se_rwth.commons.logging.Log.warn;
 import static java.lang.Math.abs;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 
 /**
  * Helper class. Controlled way of creating base representations of derived SI units.
@@ -215,6 +217,9 @@ public class UnitRepresentation {
   }
 
   public String prettyPrint() {
+    if(isZero()){
+      return "no dimension";
+    }
     return  calculateName();
   }
 
@@ -286,6 +291,10 @@ public class UnitRepresentation {
   }
 
   public UnitRepresentation(String serialized){
+    if(serialized == getRealType().getName()) {
+      return; //[0,0,0,0,0,0,0,0]
+    }
+
     Pattern parse = Pattern.compile("-?[0-9]+");
     Matcher matcher = parse.matcher(serialized);
 
@@ -349,10 +358,6 @@ public class UnitRepresentation {
 
   public UnitRepresentation deriveT(int order) {
     UnitRepresentation result = new UnitRepresentation(this);
-    if(result.exponentSum() ==0){
-      warn(LOG_NAME + " Attempt to derive a dimensionless unit. Skipping.");
-      return result;
-    }
     result.s -= order;
     return result;
   }
