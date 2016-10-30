@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static de.se_rwth.commons.logging.Log.warn;
 import static java.lang.Math.abs;
 
 /**
@@ -188,7 +189,7 @@ public class UnitRepresentation {
           return result+prefix+lastUnit;
         }
         catch(NumberFormatException e){
-          Log.warn("Exception in Unit name Formatting! Cannot parse magnitude String: "
+          warn("Exception in Unit name Formatting! Cannot parse magnitude String: "
               +magnitude);
           return result;
         }
@@ -269,6 +270,21 @@ public class UnitRepresentation {
     this.magnitude = unit.magnitude;
   }
 
+  public boolean equals(UnitRepresentation other){
+    if(this.K == other.K &&
+        this.s == other.s &&
+        this.m == other.m &&
+        this.g == other.g &&
+        this.cd == other.cd &&
+        this.mol == other.mol &&
+        this.A == other.A &&
+        this.magnitude == other.magnitude){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
   public UnitRepresentation(String serialized){
     Pattern parse = Pattern.compile("-?[0-9]+");
     Matcher matcher = parse.matcher(serialized);
@@ -333,6 +349,10 @@ public class UnitRepresentation {
 
   public UnitRepresentation deriveT(int order) {
     UnitRepresentation result = new UnitRepresentation(this);
+    if(result.exponentSum() ==0){
+      warn(LOG_NAME + " Attempt to derive a dimensionless unit. Skipping.");
+      return result;
+    }
     result.s -= order;
     return result;
   }
