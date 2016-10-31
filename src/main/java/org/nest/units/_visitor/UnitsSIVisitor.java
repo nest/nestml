@@ -17,6 +17,7 @@ import org.nest.spl._ast.ASTSPLNode;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units._ast.ASTUnitType;
+import org.nest.units._ast.ASTUnitsNode;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.units.unitrepresentation.UnitTranslator;
 import org.nest.utils.LogHelper;
@@ -39,6 +40,19 @@ public class UnitsSIVisitor implements NESTMLVisitor {
    */
   private UnitsSIVisitor() {
 
+  }
+
+  /**
+   * Checks that the given unit is well defined. In case of SI unit, converts to its signature
+   * representation. In case of errors reports them as non empty return list
+   * @param unit ASTUnitNode to check
+   * @return The list all type finding. Is emtpty iff the model doesn't contain any type issues.
+   */
+  public static List<Finding> convertSiUnitsToSignature(final ASTUnitsNode unit) {
+    final UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
+    unit.accept(unitsSIVisitor);
+    final List<Finding> findings = LogHelper.getModelFindings(Log.getFindings());
+    return findings;
   }
 
   /**

@@ -217,11 +217,16 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    */
   private void addDerivedVariable(final ASTEquation ode) {
     final String variableName = getNameOfLHS(ode);
-    final TypeSymbol type = PredefinedTypes.getRealType();
+    final String originalName = ode.getLhs().getName().toString();
+
+    final Optional<VariableSymbol> originalSymbol = currentScope().get().resolve(originalName,VariableSymbol.KIND);
+
+    final TypeSymbol originalType = originalSymbol.get().getType(); //symbol must exist here
+
     final VariableSymbol var = new VariableSymbol(variableName);
 
     var.setAstNode(ode.getLhs());
-    var.setType(type);
+    var.setType(originalType);
     var.setDeclaringType(currentTypeSymbol.get());
     var.setLoggable(true);
     var.setAlias(false);
