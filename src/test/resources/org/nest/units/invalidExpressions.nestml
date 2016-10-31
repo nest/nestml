@@ -2,8 +2,7 @@ neuron invalidExpressionTest:
   state:
     Resist Ohm = 8A*2Ohm #SPL_ILLEGAL_EXPRESSION: Declaration with wrong type
     Ampere A = 3 #NESTML_LITERALS_MUST_HAVE_TYPES: Declaration without explicit unit type
-    Newton  g *km /s**2 = 1/ (1kN)  #SPL_ILLEGAL_EXPRESSION: Declaration with mismatched verbose types
-  
+    Newton  N**2*s = 1/ (1kN)  #SPL_ILLEGAL_EXPRESSION: Declaration with mismatched verbose types
   end
 
   function foo(amp A, ohm Ohm) V:  

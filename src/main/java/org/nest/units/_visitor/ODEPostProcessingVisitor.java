@@ -8,6 +8,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTShape;
+import org.nest.symboltable.NESTMLSymbols;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -18,6 +19,7 @@ import java.util.Iterator;
 import java.util.Optional;
 
 import static de.se_rwth.commons.logging.Log.warn;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
  * Visitor to ODE Shape and Equation nodes. Calculates implicit type and updates Symbol table.
@@ -35,12 +37,8 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
       return;
     }
-    final TypeSymbol type = astShape.getRhs().getType().get().getValue();
+    //TODO: find out what needs to be done here
 
-    if(astShape.getSymbol().isPresent()){
-      final VariableSymbol var = (VariableSymbol) astShape.getSymbol().get();
-      var.setType(type);
-    }
   }
 
 
@@ -55,39 +53,43 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
       return;
     }
 
-    //Get Type of original Variable
+    //Resolve LHS Variable
     String varName = astEquation.getLhs().getSimpleName();
     Scope enclosingScope = astEquation.getEnclosingScope().get();
-    Optional<VariableSymbol> varSymbol = enclosingScope.resolve(varName,VariableSymbol.KIND);
+    Optional<VariableSymbol> varSymbol = NESTMLSymbols.resolve(varName,enclosingScope);
 
-    TypeSymbol originalVarType;
-    if(varSymbol.isPresent()){
-       originalVarType = varSymbol.get().getType();
-    }else{
+    TypeSymbol varType;
+    if(!varSymbol.isPresent()){
       warn(ERROR_CODE +" Error while resolving the variable to be derived in ODE: " + varName);
       return;
     }
+    //Derive varType
+    varType = varSymbol.get().getType();
 
-
-    //Calculate type implicit from expression:
-    UnitRepresentation derivativeUnit = new UnitRepresentation(0,0,0,0,0,0,0,0);
-
-    TypeSymbol typeFromExpression = astEquation.getRhs().getType().get().getValue();
-    if(typeFromExpression.getType() == TypeSymbol.Type.UNIT){
-      derivativeUnit = new UnitRepresentation(typeFromExpression.getName());
-    }
-    derivativeUnit = derivativeUnit.deriveT(astEquation.getLhs().getDifferentialOrder().size());
-    typeFromExpression = PredefinedTypes.getType(derivativeUnit.serialize());
-
-    if(astEquation.getSymbol().isPresent()){
-      final VariableSymbol var = (VariableSymbol) astEquation.getSymbol().get();
-      var.setType(typeFromExpression);
-    }
-    else{
-      warn(ERROR_CODE+ ": Symboltable seems to be missing when running ODEPostProcessingVisitor " + astEquation.get_SourcePositionStart());
+    if(varType.getType() != TypeSymbol.Type.UNIT &&
+        varType != getRealType()){
+      warn(ERROR_CODE+ "Type of LHS Variable in ODE is neither a Unit nor real at: "+astEquation.get_SourcePositionStart()+". Skipping.");
       return;
     }
 
+    UnitRepresentation varUnit = new UnitRepresentation(varType.getName());
+    UnitRepresentation derivedVarUnit = varUnit.deriveT(astEquation.getLhs().getDifferentialOrder().size());
+
+    //get type of RHS expression
+    TypeSymbol typeFromExpression = astEquation.getRhs().getType().get().getValue();
+
+    if(typeFromExpression.getType() != TypeSymbol.Type.UNIT &&
+        typeFromExpression != getRealType()) {
+      warn(ERROR_CODE+ "Type of ODE is neither a Unit nor real at: "+astEquation.get_SourcePositionStart());
+      return;
+    }
+    UnitRepresentation unitFromExpression = new UnitRepresentation(typeFromExpression.getName());
+    //do the actual test:
+    if(!unitFromExpression.equals(derivedVarUnit)){
+      warn(ERROR_CODE+ "Type of (derived) variable "+ astEquation.getLhs().toString() + " is: "+ derivedVarUnit.prettyPrint()+
+          ". This doesnt match Type of RHS expression: "+unitFromExpression.prettyPrint()+
+          " at: " +astEquation.get_SourcePositionStart() );
+    }
   }
 
   @Override

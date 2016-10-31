@@ -2,8 +2,12 @@ package org.nest.commons._visitor;
 
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTVariable;
 import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
+import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 
 import java.util.Optional;
 
@@ -15,11 +19,20 @@ public class VariableVisitor implements CommonsVisitor{
   @Override
   public void visit(ASTExpr expr) {
     final Scope scope = expr.getEnclosingScope().get();
+    final ASTVariable varNode = expr.getVariable().get(); //guaranteed to exist if this visitor is called
     final String varName = expr.getVariable().get().toString();
     final Optional<VariableSymbol> var = scope.resolve(varName, VariableSymbol.KIND);
 
     if (var.isPresent()) {
-      expr.setType(Either.value(var.get().getType()));
+      if(varNode.getDifferentialOrder().size() !=0 && var.get().getType().getType() == TypeSymbol.Type.UNIT){
+        UnitRepresentation deriveMe = new UnitRepresentation(var.get().getType().getName());
+        deriveMe = deriveMe.deriveT(varNode.getDifferentialOrder().size());
+        TypeSymbol derivedType = getType(deriveMe.serialize());
+        expr.setType(Either.value(derivedType));
+      }
+      else{
+        expr.setType(Either.value(var.get().getType()));
+      }
     }
     else {
       expr.setType(Either.error("ExpressionCalculator cannot resolve the type of the variable: " + varName));
