@@ -8,13 +8,14 @@
   @param stateSize number of the step variables
   @result TODO
 -->
-
+t = 0;
 <#assign index = 0>
 <#assign indexPostfix = "INDEX">
 <#list body.variablesDefinedByODE() as odeVariable>
   stateVector[${names.name(odeVariable)}_${indexPostfix}] = S_.${names.name(odeVariable)};
   <#assign index = index + 1>
 </#list>
+
 while ( t < step_ )
 {
   const int status = gsl_odeiv_evolve_apply( B_.e_,
