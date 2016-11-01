@@ -48,7 +48,7 @@ neuron iaf_neuron_ode:
   update:
 
     if r == 0: # not refractory
-        integrate(V)
+        integrate_odes()
     else:
         r = r - 1
     end

@@ -67,7 +67,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
 
   update:
     if r == 0: # not refractory
-      integrate(V_abs)
+      integrate_odes()
     else:
       r = r - 1
     end

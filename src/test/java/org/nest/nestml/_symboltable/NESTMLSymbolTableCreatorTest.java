@@ -260,7 +260,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
     List<String> parameters = Lists.newArrayList("mV");
 
-    final Optional<MethodSymbol> standAloneFunction = resolveMethod(PredefinedFunctions.INTEGRATE, parameters, stateScope);
+    final Optional<MethodSymbol> standAloneFunction = resolveMethod(PredefinedFunctions.INTEGRATE_ODES, parameters, stateScope);
     standAloneFunction.isPresent();
   }
 
@@ -273,12 +273,12 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     final Scope scope = symbol.getSpannedScope();
 
     final Optional<MethodSymbol> method2 = resolveMethod(
-        PredefinedFunctions.INTEGRATE, Lists.newArrayList("boolean"), scope
+        PredefinedFunctions.INTEGRATE_ODES, Lists.newArrayList("boolean"), scope
     );
     assertFalse(method2.isPresent());
 
     final Optional<MethodSymbol> method3 = resolveMethod(
-        PredefinedFunctions.INTEGRATE,
+        PredefinedFunctions.INTEGRATE_ODES,
         Lists.newArrayList("real"),
         scope);
     assertTrue(method3.isPresent());

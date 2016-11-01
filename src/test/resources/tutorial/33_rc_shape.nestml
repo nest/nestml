@@ -41,7 +41,7 @@ neuron rc_shape:
 
   update:
     if refractory_counts == 0:
-      integrate(V_abs)
+      integrate_odes()
       if V_abs > V_th:
         V_abs = V_reset
         emit_spike()
