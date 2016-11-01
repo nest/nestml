@@ -31,7 +31,7 @@ neuron rc_alpha:
   end
 
   internal:
-    PSConInit_E real = 1.0 * e / tau_syn
+    PSConInit_E pA/ms = 1.0 pA * e / tau_syn
   end
 
   input:
