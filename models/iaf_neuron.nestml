@@ -114,18 +114,18 @@ neuron iaf_neuron_nestml:
   # Describes how the state evolves in the time
   update:
     if r == 0: # not refractory
-        integrate(V_abs)
-        if V_abs >= Theta: # threshold crossing
-          r = RefractoryCounts
-          V_abs = V_reset
-          # A supra-threshold membrane potential should never be observable.
-          # The reset at the time of threshold crossing enables accurate
-          # integration independent of the computation step size, see [2,3] for
-          # details.
-          emit_spike()
-        end
+      integrate_odes()
+      if V_abs >= Theta: # threshold crossing
+        r = RefractoryCounts
+        V_abs = V_reset
+        # A supra-threshold membrane potential should never be observable.
+        # The reset at the time of threshold crossing enables accurate
+        # integration independent of the computation step size, see [2,3] for
+        # details.
+        emit_spike()
+      end
     else:
-        r = r - 1
+      r = r - 1
     end
 
   end

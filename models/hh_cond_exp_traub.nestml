@@ -110,7 +110,7 @@ neuron hh_cond_exp_traub_neuron:
 
   update:
     U_old mV = V_m
-    integrate(V_m)
+    integrate_odes()
 
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0:

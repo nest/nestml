@@ -113,7 +113,7 @@ neuron iaf_psc_alpha_neuron:
 
   update:
     if r == 0: # neuron not refractory
-      integrate(V_abs)
+      integrate_odes()
     else: # neuron is absolute refractory
       r = r - 1
     end

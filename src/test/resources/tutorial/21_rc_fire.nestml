@@ -29,7 +29,7 @@ neuron rc_fire:
   output: spike
 
   update:
-    integrate(V_abs)
+    integrate_odes()
     if V_abs > V_th:
       V_abs = V_reset
       emit_spike()

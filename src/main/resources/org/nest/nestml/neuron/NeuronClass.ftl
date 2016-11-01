@@ -271,6 +271,17 @@ ${simpleNeuronName}::update(
         const long from, const long to)
 {
     <#assign dynamics = body.getDynamicsBlock().get()>
+
+
+    <#if useGSL>
+      <#assign stateSize = body.getEquations()?size>
+      double step_ = nest::Time::get_resolution().get_ms();
+      double IntegrationStep_ = nest::Time::get_resolution().get_ms();
+      double t = 0;
+      double stateVector[${stateSize}];
+    </#if>
+
+
     for ( long lag = from ; lag < to ; ++lag ) {
       <#list body.getInputBuffers() as inputLine>
          <#if !inputLine.isVector()>
