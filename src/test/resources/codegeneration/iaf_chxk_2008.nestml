@@ -87,7 +87,7 @@ neuron iaf_chxk_2008_neuron:
   update:
 
     vm_prev mV = V_m
-    integrate(V_m)
+    integrate_odes()
     if vm_prev < V_th and V_m >= V_th:
       # neuron is not absolute refractory
 

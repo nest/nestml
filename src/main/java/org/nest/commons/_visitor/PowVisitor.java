@@ -4,6 +4,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.*;
@@ -58,8 +59,7 @@ public class PowVisitor implements CommonsVisitor{
       }
     }
     //Catch-all if no case has matched
-    String msg = "Cannot determine the type of the Expression-Node @<"
-        + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
+    String msg = "Cannot determine the type of the expression: " + AstUtils.toString(expr);
     expr.setType(Either.error(msg));
   }
 }

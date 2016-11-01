@@ -153,9 +153,9 @@ neuron iaf_tum_2000_neuron:
 
   update:
     if r_abs == 0: # neuron not absolute refractory, so evolve V
-        integrate(V_m)
+      integrate_odes()
     else:
-        r_abs -= 1 # neuron is absolute refractory
+      r_abs -= 1 # neuron is absolute refractory
     end
 
     if r_tot == 0:

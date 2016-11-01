@@ -21,6 +21,7 @@
 package org.nest.spl._cocos;
 
 import de.se_rwth.commons.SourcePosition;
+import org.nest.utils.AstUtils;
 
 /**
  * Factory for CoCo error strings. The dispatch is done by the static type of the context condition object.
@@ -39,7 +40,7 @@ public class SplErrorStrings {
   static String message(final VariableDoesNotExist coco, final String variable, SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "The variable %s is not defined.";
 
-    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -50,7 +51,7 @@ public class SplErrorStrings {
   static String message(final VariableDefinedMultipleTimes coco, final String variable, SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "The variable %s defined multiple times.";
 
-    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -61,7 +62,7 @@ public class SplErrorStrings {
   static String message(final VarHasTypeName coco, final String variable, SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "Variable '%s' has name of an existing NESTML type.";
 
-    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -76,7 +77,7 @@ public class SplErrorStrings {
       final SourcePosition previousDefinition){
     final String ERROR_MSG_FORMAT = "Variable '%s' not defined yet. It is defined at line '%d'";
 
-    return code(coco) + " " + sourcePosition + ": " +
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " +
            String.format(ERROR_MSG_FORMAT, variable, previousDefinition.getLine());
   }
 
@@ -86,7 +87,7 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "Cannot use variable '%s' before its definition.";
 
-    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   static String messageOwnAssignment(
@@ -95,7 +96,7 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "Cannot use variable '%s' in the assignment of its own declaration.";
 
-    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -110,7 +111,7 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "The type of the iterator variable %s in a for-loop must be numeric and not: '%s' .";
 
-    return code(coco) + " " + sourcePosition + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -127,7 +128,7 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "Cannot initialize variable %s of type %s with an expression of type %s" ;
 
-    return code(coco) + " " + sourcePosition + " : " + String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
   }
 
   static String messageNonBoolean(
@@ -136,11 +137,21 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "Cannot use non boolean expression of type %s";
 
-    return code(coco) + " " + sourcePosition + " : " + String.format(ERROR_MSG_FORMAT, expressionType);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, expressionType);
+  }
+
+  static String messageInvalidExpression(
+      final IllegalExpression coco,
+      final String errorDescription,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "Mistyped expression. " + errorDescription;
+
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
   public static String code(final IllegalExpression coco) {
     return "SPL_ILLEGAL_EXPRESSION";
   }
+
 }

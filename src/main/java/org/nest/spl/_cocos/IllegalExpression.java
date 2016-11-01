@@ -30,10 +30,7 @@ public class IllegalExpression implements
     SPLASTWHILE_StmtCoCo,
     SPLASTAssignmentCoCo,
     SPLASTDeclarationCoCo,
-    SPLASTELIF_ClauseCoCo
-
-{
-  public static final String ERROR_CODE = "SPL_ILLEGAL_EXPRESSION";
+    SPLASTELIF_ClauseCoCo  {
 
   @Override
   public void check(final ASTAssignment node) {
@@ -76,9 +73,7 @@ public class IllegalExpression implements
 
       }
       else {
-        final String errorDescription = "Error hint: " + initializerExpressionType.getError()
-                                        + ". Problem with the following expression: "
-                                        + AstUtils.toString(node.getExpr().get());
+        final String errorDescription = "Error hint: " + initializerExpressionType.getError();
         undefinedTypeError(node, errorDescription);
       }
 
@@ -146,7 +141,8 @@ public class IllegalExpression implements
   }
 
   private void undefinedTypeError(final ASTNode node, final String reason) {
-    error(ERROR_CODE + ":" +  reason, node.get_SourcePositionStart());
+    final String msg = SplErrorStrings.messageInvalidExpression(this, reason, node.get_SourcePositionStart());
+    error(msg, node.get_SourcePositionStart());
   }
 
 }

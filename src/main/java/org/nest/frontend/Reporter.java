@@ -91,6 +91,7 @@ public static Reporter get() {
     info.println("----------------------------------------------------------");
     error.ifPresent(errorMessage -> err.println(
         errorMessage.getKey() + " contains some errors: " + errorMessage.getValue() + ". Code generation was canceled."));
+    info.println("----------------------------------------------------------");
   }
 
   private void printEntry(final String message, final PrintStream info, final PrintStream err) {

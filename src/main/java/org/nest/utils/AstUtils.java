@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.EnclosingScopeOfNodesInitializer;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.Util;
 import org.apache.commons.io.FileUtils;
 import org.nest.commons._ast.ASTCommonsNode;
@@ -529,6 +530,10 @@ public final class AstUtils {
       throw  new RuntimeException(e);
     }
 
+  }
+
+  public static String print(final SourcePosition sourcePosition) {
+    return "<" + sourcePosition.getLine() + "," + sourcePosition.getColumn() + ">";
   }
 
 }

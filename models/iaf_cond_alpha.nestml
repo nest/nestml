@@ -80,7 +80,7 @@ neuron iaf_cond_alpha_neuron:
   output: spike
 
   update:
-    integrate(V_m)
+    integrate_odes()
     if r != 0: # neuron is absolute refractory
       r =  r - 1
       V_m = V_reset # clamp potential

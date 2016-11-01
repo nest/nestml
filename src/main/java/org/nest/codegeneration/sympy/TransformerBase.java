@@ -91,7 +91,7 @@ public class TransformerBase {
 
     // It must work for multiple integrate calls!
     final Optional<ASTFunctionCall> integrateCall = AstUtils.getFunctionCall(
-        PredefinedFunctions.INTEGRATE,
+        PredefinedFunctions.INTEGRATE_ODES,
         astBodyDecorator.getDynamics().get(0));
 
     if (integrateCall.isPresent()) {

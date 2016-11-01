@@ -25,7 +25,7 @@ neuron rc_neuron:
   output: spike
 
   update:
-    integrate(V_abs)
+    integrate_odes()
   end
 
 end

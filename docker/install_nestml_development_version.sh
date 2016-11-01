@@ -1,1 +1,0 @@
-docker build --no-cache -t nestml_development -f ./DockerfileDevelopment .
