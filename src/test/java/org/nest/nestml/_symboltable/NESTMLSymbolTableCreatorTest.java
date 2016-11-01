@@ -279,7 +279,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
     final Optional<MethodSymbol> method3 = resolveMethod(
         PredefinedFunctions.INTEGRATE_ODES,
-        Lists.newArrayList("real"),
+        Lists.newArrayList(),
         scope);
     assertTrue(method3.isPresent());
   }
