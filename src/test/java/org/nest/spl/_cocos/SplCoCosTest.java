@@ -29,7 +29,7 @@ import static org.nest.utils.LogHelper.countErrorsByPrefix;
  *
  * @author plotnikov
  */
-public class SPLCoCosTest {
+public class SplCoCosTest {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/spl/_cocos/";
   private static final String TEST_VALID_MODELS_FOLDER = "src/test/resources/org/nest/spl/_cocos/valid";
@@ -185,25 +185,35 @@ public class SPLCoCosTest {
     final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
     splCoCoChecker.addCoCo(codeAfterReturn);
 
-    checkModelAndAssertWithErrors(
-        Paths.get(TEST_MODELS_FOLDER, "codeAfterReturn.simple"),
+    checkModelAndAssertNoErrors(
+        Paths.get(TEST_VALID_MODELS_FOLDER, "codeAfterReturn.simple"),
         splCoCoChecker,
-        CodeAfterReturn.ERROR_CODE,
+        SplErrorStrings.code(codeAfterReturn)
+    );
+
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_INVALID_MODELS_FOLDER, "codeAfterReturn.simple"),
+        splCoCoChecker,
+        SplErrorStrings.code(codeAfterReturn),
         1);
   }
 
   @Test
   public void testFunctionExists() throws IOException {
-    final ASTSPLFile ast = getAstRoot(TEST_MODELS_FOLDER + "funNotDefined.simple");
-    splScopeCreator.runSymbolTableCreator(ast);
-
     final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
     splCoCoChecker.addCoCo(functionDoesNotExist);
 
-    splCoCoChecker.checkAll(ast);
+    checkModelAndAssertNoErrors(
+        Paths.get(TEST_VALID_MODELS_FOLDER, "funNotDefined.simple"),
+        splCoCoChecker,
+        SplErrorStrings.code(functionDoesNotExist)
+    );
 
-    final Integer errorsFound = countErrorsByPrefix(FunctionDoesNotExist.ERROR_CODE, getFindings());
-    assertEquals(Integer.valueOf(3), errorsFound);
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_INVALID_MODELS_FOLDER, "funNotDefined.simple"),
+        splCoCoChecker,
+        SplErrorStrings.code(functionDoesNotExist),
+        3);
   }
 
   private void checkModelAndAssertNoErrors(

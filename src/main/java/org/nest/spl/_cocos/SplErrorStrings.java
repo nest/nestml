@@ -109,7 +109,8 @@ public class SplErrorStrings {
       final String variable,
       final String type,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "The type of the iterator variable %s in a for-loop must be numeric and not: '%s' .";
+    final String ERROR_MSG_FORMAT = "The type of the iterator variable %s in a for-loop must be numeric and not:" +
+                                    " '%s' .";
 
     return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
   }
@@ -128,7 +129,8 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "Cannot initialize variable %s of type %s with an expression of type %s" ;
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
+           String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
   }
 
   static String messageNonBoolean(
@@ -152,6 +154,39 @@ public class SplErrorStrings {
   @SuppressWarnings({"unused"}) // used for the routing
   public static String code(final IllegalExpression coco) {
     return "SPL_ILLEGAL_EXPRESSION";
+  }
+
+
+  static String message(
+      final CodeAfterReturn coco,
+      final String errorDescription,
+      final SourcePosition sourcePosition){
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + errorDescription;
+  }
+
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  public static String code(final CodeAfterReturn coco) {
+    return "SPL_CODE_AFTER_RETURN";
+  }
+
+
+
+  static String message(
+      final FunctionDoesNotExist coco,
+      final String functionName,
+      final String signature,
+      final SourcePosition sourcePosition){
+
+    final String ERROR_MSG_FORMAT = "The function '%s' with the signature '%s' is not defined.";
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
+           String.format(ERROR_MSG_FORMAT, functionName, signature.isEmpty()?"()":signature);
+  }
+
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  public static String code(final FunctionDoesNotExist coco) {
+    return "SPL_FUNCTION_DOES_NOT_EXIST";
   }
 
 }
