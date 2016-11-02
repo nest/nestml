@@ -31,7 +31,6 @@ import static org.nest.utils.LogHelper.countErrorsByPrefix;
  */
 public class SplCoCosTest {
   private static final String TEST_MODEL_PATH = "src/test/resources/";
-  private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/spl/_cocos/";
   private static final String TEST_VALID_MODELS_FOLDER = "src/test/resources/org/nest/spl/_cocos/valid";
   private static final String TEST_INVALID_MODELS_FOLDER = "src/test/resources/org/nest/spl/_cocos/invalid";
   private final SPLScopeCreator splScopeCreator = new SPLScopeCreator(TEST_MODEL_PATH);
