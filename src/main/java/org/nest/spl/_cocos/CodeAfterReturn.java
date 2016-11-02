@@ -16,7 +16,7 @@ import org.nest.spl._ast.*;
  * @author ippen, plotnikov
  */
 public class CodeAfterReturn implements SPLASTBlockCoCo {
-  public static final String ERROR_CODE = "SPL_CODE_AFTER_RETURN";
+
 
   @Override
   public void check(ASTBlock block) {
@@ -113,6 +113,7 @@ public class CodeAfterReturn implements SPLASTBlockCoCo {
   }
 
   private void addReport(final String errorMessage, final SourcePosition sourcePositionStart) {
-    Log.error(ERROR_CODE + ":" + errorMessage, sourcePositionStart);
+    Log.error(SplErrorStrings.message(this, errorMessage, sourcePositionStart));
   }
+
 }

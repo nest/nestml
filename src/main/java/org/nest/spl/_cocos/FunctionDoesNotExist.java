@@ -29,8 +29,6 @@ import static org.nest.symboltable.NESTMLSymbols.resolveMethod;
  * @author ippen, plotnikov
  */
 public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
-  public static final String ERROR_CODE = "SPL_FUNCTION_DOES_NOT_EXIST";
-  private static final String ERROR_MSG_FORMAT = "The function '%s' is not defined";
 
   @Override
   public void check(final ASTFunctionCall astFunctionCall) {
@@ -51,7 +49,7 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
         argTypeNames.add(argType.getValue().getName());
       }
       else {
-        Log.warn(ERROR_CODE + ": Cannot compute the type: " + AstUtils.toString(arg) + " : " + arg.get_SourcePositionStart());
+        Log.warn(SplErrorStrings.code(this) + ": Cannot compute the type: " + AstUtils.toString(arg) + " : " + arg.get_SourcePositionStart());
         return;
       }
 
@@ -61,8 +59,11 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
 
     if (!method.isPresent()) {
       Log.error(
-          ERROR_CODE + ":" + String.format(ERROR_MSG_FORMAT, methodName)
-              + " with the signature '" + Joiner.on(",").join(prettyArgTypeNames) + "'",
+          SplErrorStrings.message(
+              this,
+              methodName,
+              Joiner.on(",").join(prettyArgTypeNames),
+              astFunctionCall.get_SourcePositionStart()),
           astFunctionCall.get_SourcePositionStart());
     }
 
