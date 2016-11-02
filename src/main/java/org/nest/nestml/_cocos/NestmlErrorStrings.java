@@ -5,6 +5,9 @@
  */
 package org.nest.nestml._cocos;
 
+import de.se_rwth.commons.SourcePosition;
+import org.nest.utils.AstUtils;
+
 /**
  * Factory for CoCo error strings. The dispatch is done by the static type of the context condition object.
  *
@@ -44,8 +47,13 @@ public class NestmlErrorStrings {
         + aliasVar + "(v " + varTypeName + ")";
   }
 
-  String getErrorMsg(AliasHasOneVar coco) {
-    return AliasHasOneVar.ERROR_CODE + ":" + "'alias' declarations must only declare one variable.";
+  static String message(final AliasHasOneVar coco, final SourcePosition sourcePosition) {
+    final String ERROR_MESSAGE_FORMAT = "'alias' declarations must only declare exactly one variable.";
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MESSAGE_FORMAT;
+  }
+
+  static String code(final AliasHasOneVar coco) {
+    return "NESTML_ALIAS_HAS_ONE_VAR";
   }
 
   String getErrorMsg(AliasInNonAliasDecl coco, String usedAlias) {
