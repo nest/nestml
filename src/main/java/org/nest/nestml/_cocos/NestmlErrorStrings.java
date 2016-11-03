@@ -5,6 +5,9 @@
  */
 package org.nest.nestml._cocos;
 
+import de.se_rwth.commons.SourcePosition;
+import org.nest.utils.AstUtils;
+
 /**
  * Factory for CoCo error strings. The dispatch is done by the static type of the context condition object.
  *
@@ -17,6 +20,62 @@ public class NestmlErrorStrings {
 
   public static NestmlErrorStrings getInstance() {
     return instance;
+  }
+
+  static String message(final AliasHasOneVar coco, final SourcePosition sourcePosition) {
+    final String ERROR_MESSAGE_FORMAT = "'alias' declarations must only declare exactly one variable.";
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MESSAGE_FORMAT;
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final AliasHasOneVar coco) {
+    return "NESTML_ALIAS_HAS_ONE_VAR";
+  }
+
+  static String message(final VectorVariableInNonVectorDeclaration coco, final String usedAlias, final SourcePosition sourcePosition) {
+    final String ERROR_MSG_FORMAT = "A vector '" + usedAlias + "' cannot be used as part of an initial expression of " +
+                                    "non-vector variable declaration.";
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final VectorVariableInNonVectorDeclaration coco) {
+    return "NESTML_ALIAS_IN_NON_ALIAS_DECL";
+  }
+
+  static String message(final ComponentHasNoDynamics coco, final String name, final SourcePosition sourcePosition) {
+    final String ERROR_MSG_FORMAT = "Component " + name + " doesn't have dynamics function.";
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MSG_FORMAT;
+
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final ComponentHasNoDynamics coco) {
+    return "NESTML_COMPONENT_HAS_NO_DYNAMICS";
+  }
+
+  static String message(final ComponentWithoutInput coco, final String componentName, final SourcePosition sourcePosition) {
+    final String ERROR_MSG_FORMAT = "Problem with the component: " + componentName +
+                                    ". Components cannot have any inputs, since they are not elements of a "
+                                    + "neuronal network, but serve as a part of a neuron declaration.";
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final ComponentWithoutInput coco) {
+    return "NESTML_COMPONENT_WITHOUT_INPUT";
+  }
+
+  static String message(final ComponentWithoutOutput coco, final String componentName, final SourcePosition sourcePosition) {
+    final String ERROR_MSG_FORMAT = "Problem with the component: " + componentName +
+                                    ". Components cannot have any output, since they are not elements of a "
+                                    + "neuronal network, but serve as a part of a neuron declaration.";
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final ComponentWithoutOutput coco) {
+    return "NESTML_COMPONENT_WITHOUT_OUTPUT";
   }
 
   String getErrorMsgAssignment(LiteralsHaveTypes coco){
@@ -44,15 +103,7 @@ public class NestmlErrorStrings {
         + aliasVar + "(v " + varTypeName + ")";
   }
 
-  String getErrorMsg(AliasHasOneVar coco) {
-    return AliasHasOneVar.ERROR_CODE + ":" + "'alias' declarations must only declare one variable.";
-  }
 
-  String getErrorMsg(AliasInNonAliasDecl coco, String usedAlias) {
-    return AliasInNonAliasDecl.ERROR_CODE + ":" + "Alias variable '"
-        + usedAlias
-        + "' cannot be used in default-value declaration of non-alias variables.";
-  }
 
   String getErrorMsgInvariantMustBeBoolean(BooleanInvariantExpressions coco, String expressionType) {
     return BooleanInvariantExpressions.ERROR_CODE + ":" + "The type of the invariant expression must be boolean and not: " +
@@ -65,19 +116,6 @@ public class NestmlErrorStrings {
 
   String getErrorMsg(BufferNotAssignable coco, String bufferName) {
     return BufferNotAssignable.ERROR_CODE + ":" + "Buffer '" + bufferName + "' cannot be reassigned.";
-  }
-
-  String getErrorMsg(ComponentHasNoDynamics coco) {
-    return ComponentHasNoDynamics.ERROR_CODE + ":" + "Components do not have dynamics function.";
-  }
-
-  String getErrorMsg(ComponentNoInput coco) {
-    return ComponentNoInput.ERROR_CODE + ":" + "Components cannot have inputs, since they are not elements of a "
-        + "neuronal network.";
-  }
-
-  String getErrorMsg(ComponentNoOutput coco) {
-    return ComponentNoOutput.ERROR_CODE + ":" + "Components do not have outputs, only neurons have outputs.";
   }
 
   String getErrorMsgWrongReturnType(CorrectReturnValues coco,

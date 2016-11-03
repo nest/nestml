@@ -36,7 +36,7 @@ import static org.nest.utils.LogHelper.countWarningsByPrefix;
  *
  * @author plotnikov
  */
-public class NESTMLCoCosTest  {
+public class NestmlCoCosTest {
 
   @Before
   public void clearLog() {
@@ -45,6 +45,8 @@ public class NESTMLCoCosTest  {
   }
 
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/";
+  private static final String TEST_VALID_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/valid";
+  private static final String TEST_INVALID_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/invalid";
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources"));
 
   private NESTMLCoCoChecker nestmlCoCoChecker;
@@ -56,7 +58,6 @@ public class NESTMLCoCosTest  {
 
   @Test
   public void testResolvingOfPredefinedTypes() {
-    // just take an arbitrary nestml model with an import: nestml*
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
         Paths.get(TEST_MODELS_FOLDER, "resolvePredefinedTypes.nestml").toString(),
         Paths.get(TEST_MODELS_FOLDER));
@@ -100,37 +101,36 @@ public class NESTMLCoCosTest  {
     final AliasHasOneVar aliasHasOneVar = new AliasHasOneVar();
     nestmlCoCoChecker.addCoCo(aliasHasOneVar);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "aliasHasOneVar/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_VALID_MODELS_FOLDER, "aliasHasOneVar.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        AliasHasOneVar.ERROR_CODE);
+        NestmlErrorStrings.code(aliasHasOneVar));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "aliasHasOneVar/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_INVALID_MODELS_FOLDER, "aliasHasOneVar.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        AliasHasOneVar.ERROR_CODE,
+        NestmlErrorStrings.code(aliasHasOneVar),
         1);
   }
 
   @Test
   public void testAliasInNonAliasDecl() {
-    final AliasInNonAliasDecl aliasInNonAliasDecl = new AliasInNonAliasDecl();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) aliasInNonAliasDecl);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) aliasInNonAliasDecl);
+    final VectorVariableInNonVectorDeclaration vectorVariableInNonVectorDeclaration = new VectorVariableInNonVectorDeclaration();
+    nestmlCoCoChecker.addCoCo(vectorVariableInNonVectorDeclaration);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "aliasInNonAliasDecl/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_VALID_MODELS_FOLDER, "vectorVariableInNonVectorDeclaration.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        AliasInNonAliasDecl.ERROR_CODE);
+        NestmlErrorStrings.code(vectorVariableInNonVectorDeclaration));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "aliasInNonAliasDecl/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_INVALID_MODELS_FOLDER, "vectorVariableInNonVectorDeclaration.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        AliasInNonAliasDecl.ERROR_CODE,
+        NestmlErrorStrings.code(vectorVariableInNonVectorDeclaration),
         1);
   }
 
@@ -139,55 +139,55 @@ public class NESTMLCoCosTest  {
     final ComponentHasNoDynamics componentHasNoDynamics = new ComponentHasNoDynamics();
     nestmlCoCoChecker.addCoCo(componentHasNoDynamics);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "componentHasNoDynamics/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_VALID_MODELS_FOLDER, "componentHasNoDynamics.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        ComponentHasNoDynamics.ERROR_CODE);
+        NestmlErrorStrings.code(componentHasNoDynamics));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "componentHasNoDynamics/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_INVALID_MODELS_FOLDER, "componentHasNoDynamics.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        ComponentHasNoDynamics.ERROR_CODE,
+        NestmlErrorStrings.code(componentHasNoDynamics),
         1);
   }
 
   @Test
-  public void testComponentNoInput() {
-    final ComponentNoInput componentNoInput = new ComponentNoInput();
-    nestmlCoCoChecker.addCoCo(componentNoInput);
+  public void testComponentWithoutInput() {
+    final ComponentWithoutInput componentWithoutInput = new ComponentWithoutInput();
+    nestmlCoCoChecker.addCoCo(componentWithoutInput);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "componentNoInput/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_VALID_MODELS_FOLDER, "componentWithoutInput.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        ComponentNoInput.ERROR_CODE);
+        NestmlErrorStrings.code(componentWithoutInput));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "componentNoInput/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_INVALID_MODELS_FOLDER, "componentWithoutInput.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        ComponentNoInput.ERROR_CODE,
+        NestmlErrorStrings.code(componentWithoutInput),
         1);
   }
 
   @Test
-  public void testComponentNoOutput() {
-    final ComponentNoOutput componentNoOutput = new ComponentNoOutput();
-    nestmlCoCoChecker.addCoCo(componentNoOutput);
+  public void testComponentWithoutOutput() {
+    final ComponentWithoutOutput componentWithoutOutput = new ComponentWithoutOutput();
+    nestmlCoCoChecker.addCoCo(componentWithoutOutput);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "componentNoOutput/valid.nestml") ;
+    final Path pathToValidModel = Paths.get(TEST_VALID_MODELS_FOLDER, "componentWithoutOutput.nestml") ;
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        ComponentNoOutput.ERROR_CODE);
+        NestmlErrorStrings.code(componentWithoutOutput));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "componentNoOutput/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_INVALID_MODELS_FOLDER, "componentWithoutOutput.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        ComponentNoOutput.ERROR_CODE,
+        NestmlErrorStrings.code(componentWithoutOutput),
         1);
   }
 
