@@ -16,10 +16,8 @@ public class DotOperatorVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr) {
-    checkState(expr.getLeft().get().getType().isPresent());
-    checkState(expr.getRight().get().getType().isPresent());
-    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType().get();
-    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType().get();
+    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType();
+    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType();
 
     if (lhsType.isError()) {
       expr.setType(lhsType);

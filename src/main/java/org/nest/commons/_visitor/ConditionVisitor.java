@@ -17,12 +17,9 @@ public class ConditionVisitor implements CommonsVisitor{
   @Override
   public void visit(ASTExpr expr) {
     if (expr.getCondition().isPresent()) {
-      checkState(expr.getCondition().get().getType().isPresent());
-      checkState(expr.getIfTrue().get().getType().isPresent());
-      checkState(expr.getIfNot().get().getType().isPresent());
-      final Either<TypeSymbol, String> condition = expr.getCondition().get().getType().get();
-      final Either<TypeSymbol, String> ifTrue = expr.getIfTrue().get().getType().get();
-      final Either<TypeSymbol, String> ifNot = expr.getIfNot().get().getType().get();
+      final Either<TypeSymbol, String> condition = expr.getCondition().get().getType();
+      final Either<TypeSymbol, String> ifTrue = expr.getIfTrue().get().getType();
+      final Either<TypeSymbol, String> ifNot = expr.getIfNot().get().getType();
 
       if (condition.isError()) {
         expr.setType(condition);

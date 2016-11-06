@@ -18,8 +18,7 @@ public class UnaryVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr){
-    checkState(expr.getTerm().get().getType().isPresent());
-    final Either<TypeSymbol, String> termType  = expr.getTerm().get().getType().get();
+    final Either<TypeSymbol, String> termType  = expr.getTerm().get().getType();
 
     if(termType.isError()){
       expr.setType(termType);

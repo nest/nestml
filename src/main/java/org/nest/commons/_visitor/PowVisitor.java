@@ -19,10 +19,8 @@ public class PowVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr){
-    checkState(expr.getBase().get().getType().isPresent());
-    checkState(expr.getExponent().get().getType().isPresent());
-    final Either<TypeSymbol, String> baseType = expr.getBase().get().getType().get();
-    final Either<TypeSymbol, String> exponentType = expr.getExponent().get().getType().get();
+    final Either<TypeSymbol, String> baseType = expr.getBase().get().getType();
+    final Either<TypeSymbol, String> exponentType = expr.getExponent().get().getType();
 
     if (baseType.isError()) {
       expr.setType(baseType);

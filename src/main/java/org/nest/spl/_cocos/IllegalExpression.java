@@ -48,7 +48,7 @@ public class IllegalExpression implements
       final String varNameFromDeclaration = node.getVars().get(0);
       final String declarationTypeName = computeTypeName(node.getDatatype());
 
-      final Either<TypeSymbol, String> initializerExpressionType = node.getExpr().get().getType().get();
+      final Either<TypeSymbol, String> initializerExpressionType = node.getExpr().get().getType();
       final TypeSymbol variableDeclarationType;
 
       if (initializerExpressionType.isValue()) {
@@ -83,7 +83,7 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTELIF_Clause node) {
-    final Either<TypeSymbol, String> exprType = node.getExpr().getType().get();
+    final Either<TypeSymbol, String> exprType = node.getExpr().getType();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
 
@@ -108,7 +108,7 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTIF_Clause node) {
-    final Either<TypeSymbol, String> exprType = node.getExpr().getType().get();
+    final Either<TypeSymbol, String> exprType = node.getExpr().getType();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
       final String msg = SplErrorStrings.messageNonBoolean(
@@ -129,10 +129,10 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTWHILE_Stmt node) {
-    if (node.getExpr().getType().get().getValue() != getBooleanType()) {
+    if (node.getExpr().getType().getValue() != getBooleanType()) {
       final String msg = SplErrorStrings.messageNonBoolean(
           this,
-          node.getExpr().getType().get().getValue().prettyPrint(),
+          node.getExpr().getType().getValue().prettyPrint(),
           node.get_SourcePositionStart());
       error(msg, node.get_SourcePositionStart());
 
