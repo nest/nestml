@@ -12,24 +12,6 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
  * @author ptraeder, plotnikov
  */
 public class ExpressionTypeVisitor implements CommonsVisitor {
-
- /* static final Stack<CommonsVisitor> callStack = new Stack<>();
-
-  public Optional<CommonsVisitor> getCaller() {
-    if (!callStack.isEmpty()) {
-      CommonsVisitor topElement = (CommonsVisitor) callStack.peek();
-      return Optional.of(topElement);
-    }
-    // no parent, return an absent value
-    return Optional.empty();
-  }
-
-  public void endVisit(ASTExpr node){
-    //restore previous realthis pointer
-    if(!callStack.isEmpty())
-      setRealThis(callStack.pop());
-  }*/
-
   private CommonsVisitor realThis=this;
 
   private static UnaryVisitor unaryVisitor = new UnaryVisitor();
@@ -68,7 +50,6 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
 
 
   public void traverse(org.nest.commons._ast.ASTExpr node) {
-   // callStack.push(getRealThis());
 
     //Expr = <rightassoc> base:Expr pow:["**"] exponent:Expr
     if (node.getBase().isPresent() && node.getExponent().isPresent()) {

@@ -32,7 +32,7 @@ public class NestmlErrorStrings {
   }
 
   String getErrorMsgCall(LiteralsHaveTypes coco){
-    return LiteralsHaveTypes.ERROR_CODE + ": Parameters to function calls must specify unit type";
+    return LiteralsHaveTypes.ERROR_CODE + ": Parameters to function calls must specify the correct unit type";
   }
 
   String getErrorMsg(AliasHasDefiningExpression coco) {
