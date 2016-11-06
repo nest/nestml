@@ -10,17 +10,18 @@ import org.nest.nestml._ast.ASTComponent;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
- * Components are not allowed to have dynamics, only neurons are.
+ * Components are not allowed to have inputs, only neurons are.
  *
  * @author ippen, plotnikov
  */
-public class ComponentHasNoDynamics implements NESTMLASTComponentCoCo {
+public class ComponentWithoutInput implements NESTMLASTComponentCoCo {
 
+  @Override
   public void check(final ASTComponent comp) {
 
-    if (!comp.getBody().getDynamics().isEmpty()) {
-
+    if (!comp.getBody().getInputLines().isEmpty()) {
       final String msg = NestmlErrorStrings.message(this, comp.getName(), comp.get_SourcePositionStart());
+
       error(msg, comp.get_SourcePositionStart());
     }
 

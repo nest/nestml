@@ -2,8 +2,7 @@ component AliasInDecl:
   parameter:
     n  integer
     alias three integer[n] = 3 # should be an error?
-
-    threePlusFour integer[n] = three + 4
+    threePlusFour integer = three + 4
   end
 
   function set_three(v integer):

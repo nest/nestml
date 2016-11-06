@@ -16,16 +16,13 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class AliasHasOneVar implements NESTMLASTAliasDeclCoCo {
 
-  public static final String ERROR_CODE = "NESTML_ALIAS_HAS_ONE_VAR";
-
   @Override
   public void check(final ASTAliasDecl decl) {
     if (decl.isAlias()) {
       if (decl.getDeclaration().getVars().size() != 1) {
-        NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this);
+        final String msg = NestmlErrorStrings.message(this, decl.get_SourcePositionStart());
 
-       error(msg, decl.get_SourcePositionStart());
+        error(msg, decl.get_SourcePositionStart());
       }
 
     }

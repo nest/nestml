@@ -67,19 +67,17 @@ public class NestmlCoCosManager {
     final AliasHasOneVar aliasHasOneVar = new AliasHasOneVar();
     nestmlCoCoChecker.addCoCo(aliasHasOneVar);
 
-    final AliasInNonAliasDecl aliasInNonAliasDecl = new AliasInNonAliasDecl();
-
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) aliasInNonAliasDecl);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) aliasInNonAliasDecl);
+    final VectorVariableInNonVectorDeclaration vectorVariableInNonVectorDeclaration = new VectorVariableInNonVectorDeclaration();
+    nestmlCoCoChecker.addCoCo(vectorVariableInNonVectorDeclaration);
 
     final ComponentHasNoDynamics componentHasNoDynamics = new ComponentHasNoDynamics();
     nestmlCoCoChecker.addCoCo(componentHasNoDynamics);
 
-    final ComponentNoInput componentNoInput = new ComponentNoInput();
-    nestmlCoCoChecker.addCoCo(componentNoInput);
+    final ComponentWithoutInput componentWithoutInput = new ComponentWithoutInput();
+    nestmlCoCoChecker.addCoCo(componentWithoutInput);
 
-    final ComponentNoOutput componentNoOutput = new ComponentNoOutput();
-    nestmlCoCoChecker.addCoCo(componentNoOutput);
+    final ComponentWithoutOutput componentWithoutOutput = new ComponentWithoutOutput();
+    nestmlCoCoChecker.addCoCo(componentWithoutOutput);
 
     final CurrentInputIsNotInhExc currentInputIsNotInhExc = new CurrentInputIsNotInhExc();
     nestmlCoCoChecker.addCoCo(currentInputIsNotInhExc);
