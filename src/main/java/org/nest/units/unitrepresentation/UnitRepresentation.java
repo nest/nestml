@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,7 +28,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
  *
  * @author plotnikov, traeder
  */
-public class UnitRepresentation {
+public class UnitRepresentation implements Comparable<UnitRepresentation>{
   private final String ERROR_CODE = "NESTML_UnitRepresentation: ";
 
   public void setMagnitude(int magnitude) {
@@ -130,6 +132,15 @@ public class UnitRepresentation {
     return result;
   }
 
+  public int compareTo(UnitRepresentation other) {
+    if(this.isMoreComplexThan(other)){
+      return 1;
+    }else if(other.isMoreComplexThan(this)){
+      return -1;
+    }
+    return 0;
+  }
+
   /**
    * Helper class for organizing printing
    */
@@ -163,7 +174,10 @@ public class UnitRepresentation {
 
     //factorize
     List<Factor> factors = new ArrayList<>();
-    factorize(factors,workingCopy);
+    if(!factorize(factors,workingCopy)){
+      error(ERROR_CODE+ "Cannot factorize the Unit "+workingCopy.serialize());
+      return("unprintable");
+    }
 
     //dump magnitude back into the results
     if(abs(this.magnitude)>factors.size()*24){
@@ -193,17 +207,21 @@ public class UnitRepresentation {
 
     Factor first = factors.remove(0);
     String firstName = first.getName();
-    String prefix = SIData.getPrefixMagnitudes().inverse().get(thisDump);
+    String prefix = "";
+    if(thisDump !=0) {
+      prefix = SIData.getPrefixMagnitudes().inverse().get(thisDump);
+    }
     first.setName(prefix+firstName);
 
     if(nextDump!=0){
       dumpMagnitude(factors,nextDump);
     }
 
-    List<Factor> restoreFactors= new ArrayList<>();
+    List<Factor> restoreFactors= new ArrayList<>(); //juggle values around to retain order or matches
     restoreFactors.add(first);
     restoreFactors.addAll(factors);
-    factors = restoreFactors;
+    factors.removeAll(factors);
+    factors.addAll(restoreFactors);
   }
 
   private String printresults(List<Factor> factors) {
@@ -212,12 +230,17 @@ public class UnitRepresentation {
     for(Factor factor : factors){
       if(factor.getExponent() >0){
         numCount++;
-        numerator += factor.getName()+ "**"+factor.getExponent()+" * ";
+        numerator += factor.getName() + (factor.getExponent()>1 ? "**" + factor.getExponent() : "" ) + " * ";
       }else{
         denomCount++;
-        denominator += factor.getName()+"**"+(-factor.getExponent())+" * ";
+        denominator += factor.getName()+(factor.getExponent()<-1 ? "**" + -factor.getExponent() : "" )+" * ";
       }
     }
+
+    if(numerator ==""){
+      numerator = "1";
+    }
+
 
     numerator = removeTrailingMultiplication(numerator);
     if(numCount>1){
@@ -229,37 +252,63 @@ public class UnitRepresentation {
       denominator="("+denominator+")";
     }
 
-    return numerator+ " / "+ denominator;
+    return numerator+(denomCount>0?  " / "+ denominator:"");
   }
 
-  private void factorize(List<Factor> factors, UnitRepresentation workingCopy) {
+  private class FactorizationResult implements Comparable<FactorizationResult>{
+    private UnitRepresentation remainder;
+    private Factor factor;
+
+    public FactorizationResult(UnitRepresentation remainder, Factor factor){
+      this.remainder = remainder;
+      this.factor = factor;
+    }
+
+    @Override public int compareTo(FactorizationResult o) {
+      if(this.remainder.compareTo(o.remainder)==0){
+        String tieBreakerThis = this.factor.getName()+this.factor.getExponent(); //Make sure that TreeSet actually gets to add stuff
+        String tieBreakerOther = o.factor.getName()+o.factor.getExponent();
+        return tieBreakerThis.compareTo(tieBreakerOther);
+      }
+      return this.remainder.compareTo(o.remainder);
+    }
+  }
+
+  private boolean factorize(List<Factor> factors, UnitRepresentation workingCopy) {
     /* Find the highest possible power of any given BaseRepresentation to still be contained in workingCopy.
-       Select the best match using isMoreComplexThan()
      */
-    UnitRepresentation smallestRemainder = new UnitRepresentation(workingCopy);
-    Factor bestFactor = null;
+    Set<FactorizationResult> orderedResults = new TreeSet<FactorizationResult>();
     for(String baseName : SIData.getBaseRepresentations().keySet()){
       UnitRepresentation base = SIData.getBaseRepresentations().get(baseName);
+      //match base in workingCopy
       Pair<Integer,UnitRepresentation> match = workingCopy.match(base);
-      if(match.getKey().intValue() == 0){ //if we dont have a match, skip.
-        continue;
-      }
       UnitRepresentation remainder = match.getValue();
       Factor factor = new Factor(baseName,match.getKey());
-      if(smallestRemainder.isMoreComplexThan(remainder)){
-        smallestRemainder = remainder;
-        bestFactor = factor;
+      orderedResults.add(new FactorizationResult(remainder,factor));
+      //match for inverse base
+      match = workingCopy.match(base.invert());
+      UnitRepresentation inverseRemainder = match.getValue();
+      Factor inverseFactor = new Factor(baseName,-match.getKey());
+      orderedResults.add(new FactorizationResult(inverseRemainder,inverseFactor));
+    }
+
+    if(orderedResults.isEmpty()){
+      return false;
+    }
+
+    for(FactorizationResult result : orderedResults){
+      if(result.remainder.exponentSum() == 0){
+        factors.add(result.factor);
+        return true;
+      }
+      List<Factor> nextResults = new ArrayList<>();
+      if(factorize(nextResults,result.remainder)){ //remaining factorization successful?
+        factors.add(result.factor);//construct result in factors parameter
+        factors.addAll(nextResults);
+        return true;
       }
     }
-
-    factors.add(bestFactor);
-
-    //abort recursion when only magnitudes remain
-    if(smallestRemainder.exponentSum() == 0){
-      return;
-    }
-    workingCopy = smallestRemainder;
-    factorize(factors,workingCopy);
+    return false;
   }
 
   private Pair<Integer, UnitRepresentation> match(UnitRepresentation base) {
@@ -269,13 +318,8 @@ public class UnitRepresentation {
       exponent--; //step back once
       return new Pair(exponent,this.divideBy(base.pow(exponent)));
 
-    }else if(this.contains(base.invert())){ //base is factor with negative exponent
-      int exponent = -1;
-      while(this.contains(base.pow(--exponent))){} //step down until we lose match
-      exponent++; //step back once
-      return new Pair(exponent,this.divideBy(base.pow(exponent)));
-    }else{ //base is not a factor
-      return new Pair(0,this);
+    }else{ //base is not a factor: return division result anyways so we can expand if nothing else matches
+      return new Pair(1,this.divideBy(base));
     }
   }
 
