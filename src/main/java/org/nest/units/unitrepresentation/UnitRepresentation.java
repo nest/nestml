@@ -25,8 +25,25 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getType;
  */
 public class UnitRepresentation {
   private static final String LOG_NAME = "NESTML_UNIT_REPRESENTATION";
+
+  public void setMagnitude(int magnitude) {
+    this.magnitude = magnitude;
+  }
+
   private int magnitude;
   private int K, s, m, g, cd, mol, A;
+
+
+  private boolean ignoreMagnitude = false;
+
+  public void setIgnoreMagnitude(boolean ignoreMagnitude) {
+    this.ignoreMagnitude = ignoreMagnitude;
+  }
+
+  public boolean isIgnoreMagnitude() {
+    return ignoreMagnitude;
+  }
+
 
   private int[] asArray(){
     int[] result={ K, s, m, g, cd, mol, A, magnitude };
@@ -38,7 +55,7 @@ public class UnitRepresentation {
   }
 
   public String serialize() {
-    return Arrays.toString(this.asArray());
+    return Arrays.toString(this.asArray())+(ignoreMagnitude?"I":"i");
   }
 
   private int exponentSum() {
@@ -262,6 +279,19 @@ public class UnitRepresentation {
     this.mol = mol;
     this.A = A;
     this.magnitude = magnitude;
+    this.ignoreMagnitude = false;
+  }
+
+  public UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude,boolean ignoreMagnitude) {
+    this.K = K;
+    this.s = s;
+    this.m = m;
+    this.g = g;
+    this.cd = cd;
+    this.mol = mol;
+    this.A = A;
+    this.magnitude = magnitude;
+    this.ignoreMagnitude = ignoreMagnitude;
   }
 
   public UnitRepresentation(UnitRepresentation unit){
@@ -273,26 +303,40 @@ public class UnitRepresentation {
     this.mol = unit.mol;
     this.A = unit.A;
     this.magnitude = unit.magnitude;
+    this.ignoreMagnitude= unit.isIgnoreMagnitude();
   }
 
   public boolean equals(UnitRepresentation other){
-    if(this.K == other.K &&
-        this.s == other.s &&
-        this.m == other.m &&
-        this.g == other.g &&
-        this.cd == other.cd &&
-        this.mol == other.mol &&
-        this.A == other.A &&
-        this.magnitude == other.magnitude){
-      return true;
-    }else{
-      return false;
+    //ignore magnitude if either is set to ignore.
+    if(this.isIgnoreMagnitude()||other.isIgnoreMagnitude()){
+      return (this.K == other.K &&
+          this.s == other.s &&
+          this.m == other.m &&
+          this.g == other.g &&
+          this.cd == other.cd &&
+          this.mol == other.mol &&
+          this.A == other.A);
+    }else {
+      return (this.K == other.K &&
+          this.s == other.s &&
+          this.m == other.m &&
+          this.g == other.g &&
+          this.cd == other.cd &&
+          this.mol == other.mol &&
+          this.A == other.A &&
+          this.magnitude == other.magnitude);
     }
   }
 
+
+
   public UnitRepresentation(String serialized){
     if(serialized == getRealType().getName()) {
-      return; //[0,0,0,0,0,0,0,0]
+      return; //[0,0,0,0,0,0,0,0]i
+    }
+
+    if(serialized.substring(serialized.length()-1).equals("I")){
+      ignoreMagnitude = true;
     }
 
     Pattern parse = Pattern.compile("-?[0-9]+");
@@ -325,7 +369,8 @@ public class UnitRepresentation {
         this.cd - denominator.cd,
         this.mol -denominator.mol,
         this.A - denominator.A,
-        this.magnitude - denominator.magnitude);
+        this.magnitude - denominator.magnitude,
+        this.isIgnoreMagnitude()||denominator.isIgnoreMagnitude());
   }
 
   public UnitRepresentation pow(int exponent){
@@ -337,7 +382,8 @@ public class UnitRepresentation {
         this.cd * exponent,
         this.mol * exponent,
         this.A * exponent,
-        this.magnitude* exponent);
+        this.magnitude* exponent,
+        this.isIgnoreMagnitude());
   }
 
   public UnitRepresentation multiplyBy(UnitRepresentation factor){
@@ -349,11 +395,12 @@ public class UnitRepresentation {
         this.cd + factor.cd,
         this.mol +factor.mol,
         this.A + factor.A,
-        this.magnitude + factor.magnitude);
+        this.magnitude + factor.magnitude,
+        this.isIgnoreMagnitude()||factor.isIgnoreMagnitude());
   }
 
   public UnitRepresentation invert(){
-    return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude);
+    return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude,this.isIgnoreMagnitude());
   }
 
   public UnitRepresentation deriveT(int order) {

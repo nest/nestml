@@ -13,8 +13,7 @@ public class ParenthesesVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr) {
-    checkState(expr.getExpr().get().getType().isPresent());
-    final Either<TypeSymbol, String> exprType  = expr.getExpr().get().getType().get();
+    final Either<TypeSymbol, String> exprType  = expr.getExpr().get().getType();
       expr.setType(exprType);
   }
 }

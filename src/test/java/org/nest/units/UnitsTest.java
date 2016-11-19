@@ -61,7 +61,7 @@ public class UnitsTest extends ModelbasedTest {
         .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
         .count();
 
-    assertEquals(17, errorsFound);
+    assertEquals(21, errorsFound);
   }
 
   @Test

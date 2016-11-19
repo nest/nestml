@@ -51,12 +51,8 @@ public class LiteralsHaveTypes implements
     if(var.isPresent()) {
       if (var.get().getType().getType() == TypeSymbol.Type.UNIT) {
         final Either<TypeSymbol,String> exprType;
-        if (!node.getExpr().getType().isPresent()) {
-          exprType = node.getExpr().getType().get();
-        }
-        else {
-          exprType = node.getExpr().getType().get();
-        }
+        exprType = node.getExpr().getType();
+
         if (exprType.isValue() &&
             // !exprType.getValue().equals(var.get().getType())) {
             !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
@@ -87,11 +83,8 @@ public class LiteralsHaveTypes implements
       if (var.get().getType().getType() == TypeSymbol.Type.UNIT) {
         if (node.getExpr().isPresent()) {
           Either<TypeSymbol,String> exprType;
-          if (!node.getExpr().get().getType().isPresent()) {
-            exprType = node.getExpr().get().getType().get();
-          }else{
-            exprType = node.getExpr().get().getType().get();
-          }
+          exprType = node.getExpr().get().getType();
+
           if (exprType.isValue() &&
               // !exprType.getValue().equals(var.get().getType())) {
               !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
@@ -134,11 +127,8 @@ public class LiteralsHaveTypes implements
         ASTExpr parameterExpr = node.getArgs().get(it);
         if(parameterType.getType() == TypeSymbol.Type.UNIT){
           Either<TypeSymbol,String> exprType;
-          if (!parameterExpr.getType().isPresent()) {
-            exprType = parameterExpr.getType().get();
-          }else{
-            exprType = parameterExpr.getType().get();
-          }
+          exprType = parameterExpr.getType();
+
           if (exprType.isValue() &&
               //!exprType.getValue().equals(parameterType)) {
               !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
@@ -190,11 +180,8 @@ public class LiteralsHaveTypes implements
                 ASTReturnStmt returnStmt = small_stmt.getReturnStmt().get();
                 if(returnStmt.exprIsPresent()){
                   Either<TypeSymbol,String> returnType;
-                  if (!returnStmt.getExpr().get().getType().isPresent()) {
-                    returnType = returnStmt.getExpr().get().getType().get();
-                  }else{
-                    returnType = returnStmt.getExpr().get().getType().get();
-                  }
+                  returnType = returnStmt.getExpr().get().getType();
+
                   if (returnType.isValue() &&
                      // !exprType.getValue().equals(returnType)) {
                       !returnType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
@@ -252,19 +239,9 @@ public class LiteralsHaveTypes implements
       final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
       checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
       final Either<TypeSymbol,String> leftType,rightType;
+      leftType = node.getLeft().get().getType();
+      rightType = node.getRight().get().getType();
 
-      if (!node.getLeft().get().getType().isPresent()) {
-        leftType = node.getLeft().get().getType().get();
-      }
-      else{
-        leftType = node.getLeft().get().getType().get();
-      }
-      if (!node.getRight().get().getType().isPresent()) {
-        rightType = node.getRight().get().getType().get();
-      }
-      else{
-        rightType = node.getRight().get().getType().get();
-      }
       if (leftType.isValue() && rightType.isValue()){ // Types are Recognized
         if(leftType.getValue().getType() == TypeSymbol.Type.UNIT ||
             rightType.getValue().getType() == TypeSymbol.Type.UNIT) {// at least one of the involved types is UNIT

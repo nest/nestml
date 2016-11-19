@@ -199,7 +199,7 @@ public final class AstUtils {
 
     for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
       final ASTExpr argExpr = astFunctionCall.getArgs().get(i);
-      final Either<TypeSymbol, String> argType = argExpr.getType().get();
+      final Either<TypeSymbol, String> argType = argExpr.getType();
       if (argType.isValue()) {
         argTypeNames.add(argType.getValue().getName());
       }

@@ -3,11 +3,17 @@ package org.nest.commons._visitor;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.symboltable.NESTMLSymbols;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
+
+import static de.se_rwth.commons.logging.Log.warn;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getType;
+import static org.nest.utils.AstUtils.getNameOfLHS;
 
 import java.util.Optional;
 
@@ -24,15 +30,15 @@ public class VariableVisitor implements CommonsVisitor{
     final Optional<VariableSymbol> var = scope.resolve(varName, VariableSymbol.KIND);
 
     if (var.isPresent()) {
-      if(varNode.getDifferentialOrder().size() !=0 && var.get().getType().getType() == TypeSymbol.Type.UNIT){
+    /*  if(varNode.getDifferentialOrder().size() !=0 && var.get().getType().getType() == TypeSymbol.Type.UNIT){
         UnitRepresentation deriveMe = new UnitRepresentation(var.get().getType().getName());
         deriveMe = deriveMe.deriveT(varNode.getDifferentialOrder().size());
         TypeSymbol derivedType = getType(deriveMe.serialize());
         expr.setType(Either.value(derivedType));
       }
-      else{
+      else{*/
         expr.setType(Either.value(var.get().getType()));
-      }
+      //}
     }
     else {
       expr.setType(Either.error("ExpressionCalculator cannot resolve the type of the variable: " + varName));

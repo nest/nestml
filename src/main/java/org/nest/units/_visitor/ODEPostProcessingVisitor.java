@@ -3,6 +3,7 @@ package org.nest.units._visitor;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._visitor.ExpressionTypeVisitor;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._visitor.NESTMLVisitor;
@@ -20,6 +21,7 @@ import java.util.Optional;
 
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
+import static org.nest.utils.AstUtils.getNameOfLHS;
 
 /**
  * Visitor to ODE Shape and Equation nodes. Calculates implicit type and updates Symbol table.
@@ -32,8 +34,8 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
   private static final String ERROR_CODE = "NESTML_ODEPostProcessingVisitor";
 
   public void visit(ASTShape astShape) {
-    if(astShape.getRhs().getType().get().isError()){
-      warn(ERROR_CODE + ": Error in Expression type calculation: " + astShape.getRhs().getType().get().getError());
+    if(astShape.getRhs().getType().isError()){
+      warn(ERROR_CODE + ": Error in Expression type calculation: " + astShape.getRhs().getType().getError());
 
       return;
     }
@@ -43,8 +45,8 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
 
   public void visit(ASTEquation astEquation) {
-    if(astEquation.getRhs().getType().get().isError()){
-      warn(ERROR_CODE + ": Error in Expression type calculation: " + astEquation.getRhs().getType().get().getError());
+    if(astEquation.getRhs().getType().isError()){
+      warn(ERROR_CODE + ": Error in Expression type calculation: " + astEquation.getRhs().getType().getError());
 
       return;
     }
@@ -76,7 +78,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     UnitRepresentation derivedVarUnit = varUnit.deriveT(astEquation.getLhs().getDifferentialOrder().size());
 
     //get type of RHS expression
-    TypeSymbol typeFromExpression = astEquation.getRhs().getType().get().getValue();
+    TypeSymbol typeFromExpression = astEquation.getRhs().getType().getValue();
 
     if(typeFromExpression.getType() != TypeSymbol.Type.UNIT &&
         typeFromExpression != getRealType()) {
@@ -84,11 +86,16 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
       return;
     }
     UnitRepresentation unitFromExpression = new UnitRepresentation(typeFromExpression.getName());
+    //set any of the units to ignoreMagnitude
+    unitFromExpression.setIgnoreMagnitude(true);
     //do the actual test:
     if(!unitFromExpression.equals(derivedVarUnit)){
+      //remove magnitude for clearer error message
+      derivedVarUnit.setMagnitude(0);
+      unitFromExpression.setMagnitude(0);
       warn(ERROR_CODE+ "Type of (derived) variable "+ astEquation.getLhs().toString() + " is: "+ derivedVarUnit.prettyPrint()+
-          ". This doesnt match Type of RHS expression: "+unitFromExpression.prettyPrint()+
-          " at: " +astEquation.get_SourcePositionStart() );
+          ". This does not match Type of RHS expression: "+unitFromExpression.prettyPrint()+
+          " at: " +astEquation.get_SourcePositionStart()+". Magnitudes are ignored in ODE Expressions" );
     }
   }
 
