@@ -14,10 +14,11 @@ public class ASTUnitType extends ASTUnitTypeTOP{
       String unit,
       String leftParentheses,
       String rightParentheses,
+      String unitlessLiteral,
       boolean divOp,
       boolean timesOp,
       boolean pow ){
-    super(unitType,base,exponent,left,right,unit,leftParentheses,rightParentheses,divOp,timesOp,pow);
+    super(unitType,base,exponent,left,right,unit,leftParentheses,rightParentheses,unitlessLiteral,divOp,timesOp,pow);
   }
 
   public ASTUnitType() {
