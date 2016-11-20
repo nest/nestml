@@ -104,7 +104,7 @@ public class AliasInverter {
 
   public static VariableSymbol baseVariable(final ASTExpr astExpr) {
     checkArgument(astExpr.getEnclosingScope().isPresent());
-    checkArgument(isInvertableExpression(astExpr));
+    checkArgument(isInvertableExpression(astExpr) || isRelativeExpression(astExpr));
 
     return resolve(astExpr.getLeft().get().getVariable().get().toString(), astExpr.getEnclosingScope().get());
   }
