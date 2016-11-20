@@ -15,12 +15,12 @@
     ${declarations.printVariableType(variable)} ${variable.getName()}(P_.${declarations.printSizeParameter(ast)});
     <#if ast.getExpr().isPresent()>
       for (long i=0; i < get_${declarations.printSizeParameter(ast)}(); i++) {
-        ${variable.getName()}[i] = ${expressionsPrinter.print(ast.getExpr().get())}
+        ${variable.getName()}[i] = ${expressionsPrinter.print(ast.getExpr().get())};
       }
     </#if>
   <#else>
     <#if ast.getExpr().isPresent()>
-      ${declarations.printVariableType(variable)} ${variable.getName()} = ${expressionsPrinter.print(ast.getExpr().get())}
+      ${declarations.printVariableType(variable)} ${variable.getName()} = ${expressionsPrinter.print(ast.getExpr().get())};
     <#else>
       ${declarations.printVariableType(variable)} ${variable.getName()};
     </#if>

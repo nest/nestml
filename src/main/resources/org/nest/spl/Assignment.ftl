@@ -8,7 +8,7 @@
 <#assign lhsVariable = assignments.lhsVariable(ast)>
 <#if assignments.isVectorizedAssignment(ast)>
 for (long i=0; i < P_.${assignments.printSizeParameter(ast)}; i++) {
-  <#if assignments.isVectorLHS(ast)>
+  <#if lhsVariable.isVector()>
     ${variableHelper.printOrigin(lhsVariable)} ${names.name(lhsVariable)}[i]
   <#else>
     ${variableHelper.printOrigin(lhsVariable)} ${names.name(lhsVariable)}
