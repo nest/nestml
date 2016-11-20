@@ -8,7 +8,7 @@ neuron quadratic_IaF:
   end
 
   equations:
-    V_m' = I_syn + a * (V_m - V_reset)*(V_m - V_th)
+    V_m' = I_syn + a * (V_m - V_reset)*(V_m - V_th)/1mV
   end
 
   parameter:

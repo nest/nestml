@@ -15,12 +15,6 @@ double step_ = nest::Time::get_resolution().get_ms();
 double IntegrationStep_ = nest::Time::get_resolution().get_ms();
 double t = 0;
 
-double stateVector[${stateSize}];
-<#assign index = 0>
-<#list body.variablesDefinedByODE() as odeVariable>
-  stateVector[${names.name(odeVariable)}_${indexPostfix}] = S_.${names.name(odeVariable)};
-  <#assign index = index + 1>
-</#list>
 while ( t < step_ )
 {
   const int status = gsl_odeiv_evolve_apply( B_.e_,
@@ -36,7 +30,3 @@ while ( t < step_ )
     throw nest::GSLSolverFailure( get_name(), status );
   }
 }
-<#list body.variablesDefinedByODE() as odeVariable>
-  S_.${names.name(odeVariable)} = stateVector[${names.name(odeVariable)}_${indexPostfix}];
-  <#assign index = index + 1>
-</#list>

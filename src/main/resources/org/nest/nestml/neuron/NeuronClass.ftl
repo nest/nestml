@@ -90,11 +90,6 @@ ${simpleNeuronName}::Parameters_::set(const DictionaryDatum& __d
 )
 {
 
-  <#list body.getParameterSymbols() as parameter>
-  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
-  </#list>
-
-  ${tc.include("org.nest.nestml.function.Invariant", body.getParameterInvariants())}
 
 }
 
@@ -105,9 +100,7 @@ ${simpleNeuronName}::State_::set(const DictionaryDatum& __d, const Parameters_& 
 </#list>
 )
 {
-  <#list body.getStateSymbols() as state>
-  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [state])}
-  </#list>
+
 }
 
 ${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
@@ -270,17 +263,13 @@ ${simpleNeuronName}::update(
         nest::Time const & origin,
         const long from, const long to)
 {
-    <#assign dynamics = body.getDynamicsBlock().get()>
-
 
     <#if useGSL>
       <#assign stateSize = body.getEquations()?size>
       double step_ = nest::Time::get_resolution().get_ms();
       double IntegrationStep_ = nest::Time::get_resolution().get_ms();
       double t = 0;
-      double stateVector[${stateSize}];
     </#if>
-
 
     for ( long lag = from ; lag < to ; ++lag ) {
       <#list body.getInputBuffers() as inputLine>
@@ -290,11 +279,13 @@ ${simpleNeuronName}::update(
          </#if>
       </#list>
 
+      <#assign dynamics = body.getDynamicsBlock().get()>
       ${tc.include("org.nest.spl.Block", dynamics.getBlock())}
 
       // voltage logging
       B_.logger_.record_data(origin.get_steps()+lag);
     }
+
 }
 
 
