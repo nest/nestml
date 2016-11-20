@@ -63,44 +63,21 @@ public class ASTAssignments {
     throw new RuntimeException("The argument should be a compound assignment.");
   }
 
-  public String printOrigin(final ASTAssignment astAssignment) {
-    checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symbol table creator.");
+
+  /**
+   * Returns the textual representation of the setter invocation
+   */
+  public VariableSymbol lhsVariable(final ASTAssignment astAssignment) {
+    checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
-    return VariableHelper.printOrigin(resolve(astAssignment.getLhsVarialbe().toString(), scope));
-  }
+    final String lhsVarName = astAssignment.getLhsVarialbe().toString();
+    final VariableSymbol lhsVarSymbol = resolve(lhsVarName, scope);
 
-  /**
-   * Returns the textual representation of the setter invocation
-   */
-  public String printLHS(final ASTAssignment astAssignment) {
-
-    return Names.name(astAssignment.getLhsVarialbe());
+    return lhsVarSymbol;
   }
 
 
-  /**
-   * Returns the textual representation of the setter invocation
-   */
-  public String printSetterName(final ASTAssignment astAssignment) {
-    return "set_" + astAssignment.getLhsVarialbe();
-  }
-
-  /**
-   * Returns the textual representation of the setter invocation
-   */
-  public String printLhsName(final ASTAssignment astAssignment) {
-    return astAssignment.getLhsVarialbe() + "_tmp";
-  }
-
-  /**
-   * Returns the textual representation of the setter invocation
-   */
-  public String printGetterName(final ASTAssignment astAssignment) {
-    final String variableName = Names.name(astAssignment.getLhsVarialbe());
-    return "get_" + variableName;
-  }
-
-  public boolean isVector(final ASTAssignment astAssignment) {
+  public boolean isVectorizedAssignment(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent());
     final Scope scope = astAssignment.getEnclosingScope().get();
 
@@ -120,15 +97,6 @@ public class ASTAssignments {
         ).findFirst();
 
     return arrayVariable.isPresent();
-  }
-
-  public boolean isVectorLHS(final ASTAssignment astAssignment) {
-    checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
-    final Scope scope = astAssignment.getEnclosingScope().get();
-    final String lhsVarName = astAssignment.getLhsVarialbe().toString();
-    final VariableSymbol lhsVarSymbol = resolve(lhsVarName, scope);
-
-    return lhsVarSymbol.getVectorParameter().isPresent();
   }
 
   public String printSizeParameter(final ASTAssignment astAssignment) {

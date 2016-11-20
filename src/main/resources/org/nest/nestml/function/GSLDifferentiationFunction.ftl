@@ -4,26 +4,18 @@
   @param ast ASTBody The body of the neuron containing ODE
   @result C++ Function
 -->
-<#assign ODEs = ast.getEquations()>
-<#assign index = 0>
-<#assign indexPostfix = "INDEX">
-
-<#list ast.variablesDefinedByODE() as odeVariable>
-const int ${names.name(odeVariable)}_${indexPostfix} = ${index};
-<#assign index = index + 1>
-</#list>
-
 extern "C" inline int
 ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode )
 {
- // get access to node so we can almost work as in a member function
+  typedef ${simpleNeuronName}::State_ State_;
+  // get access to node so we can almost work as in a member function
   assert( pnode );
   const ${simpleNeuronName}& node = *( reinterpret_cast< ${simpleNeuronName}* >( pnode ) );
 
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
 
-  <#list ODEs as ode>
+  <#list body.getODEBlock().get().getODEs() as ode>
     <#assign simpleOde = odeTransformer.replaceSumCalls(ode)>
     <#list astUtils.getAliasSymbols(ode) as alias>
       <#if !alias.isInEquation()>
@@ -40,7 +32,7 @@ ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode 
 
   <#list ast.variablesDefinedByODE() as odeVariable>
     <#assign simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDeclaration().get())>
-    f[ ${names.name(odeVariable)}_${indexPostfix} ] = ${expressionsPrinterForGSL.print(simpleOde)};
+    f[ ${names.arrayIndex(odeVariable)} ] = ${expressionsPrinterForGSL.print(simpleOde)};
   </#list>
 
   return GSL_SUCCESS;

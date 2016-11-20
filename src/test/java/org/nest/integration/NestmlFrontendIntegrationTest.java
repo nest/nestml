@@ -47,7 +47,7 @@ public class NestmlFrontendIntegrationTest {
   }
 
   @Test
-  public void testModelsgFolder() {
+  public void testModelsFolder() {
     final String[] args = new String[] {
         "models",
         "--target", outputPath.toString()};

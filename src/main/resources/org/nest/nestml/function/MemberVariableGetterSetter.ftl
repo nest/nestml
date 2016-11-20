@@ -14,7 +14,7 @@ ${signature("var")}
   <#else>
     inline ${declarations.printVariableType(var)} ${names.getter(var)}() const {
       <#assign simpleExpression = odeTransformer.replaceSumCalls(var.getDeclaringExpression().get())>
-      return ${tc.include("org.nest.spl.expr.Expr", simpleExpression)};
+      return ${expressionsPrinter.print(simpleExpression)};
     }
   </#if>
 <#else>
