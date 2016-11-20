@@ -5,6 +5,6 @@
   @param tc templatecontroller
   @result TODO
 -->
-while( ${expressionsPrinter.print(ast.getExpr().get())}) {
+while( ${expressionsPrinter.print(ast.getExpr())}) {
 ${tc.include("org.nest.spl.Block", ast.getBlock())}
 } /* while end */
