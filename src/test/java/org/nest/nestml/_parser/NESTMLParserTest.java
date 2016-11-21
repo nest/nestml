@@ -48,16 +48,6 @@ public class NESTMLParserTest extends ModelbasedTest {
   }
 
   @Test
-  public void testKillme(){
-    NESTMLParser parser = new NESTMLParser();
-    try {
-      parser.parseString_Expr("shape I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)");
-    }catch(Exception e){
-
-    }
-  }
-
-  @Test
   public void testNamesComputation() {
     final Optional<String> packageName = parser.computePackageName(
         Paths.get(TEST_MODEL1),
