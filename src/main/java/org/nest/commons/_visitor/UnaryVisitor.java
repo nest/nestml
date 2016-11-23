@@ -3,6 +3,7 @@ package org.nest.commons._visitor;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
@@ -17,8 +18,7 @@ public class UnaryVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr){
-    checkState(expr.getTerm().get().getType().isPresent());
-    final Either<TypeSymbol, String> termType  = expr.getTerm().get().getType().get();
+    final Either<TypeSymbol, String> termType  = expr.getTerm().get().getType();
 
     if(termType.isError()){
       expr.setType(termType);
@@ -31,7 +31,7 @@ public class UnaryVisitor implements CommonsVisitor {
         return;
       }
       else {
-        String errorMsg = "Cannot perform a math operation on the not numeric type";
+        String errorMsg = "Cannot perform an arithmetic operation on a non-numeric type";
         expr.setType(Either.error(errorMsg));
         return;
       }
@@ -42,14 +42,13 @@ public class UnaryVisitor implements CommonsVisitor {
           return;
         }
         else {
-          String errorMsg = "Cannot perform a math operation on the not numeric type";
+          String errorMsg = "Cannot perform an arithmetic operation on a non-numeric type";
           expr.setType(Either.error(errorMsg));
           return;
         }
     }
     //Catch-all if no case has matched
-    String msg = "Cannot determine the type of the Expression-Node @<"
-        + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
+    String msg = "Cannot determine the type of the expression: " + AstUtils.toString(expr);
     expr.setType(Either.error(msg));
   }
 }

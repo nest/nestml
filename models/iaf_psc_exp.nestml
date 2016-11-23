@@ -116,15 +116,15 @@ neuron iaf_psc_exp_neuron:
 
   update:
     if r == 0: # neuron not refractory, so evolve V
-        integrate(V_abs)
+      integrate_odes()
     else:
-        r = r - 1 # neuron is absolute refractory
+      r = r - 1 # neuron is absolute refractory
     end
 
     if V_abs >= Theta: # threshold crossing
-        r = RefractoryCounts
-        V_abs = V_reset
-        emit_spike()
+      r = RefractoryCounts
+      V_abs = V_reset
+      emit_spike()
     end
 
   end

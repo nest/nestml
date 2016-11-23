@@ -5,16 +5,19 @@
   @param tc templatecontroller
   @result TODO
 -->
-
-<#if assignments.isVector(ast) || assignments.isVectorLHS(ast)>
+<#assign lhsVariable = assignments.lhsVariable(ast)>
+<#if assignments.isVectorizedAssignment(ast)>
 for (long i=0; i < P_.${assignments.printSizeParameter(ast)}; i++) {
-  <#if assignments.isVectorLHS(ast)>
-    ${assignments.printOrigin(ast)} ${assignments.printLHS(ast)}[i]
+  <#if lhsVariable.isVector()>
+    ${variableHelper.printOrigin(lhsVariable)} ${names.name(lhsVariable)}[i]
   <#else>
-    ${assignments.printOrigin(ast)} ${assignments.printLHS(ast)}
+    ${variableHelper.printOrigin(lhsVariable)} ${names.name(lhsVariable)}
   </#if>
-  ${assignments.printAssignmentsOperation(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
+  ${assignments.printAssignmentsOperation(ast)}
+  ${expressionsPrinter.print(ast.getExpr())};
 }
 <#else>
-  ${assignments.printOrigin(ast)} ${assignments.printLHS(ast)} ${assignments.printAssignmentsOperation(ast)} ${tc.include("org.nest.spl.expr.Expr", ast.getExpr())};
+  ${variableHelper.printOrigin(lhsVariable)}${names.name(lhsVariable)}
+  ${assignments.printAssignmentsOperation(ast)}
+  ${expressionsPrinter.print(ast.getExpr())};
 </#if>

@@ -99,7 +99,7 @@ neuron aeif_cond_exp_neuron:
   output: spike
 
   update:
-    integrate(V_m)
+    integrate_odes()
 
     if r > 0: # refractory
       r = r - 1

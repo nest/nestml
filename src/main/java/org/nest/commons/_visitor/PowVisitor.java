@@ -4,6 +4,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.*;
@@ -18,10 +19,8 @@ public class PowVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr){
-    checkState(expr.getBase().get().getType().isPresent());
-    checkState(expr.getExponent().get().getType().isPresent());
-    final Either<TypeSymbol, String> baseType = expr.getBase().get().getType().get();
-    final Either<TypeSymbol, String> exponentType = expr.getExponent().get().getType().get();
+    final Either<TypeSymbol, String> baseType = expr.getBase().get().getType();
+    final Either<TypeSymbol, String> exponentType = expr.getExponent().get().getType();
 
     if (baseType.isError()) {
       expr.setType(baseType);
@@ -58,8 +57,7 @@ public class PowVisitor implements CommonsVisitor{
       }
     }
     //Catch-all if no case has matched
-    String msg = "Cannot determine the type of the Expression-Node @<"
-        + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
+    String msg = "Cannot determine the type of the expression: " + AstUtils.toString(expr);
     expr.setType(Either.error(msg));
   }
 }

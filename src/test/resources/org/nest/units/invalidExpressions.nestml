@@ -2,8 +2,7 @@ neuron invalidExpressionTest:
   state:
     Resist Ohm = 8A*2Ohm #SPL_ILLEGAL_EXPRESSION: Declaration with wrong type
     Ampere A = 3 #NESTML_LITERALS_MUST_HAVE_TYPES: Declaration without explicit unit type
-    Newton  g *km /s**2 = 1/ (1kN)  #SPL_ILLEGAL_EXPRESSION: Declaration with mismatched verbose types
-  
+    Newton  N**2*s = 1/ (1kN)  #SPL_ILLEGAL_EXPRESSION: Declaration with mismatched verbose types
   end
 
   function foo(amp A, ohm Ohm) V:  
@@ -20,7 +19,7 @@ neuron invalidExpressionTest:
     test real = 3 Ohm
     V2 V = foo(3,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
     V3 V = foo(8+8*7,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
-    V4 V = foo(7A +3,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
+    V4 V = foo(7A +3,2 Ohm) #2 Warnings: 1) Addition of primitive and Unit (results in primitive) 2) Omitted Type
   end
 
   output: spike
@@ -32,7 +31,7 @@ neuron invalidExpressionTest:
     Ampere = 8 #NESTML_LITERALS_MUST_HAVE_TYPES: Assignment without explicit unit type
     Ampere = 8+8*7 #NESTML_LITERALS_MUST_HAVE_TYPES: Assignment without explicit unit type
 
-    Ampere = 7A +3 #NESTML_LITERALS_MUST_HAVE_TYPES: Assignment without explicit unit type
+    Ampere = 7A +3 #2 Warnings: 1) Addition of primitive and Unit (results in primitive) 2) Omitted Type
 
     if Resist > 0: # NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
      #NOOP
@@ -42,13 +41,13 @@ neuron invalidExpressionTest:
 
     if Resist > 8+8*7: # NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
      #NOOP
-    elif Ampere >= 7A +3: #NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
+    elif Ampere >= 7A +3: #2 Warnings: 1) Addition of primitive and Unit (results in primitive) 2) Omitted unit
       emit_spike()
     end
 
     if 8+8*7 > Resist  : # NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
      #NOOP
-    elif 7A +3 >= Ampere : #NESTML_LITERALS_MUST_HAVE_TYPES: Compare Unit to non Unit
+    elif 7A +3 >= Ampere : #2 Warnings: 1) Addition of primitive and Unit (results in primitive) 2) Omitted unit
       emit_spike()
     end
 

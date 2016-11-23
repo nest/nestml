@@ -8,7 +8,7 @@ neuron quadratic_IaF:
   end
 
   equations:
-    V_m' = I_syn + a * (V_m - V_reset)*(V_m - V_th)
+    V_m' = I_syn + a * (V_m - V_reset)*(V_m - V_th)/1mV
   end
 
   parameter:
@@ -26,7 +26,7 @@ neuron quadratic_IaF:
   output: spike
 
   update:
-    integrate(V_m)
+    integrate_odes()
     if V_m > V_peak:
       V_m = V_reset
       emit_spike()

@@ -31,7 +31,7 @@ neuron rc_alpha:
   end
 
   internal:
-    PSConInit_E real = 1.0 * e / tau_syn
+    PSConInit_E pA/ms = 1.0 pA * e / tau_syn
   end
 
   input:
@@ -43,7 +43,7 @@ neuron rc_alpha:
 
   update:
     if refractory_counts == 0:
-      integrate(V_abs)
+      integrate_odes()
       if V_abs > V_th:
         V_abs = V_reset
         emit_spike()

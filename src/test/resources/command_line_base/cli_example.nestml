@@ -39,15 +39,15 @@ neuron iaf_psc_alpha_nestml:
 
   update:
     if r == 0: # not refractory
-        integrate(V_abs)
+      integrate_odes()
     else:
-        r = r - 1
+      r = r - 1
     end
 
     if V_abs >= Theta: # threshold crossing
-        r = RefractoryCounts
-        V_abs = V_reset
-        emit_spike()
+      r = RefractoryCounts
+      V_abs = V_reset
+      emit_spike()
     end
 
   end

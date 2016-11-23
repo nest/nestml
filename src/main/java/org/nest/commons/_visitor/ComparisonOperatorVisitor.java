@@ -17,10 +17,8 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr) {
-    checkState(expr.getLeft().get().getType().isPresent());
-    checkState(expr.getRight().get().getType().isPresent());
-    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType().get();
-    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType().get();
+    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType();
+    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType();
 
     if (lhsType.isError()) {
       expr.setType(lhsType);
@@ -48,6 +46,6 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
     //Error message for any other operation
     final String errorMsg = "This operation expects both operands of a numeric type.";
     expr.setType(Either.error(errorMsg));
-    return;
   }
+
 }

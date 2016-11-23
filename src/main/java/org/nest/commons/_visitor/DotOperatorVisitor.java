@@ -4,6 +4,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
@@ -15,10 +16,8 @@ public class DotOperatorVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr) {
-    checkState(expr.getLeft().get().getType().isPresent());
-    checkState(expr.getRight().get().getType().isPresent());
-    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType().get();
-    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType().get();
+    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType();
+    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType();
 
     if (lhsType.isError()) {
       expr.setType(lhsType);
@@ -94,8 +93,7 @@ public class DotOperatorVisitor implements CommonsVisitor{
     }
 
     //Catch-all if no case has matched
-    String msg = "Cannot determine the type of the Expression-Node @<"
-        + expr.get_SourcePositionStart() + ", " + expr.get_SourcePositionEnd();
+    String msg = "Cannot determine the type of the expression: " + AstUtils.toString(expr);
     expr.setType(Either.error(msg));
 
   }

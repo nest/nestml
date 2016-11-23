@@ -13,7 +13,10 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static de.se_rwth.commons.logging.Log.warn;
 import static java.lang.Math.abs;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 
 /**
  * Helper class. Controlled way of creating base representations of derived SI units.
@@ -22,8 +25,25 @@ import static java.lang.Math.abs;
  */
 public class UnitRepresentation {
   private static final String LOG_NAME = "NESTML_UNIT_REPRESENTATION";
+
+  public void setMagnitude(int magnitude) {
+    this.magnitude = magnitude;
+  }
+
   private int magnitude;
   private int K, s, m, g, cd, mol, A;
+
+
+  private boolean ignoreMagnitude = false;
+
+  public void setIgnoreMagnitude(boolean ignoreMagnitude) {
+    this.ignoreMagnitude = ignoreMagnitude;
+  }
+
+  public boolean isIgnoreMagnitude() {
+    return ignoreMagnitude;
+  }
+
 
   private int[] asArray(){
     int[] result={ K, s, m, g, cd, mol, A, magnitude };
@@ -35,7 +55,7 @@ public class UnitRepresentation {
   }
 
   public String serialize() {
-    return Arrays.toString(this.asArray());
+    return Arrays.toString(this.asArray())+(ignoreMagnitude?"I":"i");
   }
 
   private int exponentSum() {
@@ -50,6 +70,20 @@ public class UnitRepresentation {
     return (this.exponentSum()+abs(this.magnitude) == 0) ? true : false;
   }
 
+  /** calculates, if existent, the power of the base unit that this represents.
+   * I.e. calculates x in:
+   *
+   *    base**x = this
+   *
+   *    iff x is a integer
+   *
+   *
+   * TODO: rewrite to not require exact matching for a more intuitive overall match
+   * i.e. account for:
+   *    this = base**x * y
+   *
+   *    where x is an integer and y is a unit type.
+   */
   private Optional<Integer> getExponent(UnitRepresentation base){
     int[] thisUnits = this.asArray();
     int[] baseUnits = base.asArray();
@@ -65,7 +99,7 @@ public class UnitRepresentation {
         if(thisValue % baseValue != 0) {
           return Optional.empty();
         }
-        //At this point we know that both modulo of both (nonzero) components is 0
+        //At this point we know that modulo of both (nonzero) components is 0
         if(factor == null) {
           factor = thisValue / baseValue;
         }
@@ -129,6 +163,9 @@ public class UnitRepresentation {
   }
 
   private String removeTrailingMultiplication(String str){
+    if(str.length() <3){
+      return str;
+    }
     String result = str;
     String postfix = result.substring(result.length() - 3, result.length());
     if (postfix.equals(" * ")) {
@@ -136,6 +173,7 @@ public class UnitRepresentation {
     }
     return result;
   }
+
 
   private String calculateName() {
     String result = this.doCalc();
@@ -147,22 +185,32 @@ public class UnitRepresentation {
         String main = parts[0];
         String magnitude = parts[1];
         main = removeTrailingMultiplication(main);
-        if(!main.contains(" * ")){ //The Unit part of the return String consists of exactly one Unit
-          try {
-            Integer parsedMagnitude = Integer.parseInt(magnitude);
-            if(main.contains("**-")) { //The single unit has a negative exponent
-              parsedMagnitude = -parsedMagnitude;
-            }
-            String prefix = SIData.getPrefixMagnitudes().inverse().get(parsedMagnitude);
-            result = prefix+main;
-          }
-          catch(NumberFormatException e){
-            Log.warn("Exception in Unit name Formatting! Cannot parse magnitude String: "
-            +magnitude);
-            return result;
-          }
 
+        result ="";
+        String lastUnit="";
 
+        if(main.contains(" * ")){  //There is more than one Unit in the calculated name -> Isolate the last one.
+          String[] mainParts = main.split(" \\* ");
+          for(int i = 0; i<mainParts.length-1; i++){
+            result += mainParts[i] + " * ";
+          }
+          lastUnit = mainParts[mainParts.length-1];
+        }else{
+          lastUnit = main;
+        }
+
+        try {
+          Integer parsedMagnitude = Integer.parseInt(magnitude);
+          if(lastUnit.contains("**-")) { //The single/last  unit has a negative exponent
+            parsedMagnitude = -parsedMagnitude;
+          }
+          String prefix = SIData.getPrefixMagnitudes().inverse().get(parsedMagnitude);
+          return result+prefix+lastUnit;
+        }
+        catch(NumberFormatException e){
+          warn("Exception in Unit name Formatting! Cannot parse magnitude String: "
+              +magnitude);
+          return result;
         }
       }
     }
@@ -186,6 +234,9 @@ public class UnitRepresentation {
   }
 
   public String prettyPrint() {
+    if(isZero()){
+      return "no dimension";
+    }
     return  calculateName();
   }
 
@@ -228,6 +279,19 @@ public class UnitRepresentation {
     this.mol = mol;
     this.A = A;
     this.magnitude = magnitude;
+    this.ignoreMagnitude = false;
+  }
+
+  public UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude,boolean ignoreMagnitude) {
+    this.K = K;
+    this.s = s;
+    this.m = m;
+    this.g = g;
+    this.cd = cd;
+    this.mol = mol;
+    this.A = A;
+    this.magnitude = magnitude;
+    this.ignoreMagnitude = ignoreMagnitude;
   }
 
   public UnitRepresentation(UnitRepresentation unit){
@@ -239,9 +303,42 @@ public class UnitRepresentation {
     this.mol = unit.mol;
     this.A = unit.A;
     this.magnitude = unit.magnitude;
+    this.ignoreMagnitude= unit.isIgnoreMagnitude();
   }
 
+  public boolean equals(UnitRepresentation other){
+    //ignore magnitude if either is set to ignore.
+    if(this.isIgnoreMagnitude()||other.isIgnoreMagnitude()){
+      return (this.K == other.K &&
+          this.s == other.s &&
+          this.m == other.m &&
+          this.g == other.g &&
+          this.cd == other.cd &&
+          this.mol == other.mol &&
+          this.A == other.A);
+    }else {
+      return (this.K == other.K &&
+          this.s == other.s &&
+          this.m == other.m &&
+          this.g == other.g &&
+          this.cd == other.cd &&
+          this.mol == other.mol &&
+          this.A == other.A &&
+          this.magnitude == other.magnitude);
+    }
+  }
+
+
+
   public UnitRepresentation(String serialized){
+    if(serialized == getRealType().getName()) {
+      return; //[0,0,0,0,0,0,0,0]i
+    }
+
+    if(serialized.substring(serialized.length()-1).equals("I")){
+      ignoreMagnitude = true;
+    }
+
     Pattern parse = Pattern.compile("-?[0-9]+");
     Matcher matcher = parse.matcher(serialized);
 
@@ -272,7 +369,8 @@ public class UnitRepresentation {
         this.cd - denominator.cd,
         this.mol -denominator.mol,
         this.A - denominator.A,
-        this.magnitude - denominator.magnitude);
+        this.magnitude - denominator.magnitude,
+        this.isIgnoreMagnitude()||denominator.isIgnoreMagnitude());
   }
 
   public UnitRepresentation pow(int exponent){
@@ -284,7 +382,8 @@ public class UnitRepresentation {
         this.cd * exponent,
         this.mol * exponent,
         this.A * exponent,
-        this.magnitude* exponent);
+        this.magnitude* exponent,
+        this.isIgnoreMagnitude());
   }
 
   public UnitRepresentation multiplyBy(UnitRepresentation factor){
@@ -296,11 +395,12 @@ public class UnitRepresentation {
         this.cd + factor.cd,
         this.mol +factor.mol,
         this.A + factor.A,
-        this.magnitude + factor.magnitude);
+        this.magnitude + factor.magnitude,
+        this.isIgnoreMagnitude()||factor.isIgnoreMagnitude());
   }
 
   public UnitRepresentation invert(){
-    return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude);
+    return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude,this.isIgnoreMagnitude());
   }
 
   public UnitRepresentation deriveT(int order) {

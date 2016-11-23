@@ -248,9 +248,23 @@ protected:
   */
   struct State_
   {
-    <#list body.getStateNonAliasSymbols() as variable>
-      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
-    </#list>
+    <#if !useGSL>
+      <#list body.getStateNonAliasSymbols() as variable>
+        ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
+      </#list>
+    <#else>
+      //! Symbolic indices to the elements of the state vector y
+      enum StateVecElems
+      {
+        <#list body.getStateNonAliasSymbols() as variable>
+          ${names.convertToCPPName(variable.getName())},
+        </#list>
+        STATE_VEC_SIZE
+      };
+      //! state vector, must be C-array for GSL solver
+      double y[ STATE_VEC_SIZE ];
+    </#if>
+
     <#list body.getODEAliases() as odeAlias>
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [odeAlias])}
     </#list>
@@ -491,19 +505,15 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &__d)
     ${tc.includeArgs("org.nest.nestml.function.StoreDeltaValue", [offset])}
   </#list>
 
-  Parameters_ ptmp = P_;  // temporary copy in case of errors
-  ptmp.set(__d
-  <#list body.getAllOffsetVariables() as offset>
-    , delta_${offset.getName()}
+  <#list body.getParameterSymbols() as parameter>
+  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
   </#list>
-  );            // throws BadProperty
 
-  State_      stmp = S_;  // temporary copy in case of errors
-  stmp.set(__d, ptmp
-  <#list body.getAllOffsetVariables() as offset>
-    , delta_${offset.getName()}
+  ${tc.include("org.nest.nestml.function.Invariant", body.getParameterInvariants())}
+
+  <#list body.getStateSymbols() as state>
+  ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [state])}
   </#list>
-  );            // throws BadProperty
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that
@@ -512,8 +522,8 @@ void ${simpleNeuronName}::set_status(const DictionaryDatum &__d)
   Archiving_Node::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
-  P_ = ptmp;
-  S_ = stmp;
+  //P_ = ptmp;
+  //S_ = stmp;
 };
 
 #endif /* #ifndef ${simpleNeuronName?upper_case} */

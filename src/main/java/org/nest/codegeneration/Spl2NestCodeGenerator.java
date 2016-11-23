@@ -8,10 +8,7 @@ package org.nest.codegeneration;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import org.nest.codegeneration.helpers.ASTAssignments;
-import org.nest.codegeneration.helpers.ASTDeclarations;
-import org.nest.codegeneration.helpers.ASTForNodes;
-import org.nest.codegeneration.helpers.SPLFunctionCalls;
+import org.nest.codegeneration.helpers.*;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
@@ -44,6 +41,8 @@ public class Spl2NestCodeGenerator {
     glex.setGlobalValue("forDeclarationHelper", new ASTForNodes());
     glex.setGlobalValue("functions", new SPLFunctionCalls());
     glex.setGlobalValue("astUtils", new AstUtils());
+    glex.setGlobalValue("variableHelper", new VariableHelper());
+    glex.setGlobalValue("names", new Names());
 
     setup.setGlex(glex);
     generator = new GeneratorEngine(setup);

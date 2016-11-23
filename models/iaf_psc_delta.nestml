@@ -107,7 +107,7 @@ neuron iaf_psc_delta_neuron:
 
   update:
     if r == 0: # neuron not refractory
-      integrate(V_abs)
+      integrate_odes()
 
       # if we have accumulated spikes from refractory period,
       # add and reset accumulator

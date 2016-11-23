@@ -112,7 +112,7 @@ neuron mat2_psc_exp_neuron:
 
   update:
     # evolve membrane potential
-    integrate(V_abs)
+    integrate_odes()
 
     # evolve adaptive threshold
     V_th_alpha_1 *= P11th

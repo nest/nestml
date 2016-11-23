@@ -6,6 +6,7 @@
 package org.nest.spl.symboltable.typechecking;
 
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 import static org.nest.symboltable.symbols.TypeSymbol.Type.UNIT;
@@ -21,6 +22,14 @@ public class TypeChecker {
   }
 
   public static boolean  isCompatible(final TypeSymbol lhsType, final TypeSymbol rhsType) {
+
+    //simplified check for Units set to ignore magnitude: (ignore if any is set)
+    if(lhsType.getType().equals(UNIT) && rhsType.getType().equals(UNIT)){
+      UnitRepresentation lhsUnit = new UnitRepresentation(lhsType.getName());
+      UnitRepresentation rhsUnit = new UnitRepresentation(rhsType.getName());
+      return lhsUnit.equals(rhsUnit);
+    }
+
     if (lhsType.equals(rhsType)) {
       return true;
     }

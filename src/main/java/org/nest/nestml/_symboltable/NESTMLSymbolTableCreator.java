@@ -19,10 +19,12 @@ import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.*;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -217,11 +219,20 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    */
   private void addDerivedVariable(final ASTEquation ode) {
     final String variableName = getNameOfLHS(ode);
-    final TypeSymbol type = PredefinedTypes.getRealType();
+    final String originalVarName = ode.getLhs().getName().toString(); //name of the original variable e.g. no trailing '
+
+    checkState(currentScope().isPresent());
+    final Optional<VariableSymbol> originalSymbol = currentScope().get().resolve(originalVarName,VariableSymbol.KIND);
+    checkState(originalSymbol.isPresent());//symbol must exist here
+    final TypeSymbol originalType = originalSymbol.get().getType();
+    UnitRepresentation derivedUnit = new UnitRepresentation(originalType.getName()).deriveT(ode.getLhs().getDifferentialOrder().size()-1);
+    derivedUnit.setIgnoreMagnitude(true);
+    final TypeSymbol derivedType = PredefinedTypes.getType(derivedUnit.serialize());
+
     final VariableSymbol var = new VariableSymbol(variableName);
 
     var.setAstNode(ode.getLhs());
-    var.setType(type);
+    var.setType(derivedType);
     var.setDeclaringType(currentTypeSymbol.get());
     var.setLoggable(true);
     var.setAlias(false);

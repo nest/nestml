@@ -12,6 +12,7 @@ import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.EnclosingScopeOfNodesInitializer;
 import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.Util;
 import org.apache.commons.io.FileUtils;
 import org.nest.commons._ast.ASTCommonsNode;
@@ -37,6 +38,8 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
+import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.io.File;
 import java.io.IOException;
@@ -196,7 +199,7 @@ public final class AstUtils {
 
     for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
       final ASTExpr argExpr = astFunctionCall.getArgs().get(i);
-      final Either<TypeSymbol, String> argType = argExpr.getType().get();
+      final Either<TypeSymbol, String> argType = argExpr.getType();
       if (argType.isValue()) {
         argTypeNames.add(argType.getValue().getName());
       }
@@ -319,6 +322,11 @@ public final class AstUtils {
     return output.toString();
   }
 
+  /**
+   * Wrapper around computeTypeName that is used exclusively in generation.
+   * Calculates unit name from the serialized representation after the wrapped call
+   *
+   */
   public static String computeTypeName(final ASTDatatype astDatatype){ //TODO: Better solution
     return computeTypeName(astDatatype, false);
   }
@@ -347,7 +355,10 @@ public final class AstUtils {
     else if (astDatatype.getUnitType().isPresent()) {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
       if(isCodeGeneration){
-        typeName = "real";
+        if(unitType.getSerializedUnit() == null){
+          UnitsSIVisitor.convertSiUnitsToSignature(unitType);
+        }
+        typeName = new UnitRepresentation(unitType.getSerializedUnit()).prettyPrint();
       }
       else{
         typeName = unitType.getSerializedUnit(); //guaranteed to exist after successful NESTMLParser run.
@@ -519,6 +530,10 @@ public final class AstUtils {
       throw  new RuntimeException(e);
     }
 
+  }
+
+  public static String print(final SourcePosition sourcePosition) {
+    return "<" + sourcePosition.getLine() + "," + sourcePosition.getColumn() + ">";
   }
 
 }

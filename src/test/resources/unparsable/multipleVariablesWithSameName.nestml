@@ -115,7 +115,7 @@ neuron iaf_neuron_neuron:
   # Describes how the state evolves in the time
   update:
     if r == 0: # not refractory
-        integrate(V_abs)
+        integrate_odes()
         if V_abs >= Theta: # threshold crossing
           r = RefractoryCounts
           V_abs = V_reset

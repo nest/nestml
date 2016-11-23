@@ -1,10 +1,13 @@
 package org.nest.commons._visitor;
 
+import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
@@ -13,15 +16,13 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class LineOperatorVisitor implements CommonsVisitor{
+  final String ERROR_CODE = "NESTML_LINE_OPERATOR_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {
-    checkState(expr.getLeft().get().getType().isPresent());
-    checkState(expr.getRight().get().getType().isPresent());
-    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType().get();
-    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType().get();
-    final String errorMsg = "Cannot determine the type of the operation with types: " + lhsType
-        + ", " + rhsType + " at " + expr.get_SourcePositionStart() + ">";
+    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType();
+    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType();
+
 
     if (lhsType.isError()) {
       expr.setType(lhsType);
@@ -32,9 +33,25 @@ public class LineOperatorVisitor implements CommonsVisitor{
       return;
     }
 
+    //Format error string..
+    String rhsPrettyType,lhsPrettyType;
+    if(rhsType.getValue().getType() == TypeSymbol.Type.UNIT){
+      rhsPrettyType  = new UnitRepresentation(rhsType.getValue().getName()).prettyPrint();
+    }else{
+      rhsPrettyType = rhsType.getValue().getName();
+    }
+    if(lhsType.getValue().getType() == TypeSymbol.Type.UNIT){
+      lhsPrettyType  = new UnitRepresentation(lhsType.getValue().getName()).prettyPrint();
+    }else{
+      lhsPrettyType = lhsType.getValue().getName();
+    }
+    final String errorMsg = "Cannot determine the type of the "+ (expr.isPlusOp()?"(plus)":"(minus)")+" operation with types: " + lhsPrettyType
+        + " and " + rhsPrettyType + " at " + expr.get_SourcePositionStart() + ">";
+
     //Plus-exclusive code
     if (expr.isPlusOp()) {
       // String concatenation has a prio. If one of the operands is a string, the remaining sub-expression becomes a string
+
       if ((lhsType.getValue() == (getStringType()) ||
           rhsType.getValue() == (getStringType())) &&
           (rhsType.getValue() != (getVoidType()) && lhsType.getValue() != (getVoidType()))) {
@@ -45,27 +62,46 @@ public class LineOperatorVisitor implements CommonsVisitor{
 
     //Common code for plus and minus ops:
     if (isNumeric(lhsType.getValue()) && isNumeric(rhsType.getValue())) {
-      // in this case, neither of the sides is a String
       //both are units
       if (lhsType.getValue().getType() == TypeSymbol.Type.UNIT &&
           rhsType.getValue().getType() == TypeSymbol.Type.UNIT) {
         if (isCompatible(lhsType.getValue(), rhsType.getValue())) {
-          expr.setType(lhsType); //set either of the (same) unit types
+
+          //TODO better solution
+          //Make sure that ignoreMagnitude gets propagated if set
+          if(rhsType.getValue().getName().substring(rhsType.getValue().getName().length()-1).equals("I")){
+              expr.setType(rhsType);
+          }else{
+              expr.setType(lhsType);
+          }
+          // expr.setType(lhsType); //set either of the (same) unit types
           return;
         }
       }
-      // in this case, neither of the sides is a String
+
+      //at least one real
       if (lhsType.getValue() == getRealType() || rhsType.getValue() == getRealType()) {
+        if(lhsType.getValue().getType()== TypeSymbol.Type.UNIT||
+            rhsType.getValue().getType()== TypeSymbol.Type.UNIT){
+          warn(ERROR_CODE+"Addition/substraction of unit and primitive type. Assuming real at "+expr.get_SourcePositionStart());
+        }
         expr.setType(Either.value(getRealType()));
         return;
       }
 
-      // e.g. both are integers, but check to be sure
+      // e.g. at least one integer
       if (lhsType.getValue() == (getIntegerType()) || rhsType.getValue() == (getIntegerType())) {
-        expr.setType(Either.value(getIntegerType()));
-        return;
+        if(lhsType.getValue().getType()== TypeSymbol.Type.UNIT||
+            rhsType.getValue().getType()== TypeSymbol.Type.UNIT){
+          warn(ERROR_CODE+"Addition/substraction of unit and primitive type. Assuming real at "+expr.get_SourcePositionStart());
+          //unit casts to real -> casts whole expression to real
+          expr.setType(Either.value(getRealType()));
+          return;
+        }else{ //both integer
+          expr.setType(Either.value(getIntegerType()));
+          return;
+        }
       }
-
     }
 
     //If a buffer is involved, the other unit takes precedent TODO: is this the intended semantic?

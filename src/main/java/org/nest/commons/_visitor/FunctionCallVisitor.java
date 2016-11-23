@@ -19,7 +19,7 @@ import java.util.Optional;
  *
  * @author plotnikov, ptraeder
  */
-class FunctionCallVisitor implements CommonsVisitor {
+public class FunctionCallVisitor implements CommonsVisitor {
 
   @Override
   public void visit(final ASTExpr expr) {
