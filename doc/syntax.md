@@ -98,6 +98,8 @@ Currenly only spike output is supported.
 
  `curr_sum`
 
+Curr_sum is a function that has two arguments
+
  `cond_sum`
 
  `delta`
