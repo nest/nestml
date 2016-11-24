@@ -41,8 +41,7 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
     final List<String> argTypeNames = Lists.newArrayList();
     final List<String> prettyArgTypeNames = Lists.newArrayList();
 
-    for (int i = 0; i < astFunctionCall.getArgs().size(); ++i) {
-      final ASTExpr arg = astFunctionCall.getArgs().get(i);
+    for (ASTExpr arg :  astFunctionCall.getArgs()) {
       final Either<TypeSymbol, String> argType = arg.getType();
       if (argType.isValue()) {
         prettyArgTypeNames.add(argType.getValue().prettyPrint());

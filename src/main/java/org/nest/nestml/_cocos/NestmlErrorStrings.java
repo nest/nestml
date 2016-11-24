@@ -128,8 +128,7 @@ public class NestmlErrorStrings {
                                                     String expressionTypeName, String functionReturnTypeName) {
     return CorrectReturnValues.ERROR_CODE + ":" + "Cannot convert from " + expressionTypeName
         + " (type of return expression) to " + functionReturnTypeName
-        + " (return type), since the first is real domain and the second is in the integer "
-        + "domain and conversion reduces the precision.";
+        + " (return type).";
   }
 
   String getErrorMsgCannotDetermineExpressionType(CorrectReturnValues coco) {
