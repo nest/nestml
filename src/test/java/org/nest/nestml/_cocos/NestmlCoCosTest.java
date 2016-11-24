@@ -305,7 +305,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoChecker,
         MemberVariablesInitialisedInCorrectOrder.ERROR_CODE,
-        3);
+        4);
   }
 
   @Test
