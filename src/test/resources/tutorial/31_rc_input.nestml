@@ -9,7 +9,7 @@ neuron rc_input:
   end
 
   equations:
-    V_m' = -(V_m + E_L)/tau_m  + I_syn/C_m
+    V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
   parameter:

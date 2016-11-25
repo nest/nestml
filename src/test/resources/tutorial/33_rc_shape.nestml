@@ -11,7 +11,7 @@ neuron rc_shape:
   equations:
     shape g_ex = (e/tau_syn) * t * exp(-1/tau_syn*t)
     I_syn pA = I_sum(g_ex, spikes) + currents + I_e
-    V_m' = -(V_m + E_L)/tau_m  + I_syn/C_m
+    V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
   parameter:
