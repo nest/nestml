@@ -9,7 +9,9 @@ import de.monticore.ast.ASTNode;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -17,7 +19,11 @@ import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.utils.AstUtils.computeTypeName;
+import static org.nest.utils.AstUtils.getNameOfLHS;
+
+import java.util.Optional;
 
 /**
  * Check that the type of the loop variable is an integer.
@@ -34,7 +40,39 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTAssignment node) {
-    // TODO
+    checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
+
+    //collect lhs information
+    final String variableName = node.getLhsVarialbe().getName().toString();
+    final Optional<VariableSymbol> lhsVariable = node.getEnclosingScope().get().resolve(
+        variableName,
+        VariableSymbol.KIND);
+    final TypeSymbol variableType = lhsVariable.get().getType();
+
+    //collect rhs information
+
+    final Either<TypeSymbol,String> expressionType = node.getExpr().getType();
+    if(expressionType.isValue()){
+
+      if (!isCompatible(variableType,expressionType.getValue())) {
+        final String msg = SplErrorStrings.messageAssignment(
+            this,
+            variableName,
+            variableType.prettyPrint(),
+            expressionType.getValue().prettyPrint(),
+            node.get_SourcePositionStart());
+        if (variableType.getType().equals(TypeSymbol.Type.UNIT)){ //assignee is unit -> drop warning not error
+          warn(msg, node.get_SourcePositionStart());
+        }
+        else {
+          error(msg, node.get_SourcePositionStart());
+        }
+
+      }
+    }else {
+      final String errorDescription = "Error hint: " + expressionType.getError();
+      undefinedTypeError(node, errorDescription);
+    }
   }
 
   @Override
@@ -61,8 +99,7 @@ public class IllegalExpression implements
             variableDeclarationType.prettyPrint(),
             initializerExpressionType.getValue().prettyPrint(),
             node.get_SourcePositionStart());
-          if (variableDeclarationType.getType().equals(TypeSymbol.Type.UNIT) &&
-              initializerExpressionType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
+          if (variableDeclarationType.getType().equals(TypeSymbol.Type.UNIT)){ //assignee is unit -> drop warning not error
             warn(msg, node.get_SourcePositionStart());
           }
           else {

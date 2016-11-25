@@ -37,13 +37,13 @@ public class TypeChecker {
         rhsType.equals(getIntegerType())) {
       return true;
     }
-    if (rhsType.equals(getIntegerType()) && lhsType.getType().equals(UNIT)) {
+   /* if (rhsType.equals(getIntegerType()) && lhsType.getType().equals(UNIT)) {
       return true;
     }
     if (lhsType.equals(getRealType()) && rhsType.getType().equals(UNIT) ||
         rhsType.equals(getRealType()) && lhsType.getType().equals(UNIT)) {
       return true;
-    }
+    }*/
 
     return false;
   }
