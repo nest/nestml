@@ -5,11 +5,11 @@
 neuron rc_fire:
 
   state:
-    V_m mV = 0 + E_L
+    V_m mV = E_L
   end
 
   equations:
-      V_m' = -(V_m + E_L)/tau_m + I_syn/C_m
+    V_m' = -(V_m - E_L)/tau_m + I_syn/C_m
   end
 
   parameter:
