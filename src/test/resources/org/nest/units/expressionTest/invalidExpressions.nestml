@@ -1,0 +1,44 @@
+neuron invalidExpressionTest:
+  state:
+    V1,V2,V3 V
+    V4 V
+    A1 mA
+    R1 Ohm
+  end
+
+  function foo(amp A, ohm Ohm) V:  
+    return 7 #Warning
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  parameter:
+    
+  end
+
+  output: spike
+
+  internal:
+  end
+
+  update:
+    V1 = foo(A1, 3Ohm) #Warning: Function call incompatible parameters
+    V3 = ((V1+V2* 1Ohm)/V4)**(2*3)  #Warning: arithmetic expression of wrong type
+
+    if R1 > 0: #Warning: Comparison of Unit and primitive 
+    end
+
+    if A1 >= R1: #Warning: Compared unitTypes do not match
+    end
+
+    if 0 < R1: #Warning: Comparison of primitive and unit
+    end
+
+    V4 = A1>R1?2V:0V #Warning: Mismatched types in conditional check
+    V4 = A1>3mA?2:1Ohm #Warning: Mismatched Types in conditional alternatives.
+  end
+end

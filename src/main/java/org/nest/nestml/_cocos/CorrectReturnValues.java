@@ -6,7 +6,6 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl.symboltable.typechecking.Either;
@@ -20,6 +19,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
+import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.checkString;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.checkVoid;
 
@@ -61,7 +61,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
         if (returnExpressionType.isError()) {
           final String msg = errorStrings.getErrorMsgCannotDetermineExpressionType(this);
 
-          Log.warn(msg, r.getExpr().get().get_SourcePositionStart());
+          warn(msg, r.getExpr().get().get_SourcePositionStart());
           return;
         }
 
@@ -72,7 +72,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
         if (checkVoid(functionReturnType) && !checkVoid(returnExpressionType.getValue())) {
           // should return nothing, but does not
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
          error(msg, r.get_SourcePositionStart());
         }
@@ -80,30 +80,39 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
         // same type is ok (e.g. string, boolean,integer, real,...)
         if (checkString(functionReturnType) && !checkString(returnExpressionType.getValue())) {
           // should return string, but does not
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
          error(msg, r.get_SourcePositionStart());
         }
 
         if (TypeChecker.isBoolean(functionReturnType) && !TypeChecker.isBoolean(returnExpressionType.getValue())) {
           // should return bool, but does not
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
          error(msg, r.get_SourcePositionStart());
         }
 
-        if (TypeChecker.checkUnit(functionReturnType) && !TypeChecker.checkUnit(returnExpressionType.getValue())) {
-          // should return numeric, but does not
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+        if (TypeChecker.isUnit(functionReturnType) && !TypeChecker.isUnit(returnExpressionType.getValue())) {
+          // should return unit, but does not
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
-         error(msg, r.get_SourcePositionStart());
+         warn(msg, r.get_SourcePositionStart());
         }
 
-        // real rType and integer eType is ok, since more general
-        // integer rType and real eType is not ok
-        final String msg = errorStrings.getErrorMsgCannotConvertReturnValue(this,returnExpressionType.getValue().getName(),functionReturnType.getName());
+        if (TypeChecker.isInteger(functionReturnType) && TypeChecker.isReal(returnExpressionType.getValue())) {
+          // integer rType and real eType is not ok
+          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
-       error(msg, r.get_SourcePositionStart());
+          error(msg, r.get_SourcePositionStart());
+        }
+
+        final String msg = errorStrings.getErrorMsgCannotConvertReturnValue(this,returnExpressionType.getValue().getName(),functionReturnType.prettyPrint());
+        if(TypeChecker.isUnit(functionReturnType)){
+          warn(msg, r.get_SourcePositionStart());
+        }else{
+          error(msg, r.get_SourcePositionStart());
+        }
+
       }
 
     }

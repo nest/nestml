@@ -1,0 +1,26 @@
+neuron invalidAssignmentTest:
+  state:
+    Resist Ohm = 3 Ohm 
+  end
+
+  parameter:
+    Current A = 3 A
+    Potential V = 3 V
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  internal:
+  end
+
+  update:   
+    Resist = 8Ohm     
+  end
+
+end

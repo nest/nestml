@@ -8,7 +8,7 @@ import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.*;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
@@ -36,7 +36,7 @@ public class PowVisitor implements CommonsVisitor{
         expr.setType(Either.value(getIntegerType()));
         return;
       }
-      else if (checkUnit(baseType.getValue())) {
+      else if (isUnit(baseType.getValue())) {
         if (!isInteger(exponentType.getValue())) {
           expr.setType(Either.error("With a Unit base, the exponent must be an Integer!"));
           return;

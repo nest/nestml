@@ -124,13 +124,25 @@ public class SplErrorStrings {
   static String messageInitType(
       final IllegalExpression coco,
       final String variable,
-      final String realType,
+      final String varType,
       final String expressionType,
       final SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "Cannot initialize variable %s of type %s with an expression of type %s" ;
 
     return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
-           String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
+           String.format(ERROR_MSG_FORMAT, variable, varType, expressionType);
+  }
+
+  static String messageAssignment(
+      final IllegalExpression coco,
+      final String variable,
+      final String varType,
+      final String expressionType,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "Cannot assign %s to variable %s with type %s" ;
+
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
+        String.format(ERROR_MSG_FORMAT,expressionType, variable, varType);
   }
 
   static String messageNonBoolean(
