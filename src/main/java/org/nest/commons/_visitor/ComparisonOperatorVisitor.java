@@ -8,7 +8,8 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
-
+import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
  * @author ptraeder
@@ -29,7 +30,13 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
       return;
     }
 
-    if (isNumeric(lhsType.getValue()) && isNumeric(rhsType.getValue()) ||
+    if (
+        ((lhsType.getValue().equals(getRealType()) || lhsType.getValue().equals(getIntegerType())) &&
+        (rhsType.getValue().equals(getRealType()) || rhsType.getValue().equals(getIntegerType())))
+            ||
+        (lhsType.getValue().getType().equals(TypeSymbol.Type.UNIT) &&
+            rhsType.getValue().getType().equals(TypeSymbol.Type.UNIT))
+            ||
         isBoolean(lhsType.getValue()) && isBoolean(rhsType.getValue())) {
       expr.setType(Either.value(getBooleanType()));
       return;
@@ -37,8 +44,8 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
 
     //Error message specific to equals
     if (expr.isEq() ) {
-      final String errorMsg = "Only expressions of the same type can be checked for equality. And not: " +
-          lhsType.getValue() + " and " + rhsType.getValue();
+      final String errorMsg = "Comparison of " +
+          lhsType.getValue() + " and " + rhsType.getValue()+" not possible";
       expr.setType(Either.error(errorMsg));
       return;
     }
