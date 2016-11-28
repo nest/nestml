@@ -13,7 +13,7 @@ neuron rc_alpha:
     g_ex'' = -g_ex' / tau_syn
     g_ex' = g_ex' - ( g_ex / tau_syn )
     I_syn pA = g_ex + currents + I_e
-    V_m' = -(V_m + E_L)/tau_m  + I_syn/C_m
+    V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
   parameter:

@@ -539,7 +539,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       checkState(astVariableBlockType.isPresent(), "Declaration is not inside a block.");
       ASTVar_Block blockAst = astVariableBlockType.get();
 
-
       if (blockAst.isState()) {
         addVariablesFromDeclaration(
             astDeclaration,
