@@ -6,8 +6,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 /**
  * @author ptraeder

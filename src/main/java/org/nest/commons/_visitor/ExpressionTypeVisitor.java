@@ -202,15 +202,7 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
     return Either.error("Cannot calculate value of exponent. Must be a static value!");
   }
 
-  /**
-   * Checks if the type is a numeric type, e.g. Integer or Real.
-   */
-  public static boolean isNumeric(final TypeSymbol type) {
-    return type.equals(getIntegerType()) ||
-        type.equals(getRealType()) ||
-        type.getType().equals(TypeSymbol.Type.UNIT);
 
-  }
 
 
 }

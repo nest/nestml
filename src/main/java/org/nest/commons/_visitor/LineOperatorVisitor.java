@@ -1,15 +1,12 @@
 package org.nest.commons._visitor;
-
-import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 
-import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**

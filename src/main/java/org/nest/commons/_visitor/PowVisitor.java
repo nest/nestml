@@ -10,6 +10,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.*;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**

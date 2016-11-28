@@ -92,4 +92,14 @@ public class TypeChecker {
     return typeSymbol != null && typeSymbol.equals(getIntegerType());
   }
 
+  /**
+   * Checks if the type is a numeric type, e.g. Integer or Real.
+   */
+  public static boolean isNumeric(final TypeSymbol type) {
+    return type.equals(getIntegerType()) ||
+        type.equals(getRealType()) ||
+        type.getType().equals(TypeSymbol.Type.UNIT);
+
+  }
+
 }
