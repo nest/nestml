@@ -20,6 +20,7 @@ neuron invalidAssignmentTest:
   end
 
   update:   
+    V3 V**2 = (3V+5V)**2
     Resist = 8Ohm     
   end
 

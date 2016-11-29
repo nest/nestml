@@ -3,6 +3,7 @@ package org.nest.commons._visitor;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.utils.AstUtils;
 
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
@@ -32,24 +33,15 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
         ((lhsType.getValue().equals(getRealType()) || lhsType.getValue().equals(getIntegerType())) &&
         (rhsType.getValue().equals(getRealType()) || rhsType.getValue().equals(getIntegerType())))
             ||
-        (lhsType.getValue().getType().equals(TypeSymbol.Type.UNIT) &&
-            rhsType.getValue().getType().equals(TypeSymbol.Type.UNIT))
+        (lhsType.getValue().getName().equals(rhsType.getValue().getName()))
             ||
         isBoolean(lhsType.getValue()) && isBoolean(rhsType.getValue())) {
       expr.setType(Either.value(getBooleanType()));
       return;
     }
 
-    //Error message specific to equals
-    if (expr.isEq() ) {
-      final String errorMsg = "Comparison of " +
-          lhsType.getValue() + " and " + rhsType.getValue()+" not possible";
-      expr.setType(Either.error(errorMsg));
-      return;
-    }
-
     //Error message for any other operation
-    final String errorMsg = "This operation expects both operands of a numeric type.";
+    final String errorMsg = "\""+AstUtils.toString(expr)+"\" - Only numeric types can be compared, SI types must match exactly.";
     expr.setType(Either.error(errorMsg));
   }
 

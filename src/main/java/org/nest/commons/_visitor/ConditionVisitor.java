@@ -35,11 +35,11 @@ public class ConditionVisitor implements CommonsVisitor{
       }
 
       if (!condition.getValue().equals(getBooleanType())) {
-        expr.setType(Either.error("The ternary operator condition must be a boolean: " + AstUtils.toString(expr) + ".  And not a: " + condition.getValue()));
+        expr.setType(Either.error("\""+AstUtils.toString(expr)+"\" - The ternary operator condition must be boolean."));
         return;
       }
-      if (!isCompatible(ifTrue.getValue(), (ifNot.getValue()))) {
-        expr.setType(Either.error("The ternary operator results must be of the same type: " + AstUtils.toString(expr) + ".  And not: " + ifTrue.getValue() + " and " + ifNot.getValue()));
+      if (!isCompatible(ifTrue.getValue(), ifNot.getValue())) {
+        expr.setType(Either.error("\""+AstUtils.toString(expr)+"\" - The ternary operator results must be of the same type. " + ifTrue.getValue().prettyPrint() + " and " + ifNot.getValue().prettyPrint()+" are incompatible"));
         return;
       }
       expr.setType(ifTrue);

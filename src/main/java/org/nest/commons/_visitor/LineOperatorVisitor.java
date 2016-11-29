@@ -3,6 +3,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.utils.AstUtils;
 
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
@@ -42,8 +43,9 @@ public class LineOperatorVisitor implements CommonsVisitor{
     }else{
       lhsPrettyType = lhsType.getValue().getName();
     }
-    final String errorMsg = "Cannot determine the type of the "+ (expr.isPlusOp()?"(plus)":"(minus)")+" operation with types: " + lhsPrettyType
-        + " and " + rhsPrettyType + " at " + expr.get_SourcePositionStart() + ">";
+
+    final String errorMsg = "Cannot determine the type of "+ (expr.isPlusOp()?"addition":"substraction")+" with types: " + lhsPrettyType
+        + " and " + rhsPrettyType + " at " + AstUtils.print(expr.get_SourcePositionStart());
 
     //Plus-exclusive code
     if (expr.isPlusOp()) {

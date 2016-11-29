@@ -7,7 +7,7 @@ neuron invalidExpressionTest:
   end
 
   function foo(amp A, ohm Ohm) V:  
-    return 7 #Warning
+    return 7                    #2Warnings: Wrong return type AND conversion error
   end
 
   input:
@@ -26,19 +26,17 @@ neuron invalidExpressionTest:
   end
 
   update:
-    V1 = foo(A1, 3Ohm) #Warning: Function call incompatible parameters
-    V3 = ((V1+V2* 1Ohm)/V4)**(2*3)  #Warning: arithmetic expression of wrong type
-
-    if R1 > 0: #Warning: Comparison of Unit and primitive 
+    B boolean = A1 and R1 #Error: Operands not boolean.
+    
+    if R1 > 0:                  #Warning: Comparison of Unit and primitive 
+    elif A1 == R1:              #Warning: Compared unitTypes do not match
+    elif 0 < R1:                #Warning: Comparison of primitive and unit
     end
+    
+    V4 = V1+V2?2V:0V            #Error: first expression ist not a condition.
+    V4 = A1>3mA?2:1Ohm          #Warning: Mismatched Types in conditional alternatives.
 
-    if A1 >= R1: #Warning: Compared unitTypes do not match
-    end
-
-    if 0 < R1: #Warning: Comparison of primitive and unit
-    end
-
-    V4 = A1>R1?2V:0V #Warning: Mismatched types in conditional check
-    V4 = A1>3mA?2:1Ohm #Warning: Mismatched Types in conditional alternatives.
+    V1 = 2*"stringvalue"        #Error
+    
   end
 end

@@ -70,7 +70,7 @@ public class IllegalExpression implements
 
       }
     }else {
-      final String errorDescription = "Error hint: " + expressionType.getError();
+      final String errorDescription = expressionType.getError();
       undefinedTypeError(node, errorDescription);
     }
   }
@@ -110,7 +110,7 @@ public class IllegalExpression implements
 
       }
       else {
-        final String errorDescription = "Error hint: " + initializerExpressionType.getError();
+        final String errorDescription = initializerExpressionType.getError();
         undefinedTypeError(node, errorDescription);
       }
 
@@ -132,7 +132,7 @@ public class IllegalExpression implements
     }
 
     if (exprType.isError()) {
-      final String errorDescription = exprType.getError() + ". Problem with the expression: " + AstUtils.toString(node.getExpr());
+      final String errorDescription = exprType.getError() ;
       undefinedTypeError(node, errorDescription);
     }
 
@@ -157,8 +157,7 @@ public class IllegalExpression implements
     }
 
     if (exprType.isError()) {
-      final String errorDescription = exprType.getError() +
-                                      ". Problem with the expression: " + AstUtils.toString(node.getExpr());
+      final String errorDescription = exprType.getError();
       undefinedTypeError(node, errorDescription);
     }
 
