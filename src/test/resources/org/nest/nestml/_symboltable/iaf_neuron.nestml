@@ -5,7 +5,7 @@ neuron iaf_neuron:
   use TestComponent as TestRef
 
   state:
-    suppress y0 mV
+    y0 mV
     y1 mV
     y2 mV
     y3 mV
@@ -17,13 +17,13 @@ neuron iaf_neuron:
   equations:
     y0' = y0 + 1
     y0'' = y0' + 1
-    record y3_tmp real = Cond_sum(y1, spikeBuffer)
+    recordable y3_tmp real = cond_sum(y1, spikeBuffer)
     y3' = y3_tmp
   end
 
-  parameter:
+  parameters:
     # Capacity of the membrane
-    record C_m       pF = 250
+    recordable C_m       pF = 250
     # Membrane time constant.
     tau_m     ms = 10
     # Time constant ofE synaptic current.
@@ -41,14 +41,14 @@ neuron iaf_neuron:
     # Threshold.
     alias V_th mV = Theta + E_L
     # Reset value of the membrane potential.
-    record alias  V_reset mV = delta_V_reset + E_L
+    recordable alias  V_reset mV = delta_V_reset + E_L
     # invariant V_reset >= Theta
 
     # tests the correct scoping rules
     scopeTestVar string = 0
   end
 
-  internal:
+  internals:
     h   ms   = resolution()
     P11 real = e ** (-h / tau_syn)
     P22 real = P11

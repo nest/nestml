@@ -4,10 +4,10 @@ neuron testNeuron:
         stateVar2 real = 1.0 [[stateVar1]]
     end
 
-    parameter:
+    parameters:
     end
 
-    internal:
+    internals:
     end
 
     input:

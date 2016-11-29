@@ -98,8 +98,8 @@ neuron terub_neuron_stn:
     k_Ca real = 22.5
     k1 real = 15.0
 
-    I_ex_mod pA = -I_sum(g_ex,spikeExc)*V_m
-    I_in_mod pA = I_sum(g_in, spikeInh) * (V_m-E_gs)
+    I_ex_mod pA = -curr_sum(g_ex,spikeExc)*V_m
+    I_in_mod pA = curr_sum(g_in, spikeInh) * (V_m-E_gs)
 
     tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
     tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
@@ -139,7 +139,7 @@ neuron terub_neuron_stn:
     g_in' = g_in' - ( g_in / tau_syn_in )
   end
 
-  parameter:
+  parameters:
     E_L        mV = -60mV  # Resting membrane potential in mV.
     g_L        nS = 2.25nS # Leak conductance in nS.
     C_m        pF = 1.0 pF # Capacity of the membrane in pF.
@@ -159,7 +159,7 @@ neuron terub_neuron_stn:
     I_stim     pA = 0pA
   end
 
-  internal:
+  internals:
     PSCurrInit_E real = 1.0 * e / tau_syn_ex
     PSCurrInit_I real = 1.0 * e / tau_syn_in
     refractory_counts integer = steps(t_ref)

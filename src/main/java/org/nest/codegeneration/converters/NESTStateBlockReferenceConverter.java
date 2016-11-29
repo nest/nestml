@@ -27,7 +27,7 @@ public class NESTStateBlockReferenceConverter extends NESTReferenceConverter {
     final Scope scope = astVariable.getEnclosingScope().get();
     final VariableSymbol variableSymbol = resolve(variableName, scope);
 
-    return (variableSymbol.isParameter()?"__p.":"") + Names.getter(variableSymbol) + "()";
+    return (variableSymbol.isParameters ()?"__p.":"") + Names.getter(variableSymbol) + "()";
   }
 
 }

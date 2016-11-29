@@ -1,5 +1,5 @@
 component SomaComponent:
-  parameter:
+  parameters:
     diameter5 integer = 5
   end
   function helloWorld():

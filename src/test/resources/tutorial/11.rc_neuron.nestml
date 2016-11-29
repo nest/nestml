@@ -11,7 +11,7 @@ neuron rc_neuron:
       V_m' = -V_m/tau_m + I_syn/C_m
   end
 
-  parameter:
+  parameters:
     E_L   mV = -65mV
     C_m   pF = 250pF
     tau_m ms = 10ms

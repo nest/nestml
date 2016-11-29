@@ -86,17 +86,17 @@ neuron ht_neuron_nestml:
     INaP_slope mV = 7.7pA
     m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
     # Persistent Na current; member only to allow recording
-    record I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
+    recordable I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
 
     d_half real = 0.25
     m_inf_KNa real = 1.0 / ( 1.0 + pow( d_half / IKNa_D, 3.5 ) )
     # Depol act. K current; member only to allow recording
-    record I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
+    recordable I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
 
     # Low-thresh Ca current; member only to allow recording
-    record I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
+    recordable I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
 
-    record I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
+    recordable I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
     # The spike current is only activate immediately after a spike.
     I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
     V_m'  = ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike
@@ -148,7 +148,7 @@ neuron ht_neuron_nestml:
     g_GABAB' = g_GABAB' - g_GABAB /GABA_B_Tau_2
   end
 
-  parameter:
+  parameters:
     E_Na mV = 30.0mV
     E_K mV = -90.0mV
     g_NaL nS =  0.2nS
@@ -191,7 +191,7 @@ neuron ht_neuron_nestml:
     KNa_D_EQ pA = 0.001pA
   end
 
-  internal:
+  internals:
     AMPAInitialValue real = compute_synapse_constant( AMPA_Tau_1, AMPA_Tau_2, AMPA_g_peak )
     NMDAInitialValue real = compute_synapse_constant( NMDA_Tau_1, NMDA_Tau_2, NMDA_g_peak )
 

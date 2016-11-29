@@ -52,8 +52,8 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     g_sfa' = -g_sfa / tau_sfa
     g_rr' = g_rr / tau_rr
 
-    I_syn_exc pA = Cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
-    I_syn_inh pA = Cond_sum(g_in, spikesInh) * ( V_m - E_in )
+    I_syn_exc pA = cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
+    I_syn_inh pA = cond_sum(g_in, spikesInh) * ( V_m - E_in )
     I_L pA = g_L * ( V_m - E_L )
     I_sfa pA = g_sfa * ( V_m - E_sfa )
     I_rr pA = g_rr * ( V_m - E_rr )
@@ -62,7 +62,7 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     V_m' = ( -I_L + I_stim + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
-  parameter:
+  parameters:
     V_th mV = -57.0mV      # Threshold Potential in mV
     V_reset mV = -70.0mV   # Reset Potential in mV
     t_ref ms = 0.5ms       # Refractory period in ms
@@ -85,7 +85,7 @@ neuron iaf_cond_exp_sfa_rr_implicit:
                     # _dynamics function computing the derivative of the state vector.
   end
 
-  internal:
+  internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer                               # counts number of tick during the refractory period
   end

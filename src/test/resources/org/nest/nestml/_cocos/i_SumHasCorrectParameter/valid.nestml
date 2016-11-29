@@ -1,11 +1,11 @@
-neuron valid_I_sum:
+neuron valid_curr_sum:
   state:
     V_m mV
     G pA
   end
 
   equations:
-    V_m' = V_m+I_sum(G, spikes)
+    V_m' = V_m+curr_sum(G, spikes)
   end
 
   input:

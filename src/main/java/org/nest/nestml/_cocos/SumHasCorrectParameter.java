@@ -15,21 +15,22 @@ import org.nest.utils.AstUtils;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.symboltable.predefined.PredefinedFunctions.I_SUM;
+import static org.nest.symboltable.predefined.PredefinedFunctions.COND_SUM;
+import static org.nest.symboltable.predefined.PredefinedFunctions.CURR_SUM;
 
 /**
- * This class ensures that I_sum(I,Buffer) gets only simple expression
+ * This class ensures that curr_sum(I,Buffer) gets only simple expression
  *
  * @author plotnikov
  */
-public class I_SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
-  public final static String ERROR_CODE = "NESTML_" + I_SumHasCorrectParameter.class.getSimpleName();
+public class SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
+  public final static String ERROR_CODE = "NESTML_" + SumHasCorrectParameter.class.getSimpleName();
 
   @Override
   public void check(final ASTOdeDeclaration odeDeclaration) {
     final List<ASTFunctionCall> functions = AstUtils.getAll(odeDeclaration, ASTFunctionCall.class)
         .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(I_SUM))
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(CURR_SUM) || astFunctionCall.getCalleeName().equals(COND_SUM))
         .collect(toList());
 
     for (final ASTFunctionCall functionCall:functions) {

@@ -2,10 +2,10 @@ neuron testNeuron:
     state:
     end
 
-    parameter:
+    parameters:
     end
 
-    internal:
+    internals:
     end
 
     input:

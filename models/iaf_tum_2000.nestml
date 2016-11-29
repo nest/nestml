@@ -98,11 +98,11 @@ neuron iaf_tum_2000_neuron:
   equations:
     shape I_shape_in = exp(-1/tau_syn_in*t)
     shape I_shape_ex = exp(-1/tau_syn_ex*t)
-    I_syn pA = (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+    I_syn pA = (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
     V_m' = -1/tau_m * V_m + 1/C_m * I_syn
   end
 
-  parameter:
+  parameters:
     C_m  pF = 250pF     # Capacity of the membrane
     tau_m  ms = 10ms    # Membrane time constant.
     tau_syn_in ms = 2ms  # Time constant of synaptic current.
@@ -119,7 +119,7 @@ neuron iaf_tum_2000_neuron:
     I_e     pA = 0pA     # External current.
   end
 
-  internal:
+  internals:
     # TauR specifies the length of the absolute refractory period as
     # a double_t in ms. The grid based iaf_tum_2000 can only handle refractory
     # periods that are integer multiples of the computation step size (h).

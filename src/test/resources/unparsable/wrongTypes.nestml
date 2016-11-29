@@ -81,11 +81,11 @@ neuron iaf_neuron_neuron:
   # Declarative description of the updates rules
   equations:
       shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-      V_abs' = -1/Tau * V_abs + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+      V_abs' = -1/Tau * V_abs + 1/C_m * (curr_sum(G, spikes) + I_e + currents)
   end
 
   # these parameter are adjusted from outside
-  parameter:
+  parameters:
     Tau     ms = 10 NS    # ERROR: NS is wrong
     C_m     pf = 250 pF [[C_m > 0 pF]]   # ERROR: pf is wrong
     tau_syn ms = 2 ms     # Time constant of synaptic current.
@@ -97,7 +97,7 @@ neuron iaf_neuron_neuron:
   end
 
   # helper calculations
-  internal:
+  internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer                               # counts number of tick during the refractory period
   end
