@@ -7,7 +7,7 @@ neuron iaf_psc_exp_ms_imperative_nestml:
    V_m real = 0.0       # membrane potential, variable 2
   end
 
-  parameter:
+  parameters:
    Tau  ms = 10.0
    C_1 ms = 250.0
    t_ref ms = 2.0
@@ -19,7 +19,7 @@ neuron iaf_psc_exp_ms_imperative_nestml:
    tau_in ms = 2.0
   end
 
-  internal:
+  internals:
     h   ms   = resolution()
     r_ref integer  = 0   # absolute refractory counter (no membrane potential propagation)
     # these P are independent

@@ -6,12 +6,12 @@ neuron testNeuron:
 
     end
 
-    parameter:
+    parameters:
         # Error parameter can only use another parameter in correct order
         parameterVar1 real = stateVar1
     end
 
-    internal:
+    internals:
         internalVar1 real = 1.0
     end
 

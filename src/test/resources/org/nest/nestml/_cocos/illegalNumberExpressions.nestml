@@ -1,6 +1,6 @@
 component IllegalNumberExpressions:
 
-  internal:
+  internals:
     b boolean = true
   end
 

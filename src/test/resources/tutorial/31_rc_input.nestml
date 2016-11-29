@@ -12,7 +12,7 @@ neuron rc_input:
     V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
-  parameter:
+  parameters:
     E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms

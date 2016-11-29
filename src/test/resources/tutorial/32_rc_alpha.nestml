@@ -16,7 +16,7 @@ neuron rc_alpha:
     V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
-  parameter:
+  parameters:
     E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms
@@ -29,7 +29,7 @@ neuron rc_alpha:
     I_e pA = 0pA
   end
 
-  internal:
+  internals:
     PSConInit_E pA/ms = 1.0 pA * e / tau_syn
   end
 

@@ -60,7 +60,7 @@ neuron aeif_cond_alpha_implicit:
 
   end
 
-  parameter:
+  parameters:
     # membrane parameters
     C_m   pF = 281.0pF       # Membrane Capacitance in pF
     t_ref ms = 0.0ms         # Refractory period in ms
@@ -89,7 +89,7 @@ neuron aeif_cond_alpha_implicit:
     I_stim pA = 0pA
   end
 
-  internal:
+  internals:
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.

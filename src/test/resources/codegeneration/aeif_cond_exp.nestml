@@ -91,7 +91,7 @@ neuron aeif_cond_exp_neuron:
     w' = (a*(V_m - E_L) - w)/tau_w
   end
 
-  parameter:
+  parameters:
     # membrane parameters
     C_m   pF = 281.0pF     # Membrane Capacitance in pF
     t_ref ms = 0.0ms       # Refractory period in ms
@@ -120,7 +120,7 @@ neuron aeif_cond_exp_neuron:
     I_stim pA = 0pA
   end
 
-  internal:
+  internals:
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
     # counts number of tick during the refractory period

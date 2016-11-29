@@ -72,7 +72,7 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
     @attribute AliasDecl a list with variable declarations.
   */
   Var_Block implements BodyElement =
-    (["state"]|["parameter"]|["internal"])
+    (["state"]|["parameters"]|["internals"])
     BLOCK_OPEN
       (AliasDecl | NEWLINE)*
     BLOCK_CLOSE;
@@ -113,7 +113,7 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
     @attribute invariants List with optional invariants.
   */
   AliasDecl =
-    ([record:"record"] | [suppress:"suppress"])? (["alias"])?
+    (["recordable"] )? (["alias"])?
     Declaration
     ("[[" invariant:Expr "]]")?;
 

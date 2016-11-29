@@ -139,7 +139,7 @@ neuron terub_neuron_stn:
     g_in' = g_in' - ( g_in / tau_syn_in )
   end
 
-  parameter:
+  parameters:
     E_L        mV = -60mV  # Resting membrane potential in mV.
     g_L        nS = 2.25nS # Leak conductance in nS.
     C_m        pF = 1.0 pF # Capacity of the membrane in pF.
@@ -159,7 +159,7 @@ neuron terub_neuron_stn:
     I_stim     pA = 0pA
   end
 
-  internal:
+  internals:
     PSCurrInit_E real = 1.0 * e / tau_syn_ex
     PSCurrInit_I real = 1.0 * e / tau_syn_in
     refractory_counts integer = steps(t_ref)

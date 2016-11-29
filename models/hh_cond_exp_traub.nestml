@@ -77,7 +77,7 @@ neuron hh_cond_exp_traub_neuron:
 
   end
 
-  parameter:
+  parameters:
     g_Na nS = 20000.0nS       # Threshold Potential in mV
     g_K nS = 6000.0nS         # K Conductance
     g_L nS = 10nS             # Leak Conductance
@@ -95,7 +95,7 @@ neuron hh_cond_exp_traub_neuron:
     I_stim pA = 0pA           # External input current
   end
 
-  internal:
+  internals:
     RefractoryCounts integer = 20
     r integer # counts number of tick during the refractory period
   end

@@ -129,7 +129,7 @@ neuron terub_neuron_gpe:
     Ca_con' = g_epsilon*(-I_Ca - I_T - g_k_Ca * Ca_con)
   end
 
-  parameter:
+  parameters:
     E_L        mV = -55mV  # Resting membrane potential in mV.
     g_L        nS = 0.1nS  # Leak conductance in nS.
     C_m        pF = 1.0 pF # Capacity of the membrane in pF.
@@ -149,7 +149,7 @@ neuron terub_neuron_gpe:
     I_stim     pA = 0pA
   end
 
-  internal:
+  internals:
     PSCurrInit_E real = 1.0 * e / tau_syn_ex
     PSCurrInit_I real = 1.0 * e / tau_syn_in
     refractory_counts integer = steps(t_ref)

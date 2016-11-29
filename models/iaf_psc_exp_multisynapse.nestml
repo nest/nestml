@@ -34,7 +34,7 @@ neuron iaf_psc_exp_multisynapse_neuron:
       V_abs' = -1/tau_m * V_abs + 1/C_m * I_syn
   end
 
-  parameter:
+  parameters:
     receptors integer  = 100
     C_m     pF = 250pF  # Capacity of the membrane
     tau_m     ms = 10ms # Membrane time constant.
@@ -50,7 +50,7 @@ neuron iaf_psc_exp_multisynapse_neuron:
   end
 
 
-  internal:
+  internals:
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
     # counts number of tick during the refractory period

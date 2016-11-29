@@ -22,13 +22,13 @@ neuron validExpressionTest:
       currents <- current
   end
 
-  parameter:
+  parameters:
     V2 V = foo(7 A,2 Ohm) #function call    
   end
 
   output: spike
 
-  internal:
+  internals:
     S_1 ms   = resolution() #predefined Functions
   end
 

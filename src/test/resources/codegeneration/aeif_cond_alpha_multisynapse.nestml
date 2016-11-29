@@ -80,7 +80,7 @@ neuron aeif_cond_alpha_implicit_implicit:
 
   end
 
-  parameter:
+  parameters:
     receptors integer = 100  # number of synapse receptors
 
     # membrane parameters
@@ -110,7 +110,7 @@ neuron aeif_cond_alpha_implicit_implicit:
     I_stim pA = 0pA
   end
 
-  internal:
+  internals:
 
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude

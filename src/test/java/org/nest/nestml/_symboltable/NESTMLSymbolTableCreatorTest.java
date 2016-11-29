@@ -60,7 +60,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     final Optional<VariableSymbol> y1Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y1", VariableSymbol.KIND);
     assertTrue(y0TVariable.isPresent());
     assertTrue(y0TVariable.get().definedByODE());
-    assertFalse(y0TVariable.get().isLoggable());
+    assertTrue(y0TVariable.get().isLoggable());
 
     assertTrue(y1Varialbe.isPresent());
     assertFalse(y1Varialbe.get().definedByODE());

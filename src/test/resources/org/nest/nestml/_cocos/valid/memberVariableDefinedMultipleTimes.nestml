@@ -8,7 +8,7 @@ neuron NeuronInTest:
     g_z'' = t
   end
 
-  parameter:
+  parameters:
     y real
   end
 

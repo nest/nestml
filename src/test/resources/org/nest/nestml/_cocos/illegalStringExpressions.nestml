@@ -1,5 +1,5 @@
 component IllegalStringExpressions:
-  internal:
+  internals:
     #i IllegalNumberExpressions
   end
 
