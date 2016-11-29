@@ -167,9 +167,9 @@ public class NestmlErrorStrings {
         + " there is a variable called '" + variableName + "'.";
   }
 
-  String getErrorMsg(I_SumHasCorrectParameter coco, String expression) {
-    return I_SumHasCorrectParameter.ERROR_CODE + ":" + "The arguments of the I_sum must be atomic expressions: "
-        + "e.g. V_m and not : " + expression;
+  String getErrorMsg(SumHasCorrectParameter coco, String expression) {
+    return SumHasCorrectParameter.ERROR_CODE + ":" + "The arguments of the I_sum must be atomic expressions: "
+           + "e.g. V_m and not : " + expression;
   }
 
   String getErrorMsg(InvalidTypesInDeclaration coco, String typeName) {

@@ -151,8 +151,8 @@ public class NestmlCoCosManager {
     final VarHasTypeName varHasTypeName = new VarHasTypeName();
     nestmlCoCoChecker.addCoCo(varHasTypeName);
 
-    final I_SumHasCorrectParameter i_sumHasCorrectParameter = new I_SumHasCorrectParameter();
-    nestmlCoCoChecker.addCoCo(i_sumHasCorrectParameter);
+    final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
+    nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);
 
     final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
     nestmlCoCoChecker.addCoCo(equationsOnlyForStateVariables);

@@ -209,11 +209,11 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
         = resolveMethod("exp", Lists.newArrayList("real"), modelScope);
     assertTrue(withPredicate.isPresent());
 
-    Optional<MethodSymbol> I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
+    Optional<MethodSymbol> I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
     assertTrue(I_sumOptional.isPresent());
-    I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
+    I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
     assertFalse(I_sumOptional.isPresent());
-    I_sumOptional = resolveMethod(PredefinedFunctions.I_SUM, Lists.newArrayList("pA", "real"), modelScope);
+    I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("pA", "real"), modelScope);
     assertFalse(I_sumOptional.isPresent());
 
     Optional<MethodSymbol> Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);

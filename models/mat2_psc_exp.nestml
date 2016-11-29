@@ -74,7 +74,7 @@ neuron mat2_psc_exp_neuron:
 
     # V_th_alpha_1' = -V_th_alpha_1/tau_1
     # V_th_alpha_2' = -V_th_alpha_2/tau_2
-    I_syn pA = (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+    I_syn pA = (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
     V_abs' = -1/tau_m * V_abs + 1/C_m * I_syn
   end
 

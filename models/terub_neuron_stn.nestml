@@ -98,8 +98,8 @@ neuron terub_neuron_stn:
     k_Ca real = 22.5
     k1 real = 15.0
 
-    I_ex_mod pA = -I_sum(g_ex,spikeExc)*V_m
-    I_in_mod pA = I_sum(g_in, spikeInh) * (V_m-E_gs)
+    I_ex_mod pA = -curr_sum(g_ex,spikeExc)*V_m
+    I_in_mod pA = curr_sum(g_in, spikeInh) * (V_m-E_gs)
 
     tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
     tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))

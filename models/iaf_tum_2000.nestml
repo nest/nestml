@@ -98,7 +98,7 @@ neuron iaf_tum_2000_neuron:
   equations:
     shape I_shape_in = exp(-1/tau_syn_in*t)
     shape I_shape_ex = exp(-1/tau_syn_ex*t)
-    I_syn pA = (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+    I_syn pA = (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
     V_m' = -1/tau_m * V_m + 1/C_m * I_syn
   end
 
