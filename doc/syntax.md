@@ -2,7 +2,7 @@
 
 NESTML has a concise syntax that avoids clutter in the form of
 semicolons, curly braces or tags as known from other programming or
-description languages. Instead it concentrates on the domain concepts
+z languages. Instead it concentrates on the domain concepts
 needed to efficiently write down neuron models and their equations.
 
 NESTML files are expected to have the filename extension
@@ -15,16 +15,67 @@ In order to give the users of NESTML complete freedom, we provide a
 full programming language with the following features:
 
 ### Physical units and data types
-
-*  `real`, `integer`, `boolean`
+NESTML provides
+*  `real`, `integer`, `boolean`,
 *  Physical units
 *  Type and unit checks
 
 ### Control structures
 
-* loops
-* conditionals
 * declarations
+```
+a, b, c real = -0.42
+d integer = 1
+e string = "Bob"
+f mV   = -2e12mV
+```
+* loops
+
+```
+while <boolean_expression>:
+  <Statements>
+end
+
+x integer = 0
+while x <= 10:
+  <statements>
+end
+```
+
+```
+for <existing_variable_name> in <lower_bound> ... <upper_bound>:
+  <statements>
+end
+
+x integer = 0
+for x in 1 ... 5:
+  <statements>
+end
+```
+
+```
+for <existing_variable_name> in <integer_lower_bound> ... <integer_upper_bound> step <integer_step_size>:
+  <statements>
+end
+
+x integer
+for x in 1 ... 5 step 2:
+  <statements>
+end
+```
+
+```
+for <existing_variable_name> in <real_lower_bound> ... <real_upper_bound> step <real_step_size>:
+  <statements>
+end
+
+x real
+for x in 0.1 ... 0.5 step 0.1:
+  Statements
+end
+```
+* conditionals
+
 
 ### Expressions and operators
 
@@ -32,12 +83,12 @@ full programming language with the following features:
 
 ## Blocks
 
-To structure NESTML files, all content is split into blocks. Blocks
-begin with a keyword specifying the type of the block followed by zero
-or more arguments (depending on the type) and a colon. They are
-closed with the keyword `end`. Indentation inside a block is not
-mandatory but recommended for better legibiliy. Each block must only
-occur once on each level.
+To structure NESTML fails, all content is split into blocks. Blocks
+begin with a keyword specifying the type of the block followed by a colon.
+They are closed with the keyword `end`. Indentation inside a block is not
+mandatory but recommended for better readability. Each block must only
+occur at most once on each level. Some of the blocks are required to occur in
+every neuron model.
 
 ### Syntax
 ```
@@ -150,7 +201,3 @@ Currenly only spike output is supported.
 ## Guards
 
 ## Comments and documentation
-
-
-
-
