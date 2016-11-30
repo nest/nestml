@@ -2,7 +2,7 @@
 
 NESTML has a concise syntax that avoids clutter in the form of
 semicolons, curly braces or tags as known from other programming or
-z languages. Instead it concentrates on the domain concepts
+markup languages. Instead it concentrates on the domain concepts
 needed to efficiently write down neuron models and their equations.
 
 NESTML files are expected to have the filename extension
