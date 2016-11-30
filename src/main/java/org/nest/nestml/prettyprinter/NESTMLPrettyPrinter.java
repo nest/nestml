@@ -150,11 +150,11 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     if (astVarBlock.isState()) {
       println("state" + BLOCK_OPEN);
     }
-    else if (astVarBlock.isInternal()) {
-      println("internal" + BLOCK_OPEN);
+    else if (astVarBlock.isInternals()) {
+      println("internals" + BLOCK_OPEN);
     }
-    else if (astVarBlock.isParameter()) {
-      println("parameter" + BLOCK_OPEN);
+    else if (astVarBlock.isParameters ()) {
+      println("parameters" + BLOCK_OPEN);
     }
 
   }
@@ -178,12 +178,8 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   private void printAliasPrefix(final ASTAliasDecl astAliasDecl) {
-    if (astAliasDecl.isRecord()) {
-      print("record ");
-    }
-
-    if (astAliasDecl.isSuppress()) {
-      print("suppress ");
+    if (astAliasDecl.isRecordable()) {
+      print("recordable ");
     }
 
     if (astAliasDecl.isAlias()) {
@@ -271,20 +267,20 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   /**
-   * This method is used in freemaker template
+   * This method is used in freemaker template. Therefore, remains public.
    */
   public void printShape(final ASTShape astShape) {
     println("shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs()));
   }
 
   /**
-   * This method is used in freemaker template
+   * This method is used in freemaker template. Therefore, remains public.
    */
   public void printODEAlias(final ASTODEAlias astOdeAlias) {
     final String datatype = AstUtils.computeTypeName(astOdeAlias.getDatatype(), true);
     final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
-    if (astOdeAlias.isRecord()) {
-      print("record ");
+    if (astOdeAlias.isRecordable()) {
+      print("recordable ");
     }
     println(astOdeAlias.getVariableName() + " " + datatype + " = " + initExpression);
   }

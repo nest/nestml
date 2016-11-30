@@ -35,7 +35,6 @@ import static org.nest.utils.LogHelper.getErrorsByPrefix;
  */
 public class NestmlCoCosManagerTest extends ModelbasedTest {
 
-
   /**
    * Parses the model and returns ast.
    *

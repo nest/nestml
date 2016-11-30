@@ -3,12 +3,12 @@ neuron testNeuron:
         test1 real = 1 [[test1 > parameterVar1]]
     end
 
-    parameter:
+    parameters:
         parameterVar1 real = 1
         parameterVar2 real = parameterVar1
     end
 
-    internal:
+    internals:
     end
 
     input:

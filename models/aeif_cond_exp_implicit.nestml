@@ -52,13 +52,13 @@ neuron aeif_cond_exp_implicit:
     # Add aliases to simplify the equation definition of V_m
     exp_arg real = (V_m-V_th)/delta_T
     I_spike pA = delta_T*exp(exp_arg)
-    I_syn_exc pA = Cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
-    I_syn_inh pA = Cond_sum(g_in, spikeInh) * ( V_m - E_in )
+    I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+    I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
 
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
   end
 
-  parameter:
+  parameters:
     # membrane parameters
     C_m   pF = 281.0pF     # Membrane Capacitance in pF
     t_ref ms = 0.0ms       # Refractory period in ms
@@ -87,7 +87,7 @@ neuron aeif_cond_exp_implicit:
     I_stim pA = 0pA
   end
 
-  internal:
+  internals:
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
     # counts number of tick during the refractory period

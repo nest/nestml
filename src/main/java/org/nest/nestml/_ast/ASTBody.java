@@ -96,7 +96,7 @@ public class ASTBody extends ASTBodyTOP {
   }
   public Optional<ASTBodyElement> getParameterBlock() {
     return this.getBodyElements().stream()
-        .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isParameter())
+        .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isParameters ())
         .findFirst(); // there is at most one
   }
 
@@ -113,7 +113,7 @@ public class ASTBody extends ASTBodyTOP {
 
   public Optional<ASTBodyElement> getInternalBlock() {
     return this.getBodyElements().stream()
-        .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isInternal())
+        .filter(be -> be instanceof ASTVar_Block && ((ASTVar_Block) be).isInternals())
         .findFirst(); // there is at most one
   }
 
@@ -206,18 +206,18 @@ public class ASTBody extends ASTBodyTOP {
 
   // Parameter variable handling
   public List<VariableSymbol> getParameterSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameter), getEnclosingScope().get());
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameters ), getEnclosingScope().get());
   }
 
   public List<VariableSymbol> getParameterAliasSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameter), getEnclosingScope().get())
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameters ), getEnclosingScope().get())
         .stream()
         .filter(VariableSymbol::isAlias)
         .collect(Collectors.toList());
   }
 
   public List<VariableSymbol> getParameterNonAliasSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameter), getEnclosingScope().get())
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameters ), getEnclosingScope().get())
         .stream()
         .filter(variable -> !variable.isAlias())
         .collect(Collectors.toList());
@@ -225,18 +225,18 @@ public class ASTBody extends ASTBodyTOP {
 
   // Internal variables handling
   public List<VariableSymbol> getInternalSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternal), getEnclosingScope().get());
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternals), getEnclosingScope().get());
   }
 
   public List<VariableSymbol> getInternalAliasSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternal), getEnclosingScope().get())
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternals), getEnclosingScope().get())
         .stream()
         .filter(VariableSymbol::isAlias)
         .collect(Collectors.toList());
   }
 
   public List<VariableSymbol> getInternalNonAliasSymbols() {
-    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternal), getEnclosingScope().get())
+    return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternals), getEnclosingScope().get())
         .stream()
         .filter(variable -> !variable.isAlias())
         .collect(Collectors.toList());
@@ -277,7 +277,7 @@ public class ASTBody extends ASTBodyTOP {
 
       ASTVar_Block block = (ASTVar_Block) be;
 
-      if (block.isInternal()) {
+      if (block.isInternals()) {
         block.getAliasDecls().add(astAliasDecl);
       }
 
@@ -339,7 +339,7 @@ public class ASTBody extends ASTBodyTOP {
 
     final List<VariableSymbol> invertableAliases = aliases.stream()
         .filter(variable -> isInvertableExpression(variable.getDeclaringExpression().get()) ||
-               (variable.isParameter() && isRelativeExpression(variable.getDeclaringExpression().get())))
+               (variable.isParameters () && isRelativeExpression(variable.getDeclaringExpression().get())))
         .collect(Collectors.toList());
 
     // Use sets to filter double variables, e.g. a variable that is used twice on the right side

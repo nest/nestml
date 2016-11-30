@@ -18,7 +18,7 @@ neuron iaf_cond_alpha_implicit:
     V_m' = -1/((1 / g_L) * C_m) * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
 
-  parameter:
+  parameters:
    V_th mV = -55.0      # Threshold Potential in mV
    V_reset mV = -60.0   # Reset Potential in mV
    t_ref ms = 2.0       # Refractory period in ms
@@ -41,7 +41,7 @@ neuron iaf_cond_alpha_implicit:
   function set_Tau(v ms):
   end
 
-  internal:
+  internals:
     h   ms   = resolution()
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
@@ -109,7 +109,7 @@ neuron iaf_cond_alpha_implicit2:
           - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
   end
 
-  parameter:
+  parameters:
    V_th mV = -55.0      # Threshold Potential in mV
    V_reset mV = -60.0   # Reset Potential in mV
    t_ref ms = 2.0       # Refractory period in ms
@@ -132,7 +132,7 @@ neuron iaf_cond_alpha_implicit2:
   function set_Tau(v ms):
   end
 
-  internal:
+  internals:
     h   ms   = resolution()
 
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
@@ -159,7 +159,7 @@ neuron iaf_cond_alpha_implicit2:
 
   update:
 
-    integrate(V_m)
+    integrate_odes()
     if r != 0: # not refractory
       r =  r - 1
       V_m = V_reset # clamp potential

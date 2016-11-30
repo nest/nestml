@@ -14,7 +14,7 @@ neuron mat2_exp_neuron:
     V_th_2 real = 0.0
   end
 
-  parameter:
+  parameters:
     # Membrane time constant
     Tau ms = 5.0
     # Membrane capacitance in pF
@@ -39,7 +39,7 @@ neuron mat2_exp_neuron:
     omega mV = 19.0
   end
 
-  internal:
+  internals:
     h     ms   = resolution()
     # total refractory counter (no spikes can be generated)
     r integer = 0

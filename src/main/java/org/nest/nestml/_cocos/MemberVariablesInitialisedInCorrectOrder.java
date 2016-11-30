@@ -12,8 +12,10 @@ import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.monticore.utils.ASTNodes.getSuccessors;
@@ -49,14 +51,14 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
           declaration.getExpr().get(),
           ASTVariable.class);
 
-      checkVariables(lhsVariable.get(), variablesNames, enclosingScope.get());
+      checkVariables(lhsVariable.get(), variablesNames, enclosingScope.get(), (a,b) -> a >= b);
 
       if (alias.getInvariant().isPresent()) {
         final List<ASTVariable> variablesInInvariant = getSuccessors(
             alias.getInvariant().get(),
             ASTVariable.class);
 
-        checkVariables(lhsVariable.get(), variablesInInvariant, enclosingScope.get());
+        checkVariables(lhsVariable.get(), variablesInInvariant, enclosingScope.get(), (a,b) -> a > b);
       }
 
     }
@@ -66,7 +68,8 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
   private void checkVariables(
       final VariableSymbol lhsSymbol,
       final List<ASTVariable> variablesNames,
-      final Scope enclosingScope) {
+      final Scope enclosingScope,
+      final BiPredicate<Integer, Integer> predicate) {
     for (final ASTVariable astVariable : variablesNames) {
       final String rhsVariableName = astVariable.toString();
       final Optional<VariableSymbol> rhsSymbol = enclosingScope.resolve(
@@ -83,7 +86,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
       else  { //
         // not local, e.g. a variable in one of the blocks: state, parameter, or internal
         // both of same decl type
-        checkIfDefinedInCorrectOrder(lhsSymbol, rhsSymbol.get());
+        checkIfDefinedInCorrectOrder(lhsSymbol, rhsSymbol.get(), predicate);
 
       }
 
@@ -93,14 +96,15 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
 
   private void checkIfDefinedInCorrectOrder(
       final VariableSymbol lhsSymbol,
-      final VariableSymbol rhsSymbol) {
+      final VariableSymbol rhsSymbol,
+      final BiPredicate<Integer, Integer> isError) {
     if (rhsSymbol.getDeclaringType().getName()
         .equals(lhsSymbol.getDeclaringType().getName())) {
       // same var - block? => used must be in previous line
       if (rhsSymbol.getBlockType() == lhsSymbol.getBlockType()) {
         // same block not parameter block
-        if (rhsSymbol.getSourcePosition().getLine() >
-            lhsSymbol.getSourcePosition().getLine()) {
+        if (isError.test(rhsSymbol.getSourcePosition().getLine(),
+            lhsSymbol.getSourcePosition().getLine())) {
           final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
                   rhsSymbol.getName(),
                   lhsSymbol.getName());
@@ -108,7 +112,9 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
           error(msg, rhsSymbol.getSourcePosition());
 
         }
+
       }
+
       if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
           rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETER) {
          final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
@@ -121,7 +127,5 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
     }
 
   }
-
-
 
 }

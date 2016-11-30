@@ -15,7 +15,7 @@ neuron invalidExpressionTest:
       currents <- current
   end
 
-  parameter:
+  parameters:
     test real = 3 Ohm
     V2 V = foo(3,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
     V3 V = foo(8+8*7,2 Ohm) #NESTML_LITERALS_MUST_HAVE_TYPES: Omitted type in literal function parameters
@@ -24,7 +24,7 @@ neuron invalidExpressionTest:
 
   output: spike
 
-  internal:
+  internals:
   end
 
   update:

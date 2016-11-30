@@ -1,8 +1,8 @@
 neuron Reassigner:
-  parameter:
+  parameters:
       a integer = 10
   end
-  internal:
+  internals:
       b real = 0.23
   end
 

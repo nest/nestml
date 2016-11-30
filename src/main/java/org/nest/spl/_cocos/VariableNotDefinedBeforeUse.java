@@ -14,6 +14,7 @@ import org.nest.commons._ast.ASTVariable;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTFOR_Stmt;
+import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
@@ -49,13 +50,22 @@ public class VariableNotDefinedBeforeUse implements
     final Scope scope = decl.getEnclosingScope().get();
 
     if (decl.getExpr().isPresent()) {
+
       final List<String> varsOfCurrentDecl = Lists.newArrayList(decl.getVars());
       final List<ASTVariable> variablesNamesRHS = ASTNodes.getSuccessors(decl.getExpr().get(), ASTVariable.class);
+      // check if it is variable block or dynamics- or user-defined function. if yes, skip the check. It will be
+      // checked through MemberVariablesInitialisedInCorrectOrder coco
+      final VariableSymbol declarationSymbol = VariableSymbol.resolve(varsOfCurrentDecl.get(0), scope);
+      if (!declarationSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
+        return;
+      }
       // check, if variable of the left side is used in the right side, e.g. in decl-vars
-
       for (final ASTVariable variable: variablesNamesRHS) {
         final String varRHS = variable.toString();
         final VariableSymbol variableSymbol =VariableSymbol.resolve(varRHS, scope);
+        if (PredefinedVariables.gerVariables().contains(variableSymbol)) {
+          continue;
+        }
         // e.g. x real = 2 * x
         if (varsOfCurrentDecl.contains(varRHS)) {
           final String logMsg = SplErrorStrings.messageOwnAssignment(this, varRHS, decl.get_SourcePositionStart());

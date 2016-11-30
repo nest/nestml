@@ -12,7 +12,7 @@ neuron NeuronInTest:
       g_z'' = t*2 # error, g_z' is defined by the last definition
     end
 
-    parameter:
+    parameters:
         x real = x * 2
         y real
     end

@@ -52,7 +52,7 @@ neuron izhikevich_neuron:
     U_m' = a*(b*V_m-U_m)
   end
 
-  parameter:
+  parameters:
     a real = 0.02   # describes time scale of recovery variable
     b real = 0.2    # sensitivity of recovery variable
     c mV = -65      # after-spike reset value of V_m

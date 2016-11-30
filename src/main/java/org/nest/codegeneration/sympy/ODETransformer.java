@@ -34,7 +34,7 @@ public class ODETransformer {
     return AstUtils.getAll(workingCopy, ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall ->
-            astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM) ||
+            astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM) ||
             astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
         .collect(Collectors.toList());
   }

@@ -20,7 +20,7 @@ neuron aeif_cond_alpha_neuron:
   function set_Tau(v ms):
   end
 
-  parameter:
+  parameters:
    Delta_T real = 1.0 # TODO fixme
    V_th mV = -55.0      # Threshold Potential in mV
    V_reset mV = -60.0   # Reset Potential in mV
@@ -44,7 +44,7 @@ neuron aeif_cond_alpha_neuron:
    I_stim pA = 0
   end
 
-  internal:
+  internals:
     h   ms   = resolution()
     a real = 0.5
 

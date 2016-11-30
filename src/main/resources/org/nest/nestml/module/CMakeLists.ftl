@@ -1,4 +1,4 @@
-# examples/MyModule/CMakeLists.txt
+# ${moduleName}/CMakeLists.txt
 #
 # This file is part of NEST.
 #
@@ -31,7 +31,7 @@ cmake_minimum_required( VERSION 2.8.12 )
 # For more informations on how to extend and use your module see:
 #           https://nest.github.io/nest-simulator/extension_modules
 
-# 1) Name your module here, i.e. add later with -Dexternal-modules=my:
+# 1) Name your module here, i.e. add later with -Dexternal-modules=${moduleName}:
 set( SHORT_NAME ${moduleName} )
 
 #    the complete module name is here:
@@ -268,17 +268,12 @@ install( FILES ${r"$"}{MODULE_HEADER} DESTINATION ${r"$"}{CMAKE_INSTALL_INCLUDED
 install( DIRECTORY sli DESTINATION ${r"$"}{CMAKE_INSTALL_DATADIR} )
 
 # Install help.
-set( HELPDIRS "${r"$"}{PROJECT_SOURCE_DIR}:${r"$"}{PROJECT_SOURCE_DIR}/sli" )
 install( CODE
-    "execute_process(COMMAND ${r"$"}{CMAKE_COMMAND}
-          -DDOC_DIR='${r"$"}{CMAKE_INSTALL_FULL_DOCDIR}'
-          -DDATA_DIR='${r"$"}{CMAKE_INSTALL_FULL_DATADIR}'
-          -DHELPDIRS='${r"$"}{HELPDIRS}'
-          -DINSTALL_DIR='${r"$"}{CMAKE_INSTALL_PREFIX}'
-          -P ${r"$"}{CMAKE_INSTALL_FULL_DOCDIR}/generate_help.cmake
-        WORKING_DIRECTORY \"${r"$"}{PROJECT_BINARY_DIR}\"
-      )"
-    )
+    "execute_process(
+        COMMAND python -B parse_help.py ${r"$"}{PROJECT_SOURCE_DIR} ${r"$"}{PROJECT_BINARY_DIR} \"${r"$"}{CMAKE_INSTALL_PREFIX}/${r"$"}{CMAKE_INSTALL_DOCDIR}/help\"
+        WORKING_DIRECTORY \"${r"$"}{CMAKE_INSTALL_PREFIX}/${r"$"}{NEST_DATADIR}/help_generator\"
+        )"
+)
 
 message( "" )
 message( "-------------------------------------------------------" )

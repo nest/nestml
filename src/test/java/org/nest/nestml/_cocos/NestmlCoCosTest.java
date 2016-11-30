@@ -305,7 +305,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoChecker,
         MemberVariablesInitialisedInCorrectOrder.ERROR_CODE,
-        3);
+        4);
   }
 
   @Test
@@ -577,7 +577,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoCheckerWithSPLCocos,
         "SPL_",
-        18);
+        20);
 
   }
 
@@ -687,20 +687,20 @@ public class NestmlCoCosTest {
   
   @Test
   public void testI_SumHasCorrectParameter() {
-    final I_SumHasCorrectParameter i_sumHasCorrectParameter = new I_SumHasCorrectParameter();
-    nestmlCoCoChecker.addCoCo(i_sumHasCorrectParameter);
+    final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
+    nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "i_SumHasCorrectParameter/valid.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        I_SumHasCorrectParameter.ERROR_CODE);
+        SumHasCorrectParameter.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "i_SumHasCorrectParameter/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        I_SumHasCorrectParameter.ERROR_CODE,
+        SumHasCorrectParameter.ERROR_CODE,
         3);
 
   }

@@ -76,10 +76,10 @@ neuron iaf_psc_delta_neuron:
 
   equations:
     shape G = delta(t, tau_m)
-    V_abs' = -1/tau_m * V_abs + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+    V_abs' = -1/tau_m * V_abs + 1/C_m * (curr_sum(G, spikes) + I_e + currents)
   end
 
-  parameter:
+  parameters:
     tau_m   ms = 10ms      # Membrane time constant.
     C_m     pF = 250pF     # Capacity of the membrane
     t_ref   ms = 2ms       # Duration of refractory period in ms.
@@ -92,7 +92,7 @@ neuron iaf_psc_delta_neuron:
     with_refr_input boolean = false # If true, do not discard input during  refractory period. Default: false.
   end
 
-  internal:
+  internals:
     h ms = resolution()
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer                               # counts number of tick during the refractory period

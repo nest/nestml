@@ -3,20 +3,21 @@
 */
 neuron rc_neuron_rel:
 
-  state:
-    V_abs mV = 0mV
-    alias V_m mV = V_abs + E_L
-  end
+
 
   equations:
-      V_abs' = -1/tau_m * V_abs + 1/C_m*I_syn
+    V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
-  parameter:
+  parameters:
     E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms
     I_syn pA = 10pA
+  end
+
+  state:
+    V_m mV = E_L
   end
 
   input:
@@ -27,6 +28,7 @@ neuron rc_neuron_rel:
 
   update:
     integrate_odes()
+    a integer = 1
   end
 
 end

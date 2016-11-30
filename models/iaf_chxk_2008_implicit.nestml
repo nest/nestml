@@ -42,15 +42,15 @@ neuron iaf_chxk_2008_implicit:
     G_ahp'' = -G_ahp' / tau_ahp
     G_ahp' = G_ahp' -  G_ahp / tau_ahp
 
-    I_syn_exc pA = Cond_sum(g_ex, spikesInh) * ( V_m - E_ex )
-    I_syn_inh pA = Cond_sum(g_in, spikesExc) * ( V_m - E_in )
+    I_syn_exc pA = cond_sum(g_ex, spikesInh) * ( V_m - E_ex )
+    I_syn_inh pA = cond_sum(g_in, spikesExc) * ( V_m - E_in )
     I_ahp pA = G_ahp * ( V_m - E_ahp )
     I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_stim + I_e ) / C_m
   end
 
-  parameter:
+  parameters:
     V_th mV = -45.0mV        # Threshold Potential
     E_ex mV = 20mV           # Excitatory reversal potential
     E_in mV = -90mV          # Inhibitory reversal potential
@@ -70,7 +70,7 @@ neuron iaf_chxk_2008_implicit:
     I_stim pA = 0pA
   end
 
-  internal:
+  internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
     PSConInit_E real = 1.0 * e / tau_syn_ex

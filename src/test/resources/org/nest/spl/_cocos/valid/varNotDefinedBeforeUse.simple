@@ -1,5 +1,5 @@
 module org.nest.spl._cocos.varNotDefinedBeforeUse
-x, y integer
+x integer
 y real = 5 * x
 x = 13
 

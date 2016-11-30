@@ -2,31 +2,29 @@
   A straight forward implementation of the RC circuit approach.
   Extends firing model with an additional refractory state. It is entered directly after a spike is fired.
 */
-neuron rc_buffer:
+neuron rc_input:
 
   state:
-    V_abs mV = 0mV
-    alias V_m mV = V_abs + E_L
-    g_ex pA = 0pA    # inputs from the inh conductance
+    V_m mV = E_L
   end
 
   equations:
-    V_abs' = -1/tau_m * V_abs + 1/C_m*g_ex
+    V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
-  parameter:
-    E_L   mV = -65mV
+  parameters:
+    E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms
 
     alias V_th mV = -55mV - E_L
     alias V_reset mV = -65mV - E_L
-    refractory_timeout ms = 5ms
+    refractory_timeout ms = 25ms
     refractory_counts integer = 0
   end
 
   input:
-    spikes   <- spike
+    I_syn   <- spike
   end
 
   output: spike
@@ -34,8 +32,8 @@ neuron rc_buffer:
   update:
     if refractory_counts == 0:
       integrate_odes()
-      if V_abs > V_th:
-        V_abs = V_reset
+      if V_m > V_th:
+        V_m = V_reset
         emit_spike()
         refractory_counts = steps(refractory_timeout)
       end
@@ -43,7 +41,6 @@ neuron rc_buffer:
       refractory_counts -= 1
     end
 
-    g_ex = spikes.get_sum()
   end
 
 end
