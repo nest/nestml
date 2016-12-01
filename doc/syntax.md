@@ -18,15 +18,24 @@ update block and function block. It provides the following features:
 ### Physical units and data types
 NESTML provides the following types
 #### Primitive data types
-*  `real`, `integer`, `boolean`, `string`
+* `real`: corresponds to the `double` data type in C++.
+* `integer`: corresponds to the `int` data type in C++
+* `boolean`: corresponds to the `bool` data type in C++.
+* `string`:
+* `void`:
+
 
 #### Physical units
 A physical unit in NESTML can be either simple unit or a complex physical unit.
-A simple physical unit is composed of a magnitude prefix
+A simple physical unit is composed of a magnitude prefix and the name of the
+unit.
 
 #### Type and unit checks
 NESTML checks type correctness of all expressions. For assignments, declarations
 with an initialization and function calls type conformity is checked.
+NESTML supports conversion of an `integer` variable to a `real` variable. Also
+ conversion between `unit`-typed and `real`-typed variables is possible. However,
+these conversions are reported as warnings.
 
 ### Basic elements
 Basic elements can be: declarations, assignments or function calls.
@@ -41,8 +50,8 @@ f mV   = -2e12mV
 Assignments
 
 ### Control structures
-
-* loops
+NESTML supports loops and conditional control structures.
+#### loops
 
 ```
 while <boolean_expression>:
@@ -87,16 +96,81 @@ for x in 0.1 ... 0.5 step 0.1:
   Statements
 end
 ```
-* conditionals
 
+#### conditionals
 
+NESTML supports the following types of if-else conditionals. The indentation is
+not important. The first example shows if conditional composed of a single if
+block:
+
+```
+if <boolean_expression>:
+  <statements>
+end
+
+if 2 < 3:
+  <statements>
+end
+```
+
+The following example shows an if-else block:
+```
+if <boolean_expression>:
+  <statements>
+else:
+  <statements>
+end
+
+if 2 < 3:
+  <statements>
+else:
+  <statements>
+end
+```
+The  following examples shows usage of the `elif`-conditionals. After an `if`
+condition an arbitrary number of `elif` conditions can follow. The last condition
+block always concludes with an `end` keyword.
+```
+if <boolean_expression>:
+  <statements>
+elif <boolean_expression>:
+  <statements>
+else:
+  <statements>
+end
+
+if 2 < 3:
+  <statements>
+elif 4>6:
+  <statements>
+else:
+  <statements>
+end
+
+if 2 < 3:
+  <statements>
+elif 4>6:
+
+  <statements>
+end
+```
+
+The last example shows nesting of conditionals.
+```
+if 1 < 4:
+  <statements>
+  if 2 < 3:
+    <statements>
+  end
+end
+```
 ### Expressions and operators
 
 * list of operators
 
 ## Blocks
 
-To structure NESTML fails, all content is split into blocks. Blocks
+To structure NESTML files, all content is split into blocks. Blocks
 begin with a keyword specifying the type of the block followed by a colon.
 They are closed with the keyword `end`. Indentation inside a block is not
 mandatory but recommended for better readability. Each block must only
