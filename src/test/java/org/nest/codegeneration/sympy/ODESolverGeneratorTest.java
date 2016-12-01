@@ -65,19 +65,19 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
   @Test
   public void testReplacement() throws IOException {
     final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
-    final String ODE_DECLARATION = "V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + ext_currents)";
+    final String ODE_DECLARATION = "V' = -1/Tau * V + 1/C_m * (curr_sum(G, spikes) + I_e + ext_currents)";
     final Optional<ASTEquation> ode = p.parseEquation(new StringReader(ODE_DECLARATION));
     assertTrue(ode.isPresent());
 
     boolean i_sum = AstUtils.getAll(ode.get(), ASTFunctionCall.class)
         .stream()
-        .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
+        .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM));
     assertTrue(i_sum);
 
     final ASTEquation testant = ODETransformer.replaceSumCalls(ode.get());
     i_sum = AstUtils.getAll(testant, ASTFunctionCall.class)
         .stream()
-        .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM));
+        .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM));
     assertFalse(i_sum);
   }
 

@@ -6,6 +6,7 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
+import org.nest.codegeneration.helpers.GslNames;
 import org.nest.codegeneration.helpers.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
@@ -22,13 +23,12 @@ import static org.nest.utils.AstUtils.convertDevrivativeNameToSimpleName;
  *
  * @author plotnikov
  */
-public class GSLReferenceConverter implements IReferenceConverter {
+public class GslReferenceConverter implements IReferenceConverter {
 
-  private static final String INDEX_VARIABLE_POSTFIX = "_INDEX";
   private final boolean isUseUpperBound;
   private static final Double MAXIMAL_EXPONENT = 10.0;
 
-  public GSLReferenceConverter() {
+  public GslReferenceConverter() {
     isUseUpperBound = false; // TODO make it parametrizable
   }
 
@@ -81,6 +81,11 @@ public class GSLReferenceConverter implements IReferenceConverter {
     if ("pow".equals(functionName)) {
       return "pow(%s)";
     }
+    if (functionName.contains(PredefinedFunctions.EMIT_SPIKE)) {
+      return "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" +
+             "nest::SpikeEvent se;\n" +
+             "nest::kernel().event_delivery_manager.send(*this, se, lag);";
+    }
 
     throw new UnsupportedOperationException("Cannot map the function: '" + functionName +"'");
   }
@@ -93,7 +98,7 @@ public class GSLReferenceConverter implements IReferenceConverter {
     final VariableSymbol variableSymbol = VariableSymbol.resolve(astVariable.toString(), scope);
 
     if (variableSymbol.definedByODE()) {
-      return "y[" + Names.name(variableSymbol) + INDEX_VARIABLE_POSTFIX + "]";
+      return GslNames.name(variableSymbol);
     }
     else if (variableSymbol.isBuffer()) {
       return "node.B_." + Names.bufferValue(variableSymbol);

@@ -1,13 +1,13 @@
-neuron invalid_I_sum:
+neuron invalid_curr_sum:
   state:
     V_m mV
     G pA
   end
 
   equations:
-    V_m' = V_m+I_sum(G*2, spikes) # error1: G*2 is false
-    V_m' = V_m+I_sum(G, spikes*2) # error2: spikes*2 is false
-    V_m' = V_m+I_sum(G+G, spikes) # error3: G+G is false
+    V_m' = V_m+curr_sum(G*2, spikes) # error1: G*2 is false
+    V_m' = V_m+curr_sum(G, spikes*2) # error2: spikes*2 is false
+    V_m' = V_m+curr_sum(G+G, spikes) # error3: G+G is false
   end
 
   input:

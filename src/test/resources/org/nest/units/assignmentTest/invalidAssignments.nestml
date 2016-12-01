@@ -1,5 +1,5 @@
 neuron invalidAssignmentTest:
-  parameter:
+  parameters:
     Resist Ohm = 3 Ohm
     RealValue real
     Current A 
@@ -15,7 +15,7 @@ neuron invalidAssignmentTest:
 
   output: spike
 
-  internal:
+  internals:
     
   end
 

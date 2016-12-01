@@ -79,13 +79,13 @@ class DeltaSolutionTransformer extends TransformerBase {
 
       final List<ASTFunctionCall> i_sumCalls = AstUtils.getAll(astNeuron.getBody().getODEBlock().get(), ASTFunctionCall.class)
           .stream()
-          .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.I_SUM))
+          .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM))
           .collect(toList());
 
       // Apply spikes from the buffer to the state variable
       for (ASTFunctionCall i_sum_call : i_sumCalls) {
         final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
-        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName + ".get_sum(t)");
+        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName);
         propagatorSteps.add(statement(applySpikes));
       }
 

@@ -5,21 +5,20 @@
 neuron rc_fire:
 
   state:
-    V_abs mV = 0mV
-    alias V_m mV = V_abs + E_L
+    V_m mV = E_L
   end
 
   equations:
-      V_abs' = -1/tau_m * V_abs + 1/C_m*I_syn
+    V_m' = -(V_m - E_L)/tau_m + I_syn/C_m
   end
 
-  parameter:
+  parameters:
     E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms
     I_syn pA = 10pA
-    alias V_th mV =  -55mV - E_L
-    alias V_reset mV =  -65mV - E_L
+    V_th mV =  -55mV - E_L
+    V_reset mV =  -65mV - E_L
   end
 
   input:
@@ -30,8 +29,8 @@ neuron rc_fire:
 
   update:
     integrate_odes()
-    if V_abs > V_th:
-      V_abs = V_reset
+    if V_m > V_th:
+      V_m = V_reset
       emit_spike()
     end
   end

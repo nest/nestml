@@ -5,8 +5,8 @@
   @param tc templatecontroller
   @result TODO
 -->
-for( ${ast.getVar()} =  ${tc.include("org.nest.spl.expr.Expr", ast.getFrom())} ;
-     ${ast.getVar()} ${forDeclarationHelper.printComparisonOperator(ast)}${tc.include("org.nest.spl.expr.Expr", ast.getTo())} ;
+for( ${ast.getVar()} =  ${expressionsPrinter.print(ast.getFrom())} ;
+     ${ast.getVar()} ${forDeclarationHelper.printComparisonOperator(ast)} ${expressionsPrinter.print(ast.getTo())};
      ${ast.getVar()} += ${forDeclarationHelper.printStep(ast)} )
 {
      ${tc.include("org.nest.spl.Block", ast.getBlock())}

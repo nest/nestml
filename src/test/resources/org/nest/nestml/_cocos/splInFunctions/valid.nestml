@@ -3,10 +3,10 @@ neuron testNeuron:
         test1 real = 1.0
     end
 
-    parameter:
+    parameters:
     end
 
-    internal:
+    internals:
     end
 
     input:

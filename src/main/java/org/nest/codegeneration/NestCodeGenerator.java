@@ -8,13 +8,10 @@ package org.nest.codegeneration;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import org.nest.codegeneration.converters.GSLReferenceConverter;
-import org.nest.codegeneration.converters.NESTParameterBlockReferenceConverter;
-import org.nest.codegeneration.converters.NESTReferenceConverter;
-import org.nest.codegeneration.converters.NESTStateBlockReferenceConverter;
+import org.nest.codegeneration.converters.*;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.sympy.OdeProcessor;
 import org.nest.codegeneration.sympy.ODETransformer;
+import org.nest.codegeneration.sympy.OdeProcessor;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -22,8 +19,8 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.IReferenceConverter;
-import org.nest.utils.AstUtils;
 import org.nest.symboltable.NESTMLSymbols;
+import org.nest.utils.AstUtils;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -214,11 +211,12 @@ public class NestCodeGenerator {
       final GlobalExtensionManagement glex,
       final ASTNeuron neuron) {
     checkArgument(neuron.getSymbol().isPresent());
-    defineSolverType(glex, neuron);
+    glex.setGlobalValue("names", new Names());
+    glex.setGlobalValue("statusNames", new Names());
+    defineSolverType(glex, neuron); // potentially, overrides names with gsl name provider. the order is important
 
     final String guard = (neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
-    glex.setGlobalValue("names", new Names());
     glex.setGlobalValue("simpleNeuronName", neuron.getName());
     glex.setGlobalValue("neuronSymbol", neuron.getSymbol().get());
 
@@ -237,7 +235,7 @@ public class NestCodeGenerator {
     glex.setGlobalValue("isCurrentInput", ASTInputs.isCurrentInput(neuron));
     glex.setGlobalValue("body", neuron.getBody());
 
-    final GSLReferenceConverter converter = new GSLReferenceConverter();
+    final GslReferenceConverter converter = new GslReferenceConverter();
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
     glex.setGlobalValue("nestmlSymbols", new NESTMLSymbols());
@@ -250,10 +248,15 @@ public class NestCodeGenerator {
   private void defineSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
     final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
+
     if (astBody.getODEBlock().isPresent()) {
       if (astBody.getODEBlock().get().getShapes().size() == 0) {
+        glex.setGlobalValue("names", new GslNames());
         glex.setGlobalValue("useGSL", true);
-        glex.setGlobalValue("ODEs", astBody.getODEBlock().get().getODEs());
+
+        final IReferenceConverter converter = new NESTArrayStateReferenceConverter();
+        final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
+        glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
       }
 
     }

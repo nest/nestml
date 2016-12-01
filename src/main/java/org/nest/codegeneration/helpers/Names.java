@@ -39,15 +39,15 @@ public class Names {
   /**
    * Converts names of the form g_in'' to a compilable C++ identifier: __DDX_g_in
    */
-  private static String convertToCPPName(final String varialbeName) {
+  static String convertToCPPName(final String variableName) {
 
     // cast is ok, it is hardly possible to have a variable that overflows integer
-    int derivativeOrder = (int) varialbeName.chars().filter(ch -> ch == '\'').count();
+    int derivativeOrder = (int) variableName.chars().filter(ch -> ch == '\'').count();
     if (derivativeOrder > 0) {
-      return "__" + Strings.repeat("D", derivativeOrder) + "_" + varialbeName.replaceAll("\'", "");
+      return "__" + Strings.repeat("D", derivativeOrder) + "_" + variableName.replaceAll("\'", "");
     }
     else {
-      return varialbeName;
+      return variableName;
     }
 
   }

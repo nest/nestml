@@ -6,12 +6,12 @@ neuron DynamicsNeuron:
     x mV
   end
 
-  parameter:
+  parameters:
     radius mm = 5
     alias diameter mm = 2 * radius
   end
 
-  internal:
+  internals:
     y, z real = 0
     k real = 0
   end

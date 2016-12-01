@@ -57,8 +57,8 @@ neuron hh_cond_exp_traub_implicit:
     I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     I_L   pA = g_L * ( V_m - E_L )
-    I_syn_exc pA = Cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
-    I_syn_inh pA = Cond_sum(g_in, spikeInh) * ( V_m - E_in )
+    I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+    I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
 
     V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
 
@@ -80,7 +80,7 @@ neuron hh_cond_exp_traub_implicit:
     g_in' = -g_in / tau_syn_in
   end
 
-  parameter:
+  parameters:
     g_Na nS = 20000.0nS       # Threshold Potential in mV
     g_K nS = 6000.0nS         # K Conductance
     g_L nS = 10nS             # Leak Conductance
@@ -98,7 +98,7 @@ neuron hh_cond_exp_traub_implicit:
     I_stim pA = 0pA           # External input current
   end
 
-  internal:
+  internals:
     RefractoryCounts integer = 20
     r integer # counts number of tick during the refractory period
   end

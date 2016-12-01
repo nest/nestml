@@ -19,13 +19,13 @@ neuron invalidExpressionTest:
       currents <- current
   end
 
-  parameter:
+  parameters:
     
   end
 
   output: spike
 
-  internal:
+  internals:
   end
 
   update:

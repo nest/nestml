@@ -11,10 +11,13 @@ ${signature("var")}
     inline ${declarations.printVariableType(var)} ${names.getter(var)}() const {
       return ${variableHelper.printOrigin(var)} ${names.name(var)};
     }
+    inline void ${names.setter(var)}(const ${declarations.printVariableType(var)} v) {
+      ${variableHelper.printOrigin(var)} ${names.name(var)} = v;
+    }
   <#else>
     inline ${declarations.printVariableType(var)} ${names.getter(var)}() const {
       <#assign simpleExpression = odeTransformer.replaceSumCalls(var.getDeclaringExpression().get())>
-      return ${tc.include("org.nest.spl.expr.Expr", simpleExpression)};
+      return ${expressionsPrinter.print(simpleExpression)};
     }
   </#if>
 <#else>

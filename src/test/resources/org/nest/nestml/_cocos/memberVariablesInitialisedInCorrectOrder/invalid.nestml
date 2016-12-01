@@ -2,16 +2,16 @@ neuron testNeuron:
     state:
         stateVar1 real = 1.0 [[stateVar2 > 0]]
         stateVar2 real = 1.0 + internalVar1 # Error parameterVar1 cannot be used in state block
-
+        stateVar3 real = stateVar3
 
     end
 
-    parameter:
+    parameters:
         # Error parameter can only use another parameter in correct order
         parameterVar1 real = stateVar1
     end
 
-    internal:
+    internals:
         internalVar1 real = 1.0
     end
 

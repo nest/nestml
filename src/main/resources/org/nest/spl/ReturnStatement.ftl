@@ -5,7 +5,7 @@
   @result TODO
 -->
 <#if ast.getExpr().isPresent()>
-return ${tc.include("org.nest.spl.expr.Expr", ast.getExpr().get())};
+return ${expressionsPrinter.print(ast.getExpr().get())};
 <#elseif ast.getCompound_Stmt().isPresent()>
 return ;
 </#if>

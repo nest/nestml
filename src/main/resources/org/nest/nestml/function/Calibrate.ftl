@@ -13,7 +13,7 @@ ${variableHelper.printOrigin(variable)} ${variable.getName()}.resize(P_.${variab
 for (long i=0; i < get_${variable.getVectorParameter().get()}(); i++) {
   ${variableHelper.printOrigin(variable)} ${variable.getName()}[i] =
     <#if variable.getDeclaringExpression().isPresent()>
-    ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())}
+    ${expressionsPrinter.print(variable.getDeclaringExpression().get())}
     <#else>
     0
     </#if>
@@ -22,7 +22,7 @@ for (long i=0; i < get_${variable.getVectorParameter().get()}(); i++) {
 <#else>
 ${variableHelper.printOrigin(variable)} ${variable.getName()} =
   <#if variable.getDeclaringExpression().isPresent()>
-    ${tc.include("org.nest.spl.expr.Expr", variable.getDeclaringExpression().get())}
+    ${expressionsPrinter.print(variable.getDeclaringExpression().get())}
   <#else>
   0
   </#if>;

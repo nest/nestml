@@ -10,7 +10,7 @@ neuron iaf_neuron_ode:
       V' = -1/Tau * V + 1/C_m * (G + I_e + currents)
   end
 
-  parameter:
+  parameters:
     # Capacity of the membrane
     C_m       pF = 250pF
     # Membrane time constant.
@@ -32,7 +32,7 @@ neuron iaf_neuron_ode:
     # invariant V_reset >= Theta
   end
 
-  internal:
+  internals:
     h   ms   = resolution()
     r  integer
     RefractoryCounts integer = steps(t_ref)

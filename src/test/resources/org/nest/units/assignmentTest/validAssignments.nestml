@@ -3,7 +3,7 @@ neuron invalidAssignmentTest:
     Resist Ohm = 3 Ohm 
   end
 
-  parameter:
+  parameters:
     Current A = 3 A
     Potential V = 3 V
   end
@@ -16,7 +16,7 @@ neuron invalidAssignmentTest:
 
   output: spike
 
-  internal:
+  internals:
   end
 
   update:   

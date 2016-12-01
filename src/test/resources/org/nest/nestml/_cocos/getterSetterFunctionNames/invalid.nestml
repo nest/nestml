@@ -1,5 +1,5 @@
 component GetSet:
-  internal:
+  internals:
     a mV
     alias b integer
   end

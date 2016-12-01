@@ -153,7 +153,7 @@ public class TransformerBase {
         if (shapeNameInCall.equals(shapeName)) {
           final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
           final ASTAssignment pscUpdateStep = createAssignment(
-              variableName + " += " +  pscInitialValueAsString + " * "+ bufferName + ".get_sum(t)");
+              variableName + " += " +  pscInitialValueAsString + " * "+ bufferName);
           addAssignmentToDynamics(body, pscUpdateStep);
         }
 

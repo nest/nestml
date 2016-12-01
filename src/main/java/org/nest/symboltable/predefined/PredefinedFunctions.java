@@ -39,8 +39,8 @@ public class PredefinedFunctions {
   public static final String DELTA = "delta";
   private static final String MAX = "max";
   public static final String INTEGRATE_ODES = "integrate_odes";
-  public static final String I_SUM = "I_sum";
-  public static final String COND_SUM = "Cond_sum";
+  public static final String CURR_SUM = "curr_sum";
+  public static final String COND_SUM = "cond_sum";
 
 
   private static final Map<String, MethodSymbol> name2FunctionSymbol = Maps.newHashMap();
@@ -124,11 +124,11 @@ public class PredefinedFunctions {
     integrate.setReturnType(getVoidType());
     name2FunctionSymbol.put(INTEGRATE_ODES, integrate);
 
-    final MethodSymbol i_sum = createFunctionSymbol(I_SUM);
+    final MethodSymbol i_sum = createFunctionSymbol(CURR_SUM);
     i_sum.addParameterType(getType("pA"));
     i_sum.addParameterType(getBufferType());
     i_sum.setReturnType(getType("pA"));
-    name2FunctionSymbol.put(I_SUM, i_sum);
+    name2FunctionSymbol.put(CURR_SUM, i_sum);
 
     final MethodSymbol cond_sum = createFunctionSymbol(COND_SUM);
     cond_sum.addParameterType(getType("nS"));

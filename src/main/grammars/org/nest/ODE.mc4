@@ -15,7 +15,7 @@ grammar ODE extends org.nest.Commons, org.nest.Units {
   */
   OdeDeclaration  = (Equation | Shape | ODEAlias | NEWLINE)+;
 
-  ODEAlias = ([record:"record"] | [suppress:"suppress"])? variableName:Name Datatype "=" Expr (";")?;
+  ODEAlias = ([recordable:"recordable"])? variableName:Name Datatype "=" Expr (";")?;
 
   /** ASTeq Represents an equation, e.g. "I = exp(t)" or epresents an differential equations, e.g. "V_m' = V_m+1"..
     @attribute lhs      Left hand side, e.g. a Variable.

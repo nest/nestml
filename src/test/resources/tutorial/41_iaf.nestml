@@ -11,7 +11,7 @@ neuron IaF:
     V_m' = I_syn + a - b*V_m
   end
 
-  parameter:
+  parameters:
     I_syn pA = 10pA
     a real = -7.0
     b real = 0.1
