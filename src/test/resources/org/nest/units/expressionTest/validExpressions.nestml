@@ -2,6 +2,7 @@ neuron validExpressionTest:
   state:
     Resist Ohm = 8Ohm 
     Ampere A = 3A 
+    InverseVolt 1/V = 5 [1/V]
 
     V1 (kg*m*m)/(A*s**3) = 10 V  #verbose Type
     #V2 (kg*m*m)/(A*s**(2+1)) = 10 V   #TODO: this should work
@@ -33,6 +34,13 @@ neuron validExpressionTest:
   end
 
   update:
+ 
+    V1 = 2 * V1 
+    V1 = 2.0 *V1
+    V1 = (10 kg * 5 [m**2]) /( 1 [A*s**3])
+
+
+
     Ampere = 7A #Assignment
 
     if Resist > 3Ohm: # Comparison

@@ -4,6 +4,7 @@ neuron invalidAssignmentTest:
     RealValue real
     Current A 
     Potential V
+    Int integer
   end
 
   input:
@@ -19,9 +20,11 @@ neuron invalidAssignmentTest:
   end
 
   update:       
-    RealValue real = 3 Ohm  #ERROR: Assignment of unit to real (should this be a warning?)
-    Current A = Resist #WARNING: Assignment of wrong unit to unit
-    Potential V = 3  #WARNING: Assignment of primitive to unit.
+    RealValue real = 3 Ohm          #Warning: Assignment of unit to real
+    Resit = 3.0                     #Warning: Assingment of real to unit
+    Current A = Resist              #WARNING: Assignment of wrong unit to unit
+    Potential V = 3                 #WARNING: Assignment of integer to unit.
+    Int = Resist                    #Error Assignment of unit to integer
   end
 
 end

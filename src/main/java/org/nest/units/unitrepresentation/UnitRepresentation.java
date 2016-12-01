@@ -429,7 +429,6 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   }
 
 
-
   public UnitRepresentation(String serialized){
     if(serialized == getRealType().getName()) {
       return; //[0,0,0,0,0,0,0,0]i

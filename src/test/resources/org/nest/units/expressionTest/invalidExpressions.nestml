@@ -4,10 +4,13 @@ neuron invalidExpressionTest:
     V4 V
     A1 mA
     R1 Ohm
+    B boolean
+    Int integer
+    Real real
   end
 
   function foo(amp A, ohm Ohm) V:  
-    return 7                    #2Warnings: Wrong return type AND conversion error
+    return 7                    #2Warnings: Wrong return type AND conversion warning
   end
 
   input:
@@ -26,17 +29,47 @@ neuron invalidExpressionTest:
   end
 
   update:
-    B boolean = A1 and R1 #Error: Operands not boolean.
-    
+    B = A1 and R1               #Error: Operands not boolean.
+        
     if R1 > 0:                  #Warning: Comparison of Unit and primitive 
     elif A1 == R1:              #Warning: Compared unitTypes do not match
-    elif 0 < R1:                #Warning: Comparison of primitive and unit
-    end
+    elif 0 < R1:                #Warning: Comparison of primitive and unit 
+    elif R1 > "string":         #Error: Illegal comparison
+    elif R1+R1:                 #Error: Not a boolean value 
+    end    
     
-    V4 = V1+V2?2V:0V            #Error: first expression ist not a condition.
-    V4 = A1>3mA?2:1Ohm          #Warning: Mismatched Types in conditional alternatives.
+    V4 = V1+V2?2V:0V            #Error: first expression is not a condition.
+    V4 = A1>3mA?2V:1Ohm         #Warning: Mismatched UnitTypes in conditional alternatives-> Assume first option    
+    Real = A1>3mA?2.0:2         #Warning: Mismatched numeric primitives in conditional alternatives-> Assume real
+    Real = A1>3mA?2:2.0         #Warning: Mirrored ^
+    V4 = A1>3mA?2:1V            #Warning: Mixed primitive and UnitTypes in conditional alternatives. -> Assume Unit.
+    V4 = A1>3mA?2V:1            #Warning: Mirrored ^
 
-    V1 = 2*"stringvalue"        #Error
+    V1 = R1*"string"            #Error: Multiplication UnitType and string
+    V1 = "string"*R1            #Error: Mirrored ^
+    V1 = R1 * true              #Error: Multiplication UnitType boolean
+    V1 = true * R1              #Error: Mirrored ^
+    V1 = R1 / true              #Error: Division UnitType boolean
+    V1 = true / R1              #Error: Mirrored ^
+    V1 = R1 / "string"          #Error: Division UnitType string
+    V1 = "string"/R1            #Error: Mirrored ^  
+
+    #If we change how functions are resolved, some of the Errors could potentially be Warnings
+    V1 = foo(A1,R1)             #Error: Cannot resolve function 
+    V1 = foo(1,R1)              #Error: Cannot resolve function 
+    V1 = foo(A1,R1)             #Error: Cannot resolve function 
+    Int = foo(3A,2Ohm)          #Error: Returnvalue Unit, integer expected 
+
+    V1 = 2 + 2V                 #Warning: Addition of integer and Unit ->Assume Unit
+    V1 = 2V + 2                 #Warning: Addition of Unit and integer ->Assume Unit
+    V1 = 2.0 + 2V               #Warning: Addition of real and Unit ->Assume Unit
+    V1 = 2V + 2.0               #Warning: Addition of Unit and real ->Assume Unit
+    V1 = 2V+2A                  #Warning: UnitTypes do not match -> Assume lhsType
+
+    V1 = V1**R1                 #Error: variable exponent not allowed
+    V1 = V1**"string"           #Error: NonNumeric exponent
+    V1 = V1**true               #Error: NonNumeric exponent
+    V1 = V1**2.7                #Error: No floating point in unit exponent.   
     
   end
 end

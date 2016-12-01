@@ -69,9 +69,6 @@ public class IllegalExpression implements
         }
 
       }
-    }else {
-      final String errorDescription = expressionType.getError();
-      undefinedTypeError(node, errorDescription);
     }
   }
 
@@ -109,10 +106,6 @@ public class IllegalExpression implements
         }
 
       }
-      else {
-        final String errorDescription = initializerExpressionType.getError();
-        undefinedTypeError(node, errorDescription);
-      }
 
     }
 
@@ -129,11 +122,6 @@ public class IllegalExpression implements
           exprType.getValue().prettyPrint(),
           node.get_SourcePositionStart());
       error(msg, node.get_SourcePositionStart());
-    }
-
-    if (exprType.isError()) {
-      final String errorDescription = exprType.getError() ;
-      undefinedTypeError(node, errorDescription);
     }
 
   }
@@ -156,11 +144,6 @@ public class IllegalExpression implements
 
     }
 
-    if (exprType.isError()) {
-      final String errorDescription = exprType.getError();
-      undefinedTypeError(node, errorDescription);
-    }
-
   }
 
   @Override
@@ -174,11 +157,6 @@ public class IllegalExpression implements
 
     }
 
-  }
-
-  private void undefinedTypeError(final ASTNode node, final String reason) {
-    final String msg = SplErrorStrings.messageInvalidExpression(this, reason, node.get_SourcePositionStart());
-    error(msg, node.get_SourcePositionStart());
   }
 
 }

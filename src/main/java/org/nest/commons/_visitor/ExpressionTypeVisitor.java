@@ -178,29 +178,7 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
   //Helper functions:
 
 
-  public static Either<Integer, String> calculateNumericValue(ASTExpr expr) {
-    if (expr.isLeftParentheses()) {
-      return calculateNumericValue(expr.getExpr().get());
-    }
-    else if (expr.getNESTMLNumericLiteral().isPresent()) {
-      if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
-        ASTIntLiteral literal = (ASTIntLiteral) expr.getNESTMLNumericLiteral().get().getNumericLiteral();
-        return Either.value(literal.getValue());
-      }
-      else {
-        return Either.error("No floating point values allowed in the exponent to a UNIT base");
-      }
-    }
-    else if (expr.isUnaryMinus()) {
-      Either<Integer, String> term = calculateNumericValue(expr.getTerm().get());
-      if (term.isError()) {
-        return term;
-      }
-      return Either.value(-term.getValue());
-    }
 
-    return Either.error("Cannot calculate value of exponent. Must be a static value!");
-  }
 
 
 

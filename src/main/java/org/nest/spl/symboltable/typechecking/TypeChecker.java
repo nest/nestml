@@ -97,6 +97,12 @@ public class TypeChecker {
     return typeSymbol != null && typeSymbol.equals(getRealType());
   }
 
+  public static boolean isNumericPrimitive(TypeSymbol typeSymbol) {
+    // TODO use prover equals implementation
+    return typeSymbol != null && (typeSymbol.equals(getRealType()) ||
+        typeSymbol.equals(getIntegerType()));
+  }
+
   public static boolean isNumeric(final TypeSymbol type) {
     return type != null && (type.equals(getIntegerType()) ||
         type.equals(getRealType()) ||

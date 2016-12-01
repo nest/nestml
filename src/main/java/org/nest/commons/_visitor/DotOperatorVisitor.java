@@ -6,12 +6,14 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
+import static de.se_rwth.commons.logging.Log.error;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 /**
  * @author ptraeder
  */
 public class DotOperatorVisitor implements CommonsVisitor{
+  final String ERROR_CODE = "NESTML_DOT_OPERATOR_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -92,8 +94,8 @@ public class DotOperatorVisitor implements CommonsVisitor{
     }
 
     //Catch-all if no case has matched
-    String msg = "Cannot determine the type of the expression: " + AstUtils.toString(expr);
-    expr.setType(Either.error(msg));
-
+    final String errorMsg = ERROR_CODE+"Cannot determine the type of the expression: " + AstUtils.toString(expr);
+    expr.setType(Either.error(errorMsg));
+    error(errorMsg,expr.get_SourcePositionStart());
   }
 }
