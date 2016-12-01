@@ -279,6 +279,11 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
      */
     Set<FactorizationResult> orderedResults = new TreeSet<FactorizationResult>();
     for(String baseName : SIData.getBaseRepresentations().keySet()){
+      if(baseName.equals("Bq")|| baseName.equals("Hz")||    //skip matching Bq and Hz in favour of 1/s
+          baseName.equals("S")){                            //skip matching S in favour of 1/Ohm
+        continue;
+      }
+
       UnitRepresentation base = SIData.getBaseRepresentations().get(baseName);
       //match base in workingCopy
       Pair<Integer,UnitRepresentation> match = workingCopy.match(base);
