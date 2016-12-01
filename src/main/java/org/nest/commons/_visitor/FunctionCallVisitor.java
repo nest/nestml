@@ -20,7 +20,7 @@ import java.util.Optional;
  * @author plotnikov, ptraeder
  */
 public class FunctionCallVisitor implements CommonsVisitor {
-  final String ERROR_CODE = "NESTML_FUNCTION_CALL_VISITOR: ";
+  final String ERROR_CODE = "SPL_FUNCTION_CALL_VISITOR: ";
 
   @Override
   public void visit(final ASTExpr expr) {

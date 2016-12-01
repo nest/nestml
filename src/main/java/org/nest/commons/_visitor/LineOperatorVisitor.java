@@ -7,7 +7,6 @@ import org.nest.utils.AstUtils;
 
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
@@ -17,7 +16,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class LineOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_LINE_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_LINE_OPERATOR_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -60,6 +59,8 @@ public class LineOperatorVisitor implements CommonsVisitor{
             }else{
               expr.setType(lhsType);
             }
+          }else{
+            expr.setType(lhsType); //no units involved, any is valid
           }
           return;
       }

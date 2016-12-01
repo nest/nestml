@@ -19,7 +19,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class PowVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_POW_VISITOR: ";
+  final String ERROR_CODE = "SPL_POW_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr){

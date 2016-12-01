@@ -127,7 +127,7 @@ public class SplErrorStrings {
       final String varType,
       final String expressionType,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "Cannot initialize variable %s of type %s with an expression of type %s" ;
+    final String ERROR_MSG_FORMAT = "Attempting to initialize variable %s of type %s with an expression of type %s" ;
 
     return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
            String.format(ERROR_MSG_FORMAT, variable, varType, expressionType);
@@ -139,7 +139,7 @@ public class SplErrorStrings {
       final String varType,
       final String expressionType,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "Cannot assign %s to variable %s with type %s" ;
+    final String ERROR_MSG_FORMAT = "Attempting to assign %s to variable %s with type %s" ;
 
     return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
         String.format(ERROR_MSG_FORMAT,expressionType, variable, varType);

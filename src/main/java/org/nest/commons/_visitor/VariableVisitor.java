@@ -22,7 +22,7 @@ import java.util.Optional;
  * @author ptraeder
  */
 public class VariableVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_VARIABLE_VISITOR: ";
+  final String ERROR_CODE = "SPL_VARIABLE_VISITOR: ";
   @Override
   public void visit(ASTExpr expr) {
     final Scope scope = expr.getEnclosingScope().get();

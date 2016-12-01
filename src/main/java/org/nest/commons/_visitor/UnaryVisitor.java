@@ -13,7 +13,7 @@ import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
  * @author ptraeder
  */
 public class UnaryVisitor implements CommonsVisitor {
-  final String ERROR_CODE = "NESTML_UNARY_VISITOR: ";
+  final String ERROR_CODE = "SPL_UNARY_VISITOR: ";
 
   //Expr = (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
 

@@ -17,7 +17,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
  * @author ptraeder
  */
 public class ComparisonOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_COMPARISON_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_COMPARISON_OPERATOR_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -37,7 +37,7 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
         ((lhsType.getValue().equals(getRealType()) || lhsType.getValue().equals(getIntegerType())) &&
         (rhsType.getValue().equals(getRealType()) || rhsType.getValue().equals(getIntegerType())))
             ||
-        (lhsType.getValue().getName().equals(rhsType.getValue().getName()))
+        (lhsType.getValue().getName().equals(rhsType.getValue().getName()) && isNumeric(lhsType.getValue()))
             ||
         isBoolean(lhsType.getValue()) && isBoolean(rhsType.getValue())) {
       expr.setType(Either.value(getBooleanType()));

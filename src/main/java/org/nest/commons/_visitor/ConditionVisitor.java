@@ -17,7 +17,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
  *  @author ptraeder
  * */
 public class ConditionVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_CONDITION_VISITOR: ";
+  final String ERROR_CODE = "SPL_CONDITION_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {

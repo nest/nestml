@@ -14,7 +14,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
  * @author ptraeder
  */
 public class BinaryLogicVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_BINARY_LOGIC_VISITOR: ";
+  final String ERROR_CODE = "SPL_BINARY_LOGIC_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {

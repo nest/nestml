@@ -7,13 +7,14 @@ import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import static de.se_rwth.commons.logging.Log.error;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 /**
  * @author ptraeder
  */
 public class DotOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_DOT_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_DOT_OPERATOR_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -29,7 +30,17 @@ public class DotOperatorVisitor implements CommonsVisitor{
       return;
     }
 
-    //TODO: modulo semantics
+    if(expr.isModuloOp()){
+      if(isInteger(lhsType.getValue())&&isInteger(rhsType.getValue())){
+        expr.setType(Either.value(getIntegerType()));
+        return;
+      }else{
+        final String errorMsg = ERROR_CODE +"Modulo with non integer parameters";
+        expr.setType(Either.error(errorMsg));
+        error(errorMsg,expr.get_SourcePositionStart());
+        return;
+      }
+    }
     if(expr.isDivOp() || expr.isTimesOp()) {
       if (isNumeric(lhsType.getValue()) && isNumeric(rhsType.getValue())) {
 

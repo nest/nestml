@@ -15,7 +15,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
  * @author ptraeder
  */
 public class LogicalNotVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_LOGICAL_NOT_VISITOR: ";
+  final String ERROR_CODE = "SPL_LOGICAL_NOT_VISITOR: ";
   @Override
   public void visit(ASTExpr expr) {
     final Either<TypeSymbol, String> exprType  = expr.getExpr().get().getType();
