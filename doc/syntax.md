@@ -12,23 +12,36 @@ into one extension module for NEST have to reside in the same
 directory.
 
 In order to give the users of NESTML complete freedom, we provide a
-full programming language with the following features:
+full programming language. This programming language is used in the
+update block and function block. It provides the following features:
 
 ### Physical units and data types
-NESTML provides
-*  `real`, `integer`, `boolean`,
-*  Physical units
-*  Type and unit checks
+NESTML provides the following types
+#### Primitive data types
+*  `real`, `integer`, `boolean`, `string`
 
-### Control structures
+#### Physical units
+A physical unit in NESTML can be either simple unit or a complex physical unit.
+A simple physical unit is composed of a magnitude prefix
 
-* declarations
+#### Type and unit checks
+NESTML checks type correctness of all expressions. For assignments, declarations
+with an initialization and function calls type conformity is checked.
+
+### Basic elements
+Basic elements can be: declarations, assignments or function calls.
+#### Declrations
 ```
 a, b, c real = -0.42
 d integer = 1
 e string = "Bob"
 f mV   = -2e12mV
 ```
+* Assignments
+Assignments
+
+### Control structures
+
 * loops
 
 ```
