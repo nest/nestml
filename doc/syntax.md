@@ -99,10 +99,10 @@ Currenly only spike output is supported.
  `curr_sum` is a function that has two arguments. The first is a `shape` function (see Equations) or a function that is defined by an ODE plus initial values (see ODEs) $I$ of `t`. The second is a `spike` input buffer. Curr_sum takes every weight in the spike buffer and multiplies it with the `shape` function I_{\text{shape}} shifted by it's respective spike time $t_i$. I.e.
 
 $\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$.
- 
+
 When modeling post synaptic responses with delta functions, `curr_sum` is called with the keyword  `delta` as first argument instead of the `shape` function.
 
- `cond_sum` does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases. It is recomended to use it, when the sum 
+ `cond_sum` does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases. It is recomended to use it, when the sum
 
 $\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{alpha}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{alpha}}(t-t_i)\sum_{w\in\text{spikeweights}} w$.
 
@@ -119,8 +119,8 @@ A `shape` should be a function of  `t` (which represents the current time of the
 
 Systems of ODEs:
 
-In the `equations` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. 
-When using a derivative of a variable, say $V$, one must write: $V'$. It is then assumed that $V'$ is the first time derivate of $V$. The second time derivative of $V$ is $V''$, and so on. 
+In the `equations` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order.
+When using a derivative of a variable, say $V$, one must write: $V'$. It is then assumed that $V'$ is the first time derivate of $V$. The second time derivative of $V$ is $V''$, and so on.
 If an equation contains a derivative of order $n$, for example $V^{(n)}$, all initial Values of $V$ up to order $n-1$ must me defined in the `state` block. For example, one could state
 V'=a*V
 in the `equations` block, but would also have to state
@@ -162,7 +162,3 @@ in the `state` block. If the initial values are not defined in  `state` it is as
 ## Guards
 
 ## Comments and documentation
-
-
-
-
