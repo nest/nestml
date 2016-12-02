@@ -18,11 +18,13 @@ update block and function block. It provides the following features:
 ### Physical units and data types
 NESTML provides the following types
 #### Primitive data types
-* `real`: corresponds to the `double` data type in C++.
-* `integer`: corresponds to the `int` data type in C++
-* `boolean`: corresponds to the `bool` data type in C++.
-* `string`:
-* `void`:
+* `real`: corresponds to the `double` data type in C++. Its literals are: 42.0,
+-0.42, .44
+* `integer`: corresponds to the `int` data type in C++. Its literals are: 42, -7
+* `boolean`: corresponds to the `bool` data type in C++. Its literals are only:
+`true`, `false`
+* `string`: String data type. Its literals are: "Bob", ""
+* `void`: corresponds to the `void` data type in C++. No literals possible.
 
 #### Physical units
 A physical unit in NESTML can be either simple unit or a complex physical unit.
@@ -50,13 +52,6 @@ Assignments
 
 #### Functions
 ---------------------------------------------
-
-
-  cond\_sum & curr\_sum & delta & emit\_spike \\
-  exp & expm1 & info & integrate\_odes \\
-  log & max & pow & random \\
-  randomInt & resolution & steps & warning \\
-
 | | | | |
 |-|-|-| - |
 | cond_sum | curr_sum |  delta | emit\_spike |
@@ -183,10 +178,11 @@ end
 Expressions in NESTML can be defined in a recursive fashion. First, terms are
 valid expressions.
 * Terms
+Variables, literals, and functions are valid terms.
 
-* list of operators
-For any two valid numeric expressions a, b, a boolean expression c, and an integer expression n the following operators
-produce valid expressions.
+#### list of operators
+For any two valid numeric expressions a, b, a boolean expression c, and an
+integer expression n the following operators produce valid expressions.
 
 | Operator | Description | Examples |
 |-|-|-|
@@ -200,9 +196,6 @@ produce valid expressions.
 |<, <=, ==, !=, >=, >|  Comparison operators |a <= b, a != b|
 |not, and, or| & Logical conjunction, disjunction and negation |not b, b or b|
 |?:| The ternary logical operator |c?a:b|
-
-
-
 
 ## Blocks
 
