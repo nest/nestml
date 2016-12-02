@@ -100,7 +100,8 @@ NESTML has two dedicated functions to ease the summation of synaptic input.
 
 `curr_sum` is a function that has two arguments. The first is a `shape` function (see Equations) or a function that is defined by an ODE plus initial values (see ODEs) *I* of *t*. The second is a `spike` input buffer (see Input). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t<sub>i</sub>*. I.e.
 
-![equation](https://latex.codecogs.com/svg.latex?\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w).
+[//]: # $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$
+![equation](https://latex.codecogs.com/svg.latex?%5Clarge+%5Csum_%7Bt_i%5Cle+t%2C+i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D+w+I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%3D%5Csum_%7Bt_i%5Cle+t%2C+i%5Cin%5Cmathbb%7BN%7D%7D+I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D+w).
 
 When the sum above is used to decribe conductances instead of currents, the function `cond_sum` can be used. It does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases, but makes explicit the the neural dynamics are based on synaptic conductances rather than currents.
 
@@ -117,7 +118,8 @@ For modeling post synaptic responses with delta functions, `curr_sum` is called 
 
 A `shape` should be a function of *t* (which represents the current time of the system), that represents the shape of a postsynaptic response, i.e. the function *I*<sub>shape</sub>(*t*) with which incoming spike weights *w* are multiplied to compose the synaptic input *I*<sub>syn</sub>:
 
-![equation](https://latex.codecogs.com/svg.latex?\large I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)).
+[//]: # $\large I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)$
+![equation](https://latex.codecogs.com/svg.latex?%5Clarge+I_%7B%5Ctext%7Bsyn%7D%7D%3D%5Csum_%7Bt_i%5Cle+t%2C+i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D+w+I_%7B%5Ctext%7Bshape%7D%7D%28t-t_i%29).
 
 ### Systems of ODEs
 
