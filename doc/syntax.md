@@ -94,38 +94,45 @@ type of the event has to be given in the `output` block.
 Currenly only spike output is supported.
 
 
-## Predefined functions, variables and keywords
+## Handling synaptic input
 
- `curr_sum` is a function that has two arguments. The first is a `shape` function (see Equations) or a function that is defined by an ODE plus initial values (see ODEs) $I$ of `t`. The second is a `spike` input buffer. Curr_sum takes every weight in the spike buffer and multiplies it with the `shape` function I_{\text{shape}} shifted by it's respective spike time $t_i$. I.e.
+NESTML has two dedicated functions to ease the summation of synaptic input.
 
-$\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$.
+`curr_sum` is a function that has two arguments. The first is a `shape` function (see Equations) or a function that is defined by an ODE plus initial values (see ODEs) *I* of *t*. The second is a `spike` input buffer (see Input). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t<sub>i</sub>*. I.e.
 
-When modeling post synaptic responses with delta functions, `curr_sum` is called with the keyword  `delta` as first argument instead of the `shape` function.
+![equation](https://latex.codecogs.com/svg.latex?\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w).
 
- `cond_sum` does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases. It is recomended to use it, when the sum
+When the sum above is used to decribe conductances instead of currents, the function `cond_sum` can be used. It does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases, but makes explicit the the neural dynamics are based on synaptic conductances rather than currents.
 
-$\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{alpha}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{alpha}}(t-t_i)\sum_{w\in\text{spikeweights}} w$.
+For modeling post synaptic responses with delta functions, `curr_sum` is called with the keyword  `delta` as first argument instead of the `shape` function.
 
-is used to decribe conductances instead of currents.
-
+## Handling of time
 
  `resolution`
  `steps`
 
 ## Equations
-'
-A `shape` should be a function of  `t` (which represents the current time of the system), that represents the shape of a postsynaptic response, i.e. the function I_{\text{shape}} (t) with which incoming spike weights $w$ are multiplied to compose the synaptic input $I_{\text{syn}}$: $I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i).
 
+### Synaptic response
 
-Systems of ODEs:
+A `shape` should be a function of *t* (which represents the current time of the system), that represents the shape of a postsynaptic response, i.e. the function *I*<sub>shape</sub>(*t*) with which incoming spike weights *w* are multiplied to compose the synaptic input *I*<sub>syn</sub>:
+
+![equation](https://latex.codecogs.com/svg.latex?\large I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)).
+
+### Systems of ODEs
 
 In the `equations` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order.
-When using a derivative of a variable, say $V$, one must write: $V'$. It is then assumed that $V'$ is the first time derivate of $V$. The second time derivative of $V$ is $V''$, and so on.
-If an equation contains a derivative of order $n$, for example $V^{(n)}$, all initial Values of $V$ up to order $n-1$ must me defined in the `state` block. For example, one could state
-V'=a*V
+When using a derivative of a variable, say *V*, one must write: *V*'. It is then assumed that *V*' is the first time derivate of *V*. The second time derivative of *V* is *V*'', and so on.
+If an equation contains a derivative of order *n*, for example *V*<sup>(*n*)</sup>, all initial values of *V* up to order *n*-1 must me defined in the `state` block. For example, one could state
+```
+V' = a * V
+```
 in the `equations` block, but would also have to state
-V mV=0 mV
-in the `state` block. If the initial values are not defined in  `state` it is assumed that they are zero and unit checks are no longer possible.
+```
+V mV = 0mV
+```
+in the `state` block. If the initial values are not defined in `state` it is assumed that they are zero and unit checks are no longer possible.
+
 
   access to spike and current buffers
 
