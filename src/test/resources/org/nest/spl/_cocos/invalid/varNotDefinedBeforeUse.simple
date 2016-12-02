@@ -1,12 +1,12 @@
 module org.nest.spl._cocos.varNotDefinedBeforeUse
-y real = 5 * x
+y real = 5 * x # Error 1
 
-x = 13
+x = 13 # Error 2
 
-for x in 1 ... 10 step 1:
+for x in 1 ... 10 step 1: # Error 3
 # blaa
 end
 
-x = 2
+x = 2 # Error 4
 
-x real = 2 * x
+x real = 2 * x # Error 5
