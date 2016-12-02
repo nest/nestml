@@ -24,7 +24,6 @@ NESTML provides the following types
 * `string`:
 * `void`:
 
-
 #### Physical units
 A physical unit in NESTML can be either simple unit or a complex physical unit.
 A simple physical unit is composed of a magnitude prefix and the name of the
@@ -48,6 +47,22 @@ f mV   = -2e12mV
 ```
 * Assignments
 Assignments
+
+#### Functions
+---------------------------------------------
+
+
+  cond\_sum & curr\_sum & delta & emit\_spike \\
+  exp & expm1 & info & integrate\_odes \\
+  log & max & pow & random \\
+  randomInt & resolution & steps & warning \\
+
+| | | | |
+|-|-|-| - |
+| cond_sum | curr_sum |  delta | emit\_spike |
+| exp   | expm1 | info | integrate\_odes |
+| log | max | pow | random |
+| randomInt    | resolution | steps | warning |
 
 ### Control structures
 NESTML supports loops and conditional control structures.
@@ -165,8 +180,29 @@ if 1 < 4:
 end
 ```
 ### Expressions and operators
+Expressions in NESTML can be defined in a recursive fashion. First, terms are
+valid expressions.
+* Terms
 
 * list of operators
+For any two valid numeric expressions a, b, a boolean expression c, and an integer expression n the following operators
+produce valid expressions.
+
+| Operator | Description | Examples |
+|-|-|-|
+|() | Expressions with parentheses | (a) |
+|**|  Power operator. Power is right associative, e.g. a \*\* b \*\* c corresponds a \*\* (b \*\* c) | a \*\* b |
+|+,  -, ~| unary plus, unary minus, bitwise negation | -a, ~c|
+|*, /,%  | Multiplication, Division and Modulo-Operator | a * b, a % b|
+|+, -| Addition and Subtraction |a + b, a - b|
+|<<, >>| & Left and right bit shifts |a << n, a >> n|
+|&, &#124;,^ | Bitwise and, or and xor | a&b, a&#124;b, a~b |
+|<, <=, ==, !=, >=, >|  Comparison operators |a <= b, a != b|
+|not, and, or| & Logical conjunction, disjunction and negation |not b, b or b|
+|?:| The ternary logical operator |c?a:b|
+
+
+
 
 ## Blocks
 
