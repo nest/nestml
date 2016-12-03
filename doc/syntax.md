@@ -31,6 +31,44 @@ A physical unit in NESTML can be either simple unit or a complex physical unit.
 A simple physical unit is composed of a magnitude prefix and the name of the
 unit.
 
+|Quantity | SI Symbol | SI Name | NESTML Name|
+|-|-|-| - |
+| length | L | metre  | m |
+| mass | M | kilogram | kg |
+| time | T | second | s |
+| electric current | I | ampere | A |
+| temperature | $\Theta$ | kelvin | K |
+| amount of substance | N | mole | mol |
+| luminous intensity | J | candela | cd |
+
+Theoretically, any unit can be expressed as a combination of these seven units.
+In order to support convenience in modeling, NESTML provides following
+derived units:
+
+| | | | |
+|-|-|-|-|
+|Hz | N | Pa |J |
+|W | C | V | F|
+|Ohm |S | Wb| T|
+|H |lm | lx | Bq|
+|Gy | Sv| kat | |
+
+Units can have at most one of the following prefixes:
+
+|Factor | SI Name | NESTML prefix | Factor | SI Name | NESTML prefix
+|-|-|-|-|-|-|
+|$10^{-1}$ | deci | d | $10^1$ | deca | da |
+|$10^{-2}$ | centi | c | $10^2$ | hecto | h |
+|$10^{-3}$ | milli | m | $10^3$ | kilo | k |
+|10^{-6}$ | micro | $\mu$ | $10^6$ | mega | M |
+|$10^{-9}$ | nano | n | $10^9$ | giga | G |
+|10^{-12}$ | pico | p | $10^{12}$ | tera | T |
+|$10^{-15}$ | femto | f | $10^{15}$ | peta | P |
+|$10^{-18}$ | atto | a | $10^{18}$ | exa | E |
+|$10^{-21}$ | zepto | z | $10^{21}$ | zetta | Z |
+$10^{-24}$ | yocto | y & $10^{24}$ & yotta & Y |
+
+Finally, physical units can be combined to complex unit types.
 #### Type and unit checks
 NESTML checks type correctness of all expressions. For assignments, declarations
 with an initialization and function calls type conformity is checked.
@@ -38,17 +76,26 @@ NESTML supports conversion of an `integer` variable to a `real` variable. Also
  conversion between `unit`-typed and `real`-typed variables is possible. However,
 these conversions are reported as warnings.
 
-### Basic elements
+### Basic elements of the embedded programming language
 Basic elements can be: declarations, assignments or function calls.
 #### Declrations
+---------------------------------------------
 ```
 a, b, c real = -0.42
 d integer = 1
 e string = "Bob"
 f mV   = -2e12mV
 ```
-* Assignments
-Assignments
+#### Assignments
+---------------------------------------------
+NESTML supports plain or compound assignments. The lefthand side of the assignments
+is always an variable. The righthand side can be an arbitrary expression of a type
+compatible to the lefthand side.
+* assignment: ```a = 10```
+* compound sum: ```a += 10```
+* assignment minus: ```a -= 10```
+* assignment product: ```a *= 10```
+* assignment quotient: ```a /= 10```
 
 #### Functions
 ---------------------------------------------
@@ -60,9 +107,9 @@ Assignments
 | randomInt    | resolution | steps | warning |
 
 ### Control structures
-NESTML supports loops and conditional control structures.
-#### loops
-
+NESTML supports loop- and conditional control-structures.
+#### Loops
+---------------------------------------------
 ```
 while <boolean_expression>:
   <Statements>
@@ -107,8 +154,8 @@ for x in 0.1 ... 0.5 step 0.1:
 end
 ```
 
-#### conditionals
-
+#### Conditionals
+---------------------------------------------
 NESTML supports the following types of if-else conditionals. The indentation is
 not important. The first example shows if conditional composed of a single if
 block:
@@ -175,12 +222,13 @@ if 1 < 4:
 end
 ```
 ### Expressions and operators
-Expressions in NESTML can be defined in a recursive fashion. First, terms are
+Expressions in NESTML can be specified in a recursive fashion. First, terms are
 valid expressions.
-* Terms
-Variables, literals, and functions are valid terms.
+#### Terms:
+All variables, literals, and functions are valid terms. Variables are names of
+user defined or predefined variables (```t, e ```)
 
-#### list of operators
+#### List of operators
 For any two valid numeric expressions a, b, a boolean expression c, and an
 integer expression n the following operators produce valid expressions.
 
@@ -308,12 +356,12 @@ Currenly only spike output is supported.
 
 ## Recording values with devices
 
-  All values in state are recordable
-
-  `recordable` can be used to make variables in other block available
+  * All values in state are recordable
+  * `recordable` can be used to make variables in other block available
   to recording devices
 
 
 ## Guards
-
+Variables which are defined in the parameter block can be optionally secured
+through guards.
 ## Comments and documentation
