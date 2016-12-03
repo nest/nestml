@@ -94,11 +94,11 @@ type of the event has to be given in the `output` block.
 Currenly only spike output is supported.
 
 
-## Handling synaptic input
+## Synaptic input
 
 NESTML has two dedicated functions to ease the summation of synaptic input.
 
-`curr_sum` is a function that has two arguments. The first is a `shape` function (see Equations) or a function that is defined by an ODE plus initial values (see ODEs) *I* of *t*. The second is a `spike` input buffer (see Input). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t<sub>i</sub>*. I.e.
+`curr_sum` is a function that has two arguments. The first is a `shape` function (see [Equations](#equations)) or a function that is defined by an ODE plus initial values (see [Systems of ODEs](#systems-of-odes)) *I* of *t*. The second is a `spike` input buffer (see [Synaptic input](#synaptic-input)). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t<sub>i</sub>*. I.e.
 
 <!--- $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$ --->
 ![equation](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D(t-t_i)%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%20I_%7B%5Ctext%7Bshape%7D%7D(t-t_i)%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w).
