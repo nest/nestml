@@ -103,9 +103,9 @@ NESTML has two dedicated functions to ease the summation of synaptic input.
 <!--- $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$ --->
 ![equation](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D(t-t_i)%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%20I_%7B%5Ctext%7Bshape%7D%7D(t-t_i)%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w).
 
-When the sum above is used to decribe conductances instead of currents, the function `cond_sum` can be used. It does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases, but makes explicit the the neural dynamics are based on synaptic conductances rather than currents.
+When the sum above is used to decribe conductances instead of currents, the function `cond_sum` can be used. It does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases, but makes explicit that the neural dynamics are based on synaptic conductances rather than currents.
 
-For modeling post synaptic responses with delta functions, `curr_sum` is called with the keyword  `delta` as first argument instead of the `shape` function.
+For modeling post synaptic responses with delta functions, `curr_sum` and `cond_sum` can be called with the keyword  `delta` as first argument instead of the `shape` function.
 
 ## Handling of time
 
