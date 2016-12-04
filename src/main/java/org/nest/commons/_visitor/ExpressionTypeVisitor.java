@@ -1,12 +1,5 @@
 package org.nest.commons._visitor;
 
-import de.monticore.literals.literals._ast.ASTIntLiteral;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.symboltable.symbols.TypeSymbol;
-
-import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
  * @author ptraeder, plotnikov
@@ -178,39 +171,9 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
   //Helper functions:
 
 
-  public static Either<Integer, String> calculateNumericValue(ASTExpr expr) {
-    if (expr.isLeftParentheses()) {
-      return calculateNumericValue(expr.getExpr().get());
-    }
-    else if (expr.getNESTMLNumericLiteral().isPresent()) {
-      if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
-        ASTIntLiteral literal = (ASTIntLiteral) expr.getNESTMLNumericLiteral().get().getNumericLiteral();
-        return Either.value(literal.getValue());
-      }
-      else {
-        return Either.error("No floating point values allowed in the exponent to a UNIT base");
-      }
-    }
-    else if (expr.isUnaryMinus()) {
-      Either<Integer, String> term = calculateNumericValue(expr.getTerm().get());
-      if (term.isError()) {
-        return term;
-      }
-      return Either.value(-term.getValue());
-    }
 
-    return Either.error("Cannot calculate value of exponent. Must be a static value!");
-  }
 
-  /**
-   * Checks if the type is a numeric type, e.g. Integer or Real.
-   */
-  public static boolean isNumeric(final TypeSymbol type) {
-    return type.equals(getIntegerType()) ||
-        type.equals(getRealType()) ||
-        type.getType().equals(TypeSymbol.Type.UNIT);
 
-  }
 
 
 }

@@ -207,7 +207,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoChecker,
         CorrectReturnValues.ERROR_CODE,
-        8);
+        9);
   }
 
   @Test
@@ -577,7 +577,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoCheckerWithSPLCocos,
         "SPL_",
-        20);
+        16);
 
   }
 

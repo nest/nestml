@@ -37,13 +37,6 @@ public class TypeChecker {
         rhsType.equals(getIntegerType())) {
       return true;
     }
-    if (rhsType.equals(getIntegerType()) && lhsType.getType().equals(UNIT)) {
-      return true;
-    }
-    if (lhsType.equals(getRealType()) && rhsType.getType().equals(UNIT) ||
-        rhsType.equals(getRealType()) && lhsType.getType().equals(UNIT)) {
-      return true;
-    }
 
     return false;
   }
@@ -82,7 +75,7 @@ public class TypeChecker {
     return type != null && type.getName().equals(getBooleanType().getName());
   }
 
-  public static boolean checkUnit(final TypeSymbol rType) {
+  public static boolean isUnit(final TypeSymbol rType) {
     //return rType.getName().equals(getUnitType().getName()); // TODO use prover equals implementation
     return rType != null && rType.getType().equals(UNIT);
   }
@@ -91,5 +84,23 @@ public class TypeChecker {
     // TODO use prover equals implementation
     return typeSymbol != null && typeSymbol.equals(getIntegerType());
   }
+
+  public static boolean isReal(TypeSymbol typeSymbol) {
+    // TODO use prover equals implementation
+    return typeSymbol != null && typeSymbol.equals(getRealType());
+  }
+
+  public static boolean isNumericPrimitive(TypeSymbol typeSymbol) {
+    // TODO use prover equals implementation
+    return typeSymbol != null && (typeSymbol.equals(getRealType()) ||
+        typeSymbol.equals(getIntegerType()));
+  }
+
+  public static boolean isNumeric(final TypeSymbol type) {
+    return type != null && (type.equals(getIntegerType()) ||
+        type.equals(getRealType()) ||
+        type.getType().equals(TypeSymbol.Type.UNIT));
+  }
+
 
 }

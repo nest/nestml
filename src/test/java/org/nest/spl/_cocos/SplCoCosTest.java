@@ -172,11 +172,12 @@ public class SplCoCosTest {
     splCoCoChecker.addCoCo((SPLASTIF_ClauseCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTWHILE_StmtCoCo) illegalExpression);
 
+
     checkModelAndAssertWithErrors(
         Paths.get(TEST_INVALID_MODELS_FOLDER, "illegalNumberExpressions.simple"),
         splCoCoChecker,
-        SplErrorStrings.code(illegalExpression),
-        13);
+        "SPL_",
+        9);
   }
 
   @Test
