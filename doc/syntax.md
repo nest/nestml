@@ -28,6 +28,7 @@ NESTML provides the following types
 
 #### Physical units
 A physical unit in NESTML can be either simple unit or a complex physical unit.
+The idea is based on the Le Système internationale d’unités.
 A simple physical unit is composed of a magnitude prefix and the name of the
 unit.
 
@@ -47,11 +48,10 @@ derived units:
 
 | | | | |
 |-|-|-|-|
-|Hz | N | Pa |J |
-|W | C | V | F|
-|Ohm |S | Wb| T|
-|H |lm | lx | Bq|
-|Gy | Sv| kat | |
+| Bq | C | F | Gy |
+| Hz | J | N | Ohm |
+| Pa | S | Sv | TH |
+| V | W  | Wb | kat | |
 
 Units can have at most one of the following prefixes:
 
@@ -60,13 +60,13 @@ Units can have at most one of the following prefixes:
 |$10^{-1}$ | deci | d | $10^1$ | deca | da |
 |$10^{-2}$ | centi | c | $10^2$ | hecto | h |
 |$10^{-3}$ | milli | m | $10^3$ | kilo | k |
-|10^{-6}$ | micro | $\mu$ | $10^6$ | mega | M |
+|10^{-6}$ | micro | mu | $10^6$ | mega | M |
 |$10^{-9}$ | nano | n | $10^9$ | giga | G |
 |10^{-12}$ | pico | p | $10^{12}$ | tera | T |
 |$10^{-15}$ | femto | f | $10^{15}$ | peta | P |
 |$10^{-18}$ | atto | a | $10^{18}$ | exa | E |
 |$10^{-21}$ | zepto | z | $10^{21}$ | zetta | Z |
-$10^{-24}$ | yocto | y & $10^{24}$ & yotta & Y |
+|$10^{-24}$ | yocto | y | $10^{24}$ | yotta | Y |
 
 Finally, physical units can be combined to complex unit types.
 #### Type and unit checks
@@ -78,7 +78,7 @@ these conversions are reported as warnings.
 
 ### Basic elements of the embedded programming language
 Basic elements can be: declarations, assignments or function calls.
-#### Declrations
+#### Declarations
 ---------------------------------------------
 ```
 a, b, c real = -0.42
@@ -90,12 +90,12 @@ f mV   = -2e12mV
 ---------------------------------------------
 NESTML supports plain or compound assignments. The lefthand side of the assignments
 is always an variable. The righthand side can be an arbitrary expression of a type
-compatible to the lefthand side.
-* assignment: ```a = 10```
-* compound sum: ```a += 10```
-* assignment minus: ```a -= 10```
-* assignment product: ```a *= 10```
-* assignment quotient: ```a /= 10```
+compatible to the lefthand side. E.g. for a numeric variable `n`
+* assignment: ```n = 10```
+* compound sum: ```n += 10```
+* compound minus: ```n -= 10```
+* compound product: ```n *= 10```
+* compound quotient: ```n /= 10```
 
 #### Functions
 ---------------------------------------------
@@ -268,31 +268,32 @@ end
   `<name>`. The content will be translated into a single neuron model
   that can be instantiated in NEST using `nest.Create(<name>)`. This
   is the top-level block of a model specification and all following
-  blocks are contained in this block.
+  blocks are contained in this block. The block terminates with the `end` keyword.
 
-`parameters`
-: blabla
+`parameters:`
+:  The block terminates with the `end` keyword.
 
 `state`
-: blabla
+:  The block terminates with the `end` keyword.
 
 `internals`
-: blabla
+:  The block terminates with the `end` keyword.
 
 `equations`
-: blabla
+:  The block terminates with the `end` keyword.
 
 `input`
-: blabla
+:  The block terminates with the `end` keyword.
 
 `output`
-: blabla
+: Defines which kinds of events the neuron can fire. Currently, only `spike` is
+supported.
 
 `update`
-: blabla
+: The block terminates with the `end` keyword.
 
 `function`
-: blabla
+: The block terminates with the `end` keyword.
 
 
 ## Neuronal interactions
@@ -306,7 +307,7 @@ end
 Each neuron model in NESTML can only send a single type of event. The
 type of the event has to be given in the `output` block.
 
-Currenly only spike output is supported.
+Currently only spike output is supported.
 
 
 ## Predefined functions, variables and keywords
@@ -317,8 +318,11 @@ Currenly only spike output is supported.
 
  `delta`
 
- `resolution`
- `steps`
+ `resolution`: returns the current resolution of the simulation. Can vary dependent on
+ the `nest.SetKernelStatus({"resolution": ...})` setting.
+
+ `steps`: takes one parameter of the type `ms` and returns the number of simulation
+ ticks which are needed.
 
 ## Equations
 
@@ -343,14 +347,38 @@ Currenly only spike output is supported.
 
    `process_spikes()`
 
-   concepts for refractoriness
+   emit_spike(): calling this function in the `update`-block results in firing
+   a spike through the neuron.
+### Concepts for refractoriness
+In order to model refractory and non-refractory states, two variables are
+necessary. First variable `t_ref` defines the duration of the refractoriness period.
+The second variable specifies the current delay of the refractory period. It is
+initialized with 0 and set to the refractory offset every time the refractoriness
+condition holds. Otherwise, the refractory offset is decremented.
 
-   emit_spike()
+```
+parameters:
+  t_ref ms = 5ms
+end
+internals:
+  ref_counts  = 0
+end
+update:
 
+  if ref_count == 0: # neuron is in non-refractory state
+    if <refractoriness_condition>:
+      ref_counts = steps(t_ref)
+    end
+  else:
+    ref_counts  -= 1 # neuron is refractory
+  end
+
+end
+```
 
 ## Setting and retrieving model properties
 
-  * Everything in `state` and `parameters` is added to the status dict
+  * Everything in `state` and `parameters` is added to the status dict.
   * All values can be set and read
 
 
@@ -363,5 +391,12 @@ Currenly only spike output is supported.
 
 ## Guards
 Variables which are defined in the parameter block can be optionally secured
-through guards.
+through an optional guards. This guard is checked during `nest.SetStatus(n, ...)`
+call.
+```
+parameters:
+  t_ref ms = 5ms [[t_ref >= 0ms]] # refractory period cannot be negative
+end
+```
+
 ## Comments and documentation
