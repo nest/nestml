@@ -6,17 +6,17 @@ markup languages. Instead it concentrates on the domain concepts
 needed to efficiently write down neuron models and their equations.
 
 NESTML files are expected to have the filename extension
-`.nestml`. There is no connection between model and file name and each
-file may contain one or more models. Models that shall be compiled
+`.nestml`. There is no connection between model and file name. Each
+file may contain one or more neuron models. Models that shall be compiled
 into one extension module for NEST have to reside in the same
-directory.
+directory. The name of the model corresponds to the name of the folder.
 
 In order to give the users of NESTML complete freedom, we provide a
 full programming language. This programming language is used in the
 update block and function block. It provides the following features:
 
 ### Physical units and data types
-NESTML provides the following types
+NESTML provides the following primitive types
 #### Primitive data types
 * `real`: corresponds to the `double` data type in C++. Its literals are: 42.0,
 -0.42, .44
@@ -27,10 +27,12 @@ NESTML provides the following types
 * `void`: corresponds to the `void` data type in C++. No literals possible.
 
 #### Physical units
-A physical unit in NESTML can be either simple unit or a complex physical unit.
-The idea is based on the Le Système internationale d’unités.
-A simple physical unit is composed of a magnitude prefix and the name of the
-unit.
+A physical unit in NESTML can be either a simple physical unit or a complex
+physical unit. A simple physical unit is composed of a magnitude prefix and
+the name of the unit.
+
+The following table present seven base units, which can be used to specify any
+physical unit. This idea is based on the Le Système internationale d’unités.
 
 |Quantity | SI Symbol | SI Name | NESTML Name|
 |-|-|-| - |
@@ -42,8 +44,9 @@ unit.
 | amount of substance | N | mole | mol |
 | luminous intensity | J | candela | cd |
 
-Theoretically, any unit can be expressed as a combination of these seven units.
-In order to support convenience in modeling, NESTML provides following
+Remaining physical units are called derived units. Theoretically, any physical
+unit can be expressed as a combination of these seven
+units. In order to support convenience in modeling, NESTML provides following
 derived units:
 
 | | | | |
@@ -53,7 +56,7 @@ derived units:
 | Pa | S | Sv | TH |
 | V | W  | Wb | kat | |
 
-Units can have at most one of the following prefixes:
+Units can have at most one of the following magnitude prefixes:
 
 |Factor | SI Name | NESTML prefix | Factor | SI Name | NESTML prefix
 |-|-|-|-|-|-|
@@ -68,19 +71,51 @@ Units can have at most one of the following prefixes:
 |$10^{-21}$ | zepto | z | $10^{21}$ | zetta | Z |
 |$10^{-24}$ | yocto | y | $10^{24}$ | yotta | Y |
 
-Finally, physical units can be combined to complex unit types.
+Finally, physical units can be combined to complex units. For this,
+multiplication (\*)-, division(\)- and power(\*\*)-operators can be used.
+```
+mV*mV*nS**2/(mS*pA)
+```
+There is a special cases for the expressions of the form `physical_unit ** -1`.
+It can be expressed as `1\physical_unit`
+```
+(ms*mV)**-1 is equivalent to 1/(ms*mV)
+```
+
+#### Physical unit literals
+* Simple unit literals are composed of a number with the type name. Complex unit
+literals are composed of a number and type inside square brackets. Also simple
+units can be put inside of square brackets.  
+```
+<number> <unit_type>
+<number> [<unit_type>]
+
+a mV = 1mV
+aa mV = 1[mV]
+b mV/ms = 1[mV/ms]
+```
 #### Type and unit checks
 NESTML checks type correctness of all expressions. For assignments, declarations
-with an initialization and function calls type conformity is checked.
-NESTML supports conversion of an `integer` variable to a `real` variable. Also
- conversion between `unit`-typed and `real`-typed variables is possible. However,
-these conversions are reported as warnings.
+with an initialization and function calls type conformity is checked also.
+NESTML supports conversion of an `integer` to `real`. Also
+conversion between `unit`-typed and `real`-typed variables is possible. However,
+these conversions are reported as warnings. Finally, there is no conversion
+between numeric types and boolean types.
 
 ### Basic elements of the embedded programming language
-Basic elements can be: declarations, assignments or function calls.
+Basic elements can be: declarations, assignments, function call or return statement.
 #### Declarations
 ---------------------------------------------
+Declarations are composed of a non empty list of comma separated names. A
+valid name starts with a letter or underscore or dollar character. Further it
+can contain arbitrary number of letters, numbers and underscores.
+Formally, a valid name satisfies the following regular expression:
+` ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*`.
+A type is any of the valid NESTML types. The type of the initialization expression
+must be compatible to the type of the declaration.
 ```
+<list_of_comma_separated_names> <type> (= initialization_expression)?
+
 a, b, c real = -0.42
 d integer = 1
 e string = "Bob"
@@ -106,6 +141,25 @@ compatible to the lefthand side. E.g. for a numeric variable `n`
 | log | max | pow | random |
 | randomInt    | resolution | steps | warning |
 
+#### Function call
+* Function call is composed of the function name and
+
+```
+<function_name>(<list_of_arguments>)
+
+max(a*2, b/2)
+```
+#### Return statement
+The return expression can be only used inside the function block
+```
+return (<expression>)?
+
+if a > b:
+  return a
+else:
+  return b
+end
+```
 ### Control structures
 NESTML supports loop- and conditional control-structures.
 #### Loops
@@ -271,37 +325,73 @@ end
   blocks are contained in this block. The block terminates with the `end` keyword.
 
 `parameters:`
-:  The block terminates with the `end` keyword.
+:  This block is composed of a list with variable declarations. This block is
+supposed to contain variables
+which remain constant during the concrete simulation, but they can vary among
+different simulations or instantiations neuron of the same neuron. The block
+terminates with the `end` keyword.
 
-`state`
-:  The block terminates with the `end` keyword.
+`state:`
+: This block is composed of a list with variable declarations. These variables are supposed to
+model the time dependent  state of the neuron. Only variables form this block can be refined with
+differential equations. The block terminates with the `end` keyword.
 
-`internals`
-:  The block terminates with the `end` keyword.
+`internals:`
+:  This block is composed of a list with variable declarations. These variables
+are supposed to be constant during the simulation run. Therefore, its initialization
+expression can only reference parameter- or another internal-variables. The block
+terminates with the `end` keyword.
 
-`equations`
-:  The block terminates with the `end` keyword.
+`equations:`
+: This block is composed of shape definitions and differential equations. In will
+be explained in further details later in the manual. The block terminates with
+the `end` keyword.
 
-`input`
-:  The block terminates with the `end` keyword.
+`input:`
+: The block is composed of a list of input ports. The block terminates with the `end` keyword.
 
-`output`
+`output:`
 : Defines which kinds of events the neuron can fire. Currently, only `spike` is
 supported.
-
-`update`
+```
+output: spike
+```
+`update:`
 : The block terminates with the `end` keyword.
 
-`function`
-: The block terminates with the `end` keyword.
+`function *`<name>`*([<list_of_arguments>]) <return_type>?:`
+: `function ([<args>]`.
+The function has an unique name and a list of arguments between round brackets.
+Inside the block arbitrary code in the introduced
+programming language can be implemented. The function definitions
+terminates with the `end` keyword.
+```
+function <name>(<list_of_arguments>) <return_type>?:
+  <statements>
+end
 
+function devide(a real, b real) real:
+  return a/b
+end
+```
 
 ## Neuronal interactions
 
 ### Input
-    `inhibitory`
-    `excitatory`
-
+Input block is composed of input lines. Every input line of the form:
+```
+port_name <- inhibitory? excitatory? (spike | current)
+```
+There are three possibilities to define a valid input block.
+* It is composed of the single port, which is either `spike` or `current`,
+that receives as well positive weighted spikes as well as negative weighted spikes.
+* It is composed of two ports. The first port is an `inhibitory` port, the second
+port is an `excitatory` port. In that case, spikes are routed based on their
+weight. Positive weighted spikes go to the `excitatory` port, negative weighted
+spikes go to the `inhibitory` port.
+* There are more the one `spike` or `current` port. In that case, a multisynapse
+neuron is created. The `receptor_types` entry is created in the dict. It maps
+port names to its port indicies in NEST.
 ### Output
 
 Each neuron model in NESTML can only send a single type of event. The
@@ -379,21 +469,24 @@ end
 ## Setting and retrieving model properties
 
   * Everything in `state` and `parameters` is added to the status dict.
-  * All values can be set and read
-
+  * All values can be set and read `nest.SetStatus(n, {var_name:var_value})`
 
 ## Recording values with devices
 
   * All values in state are recordable
-  * `recordable` can be used to make variables in other block available
-  to recording devices
+  * `recordable` can be used to make variables in other blocks (`state, parameters, internals`)
+  available to recording devices
 
 
 ## Guards
-Variables which are defined in the parameter block can be optionally secured
-through an optional guards. This guard is checked during `nest.SetStatus(n, ...)`
-call.
+Variables which are defined in the in `state` and `parameters` blocks can be
+optionally secured through an optional guard. This guard is checked during
+`nest.SetStatus(n, ...)` call in NEST.
 ```
+block:
+  <declaration> [[<boolean_expression>]]
+end
+
 parameters:
   t_ref ms = 5ms [[t_ref >= 0ms]] # refractory period cannot be negative
 end
