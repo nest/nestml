@@ -51,12 +51,12 @@ public class ConditionVisitor implements CommonsVisitor{
         return;
       }
 
-      //Both are units -> tie break by using the first
+      //Both are units -> real
       if(isUnit(ifTrue.getValue())&&isUnit(ifNot.getValue())){
         final String errorMsg = ERROR_CODE+
             "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
-                ifNot.getValue().prettyPrint()+"-> Assuming "+ifTrue.getValue().prettyPrint();
-        expr.setType(ifTrue);
+                ifNot.getValue().prettyPrint()+"-> Assuming real";
+        expr.setType(Either.value(getRealType()));
         Log.warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }

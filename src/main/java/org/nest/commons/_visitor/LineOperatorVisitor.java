@@ -69,17 +69,12 @@ public class LineOperatorVisitor implements CommonsVisitor{
         expr.setType(Either.value(getRealType()));
         return;
       }
-      //Both are units, not matching -> tie break by using lhs, propagate IgnoreMagnitude, warn
+      //Both are units, not matching -> real, warn
       if(isUnit(lhsType.getValue())&&isUnit(rhsType.getValue())){
         final String errorMsg =ERROR_CODE+
             "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
-            ". Assuming "+lhsType.getValue().prettyPrint();
-        UnitRepresentation rhsRep = new UnitRepresentation(rhsType.getValue().getName());
-        UnitRepresentation lhsRep = new UnitRepresentation(lhsType.getValue().getName());
-        if(rhsRep.isIgnoreMagnitude() || lhsRep.isIgnoreMagnitude()){
-          lhsRep.setIgnoreMagnitude(true);
-        }
-        expr.setType(lhsType);
+            ". Assuming real.";
+        expr.setType(Either.value(getRealType()));
         warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
