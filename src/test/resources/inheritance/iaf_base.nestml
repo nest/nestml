@@ -1,12 +1,12 @@
 neuron iaf_base:
 
   state:
-    suppress y0, y1, y2, y3 mV
+    y0, y1, y2, y3 mV
     # Membrane potential.
     alias V_m mV = y3 + E_L
   end
 
-  parameter:
+  parameters:
     # Capacity of the membrane.
     C_m       pF = 250
     # Membrane time constant.
@@ -27,7 +27,7 @@ neuron iaf_base:
     alias  V_reset mV = delta_V_reset + E_L
   end
 
-  internal:
+  internals:
     h   ms   = resolution()
     r integer
     P11 real = exp(-h / tau_syn)

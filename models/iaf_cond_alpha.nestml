@@ -41,14 +41,14 @@ neuron iaf_cond_alpha_neuron:
     shape g_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
-    I_syn_exc pA = Cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
-    I_syn_inh pA =  Cond_sum(g_in, spikeInh)  * ( V_m - E_in )
+    I_syn_exc pA = cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
+    I_syn_inh pA =  cond_sum(g_in, spikeInh)  * ( V_m - E_in )
     I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
   end
 
-  parameter:
+  parameters:
     V_th mV = -55.0mV    # Threshold Potential in mV
     V_reset mV = -60.0mV # Reset Potential in mV
     t_ref ms = 2.ms     # Refractory period in ms
@@ -66,7 +66,7 @@ neuron iaf_cond_alpha_neuron:
     I_stim pA = 0pA
   end
 
-  internal:
+  internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer                               # counts number of tick during the refractory period
   end

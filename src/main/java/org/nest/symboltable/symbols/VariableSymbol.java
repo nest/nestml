@@ -61,7 +61,7 @@ public class VariableSymbol extends CommonSymbol {
     return odeDeclaration != null;
   }
 
-  public void setLoggable(boolean loggable) {
+  public void setRecordable(boolean loggable) {
     isLoggable = loggable;
   }
 
@@ -189,7 +189,7 @@ public class VariableSymbol extends CommonSymbol {
     return blockType == BlockType.EQUATION;
   }
 
-  public boolean isParameter() {
+  public boolean isParameters () {
     return blockType == BlockType.PARAMETER;
   }
 

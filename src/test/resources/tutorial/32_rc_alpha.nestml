@@ -5,8 +5,7 @@
 neuron rc_alpha:
 
   state:
-    V_abs mV = 0mV
-    alias V_m mV = V_abs + E_L
+    V_m mV =  E_L
     g_ex pA = 0pA
   end
 
@@ -14,10 +13,10 @@ neuron rc_alpha:
     g_ex'' = -g_ex' / tau_syn
     g_ex' = g_ex' - ( g_ex / tau_syn )
     I_syn pA = g_ex + currents + I_e
-    V_abs' = -V_abs/tau_m  + I_syn/C_m
+    V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
-  parameter:
+  parameters:
     E_L   mV = -70mV
     C_m   pF = 250pF
     tau_m ms = 10ms
@@ -30,7 +29,7 @@ neuron rc_alpha:
     I_e pA = 0pA
   end
 
-  internal:
+  internals:
     PSConInit_E pA/ms = 1.0 pA * e / tau_syn
   end
 
@@ -44,8 +43,8 @@ neuron rc_alpha:
   update:
     if refractory_counts == 0:
       integrate_odes()
-      if V_abs > V_th:
-        V_abs = V_reset
+      if V_m > V_th:
+        V_m = V_reset
         emit_spike()
         refractory_counts = steps(refractory_timeout)
       end

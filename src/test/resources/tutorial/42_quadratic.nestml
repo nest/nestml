@@ -11,7 +11,7 @@ neuron quadratic_IaF:
     V_m' = I_syn + a * (V_m - V_reset)*(V_m - V_th)/1mV
   end
 
-  parameter:
+  parameters:
     I_syn pA = 10pA
     a real = 7.0
     V_reset mV =  10mV

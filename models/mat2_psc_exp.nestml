@@ -74,11 +74,11 @@ neuron mat2_psc_exp_neuron:
 
     # V_th_alpha_1' = -V_th_alpha_1/tau_1
     # V_th_alpha_2' = -V_th_alpha_2/tau_2
-    I_syn pA = (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+    I_syn pA = (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
     V_abs' = -1/tau_m * V_abs + 1/C_m * I_syn
   end
 
-  parameter:
+  parameters:
     tau_m        ms =     5ms  # Membrane time constant in ms
     C_m          pF =   100pF  # Capacity of the membrane in pF
     t_ref        ms =     2ms  # Duration of absolute refractory period (no spiking) in ms
@@ -93,7 +93,7 @@ neuron mat2_psc_exp_neuron:
     omega        mV =  19.0mV  # Resting spike threshold in mV (absolute value, not relative to E_L)
   end
 
-  internal:
+  internals:
     h ms = resolution()
     P11th real = exp( -h / tau_1 )
     P22th real = exp( -h / tau_2 )

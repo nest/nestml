@@ -5,11 +5,11 @@ component CompMembers:
 
     end
 
-    internal:
+    internals:
         test real = 13
     end
 
-    parameter:
+    parameters:
         P1 real = 2 + P2 # error: P2 is undefined at this place
         P2 real = 2 * P1 + P2 # P3 is undefined at this place
     end

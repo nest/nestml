@@ -5,13 +5,11 @@ import de.monticore.literals.literals._ast.ASTIntLiteral;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.units._ast.ASTUnitType;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.units.unitrepresentation.UnitTranslator;
 
 import java.util.Optional;
 
-import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
@@ -29,7 +27,7 @@ public class NESTMLNumericLiteralVisitor implements CommonsVisitor{
 
     }
 
-    if (exprType.isPresent() && checkUnit(exprType.get())) { //Try Unit Type
+    if (exprType.isPresent() && isUnit(exprType.get())) { //Try Unit Type
       expr.setType(Either.value(exprType.get()));
       return;
     }

@@ -45,7 +45,7 @@ public class LiteralsHaveTypes implements
    */
   @Override
   public void check(ASTAssignment node) {
-    final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
+    /*final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
     checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
     Optional<VariableSymbol> var = enclosingScope.get().resolve(node.getLhsVarialbe().getName().toString(),VariableSymbol.KIND);
     if(var.isPresent()) {
@@ -54,7 +54,6 @@ public class LiteralsHaveTypes implements
         exprType = node.getExpr().getType();
 
         if (exprType.isValue() &&
-            // !exprType.getValue().equals(var.get().getType())) {
             !exprType.getValue().getType().equals(TypeSymbol.Type.UNIT)){
           NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
           final String msg = errorStrings.getErrorMsgAssignment(this);
@@ -63,7 +62,7 @@ public class LiteralsHaveTypes implements
 
       }
 
-    }
+    }*/
 
   }
 
@@ -75,7 +74,7 @@ public class LiteralsHaveTypes implements
    */
   @Override
   public void check(ASTDeclaration node) {
-    final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
+   /* final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
     checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
     //resovle with the first var name from the declaration
     Optional<VariableSymbol> var = enclosingScope.get().resolve(node.getVars().get(0),VariableSymbol.KIND);
@@ -97,7 +96,7 @@ public class LiteralsHaveTypes implements
 
       }
 
-    }
+    }*/
 
   }
 
@@ -117,7 +116,7 @@ public class LiteralsHaveTypes implements
 
   @Override
   public void check(ASTFunctionCall node) {
-    final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
+ /*   final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
     checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
     //resolve method
     Optional<MethodSymbol> methodSymbol  = enclosingScope.get().resolve(node.getCalleeName(),MethodSymbol.KIND);
@@ -142,7 +141,7 @@ public class LiteralsHaveTypes implements
       }
 
     }
-
+ */
   }
 
   /**
@@ -164,7 +163,7 @@ public class LiteralsHaveTypes implements
    */
   @Override
   public void check(ASTFunction node) {
-    final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
+  /*  final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
     checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
     //resolve method
     Optional<MethodSymbol> methodSymbol  = enclosingScope.get().resolve(node.getName(),MethodSymbol.KIND);
@@ -200,7 +199,7 @@ public class LiteralsHaveTypes implements
 
       }
 
-    }
+    }*/
 
   }
 
@@ -234,7 +233,7 @@ public class LiteralsHaveTypes implements
 
   @Override
   public void check(ASTExpr node) {
-    if(node.isLt() || node.isLe() || node.isEq() || node.isNe() ||
+/*    if(node.isLt() || node.isLe() || node.isEq() || node.isNe() ||
         node.isNe2() || node.isGe() || node.isGt()){
       final Optional<? extends Scope> enclosingScope = node.getEnclosingScope();
       checkArgument(enclosingScope.isPresent(), "No scope was assigned. Please, run symboltable creator.");
@@ -256,7 +255,7 @@ public class LiteralsHaveTypes implements
 
       }
 
-    }
+    }*/
 
   }
 

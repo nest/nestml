@@ -1,5 +1,5 @@
 component AliasSetter:
-    parameter:
+    parameters:
         x integer = 5
         alias y integer = -x
         alias z real = x * y

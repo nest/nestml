@@ -20,6 +20,7 @@ import java.util.Optional;
  * @author plotnikov, ptraeder
  */
 public class FunctionCallVisitor implements CommonsVisitor {
+  final String ERROR_CODE = "SPL_FUNCTION_CALL_VISITOR: ";
 
   @Override
   public void visit(final ASTExpr expr) {
@@ -28,13 +29,13 @@ public class FunctionCallVisitor implements CommonsVisitor {
     final Optional<MethodSymbol> methodSymbol = NESTMLSymbols.resolveMethod(expr.getFunctionCall().get());
 
     if (!methodSymbol.isPresent()) {
-      final String msg = "Cannot resolve the method: " + functionName;
-      expr.setType(Either.error(msg));
+      final String errorMsg = ERROR_CODE+"Cannot resolve the method: " + functionName;
+      expr.setType(Either.error(errorMsg));
       return;
     }
 
     if (TypeChecker.checkVoid(methodSymbol.get().getReturnType())) {
-      final String errorMsg = "Function " + functionName + " with the return-type 'Void'"
+      final String errorMsg = ERROR_CODE+"Function " + functionName + " with the return-type 'Void'"
                               + " cannot be used in expressions. @" + expr.get_SourcePositionEnd();
       expr.setType(Either.error(errorMsg));
       return;

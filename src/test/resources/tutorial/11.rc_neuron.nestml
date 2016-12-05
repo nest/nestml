@@ -4,14 +4,14 @@
 neuron rc_neuron:
 
   state:
-    V_abs mV = 0mV
+    V_m mV = 0mV
   end
 
   equations:
-      V_abs' = -1/tau_m * V_abs + 1/C_m*I_syn
+      V_m' = -V_m/tau_m + I_syn/C_m
   end
 
-  parameter:
+  parameters:
     E_L   mV = -65mV
     C_m   pF = 250pF
     tau_m ms = 10ms
