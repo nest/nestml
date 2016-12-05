@@ -341,7 +341,7 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
 
   public String prettyPrint() {
     if(isZero()){
-      return "no dimension";
+      return "real";
     }
     return  calculateName();
   }
