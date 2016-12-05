@@ -14,9 +14,29 @@ an exact solution if possible or use an appropriate numeric solver otherwise.
 
 `src` - The source code of NESTML
 
+## Installing and running NESTML
+
+To install NESTML, the following requirements need to be met:
+* [Apache Maven](https://maven.apache.org/)
+* [Oracle Java SE Development Kit 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+* [sympy >= 1.0.1dev](https://github.com/sympy/sympy)
+
+Compilation can then be issued by running the following commands
+```
+cd <nestml_clone>
+mvn clean install
+```
+
+If everything ran without errors, run the `nestml` tool using
+
+```
+java -jar nestml.jar <models> --target <build_dir>
+```
+where `<models>` is a directory containing one or more `.nestml` files and `build_dir` is the directory, into which the C++ are put together with an extension module and the corresponding build infrastructure for NEST.
+
 ## Running NESTML using Docker
 
-NESTML has quite some dependencies, which makes it a bit complicated to install and run it. To lower the burden, we have created a [Docker](https://www.docker.com/) container for you. The `Dockerfile`s and corresponding helper scripts can be found in the `docker` folder. In order to use this method, you have to have Docker installed on your machine. Please refer to the [installation instructions](https://docs.docker.com/engine/installation) or use the packages from your Linux distribution's software manager.
+As NESTML has quite some dependencies, which makes it a bit complicated to install and run it. To lower the burden, we have created a [Docker](https://www.docker.com/) container for you. The `Dockerfile`s and corresponding helper scripts can be found in the `docker` folder. In order to use this method, you have to have Docker installed on your machine. Please refer to the [installation instructions](https://docs.docker.com/engine/installation) or use the packages from your Linux distribution's software manager.
 
 ### Provisioning
 
