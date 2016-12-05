@@ -60,28 +60,13 @@ public class ConditionVisitor implements CommonsVisitor{
         Log.warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
-      //integer and real -> real
-      if(isNumericPrimitive(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue())){
+      //one Unit and one real and vice versa -> return real,warn
+      if((isUnit(ifTrue.getValue())&&isReal(ifNot.getValue()))||
+          isUnit(ifNot.getValue())&&isReal(ifTrue.getValue())){
         final String errorMsg = ERROR_CODE+
-            "Mismatched numeric primitives in conditional alternatives -> Assuming real";
+            "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
+                ifNot.getValue().prettyPrint()+"-> Assuming real";
         expr.setType(Either.value(getRealType()));
-        Log.warn(errorMsg,expr.get_SourcePositionStart());
-        return;
-      }
-      //one Unit and one primitive and vice versa -> return unit
-      if(isUnit(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue())){
-        final String errorMsg = ERROR_CODE+
-            "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
-                ifNot.getValue().prettyPrint()+"-> Assuming "+ifTrue.getValue().prettyPrint();
-        expr.setType(ifTrue);
-        Log.warn(errorMsg,expr.get_SourcePositionStart());
-        return;
-      }
-      if(isUnit(ifNot.getValue())&&isNumericPrimitive(ifTrue.getValue())){
-        final String errorMsg = ERROR_CODE+
-            "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
-                ifNot.getValue().prettyPrint()+ "-> Assuming "+ifNot.getValue().prettyPrint();
-        expr.setType(ifNot);
         Log.warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }

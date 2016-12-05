@@ -9,6 +9,7 @@ import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
@@ -78,20 +79,13 @@ public class LineOperatorVisitor implements CommonsVisitor{
         warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
-      //one is unit and one real/integer and vice versa -> assume unit and warn
-      if(isUnit(lhsType.getValue())&&isNumericPrimitive(rhsType.getValue())){
+      //one is unit and one real and vice versa -> assume real, warn
+      if((isUnit(lhsType.getValue())&&isReal(rhsType.getValue()))||
+      (isUnit(rhsType.getValue())&&isReal(lhsType.getValue()))){
         final String errorMsg =ERROR_CODE+
             "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
-            ". Assuming "+lhsType.getValue().prettyPrint();
-        expr.setType(lhsType);
-        warn(errorMsg,expr.get_SourcePositionStart());
-        return;
-      }
-      if(isUnit(rhsType.getValue())&&isNumericPrimitive(lhsType.getValue())){
-        final String errorMsg =ERROR_CODE+
-            "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
-            ". Assuming "+rhsType.getValue().prettyPrint();
-        expr.setType(rhsType);
+            ". Assuming real.";
+        expr.setType(Either.value(getRealType()));
         warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
