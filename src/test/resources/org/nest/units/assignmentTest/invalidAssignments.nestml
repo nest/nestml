@@ -1,0 +1,30 @@
+neuron invalidAssignmentTest:
+  parameters:
+    Resist Ohm = 3 Ohm
+    RealValue real
+    Current A 
+    Potential V
+    Int integer
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  internals:
+    
+  end
+
+  update:       
+    RealValue real = 3 Ohm          #Warning: Assignment of unit to real
+    Resist = 3.0                     #Warning: Assingment of real to unit
+    Current A = Resist              #WARNING: Assignment of wrong unit to unit
+    Potential V = 3                 #WARNING: Assignment of integer to unit.
+    Int = Resist                    #Error Assignment of unit to integer
+  end
+
+end

@@ -10,6 +10,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 
+import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getType;
@@ -21,7 +22,7 @@ import java.util.Optional;
  * @author ptraeder
  */
 public class VariableVisitor implements CommonsVisitor{
-
+  final String ERROR_CODE = "SPL_VARIABLE_VISITOR: ";
   @Override
   public void visit(ASTExpr expr) {
     final Scope scope = expr.getEnclosingScope().get();
@@ -41,7 +42,9 @@ public class VariableVisitor implements CommonsVisitor{
       //}
     }
     else {
-      expr.setType(Either.error("ExpressionCalculator cannot resolve the type of the variable: " + varName));
+      final String errorMsg = ERROR_CODE+"ExpressionCalculator cannot resolve the variable: " + varName;
+      expr.setType(Either.error(errorMsg));
+      error(errorMsg,expr.get_SourcePositionStart());
     }
   }
 }

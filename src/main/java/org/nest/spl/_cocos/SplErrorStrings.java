@@ -124,13 +124,25 @@ public class SplErrorStrings {
   static String messageInitType(
       final IllegalExpression coco,
       final String variable,
-      final String realType,
+      final String varType,
       final String expressionType,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "Cannot initialize variable %s of type %s with an expression of type %s" ;
+    final String ERROR_MSG_FORMAT = "Attempting to initialize variable %s of type %s with an expression of type %s" ;
 
     return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
-           String.format(ERROR_MSG_FORMAT, variable, realType, expressionType);
+           String.format(ERROR_MSG_FORMAT, variable, varType, expressionType);
+  }
+
+  static String messageAssignment(
+      final IllegalExpression coco,
+      final String variable,
+      final String varType,
+      final String expressionType,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "Attempting to assign %s to variable %s with type %s" ;
+
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
+        String.format(ERROR_MSG_FORMAT,expressionType, variable, varType);
   }
 
   static String messageNonBoolean(
@@ -146,9 +158,9 @@ public class SplErrorStrings {
       final IllegalExpression coco,
       final String errorDescription,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "Mistyped expression. " + errorDescription;
+    final String ERROR_MSG_FORMAT = errorDescription;
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + ERROR_MSG_FORMAT;
+    return code(coco) + ": " + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -179,7 +191,7 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
 
     final String ERROR_MSG_FORMAT = "The function '%s' with the signature '%s' is not defined.";
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
+    return code(coco) + ": " +
            String.format(ERROR_MSG_FORMAT, functionName, signature.isEmpty()?"()":signature);
   }
 

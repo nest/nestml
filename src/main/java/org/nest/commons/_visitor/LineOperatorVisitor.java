@@ -1,22 +1,22 @@
 package org.nest.commons._visitor;
-
-import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.utils.AstUtils;
 
-import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.isNumeric;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
  * @author ptraeder
  */
 public class LineOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "NESTML_LINE_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_LINE_OPERATOR_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -34,19 +34,6 @@ public class LineOperatorVisitor implements CommonsVisitor{
     }
 
     //Format error string..
-    String rhsPrettyType,lhsPrettyType;
-    if(rhsType.getValue().getType() == TypeSymbol.Type.UNIT){
-      rhsPrettyType  = new UnitRepresentation(rhsType.getValue().getName()).prettyPrint();
-    }else{
-      rhsPrettyType = rhsType.getValue().getName();
-    }
-    if(lhsType.getValue().getType() == TypeSymbol.Type.UNIT){
-      lhsPrettyType  = new UnitRepresentation(lhsType.getValue().getName()).prettyPrint();
-    }else{
-      lhsPrettyType = lhsType.getValue().getName();
-    }
-    final String errorMsg = "Cannot determine the type of the "+ (expr.isPlusOp()?"(plus)":"(minus)")+" operation with types: " + lhsPrettyType
-        + " and " + rhsPrettyType + " at " + expr.get_SourcePositionStart() + ">";
 
     //Plus-exclusive code
     if (expr.isPlusOp()) {
@@ -62,45 +49,56 @@ public class LineOperatorVisitor implements CommonsVisitor{
 
     //Common code for plus and minus ops:
     if (isNumeric(lhsType.getValue()) && isNumeric(rhsType.getValue())) {
-      //both are units
-      if (lhsType.getValue().getType() == TypeSymbol.Type.UNIT &&
-          rhsType.getValue().getType() == TypeSymbol.Type.UNIT) {
-        if (isCompatible(lhsType.getValue(), rhsType.getValue())) {
-
-          //TODO better solution
+      //both match exactly -> any is valid, in case of units propagate IgnoreMagnitude
+      if (lhsType.getValue().equals(rhsType.getValue())) {
           //Make sure that ignoreMagnitude gets propagated if set
-          if(rhsType.getValue().getName().substring(rhsType.getValue().getName().length()-1).equals("I")){
+          if(isUnit(rhsType.getValue())){
+            UnitRepresentation rhsRep = new UnitRepresentation(rhsType.getValue().getName());
+            if(rhsRep.isIgnoreMagnitude()){
               expr.setType(rhsType);
-          }else{
+            }else{
               expr.setType(lhsType);
+            }
+          }else{
+            expr.setType(lhsType); //no units involved, any is valid
           }
-          // expr.setType(lhsType); //set either of the (same) unit types
           return;
-        }
       }
-
-      //at least one real
-      if (lhsType.getValue() == getRealType() || rhsType.getValue() == getRealType()) {
-        if(lhsType.getValue().getType()== TypeSymbol.Type.UNIT||
-            rhsType.getValue().getType()== TypeSymbol.Type.UNIT){
-          warn(ERROR_CODE+"Addition/substraction of unit and primitive type. Assuming real at "+expr.get_SourcePositionStart());
-        }
+      //both numeric primitive, not matching -> 1 real one integer -> real
+      if (isNumericPrimitive(lhsType.getValue())&&isNumericPrimitive(rhsType.getValue())) {
         expr.setType(Either.value(getRealType()));
         return;
       }
-
-      // e.g. at least one integer
-      if (lhsType.getValue() == (getIntegerType()) || rhsType.getValue() == (getIntegerType())) {
-        if(lhsType.getValue().getType()== TypeSymbol.Type.UNIT||
-            rhsType.getValue().getType()== TypeSymbol.Type.UNIT){
-          warn(ERROR_CODE+"Addition/substraction of unit and primitive type. Assuming real at "+expr.get_SourcePositionStart());
-          //unit casts to real -> casts whole expression to real
-          expr.setType(Either.value(getRealType()));
-          return;
-        }else{ //both integer
-          expr.setType(Either.value(getIntegerType()));
-          return;
+      //Both are units, not matching -> tie break by using lhs, propagate IgnoreMagnitude, warn
+      if(isUnit(lhsType.getValue())&&isUnit(rhsType.getValue())){
+        final String errorMsg =ERROR_CODE+
+            "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
+            ". Assuming "+lhsType.getValue().prettyPrint();
+        UnitRepresentation rhsRep = new UnitRepresentation(rhsType.getValue().getName());
+        UnitRepresentation lhsRep = new UnitRepresentation(lhsType.getValue().getName());
+        if(rhsRep.isIgnoreMagnitude() || lhsRep.isIgnoreMagnitude()){
+          lhsRep.setIgnoreMagnitude(true);
         }
+        expr.setType(lhsType);
+        warn(errorMsg,expr.get_SourcePositionStart());
+        return;
+      }
+      //one is unit and one real/integer and vice versa -> assume unit and warn
+      if(isUnit(lhsType.getValue())&&isNumericPrimitive(rhsType.getValue())){
+        final String errorMsg =ERROR_CODE+
+            "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
+            ". Assuming "+lhsType.getValue().prettyPrint();
+        expr.setType(lhsType);
+        warn(errorMsg,expr.get_SourcePositionStart());
+        return;
+      }
+      if(isUnit(rhsType.getValue())&&isNumericPrimitive(lhsType.getValue())){
+        final String errorMsg =ERROR_CODE+
+            "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
+            ". Assuming "+rhsType.getValue().prettyPrint();
+        expr.setType(rhsType);
+        warn(errorMsg,expr.get_SourcePositionStart());
+        return;
       }
     }
 
@@ -114,8 +112,11 @@ public class LineOperatorVisitor implements CommonsVisitor{
       return;
     }
 
-    //if we get here, we are in an error state
+    //if we get here, we are in a general error state
+    final String errorMsg = ERROR_CODE+"Cannot determine the type of "+ (expr.isPlusOp()?"addition":"substraction")+" with types: " +
+        lhsType.getValue().prettyPrint()+ " and " + rhsType.getValue().prettyPrint();
     expr.setType(Either.error(errorMsg));
+    error(errorMsg,expr.get_SourcePositionStart());
     return;
   }
 }

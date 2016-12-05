@@ -9,15 +9,24 @@ import de.monticore.ast.ASTNode;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
+import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
+import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.utils.AstUtils.computeTypeName;
+import static org.nest.utils.AstUtils.getNameOfLHS;
+
+import java.util.Optional;
 
 /**
  * Check that the type of the loop variable is an integer.
@@ -34,7 +43,39 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTAssignment node) {
-    // TODO
+    checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
+
+    //collect lhs information
+    final String variableName = node.getLhsVarialbe().getName().toString();
+    final Optional<VariableSymbol> lhsVariable = node.getEnclosingScope().get().resolve(
+        variableName,
+        VariableSymbol.KIND);
+    final TypeSymbol variableType = lhsVariable.get().getType();
+
+    //collect rhs information
+
+    final Either<TypeSymbol,String> expressionType = node.getExpr().getType();
+    if(expressionType.isValue()){
+
+      if (!isCompatible(variableType,expressionType.getValue())) {
+        final String msg = SplErrorStrings.messageAssignment(
+            this,
+            variableName,
+            variableType.prettyPrint(),
+            expressionType.getValue().prettyPrint(),
+            node.get_SourcePositionStart());
+        if(isReal(variableType)&&isUnit(expressionType.getValue())){
+          //TODO put in string class when I inevitably refactor it.
+          warn("SPL_ILLEGAL_EXPRESSION: Implicit casting from "+expressionType.getValue().prettyPrint()+" to real");
+        }else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
+          warn(msg, node.get_SourcePositionStart());
+        }
+        else {
+          error(msg, node.get_SourcePositionStart());
+        }
+
+      }
+    }
   }
 
   @Override
@@ -61,8 +102,10 @@ public class IllegalExpression implements
             variableDeclarationType.prettyPrint(),
             initializerExpressionType.getValue().prettyPrint(),
             node.get_SourcePositionStart());
-          if (variableDeclarationType.getType().equals(TypeSymbol.Type.UNIT) &&
-              initializerExpressionType.getValue().getType().equals(TypeSymbol.Type.UNIT)) {
+          if(isReal(variableDeclarationType)&&isUnit(initializerExpressionType.getValue())){
+            //TODO put in string class when I inevitably refactor it.
+            warn("SPL_ILLEGAL_EXPRESSION: Implicit casting from "+initializerExpressionType.getValue().prettyPrint()+" to real");
+          }else if (isUnit(variableDeclarationType)){ //assignee is unit -> drop warning not error
             warn(msg, node.get_SourcePositionStart());
           }
           else {
@@ -71,10 +114,6 @@ public class IllegalExpression implements
 
         }
 
-      }
-      else {
-        final String errorDescription = "Error hint: " + initializerExpressionType.getError();
-        undefinedTypeError(node, errorDescription);
       }
 
     }
@@ -92,11 +131,6 @@ public class IllegalExpression implements
           exprType.getValue().prettyPrint(),
           node.get_SourcePositionStart());
       error(msg, node.get_SourcePositionStart());
-    }
-
-    if (exprType.isError()) {
-      final String errorDescription = exprType.getError() + ". Problem with the expression: " + AstUtils.toString(node.getExpr());
-      undefinedTypeError(node, errorDescription);
     }
 
   }
@@ -119,12 +153,6 @@ public class IllegalExpression implements
 
     }
 
-    if (exprType.isError()) {
-      final String errorDescription = exprType.getError() +
-                                      ". Problem with the expression: " + AstUtils.toString(node.getExpr());
-      undefinedTypeError(node, errorDescription);
-    }
-
   }
 
   @Override
@@ -138,11 +166,6 @@ public class IllegalExpression implements
 
     }
 
-  }
-
-  private void undefinedTypeError(final ASTNode node, final String reason) {
-    final String msg = SplErrorStrings.messageInvalidExpression(this, reason, node.get_SourcePositionStart());
-    error(msg, node.get_SourcePositionStart());
   }
 
 }

@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NestmlCoCosManager;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,10 +35,10 @@ public class UnitsTest extends ModelbasedTest {
   }
 
   @Test
-  public void test_unit_errors_produce_warnings() {
+  public void test_unit_assignments(){
     final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "src/test/resources/org/nest/units/validExpressions.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/assignmentTest/validAssignments.nestml", TEST_MODEL_PATH);
 
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
@@ -49,19 +50,80 @@ public class UnitsTest extends ModelbasedTest {
         .count();
 
     assertEquals(0, errorsFound);
-    final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
-        "src/test/resources/org/nest/units/invalidExpressions.nestml", TEST_MODEL_PATH);
 
-    assertTrue(invalidRoot.isPresent());
-    scopeCreator.runSymbolTableCreator(invalidRoot.get());
-    findings = completeChecker.analyzeModel(invalidRoot.get());
-
-    errorsFound = findings
+    long warningsFound = findings
         .stream()
         .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
         .count();
 
-    assertEquals(21, errorsFound);
+    assertEquals(0, warningsFound);
+
+    final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
+        "src/test/resources/org/nest/units/assignmentTest/invalidAssignments.nestml", TEST_MODEL_PATH);
+
+    assertTrue(invalidRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(invalidRoot.get());
+
+    findings = completeChecker.analyzeModel(invalidRoot.get());
+    errorsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+        .count();
+
+    assertEquals(1, errorsFound);
+
+    warningsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
+        .count();
+
+    assertEquals(4, warningsFound);
+  }
+
+  @Test
+  public void test_unit_expressions(){
+    final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
+    final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
+        "src/test/resources/org/nest/units/expressionTest/validExpressions.nestml", TEST_MODEL_PATH);
+
+    assertTrue(validRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(validRoot.get());
+
+    List<Finding> findings = completeChecker.analyzeModel(validRoot.get());
+    long errorsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+        .count();
+
+    assertEquals(0, errorsFound);
+
+    long warningsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
+        .count();
+
+    assertEquals(0, warningsFound);
+
+    final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
+        "src/test/resources/org/nest/units/expressionTest/invalidExpressions.nestml", TEST_MODEL_PATH);
+
+    assertTrue(invalidRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(invalidRoot.get());
+
+    findings = completeChecker.analyzeModel(invalidRoot.get());
+    errorsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+        .count();
+
+    assertEquals(20, errorsFound);
+
+    warningsFound = findings
+        .stream()
+        .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
+        .count();
+
+    assertEquals(15, warningsFound);
   }
 
   @Test
