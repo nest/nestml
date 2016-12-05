@@ -94,38 +94,47 @@ type of the event has to be given in the `output` block.
 Currenly only spike output is supported.
 
 
-## Predefined functions, variables and keywords
+## Synaptic input
 
- `curr_sum` is a function that has two arguments. The first is a `shape` function (see Equations) or a function that is defined by an ODE plus initial values (see ODEs) $I$ of `t`. The second is a `spike` input buffer. Curr_sum takes every weight in the spike buffer and multiplies it with the `shape` function I_{\text{shape}} shifted by it's respective spike time $t_i$. I.e.
+NESTML has two dedicated functions to ease the summation of synaptic input.
 
-$\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$.
- 
-When modeling post synaptic responses with delta functions, `curr_sum` is called with the keyword  `delta` as first argument instead of the `shape` function.
+`curr_sum` is a function that has two arguments. The first is a function *I* of *t* which is either a `shape` function (see [Equations](#equations)) or a function that is defined by an ODE plus initial values (see [Systems of ODEs](#systems-of-odes)). The second is a `spike` input buffer (see [Synaptic input](#synaptic-input)). `curr_sum` takes every weight in the `spike` buffer and multiplies it with the `shape` function *I*<sub>shape</sub> shifted by it's respective spike time *t<sub>i</sub>*. I.e.
 
- `cond_sum` does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases. It is recomended to use it, when the sum 
+<!--- $\large \sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{shape}}(t-t_i)\sum_{w\in\text{spikeweights}} w$ --->
+![equation](https://latex.codecogs.com/svg.latex?%5Clarge%20%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D(t-t_i)%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%20I_%7B%5Ctext%7Bshape%7D%7D(t-t_i)%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w).
 
-$\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{alpha}}(t-t_i)=\sum_{t_i\le t, i\in\mathbb{N}} I_{\text{alpha}}(t-t_i)\sum_{w\in\text{spikeweights}} w$.
+When the sum above is used to decribe conductances instead of currents, the function `cond_sum` can be used. It does exactly the same as `curr_sum` and can be used in exactly the same way and in the same cases, but makes explicit that the neural dynamics are based on synaptic conductances rather than currents.
 
-is used to decribe conductances instead of currents.
+For modeling post synaptic responses with delta functions, `curr_sum` and `cond_sum` can be called with the keyword  `delta` as first argument instead of the `shape` function.
 
+## Handling of time
 
  `resolution`
  `steps`
 
 ## Equations
-'
-A `shape` should be a function of  `t` (which represents the current time of the system), that represents the shape of a postsynaptic response, i.e. the function I_{\text{shape}} (t) with which incoming spike weights $w$ are multiplied to compose the synaptic input $I_{\text{syn}}$: $I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i).
 
+### Synaptic response
 
-Systems of ODEs:
+A `shape` should be a function of *t* (which represents the current time of the system), that represents the shape of a postsynaptic response, i.e. the function *I*<sub>shape</sub>(*t*) with which incoming spike weights *w* are multiplied to compose the synaptic input *I*<sub>syn</sub>:
 
-In the `equations` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order. 
-When using a derivative of a variable, say $V$, one must write: $V'$. It is then assumed that $V'$ is the first time derivate of $V$. The second time derivative of $V$ is $V''$, and so on. 
-If an equation contains a derivative of order $n$, for example $V^{(n)}$, all initial Values of $V$ up to order $n-1$ must me defined in the `state` block. For example, one could state
-V'=a*V
+<!--- $\large I_{\text{syn}}=\sum_{t_i\le t, i\in\mathbb{N}}\sum_{w\in\text{spikeweights}} w I_{\text{shape}}(t-t_i)$ --->
+![equation](https://latex.codecogs.com/svg.latex?%5Clarge%20I_%7B%5Ctext%7Bsyn%7D%7D%3D%5Csum_%7Bt_i%5Cle%20t%2C%20i%5Cin%5Cmathbb%7BN%7D%7D%5Csum_%7Bw%5Cin%5Ctext%7Bspikeweights%7D%7D%20w%20I_%7B%5Ctext%7Bshape%7D%7D(t-t_i)).
+
+### Systems of ODEs
+
+In the `equations` block one can define a system of differential equations with an arbitrary amount of equations that contain derivatives of arbitrary order.
+When using a derivative of a variable, say *V*, one must write: *V*'. It is then assumed that *V*' is the first time derivate of *V*. The second time derivative of *V* is *V*'', and so on.
+If an equation contains a derivative of order *n*, for example *V*<sup>(*n*)</sup>, all initial values of *V* up to order *n*-1 must me defined in the `state` block. For example, one could state
+```
+V' = a * V
+```
 in the `equations` block, but would also have to state
-V mV=0 mV
-in the `state` block. If the initial values are not defined in  `state` it is assumed that they are zero and unit checks are no longer possible.
+```
+V mV = 0mV
+```
+in the `state` block. If the initial values are not defined in `state` it is assumed that they are zero and unit checks are no longer possible.
+
 
   access to spike and current buffers
 
@@ -162,7 +171,3 @@ in the `state` block. If the initial values are not defined in  `state` it is as
 ## Guards
 
 ## Comments and documentation
-
-
-
-
