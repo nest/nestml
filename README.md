@@ -59,7 +59,11 @@ To actually convert your model files written in NESTML to NEST C++, you have to 
 ./nestml_docker.sh run <models>
 ```
 
-This run creates a subfolder `build` in the `<models>` directory that contains the generated code and all infrastructure and source files for an extension module for NESTML, which can be dynamically loaded. The module will have the same name as the folder in which you stored the `.nestml` files. In order to compile and install the module, use the following commands:
+This run creates a subfolder `build` in the `<models>` directory that contains the generated code and all infrastructure and source files for an extension module for NESTML, which can be dynamically loaded. The module will have the same name as the folder in which you stored the `.nestml` files.
+
+As an example, let's consider the folder `<nestml_clone>/models` that contains all models bundled with NESTML. Among others, it contains the files `aeif_cond_alpha.nestml` and `hh_psc_alpha.nestml`. The resulting module will be called `models`.
+
+In order to compile the module and install it into the NEST installation directory, you have to use the following commands:
 ```
 cd <models>/build
 cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
@@ -68,3 +72,11 @@ make install
 ```
 
 Again, if everything goes well, you can now use the generated module in your SLI and PyNEST scripts by using the corresponding version of the `Install` command. For SLI the invocation looks like this: `(<models>) Install`, for PyNEST it reads `nest.Install("<models>")`. After loading the module, the contained models can be instantiated just as the built-in models using the `Create` command in SLI and PyNEST, respectively.
+
+With the previous example, this results in a module called `models`, which can be loaded by NEST and gives access to (among others) the two afforementioned neuron models:
+
+```
+nest.Install("models")
+aeif_cond_alpha = nest.Create("aeif_cond_alpha")
+hh_psc_alpha = nest.Create("hh_psc_alpha")
+```
