@@ -43,19 +43,19 @@ As NESTML has quite some dependencies, which makes it a bit complicated to insta
 The container can be provisioned (created) by changing to the `docker` directory of your clone of the `nestml` Git repository and running
 
 ```
-./nestml_container.sh provision
+./nestml_docker.sh provision
 ```
 
-This will download all required packages and libraries and create a container that uses the pre-built version of the [latest release of NESTML](https://github.com/nest/nestml/releases). If you are interested in using the bleeding edge version of NESTML (a.k.a. Git master), you can add the argument `--dev` to the invocation of the `./nestml_container.sh` script.
+This will download all required packages and libraries and create a container that uses the pre-built version of the [latest release of NESTML](https://github.com/nest/nestml/releases). If you are interested in using the bleeding edge version of NESTML (a.k.a. Git master), you can add the argument `--dev` to the invocation of the `./nestml_docker.sh` script.
 
 If everything goes well, the list printed by the command 'docker images' should now contain the 'nestml_release' container. If you experience an error, please [open an issue](https://github.com/nest/nestml/issues) so we can look into and fix it.
 
 ### Running
 
-To actually convert your model files written in NESTML to NEST C++, you have to run the Docker container. This is again done using the `nestml_container.sh` script, which for this purpos gets the command `run` as first argument and one or more folders containing one or more `.nestml` files (the folder is called `<models>` in the following description):
+To actually convert your model files written in NESTML to NEST C++, you have to run the Docker container. This is again done using the `nestml_docker.sh` script, which for this purpos gets the command `run` as first argument and one or more folders containing one or more `.nestml` files (the folder is called `<models>` in the following description):
 
 ```
-./nestml_container.sh run <models>
+./nestml_docker.sh run <models>
 ```
 
 This run creates a subfolder `build` in the `<models>` directory that contains the generated code and all infrastructure and source files for an extension module for NESTML, which can be dynamically loaded. The module will have the same name as the folder in which you stored the `.nestml` files. In order to compile and install the module, use the following commands:
