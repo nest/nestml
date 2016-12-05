@@ -14,31 +14,36 @@ an exact solution if possible or use an appropriate numeric solver otherwise.
 
 `src` - The source code of NESTML
 
-## Docker
-The docker files can be find in the `docker` folder.
+## Running NESTML using Docker
 
-For the usage:
-Docker must be installed on the machine. See the follwing resource for the installation instructions https://docs.docker.com/engine/installation
+NESTML has quite some dependencies, which makes it a bit complicated to install and run it. To lower the burden, we have created a [Docker](https://www.docker.com/) container for you. The `Dockerfile`s and corresponding helper scripts can be found in the `docker` folder. In order to use this method, you have to have Docker installed on your machine. Please refer to the [installation instructions](https://docs.docker.com/engine/installation) or use the packages from your Linux distribution's software manager.
 
-The Dockerfile, e.g. DockerfileRelease, should  be stored in a new folder (e.g. nestml_docker). Then be executing the following command in terminal from this folder the docker container can be built:
-```
-(precondition: cd nestml_docker)
-docker build -t nestml_release -f ./DockerfileRelease .
-```
-If everything goes well, then command 'docker images' container should list a 'nestml_release' container.
+### Provisioning
 
-Currently, the container is built in the way, that is automatically processes a volume that is mounted at start up. E.g. a NESTML model (https://github.com/nest/nestml/blob/master/models/iaf_cond_alpha_implicit.nestml) can be placed into a folder called 'testing'. Then, the following command will execute model analysis and codegeneration for NEST target (currently, only the NEST master is supported, for earlier version use releases prio 0.1.0):
+The container can be provisioned (created) by changing to the `docker` directory of your clone of the `nestml` Git repository and running
+
 ```
-docker run -v ~/testing/:/nestml nestml_release
+./nestml_container.sh provision
 ```
 
-It creates a subfolder 'result' in the 'testing' folder that contains the generated code. Per default, the module for the generated stuff is called 'nestml'. In order to integrate the model into nest, use the following commands (assumption, you switched to the 'testing/result'):
+This will download all required packages and libraries and create a container that uses the pre-built version of the [latest release of NESTML](https://github.com/nest/nestml/releases). If you are interested in using the bleeding edge version of NESTML (a.k.a. Git master), you can add the argument `--dev` to the invocation of the `./nestml_container.sh` script.
+
+If everything goes well, the list printed by the command 'docker images' should now contain the 'nestml_release' container. If you experience an error, please [open an issue](https://github.com/nest/nestml/issues) so we can look into and fix it.
+
+### Running
+
+To actually convert your model files written in NESTML to NEST C++, you have to run the Docker container. This is again done using the `nestml_container.sh` script, which this time expects the command `run` and a folder containing one or more `.nestml` files (called `<models>` in the following description):
+
 ```
-cmake -Dwith-nest=${NEST_INSTALL_DIR}/bin/nest-config .
+./nestml_container.sh run <models>
+```
+
+This run creates a subfolder `build` in the `<models>` directory that contains the generated code and an extension module for NESTML, which can be dynamically loaded. The module will have the same name as the folder in which you stored the `.nestml` files. In order to compile and install the module, use the following commands:
+```
+cd <models>/build
+cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
+make all
 make install
 ```
-Again, if everything goes well, you can use the generated model in NEST and PyNEST Scripts. E.g.
-```
-nest.Install("nestml")
-neuron1=nest.Create ("iaf_cond_alpha_implicit")
-```
+
+Again, if everything goes well, you can now use the generated module in your SLI and PyNEST scripts by using the `Install` command. For SLI the invocation looks like this: `(<models>) Install`, for PyNEST it reads `nest.Install("<models>")`. After loading the module, the contained models can be instantiated just as the built-in models using the `Create` command in SLI and PyNEST, respectively.
