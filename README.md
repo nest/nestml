@@ -32,13 +32,13 @@ If everything goes well, the list printed by the command 'docker images' should 
 
 ### Running
 
-To actually convert your model files written in NESTML to NEST C++, you have to run the Docker container. This is again done using the `nestml_container.sh` script, which this time expects the command `run` and a folder containing one or more `.nestml` files (called `<models>` in the following description):
+To actually convert your model files written in NESTML to NEST C++, you have to run the Docker container. This is again done using the `nestml_container.sh` script, which for this purpos gets the command `run` as first argument and one or more folders containing one or more `.nestml` files (the folder is called `<models>` in the following description):
 
 ```
 ./nestml_container.sh run <models>
 ```
 
-This run creates a subfolder `build` in the `<models>` directory that contains the generated code and an extension module for NESTML, which can be dynamically loaded. The module will have the same name as the folder in which you stored the `.nestml` files. In order to compile and install the module, use the following commands:
+This run creates a subfolder `build` in the `<models>` directory that contains the generated code and all infrastructure and source files for an extension module for NESTML, which can be dynamically loaded. The module will have the same name as the folder in which you stored the `.nestml` files. In order to compile and install the module, use the following commands:
 ```
 cd <models>/build
 cmake -Dwith-nest=<nest_install_dir>/bin/nest-config .
@@ -46,4 +46,4 @@ make all
 make install
 ```
 
-Again, if everything goes well, you can now use the generated module in your SLI and PyNEST scripts by using the `Install` command. For SLI the invocation looks like this: `(<models>) Install`, for PyNEST it reads `nest.Install("<models>")`. After loading the module, the contained models can be instantiated just as the built-in models using the `Create` command in SLI and PyNEST, respectively.
+Again, if everything goes well, you can now use the generated module in your SLI and PyNEST scripts by using the corresponding version of the `Install` command. For SLI the invocation looks like this: `(<models>) Install`, for PyNEST it reads `nest.Install("<models>")`. After loading the module, the contained models can be instantiated just as the built-in models using the `Create` command in SLI and PyNEST, respectively.
