@@ -9,16 +9,16 @@ NESTML files are expected to have the filename extension
 `.nestml`. There is no connection between model and file name. Each
 file may contain one or more neuron models. Models that shall be compiled
 into one extension module for NEST have to reside in the same
-directory. The name of the model corresponds to the name of the folder.
+directory. The name of the module corresponds to the name of the folder.
 
 In order to give the users of NESTML complete in implementing neuron's dynamics
 freedom, we provide a full programming language. This programming language
-is used in the update block and function block. It provides the following features:
+is used in the `update`-block and `function`-block. It provides the following features:
 
 ### Data types and physical units
 Data types define types of variables, function's parameters and
 return values of functions. NESTML provides the following primitive types
-and physical data types.
+and physical data types:
 #### Primitive data types
 * `real`: corresponds to the `double` data type in C++. Its literals are: 42.0,
 -0.42, .44
@@ -31,7 +31,7 @@ It can be used to identify a function without the return value.
 
 #### Physical units
 A physical unit in NESTML can be either a simple physical unit or a complex
-physical unit. A simple physical unit is composed of a optional magnitude prefix
+physical unit. A simple physical unit is composed of an optional magnitude prefix
 and the name of the unit.
 
 The following table present seven base units, which can be used to specify any
@@ -75,18 +75,19 @@ Units can have at most one of the following magnitude prefixes:
 |$10^{-24}$ | yocto | y | $10^{24}$ | yotta | Y |
 
 Finally, simple physical units can be combined to complex units. For this,
-multiplication (\*)-, division(\)- and power(\*\*)-operators can be used.
+parenthesis(`()`) , multiplication (\*)-, division(\)- and power(\*\*)-operators
+can be used.
 ```
 mV*mV*nS**2/(mS*pA)
 ```
-There is a special cases for the expressions of the form `physical_unit ** -1`.
+There are special cases for the expressions of the form `physical_unit ** -1`.
 It can be expressed as `1\physical_unit`
 ```
 (ms*mV)**-1 is equivalent to 1/(ms*mV)
 ```
 
 #### Physical unit literals
-* Simple unit literals are composed of a number with the type name (with or without a whitespace).
+Simple unit literals are composed of a number with the type name (with or without a whitespace).
 Complex unit literals are composed of a number and type inside of square brackets.
 Also simple units can be put inside of square brackets.  
 
@@ -100,7 +101,7 @@ b mV/ms = 1[mV/ms]
 ```
 #### Type and unit checks
 NESTML checks type correctness of all expressions. For assignments, declarations
-with an initialization and function calls type conformity is checked also.
+with an initialization and function calls the type conformity is checked also.
 NESTML supports conversion of an `integer` to `real`. Also
 conversion between `unit`-typed and `real`-typed variables is possible. However,
 these conversions are reported as warnings. Finally, there is no conversion
@@ -112,16 +113,18 @@ Basic elements are: declarations, assignments, function calls and return stateme
 ---------------------------------------------
 Declarations are composed of a non empty list of comma separated names. A
 valid name starts with a letter or underscore or dollar character. Further it
-can contain arbitrary number of letters, numbers and underscores.
+can contain arbitrary number of letters, numbers, underscores, and dollar characters.
 Formally, a valid name satisfies the following regular expression:
 ` ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*`.
-A type is any of the valid NESTML types. The type of the initialization expression
+Also names of functions and input ports must satisfy this pattern.
+The type of the declaration is any valid NESTML type. The type of the initialization expression
 must be compatible to the type of the declaration.
 ```
 <list_of_comma_separated_names> <type> (= initialization_expression)?
 
 a, b, c real = -0.42
 d integer = 1
+n integer # default value is 0
 e string = "Bob"
 f mV   = -2e12mV
 ```
@@ -138,7 +141,7 @@ which is compatible to the lefthand side. E.g. for a numeric variable `n`:
 
 
 
-#### Function call
+#### Function calls
 ---------------------------------------------
 A function call is composed of the function name and the list of required
 parameters.
@@ -292,7 +295,7 @@ All variables, literals, and function calls are valid terms. Variables are names
 user defined or predefined variables (`t, e`)
 
 #### List of operators
-For any two valid numeric expressions `a, b`, a boolean expression `c`, and an
+For any two valid numeric expressions `a, b`, a boolean expressions `c,c1,c2`, and an
 integer expression `n` the following operators produce valid expressions.
 
 | Operator | Description | Examples |
@@ -305,7 +308,7 @@ integer expression `n` the following operators produce valid expressions.
 |<<, >>| & Left and right bit shifts |a << n, a >> n|
 |&, &#124;,^ | Bitwise `and`, `or` and `xor` | a&b, a&#124;b, a~b |
 |<, <=, ==, !=, >=, >|  Comparison operators |a <= b, a != b|
-|not, and, or| & Logical conjunction, disjunction and negation |not b, b or b|
+|not, and, or| & Logical conjunction, disjunction and negation |not c, c1 or c2|
 |?:| The ternary logical operator |c?a:b|
 
 ## Blocks
@@ -331,14 +334,14 @@ end
   `<name>`. The content will be translated into a single neuron model
   that can be instantiated in NEST using `nest.Create(<name>)`. This
   is the top-level block of a model specification and all following
-  blocks are contained in this block. The block terminates with the `end` keyword.
+  blocks are contained in this block. The block is closed with the `end` keyword.
 
 `parameters:`
 :  This block is composed of a list with variable declarations. This block is
 supposed to contain variables
 which remain constant during the concrete simulation, but they can vary among
 different simulations or instantiations neuron of the same neuron. The block
-terminates with the `end` keyword.
+is closed with the `end` keyword.
 
 `state:`
 : This block is composed of a list with variable declarations. These variables are supposed to
@@ -349,11 +352,11 @@ differential equations. The block terminates with the `end` keyword.
 :  This block is composed of a list with variable declarations. These variables
 are supposed to be constant during the simulation run. Therefore, its initialization
 expression can only reference parameter- or another internal-variables. The block
-terminates with the `end` keyword.
+is closed with the `end` keyword.
 
 `equations:`
 : This block is composed of shape definitions and differential equations. In will
-be explained in further details later in the manual. The block terminates with
+be explained in further details later in the manual. The block is closed with
 the `end` keyword.
 
 `input:`
@@ -362,7 +365,7 @@ be explained in further details later in the manual. The block terminates with t
 
 `output:`
 : Defines which kinds of events the neuron can fire. Currently, only `spike` is
-supported. No `end` is necessary.
+supported. No `end` is necessary at the end of the block.
 ```
 output: spike
 ```
@@ -370,7 +373,7 @@ output: spike
 : Inside the block arbitrary code in the introduced programming language can be
 implemented. The block terminates with the `end` keyword.
 
-`function *`<name>`*([<list_of_arguments>]) <return_type>?:`
+`function <name> ([<list_of_arguments>]) <return_type>?:`
 : `function ([<args>]`.
 The function has an unique name and a list of arguments between round brackets.
 Inside the block arbitrary code in the introduced
@@ -481,7 +484,8 @@ end
 ## Setting and retrieving model properties
 
   * Everything in `state` and `parameters` is added to the status dict.
-  * All values can be set and read `nest.SetStatus(n, {var_name:var_value})`
+  * All values can be set and read `nest.SetStatus(n, {var_name:var_value})`.
+  `var_name` is the name of the corresponding NESTML variable name.
 
 ## Recording values with devices
 
