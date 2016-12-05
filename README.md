@@ -40,9 +40,10 @@ As NESTML has quite some dependencies, which makes it a bit complicated to insta
 
 ### Provisioning
 
-The container can be provisioned (created) by changing to the `docker` directory of your clone of the `nestml` Git repository and running
+The container can be provisioned (created) by first changing to the `docker` directory of your clone of the `nestml` Git repository and then running the `nestml_docker.sh` script:
 
 ```
+cd <nestml_clone>/docker
 ./nestml_docker.sh provision
 ```
 
