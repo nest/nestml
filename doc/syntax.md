@@ -1,8 +1,6 @@
 # NESTML language documentation
-
-NESTML has a concise syntax that avoids clutter in the form of
-semicolons, curly braces or tags as known from other programming, description
-and markup languages. Instead it concentrates on the domain concepts
+NESTML is a domain specific language which has a concise  syntax that avoids clutter in the form of
+semicolons, curly braces or tags as known from other programming and description languages. Instead it concentrates on the domain concepts
 needed to efficiently write down neuron models and their equations.
 
 NESTML files are expected to have the filename extension
@@ -419,7 +417,7 @@ that receives as well positively weighted spikes as well as negatively weighted 
 port is an `excitatory` port. In that case, spikes are routed based on their
 weight. Positively weighted spikes go to the `excitatory` port, negatively weighted
 spikes go to the `inhibitory` port. In that case both ports are mandatory.
-* There are more the one `spike` or `current` port. In that case, a multisynapse
+* There is more then one `spike` or `current` port. In that case, a multisynapse
 neuron is created. The `receptor_types` entry is created in the status dict. It maps
 port names to its port indexes in NEST.
 ### Output
