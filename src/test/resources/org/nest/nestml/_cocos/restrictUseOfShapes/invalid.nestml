@@ -9,10 +9,6 @@ neuron invalidShapes:
       currents <- current
   end
 
-  function foo(amp A, ohm Ohm) V:  
-    return amp*ohm             
-  end
-
   parameters:    
   end
 

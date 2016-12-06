@@ -94,6 +94,8 @@ public class NestmlCoCosTest {
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
 
     nestmlCoCoChecker.checkAll(invalidRoot.get());
+    errorsFound = countErrorsByPrefix(RestrictUseOfShapes.ERROR_CODE, getFindings());
+    assertEquals(Integer.valueOf(5), errorsFound);
   }
 
   @Test
