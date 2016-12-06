@@ -160,7 +160,7 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = errorDescription;
 
-    return code(coco) + ": " + ERROR_MSG_FORMAT;
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -191,7 +191,7 @@ public class SplErrorStrings {
       final SourcePosition sourcePosition){
 
     final String ERROR_MSG_FORMAT = "The function '%s' with the signature '%s' is not defined.";
-    return code(coco) + ": " +
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
            String.format(ERROR_MSG_FORMAT, functionName, signature.isEmpty()?"()":signature);
   }
 

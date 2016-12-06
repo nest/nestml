@@ -1,0 +1,27 @@
+neuron validODETest:
+  state:
+    Distance km
+    DeltaTime s
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  parameters:    
+  end
+
+  output: spike
+
+  equations:
+    Distance' = Distance / DeltaTime
+  end
+
+  internals:
+  end
+
+  update:
+  end
+end

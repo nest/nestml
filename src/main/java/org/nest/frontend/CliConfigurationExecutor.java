@@ -90,6 +90,7 @@ public class CliConfigurationExecutor {
               FilenameUtils.removeExtension(modelFile.getFileName().toString()),
               "The artifact is unparsable: " + errorMsg,
               Reporter.Level.ERROR);
+          Log.getFindings().clear();
           isError = true;
         }
 

@@ -78,23 +78,11 @@ public class NestmlErrorStrings {
     return "NESTML_COMPONENT_WITHOUT_OUTPUT";
   }
 
-  String getErrorMsgAssignment(LiteralsHaveTypes coco){
-    return LiteralsHaveTypes.ERROR_CODE + ": Assignment of a literal to a UNIT type variable must carry a Unit Symbol";
+  String getErrorMsg(UnitDeclarationOnlyOnesAllowed coco){
+    return UnitDeclarationOnlyOnesAllowed.ERROR_CODE + ": Literals in Unit types may only be \"1\" (one) ";
   }
 
-  String getErrorMsgReturn(LiteralsHaveTypes coco){
-    return LiteralsHaveTypes.ERROR_CODE + ": Return statement must specify unit type";
-  }
-
-  public String getErrorMsgConditional(LiteralsHaveTypes coco) {
-    return LiteralsHaveTypes.ERROR_CODE + ": Literals without a UNIT type cannot be compared to a UNIT type variable.";
-  }
-
-  String getErrorMsgCall(LiteralsHaveTypes coco){
-    return LiteralsHaveTypes.ERROR_CODE + ": Parameters to function calls must specify the correct unit type";
-  }
-
-  String getErrorMsg(AliasHasDefiningExpression coco) {
+    String getErrorMsg(AliasHasDefiningExpression coco) {
     return AliasHasDefiningExpression.ERROR_CODE + ":" + "'alias' must be defined through an expression.";
   }
 

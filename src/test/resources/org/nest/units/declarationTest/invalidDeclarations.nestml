@@ -1,0 +1,23 @@
+neuron invalidDeclarationTest:
+  state:
+    LiteralNumerator 2/ms               #Warning: UnitLessLiteral must be '1'
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  parameters:
+    
+  end
+
+  output: spike
+
+  internals:
+  end
+
+  update:
+  end
+end
