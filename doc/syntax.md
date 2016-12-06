@@ -1,18 +1,18 @@
 # NESTML language documentation
 
 NESTML has a concise syntax that avoids clutter in the form of
-semicolons, curly braces or tags as known from other programming or
-markup languages. Instead it concentrates on the domain concepts
+semicolons, curly braces or tags as known from other programming, description
+and markup languages. Instead it concentrates on the domain concepts
 needed to efficiently write down neuron models and their equations.
 
 NESTML files are expected to have the filename extension
-`.nestml`. There is no connection between model and file name. Each
-file may contain one or more neuron models. Models that shall be compiled
+`.nestml`. Each file may contain one or more neuron models.
+There is no direct corresponds between model and file name. Models that shall be compiled
 into one extension module for NEST have to reside in the same
 directory. The name of the module corresponds to the name of the folder.
 
-In order to give the users of NESTML complete in implementing neuron's dynamics
-freedom, we provide a full programming language. This programming language
+In order to give the users of NESTML complete freedom in implementing neuron's dynamics,
+we provide a full programming language. This programming language
 is used in the `update`-block and `function`-block. It provides the following features:
 
 ### Data types and physical units
@@ -22,7 +22,7 @@ and physical data types:
 #### Primitive data types
 * `real`: corresponds to the `double` data type in C++. Its literals are: 42.0,
 -0.42, .44
-* `integer`: corresponds to the `int` data type in C++. Its literals are: 42, -7
+* `integer`: corresponds to the `long` data type in C++. Its literals are: 42, -7
 * `boolean`: corresponds to the `bool` data type in C++. Its literals only are:
 `true`, `false`
 * `string`: String data type. Its literals are: "Bob", ""
@@ -34,11 +34,11 @@ A physical unit in NESTML can be either a simple physical unit or a complex
 physical unit. A simple physical unit is composed of an optional magnitude prefix
 and the name of the unit.
 
-The following table present seven base units, which can be used to specify any
-physical unit. This idea is based on the Le Système internationale d’unités.
+The following table lists seven base units, which can be used to specify any
+physical unit. This idea is based on the "Le Système internationale d’unités"
+(https://en.wikipedia.org/wiki/International_System_of_Units).
 
 |Quantity | SI Symbol | SI Name | NESTML Name|
-|-|-|-| - |
 | length | L | metre  | m |
 | mass | M | kilogram | kg |
 | time | T | second | s |
@@ -49,7 +49,7 @@ physical unit. This idea is based on the Le Système internationale d’unités.
 
 All remaining physical units are called derived units. Theoretically, any physical
 unit can be expressed as a combination of these seven
-units. In order to support convenience in modeling, NESTML provides following
+units. In order to ease modeling, NESTML provides following
 derived units as built-in data types:
 
 | | | | |
@@ -75,7 +75,7 @@ Units can have at most one of the following magnitude prefixes:
 |$10^{-24}$ | yocto | y | $10^{24}$ | yotta | Y |
 
 Finally, simple physical units can be combined to complex units. For this,
-parenthesis(`()`) , multiplication (\*)-, division(\)- and power(\*\*)-operators
+parenthesis(`()`) , multiplication (`*`)-, division(`/`)- and power(`**`)-operators
 can be used.
 ```
 mV*mV*nS**2/(mS*pA)
@@ -101,7 +101,7 @@ b mV/ms = 1[mV/ms]
 ```
 #### Type and unit checks
 NESTML checks type correctness of all expressions. For assignments, declarations
-with an initialization and function calls the type conformity is checked also.
+with an initialization and function calls the type conformity is also checked.
 NESTML supports conversion of an `integer` to `real`. Also
 conversion between `unit`-typed and `real`-typed variables is possible. However,
 these conversions are reported as warnings. Finally, there is no conversion
@@ -112,13 +112,13 @@ Basic elements are: declarations, assignments, function calls and return stateme
 #### Declarations
 ---------------------------------------------
 Declarations are composed of a non empty list of comma separated names. A
-valid name starts with a letter or underscore or dollar character. Further it
-can contain arbitrary number of letters, numbers, underscores, and dollar characters.
+valid name starts with a letter or underscore or dollar character. Furthermore, it
+can contain an arbitrary number of letters, numbers, underscores, and dollar characters.
 Formally, a valid name satisfies the following regular expression:
 ` ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*`.
-Also names of functions and input ports must satisfy this pattern.
+Names of functions and input ports must also satisfy this pattern.
 The type of the declaration is any valid NESTML type. The type of the initialization expression
-must be compatible to the type of the declaration.
+must be compatible with the type of the declaration.
 ```
 <list_of_comma_separated_names> <type> (= initialization_expression)?
 
@@ -133,11 +133,11 @@ f mV   = -2e12mV
 NESTML supports simple or compound assignments. The lefthand side of the assignments
 is always a variable. The righthand side can be an arbitrary expression of a type
 which is compatible to the lefthand side. E.g. for a numeric variable `n`:
-* simple assignment: ```n = 10```
-* compound sum: ```n += 10 corresponds to n = n + 10```
-* compound minus: ```n -= 10 corresponds to n = n - 10```
-* compound product: ```n *= 10 corresponds to n = n * 10```
-* compound quotient: ```n /= 10 corresponds to n = n - 10```
+* simple assignment: `n = 10```
+* compound sum: `n += 10 corresponds to n = n + 10`
+* compound minus: `n -= 10 corresponds to n = n - 10`
+* compound product: `n *= 10 corresponds to n = n * 10`
+* compound quotient: `n /= 10 corresponds to n = n - 10`
 
 
 
@@ -151,7 +151,7 @@ parameters.
 
 max(a*2, b/2)
 ```
-##### Predefined Functions
+##### Predefined functions
 ---------------------------------------------
 | | | | |
 |-|-|-| - |
@@ -176,9 +176,11 @@ NESTML supports loop- and conditional control-structures.
 ---------------------------------------------
 The following while and for loops are possible.
 
+The `while` loop is composed of a `while` keyword followed by a boolean condition
+and a colon. It is closed with `end` keyword.
 ```
 while <boolean_expression>:
-  <Statements>
+  <statements>
 end
 
 x integer = 0
@@ -186,7 +188,9 @@ while x <= 10:
   <statements>
 end
 ```
-
+There three deferent type of `for` loops. The fist type uses an `integer`
+iterator variable which iterates over the half-open interval `[lower_bound, upper_bound)`
+with stepsize `1`.
 ```
 for <existing_variable_name> in <lower_bound> ... <upper_bound>:
   <statements>
@@ -197,7 +201,9 @@ for x in 1 ... 5:
   <statements>
 end
 ```
-
+The second type uses an `integer` iterator variable which iterates over the
+half-open interval `[lower_bound, upper_bound)` with a positive `integer`
+stepsize `integer_step_size`.
 ```
 for <existing_variable_name> in <integer_lower_bound> ... <integer_upper_bound> step <integer_step_size>:
   <statements>
@@ -208,7 +214,9 @@ for x in 1 ... 5 step 2:
   <statements>
 end
 ```
-
+Finally, the third type uses an `real` iterator variable which iterates over the
+half-open interval `[lower_bound, upper_bound)` with a positive `real`
+stepsize `integer_step_size`.
 ```
 for <existing_variable_name> in <real_lower_bound> ... <real_upper_bound> step <real_step_size>:
   <statements>
@@ -261,7 +269,11 @@ elif <boolean_expression>:
 else:
   <statements>
 end
+```
 
+The fist example shows how `elif` and `else` branches can be used in the same
+conditional construct.
+```
 if 2 < 3:
   <statements>
 elif 4>6:
@@ -269,7 +281,10 @@ elif 4>6:
 else:
   <statements>
 end
+```
 
+The second example shows that the `else` can be omitted. It uses only `elif` branch.
+```
 if 2 < 3:
   <statements>
 elif 4>6:
@@ -292,24 +307,24 @@ Expressions in NESTML can be specified in a recursive fashion. First, terms are
 valid expressions.
 #### Terms:
 All variables, literals, and function calls are valid terms. Variables are names of
-user defined or predefined variables (`t, e`)
+user defined or predefined variables (`t`, `e`)
 
 #### List of operators
-For any two valid numeric expressions `a, b`, a boolean expressions `c,c1,c2`, and an
+For any two valid numeric expressions `a`, `b`, a boolean expressions `c`,`c1`,`c2`, and an
 integer expression `n` the following operators produce valid expressions.
 
 | Operator | Description | Examples |
 |-|-|-|
-|() | Expressions with parentheses | (a) |
-|**|  Power operator. Power is right associative, e.g. a \*\* b \*\* c corresponds a \*\* (b \*\* c) | a \*\* b |
-|+,  -, ~| unary plus, unary minus, bitwise negation | -a, ~c|
-|*, /,%  | Multiplication, Division and Modulo-Operator | a * b, a % b|
-|+, -| Addition and Subtraction |a + b, a - b|
-|<<, >>| & Left and right bit shifts |a << n, a >> n|
-|&, &#124;,^ | Bitwise `and`, `or` and `xor` | a&b, a&#124;b, a~b |
-|<, <=, ==, !=, >=, >|  Comparison operators |a <= b, a != b|
-|not, and, or| & Logical conjunction, disjunction and negation |not c, c1 or c2|
-|?:| The ternary logical operator |c?a:b|
+|`()` | Expressions with parentheses | `(a)` |
+|`\*\*`|  Power operator. Power is right associative, e.g. `a \*\* b \*\* c` corresponds `a \*\* (b \*\* c) | a \*\* b` |
+|`+,  -, ~`| unary plus, unary minus, bitwise negation | `-a`, `~c`|
+|`\*, /,%`| Multiplication, Division and Modulo-Operator | `a \* b`, `a % b`|
+|`+, -`| Addition and Subtraction |`a + b`, `a - b`|
+|`<<, >>`| & Left and right bit shifts |`a << n`, `a >> n`|
+|`&`, `^`| Bitwise `and`, `or` and `xor` | `a&b`, `a`&#124;`b`, `a~b` |
+|`<, <=, ==, !=, >=, >`|  Comparison operators |`a <= b`, `a != b`|
+|`not, and, or`| & Logical conjunction, disjunction and negation |`not c`, `c1 or c2`|
+|`?:`| The ternary logical operator |`c?a:b`|
 
 ## Blocks
 
@@ -337,48 +352,49 @@ end
   blocks are contained in this block. The block is closed with the `end` keyword.
 
 `parameters:`
-:  This block is composed of a list with variable declarations. This block is
+:  This block is composed of a list of variable declarations. This block is
 supposed to contain variables
-which remain constant during the concrete simulation, but they can vary among
-different simulations or instantiations neuron of the same neuron. The block
+which remain constant during the simulation, but they can vary among
+different simulations or instantiations of the same neuron. The block
 is closed with the `end` keyword.
 
 `state:`
-: This block is composed of a list with variable declarations. These variables are supposed to
-model the time dependent  state of the neuron. Only variables form this block can be refined with
-differential equations. The block terminates with the `end` keyword.
+: This block is composed of a list of variable declarations. These variables are
+supposed to model the time dependent state of the neuron. Only variables form
+this block can be refined with differential equations. The block is closed with
+the `end` keyword.
 
 `internals:`
-:  This block is composed of a list with variable declarations. These variables
+:  This block is composed of a list of variable declarations. These variables
 are supposed to be constant during the simulation run. Therefore, its initialization
 expression can only reference parameter- or another internal-variables. The block
 is closed with the `end` keyword.
 
 `equations:`
 : This block is composed of shape definitions and differential equations. In will
-be explained in further details later in the manual. The block is closed with
+be explained in further detail later on in the manual. The block is closed with
 the `end` keyword.
 
 `input:`
 : The block is composed of a list of input ports. In will
-be explained in further details later in the manual. The block terminates with the `end` keyword.
+be explained in further detail later on in the manual. The block terminates with the `end` keyword.
 
 `output:`
-: Defines which kinds of events the neuron can fire. Currently, only `spike` is
+: Defines which type of events the neuron can send. Currently, only `spike` is
 supported. No `end` is necessary at the end of the block.
 ```
 output: spike
 ```
 `update:`
-: Inside the block arbitrary code in the introduced programming language can be
-implemented. The block terminates with the `end` keyword.
+: Inside this block arbitrary code in the introduced programming language can be
+implemented. The block is closed with the `end` keyword.
 
 `function <name> ([<list_of_arguments>]) <return_type>?:`
 : `function ([<args>]`.
-The function has an unique name and a list of arguments between round brackets.
-Inside the block arbitrary code in the introduced
-programming language can be implemented. The function definitions
-terminates with the `end` keyword.
+The function has an unique name and a list of arguments between parentheses.
+Inside this block arbitrary code in the introduced
+programming language can be implemented. The function definition
+is closed with the `end` keyword.
 ```
 function <name>(<list_of_arguments>) <return_type>?:
   <statements>
@@ -398,13 +414,13 @@ port_name <- inhibitory? excitatory? (spike | current)
 ```
 There are three basic constilations for a valid input block.
 * It is composed of the single port, which is either `spike` or `current`,
-that receives as well positive weighted spikes as well as negative weighted spikes.
+that receives as well positively weighted spikes as well as negatively weighted spikes.
 * It is composed of two ports. The first port is an `inhibitory` port, the second
 port is an `excitatory` port. In that case, spikes are routed based on their
-weight. Positive weighted spikes go to the `excitatory` port, negative weighted
+weight. Positively weighted spikes go to the `excitatory` port, negatively weighted
 spikes go to the `inhibitory` port. In that case both ports are mandatory.
 * There are more the one `spike` or `current` port. In that case, a multisynapse
-neuron is created. The `receptor_types` entry is created in the dict. It maps
+neuron is created. The `receptor_types` entry is created in the status dict. It maps
 port names to its port indexes in NEST.
 ### Output
 
@@ -472,15 +488,14 @@ in the `state` block. If the initial values are not defined in `state` it is ass
 
    `integrate_odes`
 
-<<<<<<< HEAD
    `process_spikes()`
 
-   emit_spike(): calling this function in the `update`-block results in firing
+   `emit_spike()`: calling this function in the `update`-block results in firing
    a spike through the neuron.
 ### Concepts for refractoriness
 In order to model refractory and non-refractory states, two variables are
 necessary. First variable `t_ref` defines the duration of the refractoriness period.
-The second variable `ref_counts` specifies the current delay of the refractory period. It is
+The second variable `ref_counts` specifies the passed time span of the refractory period. It is
 initialized with 0 (the neuron is non-refractory) and set to the refractory offset
 every time the refractoriness condition holds. Otherwise, the refractory offset
 is decremented.
@@ -508,15 +523,14 @@ end
 ## Setting and retrieving model properties
 
   * Everything in `state` and `parameters` is added to the status dict.
-  * All values can be set and read `nest.SetStatus(n, {var_name:var_value})`.
+  * All values can be set and read using `nest.SetStatus(n, {var_name:var_value})`.
   `var_name` is the name of the corresponding NESTML variable name.
 
 ## Recording values with devices
 
   * All values in the `state` block are recordable
-  * `recordable` can be used to make variables in other blocks (`parameters, internals`)
-  available to recording devices. For this, a declaration hast to be prepended
-  with the `recordable` keyword.
+  * `recordable` keyword can be used to make variables in other blocks (`parameters, internals`)
+  available to recording devices.
 
   ```
   parameters:
@@ -525,8 +539,8 @@ end
   ```
 
 ## Guards
-Variables which are defined in the in `state` and `parameters` blocks can be
-optionally secured through a guard. This guard is checked during
+Variables which are defined in the `state` and `parameters` blocks can be
+optionally secured through a guard. This guard is checked during the
 `nest.SetStatus(n, ...)` call in NEST.
 ```
 block:
