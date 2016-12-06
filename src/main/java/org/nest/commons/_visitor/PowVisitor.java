@@ -65,7 +65,8 @@ public class PowVisitor implements CommonsVisitor{
       }
     }
     //Catch-all if no case has matched
-    final String errorMsg = ERROR_CODE+"Cannot determine the type of the expression: " + AstUtils.toString(expr);
+    final String errorMsg = ERROR_CODE+"Cannot determine the type of the expression: " + baseType.getValue().prettyPrint()
+        +"**"+exponentType.getValue().prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());
   }
