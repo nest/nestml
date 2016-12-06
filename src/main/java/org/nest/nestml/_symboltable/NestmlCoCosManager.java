@@ -18,6 +18,7 @@ import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.spl._cocos.VariableDefinedMultipleTimes;
 import org.nest.spl.symboltable.SPLCoCosManager;
+import org.nest.units._cocos.UnitsASTUnitTypeCoCo;
 import org.nest.utils.LogHelper;
 
 import java.util.List;
@@ -93,12 +94,8 @@ public class NestmlCoCosManager {
     nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) invalidTypesInDeclaration);
 
 
-    final LiteralsHaveTypes literalsHaveTypes = new LiteralsHaveTypes();
-    nestmlCoCoChecker.addCoCo((SPLASTAssignmentCoCo)literalsHaveTypes);
-    nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo)literalsHaveTypes);
-    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo)literalsHaveTypes);
-    nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCoCo)literalsHaveTypes);
-    nestmlCoCoChecker.addCoCo((CommonsASTExprCoCo)literalsHaveTypes);
+    final UnitDeclarationOnlyOnesAllowed unitDeclarationOnlyOnesAllowed = new UnitDeclarationOnlyOnesAllowed();
+    nestmlCoCoChecker.addCoCo((UnitsASTUnitTypeCoCo) unitDeclarationOnlyOnesAllowed);
 
     final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes
         = new MemberVariableDefinedMultipleTimes();
