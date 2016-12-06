@@ -387,7 +387,7 @@ output: spike
 ```
 `update:`
 : Inside this block arbitrary code in the introduced programming language can be
-implemented. The block is closed with the `end` keyword.
+implemented. The `update` block defines the runtime behaviour of the neuron. It contains the refractoriness logic, see [concepts for refractoriness](#concepts-for-refractoriness) and specifies when to integrate the `equations`-block, see [Equations](#equations)). This block is translated into the `update` method in NEST. This block is closed with the `end` keyword.
 
 `function <name> ([<list_of_arguments>]) <return_type>?:`
 : `function ([<args>]`.
@@ -484,7 +484,7 @@ in the `state` block. If the initial values are not defined in `state` it is ass
 
 ## Dynamics and time evolution
 
-   `update()` has access to the current time via the variable `t`
+   `update:` inside this block the current time can be accessed via the variable `t`
 
    `integrate_odes`
 
