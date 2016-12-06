@@ -1,5 +1,6 @@
 package org.nest.commons._visitor;
 
+import de.monticore.literals.literals._ast.ASTIntLiteral;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -7,15 +8,18 @@ import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Log.error;
 import static org.nest.commons._visitor.ExpressionTypeVisitor.*;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.checkUnit;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
  * @author ptraeder
  */
 public class PowVisitor implements CommonsVisitor{
+  final String ERROR_CODE = "SPL_POW_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr){
@@ -35,9 +39,11 @@ public class PowVisitor implements CommonsVisitor{
         expr.setType(Either.value(getIntegerType()));
         return;
       }
-      else if (checkUnit(baseType.getValue())) {
+      else if (isUnit(baseType.getValue())) {
         if (!isInteger(exponentType.getValue())) {
-          expr.setType(Either.error("With a Unit base, the exponent must be an Integer!"));
+          final String errorMsg = ERROR_CODE+"With a Unit base, the exponent must be an integer.";
+          expr.setType(Either.error(errorMsg));
+          error(errorMsg,expr.get_SourcePositionStart());
           return;
         }
         UnitRepresentation baseRep = new UnitRepresentation(baseType.getValue().getName());
@@ -47,7 +53,9 @@ public class PowVisitor implements CommonsVisitor{
           return;
         }
         else {
-          expr.setType(Either.error(numericValue.getError()));
+          final String errorMsg = numericValue.getError();
+          expr.setType(Either.error(errorMsg));
+          error(errorMsg,expr.get_SourcePositionStart());
           return;
         }
       }
@@ -57,7 +65,34 @@ public class PowVisitor implements CommonsVisitor{
       }
     }
     //Catch-all if no case has matched
-    String msg = "Cannot determine the type of the expression: " + AstUtils.toString(expr);
-    expr.setType(Either.error(msg));
+    final String errorMsg = ERROR_CODE+"Cannot determine the type of the expression: " + AstUtils.toString(expr);
+    expr.setType(Either.error(errorMsg));
+    error(errorMsg,expr.get_SourcePositionStart());
+  }
+
+
+  public Either<Integer, String> calculateNumericValue(ASTExpr expr) {
+    if (expr.isLeftParentheses()) {
+      return calculateNumericValue(expr.getExpr().get());
+    }
+    else if (expr.getNESTMLNumericLiteral().isPresent()) {
+      if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
+        ASTIntLiteral literal = (ASTIntLiteral) expr.getNESTMLNumericLiteral().get().getNumericLiteral();
+        return Either.value(literal.getValue());
+      }
+      else {
+        return Either.error(ERROR_CODE+"No floating point values allowed in the exponent to a UNIT base");
+      }
+    }
+    else if (expr.isUnaryMinus()) {
+      Either<Integer, String> term = calculateNumericValue(expr.getTerm().get());
+      if (term.isError()) {
+        return term;
+      }
+      return Either.value(-term.getValue());
+    }
+
+    return Either.error(ERROR_CODE+"Cannot calculate value of exponent. Must be a static value!");
   }
 }
+

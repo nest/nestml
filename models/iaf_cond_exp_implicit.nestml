@@ -35,13 +35,13 @@ neuron iaf_cond_exp_implicit:
     g_in' = -g_in/tau_synI
     g_ex' = -g_ex/tau_synE
 
-    I_syn_exc pA = Cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
-    I_syn_inh pA = Cond_sum(g_in, spikeInh)  * ( V_m - E_in )
+    I_syn_exc pA = cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
+    I_syn_inh pA = cond_sum(g_in, spikeInh)  * ( V_m - E_in )
     I_leak pA = g_L * ( V_m - E_L )
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
   end
 
-  parameter:
+  parameters:
     V_th mV = -55.0mV    # Threshold Potential in mV
     V_reset mV = -60.0mV # Reset Potential in mV
     t_ref ms = 2.0mV     # Refractory period in ms
@@ -58,7 +58,7 @@ neuron iaf_cond_exp_implicit:
                     # _dynamics function computing the derivative of the state vector.
   end
 
-  internal:
+  internals:
     # Impulse to add to g_ex' on spike arrival to evoke unit-amplitude
     # conductance excursion.
     PSConInit_E real = 1.0 * e / tau_synE

@@ -5,7 +5,7 @@ neuron izhikevich_neuron:
     I pA = 0.0   # input current
   end
 
-  parameter:
+  parameters:
     a real = 0.02 # a
     b real = 0.2  # b
     c real =  -65.0  # c without unit
@@ -17,7 +17,7 @@ neuron izhikevich_neuron:
     consistent_integration boolean = true
   end
 
-  internal:
+  internals:
     h     ms   = resolution()
   end
 

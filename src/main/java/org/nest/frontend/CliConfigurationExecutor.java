@@ -24,11 +24,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
@@ -85,18 +83,24 @@ public class CliConfigurationExecutor {
               Reporter.Level.INFO);
         }
         else {
+          final String errorMsg = Log.getFindings()
+              .stream()
+              .map(error -> "<" + error.getSourcePosition() + ">: " + error.getMsg()).collect(joining(";"));
           reporter.addArtifactInfo(
-              modelFile.getFileName().toString(),
-              "The artifact is unparsable, cf. log.",
+              FilenameUtils.removeExtension(modelFile.getFileName().toString()),
+              "The artifact is unparsable: " + errorMsg,
               Reporter.Level.ERROR);
           isError = true;
         }
 
       }
       catch (IOException e) {
+        final String errorMsg = Log.getFindings()
+            .stream()
+            .map(error -> "<" + error.getSourcePosition() + ">: " + error.getMsg()).collect(joining(";"));
         reporter.addArtifactInfo(
             FilenameUtils.removeExtension(modelFile.getFileName().toString()),
-            "The artifact is unparsable, cf. log.",
+            "The artifact is unparsable: " + errorMsg,
             Reporter.Level.ERROR);
         isError = true;
       }

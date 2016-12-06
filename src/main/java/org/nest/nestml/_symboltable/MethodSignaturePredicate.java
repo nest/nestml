@@ -16,6 +16,8 @@ import java.util.List;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Objects.requireNonNull;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 
@@ -45,7 +47,8 @@ public class MethodSignaturePredicate implements SymbolPredicate {
           final String actualType = methodSymbol.getParameterTypes().get(i).getFullName();
 
           if (!TypeChecker.isCompatible(actualType, expectedType) &&
-              !(methodSymbol.getParameterTypes().get(i).getType().equals(TypeSymbol.Type.UNIT) && getType(expectedType).equals(getRealType()))) {
+              !(isUnit(methodSymbol.getParameterTypes().get(i)) && isReal(getType(expectedType))) &&
+              !(isReal(methodSymbol.getParameterTypes().get(i)) && isUnit(getType(expectedType)))) {
             return false;
           }
         }

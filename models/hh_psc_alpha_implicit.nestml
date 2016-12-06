@@ -71,8 +71,8 @@ neuron hh_psc_alpha_implicit:
     g_in'' = -g_in' / tau_syn_in
     g_in' = g_in' - ( g_in / tau_syn_in )
 
-    I_syn_exc pA = I_sum(g_ex, spikeExc)
-    I_syn_inh pA = I_sum(g_in, spikeExc)
+    I_syn_exc pA = curr_sum(g_ex, spikeExc)
+    I_syn_inh pA = curr_sum(g_in, spikeExc)
     I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     I_L   pA = g_L * ( V_m - E_L )
@@ -94,7 +94,7 @@ neuron hh_psc_alpha_implicit:
     Act_h' = alpha_h * ( 1 - Act_h ) - beta_h * Act_h # h-variable
   end
 
-  parameter:
+  parameters:
     t_ref ms = 2.0 ms      # Refractory period
     g_Na nS = 12000.0nS    # Sodium peak conductance
     g_K nS = 3600.0nS      # Potassium peak conductance
@@ -108,7 +108,7 @@ neuron hh_psc_alpha_implicit:
     I_e pA = 0pA           # Constant Current in pA
   end
 
-  internal:
+  internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
     PSConInit_E real = 1.0 * e / tau_syn_ex

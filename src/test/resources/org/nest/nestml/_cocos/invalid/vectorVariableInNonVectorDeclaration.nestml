@@ -1,5 +1,5 @@
 component AliasInDecl:
-  parameter:
+  parameters:
     n  integer
     alias three integer[n] = 3 # should be an error?
     threePlusFour integer = three + 4

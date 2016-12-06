@@ -10,7 +10,7 @@ neuron iaf_psc_alpha_mc_imperative:
       y3 = v + U0
   end
 
-  parameter:
+  parameters:
     # Membrane time constant in ms
     Tau ms = 10
     # Membrane capacitance in pF
@@ -43,7 +43,7 @@ neuron iaf_psc_alpha_mc_imperative:
       Theta = v - U0
   end
 
-  internal:
+  internals:
     h   ms   = resolution()
     r integer = 0
 

@@ -29,6 +29,7 @@ grammar Units extends de.monticore.types.Types {
   UnitType = leftParentheses:"(" UnitType rightParentheses:")"
            | base:UnitType pow:["**"] exponent:IntLiteral
            | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
+           | unitlessLiteral:IntLiteral divOp:["/"] right:UnitType
            | unit:Name;
 
 }

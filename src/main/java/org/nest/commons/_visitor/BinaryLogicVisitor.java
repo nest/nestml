@@ -1,5 +1,6 @@
 package org.nest.commons._visitor;
 
+import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -13,6 +14,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
  * @author ptraeder
  */
 public class BinaryLogicVisitor implements CommonsVisitor{
+  final String ERROR_CODE = "SPL_BINARY_LOGIC_VISITOR: ";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -33,8 +35,9 @@ public class BinaryLogicVisitor implements CommonsVisitor{
       return;
     }
     else {
-      final String errorMsg = "Both operands of the logical expression must be boolean ";
+      final String errorMsg = ERROR_CODE+ "Both operands of the logical expression must be boolean ";
       expr.setType(Either.error(errorMsg));
+      Log.error(errorMsg,expr.get_SourcePositionStart());
     }
 
   }

@@ -85,10 +85,10 @@ neuron iaf_psc_alpha_neuron:
     shape I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
-    V_abs' = -1/Tau * V_abs + 1/C_m * (I_sum(I_shape_in, in_spikes) + I_sum(I_shape_ex, ex_spikes) + I_e + currents)
+    V_abs' = -1/Tau * V_abs + 1/C_m * (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
   end
 
-  parameter:
+  parameters:
     C_m     pF = 250pF   # Capacity of the membrane
     Tau     ms = 10ms    # Membrane time constant.
     tau_syn_in ms = 2ms  # Time constant of synaptic current.
@@ -100,7 +100,7 @@ neuron iaf_psc_alpha_neuron:
     I_e     pA = 0pA     # Constant external input current in pA.
   end
 
-  internal:
+  internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer                               # counts number of tick during the refractory period
   end

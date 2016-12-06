@@ -39,7 +39,7 @@ class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
         final String msg = errorStrings.getErrorMsgCannotComputeType(this,
                 AstUtils.toString(alias.getInvariant().get()));
 
-        Log.warn(msg);
+        Log.warn(msg,alias.getInvariant().get().get_SourcePositionStart());
       }
 
     }

@@ -2,10 +2,10 @@ neuron testNeuron:
     state:
     end
 
-    parameter:
+    parameters:
     end
 
-    internal:
+    internals:
     end
 
     input:
@@ -67,9 +67,11 @@ neuron testNeuron:
 
         xxx real = 2 * xxx # TODO it should produce an error
 
-        # for a in 1 ... 10 step 1: # TODO it should work
-        # blaa
-        # end
+        for aaa in 1 ... 10 step 1: # error
+          # blaa
+        end
+
+        aaa integer
     end
 
 end
