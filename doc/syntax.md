@@ -133,7 +133,7 @@ f mV   = -2e12mV
 NESTML supports simple or compound assignments. The lefthand side of the assignments
 is always a variable. The righthand side can be an arbitrary expression of a type
 which is compatible to the lefthand side. E.g. for a numeric variable `n`:
-* simple assignment: `n = 10```
+* simple assignment: `n = 10`
 * compound sum: `n += 10 corresponds to n = n + 10`
 * compound minus: `n -= 10 corresponds to n = n - 10`
 * compound product: `n *= 10 corresponds to n = n * 10`
@@ -372,12 +372,12 @@ is closed with the `end` keyword.
 
 `equations:`
 : This block is composed of shape definitions and differential equations. In will
-be explained in further detail later on in the manual. The block is closed with
+be explained in further detail later on in the manual, see [Equations](#equations). The block is closed with
 the `end` keyword.
 
 `input:`
 : The block is composed of a list of input ports. In will
-be explained in further detail later on in the manual. The block terminates with the `end` keyword.
+be explained in further detail later on in the manual, see [Input](#input). The block terminates with the `end` keyword.
 
 `output:`
 : Defines which type of events the neuron can send. Currently, only `spike` is
