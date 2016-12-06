@@ -1,6 +1,7 @@
-neuron invalidDeclarationTest:
+neuron validODETest:
   state:
-    LiteralNumerator 2/ms               #Warning: UnitLessLiteral must be '1'
+    Distance km
+    DeltaTime s
   end
 
   input:
@@ -9,11 +10,14 @@ neuron invalidDeclarationTest:
       currents <- current
   end
 
-  parameters:
-    
+  parameters:    
   end
 
   output: spike
+
+  equations:
+    Distance' = Distance * DeltaTime 
+  end
 
   internals:
   end
