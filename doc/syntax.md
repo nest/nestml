@@ -51,7 +51,7 @@ units. In order to ease modeling, NESTML provides following
 derived units as built-in data types:
 
 | | | | |
-|-|-|-|-|
+|---|-----|---|
 | Bq | C | F | Gy |
 | Hz | J | N | Ohm |
 | Pa | S | Sv | TH |
@@ -60,7 +60,7 @@ derived units as built-in data types:
 Units can have at most one of the following magnitude prefixes:
 
 |Factor | SI Name | NESTML prefix | Factor | SI Name | NESTML prefix
-|-|-|-|-|-|-|
+|---|-----|---|---|---|
 |$10^{-1}$ | deci | d | $10^1$ | deca | da |
 |$10^{-2}$ | centi | c | $10^2$ | hecto | h |
 |$10^{-3}$ | milli | m | $10^3$ | kilo | k |
@@ -152,7 +152,7 @@ max(a*2, b/2)
 ##### Predefined functions
 ---------------------------------------------
 | | | | |
-|-|-|-| - |
+|---|---|---|---|
 | cond_sum | curr_sum |  delta | emit\_spike |
 | exp   | expm1 | info | integrate\_odes |
 | log | max | pow | random |
