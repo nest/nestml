@@ -64,15 +64,15 @@ public class ConditionVisitor implements CommonsVisitor{
       //one Unit and one numeric primitive and vice versa -> assume unit,warn
       if((isUnit(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue()))||
           isUnit(ifNot.getValue())&&isNumericPrimitive(ifTrue.getValue())){
-        final String errorMsg = ERROR_CODE+
-            "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
-                ifNot.getValue().prettyPrint()+"-> Assuming real";
         TypeSymbol unitType;
         if(isUnit(ifTrue.getValue())){
           unitType = ifTrue.getValue();
         }else{
           unitType = ifNot.getValue();
         }
+        final String errorMsg = ERROR_CODE+
+            "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
+            ifNot.getValue().prettyPrint()+"-> Assuming "+unitType.prettyPrint();
         expr.setType(Either.value(unitType));
         Log.warn(errorMsg,expr.get_SourcePositionStart());
         return;

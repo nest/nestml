@@ -83,15 +83,15 @@ public class LineOperatorVisitor implements CommonsVisitor{
       //one is unit and one numeric primitive and vice versa -> assume unit, warn
       if((isUnit(lhsType.getValue())&&isNumericPrimitive(rhsType.getValue()))||
       (isUnit(rhsType.getValue())&&isNumericPrimitive(lhsType.getValue()))){
-        final String errorMsg =ERROR_CODE+
-            "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
-            ". Assuming real.";
         TypeSymbol unitType;
         if(isUnit(lhsType.getValue())){
           unitType = lhsType.getValue();
         }else{
           unitType = rhsType.getValue();
         }
+        final String errorMsg =ERROR_CODE+
+            "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
+            ". Assuming "+unitType.prettyPrint();
         expr.setType(Either.value(unitType));
         warn(errorMsg,expr.get_SourcePositionStart());
         return;
