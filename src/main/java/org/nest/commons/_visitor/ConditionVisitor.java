@@ -70,6 +70,14 @@ public class ConditionVisitor implements CommonsVisitor{
         Log.warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
+
+      //if we get here it is an error
+      final String errorMsg = ERROR_CODE+
+          "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
+          ifNot.getValue().prettyPrint()+".";
+      expr.setType(Either.error(errorMsg));
+      Log.error(errorMsg,expr.get_SourcePositionStart());
+      return;
     }
   }
 }

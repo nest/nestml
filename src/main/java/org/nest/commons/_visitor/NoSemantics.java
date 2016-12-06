@@ -16,7 +16,7 @@ public class NoSemantics implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr) {
-    final String errorMsg = ERROR_CODE+"Unable to derive type of: " + AstUtils.toString(expr);
+    final String errorMsg = ERROR_CODE+"This expression is not implemented: " + AstUtils.toString(expr);
     expr.setType(Either.error(errorMsg));
     warn(errorMsg,expr.get_SourcePositionStart());
   }
