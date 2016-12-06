@@ -311,7 +311,7 @@ For any two valid numeric expressions `a`, `b`, a boolean expressions `c`,`c1`,`
 integer expression `n` the following operators produce valid expressions.
 
 | Operator | Description | Examples |
-|-|-|-|
+|---|---|---|
 |`()` | Expressions with parentheses | `(a)` |
 |`\*\*`|  Power operator. Power is right associative, e.g. `a \*\* b \*\* c` corresponds `a \*\* (b \*\* c) | a \*\* b` |
 |`+,  -, ~`| unary plus, unary minus, bitwise negation | `-a`, `~c`|
