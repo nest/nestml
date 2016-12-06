@@ -18,7 +18,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
  *  @author ptraeder
  * */
 public class ConditionVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_CONDITION_VISITOR: ";
+  final String ERROR_CODE = "SPL_CONDITION_VISITOR";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -41,7 +41,7 @@ public class ConditionVisitor implements CommonsVisitor{
       }
 
       if (!condition.getValue().equals(getBooleanType())) {
-        final String errorMsg = ERROR_CODE+"The ternary operator condition must be boolean.";
+        final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"The ternary operator condition must be boolean.";
         expr.setType(Either.error(errorMsg));
         Log.error(errorMsg,expr.get_SourcePositionStart());
         return;
@@ -54,7 +54,7 @@ public class ConditionVisitor implements CommonsVisitor{
 
       //Both are units -> real
       if(isUnit(ifTrue.getValue())&&isUnit(ifNot.getValue())){
-        final String errorMsg = ERROR_CODE+
+        final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
                 ifNot.getValue().prettyPrint()+"-> Assuming real";
         expr.setType(Either.value(getRealType()));
@@ -70,7 +70,7 @@ public class ConditionVisitor implements CommonsVisitor{
         }else{
           unitType = ifNot.getValue();
         }
-        final String errorMsg = ERROR_CODE+
+        final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
             ifNot.getValue().prettyPrint()+"-> Assuming "+unitType.prettyPrint();
         expr.setType(Either.value(unitType));
@@ -85,7 +85,7 @@ public class ConditionVisitor implements CommonsVisitor{
       }
 
       //if we get here it is an error
-      final String errorMsg = ERROR_CODE+
+      final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
           "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
           ifNot.getValue().prettyPrint()+".";
       expr.setType(Either.error(errorMsg));

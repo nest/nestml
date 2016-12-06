@@ -14,7 +14,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class DotOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_DOT_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_DOT_OPERATOR_VISITOR";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -35,7 +35,7 @@ public class DotOperatorVisitor implements CommonsVisitor{
         expr.setType(Either.value(getIntegerType()));
         return;
       }else{
-        final String errorMsg = ERROR_CODE +"Modulo with non integer parameters";
+        final String errorMsg = ERROR_CODE + " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Modulo with non integer parameters";
         expr.setType(Either.error(errorMsg));
         error(errorMsg,expr.get_SourcePositionStart());
         return;
@@ -105,7 +105,7 @@ public class DotOperatorVisitor implements CommonsVisitor{
     }
 
     //Catch-all if no case has matched
-    final String errorMsg = ERROR_CODE+"Cannot determine the type of the expression: " +lhsType.getValue().prettyPrint()
+    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Cannot determine the type of the expression: " +lhsType.getValue().prettyPrint()
         +(expr.isDivOp()?" / ":" * ")+rhsType.getValue().prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());

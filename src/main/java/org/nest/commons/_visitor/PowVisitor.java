@@ -19,7 +19,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class PowVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_POW_VISITOR: ";
+  final String ERROR_CODE = "SPL_POW_VISITOR";
 
   @Override
   public void visit(ASTExpr expr){
@@ -41,7 +41,8 @@ public class PowVisitor implements CommonsVisitor{
       }
       else if (isUnit(baseType.getValue())) {
         if (!isInteger(exponentType.getValue())) {
-          final String errorMsg = ERROR_CODE+"With a Unit base, the exponent must be an integer.";
+          final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
+              "With a Unit base, the exponent must be an integer.";
           expr.setType(Either.error(errorMsg));
           error(errorMsg,expr.get_SourcePositionStart());
           return;
@@ -65,7 +66,8 @@ public class PowVisitor implements CommonsVisitor{
       }
     }
     //Catch-all if no case has matched
-    final String errorMsg = ERROR_CODE+"Cannot determine the type of the expression: " + baseType.getValue().prettyPrint()
+    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
+        "Cannot determine the type of the expression: " + baseType.getValue().prettyPrint()
         +"**"+exponentType.getValue().prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());
@@ -82,7 +84,8 @@ public class PowVisitor implements CommonsVisitor{
         return Either.value(literal.getValue());
       }
       else {
-        return Either.error(ERROR_CODE+"No floating point values allowed in the exponent to a UNIT base");
+        return Either.error(ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
+            "No floating point values allowed in the exponent to a UNIT base");
       }
     }
     else if (expr.isUnaryMinus()) {
@@ -93,7 +96,8 @@ public class PowVisitor implements CommonsVisitor{
       return Either.value(-term.getValue());
     }
 
-    return Either.error(ERROR_CODE+"Cannot calculate value of exponent. Must be a static value!");
+    return Either.error(ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
+        "Cannot calculate value of exponent. Must be a static value!");
   }
 }
 

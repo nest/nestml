@@ -18,7 +18,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class LineOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_LINE_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_LINE_OPERATOR_VISITOR";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -73,7 +73,7 @@ public class LineOperatorVisitor implements CommonsVisitor{
       }
       //Both are units, not matching -> real, warn
       if(isUnit(lhsType.getValue())&&isUnit(rhsType.getValue())){
-        final String errorMsg =ERROR_CODE+
+        final String errorMsg =ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
             ". Assuming real.";
         expr.setType(Either.value(getRealType()));
@@ -89,7 +89,7 @@ public class LineOperatorVisitor implements CommonsVisitor{
         }else{
           unitType = rhsType.getValue();
         }
-        final String errorMsg =ERROR_CODE+
+        final String errorMsg =ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
             ". Assuming "+unitType.prettyPrint();
         expr.setType(Either.value(unitType));
@@ -109,7 +109,8 @@ public class LineOperatorVisitor implements CommonsVisitor{
     }
 
     //if we get here, we are in a general error state
-    final String errorMsg = ERROR_CODE+"Cannot determine the type of "+ (expr.isPlusOp()?"addition":"substraction")+" with types: " +
+    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
+        "Cannot determine the type of "+ (expr.isPlusOp()?"addition":"substraction")+" with types: " +
         lhsType.getValue().prettyPrint()+ " and " + rhsType.getValue().prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());
