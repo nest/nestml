@@ -132,6 +132,9 @@ public class NestmlCoCosManager {
     final NeuronWithoutOutput neuronWithoutOutput = new NeuronWithoutOutput();
     nestmlCoCoChecker.addCoCo(neuronWithoutOutput);
 
+    final RestrictUseOfShapes restrictUseOfShapes = new RestrictUseOfShapes();
+    nestmlCoCoChecker.addCoCo(restrictUseOfShapes);
+
     final CorrectReturnValues correctReturnValues = new CorrectReturnValues();
     nestmlCoCoChecker.addCoCo(correctReturnValues);
 

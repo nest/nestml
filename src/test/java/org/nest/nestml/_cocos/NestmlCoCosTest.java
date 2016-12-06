@@ -73,6 +73,30 @@ public class NestmlCoCosTest {
   }
 
   @Test
+  public void testRestrictUseOfShapes(){
+    final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
+        TEST_MODELS_FOLDER + "restrictUseOfShapes/valid.nestml", Paths.get(TEST_MODELS_FOLDER));
+    assertTrue(validRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(validRoot.get());
+    final RestrictUseOfShapes restrictUseOfShapes = new RestrictUseOfShapes();
+
+    nestmlCoCoChecker.addCoCo(restrictUseOfShapes);
+    nestmlCoCoChecker.checkAll(validRoot.get());
+
+    Integer errorsFound = countErrorsByPrefix(RestrictUseOfShapes.ERROR_CODE, getFindings());
+    assertEquals(Integer.valueOf(0), errorsFound);
+
+    Log.getFindings().clear();
+
+    final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
+        TEST_MODELS_FOLDER + "restrictUseOfShapes/invalid.nestml", Paths.get(TEST_MODELS_FOLDER));
+    assertTrue(invalidRoot.isPresent());
+    scopeCreator.runSymbolTableCreator(invalidRoot.get());
+
+    nestmlCoCoChecker.checkAll(invalidRoot.get());
+  }
+
+  @Test
   public void testAliasHasNoSetter() {
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
         TEST_MODELS_FOLDER + "aliasHasNoSetter/valid.nestml", Paths.get(TEST_MODELS_FOLDER));

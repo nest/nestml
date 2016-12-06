@@ -1,0 +1,35 @@
+neuron invalidShapes:
+  state:
+  StateVar real
+  end
+
+  input:
+      spikeInh   <- inhibitory spike
+      spikeExc   <- excitatory spike
+      currents <- current
+  end
+
+  function foo(amp A, ohm Ohm) V:  
+    return amp*ohm             
+  end
+
+  parameters:    
+  end
+
+  output: spike
+
+  equations:
+    shape testShape = 1.5
+    testShape' = 10 [1/s]           #Error
+  end
+
+  internals:
+  end
+
+  update:
+    StateVar = testShape + 10       #Error
+    testShape = 3                   #Error
+    foo(testShape)                  #Error
+    testShape += 3                  #Error
+  end
+end
