@@ -37,6 +37,7 @@ physical unit. This idea is based on the "Le Système internationale d’unités
 (https://en.wikipedia.org/wiki/International_System_of_Units).
 
 |Quantity | SI Symbol | SI Name | NESTML Name|
+|---|---|---|---|
 | length | L | metre  | m |
 | mass | M | kilogram | kg |
 | time | T | second | s |
@@ -51,7 +52,7 @@ units. In order to ease modeling, NESTML provides following
 derived units as built-in data types:
 
 | | | | |
-|---|-----|---|
+|---|----|---|---|
 | Bq | C | F | Gy |
 | Hz | J | N | Ohm |
 | Pa | S | Sv | TH |
@@ -60,7 +61,7 @@ derived units as built-in data types:
 Units can have at most one of the following magnitude prefixes:
 
 |Factor | SI Name | NESTML prefix | Factor | SI Name | NESTML prefix
-|---|-----|---|---|---|
+|---|----|---|---|---|---|
 |$10^{-1}$ | deci | d | $10^1$ | deca | da |
 |$10^{-2}$ | centi | c | $10^2$ | hecto | h |
 |$10^{-3}$ | milli | m | $10^3$ | kilo | k |
@@ -137,8 +138,6 @@ which is compatible to the lefthand side. E.g. for a numeric variable `n`:
 * compound product: `n *= 10 corresponds to n = n * 10`
 * compound quotient: `n /= 10 corresponds to n = n - 10`
 
-
-
 #### Function calls
 ---------------------------------------------
 A function call is composed of the function name and the list of required
@@ -153,8 +152,8 @@ max(a*2, b/2)
 ---------------------------------------------
 | | | | |
 |---|---|---|---|
-| cond_sum | curr_sum |  delta | emit\_spike |
-| exp   | expm1 | info | integrate\_odes |
+| cond_sum | curr_sum |  delta | emit_spike |
+| exp   | expm1 | info | integrate_odes |
 | log | max | pow | random |
 | randomInt    | resolution | steps | warning |
 #### Return statement
