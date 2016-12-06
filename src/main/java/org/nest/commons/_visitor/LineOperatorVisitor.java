@@ -1,6 +1,7 @@
 package org.nest.commons._visitor;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
@@ -79,13 +80,19 @@ public class LineOperatorVisitor implements CommonsVisitor{
         warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
-      //one is unit and one real and vice versa -> assume real, warn
-      if((isUnit(lhsType.getValue())&&isReal(rhsType.getValue()))||
-      (isUnit(rhsType.getValue())&&isReal(lhsType.getValue()))){
+      //one is unit and one numeric primitive and vice versa -> assume unit, warn
+      if((isUnit(lhsType.getValue())&&isNumericPrimitive(rhsType.getValue()))||
+      (isUnit(rhsType.getValue())&&isNumericPrimitive(lhsType.getValue()))){
         final String errorMsg =ERROR_CODE+
             "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
             ". Assuming real.";
-        expr.setType(Either.value(getRealType()));
+        TypeSymbol unitType;
+        if(isUnit(lhsType.getValue())){
+          unitType = lhsType.getValue();
+        }else{
+          unitType = rhsType.getValue();
+        }
+        expr.setType(Either.value(unitType));
         warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }

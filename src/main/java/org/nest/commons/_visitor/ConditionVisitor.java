@@ -7,6 +7,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
 
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
@@ -60,14 +61,26 @@ public class ConditionVisitor implements CommonsVisitor{
         Log.warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
-      //one Unit and one real and vice versa -> return real,warn
-      if((isUnit(ifTrue.getValue())&&isReal(ifNot.getValue()))||
-          isUnit(ifNot.getValue())&&isReal(ifTrue.getValue())){
+      //one Unit and one numeric primitive and vice versa -> assume unit,warn
+      if((isUnit(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue()))||
+          isUnit(ifNot.getValue())&&isNumericPrimitive(ifTrue.getValue())){
         final String errorMsg = ERROR_CODE+
             "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
                 ifNot.getValue().prettyPrint()+"-> Assuming real";
-        expr.setType(Either.value(getRealType()));
+        TypeSymbol unitType;
+        if(isUnit(ifTrue.getValue())){
+          unitType = ifTrue.getValue();
+        }else{
+          unitType = ifNot.getValue();
+        }
+        expr.setType(Either.value(unitType));
         Log.warn(errorMsg,expr.get_SourcePositionStart());
+        return;
+      }
+
+      //both are numeric primitives (and not equal) ergo one is real and one is integer -> real
+      if(isNumericPrimitive(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue())){
+        expr.setType(Either.value(getRealType()));
         return;
       }
 
