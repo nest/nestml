@@ -136,7 +136,7 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
 
     //dump magnitude back into the results
     if(abs(this.magnitude)>factors.size()*24){
-      warn(ERROR_CODE+ "Cannot express magnitude "+magnitude+" with only " +(factors.size())+ "factors. (Absolute value of) cumulative magnitude must be <=24.");
+      warn(ERROR_CODE+ "Cannot express magnitude "+magnitude+" with only " +(factors.size())+ " factors. (Absolute value of) cumulative magnitude must be <=24.");
       return("unprintable");
     }
     dumpMagnitude(factors,this.magnitude);
