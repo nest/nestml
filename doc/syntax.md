@@ -313,12 +313,12 @@ integer expression `n` the following operators produce valid expressions.
 | Operator | Description | Examples |
 |---|---|---|
 |`()` | Expressions with parentheses | `(a)` |
-|`\*\*`|  Power operator. Power is right associative, e.g. `a \*\* b \*\* c` corresponds `a \*\* (b \*\* c) | a \*\* b` |
+|`**`|  Power operator. Power is right associative, e.g. `a ** b ** c` corresponds `a ** (b ** c)` | `a ** b` |
 |`+,  -, ~`| unary plus, unary minus, bitwise negation | `-a`, `~c`|
 |`\*, /,%`| Multiplication, Division and Modulo-Operator | `a \* b`, `a % b`|
 |`+, -`| Addition and Subtraction |`a + b`, `a - b`|
 |`<<, >>`| & Left and right bit shifts |`a << n`, `a >> n`|
-|`&`, `^`| Bitwise `and`, `or` and `xor` | `a&b`, `a`&#124;`b`, `a~b` |
+|`&`, &#124;,`^`| Bitwise `and`, `or` and `xor` | `a&b`, `a`&#124;`b`, `a~b` |
 |`<, <=, ==, !=, >=, >`|  Comparison operators |`a <= b`, `a != b`|
 |`not, and, or`| & Logical conjunction, disjunction and negation |`not c`, `c1 or c2`|
 |`?:`| The ternary logical operator |`c?a:b`|
