@@ -74,52 +74,6 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     return (this.exponentSum()+abs(this.magnitude) == 0) ? true : false;
   }
 
-  /** calculates, if existent, the power of the base unit that this represents.
-   * I.e. calculates x in:
-   *
-   *    base**x = this
-   *
-   *    iff x is a integer
-   *
-   *
-   * TODO: rewrite to not require exact matching for a more intuitive overall match
-   * i.e. account for:
-   *    this = base**x * y
-   *
-   *    where x is an integer and y is a unit type.
-   */
-  private Optional<Integer> getExponent(UnitRepresentation base){
-    int[] thisUnits = this.asArray();
-    int[] baseUnits = base.asArray();
-    Integer factor = null;
-    for (int i=0;i<thisUnits.length;i++){
-      int thisValue = thisUnits[i];
-      int baseValue = baseUnits[i];
-      if(thisValue ==0 && baseValue != 0 ||
-          thisValue !=0 && baseValue == 0) {
-        return Optional.empty();
-      }
-      if(thisValue !=0){
-        if(thisValue % baseValue != 0) {
-          return Optional.empty();
-        }
-        //At this point we know that modulo of both (nonzero) components is 0
-        if(factor == null) {
-          factor = thisValue / baseValue;
-        }
-        else if(factor != thisValue/baseValue){
-          return Optional.empty();
-        }
-      }
-    }
-
-    if(factor != null)
-      return Optional.of(factor);
-    else
-      return Optional.empty();
-  }
-
-
   private String removeTrailingMultiplication(String str){
     if(str.length() <3){
       return str;
