@@ -77,6 +77,6 @@ With the previous example, this results in a module called `models`, which can b
 
 ```
 nest.Install("models")
-aeif_cond_alpha = nest.Create("aeif_cond_alpha")
-hh_psc_alpha = nest.Create("hh_psc_alpha")
+aeif_cond_alpha = nest.Create("aeif_cond_alpha_neuron")
+hh_psc_alpha = nest.Create("hh_psc_alpha_neuron")
 ```
