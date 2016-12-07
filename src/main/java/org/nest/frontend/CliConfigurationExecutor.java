@@ -132,17 +132,19 @@ public class CliConfigurationExecutor {
       scopeCreator.runSymbolTableCreator(modelRoot);
       final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
       symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
+
       if (symbolTableFindings.isEmpty()) {
         reporter.addArtifactInfo(modelRoot.getArtifactName(), "Successfully built the symboltable.", Reporter.Level.INFO);
       } else {
         reporter.addArtifactInfo(modelRoot.getArtifactName(), "Cannot built the symboltable.", Reporter.Level.INFO);
       }
       final Collection<Finding> symbolTableWarnings = LogHelper.getWarningsByPrefix("NESTML_", Log.getFindings());
+      symbolTableWarnings.addAll(LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
       symbolTableWarnings.forEach(warning -> reporter.addArtifactInfo(modelRoot.getArtifactName(), warning.getMsg(), Reporter.Level.WARNING));
     }
 
     final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
-    symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL", Log.getFindings()));
+    symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
     if (symbolTableFindings.isEmpty() && checkModels(modelRoots, config)) {
       generateNeuronCode(modelRoots, config, generator);
