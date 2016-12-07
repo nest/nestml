@@ -78,8 +78,14 @@ public class GslReferenceConverter implements IReferenceConverter {
       }
 
     }
-    if ("pow".equals(functionName)) {
+    if (PredefinedFunctions.POW.equals(functionName)) {
       return "pow(%s)";
+    }
+    if (PredefinedFunctions.MAX.equals(functionName)) {
+      return "std::max(%s)";
+    }
+    if (PredefinedFunctions.MIN.equals(functionName)) {
+      return "std::min(%s)";
     }
     if (functionName.contains(PredefinedFunctions.EMIT_SPIKE)) {
       return "set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n" +
