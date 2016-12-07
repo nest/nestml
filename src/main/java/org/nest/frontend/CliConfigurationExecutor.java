@@ -75,6 +75,7 @@ public class CliConfigurationExecutor {
     for (final Path modelFile:nestmlModelFiles) {
       try {
         final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelFile.toString());
+
         if (root.isPresent()) {
           modelRoots.add(root.get());
           reporter.addArtifactInfo(
@@ -130,6 +131,7 @@ public class CliConfigurationExecutor {
 
       scopeCreator.runSymbolTableCreator(modelRoot);
       final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
+      symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
       if (symbolTableFindings.isEmpty()) {
         reporter.addArtifactInfo(modelRoot.getArtifactName(), "Successfully built the symboltable.", Reporter.Level.INFO);
       } else {
@@ -140,6 +142,7 @@ public class CliConfigurationExecutor {
     }
 
     final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
+    symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL", Log.getFindings()));
 
     if (symbolTableFindings.isEmpty() && checkModels(modelRoots, config)) {
       generateNeuronCode(modelRoots, config, generator);
