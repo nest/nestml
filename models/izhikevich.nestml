@@ -69,7 +69,6 @@ neuron izhikevich_neuron:
   output: spike
 
   update:
-    I = currents.get_sum()
     integrate_odes()
     # Add synaptic current
     V_m += spikes.get_sum()
@@ -84,6 +83,7 @@ neuron izhikevich_neuron:
       emit_spike()
     end
 
+    I = currents.get_sum()
   end
 
 end

@@ -63,11 +63,11 @@ neuron hh_psc_alpha_neuron:
 
   equations:
     # synapses: alpha functions
-    shape g_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    shape I_in = 1 pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+    shape I_ex = 1 pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
-    I_syn_exc pA = curr_sum(g_ex, spikeExc)
-    I_syn_inh pA = curr_sum(g_in, spikeExc)
+    I_syn_exc pA = curr_sum(I_ex, spikeExc)
+    I_syn_inh pA = curr_sum(I_in, spikeExc)
     I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     I_L   pA = g_L * ( V_m - E_L )
@@ -106,11 +106,11 @@ neuron hh_psc_alpha_neuron:
   internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_syn_ex
+    PSConInit_E pA/ms = 1.0 pA * e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_syn_in
+    PSConInit_I pA/ms = 1.0 pA * e / tau_syn_in
 
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps

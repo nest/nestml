@@ -46,11 +46,11 @@ neuron aeif_cond_exp_neuron:
 
     # Add aliases to simplify the equation definition of V_m
     exp_arg real = (V_m-V_th)/delta_T
-    I_spike pA = delta_T*exp(exp_arg)
+    I_spike pA = g_L*delta_T*exp(exp_arg)
     I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
     I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
 
-    V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
+    V_m' = ( -g_L*( V_m - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
   end
 
@@ -102,13 +102,10 @@ neuron aeif_cond_exp_neuron:
     integrate_odes()
 
     if r > 0: # refractory
-      r = r - 1
-    end
-
-    if r > 0: # not refractory
+      r -= 1 # decrement refractory ticks count
       V_m = V_reset # clamp potential
-    elif V_m >= V_peak:
-      r = RefractoryCounts
+    elif V_m >= V_peak: # threshold crossing detection
+      r = RefractoryCounts + 1
       V_m = V_reset # clamp potential
       w += b
       emit_spike()

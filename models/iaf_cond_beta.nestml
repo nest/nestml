@@ -23,8 +23,8 @@ SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha */
 neuron iaf_cond_beta_neuron:
   state:
     V_m mV = E_L # membrane potential
-    GI nS = 0 # inputs from the inh conductance
-    GE nS = 0 # inputs from the exc conductance
+    GI nS = 0 nS # inputs from the inh conductance
+    GE nS = 0 nS # inputs from the exc conductance
 
   end
 
