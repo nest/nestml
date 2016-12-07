@@ -1,0 +1,54 @@
+/*
+  Implementation of the izhikevich neuron
+*/
+neuron izhikevich_neuron:
+
+  state:
+    V_m mV = -65mV # Membrane potential in mV
+    U_m real
+    # TODO add new variable U_m with the type real
+    # NESTML syntax for variables: variable_name real = initial_value
+  end
+
+  equations:
+    # TODO Add 2 ODEs for the V_m und U_m.
+    # You can use current buffer I directly in the ODE
+     V_m' = 0.04 *V_m *V_m + 5 * V_m + 140 - U_m + I
+     U_m' = a*(b*V_m -U_m)
+  end
+
+  parameters:
+    # Add 4 variables a,b,c, d of real type
+    a real = 0.02
+    b real = 0.2
+    c mV = -65.0mV
+    d real = 2mV
+  end
+
+  input:
+    # TODO add current buffer named I
+    # NESTML Syntax for current buffers: buffer_name <- current
+    I <- current
+  end
+
+  output: spike
+
+  update:
+    integrate_odes()
+    # TODO: Implement threshold crossing check
+
+    # use an if-conditional block. The NESTML systax looks like:
+    # if a >= b:
+    #   a += b
+    #   b = a
+    #   emit_spike()
+    # end
+
+    if V_m >= 30.0mV:
+      U_m += d
+      V_m = c
+    end
+
+  end
+
+end
