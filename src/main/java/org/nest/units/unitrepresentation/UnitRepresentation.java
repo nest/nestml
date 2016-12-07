@@ -5,15 +5,7 @@
  */
 package org.nest.units.unitrepresentation;
 
-import com.google.common.base.Preconditions;
-import javafx.util.Pair;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -241,7 +233,7 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
 
       UnitRepresentation base = SIData.getBaseRepresentations().get(baseName);
       //match base in workingCopy
-      Pair<Integer,UnitRepresentation> match = workingCopy.match(base);
+      Map.Entry<Integer,UnitRepresentation> match = workingCopy.match(base);
       UnitRepresentation remainder = match.getValue();
       Factor factor = new Factor(baseName,match.getKey());
       orderedResults.add(new FactorizationResult(remainder,factor));
@@ -271,15 +263,15 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     return false;
   }
 
-  private Pair<Integer, UnitRepresentation> match(UnitRepresentation base) {
+  private Map.Entry<Integer,UnitRepresentation> match(UnitRepresentation base) {
     if(this.contains(base)){ //base is factor with positive exponent
       int exponent = 1;
       while(this.contains(base.pow(++exponent))){} //step up until we lose match
       exponent--; //step back once
-      return new Pair(exponent,this.divideBy(base.pow(exponent)));
+      return new AbstractMap.SimpleEntry<>(exponent,this.divideBy(base.pow(exponent)));
 
     }else{ //base is not a factor: return division result anyways so we can expand if nothing else matches
-      return new Pair(1,this.divideBy(base));
+      return new AbstractMap.SimpleEntry<>(1,this.divideBy(base));
     }
   }
 
