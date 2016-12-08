@@ -17,6 +17,7 @@ import org.nest.utils.AstUtils;
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
+import static org.nest.spl._cocos.SplErrorStrings.messageCastToReal;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
@@ -66,8 +67,9 @@ public class IllegalExpression implements
             node.get_SourcePositionStart());
         if(isReal(variableType)&&isUnit(expressionType.getValue())){
           //TODO put in string class when I inevitably refactor it.
-          warn("SPL_ILLEGAL_EXPRESSION: Implicit casting from "+expressionType.getValue().prettyPrint()+" to real");
-        }else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
+          final String castMsg = messageCastToReal(this, expressionType.getValue().prettyPrint(), node.getExpr().get_SourcePositionStart());
+          warn(castMsg);
+        } else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
           warn(msg, node.get_SourcePositionStart());
         }
         else {
@@ -104,7 +106,13 @@ public class IllegalExpression implements
             node.get_SourcePositionStart());
           if(isReal(variableDeclarationType)&&isUnit(initializerExpressionType.getValue())){
             //TODO put in string class when I inevitably refactor it.
-            warn("SPL_ILLEGAL_EXPRESSION: Implicit casting from "+initializerExpressionType.getValue().prettyPrint()+" to real");
+
+
+            final String castMsg = messageCastToReal(
+                this,
+                initializerExpressionType.getValue().prettyPrint(),
+                node.getExpr().get().get_SourcePositionStart());
+            warn(castMsg);
           }else if (isUnit(variableDeclarationType)){ //assignee is unit -> drop warning not error
             warn(msg, node.get_SourcePositionStart());
           }

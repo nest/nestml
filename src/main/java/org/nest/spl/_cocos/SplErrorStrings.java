@@ -154,13 +154,13 @@ public class SplErrorStrings {
     return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, expressionType);
   }
 
-  static String messageInvalidExpression(
+  static String messageCastToReal(
       final IllegalExpression coco,
-      final String errorDescription,
+      final String soruceType,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = errorDescription;
+    final String ERROR_MSG_FORMAT = "Implicit casting from %s to real";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + ERROR_MSG_FORMAT;
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, soruceType);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing

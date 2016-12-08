@@ -36,7 +36,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
   end
 
   equations:
-      shape I_shape = (e/tau_syn) * t * exp(-1/tau_syn*t)
+      shape I_shape = 1 pA * (e/tau_syn) * t * exp(-1/tau_syn*t)
       V_abs' = -1/tau_m * V_abs + 1/C_m * (curr_sum(I_shape, spikes) + I_e + currents)
   end
 

@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.helpers.AliasInverter;
+import org.nest.codegeneration.sympy.NESTMLASTCreator;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
@@ -273,6 +274,11 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   public void addToInternalBlock(final ASTAliasDecl astAliasDecl) {
+    if (!this.getInternalBlock().isPresent()) {
+      final ASTVar_Block internalBlock = NESTMLASTCreator.createInternalBlock();
+      getBodyElements().add(internalBlock);
+    }
+
     this.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
 
       ASTVar_Block block = (ASTVar_Block) be;

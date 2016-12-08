@@ -1,0 +1,34 @@
+neuron rc_alpha_response:
+  state:
+    V_m mV = E_L
+  end
+
+  parameters:
+    E_L mV = -30 mV
+    C_m pF = 291 pF
+    tau_syn ms = 1 ms
+    tau_m ms = 10 ms
+    V_th mV = 120 mV
+  end
+
+  equations:
+    shape I_a = e/tau_syn * t * exp(-t/tau_syn)
+    V_m' = -(V_m-E_L)/tau_m + (currents + curr_sum(I_a, spikes))/C_m
+  end
+
+  input:
+    spikes <- spike
+    currents <- current
+  end
+
+  output: spike
+
+  update:
+    integrate_odes()
+    if V_m>V_th:
+      V_m = E_L
+      emit_spike()
+    end
+  end
+
+end
