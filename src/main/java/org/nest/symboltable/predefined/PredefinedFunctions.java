@@ -134,7 +134,7 @@ public class PredefinedFunctions {
     final MethodSymbol i_sum = createFunctionSymbol(CURR_SUM);
     i_sum.addParameterType(getType("pA"));
     i_sum.addParameterType(getBufferType());
-    i_sum.setReturnType(getType("nS"));
+    i_sum.setReturnType(getType("pA"));
     name2FunctionSymbol.put(CURR_SUM, i_sum);
 
     final MethodSymbol cond_sum = createFunctionSymbol(COND_SUM);
