@@ -83,7 +83,7 @@ neuron izhikevich_neuron:
       emit_spike()
     end
 
-    I = currents.get_sum()
+    I = currents
   end
 
 end

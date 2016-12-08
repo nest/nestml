@@ -146,7 +146,7 @@ neuron hh_psc_alpha_implicit:
       emit_spike()
     end
 
-    I_stim = currents.get_sum()
+    I_stim = currents
 
     I_ex' += spikeExc.get_sum() * PSConInit_E
     I_in' += spikeInh.get_sum() * PSConInit_I
