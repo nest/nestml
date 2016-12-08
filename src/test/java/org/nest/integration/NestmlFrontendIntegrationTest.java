@@ -67,7 +67,7 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void manually() {
     final String[] args = new String[] {
-        "STNGPeGPi",
+        "src/test/resources/feedback",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
