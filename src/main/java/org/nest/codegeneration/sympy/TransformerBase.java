@@ -41,9 +41,9 @@ public class TransformerBase {
       final ASTNeuron astNeuron,
       final Path declarationFile) {
 
-    final ASTAliasDecl p00Declaration = createAliases(declarationFile).get(0);
+    final ASTAliasDecl aliasDecl = createAliases(declarationFile).get(0);
 
-    astNeuron.getBody().addToInternalBlock(p00Declaration);
+    astNeuron.getBody().addToInternalBlock(aliasDecl);
     return astNeuron;
   }
 
