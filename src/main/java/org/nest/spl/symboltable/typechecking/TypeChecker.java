@@ -61,11 +61,11 @@ public class TypeChecker {
     return u != null && u.getName().equals(getRealType().getName());
   }
 
-  public static boolean checkVoid(final TypeSymbol type) {
+  public static boolean isVoid(final TypeSymbol type) {
     return type != null && type.getName().equals(getVoidType().getName());
   }
 
-  public static boolean checkString(final TypeSymbol type) {
+  public static boolean isString(final TypeSymbol type) {
     return type != null && type.getName().equals(getStringType().getName());
 
   }

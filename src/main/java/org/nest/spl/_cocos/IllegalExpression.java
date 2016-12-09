@@ -6,6 +6,9 @@
 package org.nest.spl._cocos;
 
 import de.monticore.ast.ASTNode;
+import groovyjarjarantlr.collections.AST;
+import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTExprTOP;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
@@ -18,9 +21,12 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl._cocos.SplErrorStrings.messageCastToReal;
+import static org.nest.spl._cocos.SplErrorStrings.messageCompoundAssignmentNumericTypes;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isString;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getType;
@@ -45,7 +51,55 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTAssignment node) {
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
+    if(node.isAssignment()){
+      handleAssignment(node);
+    }
+    //compound assignments: Construct dummy '=' assignment node with a conventional expression and test it instead
+    else{
 
+      ASTExpr dummyVariableExpr = ASTExpr.getBuilder().variable(node.getLhsVarialbe()).build();
+      dummyVariableExpr.setEnclosingScope(node.getEnclosingScope().get());
+      //TODO: Correctly calculate source positions
+      dummyVariableExpr.set_SourcePositionStart(node.get_SourcePositionStart());
+
+      ASTExpr.Builder exprBuilder = ASTExpr.getBuilder();
+      if(node.isCompoundProduct()){
+        exprBuilder.timesOp(true);
+      }
+      if(node.isCompoundSum()){
+        exprBuilder.plusOp(true);
+      }
+      if(node.isCompoundQuotient()){
+        exprBuilder.divOp(true);
+      }
+      if(node.isCompoundMinus()){
+        exprBuilder.minusOp(true);
+      }
+      ASTExpr dummyExpression = exprBuilder.left(dummyVariableExpr).right(node.getExpr()).build();
+      dummyExpression.setEnclosingScope(node.getEnclosingScope().get());
+      //TODO: Correctly calculate source positions
+      dummyExpression.set_SourcePositionStart(node.get_SourcePositionStart());
+
+      ASTAssignment dummyAssignment = ASTAssignment.getBuilder()
+          .assignment(true)
+          .lhsVarialbe(node.getLhsVarialbe())
+          .expr(dummyExpression)
+          .build();
+
+      dummyAssignment.setEnclosingScope(node.getEnclosingScope().get());
+      //TODO: Correctly calculate source positions
+      dummyAssignment.set_SourcePositionStart(node.get_SourcePositionStart());
+
+      handleAssignment(dummyAssignment);
+
+    }
+
+
+
+  }
+
+  private void handleAssignment(
+      ASTAssignment node){
     //collect lhs information
     final String variableName = node.getLhsVarialbe().getName().toString();
     final Optional<VariableSymbol> lhsVariable = node.getEnclosingScope().get().resolve(
@@ -55,19 +109,19 @@ public class IllegalExpression implements
 
     //collect rhs information
 
-    final Either<TypeSymbol,String> expressionType = node.getExpr().getType();
-    if(expressionType.isValue()){
-
-      if (!isCompatible(variableType,expressionType.getValue())) {
+    final Either<TypeSymbol,String> expressionTypeEither = node.getExpr().getType();
+    if(expressionTypeEither.isValue()){
+      final TypeSymbol expressionType = expressionTypeEither.getValue();
+      if (!isCompatible(variableType,expressionType)) {
         final String msg = SplErrorStrings.messageAssignment(
             this,
             variableName,
             variableType.prettyPrint(),
-            expressionType.getValue().prettyPrint(),
+            expressionType.prettyPrint(),
             node.get_SourcePositionStart());
-        if(isReal(variableType)&&isUnit(expressionType.getValue())){
+        if(isReal(variableType)&&isUnit(expressionType)){
           //TODO put in string class when I inevitably refactor it.
-          final String castMsg = messageCastToReal(this, expressionType.getValue().prettyPrint(), node.getExpr().get_SourcePositionStart());
+          final String castMsg = messageCastToReal(this, expressionType.prettyPrint(), node.getExpr().get_SourcePositionStart());
           warn(castMsg);
         } else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
           warn(msg, node.get_SourcePositionStart());
@@ -75,7 +129,6 @@ public class IllegalExpression implements
         else {
           error(msg, node.get_SourcePositionStart());
         }
-
       }
     }
   }

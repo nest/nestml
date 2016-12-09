@@ -22,11 +22,30 @@ neuron invalidAssignmentTest:
 
   update:       
     RealValue real = 3 Ohm          #Warning: Assignment of unit to real
-    Resist = 3.0                     #Warning: Assingment of real to unit
+    Resist = 3.0                    #Warning: Assingment of real to unit
     Current A = Resist              #WARNING: Assignment of wrong unit to unit
     Potential V = 3                 #WARNING: Assignment of integer to unit.
-    Int = Resist                    #Error Assignment of unit to integer
+    Int = Resist                    #Error: Assignment of unit to integer
     Resist = OutOfBounds            #2 Warnings: Mismatched Units AND printer error
+
+
+    Int *= RealValue                #Error: assignment of real to integer
+    Int *= Resist                   #Error: assignment of Ohm to integer
+    RealValue *= Resist             #Warning: implicit conversion Ohm -> real
+    Resist *= Resist                #Warning: implicit conversion Ohm**2 -> Ohm
+
+    Int /= RealValue                #Error: assignment of real to integer
+    Int /= Resist                   #Error: assignment of 1/Ohm to integer
+    RealValue /= Resist             #Warning: implicit conversion 1/Ohm -> real
+    Resist /= Resist                #Warning: implicit conversion real -> Ohm
+
+    Int -= RealValue                #Error: assignment of real to integer
+    Int -= Resist                   #Error: assignment of Ohm to integer Warning: substraction of primitive and unit (in equivalent '=' assignment) 
+    RealValue -= Resist             #2 Warning: implicit conversion Ohm -> real AND substraction of primitive and unit (in equivalent '=' assignment) 
+
+    Resist -= 2                     #Warning: implicit conversion Ohm -> integer (in equivalent '=' assignment) 
+    Resist -= 2.5                   #Warning: implicit conversion Ohm -> real  (in equivalent '=' assignment)
+    
   end
 
 end
