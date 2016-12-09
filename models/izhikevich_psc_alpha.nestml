@@ -1,0 +1,115 @@
+/*
+Name: izhikevich_psc_alpha - Detailed Izhikevich neuron model with alpha-shaped
+                             post-synaptic current.
+
+Description:
+Implementation of the simple spiking neuron model introduced by Izhikevich
+[1]. The dynamics are given by:
+   C_m dV_m/dt = k (V-V_t)(V-V_t) - u + I + I_syn_ex + I_syn_in
+   dU_m/dt = a*(b*(V_m-E_L) - U_m)
+
+   if v >= V_th:
+     V_m is set to c
+     U_m is incremented by d
+
+   On each spike arrival, the membrane potential feels an alpha-shaped current
+   of the form:
+     I_syn = I_0 * t * exp(-t/tau_syn) / tau_syn.
+
+References:
+[1] Izhikevich, Simple Model of Spiking Neurons,
+IEEE Transactions on Neural Networks (2003) 14:1569-1572
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+FirstVersion: 2009
+Author: Hanuschkin, Morrison, Kunkel
+SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
+*/
+
+neuron izhikevich_psc_alpha:
+
+  state:
+    V_m mV = -65 mV # Membrane potential in mV
+    U_m pA = 0 pA   # Membrane potential recovery variable
+    I_syn_ex pA = 0. pA # inputs from the exc conductance
+    I_syn_in pA = 0. pA # inputs from the inh conductance
+  end
+
+  equations:
+    # synapses: alpha functions
+    I_syn_ex'' = -I_syn_ex' / tau_syn_ex
+    I_syn_ex' = I_syn_ex' - ( I_syn_ex / tau_syn_ex )
+    I_syn_in'' = -I_syn_in' / tau_syn_in
+    I_syn_in' = I_syn_in' - ( I_syn_in / tau_syn_in )
+    
+    I_syn_exc pA = curr_sum(I_syn_ex, spikesExc)
+    I_syn_inh pA = curr_sum(I_syn_in, spikesInh)
+    
+    V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_syn_inh + I_syn_exc ) / C_m
+    U_m' = a * ( b*(V_m - V_r) - U_m )
+  end
+
+  parameters:
+    C_m pF = 200. pF           # Membrane capacitance
+    k pF/mV/ms = 8. [pF/mV/ms] # Spiking slope
+    V_r mV = -65. mV           # resting potential
+    V_t mV = -45. mV           # threshold potential
+    a 1/ms = 0.01 [1/ms]       # describes time scale of recovery variable
+    b nS = 9. nS               # sensitivity of recovery variable
+    c mV = -65 mV              # after-spike reset value of V_m
+    d pA = 60. pA              # after-spike reset value of U_m
+    I_e pA = 0. pA             # Constant input current in pA. (R=1)
+    V_peak mV = 0. mV          # Spike detection threashold (reset condition)
+    tau_syn_ex ms = 0.2 ms     # Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_in ms = 2.0 ms     # Synaptic Time Constant for Inhibitory Synapse in ms
+    t_ref ms = 2.0 ms      # Refractory period
+  end
+
+  internals:
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_E pA/ms = 1.0 pA * e / tau_syn_ex
+
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_I pA/ms = 1.0 pA * e / tau_syn_in
+
+
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer # number of steps in the current refractory phase
+
+   # Input current injected by CurrentEvent.
+   # This variable is used to transport the current applied into the
+   # _dynamics function computing the derivative of the state vector.
+   I_stim pA = 0. pA
+  end
+
+  input:
+    spikesInh <- inhibitory spike
+    spikesExc <- excitatory spike
+    currents  <- current
+  end
+
+  output: spike
+
+  update:
+    integrate_odes()
+
+    # refractoriness and threshold crossing
+    if r > 0: # is refractory?
+      r -= 1
+    elif V_m >= V_peak:
+      V_m = c
+      U_m += d
+      emit_spike()
+      r = RefractoryCounts
+    end
+
+    I_syn_ex += spikesExc
+    I_syn_in += spikesInh
+    I_stim = currents
+  end
+
+end
