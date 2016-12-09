@@ -5,33 +5,22 @@
  */
 package org.nest.spl._cocos;
 
-import de.monticore.ast.ASTNode;
-import groovyjarjarantlr.collections.AST;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTExprTOP;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.AstUtils;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl._cocos.SplErrorStrings.messageCastToReal;
-import static org.nest.spl._cocos.SplErrorStrings.messageCompoundAssignmentNumericTypes;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isString;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.utils.AstUtils.computeTypeName;
-import static org.nest.utils.AstUtils.getNameOfLHS;
 
 import java.util.Optional;
 
