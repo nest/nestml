@@ -49,8 +49,8 @@ neuron aeif_cond_exp_implicit:
     g_ex' = -g_ex/tau_syn_ex
 
     # Add aliases to simplify the equation definition of V_m
-    exp_arg real = (V_bounded-V_th)/delta_T
-    I_spike pA = g_L*delta_T*exp(exp_arg)
+    exp_arg real = (V_bounded-V_th)/Delta_T
+    I_spike pA = g_L*Delta_T*exp(exp_arg)
     I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_bounded - E_ex )
     I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_bounded - E_in )
 
@@ -70,7 +70,7 @@ neuron aeif_cond_exp_implicit:
     # spike adaptation parameters
     a nS = 4nS             # Subthreshold adaptation.
     b pA = 80.5pA          # Spike-trigg_exred adaptation.
-    delta_T mV = 2.0mV     # Slope factor
+    Delta_T mV = 2.0mV     # Slope factor
     tau_w ms = 144.0ms     # Adaptation time constant in
     V_th mV = -50.4mV      # Threshold Potential
     V_peak mV = 0mV        # Spike detection threshold in mV.
