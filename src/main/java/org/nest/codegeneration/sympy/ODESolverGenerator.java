@@ -161,6 +161,7 @@ public class ODESolverGenerator {
 
     glex.setGlobalValue("variables", variables);
     glex.setGlobalValue("aliases", aliases);
+    glex.setGlobalValue("neuronName", neuron.getName());
 
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("printer", expressionsPrinter);

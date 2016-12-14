@@ -8,7 +8,7 @@ neuron rc_alpha_response:
     C_m pF = 291 pF
     tau_syn ms = 1 ms
     tau_m ms = 10 ms
-    V_th mV = 120 mV
+    V_th mV = 120 mV**-1
   end
 
   equations:

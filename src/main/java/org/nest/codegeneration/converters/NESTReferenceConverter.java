@@ -72,10 +72,10 @@ public class NESTReferenceConverter implements IReferenceConverter {
     if (PredefinedFunctions.POW.equals(functionName)) {
       return "std::pow(%s)";
     }
-    if (PredefinedFunctions.MAX.equals(functionName)) {
+    if (PredefinedFunctions.MAX.equals(functionName) || PredefinedFunctions.BOUNDED_MAX.equals(functionName)) {
       return "std::max(%s)";
     }
-    if (PredefinedFunctions.MIN.equals(functionName)) {
+    if (PredefinedFunctions.MIN.equals(functionName) || PredefinedFunctions.BOUNDED_MIN.equals(functionName) ) {
       return "std::min(%s)";
     }
 

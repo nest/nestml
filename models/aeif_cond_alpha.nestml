@@ -38,7 +38,7 @@ neuron aeif_cond_alpha_neuron:
   end
 
   equations:
-    V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
+    V_bounded mV = bounded_min(V_m, V_peak) # prevent exponential divergence
     shape g_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 

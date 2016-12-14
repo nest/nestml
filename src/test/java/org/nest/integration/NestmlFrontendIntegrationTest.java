@@ -67,7 +67,7 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void manually() {
     final String[] args = new String[] {
-        "src/test/resources/feedback",
+        "models/aeif_cond_alpha.nestml",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);

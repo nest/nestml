@@ -5,13 +5,17 @@
  */
 package org.nest.codegeneration;
 
+import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
+import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.*;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.sympy.ODETransformer;
 import org.nest.codegeneration.sympy.OdeProcessor;
+import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -23,8 +27,11 @@ import org.nest.symboltable.NESTMLSymbols;
 import org.nest.utils.AstUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Optional;
 
@@ -84,6 +91,7 @@ public class NestCodeGenerator {
     if (odesBlock.isPresent()) {
       if (odesBlock.get().getShapes().size() == 0) {
         info("The model will be solved numerically with GSL solver.", LOG_NAME);
+        markNumericSolver(astNeuron.getName(), outputBase);
         return astNeuron;
       }
       else {
@@ -96,6 +104,17 @@ public class NestCodeGenerator {
       return astNeuron;
     }
 
+  }
+
+  private void markNumericSolver(final String neuronName, final Path outputBase) {
+    try {
+      Files.write("numeric",
+                  Paths.get(outputBase.toString(), neuronName + "." + TransformerBase.SOLVER_TYPE).toFile(),
+                  Charset.defaultCharset());
+    }
+    catch (IOException e) {
+      Log.error("Cannot write status file. Check you permissions.", e);
+    }
   }
 
   private void generateNestCode(
