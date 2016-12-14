@@ -75,7 +75,9 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
 
     assertTrue(evaluator.evaluateScript(generatedScript.get()));
-    assertTrue(Files.exists(Paths.get(SYMPY_OUTPUT.toString(), TransformerBase.SOLVER_TYPE)));
+    assertTrue(Files.exists(Paths.get(
+        SYMPY_OUTPUT.toString(),
+        root.get().getNeurons().get(0).getName() + "." + TransformerBase.SOLVER_TYPE)));
   }
 
 }

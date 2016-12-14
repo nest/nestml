@@ -25,16 +25,17 @@ import static org.junit.Assert.*;
  */
 public class DeltaSolutionTransformerTest extends ModelbasedTest {
   private static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
-
-  private final static Path P30_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      DeltaSolutionTransformer.P30_FILE);
-
-  private final static Path PROPAGATPR_STEP_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.PROPAGATOR_STEP_FILE);
   private static final String NEURON_NAME = "iaf_psc_delta_neuron";
   private static final String MODEL_FILE_PATH = "models/iaf_psc_delta.nestml";
+
+  private final static Path P30_FILE = Paths.get(
+      "src/test/resources/codegeneration/sympy/delta/",
+      NEURON_NAME + "." + DeltaSolutionTransformer.P30_FILE);
+
+  private final static Path PROPAGATPR_STEP_FILE = Paths.get(
+      "src/test/resources/codegeneration/sympy/delta/",
+      NEURON_NAME + "." + LinearSolutionTransformer.PROPAGATOR_STEP_FILE);
+
 
   @Test
   public void testAddingSolution() {
@@ -43,7 +44,8 @@ public class DeltaSolutionTransformerTest extends ModelbasedTest {
 
     final DeltaSolutionTransformer deltaSolutionTransformer = new DeltaSolutionTransformer();
 
-    deltaSolutionTransformer.addExactSolution(modelRoot.getNeurons().get(0), P30_FILE, PROPAGATPR_STEP_FILE);
+    deltaSolutionTransformer.addExactSolution(
+        modelRoot.getNeurons().get(0), P30_FILE, PROPAGATPR_STEP_FILE);
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
