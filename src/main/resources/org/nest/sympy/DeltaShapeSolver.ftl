@@ -30,15 +30,15 @@ dev${ode.getLhs().getSimpleName()} = diff(rhs, ${ode.getLhs().getSimpleName()})
 dev_t_dev${ode.getLhs().getSimpleName()} = diff(dev${ode.getLhs().getSimpleName()}, t)
 
 if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
-    solverType = open('solverType.tmp', 'w')
+    solverType = open('${neuronName}.solverType.tmp', 'w')
     solverType.write("exact")
 
-    propagatorStepFile = open('propagator.step.tmp', 'w')
+    propagatorStepFile = open('${neuronName}.propagator.step.tmp', 'w')
     propagatorStepFile.write("${ode.getLhs().getSimpleName()} += P30 * (" + str(constantInputs) + ") ")
     # calculate -1/Tau
     c1 = diff(rhs, ${ode.getLhs().getSimpleName()})
     # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative
     ${shapes[0].getLhs()} = symbols("${shapes[0].getLhs()}")
     c2 = diff( ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))} , ${shapes[0].getLhs()})
-    f = open('P30.tmp', 'w')
+    f = open('${neuronName}.P30.tmp', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(__h__ * c1) - 1))) + "# P00 expression")

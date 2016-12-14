@@ -1,6 +1,7 @@
 package org.nest.codegeneration.sympy;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
@@ -19,23 +20,49 @@ import java.util.stream.Collectors;
  * @author plotnikov
  */
 public class ODETransformer {
+  private static final List<String> functions = Lists.newArrayList(
+      PredefinedFunctions.CURR_SUM,
+      PredefinedFunctions.COND_SUM,
+      PredefinedFunctions.BOUNDED_MIN,
+      PredefinedFunctions.BOUNDED_MAX);
+
+  private static final List<String> sumFunctions = Lists.newArrayList(
+      PredefinedFunctions.CURR_SUM,
+      PredefinedFunctions.COND_SUM);
+
+
   // this function is used in freemarker templates und must be public
-  public static <T extends ASTNode> T replaceSumCalls(final T astOde) {
+  public static <T extends ASTNode> T replaceFunctions(final T astOde) {
     // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
-    final List<ASTFunctionCall> functions = get_sumFunctionCalls(astOde);
+    final List<ASTFunctionCall> functionsCalls = getFunctionCalls(astOde, functions);
 
     final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepClone returns T
-    functions.forEach(node -> replaceFunctionCallThroughFirstArgument(astOde, node)); // TODO deepClone
+    functionsCalls.forEach(functionCall -> replaceFunctionCallThroughFirstArgument(astOde, functionCall)); // TODO deepClone
     return astOde;
   }
 
   // this function is used in freemarker templates und must be public
+  public static <T extends ASTNode> T replaceSumCalls(final T astOde) {
+    // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
+    final List<ASTFunctionCall> functionsCalls = get_sumFunctionCalls(astOde);
+
+    final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepClone returns T
+    functionsCalls.forEach(functionCall -> replaceFunctionCallThroughFirstArgument(astOde, functionCall)); // TODO deepClone
+    return astOde;
+  }
+
+
+
+  // this function is used in freemarker templates und must be public
   static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
+    return getFunctionCalls(workingCopy, sumFunctions);
+  }
+
+  // this function is used in freemarker templates und must be public
+  private static List<ASTFunctionCall> getFunctionCalls(final ASTNode workingCopy, final List<String> functionNames) {
     return AstUtils.getAll(workingCopy, ASTFunctionCall.class)
         .stream()
-        .filter(astFunctionCall ->
-            astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM) ||
-            astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
+        .filter(astFunctionCall -> functionNames.contains(astFunctionCall.getCalleeName()))
         .collect(Collectors.toList());
   }
 

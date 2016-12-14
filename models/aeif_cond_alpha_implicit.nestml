@@ -42,12 +42,12 @@ neuron aeif_cond_alpha_implicit:
   equations:
     V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
     # alpha function for the g_in
-    g_in'' = -g_in'/tau_syn_in
-    g_in' = g_in' - g_in/tau_syn_in
+    g_in'' = (-2/tau_syn_in) * g_in'-(1/tau_syn_in**2) * g_in
+    g_in' = g_in'
 
     # alpha function for the g_ex
-    g_ex'' = -g_ex'/tau_syn_ex
-    g_ex' = g_ex' - g_ex/tau_syn_ex
+    g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
+    g_ex' = g_ex'
 
     # Add aliases to simplify the equation definition of V_m
     exp_arg real = (V_bounded-V_th)/Delta_T

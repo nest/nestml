@@ -81,10 +81,10 @@ public class GslReferenceConverter implements IReferenceConverter {
     if (PredefinedFunctions.POW.equals(functionName)) {
       return "pow(%s)";
     }
-    if (PredefinedFunctions.MAX.equals(functionName)) {
+    if (PredefinedFunctions.MAX.equals(functionName) || PredefinedFunctions.BOUNDED_MAX.equals(functionName)) {
       return "std::max(%s)";
     }
-    if (PredefinedFunctions.MIN.equals(functionName)) {
+    if (PredefinedFunctions.MIN.equals(functionName)|| PredefinedFunctions.BOUNDED_MIN.equals(functionName)) {
       return "std::min(%s)";
     }
     if (functionName.contains(PredefinedFunctions.EMIT_SPIKE)) {

@@ -100,7 +100,7 @@ public class OdeProcessor {
 
       checkState(successfulExecution, "Error during solver script evaluation.");
 
-      final Path odeTypePath = Paths.get(outputBase.toString(), DeltaSolutionTransformer.ODE_TYPE);
+      final Path odeTypePath = Paths.get(outputBase.toString(), astNeuron.getName() + "." + DeltaSolutionTransformer.SOLVER_TYPE);
       final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
       if (solutionType.equals(SolverType.EXACT)) {
@@ -109,8 +109,8 @@ public class OdeProcessor {
             LOG_NAME);
         deltaSolutionTransformer.addExactSolution(
             astNeuron,
-            Paths.get(outputBase.toString(), DeltaSolutionTransformer.P30_FILE),
-            Paths.get(outputBase.toString(), DeltaSolutionTransformer.PROPAGATOR_STEP));
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + DeltaSolutionTransformer.P30_FILE),
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + DeltaSolutionTransformer.PROPAGATOR_STEP));
       }
       else {
         Log.warn(astNeuron.getName() + " has a delta shape function with a non-linear ODE.");
@@ -137,7 +137,7 @@ public class OdeProcessor {
 
       checkState(successfulExecution, "Error during solver script evaluation.");
 
-      final Path odeTypePath = Paths.get(outputBase.toString(), TransformerBase.SOLVER_TYPE);
+      final Path odeTypePath = Paths.get(outputBase.toString(), astNeuron.getName() + "." + TransformerBase.SOLVER_TYPE);
       final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
       if (solutionType.equals(SolverType.EXACT)) {
@@ -145,21 +145,21 @@ public class OdeProcessor {
 
         return linearSolutionTransformer.addExactSolution(
             astNeuron,
-            Paths.get(outputBase.toString(), LinearSolutionTransformer.P30_FILE),
-            Paths.get(outputBase.toString(), LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE),
-            Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VARIABLES_FILE),
-            Paths.get(outputBase.toString(), LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE),
-            Paths.get(outputBase.toString(), LinearSolutionTransformer.PROPAGATOR_STEP_FILE),
-            Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE),
-            Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE),
-            Paths.get(outputBase.toString(), LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE));
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.P30_FILE),
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE),
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VARIABLES_FILE),
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE),
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.PROPAGATOR_STEP_FILE),
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE),
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE),
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE));
       }
       else if (solutionType.equals(SolverType.NUMERIC)) {
         info("ODE is solved numerically.", LOG_NAME);
         return implicitFormTransformer.transformToImplicitForm(
             astNeuron,
-            Paths.get(outputBase.toString(),ImplicitFormTransformer.PSC_INITIAL_VALUE_FILE),
-            Paths.get(outputBase.toString(),ImplicitFormTransformer.EQUATIONS_FILE));
+            Paths.get(outputBase.toString(), astNeuron.getName() + "." + ImplicitFormTransformer.PSC_INITIAL_VALUE_FILE),
+            Paths.get(outputBase.toString(),astNeuron.getName() + "." + ImplicitFormTransformer.EQUATIONS_FILE));
       }
       else {
         warn(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.");

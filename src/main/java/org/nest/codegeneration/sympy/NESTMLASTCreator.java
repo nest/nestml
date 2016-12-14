@@ -38,7 +38,7 @@ public class NESTMLASTCreator {
   }
 
   static List<ASTAliasDecl> createAliases(final Path declarationFile) {
-    checkArgument(Files.exists(declarationFile));
+    checkArgument(Files.exists(declarationFile), declarationFile.toString());
 
     try {
       return Files.lines(declarationFile)
