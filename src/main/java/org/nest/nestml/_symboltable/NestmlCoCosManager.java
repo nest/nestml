@@ -116,6 +116,9 @@ public class NestmlCoCosManager {
     final NESTFunctionNameChecker functionNameChecker = new NESTFunctionNameChecker();
     nestmlCoCoChecker.addCoCo(functionNameChecker);
 
+    final FunctionParameterHasTypeName FunctionParameterHasTypeName = new FunctionParameterHasTypeName();
+    nestmlCoCoChecker.addCoCo(FunctionParameterHasTypeName);
+
     final GetterSetterFunctionNames getterSetterFunctionNames = new GetterSetterFunctionNames();
     nestmlCoCoChecker.addCoCo(getterSetterFunctionNames);
 

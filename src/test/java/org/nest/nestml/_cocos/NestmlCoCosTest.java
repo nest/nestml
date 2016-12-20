@@ -9,10 +9,8 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
-import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.SplErrorStrings;
 import org.nest.spl._cocos.VarHasTypeName;
@@ -411,6 +409,27 @@ public class NestmlCoCosTest {
         NESTFunctionNameChecker.ERROR_CODE,
         8);
   }
+
+  @Test
+  public void testFunctionParameterHasTypeName() {
+    final FunctionParameterHasTypeName functionParameterHasTypeName = new FunctionParameterHasTypeName();
+    nestmlCoCoChecker.addCoCo(functionParameterHasTypeName);
+
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/functionParameterHasTypeName.nestml");
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        NESTFunctionNameChecker.ERROR_CODE);
+
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/functionParameterHasTypeName.nestml");
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        NESTFunctionNameChecker.ERROR_CODE,
+        2);
+  }
+
+
 
   @Test
   public void testNESTGetterSetterFunctionNames() {

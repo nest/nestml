@@ -6,7 +6,7 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.utils.AstUtils;
 
 /**
@@ -77,6 +77,17 @@ public class NestmlErrorStrings {
   @SuppressWarnings("unused") // parameter is used for dispatch
   static String code(final ComponentWithoutOutput coco) {
     return "NESTML_COMPONENT_WITHOUT_OUTPUT";
+  }
+
+  static String message(final FunctionParameterHasTypeName coco, final String variable, SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "The function parameter '%s' has name of an existing NESTML type.";
+
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  public static String code(final FunctionParameterHasTypeName coco) {
+    return "NESTML_FUNCTION_PARAMETER_HAS_TYPE_NAME";
   }
 
   String getErrorMsg(UnitDeclarationOnlyOnesAllowed coco){
