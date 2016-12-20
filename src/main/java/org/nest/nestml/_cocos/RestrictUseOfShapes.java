@@ -1,11 +1,5 @@
 package org.nest.nestml._cocos;
 
-import static de.se_rwth.commons.logging.Log.error;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import de.monticore.ast.ASTNode;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
@@ -14,6 +8,12 @@ import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTShape;
 import org.nest.utils.AstUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * @author  traeder

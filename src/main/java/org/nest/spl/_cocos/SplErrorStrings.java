@@ -48,14 +48,14 @@ public class SplErrorStrings {
     return "SPL_VARIABLE_DOES_NOT_EXIST";
   }
 
-  static String message(final VariableDefinedMultipleTimes coco, final String variable, SourcePosition sourcePosition){
+  static String message(final SPLVariableDefinedMultipleTimes coco, final String variable, SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "The variable %s defined multiple times.";
 
     return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
-  static String code(final VariableDefinedMultipleTimes coco) {
+  static String code(final SPLVariableDefinedMultipleTimes coco) {
     return "SPL_VARIABLE_EXISTS_MULTIPLE_TIMES";
   }
 
@@ -104,22 +104,6 @@ public class SplErrorStrings {
     return "SPL_VARIABLE_NOT_DEFINED_BEFORE_USE";
   }
 
-  static String message(
-      final IllegalVarInFor coco,
-      final String variable,
-      final String type,
-      final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "The type of the iterator variable %s in a for-loop must be numeric and not:" +
-                                    " '%s' .";
-
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
-  }
-
-  @SuppressWarnings({"unused"}) // used for the routing
-  public static String code(final IllegalVarInFor coco) {
-    return "SPL_ILLEGAL_VAR_IN_FOR";
-  }
-
 
   static String messageInitType(
       final IllegalExpression coco,
@@ -163,6 +147,27 @@ public class SplErrorStrings {
     return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, soruceType);
   }
 
+  static String messageForLoop(
+      final IllegalExpression coco,
+      final String variable,
+      final String type,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "The type of the iterator variable %s in a for-loop must be numeric and not:" +
+                                    " '%s' .";
+
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
+  }
+
+  static String messageForLoopBound(
+      final IllegalExpression coco,
+      final String variable,
+      final String type,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "The type of the loop bound must be a numeric type. The value of the current bound " +
+                                    "%s is %s .";
+
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
+  }
   @SuppressWarnings({"unused"}) // used for the routing
   public static String code(final IllegalExpression coco) {
     return "SPL_ILLEGAL_EXPRESSION";

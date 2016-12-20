@@ -1,0 +1,8 @@
+neuron iaf:
+
+  function f(pA integer):
+  end
+
+  function f(mV integer):
+  end
+end

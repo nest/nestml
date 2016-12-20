@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
 import static de.se_rwth.commons.logging.Log.warn;
@@ -26,7 +25,6 @@ import static org.nest.codegeneration.sympy.ODESolverGenerator.generateODEAnalys
 import static org.nest.codegeneration.sympy.ODESolverGenerator.generateSympyODEAnalyzer;
 import static org.nest.utils.AstUtils.deepClone;
 import static org.nest.utils.AstUtils.getFunctionCall;
-import static org.nest.utils.AstUtils.setEnclosingScopeOfNodes;
 
 /**
  * Analyzes a neuron for defined ODE. If an ode is defined, it produces a temporary NESTML model

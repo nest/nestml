@@ -6,13 +6,11 @@
 package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.Symbol;
-import de.monticore.symboltable.SymbolKind;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.monticore.symboltable.resolving.ResolvingInfo;
 import org.nest.symboltable.symbols.MethodSymbol;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 

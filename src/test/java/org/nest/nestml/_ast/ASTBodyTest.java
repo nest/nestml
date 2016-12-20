@@ -11,8 +11,7 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 
-import static groovyjarjarantlr.build.ANTLR.root;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Iterates through good models and checks that there is no errors in log.

@@ -13,8 +13,8 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.nestml._symboltable.NestmlCoCosManager;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.nestml._symboltable.NestmlCoCosManager;
 
 import java.io.File;
 import java.io.IOException;

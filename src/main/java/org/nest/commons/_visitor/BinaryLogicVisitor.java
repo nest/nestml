@@ -6,7 +6,6 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
 
-import static com.google.common.base.Preconditions.checkState;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 

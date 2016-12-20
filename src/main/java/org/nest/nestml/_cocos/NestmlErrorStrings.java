@@ -6,6 +6,7 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
+import org.nest.spl._cocos.VarHasTypeName;
 import org.nest.utils.AstUtils;
 
 /**
@@ -78,6 +79,17 @@ public class NestmlErrorStrings {
     return "NESTML_COMPONENT_WITHOUT_OUTPUT";
   }
 
+  static String message(final FunctionParameterHasTypeName coco, final String variable, SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "The function parameter '%s' has name of an existing NESTML type.";
+
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  public static String code(final FunctionParameterHasTypeName coco) {
+    return "NESTML_FUNCTION_PARAMETER_HAS_TYPE_NAME";
+  }
+
   String getErrorMsg(UnitDeclarationOnlyOnesAllowed coco){
     return UnitDeclarationOnlyOnesAllowed.ERROR_CODE + ": Literals in Unit types may only be \"1\" (one) ";
   }
@@ -134,8 +146,9 @@ public class NestmlErrorStrings {
         + " variable and, therefore, cannot be used on the left side of an equation.";
   }
 
-  String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco) {
-    return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "Variable is not defined in the current scope.";
+  String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco, final String variableName) {
+    return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "The variable " + variableName + " used as left-hand side " +
+           "of the ode is not defined.";
   }
 
   String getErrorMsg(FunctionHasReturnStatement coco, String functionName, String returnType) {

@@ -24,7 +24,7 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author  plotnikov
  */
-public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo, CommonsASTFunctionCallCoCo {
+public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
   public static final String ERROR_CODE = "NESTML_VARIABLE_DOESNT_EXIST";
   private static final String ERROR_MSG_FORMAT = "The variable %s is not defined in %s.";
 
@@ -78,15 +78,6 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo, CommonsAS
 
   private boolean exists(final String variableName, final Scope scope) {
     return scope.resolve(variableName, VariableSymbol.KIND).isPresent();
-  }
-
-  @Override
-  public void check(final ASTFunctionCall node) {
-    node.getArgs().forEach(
-        argExpr -> AstUtils.getAll(argExpr, ASTVariable.class)
-            .forEach(variable -> checkVariableByName(variable.toString(), node)));
-
-
   }
 
 }

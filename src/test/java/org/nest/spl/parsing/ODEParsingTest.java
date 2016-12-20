@@ -7,7 +7,6 @@ import org.nest.base.ModelbasedTest;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._parser.ODEParser;
-import org.nest.spl._parser.SPLParser;
 
 import java.io.IOException;
 import java.io.StringReader;

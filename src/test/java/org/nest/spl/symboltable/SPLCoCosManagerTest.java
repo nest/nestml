@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl._cocos.SPLCoCoChecker;
 import org.nest.spl._parser.SPLParser;
-import org.nest.symboltable.predefined.PredefinedTypes;
 
 import java.io.File;
 import java.io.IOException;

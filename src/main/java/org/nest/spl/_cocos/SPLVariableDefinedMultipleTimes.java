@@ -12,27 +12,23 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.AstUtils;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Checks that variables are defined only one a a scope. Of course, they can be shadowed through the embedded scope.
- *
+ * The ASTBlock block instead of ASTDeclaration is used to filter MemberDeclarations.
+ * TODO: this issue reports more errors, since ASTBlock is composite structure. The coco is checked of the toplevel block
+ * and all embedded block. Thus, some of variables are potentially checked multiple times.
  * @author ippen, plotnikov
  */
-public class VariableDefinedMultipleTimes implements SPLASTBlockCoCo {
+public class SPLVariableDefinedMultipleTimes implements SPLASTBlockCoCo {
 
   @Override
   public void check(final ASTBlock astBlock) {
-    final List<ASTDeclaration> declarations = astBlock.getStmts()
-        .stream()
-        .filter(astStmt -> astStmt.getSmall_Stmt().isPresent())
-        .map(astStmt -> astStmt.getSmall_Stmt().get())
-        .filter(astSmall_stmt -> astSmall_stmt.getDeclaration().isPresent())
-        .map(astSmall_stmt -> astSmall_stmt.getDeclaration().get())
-        .collect(Collectors.toList());
+    final List<ASTDeclaration> declarations = AstUtils.getAll(astBlock, ASTDeclaration.class);
 
     declarations.forEach(this::checkDeclaration);
   }

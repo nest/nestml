@@ -1,0 +1,4 @@
+neuron iaf:
+  function f(var integer):
+  end
+end
