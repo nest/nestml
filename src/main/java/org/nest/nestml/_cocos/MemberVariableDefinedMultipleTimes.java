@@ -95,5 +95,7 @@ public class MemberVariableDefinedMultipleTimes implements
     else {
       names.put(var, astNode.get_SourcePositionStart());
     }
+
   }
+
 }
