@@ -45,6 +45,13 @@ grammar SPL extends org.nest.Commons {
     ("[" sizeParameter:Name "]")?
     ( "=" Expr)? SL_COMMENT?;
 
+  /** ASTDefiningVariable Signed variable name
+
+    @attribute minus An optional sing
+    @attribute definingVariable Name of the variable
+   */
+  DefiningVariable = (minus:["-"])? definingVariable:Name;
+
   /** ATReturnStmt Models the return statement in a function.
 
     @attribute minus An optional sing
