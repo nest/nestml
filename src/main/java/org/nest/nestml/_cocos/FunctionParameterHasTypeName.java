@@ -47,18 +47,21 @@ public class FunctionParameterHasTypeName implements NESTMLASTFunctionCoCo {
   public void check(final ASTFunction astDeclaration) {
     checkArgument(astDeclaration.getEnclosingScope().isPresent(), "Declaration hast no scope. Run symboltable creator.");
     final Scope scope = astDeclaration.getEnclosingScope().get();
-    final List<String> parameterNames = astDeclaration.getParameters().get().getParameters()
-        .stream()
-        .map(ASTParameter::getName)
-        .collect(Collectors.toList());
+    if (astDeclaration.getParameters().isPresent()) {
+      final List<String> parameterNames = astDeclaration.getParameters().get().getParameters()
+          .stream()
+          .map(ASTParameter::getName)
+          .collect(Collectors.toList());
 
-    for (String varName : parameterNames) {
-      // tries to resolve the variable name as type. if it is possible, then the variable name clashes with type name is reported as an error
-      final Optional<TypeSymbol> res = scope.resolve(varName, TypeSymbol.KIND);
-      // could resolve type as variable, report an error
-      res.ifPresent(typeSymbol -> Log.error(
-          NestmlErrorStrings.message(this, varName, astDeclaration.get_SourcePositionStart()),
-          astDeclaration.get_SourcePositionEnd()));
+      for (String varName : parameterNames) {
+        // tries to resolve the variable name as type. if it is possible, then the variable name clashes with type name is reported as an error
+        final Optional<TypeSymbol> res = scope.resolve(varName, TypeSymbol.KIND);
+        // could resolve type as variable, report an error
+        res.ifPresent(typeSymbol -> Log.error(
+            NestmlErrorStrings.message(this, varName, astDeclaration.get_SourcePositionStart()),
+            astDeclaration.get_SourcePositionEnd()));
+
+      }
 
     }
 
