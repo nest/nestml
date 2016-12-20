@@ -10,9 +10,7 @@ import org.nest.nestml._ast.ASTAliasDecl;
 
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests how the plain text is converted into the NESTML ast

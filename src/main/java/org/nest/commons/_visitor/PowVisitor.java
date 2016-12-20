@@ -7,12 +7,8 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
-import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.*;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**

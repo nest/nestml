@@ -310,7 +310,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoChecker,
         MemberVariableDefinedMultipleTimes.ERROR_CODE,
-        10); // some of the errors is reported twice
+        5); // some of the errors is reported twice
   }
 
   @Test
@@ -610,20 +610,19 @@ public class NestmlCoCosTest {
   @Test
   public void testUndefinedVariablesInEquations() {
     final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
-    nestmlCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableDoesNotExist);
-    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo(variableDoesNotExist);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "equations/validEquations.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        VariableDoesNotExist.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equations/invalidEquations.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        VariableDoesNotExist.ERROR_CODE,
         6);
     
   }
@@ -683,11 +682,19 @@ public class NestmlCoCosTest {
         EquationsOnlyForStateVariables.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equationsOnlyForStateVariables/invalid.nestml");
-    checkModelAndAssertWithErrors(
+
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString(), Paths.get(TEST_MODELS_FOLDER));
+    scopeCreator.runSymbolTableCreator(ast.get());
+
+    // The errors are issued d
+    Integer errorsFound = countErrorsByPrefix(EquationsOnlyForStateVariables.ERROR_CODE, getFindings());
+    assertEquals(Integer.valueOf(2), errorsFound);
+
+    /*checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
         EquationsOnlyForStateVariables.ERROR_CODE,
-        2);
+        2);*/
 
   }
 

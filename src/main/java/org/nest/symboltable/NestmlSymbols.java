@@ -46,7 +46,7 @@ import static java.util.stream.Collectors.toList;
  *
  * @author plotnikov
  */
-public class NESTMLSymbols {
+public class NestmlSymbols {
   public static Optional<MethodSymbol> resolveMethod(final ASTFunctionCall astFunctionCall) {
     checkArgument(astFunctionCall.getEnclosingScope().isPresent(), "Run symbol table creator");
 
@@ -133,7 +133,7 @@ public class NESTMLSymbols {
       final String varTypeName,
       final Scope scope) {
     final String setterName = "set_" + aliasVar;
-    final Optional<MethodSymbol> setter = NESTMLSymbols.resolveMethod(
+    final Optional<MethodSymbol> setter = NestmlSymbols.resolveMethod(
         setterName, Lists.newArrayList(varTypeName), scope
     );
 

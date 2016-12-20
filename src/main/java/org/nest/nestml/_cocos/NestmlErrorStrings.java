@@ -6,6 +6,7 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 /**
@@ -134,8 +135,9 @@ public class NestmlErrorStrings {
         + " variable and, therefore, cannot be used on the left side of an equation.";
   }
 
-  String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco) {
-    return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "Variable is not defined in the current scope.";
+  String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco, final String variableName) {
+    return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "The variable " + variableName + " used as left-hand side " +
+           "of the ode is not defined.";
   }
 
   String getErrorMsg(FunctionHasReturnStatement coco, String functionName, String returnType) {

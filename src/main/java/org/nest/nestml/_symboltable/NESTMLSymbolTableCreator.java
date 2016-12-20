@@ -132,13 +132,13 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     }
 
     // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
-    NestmlCoCosManager nestmlCoCosManager = new NestmlCoCosManager();
-    final List<Finding> findings = nestmlCoCosManager.checkVariableUniqueness(astNeuron);
+    final NestmlCoCosManager nestmlCoCosManager = new NestmlCoCosManager();
+    final List<Finding> findings = nestmlCoCosManager.checkStateVariables(astNeuron);
     if (findings.isEmpty()) {
       if (astNeuron.getBody().getODEBlock().isPresent()) {
         addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
 
-        final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkVariableUniqueness(astNeuron);
+        final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkStateVariables(astNeuron);
         if (afterAddingDerivedVariables.isEmpty()) {
           assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
           markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());

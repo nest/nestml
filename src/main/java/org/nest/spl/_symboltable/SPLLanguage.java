@@ -13,7 +13,6 @@ import org.nest.nestml._symboltable.PredefinedTypesFilter;
 import org.nest.spl._ast.ASTSPLFile;
 import org.nest.spl.symboltable.CommonSPLSymbolTableCreator;
 import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;

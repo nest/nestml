@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-import static org.nest.symboltable.NESTMLSymbols.resolveMethod;
+import static org.nest.symboltable.NestmlSymbols.resolveMethod;
 
 /**
  *  Tests the symbol table infrastructure of the NESTML language

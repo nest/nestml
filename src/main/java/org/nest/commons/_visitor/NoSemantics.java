@@ -1,12 +1,10 @@
 package org.nest.commons._visitor;
 
-import static de.se_rwth.commons.logging.Log.error;
-import static de.se_rwth.commons.logging.Log.warn;
-
-import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.utils.AstUtils;
+
+import static de.se_rwth.commons.logging.Log.warn;
 
 /**
  * @author ptraeder

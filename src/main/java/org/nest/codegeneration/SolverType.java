@@ -9,7 +9,6 @@ import de.se_rwth.commons.logging.Log;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;

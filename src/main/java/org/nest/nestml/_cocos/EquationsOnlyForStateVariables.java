@@ -15,6 +15,7 @@ import org.nest.utils.AstUtils;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.nest.utils.AstUtils.getNameOfLHS;
 
 /**
  * Checks that equations are used only for variables from the the state block.
@@ -31,7 +32,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
     final Scope scope = astEq.getEnclosingScope().get();
 
     if (astEq.getLhs().getDifferentialOrder().size() > 0) {
-      final Optional<VariableSymbol> variableSymbol = scope.resolve(AstUtils.getNameOfLHS(astEq.getLhs()), VariableSymbol.KIND);
+      final Optional<VariableSymbol> variableSymbol = scope.resolve(astEq.getLhs().getSimpleName(), VariableSymbol.KIND);
       if (variableSymbol.isPresent()) {
         if (!variableSymbol.get().isState()) {
           final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());
@@ -40,9 +41,10 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
         }
       }
       else {
-        final String msg = errorStrings.getErrorMsgVariableNotDefined(this);
-        Log.warn(msg, astEq.get_SourcePositionStart());
+        final String msg = errorStrings.getErrorMsgVariableNotDefined(this, astEq.getLhs().getSimpleName());
+        Log.error(msg, astEq.get_SourcePositionStart());
       }
+
     }
     else {
       Log.warn(ERROR_CODE + ": The lefthandside of an equation must be a derivative, e.g. " + astEq.getLhs().toString() + "'");

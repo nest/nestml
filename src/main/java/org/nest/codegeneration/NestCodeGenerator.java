@@ -5,7 +5,6 @@
  */
 package org.nest.codegeneration;
 
-import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
@@ -23,7 +22,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.IReferenceConverter;
-import org.nest.symboltable.NESTMLSymbols;
+import org.nest.symboltable.NestmlSymbols;
 import org.nest.utils.AstUtils;
 
 import java.io.File;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Optional;
 
@@ -257,7 +255,7 @@ public class NestCodeGenerator {
     final GslReferenceConverter converter = new GslReferenceConverter();
     final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
-    glex.setGlobalValue("nestmlSymbols", new NESTMLSymbols());
+    glex.setGlobalValue("nestmlSymbols", new NestmlSymbols());
     glex.setGlobalValue("astUtils", new AstUtils());
     glex.setGlobalValue("aliasInverter", new AliasInverter());
 

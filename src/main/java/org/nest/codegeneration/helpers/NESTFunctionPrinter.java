@@ -11,10 +11,10 @@ import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTParameter;
+import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
-import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +50,7 @@ public class NESTFunctionPrinter {
       }
     }
 
-    final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
+    final Optional<MethodSymbol> method = NestmlSymbols.resolveMethod(
         astFunction.getName(), parameterNestmlTypes, scope
     );
 
@@ -92,7 +92,7 @@ public class NESTFunctionPrinter {
       }
     }
 
-    final Optional<MethodSymbol> method = NESTMLSymbols.resolveMethod(
+    final Optional<MethodSymbol> method = NestmlSymbols.resolveMethod(
         astFunction.getName(), parameterNestmlTypes, scope);
 
     final StringBuilder declaration = new StringBuilder();

@@ -6,10 +6,7 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
 
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;

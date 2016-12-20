@@ -17,8 +17,8 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.*;
+import static org.nest.symboltable.NestmlSymbols.isSetterPresent;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
-import static org.nest.symboltable.NESTMLSymbols.isSetterPresent;
 
 /**
  * Represents variables defined in e.g. variable blocks, functions, etc..

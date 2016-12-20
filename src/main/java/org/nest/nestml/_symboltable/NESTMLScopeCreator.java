@@ -48,10 +48,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   }
 
   public Scope runSymbolTableCreator(final ASTNESTMLCompilationUnit compilationUnit) {
-    globalScope = new GlobalScope(
-        modelPath,
-        nestmlLanguage,
-        resolverConfiguration);
+    globalScope = new GlobalScope(modelPath, nestmlLanguage, resolverConfiguration);
 
     final NESTMLSymbolTableCreator symbolTableCreator = new NESTMLSymbolTableCreator(
         resolverConfiguration,
@@ -61,7 +58,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
 
     final List<Finding> findings = compilationUnit.getNeurons()
         .stream()
-        .map(nestmlCoCosManager::checkVariableUniqueness)
+        .map(nestmlCoCosManager::checkStateVariables)
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
 

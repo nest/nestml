@@ -6,8 +6,8 @@ neuron iaf_neuron_ode:
   end
 
   equations:
-      G' = e * t
-      V' = -1/Tau * V + 1/C_m
+    G' = e * t
+    V' = -1/Tau * V + 1/C_m
   end
 
   parameters:

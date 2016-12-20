@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NestmlCoCosManager;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 
 import java.util.List;
 import java.util.Optional;
