@@ -32,15 +32,13 @@ public class VariableVisitor implements CommonsVisitor{
     final Optional<VariableSymbol> var = scope.resolve(varName, VariableSymbol.KIND);
 
     if (var.isPresent()) {
-    /*  if(varNode.getDifferentialOrder().size() !=0 && var.get().getType().getType() == TypeSymbol.Type.UNIT){
-        UnitRepresentation deriveMe = new UnitRepresentation(var.get().getType().getName());
-        deriveMe = deriveMe.deriveT(varNode.getDifferentialOrder().size());
-        TypeSymbol derivedType = getType(deriveMe.serialize());
-        expr.setType(Either.value(derivedType));
-      }
-      else{*/
+      if(var.get().isCurrentBuffer()){
+        expr.setType(Either.value(getType("pA")));
+      }else if(var.get().isSpikeBuffer()){
+        expr.setType(Either.value(getRealType()));
+      }else {
         expr.setType(Either.value(var.get().getType()));
-      //}
+      }
     }
     else {
       final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
