@@ -598,9 +598,9 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       var.setType(type.get());
       var.setDeclaringType(currentTypeSymbol);
 
-      boolean isLoggableStateVariable = blockType == STATE || (aliasDeclAst != null  && aliasDeclAst.isRecordable());
+      boolean isRecordableVariable = blockType == STATE || (aliasDeclAst != null  && aliasDeclAst.isRecordable());
 
-      if (isLoggableStateVariable) {
+      if (isRecordableVariable) {
         // otherwise is set to false.
         var.setRecordable(true);
       }

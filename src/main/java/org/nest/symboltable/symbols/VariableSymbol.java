@@ -34,7 +34,7 @@ public class VariableSymbol extends CommonSymbol {
   private TypeSymbol type;
   private NeuronSymbol declaringType;
   private boolean isAlias;
-  private boolean isLoggable;
+  private boolean isRecordable;
   private BlockType blockType;
   private String arraySizeParameter = null;
   private boolean conductanceBased = false;
@@ -44,10 +44,10 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   @SuppressWarnings({"unused"}) // used in templates
-  public boolean isLoggable() {
+  public boolean isRecordable() {
     // TODO: check whether the logic is correct. At the moment, the vector datatypes are not supported by the code
     // generator.
-    return isLoggable && !isVector();
+    return isRecordable && !isVector();
   }
   public Optional<ASTExpr> getOdeDeclaration() {
     return Optional.ofNullable(odeDeclaration);
@@ -62,7 +62,7 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public void setRecordable(boolean loggable) {
-    isLoggable = loggable;
+    isRecordable = loggable;
   }
 
   public void setDeclaringExpression(final ASTExpr declaringExpression) {

@@ -11,7 +11,7 @@ ${signature("variable")}
 
 <#assign varDomain = declarations.getDomainFromType(variable.getType())>
 
-<#if varDomain == "double" && variable.isLoggable()>
+<#if varDomain == "double" && variable.isRecordable()>
 insert_("${variable.getName()}", &${simpleNeuronName}::${names.getter(variable)});
 <#else>
 // ignores the ${variable.getName()} with the domain type ${varDomain}
