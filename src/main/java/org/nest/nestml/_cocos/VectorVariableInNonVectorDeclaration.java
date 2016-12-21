@@ -8,15 +8,10 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTComponent;
-import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.monticore.utils.ASTNodes.getSuccessors;

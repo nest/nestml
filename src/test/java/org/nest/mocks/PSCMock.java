@@ -23,18 +23,18 @@ public class PSCMock extends OdeProcessor {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/psc/";
 
   @Override
-  protected ASTNeuron handleNeuronWithODE(final ASTNeuron root, ASTNESTMLCompilationUnit artifactRoot, final Path outputBase) {
+  protected ASTNeuron handleNeuronWithODE(final ASTNeuron astNeuron, ASTNESTMLCompilationUnit artifactRoot, final Path outputBase) {
     Log.trace("Uses PSC mock", this.getClass().getName());
     return getLinearSolutionTransformer().addExactSolution(
-            root,
-            Paths.get(MOCK_RESOURCE_PATH, LinearSolutionTransformer.P30_FILE),
-            Paths.get(MOCK_RESOURCE_PATH, LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE),
-            Paths.get(MOCK_RESOURCE_PATH, LinearSolutionTransformer.STATE_VARIABLES_FILE),
-            Paths.get(MOCK_RESOURCE_PATH, LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE),
-            Paths.get(MOCK_RESOURCE_PATH, LinearSolutionTransformer.PROPAGATOR_STEP_FILE),
-            Paths.get(MOCK_RESOURCE_PATH, LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE),
-            Paths.get(MOCK_RESOURCE_PATH, LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE),
-            Paths.get(MOCK_RESOURCE_PATH, LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE)
+            astNeuron,
+            Paths.get(MOCK_RESOURCE_PATH, astNeuron.getName() + "." + LinearSolutionTransformer.P30_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, astNeuron.getName() + "." + LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VARIABLES_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, astNeuron.getName() + "." + LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, astNeuron.getName() + "." + LinearSolutionTransformer.PROPAGATOR_STEP_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE),
+            Paths.get(MOCK_RESOURCE_PATH, astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE)
         );
   }
 

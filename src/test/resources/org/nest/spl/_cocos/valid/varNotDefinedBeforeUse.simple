@@ -3,11 +3,19 @@ x integer
 y real = 5 * x
 x = 13
 
+t1 integer
+t2 integer
 
-for x in 1 ... 10 step 1:
+for x in t1 ... t2 step 1:
 # blaa
 end
 
 x = 2
 
 xx real = 2 * x
+
+while t2 > t1:
+end
+
+exp(t1)
+

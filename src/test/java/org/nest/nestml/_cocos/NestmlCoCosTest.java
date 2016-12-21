@@ -9,10 +9,8 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
-import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.SplErrorStrings;
 import org.nest.spl._cocos.VarHasTypeName;
@@ -310,7 +308,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoChecker,
         MemberVariableDefinedMultipleTimes.ERROR_CODE,
-        10); // some of the errors is reported twice
+        5); // some of the errors is reported twice
   }
 
   @Test
@@ -411,6 +409,27 @@ public class NestmlCoCosTest {
         NESTFunctionNameChecker.ERROR_CODE,
         8);
   }
+
+  @Test
+  public void testFunctionParameterHasTypeName() {
+    final FunctionParameterHasTypeName functionParameterHasTypeName = new FunctionParameterHasTypeName();
+    nestmlCoCoChecker.addCoCo(functionParameterHasTypeName);
+
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/functionParameterHasTypeName.nestml");
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        NESTFunctionNameChecker.ERROR_CODE);
+
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/functionParameterHasTypeName.nestml");
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        NESTFunctionNameChecker.ERROR_CODE,
+        2);
+  }
+
+
 
   @Test
   public void testNESTGetterSetterFunctionNames() {
@@ -610,20 +629,19 @@ public class NestmlCoCosTest {
   @Test
   public void testUndefinedVariablesInEquations() {
     final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
-    nestmlCoCoChecker.addCoCo((ODEASTOdeDeclarationCoCo) variableDoesNotExist);
-    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo(variableDoesNotExist);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "equations/validEquations.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        "NESTML_");
+        VariableDoesNotExist.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equations/invalidEquations.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        "NESTML_",
+        VariableDoesNotExist.ERROR_CODE,
         6);
     
   }
@@ -683,11 +701,19 @@ public class NestmlCoCosTest {
         EquationsOnlyForStateVariables.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equationsOnlyForStateVariables/invalid.nestml");
-    checkModelAndAssertWithErrors(
+
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString(), Paths.get(TEST_MODELS_FOLDER));
+    scopeCreator.runSymbolTableCreator(ast.get());
+
+    // The errors are issued d
+    Integer errorsFound = countErrorsByPrefix(EquationsOnlyForStateVariables.ERROR_CODE, getFindings());
+    assertEquals(Integer.valueOf(2), errorsFound);
+
+    /*checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
         EquationsOnlyForStateVariables.ERROR_CODE,
-        2);
+        2);*/
 
   }
 

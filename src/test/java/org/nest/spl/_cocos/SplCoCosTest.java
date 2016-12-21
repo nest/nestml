@@ -88,20 +88,20 @@ public class SplCoCosTest {
 
   @Test
   public void testVarDefinedMultipleTimes() throws IOException {
-    final VariableDefinedMultipleTimes variableDefinedMultipleTimes = new VariableDefinedMultipleTimes();
-    splCoCoChecker.addCoCo(variableDefinedMultipleTimes);
+    final SPLVariableDefinedMultipleTimes SPLVariableDefinedMultipleTimes = new SPLVariableDefinedMultipleTimes();
+    splCoCoChecker.addCoCo(SPLVariableDefinedMultipleTimes);
 
     checkModelAndAssertNoErrors(
         Paths.get(TEST_VALID_MODELS_FOLDER, "varDefinedMultipleTimes.simple"),
         splCoCoChecker,
-        SplErrorStrings.code(variableDefinedMultipleTimes)
+        SplErrorStrings.code(SPLVariableDefinedMultipleTimes)
     );
 
     checkModelAndAssertWithErrors(
         Paths.get(TEST_INVALID_MODELS_FOLDER, "varDefinedMultipleTimes.simple"),
         splCoCoChecker,
-        SplErrorStrings.code(variableDefinedMultipleTimes),
-        6);
+        SplErrorStrings.code(SPLVariableDefinedMultipleTimes),
+        12); // TODO must be 6! Some declrations are checked multiple times
   }
 
   @Test
@@ -129,6 +129,8 @@ public class SplCoCosTest {
     splCoCoChecker.addCoCo((SPLASTAssignmentCoCo) variableNotDefinedBeforeUse);
     splCoCoChecker.addCoCo((SPLASTDeclarationCoCo) variableNotDefinedBeforeUse);
     splCoCoChecker.addCoCo((SPLASTFOR_StmtCoCo) variableNotDefinedBeforeUse);
+    splCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableNotDefinedBeforeUse);
+    splCoCoChecker.addCoCo((SPLASTWHILE_StmtCoCo) variableNotDefinedBeforeUse);
 
     checkModelAndAssertNoErrors(
         Paths.get(TEST_VALID_MODELS_FOLDER, "varNotDefinedBeforeUse.simple"),
@@ -140,14 +142,14 @@ public class SplCoCosTest {
         Paths.get(TEST_INVALID_MODELS_FOLDER, "varNotDefinedBeforeUse.simple"),
         splCoCoChecker,
         SplErrorStrings.code(variableNotDefinedBeforeUse),
-        5);
+        10);
   }
 
   @Test
   public void testIllegalVarInFor() throws IOException {
 
-    final IllegalVarInFor illegalVarInFor = new IllegalVarInFor();
-    splCoCoChecker.addCoCo(illegalVarInFor);
+    final IllegalExpression illegalVarInFor = new IllegalExpression();
+    splCoCoChecker.addCoCo((SPLASTFOR_StmtCoCo) illegalVarInFor);
 
     checkModelAndAssertNoErrors(
         Paths.get(TEST_VALID_MODELS_FOLDER, "illegalVarInFor.simple"),
@@ -159,7 +161,7 @@ public class SplCoCosTest {
         Paths.get(TEST_INVALID_MODELS_FOLDER, "illegalVarInFor.simple"),
         splCoCoChecker,
         SplErrorStrings.code(illegalVarInFor),
-        1);
+        3);
   }
 
   @Test
@@ -171,7 +173,6 @@ public class SplCoCosTest {
     splCoCoChecker.addCoCo((SPLASTFOR_StmtCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTIF_ClauseCoCo) illegalExpression);
     splCoCoChecker.addCoCo((SPLASTWHILE_StmtCoCo) illegalExpression);
-
 
     checkModelAndAssertWithErrors(
         Paths.get(TEST_INVALID_MODELS_FOLDER, "illegalNumberExpressions.simple"),

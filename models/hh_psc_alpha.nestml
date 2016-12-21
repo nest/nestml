@@ -63,15 +63,15 @@ neuron hh_psc_alpha_neuron:
 
   equations:
     # synapses: alpha functions
-    shape I_in = 1 pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape I_ex = 1 pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    shape I_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+    shape I_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
     I_syn_exc pA = curr_sum(I_ex, spikeExc)
-    I_syn_inh pA = curr_sum(I_in, spikeExc)
+    I_syn_inh pA = curr_sum(I_in, spikeInh)
     I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     I_L   pA = g_L * ( V_m - E_L )
-    V_m' =( -( I_Na + I_K + I_L ) + I_stim + I_e + I_syn_inh + I_syn_exc ) / C_m
+    V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
 
     # Inact_n
     alpha_n real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
@@ -83,7 +83,7 @@ neuron hh_psc_alpha_neuron:
     beta_m  real = 4. * exp( -( V_m + 65. ) / 18. )
     Act_m' = alpha_m * ( 1 - Act_m ) - beta_m * Act_m # m-variable
 
-    # Act_h'
+    # Act_h
     alpha_h real = 0.07 * exp( -( V_m + 65. ) / 20. )
     beta_h  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
     Act_h' = alpha_h * ( 1 - Act_h ) - beta_h * Act_h # h-variable
@@ -115,11 +115,6 @@ neuron hh_psc_alpha_neuron:
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer # number of steps in the current refractory phase
-
-   # Input current injected by CurrentEvent.
-   # This variable is used to transport the current applied into the
-   # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0pA
   end
 
   input:
@@ -136,12 +131,11 @@ neuron hh_psc_alpha_neuron:
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0: # is refractory?
       r -= 1
-    elif V_m > 0 and U_old > V_m: # threshold && maximum
+    elif V_m > 0mV and U_old > V_m: # threshold && maximum
       r = RefractoryCounts
       emit_spike()
     end
 
-    I_stim = currents.get_sum()
   end
 
 end

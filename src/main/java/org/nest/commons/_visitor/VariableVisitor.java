@@ -3,21 +3,15 @@ package org.nest.commons._visitor;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.symboltable.NESTMLSymbols;
-import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
+import java.util.Optional;
+
 import static de.se_rwth.commons.logging.Log.error;
-import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getType;
-import static org.nest.utils.AstUtils.getNameOfLHS;
-
-import java.util.Optional;
 
 /**
  * @author ptraeder

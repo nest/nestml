@@ -1,17 +1,14 @@
 package org.nest.commons._visitor;
+
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**

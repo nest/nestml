@@ -8,8 +8,8 @@ package org.nest.integration;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.codegeneration.sympy.ODESolverGenerator;
+import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -75,7 +75,9 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
 
     assertTrue(evaluator.evaluateScript(generatedScript.get()));
-    assertTrue(Files.exists(Paths.get(SYMPY_OUTPUT.toString(), TransformerBase.SOLVER_TYPE)));
+    assertTrue(Files.exists(Paths.get(
+        SYMPY_OUTPUT.toString(),
+        root.get().getNeurons().get(0).getName() + "." + TransformerBase.SOLVER_TYPE)));
   }
 
 }

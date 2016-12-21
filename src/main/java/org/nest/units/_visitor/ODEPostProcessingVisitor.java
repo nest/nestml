@@ -1,17 +1,10 @@
 package org.nest.units._visitor;
 
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.Symbol;
-import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._visitor.ExpressionTypeVisitor;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTShape;
-import org.nest.symboltable.NESTMLSymbols;
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
@@ -21,7 +14,6 @@ import java.util.Optional;
 
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
-import static org.nest.utils.AstUtils.getNameOfLHS;
 
 /**
  * Visitor to ODE Shape and Equation nodes. Calculates implicit type and updates Symbol table.
@@ -58,7 +50,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     //Resolve LHS Variable
     String varName = astEquation.getLhs().getSimpleName();
     Scope enclosingScope = astEquation.getEnclosingScope().get();
-    Optional<VariableSymbol> varSymbol = NESTMLSymbols.resolve(varName,enclosingScope);
+    Optional<VariableSymbol> varSymbol = NestmlSymbols.resolve(varName,enclosingScope);
 
     TypeSymbol varType;
     if(!varSymbol.isPresent()){

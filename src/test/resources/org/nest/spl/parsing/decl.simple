@@ -29,13 +29,14 @@ end
 
 # Tests how the function call generation is handled
 println()
-pow(x2, y2)
+
 
 info("" + 3+4**6)
 
 x2, y2 real
 x2 = 1
 y2 = 2
+pow(x2, y2)
 while x2 <= 10 :
     if x2 > 4:
         return x2

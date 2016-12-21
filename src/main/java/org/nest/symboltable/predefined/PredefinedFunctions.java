@@ -38,7 +38,9 @@ public class PredefinedFunctions {
   private static final String EXPM1 = "expm1";
   public static final String DELTA = "delta";
   public static final String MAX = "max";
+  public static final String BOUNDED_MAX = "bounded_max";
   public static final String MIN = "min";
+  public static final String BOUNDED_MIN = "bounded_min";
   public static final String INTEGRATE_ODES = "integrate_odes";
   public static final String CURR_SUM = "curr_sum";
   public static final String COND_SUM = "cond_sum";
@@ -121,11 +123,23 @@ public class PredefinedFunctions {
     max.setReturnType(getType("real"));
     name2FunctionSymbol.put(MAX, max);
 
+    final MethodSymbol boundedMax = createFunctionSymbol(BOUNDED_MAX);
+    boundedMax.addParameterType(getType("real"));
+    boundedMax.addParameterType(getType("real"));
+    boundedMax.setReturnType(getType("real"));
+    name2FunctionSymbol.put(BOUNDED_MAX, boundedMax);
+
     final MethodSymbol min = createFunctionSymbol(MIN);
     min.addParameterType(getType("real"));
     min.addParameterType(getType("real"));
     min.setReturnType(getType("real"));
     name2FunctionSymbol.put(MIN, min);
+
+    final MethodSymbol boundedMin = createFunctionSymbol(BOUNDED_MIN);
+    boundedMin.addParameterType(getType("real"));
+    boundedMin.addParameterType(getType("real"));
+    boundedMin.setReturnType(getType("real"));
+    name2FunctionSymbol.put(BOUNDED_MIN, boundedMin);
 
     final MethodSymbol integrate = createFunctionSymbol(INTEGRATE_ODES);
     integrate.setReturnType(getVoidType());

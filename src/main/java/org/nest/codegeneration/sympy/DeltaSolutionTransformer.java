@@ -32,7 +32,6 @@ import static org.nest.utils.AstUtils.getFunctionCall;
  */
 class DeltaSolutionTransformer extends TransformerBase {
   final static String PROPAGATOR_STEP = "propagator.step.tmp";
-  final static String ODE_TYPE = "solverType.tmp";
   final static String P30_FILE = "P30.tmp";
 
   ASTNeuron addExactSolution(

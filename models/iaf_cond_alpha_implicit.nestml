@@ -48,8 +48,8 @@ neuron iaf_cond_alpha_implicit:
     g_ex'' = -g_ex'/tau_syn_ex
     g_ex' = g_ex'  -g_ex/tau_syn_ex
 
-    I_syn_exc pA = cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
-    I_syn_inh pA = cond_sum(g_in, spikeInh)  * ( V_m - E_in )
+    I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+    I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
     I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
@@ -106,8 +106,8 @@ neuron iaf_cond_alpha_implicit:
     end
 
     # add incoming spikes
-    g_ex' += spikeExc.get_sum() * PSConInit_E
-    g_in' += spikeInh.get_sum() * PSConInit_I
+    g_ex' += spikeExc * PSConInit_E
+    g_in' += spikeInh * PSConInit_I
     # set new input current
     I_stim = currents.get_sum()
   end

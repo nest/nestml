@@ -38,13 +38,13 @@ neuron aeif_cond_alpha_neuron:
   end
 
   equations:
-    V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
+    V_bounded mV = bounded_min(V_m, V_peak) # prevent exponential divergence
     shape g_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
     # Add aliases to simplify the equation definition of V_m
-    exp_arg real = (V_bounded-V_th)/delta_T
-    I_spike pA = g_L*delta_T*exp(exp_arg)
+    exp_arg real = (V_bounded-V_th)/Delta_T
+    I_spike pA = g_L*Delta_T*exp(exp_arg)
     I_syn_exc pA =   cond_sum(g_ex, spikesExc) * ( V_bounded - E_ex )
     I_syn_inh pA =   cond_sum(g_in, spikesInh) * ( V_bounded - E_in )
 
@@ -65,7 +65,7 @@ neuron aeif_cond_alpha_neuron:
     # spike adaptation parameters
     a nS = 4nS               # Subthreshold adaptation
     b pA = 80.5pA            # pike-triggered adaptation
-    delta_T mV = 2.0mV       # Slope factor
+    Delta_T mV = 2.0mV       # Slope factor
     tau_w ms = 144.0ms       # Adaptation time constant
     V_th mV = -50.4mV        # Threshold Potential in mV
     V_peak mV = 0mV          # Spike detection threshold

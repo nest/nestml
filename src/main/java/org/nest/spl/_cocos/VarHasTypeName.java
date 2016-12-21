@@ -13,7 +13,6 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.nest.symboltable.predefined.PredefinedTypes.getTypeIfExists;
 
 /**
  * Checks that the variable name is not a type name, e.g. integer integer = 1.
@@ -30,12 +29,10 @@ public class VarHasTypeName implements SPLASTDeclarationCoCo {
     for (String var : astDeclaration.getVars()) {
       // tries to resolve the variable name as type. if it is possible, then the variable name clashes with type name is reported as an error
       final Optional<TypeSymbol> res = scope.resolve(var, TypeSymbol.KIND);
-      Optional<TypeSymbol> tmp = getTypeIfExists(var);
       // could resolve type as variable, report an error
-      if (res.isPresent()) {
-        Log.error(SplErrorStrings.message(this, var, astDeclaration.get_SourcePositionStart()),
-            astDeclaration.get_SourcePositionEnd());
-      }
+      res.ifPresent(typeSymbol -> Log.error(
+          SplErrorStrings.message(this, var, astDeclaration.get_SourcePositionStart()),
+          astDeclaration.get_SourcePositionEnd()));
 
     }
 

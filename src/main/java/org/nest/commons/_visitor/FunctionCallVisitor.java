@@ -8,8 +8,8 @@ package org.nest.commons._visitor;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
+import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.NESTMLSymbols;
 import org.nest.utils.AstUtils;
 
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class FunctionCallVisitor implements CommonsVisitor {
   public void visit(final ASTExpr expr) {
     final String functionName = expr.getFunctionCall().get().getCalleeName();
 
-    final Optional<MethodSymbol> methodSymbol = NESTMLSymbols.resolveMethod(expr.getFunctionCall().get());
+    final Optional<MethodSymbol> methodSymbol = NestmlSymbols.resolveMethod(expr.getFunctionCall().get());
 
     if (!methodSymbol.isPresent()) {
       final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Cannot resolve the method: " + functionName;

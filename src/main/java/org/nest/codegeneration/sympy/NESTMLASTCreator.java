@@ -6,7 +6,6 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;
-import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTVar_Block;
 import org.nest.nestml._ast.NESTMLNodeFactory;
@@ -38,7 +37,7 @@ public class NESTMLASTCreator {
   }
 
   static List<ASTAliasDecl> createAliases(final Path declarationFile) {
-    checkArgument(Files.exists(declarationFile));
+    checkArgument(Files.exists(declarationFile), declarationFile.toString());
 
     try {
       return Files.lines(declarationFile)

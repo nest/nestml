@@ -10,15 +10,17 @@ import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTFOR_Stmt;
+import org.nest.spl._ast.ASTWHILE_Stmt;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
@@ -31,12 +33,17 @@ import static de.se_rwth.commons.logging.Log.error;
 public class VariableNotDefinedBeforeUse implements
     SPLASTAssignmentCoCo,
     SPLASTDeclarationCoCo,
-    SPLASTFOR_StmtCoCo {
+    SPLASTFOR_StmtCoCo,
+    SPLASTWHILE_StmtCoCo,
+    CommonsASTFunctionCallCoCo {
 
   @Override
   public void check(final ASTFOR_Stmt forstmt) {
     String fullName = forstmt.getVar();
     check(fullName, forstmt);
+    final List<ASTVariable> variables = ASTNodes.getSuccessors(forstmt.getFrom(), ASTVariable.class);
+    variables.addAll(ASTNodes.getSuccessors(forstmt.getTo(), ASTVariable.class));
+    variables.forEach(variable -> check(variable.toString(), forstmt));
   }
 
   @Override
@@ -88,24 +95,32 @@ public class VariableNotDefinedBeforeUse implements
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Scope scope = node.getEnclosingScope().get();
 
-    Optional<VariableSymbol> varOptional = scope.resolve(varName, VariableSymbol.KIND);
+    VariableSymbol varOptional = VariableSymbol.resolve(varName, scope);
 
-    if(varOptional.isPresent()) {
-      // exists
-      if (node.get_SourcePositionStart().compareTo(varOptional.get().getSourcePosition()) < 0) {
-        final String msg = SplErrorStrings.messageDefinedBeforeUse(
-            this,
-            varName,
-            node.get_SourcePositionStart(),
-            varOptional.get().getSourcePosition());
-        Log.error(msg, node.get_SourcePositionEnd());
-      }
-
-    }
-    else {
-      Log.warn(SplErrorStrings.code(this) + ": " + "Variable " + varName + " couldn't be resolved.");
+    // exists
+    if (varOptional.getBlockType().equals(VariableSymbol.BlockType.LOCAL) &&
+        node.get_SourcePositionStart().compareTo(varOptional.getSourcePosition()) < 0) {
+      final String msg = SplErrorStrings.messageDefinedBeforeUse(
+          this,
+          varName,
+          node.get_SourcePositionStart(),
+          varOptional.getSourcePosition());
+      Log.error(msg, node.get_SourcePositionEnd());
     }
 
+  }
+
+  @Override
+  public void check(final ASTWHILE_Stmt astWhileStmt) {
+    final List<ASTVariable> variables = ASTNodes.getSuccessors(astWhileStmt.getExpr(), ASTVariable.class);
+    variables.forEach(variable -> check(variable.toString(), astWhileStmt));
+  }
+
+  @Override
+  public void check(ASTFunctionCall astFunctionCall) {
+    final List<ASTVariable> variables = Lists.newArrayList();
+    astFunctionCall.getArgs().forEach(argExpr -> variables.addAll(ASTNodes.getSuccessors(argExpr, ASTVariable.class)));
+    variables.forEach(variable -> check(variable.toString(), astFunctionCall));
   }
 
 }
