@@ -11,9 +11,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
+import org.nest.ode._cocos.EquationsOnlyForStateVariables;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.SplErrorStrings;
-import org.nest.spl._cocos.VarHasTypeName;
+import org.nest.spl._cocos.VariableHasTypeName;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -217,58 +219,58 @@ public class NestmlCoCosTest {
 
   @Test
   public void testCorrectReturnValues() {
-    final CorrectReturnValues correctReturnValues = new CorrectReturnValues();
-    nestmlCoCoChecker.addCoCo(correctReturnValues);
+    final FunctionReturnsIncorrectValue functionReturnsIncorrectValue = new FunctionReturnsIncorrectValue();
+    nestmlCoCoChecker.addCoCo(functionReturnsIncorrectValue);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "correctReturnValues/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "functionReturnsIncorrectValue/valid.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        CorrectReturnValues.ERROR_CODE);
+        FunctionReturnsIncorrectValue.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "correctReturnValues/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "functionReturnsIncorrectValue/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        CorrectReturnValues.ERROR_CODE,
+        FunctionReturnsIncorrectValue.ERROR_CODE,
         9);
   }
 
   @Test
   public void testCurrentInputIsNotInhExc() {
-    final CurrentInputIsNotInhExc currentInputIsNotInhExc = new CurrentInputIsNotInhExc();
-    nestmlCoCoChecker.addCoCo(currentInputIsNotInhExc);
+    final CurrentPortIsInhOrExc currentPortIsInhOrExc = new CurrentPortIsInhOrExc();
+    nestmlCoCoChecker.addCoCo(currentPortIsInhOrExc);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "currentInputIsNotInhExc/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "currentPortIsInhOrExc/valid.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        CurrentInputIsNotInhExc.ERROR_CODE);
+        CurrentPortIsInhOrExc.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "currentInputIsNotInhExc/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "currentPortIsInhOrExc/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        CurrentInputIsNotInhExc.ERROR_CODE,
+        CurrentPortIsInhOrExc.ERROR_CODE,
         3);
   }
 
   @Test
   public void testFunctionHasReturnStatement() {
-    final FunctionHasReturnStatement functionHasReturnStatement = new FunctionHasReturnStatement();
-    nestmlCoCoChecker.addCoCo(functionHasReturnStatement);
+    final MissingReturnStatementInFunction missingReturnStatementInFunction = new MissingReturnStatementInFunction();
+    nestmlCoCoChecker.addCoCo(missingReturnStatementInFunction);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "functionHasReturnStatement/valid.nestml") ;
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "missingReturnStatementInFunction/valid.nestml") ;
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        FunctionHasReturnStatement.ERROR_CODE);
+        MissingReturnStatementInFunction.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "functionHasReturnStatement/invalid.nestml") ;
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "missingReturnStatementInFunction/invalid.nestml") ;
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        FunctionHasReturnStatement.ERROR_CODE,
+        MissingReturnStatementInFunction.ERROR_CODE,
         1);
   }
 
@@ -588,20 +590,20 @@ public class NestmlCoCosTest {
 
   @Test
   public void testVarHasTypeName() {
-    final VarHasTypeName varHasTypeName = new VarHasTypeName();
-    nestmlCoCoChecker.addCoCo(varHasTypeName);
+    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
+    nestmlCoCoChecker.addCoCo(variableHasTypeName);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "varHasTypeName/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "variableHasTypeName/valid.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        SplErrorStrings.code(varHasTypeName));
+        SplErrorStrings.code(variableHasTypeName));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "varHasTypeName/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "variableHasTypeName/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        SplErrorStrings.code(varHasTypeName),
+        SplErrorStrings.code(variableHasTypeName),
         2);
   }
 
@@ -648,21 +650,21 @@ public class NestmlCoCosTest {
 
   @Test
   public void testInvalidInvariantExpressionType() {
-    final BooleanInvariantExpressions booleanInvariantExpressions
-        = new BooleanInvariantExpressions();
-    nestmlCoCoChecker.addCoCo(booleanInvariantExpressions);
+    final InvalidTypeOfInvariant invalidTypeOfInvariant
+        = new InvalidTypeOfInvariant();
+    nestmlCoCoChecker.addCoCo(invalidTypeOfInvariant);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "booleanInvariantExpressions/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/invalidTypeOfInvariant.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        BooleanInvariantExpressions.ERROR_CODE);
+        InvalidTypeOfInvariant.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "booleanInvariantExpressions/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/invalidTypeOfInvariant.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        BooleanInvariantExpressions.ERROR_CODE,
+        InvalidTypeOfInvariant.ERROR_CODE,
         2);
 
   }

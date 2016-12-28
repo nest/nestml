@@ -17,9 +17,9 @@ import org.nest.utils.AstUtils;
  *
  * @author ppen, plotnikov
  */
-class BooleanInvariantExpressions implements NESTMLASTAliasDeclCoCo {
+class InvalidTypeOfInvariant implements NESTMLASTAliasDeclCoCo {
 
-  public static final String ERROR_CODE = "NESTML_INVARIANTS_WITH_CORRECT_VARIABLES";
+  public static final String ERROR_CODE = "NESTML_INVALID_TYPE_OF_INVARIANT";
   NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
 

@@ -26,7 +26,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author ippen, plotnikov
  */
-public class FunctionHasReturnStatement implements NESTMLASTFunctionCoCo {
+public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
 
   public static final String ERROR_CODE = "NESTML_FUNCTION_HAS_RETURN_STATEMENT";
 

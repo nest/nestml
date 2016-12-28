@@ -19,7 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author ippen, plotnikov
  */
-public class VarHasTypeName implements SPLASTDeclarationCoCo {
+public class VariableHasTypeName implements SPLASTDeclarationCoCo {
 
   @Override
   public void check(final ASTDeclaration astDeclaration) {

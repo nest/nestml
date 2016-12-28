@@ -10,15 +10,14 @@ import org.nest.nestml._ast.ASTInputLine;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
- * Current input lines cannot be inhibitory aor excitatory:
- * currentBuffer <- current
+ * Current input lines cannot be inhibitory or excitatory:
+ * buffer <- inhibitory current
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author  ippen, plotnikov
  */
-public class CurrentInputIsNotInhExc implements NESTMLASTInputLineCoCo {
+public class CurrentPortIsInhOrExc implements NESTMLASTInputLineCoCo {
 
-  public static final String ERROR_CODE = "NESTML_CURRENT_INPUT_IS_NOT_INH_EXC";
+  public static final String ERROR_CODE = "NESTML_CURRENT_PORT_IS_INH_OR_EXC";
 
   @Override
   public void check(ASTInputLine inputLine) {

@@ -24,18 +24,17 @@ import static org.nest.spl.symboltable.typechecking.TypeChecker.checkString;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.checkVoid;
 
 /**
- * The type of the return expression must conform to the declaration type.
+ * The type of all return expression must conform to the declaration type.
  *
  * @author ippen, plotnikov
  */
-public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
+public class FunctionReturnsIncorrectValue implements NESTMLASTFunctionCoCo {
 
-  public static final String ERROR_CODE = "SPL_CORRECT_RETURN_VALUES";
+  public static final String ERROR_CODE = "NESTML_FUNCTION_RETURNS_INCORRECT_VALUE";
   NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTFunction fun) {
-    checkState(fun.getEnclosingScope().isPresent(),
-        "Function: " + fun.getName() + " has no scope assigned. ");
+    checkState(fun.getEnclosingScope().isPresent(), "Function: " + fun.getName() + " has no scope assigned. ");
     final Scope scope = fun.getEnclosingScope().get();
     // get return type
     final Optional<MethodSymbol> mEntry = scope.resolve(fun.getName(), MethodSymbol.KIND);

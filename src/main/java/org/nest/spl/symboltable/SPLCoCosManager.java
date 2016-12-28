@@ -37,8 +37,8 @@ public class SPLCoCosManager {
     final SPLVariableDefinedMultipleTimes SPLVariableDefinedMultipleTimes = new SPLVariableDefinedMultipleTimes();
     splCoCoChecker.addCoCo(SPLVariableDefinedMultipleTimes);
 
-    final VarHasTypeName varHasTypeName = new VarHasTypeName();
-    splCoCoChecker.addCoCo(varHasTypeName);
+    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
+    splCoCoChecker.addCoCo(variableHasTypeName);
 
     final VariableNotDefinedBeforeUse variableNotDefinedBeforeUse = new VariableNotDefinedBeforeUse();
 
@@ -75,8 +75,8 @@ public class SPLCoCosManager {
     final SPLVariableDefinedMultipleTimes SPLVariableDefinedMultipleTimes = new SPLVariableDefinedMultipleTimes();
     nestmlCoCoChecker.addCoCo(SPLVariableDefinedMultipleTimes);
 
-    final VarHasTypeName varHasTypeName = new VarHasTypeName();
-    nestmlCoCoChecker.addCoCo(varHasTypeName);
+    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
+    nestmlCoCoChecker.addCoCo(variableHasTypeName);
 
     final IllegalExpression illegalExpression = new IllegalExpression();
     nestmlCoCoChecker.addCoCo((SPLASTAssignmentCoCo) illegalExpression);

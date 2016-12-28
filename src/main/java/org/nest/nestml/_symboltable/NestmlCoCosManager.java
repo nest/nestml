@@ -7,20 +7,18 @@ package org.nest.nestml._symboltable;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.*;
-import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
+import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
+import org.nest.ode._cocos.EquationsOnlyForStateVariables;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.spl._cocos.VarHasTypeName;
+import org.nest.spl._cocos.VariableHasTypeName;
 import org.nest.spl._cocos.SPLVariableDefinedMultipleTimes;
 import org.nest.spl.symboltable.SPLCoCosManager;
 import org.nest.utils.LogHelper;
 
 import java.util.List;
-
-import static org.nest.spl.symboltable.SPLCoCosManager.addVariableExistenceCheck;
 
 /**
  * This class is responsible for the instantiation of the NESTML context conditions.
@@ -76,12 +74,12 @@ public class NestmlCoCosManager {
     final ComponentWithoutOutput componentWithoutOutput = new ComponentWithoutOutput();
     nestmlCoCoChecker.addCoCo(componentWithoutOutput);
 
-    final CurrentInputIsNotInhExc currentInputIsNotInhExc = new CurrentInputIsNotInhExc();
-    nestmlCoCoChecker.addCoCo(currentInputIsNotInhExc);
+    final CurrentPortIsInhOrExc currentPortIsInhOrExc = new CurrentPortIsInhOrExc();
+    nestmlCoCoChecker.addCoCo(currentPortIsInhOrExc);
 
-    final FunctionHasReturnStatement functionHasReturnStatement
-        = new FunctionHasReturnStatement();
-    nestmlCoCoChecker.addCoCo(functionHasReturnStatement);
+    final MissingReturnStatementInFunction missingReturnStatementInFunction
+        = new MissingReturnStatementInFunction();
+    nestmlCoCoChecker.addCoCo(missingReturnStatementInFunction);
 
     final InvalidTypesInDeclaration invalidTypesInDeclaration
         = new InvalidTypesInDeclaration();
@@ -134,8 +132,8 @@ public class NestmlCoCosManager {
     final RestrictUseOfShapes restrictUseOfShapes = new RestrictUseOfShapes();
     nestmlCoCoChecker.addCoCo(restrictUseOfShapes);
 
-    final CorrectReturnValues correctReturnValues = new CorrectReturnValues();
-    nestmlCoCoChecker.addCoCo(correctReturnValues);
+    final FunctionReturnsIncorrectValue functionReturnsIncorrectValue = new FunctionReturnsIncorrectValue();
+    nestmlCoCoChecker.addCoCo(functionReturnsIncorrectValue);
 
     final TypeIsDeclaredMultipleTimes typeIsDeclaredMultipleTimes = new TypeIsDeclaredMultipleTimes();
     nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) typeIsDeclaredMultipleTimes);
@@ -147,8 +145,8 @@ public class NestmlCoCosManager {
     final BufferNotAssignable bufferNotAssignable = new BufferNotAssignable();
     nestmlCoCoChecker.addCoCo(bufferNotAssignable);
 
-    final VarHasTypeName varHasTypeName = new VarHasTypeName();
-    nestmlCoCoChecker.addCoCo(varHasTypeName);
+    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
+    nestmlCoCoChecker.addCoCo(variableHasTypeName);
 
     final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
     nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);

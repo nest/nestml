@@ -6,7 +6,8 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
-import org.nest.spl._cocos.VarHasTypeName;
+import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
+import org.nest.ode._cocos.EquationsOnlyForStateVariables;
 import org.nest.utils.AstUtils;
 
 /**
@@ -105,56 +106,56 @@ public class NestmlErrorStrings {
 
 
 
-  String getErrorMsgInvariantMustBeBoolean(BooleanInvariantExpressions coco, String expressionType) {
-    return BooleanInvariantExpressions.ERROR_CODE + ":" + "The type of the invariant expression must be boolean and not: " +
-        expressionType;
+  String getErrorMsgInvariantMustBeBoolean(InvalidTypeOfInvariant coco, String expressionType) {
+    return InvalidTypeOfInvariant.ERROR_CODE + ":" + "The type of the invariant expression must be boolean and not: " +
+           expressionType;
   }
 
-  String getErrorMsgCannotComputeType(BooleanInvariantExpressions coco, String invariantType) {
-    return BooleanInvariantExpressions.ERROR_CODE + ":" + "Cannot compute the type: " + invariantType;
+  String getErrorMsgCannotComputeType(InvalidTypeOfInvariant coco, String invariantType) {
+    return InvalidTypeOfInvariant.ERROR_CODE + ":" + "Cannot compute the type: " + invariantType;
   }
 
   String getErrorMsg(BufferNotAssignable coco, String bufferName) {
     return BufferNotAssignable.ERROR_CODE + ":" + "Buffer '" + bufferName + "' cannot be reassigned.";
   }
 
-  String getErrorMsgWrongReturnType(CorrectReturnValues coco,
+  String getErrorMsgWrongReturnType(FunctionReturnsIncorrectValue coco,
                                            String functionName, String functionReturnTypeName) {
-    return CorrectReturnValues.ERROR_CODE + ":" + "Function '" + functionName + "' must return a result of type "
-        + functionReturnTypeName + ".";
+    return FunctionReturnsIncorrectValue.ERROR_CODE + ":" + "Function '" + functionName + "' must return a result of type "
+           + functionReturnTypeName + ".";
   }
 
-  String getErrorMsgCannotConvertReturnValue(CorrectReturnValues coco,
+  String getErrorMsgCannotConvertReturnValue(FunctionReturnsIncorrectValue coco,
                                                     String expressionTypeName, String functionReturnTypeName) {
-    return CorrectReturnValues.ERROR_CODE + ":" + "Cannot convert from " + expressionTypeName
-        + " (type of return expression) to " + functionReturnTypeName
-        + " (return type).";
+    return FunctionReturnsIncorrectValue.ERROR_CODE + ":" + "Cannot convert from " + expressionTypeName
+           + " (type of return expression) to " + functionReturnTypeName
+           + " (return type).";
   }
 
-  String getErrorMsgCannotDetermineExpressionType(CorrectReturnValues coco) {
-    return CorrectReturnValues.ERROR_CODE + ":" + "Cannot determine the type of the expression";
+  String getErrorMsgCannotDetermineExpressionType(FunctionReturnsIncorrectValue coco) {
+    return FunctionReturnsIncorrectValue.ERROR_CODE + ":" + "Cannot determine the type of the expression";
   }
 
-  String getErrorMsg(CurrentInputIsNotInhExc coco) {
-    return CurrentInputIsNotInhExc.ERROR_CODE + ":" + "Current input can neither be inhibitory nor excitatory.";
+  String getErrorMsg(CurrentPortIsInhOrExc coco) {
+    return CurrentPortIsInhOrExc.ERROR_CODE + ":" + "Current input can neither be inhibitory nor excitatory.";
   }
 
-  String getErrorMsgAssignToNonState(
+  public String getErrorMsgAssignToNonState(
       final EquationsOnlyForStateVariables coco,
       final String variableName) {
     return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "The variable '" + variableName + "' is not a state"
         + " variable and, therefore, cannot be used on the left side of an equation.";
   }
 
-  String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco, final String variableName) {
+  public String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco, final String variableName) {
     return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "The variable " + variableName + " used as left-hand side " +
            "of the ode is not defined.";
   }
 
-  String getErrorMsg(FunctionHasReturnStatement coco, String functionName, String returnType) {
-    return FunctionHasReturnStatement.ERROR_CODE + ":" + "Function '" + functionName
-        + "' must return a result of type '"
-        + returnType;
+  String getErrorMsg(MissingReturnStatementInFunction coco, String functionName, String returnType) {
+    return MissingReturnStatementInFunction.ERROR_CODE + ":" + "Function '" + functionName
+           + "' must return a result of type '"
+           + returnType;
   }
 
   String getErrorMsgGet_InstanceDefined(GetterSetterFunctionNames coco) {

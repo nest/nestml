@@ -25,7 +25,7 @@ import static org.nest.utils.AstUtils.computeTypeName;
 
 /**
  * Only predefined types must be used in a declaration.
- *
+ * TODO remove me!
  * @author ippen, plotnikov
  */
 public class InvalidTypesInDeclaration implements
