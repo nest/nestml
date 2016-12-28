@@ -9,6 +9,7 @@ neuron testNeuron:
     end
 
     internals:
+      internalVar3 real = parameterVar1 # OK
     end
 
     input:

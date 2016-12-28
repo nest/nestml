@@ -256,7 +256,7 @@ public class NestmlCoCosTest {
   }
 
   @Test
-  public void testFunctionHasReturnStatement() {
+  public void testMissingReturnStatementInFunction() {
     final MissingReturnStatementInFunction missingReturnStatementInFunction = new MissingReturnStatementInFunction();
     nestmlCoCoChecker.addCoCo(missingReturnStatementInFunction);
 
@@ -271,7 +271,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoChecker,
         MissingReturnStatementInFunction.ERROR_CODE,
-        1);
+        2);
   }
 
   @Test
@@ -320,13 +320,13 @@ public class NestmlCoCosTest {
 
     nestmlCoCoChecker.addCoCo(memberVariablesInitialisedInCorrectOrder);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "memberVariablesInitialisedInCorrectOrder/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/memberVariablesInitialisedInCorrectOrder.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         MemberVariablesInitialisedInCorrectOrder.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "memberVariablesInitialisedInCorrectOrder/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/memberVariablesInitialisedInCorrectOrder.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,

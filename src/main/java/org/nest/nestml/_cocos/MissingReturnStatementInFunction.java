@@ -18,6 +18,7 @@ import org.nest.utils.AstUtils;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.nest.utils.AstUtils.computeTypeName;
 
 /**
  * Checks that a function with a return value has a returning block of code. If
@@ -28,7 +29,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
 
-  public static final String ERROR_CODE = "NESTML_FUNCTION_HAS_RETURN_STATEMENT";
+  public static final String ERROR_CODE = "NESTML_MISSING_RETURN_STATEMENT_IN_FUNCTION";
 
 
   @Override
@@ -38,7 +39,7 @@ public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
 
     if (fun.getReturnType().isPresent()) {
       // check if void type is stated
-      final String typeName = AstUtils.computeTypeName(fun.getReturnType().get());
+      final String typeName = computeTypeName(fun.getReturnType().get());
       Optional<TypeSymbol> rType = scope.resolve(typeName, TypeSymbol.KIND);
       Preconditions.checkState(rType.isPresent(), "Cannot resolve the type: " + typeName);
 
@@ -51,7 +52,7 @@ public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
       // if block not returning:
       if (isReturnBlock(fun.getBlock()) == null) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this, fun.getName(), fun.getReturnType().get().toString());
+        final String msg = errorStrings.getErrorMsg(this, fun.getName(), computeTypeName(fun.getReturnType().get(), false));
 
         Log.error(msg, fun.get_SourcePositionStart());
       }

@@ -13,6 +13,7 @@ neuron testNeuron:
 
     internals:
         internalVar1 real = 1.0
+
     end
 
     input:

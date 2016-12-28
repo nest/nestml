@@ -155,7 +155,7 @@ public class NestmlErrorStrings {
   String getErrorMsg(MissingReturnStatementInFunction coco, String functionName, String returnType) {
     return MissingReturnStatementInFunction.ERROR_CODE + ":" + "Function '" + functionName
            + "' must return a result of type '"
-           + returnType;
+           + returnType + "'";
   }
 
   String getErrorMsgGet_InstanceDefined(GetterSetterFunctionNames coco) {
