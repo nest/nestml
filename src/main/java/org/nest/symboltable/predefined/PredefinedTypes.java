@@ -90,7 +90,7 @@ public class PredefinedTypes {
     implicitTypes.put("Buffer", bufferType);
 
     final MethodSymbol get_sumMethod = new MethodSymbol("get_sum");
-    get_sumMethod.setReturnType(getType("pA")); // TODO what should the type here?
+    get_sumMethod.setReturnType(getRealType()); 
 
     get_sumMethod.setDeclaringType(bufferType);
     bufferType.addBuiltInMethod(get_sumMethod);

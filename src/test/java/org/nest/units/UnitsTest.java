@@ -69,14 +69,14 @@ public class UnitsTest extends ModelbasedTest {
         .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
         .count();
 
-    assertEquals(1, errorsFound);
+    assertEquals(7, errorsFound);
 
     warningsFound = findings
         .stream()
         .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
         .count();
 
-    assertEquals(6, warningsFound);
+    assertEquals(15, warningsFound);
   }
 
   @Test

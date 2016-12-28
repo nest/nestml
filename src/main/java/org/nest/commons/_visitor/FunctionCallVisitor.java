@@ -35,7 +35,7 @@ public class FunctionCallVisitor implements CommonsVisitor {
       return;
     }
 
-    if (TypeChecker.checkVoid(methodSymbol.get().getReturnType())) {
+    if (TypeChecker.isVoid(methodSymbol.get().getReturnType())) {
       final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Function " + functionName + " with the return-type 'Void'"
                               + " cannot be used in expressions. @" + expr.get_SourcePositionEnd();
       expr.setType(Either.error(errorMsg));
