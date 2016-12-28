@@ -1,6 +1,9 @@
 neuron invalidAssignmentTest:
   state:
     Resist Ohm = 3 Ohm 
+    Real real
+    Integer integer
+    String string
   end
 
   parameters:
@@ -21,7 +24,25 @@ neuron invalidAssignmentTest:
 
   update:   
     V3 V**2 = (3V+5V)**2
-    Resist = 8Ohm     
+    Resist = 8Ohm 
+
+    Real *= 2.5
+    Real *= 2
+    Integer *= 2
+    Resist *= 2.5
+    Resist *= 2   
+
+    Real /= 2.5
+    Real /= 2
+    Resist /= 2.5
+    Resist /= 2   
+    
+    Real -= 2.5
+    Real -= 2
+    Integer -= 2
+    Resist -= Resist
+
+    String += Real
   end
 
 end

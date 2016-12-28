@@ -20,8 +20,8 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.checkString;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.checkVoid;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isString;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.isVoid;
 
 /**
  * The type of the return expression must conform to the declaration type.
@@ -47,7 +47,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
 
     for (ASTReturnStmt r : returns) {
       // no return expression
-      if (!r.getExpr().isPresent() && !checkVoid(functionReturnType)) {
+      if (!r.getExpr().isPresent() && !isVoid(functionReturnType)) {
         // void return value
         final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
 
@@ -70,7 +70,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
           return;
         }
 
-        if (checkVoid(functionReturnType) && !checkVoid(returnExpressionType.getValue())) {
+        if (isVoid(functionReturnType) && !isVoid(returnExpressionType.getValue())) {
           // should return nothing, but does not
           final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
@@ -78,7 +78,7 @@ public class CorrectReturnValues implements NESTMLASTFunctionCoCo {
         }
 
         // same type is ok (e.g. string, boolean,integer, real,...)
-        if (checkString(functionReturnType) && !checkString(returnExpressionType.getValue())) {
+        if (isString(functionReturnType) && !isString(returnExpressionType.getValue())) {
           // should return string, but does not
           final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
