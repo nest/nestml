@@ -358,7 +358,7 @@ public final class AstUtils {
         if(unitType.getSerializedUnit() == null){
           UnitsSIVisitor.convertSiUnitsToSignature(unitType);
         }
-        typeName = new UnitRepresentation(unitType.getSerializedUnit()).prettyPrint();
+        typeName = UnitRepresentation.getBuilder().serialization(unitType.getSerializedUnit()).build().prettyPrint();
       }
       else{
         typeName = unitType.getSerializedUnit(); //guaranteed to exist after successful NESTMLParser run.

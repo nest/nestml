@@ -100,7 +100,7 @@ public class UnitsSIVisitor implements NESTMLVisitor {
 
 
   /**
-   * Verify that the given Unit is valid. Use TranslationVisitor to generate serialization of Unit.
+   * Verify that the given Unit is valid. Use UnitTranslator to generate serialization of Unit.
    * Set the nodes' "serializedUnit" field with the serialization.
    */
   public void visit(ASTUnitType astUnitType){

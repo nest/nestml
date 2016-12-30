@@ -66,7 +66,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
       return;
     }
 
-    UnitRepresentation varUnit = new UnitRepresentation(varType.getName());
+    UnitRepresentation varUnit = UnitRepresentation.getBuilder().serialization(varType.getName()).build();
     UnitRepresentation derivedVarUnit = varUnit.deriveT(astEquation.getLhs().getDifferentialOrder().size());
 
     //get type of RHS expression
@@ -77,7 +77,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
       warn(ERROR_CODE+ "Type of ODE is neither a Unit nor real at: "+astEquation.get_SourcePositionStart());
       return;
     }
-    UnitRepresentation unitFromExpression = new UnitRepresentation(typeFromExpression.getName());
+    UnitRepresentation unitFromExpression = UnitRepresentation.getBuilder().serialization(typeFromExpression.getName()).build();
     //set any of the units to ignoreMagnitude
     unitFromExpression.setIgnoreMagnitude(true);
     //do the actual test:
