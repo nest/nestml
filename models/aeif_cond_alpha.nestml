@@ -34,7 +34,7 @@ neuron aeif_cond_alpha_neuron:
 
   state:
     V_m mV = E_L      # Membrane potential
-    w pA = 0pA + 1ms       # Spike-adaptation current
+    w pA = 0pA        # Spike-adaptation current
   end
 
   equations:
