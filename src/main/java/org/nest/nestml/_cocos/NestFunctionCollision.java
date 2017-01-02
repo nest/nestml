@@ -15,12 +15,11 @@ import static de.se_rwth.commons.logging.Log.error;
 /**
  * Checks collisions with generated functions.
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
-public class NESTFunctionNameChecker implements NESTMLASTFunctionCoCo {
+public class NestFunctionCollision implements NESTMLASTFunctionCoCo {
 
-  public static final String ERROR_CODE = "NESTML_F";
+  public static final String ERROR_CODE = "NESTML_NEST_FUNCTION_COLLISION";
 
   private Set<String> nestFunNames = ImmutableSet.of(
       "update",

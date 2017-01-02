@@ -1,0 +1,5 @@
+neuron variableBlockDefinedMultipleTimes:
+  state: end
+  parameters: end
+  internals: end
+end

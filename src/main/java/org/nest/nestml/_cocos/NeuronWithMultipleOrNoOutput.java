@@ -18,19 +18,21 @@ import java.util.List;
  * @author (last commit) ippen, plotnikov
  * @since 0.0.1
  */
-public class MultipleOutputs implements NESTMLASTNeuronCoCo {
-
-  public static final String ERROR_CODE = "NESTML_MULTIPLE_OUTPUTS";
+public class NeuronWithMultipleOrNoOutput implements NESTMLASTNeuronCoCo {
 
   public void check(ASTNeuron neuron) {
     ASTBody bodyDecorator = (neuron.getBody());
     final List<ASTOutput> outputs = bodyDecorator.getOutputs();
 
-    if (outputs.size() > 1) {
-      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      final String msg = errorStrings.getErrorMsg(this,outputs.size());
-
+    if (outputs.size() == 0) {
+      final String msg = NestmlErrorStrings.errorNoOutput(this);
       Log.error(msg, neuron.get_SourcePositionStart());
+
+    }
+    else if (outputs.size() >  1) {
+      final String msg = NestmlErrorStrings.errorMultipleOutputs(this);
+      Log.error(msg, neuron.get_SourcePositionStart());
+
     }
 
   }

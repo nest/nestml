@@ -13,12 +13,11 @@ import static de.se_rwth.commons.logging.Log.error;
 /**
  * Prohibits expression line a <- inhibitory inhibitory spike
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
-public class MultipleInhExcInput implements NESTMLASTInputLineCoCo {
+public class MultipleInhExcModifiers implements NESTMLASTInputLineCoCo {
 
-  public static final String ERROR_CODE = "NESTML_MULTIPLE_INH_EXC_INPUT";
+  public static final String ERROR_CODE = "NESTML_MULTIPLE_INH_EXC_MODIFIERS";
   NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTInputLine inputLine) {

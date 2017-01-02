@@ -13,7 +13,6 @@ import org.nest.nestml._ast.ASTFunction;
 import org.nest.spl._ast.*;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.AstUtils;
 
 import java.util.Optional;
 

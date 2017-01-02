@@ -8,6 +8,8 @@ package org.nest.nestml._cocos;
 import de.se_rwth.commons.SourcePosition;
 import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
 import org.nest.ode._cocos.EquationsOnlyForStateVariables;
+import org.nest.ode._cocos.SumHasCorrectParameter;
+import org.nest.units._cocos.UnitDeclarationOnlyOnesAllowed;
 import org.nest.utils.AstUtils;
 
 /**
@@ -91,7 +93,7 @@ public class NestmlErrorStrings {
     return "NESTML_FUNCTION_PARAMETER_HAS_TYPE_NAME";
   }
 
-  String getErrorMsg(UnitDeclarationOnlyOnesAllowed coco){
+  public String getErrorMsg(UnitDeclarationOnlyOnesAllowed coco){
     return UnitDeclarationOnlyOnesAllowed.ERROR_CODE + ": Literals in Unit types may only be \"1\" (one) ";
   }
 
@@ -168,7 +170,7 @@ public class NestmlErrorStrings {
         + " there is a variable called '" + variableName + "'.";
   }
 
-  String getErrorMsg(SumHasCorrectParameter coco, String expression) {
+  public String getErrorMsg(SumHasCorrectParameter coco, String expression) {
     return SumHasCorrectParameter.ERROR_CODE + ":" + "The arguments of the I_sum must be atomic expressions: "
            + "e.g. V_m and not : " + expression;
   }
@@ -198,50 +200,68 @@ public class NestmlErrorStrings {
         varName + "' is undefined.";
   }
 
-  String getErrorMsgNeuronHasNoSymbol(MultipleFunctionDeclarations coco, String neuronName) {
-    return MultipleFunctionDeclarations.ERROR_CODE + ":" + "The neuron symbol: " + neuronName + " has no symbol.";
+  String getErrorMsgNeuronHasNoSymbol(FunctionDefinedMultipleTimes coco, String neuronName) {
+    return FunctionDefinedMultipleTimes.ERROR_CODE + ":" + "The neuron symbol: " + neuronName + " has no symbol.";
   }
 
-  String getErrorMsgParameterDefinedMultipleTimes(MultipleFunctionDeclarations coco, String funname) {
-    return MultipleFunctionDeclarations.ERROR_CODE + ":" + "The function '" + funname
-        + " parameter(s) is defined multiple times.";
+  String getErrorMsgParameterDefinedMultipleTimes(FunctionDefinedMultipleTimes coco, String funname) {
+    return FunctionDefinedMultipleTimes.ERROR_CODE + ":" + "The function '" + funname
+           + " parameter(s) is defined multiple times.";
   }
 
-  String getErrorMsgNoScopePresent(MultipleFunctionDeclarations coco) {
-    return MultipleFunctionDeclarations.ERROR_CODE + ":" + "Run symbol table creator.";
+  String getErrorMsgNoScopePresent(FunctionDefinedMultipleTimes coco) {
+    return FunctionDefinedMultipleTimes.ERROR_CODE + ":" + "Run symbol table creator.";
   }
 
-  String getErrorMsgMultipleInhibitory(MultipleInhExcInput coco) {
-    return MultipleInhExcInput.ERROR_CODE + ":" + "Multiple occurrences of the keyword 'inhibitory' are not allowed.";
+  String getErrorMsgMultipleInhibitory(MultipleInhExcModifiers coco) {
+    return MultipleInhExcModifiers.ERROR_CODE + ":" + "Multiple occurrences of the keyword 'inhibitory' are not allowed.";
   }
 
-  String getErrorMsgMultipleExcitatory(MultipleInhExcInput coco) {
-    return MultipleInhExcInput.ERROR_CODE + ":" + "Multiple occurrences of the keyword 'excitatory' are not allowed.";
+  String getErrorMsgMultipleExcitatory(MultipleInhExcModifiers coco) {
+    return MultipleInhExcModifiers.ERROR_CODE + ":" + "Multiple occurrences of the keyword 'excitatory' are not allowed.";
   }
 
-  String getErrorMsg(MultipleOutputs coco, int numOutput) {
-    return MultipleOutputs.ERROR_CODE + ":" + "Neurons have at most one output and not " + numOutput + ".";
+  String getErrorMsg(NestFunctionCollision coco, String funName) {
+    return NestFunctionCollision.ERROR_CODE + ":" + "The function-name '" + funName
+           + "' is already used by NEST. Please use another name.";
   }
 
-  String getErrorMsg(NESTFunctionNameChecker coco, String funName) {
-    return NESTFunctionNameChecker.ERROR_CODE + ":" + "The function-name '" + funName
-        + "' is already used by NEST. Please use another name.";
+  static String getErrorMsgDynamicsNotPresent(NeuronWithMultipleOrNoUpdate coco) {
+    return code(coco) + ":" + "Neurons need at least one update block.";
   }
 
-  String getErrorMsgDynamicsNotPresent(NeuronNeedsDynamics coco) {
-    return NeuronNeedsDynamics.ERROR_CODE + ":" + "Neurons need at least one dynamics function.";
+  static String getErrorMsgMultipleDynamics(NeuronWithMultipleOrNoUpdate coco) {
+    return code(coco) + ":" + "Neurons need at most one update.";
   }
 
-  String getErrorMsgMultipleDynamics(NeuronNeedsDynamics coco) {
-    return NeuronNeedsDynamics.ERROR_CODE + ":" + "Neurons need at most one dynamics function.";
+  static String code(final NeuronWithMultipleOrNoUpdate coco) {
+    return "NESTML_NEURON_WITH_MULTIPLE_OR_NO_UPDATE";
   }
 
-  String getErrorMsg(NeuronWithoutInput coco) {
-    return NeuronWithoutInput.ERROR_CODE + ":" + "Neurons need some inputs.";
+  static String errorNoInput(NeuronWithMultipleOrNoInput coco) {
+    return code(coco) + ":" + "Neurons need at least one inputs.";
   }
 
-  String getErrorMsg(NeuronWithoutOutput coco) {
-    return NeuronWithoutOutput.ERROR_CODE + ":" + "Neurons need some outputs.";
+  static String errorMultipleInputs(NeuronWithMultipleOrNoInput coco) {
+    return code(coco) + ":" + "Neurons need at most one inputs.";
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final NeuronWithMultipleOrNoInput coco) {
+    return "NESTML_NEURON_WITH_MULTIPLE_OR_NO_INPUT";
+  }
+
+  static String errorNoOutput(NeuronWithMultipleOrNoOutput coco) {
+    return code(coco) + ":" + "Neurons need at least one output.";
+  }
+
+  static String errorMultipleOutputs(NeuronWithMultipleOrNoOutput coco) {
+    return code(coco) + ":" + "Neurons need at most one output.";
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final NeuronWithMultipleOrNoOutput coco) {
+    return "NESTML_NEURON_WITH_MULTIPLE_OR_NO_INPUT";
   }
 
   String getErrorMsg(TypeIsDeclaredMultipleTimes coco, String typeName) {
@@ -268,4 +288,16 @@ public class NestmlErrorStrings {
   public String getErrorMsg(AssignmentToAlias assignmentToAlias, final String variableName) {
     return AssignmentToAlias.ERROR_CODE + ":" + "You cannot assign a value to an alias: " + variableName;
   }
+
+  static String error(final VariableBlockDefinedMultipleTimes coco,
+                      final SourcePosition sourcePosition,
+                      final String block) {
+    return code(coco) + " " + AstUtils.print(sourcePosition) + ": "  + block + "-block defined multiple times. " +
+           "It should be defined at most once in the model.";
+  }
+
+  static String code(final VariableBlockDefinedMultipleTimes coco) {
+    return "NESTML_VARIABLE_BLOCK_DEFINED_MULTIPLE_TIMES";
+  }
+
 }

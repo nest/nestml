@@ -26,7 +26,7 @@ import static de.se_rwth.commons.logging.Log.error;
  * different argument types.
  * @author ippen, plotnikov
  */
-public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTMLASTComponentCoCo {
+public class FunctionDefinedMultipleTimes implements NESTMLASTNeuronCoCo, NESTMLASTComponentCoCo {
 
   public static final String ERROR_CODE = "NESTML_MULTIPLE_FUNCTIONS_DECLARATIONS";
   NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
@@ -61,8 +61,7 @@ public class MultipleFunctionDeclarations implements NESTMLASTNeuronCoCo, NESTML
 
     if (astFunction.getEnclosingScope().isPresent()) {
       final Scope scope = astFunction.getEnclosingScope().get();
-      final Collection<Symbol> methods = scope.resolveMany(
-          funname, MethodSymbol.KIND);
+      final Collection<Symbol> methods = scope.resolveMany(funname, MethodSymbol.KIND);
       if (methods.size() > 1) {
         final String msg = errorStrings.getErrorMsgParameterDefinedMultipleTimes(this,funname);
 

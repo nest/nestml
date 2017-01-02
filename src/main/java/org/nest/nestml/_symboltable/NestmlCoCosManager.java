@@ -12,10 +12,13 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.*;
 import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
 import org.nest.ode._cocos.EquationsOnlyForStateVariables;
+import org.nest.ode._cocos.SumHasCorrectParameter;
+import org.nest.ode._cocos.VariableDoesNotExist;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.VariableHasTypeName;
 import org.nest.spl._cocos.SPLVariableDefinedMultipleTimes;
 import org.nest.spl.symboltable.SPLCoCosManager;
+import org.nest.units._cocos.UnitDeclarationOnlyOnesAllowed;
 import org.nest.utils.LogHelper;
 
 import java.util.List;
@@ -100,18 +103,18 @@ public class NestmlCoCosManager {
             = new MemberVariablesInitialisedInCorrectOrder();
     nestmlCoCoChecker.addCoCo(memberVariablesInitialisedInCorrectOrder);
 
-    final MultipleFunctionDeclarations multipleFunctionDeclarations
-            = new MultipleFunctionDeclarations();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) multipleFunctionDeclarations);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) multipleFunctionDeclarations);
+    final FunctionDefinedMultipleTimes functionDefinedMultipleTimes
+            = new FunctionDefinedMultipleTimes();
+    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) functionDefinedMultipleTimes);
+    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) functionDefinedMultipleTimes);
 
-    final MultipleInhExcInput multipleInhExcInput = new MultipleInhExcInput();
-    nestmlCoCoChecker.addCoCo(multipleInhExcInput);
+    final MultipleInhExcModifiers multipleInhExcModifiers = new MultipleInhExcModifiers();
+    nestmlCoCoChecker.addCoCo(multipleInhExcModifiers);
 
-    final MultipleOutputs multipleOutputs = new MultipleOutputs();
-    nestmlCoCoChecker.addCoCo(multipleOutputs);
+    final NeuronWithMultipleOrNoOutput neuronWithMultipleOrNoOutput = new NeuronWithMultipleOrNoOutput();
+    nestmlCoCoChecker.addCoCo(neuronWithMultipleOrNoOutput);
 
-    final NESTFunctionNameChecker functionNameChecker = new NESTFunctionNameChecker();
+    final NestFunctionCollision functionNameChecker = new NestFunctionCollision();
     nestmlCoCoChecker.addCoCo(functionNameChecker);
 
     final FunctionParameterHasTypeName FunctionParameterHasTypeName = new FunctionParameterHasTypeName();
@@ -120,14 +123,11 @@ public class NestmlCoCosManager {
     final GetterSetterFunctionNames getterSetterFunctionNames = new GetterSetterFunctionNames();
     nestmlCoCoChecker.addCoCo(getterSetterFunctionNames);
 
-    final NeuronNeedsDynamics neuronNeedsDynamics = new NeuronNeedsDynamics();
-    nestmlCoCoChecker.addCoCo(neuronNeedsDynamics);
+    final NeuronWithMultipleOrNoUpdate neuronWithMultipleOrNoUpdate = new NeuronWithMultipleOrNoUpdate();
+    nestmlCoCoChecker.addCoCo(neuronWithMultipleOrNoUpdate);
 
-    final NeuronWithoutInput neuronWithoutInput = new NeuronWithoutInput();
-    nestmlCoCoChecker.addCoCo(neuronWithoutInput);
-
-    final NeuronWithoutOutput neuronWithoutOutput = new NeuronWithoutOutput();
-    nestmlCoCoChecker.addCoCo(neuronWithoutOutput);
+    final NeuronWithMultipleOrNoInput neuronWithMultipleOrNoInput = new NeuronWithMultipleOrNoInput();
+    nestmlCoCoChecker.addCoCo(neuronWithMultipleOrNoInput);
 
     final RestrictUseOfShapes restrictUseOfShapes = new RestrictUseOfShapes();
     nestmlCoCoChecker.addCoCo(restrictUseOfShapes);
@@ -159,6 +159,9 @@ public class NestmlCoCosManager {
 
     final AssignmentToAlias assignmentToAlias = new AssignmentToAlias();
     nestmlCoCoChecker.addCoCo(assignmentToAlias);
+
+    final VariableBlockDefinedMultipleTimes variableBlockDefinedMultipleTimes = new VariableBlockDefinedMultipleTimes();
+    nestmlCoCoChecker.addCoCo(variableBlockDefinedMultipleTimes);
 
     final SPLCoCosManager splCoCosManager = new SPLCoCosManager();
     splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoChecker);

@@ -1,6 +1,0 @@
-neuron NeuronInTest:
-  function foo():
-    if x:
-    end
-  end
-end

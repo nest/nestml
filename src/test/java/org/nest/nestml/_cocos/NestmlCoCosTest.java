@@ -13,6 +13,8 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
 import org.nest.ode._cocos.EquationsOnlyForStateVariables;
+import org.nest.ode._cocos.SumHasCorrectParameter;
+import org.nest.ode._cocos.VariableDoesNotExist;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.SplErrorStrings;
 import org.nest.spl._cocos.VariableHasTypeName;
@@ -336,79 +338,79 @@ public class NestmlCoCosTest {
 
   @Test
   public void testMultipleFunctionsDeclarations() {
-    final MultipleFunctionDeclarations multipleFunctionDeclarations
-            = new MultipleFunctionDeclarations();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) multipleFunctionDeclarations);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) multipleFunctionDeclarations);
+    final FunctionDefinedMultipleTimes functionDefinedMultipleTimes
+            = new FunctionDefinedMultipleTimes();
+    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) functionDefinedMultipleTimes);
+    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) functionDefinedMultipleTimes);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "multipleFunctionDeclarations/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/functionDefinedMultipleTimes.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        MultipleFunctionDeclarations.ERROR_CODE);
+        FunctionDefinedMultipleTimes.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "multipleFunctionDeclarations/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/functionDefinedMultipleTimes.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        MultipleFunctionDeclarations.ERROR_CODE,
+        FunctionDefinedMultipleTimes.ERROR_CODE,
         6);
   }
 
   @Test
-  public void testMultipleInhExcInput() {
-    final MultipleInhExcInput multipleInhExcInput = new MultipleInhExcInput();
-    nestmlCoCoChecker.addCoCo(multipleInhExcInput);
+  public void testMultipleInhExcModifiers() {
+    final MultipleInhExcModifiers multipleInhExcModifiers = new MultipleInhExcModifiers();
+    nestmlCoCoChecker.addCoCo(multipleInhExcModifiers);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "multipleInhExcInput/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/multipleInhExcModifiers.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        MultipleInhExcInput.ERROR_CODE);
+        MultipleInhExcModifiers.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "multipleInhExcInput/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/multipleInhExcModifiers.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        MultipleInhExcInput.ERROR_CODE,
+        MultipleInhExcModifiers.ERROR_CODE,
         4);
   }
 
   @Test
-  public void testMultipleOutputs() {
-    final MultipleOutputs multipleOutputs = new MultipleOutputs();
-    nestmlCoCoChecker.addCoCo(multipleOutputs);
+  public void testNeuronWithMultipleOrNoOutput() {
+    final NeuronWithMultipleOrNoOutput neuronWithMultipleOrNoOutput = new NeuronWithMultipleOrNoOutput();
+    nestmlCoCoChecker.addCoCo(neuronWithMultipleOrNoOutput);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "multipleOutputs/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/neuronWithMultipleOrNoOutput.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        MultipleOutputs.ERROR_CODE);
+        NestmlErrorStrings.code(neuronWithMultipleOrNoOutput));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "multipleOutputs/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/neuronWithMultipleOrNoOutput.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        MultipleOutputs.ERROR_CODE,
-        1);
+        NestmlErrorStrings.code(neuronWithMultipleOrNoOutput),
+        2);
   }
 
   @Test
-  public void testFunctionNameChecker() {
-    final NESTFunctionNameChecker functionNameChecker = new NESTFunctionNameChecker();
-    nestmlCoCoChecker.addCoCo(functionNameChecker);
+  public void testNestFunctionCollision() {
+    final NestFunctionCollision nestFunctionCollision = new NestFunctionCollision();
+    nestmlCoCoChecker.addCoCo(nestFunctionCollision);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "functionNameChecker/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/nestFunctionCollision.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        NESTFunctionNameChecker.ERROR_CODE);
+        NestFunctionCollision.ERROR_CODE);
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "functionNameChecker/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/nestFunctionCollision.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        NESTFunctionNameChecker.ERROR_CODE,
+        NestFunctionCollision.ERROR_CODE,
         8);
   }
 
@@ -421,13 +423,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        NESTFunctionNameChecker.ERROR_CODE);
+        NestmlErrorStrings.code(functionParameterHasTypeName));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/functionParameterHasTypeName.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        NESTFunctionNameChecker.ERROR_CODE,
+        NestmlErrorStrings.code(functionParameterHasTypeName),
         2);
   }
 
@@ -452,80 +454,43 @@ public class NestmlCoCosTest {
         4);
   }
 
-  @Test
-  public void testNeuronNeedsDynamicsWithNoDynamics() {
-    final NeuronNeedsDynamics neuronNeedsDynamics = new NeuronNeedsDynamics();
-    nestmlCoCoChecker.addCoCo(neuronNeedsDynamics);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "neuronNeedsDynamics/valid.nestml");
+  @Test
+  public void testNeuronWithMultipleOrNoUpdate() {
+    final NeuronWithMultipleOrNoUpdate neuronWithMultipleOrNoUpdate = new NeuronWithMultipleOrNoUpdate();
+    nestmlCoCoChecker.addCoCo(neuronWithMultipleOrNoUpdate);
+
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/neuronWithMultipleOrNoUpdate.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        NeuronNeedsDynamics.ERROR_CODE);
+        NestmlErrorStrings.code(neuronWithMultipleOrNoUpdate));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "neuronNeedsDynamics/invalid_noDynamics.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/neuronWithMultipleOrNoUpdate.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        NeuronNeedsDynamics.ERROR_CODE,
-        1);
+        NestmlErrorStrings.code(neuronWithMultipleOrNoUpdate),
+        2);
   }
 
   @Test
-  public void testNeuronNeedsDynamicsWithMultipleDynamics() {
-    final NeuronNeedsDynamics neuronNeedsDynamics = new NeuronNeedsDynamics();
-    nestmlCoCoChecker.addCoCo(neuronNeedsDynamics);
+  public void testNeuronWithMultipleOrNoInput() {
+    final NeuronWithMultipleOrNoInput neuronWithMultipleOrNoInput = new NeuronWithMultipleOrNoInput();
+    nestmlCoCoChecker.addCoCo(neuronWithMultipleOrNoInput);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "neuronNeedsDynamics/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/neuronWithMultipleOrNoInput.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        NeuronNeedsDynamics.ERROR_CODE);
+        NestmlErrorStrings.code(neuronWithMultipleOrNoInput));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "neuronNeedsDynamics/invalid_multipleDynamics.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/neuronWithMultipleOrNoInput.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        NeuronNeedsDynamics.ERROR_CODE,
-        1);
-  }
-
-  @Test
-  public void testNeuronWithoutInput() {
-    final NeuronWithoutInput neuronWithoutInput = new NeuronWithoutInput();
-    nestmlCoCoChecker.addCoCo(neuronWithoutInput);
-
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "neuronWithoutInput/valid.nestml");
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoChecker,
-        NeuronWithoutInput.ERROR_CODE);
-
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "neuronWithoutInput/invalid.nestml");
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoChecker,
-        NeuronWithoutInput.ERROR_CODE,
-        1);
-  }
-
-  @Test
-  public void testNeuronWithoutOutput() {
-    final NeuronWithoutOutput neuronWithoutOutput = new NeuronWithoutOutput();
-    nestmlCoCoChecker.addCoCo(neuronWithoutOutput);
-
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "neuronWithoutOutput/valid.nestml");
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoChecker,
-        NeuronWithoutOutput.ERROR_CODE);
-
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "neuronWithoutOutput/invalid.nestml");
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoChecker,
-        NeuronWithoutOutput.ERROR_CODE,
-        1);
+        NestmlErrorStrings.code(neuronWithMultipleOrNoInput),
+        3);
   }
 
   @Test
@@ -605,6 +570,25 @@ public class NestmlCoCosTest {
         nestmlCoCoChecker,
         SplErrorStrings.code(variableHasTypeName),
         2);
+  }
+
+  @Test
+  public void testVariableBlockDefinedMultipleTimes() {
+    final VariableBlockDefinedMultipleTimes variableBlockDefinedMultipleTimes = new VariableBlockDefinedMultipleTimes();
+    nestmlCoCoChecker.addCoCo(variableBlockDefinedMultipleTimes);
+
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/variableBlockDefinedMultipleTimes.nestml");
+    checkModelAndAssertNoErrors(
+        pathToValidModel,
+        nestmlCoCoChecker,
+        NestmlErrorStrings.code(variableBlockDefinedMultipleTimes));
+
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/variableBlockDefinedMultipleTimes.nestml");
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        NestmlErrorStrings.code(variableBlockDefinedMultipleTimes),
+        3);
   }
 
   @Test
