@@ -59,14 +59,14 @@ public class SplErrorStrings {
     return "SPL_VARIABLE_EXISTS_MULTIPLE_TIMES";
   }
 
-  static String message(final VarHasTypeName coco, final String variable, SourcePosition sourcePosition){
+  static String message(final VariableHasTypeName coco, final String variable, SourcePosition sourcePosition){
     final String ERROR_MSG_FORMAT = "Variable '%s' has name of an existing NESTML type.";
 
     return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
-  public static String code(final VarHasTypeName coco) {
+  public static String code(final VariableHasTypeName coco) {
     return "SPL_VARIABLE_HAS_TYPE_NAME";
   }
 

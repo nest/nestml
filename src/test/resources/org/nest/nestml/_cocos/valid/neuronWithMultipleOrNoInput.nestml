@@ -1,0 +1,6 @@
+neuron neuronWithInput:
+  input:
+    spikes <- spike
+
+  end
+end

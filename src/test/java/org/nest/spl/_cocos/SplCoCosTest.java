@@ -106,19 +106,19 @@ public class SplCoCosTest {
 
   @Test
   public void testVarHasTypeName() throws IOException {
-    final VarHasTypeName varHasTypeName = new VarHasTypeName();
-    splCoCoChecker.addCoCo(varHasTypeName);
+    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
+    splCoCoChecker.addCoCo(variableHasTypeName);
 
     checkModelAndAssertNoErrors(
         Paths.get(TEST_VALID_MODELS_FOLDER, "varWithTypeName.simple"),
         splCoCoChecker,
-        SplErrorStrings.code(varHasTypeName)
+        SplErrorStrings.code(variableHasTypeName)
     );
 
     checkModelAndAssertWithErrors(
         Paths.get(TEST_INVALID_MODELS_FOLDER, "varWithTypeName.simple"),
         splCoCoChecker,
-        SplErrorStrings.code(varHasTypeName),
+        SplErrorStrings.code(variableHasTypeName),
         2);
   }
 

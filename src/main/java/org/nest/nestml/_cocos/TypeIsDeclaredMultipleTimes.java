@@ -17,8 +17,7 @@ import static de.se_rwth.commons.logging.Log.error;
 /**
  * Neuron or component is defined several times.
  *
- * @author (last commit) ippen, plotnikov
- * @since 0.0.1
+ * @author ippen, plotnikov
  */
 public class TypeIsDeclaredMultipleTimes implements NESTMLASTComponentCoCo, NESTMLASTNeuronCoCo {
 

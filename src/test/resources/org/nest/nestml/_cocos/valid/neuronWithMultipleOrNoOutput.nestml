@@ -1,0 +1,5 @@
+neuron neuronWithMultipleOutputs:
+
+  output: current
+
+end
