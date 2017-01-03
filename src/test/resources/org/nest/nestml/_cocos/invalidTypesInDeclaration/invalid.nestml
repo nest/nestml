@@ -6,7 +6,7 @@ component InvalidTypes:
 
   state:
    # a Test # error 1
-   # alias b TestRef # error 2
+   # function b TestRef # error 2
     c boolean
     d string
     #l Logger # TODO better error description

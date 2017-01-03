@@ -57,7 +57,7 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
     end
 
     @attribute Name     The name of the referenced component
-    @attribute alias    The name under which the referenced component can be used.
+    @attribute function    The name under which the referenced component can be used.
   */
   USE_Stmt implements BodyElement = "use" name:QualifiedName "as" alias:Name;
 
@@ -108,12 +108,12 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
   /** ASTVar_Block represents a block with variables, e.g.:
 
     @attribute hide is true iff. declaration is not trackable.
-    @attribute alias is true iff. declaration is an alias.
+    @attribute function is true iff. declaration is an function.
     @attribute declaration embeds the SPL variable declaration.
     @attribute invariants List with optional invariants.
   */
   AliasDecl =
-    (["recordable"] )? (["alias"])?
+    (["recordable"] )? (["function"])?
     Declaration
     ("[[" invariant:Expr "]]")?;
 

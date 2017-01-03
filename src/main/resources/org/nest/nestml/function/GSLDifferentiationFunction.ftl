@@ -17,17 +17,17 @@ ${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode 
 
   <#list body.getODEBlock().get().getODEs() as ode>
     <#assign simpleOde = odeTransformer.replaceSumCalls(ode)>
-    <#list astUtils.getAliasSymbols(ode) as alias>
-      <#if !alias.isInEquation()>
-        <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
-        double ${names.name(alias)} = ${expressionsPrinterForGSL.print(declaringExpression)};
+    <#list astUtils.getAliasSymbols(ode) as function>
+      <#if !function.isInEquation()>
+        <#assign declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression().get())>
+        double ${names.name(function)} = ${expressionsPrinterForGSL.print(declaringExpression)};
       </#if>
     </#list>
   </#list>
 
-  <#list body.getODEAliases() as alias>
-    <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
-    double ${names.name(alias)} = ${expressionsPrinterForGSL.print(declaringExpression)};
+  <#list body.getODEAliases() as function>
+    <#assign declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression().get())>
+    double ${names.name(function)} = ${expressionsPrinterForGSL.print(declaringExpression)};
   </#list>
 
   <#list ast.variablesDefinedByODE() as odeVariable>

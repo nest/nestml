@@ -30,12 +30,12 @@ public class AliasHasNoSetter implements NESTMLASTAliasDeclCoCo {
     checkState(decl.getEnclosingScope().isPresent(), "No scope assigned to the node: " + decl);
     final  Scope scope = decl.getEnclosingScope().get();
 
-    if (alias.isAlias()) {
+    if (alias.isFunction()) {
       // per default aliases have only a single variable. it is checked by the AliasHasOneVar coco.
       final String aliasVar = decl.getVars().get(0);
       final String varTypeName = AstUtils.computeTypeName(decl.getDatatype());
       if (isSetterPresent(aliasVar, varTypeName, scope) || AliasInverter.isRelativeExpression(decl.getExpr().get())) {
-        Log.trace("The setter will be generated or used for the alias  at " + alias.get_SourcePositionStart().toString(), ERROR_CODE);
+        Log.trace("The setter will be generated or used for the function  at " + alias.get_SourcePositionStart().toString(), ERROR_CODE);
       }
 
     }

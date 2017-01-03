@@ -27,7 +27,7 @@ public class NestmlErrorStrings {
   }
 
   static String message(final AliasHasOneVar coco, final SourcePosition sourcePosition) {
-    final String ERROR_MESSAGE_FORMAT = "'alias' declarations must only declare exactly one variable.";
+    final String ERROR_MESSAGE_FORMAT = "'function' declarations must only declare exactly one variable.";
     return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MESSAGE_FORMAT;
   }
 
@@ -98,7 +98,7 @@ public class NestmlErrorStrings {
   }
 
     String getErrorMsg(AliasHasDefiningExpression coco) {
-    return AliasHasDefiningExpression.ERROR_CODE + ":" + "'alias' must be defined through an expression.";
+    return AliasHasDefiningExpression.ERROR_CODE + ":" + "'function' must be defined through an expression.";
   }
 
   String getErrorMsg(AliasHasNoSetter coco, String aliasVar, String varTypeName) {
@@ -286,7 +286,7 @@ public class NestmlErrorStrings {
   }
 
   public String getErrorMsg(AssignmentToAlias assignmentToAlias, final String variableName) {
-    return AssignmentToAlias.ERROR_CODE + ":" + "You cannot assign a value to an alias: " + variableName;
+    return AssignmentToAlias.ERROR_CODE + ":" + "You cannot assign a value to an function: " + variableName;
   }
 
   static String error(final VariableBlockDefinedMultipleTimes coco,

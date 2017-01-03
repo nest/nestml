@@ -13,8 +13,8 @@ neuron iaf_psc_exp_ms_imperative_nestml:
    t_ref ms = 2.0
    U0 mV = -70.0
    I_e pA = 0.0
-   alias Theta mV = -55.0 - U0 # relative U0
-   alias V_reset mV = -70.0 - U0  # in mV
+   function Theta mV = -55.0 - U0 # relative U0
+   function V_reset mV = -70.0 - U0  # in mV
    tau_ex ms = 2.0
    tau_in ms = 2.0
   end

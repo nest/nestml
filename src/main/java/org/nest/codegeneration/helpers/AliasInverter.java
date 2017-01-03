@@ -15,7 +15,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**
- * Provides methods to compute a setter for a simple alias of the form:
+ * Provides methods to compute a setter for a simple function of the form:
  * a = state_variable + parameter_variable
  * b = constant state_variable/parameter_variable
  *

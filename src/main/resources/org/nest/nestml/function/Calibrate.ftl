@@ -1,6 +1,6 @@
 <#--
 
-  @grammar: AliasDecl = ([hide:"-"])? ([alias:"alias"])?
+  @grammar: AliasDecl = ([hide:"-"])? ([function:"function"])?
                         Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
                         Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
   @param variable VariableSymbol

@@ -6,7 +6,7 @@ neuron NeuronInTest:
     end
 
     equations:
-      x mV = 1
+      function x mV = 1
       shape g_ex = t # error, g_z is already defined
       g_z'' = t
       g_z'' = t*2 # error, g_z' is defined by the last definition
@@ -22,7 +22,7 @@ neuron NeuronInTest:
     end
 
     equations:
-       x real = 12
+       function x real = 12
     end
 end
 

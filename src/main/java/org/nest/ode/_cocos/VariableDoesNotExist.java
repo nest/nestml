@@ -45,7 +45,7 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
 
   @Override
   public void check(final ASTOdeDeclaration node) {
-    node.getODEAliass().forEach(
+    node.getOdeFunctions().forEach(
         oderAlias-> {
           checkVariableByName(oderAlias.getVariableName(), node);
           AstUtils

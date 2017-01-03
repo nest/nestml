@@ -52,11 +52,11 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     g_sfa' = -g_sfa / tau_sfa
     g_rr' = g_rr / tau_rr
 
-    I_syn_exc pA = cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
-    I_syn_inh pA = cond_sum(g_in, spikesInh) * ( V_m - E_in )
-    I_L pA = g_L * ( V_m - E_L )
-    I_sfa pA = g_sfa * ( V_m - E_sfa )
-    I_rr pA = g_rr * ( V_m - E_rr )
+    function I_syn_exc pA = cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
+    function I_syn_inh pA = cond_sum(g_in, spikesInh) * ( V_m - E_in )
+    function I_L pA = g_L * ( V_m - E_L )
+    function I_sfa pA = g_sfa * ( V_m - E_sfa )
+    function I_rr pA = g_rr * ( V_m - E_rr )
 
     # V dot
     V_m' = ( -I_L + I_stim + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m

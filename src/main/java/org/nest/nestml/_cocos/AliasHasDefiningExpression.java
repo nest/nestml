@@ -10,7 +10,7 @@ import org.nest.nestml._ast.ASTAliasDecl;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
- * An alias
+ * An function
  *
  * @author (last commit) ippen, plotnikov
  */
@@ -20,7 +20,7 @@ public class AliasHasDefiningExpression implements NESTMLASTAliasDeclCoCo {
 
   @Override
   public void check(final ASTAliasDecl decl) {
-    if (decl.isAlias()) {
+    if (decl.isFunction()) {
       if (!decl.getDeclaration().getExpr().isPresent()) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this);

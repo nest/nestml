@@ -2,7 +2,7 @@ neuron iaf_psc_alpha_mc_imperative:
 
   state:
     y0, y1_ex, y2_ex, y1_in, y2_in, y3 real = 0
-    alias V_m real = y3 + U0
+    function V_m real = y3 + U0
 
   end
 
@@ -22,10 +22,10 @@ neuron iaf_psc_alpha_mc_imperative:
     # External current in pA
     I_e pA = 0
     # Reset value of the membrane potential
-    alias V_reset real = -70 - U0
+    function V_reset real = -70 - U0
     # Threshold, RELATIVE TO RESTING POTENTIAL(!).
     #    I.e. the real threshold is (U0_+Theta_)
-    alias Theta real = -55 - U0
+    function Theta real = -55 - U0
     # Lower bound, RELATIVE TO RESTING POTENTIAL(!).
     #    I.e. the real lower bound is (LowerBound_+U0_).
     LowerBound real = inf
