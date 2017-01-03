@@ -9,6 +9,7 @@ import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.codegeneration.helpers.ASTBuffers;
+import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.utils.AstUtils;
@@ -17,6 +18,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.*;
+import static org.nest.symboltable.NestmlSymbols.isGetterPresent;
 import static org.nest.symboltable.NestmlSymbols.isSetterPresent;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
@@ -189,6 +191,10 @@ public class VariableSymbol extends CommonSymbol {
     return blockType == BlockType.EQUATION;
   }
 
+  public boolean containsSumCall() {
+    return declaringExpression != null && OdeTransformer.containsSumFunctionCall(declaringExpression);
+  }
+
   public boolean isParameters () {
     return blockType == BlockType.PARAMETER;
   }
@@ -211,6 +217,14 @@ public class VariableSymbol extends CommonSymbol {
     checkArgument(getAstNode().get().getEnclosingScope().isPresent(), "Run symboltable creator.");
 
     return isSetterPresent(getName(), getType().getName(), getAstNode().get().getEnclosingScope().get());
+  }
+
+  @SuppressWarnings({"unused"}) // used in templates
+  public boolean hasGetter() {
+    checkState(getAstNode().isPresent(), "Symbol table must set the AST node.");
+    checkArgument(getAstNode().get().getEnclosingScope().isPresent(), "Run symboltable creator.");
+
+    return isGetterPresent(getName(), getType().getName(), getAstNode().get().getEnclosingScope().get());
   }
 
   @SuppressWarnings({"unused"}) // used in templates

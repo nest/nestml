@@ -1,31 +1,22 @@
 <#--
   Generates the getter function for the variable.
 
-  @param var VariableSymbol that captures the varibale from the model
+  @param variable VariableSymbol that captures the variable from the model
   @result C++ function
 -->
-${signature("var")}
+${signature("variable")}
 
-<#if var.isAlias()>
-  <#if aliasInverter.isRelativeExpression(var.getDeclaringExpression().get()) || var.isInEquation()>
-    inline ${declarations.printVariableType(var)} ${names.getter(var)}() const {
-      return ${variableHelper.printOrigin(var)} ${names.name(var)};
-    }
-    inline void ${names.setter(var)}(const ${declarations.printVariableType(var)} v) {
-      ${variableHelper.printOrigin(var)} ${names.name(var)} = v;
-    }
-  <#else>
-    inline ${declarations.printVariableType(var)} ${names.getter(var)}() const {
-      <#assign simpleExpression = odeTransformer.replaceSumCalls(var.getDeclaringExpression().get())>
-      return ${expressionsPrinter.print(simpleExpression)};
-    }
-  </#if>
+<#if variable.isAlias() && !variable.containsSumCall()>
+  inline ${declarations.printVariableType(variable)} ${names.getter(variable)}() const {
+    <#assign simpleExpression = odeTransformer.replaceSumCalls(variable.getDeclaringExpression().get())>
+    return ${expressionsPrinter.print(simpleExpression)};
+  }
 <#else>
-  inline ${declarations.printVariableType(var)} ${names.getter(var)}() const {
-    return ${variableHelper.printOrigin(var)} ${names.name(var)};
+  inline ${declarations.printVariableType(variable)} ${names.getter(variable)}() const {
+    return ${variableHelper.printOrigin(variable)} ${names.name(variable)};
   }
 
-  inline void ${names.setter(var)}(const ${declarations.printVariableType(var)} v) {
-    ${variableHelper.printOrigin(var)} ${names.name(var)} = v;
+  inline void ${names.setter(variable)}(const ${declarations.printVariableType(variable)} __v) {
+    ${variableHelper.printOrigin(variable)} ${names.name(variable)} = __v;
   }
 </#if>

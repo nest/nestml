@@ -36,7 +36,7 @@ import static de.se_rwth.commons.logging.Log.trace;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.nest.codegeneration.sympy.ODETransformer.getCondSumFunctionCall;
+import static org.nest.codegeneration.sympy.OdeTransformer.getCondSumFunctionCall;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.COMPONENT;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;

@@ -101,13 +101,6 @@ public class NestmlErrorStrings {
     return AliasHasDefiningExpression.ERROR_CODE + ":" + "'function' must be defined through an expression.";
   }
 
-  String getErrorMsg(AliasHasNoSetter coco, String aliasVar, String varTypeName) {
-    return AliasHasNoSetter.ERROR_CODE + ":" + "Alias-variable '" + aliasVar + "' needs a setter-function: set_"
-        + aliasVar + "(v " + varTypeName + ")";
-  }
-
-
-
   String getErrorMsgInvariantMustBeBoolean(InvalidTypeOfInvariant coco, String expressionType) {
     return InvalidTypeOfInvariant.ERROR_CODE + ":" + "The type of the invariant expression must be boolean and not: " +
            expressionType;

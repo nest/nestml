@@ -74,7 +74,7 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM));
     assertTrue(i_sum);
 
-    final ASTEquation testant = ODETransformer.replaceSumCalls(ode.get());
+    final ASTEquation testant = OdeTransformer.replaceSumCalls(ode.get());
     i_sum = AstUtils.getAll(testant, ASTFunctionCall.class)
         .stream()
         .anyMatch(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM));

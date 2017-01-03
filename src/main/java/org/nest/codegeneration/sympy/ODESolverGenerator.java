@@ -165,7 +165,7 @@ public class ODESolverGenerator {
 
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("printer", expressionsPrinter);
-    glex.setGlobalValue("odeTransformer", new ODETransformer());
+    glex.setGlobalValue("odeTransformer", new OdeTransformer());
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
     final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");
