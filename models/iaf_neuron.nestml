@@ -74,13 +74,14 @@ neuron iaf_neuron_nestml:
 
   # Captures the dynamic state of the neuron
   state:
-    V_m mV =  E_L # Membrane potential.
+    V_abs mV
+    function V_m mV = V_abs + E_L # Membrane potential.
   end
 
   # Declarative description of the updates rules
   equations:
     shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-    V_m' = -1/Tau * (V_m - E_L) + 1/C_m * (curr_sum(G, spikes) + I_e + currents)
+    V_abs' = -1/Tau * (V_abs) + (curr_sum(G, spikes) + I_e + currents) / C_m
   end
 
   # these parameter are adjusted from outside
@@ -90,8 +91,8 @@ neuron iaf_neuron_nestml:
     tau_syn ms = 2 ms     # Time constant of synaptic current.
     t_ref   ms = 2 ms     # Refractory period.
     E_L     mV = -70 mV   # Resting potential.
-    V_reset mV = -70 mV
-    Theta   mV = -55 mV
+    function V_reset mV = -70 mV - E_L
+    function Theta   mV = -55 mV - E_L
     I_e     pA = 0 pA     # External current.
   end
 
@@ -116,9 +117,9 @@ neuron iaf_neuron_nestml:
   update:
     if r == 0: # not refractory
       integrate_odes()
-      if V_m >= Theta: # threshold crossing
+      if V_abs >= Theta: # threshold crossing
         r = RefractoryCounts
-        V_m = V_reset
+        V_abs = V_reset
         # A supra-threshold membrane potential should never be observable.
         # The reset at the time of threshold crossing enables accurate
         # integration independent of the computation step size, see [2,3] for

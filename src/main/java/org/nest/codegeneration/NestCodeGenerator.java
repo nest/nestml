@@ -257,8 +257,6 @@ public class NestCodeGenerator {
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
     glex.setGlobalValue("nestmlSymbols", new NestmlSymbols());
     glex.setGlobalValue("astUtils", new AstUtils());
-    glex.setGlobalValue("aliasInverter", new AliasInverter());
-
   }
 
 

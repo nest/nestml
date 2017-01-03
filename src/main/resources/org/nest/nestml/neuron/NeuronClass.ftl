@@ -82,27 +82,6 @@ ${simpleNeuronName}::State_::State_() { }
 * Parameter and state extractions and manipulation functions
 * ---------------------------------------------------------------- */
 
-void
-${simpleNeuronName}::Parameters_::set(const DictionaryDatum& __d
-<#list body.getAllOffsetVariables() as offset>
-  , ${declarations.printVariableType(offset)} delta_${offset.getName()}
-</#list>
-)
-{
-
-
-}
-
-void
-${simpleNeuronName}::State_::set(const DictionaryDatum& __d, const Parameters_& p
-<#list body.getAllOffsetVariables() as offset>
-  , ${declarations.printVariableType(offset)} delta_${offset.getName()}
-</#list>
-)
-{
-
-}
-
 ${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
 <#if useGSL>
   , s_( 0 )
@@ -137,10 +116,6 @@ ${simpleNeuronName}::${simpleNeuronName}():Archiving_Node(), P_(), S_(), B_(*thi
   recordablesMap_.create();
 
   <#list body.getParameterNonAliasSymbols() as parameter>
-    ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
-  </#list>
-
-  <#list body.getAllRelativeParameters() as parameter>
     ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
   </#list>
 

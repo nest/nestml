@@ -187,6 +187,10 @@ public class VariableSymbol extends CommonSymbol {
     return blockType == BlockType.STATE;
   }
 
+  public boolean isInternal() {
+    return blockType == BlockType.INTERNALS;
+  }
+
   public boolean isInEquation() {
     return blockType == BlockType.EQUATION;
   }
@@ -195,8 +199,8 @@ public class VariableSymbol extends CommonSymbol {
     return declaringExpression != null && OdeTransformer.containsSumFunctionCall(declaringExpression);
   }
 
-  public boolean isParameters () {
-    return blockType == BlockType.PARAMETER;
+  public boolean isParameter() {
+    return blockType == BlockType.PARAMETERS;
   }
 
   public void setAlias(boolean isAlias) {
@@ -268,8 +272,8 @@ public class VariableSymbol extends CommonSymbol {
 
   public enum BlockType {
     STATE,
-    PARAMETER,
-    INTERNAL,
+    PARAMETERS,
+    INTERNALS,
     EQUATION,
     LOCAL,
     INPUT_BUFFER_CURRENT,

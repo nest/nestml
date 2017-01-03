@@ -12,9 +12,9 @@ public class VariableHelper {
       case STATE:
       case EQUATION:
         return  "S_.";
-      case PARAMETER:
+      case PARAMETERS:
         return  "P_.";
-      case INTERNAL:
+      case INTERNALS:
         return  "V_.";
       case INPUT_BUFFER_CURRENT: case INPUT_BUFFER_SPIKE:
         return "B_.";

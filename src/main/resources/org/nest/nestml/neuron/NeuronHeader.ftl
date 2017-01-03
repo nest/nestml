@@ -207,23 +207,8 @@ protected:
       ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
     </#list>
 
-    <#list body.getAllRelativeParameters() as variable>
-      ${tc.includeArgs("org.nest.nestml.function.MemberDeclaration", [variable])}
-    </#list>
-
     /** Initialize parameters to their default values. */
     Parameters_();
-
-    /** Set parameter values from dictionary. */
-    void set(const DictionaryDatum&
-    <#list body.getAllOffsetVariables() as offset>
-      , ${declarations.printVariableType(offset)} ${offset.getName()}
-    </#list>);
-
-    // TODO only for invariants
-    <#list body.getParameterNonAliasSymbols() as variable>
-      ${tc.includeArgs("org.nest.nestml.function.StructGetterSetter", [variable])}
-    </#list>
   };
 
   /**
@@ -270,16 +255,6 @@ protected:
     </#list>
 
     State_();
-
-    /**
-    * Set state values from dictionary.
-    */
-    void set(const DictionaryDatum&,
-             const Parameters_&
-    <#list body.getAllOffsetVariables() as offset>
-      , ${declarations.printVariableType(offset)} ${offset.getName()}
-    </#list>
-    );
   };
 
   /**
@@ -501,10 +476,6 @@ void ${simpleNeuronName}::get_status(DictionaryDatum &__d) const
 inline
 void ${simpleNeuronName}::set_status(const DictionaryDatum &__d)
 {
-  <#list body.getAllOffsetVariables() as offset>
-    ${tc.includeArgs("org.nest.nestml.function.StoreDeltaValue", [offset])}
-  </#list>
-
   <#list body.getParameterSymbols() as parameter>
   ${tc.includeArgs("org.nest.nestml.function.ReadFromDictionary", [parameter])}
   </#list>

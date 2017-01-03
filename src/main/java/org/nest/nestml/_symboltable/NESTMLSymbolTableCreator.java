@@ -547,14 +547,14 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
             astDeclaration,
             currentTypeSymbol.get(),
             astAliasDeclaration.orElse(null),
-            VariableSymbol.BlockType.PARAMETER);
+            VariableSymbol.BlockType.PARAMETERS);
       }
       else if (blockAst.isInternals()) {
         addVariablesFromDeclaration(
             astDeclaration,
             currentTypeSymbol.get(),
             astAliasDeclaration.orElse(null),
-            VariableSymbol.BlockType.INTERNAL);
+            VariableSymbol.BlockType.INTERNALS);
       }
       else {
         addVariablesFromDeclaration(
