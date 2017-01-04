@@ -12,5 +12,5 @@ ${tc.include("org.nest.spl.compound_statement.IfStatement", ast.getIF_Stmt().get
 <#elseif ast.getFOR_Stmt().isPresent()>
 ${tc.include("org.nest.spl.compound_statement.ForStatement", ast.getFOR_Stmt().get())}
 <#elseif ast.getWHILE_Stmt().isPresent()>
-${tc.include("org.nest.compound_statement.spl.WhileStatement", ast.getWHILE_Stmt().get())}
+${tc.include("org.nest.spl.compound_statement.WhileStatement", ast.getWHILE_Stmt().get())}
 </#if>
