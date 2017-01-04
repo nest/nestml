@@ -5,12 +5,12 @@
   @result C++ Function
 -->
 extern "C" inline int
-${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode )
+${neuronName}_dynamics( double, const double y[], double f[], void* pnode )
 {
-  typedef ${simpleNeuronName}::State_ State_;
+  typedef ${neuronName}::State_ State_;
   // get access to node so we can almost work as in a member function
   assert( pnode );
-  const ${simpleNeuronName}& node = *( reinterpret_cast< ${simpleNeuronName}* >( pnode ) );
+  const ${neuronName}& node = *( reinterpret_cast< ${neuronName}* >( pnode ) );
 
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
