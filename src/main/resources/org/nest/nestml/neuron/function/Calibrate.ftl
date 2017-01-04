@@ -1,10 +1,5 @@
 <#--
-
-  @grammar: AliasDecl = ([hide:"-"])? ([function:"function"])?
-                        Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
-                        Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
-  @param variable VariableSymbol
-  @result Generates C++ declaration
+ TODO: instead of using 0 a default value provider must be used
 -->
 ${signature("variable")}
 

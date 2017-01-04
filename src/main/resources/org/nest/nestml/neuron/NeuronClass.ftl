@@ -38,33 +38,33 @@
 #include "integerdatum.h"
 #include "lockptrdatum.h"
 
-#include "${simpleNeuronName}.h"
+#include "${neuronName}.h"
 
 <#assign stateSize = body.getEquations()?size>
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
-nest::RecordablesMap<${simpleNeuronName}> ${simpleNeuronName}::recordablesMap_;
+nest::RecordablesMap<${neuronName}> ${neuronName}::recordablesMap_;
 
 namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
   template <>
-  void RecordablesMap<${simpleNeuronName}>::create()
+  void RecordablesMap<${neuronName}>::create()
   {
     // use standard names whereever you can for consistency!
     <#list body.getStateSymbols() as state>
-      ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [state])}
+      ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [state])}
     </#list>
     <#list body.getInternalSymbols() as internal>
-      ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [internal])}
+      ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [internal])}
     </#list>
     <#list body.getParameterSymbols() as parameter>
-      ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [parameter])}
+      ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [parameter])}
     </#list>
     <#list body.getODEAliases() as odeAlias>
-      ${tc.includeArgs("org.nest.nestml.function.RecordCallback", [odeAlias])}
+      ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [odeAlias])}
     </#list>
   }
 
@@ -74,15 +74,15 @@ namespace nest
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
 
-${simpleNeuronName}::Parameters_::Parameters_() { }
+${neuronName}::Parameters_::Parameters_() { }
 
-${simpleNeuronName}::State_::State_() { }
+${neuronName}::State_::State_() { }
 
 /* ----------------------------------------------------------------
 * Parameter and state extractions and manipulation functions
 * ---------------------------------------------------------------- */
 
-${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
+${neuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
 <#if useGSL>
   , s_( 0 )
   , c_( 0 )
@@ -95,7 +95,7 @@ ${simpleNeuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
 
 }
 
-${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger_(n)
+${neuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger_(n)
 <#if useGSL>
   , s_( 0 )
   , c_( 0 )
@@ -111,28 +111,28 @@ ${simpleNeuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): 
 * Default and copy constructor for node
 * ---------------------------------------------------------------- */
 // TODO inner components
-${simpleNeuronName}::${simpleNeuronName}():Archiving_Node(), P_(), S_(), B_(*this)
+${neuronName}::${neuronName}():Archiving_Node(), P_(), S_(), B_(*this)
 {
   recordablesMap_.create();
 
   <#list body.getParameterNonAliasSymbols() as parameter>
-    ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [parameter, printerWithGetters])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, printerWithGetters])}
   </#list>
 
   <#list body.getStateNonAliasSymbols() as state>
-    ${tc.includeArgs("org.nest.nestml.function.MemberInitialization", [state, printerWithGetters])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, printerWithGetters])}
   </#list>
 
 }
 
-${simpleNeuronName}::${simpleNeuronName}(const ${simpleNeuronName}& n): Archiving_Node(), P_(n.P_), S_(n.S_), B_(n.B_, *this)
+${neuronName}::${neuronName}(const ${neuronName}& n): Archiving_Node(), P_(n.P_), S_(n.S_), B_(n.B_, *this)
 {}
 
 /* ----------------------------------------------------------------
 * Destructors
 * ---------------------------------------------------------------- */
 
-${simpleNeuronName}::~${simpleNeuronName}()
+${neuronName}::~${neuronName}()
 {
   <#if useGSL>
     // GSL structs may not have been allocated, so we need to protect destruction
@@ -150,7 +150,7 @@ ${simpleNeuronName}::~${simpleNeuronName}()
 * ---------------------------------------------------------------- */
 
 void
-${simpleNeuronName}::init_state_(const Node& proto)
+${neuronName}::init_state_(const Node& proto)
 { // TODO inner components
 
   const ${ast.getName()}& pr = downcast<${ast.getName()}>(proto);
@@ -158,11 +158,11 @@ ${simpleNeuronName}::init_state_(const Node& proto)
 }
 
 <#if useGSL>
-${tc.include("org.nest.nestml.function.GSLDifferentiationFunction", body)}
+${tc.include("org.nest.nestml.neuron.function.GSLDifferentiationFunction", body)}
 </#if>
 
 void
-${simpleNeuronName}::init_buffers_()
+${neuronName}::init_buffers_()
 {
   <#list body.getInputBuffers() as buffer>
   ${bufferHelper.printBufferInitialization(buffer)}
@@ -189,7 +189,7 @@ ${simpleNeuronName}::init_buffers_()
       gsl_odeiv_evolve_reset( B_.e_ );
     }
 
-    B_.sys_.function = ${simpleNeuronName}_dynamics;
+    B_.sys_.function = ${neuronName}_dynamics;
     B_.sys_.jacobian = NULL;
     B_.sys_.dimension = ${stateSize};
     B_.sys_.params = reinterpret_cast< void* >( this );
@@ -199,17 +199,17 @@ ${simpleNeuronName}::init_buffers_()
 }
 
 void
-${simpleNeuronName}::calibrate()
+${neuronName}::calibrate()
 {
   B_.logger_.init();
 
   <#list body.getInternalNonAliasSymbols() as variable>
-    ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.Calibrate", [variable])}
   </#list>
 
   <#list body.getStateNonAliasSymbols() as variable>
     <#if variable.isVector()>
-      ${tc.includeArgs("org.nest.nestml.function.Calibrate", [variable])}
+      ${tc.includeArgs("org.nest.nestml.neuron.function.Calibrate", [variable])}
     </#if>
   </#list>
 
@@ -234,7 +234,7 @@ ${simpleNeuronName}::calibrate()
  ${body.printDynamicsComment()}
  */
 void
-${simpleNeuronName}::update(
+${neuronName}::update(
         nest::Time const & origin,
         const long from, const long to)
 {
@@ -267,13 +267,13 @@ ${simpleNeuronName}::update(
 // Do not move this function as inline to h-file. It depends on
 // universal_data_logger_impl.h being included here.
 void
-${simpleNeuronName}::handle(nest::DataLoggingRequest& e)
+${neuronName}::handle(nest::DataLoggingRequest& e)
 {
     B_.logger_.handle(e);
 }
 
 <#list body.getFunctions() as function>
-${functionPrinter.printFunctionDefinition(function, simpleNeuronName)}
+${functionPrinter.printFunctionDefinition(function, neuronName)}
 {
   ${tc.include("org.nest.spl.Block", function.getBlock())}
 }
@@ -281,7 +281,7 @@ ${functionPrinter.printFunctionDefinition(function, simpleNeuronName)}
 
 <#if isSpikeInput>
 void
-${simpleNeuronName}::handle(nest::SpikeEvent &e)
+${neuronName}::handle(nest::SpikeEvent &e)
 {
   assert(e.get_delay() > 0);
 
@@ -307,7 +307,21 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
       const double weight = e.get_weight();
       const double multiplicity = e.get_multiplicity();
       <#list body.getSpikeBuffers() as buffer>
-        ${tc.includeArgs("org.nest.nestml.buffer.SpikeBufferFill", [buffer])}
+        <#if buffer.isExcitatory()>
+        if ( weight >= 0.0 ) // excitatory
+        {
+          get_${buffer.getName()}().add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+                       weight * multiplicity );
+        }
+        </#if>
+        <#if buffer.isInhibitory()>
+        if ( weight < 0.0 ) // inhibitory
+        {
+          get_${buffer.getName()}().add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+                      <#if buffer.isConductanceBased()> // ensure conductance is positive </#if>
+                      <#if buffer.isConductanceBased()> -1 * </#if> weight * multiplicity );
+        }
+        </#if>
       </#list>
 
   </#if>
@@ -316,7 +330,7 @@ ${simpleNeuronName}::handle(nest::SpikeEvent &e)
 
 <#if isCurrentInput>
 void
-${simpleNeuronName}::handle(nest::CurrentEvent& e)
+${neuronName}::handle(nest::CurrentEvent& e)
 {
   assert(e.get_delay() > 0);
 

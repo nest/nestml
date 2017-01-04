@@ -151,13 +151,14 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isVector() {
-    if (blockType != BlockType.SHAPE) {
-      return getVectorParameter().isPresent();
-    }
-    else {
+    if (blockType == BlockType.SHAPE) {
+
       // declaring expression exists by construction from symbol table creator
       // there no shape without declaring expression
       return getVectorizedVariable(getDeclaringExpression().get(), getEnclosingScope()).isPresent();
+    }
+    else {
+      return getVectorParameter().isPresent();
     }
 
   }

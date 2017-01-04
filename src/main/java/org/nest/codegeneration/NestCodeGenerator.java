@@ -183,13 +183,13 @@ public class NestCodeGenerator {
 
     final Path cmakeModuleHeader = Paths.get(moduleName + ".h");
     generator.generate(
-        "org.nest.nestml.module.ModuleHeaderCMake",
+        "org.nest.nestml.module.ModuleHeader",
         cmakeModuleHeader,
         neurons.get(0)); // an arbitrary AST to match the signature
 
     final Path cmakeModuleClass = Paths.get(moduleName + ".cpp");
     generator.generate(
-        "org.nest.nestml.module.ModuleClassCMake",
+        "org.nest.nestml.module.ModuleClass",
         cmakeModuleClass,
         neurons.get(0)); // an arbitrary AST to match the signature
 
@@ -234,7 +234,7 @@ public class NestCodeGenerator {
 
     final String guard = (neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
-    glex.setGlobalValue("simpleNeuronName", neuron.getName());
+    glex.setGlobalValue("neuronName", neuron.getName());
     glex.setGlobalValue("neuronSymbol", neuron.getSymbol().get());
 
     final NESTFunctionPrinter functionPrinter = new NESTFunctionPrinter();

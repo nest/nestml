@@ -8,9 +8,9 @@
   @result TODO
 -->
 <#if ast.getIF_Stmt().isPresent()>
-${tc.include("org.nest.spl.IfStatement", ast.getIF_Stmt().get())}
+${tc.include("org.nest.spl.compound_statement.IfStatement", ast.getIF_Stmt().get())}
 <#elseif ast.getFOR_Stmt().isPresent()>
-${tc.include("org.nest.spl.ForStatement", ast.getFOR_Stmt().get())}
+${tc.include("org.nest.spl.compound_statement.ForStatement", ast.getFOR_Stmt().get())}
 <#elseif ast.getWHILE_Stmt().isPresent()>
-${tc.include("org.nest.spl.WhileStatement", ast.getWHILE_Stmt().get())}
+${tc.include("org.nest.compound_statement.spl.WhileStatement", ast.getWHILE_Stmt().get())}
 </#if>

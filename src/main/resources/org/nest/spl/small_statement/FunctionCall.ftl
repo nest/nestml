@@ -7,7 +7,7 @@
   @result TODO
 -->
 <#if functions.isIntegrate(ast)>
-${tc.include("org.nest.spl.GSLIntegrator", body.getODEBlock().get())}
+${tc.include("org.nest.spl.small_statement.GSLIntegrator", body.getODEBlock().get())}
 <#else>
 ${expressionsPrinter.printMethodCall(ast)};
 </#if>
