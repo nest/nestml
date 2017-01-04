@@ -1,6 +1,6 @@
 neuron A:
   state:
-    alias a ms = 15.0
+    function a ms = 15.0
   end
 
   update:

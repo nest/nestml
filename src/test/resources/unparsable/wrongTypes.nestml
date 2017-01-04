@@ -75,7 +75,7 @@ neuron iaf_neuron_neuron:
   # Captures the dynamic state of the neuron
   state:
     V_abs mV
-    alias V_m mV = V_abs + E_L # Membrane potential.
+    function V_m mV = V_abs + E_L # Membrane potential.
   end
 
   # Declarative description of the updates rules
@@ -91,8 +91,8 @@ neuron iaf_neuron_neuron:
     tau_syn ms = 2 ms     # Time constant of synaptic current.
     t_ref   ms = 2 ms    # Refractory period.
     E_L     mV = -70 mV  # Resting potential.
-    alias V_reset mV = -70 mV - E_L
-    alias Theta   mV = -55 mV- E_L
+    function V_reset mV = -70 mV - E_L
+    function Theta   mV = -55 mV- E_L
     I_e     pA = 0 pA     # External current.
   end
 

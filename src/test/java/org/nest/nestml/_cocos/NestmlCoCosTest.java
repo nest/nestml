@@ -101,30 +101,6 @@ public class NestmlCoCosTest {
   }
 
   @Test
-  public void testAliasHasNoSetter() {
-    final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        TEST_MODELS_FOLDER + "aliasHasNoSetter/valid.nestml", Paths.get(TEST_MODELS_FOLDER));
-    assertTrue(validRoot.isPresent());
-    scopeCreator.runSymbolTableCreator(validRoot.get());
-    final AliasHasNoSetter aliasHasNoSetter = new AliasHasNoSetter();
-
-    nestmlCoCoChecker.addCoCo(aliasHasNoSetter);
-    nestmlCoCoChecker.checkAll(validRoot.get());
-
-    Integer errorsFound = countWarningsByPrefix(AliasHasNoSetter.ERROR_CODE, getFindings());
-    assertEquals(Integer.valueOf(0), errorsFound);
-
-    final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
-        TEST_MODELS_FOLDER + "aliasHasNoSetter/invalid.nestml", Paths.get(TEST_MODELS_FOLDER));
-        assertTrue(invalidRoot.isPresent());
-    scopeCreator.runSymbolTableCreator(invalidRoot.get());
-
-    nestmlCoCoChecker.checkAll(invalidRoot.get());
-    // TODO: Extend Log, make the information about infos also persistable
-
-  }
-
-  @Test
   public void testAliasHasOneVar() {
     final AliasHasOneVar aliasHasOneVar = new AliasHasOneVar();
     nestmlCoCoChecker.addCoCo(aliasHasOneVar);

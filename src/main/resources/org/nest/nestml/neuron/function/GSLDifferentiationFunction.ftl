@@ -5,29 +5,29 @@
   @result C++ Function
 -->
 extern "C" inline int
-${simpleNeuronName}_dynamics( double, const double y[], double f[], void* pnode )
+${neuronName}_dynamics( double, const double y[], double f[], void* pnode )
 {
-  typedef ${simpleNeuronName}::State_ State_;
+  typedef ${neuronName}::State_ State_;
   // get access to node so we can almost work as in a member function
   assert( pnode );
-  const ${simpleNeuronName}& node = *( reinterpret_cast< ${simpleNeuronName}* >( pnode ) );
+  const ${neuronName}& node = *( reinterpret_cast< ${neuronName}* >( pnode ) );
 
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
 
   <#list body.getODEBlock().get().getODEs() as ode>
     <#assign simpleOde = odeTransformer.replaceSumCalls(ode)>
-    <#list astUtils.getAliasSymbols(ode) as alias>
-      <#if !alias.isInEquation()>
-        <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
-        double ${names.name(alias)} = ${expressionsPrinterForGSL.print(declaringExpression)};
+    <#list astUtils.getAliasSymbols(ode) as function>
+      <#if !function.isInEquation()>
+        <#assign declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression().get())>
+        double ${names.name(function)} = ${expressionsPrinterForGSL.print(declaringExpression)};
       </#if>
     </#list>
   </#list>
 
-  <#list body.getODEAliases() as alias>
-    <#assign declaringExpression = odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get())>
-    double ${names.name(alias)} = ${expressionsPrinterForGSL.print(declaringExpression)};
+  <#list body.getODEAliases() as function>
+    <#assign declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression().get())>
+    double ${names.name(function)} = ${expressionsPrinterForGSL.print(declaringExpression)};
   </#list>
 
   <#list ast.variablesDefinedByODE() as odeVariable>

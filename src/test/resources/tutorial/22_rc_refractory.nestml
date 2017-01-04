@@ -17,8 +17,8 @@ neuron rc_refractory:
     C_m   pF = 250pF
     tau_m ms = 10ms
     I_syn pA = 10pA
-    alias V_th mV = -55mV - E_L
-    alias V_reset mV = -65mV - E_L
+    function V_th mV = -55mV - E_L
+    function V_reset mV = -65mV - E_L
     refractory_timeout ms = 5ms
     refractory_counts integer = 0
   end

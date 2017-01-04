@@ -12,7 +12,7 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.*;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.sympy.ODETransformer;
+import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.codegeneration.sympy.OdeProcessor;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTBody;
@@ -183,13 +183,13 @@ public class NestCodeGenerator {
 
     final Path cmakeModuleHeader = Paths.get(moduleName + ".h");
     generator.generate(
-        "org.nest.nestml.module.ModuleHeaderCMake",
+        "org.nest.nestml.module.ModuleHeader",
         cmakeModuleHeader,
         neurons.get(0)); // an arbitrary AST to match the signature
 
     final Path cmakeModuleClass = Paths.get(moduleName + ".cpp");
     generator.generate(
-        "org.nest.nestml.module.ModuleClassCMake",
+        "org.nest.nestml.module.ModuleClass",
         cmakeModuleClass,
         neurons.get(0)); // an arbitrary AST to match the signature
 
@@ -234,7 +234,7 @@ public class NestCodeGenerator {
 
     final String guard = (neuron.getName()).replace(".", "_");
     glex.setGlobalValue("guard", guard);
-    glex.setGlobalValue("simpleNeuronName", neuron.getName());
+    glex.setGlobalValue("neuronName", neuron.getName());
     glex.setGlobalValue("neuronSymbol", neuron.getSymbol().get());
 
     final NESTFunctionPrinter functionPrinter = new NESTFunctionPrinter();
@@ -244,7 +244,7 @@ public class NestCodeGenerator {
     glex.setGlobalValue("functions", new SPLFunctionCalls());
     glex.setGlobalValue("bufferHelper", new ASTBuffers());
     glex.setGlobalValue("variableHelper", new VariableHelper());
-    glex.setGlobalValue("odeTransformer", new ODETransformer());
+    glex.setGlobalValue("odeTransformer", new OdeTransformer());
 
     glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron.getBody()));
     glex.setGlobalValue("isOutputEventPresent", ASTOutputs.isOutputEventPresent(neuron.getBody()));
@@ -257,8 +257,6 @@ public class NestCodeGenerator {
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
     glex.setGlobalValue("nestmlSymbols", new NestmlSymbols());
     glex.setGlobalValue("astUtils", new AstUtils());
-    glex.setGlobalValue("aliasInverter", new AliasInverter());
-
   }
 
 

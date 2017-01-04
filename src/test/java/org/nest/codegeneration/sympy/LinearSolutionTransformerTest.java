@@ -90,11 +90,11 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
 
     final Optional<VariableSymbol> p30Symbol = neuronSymbol.get().getVariableByName("P30");
     assertTrue(p30Symbol.isPresent());
-    assertTrue(p30Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(p30Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
     final Optional<VariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("y1_I_shape_inPSCInitialValue");
     assertTrue(pscInitialValue.isPresent());
-    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
 
     final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("y2_I_shape_in");
@@ -123,7 +123,7 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
     final Optional<VariableSymbol> p00Symbol = symbol.get().getVariableByName("P30");
 
     assertTrue(p00Symbol.isPresent());
-    assertTrue(p00Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(p00Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
   }
 
   @Test
@@ -158,7 +158,7 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
     final Optional<VariableSymbol> pscInitialValue = symbol.get().getVariableByName("y1_I_shape_inPSCInitialValue");
 
     assertTrue(pscInitialValue.isPresent());
-    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
   }
 
   @Test

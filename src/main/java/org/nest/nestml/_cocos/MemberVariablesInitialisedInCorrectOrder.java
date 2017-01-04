@@ -115,7 +115,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
       }
 
       if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
-          rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETER) {
+          rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETERS) {
          final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
                 rhsSymbol.getName(),
                 lhsSymbol.getName());

@@ -10,7 +10,7 @@ import org.nest.nestml._ast.ASTAliasDecl;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
- * Every alias declaration has exactly one variable
+ * Every function declaration has exactly one variable
  *
  * @author (last commit) ippen, plotnikov
  */
@@ -18,7 +18,7 @@ public class AliasHasOneVar implements NESTMLASTAliasDeclCoCo {
 
   @Override
   public void check(final ASTAliasDecl decl) {
-    if (decl.isAlias()) {
+    if (decl.isFunction()) {
       if (decl.getDeclaration().getVars().size() != 1) {
         final String msg = NestmlErrorStrings.message(this, decl.get_SourcePositionStart());
 

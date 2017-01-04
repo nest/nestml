@@ -12,7 +12,7 @@ neuron rc_alpha:
   equations:
     g_ex'' = -g_ex' / tau_syn
     g_ex' = g_ex' - ( g_ex / tau_syn )
-    I_syn pA = g_ex + currents + I_e
+    function I_syn pA = g_ex + currents + I_e
     V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
@@ -22,8 +22,8 @@ neuron rc_alpha:
     tau_m ms = 10ms
     tau_syn ms = 2.0ms
 
-    alias V_th mV = -55mV - E_L
-    alias V_reset mV = -70mV - E_L
+    function V_th mV = -55mV - E_L
+    function V_reset mV = -70mV - E_L
     refractory_timeout ms = 2ms
     refractory_counts integer = 0
     I_e pA = 0pA

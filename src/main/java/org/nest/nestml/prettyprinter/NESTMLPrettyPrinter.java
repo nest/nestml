@@ -10,7 +10,7 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTODEAlias;
+import org.nest.ode._ast.ASTOdeFunction;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
@@ -120,7 +120,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   /**
-   * USE_Stmt implements BodyElement = "use" name:QualifiedName "as" alias:Name;
+   * USE_Stmt implements BodyElement = "use" name:QualifiedName "as" function:Name;
    */
   @Override
   public void visit(final ASTUSE_Stmt astUseStmt) {
@@ -166,7 +166,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   /**
-   * AliasDecl = ([hide:"-"])? ([alias:"alias"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
+   * AliasDecl = ([hide:"-"])? ([function:"function"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
    */
   @Override
   public void visit(final ASTAliasDecl astAliasDecl) {
@@ -182,8 +182,8 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
       print("recordable ");
     }
 
-    if (astAliasDecl.isAlias()) {
-      print("alias ");
+    if (astAliasDecl.isFunction()) {
+      print("function ");
     }
   }
 
@@ -206,7 +206,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   /**
    * Grammar:
-   * AliasDecl = ([hide:"-"])? ([alias:"alias"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
+   * AliasDecl = ([hide:"-"])? ([function:"function"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
    */
   @Override
   public void endVisit(final ASTAliasDecl astAliasDecl) {
@@ -257,7 +257,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     indent();
 
     astOdeDeclaration.getShapes().forEach(this::printShape);
-    astOdeDeclaration.getODEAliass().forEach(this::printODEAlias);
+    astOdeDeclaration.getOdeFunctions().forEach(this::printODEAlias);
     astOdeDeclaration.getODEs().forEach(this::printEquation);
 
   }
@@ -276,13 +276,13 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   /**
    * This method is used in freemaker template. Therefore, remains public.
    */
-  public void printODEAlias(final ASTODEAlias astOdeAlias) {
+  public void printODEAlias(final ASTOdeFunction astOdeAlias) {
     final String datatype = AstUtils.computeTypeName(astOdeAlias.getDatatype(), true);
     final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
     if (astOdeAlias.isRecordable()) {
       print("recordable ");
     }
-    println(astOdeAlias.getVariableName() + " " + datatype + " = " + initExpression);
+    println("function " + astOdeAlias.getVariableName() + " " + datatype + " = " + initExpression);
   }
 
   @Override

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  *
  * @author plotnikov
  */
-public class ODETransformer {
+public class OdeTransformer {
   private static final List<String> functions = Lists.newArrayList(
       PredefinedFunctions.CURR_SUM,
       PredefinedFunctions.COND_SUM,
@@ -52,10 +52,14 @@ public class ODETransformer {
   }
 
 
-
   // this function is used in freemarker templates und must be public
   static List<ASTFunctionCall> get_sumFunctionCalls(final ASTNode workingCopy) {
     return getFunctionCalls(workingCopy, sumFunctions);
+  }
+
+  // this function is used in freemarker templates und must be public
+  public static boolean containsSumFunctionCall(final ASTNode workingCopy) {
+    return !getFunctionCalls(workingCopy, sumFunctions).isEmpty();
   }
 
   // this function is used in freemarker templates und must be public

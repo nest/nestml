@@ -7,7 +7,7 @@ neuron VarsNeuron:
 
   parameters:
     radius mm = 5
-    alias diameter mm = 2 * radius
+    function diameter mm = 2 * radius
   end
 
   internals:

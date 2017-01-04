@@ -82,9 +82,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   public boolean isMultisynapseSpikes() {
     return getSpikeBuffers()
         .stream()
-        .filter(VariableSymbol::isVector)
-        .findAny()
-        .isPresent();
+        .anyMatch(VariableSymbol::isVector);
   }
 
   public MethodSymbol getUpdateBlock() {

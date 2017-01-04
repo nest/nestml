@@ -33,7 +33,7 @@ grammar SPL extends org.nest.Commons {
 
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
-   'a,b,c real = 0'. Or an alias declaration 'alias a = b + c'.
+   'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
     @attribute vars          List with variables
     @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
     @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
