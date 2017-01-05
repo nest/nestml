@@ -70,10 +70,10 @@ neuron aeif_cond_alpha_implicit_implicit:
     g_ex' = g_ex'  -g_ex/tau_syn
 
     # Add aliases to simplify the equation definition of V_m
-    exp_arg real = (V_m-V_th)/delta_T
-    I_spike pA = delta_T*exp(exp_arg)
-    I_syn_exc pA =   cond_sum(g_ex, spikesEx) * ( V_m - E_ex )
-    I_syn_inh pA =   cond_sum(g_in, spikesIn) * ( V_m - E_in )
+    function exp_arg real = (V_m-V_th)/delta_T
+    function I_spike pA = delta_T*exp(exp_arg)
+    function I_syn_exc pA =   cond_sum(g_ex, spikesEx) * ( V_m - E_ex )
+    function I_syn_inh pA =   cond_sum(g_in, spikesIn) * ( V_m - E_in )
 
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w

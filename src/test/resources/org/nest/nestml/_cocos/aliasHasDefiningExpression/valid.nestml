@@ -1,7 +1,7 @@
 neuron testNeuron:
     state:
         stateVar1 real = 1.0
-        alias stateVar2 real = stateVar1 + 1 # error: no defining expression
+        function stateVar2 real = stateVar1 + 1 # error: no defining expression
 
 
     end

@@ -10,7 +10,7 @@ neuron rc_shape:
 
   equations:
     shape g_ex = (e/tau_syn) * t * exp(-1/tau_syn*t)
-    I_syn pA = curr_sum(g_ex, spikes) + currents + I_e
+    function I_syn pA = curr_sum(g_ex, spikes) + currents + I_e
     V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
@@ -20,8 +20,8 @@ neuron rc_shape:
     tau_m ms = 10ms
     tau_syn ms = 2.0ms
 
-    alias V_th mV = -55mV - E_L
-    alias V_reset mV = -70mV - E_L
+    function V_th mV = -55mV - E_L
+    function V_reset mV = -70mV - E_L
     refractory_timeout ms = 2ms
     refractory_counts integer = 0
     I_e pA = 0pA

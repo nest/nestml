@@ -1,0 +1,21 @@
+neuron neuronWithNoInput:
+
+end
+
+neuron neuronWithMultipleInputs:
+  input:
+    spikes1 <- spike
+
+  end
+
+  input:
+    spikes2 <- spike
+  end
+
+end
+
+neuron neuronWithEmptyInputBlock:
+  input:
+  end
+
+end

@@ -20,7 +20,7 @@ public class ASTOdeDeclaration extends ASTOdeDeclarationTOP {
   public ASTOdeDeclaration(
       final List<ASTEquation> equations,
       final List<ASTShape> shapes,
-      final List<ASTODEAlias> oDEAliass,
+      final List<ASTOdeFunction> oDEAliass,
       final List<String> nEWLINEs) {
     super(equations, shapes, oDEAliass, nEWLINEs);
   }

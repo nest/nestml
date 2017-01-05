@@ -24,7 +24,7 @@ neuron iaf_cond_alpha_implicit:
    t_ref ms = 2.0       # Refractory period in ms
    g_L ms = 16.6667     # Leak Conductance in nS
    C_m pF = 250.0       # Membrane Capacitance in pF
-   alias Tau ms = (1 / g_L) * C_m
+   function Tau ms = (1 / g_L) * C_m
    V_reversalE mV = 0          # Excitatory reversal Potential in mV
    V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
    E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV
@@ -115,7 +115,7 @@ neuron iaf_cond_alpha_implicit2:
    t_ref ms = 2.0       # Refractory period in ms
    g_L ms = 16.6667     # Leak Conductance in nS
    C_m pF = 250.0       # Membrane Capacitance in pF
-   alias Tau ms = (1 / g_L) * C_m
+   function Tau ms = (1 / g_L) * C_m
    V_reversalE mV = 0          # Excitatory reversal Potential in mV
    V_reversalI mV = -85.0      # Inhibitory reversal Potential in mV
    E_L mV = -70.0       # Leak reversal Potential (aka resting potential) in mV

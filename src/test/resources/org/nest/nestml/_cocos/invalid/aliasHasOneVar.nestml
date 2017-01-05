@@ -1,8 +1,8 @@
 component AliasSetter:
     parameters:
         x integer = 5
-        alias y, g integer = -x
-        alias z real = x * y
+        function y, g integer = -x
+        function z real = x * y
     end
 
     function set_y(v real):

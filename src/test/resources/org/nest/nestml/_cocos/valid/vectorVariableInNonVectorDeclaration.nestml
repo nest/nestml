@@ -1,7 +1,7 @@
 component AliasInDecl:
   parameters:
     n  integer
-    alias three integer = 3 # should be an error?
+    function three integer = 3 # should be an error?
 
     threePlusFour integer = three + 4
   end

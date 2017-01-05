@@ -3,6 +3,7 @@ package org.nest.units._visitor;
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
+import org.nest.ode._ast.ASTOdeFunction;
 import org.nest.ode._ast.ASTShape;
 import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -109,7 +110,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     }
 
     {
-      Iterator<org.nest.ode._ast.ASTODEAlias> iter_oDEAliass = node.getODEAliass().iterator();
+      Iterator<ASTOdeFunction> iter_oDEAliass = node.getOdeFunctions().iterator();
       while (iter_oDEAliass.hasNext()) {
         iter_oDEAliass.next().accept(getRealThis());
       }

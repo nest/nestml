@@ -7,8 +7,8 @@ __a__, __h__ = symbols('__a__ __h__')
 </#compress>
 
 # Shapes must be symbolic for the differetiation step. Also all aliases which are using shapes must be defined with symbolic shapes
-<#list aliases as alias>
-${alias.getName()} = ${printer.print(odeTransformer.replaceFunctions(alias.getDeclaringExpression().get()))}
+<#list aliases as function>
+${function.getName()} = ${printer.print(odeTransformer.replaceFunctions(function.getDeclaringExpression().get()))}
 </#list>
 rhsTmp = ${printer.print(odeTransformer.replaceFunctions(ode.getRhs()))}
 constantInputs = simplify(1/diff(rhsTmp, ${shapes[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs().getSimpleName()})*${ode.getLhs().getSimpleName()}) - (
@@ -24,8 +24,8 @@ ${operator} ${eq.getLhs()}
 ${eq.getLhs()} = ${printer.print(odeTransformer.replaceFunctions(eq.getRhs()))}
 </#list>
 # also aliases must be defined in terms of new shapes
-<#list aliases as alias>
-${alias.getName()} = ${printer.print(odeTransformer.replaceFunctions(alias.getDeclaringExpression().get()))}
+<#list aliases as function>
+${function.getName()} = ${printer.print(odeTransformer.replaceFunctions(function.getDeclaringExpression().get()))}
 </#list>
 
 rhs = ${printer.print(odeTransformer.replaceFunctions(ode.getRhs()))}

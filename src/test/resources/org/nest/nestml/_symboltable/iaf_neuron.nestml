@@ -11,13 +11,13 @@ neuron iaf_neuron:
     y3 mV
     r  integer
     # Membrane potential.
-    alias V_m mV = y3 + E_L
+    function V_m mV = y3 + E_L
   end
 
   equations:
     y0' = y0 + 1
     y0'' = y0' + 1
-    recordable y3_tmp real = cond_sum(y1, spikeBuffer)
+    recordable function y3_tmp real = cond_sum(y1, spikeBuffer)
     y3' = y3_tmp
   end
 
@@ -39,9 +39,9 @@ neuron iaf_neuron:
 
     # some aliases
     # Threshold.
-    alias V_th mV = Theta + E_L
+    function V_th mV = Theta + E_L
     # Reset value of the membrane potential.
-    recordable alias  V_reset mV = delta_V_reset + E_L
+    recordable function  V_reset mV = delta_V_reset + E_L
     # invariant V_reset >= Theta
 
     # tests the correct scoping rules

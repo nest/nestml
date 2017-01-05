@@ -106,12 +106,12 @@ neuron amat2_psc_exp_nestml:
 
   state:
     V_1 mV
-    alias V_th mV = E_L + omega + V_th_alpha_1 + V_th_alpha_2 + V_th_v
+    function V_th mV = E_L + omega + V_th_alpha_1 + V_th_alpha_2 + V_th_v
     V_th_alpha_1 mV
     V_th_alpha_2 mV
     V_th_dv mV
     V_th_v mV
-    alias V_m mV = V_1 + E_L # Membrane potential.
+    function V_m mV = V_1 + E_L # Membrane potential.
   end
 
   equations:

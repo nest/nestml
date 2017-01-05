@@ -56,69 +56,69 @@ neuron terub_neuron_stn:
     #Parameters for Terman Rubin STN Neuron
 
     #time constants for slow gating variables
-    tau_n_0 ms = 1.0ms
-    tau_n_1 ms = 100.0ms
-    theta_n_tau mV = -80.0mV
-    sigma_n_tau mV = -26.0mV
+    function tau_n_0 ms = 1.0ms
+    function tau_n_1 ms = 100.0ms
+    function theta_n_tau mV = -80.0mV
+    function sigma_n_tau mV = -26.0mV
 
-    tau_h_0 ms = 1.0ms
-    tau_h_1 ms = 500.0ms
-    theta_h_tau mV = -57.0mV
-    sigma_h_tau mV = -3.0mV
+    function tau_h_0 ms = 1.0ms
+    function tau_h_1 ms = 500.0ms
+    function theta_h_tau mV = -57.0mV
+    function sigma_h_tau mV = -3.0mV
 
-    tau_r_0 ms = 7.1ms # Guo 7.1 Terman02 40.0
-    tau_r_1 ms = 17.5ms
-    theta_r_tau mV = 68.0mV
-    sigma_r_tau mV = -2.2mV
+    function tau_r_0 ms = 7.1ms # Guo 7.1 Terman02 40.0
+    function tau_r_1 ms = 17.5ms
+    function theta_r_tau mV = 68.0mV
+    function sigma_r_tau mV = -2.2mV
 
     #steady state values for gating variables
-    theta_a mV = -63.0mV
-    sigma_a mV = 7.8mV
-    theta_h mV = -39.0mV
-    sigma_h mV = -3.1mV
-    theta_m mV = -30.0mV
-    sigma_m mV = 15.0mV
-    theta_n mV = -32.0mV
-    sigma_n mV = 8.0mV
-    theta_r mV = -67.0mV
-    sigma_r mV = -2.0mV
-    theta_s mV = -39.0mV
-    sigma_s mV = 8.0mV
+    function theta_a mV = -63.0mV
+    function sigma_a mV = 7.8mV
+    function theta_h mV = -39.0mV
+    function sigma_h mV = -3.1mV
+    function theta_m mV = -30.0mV
+    function sigma_m mV = 15.0mV
+    function theta_n mV = -32.0mV
+    function sigma_n mV = 8.0mV
+    function theta_r mV = -67.0mV
+    function sigma_r mV = -2.0mV
+    function theta_s mV = -39.0mV
+    function sigma_s mV = 8.0mV
 
-    theta_b real = 0.25 # Guo 0.25 Terman02 0.4
-    sigma_b real = 0.07 # Guo 0.07 Terman02 -0.1
+    function theta_b real = 0.25 # Guo 0.25 Terman02 0.4
+    function sigma_b real = 0.07 # Guo 0.07 Terman02 -0.1
 
     #time evolvement of gating variables
-    phi_h real = 0.75
-    phi_n real = 0.75
-    phi_r real = 0.5 # Guo 0.5 Terman02 0.2
+    function phi_h real = 0.75
+    function phi_n real = 0.75
+    function phi_r real = 0.5 # Guo 0.5 Terman02 0.2
 
     # Calcium concentration and afterhyperpolarization current
-    epsilon ms**-1 = 0.00005[ms**-1] # 1/ms Guo 0.00005 Terman02 0.0000375
-    k_Ca real = 22.5
-    k1 real = 15.0
+    function epsilon 1/ms = 0.00005[1/ms] # 1/ms Guo 0.00005 Terman02 0.0000375
+    function k_Ca real = 22.5
+    function k1 real = 15.0
 
-    I_ex_mod pA = -curr_sum(g_ex,spikeExc)*V_m
-    I_in_mod pA = curr_sum(g_in, spikeInh) * (V_m-E_gs)
+    function I_ex_mod pA = -curr_sum(g_ex,spikeExc)*V_m
+    function I_in_mod pA = curr_sum(g_in, spikeInh) * (V_m-E_gs)
 
-    tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
-    tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
-    tau_r mV = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
+    function tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
+    function tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
+    function tau_r mV = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
 
-    a_inf real = 1. / (1. +exp(-(V_m-theta_a)/sigma_a))
-    h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h));
-    m_inf real = 1. / (1. + exp(-(V_m-theta_m)/sigma_m))
-    n_inf real = 1. / (1. + exp(-(V_m-theta_n)/sigma_n))
-    r_inf real = 1. / (1. + exp(-(V_m-theta_r)/sigma_r))
-    s_inf real = 1. / (1. + exp(-(V_m-theta_s)/sigma_s))
-    b_inf real = 1. / (1. + exp((gate_r-theta_b)/sigma_b)) - 1. / (1. + exp(-theta_b/sigma_b))
+    function a_inf real = 1. / (1. +exp(-(V_m-theta_a)/sigma_a))
+    function h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h));
+    function m_inf real = 1. / (1. + exp(-(V_m-theta_m)/sigma_m))
+    function n_inf real = 1. / (1. + exp(-(V_m-theta_n)/sigma_n))
+    function r_inf real = 1. / (1. + exp(-(V_m-theta_r)/sigma_r))
+    function s_inf real = 1. / (1. + exp(-(V_m-theta_s)/sigma_s))
+    function b_inf real = 1. / (1. + exp((gate_r-theta_b)/sigma_b)) - 1. / (1. + exp(-theta_b/sigma_b))
 
-    I_Na  pA =  g_Na  * m_inf * m_inf * m_inf * gate_h    * (V_m - E_Na)
-    I_K   pA =  g_K   * gate_n * gate_n * gate_n * gate_n * (V_m - E_K )
-    I_L   pA =  g_L                                 * (V_m - E_L )
-    I_T   pA =  g_T   *a_inf*a_inf*a_inf*b_inf*b_inf* (V_m - E_Ca)
-    I_Ca  pA =  g_Ca  * s_inf * s_inf               * (V_m - E_Ca)
-    I_ahp pA =  g_ahp * (Ca_con / (Ca_con + k1))    * (V_m - E_K )
+    function I_Na  pA =  g_Na  * m_inf * m_inf * m_inf * gate_h    * (V_m - E_Na)
+    function I_K   pA =  g_K   * gate_n * gate_n * gate_n * gate_n * (V_m - E_K )
+    function I_L   pA =  g_L                                 * (V_m - E_L )
+    function I_T   pA =  g_T   *a_inf*a_inf*a_inf*b_inf*b_inf* (V_m - E_Ca)
+    function I_Ca  pA =  g_Ca  * s_inf * s_inf               * (V_m - E_Ca)
+    function I_ahp pA =  g_ahp * (Ca_con / (Ca_con + k1))    * (V_m - E_K )
 
     # V dot -- synaptic input are currents, inhib current is negative
     V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_stim + I_e + I_ex_mod + I_in_mod) / C_m

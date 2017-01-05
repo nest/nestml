@@ -139,7 +139,7 @@ public class TransformerBase {
       final ASTBody body,
       final Function<String, String> stateVariableNameExtracter,
       final Function<String, String> shapeNameExtracter) {
-    final List<ASTFunctionCall> i_sumCalls = ODETransformer.get_sumFunctionCalls(body.getODEBlock().get());
+    final List<ASTFunctionCall> i_sumCalls = OdeTransformer.get_sumFunctionCalls(body.getODEBlock().get());
 
     final List<ASTAliasDecl> pscInitialValues = createAliases(pathPSCInitialValueFile);
     for (final ASTAliasDecl pscInitialValue:pscInitialValues) {

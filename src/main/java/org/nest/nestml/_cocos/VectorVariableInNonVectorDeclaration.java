@@ -18,9 +18,9 @@ import static de.monticore.utils.ASTNodes.getSuccessors;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
- * Checks that an alias is not used in the declaring expression of an non alias declaration
+ * Checks that an function is not used in the declaring expression of an non function declaration
  * n  integer
- * alias three integer[n] = 3
+ * function three integer[n] = 3
  * threePlusFour integer = three + 4 <- error: threePlusFour is not a vector
  * @author plotnikov, ippen
  */

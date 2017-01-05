@@ -188,9 +188,7 @@ public final class AstUtils {
   }
 
   public static List<ASTReturnStmt> getReturnStatements(ASTBlock blockAst) {
-    final SPLNodesCollector splNodesCollector = new SPLNodesCollector();
-    splNodesCollector.startVisitor(blockAst);
-    return splNodesCollector.getReturnStmts();
+    return AstUtils.getAll(blockAst, ASTReturnStmt.class);
   }
 
   public static List<String> getParameterTypes(final ASTFunctionCall astFunctionCall) {
@@ -218,24 +216,6 @@ public final class AstUtils {
     return printer.print(expr);
   }
 
-
-  private final static class SPLNodesCollector implements SPLInheritanceVisitor {
-
-    private List<ASTReturnStmt> returnStmts = Lists.newArrayList();
-
-    private void startVisitor(ASTBlock blockAst) {
-      blockAst.accept(this);
-    }
-
-    @Override
-    public void visit(ASTReturnStmt astReturnStmt) {
-      returnStmts.add(astReturnStmt);
-    }
-
-    List<ASTReturnStmt> getReturnStmts() {
-      return returnStmts;
-    }
-  }
 
   private static final class VariablesCollector implements NESTMLInheritanceVisitor {
     List<String> getVariableNames() {

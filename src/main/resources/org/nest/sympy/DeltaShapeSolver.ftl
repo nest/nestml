@@ -7,8 +7,8 @@ __a__, __h__, delta = symbols('__a__ __h__ delta')
 </#compress>
 
 # Handle aliases
-<#list aliases as alias>
-${alias.getName()} = ${printer.print(odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get()))}
+<#list aliases as function>
+${function.getName()} = ${printer.print(odeTransformer.replaceSumCalls(function.getDeclaringExpression().get()))}
 </#list>
 
 # Shapes must be symbolic for the differetiation step

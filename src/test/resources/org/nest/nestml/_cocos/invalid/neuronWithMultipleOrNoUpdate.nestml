@@ -1,0 +1,12 @@
+neuron neuronWithNoUpdate:
+
+end
+
+neuron neuronWithMultipleUpdates:
+  update:
+  end
+
+  update:
+  end
+
+end

@@ -49,12 +49,12 @@ neuron hh_psc_alpha_neuron:
   state:
     V_m mV = -65. mV # Membrane potential
 
-    alias alpha_n_init real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
-    alias beta_n_init  real = 0.125 * exp( -( V_m + 65. ) / 80. )
-    alias alpha_m_init real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
-    alias beta_m_init  real = 4. * exp( -( V_m + 65. ) / 18. )
-    alias alpha_h_init real = 0.07 * exp( -( V_m + 65. ) / 20. )
-    alias beta_h_init  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
+    function alpha_n_init real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
+    function beta_n_init  real = 0.125 * exp( -( V_m + 65. ) / 80. )
+    function alpha_m_init real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
+    function beta_m_init  real = 4. * exp( -( V_m + 65. ) / 18. )
+    function alpha_h_init real = 0.07 * exp( -( V_m + 65. ) / 20. )
+    function beta_h_init  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Activation variable h
@@ -66,26 +66,26 @@ neuron hh_psc_alpha_neuron:
     shape I_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape I_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
-    I_syn_exc pA = curr_sum(I_ex, spikeExc)
-    I_syn_inh pA = curr_sum(I_in, spikeInh)
-    I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
-    I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
-    I_L   pA = g_L * ( V_m - E_L )
+    function I_syn_exc pA = curr_sum(I_ex, spikeExc)
+    function I_syn_inh pA = curr_sum(I_in, spikeInh)
+    function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
+    function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
+    function I_L   pA = g_L * ( V_m - E_L )
     V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
 
     # Inact_n
-    alpha_n real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
-    beta_n  real = 0.125 * exp( -( V_m + 65. ) / 80. )
+    function alpha_n real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
+    function beta_n  real = 0.125 * exp( -( V_m + 65. ) / 80. )
     Inact_n' = alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n # n-variable
 
     # Act_m
-    alpha_m real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
-    beta_m  real = 4. * exp( -( V_m + 65. ) / 18. )
+    function alpha_m real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
+    function beta_m  real = 4. * exp( -( V_m + 65. ) / 18. )
     Act_m' = alpha_m * ( 1 - Act_m ) - beta_m * Act_m # m-variable
 
     # Act_h
-    alpha_h real = 0.07 * exp( -( V_m + 65. ) / 20. )
-    beta_h  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
+    function alpha_h real = 0.07 * exp( -( V_m + 65. ) / 20. )
+    function beta_h  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
     Act_h' = alpha_h * ( 1 - Act_h ) - beta_h * Act_h # h-variable
   end
 

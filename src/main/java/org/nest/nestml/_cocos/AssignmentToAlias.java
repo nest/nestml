@@ -14,7 +14,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
- * Every alias declaration has exactly one variable
+ * Every function declaration has exactly one variable
  *
  * @author (last commit) ippen, plotnikov
  */

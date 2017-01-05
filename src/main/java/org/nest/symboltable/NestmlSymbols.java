@@ -148,4 +148,24 @@ public class NestmlSymbols {
 
   }
 
+  public static boolean isGetterPresent(
+      final String aliasVar,
+      final String varTypeName,
+      final Scope scope) {
+    final String setterName = "get_" + aliasVar;
+    final Optional<MethodSymbol> setter = NestmlSymbols.resolveMethod(
+        setterName, Lists.newArrayList(varTypeName), scope
+    );
+
+    if (!setter.isPresent()) {
+      return false;
+    }
+    else {
+      final TypeSymbol setterType = setter.get().getParameterTypes().get(0);
+
+      return setterType.getName().endsWith(varTypeName);
+    }
+
+  }
+
 }
