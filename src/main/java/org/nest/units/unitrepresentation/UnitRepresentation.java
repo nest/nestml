@@ -51,7 +51,7 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   }
 
   /**
-   * Helper class, used to maintain possible factorizations for backtracking purposes.
+   * Helper class, used in printing to maintain possible factorizations for backtracking purposes.
    */
   private class FactorizationResult implements Comparable<FactorizationResult>{
     private UnitRepresentation remainder;
@@ -72,6 +72,9 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     }
   }
 
+  /**
+   * Builder for UnitRepresentations.
+   */
   public static class Builder{
     private int magnitude;
     private int K, s, m, g, cd, mol, A;
@@ -80,51 +83,93 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     private String serialization;
     private String unitName;
 
+    /**
+     *
+     * @param K exponent to temperature
+     */
     public Builder K(int K){
       this.K = K;
       return this;
     }
-
+    /**
+     *
+     * @param s exponent to time
+     */
     public Builder s(int s){
       this.s = s;
       return this;
     }
 
+    /**
+     *
+     * @param m exponent to distance
+     */
     public Builder m(int m){
       this.m = m;
       return this;
     }
 
+    /**
+     *
+     * @param g exponent to mass
+     */
     public Builder g(int g){
       this.g = g;
       return this;
     }
 
+    /**
+     *
+     * @param cd exponent to luminous intensity
+     */
     public Builder cd(int cd){
       this.cd = cd;
       return this;
     }
 
+    /**
+     *
+     * @param mol exponent to amount of substance
+     */
     public Builder mol(int mol){
       this.mol = mol;
       return this;
     }
 
+    /**
+     *
+     * @param A exponent to current
+     */
     public Builder A(int A){
       this.A = A;
       return this;
     }
 
+    /**
+     *
+     * @param magnitude scaling factor. Exponent to base 10.
+     */
     public Builder magnitude(int magnitude){
       this.magnitude = magnitude;
       return this;
     }
 
+    /**
+     *
+     * @param ignoreMagnitude set ignoreMagnitude for the resulting UnitRepresentation
+     */
     public Builder ignoreMagnitude(boolean ignoreMagnitude) {
       this.ignoreMagnitude = ignoreMagnitude;
       return this;
     }
 
+    /**
+     * Attempts to parse a UnitRepresentation from a serialization.
+     * Throws IllegalStateException if errors are encountered.
+     * Used predominantly to reconstruct a UnitRepresentation from a TypeSymbol name for further handling.
+     *
+     * @param serialization serialized UnitRepresentation.
+     */
     public Builder serialization(String serialization){
       if(serialization == getRealType().getName()) {
         return this; //[0,0,0,0,0,0,0,0]i
@@ -183,6 +228,10 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
       return this;
     }
 
+    /**
+     * This builder option replaces a copy constructor.
+     * @param other Unit to copy.
+     */
     public Builder other(UnitRepresentation other){
       this.K = other.K;
       this.s = other.s;
@@ -196,6 +245,10 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
       return this;
     }
 
+    /**
+     *
+     * @return The UnitRepresentation built from provided data.
+     */
     public UnitRepresentation build(){
       return new UnitRepresentation(K,s,m,g,cd,mol,A,magnitude,ignoreMagnitude);
     }
@@ -206,6 +259,10 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   private int K, s, m, g, cd, mol, A;
   private boolean ignoreMagnitude = false;
 
+  /**
+   *
+   * @return Builder Object for construction of UnitRepresentations
+   */
   public static Builder getBuilder(){
     return new Builder();
   }
@@ -309,18 +366,15 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     return Optional.empty();
   }
 
-  private UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude,boolean ignoreMagnitude) {
-    this.K = K;
-    this.s = s;
-    this.m = m;
-    this.g = g;
-    this.cd = cd;
-    this.mol = mol;
-    this.A = A;
-    this.magnitude = magnitude;
-    this.ignoreMagnitude = ignoreMagnitude;
-  }
-
+  /**
+   * Comparison of <b>this</b> with <b>other</b>
+   * <p>If either <b>this</b> or <b>other</b> has the ignoreMagnitude bit set, magnitudes are ignored.
+   *
+   * @param other the unit to compare <b>this</b> to.
+   * @return if both UnitRepresentations have ignoreMagnitude set: true iff all fields match.
+   * <p> otherwise: true iff all fields but magnitude match.
+   *
+   */
   public boolean equals(UnitRepresentation other){
     //ignore magnitude if either is set to ignore.
     if(this.isIgnoreMagnitude()||other.isIgnoreMagnitude()){
@@ -392,6 +446,17 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     return result;
   }
 
+  private UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude,boolean ignoreMagnitude) {
+    this.K = K;
+    this.s = s;
+    this.m = m;
+    this.g = g;
+    this.cd = cd;
+    this.mol = mol;
+    this.A = A;
+    this.magnitude = magnitude;
+    this.ignoreMagnitude = ignoreMagnitude;
+  }
 
   private void increaseMagnitude(int difference) {
     this.magnitude += difference;
