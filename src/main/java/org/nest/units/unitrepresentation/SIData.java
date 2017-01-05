@@ -14,41 +14,41 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * provides access to commonly used SI data.
+ * Provides static information about the SI system.
  *
  * @author ptraeder.
  */
 public class SIData {
 
   private static SIData instance=null;
-  private UnitRepresentation lumen = new UnitRepresentation(0,0,0,0,1,0,0,0);
-  private UnitRepresentation siemens = new UnitRepresentation(0,3,-2,-1,0,0,2,0);
-  private UnitRepresentation farad = new UnitRepresentation(0,4,-2,-1,0,0,2,0);
-  private UnitRepresentation joule = new UnitRepresentation(0,-2,2,1,0,0,0,0);
-  private UnitRepresentation weber = new UnitRepresentation(0,-2,2,1,0,0,-1,0);
-  private UnitRepresentation henry = new UnitRepresentation(0,-2,2,1,0,0,-2,0);
-  private UnitRepresentation watt = new UnitRepresentation(0,-3,2,1,0,0,0,0);
-  private UnitRepresentation volt = new UnitRepresentation(0,-3,2,1,0,0,-1,0);
-  private UnitRepresentation ohm = new UnitRepresentation(0,-3,2,1,0,0,-2,0);
-  private UnitRepresentation pascal = new UnitRepresentation(0,-2,-1,1,0,0,0,0);
-  private UnitRepresentation newton = new UnitRepresentation(0,-2,1,1,0,0,0,0);
-  private UnitRepresentation tesla = new UnitRepresentation(0,-2,1,0,0,0,-1,0);
-  private UnitRepresentation gray = new UnitRepresentation(0,-2,2,0,0,0,0,0);
-  private UnitRepresentation sievert = new UnitRepresentation(0,-2,2,0,0,0,0,0);
-  private UnitRepresentation lux = new UnitRepresentation(0,0,-2,0,1,0,0,0);
-  private UnitRepresentation hertz = new UnitRepresentation(0,-1,0,0,0,0,0,0);
-  private UnitRepresentation  becquerel = new UnitRepresentation(0,-1,0,0,0,0,0,0);
-  private UnitRepresentation katal = new UnitRepresentation(0,-1,0,0,0,1,0,0);
-  private UnitRepresentation coulomb = new UnitRepresentation(0,1,0,0,0,0,1,0);
+  private UnitRepresentation lumen = UnitRepresentation.getBuilder().cd(1).build();
+  private UnitRepresentation siemens = UnitRepresentation.getBuilder().g(-1).m(-2).s(3).A(2).build();
+  private UnitRepresentation farad = UnitRepresentation.getBuilder().g(-1).m(-2).s(4).A(2).build();
+  private UnitRepresentation joule = UnitRepresentation.getBuilder().g(1).m(2).s(-2).build();
+  private UnitRepresentation weber = UnitRepresentation.getBuilder().g(1).m(2).s(-2).A(-1).build();
+  private UnitRepresentation henry = UnitRepresentation.getBuilder().g(1).m(2).s(-2).A(-2).build();
+  private UnitRepresentation watt = UnitRepresentation.getBuilder().g(1).m(2).s(-3).build();
+  private UnitRepresentation volt = UnitRepresentation.getBuilder().g(1).m(2).s(-3).A(-1).build();
+  private UnitRepresentation ohm = UnitRepresentation.getBuilder().g(1).m(2).s(-3).A(-2).build();
+  private UnitRepresentation pascal = UnitRepresentation.getBuilder().g(1).m(-1).s(-2).build();
+  private UnitRepresentation newton = UnitRepresentation.getBuilder().g(1).m(1).s(-2).build();
+  private UnitRepresentation tesla = UnitRepresentation.getBuilder().g(1).s(-2).A(-1).build();
+  private UnitRepresentation gray = UnitRepresentation.getBuilder().m(2).s(-2).build();
+  private UnitRepresentation sievert = UnitRepresentation.getBuilder().m(2).s(-2).build();
+  private UnitRepresentation lux = UnitRepresentation.getBuilder().m(-2).cd(1).build();
+  private UnitRepresentation hertz = UnitRepresentation.getBuilder().s(-1).build();
+  private UnitRepresentation  becquerel = UnitRepresentation.getBuilder().s(-1).build();
+  private UnitRepresentation katal = UnitRepresentation.getBuilder().s(-1).mol(1).build();
+  private UnitRepresentation coulomb = UnitRepresentation.getBuilder().s(1).A(1).build();
 
-  private UnitRepresentation kelvin = new UnitRepresentation(1,0,0,0,0,0,0,0);
-  private UnitRepresentation second = new UnitRepresentation(0,1,0,0,0,0,0,0);
-  private UnitRepresentation meter = new UnitRepresentation(0,0,1,0,0,0,0,0);
+  private UnitRepresentation kelvin = UnitRepresentation.getBuilder().K(1).build();
+  private UnitRepresentation second = UnitRepresentation.getBuilder().s(1).build();
+  private UnitRepresentation meter = UnitRepresentation.getBuilder().m(1).build();
   //compensate for SI inconsistency with magnitude
-  private UnitRepresentation gram = new UnitRepresentation(0,0,0,1,0,0,0,-3);
-  private UnitRepresentation candela = new UnitRepresentation(0,0,0,0,1,0,0,0);
-  private UnitRepresentation mole = new UnitRepresentation(0,0,0,0,0,1,0,0);
-  private UnitRepresentation ampere = new UnitRepresentation(0,0,0,0,0,0,1,0);
+  private UnitRepresentation gram = UnitRepresentation.getBuilder().g(1).magnitude(-3).build();
+  private UnitRepresentation candela = UnitRepresentation.getBuilder().cd(1).build();
+  private UnitRepresentation mole = UnitRepresentation.getBuilder().mol(1).build();
+  private UnitRepresentation ampere = UnitRepresentation.getBuilder().A(1).build();
 
   static private HashMap<String,UnitRepresentation> baseRepresentations = new HashMap();
   static private BiMap<String, Integer> prefixMagnitudes =HashBiMap.create();
@@ -56,9 +56,12 @@ public class SIData {
   private static ArrayList<String> CorrectSIUnits= new ArrayList<>();
   //ignore dimensionless units radian and steradian. Ignore degree Celsius as Kelvin exists.
 
-  private static String[] SIUnitsRaw ={"K","s","m","g","cd","mol","A"};
-  private static String[] SIUnitsDerivedRaw = {"Hz","N","Pa","J","W","C","V","F","Ohm","S","Wb","T","H","lm","lx","Bq","Gy","Sv","kat"};
-  private static String[] SIPrefixesRaw ={"da","h","k","M","G","T","P","E","Z","Y","d","c","m","mu","n","p","f","a","z","y"};
+  private static String[] SIUnitsRaw =
+      {"K","s","m","g","cd","mol","A"};
+  private static String[] SIUnitsDerivedRaw =
+      {"Hz","N","Pa","J","W","C","V","F","Ohm","S","Wb","T","H","lm","lx","Bq","Gy","Sv","kat"};
+  private static String[] SIPrefixesRaw =
+      {"da","h","k","M","G","T","P","E","Z","Y","d","c","m","mu","n","p","f","a","z","y"};
 
   private static List<String> SIUnits = Arrays.asList(SIUnitsRaw);
   private static List<String> SIUnitsDerived = Arrays.asList(SIUnitsDerivedRaw);
@@ -82,25 +85,31 @@ public class SIData {
 
   }
 
-  public static ArrayList<String> getCorrectSIUnits() {
+  /**
+   *
+   * @return List containing every combination of:
+   * <p>-SI prefixes (k,m,mu,n,...)
+   * <p>-SI base units (K,s,m,...) and compound units (N,Ohm,V,...)
+   */
+  public static List<String> getCorrectSIUnits() {
     if(instance == null) {
       instance = new SIData();
     }
     return CorrectSIUnits;
   }
 
+  /**
+   *
+   * @return List of valid SI prefixes (k,m,mu,n,...)
+   */
   public static List<String> getSIPrefixes() {
     return SIPrefixes;
   }
 
-  public static List<String> getSIUnitsDerived() {
-    return SIUnitsDerived;
-  }
-
-  public static List<String> getSIUnits() {
-    return SIUnits;
-  }
-
+  /**
+   *
+   * @return Mapping of (derived)SI unit names without prefixes to their internal representation.
+   */
   static public HashMap<String,UnitRepresentation> getBaseRepresentations(){
     if(instance == null) {
       instance = new SIData();
@@ -108,6 +117,11 @@ public class SIData {
     return baseRepresentations;
   }
 
+  /**
+   *
+   * @return Bidirectional mapping between SI prefixes and the exponent to base 10 they respresent,
+   * e.g. k=3,p=-12 etc
+   */
   static public BiMap<String, Integer> getPrefixMagnitudes() {
     if(instance == null) {
       instance = new SIData();

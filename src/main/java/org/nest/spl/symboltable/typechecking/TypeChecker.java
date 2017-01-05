@@ -25,8 +25,8 @@ public class TypeChecker {
 
     //simplified check for Units set to ignore magnitude: (ignore if any is set)
     if(lhsType.getType().equals(UNIT) && rhsType.getType().equals(UNIT)){
-      UnitRepresentation lhsUnit = new UnitRepresentation(lhsType.getName());
-      UnitRepresentation rhsUnit = new UnitRepresentation(rhsType.getName());
+      UnitRepresentation lhsUnit = UnitRepresentation.getBuilder().serialization(lhsType.getName()).build();
+      UnitRepresentation rhsUnit = UnitRepresentation.getBuilder().serialization(rhsType.getName()).build();
       return lhsUnit.equals(rhsUnit);
     }
 

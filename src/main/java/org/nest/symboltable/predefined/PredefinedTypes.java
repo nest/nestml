@@ -132,8 +132,9 @@ public class PredefinedTypes {
       return Optional.empty();
     }
     else {
+      //TODO: Sometimes this method gets a Variable name as parameter, which I dont see a reason for. Gotta look into it.
       try {
-        UnitRepresentation unitRepresentation = new UnitRepresentation(typeName);
+        UnitRepresentation unitRepresentation = UnitRepresentation.getBuilder().serialization(typeName).build();
         registerType(unitRepresentation.serialize(), TypeSymbol.Type.UNIT);
       }
       catch (IllegalStateException e){

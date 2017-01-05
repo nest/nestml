@@ -15,82 +15,19 @@ import static de.se_rwth.commons.logging.Log.warn;
 import static java.lang.Math.abs;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
+import org.nest.nestml._ast.ASTNeuron;
+
 /**
- * Helper class. Controlled way of creating base representations of derived SI units.
+ * Internal representation of SI Units. Supplies arithmetic functions on units and
+ * (de)serializes them.
  *
  * @author plotnikov, traeder
  */
 public class UnitRepresentation implements Comparable<UnitRepresentation>{
-  private final String ERROR_CODE = "NESTML_UnitRepresentation: ";
-
-  public void setMagnitude(int magnitude) {
-    this.magnitude = magnitude;
-  }
-
-  private int magnitude;
-  private int K, s, m, g, cd, mol, A;
-
-  private boolean ignoreMagnitude = false;
-
-  public void setIgnoreMagnitude(boolean ignoreMagnitude) {
-    this.ignoreMagnitude = ignoreMagnitude;
-  }
-
-  public boolean isIgnoreMagnitude() {
-    return ignoreMagnitude;
-  }
-
-
-  private int[] asArray(){
-    int[] result={ K, s, m, g, cd, mol, A, magnitude };
-    return result;
-  }
-
-  private void increaseMagnitude(int difference) {
-    this.magnitude += difference;
-  }
-
-  public String serialize() {
-    return Arrays.toString(this.asArray())+(ignoreMagnitude?"I":"i");
-  }
-
-  private int exponentSum() {
-    return abs(K)+abs(s)+abs(m)+abs(g)+abs(cd)+abs(mol)+abs(A);
-  }
-
-  private boolean isMoreComplexThan(UnitRepresentation other){
-    return (this.exponentSum() > other.exponentSum()) ? true : false;
-  }
-
-  public boolean isZero(){
-    return (this.exponentSum()+abs(this.magnitude) == 0) ? true : false;
-  }
-
-  private String removeTrailingMultiplication(String str){
-    if(str.length() <3){
-      return str;
-    }
-    String result = str;
-    String postfix = result.substring(result.length() - 3, result.length());
-    if (postfix.equals(" * ")) {
-      result = result.substring(0, result.length() - 3);
-    }
-    return result;
-  }
-
-  public int compareTo(UnitRepresentation other) {
-    if(this.isMoreComplexThan(other)){
-      return 1;
-    }else if(other.isMoreComplexThan(this)){
-      return -1;
-    }
-    return 0;
-  }
 
   /**
    * Helper class for organizing printing
    */
-
   class Factor {
     public void setName(String name) {
       this.name = name;
@@ -113,11 +50,447 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     }
   }
 
+  /**
+   * Helper class, used in printing to maintain possible factorizations for backtracking purposes.
+   */
+  private class FactorizationResult implements Comparable<FactorizationResult>{
+    private UnitRepresentation remainder;
+    private Factor factor;
+
+    public FactorizationResult(UnitRepresentation remainder, Factor factor){
+      this.remainder = remainder;
+      this.factor = factor;
+    }
+
+    @Override public int compareTo(FactorizationResult o) {
+      if(this.remainder.compareTo(o.remainder)==0){
+        String tieBreakerThis = this.factor.getName()+this.factor.getExponent(); //Make sure that TreeSet actually gets to add stuff
+        String tieBreakerOther = o.factor.getName()+o.factor.getExponent();
+        return tieBreakerThis.compareTo(tieBreakerOther);
+      }
+      return this.remainder.compareTo(o.remainder);
+    }
+  }
+
+  /**
+   * Builder for UnitRepresentations.
+   */
+  public static class Builder{
+    private int magnitude;
+    private int K, s, m, g, cd, mol, A;
+    private boolean ignoreMagnitude = false;
+    private boolean errorState = false;
+    private String serialization;
+    private String unitName;
+
+    /**
+     *
+     * @param K exponent to temperature
+     */
+    public Builder K(int K){
+      this.K = K;
+      return this;
+    }
+    /**
+     *
+     * @param s exponent to time
+     */
+    public Builder s(int s){
+      this.s = s;
+      return this;
+    }
+
+    /**
+     *
+     * @param m exponent to distance
+     */
+    public Builder m(int m){
+      this.m = m;
+      return this;
+    }
+
+    /**
+     *
+     * @param g exponent to mass
+     */
+    public Builder g(int g){
+      this.g = g;
+      return this;
+    }
+
+    /**
+     *
+     * @param cd exponent to luminous intensity
+     */
+    public Builder cd(int cd){
+      this.cd = cd;
+      return this;
+    }
+
+    /**
+     *
+     * @param mol exponent to amount of substance
+     */
+    public Builder mol(int mol){
+      this.mol = mol;
+      return this;
+    }
+
+    /**
+     *
+     * @param A exponent to current
+     */
+    public Builder A(int A){
+      this.A = A;
+      return this;
+    }
+
+    /**
+     *
+     * @param magnitude scaling factor. Exponent to base 10.
+     */
+    public Builder magnitude(int magnitude){
+      this.magnitude = magnitude;
+      return this;
+    }
+
+    /**
+     *
+     * @param ignoreMagnitude set ignoreMagnitude for the resulting UnitRepresentation
+     */
+    public Builder ignoreMagnitude(boolean ignoreMagnitude) {
+      this.ignoreMagnitude = ignoreMagnitude;
+      return this;
+    }
+
+    /**
+     * Attempts to parse a UnitRepresentation from a serialization.
+     * Throws IllegalStateException if errors are encountered.
+     * Used predominantly to reconstruct a UnitRepresentation from a TypeSymbol name for further handling.
+     *
+     * @param serialization serialized UnitRepresentation.
+     */
+    public Builder serialization(String serialization){
+      if(serialization == getRealType().getName()) {
+        return this; //[0,0,0,0,0,0,0,0]i
+      }
+
+      if(serialization.substring(serialization.length()-1).equals("I")){
+        this.ignoreMagnitude = true;
+      }
+
+      Pattern parse = Pattern.compile("-?[0-9]+");
+      Matcher matcher = parse.matcher(serialization);
+
+      if(matcher.find()) {
+        this.K = Integer.parseInt(matcher.group());
+      } else{
+        this.errorState = true;
+      }
+      if(matcher.find()) {
+        this.s = Integer.parseInt(matcher.group());
+      } else{
+        this.errorState = true;
+      }
+      if(matcher.find()) {
+        this.m = Integer.parseInt(matcher.group());
+      } else{
+        this.errorState = true;
+      }
+      if(matcher.find()) {
+        this.g = Integer.parseInt(matcher.group());
+      } else{
+        this.errorState = true;
+      }
+      if(matcher.find()) {
+        this.cd = Integer.parseInt(matcher.group());
+      } else{
+        this.errorState = true;
+      }
+      if(matcher.find()) {
+        this.mol = Integer.parseInt(matcher.group());
+      } else{
+        this.errorState = true;
+      }
+      if(matcher.find()) {
+        this.A = Integer.parseInt(matcher.group());
+      } else{
+        this.errorState = true;
+      }
+      if(matcher.find()) {
+        this.magnitude = Integer.parseInt(matcher.group());
+      } else{
+        this.errorState = true;
+      }
+      checkState(!errorState,
+          "NESTML_UnitRepresentation: Cannot parse unitRepresentation from the string '"+serialization+"'");
+
+      return this;
+    }
+
+    /**
+     * This builder option replaces a copy constructor.
+     * @param other Unit to copy.
+     */
+    public Builder other(UnitRepresentation other){
+      this.K = other.K;
+      this.s = other.s;
+      this.m = other.m;
+      this.g = other.g;
+      this.cd = other.cd;
+      this.mol = other.mol;
+      this.A = other.A;
+      this.magnitude = other.magnitude;
+      this.ignoreMagnitude= other.isIgnoreMagnitude();
+      return this;
+    }
+
+    /**
+     *
+     * @return The UnitRepresentation built from provided data.
+     */
+    public UnitRepresentation build(){
+      return new UnitRepresentation(K,s,m,g,cd,mol,A,magnitude,ignoreMagnitude);
+    }
+  }
+
+  private final String ERROR_CODE = "NESTML_UnitRepresentation: ";
+  private int magnitude;
+  private int K, s, m, g, cd, mol, A;
+  private boolean ignoreMagnitude = false;
+
+  /**
+   *
+   * @return Builder Object for construction of UnitRepresentations
+   */
+  public static Builder getBuilder(){
+    return new Builder();
+  }
+
+  /**
+   * Sets the magnitude. Only used by {@link org.nest.units._visitor.ODEPostProcessingVisitor ODEPostProcessingVisitor}
+   * to aid in formatting warning messages.
+   *
+   * @param magnitude should be 0 or evenly divisible by 3 in order to keep the unit name printable for warnings/errors
+   */
+  public void setMagnitude(int magnitude) {
+    this.magnitude = magnitude;
+  }
+
+  /**
+   *
+   * @param ignoreMagnitude new value for ignoreMagnitude
+   */
+  public void setIgnoreMagnitude(boolean ignoreMagnitude) {
+    this.ignoreMagnitude = ignoreMagnitude;
+  }
+
+  /**
+   *
+   * @return the current value of ingoreMagnitude
+   */
+  public boolean isIgnoreMagnitude() {
+    return ignoreMagnitude;
+  }
+
+  /**
+   * Serializes the unit.
+   *
+   * @return Serialized array of the units' SI related fields (= "[K,s,m,g,cd,mol,A,magnitude]")
+   * extended by either a lowercase i if ignoreMagnitude is not set, or an uppercase I if it is.
+   * E.g. kN without ignoreMagnitude would be serialized as "[0,-2,1,1,0,0,0,3]i"
+   */
+  public String serialize() {
+    return Arrays.toString(this.asArray())+(ignoreMagnitude?"I":"i");
+  }
+
+  /**
+   *
+   * @return returns true iff the sum of absolute values of SI fields + magnitude is zero
+   */
+  public boolean isZero(){
+    return (this.exponentSum()+abs(this.magnitude) == 0) ? true : false;
+  }
+
+  /**
+   *
+   * @param other The unit to compare this to
+   * @return 1 if the sum of absolutes of this units' SI fields (excluding magnitude) is greater than other's
+   * <p> -1 if the sum of absolutes of this units' SI fields (excluding magnitude) is smaller than other's
+   * <p> 0 if both sums are equal.
+   */
+  public int compareTo(UnitRepresentation other) {
+    if(this.isMoreComplexThan(other)){
+      return 1;
+    }else if(other.isMoreComplexThan(this)){
+      return -1;
+    }
+    return 0;
+  }
+
+  /**
+   *
+   * @return A valid name for the given Unit. Not guaranteed to match the declaration of the type, but at least equivalent.
+   */
+  public String prettyPrint() {
+    if(isZero()){
+      return "real";
+    }
+    return  calculateName();
+  }
+
+  /**
+   *
+   * @param unit Name of an SI unit including prefix, e.g. kN, pA, MV,...
+   * @return UnitRepresentation equivalent to unit given as parameter, if existent.
+   */
+  static public Optional<UnitRepresentation> lookupName(String unit){
+    for (String pre: SIData.getSIPrefixes()){
+      if(pre.regionMatches(false,0,unit,0,pre.length())){
+        //See if remaining unit name matches a valid SI Unit. Since some prefixes are not unique
+        String remainder = unit.substring(pre.length());
+        if(SIData.getBaseRepresentations().containsKey(remainder)){
+          int magnitude = SIData.getPrefixMagnitudes().get(pre);
+          UnitRepresentation result = getBuilder().other(SIData.getBaseRepresentations().get(remainder)).build();
+          result.increaseMagnitude(magnitude);
+          return Optional.of(result);
+        }
+
+      }
+
+    }
+    if(SIData.getBaseRepresentations().containsKey(unit)) { //No prefix present, see if whole name matches
+      UnitRepresentation result = getBuilder().other(SIData.getBaseRepresentations().get(unit)).build();
+      return Optional.of(result);
+    }
+    return Optional.empty();
+  }
+
+  /**
+   * Comparison of <b>this</b> with <b>other</b>
+   * <p>If either <b>this</b> or <b>other</b> has the ignoreMagnitude bit set, magnitudes are ignored.
+   *
+   * @param other the unit to compare <b>this</b> to.
+   * @return if both UnitRepresentations have ignoreMagnitude set: true iff all fields match.
+   * <p> otherwise: true iff all fields but magnitude match.
+   *
+   */
+  public boolean equals(UnitRepresentation other){
+    //ignore magnitude if either is set to ignore.
+    if(this.isIgnoreMagnitude()||other.isIgnoreMagnitude()){
+      return (this.K == other.K &&
+          this.s == other.s &&
+          this.m == other.m &&
+          this.g == other.g &&
+          this.cd == other.cd &&
+          this.mol == other.mol &&
+          this.A == other.A);
+    }else {
+      return (this.K == other.K &&
+          this.s == other.s &&
+          this.m == other.m &&
+          this.g == other.g &&
+          this.cd == other.cd &&
+          this.mol == other.mol &&
+          this.A == other.A &&
+          this.magnitude == other.magnitude);
+    }
+  }
+
+  public UnitRepresentation divideBy(UnitRepresentation denominator){
+    return new UnitRepresentation(
+        this.K -denominator.K,
+        this.s -denominator.s,
+        this.m - denominator.m,
+        this.g - denominator.g,
+        this.cd - denominator.cd,
+        this.mol -denominator.mol,
+        this.A - denominator.A,
+        this.magnitude - denominator.magnitude,
+        this.isIgnoreMagnitude()||denominator.isIgnoreMagnitude());
+  }
+
+  public UnitRepresentation pow(int exponent){
+    return new UnitRepresentation(
+        this.K * exponent,
+        this.s * exponent,
+        this.m * exponent,
+        this.g * exponent,
+        this.cd * exponent,
+        this.mol * exponent,
+        this.A * exponent,
+        this.magnitude* exponent,
+        this.isIgnoreMagnitude());
+  }
+
+  public UnitRepresentation multiplyBy(UnitRepresentation factor){
+    return new UnitRepresentation(
+        this.K +factor.K,
+        this.s +factor.s,
+        this.m + factor.m,
+        this.g + factor.g,
+        this.cd + factor.cd,
+        this.mol +factor.mol,
+        this.A + factor.A,
+        this.magnitude + factor.magnitude,
+        this.isIgnoreMagnitude()||factor.isIgnoreMagnitude());
+  }
+
+  public UnitRepresentation invert(){
+    return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude,this.isIgnoreMagnitude());
+  }
+
+  public UnitRepresentation deriveT(int order) {
+    UnitRepresentation result = getBuilder().other(this).build();
+    result.s -= order;
+    return result;
+  }
+
+  private UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude,boolean ignoreMagnitude) {
+    this.K = K;
+    this.s = s;
+    this.m = m;
+    this.g = g;
+    this.cd = cd;
+    this.mol = mol;
+    this.A = A;
+    this.magnitude = magnitude;
+    this.ignoreMagnitude = ignoreMagnitude;
+  }
+
+  private void increaseMagnitude(int difference) {
+    this.magnitude += difference;
+  }
+
+  private int exponentSum() {
+    return abs(K)+abs(s)+abs(m)+abs(g)+abs(cd)+abs(mol)+abs(A);
+  }
+
+  private int[] asArray(){
+    int[] result={ K, s, m, g, cd, mol, A, magnitude };
+    return result;
+  }
+
+  private boolean isMoreComplexThan(UnitRepresentation other){
+    return (this.exponentSum() > other.exponentSum()) ? true : false;
+  }
+
+  private String removeTrailingMultiplication(String str){
+    if(str.length() <3){
+      return str;
+    }
+    String result = str;
+    String postfix = result.substring(result.length() - 3, result.length());
+    if (postfix.equals(" * ")) {
+      result = result.substring(0, result.length() - 3);
+    }
+    return result;
+  }
 
   private String calculateName() {
     //
     //copy this because side effects.
-    UnitRepresentation workingCopy = new UnitRepresentation(this);
+    UnitRepresentation workingCopy = getBuilder().other(this).build();
 
     //factorize
     List<Factor> factors = new ArrayList<>();
@@ -202,25 +575,6 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     return numerator+(denomCount>0?  " / "+ denominator:"");
   }
 
-  private class FactorizationResult implements Comparable<FactorizationResult>{
-    private UnitRepresentation remainder;
-    private Factor factor;
-
-    public FactorizationResult(UnitRepresentation remainder, Factor factor){
-      this.remainder = remainder;
-      this.factor = factor;
-    }
-
-    @Override public int compareTo(FactorizationResult o) {
-      if(this.remainder.compareTo(o.remainder)==0){
-        String tieBreakerThis = this.factor.getName()+this.factor.getExponent(); //Make sure that TreeSet actually gets to add stuff
-        String tieBreakerOther = o.factor.getName()+o.factor.getExponent();
-        return tieBreakerThis.compareTo(tieBreakerOther);
-      }
-      return this.remainder.compareTo(o.remainder);
-    }
-  }
-
   private boolean factorize(List<Factor> factors, UnitRepresentation workingCopy) {
     /* Find the highest possible power of any given BaseRepresentation to still be contained in workingCopy.
      */
@@ -286,177 +640,5 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     }
   }
 
-  public String prettyPrint() {
-    if(isZero()){
-      return "real";
-    }
-    return  calculateName();
-  }
 
-  static public Optional<UnitRepresentation> lookupName(String unit){
-    for (String pre: SIData.getSIPrefixes()){
-      if(pre.regionMatches(false,0,unit,0,pre.length())){
-        //See if remaining unit name matches a valid SI Unit. Since some prefixes are not unique
-        String remainder = unit.substring(pre.length());
-        if(SIData.getBaseRepresentations().containsKey(remainder)){
-          int magnitude = SIData.getPrefixMagnitudes().get(pre);
-          UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(remainder));
-          result.increaseMagnitude(magnitude);
-          return Optional.of(result);
-        }
-
-      }
-
-    }
-    if(SIData.getBaseRepresentations().containsKey(unit)) { //No prefix present, see if whole name matches
-      UnitRepresentation result = new UnitRepresentation(SIData.getBaseRepresentations().get(unit));
-      return Optional.of(result);
-    }
-    try{      UnitRepresentation unitRepresentation = new UnitRepresentation(unit);
-      return Optional.of(unitRepresentation);
-    }
-    catch(Exception e){
-      //should never happen
-      return Optional.empty();
-    }
-
-  }
-
-  public UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude) {
-    this.K = K;
-    this.s = s;
-    this.m = m;
-    this.g = g;
-    this.cd = cd;
-    this.mol = mol;
-    this.A = A;
-    this.magnitude = magnitude;
-    this.ignoreMagnitude = false;
-  }
-
-  public UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude,boolean ignoreMagnitude) {
-    this.K = K;
-    this.s = s;
-    this.m = m;
-    this.g = g;
-    this.cd = cd;
-    this.mol = mol;
-    this.A = A;
-    this.magnitude = magnitude;
-    this.ignoreMagnitude = ignoreMagnitude;
-  }
-
-  public UnitRepresentation(UnitRepresentation unit){
-    this.K = unit.K;
-    this.s = unit.s;
-    this.m = unit.m;
-    this.g = unit.g;
-    this.cd = unit.cd;
-    this.mol = unit.mol;
-    this.A = unit.A;
-    this.magnitude = unit.magnitude;
-    this.ignoreMagnitude= unit.isIgnoreMagnitude();
-  }
-
-  public boolean equals(UnitRepresentation other){
-    //ignore magnitude if either is set to ignore.
-    if(this.isIgnoreMagnitude()||other.isIgnoreMagnitude()){
-      return (this.K == other.K &&
-          this.s == other.s &&
-          this.m == other.m &&
-          this.g == other.g &&
-          this.cd == other.cd &&
-          this.mol == other.mol &&
-          this.A == other.A);
-    }else {
-      return (this.K == other.K &&
-          this.s == other.s &&
-          this.m == other.m &&
-          this.g == other.g &&
-          this.cd == other.cd &&
-          this.mol == other.mol &&
-          this.A == other.A &&
-          this.magnitude == other.magnitude);
-    }
-  }
-
-
-  public UnitRepresentation(String serialized){
-    if(serialized == getRealType().getName()) {
-      return; //[0,0,0,0,0,0,0,0]i
-    }
-
-    if(serialized.substring(serialized.length()-1).equals("I")){
-      ignoreMagnitude = true;
-    }
-
-    Pattern parse = Pattern.compile("-?[0-9]+");
-    Matcher matcher = parse.matcher(serialized);
-
-    checkState(matcher.find());
-    this.K = Integer.parseInt(matcher.group());
-    checkState(matcher.find());
-    this.s = Integer.parseInt(matcher.group());
-    checkState(matcher.find());
-    this.m = Integer.parseInt(matcher.group());
-    checkState(matcher.find());
-    this.g = Integer.parseInt(matcher.group());
-    checkState(matcher.find());
-    this.cd = Integer.parseInt(matcher.group());
-    checkState(matcher.find());
-    this.mol = Integer.parseInt(matcher.group());
-    checkState(matcher.find());
-    this.A = Integer.parseInt(matcher.group());
-    checkState(matcher.find());
-    this.magnitude = Integer.parseInt(matcher.group());
-  }
-
-  public UnitRepresentation divideBy(UnitRepresentation denominator){
-    return new UnitRepresentation(
-        this.K -denominator.K,
-        this.s -denominator.s,
-        this.m - denominator.m,
-        this.g - denominator.g,
-        this.cd - denominator.cd,
-        this.mol -denominator.mol,
-        this.A - denominator.A,
-        this.magnitude - denominator.magnitude,
-        this.isIgnoreMagnitude()||denominator.isIgnoreMagnitude());
-  }
-
-  public UnitRepresentation pow(int exponent){
-    return new UnitRepresentation(
-        this.K * exponent,
-        this.s * exponent,
-        this.m * exponent,
-        this.g * exponent,
-        this.cd * exponent,
-        this.mol * exponent,
-        this.A * exponent,
-        this.magnitude* exponent,
-        this.isIgnoreMagnitude());
-  }
-
-  public UnitRepresentation multiplyBy(UnitRepresentation factor){
-    return new UnitRepresentation(
-        this.K +factor.K,
-        this.s +factor.s,
-        this.m + factor.m,
-        this.g + factor.g,
-        this.cd + factor.cd,
-        this.mol +factor.mol,
-        this.A + factor.A,
-        this.magnitude + factor.magnitude,
-        this.isIgnoreMagnitude()||factor.isIgnoreMagnitude());
-  }
-
-  public UnitRepresentation invert(){
-    return new UnitRepresentation(-K,-s,-m,-g,-cd,-mol,-A,-magnitude,this.isIgnoreMagnitude());
-  }
-
-  public UnitRepresentation deriveT(int order) {
-    UnitRepresentation result = new UnitRepresentation(this);
-    result.s -= order;
-    return result;
-  }
 }

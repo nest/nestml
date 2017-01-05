@@ -43,7 +43,7 @@ public class PowVisitor implements CommonsVisitor{
           error(errorMsg,expr.get_SourcePositionStart());
           return;
         }
-        UnitRepresentation baseRep = new UnitRepresentation(baseType.getValue().getName());
+        UnitRepresentation baseRep = UnitRepresentation.getBuilder().serialization(baseType.getValue().getName()).build();
         Either<Integer, String> numericValue = calculateNumericValue(expr.getExponent().get());//calculate exponent value if exponent composed of literals
         if (numericValue.isValue()) {
           expr.setType(Either.value(getTypeIfExists((baseRep.pow(numericValue.getValue())).serialize()).get()));

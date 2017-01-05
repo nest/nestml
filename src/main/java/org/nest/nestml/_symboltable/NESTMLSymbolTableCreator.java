@@ -223,8 +223,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     final Optional<VariableSymbol> originalSymbol = currentScope().get().resolve(originalVarName,VariableSymbol.KIND);
     checkState(originalSymbol.isPresent());//symbol must exist here
     final TypeSymbol originalType = originalSymbol.get().getType();
-    UnitRepresentation derivedUnit = new UnitRepresentation(originalType.getName()).deriveT(ode.getLhs().getDifferentialOrder().size()-1);
-    derivedUnit.setIgnoreMagnitude(true);
+    UnitRepresentation derivedUnit = UnitRepresentation.getBuilder().serialization(originalType.getName()).
+        ignoreMagnitude(true).build().deriveT(ode.getLhs().getDifferentialOrder().size()-1);
     final TypeSymbol derivedType = PredefinedTypes.getType(derivedUnit.serialize());
 
     final VariableSymbol var = new VariableSymbol(variableName);
