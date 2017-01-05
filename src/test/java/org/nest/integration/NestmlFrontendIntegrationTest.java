@@ -74,9 +74,18 @@ public class NestmlFrontendIntegrationTest {
   }
 
   @Test
-  public void testFailingTypeErrorDetection() {
+  public void debug() {
     final String[] args = new String[] {
-        "src/test/resources/codegeneration/terub_neuron_stn.nestml",
+        "debug",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
+  public void showcase() {
+    final String[] args = new String[] {
+        "showcase",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);

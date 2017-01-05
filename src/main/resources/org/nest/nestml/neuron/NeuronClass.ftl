@@ -73,10 +73,27 @@ namespace nest
 /* ----------------------------------------------------------------
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
+${neuronName}::Parameters_::Parameters_()
+{
+  <#list body.getParameterNonAliasSymbols() as parameter>
+    <#if parameter.isVector()>
+      ${names.name(parameter)}.resize(0);
+    <#else>
+      ${names.name(parameter)} = 0;
+    </#if>
+  </#list>
+}
 
-${neuronName}::Parameters_::Parameters_() { }
-
-${neuronName}::State_::State_() { }
+${neuronName}::State_::State_()
+{
+  <#list body.getStateNonAliasSymbols() as state>
+    <#if state.isVector()>
+      ${names.name(state)}.resize(0);
+    <#else>
+      ${names.name(state)} = 0;
+    </#if>
+  </#list>
+}
 
 /* ----------------------------------------------------------------
 * Parameter and state extractions and manipulation functions
