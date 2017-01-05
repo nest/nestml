@@ -52,7 +52,7 @@ public class LineOperatorVisitor implements CommonsVisitor{
       if (lhsType.getValue().equals(rhsType.getValue())) {
           //Make sure that ignoreMagnitude gets propagated if set
           if(isUnit(rhsType.getValue())){
-            UnitRepresentation rhsRep = new UnitRepresentation(rhsType.getValue().getName());
+            UnitRepresentation rhsRep = UnitRepresentation.getBuilder().serialization(rhsType.getValue().getName()).build();
             if(rhsRep.isIgnoreMagnitude()){
               expr.setType(rhsType);
             }else{
