@@ -73,37 +73,55 @@ namespace nest
 /* ----------------------------------------------------------------
 * Default constructors defining default parameters and state
 * ---------------------------------------------------------------- */
+${neuronName}::Parameters_::Parameters_()
+{
+  <#list body.getParameterNonAliasSymbols() as parameter>
+    <#if parameter.isVector()>
+      ${names.name(parameter)}.resize(0);
+    <#else>
+      ${names.name(parameter)} = 0;
+    </#if>
+  </#list>
+}
 
-${neuronName}::Parameters_::Parameters_() { }
-
-${neuronName}::State_::State_() { }
+${neuronName}::State_::State_()
+{
+  <#list body.getStateNonAliasSymbols() as state>
+    <#if state.isVector()>
+      ${names.name(state)}.resize(0);
+    <#else>
+      ${names.name(state)} = 0;
+    </#if>
+  </#list>
+}
 
 /* ----------------------------------------------------------------
 * Parameter and state extractions and manipulation functions
 * ---------------------------------------------------------------- */
 
 ${neuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
-<#if useGSL>
-  , s_( 0 )
-  , c_( 0 )
-  , e_( 0 )
-</#if>
 <#if (body.getSameTypeBuffer()?size > 1) >
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
+</#if>
+<#if useGSL>
+  , __s( 0 )
+  , __c( 0 )
+  , __e( 0 )
 </#if>
 {
 
 }
 
 ${neuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger_(n)
-<#if useGSL>
-  , s_( 0 )
-  , c_( 0 )
-  , e_( 0 )
-</#if>
-<#if (body.getSameTypeBuffer()?size > 1) >
+<#if (body.getSameTypeBuffer()?size > 1)>
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 </#if>
+<#if useGSL>
+  , __s( 0 )
+  , __c( 0 )
+  , __e( 0 )
+</#if>
+
 {
 }
 
@@ -136,12 +154,12 @@ ${neuronName}::~${neuronName}()
 {
   <#if useGSL>
     // GSL structs may not have been allocated, so we need to protect destruction
-    if ( B_.s_ )
-      gsl_odeiv_step_free( B_.s_ );
-    if ( B_.c_ )
-      gsl_odeiv_control_free( B_.c_ );
-    if ( B_.e_ )
-      gsl_odeiv_evolve_free( B_.e_ );
+    if ( B_.__s )
+      gsl_odeiv_step_free( B_.__s );
+    if ( B_.__c )
+      gsl_odeiv_control_free( B_.__c );
+    if ( B_.__e )
+      gsl_odeiv_evolve_free( B_.__e );
   </#if>
 }
 
@@ -170,30 +188,39 @@ ${neuronName}::init_buffers_()
   B_.logger_.reset(); // includes resize
   Archiving_Node::clear_history();
   <#if useGSL>
-    if ( B_.s_ == 0 )
-    B_.s_ = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, ${stateSize} );
+    if ( B_.__s == 0 )
+    {
+      B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, ${stateSize} );
+    }
     else
-    gsl_odeiv_step_reset( B_.s_ );
-
-    if ( B_.c_ == 0 ) {
-      B_.c_ = gsl_odeiv_control_y_new( 1e-6, 0.0 );
-    }
-    else {
-      gsl_odeiv_control_init( B_.c_, 1e-6, 0.0, 1.0, 0.0 );
+    {
+      gsl_odeiv_step_reset( B_.__s );
     }
 
-    if ( B_.e_ == 0 ) {
-      B_.e_ = gsl_odeiv_evolve_alloc( ${stateSize} );
+    if ( B_.__c == 0 )
+    {
+      B_.__c = gsl_odeiv_control_y_new( 1e-6, 0.0 );
     }
-    else {
-      gsl_odeiv_evolve_reset( B_.e_ );
+    else
+    {
+      gsl_odeiv_control_init( B_.__c, 1e-6, 0.0, 1.0, 0.0 );
     }
 
-    B_.sys_.function = ${neuronName}_dynamics;
-    B_.sys_.jacobian = NULL;
-    B_.sys_.dimension = ${stateSize};
-    B_.sys_.params = reinterpret_cast< void* >( this );
+    if ( B_.__e == 0 )
+    {
+      B_.__e = gsl_odeiv_evolve_alloc( ${stateSize} );
+    }
+    else
+    {
+      gsl_odeiv_evolve_reset( B_.__e );
+    }
 
+    B_.__sys.function = ${neuronName}_dynamics;
+    B_.__sys.jacobian = NULL;
+    B_.__sys.dimension = ${stateSize};
+    B_.__sys.params = reinterpret_cast< void* >( this );
+    B_.__step = nest::Time::get_resolution().get_ms();
+    B_.__integration_step = nest::Time::get_resolution().get_ms();
   </#if>
 
 }
@@ -238,11 +265,7 @@ ${neuronName}::update(
         nest::Time const & origin,
         const long from, const long to)
 {
-
     <#if useGSL>
-      <#assign stateSize = body.getEquations()?size>
-      double step_ = nest::Time::get_resolution().get_ms();
-      double IntegrationStep_ = nest::Time::get_resolution().get_ms();
       double t = 0;
     </#if>
 

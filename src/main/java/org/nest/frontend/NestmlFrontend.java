@@ -57,6 +57,11 @@ public class NestmlFrontend {
         .desc("Defines the path where generated artifacts are stored. E.g. --" + TARGET_PATH + " ./")
         .build());
 
+    options.addOption(Option.builder("disable_tracing")
+        .longOpt("disable_tracing")
+        .desc("Disables tracing of templates which create C++ code")
+        .build());
+
     options.addOption(Option.builder(HELP_ARGUMENT)
         .longOpt(HELP_ARGUMENT)
         .build());
@@ -243,13 +248,13 @@ public class NestmlFrontend {
     return in.lines().collect(Collectors.toList());
   }
 
-  private void executeConfiguration(final CliConfiguration CliConfiguration) {
+  private void executeConfiguration(final CliConfiguration configuration) {
     final CliConfigurationExecutor executor = new CliConfigurationExecutor();
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(CliConfiguration.getInputBase());
-    final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(nestmlScopeCreator);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(configuration.getInputBase());
+    final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(nestmlScopeCreator, configuration.isTracing());
 
-    executor.execute(nestCodeGenerator, CliConfiguration);
+    executor.execute(nestCodeGenerator, configuration);
   }
 
   CommandLine parseCLIArguments(String[] args) {

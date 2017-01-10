@@ -386,4 +386,12 @@ public class ASTBody extends ASTBodyTOP {
         .collect(Collectors.toList());
   }
 
+  public boolean isArrayBuffer() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(VariableSymbol::isBuffer)
+        .anyMatch(VariableSymbol::isVector);
+  }
+
 }

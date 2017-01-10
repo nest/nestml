@@ -46,17 +46,22 @@ import static org.nest.utils.AstUtils.getAllNeurons;
 public class NestCodeGenerator {
   private final String LOG_NAME = NestCodeGenerator.class.getName();
   private final OdeProcessor odeProcessor;
-
   private final NESTMLScopeCreator scopeCreator;
+  private final Boolean enableTracing ;
 
-  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator, final OdeProcessor odeProcessor) {
+  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
+                           final OdeProcessor odeProcessor,
+                           boolean enableTracing) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= odeProcessor;
+    this.enableTracing = enableTracing;
   }
 
-  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator) {
+  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
+                           boolean enableTracing) {
     this.scopeCreator = scopeCreator;
     this.odeProcessor= new OdeProcessor();
+    this.enableTracing = enableTracing;
   }
 
   public void analyseAndGenerate(
@@ -131,7 +136,7 @@ public class NestCodeGenerator {
       final GlobalExtensionManagement glex) {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
     setup.setGlex(glex);
-
+    setup.setTracing(enableTracing);
     final GeneratorEngine generator = new GeneratorEngine(setup);
     final Path outputFile = Paths.get(astNeuron.getName() + ".h");
     generator.generate("org.nest.nestml.neuron.NeuronHeader", outputFile, astNeuron);
@@ -143,6 +148,7 @@ public class NestCodeGenerator {
       final GlobalExtensionManagement glex) {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputFolder.toString()));
     setup.setGlex(glex);
+    setup.setTracing(enableTracing);
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
     final Path classImplementationFile = Paths.get(astNeuron.getName() + ".cpp");
@@ -172,7 +178,7 @@ public class NestCodeGenerator {
     glex.setGlobalValue("moduleName", moduleName);
 
     setup.setGlex(glex);
-
+    setup.setTracing(false); // must be disabled
     final GeneratorEngine generator = new GeneratorEngine(setup);
 
     final Path cmakeLists = Paths.get("CMakeLists.txt");
