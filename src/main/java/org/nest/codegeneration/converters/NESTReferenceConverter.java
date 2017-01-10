@@ -110,7 +110,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
             return "B_." + calleeObject + "[i].get_value(lag)";
           }
           else {
-            return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol);
+            return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
           }
 
         }
@@ -143,7 +143,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return variableName + (variableSymbol.isVector()?"[i]":"");
       }
       else if(variableSymbol.isBuffer()) {
-        return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) ;
+        return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
       }
       else {
         if (variableSymbol.isAlias()) {

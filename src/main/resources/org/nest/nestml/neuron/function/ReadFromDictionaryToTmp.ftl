@@ -6,7 +6,7 @@
 -->
 ${signature("variable")}
 <#if variable.hasSetter() || !variable.isAlias()>
-  ${declarations.printVariableType(variable)} tmp_${statusNames.name(variable)} = ${declarations.initialValue(variable)};
+  ${declarations.printVariableType(variable)} tmp_${statusNames.name(variable)} = ${names.getter(variable)}();
   updateValue<${declarations.printVariableType(variable)}>(__d, "${statusNames.name(variable)}", tmp_${statusNames.name(variable)});
 <#else>
   // ignores '${statusNames.name(variable)}' ${declarations.printVariableType(variable)}' since it is an function and setter isn't defined
