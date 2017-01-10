@@ -41,7 +41,7 @@ public class CliConfigurationExecutorTest extends ModelbasedTest {
 
   @Test
   public void testExecutionTestConfiguration() {
-    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock);
+    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
     executor.execute(generator, testConfig);
   }
 

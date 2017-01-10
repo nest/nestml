@@ -1,11 +1,6 @@
 <#--
-  @grammar: Compound_Stmt = IF_Stmt
-                | FOR_Stmt
-                | WHILE_Stmt;
-
-  @param ast ASTCompound_Stmt
-  @param tc templatecontroller
-  @result TODO
+  Handles the compound statement.
+  @grammar: Compound_Stmt = IF_Stmt | FOR_Stmt | WHILE_Stmt;
 -->
 <#if ast.getIF_Stmt().isPresent()>
 ${tc.include("org.nest.spl.compound_statement.IfStatement", ast.getIF_Stmt().get())}

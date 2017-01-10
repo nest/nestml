@@ -1,9 +1,3 @@
-<#--
-  @param ast ASTNeuron
-  @param tc templatecontroller
-  @result CPP Class
--->
-
 /*
 *  ${neuronName}.h
 *
@@ -25,8 +19,6 @@
 *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 *
 */
-
-
 #ifndef ${neuronName?upper_case}
 #define ${neuronName?upper_case}
 <#-- TODO make it depend on the ODE declaration -->
@@ -54,7 +46,7 @@ extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f
 #include "dictdatum.h"
 
 /* BeginDocumentation
-Name: ${neuronName} .
+Name: ${neuronName}.
 
 ${neuronSymbol.printComment()}
 
@@ -68,10 +60,10 @@ Empty
 
 Sends: ${outputEvent}
 
-Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if>DataLoggingRequest
-
+Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
 
 SeeAlso:
+
 Empty
 */
 class ${neuronName} : public nest::Archiving_Node
@@ -136,33 +128,23 @@ public:
   void get_status(DictionaryDatum &) const;
   void set_status(const DictionaryDatum &);
 
-  // Generate function header
-  <#list body.getFunctions() as function>
-  ${functionPrinter.printFunctionDeclaration(function)} ;
-  </#list>
+private:
 
-  <#list body.getStateSymbols() as state>
-  ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [state])}
-  </#list>
-
-  <#list body.getParameterSymbols() as parameter>
-  ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [parameter])}
-  </#list>
-
-  <#list body.getInternalSymbols() as internal>
-  ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [internal])}
-  </#list>
-
-  <#list body.getODEAliases() as odeAlias>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [odeAlias])}
-  </#list>
-
-  <#list body.getInputBuffers() as buffer>
-  ${bufferHelper.printBufferGetter(buffer, false)};
-  </#list>
-
-protected:
-
+  <#if (body.getSameTypeBuffer()?size > 1) >
+    /**
+     * Synapse types to connect to
+     * @note Excluded upper and lower bounds are defined as INF_, SUP_.
+     *       Excluding port 0 avoids accidental connections.
+     */
+    enum SynapseTypes
+    {
+      INF_SPIKE_RECEPTOR = 0,
+      <#list body.getSameTypeBuffer() as buffer>
+        ${buffer.getName()?upper_case} ,
+      </#list>
+      SUP_SPIKE_RECEPTOR
+    };
+  </#if>
   //! Reset parameters and state of neuron.
 
   //! Reset state of neuron.
@@ -288,6 +270,12 @@ protected:
     Buffers_(${neuronName}&);
     Buffers_(const Buffers_ &, ${neuronName}&);
 
+    /** Logger for all analog data */
+    nest::UniversalDataLogger<${neuronName}> logger_;
+    <#if (body.getSameTypeBuffer()?size > 1) || body.isArrayBuffer()>
+      std::vector<long> receptor_types_;
+    </#if>
+
     <#if (body.getSameTypeBuffer()?size > 1) >
       /** buffers and sums up incoming spikes/currents */
       std::vector< nest::RingBuffer > spike_inputs_;
@@ -311,38 +299,46 @@ protected:
 
     </#if>
 
-    /** Logger for all analog data */
-    nest::UniversalDataLogger<${neuronName}> logger_;
-
-    std::vector<long> receptor_types_;
-
     <#if useGSL>
-      /* GSL ODE stuff */
-      gsl_odeiv_step* s_;    //!< stepping function
-      gsl_odeiv_control* c_; //!< adaptive stepsize control function
-      gsl_odeiv_evolve* e_;  //!< evolution function
-      gsl_odeiv_system sys_; //!< struct describing system
+      /** GSL ODE stuff */
+      gsl_odeiv_step* __s;    //!< stepping function
+      gsl_odeiv_control* __c; //!< adaptive stepsize control function
+      gsl_odeiv_evolve* __e;  //!< evolution function
+      gsl_odeiv_system __sys; //!< struct describing system
+
+      // IntergrationStep_ should be reset with the neuron on ResetNetwork,
+      // but remain unchanged during calibration. Since it is initialized with
+      // step_, and the resolution cannot change after nodes have been created,
+      // it is safe to place both here.
+      double __step;             //!< step size in ms
+      double __integration_step; //!< current integration time step, updated by GSL
     </#if>
-
   };
-private:
 
-  <#if (body.getSameTypeBuffer()?size > 1) >
-    /**
-     * Synapse types to connect to
-     * @note Excluded upper and lower bounds are defined as INF_, SUP_.
-     *       Excluding port 0 avoids accidental connections.
-     */
-    enum SynapseTypes
-    {
-      INF_SPIKE_RECEPTOR = 0,
-      <#list body.getSameTypeBuffer() as buffer>
-        ${buffer.getName()?upper_case} ,
-      </#list>
-      SUP_SPIKE_RECEPTOR
-    };
-  </#if>
+  <#list body.getStateSymbols() as state>
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [state])}
+  </#list>
 
+  <#list body.getParameterSymbols() as parameter>
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [parameter])}
+  </#list>
+
+  <#list body.getInternalSymbols() as internal>
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [internal])}
+  </#list>
+
+  <#list body.getODEAliases() as odeAlias>
+      ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [odeAlias])}
+  </#list>
+
+  <#list body.getInputBuffers() as buffer>
+    ${bufferHelper.printBufferGetter(buffer, false)};
+  </#list>
+
+  // Generate function header
+  <#list body.getFunctions() as function>
+  ${functionPrinter.printFunctionDeclaration(function)} ;
+  </#list>
   /**
   * @defgroup pif_members Member variables of neuron model.
   * Each model neuron should have precisely the following four data members,
@@ -386,7 +382,6 @@ nest::port ${neuronName}::send_test_event(nest::Node& target, nest::rport recept
 inline
 nest::port ${neuronName}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
-
   <#if neuronSymbol.isMultisynapseSpikes()>
     if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_${neuronSymbol.getSpikeBuffers()[0].getVectorParameter().get()}()) ) {
         // TODO refactor me. The code assumes that there is only one. Check by coco.
@@ -473,17 +468,11 @@ inline
 void ${neuronName}::set_status(const DictionaryDatum &__d)
 {
   <#list body.getParameterSymbols() as parameter>
-  ${tc.includeArgs("org.nest.nestml.neuron.function.ReadFromDictionary", [parameter])}
-  </#list>
-
-  <#list body.getParameterInvariants() as invariant>
-    if ( !(${printerWithGetters.print(invariant)}) ) {
-      throw nest::BadProperty("The constraint '${idemPrinter.print(invariant)}' is violated!");
-    }
+  ${tc.includeArgs("org.nest.nestml.neuron.function.ReadFromDictionaryToTmp", [parameter])}
   </#list>
 
   <#list body.getStateSymbols() as state>
-  ${tc.includeArgs("org.nest.nestml.neuron.function.ReadFromDictionary", [state])}
+  ${tc.includeArgs("org.nest.nestml.neuron.function.ReadFromDictionaryToTmp", [state])}
   </#list>
 
   // We now know that (ptmp, stmp) are consistent. We do not
@@ -493,8 +482,18 @@ void ${neuronName}::set_status(const DictionaryDatum &__d)
   Archiving_Node::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
-  //P_ = ptmp;
-  //S_ = stmp;
+  <#list body.getParameterSymbols() as parameter>
+    ${tc.includeArgs("org.nest.nestml.neuron.function.AssignTmpDictionaryValue", [parameter])}
+  </#list>
+
+  <#list body.getStateSymbols() as state>
+    ${tc.includeArgs("org.nest.nestml.neuron.function.AssignTmpDictionaryValue", [state])}
+  </#list>
+  <#list body.getParameterInvariants() as invariant>
+    if ( !(${printerWithGetters.print(invariant)}) ) {
+      throw nest::BadProperty("The constraint '${idemPrinter.print(invariant)}' is violated!");
+    }
+  </#list>
 };
 
 #endif /* #ifndef ${neuronName?upper_case} */
