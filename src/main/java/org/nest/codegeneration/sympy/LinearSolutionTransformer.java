@@ -61,9 +61,9 @@ public class LinearSolutionTransformer extends TransformerBase {
       final Path stateVectorTmpDeclarationsFile,
       final Path stateVectorUpdateStepsFile,
       final Path stateVectorTmpBackAssignmentsFile) {
-    ASTNeuron workingVersion = addAliasToInternals(astNeuron, P30File);
+    ASTNeuron workingVersion = astNeuron;
     workingVersion.getBody().addToInternalBlock(createAlias("__h__ ms = resolution()"));
-
+    workingVersion = addAliasToInternals(astNeuron, P30File);
     workingVersion = addDeclarationsToInternals(workingVersion, PSCInitialValueFile);
     workingVersion = addDeclarationsToInternals(workingVersion, propagatorMatrixFile);
 

@@ -100,7 +100,7 @@ ${neuronName}::State_::State_()
 * ---------------------------------------------------------------- */
 
 ${neuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
-<#if (body.getSameTypeBuffer()?size > 1) >
+<#if (body.getMultipleReceptors()?size > 1) >
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 </#if>
 <#if useGSL>
@@ -113,7 +113,7 @@ ${neuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
 }
 
 ${neuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger_(n)
-<#if (body.getSameTypeBuffer()?size > 1)>
+<#if (body.getMultipleReceptors()?size > 1)>
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 </#if>
 <#if useGSL>
@@ -243,11 +243,7 @@ ${neuronName}::calibrate()
   <#list body.getInputBuffers() as buffer>
     <#if buffer.isVector()>
         B_.${buffer.getName()}.resize(P_.${buffer.getVectorParameter().get()});
-        B_.receptor_types_.resize(P_.${buffer.getVectorParameter().get()});
-        for (long i=0; i < P_.${buffer.getVectorParameter().get()}; i++)
-        {
-          B_.receptor_types_[i] = i+1;
-        }
+        B_.${buffer.getName()}_last_value_.resize(P_.${buffer.getVectorParameter().get()});
     </#if>
 
   </#list>
@@ -271,9 +267,14 @@ ${neuronName}::update(
 
     for ( long lag = from ; lag < to ; ++lag ) {
       <#list body.getInputBuffers() as inputLine>
-         <#if !inputLine.isVector()>
-           // TODO this case must be handled uniformly, also NESTReferenceConverter must be adopted
-           B_.${names.bufferValue(inputLine)} = get_${names.name(inputLine)}().get_value( lag );
+         <#if inputLine.isVector()>
+         for (long i=0; i < P_.${inputLine.getVectorParameter().get()}; i++)
+         {
+           B_.${names.bufferValue(inputLine)}[i] = get_${names.name(inputLine)}()[i].get_value( lag );
+         }
+         <#else>
+         // TODO this case must be handled uniformly, also NESTReferenceConverter must be adopted
+            B_.${names.bufferValue(inputLine)} = get_${names.name(inputLine)}().get_value( lag );
          </#if>
       </#list>
 
@@ -311,16 +312,10 @@ ${neuronName}::handle(nest::SpikeEvent &e)
   <#if neuronSymbol.isMultisynapseSpikes()>
     <#assign spikeBuffer = neuronSymbol.getSpikeBuffers()[0]>
 
-    for ( long i = 0; i < P_.${spikeBuffer.getVectorParameter().get()}; ++i )
-      {
-        if ( B_.receptor_types_[ i ] == e.get_rport() )
-        {
-            B_.${spikeBuffer.getName()}[i].add_value(
-              e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
-              e.get_weight() * e.get_multiplicity() );
-        }
-      }
-  <#elseif (body.getSameTypeBuffer()?size > 1)>
+    B_.${spikeBuffer.getName()}[e.get_rport() - 1].add_value(
+      e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
+      e.get_weight() * e.get_multiplicity() );
+  <#elseif (body.getMultipleReceptors()?size > 1)>
     assert( e.get_rport() < static_cast< int >( B_.spike_inputs_.size() ) );
 
     B_.spike_inputs_[ e.get_rport() ].add_value(

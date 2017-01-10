@@ -67,7 +67,7 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void manually() {
     final String[] args = new String[] {
-        "models/aeif_cond_alpha.nestml",
+        "models/iaf_psc_alpha_multisynapse.nestml",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
