@@ -128,13 +128,23 @@ public:
   void get_status(DictionaryDatum &) const;
   void set_status(const DictionaryDatum &);
 
-  // Generate function header
-  <#list body.getFunctions() as function>
-  ${functionPrinter.printFunctionDeclaration(function)} ;
-  </#list>
-
 private:
 
+  <#if (body.getSameTypeBuffer()?size > 1) >
+    /**
+     * Synapse types to connect to
+     * @note Excluded upper and lower bounds are defined as INF_, SUP_.
+     *       Excluding port 0 avoids accidental connections.
+     */
+    enum SynapseTypes
+    {
+      INF_SPIKE_RECEPTOR = 0,
+      <#list body.getSameTypeBuffer() as buffer>
+        ${buffer.getName()?upper_case} ,
+      </#list>
+      SUP_SPIKE_RECEPTOR
+    };
+  </#if>
   //! Reset parameters and state of neuron.
 
   //! Reset state of neuron.
@@ -260,6 +270,12 @@ private:
     Buffers_(${neuronName}&);
     Buffers_(const Buffers_ &, ${neuronName}&);
 
+    /** Logger for all analog data */
+    nest::UniversalDataLogger<${neuronName}> logger_;
+    <#if (body.getSameTypeBuffer()?size > 1) || body.isArrayBuffer()>
+      std::vector<long> receptor_types_;
+    </#if>
+
     <#if (body.getSameTypeBuffer()?size > 1) >
       /** buffers and sums up incoming spikes/currents */
       std::vector< nest::RingBuffer > spike_inputs_;
@@ -283,35 +299,21 @@ private:
 
     </#if>
 
-    /** Logger for all analog data */
-    nest::UniversalDataLogger<${neuronName}> logger_;
-
-    std::vector<long> receptor_types_;
-
     <#if useGSL>
-      /* GSL ODE stuff */
-      gsl_odeiv_step* s_;    //!< stepping function
-      gsl_odeiv_control* c_; //!< adaptive stepsize control function
-      gsl_odeiv_evolve* e_;  //!< evolution function
-      gsl_odeiv_system sys_; //!< struct describing system
-    </#if>
+      /** GSL ODE stuff */
+      gsl_odeiv_step* __s;    //!< stepping function
+      gsl_odeiv_control* __c; //!< adaptive stepsize control function
+      gsl_odeiv_evolve* __e;  //!< evolution function
+      gsl_odeiv_system __sys; //!< struct describing system
 
+      // IntergrationStep_ should be reset with the neuron on ResetNetwork,
+      // but remain unchanged during calibration. Since it is initialized with
+      // step_, and the resolution cannot change after nodes have been created,
+      // it is safe to place both here.
+      double __step;             //!< step size in ms
+      double __integration_step; //!< current integration time step, updated by GSL
+    </#if>
   };
-  <#if (body.getSameTypeBuffer()?size > 1) >
-    /**
-     * Synapse types to connect to
-     * @note Excluded upper and lower bounds are defined as INF_, SUP_.
-     *       Excluding port 0 avoids accidental connections.
-     */
-    enum SynapseTypes
-    {
-      INF_SPIKE_RECEPTOR = 0,
-      <#list body.getSameTypeBuffer() as buffer>
-        ${buffer.getName()?upper_case} ,
-      </#list>
-      SUP_SPIKE_RECEPTOR
-    };
-  </#if>
 
   <#list body.getStateSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [state])}
@@ -333,6 +335,10 @@ private:
     ${bufferHelper.printBufferGetter(buffer, false)};
   </#list>
 
+  // Generate function header
+  <#list body.getFunctions() as function>
+  ${functionPrinter.printFunctionDeclaration(function)} ;
+  </#list>
   /**
   * @defgroup pif_members Member variables of neuron model.
   * Each model neuron should have precisely the following four data members,

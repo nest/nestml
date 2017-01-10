@@ -82,13 +82,4 @@ public class NestmlFrontendIntegrationTest {
     new NestmlFrontend().start(args);
   }
 
-  @Test
-  public void showcase() {
-    final String[] args = new String[] {
-        "showcase",
-        "--target", outputPath.toString()};
-
-    new NestmlFrontend().start(args);
-  }
-
 }
