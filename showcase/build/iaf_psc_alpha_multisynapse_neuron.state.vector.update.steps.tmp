@@ -1,0 +1,2 @@
+y2_I_shape = (__h__*y1_I_shape + y2_I_shape)*exp(-__h__/tau_syn)
+y1_I_shape = y1_I_shape*exp(-__h__/tau_syn)

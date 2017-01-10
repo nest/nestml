@@ -1,0 +1,93 @@
+/*
+Name: iaf_cond_alpha_neuron - Simple conductance based leaky integrate-and-fire neuron
+                       model.
+
+Description:
+iaf_cond_alpha is an implementation of a spiking neuron using IAF dynamics with
+conductance-based synapses. Incoming spike events induce a post-synaptic change
+of conductance modelled by an alpha function. The alpha function
+is normalised such that an event of weight 1.0 results in a peak current of 1 nS
+at t = tau_syn.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+References:
+
+Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
+model for the large, fluctuating synaptic conductance state typical of
+neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+
+Bernander, O ., Douglas, R. J., Martin, K. A. C., & Koch, C. (1991).
+Synaptic background activity influences spatiotemporal integration in
+single pyramidal cells.  Proc. Natl. Acad. Sci. USA, 88(24),
+11569-11573.
+
+Kuhn, Aertsen, Rotter (2004) Neuronal Integration of Synaptic Input in
+the Fluctuation- Driven Regime. Jneurosci 24(10) 2345-2356
+
+Author: Schrader, Plesser
+
+SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
+*/
+neuron iaf_cond_alpha_neuron:
+  state:
+    V_m mV = E_L
+    g_in real
+    g_ex real
+  end
+  equations:
+    function I_syn_exc pA = cond_sum(g_ex, spikeExc)*(V_m-E_ex)
+    function I_syn_inh pA = cond_sum(g_in, spikeInh)*(V_m-E_in)
+    function I_leak pA = g_L*(V_m-E_L)
+    V_m' = ((-I_leak)-I_syn_exc-I_syn_inh+I_stim+I_e)/C_m
+    g_in'' = (-(g_in+2*g_in'*tau_syn_in))/(tau_syn_in)**(2)
+    g_in' = g_in'
+    g_ex'' = (-(g_ex+2*g_ex'*tau_syn_ex))/(tau_syn_ex)**(2)
+    g_ex' = g_ex'
+  end
+  parameters:
+    V_th mV = (-55.0)
+    V_reset mV = (-60.0)
+    t_ref ms = 2.
+    g_L 1 / nOhm = 16.6667
+    C_m pF = 250.0
+    E_ex mV = 0
+    E_in mV = (-85.0)
+    E_L mV = (-70.0)
+    tau_syn_ex ms = 0.2
+    tau_syn_in ms = 2.0
+    I_e pA = 0
+    # Input current injected by CurrentEvent.# This variable is used to transport the current applied into the# _dynamics function computing the derivative of the state vector.
+    I_stim pA = 0
+  end
+  internals:
+    RefractoryCounts integer = steps(t_ref)
+    r integer
+    g_in__D_PSCInitialValue real = e/tau_syn_in
+    g_ex__D_PSCInitialValue real = e/tau_syn_ex
+  end
+  input:
+    spikeInh <- inhibitory spike
+    spikeExc <- excitatory spike
+    currents <- current
+  end
+  output: spike
+  update:
+    integrate_odes()
+    if r!=0: # neuron is absolute refractory
+      r = r-1
+      V_m = V_reset
+    elif V_m>=V_th: # neuron is not absolute refractory
+      r = RefractoryCounts
+      V_m = V_reset
+      emit_spike()
+  end
+  # set new input current
+  I_stim = currents
+  g_in' += g_in__D_PSCInitialValue*spikeInh
+  g_ex' += g_ex__D_PSCInitialValue*spikeExc
+  
+  end
+end

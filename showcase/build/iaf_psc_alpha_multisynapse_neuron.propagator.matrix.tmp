@@ -1,0 +1,9 @@
+P_I_shape_00 real = exp(-__h__/tau_syn)
+P_I_shape_01 real = 0
+P_I_shape_02 real = 0
+P_I_shape_10 real = __h__*exp(-__h__/tau_syn)
+P_I_shape_11 real = exp(-__h__/tau_syn)
+P_I_shape_12 real = 0
+P_I_shape_20 real = -tau_m*tau_syn*(__h__*tau_m*exp(__h__/tau_m) - __h__*tau_syn*exp(__h__/tau_m) + tau_m*tau_syn*exp(__h__/tau_m) - tau_m*tau_syn*exp(__h__/tau_syn))*exp(-__h__/tau_syn - __h__/tau_m)/(C_m*(tau_m**2 - 2*tau_m*tau_syn + tau_syn**2))
+P_I_shape_21 real = -tau_m*tau_syn*(exp(__h__/tau_m) - exp(__h__/tau_syn))*exp(-__h__/tau_syn - __h__/tau_m)/(C_m*(tau_m - tau_syn))
+P_I_shape_22 real = exp(-__h__/tau_m)
