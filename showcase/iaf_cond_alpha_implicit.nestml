@@ -1,0 +1,115 @@
+/*
+Name: iaf_cond_alpha_implicit - Simple conductance based leaky integrate-and-fire neuron
+                       model.
+
+Description:
+iaf_cond_alpha is an implementation of a spiking neuron using IAF dynamics with
+conductance-based synapses. Incoming spike events induce a post-synaptic change
+of conductance modelled by an alpha function. The alpha function
+is normalised such that an event of weight 1.0 results in a peak current of 1 nS
+at t = tau_syn.
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+References:
+
+Meffin, H., Burkitt, A. N., & Grayden, D. B. (2004). An analytical
+model for the large, fluctuating synaptic conductance state typical of
+neocortical neurons in vivo. J.  Comput. Neurosci., 16, 159-175.
+
+Bernander, O ., Douglas, R. J., Martin, K. A. C., & Koch, C. (1991).
+Synaptic background activity influences spatiotemporal integration in
+single pyramidal cells.  Proc. Natl. Acad. Sci. USA, 88(24),
+11569-11573.
+
+Kuhn, Aertsen, Rotter (2004) Neuronal Integration of Synaptic Input in
+the Fluctuation- Driven Regime. Jneurosci 24(10) 2345-2356
+
+Author: Schrader, Plesser
+
+SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
+*/
+neuron iaf_cond_alpha_implicit:
+
+  state:
+    V_m mV = E_L     # membrane potential
+    g_in nS = 0nS    # inputs from the inh conductance
+    g_ex nS = 0nS    # inputs from the exc conductance
+  end
+
+  equations:
+    # alpha function for the g_in
+    g_in'' = -g_in'/tau_syn_in
+    g_in' = g_in' - g_in/tau_syn_in
+
+    # alpha function for the g_ex
+    g_ex'' = -g_ex'/tau_syn_ex
+    g_ex' = g_ex'  -g_ex/tau_syn_ex
+
+    function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+    function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
+    function I_leak pA = g_L * ( V_m - E_L )
+
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
+  end
+
+  parameters:
+    V_th mV = -55.0mV     # Threshold Potential in mV
+    V_reset mV = -60.0mV  # Reset Potential in mV
+    t_ref ms = 2.0ms      # Refractory period in ms
+    g_L nS = 16.6667nS    # Leak Conductance in nS
+    C_m pF = 250.0pF      # Membrane Capacitance in pF
+    E_ex mV = 0mV         # Excitatory reversal Potential in mV
+    E_in mV = -85.0mV     # Inhibitory reversal Potential in mV
+    E_L mV = -70.0mV      # Leak reversal Potential (aka resting potential) in mV
+    tau_syn_ex ms = 0.2ms # Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_in ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse in ms
+    I_e pA = 0pA          # Constant Current in pA
+    I_stim pA = 0pA # Input current injected by CurrentEvent.
+                    # This variable is used to transport the current applied into the
+                    # _dynamics function computing the derivative of the state vector.
+  end
+
+  internals:
+    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_E real = 1.0 * e / tau_syn_ex
+
+    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    # conductance excursion.
+    PSConInit_I real = 1.0 * e / tau_syn_in
+
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+    r integer                               # counts number of tick during the refractory period
+  end
+
+  input:
+    spikeInh   <- inhibitory spike
+    spikeExc   <- excitatory spike
+    currents <- current
+  end
+
+  output: spike
+
+  update:
+
+    integrate_odes()
+    if r != 0: # neuron is absolute refractory
+      r =  r - 1
+      V_m = V_reset # clamp potential
+    elif V_m >= V_th:  # neuron is not absolute refractory
+      r = RefractoryCounts
+      V_m = V_reset # clamp potential
+      emit_spike()
+    end
+
+    # add incoming spikes
+    g_ex' += spikeExc * PSConInit_E
+    g_in' += spikeInh * PSConInit_I
+    # set new input current
+    I_stim = currents.get_sum()
+  end
+
+end
