@@ -130,7 +130,7 @@ public:
 
 private:
 
-  <#if (body.getSameTypeBuffer()?size > 1) >
+  <#if (body.getMultipleReceptors()?size > 1) >
     /**
      * Synapse types to connect to
      * @note Excluded upper and lower bounds are defined as INF_, SUP_.
@@ -139,7 +139,7 @@ private:
     enum SynapseTypes
     {
       INF_SPIKE_RECEPTOR = 0,
-      <#list body.getSameTypeBuffer() as buffer>
+      <#list body.getMultipleReceptors() as buffer>
         ${buffer.getName()?upper_case} ,
       </#list>
       SUP_SPIKE_RECEPTOR
@@ -272,11 +272,11 @@ private:
 
     /** Logger for all analog data */
     nest::UniversalDataLogger<${neuronName}> logger_;
-    <#if (body.getSameTypeBuffer()?size > 1) || body.isArrayBuffer()>
+    <#if (body.getMultipleReceptors()?size > 1) || body.isArrayBuffer()>
       std::vector<long> receptor_types_;
     </#if>
 
-    <#if (body.getSameTypeBuffer()?size > 1) >
+    <#if (body.getMultipleReceptors()?size > 1) >
       /** buffers and sums up incoming spikes/currents */
       std::vector< nest::RingBuffer > spike_inputs_;
 
@@ -285,19 +285,20 @@ private:
         ${bufferHelper.printBufferDeclarationValue(inputLine)};
       </#list>
 
-      <#list body.getCurrentBuffers() as inputLine>
-        ${bufferHelper.printBufferDeclaration(inputLine)};
-        ${bufferHelper.printBufferGetter(inputLine, true)}
-        ${bufferHelper.printBufferDeclarationValue(inputLine)};
-      </#list>
     <#else>
-      <#list body.getInputBuffers() as inputLine>
+      <#list body.getSpikeBuffers() as inputLine>
         ${bufferHelper.printBufferGetter(inputLine, true)}
         ${bufferHelper.printBufferDeclaration(inputLine)};
         ${bufferHelper.printBufferDeclarationValue(inputLine)};
       </#list>
 
     </#if>
+
+    <#list body.getCurrentBuffers() as inputLine>
+      ${bufferHelper.printBufferDeclaration(inputLine)};
+      ${bufferHelper.printBufferGetter(inputLine, true)}
+      ${bufferHelper.printBufferDeclarationValue(inputLine)};
+    </#list>
 
     <#if useGSL>
       /** GSL ODE stuff */
@@ -389,8 +390,8 @@ nest::port ${neuronName}::handles_test_event(nest::SpikeEvent&, nest::port recep
     }
 
     return receptor_type;
-  <#elseif (body.getSameTypeBuffer()?size > 1)>
-    assert( B_.spike_inputs_.size() == ${body.getSameTypeBuffer()?size } );
+  <#elseif (body.getMultipleReceptors()?size > 1)>
+    assert( B_.spike_inputs_.size() == ${body.getMultipleReceptors()?size } );
 
     if ( !( INF_SPIKE_RECEPTOR < receptor_type && receptor_type < SUP_SPIKE_RECEPTOR ) )
     {
@@ -452,10 +453,10 @@ void ${neuronName}::get_status(DictionaryDatum &__d) const
     ${tc.includeArgs("org.nest.nestml.neuron.function.WriteInDictionary", [state])}
   </#list>
 
-  <#if (body.getSameTypeBuffer()?size > 1) >
+  <#if (body.getMultipleReceptors()?size > 1) >
 
     DictionaryDatum __receptor_type = new Dictionary();
-    <#list body.getSameTypeBuffer() as spikeBuffer>
+    <#list body.getMultipleReceptors() as spikeBuffer>
     ( *__receptor_type )[ "${spikeBuffer.getName()?upper_case}" ] = ${spikeBuffer.getName()?upper_case};
     </#list>
     ( *__d )[ "receptor_types" ] = __receptor_type;

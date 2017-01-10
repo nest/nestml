@@ -377,7 +377,7 @@ public class ASTBody extends ASTBodyTOP {
         .collect(Collectors.toList());
   }
 
-  public List<VariableSymbol> getSameTypeBuffer() {
+  public List<VariableSymbol> getMultipleReceptors() {
     return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
         .stream()
         .map(inputBuffer -> (VariableSymbol) inputBuffer)

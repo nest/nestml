@@ -25,7 +25,7 @@ public class ASTBodyTest extends ModelbasedTest {
   public void getSameTypeBuffer() throws Exception {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(PSC_MODEL_THREE_BUFFERS);
     final ASTBody astBody = root.getNeurons().get(0).getBody();
-    final List<VariableSymbol> buffers = astBody.getSameTypeBuffer();
+    final List<VariableSymbol> buffers = astBody.getMultipleReceptors();
     assertEquals(3, buffers.size());
 
   }
