@@ -453,11 +453,13 @@ void ${neuronName}::get_status(DictionaryDatum &__d) const
     ${tc.includeArgs("org.nest.nestml.neuron.function.WriteInDictionary", [state])}
   </#list>
 
+
+  // TODO: ${body.getMultipleReceptors()?size}
   <#if (body.getMultipleReceptors()?size > 1) >
 
     DictionaryDatum __receptor_type = new Dictionary();
     <#list body.getMultipleReceptors() as spikeBuffer>
-    ( *__receptor_type )[ "${spikeBuffer.getName()?upper_case}" ] = ${spikeBuffer.getName()?upper_case};
+    ( *__receptor_type )[ "${spikeBuffer.getName()}" ] = ${spikeBuffer.getName()?upper_case};
     </#list>
     ( *__d )[ "receptor_types" ] = __receptor_type;
   </#if>
