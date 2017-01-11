@@ -75,24 +75,10 @@ namespace nest
 * ---------------------------------------------------------------- */
 ${neuronName}::Parameters_::Parameters_()
 {
-  <#list body.getParameterNonAliasSymbols() as parameter>
-    <#if parameter.isVector()>
-      ${names.name(parameter)}.resize(0);
-    <#else>
-      ${names.name(parameter)} = 0;
-    </#if>
-  </#list>
 }
 
 ${neuronName}::State_::State_()
 {
-  <#list body.getStateNonAliasSymbols() as state>
-    <#if state.isVector()>
-      ${names.name(state)}.resize(0);
-    <#else>
-      ${names.name(state)} = 0;
-    </#if>
-  </#list>
 }
 
 /* ----------------------------------------------------------------
@@ -134,11 +120,11 @@ ${neuronName}::${neuronName}():Archiving_Node(), P_(), S_(), B_(*this)
   recordablesMap_.create();
 
   <#list body.getParameterNonAliasSymbols() as parameter>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, printerWithGetters])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, expressionsPrinter])}
   </#list>
 
   <#list body.getStateNonAliasSymbols() as state>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, printerWithGetters])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, expressionsPrinter])}
   </#list>
 
 }
