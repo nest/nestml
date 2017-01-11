@@ -1,2 +1,0 @@
-V_abs = P30 * (I_e + currents) + V_abs*exp(-__h__/tau_m)
-V_abs += P_I_shape_20*y1_I_shape + P_I_shape_21*y2_I_shape

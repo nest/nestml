@@ -1,1 +1,0 @@
-P30 real = tau_m/C_m - tau_m*exp(-__h__/tau_m)/C_m# P00 expression
