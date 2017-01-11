@@ -120,17 +120,29 @@ ${neuronName}::${neuronName}():Archiving_Node(), P_(), S_(), B_(*this)
   recordablesMap_.create();
 
   <#list body.getParameterNonAliasSymbols() as parameter>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, expressionsPrinter])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, printerWithGetters])}
   </#list>
 
   <#list body.getStateNonAliasSymbols() as state>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, expressionsPrinter])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, printerWithGetters])}
   </#list>
 
 }
 
-${neuronName}::${neuronName}(const ${neuronName}& n): Archiving_Node(), P_(n.P_), S_(n.S_), B_(n.B_, *this)
-{}
+${neuronName}::${neuronName}(const ${neuronName}& __n): Archiving_Node(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this)
+{
+  <#list body.getParameterNonAliasSymbols() as parameter>
+    P_.${names.name(parameter)} = __n.P_.${names.name(parameter)};
+  </#list>
+
+  <#list body.getStateNonAliasSymbols() as state>
+    S_.${names.name(state)} = __n.S_.${names.name(state)};
+  </#list>
+
+  <#list body.getInternalNonAliasSymbols() as internal>
+    V_.${names.name(internal)} = __n.V_.${names.name(internal)};
+  </#list>
+}
 
 /* ----------------------------------------------------------------
 * Destructors
