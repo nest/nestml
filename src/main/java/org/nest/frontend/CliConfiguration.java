@@ -47,7 +47,7 @@ public class CliConfiguration {
     private boolean checkCoCos = false;
     private Path inputBasePath;
     private Path targetPath;
-    public boolean isTracing = true;
+    private boolean isTracing = false;
 
     Builder withCoCos() {
       this.checkCoCos = true;

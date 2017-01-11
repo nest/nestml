@@ -10,8 +10,6 @@ ${signature("variable", "printer")}
 <#if variable.getDeclaringExpression().isPresent()>
   <#if variable.isVector()>
     ${variableHelper.printOrigin(variable)}${names.name(variable)}.resize(P_.${variable.getVectorParameter().get()}, ${printer.print(variable.getDeclaringExpression().get())});
-  <#elseif variable.isAlias() && !aliasInverter.isRelativeExpression(variable.getDeclaringExpression().get())>
-    ${declarations.printVariableType(variable)} ${variableHelper.printOrigin(variable)}${names.name(variable)} = ${printer.print(variable.getDeclaringExpression().get())};
   <#else>
     ${variableHelper.printOrigin(variable)}${names.name(variable)} = ${printer.print(variable.getDeclaringExpression().get())};
   </#if>
