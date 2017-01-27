@@ -33,9 +33,8 @@ public class CliConfigurationExecutorTest extends ModelbasedTest {
 
   public CliConfigurationExecutorTest() {
     testConfig = new CliConfiguration.Builder()
-        .withCoCos()
-        .withInputBasePath(TEST_INPUT_PATH)
-        .withTargetPath(TARGET_FOLDER)
+        .withModelPath(TEST_INPUT_PATH)
+        .withTargetPath(TARGET_FOLDER.toString())
         .build();
   }
 

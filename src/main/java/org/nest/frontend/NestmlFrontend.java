@@ -29,6 +29,8 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author plotnikov
  */
 public class NestmlFrontend {
+  private final static String LOG_NAME = NestmlFrontend.class.getName();
+
   private static final String PYTHON_VERSION_TEST_OUTPUT = "pythonVersion.tmp";
   private static final String PYTHON_CHECK_SCRIPT = "pythonChecker.py";
   private static final String PYTHON_CHECK_SCRIPT_SOURCE = "checks/pythonChecker.py";
@@ -36,11 +38,17 @@ public class NestmlFrontend {
   private static final String SYMPY_VERSION_TEST_OUTPUT = "sympyVersion.tmp";
   private static final String SYMPY_CHECK_SCRIPT = "sympyChecker.py";
   private static final String SYMPY_CHECK_SCRIPT_SOURCE = "checks/sympyChecker.py";
-
-  private final static String LOG_NAME = NestmlFrontend.class.getName();
-  private static final String HELP_ARGUMENT = "help";
-  private static final String TARGET_PATH = "target";
   private static final String PYTHON_INTERPRETER = "python ";
+
+  // Options
+  private static final String HELP_ARGUMENT = "help";
+  private static final String ENABLE_TRACING = "enable_tracing";
+  private static final String TARGET_OPTION = "target";
+  private static final String DRY_RUN_OPTION = "dry-run";
+  private static final String JSON_OPTION = "json_log";
+  private static final String MODULE_OPTION = "module_name";
+
+
 
   private final Options options = new Options();
   private final HelpFormatter formatter = new HelpFormatter();
@@ -50,20 +58,49 @@ public class NestmlFrontend {
   public NestmlFrontend() {
     Log.enableFailQuick(false); // otherwise error terminates the java vm
 
-    options.addOption(Option.builder(TARGET_PATH)
-        .longOpt(TARGET_PATH)
+    options.addOption(Option.builder(HELP_ARGUMENT.substring(0, 1))
+        .desc("Prints this message.")
+        .longOpt(HELP_ARGUMENT)
+        .build());
+
+    final String TRACING_DESCRIPTION = "Enables tracing of templates which were used to generate C++ code. " +
+                                       "It can be used for debugging purporses.";
+    options.addOption(Option.builder(ENABLE_TRACING.substring(0, 1))
+        .longOpt(ENABLE_TRACING)
+        .desc(TRACING_DESCRIPTION)
+        .build());
+
+    final String TARGET_DESCRIPTION = "Defines the path where generated artifacts are stored. The only argument " +
+                                      "determines the folder where the generated code is stored. E.g. --" +
+                                      TARGET_OPTION + " ~/my_path";
+    options.addOption(Option.builder(TARGET_OPTION.substring(0, 1))
+        .longOpt(TARGET_OPTION)
         .hasArgs()
         .numberOfArgs(1)
-        .desc("Defines the path where generated artifacts are stored. E.g. --" + TARGET_PATH + " ./")
+        .desc(TARGET_DESCRIPTION)
         .build());
 
-    options.addOption(Option.builder("disable_tracing")
-        .longOpt("disable_tracing")
-        .desc("Disables tracing of templates which create C++ code")
+
+    options.addOption(Option.builder(DRY_RUN_OPTION.substring(0, 1))
+        .longOpt(DRY_RUN_OPTION)
+        .desc("Use this option to execute the model analysis only.")
         .build());
 
-    options.addOption(Option.builder(HELP_ARGUMENT)
-        .longOpt(HELP_ARGUMENT)
+    final String JSON_DESCRIPTION = "Defines the name of the file where the model log will be stored in JSON format.";
+    options.addOption(Option.builder(JSON_OPTION.substring(0, 1))
+        .longOpt(JSON_OPTION)
+        .hasArgs()
+        .numberOfArgs(1)
+        .desc(JSON_DESCRIPTION)
+        .build());
+
+    final String MODULE_DESCRIPTION = "Defines the name of nest module which is generated with neuron models. Under this" +
+                                      "name the module can be installed in SLI/PyNEST.";
+    options.addOption(Option.builder(MODULE_OPTION.substring(0, 1))
+        .longOpt(MODULE_OPTION)
+        .hasArgs()
+        .numberOfArgs(1)
+        .desc(MODULE_DESCRIPTION)
         .build());
   }
 
@@ -72,45 +109,109 @@ public class NestmlFrontend {
   }
 
   public void start(final String[] args) {
-    if (args.length > 0) {
-      final CliConfiguration cliConfiguration = createCLIConfiguration(args);
+    final Optional<CliConfiguration> cliConfiguration = createCLIConfiguration(args);
 
-      if (checkEnvironment(cliConfiguration)) {
-        executeConfiguration(cliConfiguration);
+    if (cliConfiguration.isPresent()) {
+      final String inputPathMsg = "The input modelpath: " + cliConfiguration.get().getModelPath().toAbsolutePath().toString();
+      reporter.addSystemInfo(inputPathMsg, Reporter.Level.INFO);
+
+      final String outputPathMsg = "The base output path: " + cliConfiguration.get().getTargetPath().toAbsolutePath().toString();
+      reporter.addSystemInfo(outputPathMsg, Reporter.Level.INFO);
+
+      if (checkEnvironment(cliConfiguration.get())) {
+        executeConfiguration(cliConfiguration.get());
 
       }
       else {
         final String msg = "The execution environment is not installed properly. Execution will be terminated.";
         reporter.addSystemInfo(msg, Reporter.Level.ERROR);
       }
+    }
 
+  }
+
+  public Optional<CliConfiguration> createCLIConfiguration(String[] args) {
+    if (args.length == 0) {
+      printToolUsageHelp();
+      return Optional.empty();
+    }
+
+    final CommandLine cliParameters = parseCLIArguments(args);
+
+    if (cliParameters.hasOption(HELP_ARGUMENT)) {
+      printToolUsageHelp();
+    }
+
+    boolean isTracing = false;
+    if (cliParameters.hasOption(ENABLE_TRACING)) {
+      isTracing = true;
+    }
+
+    boolean isCodegeneration = true;
+    if (cliParameters.hasOption(DRY_RUN_OPTION)) {
+      isCodegeneration = false;
+    }
+
+    final String targetPath = getOptionValue(cliParameters, TARGET_OPTION).orElse("build");
+
+    if (cliParameters.getArgs().length != 1) {
+      formatter.printHelp("Provide exactly one path to the model folder.", options);
+      printToolUsageHelp();
+      return Optional.empty();
+    }
+    final Path modelPath = Paths.get(cliParameters.getArgs()[0]);
+    final String moduleName;
+    if (cliParameters.hasOption(MODULE_OPTION)) {
+      moduleName = cliParameters.getOptionValue(MODULE_OPTION);
+    }
+    else { // if the module name is not provided than take the name of its first parent
+      moduleName = modelPath.getName(modelPath.getNameCount() - 1).toString(); // get the last element
+    }
+
+    return Optional.of(new CliConfiguration
+        .Builder()
+        .withCodegeneration(isCodegeneration)
+        .withModelPath(modelPath)
+        .withModuleName(moduleName)
+        .withTargetPath(targetPath)
+        .withTracing(isTracing)
+        .build());
+  }
+
+  CommandLine parseCLIArguments(String[] args) {
+    final CommandLineParser commandLineParser = new DefaultParser();
+    final CommandLine commandLineParameters;
+
+    try {
+      commandLineParameters = commandLineParser.parse(options, args);
+    }
+    catch (ParseException e) {
+      final String msg = "Cannot parse CLI arguments: " + Joiner.on(" ").join(args) + "\nThe reason: " + e.getMessage();
+      formatter.printHelp(msg, options);
+      throw new RuntimeException(e);
+    }
+
+    return commandLineParameters;
+  }
+
+  private void printToolUsageHelp() {
+    final String helpMsg = "The NESTML command line tool can be used as " +
+                           "'java -jar nestml.jar <options> path_to_models'." +
+                           " Valid options are listed below:\n";
+    formatter.printHelp(helpMsg, options);
+  }
+
+
+  private Optional<String> getOptionValue(CommandLine cmd, String argumentName) {
+    if (cmd.hasOption(argumentName)) {
+      return  Optional.of(cmd.getOptionValue(argumentName));
     }
     else {
-      reporter.addSystemInfo("The tool must get one argument with the path to the model folder", Reporter.Level.ERROR);
-      formatter.printHelp("NESTML frontend: ", options);
+      return Optional.empty();
     }
 
   }
 
-  public CliConfiguration createCLIConfiguration(String[] args) {
-    checkArgument(args.length > 0);
-    final CommandLine commandLineParameters = parseCLIArguments(args);
-    interpretHelpArgument(commandLineParameters);
-
-    final String targetPath = interpretTargetPathArgument(commandLineParameters);
-
-    final String inputPathMsg = "The input modelpath: " + Paths.get(args[0]).toAbsolutePath().toString();
-    reporter.addSystemInfo(inputPathMsg, Reporter.Level.INFO);
-    final String outputPathMsg = "The base output path: " + Paths.get(targetPath).toAbsolutePath().toString();
-    reporter.addSystemInfo(outputPathMsg, Reporter.Level.INFO);
-
-    return new CliConfiguration
-        .Builder()
-        .withCoCos(true)
-        .withInputBasePath(args[0])
-        .withTargetPath(targetPath)
-        .build();
-  }
 
   public static boolean checkEnvironment(final CliConfiguration cliConfiguration) {
     try {
@@ -251,48 +352,11 @@ public class NestmlFrontend {
   private void executeConfiguration(final CliConfiguration configuration) {
     final CliConfigurationExecutor executor = new CliConfigurationExecutor();
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(configuration.getInputBase());
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(configuration.getModelPath());
     final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(nestmlScopeCreator, configuration.isTracing());
 
     executor.execute(nestCodeGenerator, configuration);
   }
 
-  CommandLine parseCLIArguments(String[] args) {
-    final CommandLineParser commandLineParser = new DefaultParser();
-    final CommandLine commandLineParameters;
-
-    try {
-      commandLineParameters = commandLineParser.parse(options, args);
-    }
-    catch (ParseException e) {
-      final String msg = "Cannot parse CLI arguments: " + Joiner.on(" ").join(args) + "\nThe reason: " + e.getMessage();
-      formatter.printHelp(msg, options);
-      throw new RuntimeException(e);
-    }
-
-    return commandLineParameters;
-  }
-
-  private void interpretHelpArgument(CommandLine cmd) {
-    if (cmd.hasOption(HELP_ARGUMENT)) {
-      formatter.printHelp("NESTML frontend", options);
-    }
-
-  }
-
-  String interpretTargetPathArgument(final CommandLine cmd) {
-    return interpretPathArgument(cmd, TARGET_PATH).orElse("build");
-  }
-
-  private Optional<String> interpretPathArgument(CommandLine cmd, String argumentName) {
-    if (cmd.hasOption(argumentName)) {
-      Log.trace("'" + argumentName + "' option is set to: " + cmd.getOptionValue(argumentName), LOG_NAME);
-      return  Optional.of(cmd.getOptionValue(argumentName));
-    }
-    else {
-      return Optional.empty();
-    }
-
-  }
 
 }

@@ -14,6 +14,7 @@ import org.nest.utils.FilesHelper;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 /**
  * Tests the entire pipeline.
@@ -33,17 +34,28 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void testInheritance() {
     FilesHelper.deleteFilesInFolder(outputPath);
-    nestmlFrontend.start(new String[] {"src/test/resources/inheritance", "--target", outputPath.toString()});
+    nestmlFrontend.start(new String[] {"src/test/resources/inheritance", "-t", outputPath.toString()});
   }
 
   @Ignore("PIP supports only 1.0.0 sympy")
   @Test
   public void testInfrastructure() {
     FilesHelper.deleteFilesInFolder(outputPath);
-    final CliConfiguration cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
+    final Optional<CliConfiguration> cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
         "models",
         "--target", outputPath.toString()});
-    Assert.assertTrue(NestmlFrontend.checkEnvironment(cliConfiguration));
+    Assert.assertTrue(cliConfiguration.isPresent());
+    Assert.assertTrue(NestmlFrontend.checkEnvironment(cliConfiguration.get()));
+  }
+
+  @Test
+  public void testDryRun() {
+    final String[] args = new String[] {
+        "models",
+        "--target", outputPath.toString(),
+        "--dry-run"};
+
+    new NestmlFrontend().start(args);
   }
 
   @Test

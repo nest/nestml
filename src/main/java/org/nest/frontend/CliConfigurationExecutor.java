@@ -53,12 +53,12 @@ public class CliConfigurationExecutor {
   }
 
   void execute(final NestCodeGenerator generator, final CliConfiguration config) {
-    final NESTMLParser parser =  new NESTMLParser(config.getInputBase());
-    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputBase());
+    final NESTMLParser parser =  new NESTMLParser(config.getModelPath());
+    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getModelPath());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
 
     if (!modelRoots.isEmpty()) {
-      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getInputBase());
+      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getModelPath());
       reporter.reportProgress("Finished parsing nestml mdoels...");
       reporter.reportProgress("Remove temporary files...");
       cleanUpWorkingFolder(config.getTargetPath());
@@ -152,9 +152,15 @@ public class CliConfigurationExecutor {
     final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
     symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
-    if (symbolTableFindings.isEmpty() && checkModels(modelRoots, config)) {
-      generateNeuronCode(modelRoots, config, generator);
-      generateModuleCode(modelRoots, config, generator);
+    if (symbolTableFindings.isEmpty() && checkModels(modelRoots)) {
+      if (config.isCodegeneration()) {
+        generateNeuronCode(modelRoots, config, generator);
+        generateModuleCode(modelRoots, config, generator);
+      }
+      else {
+        final String msg = "Codegeneration was disabled though the '--dry-run option'.";
+        reporter.addSystemInfo(msg, Reporter.Level.INFO);
+      }
     }
     else {
       final String msg = " Models contain semantic error(s), therefore, no codegeneration is possible";
@@ -166,16 +172,16 @@ public class CliConfigurationExecutor {
   private void generateModuleCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     if (modelRoots.size() > 0) {
       final String modelName;
-      if (Files.isRegularFile(config.getInputBase())) {
-        modelName = config.getInputBase().getName(config.getInputBase().getNameCount() - 2 ).toString();
+      if (Files.isRegularFile(config.getModelPath())) {
+        modelName = config.getModelPath().getName(config.getModelPath().getNameCount() - 2 ).toString();
       }
       else {
-        modelName = config.getInputBase().getFileName().toString();
+        modelName = config.getModelPath().getFileName().toString();
       }
       generator.generateNESTModuleCode(modelRoots, modelName, config.getTargetPath());
     }
     else {
-      reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getInputBase());
+      reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getModelPath());
     }
 
   }
@@ -206,26 +212,24 @@ public class CliConfigurationExecutor {
 
   }
 
-  private boolean checkModels(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config) {
+  private boolean checkModels(List<ASTNESTMLCompilationUnit> modelRoots) {
     boolean anyError = false;
-    if (config.isCheckCoCos()) {
-      final Map<String, List<Finding>> findingsToModel = Maps.newHashMap();
+    final Map<String, List<Finding>> findingsToModel = Maps.newHashMap();
 
-      reporter.reportProgress("Check context conditions...");
-      for (ASTNESTMLCompilationUnit root:modelRoots) {
-        Log.getFindings().clear(); // clear it to determine which errors are produced through the current model
+    reporter.reportProgress("Check context conditions...");
+    for (ASTNESTMLCompilationUnit root:modelRoots) {
+      Log.getFindings().clear(); // clear it to determine which errors are produced through the current model
 
-        final List<Finding> modelFindings = checker.analyzeModel(root);
-        findingsToModel.put(root.getArtifactName(), modelFindings);
+      final List<Finding> modelFindings = checker.analyzeModel(root);
+      findingsToModel.put(root.getArtifactName(), modelFindings);
 
-        if (findingsToModel.get(root.getArtifactName()).stream().anyMatch(Finding::isError)) {
-          anyError = true;
-        }
-        reporter.addArtifactFindings(root.getArtifactName(), modelFindings);
-
+      if (findingsToModel.get(root.getArtifactName()).stream().anyMatch(Finding::isError)) {
+        anyError = true;
       }
+      reporter.addArtifactFindings(root.getArtifactName(), modelFindings);
 
     }
+
     return !anyError;
   }
 

@@ -14,25 +14,27 @@ import java.nio.file.Paths;
  * @author plotnikov
  */
 public class CliConfiguration {
-  private final boolean checkCoCos;
-  private final Path inputBasePath;
+  private final Path modelPath;
   private final Path targetPath;
   private boolean isTracing;
+  private boolean isCodegeneration;
+  private final String moduleName;
 
   public CliConfiguration(final Builder builder) {
-    this.checkCoCos = builder.checkCoCos;
-    this.inputBasePath = builder.inputBasePath;
+    this.modelPath = builder.modelPath;
     this.targetPath = builder.targetPath;
     this.isTracing = builder.isTracing;
+    this.isCodegeneration = builder.isCodegeneration;
+    this.moduleName = builder.moduleName;
   }
 
-  boolean isCheckCoCos() {
-    return checkCoCos;
+
+  boolean isCodegeneration() {
+    return isCodegeneration;
   }
 
-  Path getInputBase() {
-
-      return inputBasePath;
+  Path getModelPath() {
+    return modelPath;
   }
 
   Path getTargetPath() {
@@ -43,29 +45,19 @@ public class CliConfiguration {
     return isTracing;
   }
 
+  public String getModuleName() {
+    return moduleName;
+  }
+
   public static class Builder {
-    private boolean checkCoCos = false;
-    private Path inputBasePath;
+    private Path modelPath;
     private Path targetPath;
     private boolean isTracing = false;
+    private boolean isCodegeneration;
+    public String moduleName;
 
-    Builder withCoCos() {
-      this.checkCoCos = true;
-      return this;
-    }
-
-    Builder withCoCos(boolean checkCoCos) {
-      this.checkCoCos = checkCoCos;
-      return this;
-    }
-
-    Builder withInputBasePath(final String inputBasePath) {
-      this.inputBasePath = Paths.get(inputBasePath);
-      return this;
-    }
-
-    Builder withInputBasePath(final Path inputBasePath) {
-      this.inputBasePath = inputBasePath;
+    Builder withModelPath(final Path modelPath) {
+      this.modelPath = modelPath;
       return this;
     }
 
@@ -74,8 +66,18 @@ public class CliConfiguration {
       return this;
     }
 
-    Builder withTargetPath(final Path targetPath) {
-      this.targetPath = targetPath;
+    Builder withCodegeneration(final boolean isCodegeneration) {
+      this.isCodegeneration = isCodegeneration;
+      return this;
+    }
+
+    Builder withModuleName(final String moduleName) {
+      this.moduleName = moduleName;
+      return this;
+    }
+
+    Builder withTracing(boolean isTracing) {
+      this.isTracing = isTracing;
       return this;
     }
 
