@@ -17,32 +17,35 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr) {
-    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType();
-    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType();
+    final Either<TypeSymbol, String> lhsTypeE = expr.getLeft().get().getType();
+    final Either<TypeSymbol, String> rhsTypeE = expr.getRight().get().getType();
 
-    if (lhsType.isError()) {
-      expr.setType(lhsType);
+    if (lhsTypeE.isError()) {
+      expr.setType(lhsTypeE);
       return;
     }
-    if (rhsType.isError()) {
-      expr.setType(rhsType);
+    if (rhsTypeE.isError()) {
+      expr.setType(rhsTypeE);
       return;
     }
+
+    TypeSymbol lhsType = lhsTypeE.getValue();
+    TypeSymbol rhsType = rhsTypeE.getValue();
 
     if (
-        ((lhsType.getValue().equals(getRealType()) || lhsType.getValue().equals(getIntegerType())) &&
-        (rhsType.getValue().equals(getRealType()) || rhsType.getValue().equals(getIntegerType())))
+        ((lhsType.equals(getRealType()) || lhsType.equals(getIntegerType())) &&
+        (rhsType.equals(getRealType()) || rhsType.equals(getIntegerType())))
             ||
-        (lhsType.getValue().getName().equals(rhsType.getValue().getName()) && isNumeric(lhsType.getValue()))
+        (lhsType.getName().equals(rhsType.getName()) && isNumeric(lhsType))
             ||
-        isBoolean(lhsType.getValue()) && isBoolean(rhsType.getValue())) {
+        isBoolean(lhsType) && isBoolean(rhsType)) {
       expr.setType(Either.value(getBooleanType()));
       return;
     }
 
     //Error message for any other operation
-    if( (isUnit(lhsType.getValue())&&isNumeric(rhsType.getValue())) ||
-    (isUnit(rhsType.getValue())&&isNumeric(lhsType.getValue())) ){
+    if( (isUnit(lhsType)&&isNumeric(rhsType)) ||
+    (isUnit(rhsType)&&isNumeric(lhsType)) ){
       final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"SI types in comparison do not match.";
       expr.setType(Either.value(getBooleanType()));
       Log.warn(errorMsg,expr.get_SourcePositionStart());

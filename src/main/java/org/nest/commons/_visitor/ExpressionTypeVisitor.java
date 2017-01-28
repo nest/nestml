@@ -1,5 +1,10 @@
 package org.nest.commons._visitor;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 /**
  * @author ptraeder, plotnikov
@@ -170,7 +175,49 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
 
   //Helper functions:
 
+  /**
+   * Helper class holding two TypeSymbols.
+   * Used in expression system to do static work on parameters to operators
+   */
+  static class TypeSet{
+    private TypeSymbol left,right;
 
+    public TypeSymbol getRight() {
+      return right;
+    }
+
+    public void setRight(TypeSymbol right) {
+      this.right = right;
+    }
+
+    public TypeSymbol getLeft() {
+      return left;
+    }
+
+    public void setLeft(TypeSymbol left) {
+      this.left = left;
+    }
+  }
+
+  /**
+   * Iff both parameters are of Type.UNIT and if any of the types has IgnoreMagnitude set, then set it for both.
+   */
+  public static TypeSet equalizeIgnoreMagnitude(TypeSymbol left, TypeSymbol right){
+    TypeSet result = new TypeSet();
+    result.setLeft(left);
+    result.setRight(right);
+    if(left.getType()== TypeSymbol.Type.UNIT&&right.getType()== TypeSymbol.Type.UNIT){
+      UnitRepresentation leftRep = UnitRepresentation.getBuilder().serialization(left.getName()).build();
+      UnitRepresentation rightRep = UnitRepresentation.getBuilder().serialization(right.getName()).build();
+      if(leftRep.isIgnoreMagnitude()||rightRep.isIgnoreMagnitude()) {
+        leftRep.setIgnoreMagnitude(true);
+        rightRep.setIgnoreMagnitude(true);
+        result.setLeft(new TypeSymbol(leftRep.serialize(), TypeSymbol.Type.UNIT));
+        result.setRight(new TypeSymbol(rightRep.serialize(), TypeSymbol.Type.UNIT));
+      }
+    }
+    return result;
+  }
 
 
 

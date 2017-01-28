@@ -19,31 +19,35 @@ public class PowVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr){
-    final Either<TypeSymbol, String> baseType = expr.getBase().get().getType();
-    final Either<TypeSymbol, String> exponentType = expr.getExponent().get().getType();
+    final Either<TypeSymbol, String> baseTypeE = expr.getBase().get().getType();
+    final Either<TypeSymbol, String> exponentTypeE = expr.getExponent().get().getType();
 
-    if (baseType.isError()) {
-      expr.setType(baseType);
+    if (baseTypeE.isError()) {
+      expr.setType(baseTypeE);
       return;
     }
-    if (exponentType.isError()) {
-      expr.setType(exponentType);
+    if (exponentTypeE.isError()) {
+      expr.setType(exponentTypeE);
       return;
     }
-    else if (isNumeric(baseType.getValue()) && isNumeric(exponentType.getValue())) {
-      if (isInteger(baseType.getValue()) && isInteger(exponentType.getValue())) {
+
+    TypeSymbol baseType = baseTypeE.getValue();
+    TypeSymbol exponentType = exponentTypeE.getValue();
+
+    if (isNumeric(baseType) && isNumeric(exponentType)) {
+      if (isInteger(baseType) && isInteger(exponentType)) {
         expr.setType(Either.value(getIntegerType()));
         return;
       }
-      else if (isUnit(baseType.getValue())) {
-        if (!isInteger(exponentType.getValue())) {
+      else if (isUnit(baseType)) {
+        if (!isInteger(exponentType)) {
           final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
               "With a Unit base, the exponent must be an integer.";
           expr.setType(Either.error(errorMsg));
           error(errorMsg,expr.get_SourcePositionStart());
           return;
         }
-        UnitRepresentation baseRep = UnitRepresentation.getBuilder().serialization(baseType.getValue().getName()).build();
+        UnitRepresentation baseRep = UnitRepresentation.getBuilder().serialization(baseType.getName()).build();
         Either<Integer, String> numericValue = calculateNumericValue(expr.getExponent().get());//calculate exponent value if exponent composed of literals
         if (numericValue.isValue()) {
           expr.setType(Either.value(getTypeIfExists((baseRep.pow(numericValue.getValue())).serialize()).get()));
@@ -63,8 +67,8 @@ public class PowVisitor implements CommonsVisitor{
     }
     //Catch-all if no case has matched
     final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
-        "Cannot determine the type of the expression: " + baseType.getValue().prettyPrint()
-        +"**"+exponentType.getValue().prettyPrint();
+        "Cannot determine the type of the expression: " + baseType.prettyPrint()
+        +"**"+exponentType.prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());
   }
