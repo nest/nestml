@@ -5,6 +5,7 @@
  */
 package org.nest.spl._cocos;
 
+import com.google.common.base.Strings;
 import org.nest.commons._ast.ASTExpr;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
@@ -28,6 +29,8 @@ import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.utils.AstUtils.computeTypeName;
+import static org.nest.utils.AstUtils.getNameOfLHS;
+
 /**
  * Check that the type of the loop variable is an integer.
  *
@@ -94,12 +97,11 @@ public class IllegalExpression implements
   private void handleAssignment(
       ASTAssignment node){
     //collect lhs information
-    final String variableName = node.getLhsVarialbe().getName().toString();
+    final String variableName = node.getLhsVarialbe().getName().toString()+ Strings.repeat("'", node.getLhsVarialbe().getDifferentialOrder().size());
     final Optional<VariableSymbol> lhsVariable = node.getEnclosingScope().get().resolve(
         variableName,
         VariableSymbol.KIND);
     final TypeSymbol variableType = lhsVariable.get().getType();
-
     //collect rhs information
 
     final Either<TypeSymbol,String> expressionTypeEither = node.getExpr().getType();
