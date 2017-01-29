@@ -51,12 +51,12 @@ neuron hh_psc_alpha_implicit:
     I_syn_ex pA  # inputs from the exc spikes
     I_syn_in pA  # inputs from the inh spikes
 
-    function alpha_n_init real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
-    function beta_n_init  real = 0.125 * exp( -( V_m + 65. ) / 80. )
-    function alpha_m_init real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
-    function beta_m_init  real = 4. * exp( -( V_m + 65. ) / 18. )
-    function alpha_h_init real = 0.07 * exp( -( V_m + 65. ) / 20. )
-    function beta_h_init  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
+    function alpha_n_init real = ( 0.01 * ( V_m / 1 mV + 55. ) ) / ( 1. - exp( -( V_m / 1 mV + 55. ) / 10. ) )
+    function beta_n_init  real = 0.125 * exp( -( V_m / 1 mV + 65. ) / 80. )
+    function alpha_m_init real = ( 0.1 * ( V_m / 1 mV + 40. ) ) / ( 1. - exp( -( V_m / 1 mV + 40. ) / 10. ) )
+    function beta_m_init  real = 4. * exp( -( V_m / 1 mV + 65. ) / 18. )
+    function alpha_h_init real = 0.07 * exp( -( V_m / 1 mV + 65. ) / 20. )
+    function beta_h_init  real = 1. / ( 1. + exp( -( V_m / 1 mV + 35. ) / 10. ) )
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Activation variable h
@@ -66,10 +66,10 @@ neuron hh_psc_alpha_implicit:
   equations:
     # synapses: alpha functions
     I_syn_ex'' = -I_syn_ex' / tau_syn_ex
-    I_syn_ex' = I_syn_ex' - ( I_syn_ex / tau_syn_ex )
+    I_syn_ex' = I_syn_ex' - ( I_syn_ex / tau_syn_ex ) * 1 [ms/s]
 
     I_syn_in'' = -I_syn_in' / tau_syn_in
-    I_syn_in' = I_syn_in' - ( I_syn_in / tau_syn_in )
+    I_syn_in' = I_syn_in' - ( I_syn_in / tau_syn_in ) * 1 [ms/s]
 
     function I_syn_exc pA = curr_sum(I_syn_ex, spikeExc)
     function I_syn_inh pA = curr_sum(I_syn_in, spikeInh)
@@ -79,19 +79,19 @@ neuron hh_psc_alpha_implicit:
     V_m' =( -( I_Na + I_K + I_L ) + I_stim + I_e + I_syn_inh + I_syn_exc ) / C_m
 
     # Inact_n
-    function alpha_n real = ( 0.01 * ( V_m + 55. ) ) / ( 1. - exp( -( V_m + 55. ) / 10. ) )
-    function beta_n  real = 0.125 * exp( -( V_m + 65. ) / 80. )
-    Inact_n' = alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n # n-variable
+    function alpha_n real = ( 0.01 * ( V_m / 1 mV + 55. ) ) / ( 1. - exp( -( V_m / 1 mV + 55. ) / 10. ) )
+    function beta_n  real = 0.125 * exp( -( V_m / 1 mV + 65. ) / 80. )
+    Inact_n' = ( alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n ) / 1 s # n-variable
 
     # Act_m
-    function alpha_m real = ( 0.1 * ( V_m + 40. ) ) / ( 1. - exp( -( V_m + 40. ) / 10. ) )
-    function beta_m  real = 4. * exp( -( V_m + 65. ) / 18. )
-    Act_m' = alpha_m * ( 1 - Act_m ) - beta_m * Act_m # m-variable
+    function alpha_m real = ( 0.1 * ( V_m / 1 mV + 40. ) ) / ( 1. - exp( -( V_m / 1 mV + 40. ) / 10. ) )
+    function beta_m  real = 4. * exp( -( V_m / 1 mV + 65. ) / 18. )
+    Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / 1 s # m-variable
 
     # Act_h'
-    function alpha_h real = 0.07 * exp( -( V_m + 65. ) / 20. )
-    function beta_h  real = 1. / ( 1. + exp( -( V_m + 35. ) / 10. ) )
-    Act_h' = alpha_h * ( 1 - Act_h ) - beta_h * Act_h # h-variable
+    function alpha_h real = 0.07 * exp( -( V_m / 1 mV + 65. ) / 20. )
+    function beta_h  real = 1. / ( 1. + exp( -( V_m / 1 mV + 35. ) / 10. ) )
+    Act_h' = ( alpha_h * ( 1 - Act_h ) - beta_h * Act_h ) / 1 s # h-variable
   end
 
   parameters:
@@ -141,15 +141,15 @@ neuron hh_psc_alpha_implicit:
     # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
     if r > 0: # is refractory?
       r -= 1
-    elif V_m > 0 and U_old > V_m: # threshold && maximum
+    elif V_m > 0 mV and U_old > V_m: # threshold && maximum
       r = RefractoryCounts
       emit_spike()
     end
 
     I_stim = currents
 
-    I_syn_ex' += spikeExc.get_sum() * PSConInit_E
-    I_syn_in' += spikeInh.get_sum() * PSConInit_I
+    I_syn_ex' += spikeExc.get_sum() * PSConInit_E * 1 [ms/s]
+    I_syn_in' += spikeInh.get_sum() * PSConInit_I * 1 [ms/s]
   end
 
 end

@@ -44,9 +44,9 @@ neuron iaf_cond_exp_implicit:
   parameters:
     V_th mV = -55.0mV    # Threshold Potential in mV
     V_reset mV = -60.0mV # Reset Potential in mV
-    t_ref ms = 2.0mV     # Refractory period in ms
+    t_ref ms = 2.0 ms     # Refractory period in ms
     g_L nS = 16.6667nS   # Leak Conductance in nS
-    C_m pF = 250.0       # Membrane Capacitance in pF
+    C_m pF = 250.0 pF     # Membrane Capacitance in pF
     E_ex mV = 0mV        # Excitatory reversal Potential in mV
     E_in mV = -85.0mV    # Inhibitory reversal Potential in mV
     E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential) in mV
@@ -61,11 +61,11 @@ neuron iaf_cond_exp_implicit:
   internals:
     # Impulse to add to g_ex' on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_synE
+    PSConInit_E real = 1.0 ms * e / tau_synE
 
     # Impulse to add to g_in' on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_synI
+    PSConInit_I real = 1.0 ms * e / tau_synI
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer                               # counts number of tick during the refractory period
@@ -91,10 +91,10 @@ neuron iaf_cond_exp_implicit:
     end
 
     # add incoming spikes
-    g_ex += spikeExc.get_sum()
-    g_in += spikeInh.get_sum()
+    g_ex += spikeExc.get_sum() * 1 nS
+    g_in += spikeInh.get_sum() * 1 nS
     # set new input current
-    I_stim = currents.get_sum()
+    I_stim = currents.get_sum() * 1 pA
   end
 
 end
