@@ -9,8 +9,6 @@ import org.nest.utils.AstUtils;
 
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.TypeSet;
-import static org.nest.commons._visitor.ExpressionTypeVisitor.equalizeIgnoreMagnitude;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
@@ -37,11 +35,6 @@ public class LineOperatorVisitor implements CommonsVisitor{
     TypeSymbol lhsType = lhsTypeE.getValue();
     TypeSymbol rhsType = rhsTypeE.getValue();
 
-    //equalize ignoreMagnitude on both sides to avoid false negatives in equality tests
-    TypeSet types = equalizeIgnoreMagnitude(lhsType,rhsType);
-    lhsType = types.getLeft();
-    rhsType = types.getRight();
-
     //Plus-exclusive code
     if (expr.isPlusOp()) {
       // String concatenation has a prio. If one of the operands is a string, the remaining sub-expression becomes a string
@@ -57,7 +50,7 @@ public class LineOperatorVisitor implements CommonsVisitor{
     //Common code for plus and minus ops:
     if (isNumeric(lhsType) && isNumeric(rhsType)) {
       //both match exactly -> any is valid, in case of units propagate IgnoreMagnitude
-      if (lhsType.equals(rhsType)) {
+      if (lhsType.prettyPrint().equals(rhsType.prettyPrint())) {
           //Make sure that ignoreMagnitude gets propagated if set
           if(isUnit(rhsType)){
             UnitRepresentation rhsRep = UnitRepresentation.getBuilder().serialization(rhsType.getName()).build();

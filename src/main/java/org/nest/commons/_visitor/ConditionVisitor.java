@@ -7,7 +7,6 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
 
-import static org.nest.commons._visitor.ExpressionTypeVisitor.equalizeIgnoreMagnitude;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
@@ -42,11 +41,6 @@ public class ConditionVisitor implements CommonsVisitor{
       TypeSymbol ifTrue = ifTrueE.getValue();
       TypeSymbol ifNot = ifNotE.getValue();
 
-      //equalize ignoreMagnitude on both sides to avoid false negatives in equality tests
-      ExpressionTypeVisitor.TypeSet types = equalizeIgnoreMagnitude(ifTrue,ifNot);
-      ifTrue = types.getLeft();
-      ifNot = types.getRight();
-
       if (!condition.getValue().equals(getBooleanType())) {
         final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"The ternary operator condition must be boolean.";
         expr.setType(Either.error(errorMsg));
@@ -54,7 +48,7 @@ public class ConditionVisitor implements CommonsVisitor{
         return;
       }
       //Alternatives match exactly -> any is valid
-      if(ifTrue.equals(ifNot)){
+      if(ifTrue.prettyPrint().equals(ifNot.prettyPrint())){
         expr.setType(Either.value(ifTrue));
         return;
       }
