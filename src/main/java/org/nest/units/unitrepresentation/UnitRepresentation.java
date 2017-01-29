@@ -529,6 +529,9 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     String firstName = first.getName();
     String prefix = "";
     if(thisDump !=0) {
+      if(first.getExponent() < 0){
+        thisDump = -thisDump;
+      }
       prefix = SIData.getPrefixMagnitudes().inverse().get(thisDump);
     }
     first.setName(prefix+firstName);
@@ -578,7 +581,7 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   private boolean factorize(List<Factor> factors, UnitRepresentation workingCopy) {
     /* Find the highest possible power of any given BaseRepresentation to still be contained in workingCopy.
      */
-    Set<FactorizationResult> orderedResults = new TreeSet<FactorizationResult>();
+    Set<FactorizationResult> orderedResults = new TreeSet<>();
     for(String baseName : SIData.getBaseRepresentations().keySet()){
       if(baseName.equals("Bq")|| baseName.equals("Hz")||    //skip matching Bq and Hz in favour of 1/s
           baseName.equals("S")){                            //skip matching S in favour of 1/Ohm
