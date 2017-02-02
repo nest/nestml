@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 /**
  * Handles available options set at the tool invocation. Makes minimal checks of the infrastructure:
  * python, sympy.
@@ -160,12 +158,27 @@ public class NestmlFrontend {
       return Optional.empty();
     }
     final Path modelPath = Paths.get(cliParameters.getArgs()[0]);
+
     final String moduleName;
     if (cliParameters.hasOption(MODULE_OPTION)) {
       moduleName = cliParameters.getOptionValue(MODULE_OPTION);
     }
     else { // if the module name is not provided than take the name of its first parent
-      moduleName = modelPath.getName(modelPath.getNameCount() - 1).toString(); // get the last element
+      if (Files.isRegularFile(modelPath)) {
+        moduleName = modelPath.getName(modelPath.getNameCount() - 2 ).toString();
+      }
+      else {
+        moduleName = modelPath.getFileName().toString();
+      }
+
+    }
+
+    final String jsonLogFile;
+    if (cliParameters.hasOption(JSON_OPTION)) {
+      jsonLogFile = cliParameters.getOptionValue(JSON_OPTION);
+    }
+    else { // if the module name is not provided than take the name of its first parent
+      jsonLogFile = "-";
     }
 
     return Optional.of(new CliConfiguration
@@ -175,10 +188,11 @@ public class NestmlFrontend {
         .withModuleName(moduleName)
         .withTargetPath(targetPath)
         .withTracing(isTracing)
+        .withJsonLog(jsonLogFile)
         .build());
   }
 
-  CommandLine parseCLIArguments(String[] args) {
+  private CommandLine parseCLIArguments(String[] args) {
     final CommandLineParser commandLineParser = new DefaultParser();
     final CommandLine commandLineParameters;
 
@@ -266,7 +280,7 @@ public class NestmlFrontend {
     else {
       final List<Path> tmps = FilesHelper.collectFiles(
           cliConfiguration.getTargetPath(),
-          file -> file.endsWith(".tmp"));
+          file -> file.endsWith(".tmp") || file.endsWith(".log"));
 
       tmps.forEach(FilesHelper::deleteFile);
     }

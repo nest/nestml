@@ -59,6 +59,17 @@ public class NestmlFrontendIntegrationTest {
   }
 
   @Test
+  public void testJsonOutput() {
+    final String[] args = new String[] {
+        "models",
+        "--target", outputPath.toString(),
+        "--target", outputPath.toString(),
+        "--dry-run"};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
   public void testModelsFolder() {
     final String[] args = new String[] {
         "models",

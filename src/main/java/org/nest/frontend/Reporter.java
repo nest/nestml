@@ -124,6 +124,9 @@ public static Reporter get() {
         finding.getType().equals(Finding.Type.ERROR)?Level.ERROR:Level.WARNING));
   }
 
+  public String toJson() {
+    return "";
+  }
 
   enum Level {
     INFO("INFO"), WARNING("WARNING"), ERROR("ERROR");

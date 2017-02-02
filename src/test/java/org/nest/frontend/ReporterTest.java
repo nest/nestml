@@ -44,6 +44,7 @@ public class ReporterTest {
     reporter.addArtifactInfo("iaf_neuron", "This test error message2", Reporter.Level.ERROR);
 
     reporter.printReports(System.out, System.out);
+    reporter.toJson();
   }
 
 }

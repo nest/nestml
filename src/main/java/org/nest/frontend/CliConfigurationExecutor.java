@@ -171,14 +171,7 @@ public class CliConfigurationExecutor {
 
   private void generateModuleCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     if (modelRoots.size() > 0) {
-      final String modelName;
-      if (Files.isRegularFile(config.getModelPath())) {
-        modelName = config.getModelPath().getName(config.getModelPath().getNameCount() - 2 ).toString();
-      }
-      else {
-        modelName = config.getModelPath().getFileName().toString();
-      }
-      generator.generateNESTModuleCode(modelRoots, modelName, config.getTargetPath());
+      generator.generateNESTModuleCode(modelRoots, config.getModuleName(), config.getTargetPath());
     }
     else {
       reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getModelPath());

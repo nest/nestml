@@ -16,6 +16,7 @@ import java.nio.file.Paths;
 public class CliConfiguration {
   private final Path modelPath;
   private final Path targetPath;
+  private final String jasonLogFile;
   private boolean isTracing;
   private boolean isCodegeneration;
   private final String moduleName;
@@ -23,6 +24,7 @@ public class CliConfiguration {
   public CliConfiguration(final Builder builder) {
     this.modelPath = builder.modelPath;
     this.targetPath = builder.targetPath;
+    this.jasonLogFile = builder.jasonLogFile;
     this.isTracing = builder.isTracing;
     this.isCodegeneration = builder.isCodegeneration;
     this.moduleName = builder.moduleName;
@@ -52,6 +54,7 @@ public class CliConfiguration {
   public static class Builder {
     private Path modelPath;
     private Path targetPath;
+    private String jasonLogFile;
     private boolean isTracing = false;
     private boolean isCodegeneration;
     public String moduleName;
@@ -78,6 +81,12 @@ public class CliConfiguration {
 
     Builder withTracing(boolean isTracing) {
       this.isTracing = isTracing;
+      return this;
+    }
+
+    Builder withJsonLog(final String jasonLogFile) {
+      // TODO: check that it is actually a file
+      this.jasonLogFile = jasonLogFile;
       return this;
     }
 
