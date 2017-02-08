@@ -13,7 +13,7 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 
-import static de.se_rwth.commons.logging.Log.debug;
+import static de.se_rwth.commons.logging.Log.trace;
 
 /**
  * Creates symbol table for the {@code NESTMLLanguage} from the parsed model.
@@ -41,21 +41,21 @@ public class NESTMLModelLoader extends NESTMLModelLoaderTOP {
     ast.setPackageName(Names.getQualifier(modelName));
 
     if (symbolTableCreator != null) {
-      debug("Start creation of symbol table for model \"" + modelName + "\".",
+      trace("Start creation of symbol table for model \"" + modelName + "\".",
           NESTMLModelLoader.class.getSimpleName());
       final Scope scope = symbolTableCreator.createFromAST(ast);
 
       if (!(scope instanceof ArtifactScope)) {
-        Log.warn("Top scope of model " + modelName + " is expected to be a compilation scope, but"
-            + " is scope \"" + scope.getName() + "\"");
+        Log.trace("Top scope of model " + modelName + " is expected to be a compilation scope, but"
+            + " is scope \"" + scope.getName() + "\"", NESTMLModelLoader.class.getSimpleName());
       }
 
-      debug("Created symbol table for model \"" + modelName + "\".",
+      trace("Created symbol table for model \"" + modelName + "\".",
           NESTMLModelLoader.class.getSimpleName());
     }
     else {
-      Log.warn("No symbol created, because '" + getModelingLanguage().getName()
-          + "' does not define a symbol table creator.");
+      Log.trace("No symbol created, because '" + getModelingLanguage().getName()
+          + "' does not define a symbol table creator.", NESTMLModelLoader.class.getSimpleName());
     }
 
   }

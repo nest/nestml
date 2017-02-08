@@ -27,7 +27,7 @@ import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAssignment;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**
- * Provides common methods for solver transformations.
+ * Provides common methods for AST transformations which are performed after SymPy analysis.
  *
  * @author plotnikov
  */
@@ -115,13 +115,11 @@ public class TransformerBase {
           break;
         }
       }
-
       return astNeuron;
     } else {
-      Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
+      Log.trace("The model has defined an ODE. But its solution is not used in the update state.", this.getClass().getSimpleName());
       return astNeuron;
     }
-
 
   }
 
@@ -130,7 +128,8 @@ public class TransformerBase {
    *
    * @param pathPSCInitialValueFile File with a list of PSC initial values for the corresponding shapes
    * @param body The astnode of the neuron to which update assignments must be added
-   * @param nameHandler In some cases the name of the state variable extracted from the assignment must be transformed
+   * @param stateVariableNameExtracter
+   * @param shapeNameExtracter In some cases the name of the state variable extracted from the assignment must be transformed
    *                    (G'_PSCInitialValue would be an invalid name, therefore, G__D_PSCInitialValue is used, where
    *                    G' is the name of the state variable)
    */

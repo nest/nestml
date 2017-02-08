@@ -70,14 +70,14 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
 
         }
         else {
-          Log.warn(ERROR_CODE + ":" + "Cannot resolve the variable: " + varName);
+          Log.warn(ERROR_CODE + ":" + "Cannot resolve the variable: " + varName, fun.get_SourcePositionStart());
         }
 
       }
 
     }
     else {
-      Log.warn("The function is" + funName + " undefined.");
+      Log.warn("The function is" + funName + " undefined.", fun.get_SourcePositionStart());
     }
 
   }

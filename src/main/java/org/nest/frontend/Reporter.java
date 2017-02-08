@@ -20,14 +20,11 @@
  */
 package org.nest.frontend;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
 import de.se_rwth.commons.logging.Finding;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -41,8 +38,8 @@ class Reporter {
   static private Reporter reporter = new Reporter();
 
   private final List<String> systemReports = Lists.newArrayList();
-  // Key: addArtifactInfo name, value: info message
-  private final Multimap<String, String> artifactReports = ArrayListMultimap.create();
+  // Key: addNeuronReport name, value: info message
+  private final List<Report> artifactReports = Lists.newArrayList();
 
   /**
    * Use the factory method
@@ -55,9 +52,10 @@ class Reporter {
    *
    * @return the instance of the reporter
    */
-public static Reporter get() {
+  public static Reporter get() {
     return reporter;
   }
+
 
   void reportProgress(final String message) {
     System.out.println(message);
@@ -68,60 +66,119 @@ public static Reporter get() {
     System.out.println(level + ": " + message);
   }
 
-  void addArtifactInfo(final String artifactName, final String message, final Level level) {
-    artifactReports.put(artifactName, level + ": " + message);
-  }
+
 
   void printReports(final PrintStream info, final PrintStream err) {
-    Optional<Map.Entry<String, String>> error = artifactReports.
-        entries()
+    Optional<Report> error = artifactReports
         .stream()
-        .filter(message -> message.getValue().startsWith(Level.ERROR.toString()))
+        .filter(message -> message.severity.equals(Level.ERROR))
         .findAny();
+
     info.println("----------------------------------------------------------");
     info.println("-----------------Execution summary------------------------");
-    systemReports.forEach(report -> printEntry(report, info, err));
-    error.ifPresent(errorMessage -> err.println(
-        errorMessage.getKey() + " contains some errors: " + errorMessage.getValue() + ". Code generation was canceled."));
-    info.println("-----------------Neurons---------------------------------");
-    artifactReports.entries().forEach(entry -> printEntry(entry, info, err));
-    info.println("-----------------Statistics ------------------------------");
-    info.println("Overall " + artifactReports.keySet().size() + " NESTML artifact(s) found and processed");
+    systemReports.forEach(report -> printSystemError(report, info, err));
+    error.ifPresent(errorMessage -> err.println("ERROR: Code generation was canceled."));
 
+    info.println("-----------------Neurons---------------------------------");
+    artifactReports.forEach(entry -> printEntry(entry, info, err));
+
+    info.println("-----------------Statistics ------------------------------");
+    info.println("Overall " + artifactReports.size() + " NESTML artifact(s) found and processed");
     info.println("----------------------------------------------------------");
-    error.ifPresent(errorMessage -> err.println(
-        errorMessage.getKey() + " contains some errors: " + errorMessage.getValue() + ". Code generation was canceled."));
-    info.println("----------------------------------------------------------");
+
   }
 
-  private void printEntry(final String message, final PrintStream info, final PrintStream err) {
-    if (message.startsWith(Level.INFO.text)) {
-      info.println(message);
+  private void printSystemError(
+      final String report,
+      final PrintStream info,
+      final PrintStream err) {
+    if (report.startsWith(Level.ERROR.toString())) {
+      info.println(report);
     }
     else {
-      err.println(message);
+      err.println(report);
     }
 
   }
 
   private void printEntry(
-      final Map.Entry<String, String> entry,
+      final Report report,
       final PrintStream info,
       final PrintStream err) {
-    if (entry.getValue().startsWith(Level.INFO.text)) {
-      info.println(entry.getKey() + " : " + entry.getValue());
+    if (report.severity.equals(Level.ERROR)) {
+      info.println(report.toString());
     }
     else {
-      err.println(entry.getKey() + " : " + entry.getValue());
+      err.println(report.toString());
     }
 
   }
 
-  void addArtifactFindings(final String artifactName, final List<Finding> messages) {
-    messages.forEach(finding -> addArtifactInfo(
-        artifactName,
-        finding.getMsg(),
-        finding.getType().equals(Finding.Type.ERROR)?Level.ERROR:Level.WARNING));
+  void addNeuronReports(
+      final String filename,
+      final String neuronName,
+      final List<Finding> messages) {
+    messages.forEach(finding -> addNeuronReport(
+        filename,
+        neuronName,
+        finding));
+  }
+
+  void addNeuronReport(
+      final String filename,
+      final String neuronName,
+      final Finding finding) {
+    addNeuronReport(
+        filename,
+        neuronName,
+        convert(finding.getType()),
+        getCode(finding.getMsg()),
+        finding.getSourcePosition().isPresent()?finding.getSourcePosition().get().getLine():0,
+        finding.getSourcePosition().isPresent()?finding.getSourcePosition().get().getColumn():0,
+        finding.getMsg());
+  }
+
+  void addNeuronReport(
+      final String filename,
+      final String neuronName,
+      final Level severity,
+      final String code,
+      final Integer row,
+      final Integer col,
+      final String message) {
+    final Report report = new Report(
+        filename,
+        neuronName,
+        severity,
+        code,
+        row,
+        col,
+        message);
+    artifactReports.add(report);
+  }
+
+  private String getCode(final String msg) {
+    final String[] tokens = msg.split(" ");
+
+    if (tokens.length == 0) {
+      return "";
+    }
+    else {
+      return tokens[0];
+    }
+
+  }
+
+  private Level convert(Finding.Type type) {
+    switch (type){
+      case WARNING:
+        return Level.WARNING;
+      case ERROR:
+        return Level.ERROR;
+      default:
+        return Level.INFO;
+    }
+
   }
 
   public String toJson() {
@@ -142,6 +199,38 @@ public static Reporter get() {
       return text;
     }
 
+  }
+
+  static class Report {
+    final String filename;
+    final String neuronName;
+    final Level severity;
+    final String code;
+    final Integer row;
+    final Integer col;
+    final String message;
+
+    Report(
+        final String filename,
+        final String neuronName,
+        final Level severity,
+        final String code,
+        final Integer row,
+        final Integer col,
+        final String message) {
+      this.filename = filename;
+      this.neuronName = neuronName;
+      this.severity = severity;
+      this.code = code;
+      this.row = row;
+      this.col = col;
+      this.message = message;
+    }
+
+    @Override
+    public String toString() {
+      return severity + ": " +  filename + " <" + row + "," + col + "> :" + message;
+    }
   }
 
 }

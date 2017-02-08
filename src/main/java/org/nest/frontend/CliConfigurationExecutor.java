@@ -9,10 +9,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.apache.commons.io.FilenameUtils;
+import groovyjarjarantlr.collections.AST;
 import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnitTOP;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -32,7 +33,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
@@ -84,32 +84,29 @@ public class CliConfigurationExecutor {
 
         if (root.isPresent()) {
           modelRoots.add(root.get());
-          reporter.addArtifactInfo(
-              FilenameUtils.removeExtension(modelFile.getFileName().toString()),
-              "The artifact was parsed successfully.",
+          reporter.addSystemInfo(
+              "The NESTML file was parsed successfully: " + modelFile.getFileName().toString(),
               Reporter.Level.INFO);
         }
         else {
-          final String errorMsg = Log.getFindings()
+          final Optional<Finding> parserError = Log.getFindings()
               .stream()
-              .map(error -> "<" + error.getSourcePosition() + ">: " + error.getMsg()).collect(joining(";"));
-          reporter.addArtifactInfo(
-              FilenameUtils.removeExtension(modelFile.getFileName().toString()),
-              "The artifact is unparsable: " + errorMsg,
-              Reporter.Level.ERROR);
+              .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+              .findAny();
+
+          reportParserError(modelFile, parserError);
           Log.getFindings().clear();
           isError = true;
         }
 
       }
       catch (IOException e) {
-        final String errorMsg = Log.getFindings()
+        final Optional<Finding> parserError = Log.getFindings()
             .stream()
-            .map(error -> "<" + error.getSourcePosition() + ">: " + error.getMsg()).collect(joining(";"));
-        reporter.addArtifactInfo(
-            FilenameUtils.removeExtension(modelFile.getFileName().toString()),
-            "The artifact is unparsable: " + errorMsg,
-            Reporter.Level.ERROR);
+            .filter(finding -> finding.getType().equals(Finding.Type.ERROR))
+            .findAny();
+
+        reportParserError(modelFile, parserError);
         isError = true;
       }
 
@@ -121,6 +118,17 @@ public class CliConfigurationExecutor {
       return Lists.newArrayList();
     }
 
+  }
+
+  private void reportParserError(Path modelFile, Optional<Finding> parserError) {
+    reporter.addNeuronReport(
+        "", // TODO: is it a good idea?
+        "",
+        Reporter.Level.ERROR,
+        "NESTML_PARSER",
+        parserError.isPresent()? parserError.get().getSourcePosition().get().getLine():1,
+        parserError.isPresent()? parserError.get().getSourcePosition().get().getColumn():1,
+        parserError.isPresent()? parserError.get().getMsg():"Cannot parse the NESTML-file" );
   }
 
   private void cleanUpWorkingFolder(final Path targetPath) {
@@ -140,13 +148,22 @@ public class CliConfigurationExecutor {
       symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
       if (symbolTableFindings.isEmpty()) {
-        reporter.addArtifactInfo(modelRoot.getArtifactName(), "Successfully built the symboltable.", Reporter.Level.INFO);
+        reporter.addSystemInfo(modelRoot.getArtifactName() + ": Successfully built the symboltable.", Reporter.Level.INFO);
       } else {
-        reporter.addArtifactInfo(modelRoot.getArtifactName(), "Cannot built the symboltable.", Reporter.Level.INFO);
+        reporter.addSystemInfo(modelRoot.getArtifactName() + ": Cannot built the symboltable.", Reporter.Level.ERROR);
       }
       final Collection<Finding> symbolTableWarnings = LogHelper.getWarningsByPrefix("NESTML_", Log.getFindings());
+
       symbolTableWarnings.addAll(LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
-      symbolTableWarnings.forEach(warning -> reporter.addArtifactInfo(modelRoot.getArtifactName(), warning.getMsg(), Reporter.Level.WARNING));
+
+      for (Finding warning:symbolTableWarnings) {
+        if (!warning.getSourcePosition().isPresent()) {
+          System.out.printf("");
+        }
+
+      }
+      symbolTableWarnings.forEach(warning -> reporter.addNeuronReport(
+          modelRoot.getArtifactName(), modelRoot.getNeuronNameAtLine(warning.getSourcePosition().get().getLine()), warning));
     }
 
     final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
@@ -168,6 +185,7 @@ public class CliConfigurationExecutor {
     }
 
   }
+
 
   private void generateModuleCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     if (modelRoots.size() > 0) {
@@ -194,32 +212,43 @@ public class CliConfigurationExecutor {
 
         final String msg = "NEST code for the neuron: " + astNeuron.getName() + " in " + root.getFullName() +
                            " was generated.";
-        reporter.addArtifactInfo(root.getArtifactName(), msg, Reporter.Level.INFO);
-      } else {
+        reporter.addSystemInfo(root.getArtifactName() + ": " + msg, Reporter.Level.INFO);
 
+      } else {
         final String msg = "NEST code for the neuron: " + astNeuron.getName() + " in " + root.getFullName() +
                            " wasn't generated.";
-        reporter.addArtifactInfo(root.getArtifactName(), msg, Reporter.Level.ERROR);
+        reporter.addSystemInfo(root.getArtifactName() + ":" + msg, Reporter.Level.ERROR);
+
       }
+
     }
 
   }
 
+  /**
+   *
+   * @param modelRoots List with root nodes of NESTML files from the model path
+   * @return true iff. there is no errors in neurons
+   */
   private boolean checkModels(List<ASTNESTMLCompilationUnit> modelRoots) {
     boolean anyError = false;
     final Map<String, List<Finding>> findingsToModel = Maps.newHashMap();
 
     reporter.reportProgress("Check context conditions...");
-    for (ASTNESTMLCompilationUnit root:modelRoots) {
-      Log.getFindings().clear(); // clear it to determine which errors are produced through the current model
 
-      final List<Finding> modelFindings = checker.analyzeModel(root);
-      findingsToModel.put(root.getArtifactName(), modelFindings);
+    for (final ASTNESTMLCompilationUnit root:modelRoots) {
+      for (ASTNeuron neuron:root.getNeurons()) {
+        Log.getFindings().clear(); // clear it to determine which errors are produced through the current model
 
-      if (findingsToModel.get(root.getArtifactName()).stream().anyMatch(Finding::isError)) {
-        anyError = true;
+        final List<Finding> modelFindings = checker.analyzeModel(root);
+        findingsToModel.put(root.getArtifactName(), modelFindings);
+
+        if (findingsToModel.get(root.getArtifactName()).stream().anyMatch(Finding::isError)) {
+          anyError = true;
+        }
+        reporter.addNeuronReports(root.getArtifactName(), neuron.getName(), modelFindings);
+
       }
-      reporter.addArtifactFindings(root.getArtifactName(), modelFindings);
 
     }
 
@@ -243,7 +272,7 @@ public class CliConfigurationExecutor {
       final Process res = processBuilder.start();
       res.waitFor();
       getListFromStream(res.getInputStream()).forEach(m -> Log.trace("Log: " + m, LOG_NAME));
-      getListFromStream(res.getErrorStream()).forEach(m -> Log.warn("Error: " + m));
+      getListFromStream(res.getErrorStream()).forEach(m -> Log.trace("Error: " + m, LOG_NAME));
       reporter.addSystemInfo("Formatted generates sources in: " + targetPath.toString(), Reporter.Level.INFO);
     }
     catch (IOException | InterruptedException e) {

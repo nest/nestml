@@ -32,16 +32,16 @@ public class ReporterTest {
   public void testPrint() {
     final Reporter reporter = Reporter.get();
 
-    reporter.addArtifactInfo("iaf_neuron_artifact.nestml", "This test info message1", Reporter.Level.INFO);
-    reporter.addArtifactInfo("iaf_neuron_artifact.nestml", "This test info message2", Reporter.Level.INFO);
-    reporter.addArtifactInfo("iaf_neuron_artifact.nestml", "This test info message3", Reporter.Level.INFO);
-    reporter.addArtifactInfo("iaf_neuron_artifact.nestml", "This test error message1", Reporter.Level.ERROR);
-    reporter.addArtifactInfo("iaf_neuron_artifact.nestml", "This test error message2", Reporter.Level.ERROR);
+    reporter.addNeuronReport("iaf_neuron_artifact.nestml", "a", Reporter.Level.INFO, "NESTML_A", 0, 1, "This test info message1");
+    reporter.addNeuronReport("iaf_neuron_artifact.nestml", "a", Reporter.Level.INFO, "NESTML_A", 0, 1, "This test info message2");
+    reporter.addNeuronReport("iaf_neuron_artifact.nestml", "a", Reporter.Level.INFO, "NESTML_A", 0, 1, "This test info message3");
+    reporter.addNeuronReport("iaf_neuron_artifact.nestml", "a", Reporter.Level.ERROR, "NESTML_A", 0, 1, "This test error message1");
+    reporter.addNeuronReport("iaf_neuron_artifact.nestml", "a", Reporter.Level.ERROR, "NESTML_A", 0, 1, "This test error message2");
 
     reporter.addSystemInfo("Python is installed", Reporter.Level.INFO);
     reporter.addSystemInfo("Sympy is missing", Reporter.Level.ERROR);
 
-    reporter.addArtifactInfo("iaf_neuron", "This test error message2", Reporter.Level.ERROR);
+    reporter.addNeuronReport("iaf_neuron", "a", Reporter.Level.ERROR, "NESTML_A", 0, 1, "This test error message2");
 
     reporter.printReports(System.out, System.out);
     reporter.toJson();

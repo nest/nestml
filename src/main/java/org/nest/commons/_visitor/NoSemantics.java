@@ -17,6 +17,7 @@ public class NoSemantics implements CommonsVisitor {
     final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
         "This expression is not implemented: " + AstUtils.toString(expr);
     expr.setType(Either.error(errorMsg));
-    warn(errorMsg,expr.get_SourcePositionStart());
+    warn(errorMsg, expr.get_SourcePositionStart());
   }
+
 }

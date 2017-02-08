@@ -8,6 +8,7 @@ package org.nest.nestml._symboltable;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.*;
 import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
@@ -38,7 +39,7 @@ public class NestmlCoCosManager {
     registerCocos();
   }
 
-  public List<Finding> analyzeModel(final ASTNESTMLCompilationUnit root) {
+  public List<Finding> analyzeModel(final ASTNESTMLNode root) {
     Log.getFindings().clear();
     variablesExistenceChecker.checkAll(root);
     final boolean allVariablesDefined = Log.getFindings().stream().noneMatch(Finding::isError);

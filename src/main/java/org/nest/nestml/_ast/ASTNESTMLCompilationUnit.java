@@ -61,4 +61,12 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
 
   }
 
+  /**
+   * Returns the neuron name of a neuron which encloses the provided line number or an '__undefined__' string, if there
+   * is no neuron at that place.
+   */
+  public String getNeuronNameAtLine(final Integer line) {
+    return "__undefined__";
+  }
+
 }

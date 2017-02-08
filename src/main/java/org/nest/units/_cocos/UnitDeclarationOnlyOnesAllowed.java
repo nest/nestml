@@ -39,8 +39,9 @@ public class UnitDeclarationOnlyOnesAllowed implements UnitsASTUnitTypeCoCo{
       int literal = node.getUnitlessLiteral().get().getValue();
       if(literal != 1){
         String errorMsg = NestmlErrorStrings.getInstance().getErrorMsg(this);
-        warn(errorMsg,node.get_SourcePositionStart());
+        warn(errorMsg, node.get_SourcePositionStart());
       }
+
     }
 
   }

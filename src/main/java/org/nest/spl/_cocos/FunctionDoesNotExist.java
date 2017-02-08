@@ -48,7 +48,7 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
         argTypeNames.add(argType.getValue().getName());
       }
       else {
-        Log.warn(SplErrorStrings.code(this) + ": Cannot compute the type: " + AstUtils.toString(arg) + " : " + arg.get_SourcePositionStart());
+        Log.warn(SplErrorStrings.code(this) + ": Cannot compute the type: " + AstUtils.toString(arg) + " : ", arg.get_SourcePositionStart());
         return;
       }
 

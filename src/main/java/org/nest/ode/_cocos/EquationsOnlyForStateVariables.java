@@ -63,7 +63,7 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
 
     }
     else {
-      Log.warn(ERROR_CODE + ": The lefthandside of an equation must be a derivative, e.g. " + astEq.getLhs().toString() + "'");
+      Log.trace("The lefthandside of an equation must be a derivative, e.g. " + astEq.getLhs().toString() + "'", ERROR_CODE);
     }
 
   }

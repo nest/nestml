@@ -115,7 +115,7 @@ public class IllegalExpression implements
         if(isReal(variableType)&&isUnit(expressionType)){
           //TODO put in string class when I inevitably refactor it.
           final String castMsg = messageCastToReal(this, expressionType.prettyPrint(), node.getExpr().get_SourcePositionStart());
-          warn(castMsg);
+          warn(castMsg, node.get_SourcePositionStart());
         } else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
           warn(msg, node.get_SourcePositionStart());
         }
@@ -160,7 +160,7 @@ public class IllegalExpression implements
                 this,
                 initializerExpressionType.getValue().prettyPrint(),
                 node.getExpr().get().get_SourcePositionStart());
-            warn(castMsg);
+            warn(castMsg, node.get_SourcePositionStart());
           }else if (isUnit(variableDeclarationType)){ //assignee is unit -> drop warning not error
             warn(msg, node.get_SourcePositionStart());
           }

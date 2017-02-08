@@ -79,7 +79,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
         final String msg = errorStrings.getErrorMsgVariableNotDefined(this,
                 astVariable.get_SourcePositionStart().toString(),
                 rhsVariableName);
-        Log.warn(msg);
+        Log.trace(msg, ERROR_CODE);
         return;
       }
       else  { //

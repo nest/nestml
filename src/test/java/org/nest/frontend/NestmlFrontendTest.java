@@ -5,16 +5,13 @@
  */
 package org.nest.frontend;
 
-import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests various modis of the {@code NestmlFrontend} class. For this, several combinations of
@@ -33,7 +30,6 @@ public class NestmlFrontendTest {
     final Optional<CliConfiguration> testantLong = nestmlFrontend.createCLIConfiguration(new String[] {
         "--target", targetPath.toString(),
         "--enable_tracing",
-        "--target", targetPath.toString(),
         "--dry-run",
         "--json_log", Paths.get(targetPath.toString(), "model_log.log").toString(),
         "--module_name", "integration",
@@ -50,7 +46,6 @@ public class NestmlFrontendTest {
     final Optional<CliConfiguration> testantShort = nestmlFrontend.createCLIConfiguration(new String[] {
         "-t", targetPath.toString(),
         "-e",
-        "-t", targetPath.toString(),
         "-d",
         "-j", Paths.get(targetPath.toString(), "model_log.log").toString(),
         "-m", "integration",

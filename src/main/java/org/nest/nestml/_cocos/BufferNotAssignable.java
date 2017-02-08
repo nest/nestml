@@ -35,7 +35,7 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
     final Optional<VariableSymbol> var = enclosingScope.resolve(varName, VariableSymbol.KIND);
 
     if (!var.isPresent()) {
-      Log.warn("Cannot resolve the variable: " + varName + " . Thereofore, the coco is skipped.");
+      Log.trace("Cannot resolve the variable: " + varName + " . Thereofore, the coco is skipped.", ERROR_CODE);
     }
     else if (var.get().getBlockType() == INPUT_BUFFER_CURRENT ||
         var.get().getBlockType() == INPUT_BUFFER_SPIKE) {
