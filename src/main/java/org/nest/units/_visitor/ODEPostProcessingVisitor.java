@@ -86,6 +86,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
       warn(ERROR_CODE + "Type of (derived) variable " + astEquation.getLhs().toString() + " is: " + derivedVarUnit.prettyPrint() +
            ". This does not match Type of RHS expression: " + unitFromExpression.prettyPrint(), astEquation.get_SourcePositionStart());
     }
+
   }
 
   @Override

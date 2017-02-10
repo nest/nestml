@@ -20,6 +20,7 @@ import org.nest.utils.AstUtils;
 public class NestmlErrorStrings {
   private static final NestmlErrorStrings instance = new NestmlErrorStrings();
   private static final String SEPARATOR = " : ";
+
   private NestmlErrorStrings() {
   }
 

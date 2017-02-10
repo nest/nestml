@@ -57,13 +57,8 @@ public class FunctionDoesNotExist implements CommonsASTFunctionCallCoCo {
     final Optional<MethodSymbol> method = resolveMethod(methodName, argTypeNames, scope);
 
     if (!method.isPresent()) {
-      Log.error(
-          SplErrorStrings.message(
-              this,
-              methodName,
-              Joiner.on(",").join(prettyArgTypeNames),
-              astFunctionCall.get_SourcePositionStart()),
-          astFunctionCall.get_SourcePositionStart());
+      Log.error(SplErrorStrings.message(this, methodName, Joiner.on(",").join(prettyArgTypeNames)),
+                astFunctionCall.get_SourcePositionStart());
     }
 
   }

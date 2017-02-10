@@ -30,6 +30,7 @@ import org.nest.utils.AstUtils;
  * @author plotnikov, traeder
  */
 public class SplErrorStrings {
+  private static final String SEPARATOR = " : ";
 
   /**
    * Use static methods to get codes and errors
@@ -37,10 +38,10 @@ public class SplErrorStrings {
   private SplErrorStrings() {
   }
 
-  static String message(final VariableDoesNotExist coco, final String variable, SourcePosition sourcePosition){
+  static String message(final VariableDoesNotExist coco, final String variable) {
     final String ERROR_MSG_FORMAT = "The variable %s is not defined.";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -48,10 +49,10 @@ public class SplErrorStrings {
     return "SPL_VARIABLE_DOES_NOT_EXIST";
   }
 
-  static String message(final SPLVariableDefinedMultipleTimes coco, final String variable, SourcePosition sourcePosition){
+  static String message(final SPLVariableDefinedMultipleTimes coco, final String variable) {
     final String ERROR_MSG_FORMAT = "The variable %s defined multiple times.";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -59,10 +60,10 @@ public class SplErrorStrings {
     return "SPL_VARIABLE_EXISTS_MULTIPLE_TIMES";
   }
 
-  static String message(final VariableHasTypeName coco, final String variable, SourcePosition sourcePosition){
+  static String message(final VariableHasTypeName coco, final String variable) {
     final String ERROR_MSG_FORMAT = "Variable '%s' has name of an existing NESTML type.";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -73,30 +74,26 @@ public class SplErrorStrings {
   static String messageDefinedBeforeUse(
       final VariableNotDefinedBeforeUse coco,
       final String variable,
-      final SourcePosition sourcePosition,
-      final SourcePosition previousDefinition){
-    final String ERROR_MSG_FORMAT = "Variable '%s' not defined yet. It is defined at line '%d'";
+      final SourcePosition previousDefinition) {
+    final String ERROR_MSG_FORMAT = "Variable '%s' not defined yet. It is defined at line '%s'";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " +
-           String.format(ERROR_MSG_FORMAT, variable, previousDefinition.getLine());
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable, AstUtils.print(previousDefinition));
   }
 
   static String messageDefinedBeforeUse(
       final VariableNotDefinedBeforeUse coco,
-      final String variable,
-      final SourcePosition sourcePosition){
+      final String variable) {
     final String ERROR_MSG_FORMAT = "Cannot use variable '%s' before its definition.";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   static String messageOwnAssignment(
       final VariableNotDefinedBeforeUse coco,
-      final String variable,
-      final SourcePosition sourcePosition){
+      final String variable) {
     final String ERROR_MSG_FORMAT = "Cannot use variable '%s' in the assignment of its own declaration.";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable);
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -109,64 +106,56 @@ public class SplErrorStrings {
       final IllegalExpression coco,
       final String variable,
       final String varType,
-      final String expressionType,
-      final SourcePosition sourcePosition){
+      final String expressionType) {
     final String ERROR_MSG_FORMAT = "Attempting to initialize variable %s of type %s with an expression of type %s" ;
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
-           String.format(ERROR_MSG_FORMAT, variable, varType, expressionType);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable, varType, expressionType);
   }
 
   static String messageAssignment(
       final IllegalExpression coco,
       final String variable,
       final String varType,
-      final String expressionType,
-      final SourcePosition sourcePosition){
+      final String expressionType) {
     final String ERROR_MSG_FORMAT = "Attempting to assign %s to variable %s with type %s" ;
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
-        String.format(ERROR_MSG_FORMAT,expressionType, variable, varType);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT,expressionType, variable, varType);
   }
 
   static String messageNonBoolean(
       final IllegalExpression coco,
-      final String expressionType,
-      final SourcePosition sourcePosition){
+      final String expressionType) {
     final String ERROR_MSG_FORMAT = "Cannot use non boolean expression of type %s";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, expressionType);
+    return code(coco) + SEPARATOR+ String.format(ERROR_MSG_FORMAT, expressionType);
   }
 
   static String messageCastToReal(
       final IllegalExpression coco,
-      final String soruceType,
-      final SourcePosition sourcePosition){
+      final String soruceType) {
     final String ERROR_MSG_FORMAT = "Implicit casting from %s to real";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, soruceType);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, soruceType);
   }
 
   static String messageForLoop(
       final IllegalExpression coco,
       final String variable,
-      final String type,
-      final SourcePosition sourcePosition){
+      final String type){
     final String ERROR_MSG_FORMAT = "The type of the iterator variable %s in a for-loop must be numeric and not:" +
                                     " '%s' .";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable, type);
   }
 
   static String messageForLoopBound(
       final IllegalExpression coco,
       final String variable,
-      final String type,
-      final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "The type of the loop bound must be a numeric type. The value of the current bound " +
-                                    "%s is %s .";
+      final String type) {
+    final String ERROR_MSG_FORMAT = "The type of the loop bound must be a numeric type. The value of the current bound "
+                                    + "%s is %s .";
 
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable, type);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable, type);
   }
   @SuppressWarnings({"unused"}) // used for the routing
   public static String code(final IllegalExpression coco) {
@@ -176,9 +165,8 @@ public class SplErrorStrings {
 
   static String message(
       final CodeAfterReturn coco,
-      final String errorDescription,
-      final SourcePosition sourcePosition){
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + errorDescription;
+      final String errorDescription) {
+    return code(coco) + SEPARATOR + errorDescription;
   }
 
 
@@ -187,17 +175,13 @@ public class SplErrorStrings {
     return "SPL_CODE_AFTER_RETURN";
   }
 
-
-
   static String message(
       final FunctionDoesNotExist coco,
       final String functionName,
-      final String signature,
-      final SourcePosition sourcePosition){
+      final String signature) {
 
     final String ERROR_MSG_FORMAT = "The function '%s' with the signature '%s' is not defined.";
-    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
-           String.format(ERROR_MSG_FORMAT, functionName, signature.isEmpty()?"()":signature);
+    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, functionName, signature.isEmpty()?"()":signature);
   }
 
 
