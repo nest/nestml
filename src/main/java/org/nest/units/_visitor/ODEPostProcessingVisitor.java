@@ -8,40 +8,45 @@ import org.nest.ode._ast.ASTShape;
 import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.units._cocos.OdeErrorStrings;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkState;
+import static de.se_rwth.commons.logging.Finding.error;
+import static de.se_rwth.commons.logging.Log.trace;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
- * Visitor to ODE Shape and Equation nodes. Calculates implicit type and updates Symbol table.
- * To be called as soon as symbol table is created.
+ * Visitor of Shape and Equation nodes. Calculates implicit type and updates Symbol table.
+ * This visitor can be called, after the symbol table for the neuron is already built. E.g. in the endVisit(ASTNeuron n)
+ * method.
  *
  * @author ptraeder
  */
 public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
-  private static final String ERROR_CODE = "NESTML_ODEPostProcessingVisitor";
-
-  public void visit(ASTShape astShape) {
+  public void visit(final ASTShape astShape) {
     if (astShape.getRhs().getType().isError()) {
-      warn(ERROR_CODE + ": Error in Expression type calculation: " + astShape.getRhs().getType().getError(), astShape.get_SourcePositionStart());
+      warn(OdeErrorStrings.expressionCalculation(
+          this,
+          astShape.getRhs().getType().getError()),
+          astShape.get_SourcePositionStart());
     }
-    //TODO: find out what needs to be done here
 
+    trace("Find out what needs to be done here", getClass().getSimpleName());
   }
 
 
-  public void visit(ASTEquation astEquation) {
+  public void visit(final ASTEquation astEquation) {
     if (astEquation.getRhs().getType().isError()) {
-      warn(ERROR_CODE + ": Error in Expression type calculation: " + astEquation.getRhs().getType().getError(), astEquation.get_SourcePositionStart());
-
+      warn(OdeErrorStrings.expressionCalculation(this, astEquation.getRhs().getType().getError()), astEquation.get_SourcePositionStart());
       return;
     }
     if (!astEquation.getEnclosingScope().isPresent()) {
-      warn(ERROR_CODE + "Enclosing scope not present. Run ScopeCreator", astEquation.get_SourcePositionStart());
+      trace("Enclosing scope not present. Run ScopeCreator", getClass().getSimpleName());
       return;
     }
 
@@ -51,16 +56,13 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     Optional<VariableSymbol> varSymbol = NestmlSymbols.resolve(varName, enclosingScope);
 
     TypeSymbol varType;
-    if (!varSymbol.isPresent()) {
-      warn(ERROR_CODE + " Error while resolving the variable to be derived in ODE: " + varName, astEquation.get_SourcePositionStart());
-      return;
-    }
+    checkState(varSymbol.isPresent(), " Error while resolving the variable to be derived in ODE: " + varName);
     //Derive varType
     varType = varSymbol.get().getType();
 
     if (varType.getType() != TypeSymbol.Type.UNIT &&
         varType != getRealType()) {
-      warn(ERROR_CODE + "Type of LHS Variable in ODE is neither a Unit nor real at: " + astEquation.get_SourcePositionStart() + ". Skipping.", astEquation.get_SourcePositionStart());
+      error(OdeErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
       return;
     }
 
@@ -72,7 +74,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
     if (typeFromExpression.getType() != TypeSymbol.Type.UNIT &&
         typeFromExpression != getRealType()) {
-      warn(ERROR_CODE + "Type of ODE is neither a Unit nor real ", astEquation.get_SourcePositionStart());
+      error(OdeErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
       return;
     }
     UnitRepresentation unitFromExpression = UnitRepresentation.getBuilder().serialization(typeFromExpression.getName()).build();
@@ -83,8 +85,12 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
       //remove magnitude for clearer error message
       derivedVarUnit.setMagnitude(0);
       unitFromExpression.setMagnitude(0);
-      warn(ERROR_CODE + "Type of (derived) variable " + astEquation.getLhs().toString() + " is: " + derivedVarUnit.prettyPrint() +
-           ". This does not match Type of RHS expression: " + unitFromExpression.prettyPrint(), astEquation.get_SourcePositionStart());
+      final String msg = OdeErrorStrings.expressionMissmatch(
+          this,
+          astEquation.getLhs().toString(),
+          derivedVarUnit.prettyPrint(),
+          unitFromExpression.prettyPrint());
+      warn(msg, astEquation.get_SourcePositionStart());
     }
 
   }
