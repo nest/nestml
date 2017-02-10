@@ -204,13 +204,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        FunctionReturnsIncorrectValue.ERROR_CODE);
+        NestmlErrorStrings.code(functionReturnsIncorrectValue));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/functionReturnsIncorrectValue.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        FunctionReturnsIncorrectValue.ERROR_CODE,
+        NestmlErrorStrings.code(functionReturnsIncorrectValue),
         9);
   }
 
@@ -223,13 +223,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        CurrentPortIsInhOrExc.ERROR_CODE);
+        NestmlErrorStrings.code(currentPortIsInhOrExc));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/currentPortIsInhOrExc.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        CurrentPortIsInhOrExc.ERROR_CODE,
+        NestmlErrorStrings.code(currentPortIsInhOrExc),
         3);
   }
 
@@ -242,13 +242,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        MissingReturnStatementInFunction.ERROR_CODE);
+        NestmlErrorStrings.code(missingReturnStatementInFunction));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/missingReturnStatementInFunction.nestml") ;
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        MissingReturnStatementInFunction.ERROR_CODE,
+        NestmlErrorStrings.code(missingReturnStatementInFunction),
         2);
   }
 
@@ -264,13 +264,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        InvalidTypesInDeclaration.ERROR_CODE);
+        NestmlErrorStrings.code(invalidTypesInDeclaration));
     //TODO: Rewrite or drop invalid model
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalidTypesInDeclaration/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        InvalidTypesInDeclaration.ERROR_CODE,
+        NestmlErrorStrings.code(invalidTypesInDeclaration),
         0);
   }
 
@@ -278,16 +278,17 @@ public class NestmlCoCosTest {
   public void testMemberVariableDefinedMultipleTimes() {
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/memberVariableDefinedMultipleTimes.nestml") ;
+    // errors are reported during the construction of the symbol table
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        MemberVariableDefinedMultipleTimes.ERROR_CODE);
+        NestmlErrorStrings.code(new MemberVariableDefinedMultipleTimes()));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/memberVariableDefinedMultipleTimes.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        MemberVariableDefinedMultipleTimes.ERROR_CODE,
+        NestmlErrorStrings.code(new MemberVariableDefinedMultipleTimes()),
         5); // some of the errors is reported twice
   }
 
@@ -302,13 +303,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        MemberVariablesInitialisedInCorrectOrder.ERROR_CODE);
+        NestmlErrorStrings.code(memberVariablesInitialisedInCorrectOrder));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/memberVariablesInitialisedInCorrectOrder.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        MemberVariablesInitialisedInCorrectOrder.ERROR_CODE,
+        NestmlErrorStrings.code(memberVariablesInitialisedInCorrectOrder),
         4);
   }
 
@@ -323,13 +324,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        FunctionDefinedMultipleTimes.ERROR_CODE);
+        NestmlErrorStrings.code(functionDefinedMultipleTimes));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/functionDefinedMultipleTimes.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        FunctionDefinedMultipleTimes.ERROR_CODE,
+        NestmlErrorStrings.code(functionDefinedMultipleTimes),
         6);
   }
 
@@ -342,13 +343,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        MultipleInhExcModifiers.ERROR_CODE);
+        NestmlErrorStrings.code(multipleInhExcModifiers));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/multipleInhExcModifiers.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        MultipleInhExcModifiers.ERROR_CODE,
+        NestmlErrorStrings.code(multipleInhExcModifiers),
         4);
   }
 
@@ -380,13 +381,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        NestFunctionCollision.ERROR_CODE);
+        NestmlErrorStrings.code(nestFunctionCollision));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/nestFunctionCollision.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        NestFunctionCollision.ERROR_CODE,
+        NestmlErrorStrings.code(nestFunctionCollision),
         8);
   }
 
@@ -420,13 +421,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        GetterSetterFunctionNames.ERROR_CODE);
+        NestmlErrorStrings.code(getterSetterFunctionNames));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "getterSetterFunctionNames/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        GetterSetterFunctionNames.ERROR_CODE,
+        NestmlErrorStrings.code(getterSetterFunctionNames),
         4);
   }
 
@@ -519,13 +520,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        BufferNotAssignable.ERROR_CODE);
+        NestmlErrorStrings.code(bufferNotAssignable));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "bufferNotAssignable/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        BufferNotAssignable.ERROR_CODE,
+        NestmlErrorStrings.code(bufferNotAssignable),
         1);
   }
 
@@ -610,21 +611,20 @@ public class NestmlCoCosTest {
 
   @Test
   public void testInvalidInvariantExpressionType() {
-    final InvalidTypeOfInvariant invalidTypeOfInvariant
-        = new InvalidTypeOfInvariant();
+    final InvalidTypeOfInvariant invalidTypeOfInvariant = new InvalidTypeOfInvariant();
     nestmlCoCoChecker.addCoCo(invalidTypeOfInvariant);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/invalidTypeOfInvariant.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        InvalidTypeOfInvariant.ERROR_CODE);
+        NestmlErrorStrings.code(invalidTypeOfInvariant));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/invalidTypeOfInvariant.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        InvalidTypeOfInvariant.ERROR_CODE,
+        NestmlErrorStrings.code(invalidTypeOfInvariant),
         2);
 
   }
@@ -639,13 +639,13 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        AliasHasDefiningExpression.ERROR_CODE);
+        NestmlErrorStrings.code(aliasHasDefiningExpression));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "aliasHasDefiningExpression/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        AliasHasDefiningExpression.ERROR_CODE,
+        NestmlErrorStrings.code(aliasHasDefiningExpression),
         1);
 
   }
@@ -660,7 +660,7 @@ public class NestmlCoCosTest {
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        EquationsOnlyForStateVariables.ERROR_CODE);
+        NestmlErrorStrings.code(equationsOnlyForStateVariables));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equationsOnlyForStateVariables/invalid.nestml");
 
@@ -668,7 +668,7 @@ public class NestmlCoCosTest {
     scopeCreator.runSymbolTableCreator(ast.get());
 
     // The errors are issued d
-    Integer errorsFound = countErrorsByPrefix(EquationsOnlyForStateVariables.ERROR_CODE, getFindings());
+    Integer errorsFound = countErrorsByPrefix(NestmlErrorStrings.code(equationsOnlyForStateVariables), getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
 
     /*checkModelAndAssertWithErrors(
@@ -701,20 +701,20 @@ public class NestmlCoCosTest {
   
   @Test
   public void testI_SumHasCorrectParameter() {
-    final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
-    nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);
+    final SumHasCorrectParameter sumHasCorrectParameter = new SumHasCorrectParameter();
+    nestmlCoCoChecker.addCoCo(sumHasCorrectParameter);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "i_SumHasCorrectParameter/valid.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        SumHasCorrectParameter.ERROR_CODE);
+        NestmlErrorStrings.code(sumHasCorrectParameter));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "i_SumHasCorrectParameter/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        SumHasCorrectParameter.ERROR_CODE,
+        NestmlErrorStrings.code(sumHasCorrectParameter),
         3);
 
   }

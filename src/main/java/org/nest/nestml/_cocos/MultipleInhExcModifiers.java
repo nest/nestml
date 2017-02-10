@@ -17,9 +17,6 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class MultipleInhExcModifiers implements NESTMLASTInputLineCoCo {
 
-  public static final String ERROR_CODE = "NESTML_MULTIPLE_INH_EXC_MODIFIERS";
-  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-
   public void check(final ASTInputLine inputLine) {
     if (inputLine.isSpike()) {
       // get number of inh, exc keywords
@@ -33,12 +30,12 @@ public class MultipleInhExcModifiers implements NESTMLASTInputLineCoCo {
       }
 
       if (inh > 1) {
-        final String msg =  errorStrings.getErrorMsgMultipleInhibitory(this);
+        final String msg =  NestmlErrorStrings.getErrorMsgMultipleInhibitory(this);
        error(msg, inputLine.get_SourcePositionStart());
       }
 
       if (exc > 1) {
-        final String msg =  errorStrings.getErrorMsgMultipleExcitatory(this);
+        final String msg =  NestmlErrorStrings.getErrorMsgMultipleExcitatory(this);
        error(msg, inputLine.get_SourcePositionStart());
       }
 

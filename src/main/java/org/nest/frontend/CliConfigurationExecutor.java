@@ -199,7 +199,7 @@ public class CliConfigurationExecutor {
 
   private void generateNeuronCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
-      reporter.reportProgress("Generate NEST code from the artifact: " + root.getFullName() + "...");
+      reporter.reportProgress("Generate NEST code from the artifact: " + root.getFullName());
       generator.analyseAndGenerate(root, config.getTargetPath());
       checkGeneratedCode(root, config.getTargetPath());
     }

@@ -25,9 +25,6 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
 
-  public static final String ERROR_CODE = "NESTML_GETTER_SETTER_FUNCTION_NAMES";
-  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-
   public void check(final ASTFunction fun) {
     String funName = fun.getName();
 
@@ -42,7 +39,7 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
           && funName.equals("get_instance")
           && methodSymbol.get().getParameterTypes().size() == 0) {
 
-        final String msg = errorStrings.getErrorMsgGet_InstanceDefined(this);
+        final String msg = NestmlErrorStrings.getErrorMsgGet_InstanceDefined(this);
 
         error(msg, fun.get_SourcePositionStart());
         return;
@@ -57,27 +54,27 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
           if (funName.startsWith("set_") &&
               methodSymbol.get().getParameterTypes().size() == 1 &&
               !var.get().isAlias()) {
-            final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
+            final String msg = NestmlErrorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
 
             error(msg, fun.get_SourcePositionStart());
           }
 
           if (funName.startsWith("get_") && methodSymbol.get().getParameterTypes().size() == 0) {
-            final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
+            final String msg = NestmlErrorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
 
             error(msg, fun.get_SourcePositionStart());
           }
 
         }
         else {
-          Log.warn(ERROR_CODE + ":" + "Cannot resolve the variable: " + varName, fun.get_SourcePositionStart());
+          Log.trace("Cannot resolve the variable: " + varName, getClass().getSimpleName());
         }
 
       }
 
     }
     else {
-      Log.warn("The function is" + funName + " undefined.", fun.get_SourcePositionStart());
+      Log.trace("The function is" + funName + " undefined.", getClass().getSimpleName());
     }
 
   }

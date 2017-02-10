@@ -19,8 +19,6 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class NestFunctionCollision implements NESTMLASTFunctionCoCo {
 
-  public static final String ERROR_CODE = "NESTML_NEST_FUNCTION_COLLISION";
-
   private Set<String> nestFunNames = ImmutableSet.of(
       "update",
       "calibrate",

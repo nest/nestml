@@ -32,7 +32,6 @@ public class InvalidTypesInDeclaration implements
     NESTMLASTUSE_StmtCoCo,
     SPLASTDeclarationCoCo,
     NESTMLASTFunctionCoCo {
-  public static final String ERROR_CODE = "NESTML_INVALID_TYPES_DECLARATION";
 
   @Override
   public void check(final ASTDeclaration astDeclaration) {

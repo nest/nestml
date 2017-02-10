@@ -27,8 +27,6 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author ippen, plotnikov
  */
 public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasDeclCoCo {
-  public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
-  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTAliasDecl alias) {
     final Optional<? extends Scope> enclosingScope = alias.getEnclosingScope();
@@ -76,10 +74,9 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
           VariableSymbol.KIND);
 
       if (!rhsSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
-        final String msg = errorStrings.getErrorMsgVariableNotDefined(this,
-                astVariable.get_SourcePositionStart().toString(),
+        final String msg = NestmlErrorStrings.getErrorMsgVariableNotDefined(this,
                 rhsVariableName);
-        Log.trace(msg, ERROR_CODE);
+        Log.trace(msg, getClass().getSimpleName());
         return;
       }
       else  { //
@@ -104,7 +101,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
         // same block not parameter block
         if (isError.test(rhsSymbol.getSourcePosition().getLine(),
             lhsSymbol.getSourcePosition().getLine())) {
-          final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
+          final String msg = NestmlErrorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
                   rhsSymbol.getName(),
                   lhsSymbol.getName());
 
@@ -116,7 +113,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
 
       if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
           rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETERS) {
-         final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
+         final String msg = NestmlErrorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
                 rhsSymbol.getName(),
                 lhsSymbol.getName());
 

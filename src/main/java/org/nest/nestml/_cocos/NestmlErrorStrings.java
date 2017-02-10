@@ -18,7 +18,8 @@ import org.nest.utils.AstUtils;
  * @author plotnikov, traeder
  */
 public class NestmlErrorStrings {
-  private static NestmlErrorStrings instance = new NestmlErrorStrings();
+  private static final NestmlErrorStrings instance = new NestmlErrorStrings();
+  private static final String SEPARATOR = " : ";
   private NestmlErrorStrings() {
   }
 
@@ -26,9 +27,9 @@ public class NestmlErrorStrings {
     return instance;
   }
 
-  static String message(final AliasHasOneVar coco, final SourcePosition sourcePosition) {
-    final String ERROR_MESSAGE_FORMAT = "'function' declarations must only declare exactly one variable.";
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MESSAGE_FORMAT;
+  static String message(final AliasHasOneVar coco) {
+    final String ERROR_MSG_FORMAT = "'function' declarations must only declare exactly one variable.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings("unused") // parameter is used for dispatch
@@ -36,10 +37,10 @@ public class NestmlErrorStrings {
     return "NESTML_ALIAS_HAS_ONE_VAR";
   }
 
-  static String message(final VectorVariableInNonVectorDeclaration coco, final String usedAlias, final SourcePosition sourcePosition) {
+  static String message(final VectorVariableInNonVectorDeclaration coco, final String usedAlias) {
     final String ERROR_MSG_FORMAT = "A vector '" + usedAlias + "' cannot be used as part of an initial expression of " +
                                     "non-vector variable declaration.";
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MSG_FORMAT;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings("unused") // parameter is used for dispatch
@@ -47,9 +48,9 @@ public class NestmlErrorStrings {
     return "NESTML_ALIAS_IN_NON_ALIAS_DECL";
   }
 
-  static String message(final ComponentHasNoDynamics coco, final String name, final SourcePosition sourcePosition) {
+  static String message(final ComponentHasNoDynamics coco, final String name) {
     final String ERROR_MSG_FORMAT = "Component " + name + " doesn't have dynamics function.";
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MSG_FORMAT;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
 
   }
 
@@ -58,11 +59,11 @@ public class NestmlErrorStrings {
     return "NESTML_COMPONENT_HAS_NO_DYNAMICS";
   }
 
-  static String message(final ComponentWithoutInput coco, final String componentName, final SourcePosition sourcePosition) {
+  static String message(final ComponentWithoutInput coco, final String componentName) {
     final String ERROR_MSG_FORMAT = "Problem with the component: " + componentName +
                                     ". Components cannot have any inputs, since they are not elements of a "
                                     + "neuronal network, but serve as a part of a neuron declaration.";
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MSG_FORMAT;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings("unused") // parameter is used for dispatch
@@ -70,11 +71,11 @@ public class NestmlErrorStrings {
     return "NESTML_COMPONENT_WITHOUT_INPUT";
   }
 
-  static String message(final ComponentWithoutOutput coco, final String componentName, final SourcePosition sourcePosition) {
+  static String message(final ComponentWithoutOutput coco, final String componentName) {
     final String ERROR_MSG_FORMAT = "Problem with the component: " + componentName +
                                     ". Components cannot have any output, since they are not elements of a "
                                     + "neuronal network, but serve as a part of a neuron declaration.";
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + ERROR_MSG_FORMAT;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings("unused") // parameter is used for dispatch
@@ -82,10 +83,9 @@ public class NestmlErrorStrings {
     return "NESTML_COMPONENT_WITHOUT_OUTPUT";
   }
 
-  static String message(final FunctionParameterHasTypeName coco, final String variable, SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "The function parameter '%s' has name of an existing NESTML type.";
-
-    return code(coco) + " " + AstUtils.print(sourcePosition) + ": " + String.format(ERROR_MSG_FORMAT, variable);
+  static String message(final FunctionParameterHasTypeName coco, final String variable){
+    final String ERROR_MSG_FORMAT = "The function parameter '" + variable +"' has name of an existing NESTML type.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -93,130 +93,236 @@ public class NestmlErrorStrings {
     return "NESTML_FUNCTION_PARAMETER_HAS_TYPE_NAME";
   }
 
-  public String getErrorMsg(UnitDeclarationOnlyOnesAllowed coco){
-    return UnitDeclarationOnlyOnesAllowed.ERROR_CODE + ": Literals in Unit types may only be \"1\" (one) ";
+  public String getErrorMsg(final UnitDeclarationOnlyOnesAllowed coco){
+    final String ERROR_MSG_FORMAT = "Literals in Unit types may only be '1' (one)";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+  @SuppressWarnings({"unused"}) // used for the routing
+  public String code(final UnitDeclarationOnlyOnesAllowed coco) {
+    return "NESTML_UNIT_DECLARATION_ONLY_ONES_ALLOWED";
   }
 
-    String getErrorMsg(AliasHasDefiningExpression coco) {
-    return AliasHasDefiningExpression.ERROR_CODE + ":" + "'function' must be defined through an expression.";
+  static String getErrorMsg(final AliasHasDefiningExpression coco) {
+    final String ERROR_MSG_FORMAT = "'function' must be always defined through an expression.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgInvariantMustBeBoolean(InvalidTypeOfInvariant coco, String expressionType) {
-    return InvalidTypeOfInvariant.ERROR_CODE + ":" + "The type of the invariant expression must be boolean and not: " +
-           expressionType;
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final AliasHasDefiningExpression coco) {
+    return "NESTML_ALIAS_HAS_DEFINING_EXPRESSION";
   }
 
-  String getErrorMsgCannotComputeType(InvalidTypeOfInvariant coco, String invariantType) {
-    return InvalidTypeOfInvariant.ERROR_CODE + ":" + "Cannot compute the type: " + invariantType;
+  static String getErrorMsgInvariantMustBeBoolean(final InvalidTypeOfInvariant coco, final String expressionType) {
+    final String ERROR_MSG_FORMAT = "The type of the invariant expression must be boolean and not: " + expressionType;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsg(BufferNotAssignable coco, String bufferName) {
-    return BufferNotAssignable.ERROR_CODE + ":" + "Buffer '" + bufferName + "' cannot be reassigned.";
+
+  static String getErrorMsgCannotComputeType(final InvalidTypeOfInvariant coco, final String invariantType) {
+    final String ERROR_MSG_FORMAT = "Cannot compute the type: " + invariantType;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgWrongReturnType(FunctionReturnsIncorrectValue coco,
-                                           String functionName, String functionReturnTypeName) {
-    return FunctionReturnsIncorrectValue.ERROR_CODE + ":" + "Function '" + functionName + "' must return a result of type "
-           + functionReturnTypeName + ".";
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(InvalidTypeOfInvariant coco) {
+    return "NESTML_INVALID_TYPE_OF_INVARIANT";
   }
 
-  String getErrorMsgCannotConvertReturnValue(FunctionReturnsIncorrectValue coco,
+  static String getErrorMsg(final BufferNotAssignable coco, final String bufferName) {
+    final String ERROR_MSG_FORMAT = "Buffer '" + bufferName + "' cannot be reassigned.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(BufferNotAssignable coco) {
+    return  "NESTML_BUFFER_NOT_ASSIGNABLE";
+  }
+
+  static String getErrorMsgWrongReturnType(
+      final FunctionReturnsIncorrectValue coco,
+      final String functionName,
+      final String functionReturnTypeName) {
+    final String ERROR_MSG_FORMAT = "Function '" + functionName + "' must return a result of type "
+                                    + functionReturnTypeName + ".";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  static String getErrorMsgCannotConvertReturnValue(FunctionReturnsIncorrectValue coco,
                                                     String expressionTypeName, String functionReturnTypeName) {
-    return FunctionReturnsIncorrectValue.ERROR_CODE + ":" + "Cannot convert from " + expressionTypeName
-           + " (type of return expression) to " + functionReturnTypeName
-           + " (return type).";
+    final String ERROR_MSG_FORMAT = "Cannot convert from " + expressionTypeName
+                                    + " (type of return expression) to " + functionReturnTypeName
+                                    + " (return type).";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgCannotDetermineExpressionType(FunctionReturnsIncorrectValue coco) {
-    return FunctionReturnsIncorrectValue.ERROR_CODE + ":" + "Cannot determine the type of the expression";
+  static String getErrorMsgCannotDetermineExpressionType(final FunctionReturnsIncorrectValue coco) {
+    final String ERROR_MSG_FORMAT = "Cannot determine the type of the expression";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsg(CurrentPortIsInhOrExc coco) {
-    return CurrentPortIsInhOrExc.ERROR_CODE + ":" + "Current input can neither be inhibitory nor excitatory.";
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final FunctionReturnsIncorrectValue coco) {
+    return "NESTML_FUNCTION_RETURNS_INCORRECT_VALUE";
   }
 
-  public String getErrorMsgAssignToNonState(
+  String getErrorMsg(final CurrentPortIsInhOrExc coco) {
+    final String ERROR_MSG_FORMAT = "Current input can neither be inhibitory nor excitatory.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final CurrentPortIsInhOrExc coco) {
+    return "NESTML_CURRENT_PORT_IS_INH_OR_EXC";
+  }
+
+  static public String getErrorMsgAssignToNonState(
       final EquationsOnlyForStateVariables coco,
       final String variableName) {
-    return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "The variable '" + variableName + "' is not a state"
-        + " variable and, therefore, cannot be used on the left side of an equation.";
+    final String ERROR_MSG_FORMAT = "The variable '" + variableName + "' is not a state"
+                                    + " variable and, therefore, cannot be used on the left side of an equation.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  public String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco, final String variableName) {
-    return EquationsOnlyForStateVariables.ERROR_CODE + ":" + "The variable " + variableName + " used as left-hand side " +
-           "of the ode is not defined.";
+  static public String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco, final String variableName) {
+    final String ERROR_MSG_FORMAT = "The variable " + variableName + " used as left-hand side " +
+                                    "of the ode is not defined.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsg(MissingReturnStatementInFunction coco, String functionName, String returnType) {
-    return MissingReturnStatementInFunction.ERROR_CODE + ":" + "Function '" + functionName
-           + "' must return a result of type '"
-           + returnType + "'";
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final EquationsOnlyForStateVariables coco) {
+    return "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
   }
 
-  String getErrorMsgGet_InstanceDefined(GetterSetterFunctionNames coco) {
-    return GetterSetterFunctionNames.ERROR_CODE + ":" + "The function 'get_instance' is going to be generated. Please use another name.";
+  static String getErrorMsg(final MissingReturnStatementInFunction coco,
+                     final String functionName,
+                     final String returnType) {
+    final String ERROR_MSG_FORMAT = "Function '" + functionName + "' must return a result of type '"
+                                             + returnType + "'";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgGeneratedFunctionDefined(GetterSetterFunctionNames coco,
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final MissingReturnStatementInFunction coco) {
+    return "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
+  }
+
+  static String getErrorMsgGet_InstanceDefined(GetterSetterFunctionNames coco) {
+    final String ERROR_MSG_FORMAT = "The function 'get_instance' is going to be generated. Please use another name.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  static String getErrorMsgGeneratedFunctionDefined(GetterSetterFunctionNames coco,
                                                     String functionName, String variableName) {
-    return GetterSetterFunctionNames.ERROR_CODE + ":" + "The function '" + functionName + "' is going to be generated, since"
-        + " there is a variable called '" + variableName + "'.";
+    final String ERROR_MSG_FORMAT = "The function '" + functionName + "' is going to be generated, since"
+                                    + " there is a variable called '" + variableName + "'.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  public String getErrorMsg(SumHasCorrectParameter coco, String expression) {
-    return SumHasCorrectParameter.ERROR_CODE + ":" + "The arguments of the I_sum must be atomic expressions: "
-           + "e.g. V_m and not : " + expression;
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final GetterSetterFunctionNames coco) {
+    return "NESTML_GETTER_SETTER_FUNCTION_NAMES";
   }
 
-  String getErrorMsg(InvalidTypesInDeclaration coco, String typeName) {
-    return InvalidTypesInDeclaration.ERROR_CODE + ":" + "The type " + typeName + " is a neuron/component. No neurons/components allowed " +
-        "in this place. Use the use-statement.";
+  public static String getErrorMsg(final SumHasCorrectParameter coco, final String expression) {
+    final String ERROR_MSG_FORMAT = "The arguments of the I_sum must be atomic expressions: "
+                                    + "e.g. V_m and not : " + expression;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsg(MemberVariableDefinedMultipleTimes coco, String varName,
-                            int line, int column) {
-    return MemberVariableDefinedMultipleTimes.ERROR_CODE + ":" + "Variable '" + varName + "' defined previously defined in line: "
-        + line + ":" + column;
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final SumHasCorrectParameter coco) {
+    return "NESTML_SUM_HAS_INCORRECT_PARAMETER";
   }
 
-  String getErrorMsgDeclaredInIncorrectOrder(MemberVariablesInitialisedInCorrectOrder coco,
+  static String getErrorMsg(final InvalidTypesInDeclaration coco, String typeName) {
+    final String ERROR_MSG_FORMAT = "The type " + typeName + " is a neuron/component. No neurons/components allowed " +
+                                    "in this place. Use the use-statement.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final InvalidTypesInDeclaration coco) {
+    return "NESTML_INVALID_TYPES_DECLARATION";
+  }
+
+  static String getErrorMsg(final MemberVariableDefinedMultipleTimes coco,
+                     final String varName,
+                     int line,
+                     int column) {
+    final String ERROR_MSG_FORMAT =  "Variable '" + varName + "' defined previously defined in line: "
+                                     + line + ":" + column;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final MemberVariableDefinedMultipleTimes coco) {
+    return "NESTML_MEMBER_VARIABLE_DEFINED_MULTIPLE_TIMES";
+  }
+
+  static String getErrorMsgDeclaredInIncorrectOrder(MemberVariablesInitialisedInCorrectOrder coco,
                                                     String varName, String declaredName) {
-    return MemberVariablesInitialisedInCorrectOrder.ERROR_CODE + ":" + "Variable '"
-        + varName
-        + "' must be declared before it can be used in declaration of '"
-        + declaredName + "'.";
+    final String ERROR_MSG_FORMAT =  "Variable '"
+                                     + varName
+                                     + "' must be declared before it can be used in declaration of '"
+                                     + declaredName + "'.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgVariableNotDefined(MemberVariablesInitialisedInCorrectOrder coco,
-                                              String pos, String varName) {
-    return MemberVariablesInitialisedInCorrectOrder.ERROR_CODE + ":" + pos + ": Variable '" +
-        varName + "' is undefined.";
+  static String getErrorMsgVariableNotDefined(MemberVariablesInitialisedInCorrectOrder coco, String varName) {
+    final String ERROR_MSG_FORMAT =  "Variable '" + varName + "' is undefined.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgNeuronHasNoSymbol(FunctionDefinedMultipleTimes coco, String neuronName) {
-    return FunctionDefinedMultipleTimes.ERROR_CODE + ":" + "The neuron symbol: " + neuronName + " has no symbol.";
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final MemberVariablesInitialisedInCorrectOrder coco) {
+    return "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
   }
 
-  String getErrorMsgParameterDefinedMultipleTimes(FunctionDefinedMultipleTimes coco, String funname) {
-    return FunctionDefinedMultipleTimes.ERROR_CODE + ":" + "The function '" + funname
-           + " parameter(s) is defined multiple times.";
+  static String getErrorMsgNeuronHasNoSymbol(final FunctionDefinedMultipleTimes coco, final String neuronName) {
+    final String ERROR_MSG_FORMAT =  "The neuron symbol: " + neuronName + " has no symbol.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgNoScopePresent(FunctionDefinedMultipleTimes coco) {
-    return FunctionDefinedMultipleTimes.ERROR_CODE + ":" + "Run symbol table creator.";
+  static String getErrorMsgParameterDefinedMultipleTimes(final FunctionDefinedMultipleTimes coco, final String funname) {
+    final String ERROR_MSG_FORMAT =  "The function '" + funname + " parameter(s) is defined multiple times.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgMultipleInhibitory(MultipleInhExcModifiers coco) {
-    return MultipleInhExcModifiers.ERROR_CODE + ":" + "Multiple occurrences of the keyword 'inhibitory' are not allowed.";
+  static String getErrorMsgNoScopePresent(final FunctionDefinedMultipleTimes coco) {
+    final String ERROR_MSG_FORMAT =  "Run symbol table creator.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  String getErrorMsgMultipleExcitatory(MultipleInhExcModifiers coco) {
-    return MultipleInhExcModifiers.ERROR_CODE + ":" + "Multiple occurrences of the keyword 'excitatory' are not allowed.";
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final FunctionDefinedMultipleTimes coco) {
+    return "NESTML_MULTIPLE_FUNCTIONS_DECLARATIONS";
   }
 
-  String getErrorMsg(NestFunctionCollision coco, String funName) {
-    return NestFunctionCollision.ERROR_CODE + ":" + "The function-name '" + funName
-           + "' is already used by NEST. Please use another name.";
+  static String getErrorMsgMultipleInhibitory(final MultipleInhExcModifiers coco) {
+    final String ERROR_MSG_FORMAT = "Multiple occurrences of the keyword 'excitatory' are not allowed.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  static String getErrorMsgMultipleExcitatory(MultipleInhExcModifiers coco) {
+    final String ERROR_MSG_FORMAT = "Multiple occurrences of the keyword 'excitatory' are not allowed.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final MultipleInhExcModifiers coco) {
+    return "NESTML_MULTIPLE_INH_EXC_MODIFIERS";
+  }
+
+  static String getErrorMsg(NestFunctionCollision coco, String funName) {
+    final String ERROR_MSG_FORMAT = "The function-name '" + funName
+                                    + "' is already used by NEST. Please use another name.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final NestFunctionCollision coco) {
+    return "NESTML_NEST_FUNCTION_COLLISION";
   }
 
   static String getErrorMsgDynamicsNotPresent(NeuronWithMultipleOrNoUpdate coco) {
@@ -227,6 +333,7 @@ public class NestmlErrorStrings {
     return code(coco) + ":" + "Neurons need at most one update.";
   }
 
+  @SuppressWarnings({"unused"}) // used for the routing
   static String code(final NeuronWithMultipleOrNoUpdate coco) {
     return "NESTML_NEURON_WITH_MULTIPLE_OR_NO_UPDATE";
   }
@@ -271,7 +378,6 @@ public class NestmlErrorStrings {
     return UsesOnlyComponents.ERROR_CODE + ":" + "Only components can be used by components and not " + typeName + " that is a neuron, not a "
         + "component";
   }
-
 
   public String getErrorMsg(final DerivativeOrderAtLeastOne coco, final String variableName) {
 

@@ -20,7 +20,7 @@ public class ComponentHasNoDynamics implements NESTMLASTComponentCoCo {
 
     if (!comp.getBody().getDynamics().isEmpty()) {
 
-      final String msg = NestmlErrorStrings.message(this, comp.getName(), comp.get_SourcePositionStart());
+      final String msg = NestmlErrorStrings.message(this, comp.getName());
       error(msg, comp.get_SourcePositionStart());
     }
 

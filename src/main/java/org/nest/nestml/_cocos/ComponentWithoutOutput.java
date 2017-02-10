@@ -19,7 +19,7 @@ public class ComponentWithoutOutput implements NESTMLASTComponentCoCo {
   @Override
   public void check(ASTComponent comp) {
     if (!comp.getBody().getOutputs().isEmpty()) {
-      final String msg = NestmlErrorStrings.message(this, comp.getName(), comp.get_SourcePositionStart());
+      final String msg = NestmlErrorStrings.message(this, comp.getName());
 
      error(msg, comp.get_SourcePositionStart());
     }

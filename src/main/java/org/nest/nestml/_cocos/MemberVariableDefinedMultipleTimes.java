@@ -34,7 +34,6 @@ public class MemberVariableDefinedMultipleTimes implements
     NESTMLASTNeuronCoCo,
     NESTMLASTComponentCoCo {
 
-  public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLE_DEFINED_MULTIPLE_TIMES";
 
   @Override
   public void check(ASTComponent comp) {

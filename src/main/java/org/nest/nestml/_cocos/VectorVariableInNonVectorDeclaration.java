@@ -40,7 +40,7 @@ public class VectorVariableInNonVectorDeclaration implements NESTMLASTAliasDeclC
 
         // used is set here
         if (stentry.isVector() && !astAliasDecl.getDeclaration().getSizeParameter().isPresent()) {
-          final String msg = NestmlErrorStrings.message(this, stentry.getName(), decl.get_SourcePositionStart());
+          final String msg = NestmlErrorStrings.message(this, stentry.getName());
           error(msg, decl.get_SourcePositionStart());
         }
 

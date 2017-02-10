@@ -16,8 +16,6 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class AliasHasDefiningExpression implements NESTMLASTAliasDeclCoCo {
 
-  public static final String ERROR_CODE = "NESTML_ALIAS_HAS_DEFINING_EXPRESSION";
-
   @Override
   public void check(final ASTAliasDecl decl) {
     if (decl.isFunction()) {

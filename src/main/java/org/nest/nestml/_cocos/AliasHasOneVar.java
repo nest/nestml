@@ -20,7 +20,7 @@ public class AliasHasOneVar implements NESTMLASTAliasDeclCoCo {
   public void check(final ASTAliasDecl decl) {
     if (decl.isFunction()) {
       if (decl.getDeclaration().getVars().size() != 1) {
-        final String msg = NestmlErrorStrings.message(this, decl.get_SourcePositionStart());
+        final String msg = NestmlErrorStrings.message(this);
 
         error(msg, decl.get_SourcePositionStart());
       }

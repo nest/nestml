@@ -58,7 +58,7 @@ public class FunctionParameterHasTypeName implements NESTMLASTFunctionCoCo {
         final Optional<TypeSymbol> res = scope.resolve(varName, TypeSymbol.KIND);
         // could resolve type as variable, report an error
         res.ifPresent(typeSymbol -> Log.error(
-            NestmlErrorStrings.message(this, varName, astDeclaration.get_SourcePositionStart()),
+            NestmlErrorStrings.message(this, varName),
             astDeclaration.get_SourcePositionEnd()));
 
       }

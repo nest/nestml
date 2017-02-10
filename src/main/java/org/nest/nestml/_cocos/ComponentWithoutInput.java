@@ -20,7 +20,7 @@ public class ComponentWithoutInput implements NESTMLASTComponentCoCo {
   public void check(final ASTComponent comp) {
 
     if (!comp.getBody().getInputLines().isEmpty()) {
-      final String msg = NestmlErrorStrings.message(this, comp.getName(), comp.get_SourcePositionStart());
+      final String msg = NestmlErrorStrings.message(this, comp.getName());
 
       error(msg, comp.get_SourcePositionStart());
     }

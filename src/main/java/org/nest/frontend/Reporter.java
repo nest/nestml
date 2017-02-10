@@ -58,7 +58,7 @@ class Reporter {
 
 
   void reportProgress(final String message) {
-    System.out.println(message);
+    System.out.println(message + "...");
   }
 
   void addSystemInfo(final String message, final Level level) {
@@ -135,7 +135,31 @@ class Reporter {
         getCode(finding.getMsg()),
         finding.getSourcePosition().isPresent()?finding.getSourcePosition().get().getLine():0,
         finding.getSourcePosition().isPresent()?finding.getSourcePosition().get().getColumn():0,
-        finding.getMsg());
+        getMessage(finding.getMsg()));
+  }
+
+  private String getMessage(final String msg) {
+    final String[] tokens = msg.split(" : ");
+
+    if (tokens.length >= 2) {
+      return tokens[1];
+    }
+    else {
+      return "NO_MESSAGE";
+    }
+
+  }
+
+  private String getCode(final String msg) {
+    final String[] tokens = msg.split(" : ");
+
+    if (tokens.length == 0) {
+      return "NESTML_ERROR : ";
+    }
+    else {
+      return tokens[0];
+    }
+
   }
 
   void addNeuronReport(
@@ -157,17 +181,6 @@ class Reporter {
     artifactReports.add(report);
   }
 
-  private String getCode(final String msg) {
-    final String[] tokens = msg.split(" ");
-
-    if (tokens.length == 0) {
-      return "";
-    }
-    else {
-      return tokens[0];
-    }
-
-  }
 
   private Level convert(Finding.Type type) {
     switch (type){

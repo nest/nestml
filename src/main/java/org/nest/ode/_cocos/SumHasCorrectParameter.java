@@ -39,7 +39,6 @@ import static org.nest.symboltable.predefined.PredefinedFunctions.CURR_SUM;
  * @author plotnikov
  */
 public class SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
-  public final static String ERROR_CODE = "NESTML_" + SumHasCorrectParameter.class.getSimpleName();
 
   @Override
   public void check(final ASTOdeDeclaration odeDeclaration) {
@@ -64,8 +63,7 @@ public class SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
    * Creates an error message for the {@code exprArgument}.
    */
   private void error(final ASTExpr exprArgument) {
-    NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-    final String msg = errorStrings.getErrorMsg(this, AstUtils.toString(exprArgument));
+    final String msg = NestmlErrorStrings.getErrorMsg(this, AstUtils.toString(exprArgument));
 
     Log.error(msg);
   }

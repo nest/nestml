@@ -25,8 +25,6 @@ import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER
  */
 public class BufferNotAssignable implements SPLASTAssignmentCoCo {
 
-  public static final String ERROR_CODE = "NESTML_BUFFER_NOT_ASSIGNABLE";
-
   public void check(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symboltable creator.");
     final Scope enclosingScope = astAssignment.getEnclosingScope().get();
@@ -35,7 +33,7 @@ public class BufferNotAssignable implements SPLASTAssignmentCoCo {
     final Optional<VariableSymbol> var = enclosingScope.resolve(varName, VariableSymbol.KIND);
 
     if (!var.isPresent()) {
-      Log.trace("Cannot resolve the variable: " + varName + " . Thereofore, the coco is skipped.", ERROR_CODE);
+      Log.trace("Cannot resolve the variable: " + varName + " . Thereofore, the coco is skipped.", BufferNotAssignable.class.getSimpleName());
     }
     else if (var.get().getBlockType() == INPUT_BUFFER_CURRENT ||
         var.get().getBlockType() == INPUT_BUFFER_SPIKE) {

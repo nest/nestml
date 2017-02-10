@@ -28,10 +28,6 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class FunctionDefinedMultipleTimes implements NESTMLASTNeuronCoCo, NESTMLASTComponentCoCo {
 
-  public static final String ERROR_CODE = "NESTML_MULTIPLE_FUNCTIONS_DECLARATIONS";
-  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-
-
   @Override
   public void check(final ASTComponent astComponent) {
     final ASTBody astBodyDecorator = astComponent.getBody();
@@ -49,7 +45,7 @@ public class FunctionDefinedMultipleTimes implements NESTMLASTNeuronCoCo, NESTML
       astBodyDecorator.getFunctions().forEach(this::checkFunctionName);
     }
     else {
-      final String msg = errorStrings.getErrorMsgNeuronHasNoSymbol(this,astNeuron.getName());
+      final String msg = NestmlErrorStrings.getErrorMsgNeuronHasNoSymbol(this,astNeuron.getName());
 
       Log.error(msg);
     }
@@ -63,13 +59,13 @@ public class FunctionDefinedMultipleTimes implements NESTMLASTNeuronCoCo, NESTML
       final Scope scope = astFunction.getEnclosingScope().get();
       final Collection<Symbol> methods = scope.resolveMany(funname, MethodSymbol.KIND);
       if (methods.size() > 1) {
-        final String msg = errorStrings.getErrorMsgParameterDefinedMultipleTimes(this,funname);
+        final String msg = NestmlErrorStrings.getErrorMsgParameterDefinedMultipleTimes(this,funname);
 
         error(msg, astFunction.get_SourcePositionStart());
       }
     }
     else {
-      final String msg = errorStrings.getErrorMsgNoScopePresent(this);
+      final String msg = NestmlErrorStrings.getErrorMsgNoScopePresent(this);
       Log.error(msg);
     }
 
