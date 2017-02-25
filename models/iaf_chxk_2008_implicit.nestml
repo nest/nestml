@@ -117,9 +117,9 @@ neuron iaf_chxk_2008_implicit:
       emit_spike()
     end
 
-    g_ex' += spikesExc.get_sum() * PSConInit_E * 1 [nS/s]
-    g_in' += spikesInh.get_sum() * PSConInit_I * 1 [nS/s]
-    I_stim = currents.get_sum() * 1 pA
+    g_ex' += spikesExc * PSConInit_E * 1 [nS/s]
+    g_in' += spikesInh * PSConInit_I * 1 [nS/s]
+    I_stim = currents
   end
 
 end

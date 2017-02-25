@@ -124,10 +124,10 @@ neuron hh_cond_exp_traub_implicit:
     end
 
     # set new input current
-    I_stim = currents.get_sum() * 1 pA
+    I_stim = currents
 
-    g_ex += spikeExc.get_sum() * 1 nS
-    g_in += spikeInh.get_sum() * 1 nS
+    g_ex += spikeExc * 1 nS
+    g_in += spikeInh * 1 nS
   end
 
 end

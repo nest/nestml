@@ -81,7 +81,7 @@ neuron iaf_cond_exp_neuron:
     end
 
     # set new input current
-    I_stim = currents.get_sum() * 1 pA
+    I_stim = currents
   end
 
 end

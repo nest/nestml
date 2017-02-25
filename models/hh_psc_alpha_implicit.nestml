@@ -148,8 +148,8 @@ neuron hh_psc_alpha_implicit:
 
     I_stim = currents
 
-    I_syn_ex' += spikeExc.get_sum() * PSConInit_E * 1 [ms/s]
-    I_syn_in' += spikeInh.get_sum() * PSConInit_I * 1 [ms/s]
+    I_syn_ex' += spikeExc * PSConInit_E * 1 [ms/s]
+    I_syn_in' += spikeInh * PSConInit_I * 1 [ms/s]
   end
 
 end

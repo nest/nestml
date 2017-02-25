@@ -124,8 +124,8 @@ neuron iaf_psc_delta_neuron:
       # for decay until end of refractory period
       if with_refr_input:
         refr_spikes_buffer += spikes * exp(-r * h / tau_m) * 1 mV
-      else:
-        spikes.get_sum() # clear buffer entry, ignore spike
+      #else:
+      #  spikes = 0 # clear buffer entry, ignore spike
       end
       r -= 1
     end

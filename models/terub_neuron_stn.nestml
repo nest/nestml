@@ -187,10 +187,10 @@ neuron terub_neuron_stn:
     end
 
     # set new input current
-    I_stim = currents.get_sum() * 1 pA
+    I_stim = currents
 
-    g_ex' += spikeExc.get_sum() * PSCurrInit_E * 1 [pA/s]
-    g_in' += spikeInh.get_sum() * PSCurrInit_I * 1 [pA/s]
+    g_ex' += spikeExc * PSCurrInit_E * 1 [pA/s]
+    g_in' += spikeInh * PSCurrInit_I * 1 [pA/s]
   end
 
 end

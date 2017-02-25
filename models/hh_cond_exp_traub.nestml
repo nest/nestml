@@ -124,7 +124,7 @@ neuron hh_cond_exp_traub_neuron:
     end
 
     # set new input current
-    I_stim = currents.get_sum() * 1 pA
+    I_stim = currents
 
   end
 

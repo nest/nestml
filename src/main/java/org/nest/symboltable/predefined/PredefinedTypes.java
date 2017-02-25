@@ -88,12 +88,6 @@ public class PredefinedTypes {
   private static void registerBufferType() {
     final TypeSymbol bufferType = new TypeSymbol("Buffer", TypeSymbol.Type.BUFFER);
     implicitTypes.put("Buffer", bufferType);
-
-    final MethodSymbol get_sumMethod = new MethodSymbol("get_sum");
-    get_sumMethod.setReturnType(getRealType()); 
-
-    get_sumMethod.setDeclaringType(bufferType);
-    bufferType.addBuiltInMethod(get_sumMethod);
   }
 
   public static Collection<TypeSymbol> getTypes() {
