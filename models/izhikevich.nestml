@@ -48,8 +48,8 @@ neuron izhikevich_neuron:
   end
 
   equations:
-    V_m' = ( 0.04 * V_m * V_m / 1 mV + 5.0 * V_m + ( 140 - U_m ) * 1 mV + ( (I + I_e) * 1 GOhm ) ) / 1 s
-    U_m' = a*(b*V_m-U_m * 1 mV) / 1 [mV*s]
+    V_m' = ( 0.04 * V_m * V_m / 1 mV + 5.0 * V_m + ( 140 - U_m ) * 1 mV + ( (I + I_e) * 1 GOhm ) ) / 1 ms
+    U_m' = a*(b*V_m-U_m * 1 mV) / 1 [mV*ms]
   end
 
   parameters:

@@ -39,10 +39,10 @@ neuron izhikevich_psc_alpha:
 
   equations:
     # synapses: alpha functions
-    I_syn_ex'' = -I_syn_ex' / tau_syn_ex * 1 [ms/s]
-    I_syn_ex' = I_syn_ex' - ( I_syn_ex / tau_syn_ex )*1 [ms/s]
-    I_syn_in'' = -I_syn_in' / tau_syn_in * 1 [ms/s]
-    I_syn_in' = I_syn_in' - ( I_syn_in / tau_syn_in )*1 [ms/s]
+    I_syn_ex'' = -I_syn_ex' / tau_syn_ex 
+    I_syn_ex' = I_syn_ex' - ( I_syn_ex / tau_syn_ex )
+    I_syn_in'' = -I_syn_in' / tau_syn_in 
+    I_syn_in' = I_syn_in' - ( I_syn_in / tau_syn_in )
     
     function I_syn_exc pA = curr_sum(I_syn_ex, spikesExc)
     function I_syn_inh pA = curr_sum(I_syn_in, spikesInh)
@@ -107,8 +107,8 @@ neuron izhikevich_psc_alpha:
       r = RefractoryCounts
     end
 
-    I_syn_ex' += spikesExc * PSConInit_E * 1 [ms/s]
-    I_syn_in' += spikesInh * PSConInit_I * 1 [ms/s]
+    I_syn_ex' += spikesExc * PSConInit_E
+    I_syn_in' += spikesInh * PSConInit_I
     I_stim = currents
   end
 

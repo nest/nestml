@@ -34,13 +34,13 @@ neuron iaf_chxk_2008_implicit:
 
   equations:
     g_in'' = -g_in'/tau_syn_in
-    g_in' = g_in' - g_in/tau_syn_in * 1 [ms/s]
+    g_in' = g_in' - g_in/tau_syn_in
 
     g_ex'' = -g_ex'/tau_syn_ex
-    g_ex' = g_ex'  -g_ex/tau_syn_ex * 1 [ms/s]
+    g_ex' = g_ex'  -g_ex/tau_syn_ex
 
     G_ahp'' = -G_ahp' / tau_ahp
-    G_ahp' = G_ahp' -  G_ahp / tau_ahp * 1 [ms/s]
+    G_ahp' = G_ahp' -  G_ahp / tau_ahp
 
     function I_syn_exc pA = cond_sum(g_ex, spikesInh) * ( V_m - E_ex )
     function I_syn_inh pA = cond_sum(g_in, spikesExc) * ( V_m - E_in )
@@ -108,17 +108,17 @@ neuron iaf_chxk_2008_implicit:
       if ahp_bug == true:
         # Bug in original code ignores AHP conductance from previous spikes
         G_ahp  = delta_g_ahp * 1 nS
-        G_ahp' = delta_dg_ahp * 1 [nS/s]
+        G_ahp' = delta_dg_ahp * 1 [nS/ms]
       else:
         G_ahp  += delta_g_ahp * 1 nS
-        G_ahp' += delta_dg_ahp * 1 [nS/s]
+        G_ahp' += delta_dg_ahp * 1 [nS/ms]
       end
 
       emit_spike()
     end
 
-    g_ex' += spikesExc * PSConInit_E * 1 [nS/s]
-    g_in' += spikesInh * PSConInit_I * 1 [nS/s]
+    g_ex' += spikesExc * PSConInit_E * 1 [nS/ms]
+    g_in' += spikesInh * PSConInit_I * 1 [nS/ms]
     I_stim = currents
   end
 

@@ -30,10 +30,10 @@ neuron iaf_cond_beta_neuron:
 
   equations:
       GI'' = -GI'/tau_syn_rise_I
-      GI' = GI' - GI/tau_syn_decay_I *1 [ms/s]
+      GI' = GI' - GI/tau_syn_decay_I
 
       GE'' = -GE'/tau_syn_rise_E
-      GE' = GE' -GE/tau_syn_decay_E *1 [ms/s]
+      GE' = GE' -GE/tau_syn_decay_E 
 
       function I_syn_exc pA = (F_E + cond_sum(GE, spikeExc)) * ( V_m - E_ex )
       function I_syn_inh pA = (F_I + cond_sum(GI, spikeInh)) * ( V_m - E_in )
@@ -97,8 +97,8 @@ neuron iaf_cond_beta_neuron:
 
     end
 
-    GE' += spikeExc * PSConInit_E * 1 [nS/s]
-    GI' += spikeInh * PSConInit_I * 1 [nS/s]
+    GE' += spikeExc * PSConInit_E * 1 [nS/ms]
+    GI' += spikeInh * PSConInit_I * 1 [nS/ms]
     I_stim = currents
   end
 

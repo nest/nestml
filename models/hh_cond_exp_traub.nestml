@@ -74,9 +74,9 @@ neuron hh_cond_exp_traub_neuron:
     function alpha_h real = 0.128 * exp( ( 17. - V_rel / 1 mV ) / 18. )
     function beta_h real = 4. / ( 1. + exp( ( 40. - V_rel / 1 mV ) / 5. ) )
 
-    Act_m' = ( alpha_m - ( alpha_m + beta_m ) * Act_m ) * 1 [1/s]
-    Act_h' = ( alpha_h - ( alpha_h + beta_h ) * Act_h ) * 1 [1/s]
-    Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n ) * 1 [1/s]
+    Act_m' = ( alpha_m - ( alpha_m + beta_m ) * Act_m ) / 1 ms
+    Act_h' = ( alpha_h - ( alpha_h + beta_h ) * Act_h ) / 1 ms
+    Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n ) / 1 ms
 
   end
 

@@ -115,8 +115,8 @@ neuron aeif_cond_exp_implicit:
       emit_spike()
     end
 
-    g_ex += spikeExc
-    g_in += spikeInh
+    g_ex += spikeExc * 1 nS
+    g_in += spikeInh * 1 nS
     I_stim = currents
   end
 

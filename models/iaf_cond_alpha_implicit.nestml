@@ -42,11 +42,11 @@ neuron iaf_cond_alpha_implicit:
   equations:
     # alpha function for the g_in
     g_in'' = -g_in'/tau_syn_in
-    g_in' = g_in' - g_in/tau_syn_in * 1 [ms/s]
+    g_in' = g_in' - g_in/tau_syn_in 
 
     # alpha function for the g_ex
     g_ex'' = -g_ex'/tau_syn_ex
-    g_ex' = g_ex'  -g_ex/tau_syn_ex * 1 [ms/s]
+    g_ex' = g_ex'  -g_ex/tau_syn_ex 
 
     function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
@@ -106,8 +106,8 @@ neuron iaf_cond_alpha_implicit:
     end
 
     # add incoming spikes
-    g_ex' += spikeExc * PSConInit_E * 1 [nS/s]
-    g_in' += spikeInh * PSConInit_I * 1 [nS/s]
+    g_ex' += spikeExc * PSConInit_E * 1 [nS/ms]
+    g_in' += spikeInh * PSConInit_I * 1 [nS/ms]
     # set new input current
     I_stim = currents
   end

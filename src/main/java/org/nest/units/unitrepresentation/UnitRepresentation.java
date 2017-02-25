@@ -442,7 +442,8 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
 
   public UnitRepresentation deriveT(int order) {
     UnitRepresentation result = getBuilder().other(this).build();
-    result.s -= order;
+    UnitRepresentation denominator = getBuilder().s(order).magnitude(-3*order).build();
+    result = result.divideBy(denominator);
     return result;
   }
 

@@ -76,17 +76,17 @@ neuron hh_psc_alpha_neuron:
     # Inact_n
     function alpha_n real = ( 0.01 * ( V_m / 1 mV + 55. ) ) / ( 1. - exp( -( V_m / 1 mV + 55. ) / 10. ) )
     function beta_n  real = 0.125 * exp( -( V_m / 1 mV + 65. ) / 80. )
-    Inact_n' = ( alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n ) / 1 s # n-variable
+    Inact_n' = ( alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n ) / 1 ms # n-variable
 
     # Act_m
     function alpha_m real = ( 0.1 * ( V_m / 1 mV + 40. ) ) / ( 1. - exp( -( V_m / 1 mV + 40. ) / 10. ) )
     function beta_m  real = 4. * exp( -( V_m / 1 mV + 65. ) / 18. )
-    Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / 1 s # m-variable
+    Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / 1 ms # m-variable
 
     # Act_h
     function alpha_h real = 0.07 * exp( -( V_m / 1 mV + 65. ) / 20. )
     function beta_h  real = 1. / ( 1. + exp( -( V_m / 1 mV + 35. ) / 10. ) )
-    Act_h' = ( alpha_h * ( 1 - Act_h ) - beta_h * Act_h ) / 1 s # h-variable
+    Act_h' = ( alpha_h * ( 1 - Act_h ) - beta_h * Act_h ) / 1 ms # h-variable
   end
 
   parameters:

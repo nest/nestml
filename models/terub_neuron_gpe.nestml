@@ -112,18 +112,18 @@ neuron terub_neuron_gpe:
 
     # synapses: alpha functions
     g_ex'' = -g_ex' / tau_syn_ex
-    g_ex' = g_ex' - ( g_ex / tau_syn_ex ) * 1 [ms/s]
+    g_ex' = g_ex' - ( g_ex / tau_syn_ex ) 
 
     g_in'' = -g_in' / tau_syn_in
-    g_in' = g_in' - ( g_in / tau_syn_in ) * 1 [ms/s]
+    g_in' = g_in' - ( g_in / tau_syn_in ) 
 
     # V dot -- synaptic input are currents, inhib current is negative
     V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* 1 pA + I_stim + I_e + I_ex_mod * 1 pA + I_in_mod * 1 pA) / C_m
 
     # channel dynamics
-    gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / 1 s # h-variable
-    gate_n' = g_phi_n *((n_inf-gate_n) / tau_n) / 1 s # n-variable
-    gate_r' = g_phi_r *((r_inf-gate_r) / tau_r) / 1 s # r-variable
+    gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / 1 ms # h-variable
+    gate_n' = g_phi_n *((n_inf-gate_n) / tau_n) / 1 ms # n-variable
+    gate_r' = g_phi_r *((r_inf-gate_r) / tau_r) / 1 ms # r-variable
 
     # Calcium concentration
     Ca_con' = g_epsilon*(-I_Ca - I_T - g_k_Ca * Ca_con)
@@ -179,8 +179,8 @@ neuron terub_neuron_gpe:
     # set new input current
     I_stim = currents
 
-    g_ex' += spikeExc * PSCurrInit_E * 1 [pA/s]
-    g_in' += spikeInh * PSCurrInit_I * 1 [pA/s]
+    g_ex' += spikeExc * PSCurrInit_E * 1 [pA/ms]
+    g_in' += spikeInh * PSCurrInit_I * 1 [pA/ms]
   end
 
 end
