@@ -81,9 +81,9 @@ neuron mat2_exp_neuron:
     i_syn_ex = i_syn_ex * P11ex
     i_syn_in = i_syn_in * P11in
     # the spikes arriving at T+1 have an
-    i_syn_ex = i_syn_ex + spikes_ex.get_sum()
+    i_syn_ex = i_syn_ex + spikes_ex
     # the spikes arriving at T+1 have an
-    i_syn_in = i_syn_in + spikes_in.get_sum()
+    i_syn_in = i_syn_in + spikes_in
 
     if r == 0: # neuron is allowed to fire
       if V_m >= (omega + V_th_2 + V_th_1 ): # threshold crossing
@@ -98,12 +98,12 @@ neuron mat2_exp_neuron:
         r = r -1 # neuron is totally refractory (cannot generate spikes)
 
         # set new input current
-        i_0 = currents.get_sum()
+        i_0 = currents
       end
 
     end
     # set new input current
-    i_0 = currents.get_sum()
+    i_0 = currents
 
   end
 
