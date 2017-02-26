@@ -530,9 +530,8 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     String firstName = first.getName();
     String prefix = "";
     if(thisDump !=0) {
-      if(first.getExponent() < 0){
-        thisDump = -thisDump;
-      }
+      nextDump += thisDump%first.getExponent();
+      thisDump = thisDump/first.getExponent();
       prefix = SIData.getPrefixMagnitudes().inverse().get(thisDump);
     }
     first.setName(prefix+firstName);
