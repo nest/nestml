@@ -41,7 +41,7 @@ Any other physical unit can be expressed as a combination of these seven units. 
 | electrical conductance | siemens | A<sup>2</sup> s<sup>3</sup> kg<sup>−1</sup> m<sup>−2</sup> | S |
 | electric charge        | coulomb | A s                                                        | C |
 | electric potential     | volt    | kg m<sup>2</sup> A<sup>−1</sup> s<sup>−3</sup>             | V |
-| electric resistance    | ohm     | kg m<sup>2</sup> A<sup>−2</sup> s<sup>−3</sup>             | ohm/&‌#x03A9; |
+| electric resistance    | ohm     | kg m<sup>2</sup> A<sup>−2</sup> s<sup>−3</sup>             | ohm/&Omega; |
 | frequency              | hertz   | s<sup>−1</sup>                                             | Hz |
 
 | | | | |
@@ -111,7 +111,9 @@ The basic elements of the language are declarations, assignments, function calls
 #### Declarations
 
 Declarations are composed of a non-empty list of comma separated names. A valid name starts with a letter, an underscore or the dollar character. Furthermore, it can contain an arbitrary number of letters, numbers, underscores and dollar characters. Formally, a valid name satisfies the following regular expression:
-` ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*`.
+```
+( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*
+```
 
 Names of functions and input ports must also satisfy this pattern. The type of the declaration can be any of the valid NESTML types. The type of the initialization expression must be compatible with the type of the declaration.
 ```
