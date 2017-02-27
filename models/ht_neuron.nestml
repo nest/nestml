@@ -99,7 +99,7 @@ neuron ht_neuron_nestml:
     recordable function I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
     # The spike current is only activate immediately after a spike.
     function I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
-    V_m'  = ( ( I_Na * 1 pA + I_K * 1 pA + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike * 1 [pA/(ms * mV)] ) * 1 [Gs/F]                    
+    V_m'  = ( ( I_Na * 1 pA + I_K * 1 pA + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike * 1 [pA/(ms * mV)] ) * 1 [s/nF]                    
     #############
     # Intrinsic currents
     #############
