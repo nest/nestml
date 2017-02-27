@@ -23,29 +23,42 @@ A physical unit in NESTML can be either a simple physical unit or a complex phys
 
 The following table lists seven base units, which can be used to specify any physical unit. This idea is based on [the SI units](https://en.wikipedia.org/wiki/International_System_of_Units).
 
-|Quantity | SI Symbol | SI Name | NESTML Name|
+|Quantity | Unit Name | NESTML/SI unit |
+|---|---|---|
+| length              | metre    | m |
+| mass                | kilogram | kg |
+| time                | second   | s |
+| electric current    | ampere   | A |
+| temperature         | kelvin   | K |
+| amount of substance | mole     | mol |
+| luminous intensity  | candela  | cd |
+
+Any other physical unit can be expressed as a combination of these seven units. These other units are called derived units. NESTML provides the following derived units as built-in data types:
+
+|Quantity | Unit name | Definition | NESTML/SI unit |
 |---|---|---|---|
-| length | L | metre  | m |
-| mass | M | kilogram | kg |
-| time | T | second | s |
-| electric current | I | ampere | A |
-| temperature | &#920; | kelvin | K |
-| amount of substance | N | mole | mol |
-| luminous intensity | J | candela | cd |
+| capacitance            | farad   | A<sup>2</sup> s<sup>4</sup> kg<sup>−1</sup> m<sup>−2</sup> | F |
+| electrical conductance | siemens | A<sup>2</sup> s<sup>3</sup> kg<sup>−1</sup> m<sup>−2</sup> | S |
+| electric charge        | coulomb | A s                                                        | C |
+| electric potential     | volt    | kg m<sup>2</sup> A<sup>−1</sup> s<sup>−3</sup>             | V |
+| electric resistance    | ohm     | kg m<sup>2</sup> A<sup>−2</sup> s<sup>−3</sup>             | ohm/&‌#x03A9; |
+| frequency              | hertz   | s<sup>−1</sup>                                             | Hz |
 
-All other physical units are called derived units. Theoretically, any physical unit can be expressed as a combination of these seven units. In order to ease modeling, NESTML provides the following derived units as built-in data types:
-
-| | | | |
-|---|----|---|---|
-| Bq | C | F | Gy |
-| Hz | J | N | Ohm |
-| Pa | S | Sv | TH |
-| V | W  | Wb | kat | |
+|---|---|---|---|
+|||| Bq |
+|||| Gy |
+|||| Sv |
+|||| J |
+|||| W  |
+|||| Wb |
+|||| N |
+|||| Pa |
+|||| kat |
 
 Units can have at most one of the following magnitude prefixes:
 
 |Factor | SI Name | NESTML prefix | Factor | SI Name | NESTML prefix
-|---|----|---|---|---|---|
+|---|---|---|---|---|---|
 |10<sup>-1</sup>  | deci  | d  | 10<sup>1</sup>  | deca  | da |
 |10<sup>-2</sup>  | centi | c  | 10<sup>2</sup>  | hecto | h |
 |10<sup>-3</sup>  | milli | m  | 10<sup>3</sup>  | kilo  | k |
@@ -53,6 +66,8 @@ Units can have at most one of the following magnitude prefixes:
 |10<sup>-9</sup>  | nano  | n  | 10<sup>9</sup>  | giga  | G |
 |10<sup>-12</sup> | pico  | p  | 10<sup>12</sup> | tera  | T |
 |10<sup>-15</sup> | femto | f  | 10<sup>15</sup> | peta  | P |
+
+|---|---|---|---|---|---|
 |10<sup>-18</sup> | atto  | a  | 10<sup>18</sup> | exa   | E |
 |10<sup>-21</sup> | zepto | z  | 10<sup>21</sup> | zetta | Z |
 |10<sup>-24</sup> | yocto | y  | 10<sup>24</sup> | yotta | Y |
@@ -61,7 +76,8 @@ Finally, simple physical units can be combined to complex units. For this, the o
 ```
 mV*mV*nS**2/(mS*pA)
 ```
-As in math, units of the form `<unit> ** -1` can also be expressed as `1\<unit>`. For example
+
+Units of the form `<unit> ** -1` can also be expressed as `1\<unit>`. For example
 ```
 (ms*mV)**-1
 ```
