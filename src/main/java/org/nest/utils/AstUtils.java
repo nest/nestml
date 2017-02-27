@@ -302,20 +302,12 @@ public final class AstUtils {
     return output.toString();
   }
 
-  /**
-   * Wrapper around computeTypeName that is used exclusively in generation.
-   * Calculates unit name from the serialized representation after the wrapped call
-   *
-   */
-  public static String computeTypeName(final ASTDatatype astDatatype){ //TODO: Better solution
-    return computeTypeName(astDatatype, false);
-  }
+
   /**
    * Computes the typename for the declaration ast. It is defined in one of the grammar
    * alternatives.
-   * TODO: must be better type! Why do I shift it?
    */
-  public static String computeTypeName(final ASTDatatype astDatatype, boolean isCodeGeneration) {
+  public static String computeTypeName(final ASTDatatype astDatatype) {
     String typeName = null;
     if (astDatatype.isBoolean()) {
       typeName = "boolean";
@@ -334,16 +326,10 @@ public final class AstUtils {
     }
     else if (astDatatype.getUnitType().isPresent()) {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
-      if(isCodeGeneration){
-        if(unitType.getSerializedUnit() == null){
-          UnitsSIVisitor.convertSiUnitsToSignature(unitType);
-        }
-        typeName = UnitRepresentation.getBuilder().serialization(unitType.getSerializedUnit()).build().prettyPrint();
+      if(unitType.getSerializedUnit() == null){
+        UnitsSIVisitor.convertSiUnitsToSignature(unitType);
       }
-      else{
-        typeName = unitType.getSerializedUnit(); //guaranteed to exist after successful NESTMLParser run.
-      }
-
+      typeName = unitType.getSerializedUnit();
     }
     else {
       checkState(false, "Is not possible through the grammar construction.");

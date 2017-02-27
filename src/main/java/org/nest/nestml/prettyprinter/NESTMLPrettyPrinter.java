@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.nest.spl.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 import static org.nest.utils.AstUtils.printComments;
 
 /**
@@ -277,7 +278,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    * This method is used in freemaker template. Therefore, remains public.
    */
   public void printODEAlias(final ASTOdeFunction astOdeAlias) {
-    final String datatype = AstUtils.computeTypeName(astOdeAlias.getDatatype(), true);
+    final String datatype = deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astOdeAlias.getDatatype()));
     final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
     if (astOdeAlias.isRecordable()) {
       print("recordable ");
@@ -377,7 +378,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
       for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
         boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
         final ASTParameter curParameter = astParameters.get(curParameterIndex);
-        print(curParameter.getName() + " " + AstUtils.computeTypeName(curParameter.getDatatype(),true));
+        print(curParameter.getName() + " " + deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(curParameter.getDatatype())));
         if (!isLastParameter) {
           print(", ");
         }
@@ -390,7 +391,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   private void printOptionalReturnValue(final ASTFunction astFunction) {
     if (astFunction.getReturnType().isPresent()) {
-      print(AstUtils.computeTypeName(astFunction.getReturnType().get(),true));
+      print(deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astFunction.getReturnType().get())));
     }
 
   }
