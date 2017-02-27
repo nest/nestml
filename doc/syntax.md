@@ -1,6 +1,6 @@
 # NESTML language documentation
 
-NESTML is a domain specific language which has a concise syntax that avoids clutter in the form of semicolons, curly braces or tags as known from other programming and description languages. Instead it concentrates on the domain concepts that help to efficiently write neuron models and their equations.
+NESTML is a domain specific language for the specification of models for the neuronal simulator [NEST](http://www.nest-simulator.org). It has a concise syntax based on that of Python which avoids clutter in the form of semicolons, curly braces or tags as known from other programming and description languages. Instead it concentrates on domain concepts that help to efficiently write neuron models and their equations.
 
 NESTML files are expected to have the filename extension `.nestml`. Each file may contain one or more neuron models. This means that there is no forced direct correspondence between model and file name. Models that shall be compiled into one extension module for NEST have to reside in the same directory. The name of the directory will be used as the name of the corresponding module.
 
