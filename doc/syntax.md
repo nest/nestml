@@ -104,7 +104,7 @@ NESTML checks type correctness of all expressions. This also applies to assignme
 
 ### Basic elements of the embedded programming language
 
-The basic elements are: declarations, assignments, function calls and return statements.
+The basic elements of the language are declarations, assignments, function calls and return statements.
 
 #### Declarations
 
@@ -157,12 +157,9 @@ x = max(a*2, b/2)
 
 | | | |
 |---|---|---|
-
 | exp | expm1 | log |
 | max | pow | random |
 | randomInt | warning | info |
-
-> Are these all functions that currently exists? Please add the missing ones and explain them in a bullet list one per line.
 
 #### Return statement
 
@@ -179,7 +176,7 @@ end
 
 ### Control structures
 
-NESTML supports loop- and conditional control-structures.
+To control the flow of executioon, NESTML supports loops and conditionals.
 
 #### Loops
 
@@ -408,8 +405,6 @@ has to be stated in the `state` block. If the initial values are not defined in 
 
 The content of spike and current buffers can be used by just using their plain names. NESTML takes care behind the scenes that the buffer location at the current simulation time step is used.
 
-> Currently there is support for GSL and exact integration. Elaborate!
-
 ## Dynamics and time evolution
 
 `update:` inside this block the current time can be accessed via the variable `t`
@@ -419,6 +414,10 @@ The content of spike and current buffers can be used by just using their plain n
 > `process_spikes()`: Do we still have this function?
 
 `emit_spike()`: calling this function in the `update`-block results in firing a spike to all target neurons and devices time stamped with the current simulation time.
+
+### Solver selection
+
+Currently there is support for GSL and exact integration.
 
 ### Concepts for refractoriness
 
