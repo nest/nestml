@@ -44,7 +44,7 @@ neuron izhikevich_neuron:
   state:
     V_m mV = -65mV # Membrane potential in mV
     U_m real = 0   # Membrane potential recovery variable
-    I mA = 0mA     # input current
+    I pA = 0. pA   # input current
   end
 
   equations:
@@ -57,7 +57,7 @@ neuron izhikevich_neuron:
     b real = 0.2    # sensitivity of recovery variable
     c mV = -65      # after-spike reset value of V_m
     d real = 8.0    # after-spike reset value of U_m
-    I_e mA = 0mA    # Constant input current in pA. (R=1)
+    I_e pA = 0 pA   # Constant input current in pA. (R=1)
     V_min mV = -inf # Absolute lower value for the membrane potential.
   end
 
@@ -69,7 +69,6 @@ neuron izhikevich_neuron:
   output: spike
 
   update:
-    I = currents.get_sum()
     integrate_odes()
     # Add synaptic current
     V_m += spikes.get_sum()
@@ -84,6 +83,7 @@ neuron izhikevich_neuron:
       emit_spike()
     end
 
+    I = currents
   end
 
 end

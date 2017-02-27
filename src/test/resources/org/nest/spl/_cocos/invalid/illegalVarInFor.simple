@@ -3,3 +3,12 @@ x boolean
 for x in 1 ... 5 :
 
 end
+
+xx real
+for xx in "Bob" ... 5 :
+
+end
+
+for xx in 1 ... true :
+
+end

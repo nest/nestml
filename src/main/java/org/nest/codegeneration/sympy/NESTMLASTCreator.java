@@ -6,8 +6,8 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;
-import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.nestml._ast.ASTVar_Block;
 import org.nest.nestml._ast.NESTMLNodeFactory;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.ode._ast.ASTEquation;
@@ -28,7 +28,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author plotnikov
  */
-class NESTMLASTCreator {
+public class NESTMLASTCreator {
 
   private static final NESTMLParser PARSER = new NESTMLParser();
 
@@ -37,7 +37,7 @@ class NESTMLASTCreator {
   }
 
   static List<ASTAliasDecl> createAliases(final Path declarationFile) {
-    checkArgument(Files.exists(declarationFile));
+    checkArgument(Files.exists(declarationFile), declarationFile.toString());
 
     try {
       return Files.lines(declarationFile)
@@ -104,15 +104,10 @@ class NESTMLASTCreator {
 
   }
 
-  static ASTExpr createExpression(final String expression) {
-    try {
-      // it is ok to call get, since otherwise it is an error in the file structure
-      return PARSER.parseExpr(new StringReader(expression)).get();
-    }
-    catch (IOException e) {
-      final String msg = "Cannot parse assignment statement.";
-      throw new RuntimeException(msg, e);
-    }
+  static public ASTVar_Block createInternalBlock() {
+    final ASTVar_Block astVar_block =  NESTMLNodeFactory.createASTVar_Block();
+    astVar_block.setInternals(true);
 
+    return astVar_block;
   }
 }

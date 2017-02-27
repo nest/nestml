@@ -6,7 +6,6 @@ import org.nest.commons._visitor.ExpressionTypeVisitor;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.units._ast.ASTUnitType;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.Optional;
@@ -39,7 +38,7 @@ public class ASTExpr extends ASTExprTOP {
     if(type.get().isValue()){
       TypeSymbol typeSymbol = type.get().getValue();
       if(typeSymbol.getType() == TypeSymbol.Type.UNIT){
-        UnitRepresentation unit = new UnitRepresentation(typeSymbol.getName());
+        UnitRepresentation unit = UnitRepresentation.getBuilder().serialization(typeSymbol.getName()).build();
         if(unit.isZero()){
          type =Optional.of(Either.value(PredefinedTypes.getRealType()));
         }

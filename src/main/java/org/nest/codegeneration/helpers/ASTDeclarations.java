@@ -54,6 +54,16 @@ public class ASTDeclarations {
     }
   }
 
+  public String initialValue(final VariableSymbol variableSymbol) {
+
+    if (variableSymbol.getVectorParameter().isPresent()) {
+      return "std::vector< " + nestml2NESTTypeConverter.convert(variableSymbol.getType()) + " > ()";
+    }
+    else {
+      return "0"; // TODO map it based on its type
+    }
+  }
+
   public List<VariableSymbol> getVariables(final ASTAliasDecl astAliasDecl) {
     return getVariables(astAliasDecl.getDeclaration());
   }

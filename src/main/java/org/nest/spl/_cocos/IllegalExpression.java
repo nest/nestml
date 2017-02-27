@@ -5,29 +5,29 @@
  */
 package org.nest.spl._cocos;
 
-import de.monticore.ast.ASTNode;
+import org.nest.commons._ast.ASTExpr;
+import de.monticore.symboltable.Scope;
+import de.se_rwth.commons.logging.Log;
+import org.nest.commons._visitor.ExpressionTypeVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
+import java.util.Optional;
+
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
+import static org.nest.spl._cocos.SplErrorStrings.messageCastToReal;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.utils.AstUtils.computeTypeName;
-import static org.nest.utils.AstUtils.getNameOfLHS;
-
-import java.util.Optional;
-
 /**
  * Check that the type of the loop variable is an integer.
  *
@@ -44,7 +44,55 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTAssignment node) {
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
+    if(node.isAssignment()){
+      handleAssignment(node);
+    }
+    //compound assignments: Construct dummy '=' assignment node with a conventional expression and test it instead
+    else{
 
+      ASTExpr dummyVariableExpr = ASTExpr.getBuilder().variable(node.getLhsVarialbe()).build();
+      dummyVariableExpr.setEnclosingScope(node.getEnclosingScope().get());
+      //TODO: Correctly calculate source positions
+      dummyVariableExpr.set_SourcePositionStart(node.get_SourcePositionStart());
+
+      ASTExpr.Builder exprBuilder = ASTExpr.getBuilder();
+      if(node.isCompoundProduct()){
+        exprBuilder.timesOp(true);
+      }
+      if(node.isCompoundSum()){
+        exprBuilder.plusOp(true);
+      }
+      if(node.isCompoundQuotient()){
+        exprBuilder.divOp(true);
+      }
+      if(node.isCompoundMinus()){
+        exprBuilder.minusOp(true);
+      }
+      ASTExpr dummyExpression = exprBuilder.left(dummyVariableExpr).right(node.getExpr()).build();
+      dummyExpression.setEnclosingScope(node.getEnclosingScope().get());
+      //TODO: Correctly calculate source positions
+      dummyExpression.set_SourcePositionStart(node.get_SourcePositionStart());
+
+      ASTAssignment dummyAssignment = ASTAssignment.getBuilder()
+          .assignment(true)
+          .lhsVarialbe(node.getLhsVarialbe())
+          .expr(dummyExpression)
+          .build();
+
+      dummyAssignment.setEnclosingScope(node.getEnclosingScope().get());
+      //TODO: Correctly calculate source positions
+      dummyAssignment.set_SourcePositionStart(node.get_SourcePositionStart());
+
+      handleAssignment(dummyAssignment);
+
+    }
+
+
+
+  }
+
+  private void handleAssignment(
+      ASTAssignment node){
     //collect lhs information
     final String variableName = node.getLhsVarialbe().getName().toString();
     final Optional<VariableSymbol> lhsVariable = node.getEnclosingScope().get().resolve(
@@ -54,28 +102,30 @@ public class IllegalExpression implements
 
     //collect rhs information
 
-    final Either<TypeSymbol,String> expressionType = node.getExpr().getType();
-    if(expressionType.isValue()){
-
-      if (!isCompatible(variableType,expressionType.getValue())) {
+    final Either<TypeSymbol,String> expressionTypeEither = node.getExpr().getType();
+    if(expressionTypeEither.isValue()){
+      final TypeSymbol expressionType = expressionTypeEither.getValue();
+      if (!isCompatible(variableType,expressionType)) {
         final String msg = SplErrorStrings.messageAssignment(
             this,
             variableName,
             variableType.prettyPrint(),
-            expressionType.getValue().prettyPrint(),
+            expressionType.prettyPrint(),
             node.get_SourcePositionStart());
-        if(isReal(variableType)&&isUnit(expressionType.getValue())){
+        if(isReal(variableType)&&isUnit(expressionType)){
           //TODO put in string class when I inevitably refactor it.
-          warn("SPL_ILLEGAL_EXPRESSION: Implicit casting from "+expressionType.getValue().prettyPrint()+" to real");
-        }else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
+          final String castMsg = messageCastToReal(this, expressionType.prettyPrint(), node.getExpr().get_SourcePositionStart());
+          warn(castMsg);
+        } else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
           warn(msg, node.get_SourcePositionStart());
         }
         else {
           error(msg, node.get_SourcePositionStart());
         }
-
       }
+
     }
+
   }
 
   @Override
@@ -104,7 +154,13 @@ public class IllegalExpression implements
             node.get_SourcePositionStart());
           if(isReal(variableDeclarationType)&&isUnit(initializerExpressionType.getValue())){
             //TODO put in string class when I inevitably refactor it.
-            warn("SPL_ILLEGAL_EXPRESSION: Implicit casting from "+initializerExpressionType.getValue().prettyPrint()+" to real");
+
+
+            final String castMsg = messageCastToReal(
+                this,
+                initializerExpressionType.getValue().prettyPrint(),
+                node.getExpr().get().get_SourcePositionStart());
+            warn(castMsg);
           }else if (isUnit(variableDeclarationType)){ //assignee is unit -> drop warning not error
             warn(msg, node.get_SourcePositionStart());
           }
@@ -122,6 +178,7 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTELIF_Clause node) {
+    checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Either<TypeSymbol, String> exprType = node.getExpr().getType();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
@@ -136,12 +193,54 @@ public class IllegalExpression implements
   }
 
   @Override
-  public void check(final ASTFOR_Stmt node) {
-    // TODO
+  public void check(final ASTFOR_Stmt astfor) {
+    checkArgument(astfor.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
+    final Scope scope = astfor.getEnclosingScope().get();
+
+    String iterName = astfor.getVar();
+
+    final VariableSymbol iter = VariableSymbol.resolve(iterName, scope);
+    TypeChecker tc = new TypeChecker();
+    if (!tc.checkNumber(iter.getType())) {
+      final String msg = SplErrorStrings.messageForLoop(
+          this,
+          iterName,
+          iter.getType().getName(),
+          astfor.get_SourcePositionStart());
+      Log.error(msg);
+    }
+
+    ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+    astfor.getFrom().accept(expressionTypeVisitor);
+
+    if (astfor.getFrom().getType().isValue()) {
+      if (!tc.checkNumber(astfor.getFrom().getType().getValue())) {
+        final String msg = SplErrorStrings.messageForLoopBound(
+            this,
+            AstUtils.toString(astfor.getFrom()),
+            astfor.getFrom().getType().getValue().getName(),
+            astfor.get_SourcePositionStart());
+        Log.error(msg);
+      }
+    }
+
+    astfor.getTo().accept(expressionTypeVisitor);
+    astfor.getTo().accept(expressionTypeVisitor);
+    if (astfor.getTo().getType().isValue()) {
+      if (!tc.checkNumber(astfor.getTo().getType().getValue())) {
+        final String msg = SplErrorStrings.messageForLoopBound(
+            this,
+            AstUtils.toString(astfor.getTo()),
+            astfor.getTo().getType().getValue().getName(),
+            astfor.get_SourcePositionStart());
+        Log.error(msg);
+      }
+    }
   }
 
   @Override
   public void check(final ASTIF_Clause node) {
+    checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Either<TypeSymbol, String> exprType = node.getExpr().getType();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
@@ -157,6 +256,7 @@ public class IllegalExpression implements
 
   @Override
   public void check(final ASTWHILE_Stmt node) {
+    checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     if (node.getExpr().getType().getValue() != getBooleanType()) {
       final String msg = SplErrorStrings.messageNonBoolean(
           this,

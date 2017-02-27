@@ -1,16 +1,10 @@
 neuron validExpressionTest:
-  state:
-    Resist Ohm = 8Ohm 
-    Ampere A = 3A 
-    InverseVolt 1/V = 5 [1/V]
-
-    V1 (kg*m*m)/(A*s**3) = 10 V  #verbose Type
-    #V2 (kg*m*m)/(A*s**(2+1)) = 10 V   #TODO: this should work
-    W1 MW = 10 [kJ/ms] #magnitude   
-     
-    hertz Hz = 7 [s**-1] 
-    newton N = 10kg* 1m / 1 s**2
-    pascal Pa =  7 * newton / 2m**2
+  state: 
+    Volt V 
+    InverseVolt 1/V   
+    Ampere A
+    Resist Ohm
+    Real real
   end
 
   function foo(amp A, ohm Ohm) V:  #Unit type in functions
@@ -23,30 +17,38 @@ neuron validExpressionTest:
       currents <- current
   end
 
-  parameters:
-    V2 V = foo(7 A,2 Ohm) #function call    
+  parameters:   
   end
 
   output: spike
 
   internals:
-    S_1 ms   = resolution() #predefined Functions
+    S_1 ms   = resolution()                 #predefined Functions
   end
 
   update:
- 
-    V1 = 2 * V1 
-    V1 = 2.0 *V1
-    V1 = (10 kg * 5 [m**2]) /( 1 [A*s**3])
+    Volt = foo(7 A,2 Ohm)                   #function call 
+    Volt = Resist * Ampere                  #multipilication gives correct unit
+    Volt = 2 * Volt                         #multiplication with int -> unit
+    Volt = 2.0 * Volt                       #multiplication with real -> unit
+    Volt = Volt + Volt                      #addition
+    Volt = Volt - Volt                      #substraction
+    Real = Volt/Volt                        #division erases units -> real
+    Resist = Volt / Ampere                  #division gives correct unit
+    Volt = Volt / 2                         #division with int -> unit
+    Volt = Volt / 2.0                       #division with real -> unit
+    InverseVolt = 2 / Volt                  #unit in denominator -> inverse unit
+    InverseVolt = 2.0 / Volt                #unit in denominator -> inverse unit
+    Volt = -Volt                            #unary minus
+    
+    Volt = true?3V:Volt                     #ternary
 
-
-
-    Ampere = 7A #Assignment
-
-    if Resist > 3Ohm: # Comparison
-     #NOOP
-    elif 8A >= Ampere:  #Comparison
-      emit_spike()
+    if Resist > 3Ohm:                       #Comparison
+    elif Resist < 3Ohm:                     #Comparison
+    elif Resist == 3Ohm:                    #Comparison
+    elif Resist >= 3Ohm:                    #Comparison
+    elif Resist <= 3Ohm:                    #Comparison
+    elif Resist <> 3Ohm:                    #Comparison
     end
   end
 

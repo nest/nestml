@@ -4,7 +4,7 @@ neuron IAF:
   end
 
   equations:
-    G1 = G2
+    G1' = G2
     V1' = V2
   end
 

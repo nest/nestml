@@ -6,9 +6,7 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
 
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
@@ -17,7 +15,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
  *  @author ptraeder
  * */
 public class ConditionVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_CONDITION_VISITOR: ";
+  final String ERROR_CODE = "SPL_CONDITION_VISITOR";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -40,7 +38,7 @@ public class ConditionVisitor implements CommonsVisitor{
       }
 
       if (!condition.getValue().equals(getBooleanType())) {
-        final String errorMsg = ERROR_CODE+"The ternary operator condition must be boolean.";
+        final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"The ternary operator condition must be boolean.";
         expr.setType(Either.error(errorMsg));
         Log.error(errorMsg,expr.get_SourcePositionStart());
         return;
@@ -51,40 +49,45 @@ public class ConditionVisitor implements CommonsVisitor{
         return;
       }
 
-      //Both are units -> tie break by using the first
+      //Both are units -> real
       if(isUnit(ifTrue.getValue())&&isUnit(ifNot.getValue())){
-        final String errorMsg = ERROR_CODE+
+        final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
-                ifNot.getValue().prettyPrint()+"-> Assuming "+ifTrue.getValue().prettyPrint();
-        expr.setType(ifTrue);
-        Log.warn(errorMsg,expr.get_SourcePositionStart());
-        return;
-      }
-      //integer and real -> real
-      if(isNumericPrimitive(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue())){
-        final String errorMsg = ERROR_CODE+
-            "Mismatched numeric primitives in conditional alternatives -> Assuming real";
+                ifNot.getValue().prettyPrint()+"-> Assuming real";
         expr.setType(Either.value(getRealType()));
         Log.warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
-      //one Unit and one primitive and vice versa -> return unit
-      if(isUnit(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue())){
-        final String errorMsg = ERROR_CODE+
+      //one Unit and one numeric primitive and vice versa -> assume unit,warn
+      if((isUnit(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue()))||
+          isUnit(ifNot.getValue())&&isNumericPrimitive(ifTrue.getValue())){
+        TypeSymbol unitType;
+        if(isUnit(ifTrue.getValue())){
+          unitType = ifTrue.getValue();
+        }else{
+          unitType = ifNot.getValue();
+        }
+        final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
-                ifNot.getValue().prettyPrint()+"-> Assuming "+ifTrue.getValue().prettyPrint();
-        expr.setType(ifTrue);
+            ifNot.getValue().prettyPrint()+"-> Assuming "+unitType.prettyPrint();
+        expr.setType(Either.value(unitType));
         Log.warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
-      if(isUnit(ifNot.getValue())&&isNumericPrimitive(ifTrue.getValue())){
-        final String errorMsg = ERROR_CODE+
-            "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
-                ifNot.getValue().prettyPrint()+ "-> Assuming "+ifNot.getValue().prettyPrint();
-        expr.setType(ifNot);
-        Log.warn(errorMsg,expr.get_SourcePositionStart());
+
+      //both are numeric primitives (and not equal) ergo one is real and one is integer -> real
+      if(isNumericPrimitive(ifTrue.getValue())&&isNumericPrimitive(ifNot.getValue())){
+        expr.setType(Either.value(getRealType()));
         return;
       }
+
+      //if we get here it is an error
+      final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
+          "Mismatched conditional alternatives "+ifTrue.getValue().prettyPrint()+" and "+
+          ifNot.getValue().prettyPrint()+".";
+      expr.setType(Either.error(errorMsg));
+      Log.error(errorMsg,expr.get_SourcePositionStart());
+      return;
     }
   }
 }

@@ -17,11 +17,13 @@ public class CliConfiguration {
   private final boolean checkCoCos;
   private final Path inputBasePath;
   private final Path targetPath;
+  private boolean isTracing;
 
   public CliConfiguration(final Builder builder) {
     this.checkCoCos = builder.checkCoCos;
     this.inputBasePath = builder.inputBasePath;
     this.targetPath = builder.targetPath;
+    this.isTracing = builder.isTracing;
   }
 
   boolean isCheckCoCos() {
@@ -37,10 +39,15 @@ public class CliConfiguration {
     return targetPath;
   }
 
+  public boolean isTracing() {
+    return isTracing;
+  }
+
   public static class Builder {
     private boolean checkCoCos = false;
     private Path inputBasePath;
     private Path targetPath;
+    private boolean isTracing = false;
 
     Builder withCoCos() {
       this.checkCoCos = true;

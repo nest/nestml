@@ -11,7 +11,9 @@ import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FilenameUtils;
 import org.nest.codegeneration.NestCodeGenerator;
+import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._symboltable.NestmlCoCosManager;
@@ -24,7 +26,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
@@ -75,6 +81,7 @@ public class CliConfigurationExecutor {
     for (final Path modelFile:nestmlModelFiles) {
       try {
         final Optional<ASTNESTMLCompilationUnit> root = parser.parse(modelFile.toString());
+
         if (root.isPresent()) {
           modelRoots.add(root.get());
           reporter.addArtifactInfo(
@@ -90,6 +97,7 @@ public class CliConfigurationExecutor {
               FilenameUtils.removeExtension(modelFile.getFileName().toString()),
               "The artifact is unparsable: " + errorMsg,
               Reporter.Level.ERROR);
+          Log.getFindings().clear();
           isError = true;
         }
 
@@ -129,16 +137,20 @@ public class CliConfigurationExecutor {
 
       scopeCreator.runSymbolTableCreator(modelRoot);
       final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
+      symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
+
       if (symbolTableFindings.isEmpty()) {
         reporter.addArtifactInfo(modelRoot.getArtifactName(), "Successfully built the symboltable.", Reporter.Level.INFO);
       } else {
         reporter.addArtifactInfo(modelRoot.getArtifactName(), "Cannot built the symboltable.", Reporter.Level.INFO);
       }
       final Collection<Finding> symbolTableWarnings = LogHelper.getWarningsByPrefix("NESTML_", Log.getFindings());
+      symbolTableWarnings.addAll(LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
       symbolTableWarnings.forEach(warning -> reporter.addArtifactInfo(modelRoot.getArtifactName(), warning.getMsg(), Reporter.Level.WARNING));
     }
 
     final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
+    symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
     if (symbolTableFindings.isEmpty() && checkModels(modelRoots, config)) {
       generateNeuronCode(modelRoots, config, generator);
@@ -172,8 +184,24 @@ public class CliConfigurationExecutor {
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
       reporter.reportProgress("Generate NEST code from the artifact: " + root.getFullName() + "...");
       generator.analyseAndGenerate(root, config.getTargetPath());
-      final String msg = "NEST code for the artifact: " + root.getFullName() + " is generated.";
-      reporter.addArtifactInfo(root.getArtifactName(), msg, Reporter.Level.INFO);
+      checkGeneratedCode(root, config.getTargetPath());
+    }
+
+  }
+
+  private void checkGeneratedCode(final ASTNESTMLCompilationUnit root, final Path targetPath) {
+    for (final ASTNeuron astNeuron:root.getNeurons()) {
+      if (Files.exists(Paths.get(targetPath.toString(), astNeuron.getName() + "." + TransformerBase.SOLVER_TYPE))) {
+
+        final String msg = "NEST code for the neuron: " + astNeuron.getName() + " in " + root.getFullName() +
+                           " was generated.";
+        reporter.addArtifactInfo(root.getArtifactName(), msg, Reporter.Level.INFO);
+      } else {
+
+        final String msg = "NEST code for the neuron: " + astNeuron.getName() + " in " + root.getFullName() +
+                           " wasn't generated.";
+        reporter.addArtifactInfo(root.getArtifactName(), msg, Reporter.Level.ERROR);
+      }
     }
 
   }
@@ -190,7 +218,7 @@ public class CliConfigurationExecutor {
         final List<Finding> modelFindings = checker.analyzeModel(root);
         findingsToModel.put(root.getArtifactName(), modelFindings);
 
-        if (findingsToModel.get(root.getArtifactName()).stream().filter(Finding::isError).findAny().isPresent()) {
+        if (findingsToModel.get(root.getArtifactName()).stream().anyMatch(Finding::isError)) {
           anyError = true;
         }
         reporter.addArtifactFindings(root.getArtifactName(), modelFindings);

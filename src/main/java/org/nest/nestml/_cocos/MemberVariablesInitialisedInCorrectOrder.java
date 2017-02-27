@@ -12,7 +12,6 @@ import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiPredicate;
@@ -116,7 +115,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
       }
 
       if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
-          rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETER) {
+          rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETERS) {
          final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
                 rhsSymbol.getName(),
                 lhsSymbol.getName());

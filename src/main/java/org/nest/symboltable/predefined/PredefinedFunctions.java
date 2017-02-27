@@ -37,7 +37,10 @@ public class PredefinedFunctions {
   private static final String RANDOM_INT = "randomInt";
   private static final String EXPM1 = "expm1";
   public static final String DELTA = "delta";
-  private static final String MAX = "max";
+  public static final String MAX = "max";
+  public static final String BOUNDED_MAX = "bounded_max";
+  public static final String MIN = "min";
+  public static final String BOUNDED_MIN = "bounded_min";
   public static final String INTEGRATE_ODES = "integrate_odes";
   public static final String CURR_SUM = "curr_sum";
   public static final String COND_SUM = "cond_sum";
@@ -115,10 +118,28 @@ public class PredefinedFunctions {
     name2FunctionSymbol.put(DELTA, delta);
 
     final MethodSymbol max = createFunctionSymbol(MAX);
-    max.addParameterType(getType("mV"));
-    max.addParameterType(getType("mV"));
-    max.setReturnType(getType("mV"));
+    max.addParameterType(getType("real"));
+    max.addParameterType(getType("real"));
+    max.setReturnType(getType("real"));
     name2FunctionSymbol.put(MAX, max);
+
+    final MethodSymbol boundedMax = createFunctionSymbol(BOUNDED_MAX);
+    boundedMax.addParameterType(getType("real"));
+    boundedMax.addParameterType(getType("real"));
+    boundedMax.setReturnType(getType("real"));
+    name2FunctionSymbol.put(BOUNDED_MAX, boundedMax);
+
+    final MethodSymbol min = createFunctionSymbol(MIN);
+    min.addParameterType(getType("real"));
+    min.addParameterType(getType("real"));
+    min.setReturnType(getType("real"));
+    name2FunctionSymbol.put(MIN, min);
+
+    final MethodSymbol boundedMin = createFunctionSymbol(BOUNDED_MIN);
+    boundedMin.addParameterType(getType("real"));
+    boundedMin.addParameterType(getType("real"));
+    boundedMin.setReturnType(getType("real"));
+    name2FunctionSymbol.put(BOUNDED_MIN, boundedMin);
 
     final MethodSymbol integrate = createFunctionSymbol(INTEGRATE_ODES);
     integrate.setReturnType(getVoidType());
@@ -126,14 +147,14 @@ public class PredefinedFunctions {
 
     final MethodSymbol i_sum = createFunctionSymbol(CURR_SUM);
     i_sum.addParameterType(getType("pA"));
-    i_sum.addParameterType(getBufferType());
+    i_sum.addParameterType(getRealType());
     i_sum.setReturnType(getType("pA"));
     name2FunctionSymbol.put(CURR_SUM, i_sum);
 
     final MethodSymbol cond_sum = createFunctionSymbol(COND_SUM);
     cond_sum.addParameterType(getType("nS"));
-    cond_sum.addParameterType(getBufferType());
-    cond_sum.setReturnType(getType("pA"));
+    cond_sum.addParameterType(getRealType());
+    cond_sum.setReturnType(getType("nS"));
     name2FunctionSymbol.put(COND_SUM, cond_sum);
   }
 

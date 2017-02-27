@@ -8,24 +8,19 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTAliasDecl;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTComponent;
-import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.monticore.utils.ASTNodes.getSuccessors;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
- * Checks that an alias is not used in the declaring expression of an non alias declaration
+ * Checks that an function is not used in the declaring expression of an non function declaration
  * n  integer
- * alias three integer[n] = 3
+ * function three integer[n] = 3
  * threePlusFour integer = three + 4 <- error: threePlusFour is not a vector
  * @author plotnikov, ippen
  */

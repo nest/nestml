@@ -15,4 +15,7 @@ h integer
 for h in 0 ... 10:
   t1 integer
   t2 integer
+  if true:
+    t1 string
+  end
 end

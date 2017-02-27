@@ -17,7 +17,7 @@ neuron NeuronInTest:
   end
 
   equations:
-    g real = 12
+    function g real = 12
   end
 end
 

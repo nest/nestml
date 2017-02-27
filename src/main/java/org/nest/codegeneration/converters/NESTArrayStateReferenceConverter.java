@@ -6,25 +6,15 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
 import org.nest.codegeneration.helpers.GslNames;
-import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.spl.prettyprinter.IReferenceConverter;
-import org.nest.symboltable.NESTMLSymbols;
-import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
-import java.util.Optional;
-
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static org.nest.codegeneration.helpers.VariableHelper.printOrigin;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
-import static org.nest.utils.AstUtils.convertDevrivativeNameToSimpleName;
 
 /**
  * Converts constants, names and functions the NEST equivalents.

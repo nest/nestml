@@ -10,12 +10,12 @@ import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.spl.prettyprinter.IReferenceConverter;
+import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
-import org.nest.symboltable.NESTMLSymbols;
 
 import java.util.Optional;
 
@@ -72,6 +72,12 @@ public class NESTReferenceConverter implements IReferenceConverter {
     if (PredefinedFunctions.POW.equals(functionName)) {
       return "std::pow(%s)";
     }
+    if (PredefinedFunctions.MAX.equals(functionName) || PredefinedFunctions.BOUNDED_MAX.equals(functionName)) {
+      return "std::max(%s)";
+    }
+    if (PredefinedFunctions.MIN.equals(functionName) || PredefinedFunctions.BOUNDED_MIN.equals(functionName) ) {
+      return "std::min(%s)";
+    }
 
     if (PredefinedFunctions.EXP.equals(functionName)) {
       return "std::exp(%s)";
@@ -91,7 +97,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
           "nest::kernel().event_delivery_manager.send(*this, se, lag);";
     }
 
-    final Optional<MethodSymbol> functionSymbol = NESTMLSymbols.resolveMethod(astFunctionCall);
+    final Optional<MethodSymbol> functionSymbol = NestmlSymbols.resolveMethod(astFunctionCall);
 
     if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell
 
@@ -104,7 +110,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
             return "B_." + calleeObject + "[i].get_value(lag)";
           }
           else {
-            return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol);
+            return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
           }
 
         }
@@ -137,7 +143,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return variableName + (variableSymbol.isVector()?"[i]":"");
       }
       else if(variableSymbol.isBuffer()) {
-        return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) ;
+        return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
       }
       else {
         if (variableSymbol.isAlias()) {

@@ -7,10 +7,10 @@ __a__, __h__ = symbols('__a__ __h__')
 </#compress>
 
 # Shapes must be symbolic for the differetiation step. Also all aliases which are using shapes must be defined with symbolic shapes
-<#list aliases as alias>
-${alias.getName()} = ${printer.print(odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get()))}
+<#list aliases as function>
+${function.getName()} = ${printer.print(odeTransformer.replaceFunctions(function.getDeclaringExpression().get()))}
 </#list>
-rhsTmp = ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))}
+rhsTmp = ${printer.print(odeTransformer.replaceFunctions(ode.getRhs()))}
 constantInputs = simplify(1/diff(rhsTmp, ${shapes[0].getLhs()}) * (rhsTmp - diff(rhsTmp, ${ode.getLhs().getSimpleName()})*${ode.getLhs().getSimpleName()}) - (
 <#assign operator = "">
 <#compress> <#list shapes as eq>
@@ -21,14 +21,14 @@ ${operator} ${eq.getLhs()}
 
 # print the definition of the shape
 <#list shapes as eq>
-${eq.getLhs()} = ${printer.print(odeTransformer.replaceSumCalls(eq.getRhs()))}
+${eq.getLhs()} = ${printer.print(odeTransformer.replaceFunctions(eq.getRhs()))}
 </#list>
 # also aliases must be defined in terms of new shapes
-<#list aliases as alias>
-${alias.getName()} = ${printer.print(odeTransformer.replaceSumCalls(alias.getDeclaringExpression().get()))}
+<#list aliases as function>
+${function.getName()} = ${printer.print(odeTransformer.replaceFunctions(function.getDeclaringExpression().get()))}
 </#list>
 
-rhs = ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))}
+rhs = ${printer.print(odeTransformer.replaceFunctions(ode.getRhs()))}
 dev${ode.getLhs().getSimpleName()} = diff(rhs, ${ode.getLhs().getSimpleName()})
 dev_t_dev${ode.getLhs().getSimpleName()} = diff(dev${ode.getLhs().getSimpleName()}, t)
 
@@ -102,7 +102,7 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
         c1 = diff(rhs, ${ode.getLhs().getSimpleName()})
         # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative
         ${shapes[0].getLhs()} = symbols("${shapes[0].getLhs()}")
-        c2 = diff( ${printer.print(odeTransformer.replaceSumCalls(ode.getRhs()))} , ${shapes[0].getLhs()})
+        c2 = diff( ${printer.print(odeTransformer.replaceFunctions(ode.getRhs()))} , ${shapes[0].getLhs()})
 
         # define matrices depending on order
         # for order 1 and 2 A is lower triangular matrix
@@ -133,11 +133,11 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
 
     shapes = [<#compress> <#list shapes as eq> "${eq.getLhs()}", </#list> </#compress>]
 
-    stateVariablesFile = open('state.variables.tmp', 'w')
-    initialValueFile = open('pscInitialValues.tmp', 'w')
-    stateVectorTmpDeclarationsFile = open('state.vector.tmp.declarations.tmp', 'w')
-    stateVectorUpdateSteps = open('state.vector.update.steps.tmp', 'w')
-    stateVectorTmpBackAssignmentsFile = open('state.vector.tmp.back.assignments.tmp', 'w')
+    stateVariablesFile = open('${neuronName}.state.variables.tmp', 'w')
+    initialValueFile = open('${neuronName}.pscInitialValues.tmp', 'w')
+    stateVectorTmpDeclarationsFile = open('${neuronName}.state.vector.tmp.declarations.tmp', 'w')
+    stateVectorUpdateSteps = open('${neuronName}.state.vector.update.steps.tmp', 'w')
+    stateVectorTmpBackAssignmentsFile = open('${neuronName}.state.vector.tmp.back.assignments.tmp', 'w')
 
     stateVectors = zeros(max(orders) + 1, len(shapes))
     for shapeIndex in range(0, len(shapes)):
@@ -171,10 +171,10 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
                 stateVectorTmpBackAssignmentsFile.write(stateVariables[i] + shapes[shapeIndex] + " = " + stateVariables[i] + shapes[shapeIndex] + "_tmp" + "\n")
 
 
-    f = open('P30.tmp', 'w')
+    f = open('${neuronName}.P30.tmp', 'w')
     f.write("P30 real = " + str(simplify(c2 / c1 * (exp(__h__ * c1) - 1))) + "# P00 expression")
 
-    propagatorMatrixFile = open('propagator.matrix.tmp', 'w')
+    propagatorMatrixFile = open('${neuronName}.propagator.matrix.tmp', 'w')
     tmpPropagator = [None]*len(shapes)
     for shapeIndex in range(0, len(shapes)):
        tmpPropagator[shapeIndex] = zeros(len(Ps[0].row(0)), len(Ps[0].col(0)))
@@ -184,7 +184,7 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
                    "P_" + shapes[shapeIndex] + "_" + str(rowIndex) + str(colIndex) + " real = " + str(Ps[shapeIndex][rowIndex, colIndex]) + "\n")
                tmpPropagator[shapeIndex][rowIndex, colIndex] = symbols("P_" + shapes[shapeIndex] + "_" + str(rowIndex) + str(colIndex));
 
-    updateStep = open('propagator.step.tmp', 'w')
+    updateStep = open('${neuronName}.propagator.step.tmp', 'w')
 
     # the multiplication only once. It is computation related to lefthandside of the ode.
     tmp = Ps[0][orders[shapeIndex], orders[shapeIndex]] * stateVectors.col(shapeIndex)[orders[shapeIndex]]
@@ -195,7 +195,7 @@ if dev_t_dev${ode.getLhs().getSimpleName()} == 0:
                                        0:(orders[shapeIndex])] * stateVectors.col(shapeIndex)[0:orders[shapeIndex],
                                                                  0])[orders[shapeIndex] - 1]) + "\n")
 
-    solverType = open('solverType.tmp', 'w')
+    solverType = open('${neuronName}.solverType.tmp', 'w')
     solverType.write("exact")
     print('Successfully solved the ODE with shapes ' + str(shapes) + ' exactly.')
 else:
@@ -270,8 +270,8 @@ else:
     prefixes = ["", "__D", "__D__D", "__D__D__D"]
     def transform(expression):
         return expression.replace("__D", "\'")
-    initialValuesFile = open('pscInitialValues.tmp', 'w')
-    implicitFormFile = open('equations.tmp', 'w')
+    initialValuesFile = open('${neuronName}.pscInitialValues.tmp', 'w')
+    implicitFormFile = open('${neuronName}.equations.tmp', 'w')
     for shape_index in range(0, len(shapes)):
         odeOrder = orders[shape_index]
         shape = shapes[shape_index]
@@ -293,6 +293,6 @@ else:
         implicitFormFile.write(transform(str(derivatives[odeOrder]) + " = " + str(simplify(rhs)) + "\n"))
         for order in range(1, odeOrder):
             implicitFormFile.write(transform(str(derivatives[order]) + " = " + transform(str(derivatives[order])) + "\n"))
-    solverType = open('solverType.tmp', 'w')
+    solverType = open('${neuronName}.solverType.tmp', 'w')
     solverType.write("numeric")
     print('Successfully converted shapes ' + str(shapes) + ' into the implicit from.')

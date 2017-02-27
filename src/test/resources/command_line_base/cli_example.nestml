@@ -1,8 +1,8 @@
-neuron iaf_psc_alpha_nestml:
+neuron iaf_psc_alpha_neuron:
 
   state:
     V_abs mV
-    alias V_m mV = V_abs + E_L # Membrane potential.
+    function V_m mV = V_abs + E_L # Membrane potential.
   end
 
   equations:
@@ -19,8 +19,8 @@ neuron iaf_psc_alpha_nestml:
     tau_syn_ex ms = 2     # Time constant of synaptic current.
     t_ref   ms = 2     # Refractory period.
     E_L     mV = -70  # Resting potential.
-    alias V_reset mV = -70 - E_L
-    alias Theta   mV = -55 - E_L
+    function V_reset mV = -70 - E_L
+    function Theta   mV = -55 - E_L
     I_e     pA = 0     # External current.
   end
 

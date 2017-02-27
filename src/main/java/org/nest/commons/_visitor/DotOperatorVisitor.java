@@ -14,7 +14,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class DotOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_DOT_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_DOT_OPERATOR_VISITOR";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -35,7 +35,7 @@ public class DotOperatorVisitor implements CommonsVisitor{
         expr.setType(Either.value(getIntegerType()));
         return;
       }else{
-        final String errorMsg = ERROR_CODE +"Modulo with non integer parameters";
+        final String errorMsg = ERROR_CODE + " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Modulo with non integer parameters";
         expr.setType(Either.error(errorMsg));
         error(errorMsg,expr.get_SourcePositionStart());
         return;
@@ -47,8 +47,8 @@ public class DotOperatorVisitor implements CommonsVisitor{
         // If both are units, calculate resulting Type
         if (lhsType.getValue().getType() == TypeSymbol.Type.UNIT
             && rhsType.getValue().getType() == TypeSymbol.Type.UNIT) {
-          UnitRepresentation leftRep = new UnitRepresentation(lhsType.getValue().getName());
-          UnitRepresentation rightRep = new UnitRepresentation(rhsType.getValue().getName());
+          UnitRepresentation leftRep = UnitRepresentation.getBuilder().serialization(lhsType.getValue().getName()).build();
+          UnitRepresentation rightRep = UnitRepresentation.getBuilder().serialization(rhsType.getValue().getName()).build();
           if (expr.isTimesOp()) {
             TypeSymbol returnType = getTypeIfExists((leftRep.multiplyBy(rightRep)).serialize())
                 .get();//Register type on the fly
@@ -74,7 +74,7 @@ public class DotOperatorVisitor implements CommonsVisitor{
             return;
           }
           else if (expr.isDivOp()) {
-            UnitRepresentation rightRep = new UnitRepresentation(rhsType.getValue().getName());
+            UnitRepresentation rightRep = UnitRepresentation.getBuilder().serialization(rhsType.getValue().getName()).build();
             TypeSymbol returnType = getTypeIfExists((rightRep.invert()).serialize()).get();//Register type on the fly
             expr.setType(Either.value(returnType));
             return;
@@ -105,7 +105,8 @@ public class DotOperatorVisitor implements CommonsVisitor{
     }
 
     //Catch-all if no case has matched
-    final String errorMsg = ERROR_CODE+"Cannot determine the type of the expression: " + AstUtils.toString(expr);
+    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Cannot determine the type of the expression: " +lhsType.getValue().prettyPrint()
+        +(expr.isDivOp()?" / ":" * ")+rhsType.getValue().prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());
   }

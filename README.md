@@ -27,7 +27,7 @@ cd <nestml_clone>
 mvn clean install
 ```
 
-If everything ran without errors, run the `nestml` tool using
+If everything ran without errors, then the `nestml.jar` artifact will be created in `<nestml_clone>/target subfolder`. Run the `nestml` tool using
 
 ```
 java -jar nestml.jar <models> --target <build_dir>

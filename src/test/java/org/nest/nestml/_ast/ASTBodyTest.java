@@ -11,8 +11,7 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 
-import static groovyjarjarantlr.build.ANTLR.root;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Iterates through good models and checks that there is no errors in log.
@@ -26,7 +25,7 @@ public class ASTBodyTest extends ModelbasedTest {
   public void getSameTypeBuffer() throws Exception {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(PSC_MODEL_THREE_BUFFERS);
     final ASTBody astBody = root.getNeurons().get(0).getBody();
-    final List<VariableSymbol> buffers = astBody.getSameTypeBuffer();
+    final List<VariableSymbol> buffers = astBody.getMultipleReceptors();
     assertEquals(3, buffers.size());
 
   }

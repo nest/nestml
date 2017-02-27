@@ -32,7 +32,7 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
 
   protected static final String MODULE_NAME = "integration";
   protected final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
-  private final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator);
+  private final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, true);
   private final NestmlCoCosManager checker = new NestmlCoCosManager();
 
   @Before

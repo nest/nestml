@@ -17,7 +17,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Checks that the model transformation adds psc initial values and derivative variables
@@ -60,11 +60,11 @@ public class ImplicitFormTransformerTest extends ModelbasedTest {
     assertTrue(neuronSymbol.isPresent());
     final Optional<VariableSymbol> pscInitialValue1 = neuronSymbol.get().getVariableByName("g_in__D_PSCInitialValue");
     assertTrue(pscInitialValue1.isPresent());
-    assertTrue(pscInitialValue1.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(pscInitialValue1.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
     final Optional<VariableSymbol> pscInitialValue2 = neuronSymbol.get().getVariableByName("g_ex__D_PSCInitialValue");
     assertTrue(pscInitialValue2.isPresent());
-    assertTrue(pscInitialValue2.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(pscInitialValue2.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
     final Optional<VariableSymbol> shapeAsState = neuronSymbol.get().getVariableByName("g_ex");
     assertTrue(shapeAsState.isPresent());

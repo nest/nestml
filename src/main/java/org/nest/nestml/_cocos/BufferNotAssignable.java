@@ -25,7 +25,7 @@ import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER
  */
 public class BufferNotAssignable implements SPLASTAssignmentCoCo {
 
-  public static final String ERROR_CODE = "NESTML_SPL_BUFFER_NOT_ASSIGNABLE";
+  public static final String ERROR_CODE = "NESTML_BUFFER_NOT_ASSIGNABLE";
 
   public void check(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symboltable creator.");

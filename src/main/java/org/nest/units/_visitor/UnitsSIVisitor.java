@@ -5,8 +5,6 @@
  */
 package org.nest.units._visitor;
 
-import static org.nest.symboltable.predefined.PredefinedTypes.getTypeIfExists;
-
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
@@ -14,17 +12,17 @@ import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.ASTSPLNode;
-import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units._ast.ASTUnitsNode;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.units.unitrepresentation.UnitTranslator;
 import org.nest.utils.LogHelper;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+
+import static org.nest.symboltable.predefined.PredefinedTypes.getTypeIfExists;
 
 /**
  * Type checking visitor for the UNITS grammar. Verifies that all units used are comprised of SI units.
@@ -102,7 +100,7 @@ public class UnitsSIVisitor implements NESTMLVisitor {
 
 
   /**
-   * Verify that the given Unit is valid. Use TranslationVisitor to generate serialization of Unit.
+   * Verify that the given Unit is valid. Use UnitTranslator to generate serialization of Unit.
    * Set the nodes' "serializedUnit" field with the serialization.
    */
   public void visit(ASTUnitType astUnitType){

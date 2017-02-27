@@ -126,9 +126,14 @@ public class ASTBuffers {
         "\n//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
   }
 
-  public String printBufferDeclarationValue(final VariableSymbol bufferSymbol) {
+  public String printBufferDeclarationValue(final VariableSymbol buffer) {
+    if (buffer.getVectorParameter().isPresent()) {
+      return "std::vector< double > " + Names.bufferValue(buffer);
+    }
+    else {
 
-    return "double " + Names.bufferValue(bufferSymbol);
+      return "double " + Names.bufferValue(buffer);
+    }
   }
 
   public String printBufferInitialization(final VariableSymbol buffer) {

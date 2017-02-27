@@ -6,18 +6,14 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
 
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
-import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getIntegerType;
-import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
+import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
  * @author ptraeder
  */
 public class ComparisonOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_COMPARISON_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_COMPARISON_OPERATOR_VISITOR";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -47,11 +43,11 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
     //Error message for any other operation
     if( (isUnit(lhsType.getValue())&&isNumeric(rhsType.getValue())) ||
     (isUnit(rhsType.getValue())&&isNumeric(lhsType.getValue())) ){
-      final String errorMsg = ERROR_CODE+"\""+AstUtils.toString(expr)+"\" - SI types in comparison do not match.";
+      final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"SI types in comparison do not match.";
       expr.setType(Either.value(getBooleanType()));
       Log.warn(errorMsg,expr.get_SourcePositionStart());
     }else{
-      final String errorMsg = ERROR_CODE+"\""+AstUtils.toString(expr)+"\" - Only numeric types can be compared.";
+      final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Only numeric types can be compared.";
       expr.setType(Either.error(errorMsg));
       Log.error(errorMsg,expr.get_SourcePositionStart());
     }

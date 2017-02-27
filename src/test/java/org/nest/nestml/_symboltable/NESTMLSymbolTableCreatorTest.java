@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-import static org.nest.symboltable.NESTMLSymbols.resolveMethod;
+import static org.nest.symboltable.NestmlSymbols.resolveMethod;
 
 /**
  *  Tests the symbol table infrastructure of the NESTML language
@@ -60,11 +60,11 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     final Optional<VariableSymbol> y1Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y1", VariableSymbol.KIND);
     assertTrue(y0TVariable.isPresent());
     assertTrue(y0TVariable.get().definedByODE());
-    assertTrue(y0TVariable.get().isLoggable());
+    assertTrue(y0TVariable.get().isRecordable());
 
     assertTrue(y1Varialbe.isPresent());
     assertFalse(y1Varialbe.get().definedByODE());
-    assertTrue(y1Varialbe.get().isLoggable());
+    assertTrue(y1Varialbe.get().isRecordable());
 
     // Checks that the derived variable is also resolvable
     final Optional<VariableSymbol> Dy0Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y0'", VariableSymbol.KIND);
@@ -82,11 +82,11 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
     final Optional<VariableSymbol> C_mVarialbe = neuronTypeOptional.get().getSpannedScope().resolve("C_m", VariableSymbol.KIND);
     assertTrue(C_mVarialbe.isPresent());
-    assertTrue(C_mVarialbe.get().isLoggable());
+    assertTrue(C_mVarialbe.get().isRecordable());
 
     final Optional<VariableSymbol> y3_tmpVarialbe = neuronTypeOptional.get().getSpannedScope().resolve("y3_tmp", VariableSymbol.KIND);
     assertTrue(y3_tmpVarialbe.isPresent());
-    assertTrue(y3_tmpVarialbe.get().isLoggable());
+    assertTrue(y3_tmpVarialbe.get().isRecordable());
   }
 
   /**
@@ -209,18 +209,18 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
         = resolveMethod("exp", Lists.newArrayList("real"), modelScope);
     assertTrue(withPredicate.isPresent());
 
-    Optional<MethodSymbol> I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
+    Optional<MethodSymbol> I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("pA", "real"), modelScope);
     assertTrue(I_sumOptional.isPresent());
     I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
     assertFalse(I_sumOptional.isPresent());
-    I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("pA", "real"), modelScope);
+    I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
     assertFalse(I_sumOptional.isPresent());
 
-    Optional<MethodSymbol> Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
+    Optional<MethodSymbol> Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "real"), modelScope);
     assertTrue(Cond_sumOptional.isPresent());
     Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
     assertFalse(Cond_sumOptional.isPresent());
-    Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "real"), modelScope);
+    Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
     assertFalse(Cond_sumOptional.isPresent());
   }
 

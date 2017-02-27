@@ -25,7 +25,7 @@ import static de.se_rwth.commons.logging.Log.error;
  * E.g. in the following case x defined twice and results in an error
  * neuron NeuronInTest:
  *   state: x mV end
- *   parameter: x real end
+ *   parameters: x real end
  * end
  *
  * @author ippen, plotnikov
@@ -95,5 +95,7 @@ public class MemberVariableDefinedMultipleTimes implements
     else {
       names.put(var, astNode.get_SourcePositionStart());
     }
+
   }
+
 }

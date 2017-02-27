@@ -26,43 +26,42 @@ import static org.junit.Assert.assertTrue;
  * @author plonikov
  */
 public class LinearSolutionTransformerTest extends ModelbasedTest {
-
+  private static final String NEURON_NAME = "iaf_psc_alpha_neuron";
+  private static final String MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
   private static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
   private final static Path P30_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.P30_FILE);
+      NEURON_NAME + "." + LinearSolutionTransformer.P30_FILE);
 
   private final static Path PSC_INITIAL_VALUE_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE);
+      NEURON_NAME + "." + LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE);
 
   private final static Path STATE_VARIABLES_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.STATE_VARIABLES_FILE);
+      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VARIABLES_FILE);
 
   private final static Path PROPAGATPR_MATRIX_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE);
+      NEURON_NAME + "." + LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE);
 
   private final static Path PROPAGATPR_STEP_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.PROPAGATOR_STEP_FILE);
+      NEURON_NAME + "." + LinearSolutionTransformer.PROPAGATOR_STEP_FILE);
 
   private final static Path STATE_VECTOR_TMP_DECLARATIONS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE);
+      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE);
 
   private final static Path STATE_UPDATE_STEPS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE);
+      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE);
 
   private final static Path STATE_VECTOR_BACK_ASSIGNMENTS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE);
+      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE);
 
-  private static final String NEURON_NAME = "iaf_psc_alpha_neuron";
-  private static final String MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
 
   @Test
   public void testExactSolutionTransformation() {
@@ -91,11 +90,11 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
 
     final Optional<VariableSymbol> p30Symbol = neuronSymbol.get().getVariableByName("P30");
     assertTrue(p30Symbol.isPresent());
-    assertTrue(p30Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(p30Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
     final Optional<VariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("y1_I_shape_inPSCInitialValue");
     assertTrue(pscInitialValue.isPresent());
-    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
 
     final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("y2_I_shape_in");
@@ -124,7 +123,7 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
     final Optional<VariableSymbol> p00Symbol = symbol.get().getVariableByName("P30");
 
     assertTrue(p00Symbol.isPresent());
-    assertTrue(p00Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(p00Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
   }
 
   @Test
@@ -159,7 +158,7 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
     final Optional<VariableSymbol> pscInitialValue = symbol.get().getVariableByName("y1_I_shape_inPSCInitialValue");
 
     assertTrue(pscInitialValue.isPresent());
-    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNAL));
+    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
   }
 
   @Test

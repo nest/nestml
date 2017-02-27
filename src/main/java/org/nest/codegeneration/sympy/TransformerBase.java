@@ -41,9 +41,9 @@ public class TransformerBase {
       final ASTNeuron astNeuron,
       final Path declarationFile) {
 
-    final ASTAliasDecl p00Declaration = createAliases(declarationFile).get(0);
+    final ASTAliasDecl aliasDecl = createAliases(declarationFile).get(0);
 
-    astNeuron.getBody().addToInternalBlock(p00Declaration);
+    astNeuron.getBody().addToInternalBlock(aliasDecl);
     return astNeuron;
   }
 
@@ -139,7 +139,7 @@ public class TransformerBase {
       final ASTBody body,
       final Function<String, String> stateVariableNameExtracter,
       final Function<String, String> shapeNameExtracter) {
-    final List<ASTFunctionCall> i_sumCalls = ODETransformer.get_sumFunctionCalls(body.getODEBlock().get());
+    final List<ASTFunctionCall> i_sumCalls = OdeTransformer.get_sumFunctionCalls(body.getODEBlock().get());
 
     final List<ASTAliasDecl> pscInitialValues = createAliases(pathPSCInitialValueFile);
     for (final ASTAliasDecl pscInitialValue:pscInitialValues) {

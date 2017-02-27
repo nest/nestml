@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import org.nest.codegeneration.helpers.AliasInverter;
+import org.nest.codegeneration.sympy.NESTMLASTCreator;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
@@ -23,8 +23,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.helpers.AliasInverter.isInvertableExpression;
-import static org.nest.codegeneration.helpers.AliasInverter.isRelativeExpression;
 import static org.nest.utils.AstUtils.printComments;
 
 /**
@@ -273,6 +271,11 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   public void addToInternalBlock(final ASTAliasDecl astAliasDecl) {
+    if (!this.getInternalBlock().isPresent()) {
+      final ASTVar_Block internalBlock = NESTMLASTCreator.createInternalBlock();
+      getBodyElements().add(internalBlock);
+    }
+
     this.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
 
       ASTVar_Block block = (ASTVar_Block) be;
@@ -328,38 +331,6 @@ public class ASTBody extends ASTBodyTOP {
     return ImmutableList.copyOf(result);
   }
 
-  /**
-   * TODO It is very NEST related. Factor it out
-   * @return
-   */
-  public List<VariableSymbol> getAllOffsetVariables() {
-    final List<VariableSymbol> aliases = Lists.newArrayList();
-    aliases.addAll(getParameterAliasSymbols());
-    aliases.addAll(getStateAliasSymbols());
-
-    final List<VariableSymbol> invertableAliases = aliases.stream()
-        .filter(variable -> isInvertableExpression(variable.getDeclaringExpression().get()) ||
-               (variable.isParameters () && isRelativeExpression(variable.getDeclaringExpression().get())))
-        .collect(Collectors.toList());
-
-    // Use sets to filter double variables, e.g. a variable that is used twice on the right side
-    final Set<VariableSymbol> offsets = invertableAliases.stream()
-        .map(alias -> AliasInverter.offsetVariable(alias.getDeclaringExpression().get()))
-        .collect(Collectors.toSet());
-
-    return Lists.newArrayList(offsets);
-  }
-
-  /**
-   * TODO It is very NEST related. Factor it out
-   * @return
-   */
-  public List<VariableSymbol> getAllRelativeParameters() {
-    return  getParameterAliasSymbols().stream()
-        .filter(variable -> isRelativeExpression(variable.getDeclaringExpression().get()))
-        .collect(Collectors.toList());
-  }
-
   public Optional<ASTOdeDeclaration> getODEBlock() {
     final Optional<ASTBodyElement> odeBlock = bodyElements
         .stream()
@@ -406,13 +377,21 @@ public class ASTBody extends ASTBodyTOP {
         .collect(Collectors.toList());
   }
 
-  public List<VariableSymbol> getSameTypeBuffer() {
+  public List<VariableSymbol> getMultipleReceptors() {
     return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
         .stream()
         .map(inputBuffer -> (VariableSymbol) inputBuffer)
         .filter(VariableSymbol::isSpikeBuffer)
         .filter(VariableSymbol::isInhAndExc)
         .collect(Collectors.toList());
+  }
+
+  public boolean isArrayBuffer() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(VariableSymbol::isBuffer)
+        .anyMatch(VariableSymbol::isVector);
   }
 
 }

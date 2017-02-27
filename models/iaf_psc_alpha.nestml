@@ -76,12 +76,12 @@ neuron iaf_psc_alpha_neuron:
 
   state:
     V_abs mV
-    alias V_m mV = V_abs + E_L # Membrane potential.
+    function V_m mV = V_abs + E_L # Membrane potential.
   end
 
   equations:
-    shape I_shape_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape I_shape_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    shape I_shape_in = 1 pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+    shape I_shape_ex = 1 pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
     V_abs' = -1/Tau * V_abs + 1/C_m * (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
   end
@@ -93,8 +93,8 @@ neuron iaf_psc_alpha_neuron:
     tau_syn_ex ms = 2ms  # Time constant of synaptic current.
     t_ref   ms = 2ms     # Duration of refractory period in ms.
     E_L     mV = -70mV   # Resting potential.
-    alias V_reset mV = -70mV - E_L # Reset potential of the membrane in mV.
-    alias Theta   mV = -55mV - E_L # Spike threshold in mV.
+    function V_reset mV = -70mV - E_L # Reset potential of the membrane in mV.
+    function Theta   mV = -55mV - E_L # Spike threshold in mV.
     I_e     pA = 0pA     # Constant external input current in pA.
   end
 

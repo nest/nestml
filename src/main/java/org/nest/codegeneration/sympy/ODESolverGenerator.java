@@ -93,7 +93,7 @@ public class ODESolverGenerator {
    * @param outputDirectory Base directory for the output
    * @return Path to the generated script of @code{empty()} if there is no ODE definition.
    */
-  public static Optional<Path> generateODEAnalyserForDeltaShape(
+  static Optional<Path> generateODEAnalyserForDeltaShape(
       final ASTNeuron neuron,
       final Path outputDirectory) {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
@@ -149,7 +149,7 @@ public class ODESolverGenerator {
     setup.setCommentEnd(Optional.empty());
 
     final Set<VariableSymbol> variables = new HashSet<>(getVariableSymbols(astOdeDeclaration));
-    final List<VariableSymbol> aliases =  astOdeDeclaration.getODEAliass()
+    final List<VariableSymbol> aliases =  astOdeDeclaration.getOdeFunctions()
         .stream()
         .map(alias -> VariableSymbol.resolve(alias.getVariableName(), scope))
         .collect(Collectors.toList());
@@ -161,10 +161,11 @@ public class ODESolverGenerator {
 
     glex.setGlobalValue("variables", variables);
     glex.setGlobalValue("aliases", aliases);
+    glex.setGlobalValue("neuronName", neuron.getName());
 
     final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("printer", expressionsPrinter);
-    glex.setGlobalValue("odeTransformer", new ODETransformer());
+    glex.setGlobalValue("odeTransformer", new OdeTransformer());
 
     final GeneratorEngine generator = new GeneratorEngine(setup);
     final Path solverSubPath = Paths.get( neuron.getName() + "Solver.py");

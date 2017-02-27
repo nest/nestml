@@ -67,16 +67,16 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void manually() {
     final String[] args = new String[] {
-        "STNGPeGPi",
+        "models/ht_neuron.nestml",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
   }
 
   @Test
-  public void testFailingTypeErrorDetection() {
+  public void debug() {
     final String[] args = new String[] {
-        "src/test/resources/codegeneration/terub_neuron_stn.nestml",
+        "debug",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);

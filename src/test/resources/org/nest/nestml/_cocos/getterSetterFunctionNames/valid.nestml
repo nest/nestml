@@ -1,7 +1,7 @@
 component GetSet:
   internals:
     a mV
-    alias b integer
+    function b integer
   end
   function set_a(): # no error
   end

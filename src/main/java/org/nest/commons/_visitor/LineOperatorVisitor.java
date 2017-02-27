@@ -1,4 +1,5 @@
 package org.nest.commons._visitor;
+
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -7,16 +8,14 @@ import org.nest.utils.AstUtils;
 
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**
  * @author ptraeder
  */
 public class LineOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_LINE_OPERATOR_VISITOR: ";
+  final String ERROR_CODE = "SPL_LINE_OPERATOR_VISITOR";
 
   @Override
   public void visit(ASTExpr expr) {
@@ -53,7 +52,7 @@ public class LineOperatorVisitor implements CommonsVisitor{
       if (lhsType.getValue().equals(rhsType.getValue())) {
           //Make sure that ignoreMagnitude gets propagated if set
           if(isUnit(rhsType.getValue())){
-            UnitRepresentation rhsRep = new UnitRepresentation(rhsType.getValue().getName());
+            UnitRepresentation rhsRep = UnitRepresentation.getBuilder().serialization(rhsType.getValue().getName()).build();
             if(rhsRep.isIgnoreMagnitude()){
               expr.setType(rhsType);
             }else{
@@ -69,34 +68,28 @@ public class LineOperatorVisitor implements CommonsVisitor{
         expr.setType(Either.value(getRealType()));
         return;
       }
-      //Both are units, not matching -> tie break by using lhs, propagate IgnoreMagnitude, warn
+      //Both are units, not matching -> real, warn
       if(isUnit(lhsType.getValue())&&isUnit(rhsType.getValue())){
-        final String errorMsg =ERROR_CODE+
+        final String errorMsg =ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
-            ". Assuming "+lhsType.getValue().prettyPrint();
-        UnitRepresentation rhsRep = new UnitRepresentation(rhsType.getValue().getName());
-        UnitRepresentation lhsRep = new UnitRepresentation(lhsType.getValue().getName());
-        if(rhsRep.isIgnoreMagnitude() || lhsRep.isIgnoreMagnitude()){
-          lhsRep.setIgnoreMagnitude(true);
+            ". Assuming real.";
+        expr.setType(Either.value(getRealType()));
+        warn(errorMsg,expr.get_SourcePositionStart());
+        return;
+      }
+      //one is unit and one numeric primitive and vice versa -> assume unit, warn
+      if((isUnit(lhsType.getValue())&&isNumericPrimitive(rhsType.getValue()))||
+      (isUnit(rhsType.getValue())&&isNumericPrimitive(lhsType.getValue()))){
+        TypeSymbol unitType;
+        if(isUnit(lhsType.getValue())){
+          unitType = lhsType.getValue();
+        }else{
+          unitType = rhsType.getValue();
         }
-        expr.setType(lhsType);
-        warn(errorMsg,expr.get_SourcePositionStart());
-        return;
-      }
-      //one is unit and one real/integer and vice versa -> assume unit and warn
-      if(isUnit(lhsType.getValue())&&isNumericPrimitive(rhsType.getValue())){
-        final String errorMsg =ERROR_CODE+
+        final String errorMsg =ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
-            ". Assuming "+lhsType.getValue().prettyPrint();
-        expr.setType(lhsType);
-        warn(errorMsg,expr.get_SourcePositionStart());
-        return;
-      }
-      if(isUnit(rhsType.getValue())&&isNumericPrimitive(lhsType.getValue())){
-        final String errorMsg =ERROR_CODE+
-            "Addition/substraction of "+lhsType.getValue().prettyPrint()+" and "+rhsType.getValue().prettyPrint()+
-            ". Assuming "+rhsType.getValue().prettyPrint();
-        expr.setType(rhsType);
+            ". Assuming "+unitType.prettyPrint();
+        expr.setType(Either.value(unitType));
         warn(errorMsg,expr.get_SourcePositionStart());
         return;
       }
@@ -113,7 +106,8 @@ public class LineOperatorVisitor implements CommonsVisitor{
     }
 
     //if we get here, we are in a general error state
-    final String errorMsg = ERROR_CODE+"Cannot determine the type of "+ (expr.isPlusOp()?"addition":"substraction")+" with types: " +
+    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
+        "Cannot determine the type of "+ (expr.isPlusOp()?"addition":"substraction")+" with types: " +
         lhsType.getValue().prettyPrint()+ " and " + rhsType.getValue().prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());

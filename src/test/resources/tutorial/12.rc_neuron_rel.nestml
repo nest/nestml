@@ -28,7 +28,6 @@ neuron rc_neuron_rel:
 
   update:
     integrate_odes()
-    a integer = 1
   end
 
 end

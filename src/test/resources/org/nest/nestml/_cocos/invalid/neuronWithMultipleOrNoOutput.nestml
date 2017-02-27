@@ -1,0 +1,10 @@
+neuron neuronWithNoOutput:
+
+end
+
+neuron neuronWithMultipleOutputs:
+  output: spike
+
+  output: current
+
+end

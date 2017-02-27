@@ -12,7 +12,7 @@ import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLLanguage;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
