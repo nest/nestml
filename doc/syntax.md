@@ -44,6 +44,7 @@ Any other physical unit can be expressed as a combination of these seven units. 
 | electric resistance    | ohm     | kg m<sup>2</sup> A<sup>−2</sup> s<sup>−3</sup>             | ohm/&‌#x03A9; |
 | frequency              | hertz   | s<sup>−1</sup>                                             | Hz |
 
+| | | | |
 |---|---|---|---|
 |||| Bq |
 |||| Gy |
@@ -67,6 +68,7 @@ Units can have at most one of the following magnitude prefixes:
 |10<sup>-12</sup> | pico  | p  | 10<sup>12</sup> | tera  | T |
 |10<sup>-15</sup> | femto | f  | 10<sup>15</sup> | peta  | P |
 
+| | | | | | |
 |---|---|---|---|---|---|
 |10<sup>-18</sup> | atto  | a  | 10<sup>18</sup> | exa   | E |
 |10<sup>-21</sup> | zepto | z  | 10<sup>21</sup> | zetta | Z |
