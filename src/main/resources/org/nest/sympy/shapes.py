@@ -71,11 +71,11 @@ class ShapeFunction(object):
         # `derivative_factors` as a list for all orders (also for order 1). 
         # As I(t)=0 is possible for some ts we check for several ts to make
         # sure we are not dividing by zero.
-        #for k in range(1,MAX_TRIES):
-        #    if derivatives[0].subs(t,k) != 0:
-        #        l = k
-        #        break
-        derivative_factors = (1/derivatives[0] * derivatives[1]).subs(t,1),
+        for k in range(1,MAX_TRIES):
+            if derivatives[0].subs(t,k) != 0:
+                l = k
+                break
+        derivative_factors = (1/derivatives[0] * derivatives[1]).subs(t,l),
 
         diff_rhs_lhs = derivatives[1] - derivative_factors[0] * derivatives[0]
 
