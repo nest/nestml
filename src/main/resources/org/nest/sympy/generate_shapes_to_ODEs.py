@@ -1,20 +1,4 @@
-from sympy.parsing.sympy_parser import parse_expr
-from sympy import *
-
-from sympy.matrices import zeros
-
-# Define constants
-MAX_ORDER = 10
-MAX_TRIES = 100
-
-# 't' is predefined in NESTML and represents time
-# 'derivative_factor' is the factor in 
-# shape'=derivative_factor*shape in case shape satisfies such an ODE.
-derivative_factor, t = symbols("derivative_factor, t")
-        
-
-class ShapeFunction(object):
-    '''The aim of this script is to check for any given function of
+ '''The aim of this script is to check for any given function of
     positive `t`, which we will call `shape`, if it satisfies a linear
     homogeneous ODE. If it does, it will give it's order, initial
     values, the equation itself and a list of all factors of
@@ -30,6 +14,30 @@ class ShapeFunction(object):
     to an ODE form
        shape'' = -a**2 * shape + 2*a * shape'
     '''
+
+from sympy.parsing.sympy_parser import parse_expr
+from sympy import *
+
+from sympy.matrices import zeros
+
+# Define constants:
+# When we are checking if a function satisfies a linear homogeneous ODE
+# of some order n we will check from n=0 to n=MAX_ORDERS. 
+MAX_ORDER = 10
+# The algorithm below will use a matrix with entries that are the
+# evaluation of derivatives of the `shape` function at certain points t.
+# In an unlikely case the matrix is not invertible. Therefore we check
+# for t from 1 to 100.
+with certain properties. For this purpose we
+MAX_TRIES = 100
+
+# 't' is predefined in NESTML and represents time
+# 'derivative_factor' is the factor in 
+# shape'=derivative_factor*shape in case shape satisfies such an ODE.
+derivative_factor, t = symbols("derivative_factor, t")
+        
+
+class ShapeFunction(object):
 
     def __init__(self, name, function):
 
@@ -48,18 +56,23 @@ class ShapeFunction(object):
         # up to the order we are checking (which we just call 'order')
         derivatives = [shape, diff(shape, t)]
         
-        # If `diff_rhs_lhs`, here shape'-derivative_factors*shape=0 for
-        # some 'derivative_factors', 'shape' satisfies a first order
-        # linear homogeneous ODE (and does for t=1). Thereafter, `diff_rhs_lhs will` be the
-        # difference of the derivative of shape of order 'order' and
-        # the sum of all lower derivatives times their
-        # 'derivative_factors which is a list of the potential
+        # If `diff_rhs_lhs`, which is here shape'-derivative_factors*shape
+	# equals 0 for some 'derivative_factors', 'shape' satisfies a 
+	# first order linear homogeneous ODE (and does for t=1). 
+	# Thereafter `diff_rhs_lhs` will be the difference of the derivative
+	# of shape of order 'order' and the sum of all lower derivatives times their
+        # 'derivative_factors'. This is a list of the potential
         # factors in the ODE from the factor of shape^(0) to
         # shape^(order-1).
         # In the case of the ODE of order 1 we have only one `derivative_factor`
         # but in all other cases we have several. For unified handling we define
-        # `derivative_factors` as a list for all orders (also for order 1)
-        derivative_factors = (1/derivatives[0] * derivatives[1]).subs(t,1),
+        # `derivative_factors` as a list for all orders (also for order 1). 
+	    # As I(t)=0 is possible for some ts we check for several ts to make
+	    # sure we are not dividing by zero.
+	    for k in range(MAX_TRIES)
+            derivative_factors = (1/derivatives[0] * derivatives[1]).subs(t,k),
+            if derivatives[0].subs(t,k) != 0:
+                break
 
         diff_rhs_lhs = derivatives[1] - derivative_factors[0] * derivatives[0]
 
@@ -85,9 +98,9 @@ class ShapeFunction(object):
             # `derivative_factors`) of the ODE (assuming they
             # exist). The idea is to create a system of equations by
             # substituting (natural) numbers into the homogeneous
-            # linear homogeneous ODE with variable `derivative_factors`
+            # linear homogeneous ODE with variable derivative factors
             # order many times for varying (natural) numbers and solving for
-            # `derivative_factors`. Once we have `derivative_factors` the
+            # derivative factors. Once we have derivative factors the
             # ODE is uniquely defined. This is assuming that shape
             # satisfies an ODE of this order. (This we must stil
             # check)
@@ -102,8 +115,8 @@ class ShapeFunction(object):
             
             # It is possible that by choosing certain natural numbers,
             # the system of equations will not be solvable, i.e. `X` is
-            # not invertable. This is unlikely but we check for
-            # invertability of `X` for varying sets of natural numbers.
+            # not invertible. This is unlikely but we check for
+            # invertibility of `X` for varying sets of natural numbers.
             invertible = False
             for k in range(MAX_TRIES):
                 for i in range(order):
@@ -125,6 +138,13 @@ class ShapeFunction(object):
             diff_rhs_lhs = 0
             # Once we have 'derivative_factors' the
          
+         
+            # If $shape^{(order)}(t) = \sum_{i<order} C_i shape^{(i)}(t)$, where 
+            # the $C_i$ are the derivative factors then we can find the
+            # $order-1$ derivative factors by evaluating the previous equation as a
+            # linear system of order $order-1$ such that Y = [shape^{(order)}] = X * [C_i]
+            # hence [C_i] can be found by inverting X.
+            
             # We calculated derivative_factors of the linear
             # homogeneous ODE of order `order` but assumed that shape satisfies 
             # such an ODE. This we check here
@@ -157,7 +177,7 @@ class ShapeFunction(object):
 class ShapeODE(object):
     '''It is also possible to define a shape function by giving a
     set of linear homogeneous ODEs which the shape functions satisfies 
-    and a set of initia values (for an ODE of order `order`, `order-1` many.)
+    and a set of initial values (for an ODE of order `order`, `order-1` many.)
     In this case the calculation of the ODE, `order`, `initial_values` and 
     the system of ODEs in matrix form is canonical.
     '''
