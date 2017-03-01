@@ -1,6 +1,6 @@
 from sympy import *
-import misc
-import ode_to_prop_matrix as otpm
+import shapes
+import prop_matrix as otpm
 import unittest
 
 class TestShapesConversionAndPropagatorMatrxiComputation(unittest.TestCase):
@@ -13,9 +13,6 @@ class TestShapesConversionAndPropagatorMatrxiComputation(unittest.TestCase):
 
         shape_1 = misc.ShapeFunction("shape_1",  "e / tau * t * t * exp(-t / tau)")
         self.assertEqual(3, shape_1.order)
-        # shape_2 has order 4
-        # shape_2 = misc.ShapeFunction("shape_2",  "e / tau * t * t *t * exp(-t / tau)")
-
         shape_3 = misc.ShapeFunction("shape_3", "exp(-t/tau) + e / tau * t * exp(-t / tau)")
         self.assertEqual(2, shape_3.order)
 

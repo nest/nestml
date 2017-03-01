@@ -1,4 +1,4 @@
- '''The aim of this script is to check for any given function of
+'''The aim of this script is to check for any given function of
     positive `t`, which we will call `shape`, if it satisfies a linear
     homogeneous ODE. If it does, it will give it's order, initial
     values, the equation itself and a list of all factors of
@@ -36,8 +36,10 @@ MAX_TRIES = 100
 # shape'=derivative_factor*shape in case shape satisfies such an ODE.
 derivative_factor, t = symbols("derivative_factor, t")
         
-
 class ShapeFunction(object):
+    '''A shape function refers to a 
+
+    '''
 
     def __init__(self, name, function):
 
@@ -175,7 +177,7 @@ class ShapeFunction(object):
 
 
 class ShapeODE(object):
-    '''It is also possible to define a shape function by giving a
+    '''It is also possible to define a `ShapeFunction` by giving a
     set of linear homogeneous ODEs which the shape functions satisfies 
     and a set of initial values (for an ODE of order `order`, `order-1` many.)
     In this case the calculation of the ODE, `order`, `initial_values` and 
