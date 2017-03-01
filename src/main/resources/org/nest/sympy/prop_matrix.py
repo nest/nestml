@@ -2,7 +2,8 @@ from sympy import *
 from sympy.parsing.sympy_parser import parse_expr
 from sympy.matrices import zeros
 
-import misc
+from shapes import ShapeFunction, ShapeODE
+
 
 __h = symbols("__h")
 
@@ -34,7 +35,7 @@ def ode_to_prop_matrices(shapes, ode_var_str, ode_rhs_str):
         
         shape_factor = diff(ode_rhs, shape.name)
     
-        if isinstance(shape, misc.ShapeFunction):
+        if isinstance(shape, ShapeFunction):
             # For shapes that satisfy a homogeneous linear ODE of order 1 or
             # 2 we calculate a upper triangular matrix to make calculations more 
             # efficient.
@@ -58,7 +59,7 @@ def ode_to_prop_matrices(shapes, ode_var_str, ode_rhs_str):
                 for i in range(1, shape.order):
                     A[i, i - 1] = 1
         
-        if isinstance(shape, misc.ShapeODE):
+        if isinstance(shape, ShapeODE):
     
             A = zeros(shape.order + 1)
             A[:shape.order, :shape.order] = shape.matrix

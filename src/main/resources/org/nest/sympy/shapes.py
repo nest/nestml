@@ -28,7 +28,7 @@ MAX_ORDER = 10
 # evaluation of derivatives of the `shape` function at certain points t.
 # In an unlikely case the matrix is not invertible. Therefore we check
 # for t from 1 to 100.
-with certain properties. For this purpose we
+# with certain properties. For this purpose we
 MAX_TRIES = 100
 
 # 't' is predefined in NESTML and represents time
@@ -59,22 +59,23 @@ class ShapeFunction(object):
         derivatives = [shape, diff(shape, t)]
         
         # If `diff_rhs_lhs`, which is here shape'-derivative_factors*shape
-	# equals 0 for some 'derivative_factors', 'shape' satisfies a 
-	# first order linear homogeneous ODE (and does for t=1). 
-	# Thereafter `diff_rhs_lhs` will be the difference of the derivative
-	# of shape of order 'order' and the sum of all lower derivatives times their
+        # equals 0 for some 'derivative_factors', 'shape' satisfies a 
+        # first order linear homogeneous ODE (and does for t=1). 
+        # Thereafter `diff_rhs_lhs` will be the difference of the derivative
+        # of shape of order 'order' and the sum of all lower derivatives times their
         # 'derivative_factors'. This is a list of the potential
         # factors in the ODE from the factor of shape^(0) to
         # shape^(order-1).
         # In the case of the ODE of order 1 we have only one `derivative_factor`
         # but in all other cases we have several. For unified handling we define
         # `derivative_factors` as a list for all orders (also for order 1). 
-	    # As I(t)=0 is possible for some ts we check for several ts to make
-	    # sure we are not dividing by zero.
-	    for k in range(MAX_TRIES)
-            derivative_factors = (1/derivatives[0] * derivatives[1]).subs(t,k),
-            if derivatives[0].subs(t,k) != 0:
-                break
+        # As I(t)=0 is possible for some ts we check for several ts to make
+        # sure we are not dividing by zero.
+        #for k in range(1,MAX_TRIES):
+        #    if derivatives[0].subs(t,k) != 0:
+        #        l = k
+        #        break
+        derivative_factors = (1/derivatives[0] * derivatives[1]).subs(t,1),
 
         diff_rhs_lhs = derivatives[1] - derivative_factors[0] * derivatives[0]
 
