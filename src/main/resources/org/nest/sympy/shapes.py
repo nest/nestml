@@ -1,19 +1,56 @@
-'''The aim of this script is to check for any given function of
-    positive `t`, which we will call `shape`, if it satisfies a linear
-    homogeneous ODE. If it does, it will give it's order, initial
-    values, the equation itself and a list of all factors of
-    derivatives (which we will call `derivative_factors`) of the shape
-    function in the ODE, i.e. if shape''= a*shape+b*shape' the list
-    will be: [a,b].
-
-    Example:
-    ========
-
-    Convert the postsynaptic response shape from a function form  
-       shape = t * exp(t * a)
-    to an ODE form
-       shape'' = -a**2 * shape + 2*a * shape'
-    '''
+'''This script provides the framework for receiving properties
+   of so called 'shapes' that are relevant for constructing an
+   apropriate evolution scheme for the ODEs in which the shapes 
+   occur. A shape is a postsynaptic function which can be used
+   to convolve spiking input, whose properties are often relevant
+   for the construction of a good evolution schemes. Shape functions
+   can be defined either as a function of `t` or an ODE.
+    
+   Here we provide a class, `ShapeFunction` that can be called
+   with a chosen name of the shape and it's mathematical discription;
+   it checks for any given fuction of positive t, i.e. the shape, if
+   it satisfies a linear homogeneous ODE of order 1,...,10:
+    
+   Example:
+   ========
+    
+   shape_alpha = ShapeFunction("shape_alpha", "e / tau * t * exp(-t / tau)") 
+    
+   The class will provide the properties name, order,
+   nestml_ode_form, derivative factors and intitial_values.
+    
+   in this example: 
+   'name' will be 'shape_alpha' as a symbolic expression
+    
+   'order' is 2, as the function above satisfies a homogeneos ODE of order 2
+    
+   `nestml_ode_form` is 
+   shape_alpha'' = -1/tau**2 * shape_alpha -2/tau * shape_alpha'
+   this is the linear homogeneous ODE that shape_alpha satisfies
+    
+   `derivative_factors` will be a list [-1/tau**2, -2/tau]
+   these are the factor occuring in the ODE above 
+    
+   `initial_values` is [0, e/tau]. These are the initial values of
+   all derivatives of occuring on the right hand side of the ODE. 
+   From lowest derivative to highest.
+    
+    
+   Also we provide a class 'ShapeODE'. An instance of `ShapeODE` is 
+   defined with the name of the shape (i.e a function of `t`
+   that satisfies a certain ODE), the variables on the lefthandside 
+   of the ODE system, the right hand sides of the ODE systems
+   and the initial of the function. 
+        
+   Example:
+   ========
+    
+   shape_alpha = ShapeODE("shape_alpha",  "shape_alpha", 
+   [-1/tau**2 * shape_alpha -2/tau * shape_alpha'],[0, e/tau]) 
+  
+   The calculation of the properties, `order`, `name`, 
+   `initial_values` and the system of ODEs in matrix form is canonical.
+'''
 
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import *
@@ -37,8 +74,34 @@ MAX_TRIES = 100
 derivative_factor, t = symbols("derivative_factor, t")
         
 class ShapeFunction(object):
-    '''A shape function refers to a 
-
+    '''Here we provide a class, `ShapeFunction` that can be called
+    with a chosen name of the shape and it's mathematical discription;
+    it checks for any given fuction of positive t, i.e. the shape, if
+    it satisfies a linear homogeneous ODE of order 1,...,10:
+    
+    Example:
+    ========
+    
+    shape_alpha = ShapeFunction("shape_alpha", "e / tau * t * exp(-t / tau)") 
+    
+    The class will provide the properties name, order,
+    nestml_ode_form, derivative factors and intitial_values.
+    
+    in this example: 
+    'name' will be 'shape_alpha' as a symbolic expression
+    
+    'order' is 2, as the function above satisfies a homogeneos ODE of order 2
+    
+    `nestml_ode_form` is 
+    shape_alpha'' = -1/tau**2 * shape_alpha -2/tau * shape_alpha'
+    this is the linear homogeneous ODE that shape_alpha satisfies
+    
+    `derivative_factors` will be a list [-1/tau**2, -2/tau]
+    these are the factor occuring in the ODE above 
+    
+    `initial_values` is [0, e/tau]. These are the initial values of
+    all derivatives of occuring on the right hand side of the ODE. 
+    From lowest derivative to highest.
     '''
 
     def __init__(self, name, function):
@@ -178,13 +241,16 @@ class ShapeFunction(object):
 
 
 class ShapeODE(object):
-    '''It is also possible to define a `ShapeFunction` by giving a
-    set of linear homogeneous ODEs which the shape functions satisfies 
-    and a set of initial values (for an ODE of order `order`, `order-1` many.)
-    In this case the calculation of the ODE, `order`, `initial_values` and 
-    the system of ODEs in matrix form is canonical.
+    '''Provides a class 'ShapeODE'. An instance of `ShapeODE` is
+    defined with the name of the shape (i.e a function of `t`
+    that satisfies a certain ODE), the variables on the left handside
+    of the ODE system, the right handsides of the ODE systems
+    and the initial value of the function.
+        
+    Canonical calculation of the properties, `order`, `name`,
+    `initial_values` and the system of ODEs in matrix form are made.
     '''
-    
+        
     def __init__(self, name, ode_sys_var, ode_sys_rhs, initial_values):
 
         self.name = parse_expr(name)

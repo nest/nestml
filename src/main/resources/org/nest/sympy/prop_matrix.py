@@ -8,14 +8,24 @@ from shapes import ShapeFunction, ShapeODE
 __h = symbols("__h")
 
 def ode_to_prop_matrices(shapes, ode_var_str, ode_rhs_str):
-    '''
-     The aim of this script is to calculate a so called proagator
-     for any given linear constant coefficient ODE with an inhomogeneous part
-     wich is a sum of shapes (These satisfy a linear hoomogeneous ODE). 
-     The idea is to reformulate the ODE or system of ODEs as the ODE
-     y'=Ay and to calculate A and then exp(Ah) to give an evolution of 
-     the system for a given timestep `h`.
-     Although we think of the equation as something like this:
+    '''The function `ode_to_prop_matrices` calculates a so called proagator
+    for any given linear constant coefficient ODE with an inhomogeneous part
+    wich is a sum of `shapes` (instaces of the class `ShapeFunction` or
+    ShapeODE; they satisfy a linear hoomogeneous ODE). 
+    The idea is to reformulate the ODE or systems of ODEs as the ODE
+    y'=Ay and to calculate A and then exp(Ah) to give an evolution of 
+    the system for a given timestep `h`.
+     
+    Example:
+    ========
+    shape_alpha = ShapeFunction("shape_alpha", "e / tau * t * exp(-t / tau)")
+    shape_exp = ShapeFunction("shape_exp", "exp(-t/tau)")
+    shape_sin = ShapeFunction("shape_sinb", "sin(t)")
+    shapes = [shape_alpha, shape_exp, shape_sin]
+
+    ode_var = "V_m"
+    ode_rhs = "-1/Tau * V_m-1/C * (shape_alpha + shape_exp + shape_sin + currents + I_E)"
+    prop_matrices, const_term, step_const = otpm.ode_to_prop_matrices(shapes, ode_var, ode_rhs)
     '''
     ode_rhs = parse_expr(ode_rhs_str)
     ode_var = parse_expr(ode_var_str)
@@ -80,6 +90,25 @@ def ode_to_prop_matrices(shapes, ode_var_str, ode_rhs_str):
 
 # Here we calculate the explicit step, i.e y(t+h) = y(t) * exp(Ah)
 def prop_matrix_to_prop_step(prop_matrices, const_term, step_const, shapes, ode_var_str):
+
+    '''The function `prop_matrix_to_prop_step` takes an ODE system
+    y'=Ay and the matrix exponential exp(Ah) and returns the calculations
+    that need to be made to get from y_t to y_{t+1}.
+    
+    Example:
+    ========
+    shape_alpha = ShapeFunction("shape_alpha", "e / tau * t * exp(-t / tau)")
+    shape_exp = ShapeFunction("shape_exp", "exp(-t/tau)")
+    shape_sin = ShapeFunction("shape_sinb", "sin(t)")
+    shapes = [shape_alpha, shape_exp, shape_sin]
+
+    ode_var = "V_m"
+    ode_rhs = "-1/Tau * V_m-1/C * (shape_alpha + shape_exp + shape_sin + currents + I_E)"
+    prop_matrices, const_term, step_const = otpm.ode_to_prop_matrices(shapes, ode_var, ode_rhs)
+
+    pm, ps = otpm.prop_matrix_to_prop_step(prop_matrices, const_term, step_const, shapes, ode_var)
+    ''' 
+
 
     P_order_order = prop_matrices[0][shapes[0].order, shapes[0].order]
     ode_var = parse_expr(ode_var_str)

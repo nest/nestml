@@ -20,7 +20,7 @@ class TestShapesConversionAndPropagatorMatrxiComputation(unittest.TestCase):
         self.assertEqual(2, shape_4.order)
 
         shape_5 = ShapeFunction("shape_5", "sin(t)")
-        self.assertEqual(2, shape_5.order)
+        self.assertEqual(2, shape_5.order)        
 
     def test_propagator_matrix(self):
         shape_alpha = ShapeFunction("shape_alpha", "e / tau * t * exp(-t / tau)")
@@ -33,6 +33,6 @@ class TestShapesConversionAndPropagatorMatrxiComputation(unittest.TestCase):
         prop_matrices, const_term, step_const = otpm.ode_to_prop_matrices(shapes, ode_var, ode_rhs)
 
         pm, ps = otpm.prop_matrix_to_prop_step(prop_matrices, const_term, step_const, shapes, ode_var)
-
+        
 if __name__ == '__main__':
     unittest.main()
