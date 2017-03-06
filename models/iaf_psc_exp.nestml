@@ -85,7 +85,7 @@ neuron iaf_psc_exp_neuron:
     shape I_shape_in = exp(-1/tau_syn_in*t)
     shape I_shape_ex = exp(-1/tau_syn_ex*t)
     function  I_syn mV = (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
-    V_abs' = -V_abs/tau_m + (I_syn/C_m) * 1 [s**3 * A**2 /(kg * m**2)] * 1 [s/Gs]
+    V_abs' = -V_abs/tau_m + (I_syn/C_m) *1 nS
   end
 
   parameters:
