@@ -37,12 +37,12 @@ neuron hh_cond_exp_traub_neuron:
     V_m mV = E_L #  Membrane potential
 
     # equilibrium values for (in)activation variables
-    function alpha_n_init real = 0.032 * ( 15. - V_m / 1 mV) / ( exp( ( 15. - V_m / 1 mV ) / 5. ) - 1. )
-    function beta_n_init real = 0.5 * exp( ( 10. - V_m / 1 mV) / 40. )
-    function alpha_m_init real = 0.32 * ( 13. - V_m / 1 mV) / ( exp( ( 13. - V_m / 1 mV) / 4. ) - 1. )
-    function beta_m_init real = 0.28 * ( V_m /1 mV  - 40. ) / ( exp( ( V_m / 1 mV - 40. ) / 5. ) - 1. )
-    function alpha_h_init real = 0.128 * exp( ( 17. - V_m / 1 mV) / 18. )
-    function beta_h_init real = 4. / ( 1. + exp( ( 40. - V_m / 1 mV ) / 5. ) )
+    function alpha_n_init 1/ms = 0.032/(1 ms* 1 mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
+    function beta_n_init 1/ms = 0.5 /1 ms * exp( ( 10. mV - V_m ) / 40. mV )
+    function alpha_m_init 1/ms = 0.32/(1 ms* 1 mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
+    function beta_m_init 1/ms = 0.28/(1 ms* 1 mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
+    function alpha_h_init 1/ms = 0.128/1 ms * exp( ( 17. mV - V_m) / 18. mV )
+    function beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / 1 ms
 
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
@@ -67,16 +67,16 @@ neuron hh_cond_exp_traub_neuron:
 
     # channel dynamics
     function V_rel mV = V_m - V_T
-    function alpha_n real = 0.032 * ( 15. - V_rel / 1 mV ) / ( exp( ( 15. - V_rel / 1 mV ) / 5. ) - 1. )
-    function beta_n real = 0.5 * exp( ( 10. - V_rel / 1 mV) / 40. )
-    function alpha_m real = 0.32 * ( 13. - V_rel / 1 mV ) / ( exp( ( 13. - V_rel / 1 mV ) / 4. ) - 1. )
-    function beta_m real = 0.28 * ( V_rel / 1 mV - 40. ) / ( exp( ( V_rel / 1 mV - 40. ) / 5. ) - 1. )
-    function alpha_h real = 0.128 * exp( ( 17. - V_rel / 1 mV ) / 18. )
-    function beta_h real = 4. / ( 1. + exp( ( 40. - V_rel / 1 mV ) / 5. ) )
+    function alpha_n 1/ms = 0.032/(1 ms* 1 mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
+    function beta_n 1/ms = 0.5 /1 ms * exp( ( 10. mV - V_m ) / 40. mV )
+    function alpha_m 1/ms = 0.32/(1 ms* 1 mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
+    function beta_m 1/ms = 0.28/(1 ms* 1 mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
+    function alpha_h 1/ms = 0.128/1 ms * exp( ( 17. mV - V_m) / 18. mV )
+    function beta_h 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / 1 ms
 
-    Act_m' = ( alpha_m - ( alpha_m + beta_m ) * Act_m ) / 1 ms
-    Act_h' = ( alpha_h - ( alpha_h + beta_h ) * Act_h ) / 1 ms
-    Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n ) / 1 ms
+    Act_m' = ( alpha_m - ( alpha_m + beta_m ) * Act_m ) 
+    Act_h' = ( alpha_h - ( alpha_h + beta_h ) * Act_h ) 
+    Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n )
 
   end
 
