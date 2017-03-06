@@ -99,7 +99,7 @@ neuron ht_neuron_nestml:
     recordable function I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
     # The spike current is only activate immediately after a spike.
     function I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
-    V_m'  = ( ( I_Na * 1 pA + I_K * 1 pA + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike * 1 [pA/(ms * mV)] ) * 1 [s/nF]                    
+    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike * 1 [pA/(ms * mV)] ) * 1 [s/nF]                    
     #############
     # Intrinsic currents
     #############
@@ -110,12 +110,12 @@ neuron ht_neuron_nestml:
     # I_KNa
     function D_influx_peak real = 0.025
     function tau_D real = 1250.0 # yes, 1.25s
-    function D_thresh real = -10.0
-    function D_slope real = 5.0
-    function D_influx real = 1.0 / ( 1.0 + exp( -( V_m / 1 mV- D_thresh ) / D_slope ) )
+    function D_thresh mV = -10.0
+    function D_slope mV = 5.0
+    function D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) )
 
-    function I_Na real = -g_NaL * ( V_m - E_Na )
-    function I_K real = -g_KL * ( V_m - E_K )
+    function I_Na pA = -g_NaL * ( V_m - E_Na )
+    function I_K pA = -g_KL * ( V_m - E_K )
 
     Theta' = -( Theta - Theta_eq ) / Tau_theta
 
