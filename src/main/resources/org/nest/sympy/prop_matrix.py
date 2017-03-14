@@ -11,7 +11,7 @@ def ode_to_prop_matrices(shapes, ode_var_str, ode_rhs_str):
     '''The function `ode_to_prop_matrices` calculates a so called proagator
     for any given linear constant coefficient ODE with an inhomogeneous part
     wich is a sum of `shapes` (instaces of the class `ShapeFunction` or
-    ShapeODE; they satisfy a linear hoomogeneous ODE). 
+    `ShapeODE`; they satisfy a linear homogeneous ODE). 
     The idea is to reformulate the ODE or systems of ODEs as the ODE
     y'=Ay and to calculate A and then exp(Ah) to give an evolution of 
     the system for a given timestep `h`.

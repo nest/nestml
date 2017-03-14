@@ -75,7 +75,7 @@ derivative_factor, t = symbols("derivative_factor, t")
         
 class ShapeFunction(object):
     '''Here we provide a class, `ShapeFunction` that can be called
-    with a chosen name of the shape and it's mathematical discription;
+    with a chosen name of the shape and its mathematical description;
     it checks for any given fuction of positive t, i.e. the shape, if
     it satisfies a linear homogeneous ODE of order 1,...,10:
     
@@ -250,7 +250,7 @@ class ShapeODE(object):
     Canonical calculation of the properties, `order`, `name`,
     `initial_values` and the system of ODEs in matrix form are made.
     '''
-        
+    
     def __init__(self, name, ode_sys_var, ode_sys_rhs, initial_values):
 
         self.name = parse_expr(name)
