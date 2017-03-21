@@ -9,6 +9,7 @@ neuron invalidAssignmentTest:
   parameters:
     Current A = 3 A
     Potential V = 3 V
+    milliVolt mV = 3 mV
   end
 
   input:
@@ -22,8 +23,18 @@ neuron invalidAssignmentTest:
   internals:
   end
 
-  update:   
+  update:
     V3 V**2 = (3V+5V)**2
+
+    //assignment of same base but different magnitude
+    V4 V = 3 mV
+    V4 += 33 mV
+    v4 += milliVolt
+
+    V5 mV = 6V
+    V5 += 14 V
+    V5 += Potential
+
     Resist = 8Ohm 
 
     Real *= 2.5

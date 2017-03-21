@@ -1,6 +1,7 @@
 neuron validExpressionTest:
   state: 
-    Volt V 
+    Volt V
+    milliVolt mV
     InverseVolt 1/V   
     Ampere A
     Resist Ohm
@@ -32,7 +33,9 @@ neuron validExpressionTest:
     Volt = 2 * Volt                         #multiplication with int -> unit
     Volt = 2.0 * Volt                       #multiplication with real -> unit
     Volt = Volt + Volt                      #addition
+    Volt = Volt + milliVolt                 #addition with same base, different magnitude
     Volt = Volt - Volt                      #substraction
+    Volt = Volt - milliVolt                 #substraction with same base, different magnitude
     Real = Volt/Volt                        #division erases units -> real
     Resist = Volt / Ampere                  #division gives correct unit
     Volt = Volt / 2                         #division with int -> unit
