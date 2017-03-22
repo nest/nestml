@@ -1,14 +1,20 @@
 package org.nest.commons._visitor;
 
+import com.google.common.base.Joiner;
+import de.monticore.literals.literals._ast.ASTFloatLiteral;
+import de.monticore.literals.literals._ast.ASTNumericLiteral;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
+import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
+import static java.lang.Math.pow;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
@@ -69,14 +75,62 @@ public class LineOperatorVisitor implements CommonsVisitor{
         expr.setType(Either.value(getRealType()));
         return;
       }
-      //Both are units, not matching -> real, warn
+      //Both are units, not matching -> see if matching base
       if(isUnit(lhsType)&&isUnit(rhsType)){
-        final String errorMsg =ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
-            "Addition/substraction of "+lhsType.prettyPrint()+" and "+rhsType.prettyPrint()+
-            ". Assuming real.";
-        expr.setType(Either.value(getRealType()));
-        warn(errorMsg,expr.get_SourcePositionStart());
-        return;
+        //Base not matching -> error
+        UnitRepresentation rhsRep = UnitRepresentation.getBuilder().serialization(rhsType.getName()).build();
+        UnitRepresentation lhsRep = UnitRepresentation.getBuilder().serialization(lhsType.getName()).build();
+        if(!lhsRep.equalBase(rhsRep)) {
+          final String errorMsg = ERROR_CODE + " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
+              "Addition/substraction of " + lhsType.prettyPrint() + " and " + rhsType.prettyPrint() +
+              ". Assuming real.";
+          expr.setType(Either.value(getRealType()));
+          warn(errorMsg, expr.get_SourcePositionStart());
+          return;
+        }else{//Base matching, install conversion
+          //Determine the "greater" unit of the two and the difference in magnitude
+          ASTExpr bigger;
+          int magDiff;
+          boolean leftIsBigger;
+          if(lhsRep.hasBiggerMagnitudeThan(rhsRep)){
+            bigger = expr.getLeft().get();
+            magDiff = lhsRep.getMagnitude() - rhsRep.getMagnitude();
+            leftIsBigger = true;
+          }
+          else{
+            bigger = expr.getRight().get();
+            magDiff = rhsRep.getMagnitude() - lhsRep.getMagnitude();
+            leftIsBigger = false;
+          }
+          double literalSource = pow(10.0,magDiff);
+
+          checkState(magDiff%3 == 0,"Difference between magnitudes not a multiple of 3"); // should never be a problem
+
+          //create expression holding literal node to switch value and magnitude
+          ASTFloatLiteral conversionFloatLiteral = ASTFloatLiteral.getBuilder().
+              source(String.valueOf(literalSource)).build();
+          ASTNESTMLNumericLiteral conversionFinishedLiteral = ASTNESTMLNumericLiteral.getBuilder().
+              numericLiteral(conversionFloatLiteral).build();
+          ASTExpr conversionLiteralExpr = ASTExpr.getBuilder().nESTMLNumericLiteral(conversionFinishedLiteral).build();
+          TypeSymbol magType = new TypeSymbol("[0,0,0,0,0,0,0,"+(-magDiff)+"]i", TypeSymbol.Type.UNIT);
+          conversionLiteralExpr.setType(Either.value(magType));
+
+          //create multiplication node
+          ASTExpr substitute = ASTExpr.getBuilder().left(bigger).right(conversionLiteralExpr).timesOp(true).build();
+
+          //replace "bigger" expression with multiplication
+          if(leftIsBigger){
+            expr.setLeft(substitute);
+          }else{
+            expr.setRight(substitute);
+          }
+
+          //Visit newly created sub-tree
+          ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+          expr.accept(expressionTypeVisitor);
+          return;
+
+        }
       }
       //one is unit and one numeric primitive and vice versa -> assume unit, warn
       if((isUnit(lhsType)&&isNumericPrimitive(rhsType))||
