@@ -88,27 +88,12 @@ public class LineOperatorVisitor implements CommonsVisitor{
           warn(errorMsg, expr.get_SourcePositionStart());
           return;
         }else{//Base matching, install conversion
-          //Determine the "greater" unit of the two and the difference in magnitude
-          ASTExpr bigger;
-          int magDiff;
-          boolean leftIsBigger;
-          if(lhsRep.hasBiggerMagnitudeThan(rhsRep)){
-            bigger = expr.getLeft().get();
-            magDiff = lhsRep.getMagnitude() - rhsRep.getMagnitude();
-            leftIsBigger = true;
-          }
-          else{
-            bigger = expr.getRight().get();
-            magDiff = rhsRep.getMagnitude() - lhsRep.getMagnitude();
-            leftIsBigger = false;
-          }
 
-          //replace "bigger" expression with multiplication
-          if(leftIsBigger){
-            expr.setLeft(AstUtils.createSubstitution(expr.getLeft().get(),magDiff));
-          }else{
-            expr.setRight(AstUtils.createSubstitution(expr.getRight().get(),magDiff));
-          }
+          //Determine the difference in magnitude
+          int magDiff = lhsRep.getMagnitude() - rhsRep.getMagnitude();
+
+          //replace left expression with multiplication
+          expr.setLeft(AstUtils.createSubstitution(expr.getLeft().get(),magDiff));
 
           //revisit current sub-tree with substitution
           ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
