@@ -35,7 +35,7 @@ neuron validExpressionTest:
     Volt = Volt + Volt                      #addition
     milliVolt = Volt + milliVolt            #addition with same base, different magnitude
     Volt = Volt - Volt                      #substraction
-    milliVolt = Volt - milliVolt                 #substraction with same base, different magnitude
+    milliVolt = Volt - milliVolt            #substraction with same base, different magnitude
     Real = Volt/Volt                        #division erases units -> real
     Resist = Volt / Ampere                  #division gives correct unit
     Volt = Volt / 2                         #division with int -> unit
