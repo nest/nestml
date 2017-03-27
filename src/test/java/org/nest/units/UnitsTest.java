@@ -101,7 +101,7 @@ public class UnitsTest extends ModelbasedTest {
         .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
         .count();
 
-    assertEquals(2, warningsFound);
+    assertEquals(14, warningsFound);
 
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
         "src/test/resources/org/nest/units/expressionTest/invalidExpressions.nestml", TEST_MODEL_PATH);

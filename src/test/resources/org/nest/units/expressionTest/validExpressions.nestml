@@ -46,12 +46,32 @@ neuron validExpressionTest:
     
     Volt = true?3V:Volt                     #ternary
 
-    if Resist > 3Ohm:                       #Comparison
-    elif Resist < 3Ohm:                     #Comparison
+    if Resist > 3 Ohm:                      #Comparison
+    if Resist > 3 mOhm:                     #Comparison with same base, different magnitude
+    if 3 mOhm > Resist:                     #Comparison with same base, different magnitude
+
+    elif Resist < 3 Ohm:                    #Comparison
+    elif Resist < 3 mOhm:                   #Comparison with same base, different magnitude
+    elif 3 mOhm < Resist:                   #Comparison with same base, different magnitude
+
     elif Resist == 3Ohm:                    #Comparison
-    elif Resist >= 3Ohm:                    #Comparison
-    elif Resist <= 3Ohm:                    #Comparison
-    elif Resist <> 3Ohm:                    #Comparison
+    elif Resist == 3 mOhm:                  #Comparison with same base, different magnitude
+    elif 3 mOhm == Resist:                  #Comparison with same base, different magnitude
+
+    elif Resist >= 3 Ohm:                   #Comparison
+    elif Resist >= 3 mOhm:                  #Comparison with same base, different magnitude
+    elif 3 mOhm >= Resist:                  #Comparison with same base, different magnitude
+
+    elif Resist <= 3 Ohm:                   #Comparison
+    elif Resist <= 3 mOhm:                  #Comparison with same base, different magnitude
+    elif 3 mOhm <= Resist:                  #Comparison with same base, different magnitude
+
+    elif Resist <> 3 Ohm:                   #Comparison
+    elif Resist <> 3 mOhm:                  #Comparison with same base, different magnitude
+    elif 3 mOhm <> Resist:                  #Comparison with same base, different magnitude
+
+    end
+    end
     end
   end
 

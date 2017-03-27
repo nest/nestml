@@ -4,6 +4,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
@@ -41,6 +42,27 @@ public class ComparisonOperatorVisitor implements CommonsVisitor{
         isBoolean(lhsType) && isBoolean(rhsType)) {
       expr.setType(Either.value(getBooleanType()));
       return;
+    }
+
+    //Both are units, not matching -> see if matching base
+    if(isUnit(lhsType)&&isUnit(rhsType)){
+      UnitRepresentation rhsRep = UnitRepresentation.getBuilder().serialization(rhsType.getName()).build();
+      UnitRepresentation lhsRep = UnitRepresentation.getBuilder().serialization(lhsType.getName()).build();
+      if(lhsRep.equalBase(rhsRep)) {
+        //Determine the difference in magnitude
+        int magDiff = lhsRep.getMagnitude() - rhsRep.getMagnitude();
+
+        //replace left expression with multiplication
+        expr.setLeft(AstUtils.createSubstitution(expr.getLeft().get(),magDiff));
+
+        //revisit current sub-tree with substitution
+        ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+        expr.accept(expressionTypeVisitor);
+
+        //drop warning about implicit conversion
+        Log.warn(ERROR_CODE +" "+AstUtils.print(expr.get_SourcePositionStart()) + " : Implicit conversion from "+lhsRep.prettyPrint()+" to "+rhsRep.prettyPrint());
+        return;
+      }
     }
 
     //Error message for any other operation
