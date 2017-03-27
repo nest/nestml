@@ -531,6 +531,8 @@ public final class AstUtils {
     //create multiplication node
     ASTExpr substitute = ASTExpr.getBuilder().left(node).right(conversionLiteralExpr).timesOp(true).build();
 
-    return substitute;
+    //put substitution in parentheses, just to be sure.
+    ASTExpr parenSubstitute = ASTExpr.getBuilder().leftParentheses(true).rightParentheses(true).expr(substitute).build();
+    return parenSubstitute;
   }
 }
