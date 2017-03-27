@@ -10,6 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
+import de.monticore.literals.literals._ast.ASTFloatLiteral;
 import de.monticore.symboltable.EnclosingScopeOfNodesInitializer;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.SourcePosition;
@@ -18,6 +19,7 @@ import org.apache.commons.io.FileUtils;
 import org.nest.commons._ast.ASTCommonsNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
@@ -53,6 +55,7 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.*;
 import static de.se_rwth.commons.logging.Log.info;
+import static java.lang.Math.pow;
 import static java.util.stream.Collectors.toList;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
@@ -502,4 +505,32 @@ public final class AstUtils {
     return "<" + sourcePosition.getLine() + "," + sourcePosition.getColumn() + ">";
   }
 
+  /**
+   * Creates a conversion from one Unit to another with a matching base (only magnitudes differ).
+   * This is achieved by substituting the Node holding the Unit with a multiplication
+   * of the original Unit and a new NESTMLNumericLiteral node.
+   *
+   * @param node the original node with a "wrong" magnitude
+   * @param magDiff the difference in magnitude to be achieved
+   * @return Multiplication expression of correct type.
+   */
+  public static ASTExpr createSubstitution(ASTExpr node, int magDiff){
+    checkState(magDiff%3 == 0,"Difference between magnitudes not a multiple of 3"); // should never be a problem
+    double literalSource = pow(10.0,magDiff);
+
+    //create expression holding literal node to switch value and magnitude
+    ASTFloatLiteral conversionFloatLiteral = ASTFloatLiteral.getBuilder().
+        source(String.valueOf(literalSource)).build();
+    ASTNESTMLNumericLiteral conversionFinishedLiteral = ASTNESTMLNumericLiteral.getBuilder().
+        numericLiteral(conversionFloatLiteral).build();
+
+    ASTExpr conversionLiteralExpr = ASTExpr.getBuilder().nESTMLNumericLiteral(conversionFinishedLiteral).build();
+    TypeSymbol magType = new TypeSymbol("[0,0,0,0,0,0,0,"+(-magDiff)+"]i", TypeSymbol.Type.UNIT);
+    conversionLiteralExpr.setType(Either.value(magType));
+
+    //create multiplication node
+    ASTExpr substitute = ASTExpr.getBuilder().left(node).right(conversionLiteralExpr).timesOp(true).build();
+
+    return substitute;
+  }
 }

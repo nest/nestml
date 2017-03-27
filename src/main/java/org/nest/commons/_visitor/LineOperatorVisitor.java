@@ -102,30 +102,15 @@ public class LineOperatorVisitor implements CommonsVisitor{
             magDiff = rhsRep.getMagnitude() - lhsRep.getMagnitude();
             leftIsBigger = false;
           }
-          double literalSource = pow(10.0,magDiff);
-
-          checkState(magDiff%3 == 0,"Difference between magnitudes not a multiple of 3"); // should never be a problem
-
-          //create expression holding literal node to switch value and magnitude
-          ASTFloatLiteral conversionFloatLiteral = ASTFloatLiteral.getBuilder().
-              source(String.valueOf(literalSource)).build();
-          ASTNESTMLNumericLiteral conversionFinishedLiteral = ASTNESTMLNumericLiteral.getBuilder().
-              numericLiteral(conversionFloatLiteral).build();
-          ASTExpr conversionLiteralExpr = ASTExpr.getBuilder().nESTMLNumericLiteral(conversionFinishedLiteral).build();
-          TypeSymbol magType = new TypeSymbol("[0,0,0,0,0,0,0,"+(-magDiff)+"]i", TypeSymbol.Type.UNIT);
-          conversionLiteralExpr.setType(Either.value(magType));
-
-          //create multiplication node
-          ASTExpr substitute = ASTExpr.getBuilder().left(bigger).right(conversionLiteralExpr).timesOp(true).build();
 
           //replace "bigger" expression with multiplication
           if(leftIsBigger){
-            expr.setLeft(substitute);
+            expr.setLeft(AstUtils.createSubstitution(expr.getLeft().get(),magDiff));
           }else{
-            expr.setRight(substitute);
+            expr.setRight(AstUtils.createSubstitution(expr.getRight().get(),magDiff));
           }
 
-          //Visit newly created sub-tree
+          //revisit current sub-tree with substitution
           ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
           expr.accept(expressionTypeVisitor);
           return;
