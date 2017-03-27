@@ -3,6 +3,7 @@ package org.nest.commons._visitor;
 import com.google.common.base.Joiner;
 import de.monticore.literals.literals._ast.ASTFloatLiteral;
 import de.monticore.literals.literals._ast.ASTNumericLiteral;
+import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.spl.symboltable.typechecking.Either;
@@ -98,6 +99,10 @@ public class LineOperatorVisitor implements CommonsVisitor{
           //revisit current sub-tree with substitution
           ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
           expr.accept(expressionTypeVisitor);
+
+          //drop warning about implicit conversion
+          Log.warn(ERROR_CODE +" "+AstUtils.print(expr.get_SourcePositionStart()) + " : Implicit conversion from "+lhsRep.prettyPrint()+" to "+rhsRep.prettyPrint());
+
           return;
 
         }
