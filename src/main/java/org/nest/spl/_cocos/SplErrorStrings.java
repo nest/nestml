@@ -129,6 +129,17 @@ public class SplErrorStrings {
         String.format(ERROR_MSG_FORMAT,expressionType, variable, varType);
   }
 
+  static String messageImplicitConversion(
+      final IllegalExpression coco,
+      final String lhsType,
+      final String rhsType,
+      final SourcePosition sourcePosition){
+    final String ERROR_MSG_FORMAT = "Implicit conversion from %s to %s" ;
+
+    return code(coco) + " " + AstUtils.print(sourcePosition) + " : " +
+        String.format(ERROR_MSG_FORMAT,lhsType, rhsType);
+  }
+
   static String messageNonBoolean(
       final IllegalExpression coco,
       final String expressionType,

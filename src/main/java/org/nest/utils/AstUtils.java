@@ -528,11 +528,14 @@ public final class AstUtils {
     TypeSymbol magType = new TypeSymbol("[0,0,0,0,0,0,0,"+(-magDiff)+"]i", TypeSymbol.Type.UNIT);
     conversionLiteralExpr.setType(Either.value(magType));
 
-    //create multiplication node
-    ASTExpr substitute = ASTExpr.getBuilder().left(node).right(conversionLiteralExpr).timesOp(true).build();
+    //put original node in parentheses to avoid problems
+    ASTExpr nodeWithParents = ASTExpr.getBuilder().leftParentheses(true).rightParentheses(true).expr(node).build();
+
+    //create substitution-multiplication node
+    ASTExpr substitute = ASTExpr.getBuilder().left(nodeWithParents).right(conversionLiteralExpr).timesOp(true).build();
 
     //put substitution in parentheses, just to be sure.
-    ASTExpr parenSubstitute = ASTExpr.getBuilder().leftParentheses(true).rightParentheses(true).expr(substitute).build();
-    return parenSubstitute;
+    ASTExpr substitueWithParents = ASTExpr.getBuilder().leftParentheses(true).rightParentheses(true).expr(substitute).build();
+    return substitueWithParents;
   }
 }

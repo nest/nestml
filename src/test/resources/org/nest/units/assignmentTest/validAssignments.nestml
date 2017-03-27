@@ -29,7 +29,7 @@ neuron invalidAssignmentTest:
     #assignment of same base but different magnitude
     V4 V = 3 mV
     V4 += 33 mV
-    v4 += milliVolt
+    V4 += milliVolt
 
     V5 mV = 6V
     V5 += 14 V
