@@ -28,7 +28,10 @@ neuron validExpressionTest:
   end
 
   update:
-    Volt = foo(7 A,2 Ohm)                   #function call 
+    Volt = foo(7 A,2 Ohm)                   #function call
+    Volt = foo(7 mA,2 Ohm)                  #function call with same base, different magnitude
+    Volt = foo(7 A,2 mOhm)                  #function call with same base, different magnitude
+
     Volt = Resist * Ampere                  #multipilication gives correct unit
     Volt = 2 * Volt                         #multiplication with int -> unit
     Volt = 2.0 * Volt                       #multiplication with real -> unit
