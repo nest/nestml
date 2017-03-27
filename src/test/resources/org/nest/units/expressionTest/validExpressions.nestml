@@ -45,6 +45,9 @@ neuron validExpressionTest:
     Volt = -Volt                            #unary minus
     
     Volt = true?3V:Volt                     #ternary
+    Volt = true?3V:milliVolt                #ternary with same base, different magnitude
+    Volt = true?3 mV:Volt                   #ternary with same base, different magnitude
+
 
     if Resist > 3 Ohm:                      #Comparison
     if Resist > 3 mOhm:                     #Comparison with same base, different magnitude
