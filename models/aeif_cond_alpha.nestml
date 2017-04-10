@@ -119,7 +119,7 @@ neuron aeif_cond_alpha_neuron:
       emit_spike()
     end
 
-    I_stim = currents.get_sum()*1pA
+    I_stim = currents
   end
 
 end

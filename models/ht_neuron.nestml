@@ -99,38 +99,36 @@ neuron ht_neuron_nestml:
     recordable function I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
     # The spike current is only activate immediately after a spike.
     function I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
-    V_m'  = ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike
-
+    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike * 1 [pA/(ms * mV)] ) * 1 [s/nF]                    
     #############
     # Intrinsic currents
     #############
     # I_T
-    function m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m + 59.0 ) / 6.2 ) )
-    function h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m + 83.0 ) / 4 ) )
-    function tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m ) + exp( -1.87 + 0.0701 * V_m ) )
+    function m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m / 1 mV + 59.0 ) / 6.2 ) )
+    function h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m / 1 mV + 83.0 ) / 4 ) )
+    function tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m / 1 mV ) + exp( -1.87 + 0.0701 * V_m / 1 mV ) )
     # I_KNa
     function D_influx_peak real = 0.025
     function tau_D real = 1250.0 # yes, 1.25s
-    function D_thresh real = -10.0
-    function D_slope real = 5.0
+    function D_thresh mV = -10.0
+    function D_slope mV = 5.0
     function D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) )
 
-    function I_Na real = -g_NaL * ( V_m - E_Na )
-    function I_K real = -g_KL * ( V_m - E_K )
+    function I_Na pA = -g_NaL * ( V_m - E_Na )
+    function I_K pA = -g_KL * ( V_m - E_K )
 
     Theta' = -( Theta - Theta_eq ) / Tau_theta
 
     # equation modified from y[](1-D_eq) to (y[]-D_eq), since we'd not
     # be converging to equilibrium otherwise
-    IKNa_D' = D_influx_peak * D_influx - ( IKNa_D  - KNa_D_EQ ) / tau_D
-
-    function tau_m_T real = 0.22 / ( exp( -( V_m + 132.0 ) / 16.7 ) + exp( ( V_m + 16.8 ) / 18.2 ) ) + 0.13
-    function tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m + 86.0 ) / 3.2 ) )
+    IKNa_D' = ( D_influx_peak * D_influx * 1 nS - ( IKNa_D  - KNa_D_EQ * 1 [1/mV] ) / tau_D ) /1 ms
+    function tau_m_T real = 0.22 / ( exp( -( V_m / 1 mV + 132.0 ) / 16.7 ) + exp( ( V_m / 1 mV + 16.8 ) / 18.2 ) ) + 0.13
+    function tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m / 1 mV + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m / 1 mV + 86.0 ) / 3.2 ) )
     function I_h_Vthreshold real = -75.0
-    function m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m - I_h_Vthreshold ) / 5.5 ) )
-    IT_m' = ( m_inf_T - IT_m ) / tau_m_T
-    IT_h' = ( h_inf_T - IT_h ) / tau_h_T
-    Ih_m' = ( m_inf_h - Ih_m ) / tau_m_h
+    function m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m / 1 mV - I_h_Vthreshold ) / 5.5 ) )
+    IT_m' = ( m_inf_T * 1 nS - IT_m ) / tau_m_T /1 ms
+    IT_h' = ( h_inf_T * 1 nS - IT_h ) / tau_h_T /1 ms
+    Ih_m' = ( m_inf_h * 1 nS - Ih_m ) / tau_m_h /1 ms
 
     #############
     # Synapses
@@ -139,13 +137,13 @@ neuron ht_neuron_nestml:
     g_AMPA' = g_AMPA' - g_AMPA  / AMPA_Tau_2
 
     g_NMDA'' = -g_NMDA' / NMDA_Tau_1
-    g_NMDA' = g_NMDA' - g_NMDA / NMDA_Tau_2
+    g_NMDA' = g_NMDA' - g_NMDA / NMDA_Tau_2 
 
     g_GABAA'' = -g_GABAA' / GABA_A_Tau_1
-    g_GABAA' = g_GABAA' - g_GABAA / GABA_A_Tau_2
+    g_GABAA' = g_GABAA' - g_GABAA / GABA_A_Tau_2 
 
     g_GABAB'' = -g_GABAB' / GABA_B_Tau_1
-    g_GABAB' = g_GABAB' - g_GABAB /GABA_B_Tau_2
+    g_GABAB' = g_GABAB' - g_GABAB /GABA_B_Tau_2 
   end
 
   parameters:
@@ -223,10 +221,10 @@ neuron ht_neuron_nestml:
     end
     r_potassium -= 1
 
-    g_AMPA' += AMPAInitialValue * AMPA
-    g_NMDA' += NMDAInitialValue * NMDA
-    g_GABAA' += GABA_AInitialValue * GABA_A
-    g_GABAB' += GABA_BInitialValue * GABA_B
+    g_AMPA' += AMPAInitialValue * AMPA * 1 [nS/ms]
+    g_NMDA' += NMDAInitialValue * NMDA * 1 [nS/ms]
+    g_GABAA' += GABA_AInitialValue * GABA_A * 1 [nS/ms]
+    g_GABAB' += GABA_BInitialValue * GABA_B * 1 [nS/ms]
 
     if (not g_spike) and V_m >= Theta:
       # Set V and Theta to the sodium reversal potential.
@@ -247,7 +245,7 @@ neuron ht_neuron_nestml:
       emit_spike()
     end
 
-    I_stim = currents.get_sum()
+    I_stim = currents
   end
 
   function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:
@@ -256,9 +254,9 @@ neuron ht_neuron_nestml:
     # See: Exact digital simulation of time-invariant linear systems
     # with applications to neuronal modeling, Rotter and Diesmann,
     # section 3.1.2.
-    exact_integration_adjustment real = ( 1 / Tau_2 ) - ( 1 / Tau_1 )
+    exact_integration_adjustment real = ( ( 1 / Tau_2 ) - ( 1 / Tau_1 ) ) * 1 ms
 
-    t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 )
+    t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / 1 ms
     normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
 
     return g_peak * normalisation_factor * exact_integration_adjustment

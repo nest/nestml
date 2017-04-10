@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static de.se_rwth.commons.Names.getQualifiedName;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 
 /**
  * Produces the concrete textual representation from the AST.
@@ -222,7 +223,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   }
 
   private void printDeclarationType(final ASTDeclaration astDeclaration) {
-    print(AstUtils.computeTypeName(astDeclaration.getDatatype(),true));
+    print(deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astDeclaration.getDatatype())));
     if (astDeclaration.getSizeParameter().isPresent()) {
       print(" [" + astDeclaration.getSizeParameter().get() + "]");
     }

@@ -18,19 +18,22 @@ public class LogicalNotVisitor implements CommonsVisitor{
   final String ERROR_CODE = "SPL_LOGICAL_NOT_VISITOR";
   @Override
   public void visit(ASTExpr expr) {
-    final Either<TypeSymbol, String> exprType  = expr.getExpr().get().getType();
+    final Either<TypeSymbol, String> exprTypeE  = expr.getExpr().get().getType();
 
-      if (exprType.isError()) {
-        expr.setType(exprType);
+      if (exprTypeE.isError()) {
+        expr.setType(exprTypeE);
         return;
       }
-      else if (isBoolean(exprType.getValue())) {
+
+      TypeSymbol exprType = exprTypeE.getValue();
+
+      if (isBoolean(exprType)) {
         expr.setType(Either.value(getBooleanType()));
         return;
       }
       else {
         final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
-            "Logical 'not' expects an boolean type and not: " + exprType.getValue();
+            "Logical 'not' expects an boolean type and not: " + exprType;
         expr.setType(Either.error(errorMsg));
         error(errorMsg,expr.get_SourcePositionStart());
         return;

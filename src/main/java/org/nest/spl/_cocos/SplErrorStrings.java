@@ -142,7 +142,7 @@ public class SplErrorStrings {
       final IllegalExpression coco,
       final String soruceType,
       final SourcePosition sourcePosition){
-    final String ERROR_MSG_FORMAT = "Implicit casting from %s to real";
+    final String ERROR_MSG_FORMAT = "Implicit cast from %s to real";
 
     return code(coco) + " " + AstUtils.print(sourcePosition) + " : " + String.format(ERROR_MSG_FORMAT, soruceType);
   }

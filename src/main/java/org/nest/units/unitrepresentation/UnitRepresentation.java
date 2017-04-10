@@ -442,7 +442,8 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
 
   public UnitRepresentation deriveT(int order) {
     UnitRepresentation result = getBuilder().other(this).build();
-    result.s -= order;
+    UnitRepresentation denominator = getBuilder().s(order).magnitude(-3*order).build();
+    result = result.divideBy(denominator);
     return result;
   }
 
@@ -529,7 +530,14 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     String firstName = first.getName();
     String prefix = "";
     if(thisDump !=0) {
-      prefix = SIData.getPrefixMagnitudes().inverse().get(thisDump);
+      int toDump =0; //dump modified by exponent to current factor
+      if(thisDump%first.getExponent() != 0){
+        toDump = ((thisDump/first.getExponent())/3)*3;
+        nextDump += (thisDump-toDump*first.getExponent());
+      }else {
+        toDump = thisDump/first.getExponent();
+      }
+      prefix = SIData.getPrefixMagnitudes().inverse().get(toDump);
     }
     first.setName(prefix+firstName);
 
@@ -578,7 +586,7 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   private boolean factorize(List<Factor> factors, UnitRepresentation workingCopy) {
     /* Find the highest possible power of any given BaseRepresentation to still be contained in workingCopy.
      */
-    Set<FactorizationResult> orderedResults = new TreeSet<FactorizationResult>();
+    Set<FactorizationResult> orderedResults = new TreeSet<>();
     for(String baseName : SIData.getBaseRepresentations().keySet()){
       if(baseName.equals("Bq")|| baseName.equals("Hz")||    //skip matching Bq and Hz in favour of 1/s
           baseName.equals("S")){                            //skip matching S in favour of 1/Ohm

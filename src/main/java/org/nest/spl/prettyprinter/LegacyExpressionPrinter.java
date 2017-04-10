@@ -1,54 +1,19 @@
-/*
- * Copyright (c) 2015 RWTH Aachen. All rights reserved.
- *
- * http://www.se-rwth.de/
- */
 package org.nest.spl.prettyprinter;
 
-import de.monticore.prettyprint.IndentPrinter;
-import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 
-import java.util.List;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
- * Converts SPL expressions to the executable platform dependent code. By using different
- * referenceConverters the handling of variables, names, and functions can be adapted. For this,
- * implement own {@code IReferenceConverter} specialisation.
- *
- * @author plotnikov
+ * Created by ptraeder.
+ * "Legacy" version of the expression printer that does not print units for literals
  */
-public class ExpressionsPrettyPrinter {
+public class LegacyExpressionPrinter extends ExpressionsPrettyPrinter{
 
-  protected final IReferenceConverter referenceConverter;
-
-  public ExpressionsPrettyPrinter() {
-    this.referenceConverter = new IdempotentReferenceConverter();
-  }
-
-  public ExpressionsPrettyPrinter(final IReferenceConverter referenceConverter) {
-    this.referenceConverter = referenceConverter;
-  }
-
-  public String print(final ASTExpr expr) {
-    checkNotNull(expr);
-    return doPrint(expr);
-  }
-
-  protected String doPrint(final ASTExpr expr) {
+  @Override
+  protected String doPrint(final ASTExpr expr)  {
     if (expr.getNESTMLNumericLiteral().isPresent()) { // number
-      if(expr.getNESTMLNumericLiteral().get().getType().isPresent()){
-        String type = expr.getNESTMLNumericLiteral().get().getType().get().getSerializedUnit();
-        UnitRepresentation uType = UnitRepresentation.getBuilder().serialization(type).build();
-        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral()) +" ["+uType.prettyPrint()+"] ";
-      }else {
         return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
-      }
     }
     if (expr.isInf()) {
       return convertConstant("inf");
@@ -150,116 +115,5 @@ public class ExpressionsPrettyPrinter {
     final String errorMsg = "Unsupported grammar element:  PrettyPrinter must be fixed " + expr.get_SourcePositionStart();
 
     throw new RuntimeException(errorMsg);
-  }
-
-  /**
-   * This method must be public, since it is used in Freemarker template
-   */
-  public String printMethodCall(final ASTFunctionCall astFunctionCall) {
-    final String nestFunctionName = referenceConverter.convertFunctionCall(astFunctionCall);
-
-    if (referenceConverter.needsArguments(astFunctionCall)) {
-      final StringBuilder argsListAsString = printFunctionCallArguments(astFunctionCall);
-      return String.format(nestFunctionName, argsListAsString);
-    }
-    else {
-      return nestFunctionName;
-    }
-  }
-
-  /**
-   * This method must be public, since it is used in Freemarker template
-   */
-  private StringBuilder printFunctionCallArguments(final ASTFunctionCall astFunctionCall) {
-    final StringBuilder argsListAsString = new StringBuilder();
-
-    final List<ASTExpr> functionArgs = astFunctionCall.getArgs();
-    for (int i = 0; i < functionArgs.size(); ++i) {
-      boolean isLastArgument = (i+1) == functionArgs.size();
-      if (!isLastArgument) {
-        argsListAsString.append(print(functionArgs.get(i)));
-        argsListAsString.append(", ");
-      }
-      else {
-        // last argument, don't append ','
-        argsListAsString.append(print(functionArgs.get(i)));
-      }
-
-    }
-    return argsListAsString;
-  }
-
-  protected String convertConstant(final String constantName) {
-    return referenceConverter.convertConstant(constantName);
-  }
-
-  protected String convertVariableName(final ASTVariable astVariableName) {
-    return referenceConverter.convertNameReference(astVariableName);
-  }
-
-  protected String printComparisonOperator(final ASTExpr expr) {
-    if (expr.isLt()) {
-      return "<";
-    }
-    if (expr.isLe()) {
-      return "<=";
-    }
-    if (expr.isEq()) {
-      return "==";
-    }
-    if (expr.isNe() || expr.isNe2()) {
-      return "!=";
-    }
-    if (expr.isGe()) {
-      return ">=";
-    }
-    if (expr.isGt()) {
-      return ">";
-    }
-    throw new RuntimeException("Cannot determine comparison operator");
-  }
-
-  protected String printBitOperator(final ASTExpr expr) {
-    if (expr.isShiftLeft()) {
-      return "<<";
-    }
-    if (expr.isShiftRight()) {
-      return ">>";
-    }
-    if (expr.isModuloOp()) {
-      return "%";
-    }
-    if (expr.isBitAnd()) {
-      return "&";
-    }
-    if (expr.isBitOr()) {
-      return "|";
-    }
-    if (expr.isBitXor()) {
-      return "^";
-    }
-
-    throw new RuntimeException("Cannot determine mathematical operator");
-  }
-
-  protected String getArithmeticOperator(final ASTExpr expr) {
-    if (expr.isPlusOp()) {
-      return "+";
-    }
-    if(expr.isMinusOp()) {
-      return "-";
-    }
-    if (expr.isTimesOp()) {
-      return "*";
-    }
-    if (expr.isDivOp()) {
-      return "/";
-    }
-    throw new RuntimeException("Cannot determine mathematical operator");
-  }
-
-  protected TypesPrettyPrinterConcreteVisitor typesPrinter() {
-    final IndentPrinter printer = new IndentPrinter();
-    return new TypesPrettyPrinterConcreteVisitor(printer);
   }
 }
