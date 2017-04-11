@@ -14,6 +14,7 @@ import java.util.Optional;
  * @author plotnikov
  */
 public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
+  static final String NEURON_UNDEFINED_AT_LINE = "__undefined__";
   private Optional<String> packageName = Optional.empty();
   private String artifactName = "";
 
@@ -27,7 +28,7 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
   }
 
   protected ASTNESTMLCompilationUnit () {
-    // used in the MC generated code
+    // used in the MC generated code, don't remove
   }
 
   protected ASTNESTMLCompilationUnit (
@@ -66,7 +67,14 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
    * is no neuron at that place.
    */
   public String getNeuronNameAtLine(final Integer line) {
-    return "__undefined__";
+
+    for (ASTNeuron astNeuron:getNeurons()) {
+      if (line >= astNeuron.get_SourcePositionStart().getLine() && line <= astNeuron.get_SourcePositionEnd().getLine() ) {
+        return astNeuron.getName();
+      }
+
+    }
+    return NEURON_UNDEFINED_AT_LINE;
   }
 
 }

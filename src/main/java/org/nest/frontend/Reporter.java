@@ -39,7 +39,7 @@ class Reporter {
 
   private final List<String> systemReports = Lists.newArrayList();
   // Key: addNeuronReport name, value: info message
-  private final List<Report> artifactReports = Lists.newArrayList();
+  private final List<Report> neuronReports = Lists.newArrayList();
 
   /**
    * Use the factory method
@@ -56,7 +56,6 @@ class Reporter {
     return reporter;
   }
 
-
   void reportProgress(final String message) {
     System.out.println(message + "...");
   }
@@ -66,10 +65,8 @@ class Reporter {
     System.out.println(level + ": " + message);
   }
 
-
-
   void printReports(final PrintStream info, final PrintStream err) {
-    Optional<Report> error = artifactReports
+    Optional<Report> error = neuronReports
         .stream()
         .filter(message -> message.severity.equals(Level.ERROR))
         .findAny();
@@ -80,11 +77,7 @@ class Reporter {
     error.ifPresent(errorMessage -> err.println("ERROR: Code generation was canceled."));
 
     info.println("-----------------Neurons---------------------------------");
-    artifactReports.forEach(entry -> printEntry(entry, info, err));
-
-    info.println("-----------------Statistics ------------------------------");
-    info.println("Overall " + artifactReports.size() + " NESTML artifact(s) found and processed");
-    info.println("----------------------------------------------------------");
+    neuronReports.forEach(entry -> printEntry(entry, info, err));
 
   }
 
@@ -133,8 +126,8 @@ class Reporter {
         neuronName,
         convert(finding.getType()),
         getCode(finding.getMsg()),
-        finding.getSourcePosition().isPresent()?finding.getSourcePosition().get().getLine():0,
-        finding.getSourcePosition().isPresent()?finding.getSourcePosition().get().getColumn():0,
+        finding.getSourcePosition().isPresent()?finding.getSourcePosition().get().getLine():-1,
+        finding.getSourcePosition().isPresent()?finding.getSourcePosition().get().getColumn():-1,
         getMessage(finding.getMsg()));
   }
 
@@ -178,7 +171,7 @@ class Reporter {
         row,
         col,
         message);
-    artifactReports.add(report);
+    neuronReports.add(report);
   }
 
 
@@ -242,7 +235,7 @@ class Reporter {
 
     @Override
     public String toString() {
-      return severity + ": " +  filename + " <" + row + "," + col + "> :" + message;
+      return severity + ": " +  filename + "h at <" + row + "," + col + "> : " + message;
     }
   }
 

@@ -51,7 +51,7 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void testDryRun() {
     final String[] args = new String[] {
-        "models",
+        "models/",
         "--target", outputPath.toString(),
         "--dry-run"};
 
@@ -72,7 +72,7 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void testModelsFolder() {
     final String[] args = new String[] {
-        "models",
+        "models/iaf_cond_alpha.nestml",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
