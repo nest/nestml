@@ -150,7 +150,8 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
     }
 
     //Expr = NESTMLNumericLiteral
-    if (node.getNumericLiteral().isPresent()) {
+    if (node.getNumericLiteral().isPresent() ||
+            (node.getNumericLiteral().isPresent() && node.getVariable().isPresent())) {
       // node.getNESTMLNumericLiteral().get().accept(this);
       setRealThis(numericLiteralVisitor);
       return;
