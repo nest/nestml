@@ -1,11 +1,5 @@
 package org.nest.commons._visitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.units.unitrepresentation.UnitRepresentation;
-
 /**
  * @author ptraeder, plotnikov
  */
@@ -36,7 +30,7 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
 
   private static BooleanLiteralVisitor booleanLiteralVisitor = new BooleanLiteralVisitor();
 
-  private static NESTMLNumericLiteralVisitor nESTMLNumericLiteralVisitor = new NESTMLNumericLiteralVisitor();
+  private static NumericLiteralVisitor numericLiteralVisitor = new NumericLiteralVisitor();
 
   private static StringLiteralVisitor stringLiteralVisitor = new StringLiteralVisitor();
 
@@ -156,9 +150,9 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
     }
 
     //Expr = NESTMLNumericLiteral
-    if (node.getNESTMLNumericLiteral().isPresent()) {
+    if (node.getNumericLiteral().isPresent()) {
       // node.getNESTMLNumericLiteral().get().accept(this);
-      setRealThis(nESTMLNumericLiteralVisitor);
+      setRealThis(numericLiteralVisitor);
       return;
     }
 

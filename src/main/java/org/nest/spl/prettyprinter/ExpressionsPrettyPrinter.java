@@ -41,14 +41,8 @@ public class ExpressionsPrettyPrinter {
   }
 
   protected String doPrint(final ASTExpr expr) {
-    if (expr.getNESTMLNumericLiteral().isPresent()) { // number
-      if(expr.getNESTMLNumericLiteral().get().getType().isPresent()){
-        String type = expr.getNESTMLNumericLiteral().get().getType().get().getSerializedUnit();
-        UnitRepresentation uType = UnitRepresentation.getBuilder().serialization(type).build();
-        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral()) +" ["+uType.prettyPrint()+"] ";
-      }else {
-        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
-      }
+    if (expr.getNumericLiteral().isPresent()) { // number
+      return typesPrinter().prettyprint(expr.getNumericLiteral().get());
     }
     if (expr.isInf()) {
       return convertConstant("inf");

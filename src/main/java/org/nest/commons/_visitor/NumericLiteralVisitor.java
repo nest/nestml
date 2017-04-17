@@ -15,28 +15,15 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
 /**
  * @author ptraeder
  */
-public class NESTMLNumericLiteralVisitor implements CommonsVisitor{
+public class NumericLiteralVisitor implements CommonsVisitor{
   UnitTranslator unitTranslator = new UnitTranslator();
   @Override
   public void visit(ASTExpr expr) {
-    Optional<TypeSymbol> exprType = Optional.empty();
-
-    if (expr.getNESTMLNumericLiteral().get().getType().isPresent()) {
-      String unitName = expr.getNESTMLNumericLiteral().get().getType().get().getSerializedUnit(); //guaranteed after successful NESTML Parser run
-      exprType = getTypeIfExists(unitName);
-
-    }
-
-    if (exprType.isPresent() && isUnit(exprType.get())) { //Try Unit Type
-      expr.setType(Either.value(exprType.get()));
-      return;
-    }
-
-    else if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTDoubleLiteral) {
+    if (expr.getNumericLiteral().get() instanceof ASTDoubleLiteral) {
       expr.setType(Either.value(getRealType()));
       return;
     }
-    else if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
+    else if (expr.getNumericLiteral().get() instanceof ASTIntLiteral) {
       expr.setType(Either.value(getIntegerType()));
       return;
     }

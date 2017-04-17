@@ -1,6 +1,7 @@
 package org.nest.commons._ast;
 
 import de.monticore.literals.literals._ast.ASTBooleanLiteral;
+import de.monticore.literals.literals._ast.ASTNumericLiteral;
 import de.monticore.literals.literals._ast.ASTStringLiteral;
 import org.nest.commons._visitor.ExpressionTypeVisitor;
 import org.nest.spl.symboltable.typechecking.Either;
@@ -69,7 +70,7 @@ public class ASTExpr extends ASTExprTOP {
   ASTExpr ifNot,
   ASTFunctionCall functionCall,
   ASTBooleanLiteral booleanLiteral,
-  ASTNESTMLNumericLiteral nESTMLNumericLiteral,
+  ASTNumericLiteral numericLiteral,
   ASTStringLiteral stringLiteral,
   ASTVariable variable,
   boolean inf,
@@ -100,7 +101,7 @@ public class ASTExpr extends ASTExprTOP {
   boolean leftParentheses,
   boolean rightParentheses)  {
 
-    super(base,exponent,term,expr,left,right,condition,ifTrue,ifNot,functionCall,booleanLiteral,nESTMLNumericLiteral,stringLiteral,
+    super(base,exponent,term,expr,left,right,condition,ifTrue,ifNot,functionCall,booleanLiteral,numericLiteral,stringLiteral,
         variable,inf,logicalOr,logicalAnd,logicalNot,gt,ge,ne2,ne,eq,le,lt,bitOr,bitXor,bitAnd,shiftRight,shiftLeft,minusOp,
         plusOp,moduloOp,divOp,timesOp,unaryTilde,unaryMinus,unaryPlus,pow,leftParentheses,rightParentheses);
   }

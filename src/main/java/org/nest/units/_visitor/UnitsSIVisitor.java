@@ -8,7 +8,6 @@ package org.nest.units._visitor;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.ASTSPLNode;
@@ -78,24 +77,6 @@ public class UnitsSIVisitor implements NESTMLVisitor {
     final Collection<Finding> findings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
 
     return Lists.newArrayList(findings);
-  }
-  /**
-   * In case of a plainType given for a NESTMLNumericLiteral,
-   * verify that the given simple Unit exists and append a AstUnitType Node to hold the corresponding Unit Information
-   */
-  public void visit(ASTNESTMLNumericLiteral node){
-    if (node.plainTypeIsPresent()){ //Complex unit type handled by visit(ASTUnitType)
-      String unitPlain = node.getPlainType().get();
-      Optional<TypeSymbol> unitTypeSymbol = getTypeIfExists(unitPlain);
-      if(unitTypeSymbol.isPresent()){
-        ASTUnitType astUnitType = new ASTUnitType();
-        astUnitType.setUnit(unitPlain);
-        astUnitType.setSerializedUnit(unitTypeSymbol.get().getName());
-        node.setType(astUnitType);
-      }else {
-        Log.error(ERROR_CODE + "The unit " + unitPlain + " is not an SI unit.", node.get_SourcePositionStart());
-      }
-    }
   }
 
 
