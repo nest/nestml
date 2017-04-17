@@ -48,8 +48,8 @@ neuron izhikevich_neuron:
   end
 
   equations:
-    V_m' = ( 0.04 * V_m * V_m / 1 mV + 5.0 * V_m + ( 140 - U_m ) * 1 mV + ( (I + I_e) * 1 GOhm ) ) / 1 ms
-    U_m' = a*(b*V_m-U_m * 1 mV) / 1 [mV*ms]
+    V_m' = ( 0.04 * V_m * V_m / mV + 5.0 * V_m + ( 140 - U_m ) * mV + ( (I + I_e) * GOhm ) ) / ms
+    U_m' = a*(b*V_m-U_m * mV) / (mV*ms)
   end
 
   parameters:
@@ -58,7 +58,7 @@ neuron izhikevich_neuron:
     c mV = -65 mV     # after-spike reset value of V_m
     d real = 8.0    # after-spike reset value of U_m
     I_e pA = 0 pA   # Constant input current in pA. (R=1)
-    V_min mV = -inf * 1 mV # Absolute lower value for the membrane potential.
+    V_min mV = -inf * mV # Absolute lower value for the membrane potential.
   end
 
   input:

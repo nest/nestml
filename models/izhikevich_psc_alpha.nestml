@@ -53,10 +53,10 @@ neuron izhikevich_psc_alpha:
 
   parameters:
     C_m pF = 200. pF           # Membrane capacitance
-    k pF/mV/ms = 8. [pF/mV/ms] # Spiking slope
+    k pF/mV/ms = 8. pF/mV/ms # Spiking slope
     V_r mV = -65. mV           # resting potential
     V_t mV = -45. mV           # threshold potential
-    a 1/ms = 0.01 [1/ms]       # describes time scale of recovery variable
+    a 1/ms = 0.01 /ms      # describes time scale of recovery variable
     b nS = 9. nS               # sensitivity of recovery variable
     c mV = -65 mV              # after-spike reset value of V_m
     d pA = 60. pA              # after-spike reset value of U_m
@@ -70,11 +70,11 @@ neuron izhikevich_psc_alpha:
   internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E pA/ms = 1.0 pA * e / tau_syn_ex
+    PSConInit_E pA/ms = pA * e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I pA/ms = 1.0 pA * e / tau_syn_in
+    PSConInit_I pA/ms = pA * e / tau_syn_in
 
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
