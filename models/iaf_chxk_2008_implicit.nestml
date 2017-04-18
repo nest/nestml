@@ -73,11 +73,11 @@ neuron iaf_chxk_2008_implicit:
   internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 ms * e / tau_syn_ex
+    PSConInit_E nS/ms = 1.0 nS * e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 ms * e / tau_syn_in
+    PSConInit_I nS/ms = 1.0 nS * e / tau_syn_in
 
     PSConInit_AHP real = g_ahp * e / tau_ahp * 1 [ms/nS]
   end
@@ -117,8 +117,8 @@ neuron iaf_chxk_2008_implicit:
       emit_spike()
     end
 
-    g_ex' += spikesExc * PSConInit_E * 1 [nS/ms]
-    g_in' += spikesInh * PSConInit_I * 1 [nS/ms]
+    g_ex' += spikesExc * PSConInit_E
+    g_in' += spikesInh * PSConInit_I
     I_stim = currents
   end
 

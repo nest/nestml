@@ -150,8 +150,8 @@ neuron terub_neuron_gpe:
   end
 
   internals:
-    PSCurrInit_E real = 1.0 ms * e / tau_syn_ex
-    PSCurrInit_I real = 1.0 ms * e / tau_syn_in
+    PSCurrInit_E pA/ms = 1.0 pA * e / tau_syn_ex
+    PSCurrInit_I pA/ms = 1.0 pA * e / tau_syn_in
     refractory_counts integer = steps(t_ref)
     r integer # counts number of tick during the refractory period
   end
@@ -179,8 +179,8 @@ neuron terub_neuron_gpe:
     # set new input current
     I_stim = currents
 
-    g_ex' += spikeExc * PSCurrInit_E * 1 [pA/ms]
-    g_in' += spikeInh * PSCurrInit_I * 1 [pA/ms]
+    g_ex' += spikeExc * PSCurrInit_E 
+    g_in' += spikeInh * PSCurrInit_I 
   end
 
 end
