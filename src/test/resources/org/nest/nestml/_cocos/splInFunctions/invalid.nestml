@@ -61,7 +61,7 @@ neuron testNeuron:
 
         end
 
-        ms ms = 0
+        ms ms = 0 # fires 3 errors for already being defined
 
         #x3 boolean # x3 is already defined. # TODO doesn't work
 
