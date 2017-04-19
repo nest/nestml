@@ -21,6 +21,7 @@ import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -67,9 +68,11 @@ public class VariableNotDefinedBeforeUse implements
       final Collection<VariableSymbol> declarationSymbols = scope.resolveMany(varsOfCurrentDecl.get(0), VariableSymbol.KIND);
 
       if(declarationSymbols.size()>1){ //named after an SI-Unit? Throw away predefined result.
-        for(VariableSymbol varSymbol : declarationSymbols){
+        Iterator<VariableSymbol> iter = declarationSymbols.iterator();
+        while(iter.hasNext()){
+          VariableSymbol varSymbol = iter.next();
           if(varSymbol.isPredefined()){
-            declarationSymbols.remove(varSymbol);
+            iter.remove();
           }
         }
         checkState(declarationSymbols.size() == 1);
