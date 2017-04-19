@@ -44,6 +44,7 @@ public class PredefinedVariables {
     final VariableSymbol variableSymbol = new VariableSymbol(variableName);
     variableSymbol.setDeclaringType(predefinedComponent);
     variableSymbol.setType(type);
+    variableSymbol.setPredefined(true);
     name2VariableSymbol.put(variableName, variableSymbol);
   }
 

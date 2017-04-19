@@ -36,6 +36,7 @@ public class VariableSymbol extends CommonSymbol {
   private TypeSymbol type;
   private NeuronSymbol declaringType;
   private boolean isAlias;
+  private boolean isPredefined;
   private boolean isRecordable;
   private BlockType blockType;
   private String arraySizeParameter = null;
@@ -161,6 +162,14 @@ public class VariableSymbol extends CommonSymbol {
       return getVectorParameter().isPresent();
     }
 
+  }
+
+  public boolean isPredefined() {
+    return isPredefined;
+  }
+
+  public void setPredefined(boolean predefined) {
+    isPredefined = predefined;
   }
 
   public Optional<String> getVectorParameter() {
