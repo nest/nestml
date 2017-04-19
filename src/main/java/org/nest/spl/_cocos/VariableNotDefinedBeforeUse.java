@@ -20,9 +20,11 @@ import org.nest.spl._ast.ASTWHILE_Stmt;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
@@ -62,7 +64,18 @@ public class VariableNotDefinedBeforeUse implements
       final List<ASTVariable> variablesNamesRHS = ASTNodes.getSuccessors(decl.getExpr().get(), ASTVariable.class);
       // check if it is variable block or dynamics- or user-defined function. if yes, skip the check. It will be
       // checked through MemberVariablesInitialisedInCorrectOrder coco
-      final VariableSymbol declarationSymbol = VariableSymbol.resolve(varsOfCurrentDecl.get(0), scope);
+      final Collection<VariableSymbol> declarationSymbols = scope.resolveMany(varsOfCurrentDecl.get(0), VariableSymbol.KIND);
+
+      if(declarationSymbols.size()>1){ //named after an SI-Unit? Throw away predefined result.
+        for(VariableSymbol varSymbol : declarationSymbols){
+          if(varSymbol.isPredefined()){
+            declarationSymbols.remove(varSymbol);
+          }
+        }
+        checkState(declarationSymbols.size() == 1);
+      }
+      VariableSymbol declarationSymbol = declarationSymbols.iterator().next();
+
       if (!declarationSymbol.getBlockType().equals(VariableSymbol.BlockType.LOCAL)) {
         return;
       }
