@@ -34,10 +34,10 @@ neuron DynamicsNeuron:
       warning("Impossible!")
     end
     i integer
-    for i in 0 ... 10 step 2:
+    for i in 0 ... 10 :: 2:
       info("Possible! " + i)
     end
-    for i in 5 ... 0 step -1:
+    for i in 5 ... 0 :: -1 :
       info("Possible! " + i)
     end
   end
