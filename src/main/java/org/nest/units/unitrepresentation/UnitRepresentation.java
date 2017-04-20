@@ -259,6 +259,10 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   private int K, s, m, g, cd, mol, A;
   private boolean ignoreMagnitude = false;
 
+  public int getMagnitude() {
+    return magnitude;
+  }
+
   /**
    *
    * @return Builder Object for construction of UnitRepresentations
