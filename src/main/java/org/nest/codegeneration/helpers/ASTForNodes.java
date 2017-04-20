@@ -21,36 +21,26 @@ public class ASTForNodes {
   private static final String LOG_NAME = ASTForNodes.class.getName();
 
   public String printComparisonOperator(final ASTFOR_Stmt ast) {
-    Optional<ASTSignedNumericLiteral> step = ast.getStep();
-    if (!step.isPresent()) {
+    ASTSignedNumericLiteral step = ast.getStep();
+    final String stepAsString = createPrettyPrinterForTypes().prettyprint(step);
+    final BigDecimal stepV = new BigDecimal(stepAsString);
+    if (stepV.compareTo(BigDecimal.ZERO) < 0) {
+      return  ">";
+    }
+    else if (stepV.compareTo(BigDecimal.ZERO) > 0) {
       return  "<";
     }
     else {
-      final String stepAsString = createPrettyPrinterForTypes().prettyprint(step.get());
-      final BigDecimal stepV = new BigDecimal(stepAsString);
-      if (stepV.compareTo(BigDecimal.ZERO) < 0) {
-        return  ">";
-      }
-      else if (stepV.compareTo(BigDecimal.ZERO) > 0) {
-        return  "<";
-      }
-      else {
-        checkState(false, "The stepsize cannot be 0");
-      }
+      checkState(false, "The stepsize cannot be 0");
     }
+
 
     throw new RuntimeException("Cannot determine which comparison operator to use");
   }
 
   public String printStep(final ASTFOR_Stmt ast) {
-    Optional<ASTSignedNumericLiteral> step = ast.getStep();
-    if (!step.isPresent()) {
-      return  "1";
-    }
-    else {
-      return createPrettyPrinterForTypes().prettyprint(step.get());
-    }
-
+    ASTSignedNumericLiteral step = ast.getStep();
+    return createPrettyPrinterForTypes().prettyprint(step);
   }
 
   private TypesPrettyPrinterConcreteVisitor createPrettyPrinterForTypes() {
