@@ -1,7 +1,7 @@
 module org.nest.spl._cocos.varNotDefined
 x real = 3
 a integer
-for a in 1 ... 10 :: 1:
+for a in 1 ... 10 step 1:
 # blaa
 end
 xx boolean

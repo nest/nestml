@@ -6,7 +6,7 @@ x = 13
 t1 integer
 t2 integer
 
-for x in t1 ... t2 :: 1:
+for x in t1 ... t2 step 1:
 # blaa
 end
 

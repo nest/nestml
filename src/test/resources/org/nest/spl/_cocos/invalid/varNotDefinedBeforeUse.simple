@@ -3,7 +3,7 @@ y real = 5 * x # Error 1
 
 x = 13 # Error 2
 
-for x in t1 ... t2 :: 1: # 2 errors
+for x in t1 ... t2 step 1: # 2 errors
 # blaa
 end
 

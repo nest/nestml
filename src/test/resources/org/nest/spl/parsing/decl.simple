@@ -19,7 +19,7 @@ else :
 end
 
 x, y real
-for x in 1 ... 5 :
+for x in 1 ... 5 step 1:
     if x > 4:
         return x
     end
