@@ -42,7 +42,12 @@ public class ExpressionsPrettyPrinter {
 
   protected String doPrint(final ASTExpr expr) {
     if (expr.getNumericLiteral().isPresent()) { // number
-      return typesPrinter().prettyprint(expr.getNumericLiteral().get());
+      if(!expr.getVariable().isPresent()){
+        return typesPrinter().prettyprint(expr.getNumericLiteral().get());
+      }
+      else{ //number variable pair. For denoting Si Units with factor i.e. "4 mOhm"
+        return typesPrinter().prettyprint(expr.getNumericLiteral().get()) + " * " + convertVariableName(expr.getVariable().get());
+      }
     }
     if (expr.isInf()) {
       return convertConstant("inf");
