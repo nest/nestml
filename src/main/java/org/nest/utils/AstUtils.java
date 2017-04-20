@@ -508,7 +508,6 @@ public final class AstUtils {
 
   public static Optional<String> convertSiName(String astVariable) {
     final String varShortName = astVariable.toString();
-    Log.warn(astVariable.toString());
     for (String siUnit : SIData.getCorrectSIUnits()) {
       if (varShortName.equals(siUnit)) {
         TypeSymbol variableType = getType(varShortName);
