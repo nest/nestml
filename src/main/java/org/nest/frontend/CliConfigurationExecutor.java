@@ -210,7 +210,7 @@ public class CliConfigurationExecutor {
     for (final ASTNeuron astNeuron:root.getNeurons()) {
       if (Files.exists(Paths.get(targetPath.toString(), astNeuron.getName() + "." + TransformerBase.SOLVER_TYPE))) {
 
-        final String msg = "NEST code for the neuron: " + astNeuron.getName() + " in " + root.getFullName() +
+        final String msg = "NEST code for the neuron: " + astNeuron.getName() + " from file: " + root.getFullName() +
                            " was generated.";
         reporter.addSystemInfo(root.getArtifactName() + ": " + msg, Reporter.Level.INFO);
 

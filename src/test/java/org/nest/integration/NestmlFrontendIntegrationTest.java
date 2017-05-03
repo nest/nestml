@@ -90,19 +90,11 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void manually() {
     final String[] args = new String[] {
-        "models/ht_neuron.nestml",
+        "models/terub_neuron_gpe.nestml",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
   }
 
-  @Test
-  public void debug() {
-    final String[] args = new String[] {
-        "debug",
-        "--target", outputPath.toString()};
-
-    new NestmlFrontend().start(args);
-  }
 
 }

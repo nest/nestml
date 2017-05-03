@@ -235,7 +235,7 @@ class Reporter {
 
     @Override
     public String toString() {
-      return severity + ": " +  filename + "h at <" + row + "," + col + "> : " + message;
+      return severity + ": " +  filename + " at <" + row + "," + col + "> : " + message;
     }
   }
 
