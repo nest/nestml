@@ -10,6 +10,14 @@ import org.nest.units.unitrepresentation.UnitRepresentation;
  */
 public class LegacyExpressionPrinter extends ExpressionsPrettyPrinter{
 
+  public LegacyExpressionPrinter() {
+    super();
+  }
+
+  public LegacyExpressionPrinter(final IReferenceConverter referenceConverter) {
+    super(referenceConverter);
+  }
+
   @Override
   protected String doPrint(final ASTExpr expr)  {
     if (expr.getNESTMLNumericLiteral().isPresent()) { // number
