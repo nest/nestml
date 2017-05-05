@@ -254,7 +254,6 @@ public class NestCodeGenerator {
     glex.setGlobalValue("odeTransformer", new OdeTransformer());
 
     glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron.getBody()));
-    glex.setGlobalValue("isOutputEventPresent", ASTOutputs.isOutputEventPresent(neuron.getBody()));
     glex.setGlobalValue("isSpikeInput", ASTInputs.isSpikeInput(neuron));
     glex.setGlobalValue("isCurrentInput", ASTInputs.isCurrentInput(neuron));
     glex.setGlobalValue("body", neuron.getBody());

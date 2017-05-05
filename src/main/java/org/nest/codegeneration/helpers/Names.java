@@ -29,7 +29,7 @@ public class Names {
   }
 
   public static String bufferValue(final VariableSymbol buffer) {
-    return buffer.getName() + "_last_value_";
+    return buffer.getName() + "_grid_sum_";
   }
 
   public static String setter(final VariableSymbol variableSymbol) {

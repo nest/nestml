@@ -295,10 +295,10 @@ public final class AstUtils {
   }
 
   // TODO It works only with multiline comments
-  public static String printComments(final ASTNode astNeuron) {
+  public static String printComments(final ASTNode astNode) {
     final StringBuilder output = new StringBuilder();
-    astNeuron.get_PreComments().forEach(comment -> output.append(comment.getText()));
-    astNeuron.get_PostComments().forEach(comment -> output.append(comment.getText()));
+    astNode.get_PreComments().forEach(comment -> output.append(comment.getText()));
+    astNode.get_PostComments().forEach(comment -> output.append(comment.getText()));
     return output.toString();
   }
 
