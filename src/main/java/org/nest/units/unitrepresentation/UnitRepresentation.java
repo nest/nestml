@@ -15,8 +15,6 @@ import static de.se_rwth.commons.logging.Log.warn;
 import static java.lang.Math.abs;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
-import org.nest.nestml._ast.ASTNeuron;
-
 /**
  * Internal representation of SI Units. Supplies arithmetic functions on units and
  * (de)serializes them.

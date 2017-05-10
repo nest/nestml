@@ -23,7 +23,6 @@ package org.nest.ode._cocos;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._cocos.ODEASTEquationCoCo;
 
 /**
  * Syntactically it is possible to define an equation:

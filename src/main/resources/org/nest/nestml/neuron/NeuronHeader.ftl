@@ -21,7 +21,7 @@
 */
 #ifndef ${neuronName?upper_case}
 #define ${neuronName?upper_case}
-<#-- TODO make it depend on the ODE declaration -->
+
 #include "config.h"
 
 <#if useGSL>
@@ -61,12 +61,23 @@ extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f
 /* BeginDocumentation
 Name: ${neuronName}.
 
+Description:
 ${neuronSymbol.printComment()}
 
 Parameters:
+  The following parameters can be set in the status dictionary.
+  <#list body.getParameterSymbols() as parameter>
+  <#if parameter.hasComment()>
+  ${parameter.getName()} ${parameter.printComment("")}
+  </#if>
+  </#list>
 
-Remarks:
-Empty
+Dynamic state variables:
+  <#list body.getParameterSymbols() as parameter>
+  <#if parameter.hasComment()>
+  ${parameter.getName()} ${parameter.printComment("")}
+  </#if>
+  </#list>
 
 References:
 Empty
@@ -74,10 +85,6 @@ Empty
 Sends: ${outputEvent}
 
 Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
-
-SeeAlso:
-
-Empty
 */
 class ${neuronName} : public nest::Archiving_Node
 {

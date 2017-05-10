@@ -31,7 +31,6 @@ import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._ast.ASTSPLNode;
-import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -39,7 +38,6 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units._visitor.UnitsSIVisitor;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.io.File;
 import java.io.IOException;
@@ -169,7 +167,7 @@ public final class AstUtils {
     return names.stream()
         .filter(name -> !name.contains("'"))
         .map(variableName -> resolve(variableName, scope)) // the variable existence checked by the context condition
-        .filter(VariableSymbol::isAlias)
+        .filter(VariableSymbol::isFunction)
         .collect(toList());
   }
 

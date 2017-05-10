@@ -7,7 +7,6 @@ package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.*;
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAlias;
+import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclaration;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
@@ -62,7 +61,7 @@ public class LinearSolutionTransformer extends TransformerBase {
       final Path stateVectorUpdateStepsFile,
       final Path stateVectorTmpBackAssignmentsFile) {
     ASTNeuron workingVersion = astNeuron;
-    workingVersion.getBody().addToInternalBlock(createAlias("__h__ ms = resolution()"));
+    workingVersion.getBody().addToInternalBlock(createDeclaration("__h__ ms = resolution()"));
     workingVersion = addAliasToInternals(astNeuron, P30File);
     workingVersion = addDeclarationsToInternals(workingVersion, PSCInitialValueFile);
     workingVersion = addDeclarationsToInternals(workingVersion, propagatorMatrixFile);
@@ -128,7 +127,7 @@ public class LinearSolutionTransformer extends TransformerBase {
         final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getVectorParameter().get() + "]":"";
         final String stateVarDeclaration = stateVariables.get(i)+ " real " + vectorDatatype;
 
-        astNeuron.getBody().addToStateBlock(createAlias(stateVarDeclaration));
+        astNeuron.getBody().addToStateBlock(createDeclaration(stateVarDeclaration));
       }
 
       return astNeuron;
@@ -200,7 +199,7 @@ public class LinearSolutionTransformer extends TransformerBase {
       final List<String> tmpInternalVariables = expressionFolder.getInternalVariables();
       for (int j = 0; j < nodesToReplace.size(); ++j) {
         final Optional<VariableSymbol> vectorizedVariable = getVectorizedVariable(nodesToReplace.get(j), scope);
-        final ASTAliasDecl aliasAst = createAlias(tmpInternalVariables.get(j) + " real " + printVectorParameter(vectorizedVariable) + " = " + printer.print(nodesToReplace.get(j)));
+        final ASTDeclaration aliasAst = createDeclaration(tmpInternalVariables.get(j) + " real " + printVectorParameter(vectorizedVariable) + " = " + printer.print(nodesToReplace.get(j)));
         astBody.addToInternalBlock(aliasAst);
       }
 

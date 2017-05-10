@@ -31,7 +31,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.nest.nestml._symboltable.NESTMLRootCreator.getAstRoot;
 import static org.nest.utils.LogHelper.countErrorsByPrefix;
-import static org.nest.utils.LogHelper.countWarningsByPrefix;
 
 /**
  * Test every context context conditions. For each implemented context condition there is one model that contains exactly one tested error.

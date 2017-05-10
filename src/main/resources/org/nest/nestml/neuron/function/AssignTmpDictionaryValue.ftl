@@ -5,7 +5,7 @@
   @result C++ Block
 -->
 ${signature("variable")}
-<#if variable.hasSetter() || !variable.isAlias()>
+<#if variable.hasSetter() || !variable.isFunction()>
   ${names.setter(variable)}(tmp_${statusNames.name(variable)});
 <#else>
   // ignores '${statusNames.name(variable)}' ${declarations.printVariableType(variable)}' since it is an function and setter isn't defined

@@ -8,8 +8,9 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._cocos.SPLASTDeclarationCoCo;
+import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.List;
@@ -26,15 +27,13 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author ippen, plotnikov
  */
-public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasDeclCoCo {
+public class MemberVariablesInitialisedInCorrectOrder implements SPLASTDeclarationCoCo {
   public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
   NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
-  public void check(final ASTAliasDecl alias) {
-    final Optional<? extends Scope> enclosingScope = alias.getEnclosingScope();
-    checkState(enclosingScope.isPresent(),
-        "There is no scope assigned to the AST node: " + alias);
-    final ASTDeclaration declaration = alias.getDeclaration();
+  public void check(final ASTDeclaration declaration) {
+    checkState(declaration.getEnclosingScope().isPresent(), "There is no scope assigned to the AST node: " + declaration);
+    final Optional<? extends Scope> enclosingScope = declaration.getEnclosingScope();
 
     if (declaration.getExpr().isPresent()) {
       // has at least one declaration. it is ensured by the grammar
@@ -52,10 +51,8 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
 
       checkVariables(lhsVariable.get(), variablesNames, enclosingScope.get(), (a,b) -> a >= b);
 
-      if (alias.getInvariant().isPresent()) {
-        final List<ASTVariable> variablesInInvariant = getSuccessors(
-            alias.getInvariant().get(),
-            ASTVariable.class);
+      if (declaration.getInvariant().isPresent()) {
+        final List<ASTVariable> variablesInInvariant = getSuccessors(declaration.getInvariant().get(), ASTVariable.class);
 
         checkVariables(lhsVariable.get(), variablesInInvariant, enclosingScope.get(), (a,b) -> a > b);
       }
@@ -97,33 +94,38 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTAliasD
       final VariableSymbol lhsSymbol,
       final VariableSymbol rhsSymbol,
       final BiPredicate<Integer, Integer> isError) {
-    if (rhsSymbol.getDeclaringType().getName()
-        .equals(lhsSymbol.getDeclaringType().getName())) {
-      // same var - block? => used must be in previous line
-      if (rhsSymbol.getBlockType() == lhsSymbol.getBlockType()) {
-        // same block not parameter block
-        if (isError.test(rhsSymbol.getSourcePosition().getLine(),
-            lhsSymbol.getSourcePosition().getLine())) {
-          final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
-                  rhsSymbol.getName(),
-                  lhsSymbol.getName());
+    // TODO actually, check if the variable symbol is predefined
+    if (PredefinedVariables.getVariableIfExists(rhsSymbol.getName()).isPresent()) {
+      return;
+    }
+    // ALL local variables can access member vraibles
+    if (lhsSymbol.getBlockType() == VariableSymbol.BlockType.LOCAL) {
+      return;
+    }
 
-          error(msg, rhsSymbol.getSourcePosition());
-
-        }
-
-      }
-
-      if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
-          rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETERS) {
-         final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
+    if (rhsSymbol.getBlockType() == lhsSymbol.getBlockType()) {
+      // same block not parameter block
+      if (isError.test(rhsSymbol.getSourcePosition().getLine(),
+          lhsSymbol.getSourcePosition().getLine())) {
+        final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
                 rhsSymbol.getName(),
                 lhsSymbol.getName());
 
-        error(msg, rhsSymbol.getSourcePosition());
+        error(msg, lhsSymbol.getSourcePosition());
+
       }
 
     }
+
+    if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
+        rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETERS) {
+       final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
+              rhsSymbol.getName(),
+              lhsSymbol.getName());
+
+      error(msg, lhsSymbol.getSourcePosition());
+    }
+
 
   }
 

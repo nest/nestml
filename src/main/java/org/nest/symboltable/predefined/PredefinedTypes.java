@@ -7,7 +7,6 @@ package org.nest.symboltable.predefined;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.SIData;
 import org.nest.units.unitrepresentation.UnitRepresentation;

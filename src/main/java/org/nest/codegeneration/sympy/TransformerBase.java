@@ -5,7 +5,6 @@ import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.*;
@@ -22,8 +21,8 @@ import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAliases;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAssignment;
+import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclarations;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**
@@ -41,9 +40,9 @@ public class TransformerBase {
       final ASTNeuron astNeuron,
       final Path declarationFile) {
 
-    final ASTAliasDecl aliasDecl = createAliases(declarationFile).get(0);
+    final ASTDeclaration astDeclaration = createDeclarations(declarationFile).get(0);
 
-    astNeuron.getBody().addToInternalBlock(aliasDecl);
+    astNeuron.getBody().addToInternalBlock(astDeclaration);
     return astNeuron;
   }
 
@@ -56,13 +55,13 @@ public class TransformerBase {
     checkState(astNeuron.getSymbol().isPresent());
     final Scope scope = ((ScopeSpanningSymbol)astNeuron.getSymbol().get()).getSpannedScope(); // valid, after the symboltable is created
 
-    final List<ASTAliasDecl> pscInitialValues = createAliases(declarationsFile);
-    for (final ASTAliasDecl astAliasDecl:pscInitialValues) {
+    final List<ASTDeclaration> pscInitialValues = createDeclarations(declarationsFile);
+    for (final ASTDeclaration astAliasDecl:pscInitialValues) {
       // filter step: filter all variables, which very added during model analysis, but not added to the symbol table
-      final Optional<VariableSymbol> vectorizedVariable = getVectorizedVariable(astAliasDecl.getDeclaration(), scope);
+      final Optional<VariableSymbol> vectorizedVariable = getVectorizedVariable(astAliasDecl, scope);
       if (vectorizedVariable.isPresent()) {
         // the existence of the array parameter is ensured by the query
-        astAliasDecl.getDeclaration().setSizeParameter(vectorizedVariable.get().getVectorParameter().get());
+        astAliasDecl.setSizeParameter(vectorizedVariable.get().getVectorParameter().get());
       }
 
     }
@@ -130,9 +129,6 @@ public class TransformerBase {
    *
    * @param pathPSCInitialValueFile File with a list of PSC initial values for the corresponding shapes
    * @param body The astnode of the neuron to which update assignments must be added
-   * @param nameHandler In some cases the name of the state variable extracted from the assignment must be transformed
-   *                    (G'_PSCInitialValue would be an invalid name, therefore, G__D_PSCInitialValue is used, where
-   *                    G' is the name of the state variable)
    */
   void addUpdatesWithPSCInitialValue(
       final Path pathPSCInitialValueFile,
@@ -141,9 +137,9 @@ public class TransformerBase {
       final Function<String, String> shapeNameExtracter) {
     final List<ASTFunctionCall> i_sumCalls = OdeTransformer.get_sumFunctionCalls(body.getODEBlock().get());
 
-    final List<ASTAliasDecl> pscInitialValues = createAliases(pathPSCInitialValueFile);
-    for (final ASTAliasDecl pscInitialValue:pscInitialValues) {
-      final String pscInitialValueAsString = pscInitialValue.getDeclaration().getVars().get(0);
+    final List<ASTDeclaration> pscInitialValues = createDeclarations(pathPSCInitialValueFile);
+    for (final ASTDeclaration pscInitialValue:pscInitialValues) {
+      final String pscInitialValueAsString = pscInitialValue.getVars().get(0);
 
 
       final String shapeName = shapeNameExtracter.apply(pscInitialValueAsString);
