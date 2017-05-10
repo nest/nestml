@@ -107,14 +107,14 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   @SuppressWarnings("unused") // it is used in the NeuronHeader.ftl generator template
   public String printComment() {
-    final StringBuilder output = new StringBuilder();
-    if(getAstNode().isPresent()) {//
-      escapeAndPrintComment(getAstNode().get().get_PreComments(), output);
-      escapeAndPrintComment(getAstNode().get().get_PostComments(), output);
-      getAstNode().get().get_PostComments().forEach(output::append);
+    final StringBuilder result = new StringBuilder();
+
+    if(getAstNode().isPresent()) {
+      escapeAndPrintComment(getAstNode().get().get_PreComments(), result);
+      escapeAndPrintComment(getAstNode().get().get_PostComments(), result);
     }
 
-    return output.toString();
+    return result.toString();
   }
 
   /**
@@ -124,6 +124,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   private void escapeAndPrintComment(final List<Comment> comments, final StringBuilder output) {
     comments.stream()
         .map(comment -> comment.getText().replace("/*", "").replace("*/", ""))
+        .map(String::trim)
         .forEach(output::append);
   }
 

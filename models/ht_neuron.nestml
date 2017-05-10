@@ -1,9 +1,7 @@
 /*
-   Name: ht_neuron - Neuron model after Hill & Tononi (2005).
-
-   Description:
-   This model neuron implements a slightly modified version of the
-   neuron model described in [1]. The most important properties are:
+   Neuron model after Hill & Tononi (2005).This model neuron implements
+   a slightly modified version of the neuron model described in [1].
+   The most important properties are:
 
    - Integrate-and-fire with threshold that is increased on spiking
      and decays back to an equilibrium value.
@@ -35,22 +33,7 @@
    Warning:
    THIS MODEL NEURON HAS NOT BEEN TESTED EXTENSIVELY!
 
-   Parameters:
-   V_m            -  membrane potential
-   spike_duration - duration of re-polarizing potassium current
-   Tau_m          - membrane time constant applying to all currents but
-                    repolarizing K-current (see [1, p 1677])
-   Tau_spike      - membrane time constant applying to repolarizing K-current
-   Theta, Theta_eq, Tau_theta - Threshold, equilibrium value, time constant
-   g_KL, E_K, g_NaL, E_Na     - conductances and reversal potentials for K and
-   Na
-                                leak currents
-
    Author: Hans Ekkehard Plesser
-
-   Sends: SpikeEvent
-
-   Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 
    FirstVersion: October 2009
 

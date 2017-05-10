@@ -59,32 +59,31 @@ extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f
 #include "dictdatum.h"
 
 /* BeginDocumentation
-Name: ${neuronName}.
+  Name: ${neuronName}.
 
-Description:
-${neuronSymbol.printComment()}
+  Description:
+  ${neuronSymbol.printComment()}
 
-Parameters:
+  Parameters:
   The following parameters can be set in the status dictionary.
   <#list body.getParameterSymbols() as parameter>
   <#if parameter.hasComment()>
-  ${parameter.getName()} ${parameter.printComment("")}
+    ${parameter.getName()} ${parameter.printComment("")}
   </#if>
   </#list>
 
-Dynamic state variables:
+  Dynamic state variables:
   <#list body.getParameterSymbols() as parameter>
   <#if parameter.hasComment()>
-  ${parameter.getName()} ${parameter.printComment("")}
+    ${parameter.getName()} ${parameter.printComment("")}
   </#if>
   </#list>
 
-References:
-Empty
+  References: Empty
 
-Sends: ${outputEvent}
+  Sends: ${outputEvent}
 
-Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
+  Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
 */
 class ${neuronName} : public nest::Archiving_Node
 {
@@ -243,7 +242,7 @@ private:
       enum StateVecElems
       {
         <#list body.getStateNonAliasSymbols() as variable>
-          ${names.convertToCPPName(variable.getName())},
+          ${names.convertToCPPName(variable.getName())}, ${variable.printComment("// ")}
         </#list>
         STATE_VEC_SIZE
       };
