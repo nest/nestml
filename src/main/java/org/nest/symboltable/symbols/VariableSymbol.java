@@ -12,6 +12,7 @@ import org.nest.codegeneration.helpers.ASTBuffers;
 import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
+import org.nest.spl._ast.ASTDeclaration;
 import org.nest.utils.AstUtils;
 
 import java.util.Objects;
@@ -34,8 +35,7 @@ public class VariableSymbol extends CommonSymbol {
   private ASTExpr odeDeclaration = null;
 
   private TypeSymbol type;
-  private NeuronSymbol declaringType;
-  private boolean isAlias;
+  private boolean isFunction;
   private boolean isRecordable;
   private BlockType blockType;
   private String arraySizeParameter = null;
@@ -96,18 +96,6 @@ public class VariableSymbol extends CommonSymbol {
 
   public void setType(TypeSymbol type) {
     this.type = type;
-  }
-
-  public void setDeclaringType(NeuronSymbol declaringType) {
-    this.declaringType = declaringType;
-  }
-
-  public NeuronSymbol getDeclaringType() {
-    return declaringType;
-  }
-
-  public boolean isAlias() {
-    return isAlias;
   }
 
   public boolean isSpikeBuffer() {
@@ -204,8 +192,12 @@ public class VariableSymbol extends CommonSymbol {
     return blockType == BlockType.PARAMETERS;
   }
 
-  public void setAlias(boolean isAlias) {
-    this.isAlias = isAlias;
+  public void setFunction(boolean isAlias) {
+    this.isFunction = isAlias;
+  }
+
+  public boolean isFunction() {
+    return isFunction;
   }
 
   public BlockType getBlockType() {
@@ -233,15 +225,25 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   @SuppressWarnings({"unused"}) // used in templates
-  public String printComment() {
+  public String printComment(final String prefix) {
     final StringBuffer output = new StringBuffer();
-    if(getAstNode().isPresent()) {
-      getAstNode().get().get_PreComments().forEach(comment -> output.append(comment.getText()).append(" "));
-      getAstNode().get().get_PostComments().forEach(comment -> output.append(comment.getText()).append(" "));
+    if(getAstNode().isPresent() && getAstNode().get() instanceof ASTDeclaration) {
+      final ASTDeclaration astDeclaration = (ASTDeclaration) getAstNode().get();
+      astDeclaration.getComments().forEach(comment -> output.append(prefix + " " + comment));
     }
 
     return output.toString();
   }
+
+  public Boolean hasComment() {
+    if(getAstNode().isPresent() && getAstNode().get() instanceof ASTDeclaration) {
+      final ASTDeclaration astDeclaration = (ASTDeclaration) getAstNode().get();
+      return !astDeclaration.getComments().isEmpty();
+    }
+
+    return false;
+  }
+
 
   public static VariableSymbol resolve(final String variableName, final Scope scope) {
     final Optional<VariableSymbol> variableSymbol = scope.resolve(variableName, VariableSymbol.KIND);

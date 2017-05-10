@@ -2,7 +2,6 @@ package org.nest.spl.prettyprinter;
 
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 
 /**
  * Created by ptraeder.

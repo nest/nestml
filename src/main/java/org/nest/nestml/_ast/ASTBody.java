@@ -16,14 +16,18 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.ode._ast.ASTShape;
+import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.utils.AstUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.utils.AstUtils.printComments;
 
 /**
  * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
@@ -82,10 +86,10 @@ public class ASTBody extends ASTBodyTOP {
         .findFirst(); // there is at most one
   }
 
-  public List<ASTAliasDecl> getStateDeclarations() {
+  public List<ASTDeclaration> getStateDeclarations() {
     final Optional<ASTBodyElement> stateBlock = getStateBlock();
-    final List<ASTAliasDecl> result = Lists.newArrayList();
-    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getAliasDecls()));
+    final List<ASTDeclaration> result = Lists.newArrayList();
+    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getDeclarations()));
     return result;
   }
 
@@ -98,10 +102,10 @@ public class ASTBody extends ASTBodyTOP {
         .findFirst(); // there is at most one
   }
 
-  public List<ASTAliasDecl> getParameterDeclarations() {
+  public List<ASTDeclaration> getParameterDeclarations() {
     final Optional<ASTBodyElement> stateBlock = getParameterBlock();
-    final List<ASTAliasDecl> result = Lists.newArrayList();
-    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getAliasDecls()));
+    final List<ASTDeclaration> result = Lists.newArrayList();
+    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getDeclarations()));
     return result;
   }
 
@@ -115,10 +119,10 @@ public class ASTBody extends ASTBodyTOP {
         .findFirst(); // there is at most one
   }
 
-  public List<ASTAliasDecl> getInternalDeclarations() {
+  public List<ASTDeclaration> getInternalDeclarations() {
     final Optional<ASTBodyElement> stateBlock = getInternalBlock();
-    final List<ASTAliasDecl> result = Lists.newArrayList();
-    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getAliasDecls()));
+    final List<ASTDeclaration> result = Lists.newArrayList();
+    stateBlock.ifPresent(block -> result.addAll( ((ASTVar_Block) block).getDeclarations()));
     return result;
   }
 
@@ -168,12 +172,7 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   private String printBlockComment(final Optional<? extends ASTNode> block) {
-    if (block.isPresent()) {
-      return printComments(block.get());
-    }
-    else {
-      return "";
-    }
+    return block.map(AstUtils::printComments).orElse("");
   }
 
   // STATE variables handling
@@ -189,7 +188,7 @@ public class ASTBody extends ASTBodyTOP {
   public List<VariableSymbol> getStateAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get())
         .stream()
-        .filter(VariableSymbol::isAlias)
+        .filter(VariableSymbol::isFunction)
         .collect(Collectors.toList());
   }
 
@@ -198,7 +197,7 @@ public class ASTBody extends ASTBodyTOP {
     return variableSymbols
         .stream()
         .filter(VariableSymbol::isState)
-        .filter(variableSymbol -> !variableSymbol.isAlias())
+        .filter(variableSymbol -> !variableSymbol.isFunction())
         .collect(Collectors.toList());
   }
 
@@ -210,14 +209,14 @@ public class ASTBody extends ASTBodyTOP {
   public List<VariableSymbol> getParameterAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameters ), getEnclosingScope().get())
         .stream()
-        .filter(VariableSymbol::isAlias)
+        .filter(VariableSymbol::isFunction)
         .collect(Collectors.toList());
   }
 
   public List<VariableSymbol> getParameterNonAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isParameters ), getEnclosingScope().get())
         .stream()
-        .filter(variable -> !variable.isAlias())
+        .filter(variable -> !variable.isFunction())
         .collect(Collectors.toList());
   }
 
@@ -229,24 +228,24 @@ public class ASTBody extends ASTBodyTOP {
   public List<VariableSymbol> getInternalAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternals), getEnclosingScope().get())
         .stream()
-        .filter(VariableSymbol::isAlias)
+        .filter(VariableSymbol::isFunction)
         .collect(Collectors.toList());
   }
 
   public List<VariableSymbol> getInternalNonAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isInternals), getEnclosingScope().get())
         .stream()
-        .filter(variable -> !variable.isAlias())
+        .filter(variable -> !variable.isFunction())
         .collect(Collectors.toList());
   }
 
-  private List<ASTAliasDecl> getDeclarationsFromBlock(final Predicate<ASTVar_Block> predicate) {
-    final List<ASTAliasDecl> result = Lists.newArrayList();
+  private List<ASTDeclaration> getDeclarationsFromBlock(final Predicate<ASTVar_Block> predicate) {
+    final List<ASTDeclaration> result = Lists.newArrayList();
 
     this.getBodyElements().stream().filter(be -> be instanceof ASTVar_Block).forEach(be -> {
       ASTVar_Block block = (ASTVar_Block) be;
       if (predicate.test(block)) {
-        result.addAll(block.getAliasDecls());
+        result.addAll(block.getDeclarations());
       }
     });
 
@@ -254,10 +253,10 @@ public class ASTBody extends ASTBodyTOP {
   }
 
   private List<VariableSymbol> getVariableSymbols(
-      final List<ASTAliasDecl> aliasDeclarations,
+      final List<ASTDeclaration> aliasDeclarations,
       final Scope scope) {
     return aliasDeclarations.stream()
-        .flatMap(alias -> alias.getDeclaration().getVars().stream()) // get all variables form the declaration
+        .flatMap(declaration -> declaration.getVars().stream()) // get all variables form the declaration
         .map(variable -> VariableSymbol.resolve(variable, scope))
         .collect(toList());
   }
@@ -270,7 +269,7 @@ public class ASTBody extends ASTBodyTOP {
         .collect(toList());
   }
 
-  public void addToInternalBlock(final ASTAliasDecl astAliasDecl) {
+  public void addToInternalBlock(final ASTDeclaration astDeclaration) {
     if (!this.getInternalBlock().isPresent()) {
       final ASTVar_Block internalBlock = NESTMLASTCreator.createInternalBlock();
       getBodyElements().add(internalBlock);
@@ -281,20 +280,20 @@ public class ASTBody extends ASTBodyTOP {
       ASTVar_Block block = (ASTVar_Block) be;
 
       if (block.isInternals()) {
-        block.getAliasDecls().add(astAliasDecl);
+        block.getDeclarations().add(astDeclaration);
       }
 
     });
 
   }
 
-  public void addToStateBlock(final ASTAliasDecl astAliasDecl) {
+  public void addToStateBlock(final ASTDeclaration ASTDeclaration) {
     this.getBodyElements().stream().filter(variableBlock -> variableBlock instanceof ASTVar_Block).forEach(be -> {
 
       ASTVar_Block block = (ASTVar_Block) be;
 
       if (block.isState()) {
-        block.getAliasDecls().add(astAliasDecl);
+        block.getDeclarations().add(ASTDeclaration);
       }
 
     });
@@ -349,7 +348,7 @@ public class ASTBody extends ASTBodyTOP {
     return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
         .stream()
         .map(variable -> (VariableSymbol) variable)
-        .filter(variable -> variable.isAlias() && variable.isInEquation())
+        .filter(variable -> variable.isFunction() && variable.isInEquation())
         .collect(Collectors.toList());
   }
 

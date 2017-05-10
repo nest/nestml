@@ -1,11 +1,5 @@
 package org.nest.commons._visitor;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.units.unitrepresentation.UnitRepresentation;
-
 /**
  * @author ptraeder, plotnikov
  */

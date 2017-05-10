@@ -11,7 +11,6 @@
   @param tc templatecontroller
   @result TODO
 -->
-
 if (${expressionsPrinter.print(ast.getIF_Clause().getExpr())}) {
 ${tc.include("org.nest.spl.Block", ast.getIF_Clause().getBlock())}
 <#list ast.getELIF_Clauses() as elif>

@@ -5,5 +5,5 @@
 -->
 ${signature("variable")}
 <#if !variable.isInternal()>
-  def< ${declarations.printVariableType(variable)} >(__d, "${statusNames.name(variable)}", ${names.getter(variable)}());
+  def< ${declarations.printVariableType(variable)} >(__d, "${variable.getName()}", ${names.getter(variable)}());
 </#if>

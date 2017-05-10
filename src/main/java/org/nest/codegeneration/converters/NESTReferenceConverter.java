@@ -6,7 +6,6 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.spl.prettyprinter.IReferenceConverter;
@@ -126,7 +125,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
       }
       else {
-        if (variableSymbol.isAlias()) {
+        if (variableSymbol.isFunction()) {
           return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {

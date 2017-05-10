@@ -12,8 +12,8 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.*;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.codegeneration.sympy.OdeProcessor;
+import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -254,7 +254,6 @@ public class NestCodeGenerator {
     glex.setGlobalValue("odeTransformer", new OdeTransformer());
 
     glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron.getBody()));
-    glex.setGlobalValue("isOutputEventPresent", ASTOutputs.isOutputEventPresent(neuron.getBody()));
     glex.setGlobalValue("isSpikeInput", ASTInputs.isSpikeInput(neuron));
     glex.setGlobalValue("isCurrentInput", ASTInputs.isCurrentInput(neuron));
     glex.setGlobalValue("body", neuron.getBody());

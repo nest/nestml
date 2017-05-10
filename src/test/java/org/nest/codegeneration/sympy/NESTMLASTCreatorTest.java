@@ -6,7 +6,7 @@
 package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
-import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.spl._ast.ASTDeclaration;
 
 import java.nio.file.Paths;
 
@@ -25,9 +25,9 @@ public class NESTMLASTCreatorTest {
 
   @Test
   public void testConvertToDeclaration() throws Exception {
-    final ASTAliasDecl testant = NESTMLASTCreator.createAliases(Paths.get(P30_FILE)).get(0);
-    assertEquals(testant.getDeclaration().getVars().get(0), P_30);
-    assertTrue(testant.getDeclaration().getExpr().isPresent());
+    final ASTDeclaration testant = NESTMLASTCreator.createDeclarations(Paths.get(P30_FILE)).get(0);
+    assertEquals(testant.getVars().get(0), P_30);
+    assertTrue(testant.getExpr().isPresent());
 
   }
 
@@ -36,10 +36,10 @@ public class NESTMLASTCreatorTest {
     final String testExpr = "P30 real = -Tau*tau_in*(Tau*h*exp(h/Tau) + Tau*tau_in*exp(h/Tau) - Tau*tau_in*exp"
         + "(h/tau_in) - "
         + "h*tau_in*exp(h/Tau))*exp(-h/tau_in - h/Tau)/(C*(Tau**2 - 2*Tau*tau_in + tau_in**2)) # PXX";
-    final ASTAliasDecl testant = NESTMLASTCreator.createAlias(testExpr);
+    final ASTDeclaration testant = NESTMLASTCreator.createDeclaration(testExpr);
     assertNotNull(testant);
-    assertEquals(1, testant.getDeclaration().getVars().size());
-    assertEquals(P_30, testant.getDeclaration().getVars().get(0));
+    assertEquals(1, testant.getVars().size());
+    assertEquals(P_30, testant.getVars().get(0));
   }
 
 
