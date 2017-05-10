@@ -511,8 +511,12 @@ public final class AstUtils {
     for (String siUnit : SIData.getCorrectSIUnits()) {
       if (varShortName.equals(siUnit)) {
         TypeSymbol variableType = getType(varShortName);
-        UnitRepresentation variableRep = UnitRepresentation.getBuilder().serialization(variableType.getName()).build();
-        int magnitude = variableRep.getMagnitude();
+        UnitRepresentation variableRep = UnitRepresentation
+            .getBuilder()
+            .serialization(variableType.getName())
+            .build();
+        int magnitude = UnitRepresentation.getTargetUnitFilter()
+            .getDifferenceToRegisteredTarget(variableRep);
         double magnitudeAsFactor = pow(10.0, magnitude);
         return Optional.of(String.valueOf(magnitudeAsFactor));
       }
