@@ -65,15 +65,6 @@ public class NestmlCoCosManager {
     final VectorVariableInNonVectorDeclaration vectorVariableInNonVectorDeclaration = new VectorVariableInNonVectorDeclaration();
     nestmlCoCoChecker.addCoCo(vectorVariableInNonVectorDeclaration);
 
-    final ComponentHasNoDynamics componentHasNoDynamics = new ComponentHasNoDynamics();
-    nestmlCoCoChecker.addCoCo(componentHasNoDynamics);
-
-    final ComponentWithoutInput componentWithoutInput = new ComponentWithoutInput();
-    nestmlCoCoChecker.addCoCo(componentWithoutInput);
-
-    final ComponentWithoutOutput componentWithoutOutput = new ComponentWithoutOutput();
-    nestmlCoCoChecker.addCoCo(componentWithoutOutput);
-
     final CurrentPortIsInhOrExc currentPortIsInhOrExc = new CurrentPortIsInhOrExc();
     nestmlCoCoChecker.addCoCo(currentPortIsInhOrExc);
 
@@ -83,7 +74,6 @@ public class NestmlCoCosManager {
 
     final InvalidTypesInDeclaration invalidTypesInDeclaration
         = new InvalidTypesInDeclaration();
-    nestmlCoCoChecker.addCoCo((NESTMLASTUSE_StmtCoCo) invalidTypesInDeclaration);
     nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCoCo) invalidTypesInDeclaration);
     nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) invalidTypesInDeclaration);
 
@@ -93,8 +83,7 @@ public class NestmlCoCosManager {
 
     final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes
         = new MemberVariableDefinedMultipleTimes();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) memberVariableDefinedMultipleTimes);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) memberVariableDefinedMultipleTimes);
+    nestmlCoCoChecker.addCoCo(memberVariableDefinedMultipleTimes);
 
     final MemberVariablesInitialisedInCorrectOrder memberVariablesInitialisedInCorrectOrder
             = new MemberVariablesInitialisedInCorrectOrder();
@@ -102,8 +91,7 @@ public class NestmlCoCosManager {
 
     final FunctionDefinedMultipleTimes functionDefinedMultipleTimes
             = new FunctionDefinedMultipleTimes();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) functionDefinedMultipleTimes);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) functionDefinedMultipleTimes);
+    nestmlCoCoChecker.addCoCo(functionDefinedMultipleTimes);
 
     final MultipleInhExcModifiers multipleInhExcModifiers = new MultipleInhExcModifiers();
     nestmlCoCoChecker.addCoCo(multipleInhExcModifiers);
@@ -133,11 +121,8 @@ public class NestmlCoCosManager {
     nestmlCoCoChecker.addCoCo(functionReturnsIncorrectValue);
 
     final TypeIsDeclaredMultipleTimes typeIsDeclaredMultipleTimes = new TypeIsDeclaredMultipleTimes();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) typeIsDeclaredMultipleTimes);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) typeIsDeclaredMultipleTimes);
+    nestmlCoCoChecker.addCoCo(typeIsDeclaredMultipleTimes);
 
-    // TODO
-    // UsesOnlyComponents
 
     final BufferNotAssignable bufferNotAssignable = new BufferNotAssignable();
     nestmlCoCoChecker.addCoCo(bufferNotAssignable);
@@ -170,8 +155,7 @@ public class NestmlCoCosManager {
     uniquenessChecker.addCoCo(new SPLVariableDefinedMultipleTimes());
 
     final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes = new MemberVariableDefinedMultipleTimes();
-    uniquenessChecker.addCoCo((NESTMLASTComponentCoCo) memberVariableDefinedMultipleTimes);
-    uniquenessChecker.addCoCo((NESTMLASTNeuronCoCo) memberVariableDefinedMultipleTimes);
+    uniquenessChecker.addCoCo(memberVariableDefinedMultipleTimes);
 
     final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
     uniquenessChecker.addCoCo(equationsOnlyForStateVariables);

@@ -7,9 +7,7 @@ package org.nest.symboltable.symbols;
 
 import de.monticore.ast.Comment;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
-import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.SymbolKind;
-import org.nest.symboltable.NeuronScope;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 
 import java.util.Collection;
@@ -89,11 +87,6 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     // the existence is checked by a context condition
     final Optional<MethodSymbol> methodSymbol = spannedScope.resolveLocally("dynamics", MethodSymbol.KIND);
     return methodSymbol.get();
-  }
-
-  @Override
-  protected MutableScope createSpannedScope() {
-    return new NeuronScope();
   }
 
   public void setBaseNeuron(NeuronSymbolReference baseNeuron) {

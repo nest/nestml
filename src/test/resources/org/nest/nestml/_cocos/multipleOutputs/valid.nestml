@@ -2,7 +2,3 @@ neuron OutputsNeuron:
   output: current
 end
 
-component OutputsComponent:
-  output: spike
-  output: current
-end

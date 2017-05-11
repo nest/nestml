@@ -1,4 +1,4 @@
-component Blaa:
+neuron Blaa:
 
   function calibrate(t ms):
   end
