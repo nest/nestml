@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2015 RWTH Aachen. All rights reserved.
  *
@@ -54,15 +55,13 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
         final Optional<VariableSymbol> var = enclosingScope.get().resolve(varName, VariableSymbol.KIND);
 
         if (var.isPresent()) {
-          if (funName.startsWith("set_") &&
-              methodSymbol.get().getParameterTypes().size() == 1 &&
-              !var.get().isFunction()) {
+          if (funName.startsWith("set_")) {
             final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
 
             error(msg, fun.get_SourcePositionStart());
           }
 
-          if (funName.startsWith("get_") && methodSymbol.get().getParameterTypes().size() == 0) {
+          if (funName.startsWith("get_")) {
             final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
 
             error(msg, fun.get_SourcePositionStart());

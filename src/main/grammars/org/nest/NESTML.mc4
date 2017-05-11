@@ -15,30 +15,14 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
     @attribute packageName      The qualified name to artifact
     @attribute Import           List of imported elements
     @attribute Neuron           The neuron representation
-    @attribute Component        The component representation
   */
-  NESTMLCompilationUnit =
-    (Import | NEWLINE)*
-    (Neuron | Component | NEWLINE)*
-    EOF;
-
-  /** ASTImport represents the import line. Can be the qualified name oder a wirldcard import.
-    @attribute qualifiedName    The qualified name to artifact
-    @attribute star             Optional wildcard ('*')
-  */
-  Import = "import" QualifiedName ([star:".*"])? (";")?;
+  NESTMLCompilationUnit = (Neuron | NEWLINE)* EOF;
 
   /** ASTNeuron represents neuron.
     @attribute Name    The name of the neuron
     @attribute Body    The body of the neuron, e.g. internal, state, parameter...
   */
-  Neuron = "neuron" Name ("extends" base:Name)? Body;
-
-  /** ASTComponent represents neuron.
-    @attribute Name    The name of the component
-    @attribute Body    The body of the component, e.g. internal, state, parameter...
-  */
-  Component = "component" Name Body;
+  Neuron = "neuron" Name Body;
 
   /** ASTBodyElement represents a single entry in the neuron or component: e.g. internal, state,
       parameter... The interface is used to enable language extension.
@@ -50,16 +34,6 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
   Body = BLOCK_OPEN
            (NEWLINE | BodyElement)*
          BLOCK_CLOSE;
-
-  /** ASTUSE_Stmt represent a reference to an another neuron or component. E.g.:
-    neuron AliasNeuron:
-            use nest.EmptyComponent as Soma
-    end
-
-    @attribute Name     The name of the referenced component
-    @attribute function    The name under which the referenced component can be used.
-  */
-  USE_Stmt implements BodyElement = "use" name:QualifiedName "as" alias:Name;
 
   /** ASTVar_Block represent a block with variables, e.g.:
     state:

@@ -1,8 +1,4 @@
-component TestComponent:
-end
-
 neuron iaf_neuron:
-  use TestComponent as TestRef
 
   state:
     y0 mV

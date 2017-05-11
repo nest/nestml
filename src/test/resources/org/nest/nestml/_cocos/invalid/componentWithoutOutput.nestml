@@ -1,3 +1,0 @@
-component CompWithOutput:
-  output: spike
-end

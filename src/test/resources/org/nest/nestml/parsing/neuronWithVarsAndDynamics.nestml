@@ -1,5 +1,3 @@
-import vars.VarsNeuron
-
 neuron DynamicsNeuron:
   state:
     vM mV
@@ -42,10 +40,6 @@ neuron DynamicsNeuron:
     end
   end
 
-
-  function set_diameter(v mm):
-    radius = v / 2
-  end
 
   input:
     spikeBuffer   <- inhibitory excitatory spike

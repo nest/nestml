@@ -2,6 +2,3 @@ neuron Foo:
   update:
   end
 end
-
-component Bar:
-end

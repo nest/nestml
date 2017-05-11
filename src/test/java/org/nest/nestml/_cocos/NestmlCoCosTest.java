@@ -138,63 +138,6 @@ public class NestmlCoCosTest {
   }
 
   @Test
-  public void testComponentHasNoDynamics() {
-    final ComponentHasNoDynamics componentHasNoDynamics = new ComponentHasNoDynamics();
-    nestmlCoCoChecker.addCoCo(componentHasNoDynamics);
-
-    final Path pathToValidModel = Paths.get(TEST_VALID_MODELS_FOLDER, "componentHasNoDynamics.nestml");
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoChecker,
-        NestmlErrorStrings.code(componentHasNoDynamics));
-
-    final Path pathToInvalidModel = Paths.get(TEST_INVALID_MODELS_FOLDER, "componentHasNoDynamics.nestml");
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoChecker,
-        NestmlErrorStrings.code(componentHasNoDynamics),
-        1);
-  }
-
-  @Test
-  public void testComponentWithoutInput() {
-    final ComponentWithoutInput componentWithoutInput = new ComponentWithoutInput();
-    nestmlCoCoChecker.addCoCo(componentWithoutInput);
-
-    final Path pathToValidModel = Paths.get(TEST_VALID_MODELS_FOLDER, "componentWithoutInput.nestml");
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoChecker,
-        NestmlErrorStrings.code(componentWithoutInput));
-
-    final Path pathToInvalidModel = Paths.get(TEST_INVALID_MODELS_FOLDER, "componentWithoutInput.nestml");
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoChecker,
-        NestmlErrorStrings.code(componentWithoutInput),
-        1);
-  }
-
-  @Test
-  public void testComponentWithoutOutput() {
-    final ComponentWithoutOutput componentWithoutOutput = new ComponentWithoutOutput();
-    nestmlCoCoChecker.addCoCo(componentWithoutOutput);
-
-    final Path pathToValidModel = Paths.get(TEST_VALID_MODELS_FOLDER, "componentWithoutOutput.nestml") ;
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoChecker,
-        NestmlErrorStrings.code(componentWithoutOutput));
-
-    final Path pathToInvalidModel = Paths.get(TEST_INVALID_MODELS_FOLDER, "componentWithoutOutput.nestml");
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoChecker,
-        NestmlErrorStrings.code(componentWithoutOutput),
-        1);
-  }
-
-  @Test
   public void testCorrectReturnValues() {
     final FunctionReturnsIncorrectValue functionReturnsIncorrectValue = new FunctionReturnsIncorrectValue();
     nestmlCoCoChecker.addCoCo(functionReturnsIncorrectValue);
@@ -254,7 +197,6 @@ public class NestmlCoCosTest {
   @Test
   public void testInvalidTypesInDeclaration() {
     final InvalidTypesInDeclaration invalidTypesInDeclaration = new InvalidTypesInDeclaration();
-    nestmlCoCoChecker.addCoCo((NESTMLASTUSE_StmtCoCo) invalidTypesInDeclaration);
     nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCoCo) invalidTypesInDeclaration);
     nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) invalidTypesInDeclaration);
 
@@ -315,8 +257,7 @@ public class NestmlCoCosTest {
   public void testMultipleFunctionsDeclarations() {
     final FunctionDefinedMultipleTimes functionDefinedMultipleTimes
             = new FunctionDefinedMultipleTimes();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) functionDefinedMultipleTimes);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) functionDefinedMultipleTimes);
+    nestmlCoCoChecker.addCoCo(functionDefinedMultipleTimes);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/functionDefinedMultipleTimes.nestml");
     checkModelAndAssertNoErrors(
@@ -471,8 +412,7 @@ public class NestmlCoCosTest {
   @Test
   public void testTypesDeclaredMultipleTimes() {
     final TypeIsDeclaredMultipleTimes typeIsDeclaredMultipleTimes = new TypeIsDeclaredMultipleTimes();
-    nestmlCoCoChecker.addCoCo((NESTMLASTComponentCoCo) typeIsDeclaredMultipleTimes);
-    nestmlCoCoChecker.addCoCo((NESTMLASTNeuronCoCo) typeIsDeclaredMultipleTimes);
+    nestmlCoCoChecker.addCoCo(typeIsDeclaredMultipleTimes);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "typeIsDeclaredMultipleTimes/valid.nestml");
     checkModelAndAssertNoErrors(
@@ -485,26 +425,6 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoChecker,
         TypeIsDeclaredMultipleTimes.ERROR_CODE,
-        2);
-  }
-
-
-  @Test
-  public void testUsesOnlyComponents() {
-    final UsesOnlyComponents usesOnlyComponents = new UsesOnlyComponents();
-    nestmlCoCoChecker.addCoCo(usesOnlyComponents);
-
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "usesOnlyComponents/valid.nestml");
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoChecker,
-        UsesOnlyComponents.ERROR_CODE);
-
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "usesOnlyComponents/invalid.nestml");
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoChecker,
-        UsesOnlyComponents.ERROR_CODE,
         2);
   }
 
@@ -666,16 +586,9 @@ public class NestmlCoCosTest {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString(), Paths.get(TEST_MODELS_FOLDER));
     scopeCreator.runSymbolTableCreator(ast.get());
 
-    // The errors are issued d
+    // The errors are issued during symbol table construction
     Integer errorsFound = countErrorsByPrefix(EquationsOnlyForStateVariables.ERROR_CODE, getFindings());
     assertEquals(Integer.valueOf(2), errorsFound);
-
-    /*checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoChecker,
-        EquationsOnlyForStateVariables.ERROR_CODE,
-        2);*/
-
   }
 
   @Test

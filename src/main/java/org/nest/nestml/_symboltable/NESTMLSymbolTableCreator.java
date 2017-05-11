@@ -8,7 +8,6 @@ package org.nest.nestml._symboltable;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.*;
-import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
@@ -20,12 +19,13 @@ import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.*;
-import org.nest.symboltable.symbols.references.NeuronSymbolReference;
+import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._visitor.UnitsSIVisitor;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +37,6 @@ import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.nest.codegeneration.sympy.OdeTransformer.getCondSumFunctionCall;
-import static org.nest.symboltable.symbols.NeuronSymbol.Type.COMPONENT;
 import static org.nest.symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.symboltable.symbols.VariableSymbol.BlockType.STATE;
 import static org.nest.utils.AstUtils.computeTypeName;
@@ -76,12 +75,11 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
 
   public void visit(final ASTNESTMLCompilationUnit compilationUnitAst) {
-    final List<ImportStatement> imports = computeImportStatements(compilationUnitAst);
 
     final MutableScope artifactScope = new ArtifactScope(
         empty(),
         compilationUnitAst.getFullName(),
-        imports);
+        Lists.newArrayList());
     putOnStack(artifactScope);
 
     final String msg = "Adds an artifact scope for the NESTML model file: " +
@@ -89,15 +87,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     trace(msg, LOGGER_NAME);
   }
 
-  private List<ImportStatement> computeImportStatements(ASTNESTMLCompilationUnit compilationUnitAst) {
-    final List<ImportStatement> imports = new ArrayList<>();
-
-    compilationUnitAst.getImports().forEach(importStatement -> {
-      final String importAsString = Names.getQualifiedName(importStatement.getQualifiedName().getParts());
-      imports.add(new ImportStatement(importAsString, importStatement.isStar()));
-    });
-    return imports;
-  }
 
   public void endVisit(final ASTNESTMLCompilationUnit compilationUnitAst) {
     removeCurrentScope();
@@ -109,15 +98,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   public void visit(final ASTNeuron astNeuron) {
     final NeuronSymbol neuronSymbol = new NeuronSymbol(astNeuron.getName(), NEURON);
-
-    if (astNeuron.getBase().isPresent()) {
-      final NeuronSymbolReference baseSymbol = new NeuronSymbolReference(
-          astNeuron.getBase().get(),
-          NeuronSymbol.Type.NEURON,
-          getFirstCreatedScope()
-      );
-      neuronSymbol.setBaseNeuron(baseSymbol);
-    }
     currentTypeSymbol = Optional.of(neuronSymbol);
     addToScopeAndLinkWithNode(neuronSymbol, astNeuron);
     trace("Add symbol for the neuron:  " + astNeuron.getName(), LOGGER_NAME);
@@ -308,53 +288,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     }
 
-  }
-
-  public void visit(final ASTComponent componentAst) {
-    final NeuronSymbol componentSymbol = new NeuronSymbol(componentAst.getName(), COMPONENT);
-    currentTypeSymbol = of(componentSymbol);
-
-    addToScopeAndLinkWithNode(componentSymbol, componentAst);
-
-    trace("Adds a component symbol for the component: " + componentSymbol.getFullName(), LOGGER_NAME);
-  }
-
-  public void endVisit(final ASTComponent componentAst) {
-    removeCurrentScope();
-    currentTypeSymbol = empty();
-  }
-
-  /**
-   *
-   * {@code
-   * Grammar
-   * USE_Stmt implements BodyElement = "use" name:QualifiedName "as" function:Name;
-   *
-   * Model:
-   * ...
-   * neuron iaf_neuron:
-   *   use TestComponent as TestRef
-   * ...
-   * }
-   *
-   *
-   */
-  public void visit(final ASTUSE_Stmt useAst) {
-    checkState(this.currentScope().isPresent());
-    checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
-
-    final String referencedTypeName = Names.getQualifiedName(useAst.getName().getParts());
-
-    final String aliasFqn = useAst.getAlias();
-
-    // TODO it is not a reference, but a delegate
-    final NeuronSymbolReference referencedType
-        = new NeuronSymbolReference(referencedTypeName, NEURON, this.currentScope().get());
-    referencedType.setAstNode(useAst);
-    final UsageSymbol usageSymbol = new UsageSymbol(aliasFqn, referencedType);
-    addToScope(usageSymbol);
-
-    trace("Handles an use statement: use " + referencedTypeName + " as " + aliasFqn, LOGGER_NAME);
   }
 
 
