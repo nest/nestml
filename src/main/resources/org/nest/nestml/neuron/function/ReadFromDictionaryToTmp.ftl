@@ -5,7 +5,7 @@
   @result C++ Block
 -->
 ${signature("variable")}
-<#if variable.hasSetter() || !variable.isAlias()>
+<#if variable.hasSetter() || !variable.isFunction()>
   ${declarations.printVariableType(variable)} tmp_${statusNames.name(variable)} = ${names.getter(variable)}();
   updateValue<${declarations.printVariableType(variable)}>(__d, "${statusNames.name(variable)}", tmp_${statusNames.name(variable)});
 <#else>

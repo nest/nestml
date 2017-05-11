@@ -6,7 +6,6 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.spl.prettyprinter.IReferenceConverter;
@@ -99,26 +98,6 @@ public class NESTReferenceConverter implements IReferenceConverter {
 
     final Optional<MethodSymbol> functionSymbol = NestmlSymbols.resolveMethod(astFunctionCall);
 
-    if (functionSymbol.isPresent() && functionSymbol.get().getDeclaringType() != null) { // TODO smell
-
-      if (functionSymbol.get().getDeclaringType().getName().equals("Buffer")) {
-        final VariableSymbol variableSymbol = resolve(Names.getQualifier(functionName), scope);
-
-        if (functionSymbol.get().getName().equals("get_sum")) {
-          final String calleeObject = Names.getQualifier(functionName);
-          if (variableSymbol.getVectorParameter().isPresent()) {
-            return "B_." + calleeObject + "[i].get_value(lag)";
-          }
-          else {
-            return "B_." + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
-          }
-
-        }
-
-      }
-
-    }
-
     if (needsArguments(astFunctionCall)) {
       return functionName + "(%s)";
     }
@@ -146,7 +125,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
       }
       else {
-        if (variableSymbol.isAlias()) {
+        if (variableSymbol.isFunction()) {
           return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {

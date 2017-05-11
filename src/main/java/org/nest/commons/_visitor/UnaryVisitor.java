@@ -19,16 +19,18 @@ public class UnaryVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr){
-    final Either<TypeSymbol, String> termType  = expr.getTerm().get().getType();
+    final Either<TypeSymbol, String> termTypeE  = expr.getTerm().get().getType();
 
-    if(termType.isError()){
-      expr.setType(termType);
+    if(termTypeE.isError()){
+      expr.setType(termTypeE);
       return;
     }
 
+    TypeSymbol termType = termTypeE.getValue();
+
     if (expr.isUnaryMinus() || expr.isUnaryPlus()) {
-      if (isNumeric(termType.getValue())) {
-        expr.setType(termType);
+      if (isNumeric(termType)) {
+        expr.setType(Either.value(termType));
         return;
       }
       else {
@@ -40,8 +42,8 @@ public class UnaryVisitor implements CommonsVisitor {
       }
     }
     else if (expr.isUnaryTilde()) {
-        if (isInteger(termType.getValue())) {
-          expr.setType(termType);
+        if (isInteger(termType)) {
+          expr.setType(Either.value(termType));
           return;
         }
         else {

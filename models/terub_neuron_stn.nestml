@@ -124,19 +124,19 @@ neuron terub_neuron_stn:
     V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_stim + I_e + I_ex_mod + I_in_mod) / C_m
 
     #channel dynamics
-    gate_h' = phi_h *((h_inf-gate_h) / tau_h)   # h-variable
-    gate_n' = phi_n *((n_inf-gate_n) / tau_n)  # n-variable
-    gate_r' = phi_r *((r_inf-gate_r) / tau_r)  # r-variable
+    gate_h' = phi_h *((h_inf-gate_h) / tau_h) * 1 [mV/ms]  # h-variable
+    gate_n' = phi_n *((n_inf-gate_n) / tau_n) * 1 [mV/ms] # n-variable
+    gate_r' = phi_r *((r_inf-gate_r) / tau_r) * 1 [mV/ms] # r-variable
 
     #Calcium concentration
-    Ca_con' = epsilon*(-I_Ca - I_T - k_Ca * Ca_con);
+    Ca_con' = epsilon*( (-I_Ca  - I_T ) / 1 pA - k_Ca * Ca_con)
 
     # synapses: alpha functions
     g_ex'' = -g_ex' / tau_syn_ex
-    g_ex' = g_ex' - ( g_ex / tau_syn_ex )
+    g_ex' = g_ex' - ( g_ex / tau_syn_ex ) 
 
     g_in'' = -g_in' / tau_syn_in
-    g_in' = g_in' - ( g_in / tau_syn_in )
+    g_in' = g_in' - ( g_in / tau_syn_in ) 
   end
 
   parameters:
@@ -160,8 +160,8 @@ neuron terub_neuron_stn:
   end
 
   internals:
-    PSCurrInit_E real = 1.0 * e / tau_syn_ex
-    PSCurrInit_I real = 1.0 * e / tau_syn_in
+    PSCurrInit_E real = 1.0 ms * e / tau_syn_ex
+    PSCurrInit_I real = 1.0 ms * e / tau_syn_in
     refractory_counts integer = steps(t_ref)
     r integer # counts number of tick during the refractory period
   end
@@ -187,10 +187,10 @@ neuron terub_neuron_stn:
     end
 
     # set new input current
-    I_stim = currents.get_sum()
+    I_stim = currents
 
-    g_ex' += spikeExc.get_sum() * PSCurrInit_E
-    g_in' += spikeInh.get_sum() * PSCurrInit_I
+    g_ex' += spikeExc * PSCurrInit_E * 1 [pA/ms]
+    g_in' += spikeInh * PSCurrInit_I * 1 [pA/ms]
   end
 
 end

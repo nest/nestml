@@ -42,11 +42,11 @@ neuron iaf_cond_alpha_implicit:
   equations:
     # alpha function for the g_in
     g_in'' = -g_in'/tau_syn_in
-    g_in' = g_in' - g_in/tau_syn_in
+    g_in' = g_in' - g_in/tau_syn_in 
 
     # alpha function for the g_ex
     g_ex'' = -g_ex'/tau_syn_ex
-    g_ex' = g_ex'  -g_ex/tau_syn_ex
+    g_ex' = g_ex'  -g_ex/tau_syn_ex 
 
     function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
@@ -75,11 +75,11 @@ neuron iaf_cond_alpha_implicit:
   internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_syn_ex
+    PSConInit_E real = 1.0 ms * e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_syn_in
+    PSConInit_I real = 1.0 ms * e / tau_syn_in
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer                               # counts number of tick during the refractory period
@@ -106,10 +106,10 @@ neuron iaf_cond_alpha_implicit:
     end
 
     # add incoming spikes
-    g_ex' += spikeExc * PSConInit_E
-    g_in' += spikeInh * PSConInit_I
+    g_ex' += spikeExc * PSConInit_E * 1 [nS/ms]
+    g_in' += spikeInh * PSConInit_I * 1 [nS/ms]
     # set new input current
-    I_stim = currents.get_sum()
+    I_stim = currents
   end
 
 end

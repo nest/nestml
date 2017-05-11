@@ -18,20 +18,23 @@ public class DotOperatorVisitor implements CommonsVisitor{
 
   @Override
   public void visit(ASTExpr expr) {
-    final Either<TypeSymbol, String> lhsType = expr.getLeft().get().getType();
-    final Either<TypeSymbol, String> rhsType = expr.getRight().get().getType();
+    final Either<TypeSymbol, String> lhsTypeE = expr.getLeft().get().getType();
+    final Either<TypeSymbol, String> rhsTypeE = expr.getRight().get().getType();
 
-    if (lhsType.isError()) {
-      expr.setType(lhsType);
+    if (lhsTypeE.isError()) {
+      expr.setType(lhsTypeE);
       return;
     }
-    if (rhsType.isError()) {
-      expr.setType(rhsType);
+    if (rhsTypeE.isError()) {
+      expr.setType(rhsTypeE);
       return;
     }
+
+    TypeSymbol lhsType = lhsTypeE.getValue();
+    TypeSymbol rhsType = rhsTypeE.getValue();
 
     if(expr.isModuloOp()){
-      if(isInteger(lhsType.getValue())&&isInteger(rhsType.getValue())){
+      if(isInteger(lhsType)&&isInteger(rhsType)){
         expr.setType(Either.value(getIntegerType()));
         return;
       }else{
@@ -42,13 +45,13 @@ public class DotOperatorVisitor implements CommonsVisitor{
       }
     }
     if(expr.isDivOp() || expr.isTimesOp()) {
-      if (isNumeric(lhsType.getValue()) && isNumeric(rhsType.getValue())) {
+      if (isNumeric(lhsType) && isNumeric(rhsType)) {
 
         // If both are units, calculate resulting Type
-        if (lhsType.getValue().getType() == TypeSymbol.Type.UNIT
-            && rhsType.getValue().getType() == TypeSymbol.Type.UNIT) {
-          UnitRepresentation leftRep = UnitRepresentation.getBuilder().serialization(lhsType.getValue().getName()).build();
-          UnitRepresentation rightRep = UnitRepresentation.getBuilder().serialization(rhsType.getValue().getName()).build();
+        if (lhsType.getType() == TypeSymbol.Type.UNIT
+            && rhsType.getType() == TypeSymbol.Type.UNIT) {
+          UnitRepresentation leftRep = UnitRepresentation.getBuilder().serialization(lhsType.getName()).build();
+          UnitRepresentation rightRep = UnitRepresentation.getBuilder().serialization(rhsType.getName()).build();
           if (expr.isTimesOp()) {
             TypeSymbol returnType = getTypeIfExists((leftRep.multiplyBy(rightRep)).serialize())
                 .get();//Register type on the fly
@@ -63,18 +66,18 @@ public class DotOperatorVisitor implements CommonsVisitor{
           }
         }
         //if lhs is Unit, and rhs real or integer, return same Unit
-        if (lhsType.getValue().getType() == TypeSymbol.Type.UNIT) {
-          expr.setType(Either.value(lhsType.getValue()));
+        if (lhsType.getType() == TypeSymbol.Type.UNIT) {
+          expr.setType(Either.value(lhsType));
           return;
         }
         //if lhs is real or integer and rhs a unit, return unit for timesOP and inverse(unit) for divOp
-        if (rhsType.getValue().getType() == TypeSymbol.Type.UNIT) {
+        if (rhsType.getType() == TypeSymbol.Type.UNIT) {
           if (expr.isTimesOp()) {
-            expr.setType(Either.value(rhsType.getValue()));
+            expr.setType(Either.value(rhsType));
             return;
           }
           else if (expr.isDivOp()) {
-            UnitRepresentation rightRep = UnitRepresentation.getBuilder().serialization(rhsType.getValue().getName()).build();
+            UnitRepresentation rightRep = UnitRepresentation.getBuilder().serialization(rhsType.getName()).build();
             TypeSymbol returnType = getTypeIfExists((rightRep.invert()).serialize()).get();//Register type on the fly
             expr.setType(Either.value(returnType));
             return;
@@ -82,31 +85,31 @@ public class DotOperatorVisitor implements CommonsVisitor{
 
         }
         //if no Units are involved, Real takes priority
-        if (lhsType.getValue() == getRealType() || rhsType.getValue() == getRealType()) {
+        if (lhsType == getRealType() || rhsType == getRealType()) {
           expr.setType(Either.value(getRealType()));
           return;
         }
 
         // e.g. both are integers, but check to be sure
-        if (lhsType.getValue() == getIntegerType() || rhsType.getValue() == getIntegerType()) {
+        if (lhsType == getIntegerType() || rhsType == getIntegerType()) {
           expr.setType(Either.value(getIntegerType()));
           return;
         }
       }
       //If a buffer is involved, the other unit takes precedent TODO: is this the intended semantic?
-      if(lhsType.getValue() == getBufferType()){
-        expr.setType(Either.value(rhsType.getValue()));
+      if(lhsType == getBufferType()){
+        expr.setType(Either.value(rhsType));
         return;
       }
-      if(rhsType.getValue() == getBufferType()){
-        expr.setType(Either.value(lhsType.getValue()));
+      if(rhsType == getBufferType()){
+        expr.setType(Either.value(lhsType));
         return;
       }
     }
 
     //Catch-all if no case has matched
-    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Cannot determine the type of the expression: " +lhsType.getValue().prettyPrint()
-        +(expr.isDivOp()?" / ":" * ")+rhsType.getValue().prettyPrint();
+    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Cannot determine the type of the expression: " +lhsType.prettyPrint()
+        +(expr.isDivOp()?" / ":" * ")+rhsType.prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());
   }

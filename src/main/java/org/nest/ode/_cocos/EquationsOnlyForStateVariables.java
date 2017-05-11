@@ -24,14 +24,11 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._cocos.ODEASTEquationCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.utils.AstUtils;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.nest.utils.AstUtils.getNameOfLHS;
 
 /**
  * Checks that equations are used only for variables from the the state block.

@@ -23,8 +23,6 @@ import java.util.Set;
 public class PredefinedVariables {
   public static final String E_CONSTANT = "e";
   public static final String TIME_CONSTANT = "t";
-  private static final NeuronSymbol predefinedComponent =
-      new NeuronSymbol("Math", NeuronSymbol.Type.COMPONENT);
 
   private static final Map<String, VariableSymbol> name2VariableSymbol = Maps.newHashMap();
 
@@ -36,7 +34,6 @@ public class PredefinedVariables {
   private static void registerVariable(
       final String variableName, final TypeSymbol type) {
     final VariableSymbol variableSymbol = new VariableSymbol(variableName);
-    variableSymbol.setDeclaringType(predefinedComponent);
     variableSymbol.setType(type);
     name2VariableSymbol.put(variableName, variableSymbol);
   }

@@ -73,13 +73,13 @@ neuron iaf_chxk_2008_implicit:
   internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E real = 1.0 * e / tau_syn_ex
+    PSConInit_E nS/ms = 1.0 nS * e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I real = 1.0 * e / tau_syn_in
+    PSConInit_I nS/ms = 1.0 nS * e / tau_syn_in
 
-    PSConInit_AHP real = g_ahp * e / tau_ahp
+    PSConInit_AHP real = g_ahp * e / tau_ahp * 1 [ms/nS]
   end
 
   input:
@@ -98,7 +98,7 @@ neuron iaf_chxk_2008_implicit:
       # neuron is not absolute refractory
 
       # Find precise spike time using linear interpolation
-      sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev )
+      sigma real = ( V_m - V_th ) * resolution() / ( V_m - vm_prev ) / 1 ms
 
       alpha real = exp( -sigma / tau_ahp )
 
@@ -107,19 +107,19 @@ neuron iaf_chxk_2008_implicit:
 
       if ahp_bug == true:
         # Bug in original code ignores AHP conductance from previous spikes
-        G_ahp  = delta_g_ahp
-        G_ahp' = delta_dg_ahp
+        G_ahp  = delta_g_ahp * 1 nS
+        G_ahp' = delta_dg_ahp * 1 [nS/ms]
       else:
-        G_ahp  += delta_g_ahp
-        G_ahp' += delta_dg_ahp
+        G_ahp  += delta_g_ahp * 1 nS
+        G_ahp' += delta_dg_ahp * 1 [nS/ms]
       end
 
       emit_spike()
     end
 
-    g_ex' += spikesExc.get_sum() * PSConInit_E
-    g_in' += spikesInh.get_sum() * PSConInit_I
-    I_stim = currents.get_sum()
+    g_ex' += spikesExc * PSConInit_E
+    g_in' += spikesInh * PSConInit_I
+    I_stim = currents
   end
 
 end

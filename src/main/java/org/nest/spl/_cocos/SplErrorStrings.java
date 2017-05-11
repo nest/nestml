@@ -132,8 +132,8 @@ public class SplErrorStrings {
 
   static String messageCastToReal(
       final IllegalExpression coco,
-      final String soruceType) {
-    final String ERROR_MSG_FORMAT = "Implicit casting from %s to real";
+      final String soruceType){
+    final String ERROR_MSG_FORMAT = "Implicit cast from %s to real";
 
     return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, soruceType);
   }

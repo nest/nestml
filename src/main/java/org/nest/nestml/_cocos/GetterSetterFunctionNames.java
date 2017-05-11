@@ -53,7 +53,7 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
         if (var.isPresent()) {
           if (funName.startsWith("set_") &&
               methodSymbol.get().getParameterTypes().size() == 1 &&
-              !var.get().isAlias()) {
+              !var.get().isFunction()) {
             final String msg = NestmlErrorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
 
             error(msg, fun.get_SourcePositionStart());

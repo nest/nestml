@@ -22,12 +22,9 @@ package org.nest.ode._cocos;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.ode._cocos.ODEASTOdeDeclarationCoCo;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 

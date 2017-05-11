@@ -96,6 +96,23 @@ public class TypeChecker {
         typeSymbol.equals(getIntegerType()));
   }
 
+  public static boolean isPrimitiveTypeName(String typeName){
+    return typeName != null && (
+            typeName.equals(getVoidType().getName()) ||
+            typeName.equals(getStringType().getName()) ||
+            typeName.equals(getBooleanType().getName()) ||
+            typeName.equals(getIntegerType().getName()) ||
+            typeName.equals(getRealType().getName()) );
+  }
+
+  public static String deserializeUnitIfNotPrimitive(String typeName){
+    if(isPrimitiveTypeName(typeName)){
+      return typeName;
+    }else{
+      return UnitRepresentation.getBuilder().serialization(typeName).build().prettyPrint();
+    }
+  }
+
   public static boolean isNumeric(final TypeSymbol type) {
     return type != null && (type.equals(getIntegerType()) ||
         type.equals(getRealType()) ||

@@ -7,7 +7,6 @@ package org.nest.symboltable.predefined;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
-import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.SIData;
 import org.nest.units.unitrepresentation.UnitRepresentation;
@@ -88,12 +87,6 @@ public class PredefinedTypes {
   private static void registerBufferType() {
     final TypeSymbol bufferType = new TypeSymbol("Buffer", TypeSymbol.Type.BUFFER);
     implicitTypes.put("Buffer", bufferType);
-
-    final MethodSymbol get_sumMethod = new MethodSymbol("get_sum");
-    get_sumMethod.setReturnType(getRealType()); 
-
-    get_sumMethod.setDeclaringType(bufferType);
-    bufferType.addBuiltInMethod(get_sumMethod);
   }
 
   public static Collection<TypeSymbol> getTypes() {

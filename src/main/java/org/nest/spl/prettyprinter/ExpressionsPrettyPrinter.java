@@ -10,6 +10,7 @@ import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.List;
 
@@ -24,7 +25,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ExpressionsPrettyPrinter {
 
-  private final IReferenceConverter referenceConverter;
+  protected final IReferenceConverter referenceConverter;
 
   public ExpressionsPrettyPrinter() {
     this.referenceConverter = new IdempotentReferenceConverter();
@@ -39,9 +40,15 @@ public class ExpressionsPrettyPrinter {
     return doPrint(expr);
   }
 
-  private String doPrint(final ASTExpr expr) {
+  protected String doPrint(final ASTExpr expr) {
     if (expr.getNESTMLNumericLiteral().isPresent()) { // number
-      return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
+      if(expr.getNESTMLNumericLiteral().get().getType().isPresent()){
+        String type = expr.getNESTMLNumericLiteral().get().getType().get().getSerializedUnit();
+        UnitRepresentation uType = UnitRepresentation.getBuilder().serialization(type).build();
+        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral()) +" ["+uType.prettyPrint()+"] ";
+      }else {
+        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
+      }
     }
     if (expr.isInf()) {
       return convertConstant("inf");
@@ -182,15 +189,15 @@ public class ExpressionsPrettyPrinter {
     return argsListAsString;
   }
 
-  private String convertConstant(final String constantName) {
+  protected String convertConstant(final String constantName) {
     return referenceConverter.convertConstant(constantName);
   }
 
-  private String convertVariableName(final ASTVariable astVariableName) {
+  protected String convertVariableName(final ASTVariable astVariableName) {
     return referenceConverter.convertNameReference(astVariableName);
   }
 
-  private String printComparisonOperator(final ASTExpr expr) {
+  protected String printComparisonOperator(final ASTExpr expr) {
     if (expr.isLt()) {
       return "<";
     }
@@ -212,7 +219,7 @@ public class ExpressionsPrettyPrinter {
     throw new RuntimeException("Cannot determine comparison operator");
   }
 
-  private String printBitOperator(final ASTExpr expr) {
+  protected String printBitOperator(final ASTExpr expr) {
     if (expr.isShiftLeft()) {
       return "<<";
     }
@@ -235,7 +242,7 @@ public class ExpressionsPrettyPrinter {
     throw new RuntimeException("Cannot determine mathematical operator");
   }
 
-  private String getArithmeticOperator(final ASTExpr expr) {
+  protected String getArithmeticOperator(final ASTExpr expr) {
     if (expr.isPlusOp()) {
       return "+";
     }
@@ -251,7 +258,7 @@ public class ExpressionsPrettyPrinter {
     throw new RuntimeException("Cannot determine mathematical operator");
   }
 
-  private TypesPrettyPrinterConcreteVisitor typesPrinter() {
+  protected TypesPrettyPrinterConcreteVisitor typesPrinter() {
     final IndentPrinter printer = new IndentPrinter();
     return new TypesPrettyPrinterConcreteVisitor(printer);
   }

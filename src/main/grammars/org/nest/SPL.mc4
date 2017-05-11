@@ -34,16 +34,21 @@ grammar SPL extends org.nest.Commons {
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
+    @attribute hide is true iff. declaration is not trackable.
+    @attribute function is true iff. declaration is an function.
     @attribute vars          List with variables
     @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
     @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
     @attribute expr An optional initial expression, e.g. 'a real = 10+10'
+    @attribute invariants List with optional invariants.
    */
   Declaration =
+    (["recordable"] )? (["function"])?
     vars:Name ("," vars:Name)*
     Datatype
     ("[" sizeParameter:Name "]")?
-    ( "=" Expr)? SL_COMMENT?;
+    ( "=" Expr)? SL_COMMENT?
+    ("[[" invariant:Expr "]]")?;
 
   /** ASTDefiningVariable Signed variable name
 

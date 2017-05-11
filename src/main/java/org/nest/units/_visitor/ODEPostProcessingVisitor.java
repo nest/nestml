@@ -79,12 +79,13 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     }
     UnitRepresentation unitFromExpression = UnitRepresentation.getBuilder().serialization(typeFromExpression.getName()).build();
     //set any of the units to ignoreMagnitude
-    unitFromExpression.setIgnoreMagnitude(true);
+    unitFromExpression.setIgnoreMagnitude(false);
     //do the actual test:
     if (!unitFromExpression.equals(derivedVarUnit)) {
       //remove magnitude for clearer error message
-      derivedVarUnit.setMagnitude(0);
-      unitFromExpression.setMagnitude(0);
+
+      //derivedVarUnit.setMagnitude(0);
+      //unitFromExpression.setMagnitude(0);
       final String msg = OdeErrorStrings.expressionMissmatch(
           this,
           astEquation.getLhs().toString(),

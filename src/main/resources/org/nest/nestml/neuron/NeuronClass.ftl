@@ -71,8 +71,10 @@ namespace nest
 }
 
 /* ----------------------------------------------------------------
-* Default constructors defining default parameters and state
-* ---------------------------------------------------------------- */
+ * Default constructors defining default parameters and state
+ * Note: the implementation is empty. The initialization is of variables
+ * is a part of the ${neuronName}'s constructor.
+ * ---------------------------------------------------------------- */
 ${neuronName}::Parameters_::Parameters_()
 {
 }
@@ -95,7 +97,8 @@ ${neuronName}::Buffers_::Buffers_(${ast.getName()} &n): logger_(n)
   , __e( 0 )
 </#if>
 {
-
+  // Initialization of the remaining members is deferred to
+  // init_buffers_().
 }
 
 ${neuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger_(n)
@@ -107,14 +110,14 @@ ${neuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger
   , __c( 0 )
   , __e( 0 )
 </#if>
-
 {
+  // Initialization of the remaining members is deferred to
+  // init_buffers_().
 }
 
 /* ----------------------------------------------------------------
-* Default and copy constructor for node
-* ---------------------------------------------------------------- */
-// TODO inner components
+ * Default and copy constructor for node, and destructor
+ * ---------------------------------------------------------------- */
 ${neuronName}::${neuronName}():Archiving_Node(), P_(), S_(), B_(*this)
 {
   recordablesMap_.create();
@@ -144,10 +147,6 @@ ${neuronName}::${neuronName}(const ${neuronName}& __n): Archiving_Node(), P_(__n
   </#list>
 }
 
-/* ----------------------------------------------------------------
-* Destructors
-* ---------------------------------------------------------------- */
-
 ${neuronName}::~${neuronName}()
 {
   <#if useGSL>
@@ -167,8 +166,7 @@ ${neuronName}::~${neuronName}()
 
 void
 ${neuronName}::init_state_(const Node& proto)
-{ // TODO inner components
-
+{
   const ${ast.getName()}& pr = downcast<${ast.getName()}>(proto);
   S_ = pr.S_;
 }
@@ -241,7 +239,7 @@ ${neuronName}::calibrate()
   <#list body.getInputBuffers() as buffer>
     <#if buffer.isVector()>
         B_.${buffer.getName()}.resize(P_.${buffer.getVectorParameter().get()});
-        B_.${buffer.getName()}_last_value_.resize(P_.${buffer.getVectorParameter().get()});
+        B_.${buffer.getName()}_grid_sum_.resize(P_.${buffer.getVectorParameter().get()});
     </#if>
 
   </#list>
@@ -259,39 +257,37 @@ ${neuronName}::update(
         nest::Time const & origin,
         const long from, const long to)
 {
-    <#if useGSL>
-      double t = 0;
-    </#if>
+  <#if useGSL>
+    double __t = 0;
+  </#if>
 
-    for ( long lag = from ; lag < to ; ++lag ) {
-      <#list body.getInputBuffers() as inputLine>
-         <#if inputLine.isVector()>
-         for (long i=0; i < P_.${inputLine.getVectorParameter().get()}; i++)
-         {
-           B_.${names.bufferValue(inputLine)}[i] = get_${names.name(inputLine)}()[i].get_value( lag );
-         }
-         <#else>
-         // TODO this case must be handled uniformly, also NESTReferenceConverter must be adopted
-            B_.${names.bufferValue(inputLine)} = get_${names.name(inputLine)}().get_value( lag );
-         </#if>
-      </#list>
+  for ( long lag = from ; lag < to ; ++lag ) {
+    <#list body.getInputBuffers() as inputLine>
+       <#if inputLine.isVector()>
+       for (long i=0; i < P_.${inputLine.getVectorParameter().get()}; i++)
+       {
+         B_.${names.bufferValue(inputLine)}[i] = get_${names.name(inputLine)}()[i].get_value( lag );
+       }
+       <#else>
+          B_.${names.bufferValue(inputLine)} = get_${names.name(inputLine)}().get_value( lag );
+       </#if>
+    </#list>
 
-      <#assign dynamics = body.getDynamicsBlock().get()>
-      ${tc.include("org.nest.spl.Block", dynamics.getBlock())}
+    <#assign dynamics = body.getDynamicsBlock().get()>
+    ${tc.include("org.nest.spl.Block", dynamics.getBlock())}
 
-      // voltage logging
-      B_.logger_.record_data(origin.get_steps()+lag);
-    }
+    // voltage logging
+    B_.logger_.record_data(origin.get_steps()+lag);
+  }
 
 }
-
 
 // Do not move this function as inline to h-file. It depends on
 // universal_data_logger_impl.h being included here.
 void
 ${neuronName}::handle(nest::DataLoggingRequest& e)
 {
-    B_.logger_.handle(e);
+  B_.logger_.handle(e);
 }
 
 <#list body.getFunctions() as function>

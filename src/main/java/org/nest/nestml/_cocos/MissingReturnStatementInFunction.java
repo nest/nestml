@@ -17,6 +17,7 @@ import org.nest.symboltable.symbols.TypeSymbol;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 import static org.nest.utils.AstUtils.computeTypeName;
 
 /**
@@ -47,7 +48,8 @@ public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
       // non void return type
       // if block not returning:
       if (isReturnBlock(fun.getBlock()) == null) {
-        final String msg = NestmlErrorStrings.getErrorMsg(this, fun.getName(), computeTypeName(fun.getReturnType().get(), false));
+        NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
+        final String msg = NestmlErrorStrings.getErrorMsg(this, fun.getName(), deserializeUnitIfNotPrimitive(computeTypeName(fun.getReturnType().get())));
 
         Log.error(msg, fun.get_SourcePositionStart());
       }

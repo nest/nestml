@@ -14,8 +14,8 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeFunction;
 import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.ode._ast.ASTOdeFunction;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTCompound_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
@@ -50,9 +50,8 @@ import static org.nest.utils.AstUtils.getNameOfLHS;
  */
 public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implements NESTMLVisitor {
   private static String LOGGER_NAME = "NESTML_SymbolTableCreator";
-  private Optional<ASTAliasDecl> astAliasDeclaration = empty();
-  private Optional<ASTVar_Block> astVariableBlockType = empty();
   private Optional<NeuronSymbol> currentTypeSymbol = empty();
+  private Optional<ASTVar_Block> varBlock = empty();
 
   public NESTMLSymbolTableCreator(
       final ResolverConfiguration resolverConfig,
@@ -197,9 +196,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
 
       var.setType(type.get());
-      var.setDeclaringType(currentTypeSymbol.get());
       var.setRecordable(astOdeAlias.isRecordable());
-      var.setAlias(true);
+      var.setFunction(true);
       var.setDeclaringExpression(astOdeAlias.getExpr());
 
       var.setBlockType(VariableSymbol.BlockType.EQUATION);
@@ -231,9 +229,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     var.setAstNode(ode.getLhs());
     var.setType(derivedType);
-    var.setDeclaringType(currentTypeSymbol.get());
     var.setRecordable(true);
-    var.setAlias(false);
+    var.setFunction(false);
 
     var.setBlockType(VariableSymbol.BlockType.STATE);
 
@@ -364,27 +361,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   /**
    * {@code
    * Grammar:
-   * AliasDecl = ([hide:"-"])? ([function:"function"])? Declaration;}
-   * Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expression )?;
-   *
-   * Model:
-   */
-  public void visit(final ASTAliasDecl aliasDeclAst) {
-    checkState(this.currentScope().isPresent());
-
-    astAliasDeclaration = Optional.of(aliasDeclAst);
-    final String msg = "Sets parent function at the position: " + aliasDeclAst.get_SourcePositionStart();
-    trace(msg, LOGGER_NAME);
-
-  }
-
-  public void endVisit(final ASTAliasDecl aliasDeclAst) {
-    astAliasDeclaration = empty();
-  }
-
-  /**
-   * {@code
-   * Grammar:
    * InputLine =
    *   Name
    *   ("<" sizeParameter:Name ">")?
@@ -404,8 +380,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     final VariableSymbol var = new VariableSymbol(inputLineAst.getName());
 
     var.setType(bufferType);
-    var.setDeclaringType(currentTypeSymbol.get());
-
 
     if (inputLineAst.isCurrent()) {
       var.setBlockType(VariableSymbol.BlockType.INPUT_BUFFER_CURRENT);
@@ -449,7 +423,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
         var.setAstNode(p);
         var.setType(type.get());
 
-        var.setDeclaringType(null); // TOOD: make the variable optional or define a public type
         var.setBlockType(VariableSymbol.BlockType.LOCAL);
         addToScopeAndLinkWithNode(var, p);
 
@@ -489,27 +462,20 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     trace("Adds symbol for the dynamics", LOGGER_NAME);
   }
 
-
   @Override
   public void endVisit(final ASTDynamics de) {
     removeCurrentScope();
   }
 
-
   @Override
   public void visit(final ASTVar_Block astVarBlock) {
-    astVariableBlockType = Optional.of(astVarBlock);
-    trace("Handled variable_block", LOGGER_NAME);
+    varBlock = of(astVarBlock);
   }
-
-
 
   @Override
   public void endVisit(final ASTVar_Block astVarBlock) {
-    astVariableBlockType = empty();
+    varBlock = empty();
   }
-
-
 
   @Override
   public void visit(final ASTCompound_Stmt astCompoundStmt) {
@@ -527,50 +493,42 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     trace("Removes block scope.", LOGGER_NAME);
   }
 
-  // TODO replication, refactor it
   @Override
   public void visit(final ASTDeclaration astDeclaration) {
     checkState(currentTypeSymbol.isPresent());
-    if (this.astAliasDeclaration.isPresent()) {
-      checkState(astVariableBlockType.isPresent(), "Declaration is not inside a block.");
-      ASTVar_Block blockAst = astVariableBlockType.get();
 
-      if (blockAst.isState()) {
+    if (this.varBlock.isPresent()) {
+
+      if (varBlock.get().isState()) {
         addVariablesFromDeclaration(
             astDeclaration,
             currentTypeSymbol.get(),
-            astAliasDeclaration.orElse(null),
             STATE);
       }
-      else if (blockAst.isParameters ()) {
+      else if (varBlock.get().isParameters ()) {
         addVariablesFromDeclaration(
             astDeclaration,
             currentTypeSymbol.get(),
-            astAliasDeclaration.orElse(null),
             VariableSymbol.BlockType.PARAMETERS);
       }
-      else if (blockAst.isInternals()) {
+      else if (varBlock.get().isInternals()) {
         addVariablesFromDeclaration(
             astDeclaration,
             currentTypeSymbol.get(),
-            astAliasDeclaration.orElse(null),
             VariableSymbol.BlockType.INTERNALS);
       }
       else {
         addVariablesFromDeclaration(
             astDeclaration,
             currentTypeSymbol.get(),
-            astAliasDeclaration.orElse(null),
             VariableSymbol.BlockType.LOCAL);
       }
-
 
     }
     else { // the declaration is defined inside a method
       addVariablesFromDeclaration(
           astDeclaration,
           currentTypeSymbol.get(),
-          astAliasDeclaration.orElse(null),
           VariableSymbol.BlockType.LOCAL);
 
     }
@@ -580,40 +538,32 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   /**
    * Adds variables from a declaration. Distinguishes between the place of the declaration, e.g.
    * local, state, ...
-   * @param aliasDeclAst Nullable declaration which can be empty if a variable defined in a function
-   *                     and not in a variable block.
    */
   private void addVariablesFromDeclaration(
       final ASTDeclaration astDeclaration,
       final NeuronSymbol currentTypeSymbol,
-      final ASTAliasDecl aliasDeclAst,
       final VariableSymbol.BlockType blockType) {
-    final String typeName =  computeTypeName(astDeclaration.getDatatype());
-    Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
 
     for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible
 
       final VariableSymbol var = new VariableSymbol(varName);
       var.setAstNode(astDeclaration);
-      var.setType(type.get());
-      var.setDeclaringType(currentTypeSymbol);
+      final String typeName =  computeTypeName(astDeclaration.getDatatype());
+      var.setType(PredefinedTypes.getType(typeName));
 
-      boolean isRecordableVariable = blockType == STATE || (aliasDeclAst != null  && aliasDeclAst.isRecordable());
+      boolean isRecordableVariable = blockType == STATE || astDeclaration.isRecordable();
 
       if (isRecordableVariable) {
         // otherwise is set to false.
         var.setRecordable(true);
       }
 
-      if (aliasDeclAst != null) {
-        if (aliasDeclAst.isFunction()) {
-          var.setAlias(true);
-        }
+      if (astDeclaration.isFunction()) {
+        var.setFunction(true);
+      }
 
-        if (astDeclaration.getExpr().isPresent()) {
-          var.setDeclaringExpression(astDeclaration.getExpr().get());
-        }
-
+      if (astDeclaration.getExpr().isPresent()) {
+        var.setDeclaringExpression(astDeclaration.getExpr().get());
       }
 
       if (astDeclaration.getSizeParameter().isPresent()) {
@@ -636,9 +586,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     var.setAstNode(astShape);
     var.setType(type);
-    var.setDeclaringType(currentTypeSymbol.get());
     var.setRecordable(true);
-    var.setAlias(false);
+    var.setFunction(false);
     var.setDeclaringExpression(astShape.getRhs());
     var.setBlockType(VariableSymbol.BlockType.SHAPE);
 

@@ -86,9 +86,9 @@ neuron iaf_psc_delta_neuron:
     tau_syn ms = 2ms       # Time constant of synaptic current.
     E_L     mV = -70mV     # Resting membrane potential in mV.
     I_e     pA = 0pA       # Constant input current in pA.
-    function V_reset mV = -70 - E_L # Reset potential of the membrane.
-    function Theta   mV = -55 - E_L # Spike threshold .
-    V_min mV = -inf              # Absolute lower value for the membrane potential
+    function V_reset mV = -70 mV - E_L # Reset potential of the membrane.
+    function Theta   mV = -55 mV - E_L # Spike threshold .
+    V_min mV = -inf * 1 mV           # Absolute lower value for the membrane potential
     with_refr_input boolean = false # If true, do not discard input during  refractory period. Default: false.
   end
 
@@ -123,9 +123,9 @@ neuron iaf_psc_delta_neuron:
       # read spikes from buffer and accumulate them, discounting
       # for decay until end of refractory period
       if with_refr_input:
-        refr_spikes_buffer += spikes * exp(-r * h / tau_m)
-      else:
-        spikes.get_sum() # clear buffer entry, ignore spike
+        refr_spikes_buffer += spikes * exp(-r * h / tau_m) * 1 mV
+      #else:
+      #  spikes = 0 # clear buffer entry, ignore spike
       end
       r -= 1
     end

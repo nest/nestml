@@ -74,7 +74,7 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
   Var_Block implements BodyElement =
     (["state"]|["parameters"]|["internals"])
     BLOCK_OPEN
-      (AliasDecl | NEWLINE)*
+      (Declaration | NEWLINE)*
     BLOCK_CLOSE;
 
   /** ASTDynamics a special function definition:
@@ -103,19 +103,6 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
     BLOCK_OPEN
       OdeDeclaration
     BLOCK_CLOSE;
-
-
-  /** ASTVar_Block represents a block with variables, e.g.:
-
-    @attribute hide is true iff. declaration is not trackable.
-    @attribute function is true iff. declaration is an function.
-    @attribute declaration embeds the SPL variable declaration.
-    @attribute invariants List with optional invariants.
-  */
-  AliasDecl =
-    (["recordable"] )? (["function"])?
-    Declaration
-    ("[[" invariant:Expr "]]")?;
 
   /** ASTInput represents the input block:
     input:

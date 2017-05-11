@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static de.se_rwth.commons.Names.getQualifiedName;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 
 /**
  * Produces the concrete textual representation from the AST.
@@ -28,11 +29,11 @@ import static de.se_rwth.commons.Names.getQualifiedName;
  * @author plotnikov
  */
 public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
-  private final ExpressionsPrettyPrinter expressionsPrettyPrinter;
+  private final ExpressionsPrettyPrinter expressionsPrinter;
   private ASTSPLNode root;
 
   protected SPLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrettyPrinter) {
-    this.expressionsPrettyPrinter = expressionsPrettyPrinter;
+    this.expressionsPrinter = expressionsPrettyPrinter;
   }
 
   public void print(final ASTSPLNode node) {
@@ -57,7 +58,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   @Override
   public void visit(final ASTIF_Clause astIfClause) {
     print("if" + " ");
-    final String conditionExpression = expressionsPrettyPrinter.print(astIfClause.getExpr());
+    final String conditionExpression = expressionsPrinter.print(astIfClause.getExpr());
     print(conditionExpression);
   }
 
@@ -85,7 +86,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   @Override
    public void visit(final ASTELIF_Clause astElifNode) {
     print("elif" + " ");
-    final String conditionExpression = expressionsPrettyPrinter.print(astElifNode.getExpr());
+    final String conditionExpression = expressionsPrinter.print(astElifNode.getExpr());
     print(conditionExpression);
   }
 
@@ -140,7 +141,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    */
   private void printAssignment(final ASTAssignment astAssignment) {
     final String lhsVariableName = astAssignment.getLhsVarialbe().toString();
-    final String rhsOfAssignment = expressionsPrettyPrinter.print(astAssignment.getExpr());
+    final String rhsOfAssignment = expressionsPrinter.print(astAssignment.getExpr());
     if (astAssignment.isAssignment()) {
       print(lhsVariableName + " = " + rhsOfAssignment);
     }
@@ -171,7 +172,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     for (int argumentIndex = 0; argumentIndex < functionArguments.size(); ++argumentIndex) {
       boolean isLastFunctionArgument = (argumentIndex + 1) == functionArguments.size();
       final ASTExpr currentArgument = functionArguments.get(argumentIndex);
-      print(expressionsPrettyPrinter.print(currentArgument));
+      print(expressionsPrinter.print(currentArgument));
       if (!isLastFunctionArgument) {
         print(", ");
       }
@@ -186,7 +187,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   private void printReturnStatement(final ASTReturnStmt astReturnStmt) {
 
     if (astReturnStmt.getExpr().isPresent()) {
-      final String returnExpressionAsString = expressionsPrettyPrinter.print(astReturnStmt.getExpr().get());
+      final String returnExpressionAsString = expressionsPrinter.print(astReturnStmt.getExpr().get());
       print("return " + returnExpressionAsString);
     }
     else {
@@ -200,10 +201,36 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
    * Declaration = vars:Name ("," vars:Name)* (type:QualifiedName | primitiveType:PrimitiveType) ( "=" Expr )? ;
    */
   public void printDeclaration(final ASTDeclaration astDeclaration) {
+    printDeclarationComments(astDeclaration);
+    printAliasPrefix(astDeclaration);
     printDeclarationVariables(astDeclaration);
     printDeclarationType(astDeclaration);
     printOptionalInitializationExpression(astDeclaration);
+    printInvariants(astDeclaration);
+  }
 
+  private void printAliasPrefix(final ASTDeclaration astAliasDecl) {
+    if (astAliasDecl.isRecordable()) {
+      print("recordable ");
+    }
+
+    if (astAliasDecl.isFunction()) {
+      print("function ");
+    }
+  }
+
+  private void printInvariants(final ASTDeclaration astAliasDecl) {
+    if (astAliasDecl.getInvariant().isPresent()) {
+      print("[[");
+      final ASTExpr astInvariant = astAliasDecl.getInvariant().get();
+      print(expressionsPrinter.print(astInvariant));
+      print("]]");
+
+    }
+  }
+
+  private void printDeclarationComments(final ASTDeclaration astDeclaration) {
+    astDeclaration.getComments().forEach(c -> println("# " + c));
   }
 
   private void printDeclarationVariables(final ASTDeclaration astDeclaration) {
@@ -222,7 +249,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   }
 
   private void printDeclarationType(final ASTDeclaration astDeclaration) {
-    print(AstUtils.computeTypeName(astDeclaration.getDatatype(),true));
+    print(deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astDeclaration.getDatatype())));
     if (astDeclaration.getSizeParameter().isPresent()) {
       print(" [" + astDeclaration.getSizeParameter().get() + "]");
     }
@@ -231,7 +258,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
 
   private void printOptionalInitializationExpression(final ASTDeclaration astDeclaration) {
     if (astDeclaration.getExpr().isPresent()) {
-      print(" = " + expressionsPrettyPrinter.print(astDeclaration.getExpr().get()));
+      print(" = " + expressionsPrinter.print(astDeclaration.getExpr().get()));
     }
 
   }
@@ -245,9 +272,9 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     print("for ");
     print(astForStmt.getVar());
     print(" in ");
-    print(expressionsPrettyPrinter.print(astForStmt.getFrom()));
+    print(expressionsPrinter.print(astForStmt.getFrom()));
     print(" ... ");
-    print(expressionsPrettyPrinter.print(astForStmt.getTo()));
+    print(expressionsPrinter.print(astForStmt.getTo()));
     if (astForStmt.getStep().isPresent()) {
       print(" step ");
       print(typesPrinter().prettyprint(astForStmt.getStep().get()));
@@ -261,7 +288,7 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
   @Override
   public void visit(final ASTWHILE_Stmt astWhileStmt) {
     print("while ");
-    print(expressionsPrettyPrinter.print(astWhileStmt.getExpr()));
+    print(expressionsPrinter.print(astWhileStmt.getExpr()));
   }
 
   @Override

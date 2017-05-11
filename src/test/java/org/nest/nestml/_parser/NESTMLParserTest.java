@@ -5,6 +5,8 @@ import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.spl._ast.ASTDeclaration;
+import org.nest.utils.AstUtils;
 import org.nest.utils.LogHelper;
 
 import java.io.IOException;
@@ -29,6 +31,8 @@ public class NESTMLParserTest extends ModelbasedTest {
 
   private static final String TEST_MODEL2 = "src/test/resources/"
       + "command_line_base/sub/cli_example.nestml";
+
+  private static final String TEST_MODEL_COMMENTS = "src/test/resources/comments/iaf_neuron.nestml";
 
   private static final String TEST_MODEL_PATH = "src/test/resources/command_line_base/";
 
@@ -83,8 +87,7 @@ public class NESTMLParserTest extends ModelbasedTest {
   @Test
   public void testFasleArtifactHandling() throws IOException {
 
-    final Optional<ASTNESTMLCompilationUnit> wrongFolderStructure
-        = parser.parse("falseFileExtension.nestml");
+    final Optional<ASTNESTMLCompilationUnit> wrongFolderStructure = parser.parse("falseFileExtension.nestml");
     assertFalse(wrongFolderStructure.isPresent());
   }
 
@@ -103,4 +106,17 @@ public class NESTMLParserTest extends ModelbasedTest {
     scopeCreator.runSymbolTableCreator(ast.get());
     assertTrue(LogHelper.getModelFindings(Log.getFindings()).size() > 0);
   }
+
+  @Test
+  public void testCommentsExtraction() throws IOException {
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse(TEST_MODEL_COMMENTS);
+    assertTrue(ast.isPresent());
+    final List<ASTDeclaration> declarations = AstUtils.getAll(ast.get(), ASTDeclaration.class);
+    for (final ASTDeclaration declaration:declarations) {
+      assertTrue(declaration.getComments().size() == 2);
+      declaration.getComments().forEach(System.out::println);
+    }
+
+  }
+
 }

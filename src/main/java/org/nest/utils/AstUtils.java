@@ -31,7 +31,6 @@ import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._ast.ASTSPLNode;
-import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -39,7 +38,6 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units._visitor.UnitsSIVisitor;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.io.File;
 import java.io.IOException;
@@ -169,7 +167,7 @@ public final class AstUtils {
     return names.stream()
         .filter(name -> !name.contains("'"))
         .map(variableName -> resolve(variableName, scope)) // the variable existence checked by the context condition
-        .filter(VariableSymbol::isAlias)
+        .filter(VariableSymbol::isFunction)
         .collect(toList());
   }
 
@@ -295,27 +293,19 @@ public final class AstUtils {
   }
 
   // TODO It works only with multiline comments
-  public static String printComments(final ASTNode astNeuron) {
+  public static String printComments(final ASTNode astNode) {
     final StringBuilder output = new StringBuilder();
-    astNeuron.get_PreComments().forEach(comment -> output.append(comment.getText()));
-    astNeuron.get_PostComments().forEach(comment -> output.append(comment.getText()));
+    astNode.get_PreComments().forEach(comment -> output.append(comment.getText()));
+    astNode.get_PostComments().forEach(comment -> output.append(comment.getText()));
     return output.toString();
   }
 
-  /**
-   * Wrapper around computeTypeName that is used exclusively in generation.
-   * Calculates unit name from the serialized representation after the wrapped call
-   *
-   */
-  public static String computeTypeName(final ASTDatatype astDatatype){ //TODO: Better solution
-    return computeTypeName(astDatatype, false);
-  }
+
   /**
    * Computes the typename for the declaration ast. It is defined in one of the grammar
    * alternatives.
-   * TODO: must be better type! Why do I shift it?
    */
-  public static String computeTypeName(final ASTDatatype astDatatype, boolean isCodeGeneration) {
+  public static String computeTypeName(final ASTDatatype astDatatype) {
     String typeName = null;
     if (astDatatype.isBoolean()) {
       typeName = "boolean";
@@ -334,16 +324,10 @@ public final class AstUtils {
     }
     else if (astDatatype.getUnitType().isPresent()) {
       final ASTUnitType unitType = astDatatype.getUnitType().get();
-      if(isCodeGeneration){
-        if(unitType.getSerializedUnit() == null){
-          UnitsSIVisitor.convertSiUnitsToSignature(unitType);
-        }
-        typeName = UnitRepresentation.getBuilder().serialization(unitType.getSerializedUnit()).build().prettyPrint();
+      if(unitType.getSerializedUnit() == null){
+        UnitsSIVisitor.convertSiUnitsToSignature(unitType);
       }
-      else{
-        typeName = unitType.getSerializedUnit(); //guaranteed to exist after successful NESTMLParser run.
-      }
-
+      typeName = unitType.getSerializedUnit();
     }
     else {
       checkState(false, "Is not possible through the grammar construction.");

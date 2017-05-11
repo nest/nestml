@@ -47,9 +47,9 @@ public class MemberVariableDefinedMultipleTimes implements
 
   private void check(ASTBody body) {
     Map<String, SourcePosition> varNames = Maps.newHashMap();
-    body.getStateDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    body.getParameterDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    body.getInternalDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
+    body.getStateDeclarations().forEach(declaration -> addNames(varNames, declaration));
+    body.getParameterDeclarations().forEach(declaration -> addNames(varNames, declaration));
+    body.getInternalDeclarations().forEach(declaration -> addNames(varNames, declaration));
     body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
     body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
 
