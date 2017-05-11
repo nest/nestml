@@ -119,6 +119,6 @@ public class VariableDoesNotExist implements
   }
 
   private boolean exists(final String variableName, final Scope scope) {
-    return scope.resolve(variableName, VariableSymbol.KIND).isPresent();
+    return scope.resolveMany(variableName, VariableSymbol.KIND).size() > 0;
   }
 }

@@ -600,12 +600,12 @@ public class NestmlCoCosTest {
         VariableDoesNotExist.ERROR_CODE);
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equations/invalidEquations.nestml");
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoChecker,
-        VariableDoesNotExist.ERROR_CODE,
-        6);
-    
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString(), Paths.get(TEST_MODELS_FOLDER));
+    assertTrue(ast.isPresent());
+    scopeCreator.runSymbolTableCreator(ast.get());
+    Integer errorsFound = countErrorsByPrefix(VariableDoesNotExist.ERROR_CODE, getFindings());
+    assertEquals(Integer.valueOf(3), errorsFound);
+
   }
 
   @Test
@@ -667,14 +667,14 @@ public class NestmlCoCosTest {
     scopeCreator.runSymbolTableCreator(ast.get());
 
     // The errors are issued d
-    Integer errorsFound = countErrorsByPrefix(NestmlErrorStrings.code(equationsOnlyForStateVariables), getFindings());
-    assertEquals(Integer.valueOf(2), errorsFound);
+    //Integer errorsFound = countErrorsByPrefix(NestmlErrorStrings.code(equationsOnlyForStateVariables), getFindings());
+    //assertEquals(Integer.valueOf(2), errorsFound);
 
-    /*checkModelAndAssertWithErrors(
+    checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        EquationsOnlyForStateVariables.ERROR_CODE,
-        2);*/
+        NestmlErrorStrings.code(equationsOnlyForStateVariables),
+        2);
 
   }
 

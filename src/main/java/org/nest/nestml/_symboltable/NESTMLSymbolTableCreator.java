@@ -132,12 +132,18 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
     final NestmlCoCosManager nestmlCoCosManager = new NestmlCoCosManager();
-    final List<Finding> findings = nestmlCoCosManager.checkStateVariables(astNeuron);
+
+    if (astNeuron.getBody().getODEBlock().isPresent()) {
+      addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
+    }
+
+    final List<Finding> findings = nestmlCoCosManager.checkThatVariablesDefinedOnce(astNeuron);
     if (findings.isEmpty()) {
       if (astNeuron.getBody().getODEBlock().isPresent()) {
-        addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
 
-        final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkStateVariables(astNeuron);
+
+        final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkThatVariablesDefinedOnce(astNeuron);
+
         if (afterAddingDerivedVariables.isEmpty()) {
           assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
           markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
@@ -214,29 +220,33 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    *
    */
   private void addDerivedVariable(final ASTEquation ode) {
+    checkState(currentScope().isPresent());
     final String variableName = getNameOfLHS(ode);
     final String originalVarName = ode.getLhs().getName().toString(); //name of the original variable e.g. no trailing '
 
-    checkState(currentScope().isPresent());
     final Optional<VariableSymbol> originalSymbol = currentScope().get().resolve(originalVarName,VariableSymbol.KIND);
-    checkState(originalSymbol.isPresent());//symbol must exist here
-    final TypeSymbol originalType = originalSymbol.get().getType();
-    UnitRepresentation derivedUnit = UnitRepresentation.getBuilder().serialization(originalType.getName()).
-        ignoreMagnitude(true).build().deriveT(ode.getLhs().getDifferentialOrder().size()-1);
-    final TypeSymbol derivedType = PredefinedTypes.getType(derivedUnit.serialize());
+    if (originalSymbol.isPresent()) {
+      final TypeSymbol originalType = originalSymbol.get().getType();
+      UnitRepresentation derivedUnit = UnitRepresentation.getBuilder().serialization(originalType.getName()).
+          ignoreMagnitude(true).build().deriveT(ode.getLhs().getDifferentialOrder().size() - 1);
+      final TypeSymbol derivedType = PredefinedTypes.getType(derivedUnit.serialize());
 
-    final VariableSymbol var = new VariableSymbol(variableName);
+      final VariableSymbol var = new VariableSymbol(variableName);
 
-    var.setAstNode(ode.getLhs());
-    var.setType(derivedType);
-    var.setRecordable(true);
-    var.setFunction(false);
+      var.setAstNode(ode.getLhs());
+      var.setType(derivedType);
+      var.setRecordable(true);
+      var.setFunction(false);
 
-    var.setBlockType(VariableSymbol.BlockType.STATE);
+      var.setBlockType(VariableSymbol.BlockType.STATE);
 
-    addToScopeAndLinkWithNode(var, ode);
+      addToScopeAndLinkWithNode(var, ode);
 
-    trace("Add new variable derived from the ODE: '" + var.getFullName() + "'.", LOGGER_NAME);
+      trace("Add new variable derived from the ODE: '" + var.getFullName() + "'.", LOGGER_NAME);
+    }
+    else {
+      Log.warn(LOGGER_NAME + ": " + String.format("The state %s variable is undefined", originalVarName));
+    }
   }
 
   private void assignOdeToVariables(final ASTOdeDeclaration astOdeDeclaration) {

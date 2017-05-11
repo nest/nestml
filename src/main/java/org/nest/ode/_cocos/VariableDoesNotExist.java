@@ -47,19 +47,19 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
           checkVariableByName(oderAlias.getVariableName(), node);
           AstUtils
               .getAll(oderAlias.getExpr(), ASTVariable.class)
-              .forEach(variable -> checkVariableByName(variable.toString(), node));
+              .forEach(variable -> checkVariableByName(variable.toString(), variable));
         }
     );
     node.getShapes().forEach(
         ode-> AstUtils
             .getAll(ode.getRhs(), ASTVariable.class)
-            .forEach(variable -> checkVariableByName(variable.toString(), node))
+            .forEach(variable -> checkVariableByName(variable.toString(), variable))
     );
     node.getEquations().forEach(
         ode-> {
           checkVariableByName(ode.getLhs());
           AstUtils.getAll(ode.getRhs(), ASTVariable.class)
-                  .forEach(variable -> checkVariableByName(variable.toString(), node)); // it can be a D'' variable
+                  .forEach(variable -> checkVariableByName(variable.toString(), variable)); // it can be a D'' variable
         }
 
     );
@@ -89,7 +89,7 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
   }
 
   private boolean exists(final String variableName, final Scope scope) {
-    return scope.resolve(variableName, VariableSymbol.KIND).isPresent();
+    return scope.resolveMany(variableName, VariableSymbol.KIND).size() > 0;
   }
 
 }

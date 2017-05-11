@@ -61,7 +61,7 @@ public class NestmlFrontendIntegrationTest {
   @Test
   public void testJsonOutput() {
     final String[] args = new String[] {
-        "models",
+        "models/aeif_cond_alpha.nestml",
         "--target", outputPath.toString(),
         "--target", outputPath.toString(),
         "--dry-run"};

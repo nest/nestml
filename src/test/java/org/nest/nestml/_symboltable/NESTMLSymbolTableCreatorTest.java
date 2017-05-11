@@ -39,8 +39,10 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
   private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/_symboltable/"
       + "importingNeuron.nestml";
 
-  private static final String MODEL_WITH_INHERITANCE =
-      "src/test/resources/inheritance/iaf_neuron.nestml";
+  private static final String MODEL_WITH_INHERITANCE = "src/test/resources/inheritance/iaf_neuron.nestml";
+
+  private static final String MODEL_WITH_MULTIPLE_VARIABLES ="src/test/resources/org/nest/nestml/_symboltable/"
+                                                             + "multipleVariables.nestml";
 
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources"));
 
@@ -321,5 +323,11 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     final List<VariableSymbol> spikeBuffers = root.getNeurons().get(0).getBody().getSpikeBuffers();
     assertTrue(spikeBuffers.size() == 1);
     assertTrue(spikeBuffers.get(0).isConductanceBased());
+  }
+
+  @Test
+  public void testMultipleVariables() throws IOException {
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_WITH_MULTIPLE_VARIABLES);
+    scopeCreator.runSymbolTableCreator(root); // must run without an exception
   }
 }

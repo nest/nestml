@@ -1,0 +1,127 @@
+component TestComponent:
+end
+
+neuron iaf_neuron:
+  use TestComponent as TestRef
+
+  state:
+    y0 mV
+    y1 mV
+    y2 mV
+    y3 mV
+    y3 mV # Error that must be caught
+    # Membrane potential.
+    function V_m mV = y3 + E_L
+  end
+
+  equations:
+    y0' = y0 + 1
+    y0'' = y0' + 1
+    recordable function y3_tmp real = cond_sum(y1, spikeBuffer)
+    y3' = y3_tmp
+  end
+
+  parameters:
+    # Capacity of the membrane
+    recordable C_m       pF = 250
+    # Membrane time constant.
+    tau_m     ms = 10
+    # Time constant ofE synaptic current.
+    tau_syn ms = 2
+    # Refractory period.
+    t_ref    ms = 2
+    # Resting potential.
+    E_L      mV = -70
+    delta_V_reset mV = -70 - E_L
+    Theta   mV = -55 - E_L
+    # External current.
+    I_e     pA = 0
+
+    # some aliases
+    # Threshold.
+    function V_th mV = Theta + E_L
+    # Reset value of the membrane potential.
+    recordable function  V_reset mV = delta_V_reset + E_L
+    # invariant V_reset >= Theta
+
+    # tests the correct scoping rules
+    scopeTestVar string = 0
+  end
+
+  internals:
+    h   ms   = resolution()
+    P11 real = e ** (-h / tau_syn)
+    P22 real = P11
+    P33 real = e ** (-h / tau_m)
+    P21 real = h * P11
+    P30 real = 1 / C_m * (1 - P33) * tau_m
+    P31 real = 1 / C_m * ((P11 - P33) / (-1/tau_syn - -1/tau_m) - h * P11) / (-1/tau_m - -1/tau_syn)
+    P32 real = 1 / C_m * (P33 - P11) / (-1/tau_m - -1/tau_syn)
+
+    PSCInitialValue  mV = 1 * e / tau_syn
+    RefractoryCounts integer = steps(t_ref)
+    r integer
+  end
+
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
+
+  output: spike
+
+  update:
+    a integer
+    a integer # Error that must be caught
+    if r == 0: # not refractory
+        y3 = P30 * (y0 + I_e) + P31 * y1 + P32 * y2 + P33 * y3
+    else:
+        r = r - 1
+    end
+
+    # alpha shape PSCs
+    y2 = P21 * y1 + P22 * y2
+    y1 *= P11
+
+    # Apply spikes delivered in this step: The spikes arriving at T+1 have an
+    # immediate effect on the state of the neuron
+    y1 += PSCInitialValue * spikeBuffer.get_sum(t)
+
+    # threshold crossing
+    if y3 >= Theta:
+
+        r = RefractoryCounts
+        y3 = delta_V_reset
+
+        emit_spike()
+    end
+
+    # set new input current
+    y0 = currentBuffer.get_sum(t)
+    newVarInMethod real = 1.0
+  end
+
+  function set_V_th(v mV):
+    Theta = v - E_L
+  end
+
+  function set_V_reset(v mV):
+    delta_V_reset = v - E_L
+  end
+
+  function set_V_m(v mV):
+    y3 = v - E_L
+  end
+
+  function set_V_m(v mV):
+    y3 = v - E_L
+  end
+
+  function scopeTestingFunction(v mV):
+    scopeTestVar integer = 0 # variable is used in a test
+    if true:
+       scopeTestVar real = 0.0
+    end
+  end
+
+end
