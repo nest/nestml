@@ -4,6 +4,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumericPrimitive;
@@ -52,8 +53,27 @@ public class ConditionVisitor implements CommonsVisitor{
         return;
       }
 
-      //Both are units -> real
+      //Both are units -> try to recover, otherwise real
       if(isUnit(ifTrue)&&isUnit(ifNot)){
+        UnitRepresentation ifNotRep = UnitRepresentation.getBuilder().serialization(ifTrue.getName()).build();
+        UnitRepresentation ifTrueRep = UnitRepresentation.getBuilder().serialization(ifNot.getName()).build();
+        if(ifTrueRep.equalBase(ifNotRep)) { //matching base, recover
+          //Determine the difference in magnitude
+          int magDiff = ifNotRep.getMagnitude() - ifTrueRep.getMagnitude();
+
+          //replace left expression with multiplication
+          expr.setIfTrue(AstUtils.createSubstitution(expr.getIfTrue().get(),magDiff));
+
+          //revisit current sub-tree with substitution
+          ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+          expr.accept(expressionTypeVisitor);
+
+          //drop warning about implicit conversion
+          Log.warn(ERROR_CODE +" "+AstUtils.print(expr.get_SourcePositionStart()) + " : Implicit conversion from "+ifTrueRep.prettyPrint()+" to "+ifNotRep.prettyPrint());
+          return;
+        }
+
+
         final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
             "Mismatched conditional alternatives "+ifTrue.prettyPrint()+" and "+
                 ifNot.prettyPrint()+"-> Assuming real";

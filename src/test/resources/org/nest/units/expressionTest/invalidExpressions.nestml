@@ -55,9 +55,7 @@ neuron invalidExpressionTest:
     V1 = "string"/R1            #Error: Mirrored ^  
 
     #If we change how functions are resolved, some of the Errors could potentially be Warnings
-    V1 = foo(A1,R1)             #Error: Cannot resolve function 
-    V1 = foo(1,R1)              #Error: Cannot resolve function 
-    V1 = foo(A1,R1)             #Error: Cannot resolve function 
+    V1 = foo(1,R1)              #Error: Cannot resolve function
     Int = foo(3A,2Ohm)          #Error: Returnvalue Unit, integer expected 
 
     V1 = 2 + 2V                 #Warning: Addition of integer and Unit ->assume Unit

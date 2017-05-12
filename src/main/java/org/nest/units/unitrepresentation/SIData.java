@@ -160,7 +160,6 @@ public class SIData {
     baseRepresentations.put("A",ampere);
 
     prefixMagnitudes.put("da",1);
-    prefixMagnitudes.put("h",2);
     prefixMagnitudes.put("k",3);
     prefixMagnitudes.put("M",6);
     prefixMagnitudes.put("G",9);
@@ -171,7 +170,6 @@ public class SIData {
     prefixMagnitudes.put("Y",24);
 
     prefixMagnitudes.put("d",-1);
-    prefixMagnitudes.put("c",-2);
     prefixMagnitudes.put("m",-3);
     prefixMagnitudes.put("mu",-6);
     prefixMagnitudes.put("n",-9);

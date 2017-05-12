@@ -22,6 +22,10 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
  * @author plotnikov, traeder
  */
 public class UnitRepresentation implements Comparable<UnitRepresentation>{
+  private int magnitude;
+  private int K, s, m, g, cd, mol, A;
+  private boolean ignoreMagnitude = false;
+
 
   /**
    * Helper class for organizing printing
@@ -253,9 +257,14 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   }
 
   private final String ERROR_CODE = "NESTML_UnitRepresentation: ";
-  private int magnitude;
-  private int K, s, m, g, cd, mol, A;
-  private boolean ignoreMagnitude = false;
+
+  public boolean hasBiggerMagnitudeThan(UnitRepresentation other) {
+    return this.magnitude > other.magnitude;
+  }
+
+  public int getMagnitude() {
+    return magnitude;
+  }
 
   /**
    *
@@ -263,16 +272,6 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
    */
   public static Builder getBuilder(){
     return new Builder();
-  }
-
-  /**
-   * Sets the magnitude. Only used by {@link org.nest.units._visitor.ODEPostProcessingVisitor ODEPostProcessingVisitor}
-   * to aid in formatting warning messages.
-   *
-   * @param magnitude should be 0 or evenly divisible by 3 in order to keep the unit name printable for warnings/errors
-   */
-  public void setMagnitude(int magnitude) {
-    this.magnitude = magnitude;
   }
 
   /**
@@ -443,6 +442,12 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     UnitRepresentation denominator = getBuilder().s(order).magnitude(-3*order).build();
     result = result.divideBy(denominator);
     return result;
+  }
+
+  public boolean equalBase(UnitRepresentation other){
+    UnitRepresentation noMagThis = getBuilder().other(this).magnitude(0).build();
+    UnitRepresentation noMagOther = getBuilder().other(other).magnitude(0).build();
+    return noMagThis.equals(noMagOther);
   }
 
   private UnitRepresentation(int K, int s, int m, int g, int cd, int mol, int A, int magnitude,boolean ignoreMagnitude) {
