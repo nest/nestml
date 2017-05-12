@@ -60,21 +60,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
 
-
-  /**
-   * Grammar:
-   * Import = "import" QualifiedName ([star:".*"])? (";")?;
-   */
-  @Override
-  public void visit(final ASTImport astImport) {
-    final String importName = Names.getQualifiedName(astImport.getQualifiedName().getParts());
-    print("import " + importName);
-    if (astImport.isStar()) {
-      print(".*");
-    }
-    println();
-  }
-
   /**
    * Grammar:
    * Neuron = "neuron" Name Body;
@@ -84,18 +69,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     printCommentsIfPresent(astNeuron);
 
     print("neuron " + astNeuron.getName());
-    astNeuron.getBase().ifPresent(baseNeuron -> print(" extends " + baseNeuron));
-  }
-
-
-  /**
-   * Grammar:
-   * Neuron = "neuron" Name Body;
-   */
-  @Override
-  public void visit(final ASTComponent astComponent) {
-    printCommentsIfPresent(astComponent);
-    print("component " + astComponent.getName());
   }
 
   /**
@@ -117,15 +90,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   public void endVisit(final ASTBody astBody) {
     unindent();
     println(BLOCK_CLOSE);
-  }
-
-  /**
-   * USE_Stmt implements BodyElement = "use" name:QualifiedName "as" function:Name;
-   */
-  @Override
-  public void visit(final ASTUSE_Stmt astUseStmt) {
-    final String referencedName = Names.getQualifiedName(astUseStmt.getName().getParts());
-    println("use " + referencedName + " as " + astUseStmt.getAlias());
   }
 
   @Override

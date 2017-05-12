@@ -1,17 +1,15 @@
-component GetSet:
+neuron GetSet:
   internals:
     a mV
     function b integer
   end
-  function set_a(): # no error
+  function set_a_(): # no error
   end
 
-  function get_b(x mV, bs integer): # no error
+  function get_b_(x mV, bs integer): # no error
   end
 
-  function set_b(): # no error
+  function get_instance(): # no error
   end
 
-  function set_b(x mV): # no error
-  end
 end

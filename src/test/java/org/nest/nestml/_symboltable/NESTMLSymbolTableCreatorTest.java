@@ -36,13 +36,6 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
   private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/_symboltable/"
       + "iaf_neuron.nestml";
-  private static final String USING_NEURON_FILE = "src/test/resources/org/nest/nestml/_symboltable/"
-      + "importingNeuron.nestml";
-
-  private static final String MODEL_WITH_INHERITANCE = "src/test/resources/inheritance/iaf_neuron.nestml";
-
-  private static final String MODEL_WITH_MULTIPLE_VARIABLES ="src/test/resources/org/nest/nestml/_symboltable/"
-                                                             + "multipleVariables.nestml";
 
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources"));
 
@@ -52,7 +45,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
     Collection<TypeSymbol> nestmlTypes = modelScope.resolveLocally(NeuronSymbol.KIND);
-    assertEquals(2, nestmlTypes.size());
+    assertEquals(1, nestmlTypes.size());
 
     final Optional<NeuronSymbol> neuronTypeOptional = modelScope.resolve(
         "iaf_neuron",
@@ -72,15 +65,6 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     final Optional<VariableSymbol> Dy0Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y0'", VariableSymbol.KIND);
     assertTrue(Dy0Varialbe.isPresent());
     assertTrue(Dy0Varialbe.get().definedByODE());
-
-    final Optional<NeuronSymbol> testComponentOptional = modelScope.resolve(
-        "TestComponent",
-        NeuronSymbol.KIND);
-    assertTrue(testComponentOptional.isPresent());
-
-    final Optional<TypeSymbol> testComponentFromGlobalScope = scopeCreator.getGlobalScope().resolve(
-        "org.nest.nestml._symboltable.iaf_neuron.TestComponent", NeuronSymbol.KIND);
-    assertTrue(testComponentFromGlobalScope.isPresent());
 
     final Optional<VariableSymbol> C_mVarialbe = neuronTypeOptional.get().getSpannedScope().resolve("C_m", VariableSymbol.KIND);
     assertTrue(C_mVarialbe.isPresent());
@@ -229,22 +213,6 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertFalse(Cond_sumOptional.isPresent());
   }
 
-  @Test
-  public void testResolvingSeparateModels() throws IOException {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(USING_NEURON_FILE);
-    final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
-    final Optional<NeuronSymbol> usingNeuronSymbol = modelScope
-        .resolve("org.nest.nestml._symboltable.importingNeuron.UsingNeuron", NeuronSymbol.KIND);
-    assertTrue(usingNeuronSymbol.isPresent());
-    final Scope neuronScope = usingNeuronSymbol.get().getSpannedScope();
-
-    final Optional<UsageSymbol> usageSymbol = neuronScope.resolve("TestReference", UsageSymbol.KIND);
-    assertTrue(usageSymbol.isPresent());
-    assertNotNull(usageSymbol.get().getReferencedSymbol().getName());
-
-    final NeuronSymbol componentSymbol = usageSymbol.get().getReferencedSymbol();
-    assertEquals(NeuronSymbol.Type.COMPONENT, componentSymbol.getType());
-  }
 
   @Test
   public void testResolvingOfPredefinedFunctions() throws IOException {
@@ -290,31 +258,6 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
   }
 
   @Test
-  public void testResolvingFromSupertype() throws IOException {
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources/inheritance"));
-    final NESTMLParser nestmlParser = new NESTMLParser(Paths.get("src/test/resources/inheritance"));
-    final ASTNESTMLCompilationUnit root = nestmlParser.parse(MODEL_WITH_INHERITANCE).get();
-    assertEquals(1, root.getNeurons().size());
-    scopeCreator.runSymbolTableCreator(root);
-    ASTNeuron astNeuron = root.getNeurons().get(0);
-    assertTrue( astNeuron.getSymbol().isPresent());
-    assertTrue( astNeuron.getSymbol().get() instanceof NeuronSymbol);
-    final NeuronSymbol neuronSymbol = (NeuronSymbol) astNeuron.getSymbol().get();
-    Optional<VariableSymbol> internalVariable = neuronSymbol.getSpannedScope().resolve("tau_m", VariableSymbol.KIND);
-    assertTrue(internalVariable.isPresent());
-
-    Optional<VariableSymbol> importedVariable = neuronSymbol.getSpannedScope().resolve("r", VariableSymbol.KIND);
-    assertTrue(importedVariable.isPresent());
-
-    final Optional<ASTAssignment> astAssignment = AstUtils.getAny(root, ASTAssignment.class);
-    assertTrue(astAssignment.isPresent());
-    final Optional<VariableSymbol> fromAssignment = astAssignment.get().getEnclosingScope().get()
-        .resolve("r", VariableSymbol.KIND);
-
-    assertTrue(fromAssignment.isPresent());
-  }
-
-  @Test
   public void testRecognitionOfConductanceBasedBuffers() {
     final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
@@ -325,9 +268,4 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertTrue(spikeBuffers.get(0).isConductanceBased());
   }
 
-  @Test
-  public void testMultipleVariables() throws IOException {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_WITH_MULTIPLE_VARIABLES);
-    scopeCreator.runSymbolTableCreator(root); // must run without an exception
-  }
 }

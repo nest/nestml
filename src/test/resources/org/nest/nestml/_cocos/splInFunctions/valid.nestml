@@ -21,7 +21,7 @@ neuron testNeuron:
         return
     end
 
-    function random() integer:
+    function my_random() integer:
     end
 
 end

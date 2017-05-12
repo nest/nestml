@@ -1,4 +1,0 @@
-component ImportedComponent:
-  function testFunction():
-  end
-end

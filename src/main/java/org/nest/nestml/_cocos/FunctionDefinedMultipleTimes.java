@@ -9,7 +9,6 @@ import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.symboltable.symbols.MethodSymbol;
@@ -18,7 +17,6 @@ import org.nest.symboltable.symbols.NeuronSymbol;
 import java.util.Collection;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
@@ -26,17 +24,7 @@ import static de.se_rwth.commons.logging.Log.error;
  * different argument types.
  * @author ippen, plotnikov
  */
-public class FunctionDefinedMultipleTimes implements NESTMLASTNeuronCoCo, NESTMLASTComponentCoCo {
-
-  @Override
-  public void check(final ASTComponent astComponent) {
-    final ASTBody astBodyDecorator = astComponent.getBody();
-    final Optional<NeuronSymbol> componentSymbol
-        = (Optional<NeuronSymbol>) astComponent.getSymbol();
-    checkState(componentSymbol.isPresent());
-    astBodyDecorator.getFunctions().forEach(this::checkFunctionName);
-  }
-
+public class FunctionDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
 
   @Override public void check(final ASTNeuron astNeuron) {
     final ASTBody astBodyDecorator = (astNeuron.getBody());

@@ -9,7 +9,6 @@ import com.google.common.collect.Maps;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.utils.AstUtils;
@@ -30,15 +29,8 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author ippen, plotnikov
  */
-public class MemberVariableDefinedMultipleTimes implements
-    NESTMLASTNeuronCoCo,
-    NESTMLASTComponentCoCo {
-
-
-  @Override
-  public void check(ASTComponent comp) {
-    check(comp.getBody());
-  }
+public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
+  public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLE_DEFINED_MULTIPLE_TIMES";
 
   @Override
   public void check(ASTNeuron neuron) {

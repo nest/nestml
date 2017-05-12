@@ -7,7 +7,6 @@ package org.nest.nestml._cocos;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
-import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.symboltable.symbols.NeuronSymbol;
 
@@ -19,19 +18,12 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author ippen, plotnikov
  */
-public class TypeIsDeclaredMultipleTimes implements NESTMLASTComponentCoCo, NESTMLASTNeuronCoCo {
+public class TypeIsDeclaredMultipleTimes implements NESTMLASTNeuronCoCo {
 
   public static final String ERROR_CODE = "NESTML_TYPES_DECLARED_MULTIPLE_TIMES";
 
   public void check(final ASTNeuron neuron) {
       check(neuron.getName(), neuron);
-  }
-
-  public void check(final ASTComponent comp) {
-    if (comp != null && comp.getName() != null) {
-      check(comp.getName(), comp);
-    }
-
   }
 
   private void check(String name, ASTNode node) {

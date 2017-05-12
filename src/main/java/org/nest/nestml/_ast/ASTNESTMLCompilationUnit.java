@@ -32,16 +32,12 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
   }
 
   protected ASTNESTMLCompilationUnit (
-      java.util.List<org.nest.nestml._ast.ASTImport> imports
-      ,
       java.util.List<org.nest.nestml._ast.ASTNeuron> neurons
-      ,
-      java.util.List<org.nest.nestml._ast.ASTComponent> components
       ,
       java.util.List<String> nEWLINEs
 
   ) {
-    super(imports, neurons, components , nEWLINEs);
+    super(neurons, nEWLINEs);
   }
 
   public String getArtifactName() {

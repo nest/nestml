@@ -17,7 +17,7 @@ neuron VarsNeuron:
   update:
   end
 
-  function set_diameter(v mm):
+  function set_diameter1(v mm):
     radius = v / 2
   end
 

@@ -8,19 +8,15 @@ package org.nest.nestml._cocos;
 import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTParameter;
-import org.nest.nestml._ast.ASTUSE_Stmt;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
-import static org.abego.treelayout.internal.util.Contract.checkState;
 import static org.nest.utils.AstUtils.computeTypeName;
 
 /**
@@ -29,7 +25,6 @@ import static org.nest.utils.AstUtils.computeTypeName;
  * @author ippen, plotnikov
  */
 public class InvalidTypesInDeclaration implements
-    NESTMLASTUSE_StmtCoCo,
     SPLASTDeclarationCoCo,
     NESTMLASTFunctionCoCo {
 
@@ -83,23 +78,5 @@ public class InvalidTypesInDeclaration implements
       Log.error(msg, astNode.get_SourcePositionStart());
     }
   }
-
-  @Override
-  public void check(ASTUSE_Stmt astUseStmt) {
-    String typeName = Names.getQualifiedName(astUseStmt.getName().getParts());
-    Optional<? extends Scope> enclosingScope = astUseStmt.getEnclosingScope();
-    checkState(enclosingScope.isPresent(),
-        "There is no scope assigned to the AST node at: " + astUseStmt.get_SourcePositionStart());
-    final Optional<NeuronSymbol> type = enclosingScope.get().resolve(typeName, NeuronSymbol.KIND);
-
-    if (!type.isPresent()) {
-      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      final String msg = errorStrings.getErrorMsg(this,typeName);
-
-      Log.error(msg, astUseStmt.get_SourcePositionStart());
-    }
-
-  }
-
 
 }

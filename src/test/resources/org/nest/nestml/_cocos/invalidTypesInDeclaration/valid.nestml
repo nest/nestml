@@ -1,4 +1,4 @@
-component validTypes:
+neuron validTypes:
   state:
     c boolean
     d string

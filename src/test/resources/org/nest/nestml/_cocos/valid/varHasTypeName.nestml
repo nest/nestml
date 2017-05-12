@@ -1,4 +1,4 @@
-component B:
+neuron B:
   state:
     a ms = 15.0
   end

@@ -49,42 +49,7 @@ public class NestmlErrorStrings {
     return "NESTML_ALIAS_IN_NON_ALIAS_DECL";
   }
 
-  static String message(final ComponentHasNoDynamics coco, final String name) {
-    final String ERROR_MSG_FORMAT = "Component " + name + " doesn't have dynamics function.";
-    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
-
-  }
-
-  @SuppressWarnings("unused") // parameter is used for dispatch
-  static String code(final ComponentHasNoDynamics coco) {
-    return "NESTML_COMPONENT_HAS_NO_DYNAMICS";
-  }
-
-  static String message(final ComponentWithoutInput coco, final String componentName) {
-    final String ERROR_MSG_FORMAT = "Problem with the component: " + componentName +
-                                    ". Components cannot have any inputs, since they are not elements of a "
-                                    + "neuronal network, but serve as a part of a neuron declaration.";
-    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
-  }
-
-  @SuppressWarnings("unused") // parameter is used for dispatch
-  static String code(final ComponentWithoutInput coco) {
-    return "NESTML_COMPONENT_WITHOUT_INPUT";
-  }
-
-  static String message(final ComponentWithoutOutput coco, final String componentName) {
-    final String ERROR_MSG_FORMAT = "Problem with the component: " + componentName +
-                                    ". Components cannot have any output, since they are not elements of a "
-                                    + "neuronal network, but serve as a part of a neuron declaration.";
-    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
-  }
-
-  @SuppressWarnings("unused") // parameter is used for dispatch
-  static String code(final ComponentWithoutOutput coco) {
-    return "NESTML_COMPONENT_WITHOUT_OUTPUT";
-  }
-
-  static String message(final FunctionParameterHasTypeName coco, final String variable){
+  static String message(final FunctionParameterHasTypeName coco, final String variable) {
     final String ERROR_MSG_FORMAT = "The function parameter '" + variable +"' has name of an existing NESTML type.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
@@ -367,17 +332,6 @@ public class NestmlErrorStrings {
 
   String getErrorMsg(TypeIsDeclaredMultipleTimes coco, String typeName) {
     return TypeIsDeclaredMultipleTimes.ERROR_CODE + ":" + "The type '" + typeName + "' is defined multiple times.";
-  }
-
-  String getErrorMsgOnlyComponentsForNeurons(UsesOnlyComponents coco, String typeName,
-                                                    String predefinedTypeName) {
-    return UsesOnlyComponents.ERROR_CODE + ":" + "Only components can be used by neurons/components and not " + typeName + " of the type: " +
-        predefinedTypeName + " .";
-  }
-
-  String getErrorMsgOnlyComponentsForComponents(UsesOnlyComponents coco, String typeName) {
-    return UsesOnlyComponents.ERROR_CODE + ":" + "Only components can be used by components and not " + typeName + " that is a neuron, not a "
-        + "component";
   }
 
   public String getErrorMsg(final DerivativeOrderAtLeastOne coco, final String variableName) {
