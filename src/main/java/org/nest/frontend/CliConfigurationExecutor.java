@@ -84,9 +84,7 @@ public class CliConfigurationExecutor {
 
         if (root.isPresent()) {
           modelRoots.add(root.get());
-          reporter.addSystemInfo(
-              "The NESTML file was parsed successfully: " + modelFile.getFileName().toString(),
-              Reporter.Level.INFO);
+          reporter.reportProgress("The NESTML file was parsed successfully: " + modelFile.getFileName().toString());
         }
         else {
           final Optional<Finding> parserError = Log.getFindings()
@@ -148,9 +146,9 @@ public class CliConfigurationExecutor {
       symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
       if (symbolTableFindings.isEmpty()) {
-        reporter.addSystemInfo(modelRoot.getArtifactName() + ": Successfully built the symboltable.", Reporter.Level.INFO);
+        reporter.reportProgress(modelRoot.getArtifactName() + ": Successfully built the symboltable.");
       } else {
-        reporter.addSystemInfo(modelRoot.getArtifactName() + ": Cannot built the symboltable.", Reporter.Level.ERROR);
+        reporter.reportProgress(modelRoot.getArtifactName() + ": Cannot built the symboltable.");
       }
       final Collection<Finding> symbolTableWarnings = LogHelper.getWarningsByPrefix("NESTML_", Log.getFindings());
 
@@ -163,7 +161,9 @@ public class CliConfigurationExecutor {
 
       }
       symbolTableWarnings.forEach(warning -> reporter.addNeuronReport(
-          modelRoot.getArtifactName(), modelRoot.getNeuronNameAtLine(warning.getSourcePosition().get().getLine()), warning));
+          modelRoot.getFilename(),
+          modelRoot.getNeuronNameAtLine(warning.getSourcePosition().get().getLine()),
+          warning));
     }
 
     final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
@@ -176,12 +176,12 @@ public class CliConfigurationExecutor {
       }
       else {
         final String msg = "Codegeneration was disabled though the '--dry-run option'.";
-        reporter.addSystemInfo(msg, Reporter.Level.INFO);
+        reporter.reportProgress(msg);
       }
     }
     else {
       final String msg = " Models contain semantic error(s), therefore, no codegeneration is possible";
-      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+      reporter.reportProgress(msg);
     }
 
   }
@@ -212,12 +212,12 @@ public class CliConfigurationExecutor {
 
         final String msg = "NEST code for the neuron: " + astNeuron.getName() + " from file: " + root.getFullName() +
                            " was generated.";
-        reporter.addSystemInfo(root.getArtifactName() + ": " + msg, Reporter.Level.INFO);
+        reporter.reportProgress(root.getArtifactName() + ": " + msg);
 
       } else {
         final String msg = "NEST code for the neuron: " + astNeuron.getName() + " in " + root.getFullName() +
                            " wasn't generated.";
-        reporter.addSystemInfo(root.getArtifactName() + ":" + msg, Reporter.Level.ERROR);
+        reporter.reportProgress(root.getArtifactName() + ":" + msg);
 
       }
 
@@ -246,7 +246,7 @@ public class CliConfigurationExecutor {
         if (findingsToModel.get(root.getArtifactName()).stream().anyMatch(Finding::isError)) {
           anyError = true;
         }
-        reporter.addNeuronReports(root.getArtifactName(), neuron.getName(), modelFindings);
+        reporter.addNeuronReports(root.getFilename(), neuron.getName(), modelFindings);
 
       }
 
@@ -273,10 +273,11 @@ public class CliConfigurationExecutor {
       res.waitFor();
       getListFromStream(res.getInputStream()).forEach(m -> Log.trace("Log: " + m, LOG_NAME));
       getListFromStream(res.getErrorStream()).forEach(m -> Log.trace("Error: " + m, LOG_NAME));
-      reporter.addSystemInfo("Formatted generates sources in: " + targetPath.toString(), Reporter.Level.INFO);
+      reporter.reportProgress("Formatted generates sources in: " + targetPath.toString());
     }
     catch (IOException | InterruptedException e) {
-      reporter.addSystemInfo("Formatted generates sources in: " + targetPath.toString(), Reporter.Level.INFO);
+      reporter.reportProgress("Cannot format source files located in: " + targetPath.toString());
+      e.printStackTrace();
     }
 
   }

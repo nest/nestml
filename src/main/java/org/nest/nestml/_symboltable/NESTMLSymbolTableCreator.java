@@ -107,7 +107,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     setEnclosingScopeOfNodes(astNeuron);
 
     if (astNeuron.getBody().getODEBlock().isPresent()) {
-      addAliasesFromODEBlock(astNeuron.getBody().getODEBlock().get());
+      addFunctionVariables(astNeuron.getBody().getODEBlock().get());
     }
 
     // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
@@ -120,7 +120,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     final List<Finding> findings = nestmlCoCosManager.checkThatVariablesDefinedOnce(astNeuron);
     if (findings.isEmpty()) {
       if (astNeuron.getBody().getODEBlock().isPresent()) {
-
 
         final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkThatVariablesDefinedOnce(astNeuron);
 
@@ -174,7 +173,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    *   end
    * Results in an additional variable for G' (first equations G''). For the sake of the simplicity
    */
-  private void addAliasesFromODEBlock(final ASTOdeDeclaration astOdeDeclaration) {
+  private void addFunctionVariables(final ASTOdeDeclaration astOdeDeclaration) {
     for (final ASTOdeFunction astOdeAlias:astOdeDeclaration.getOdeFunctions()) {
       final VariableSymbol var = new VariableSymbol(astOdeAlias.getVariableName());
       var.setAstNode(astOdeAlias);

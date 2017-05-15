@@ -40,8 +40,8 @@ public class ReporterTest {
     reporter.addNeuronReport("iaf_neuron_artifact.nestml", "neuron_a", Reporter.Level.ERROR, "NESTML_ERROR_CODE", 0, 1, "This test error message2");
     reporter.addNeuronReport("iaf_neuron_artifact.nestml", "neuron_a", Reporter.Level.WARNING, "NESTML_WARNING_CODE", 0, 1, "This test error message2");
 
-    reporter.addSystemInfo("Python is installed", Reporter.Level.INFO);
-    reporter.addSystemInfo("Sympy is missing", Reporter.Level.ERROR);
+    reporter.reportProgress("Python is installed");
+    reporter.reportProgress("Sympy is missing");
 
     reporter.addNeuronReport("iaf_neuron", "a", Reporter.Level.ERROR, "NESTML_A", 0, 1, "This test error message2");
 

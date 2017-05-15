@@ -20,9 +20,11 @@
  */
 package org.nest.frontend;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +39,6 @@ class Reporter {
   // Not parallelizable, but the frontend is executed with one instance.
   static private Reporter reporter = new Reporter();
 
-  private final List<String> systemReports = Lists.newArrayList();
   // Key: addNeuronReport name, value: info message
   private final List<Report> neuronReports = Lists.newArrayList();
 
@@ -57,12 +58,20 @@ class Reporter {
   }
 
   void reportProgress(final String message) {
-    System.out.println(message + "...");
+    System.out.println(Level.INFO + ": " + message);
   }
 
-  void addSystemInfo(final String message, final Level level) {
-    systemReports.add(level + ": " + message);
-    System.out.println(level + ": " + message);
+  public String printFindingsAsJsonString() {
+    try {
+      ObjectMapper mapper = new ObjectMapper();
+      final String jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(neuronReports);
+      System.out.println(jsonInString);
+
+    }
+    catch (IOException e) {
+      e.printStackTrace();
+    }
+    return "";
   }
 
   void printReports(final PrintStream info, final PrintStream err) {
@@ -73,39 +82,8 @@ class Reporter {
 
     info.println("----------------------------------------------------------");
     info.println("-----------------Execution summary------------------------");
-    systemReports.forEach(report -> printSystemError(report, info, err));
-    error.ifPresent(errorMessage -> err.println("ERROR: Code generation was canceled."));
-
-    info.println("-----------------Neurons---------------------------------");
-    neuronReports.forEach(entry -> printEntry(entry, info, err));
-
-  }
-
-  private void printSystemError(
-      final String report,
-      final PrintStream info,
-      final PrintStream err) {
-    if (report.startsWith(Level.ERROR.toString())) {
-      info.println(report);
-    }
-    else {
-      err.println(report);
-    }
-
-  }
-
-  private void printEntry(
-      final Report report,
-      final PrintStream info,
-      final PrintStream err) {
-    if (report.severity.equals(Level.ERROR)) {
-      info.println(report.toString());
-    }
-    else {
-      err.println(report.toString());
-    }
-
-  }
+    printFindingsAsJsonString();
+    error.ifPresent(errorMessage -> err.println("ERROR: Code generation was canceled."));  }
 
   void addNeuronReports(
       final String filename,
@@ -208,13 +186,13 @@ class Reporter {
   }
 
   static class Report {
-    final String filename;
-    final String neuronName;
-    final Level severity;
-    final String code;
-    final Integer row;
-    final Integer col;
-    final String message;
+    public final String filename;
+    public final String neuronName;
+    public final Level severity;
+    public final String code;
+    public final Integer row;
+    public final Integer col;
+    public final String message;
 
     Report(
         final String filename,

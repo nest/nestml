@@ -5,6 +5,8 @@
  */
 package org.nest.nestml._ast;
 
+import org.nest.nestml._symboltable.NESTMLLanguage;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -14,7 +16,7 @@ import java.util.Optional;
  * @author plotnikov
  */
 public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
-  static final String NEURON_UNDEFINED_AT_LINE = "__undefined__";
+  static final String NEURON_UNDEFINED_AT_LINE = "__undefined__";;
   private Optional<String> packageName = Optional.empty();
   private String artifactName = "";
 
@@ -42,6 +44,10 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
 
   public String getArtifactName() {
     return artifactName;
+  }
+
+  public String getFilename() {
+    return artifactName + "." + NESTMLLanguage.FILE_ENDING;
   }
 
   public Optional<String> getPackageName() {

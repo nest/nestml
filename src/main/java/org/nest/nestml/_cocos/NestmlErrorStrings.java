@@ -292,11 +292,11 @@ public class NestmlErrorStrings {
   }
 
   static String getErrorMsgDynamicsNotPresent(NeuronWithMultipleOrNoUpdate coco) {
-    return code(coco) + ":" + "Neurons need at least one update block.";
+    return code(coco) + SEPARATOR + "Neurons need at least one update block.";
   }
 
   static String getErrorMsgMultipleDynamics(NeuronWithMultipleOrNoUpdate coco) {
-    return code(coco) + ":" + "Neurons need at most one update.";
+    return code(coco) + SEPARATOR + "Neurons need at most one update.";
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
@@ -305,11 +305,11 @@ public class NestmlErrorStrings {
   }
 
   static String errorNoInput(NeuronWithMultipleOrNoInput coco) {
-    return code(coco) + ":" + "Neurons need at least one inputs.";
+    return code(coco) + SEPARATOR + "There is no input block in the neuron.";
   }
 
   static String errorMultipleInputs(NeuronWithMultipleOrNoInput coco) {
-    return code(coco) + ":" + "Neurons need at most one inputs.";
+    return code(coco) + SEPARATOR + "There are more than one input block in the neuron";
   }
 
   @SuppressWarnings("unused") // parameter is used for dispatch
@@ -318,29 +318,29 @@ public class NestmlErrorStrings {
   }
 
   static String errorNoOutput(NeuronWithMultipleOrNoOutput coco) {
-    return code(coco) + ":" + "Neurons need at least one output.";
+    return code(coco) + SEPARATOR + "Neurons need at least one output.";
   }
 
   static String errorMultipleOutputs(NeuronWithMultipleOrNoOutput coco) {
-    return code(coco) + ":" + "Neurons need at most one output.";
+    return code(coco) + SEPARATOR + "Neurons need at most one output.";
   }
 
   @SuppressWarnings("unused") // parameter is used for dispatch
   static String code(final NeuronWithMultipleOrNoOutput coco) {
-    return "NESTML_NEURON_WITH_MULTIPLE_OR_NO_INPUT";
+    return "NESTML_NEURON_WITH_MULTIPLE_OR_NO_OUTPUT";
   }
 
   String getErrorMsg(TypeIsDeclaredMultipleTimes coco, String typeName) {
-    return TypeIsDeclaredMultipleTimes.ERROR_CODE + ":" + "The type '" + typeName + "' is defined multiple times.";
+    return TypeIsDeclaredMultipleTimes.ERROR_CODE + SEPARATOR + "The type '" + typeName + "' is defined multiple times.";
   }
 
   public String getErrorMsg(final DerivativeOrderAtLeastOne coco, final String variableName) {
 
-    return DerivativeOrderAtLeastOne.ERROR_CODE + ":" + "The variable on the righthandside of an equation must be derivative variable, e.g. " + variableName + "'";
+    return DerivativeOrderAtLeastOne.ERROR_CODE + SEPARATOR + "The variable on the righthandside of an equation must be derivative variable, e.g. " + variableName + "'";
   }
 
   public String getErrorMsg(AssignmentToAlias assignmentToAlias, final String variableName) {
-    return AssignmentToAlias.ERROR_CODE + ":" + "You cannot assign a value to an function: " + variableName;
+    return AssignmentToAlias.ERROR_CODE + SEPARATOR + "You cannot assign a value to an function: " + variableName;
   }
 
   static String error(final VariableBlockDefinedMultipleTimes coco,

@@ -111,10 +111,10 @@ public class NestmlFrontend {
 
     if (cliConfiguration.isPresent()) {
       final String inputPathMsg = "The input modelpath: " + cliConfiguration.get().getModelPath().toAbsolutePath().toString();
-      reporter.addSystemInfo(inputPathMsg, Reporter.Level.INFO);
+      reporter.reportProgress(inputPathMsg);
 
       final String outputPathMsg = "The base output path: " + cliConfiguration.get().getTargetPath().toAbsolutePath().toString();
-      reporter.addSystemInfo(outputPathMsg, Reporter.Level.INFO);
+      reporter.reportProgress(outputPathMsg);
 
       if (checkEnvironment(cliConfiguration.get())) {
         executeConfiguration(cliConfiguration.get());
@@ -122,7 +122,7 @@ public class NestmlFrontend {
       }
       else {
         final String msg = "The execution environment is not installed properly. Execution will be terminated.";
-        reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+        reporter.reportProgress(msg);
       }
     }
 
@@ -235,7 +235,7 @@ public class NestmlFrontend {
     catch (final Exception e) {
       final String msg = "Cannot create output folder. If you are running from docker, check if the folder provided " +
                          "exists and/or the corresponding user. Execution will be terminated.";
-      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+      reporter.reportProgress(msg);
       return false;
     }
 
@@ -248,12 +248,12 @@ public class NestmlFrontend {
         PYTHON_VERSION_TEST_OUTPUT,
         cliConfiguration.getTargetPath())) {
       final String msg = "Install Python the in minimal version 2.7. Execution will be terminated.";
-      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+      reporter.reportProgress(msg);
       isError = true;
     }
     else {
       final String msg = "Correct python version is installed";
-      reporter.addSystemInfo(msg, Reporter.Level.INFO);
+      reporter.reportProgress(msg);
     }
 
     if (!evaluateCheckScript(
@@ -262,12 +262,12 @@ public class NestmlFrontend {
         SYMPY_VERSION_TEST_OUTPUT,
         cliConfiguration.getTargetPath())) {
       final String msg = "Install SymPy in minimal version 1.0.1.dev, e.g. from github";
-      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+      reporter.reportProgress(msg);
       isError = true;
     }
     else {
       final String msg = "Correct SymPy is installed.";
-      reporter.addSystemInfo(msg, Reporter.Level.INFO);
+      reporter.reportProgress(msg);
     }
 
     return !isError;
@@ -305,7 +305,7 @@ public class NestmlFrontend {
     }
     catch (IOException e) {
       final String msg = "Cannot read python check file.";
-      reporter.addSystemInfo(msg, Reporter.Level.ERROR);
+      reporter.reportProgress(msg);
       return false;
     }
 

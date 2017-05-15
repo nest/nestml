@@ -1,4 +1,5 @@
 neuron IAF:
+
   state:
     V_m mV
     U mV
@@ -6,9 +7,7 @@ neuron IAF:
 
   equations:
     U' = U' # Errors: U' doesn't exist
-    V_m'' = 1mV / t # Error:V_m' doesn't
     function G real = G2 # Error: G2 doesn't exist
-
   end
 
 end
