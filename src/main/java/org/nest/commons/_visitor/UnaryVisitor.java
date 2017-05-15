@@ -10,12 +10,11 @@ import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 
 /**
+ * Expr = (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
  * @author ptraeder
  */
 public class UnaryVisitor implements CommonsVisitor {
-  final String ERROR_CODE = "SPL_UNARY_VISITOR";
 
-  //Expr = (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
 
   @Override
   public void visit(ASTExpr expr){
@@ -34,8 +33,10 @@ public class UnaryVisitor implements CommonsVisitor {
         return;
       }
       else {
-        final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
-            "Cannot perform an arithmetic operation on a non-numeric type";
+        final String errorMsg = CommonsErrorStrings.messageNonNumericType(
+            this,
+            termType.prettyPrint(),
+            expr.get_SourcePositionStart());
         expr.setType(Either.error(errorMsg));
         error(errorMsg,expr.get_SourcePositionStart());
         return;
@@ -47,16 +48,20 @@ public class UnaryVisitor implements CommonsVisitor {
           return;
         }
         else {
-          final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
-              "Cannot perform an arithmetic operation on a non-numeric type";
+          final String errorMsg = CommonsErrorStrings.messageNonNumericType(
+              this,
+              termType.prettyPrint(),
+              expr.get_SourcePositionStart());
           expr.setType(Either.error(errorMsg));
           error(errorMsg,expr.get_SourcePositionStart());
           return;
         }
     }
     //Catch-all if no case has matched
-    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
-        "Cannot determine the type of the expression: " + AstUtils.toString(expr);
+    final String errorMsg = CommonsErrorStrings.messageTypeError(
+        this,
+        AstUtils.toString(expr),
+        expr.get_SourcePositionStart());
     error(errorMsg,expr.get_SourcePositionStart());
     expr.setType(Either.error(errorMsg));
   }

@@ -20,7 +20,10 @@
  */
 package org.nest.units._cocos;
 
+import org.nest.commons._visitor.DotOperatorVisitor;
+import org.nest.commons._visitor.FunctionCallVisitor;
 import org.nest.units._visitor.ODEPostProcessingVisitor;
+import org.nest.units._visitor.UnitsSIVisitor;
 
 /**
  * Factory for CoCo error strings. The dispatch is done by the static type of the context condition object.
@@ -28,13 +31,13 @@ import org.nest.units._visitor.ODEPostProcessingVisitor;
  *
  * @author plotnikov, traeder
  */
-public class OdeErrorStrings {
+public class UnitsErrorStrings {
   private static final String SEPARATOR = " : ";
 
   /**
    * Use static methods to get codes and errors
    */
-  private OdeErrorStrings() {
+  private UnitsErrorStrings() {
   }
 
   public static String expressionCalculation(final ODEPostProcessingVisitor coco, final String description) {
@@ -64,6 +67,49 @@ public class OdeErrorStrings {
   static String code(final ODEPostProcessingVisitor coco) {
     return "SPL_POST_PROCESSING_ERROR";
   }
+
+  public static String message(final UnitsSIVisitor coco, final String unit) {
+    final String ERROR_MSG_FORMAT = "The unit " + unit + " is not a valid SI unit.";
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final UnitsSIVisitor coco) {
+    return "NESTML_SI_VISITOR";
+  }
+
+  public static String message(final FunctionCallVisitor coco, final String functionName) {
+    final String ERROR_MSG_FORMAT = "Function " + functionName + " with the return-type 'Void'"
+                                    + " cannot be used in expressions.";
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final FunctionCallVisitor coco) {
+    return "SPL_FUNCTION_CALL_VISITOR";
+  }
+
+  public static String messageModulo(final DotOperatorVisitor coco, final String functionName) {
+    final String ERROR_MSG_FORMAT = "Function " + functionName + " with the return-type 'Void'"
+                                    + " cannot be used in expressions.";
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  public static String messageType(final DotOperatorVisitor coco, final String functionName) {
+    final String ERROR_MSG_FORMAT = "Function " + functionName + " with the return-type 'Void'"
+                                    + " cannot be used in expressions.";
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final DotOperatorVisitor coco) {
+    return "SPL_FUNCTION_CALL_VISITOR";
+  }
+
 
 
 }

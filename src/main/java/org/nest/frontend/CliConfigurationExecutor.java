@@ -120,13 +120,13 @@ public class CliConfigurationExecutor {
 
   private void reportParserError(Path modelFile, Optional<Finding> parserError) {
     reporter.addNeuronReport(
-        "", // TODO: is it a good idea?
+        modelFile.getFileName().toString(), // TODO: is it a good idea?
         "",
         Reporter.Level.ERROR,
         "NESTML_PARSER",
-        parserError.isPresent()? parserError.get().getSourcePosition().get().getLine():1,
-        parserError.isPresent()? parserError.get().getSourcePosition().get().getColumn():1,
-        parserError.isPresent()? parserError.get().getMsg():"Cannot parse the NESTML-file" );
+        parserError.map(finding -> finding.getSourcePosition().get().getLine()).orElse(0),
+        parserError.map(finding -> finding.getSourcePosition().get().getColumn()).orElse(0),
+        parserError.map(Finding::getMsg).orElse("Cannot parse the NESTML-file"));
   }
 
   private void cleanUpWorkingFolder(final Path targetPath) {

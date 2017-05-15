@@ -111,6 +111,6 @@ public class LineOperatorVisitor implements CommonsVisitor{
         lhsType.prettyPrint()+ " and " + rhsType.prettyPrint();
     expr.setType(Either.error(errorMsg));
     error(errorMsg,expr.get_SourcePositionStart());
-    return;
   }
+
 }

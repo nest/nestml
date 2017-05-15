@@ -16,7 +16,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author ptraeder
  */
 public class NESTMLNumericLiteralVisitor implements CommonsVisitor{
-  UnitTranslator unitTranslator = new UnitTranslator();
+
   @Override
   public void visit(ASTExpr expr) {
     Optional<TypeSymbol> exprType = Optional.empty();

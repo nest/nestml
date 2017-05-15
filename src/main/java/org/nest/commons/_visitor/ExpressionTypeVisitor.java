@@ -178,7 +178,5 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
 
   }
 
-  //Helper functions:
-
 }
 

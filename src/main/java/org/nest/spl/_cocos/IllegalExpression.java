@@ -199,7 +199,7 @@ public class IllegalExpression implements
       Log.error(msg);
     }
 
-    ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+    final ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
     astfor.getFrom().accept(expressionTypeVisitor);
 
     if (astfor.getFrom().getType().isValue()) {

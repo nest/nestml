@@ -216,7 +216,7 @@ public class NestmlErrorStrings {
                      final String varName,
                      int line,
                      int column) {
-    final String ERROR_MSG_FORMAT =  "Variable '" + varName + "' defined previously defined in line: "
+    final String ERROR_MSG_FORMAT =  "Variable '" + varName + "' is previously defined in line: "
                                      + line + ":" + column;
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }

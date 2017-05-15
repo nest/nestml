@@ -20,9 +20,11 @@
  */
 package org.nest.frontend;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
+import de.se_rwth.commons.logging.Log;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -62,16 +64,16 @@ class Reporter {
   }
 
   public String printFindingsAsJsonString() {
+    ObjectMapper mapper = new ObjectMapper();
     try {
-      ObjectMapper mapper = new ObjectMapper();
       final String jsonInString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(neuronReports);
-      System.out.println(jsonInString);
+      return jsonInString;
+    }
+    catch (JsonProcessingException e) {
+      Log.error("Cannot produce JSON output", e);
+      return "";
+    }
 
-    }
-    catch (IOException e) {
-      e.printStackTrace();
-    }
-    return "";
   }
 
   void printReports(final PrintStream info, final PrintStream err) {
@@ -82,8 +84,15 @@ class Reporter {
 
     info.println("----------------------------------------------------------");
     info.println("-----------------Execution summary------------------------");
-    printFindingsAsJsonString();
-    error.ifPresent(errorMessage -> err.println("ERROR: Code generation was canceled."));  }
+    if (error.isPresent()) {
+      err.println(printFindingsAsJsonString());
+      err.println("ERROR: Code generation was canceled.");
+    }
+    else {
+      info.println("The model analysis and code generation were successfully executed.");
+    }
+
+  }
 
   void addNeuronReports(
       final String filename,
