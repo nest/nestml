@@ -4,7 +4,6 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.utils.AstUtils;
 
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isBoolean;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;

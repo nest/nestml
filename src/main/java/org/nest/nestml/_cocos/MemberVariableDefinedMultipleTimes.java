@@ -30,7 +30,6 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author ippen, plotnikov
  */
 public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
-  public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLE_DEFINED_MULTIPLE_TIMES";
 
   @Override
   public void check(ASTNeuron neuron) {

@@ -24,6 +24,7 @@ import org.nest.commons._visitor.DotOperatorVisitor;
 import org.nest.commons._visitor.FunctionCallVisitor;
 import org.nest.units._visitor.ODEPostProcessingVisitor;
 import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 
 /**
  * Factory for CoCo error strings. The dispatch is done by the static type of the context condition object.
@@ -91,25 +92,20 @@ public class UnitsErrorStrings {
     return "SPL_FUNCTION_CALL_VISITOR";
   }
 
-  public static String messageModulo(final DotOperatorVisitor coco, final String functionName) {
-    final String ERROR_MSG_FORMAT = "Function " + functionName + " with the return-type 'Void'"
-                                    + " cannot be used in expressions.";
-
-    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
-  }
-
-  public static String messageType(final DotOperatorVisitor coco, final String functionName) {
-    final String ERROR_MSG_FORMAT = "Function " + functionName + " with the return-type 'Void'"
-                                    + " cannot be used in expressions.";
-
-    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
-  }
 
   @SuppressWarnings({"unused"}) // used for the routing
   static String code(final DotOperatorVisitor coco) {
     return "SPL_FUNCTION_CALL_VISITOR";
   }
+  public static String message(final UnitRepresentation coco, final String representation) {
+    final String ERROR_MSG_FORMAT = "Cannot factorize the Unit " + representation;
 
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
 
+  @SuppressWarnings({"unused"}) // used for the routing
+  public static String code(final UnitRepresentation coco) {
+    return "NESTML_UNIT_REPRESENTATION";
+  }
 
 }

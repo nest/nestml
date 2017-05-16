@@ -28,7 +28,6 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author ippen, plotnikov
  */
 public class MemberVariablesInitialisedInCorrectOrder implements SPLASTDeclarationCoCo {
-  public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
 
   public void check(final ASTDeclaration declaration) {
     checkState(declaration.getEnclosingScope().isPresent(), "There is no scope assigned to the AST node: " + declaration);
@@ -123,7 +122,6 @@ public class MemberVariablesInitialisedInCorrectOrder implements SPLASTDeclarati
 
       error(msg, lhsSymbol.getSourcePosition());
     }
-
 
   }
 

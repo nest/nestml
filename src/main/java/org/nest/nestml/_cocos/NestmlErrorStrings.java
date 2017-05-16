@@ -9,6 +9,8 @@ import de.se_rwth.commons.SourcePosition;
 import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
 import org.nest.ode._cocos.EquationsOnlyForStateVariables;
 import org.nest.ode._cocos.SumHasCorrectParameter;
+import org.nest.ode._cocos.VariableDoesNotExist;
+import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.units._cocos.UnitDeclarationOnlyOnesAllowed;
 import org.nest.utils.AstUtils;
 
@@ -330,17 +332,33 @@ public class NestmlErrorStrings {
     return "NESTML_NEURON_WITH_MULTIPLE_OR_NO_OUTPUT";
   }
 
-  String getErrorMsg(TypeIsDeclaredMultipleTimes coco, String typeName) {
-    return TypeIsDeclaredMultipleTimes.ERROR_CODE + SEPARATOR + "The type '" + typeName + "' is defined multiple times.";
+  static String getErrorMsg(TypeIsDeclaredMultipleTimes coco, String typeName) {
+    return code(coco) + SEPARATOR + "The type '" + typeName + "' is defined multiple times.";
   }
 
-  public String getErrorMsg(final DerivativeOrderAtLeastOne coco, final String variableName) {
-
-    return DerivativeOrderAtLeastOne.ERROR_CODE + SEPARATOR + "The variable on the righthandside of an equation must be derivative variable, e.g. " + variableName + "'";
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final TypeIsDeclaredMultipleTimes coco) {
+    return "NESTML_TYPES_DECLARED_MULTIPLE_TIMES";
   }
 
-  public String getErrorMsg(AssignmentToAlias assignmentToAlias, final String variableName) {
-    return AssignmentToAlias.ERROR_CODE + SEPARATOR + "You cannot assign a value to an function: " + variableName;
+  static public String getErrorMsg(final DerivativeOrderAtLeastOne coco, final String variableName) {
+
+    return code(coco) + SEPARATOR + "The variable on the righthandside of an equation must be derivative variable, e.g. "
+           + variableName + "'";
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final DerivativeOrderAtLeastOne coco) {
+    return "NESTML_DERIVATIVE_ORDER_AT_LEAST_ONE";
+  }
+
+  static public String getErrorMsg(AssignmentToAlias assignmentToAlias, final String variableName) {
+    return code(assignmentToAlias) + SEPARATOR + "You cannot assign a value to an function: " + variableName;
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final AssignmentToAlias coco) {
+    return "NESTML_ASSIGNMENT_TO_ALIAS";
   }
 
   static String error(final VariableBlockDefinedMultipleTimes coco,
@@ -350,8 +368,30 @@ public class NestmlErrorStrings {
            "It should be defined at most once in the model.";
   }
 
+  @SuppressWarnings("unused") // parameter is used for dispatch
   static String code(final VariableBlockDefinedMultipleTimes coco) {
     return "NESTML_VARIABLE_BLOCK_DEFINED_MULTIPLE_TIMES";
+  }
+
+  static public String getErrorMsg(final VariableDoesNotExist coco, final String variableName) {
+    final String ERROR_MSG_FORMAT = "The variable " + variableName + " is not defined";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final VariableDoesNotExist coco) {
+    return "NESTML_VARIABLE_DOESNT_EXIST";
+  }
+
+  static public String getErrorMsg(final RestrictUseOfShapes coco) {
+    final String ERROR_MSG_FORMAT = "Shapes may only be used as parameters to either " + PredefinedFunctions.CURR_SUM +
+                                    " or " + PredefinedFunctions.COND_SUM;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings("unused") // parameter is used for dispatch
+  static String code(final RestrictUseOfShapes coco) {
+    return "NESTML_RESTRICT_USE_OF_SHAPES";
   }
 
 }

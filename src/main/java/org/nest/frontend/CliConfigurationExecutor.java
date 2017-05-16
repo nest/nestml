@@ -61,6 +61,14 @@ public class CliConfigurationExecutor {
       final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getModelPath());
       reporter.reportProgress("Finished parsing nestml mdoels...");
       reporter.reportProgress("Remove temporary files...");
+      if (!Files.exists(config.getTargetPath())) {
+        try {
+          Files.createDirectories(config.getTargetPath());
+        }
+        catch (IOException e) {
+          Log.error("Cannot create the output foder: " + config.getTargetPath().toString(), e);
+        }
+      }
       cleanUpWorkingFolder(config.getTargetPath());
 
       processNestmlModels(modelRoots, config, scopeCreator, generator);

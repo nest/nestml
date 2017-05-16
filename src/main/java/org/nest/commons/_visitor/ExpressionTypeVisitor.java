@@ -4,39 +4,23 @@ package org.nest.commons._visitor;
  * @author ptraeder, plotnikov
  */
 public class ExpressionTypeVisitor implements CommonsVisitor {
-  private CommonsVisitor realThis = this;
-
   private static UnaryVisitor unaryVisitor = new UnaryVisitor();
-
   private static PowVisitor powVisitor = new PowVisitor();
-
   private static ParenthesesVisitor parenthesesVisitor = new ParenthesesVisitor();
-
   private static LogicalNotVisitor logicalNotVisitor = new LogicalNotVisitor();
-
   private static DotOperatorVisitor dotOperatorVisitor = new DotOperatorVisitor();
-
   private static LineOperatorVisitor lineOperatorVisitor = new LineOperatorVisitor();
-
   private static NoSemantics noSemantics = new NoSemantics();
-
   private static ComparisonOperatorVisitor comparisonOperatorVisitor = new ComparisonOperatorVisitor();
-
   private static BinaryLogicVisitor binaryLogicVisitor = new BinaryLogicVisitor();
-
   private static ConditionVisitor conditionVisitor = new ConditionVisitor();
-
   private static FunctionCallVisitor functionCallVisitor = new FunctionCallVisitor();
-
   private static BooleanLiteralVisitor booleanLiteralVisitor = new BooleanLiteralVisitor();
-
   private static NESTMLNumericLiteralVisitor nESTMLNumericLiteralVisitor = new NESTMLNumericLiteralVisitor();
-
   private static StringLiteralVisitor stringLiteralVisitor = new StringLiteralVisitor();
-
   private static VariableVisitor variableVisitor = new VariableVisitor();
-
   private static InfVisitor infVisitor = new InfVisitor();
+  private CommonsVisitor realThis = this;
 
   public void handle(org.nest.commons._ast.ASTExpr node) {
     traverse(node);

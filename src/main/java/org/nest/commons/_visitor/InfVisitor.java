@@ -8,7 +8,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 /**
  * @author ptraeder
  */
-public class InfVisitor  implements CommonsVisitor{
+public class InfVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr) {

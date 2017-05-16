@@ -33,7 +33,7 @@ public class FunctionCallVisitor implements CommonsVisitor {
     final Optional<MethodSymbol> methodSymbol = NestmlSymbols.resolveMethod(expr.getFunctionCall().get());
 
     if (!methodSymbol.isPresent()) {
-      final String errorMsg = AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Cannot resolve the method: " + functionName;
+      final String errorMsg = AstUtils.print(expr.get_SourcePositionStart()) + " : " + "Cannot resolve the method: " + functionName;
       expr.setType(Either.error(errorMsg));
       return;
     }

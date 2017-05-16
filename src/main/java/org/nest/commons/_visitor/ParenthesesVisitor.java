@@ -7,11 +7,11 @@ import org.nest.symboltable.symbols.TypeSymbol;
 /**
  * @author ptraeder
  */
-public class ParenthesesVisitor implements CommonsVisitor{
+public class ParenthesesVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr) {
-    final Either<TypeSymbol, String> exprType  = expr.getExpr().get().getType();
-      expr.setType(exprType);
+    final Either<TypeSymbol, String> exprType = expr.getExpr().get().getType();
+    expr.setType(exprType);
   }
 }

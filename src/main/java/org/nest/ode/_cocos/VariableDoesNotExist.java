@@ -23,6 +23,7 @@ package org.nest.ode._cocos;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -37,8 +38,6 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author  plotnikov
  */
 public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
-  public static final String ERROR_CODE = "NESTML_VARIABLE_DOESNT_EXIST";
-  private static final String ERROR_MSG_FORMAT = "The variable %s is not defined in %s.";
 
   @Override
   public void check(final ASTOdeDeclaration node) {
@@ -81,9 +80,7 @@ public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
     final Scope scope = node.getEnclosingScope().get();
 
     if (!exists(variableName, scope)) {
-      error(ERROR_CODE + ":" +
-            String.format(ERROR_MSG_FORMAT, variableName, scope.getName().orElse("")),
-          node.get_SourcePositionStart());
+      error(NestmlErrorStrings.getErrorMsg(this, variableName), node.get_SourcePositionStart());
     }
 
   }

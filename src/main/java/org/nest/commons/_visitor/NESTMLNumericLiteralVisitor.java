@@ -5,7 +5,6 @@ import de.monticore.literals.literals._ast.ASTIntLiteral;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.units.unitrepresentation.UnitTranslator;
 
 import java.util.Optional;
 
@@ -15,7 +14,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
 /**
  * @author ptraeder
  */
-public class NESTMLNumericLiteralVisitor implements CommonsVisitor{
+public class NESTMLNumericLiteralVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr) {
@@ -29,16 +28,14 @@ public class NESTMLNumericLiteralVisitor implements CommonsVisitor{
 
     if (exprType.isPresent() && isUnit(exprType.get())) { //Try Unit Type
       expr.setType(Either.value(exprType.get()));
-      return;
     }
-
     else if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTDoubleLiteral) {
       expr.setType(Either.value(getRealType()));
-      return;
     }
     else if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
       expr.setType(Either.value(getIntegerType()));
-      return;
     }
+
   }
+
 }

@@ -7,6 +7,7 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.ode._ast.ASTDerivative;
 import org.nest.ode._ast.ASTShape;
+import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
 import java.util.ArrayList;
@@ -19,13 +20,12 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author  traeder
  */
 public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
-  public static final String ERROR_CODE = "NESTML_RESTRICT_USE_OF_SHAPES";
 
   public class ShapeCollectingVisitor implements NESTMLVisitor {
 
     private List<String> shapeNames = new ArrayList<>();
 
-    public List<String> collectShapes(ASTNeuron node){
+    List<String> collectShapes(ASTNeuron node){
       node.accept(this);
       return shapeNames;
     }
@@ -41,11 +41,11 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
     private List<String> shapes;
     private ASTNeuron neuronNode;
 
-    public ShapeUsageVisitor(List<String> shapes){
+    ShapeUsageVisitor(List<String> shapes){
       this.shapes = shapes;
     }
 
-    public void workOn(ASTNeuron node){
+    void workOn(ASTNeuron node){
       neuronNode = node;
       node.accept(this);
     }
@@ -64,14 +64,14 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
             if(grandparent.isPresent() &&
                 grandparent.get() instanceof ASTFunctionCall){
               ASTFunctionCall grandparentCall = (ASTFunctionCall) grandparent.get();
-              if(grandparentCall.getCalleeName().equals("curr_sum")||
-                  grandparentCall.getCalleeName().equals("cond_sum")){
+              if(grandparentCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM) ||
+                 grandparentCall.getCalleeName().equals(PredefinedFunctions.COND_SUM)){
                 continue;
               }
             }
           }
-          final String errorMsg = ERROR_CODE+ " " + AstUtils.print(node.get_SourcePositionStart()) + " : " +
-              "Shapes may only be used as parameters to either 'curr_sum()' or 'cond_sum()'.";
+          final String errorMsg = NestmlErrorStrings.getErrorMsg(RestrictUseOfShapes.this);
+
           error(errorMsg,node.get_SourcePositionStart());
         }
       }
@@ -80,8 +80,7 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
     public void visit(ASTDerivative node){
       for(String shapeName: shapes){
         if(node.getName().toString().equals(shapeName)){
-          final String errorMsg = ERROR_CODE+ " " + AstUtils.print(node.get_SourcePositionStart()) + " : " +
-              "Shapes may only be used as parameters to either 'curr_sum()' or 'cond_sum()'.";
+          final String errorMsg = NestmlErrorStrings.getErrorMsg(RestrictUseOfShapes.this);
           error(errorMsg,node.get_SourcePositionStart());
         }
       }

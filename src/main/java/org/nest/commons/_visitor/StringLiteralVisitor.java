@@ -8,7 +8,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getStringType;
 /**
  * @author ptraeder
  */
-public class StringLiteralVisitor implements CommonsVisitor{
+public class StringLiteralVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr) {
