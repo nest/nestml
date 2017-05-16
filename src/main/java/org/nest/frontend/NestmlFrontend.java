@@ -173,9 +173,12 @@ public class NestmlFrontend {
 
     }
 
-    final String jsonLogFile;
+    String jsonLogFile;
     if (cliParameters.hasOption(JSON_OPTION)) {
       jsonLogFile = cliParameters.getOptionValue(JSON_OPTION);
+      if (!jsonLogFile.endsWith(".log")) {
+        jsonLogFile += ".log";
+      }
     }
     else { // if the module name is not provided than take the name of its first parent
       jsonLogFile = "";

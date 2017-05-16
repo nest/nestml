@@ -74,4 +74,10 @@ public class NestmlFrontendTest {
 
     nestmlFrontend.start(new String[] {});
   }
+
+
+  @Test
+  public void testHelp() {
+    nestmlFrontend.start(new String[] {});
+  }
 }
