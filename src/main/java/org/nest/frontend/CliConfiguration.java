@@ -51,10 +51,14 @@ public class CliConfiguration {
     return moduleName;
   }
 
+  public String getJsonLogFile() {
+    return this.jasonLogFile;
+  }
+
   public static class Builder {
     private Path modelPath;
     private Path targetPath;
-    private String jasonLogFile;
+    private String jasonLogFile = "";
     private boolean isTracing = false;
     private boolean isCodegeneration;
     public String moduleName;

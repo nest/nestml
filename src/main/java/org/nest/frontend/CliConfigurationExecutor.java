@@ -9,11 +9,9 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import groovyjarjarantlr.collections.AST;
 import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnitTOP;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -21,10 +19,7 @@ import org.nest.nestml._symboltable.NestmlCoCosManager;
 import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -79,6 +74,17 @@ public class CliConfigurationExecutor {
     }
 
     reporter.printReports(System.out, System.out);
+    if (!config.getJsonLogFile().isEmpty()) {
+      final Path logFile = Paths.get(config.getTargetPath().toString(), config.getJsonLogFile());
+      try (BufferedWriter writer = Files.newBufferedWriter(logFile)) {
+        writer.write(reporter.printFindingsAsJsonString());
+      }
+      catch (IOException e) {
+        Log.error("Cannot write JSON log", e);
+      }
+
+    }
+
   }
 
   private List<ASTNESTMLCompilationUnit> parseModels(

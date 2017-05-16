@@ -43,6 +43,7 @@ public class NestmlFrontendIntegrationTest {
     FilesHelper.deleteFilesInFolder(outputPath);
     final Optional<CliConfiguration> cliConfiguration = nestmlFrontend.createCLIConfiguration(new String[] {
         "models",
+        "--json_log", "model_issues",
         "--target", outputPath.toString()});
     Assert.assertTrue(cliConfiguration.isPresent());
     Assert.assertTrue(NestmlFrontend.checkEnvironment(cliConfiguration.get()));
@@ -73,6 +74,7 @@ public class NestmlFrontendIntegrationTest {
   public void testModelsFolder() {
     final String[] args = new String[] {
         "models/",
+        "--json_log", "model_issues",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
@@ -82,6 +84,7 @@ public class NestmlFrontendIntegrationTest {
   public void testTutorialModels() {
     final String[] args = new String[] {
         "src/test/resources/tutorial",
+        "--json_log", "model_issues",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);
@@ -91,6 +94,7 @@ public class NestmlFrontendIntegrationTest {
   public void manually() {
     final String[] args = new String[] {
         "models/terub_neuron_gpe.nestml",
+        "--json_log", "model_issues",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);

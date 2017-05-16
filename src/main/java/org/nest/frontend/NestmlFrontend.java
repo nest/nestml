@@ -178,7 +178,7 @@ public class NestmlFrontend {
       jsonLogFile = cliParameters.getOptionValue(JSON_OPTION);
     }
     else { // if the module name is not provided than take the name of its first parent
-      jsonLogFile = "-";
+      jsonLogFile = "";
     }
 
     return Optional.of(new CliConfiguration
