@@ -1,4 +1,4 @@
-component AliasSetter:
+neuron AliasSetter:
     parameters:
         x integer = 5
         function y integer = -x

@@ -6,9 +6,9 @@
 package org.nest.spl._cocos;
 
 import com.google.common.base.Strings;
-import org.nest.commons._ast.ASTExpr;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._visitor.ExpressionTypeVisitor;
 import org.nest.spl._ast.*;
 import org.nest.spl.symboltable.typechecking.Either;
@@ -24,12 +24,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.spl._cocos.SplErrorStrings.messageCastToReal;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isCompatible;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
+import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
 import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.utils.AstUtils.computeTypeName;
-import static org.nest.utils.AstUtils.getNameOfLHS;
 
 /**
  * Check that the type of the loop variable is an integer.

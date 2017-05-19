@@ -5,10 +5,10 @@
  */
 package org.nest.codegeneration.sympy;
 
-import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.spl._ast.ASTDeclaration;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -69,13 +69,13 @@ public class ImplicitFormTransformer extends TransformerBase {
   }
 
   private ASTNeuron replaceShapesThroughVariables(ASTNeuron astNeuron) {
-    final List<ASTAliasDecl> stateVariablesDeclarations = shapesToStateVariables(astNeuron.getBody().getODEBlock().get());
+    final List<ASTDeclaration> stateVariablesDeclarations = shapesToStateVariables(astNeuron.getBody().getODEBlock().get());
     stateVariablesDeclarations.forEach(stateVariable -> astNeuron.getBody().addToStateBlock(stateVariable));
     astNeuron.getBody().getODEBlock().get().getShapes().clear();
     return astNeuron;
   }
 
-  private List<ASTAliasDecl> shapesToStateVariables(final ASTOdeDeclaration astOdeDeclaration) {
+  private List<ASTDeclaration> shapesToStateVariables(final ASTOdeDeclaration astOdeDeclaration) {
     final List<String> stateVariables = astOdeDeclaration.getShapes()
         .stream()
         .map(shape -> shape.getLhs().toString())
@@ -84,7 +84,7 @@ public class ImplicitFormTransformer extends TransformerBase {
     return stateVariables
         .stream()
         .map(variable -> variable + " real")
-        .map(NESTMLASTCreator::createAlias)
+        .map(NESTMLASTCreator::createDeclaration)
         .collect(toList());
   }
 

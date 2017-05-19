@@ -1,4 +1,4 @@
-component WrongReturns:
+neuron WrongReturns:
   function foo1():
 
   end

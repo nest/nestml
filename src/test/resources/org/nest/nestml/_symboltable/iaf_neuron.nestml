@@ -1,15 +1,10 @@
-component TestComponent:
-end
-
 neuron iaf_neuron:
-  use TestComponent as TestRef
 
   state:
     y0 mV
     y1 mV
     y2 mV
     y3 mV
-    r  integer
     # Membrane potential.
     function V_m mV = y3 + E_L
   end
@@ -60,6 +55,7 @@ neuron iaf_neuron:
 
     PSCInitialValue  mV = 1 * e / tau_syn
     RefractoryCounts integer = steps(t_ref)
+    r integer
   end
 
   input:

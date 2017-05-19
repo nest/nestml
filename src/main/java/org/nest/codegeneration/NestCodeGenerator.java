@@ -12,8 +12,8 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.*;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.codegeneration.sympy.OdeProcessor;
+import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -22,6 +22,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.IReferenceConverter;
+import org.nest.spl.prettyprinter.LegacyExpressionPrinter;
 import org.nest.symboltable.NestmlSymbols;
 import org.nest.utils.AstUtils;
 
@@ -211,17 +212,17 @@ public class NestCodeGenerator {
   private GlobalExtensionManagement getGlexConfiguration() {
     final GlobalExtensionManagement glex = new GlobalExtensionManagement();
     final NESTReferenceConverter converter = new NESTReferenceConverter();
-    final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter(converter);
+    final ExpressionsPrettyPrinter expressionsPrinter  = new LegacyExpressionPrinter(converter);
 
     final IReferenceConverter parameterBlockConverter = new NESTParameterBlockReferenceConverter();
-    final ExpressionsPrettyPrinter parameterBlockPrinter = new ExpressionsPrettyPrinter(parameterBlockConverter);
+    final ExpressionsPrettyPrinter parameterBlockPrinter = new LegacyExpressionPrinter(parameterBlockConverter);
 
     final IReferenceConverter stateBlockReferenceConverter = new NESTStateBlockReferenceConverter();
-    final ExpressionsPrettyPrinter stateBlockPrettyPrinter = new ExpressionsPrettyPrinter(stateBlockReferenceConverter);
+    final ExpressionsPrettyPrinter stateBlockPrettyPrinter = new LegacyExpressionPrinter(stateBlockReferenceConverter);
 
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);
-    glex.setGlobalValue("idemPrinter", new ExpressionsPrettyPrinter());
+    glex.setGlobalValue("idemPrinter", new LegacyExpressionPrinter());
     // this printer is used in one of the variable blocks. there, S_, V_, B_ structs are not defined and getters
     // setters must be used instead.
     glex.setGlobalValue("printerWithGetters", parameterBlockPrinter);
@@ -253,13 +254,12 @@ public class NestCodeGenerator {
     glex.setGlobalValue("odeTransformer", new OdeTransformer());
 
     glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron.getBody()));
-    glex.setGlobalValue("isOutputEventPresent", ASTOutputs.isOutputEventPresent(neuron.getBody()));
     glex.setGlobalValue("isSpikeInput", ASTInputs.isSpikeInput(neuron));
     glex.setGlobalValue("isCurrentInput", ASTInputs.isCurrentInput(neuron));
     glex.setGlobalValue("body", neuron.getBody());
 
     final GslReferenceConverter converter = new GslReferenceConverter();
-    final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
+    final ExpressionsPrettyPrinter expressionsPrinter = new LegacyExpressionPrinter(converter);
     glex.setGlobalValue("expressionsPrinterForGSL", expressionsPrinter);
     glex.setGlobalValue("nestmlSymbols", new NestmlSymbols());
     glex.setGlobalValue("astUtils", new AstUtils());
@@ -276,7 +276,7 @@ public class NestCodeGenerator {
         glex.setGlobalValue("useGSL", true);
 
         final IReferenceConverter converter = new NESTArrayStateReferenceConverter();
-        final ExpressionsPrettyPrinter expressionsPrinter = new ExpressionsPrettyPrinter(converter);
+        final ExpressionsPrettyPrinter expressionsPrinter = new LegacyExpressionPrinter(converter);
         glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
       }
 

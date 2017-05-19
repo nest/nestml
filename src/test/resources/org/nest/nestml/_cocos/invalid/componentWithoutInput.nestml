@@ -1,5 +1,0 @@
-component ComponentWithInput:
-    input:
-        buff <- spike
-    end
-end

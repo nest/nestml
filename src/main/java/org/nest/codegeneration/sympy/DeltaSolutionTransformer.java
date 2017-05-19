@@ -7,9 +7,9 @@ package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTAssignment;
+import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl._ast.ASTStmt;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAlias;
+import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclaration;
 import static org.nest.utils.AstUtils.getFunctionCall;
 
 /**
@@ -40,7 +40,7 @@ class DeltaSolutionTransformer extends TransformerBase {
       final Path propagatorStep) {
 
     // TODO can this variable be a vecotr?
-    astNeuron.getBody().addToInternalBlock(createAlias("__h__ ms = resolution()"));
+    astNeuron.getBody().addToInternalBlock(createDeclaration("__h__ ms = resolution()"));
     addAliasToInternals(astNeuron, p30File);
     addP33ToInternals(astNeuron);
     addPropagatorStep(astNeuron, propagatorStep);
@@ -61,7 +61,7 @@ class DeltaSolutionTransformer extends TransformerBase {
     final String tauConstant = deltaShape.getArgs().get(1).getVariable().get().toString();
     // TODO it could be a vector
     final String p33Declaration = "__P33__ real = exp(-__h__ / " + tauConstant + ")";
-    final ASTAliasDecl astDeclaration =  NESTMLASTCreator.createAlias(p33Declaration);
+    final ASTDeclaration astDeclaration =  NESTMLASTCreator.createDeclaration(p33Declaration);
     astNeuron.getBody().addToInternalBlock(astDeclaration);
   }
 

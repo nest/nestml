@@ -14,7 +14,6 @@ import de.monticore.symboltable.EnclosingScopeOfNodesInitializer;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.Util;
-import de.se_rwth.commons.logging.Log;
 import org.apache.commons.io.FileUtils;
 import org.nest.commons._ast.ASTCommonsNode;
 import org.nest.commons._ast.ASTExpr;
@@ -32,7 +31,6 @@ import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._ast.ASTSPLNode;
-import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -42,7 +40,6 @@ import org.nest.units._ast.ASTUnitType;
 import org.nest.units._visitor.UnitsSIVisitor;
 import org.nest.units.unitrepresentation.SIData;
 import org.nest.units.unitrepresentation.UnitRepresentation;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -173,7 +170,7 @@ public final class AstUtils {
     return names.stream()
         .filter(name -> !name.contains("'"))
         .map(variableName -> resolve(variableName, scope)) // the variable existence checked by the context condition
-        .filter(VariableSymbol::isAlias)
+        .filter(VariableSymbol::isFunction)
         .collect(toList());
   }
 
@@ -299,10 +296,10 @@ public final class AstUtils {
   }
 
   // TODO It works only with multiline comments
-  public static String printComments(final ASTNode astNeuron) {
+  public static String printComments(final ASTNode astNode) {
     final StringBuilder output = new StringBuilder();
-    astNeuron.get_PreComments().forEach(comment -> output.append(comment.getText()));
-    astNeuron.get_PostComments().forEach(comment -> output.append(comment.getText()));
+    astNode.get_PreComments().forEach(comment -> output.append(comment.getText()));
+    astNode.get_PostComments().forEach(comment -> output.append(comment.getText()));
     return output.toString();
   }
 

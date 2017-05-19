@@ -6,7 +6,6 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.antlr4.MCConcreteParser;
-import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.nestml._ast.ASTVar_Block;
 import org.nest.nestml._ast.NESTMLNodeFactory;
 import org.nest.nestml._parser.NESTMLParser;
@@ -36,29 +35,13 @@ public class NESTMLASTCreator {
     PARSER.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
-  static List<ASTAliasDecl> createAliases(final Path declarationFile) {
+  static List<ASTDeclaration> createDeclarations(final Path declarationFile) {
     checkArgument(Files.exists(declarationFile), declarationFile.toString());
 
     try {
       return Files.lines(declarationFile)
-          .map(NESTMLASTCreator::createAlias)
+          .map(NESTMLASTCreator::createDeclaration)
           .collect(Collectors.toList());
-    }
-    catch (IOException e) {
-      final String msg = "Cannot parse declaration statement.";
-      throw new RuntimeException(msg, e);
-    }
-
-  }
-
-  static ASTAliasDecl createAlias(final String declaration) {
-    try {
-      final ASTDeclaration astDeclaration = PARSER.parseDeclaration(new StringReader(declaration)).get();
-      // it is ok to call get, since otherwise it is an error in the file structure
-      final ASTAliasDecl astAliasDecl = NESTMLNodeFactory.createASTAliasDecl();
-      astAliasDecl.setDeclaration(astDeclaration);
-
-      return astAliasDecl;
     }
     catch (IOException e) {
       final String msg = "Cannot parse declaration statement.";

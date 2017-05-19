@@ -6,15 +6,19 @@
 package org.nest.nestml._parser;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.spl._ast.ASTDeclaration;
 import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.utils.AstUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -27,6 +31,7 @@ import java.util.Optional;
  */
 public class NESTMLParser extends NESTMLParserTOP {
 
+  private final List<String> sourceText = Lists.newArrayList();
   private final Optional<Path> modelPath;
 
   public NESTMLParser() {
@@ -39,7 +44,7 @@ public class NESTMLParser extends NESTMLParserTOP {
 
 
   @Override
-  public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(String filename)
+  public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(final String filename)
       throws IOException, RecognitionException {
     final Path pathToModel = Paths.get(filename).normalize();
     if (pathToModel.getParent() == null) {
@@ -62,9 +67,41 @@ public class NESTMLParser extends NESTMLParserTOP {
         return Optional.empty();
       }
 
+      // store model text as list of strings
+      sourceText.addAll(Files.readLines(pathToModel.toFile(), Charset.defaultCharset()));
+      final List<ASTDeclaration> declarations = AstUtils.getAll(res.get(), ASTDeclaration.class);
+
+      for (final ASTDeclaration astDeclaration:declarations) {
+        int line = astDeclaration.get_SourcePositionStart().getLine();
+        final List<String> variableComments = extractComments(sourceText, line - 1);
+        variableComments.forEach(astDeclaration::addComment);
+      }
+
     }
 
     return res;
+  }
+
+  /**
+   * Extracts comments starting from the `line` backwards
+   */
+  private List<String> extractComments(final List<String> sourceText, int lineIndex) {
+    final List<String> result = Lists.newArrayList();
+    if (sourceText.get(lineIndex).contains("#")) {
+      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf("#") + 1).trim());
+    }
+
+    while (lineIndex > 0) {
+      --lineIndex;
+      if (sourceText.get(lineIndex).trim().startsWith("#")) {
+        result.add(0, sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf("#") + 1).trim());
+      }
+      else {
+        break;
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -87,9 +124,7 @@ public class NESTMLParser extends NESTMLParserTOP {
       final Optional<String> packageName = computePackageName(Paths.get(filename), modelPath.get());
       final String artifactName = computeArtifactName(Paths.get(filename));
 
-      if (packageName.isPresent()) {
-        root.setPackageName(packageName.get());
-      }
+      packageName.ifPresent(root::setPackageName);
       root.setArtifactName(artifactName);
     }
     else {
@@ -121,4 +156,5 @@ public class NESTMLParser extends NESTMLParserTOP {
     }
 
   }
+
 }

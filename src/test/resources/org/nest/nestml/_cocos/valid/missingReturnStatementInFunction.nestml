@@ -1,4 +1,4 @@
-component FunctionHasReturnStatement_valid:
+neuron FunctionHasReturnStatement_valid:
 
   function empty1(x mV) real:
     if x > 0:

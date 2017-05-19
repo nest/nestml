@@ -21,15 +21,28 @@
 */
 #ifndef ${neuronName?upper_case}
 #define ${neuronName?upper_case}
-<#-- TODO make it depend on the ODE declaration -->
+
 #include "config.h"
 
 <#if useGSL>
 #ifdef HAVE_GSL
+
+// External includes:
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv.h>
+
 // forwards the declaration of the function
+/**
+ * Function computing right-hand side of ODE for GSL solver.
+ * @note Must be declared here so we can befriend it in class.
+ * @note Must have C-linkage for passing to GSL. Internally, it is
+ *       a first-class C++ function, but cannot be a member function
+ *       because of the C-linkage.
+ * @note No point in declaring it inline, since it is called
+ *       through a function pointer.
+ * @param void* Pointer to model neuron instance.
+ */
 extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f[], void* pnode );
 </#if>
 
@@ -46,25 +59,31 @@ extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f
 #include "dictdatum.h"
 
 /* BeginDocumentation
-Name: ${neuronName}.
+  Name: ${neuronName}.
 
-${neuronSymbol.printComment()}
+  Description:
+  ${neuronSymbol.printComment()}
 
-Parameters:
+  Parameters:
+  The following parameters can be set in the status dictionary.
+  <#list body.getParameterSymbols() as parameter>
+  <#if parameter.hasComment()>
+    ${parameter.getName()} ${parameter.printComment("")}
+  </#if>
+  </#list>
 
-Remarks:
-Empty
+  Dynamic state variables:
+  <#list body.getParameterSymbols() as parameter>
+  <#if parameter.hasComment()>
+    ${parameter.getName()} ${parameter.printComment("")}
+  </#if>
+  </#list>
 
-References:
-Empty
+  References: Empty
 
-Sends: ${outputEvent}
+  Sends: ${outputEvent}
 
-Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
-
-SeeAlso:
-
-Empty
+  Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
 */
 class ${neuronName} : public nest::Archiving_Node
 {
@@ -86,20 +105,19 @@ public:
   * Releases resources.
   */
   ~${neuronName}();
+
   /**
-  * Import sets of overloaded virtual functions.
-  * This is necessary to ensure proper overload and overriding resolution.
-  * @see http://www.gotw.ca/gotw/005.htm.
-  */
+   * Import sets of overloaded virtual functions.
+   * @see Technical Issues / Virtual Functions: Overriding, Overloading, and
+   * Hiding
+   */
   using nest::Node::handles_test_event;
   using nest::Node::handle;
 
-  <#if isOutputEventPresent>
   /**
   * Used to validate that we can send ${outputEvent} to desired target:port.
   */
   nest::port send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool);
-  </#if>
 
   /**
   * @defgroup mynest_handle Functions handling incoming events.
@@ -224,7 +242,7 @@ private:
       enum StateVecElems
       {
         <#list body.getStateNonAliasSymbols() as variable>
-          ${names.convertToCPPName(variable.getName())},
+          ${names.convertToCPPName(variable.getName())}, ${variable.printComment("// ")}
         </#list>
         STATE_VEC_SIZE
       };
@@ -364,7 +382,6 @@ private:
 /** @} */
 }; /* neuron ${neuronName} */
 
-<#if isOutputEventPresent>
 inline
 nest::port ${neuronName}::send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool)
 {
@@ -376,8 +393,6 @@ nest::port ${neuronName}::send_test_event(nest::Node& target, nest::rport recept
 
   return target.handles_test_event(e, receptor_type);
 }
-</#if>
-
 
 <#if isSpikeInput>
 inline

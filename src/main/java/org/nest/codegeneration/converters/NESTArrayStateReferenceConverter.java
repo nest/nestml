@@ -52,7 +52,7 @@ public class NESTArrayStateReferenceConverter extends NESTReferenceConverter {
         return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) ;
       }
       else {
-        if (variableSymbol.isAlias()) {
+        if (variableSymbol.isFunction()) {
           return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {

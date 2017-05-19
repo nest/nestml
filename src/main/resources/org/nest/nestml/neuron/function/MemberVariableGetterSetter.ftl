@@ -6,7 +6,7 @@
 -->
 ${signature("variable")}
 
-<#if variable.isAlias() && !variable.containsSumCall()>
+<#if variable.isFunction() && !variable.containsSumCall()>
   inline ${declarations.printVariableType(variable)} ${names.getter(variable)}() const {
     <#assign simpleExpression = odeTransformer.replaceSumCalls(variable.getDeclaringExpression().get())>
     return ${expressionsPrinter.print(simpleExpression)};

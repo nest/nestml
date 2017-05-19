@@ -6,8 +6,6 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.Names;
-import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.spl.prettyprinter.IReferenceConverter;
@@ -15,19 +13,14 @@ import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.units.unitrepresentation.SIData;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static java.lang.Math.pow;
 import static org.nest.codegeneration.helpers.VariableHelper.printOrigin;
-import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 import static org.nest.utils.AstUtils.convertSiName;
 
@@ -138,7 +131,7 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
       }
       else {
-        if (variableSymbol.isAlias()) {
+        if (variableSymbol.isFunction()) {
           return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {

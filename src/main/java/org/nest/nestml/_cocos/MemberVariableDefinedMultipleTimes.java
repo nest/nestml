@@ -9,7 +9,6 @@ import com.google.common.collect.Maps;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTComponent;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.utils.AstUtils;
@@ -30,16 +29,8 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author ippen, plotnikov
  */
-public class MemberVariableDefinedMultipleTimes implements
-    NESTMLASTNeuronCoCo,
-    NESTMLASTComponentCoCo {
-
+public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
   public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLE_DEFINED_MULTIPLE_TIMES";
-
-  @Override
-  public void check(ASTComponent comp) {
-    check(comp.getBody());
-  }
 
   @Override
   public void check(ASTNeuron neuron) {
@@ -48,9 +39,9 @@ public class MemberVariableDefinedMultipleTimes implements
 
   private void check(ASTBody body) {
     Map<String, SourcePosition> varNames = Maps.newHashMap();
-    body.getStateDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    body.getParameterDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
-    body.getInternalDeclarations().forEach(aliasDecl -> addNames(varNames, aliasDecl.getDeclaration()));
+    body.getStateDeclarations().forEach(declaration -> addNames(varNames, declaration));
+    body.getParameterDeclarations().forEach(declaration -> addNames(varNames, declaration));
+    body.getInternalDeclarations().forEach(declaration -> addNames(varNames, declaration));
     body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
     body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
 

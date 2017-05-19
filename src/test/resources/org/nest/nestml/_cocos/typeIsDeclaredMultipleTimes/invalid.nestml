@@ -4,5 +4,5 @@ neuron Foo:
   end
 end
 
-component Foo:
+neuron Foo:
 end
