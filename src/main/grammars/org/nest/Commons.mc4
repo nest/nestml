@@ -54,7 +54,7 @@ grammar Commons extends de.monticore.types.Types, org.nest.Units {
          | FunctionCall
          | BooleanLiteral // true & false;
          | NumericLiteral Variable
-	       | NumericLiteral
+         | NumericLiteral
          | StringLiteral
          | ["inf"]
          | Variable;
