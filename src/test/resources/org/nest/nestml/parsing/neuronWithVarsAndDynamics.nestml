@@ -35,7 +35,7 @@ neuron DynamicsNeuron:
     for i in 0 ... 10 step 2:
       info("Possible! " + i)
     end
-    for i in 5 ... 0 step -1:
+    for i in 5 ... 0 step -1 :
       info("Possible! " + i)
     end
   end

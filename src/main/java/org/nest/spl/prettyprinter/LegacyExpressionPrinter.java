@@ -19,9 +19,10 @@ public class LegacyExpressionPrinter extends ExpressionsPrettyPrinter{
 
   @Override
   protected String doPrint(final ASTExpr expr)  {
-    if (expr.getNESTMLNumericLiteral().isPresent()) { // number
-        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
+    if (expr.getNumericLiteral().isPresent()) { // number
+      return typesPrinter().prettyprint(expr.getNumericLiteral().get());
     }
+
     if (expr.isInf()) {
       return convertConstant("inf");
     }

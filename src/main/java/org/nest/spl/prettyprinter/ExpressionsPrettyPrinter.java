@@ -41,13 +41,12 @@ public class ExpressionsPrettyPrinter {
   }
 
   protected String doPrint(final ASTExpr expr) {
-    if (expr.getNESTMLNumericLiteral().isPresent()) { // number
-      if(expr.getNESTMLNumericLiteral().get().getType().isPresent()){
-        String type = expr.getNESTMLNumericLiteral().get().getType().get().getSerializedUnit();
-        UnitRepresentation uType = UnitRepresentation.getBuilder().serialization(type).build();
-        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral()) +" ["+uType.prettyPrint()+"] ";
-      }else {
-        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
+    if (expr.getNumericLiteral().isPresent()) { // number
+      if(!expr.getVariable().isPresent()){
+        return typesPrinter().prettyprint(expr.getNumericLiteral().get());
+      }
+      else{ //number variable pair. For denoting Si Units with factor i.e. "4 mOhm"
+        return typesPrinter().prettyprint(expr.getNumericLiteral().get()) + " * " + convertVariableName(expr.getVariable().get());
       }
     }
     if (expr.isInf()) {

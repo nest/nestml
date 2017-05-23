@@ -30,7 +30,7 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
 
   private static BooleanLiteralVisitor booleanLiteralVisitor = new BooleanLiteralVisitor();
 
-  private static NESTMLNumericLiteralVisitor nESTMLNumericLiteralVisitor = new NESTMLNumericLiteralVisitor();
+  private static NumericLiteralVisitor numericLiteralVisitor = new NumericLiteralVisitor();
 
   private static StringLiteralVisitor stringLiteralVisitor = new StringLiteralVisitor();
 
@@ -150,9 +150,10 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
     }
 
     //Expr = NESTMLNumericLiteral
-    if (node.getNESTMLNumericLiteral().isPresent()) {
+    if (node.getNumericLiteral().isPresent() ||
+            (node.getNumericLiteral().isPresent() && node.getVariable().isPresent())) {
       // node.getNESTMLNumericLiteral().get().accept(this);
-      setRealThis(nESTMLNumericLiteralVisitor);
+      setRealThis(numericLiteralVisitor);
       return;
     }
 

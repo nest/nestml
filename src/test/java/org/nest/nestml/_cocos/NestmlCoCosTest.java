@@ -503,7 +503,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoCheckerWithSPLCocos,
         "SPL_",
-        16);
+        18);
 
   }
 

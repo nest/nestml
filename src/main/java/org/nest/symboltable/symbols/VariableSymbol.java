@@ -35,6 +35,7 @@ public class VariableSymbol extends CommonSymbol {
   private ASTExpr odeDeclaration = null;
 
   private TypeSymbol type;
+  private boolean isPredefined;
   private boolean isFunction;
   private boolean isRecordable;
   private BlockType blockType;
@@ -149,6 +150,14 @@ public class VariableSymbol extends CommonSymbol {
       return getVectorParameter().isPresent();
     }
 
+  }
+
+  public boolean isPredefined() {
+    return isPredefined;
+  }
+
+  public void setPredefined(boolean predefined) {
+    isPredefined = predefined;
   }
 
   public Optional<String> getVectorParameter() {

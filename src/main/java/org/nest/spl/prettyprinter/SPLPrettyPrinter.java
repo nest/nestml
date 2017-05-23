@@ -275,10 +275,8 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements SPLVisitor {
     print(expressionsPrinter.print(astForStmt.getFrom()));
     print(" ... ");
     print(expressionsPrinter.print(astForStmt.getTo()));
-    if (astForStmt.getStep().isPresent()) {
-      print(" step ");
-      print(typesPrinter().prettyprint(astForStmt.getStep().get()));
-    }
+    print(" step ");
+    print(typesPrinter().prettyprint(astForStmt.getStep()));
   }
 
   /**

@@ -57,11 +57,11 @@ neuron testNeuron:
         foofoo2 string = "" + i
 
         x3 boolean
-        for x3 in 1 ... 5 : # error: boolean in for step
+        for x3 in 1 ... 5 step 1: # error: boolean in for step
 
         end
 
-        ms ms = 0
+        ms ms = 0 # fires 3 errors for already being defined
 
         #x3 boolean # x3 is already defined. # TODO doesn't work
 

@@ -10,6 +10,7 @@ import com.google.common.collect.Maps;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.units.unitrepresentation.SIData;
 
 import java.util.Map;
 import java.util.Optional;
@@ -29,12 +30,18 @@ public class PredefinedVariables {
   static  {
     registerVariable(E_CONSTANT, PredefinedTypes.getRealType());
     registerVariable(TIME_CONSTANT, PredefinedTypes.getMS());
+
+    for(String unitName : SIData.getCorrectSIUnits()){
+      TypeSymbol typeSymbol = PredefinedTypes.getType(unitName);
+      registerVariable(unitName,typeSymbol);
+    }
   }
 
   private static void registerVariable(
       final String variableName, final TypeSymbol type) {
     final VariableSymbol variableSymbol = new VariableSymbol(variableName);
     variableSymbol.setType(type);
+    variableSymbol.setPredefined(true);
     name2VariableSymbol.put(variableName, variableSymbol);
   }
 

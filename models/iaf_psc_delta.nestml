@@ -113,7 +113,7 @@ neuron iaf_psc_delta_neuron:
       # add and reset accumulator
       if with_refr_input and refr_spikes_buffer != 0.0mV:
         V_abs += refr_spikes_buffer
-        refr_spikes_buffer = 0.0mV
+        refr_spikes_buffer = 0.0 mV
       end
 
       # lower bound of membrane potential
@@ -123,7 +123,7 @@ neuron iaf_psc_delta_neuron:
       # read spikes from buffer and accumulate them, discounting
       # for decay until end of refractory period
       if with_refr_input:
-        refr_spikes_buffer += spikes * exp(-r * h / tau_m) * 1 mV
+        refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV
       #else:
       #  spikes = 0 # clear buffer entry, ignore spike
       end

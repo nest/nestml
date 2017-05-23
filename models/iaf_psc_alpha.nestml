@@ -80,8 +80,8 @@ neuron iaf_psc_alpha_neuron:
   end
 
   equations:
-    shape I_shape_in = 1 pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
-    shape I_shape_ex = 1 pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
+    shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
+    shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
     V_abs' = -1/Tau * V_abs + 1/C_m * (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
   end

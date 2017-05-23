@@ -85,7 +85,7 @@ neuron terub_neuron_gpe:
     function g_phi_r real = 1.0
 
     # Calcium concentration and afterhyperpolarization current
-    function g_epsilon 1/ms =  0.0001[1/ms]
+    function g_epsilon 1/ms =  0.0001 /ms
     function g_k_Ca real = 15.0 #Report:15,  Terman Rubin 2002: 20.0
     function g_k1 real = 30.0
 
@@ -118,12 +118,12 @@ neuron terub_neuron_gpe:
     g_in' = g_in' - ( g_in / tau_syn_in ) 
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* 1 pA + I_stim + I_e + I_ex_mod * 1 pA + I_in_mod * 1 pA) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + I_stim + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m
 
     # channel dynamics
-    gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / 1 ms # h-variable
-    gate_n' = g_phi_n *((n_inf-gate_n) / tau_n) / 1 ms # n-variable
-    gate_r' = g_phi_r *((r_inf-gate_r) / tau_r) / 1 ms # r-variable
+    gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / ms # h-variable
+    gate_n' = g_phi_n *((n_inf-gate_n) / tau_n) / ms # n-variable
+    gate_r' = g_phi_r *((r_inf-gate_r) / tau_r) / ms # r-variable
 
     # Calcium concentration
     Ca_con' = g_epsilon*(-I_Ca - I_T - g_k_Ca * Ca_con)
@@ -150,8 +150,8 @@ neuron terub_neuron_gpe:
   end
 
   internals:
-    PSCurrInit_E pA/ms = 1.0 pA * e / tau_syn_ex
-    PSCurrInit_I pA/ms = 1.0 pA * e / tau_syn_in
+    PSCurrInit_E pA/ms = pA * e / tau_syn_ex
+    PSCurrInit_I pA/ms = pA * e / tau_syn_in
     refractory_counts integer = steps(t_ref)
     r integer # counts number of tick during the refractory period
   end

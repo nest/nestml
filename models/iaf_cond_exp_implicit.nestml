@@ -27,8 +27,8 @@ neuron iaf_cond_exp_implicit:
 
   state:
     V_m mV = E_L     # membrane potential
-    g_in nS = 0nS    # inputs from the inh conductance
-    g_ex nS = 0nS    # inputs from the exc conductance
+    g_in nS = 0 nS    # inputs from the inh conductance
+    g_ex nS = 0 nS    # inputs from the exc conductance
   end
 
   equations:
@@ -61,11 +61,11 @@ neuron iaf_cond_exp_implicit:
   internals:
     # Impulse to add to g_ex' on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E nS/ms = 1.0 nS * e / tau_synE
+    PSConInit_E nS/ms = nS * e / tau_synE
 
     # Impulse to add to g_in' on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I nS/ms = 1.0 nS * e / tau_synI
+    PSConInit_I nS/ms = nS * e / tau_synI
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
     r integer                               # counts number of tick during the refractory period
@@ -91,8 +91,8 @@ neuron iaf_cond_exp_implicit:
     end
 
     # add incoming spikes
-    g_ex += spikeExc * 1 nS
-    g_in += spikeInh * 1 nS
+    g_ex += spikeExc * nS
+    g_in += spikeInh * nS
     # set new input current
     I_stim = currents
   end

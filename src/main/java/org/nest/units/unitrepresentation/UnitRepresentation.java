@@ -256,6 +256,15 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   private int magnitude;
   private int K, s, m, g, cd, mol, A;
   private boolean ignoreMagnitude = false;
+  private static UnitFilter targetUnitFilter = new NESTMLUnitFilter();
+
+  public static UnitFilter getTargetUnitFilter(){
+    return targetUnitFilter;
+  }
+
+  public int getMagnitude() {
+    return magnitude;
+  }
 
   /**
    *
@@ -263,16 +272,6 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
    */
   public static Builder getBuilder(){
     return new Builder();
-  }
-
-  /**
-   * Sets the magnitude. Only used by {@link org.nest.units._visitor.ODEPostProcessingVisitor ODEPostProcessingVisitor}
-   * to aid in formatting warning messages.
-   *
-   * @param magnitude should be 0 or evenly divisible by 3 in order to keep the unit name printable for warnings/errors
-   */
-  public void setMagnitude(int magnitude) {
-    this.magnitude = magnitude;
   }
 
   /**
@@ -326,6 +325,14 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     return 0;
   }
 
+  /**
+   *
+   * @return A copy of the object with magnitude set to 0
+   */
+  public UnitRepresentation getBase(){
+    UnitRepresentation result = getBuilder().other(this).magnitude(0).build();
+    return result;
+  }
   /**
    *
    * @return A valid name for the given Unit. Not guaranteed to match the declaration of the type, but at least equivalent.
