@@ -1,11 +1,11 @@
 neuron iaf_neuron_ode:
 
   state:
-    V mV
+    V_m mV
   end
 
   equations:
-      V' = t
+      V_m' = t
   end
 
 end

@@ -1,21 +1,14 @@
 package org.nest.commons._visitor;
 
-import com.google.common.base.Joiner;
-import de.monticore.literals.literals._ast.ASTFloatLiteral;
-import de.monticore.literals.literals._ast.ASTNumericLiteral;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
-import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static java.lang.Math.pow;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 

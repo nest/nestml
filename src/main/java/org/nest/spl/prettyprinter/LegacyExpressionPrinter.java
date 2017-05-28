@@ -2,7 +2,6 @@ package org.nest.spl.prettyprinter;
 
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 
 /**
  * Created by ptraeder.
@@ -10,11 +9,20 @@ import org.nest.units.unitrepresentation.UnitRepresentation;
  */
 public class LegacyExpressionPrinter extends ExpressionsPrettyPrinter{
 
+  public LegacyExpressionPrinter() {
+    super();
+  }
+
+  public LegacyExpressionPrinter(final IReferenceConverter referenceConverter) {
+    super(referenceConverter);
+  }
+
   @Override
   protected String doPrint(final ASTExpr expr)  {
-    if (expr.getNESTMLNumericLiteral().isPresent()) { // number
-        return typesPrinter().prettyprint(expr.getNESTMLNumericLiteral().get().getNumericLiteral());
+    if (expr.getNumericLiteral().isPresent()) { // number
+      return typesPrinter().prettyprint(expr.getNumericLiteral().get());
     }
+
     if (expr.isInf()) {
       return convertConstant("inf");
     }

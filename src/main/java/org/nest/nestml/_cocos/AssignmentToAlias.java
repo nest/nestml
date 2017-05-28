@@ -29,7 +29,7 @@ public class AssignmentToAlias implements SPLASTAssignmentCoCo {
     final Scope scope =  astAssignment.getEnclosingScope().get();
     final String variableName = astAssignment.getLhsVarialbe().toString();
     final VariableSymbol lhsVariable = VariableSymbol.resolve(variableName, scope);
-    if (lhsVariable.isAlias()) {
+    if (lhsVariable.isFunction()) {
       String msg = NestmlErrorStrings.getInstance().getErrorMsg(this, variableName);
 
       error(msg, astAssignment.get_SourcePositionStart());

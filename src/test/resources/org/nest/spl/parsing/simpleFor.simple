@@ -1,11 +1,11 @@
 module org.nest.spl.parsing.simpleFor
 
 x real
-for x in 1 ... 5 :
+for x in 1 ... 5 step 1:
 
 end
 
-for x in 1 ... 5 :
+for x in 1 ... 5 step 1:
 end
 
 for x in 1 ... 5 step 2:

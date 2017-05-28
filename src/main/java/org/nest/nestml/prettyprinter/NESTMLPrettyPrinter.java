@@ -10,10 +10,11 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeFunction;
 import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.ode._ast.ASTOdeFunction;
 import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
+import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.utils.AstUtils;
@@ -37,11 +38,9 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   private final ExpressionsPrettyPrinter expressionsPrinter;
 
   public static class Builder {
-
     public static NESTMLPrettyPrinter build() {
       return new NESTMLPrettyPrinter(new ExpressionsPrettyPrinter());
     }
-
   }
 
   private NESTMLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrinter) {
@@ -61,21 +60,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
 
-
-  /**
-   * Grammar:
-   * Import = "import" QualifiedName ([star:".*"])? (";")?;
-   */
-  @Override
-  public void visit(final ASTImport astImport) {
-    final String importName = Names.getQualifiedName(astImport.getQualifiedName().getParts());
-    print("import " + importName);
-    if (astImport.isStar()) {
-      print(".*");
-    }
-    println();
-  }
-
   /**
    * Grammar:
    * Neuron = "neuron" Name Body;
@@ -85,20 +69,8 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     printCommentsIfPresent(astNeuron);
 
     print("neuron " + astNeuron.getName());
-    astNeuron.getBase().ifPresent(baseNeuron -> print(" extends " + baseNeuron));
   }
 
-
-
-  /**
-   * Grammar:
-   * Neuron = "neuron" Name Body;
-   */
-  @Override
-  public void visit(final ASTComponent astComponent) {
-    printCommentsIfPresent(astComponent);
-    print("component " + astComponent.getName());
-  }
   /**
    * Grammar:
    * Body = BLOCK_OPEN ( SL_COMMENT | NEWLINE | BodyElement)* BLOCK_CLOSE;
@@ -118,15 +90,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   public void endVisit(final ASTBody astBody) {
     unindent();
     println(BLOCK_CLOSE);
-  }
-
-  /**
-   * USE_Stmt implements BodyElement = "use" name:QualifiedName "as" function:Name;
-   */
-  @Override
-  public void visit(final ASTUSE_Stmt astUseStmt) {
-    final String referencedName = Names.getQualifiedName(astUseStmt.getName().getParts());
-    println("use " + referencedName + " as " + astUseStmt.getAlias());
   }
 
   @Override
@@ -157,61 +120,24 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     else if (astVarBlock.isParameters ()) {
       println("parameters" + BLOCK_OPEN);
     }
+    for (ASTDeclaration astDeclaration:astVarBlock.getDeclarations()) {
+      printDeclarationStatement(astDeclaration);
+      println();
+    }
 
   }
+
+  private void printDeclarationStatement(final ASTDeclaration astDeclaration) {
+    final SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
+    splPrettyPrinter.printDeclaration(astDeclaration);
+    print(splPrettyPrinter.result());
+  }
+
 
   @Override
   public void endVisit(final ASTVar_Block astVarBlock) {
     unindent();
     println(BLOCK_CLOSE);
-  }
-
-  /**
-   * AliasDecl = ([hide:"-"])? ([function:"function"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
-   */
-  @Override
-  public void visit(final ASTAliasDecl astAliasDecl) {
-    printCommentsIfPresent(astAliasDecl);
-    printAliasPrefix(astAliasDecl);
-    printDeclarationStatement(astAliasDecl);
-    printInvariants(astAliasDecl);
-
-  }
-
-  private void printAliasPrefix(final ASTAliasDecl astAliasDecl) {
-    if (astAliasDecl.isRecordable()) {
-      print("recordable ");
-    }
-
-    if (astAliasDecl.isFunction()) {
-      print("function ");
-    }
-  }
-
-  private void printDeclarationStatement(final ASTAliasDecl astAliasDecl) {
-    final SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
-    splPrettyPrinter.printDeclaration(astAliasDecl.getDeclaration());
-    print(splPrettyPrinter.result());
-  }
-
-
-  private void printInvariants(final ASTAliasDecl astAliasDecl) {
-    if (astAliasDecl.getInvariant().isPresent()) {
-      print("[[");
-      final ASTExpr astInvariant = astAliasDecl.getInvariant().get();
-      print(expressionsPrinter.print(astInvariant));
-      print("]]");
-
-    }
-  }
-
-  /**
-   * Grammar:
-   * AliasDecl = ([hide:"-"])? ([function:"function"])? Declaration ("[" invariants:Expr (";" invariants:Expr)* "]")?;
-   */
-  @Override
-  public void endVisit(final ASTAliasDecl astAliasDecl) {
-    println();
   }
 
   /**
@@ -406,7 +332,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
 
   /**
    * Dynamics implements BodyElement =
-   * "update"
+   * "update:"
    *   BLOCK_OPEN
    *     Block
    *   BLOCK_CLOSE;

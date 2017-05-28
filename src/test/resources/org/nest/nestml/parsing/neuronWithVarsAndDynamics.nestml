@@ -1,5 +1,3 @@
-import vars.VarsNeuron
-
 neuron DynamicsNeuron:
   state:
     vM mV
@@ -37,15 +35,11 @@ neuron DynamicsNeuron:
     for i in 0 ... 10 step 2:
       info("Possible! " + i)
     end
-    for i in 5 ... 0 step -1:
+    for i in 5 ... 0 step -1 :
       info("Possible! " + i)
     end
   end
 
-
-  function set_diameter(v mm):
-    radius = v / 2
-  end
 
   input:
     spikeBuffer   <- inhibitory excitatory spike

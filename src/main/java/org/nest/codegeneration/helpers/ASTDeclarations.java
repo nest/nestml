@@ -8,7 +8,6 @@ package org.nest.codegeneration.helpers;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
-import org.nest.nestml._ast.ASTAliasDecl;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -62,10 +61,6 @@ public class ASTDeclarations {
     else {
       return "0"; // TODO map it based on its type
     }
-  }
-
-  public List<VariableSymbol> getVariables(final ASTAliasDecl astAliasDecl) {
-    return getVariables(astAliasDecl.getDeclaration());
   }
 
   public List<VariableSymbol> getVariables(final ASTDeclaration astDeclaration) {

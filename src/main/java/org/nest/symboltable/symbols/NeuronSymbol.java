@@ -7,9 +7,7 @@ package org.nest.symboltable.symbols;
 
 import de.monticore.ast.Comment;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
-import de.monticore.symboltable.MutableScope;
 import de.monticore.symboltable.SymbolKind;
-import org.nest.symboltable.NeuronScope;
 import org.nest.symboltable.symbols.references.NeuronSymbolReference;
 
 import java.util.Collection;
@@ -91,11 +89,6 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     return methodSymbol.get();
   }
 
-  @Override
-  protected MutableScope createSpannedScope() {
-    return new NeuronScope();
-  }
-
   public void setBaseNeuron(NeuronSymbolReference baseNeuron) {
     checkNotNull(baseNeuron );
     this.baseNeuron = baseNeuron;
@@ -107,17 +100,14 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   @SuppressWarnings("unused") // it is used in the NeuronHeader.ftl generator template
   public String printComment() {
-    final StringBuilder output = new StringBuilder();
-    if(getAstNode().isPresent()) {//
-      escapeAndPrintComment(getAstNode().get().get_PreComments(), output);
-      escapeAndPrintComment(getAstNode().get().get_PostComments(), output);
-      getAstNode().get().get_PostComments()
-          .stream()
-          .map(comment -> comment.getText().replace("/*", "//").replace("*/", "//"))
-          .forEach(output::append);
+    final StringBuilder result = new StringBuilder();
+
+    if(getAstNode().isPresent()) {
+      escapeAndPrintComment(getAstNode().get().get_PreComments(), result);
+      escapeAndPrintComment(getAstNode().get().get_PostComments(), result);
     }
 
-    return output.toString();
+    return result.toString();
   }
 
   /**
@@ -126,7 +116,8 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
    */
   private void escapeAndPrintComment(final List<Comment> comments, final StringBuilder output) {
     comments.stream()
-        .map(comment -> comment.getText().replace("/*", "//").replace("*/", "//"))
+        .map(comment -> comment.getText().replace("/*", "").replace("*/", ""))
+        .map(String::trim)
         .forEach(output::append);
   }
 

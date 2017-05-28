@@ -21,8 +21,8 @@
 */
 
 /*
-* Initialization file for MyModule.
-* Run automatically when MyModule is loaded.
+* Initialization file for ${moduleName}.
+* Run automatically when ${moduleName} is loaded.
 */
 
 M_DEBUG (${moduleName}.sli) (Initializing SLI support for ${moduleName}.) message

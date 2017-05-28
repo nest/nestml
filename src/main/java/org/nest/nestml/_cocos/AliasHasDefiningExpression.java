@@ -5,7 +5,8 @@
  */
 package org.nest.nestml._cocos;
 
-import org.nest.nestml._ast.ASTAliasDecl;
+import org.nest.spl._ast.ASTDeclaration;
+import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 
 import static de.se_rwth.commons.logging.Log.error;
 
@@ -14,14 +15,14 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author (last commit) ippen, plotnikov
  */
-public class AliasHasDefiningExpression implements NESTMLASTAliasDeclCoCo {
+public class AliasHasDefiningExpression implements SPLASTDeclarationCoCo {
 
   public static final String ERROR_CODE = "NESTML_ALIAS_HAS_DEFINING_EXPRESSION";
 
   @Override
-  public void check(final ASTAliasDecl decl) {
+  public void check(final ASTDeclaration decl) {
     if (decl.isFunction()) {
-      if (!decl.getDeclaration().getExpr().isPresent()) {
+      if (!decl.getExpr().isPresent()) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
         final String msg = errorStrings.getErrorMsg(this);
 

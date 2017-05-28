@@ -15,8 +15,6 @@ import static de.se_rwth.commons.logging.Log.warn;
 import static java.lang.Math.abs;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
 
-import org.nest.nestml._ast.ASTNeuron;
-
 /**
  * Internal representation of SI Units. Supplies arithmetic functions on units and
  * (de)serializes them.
@@ -24,11 +22,6 @@ import org.nest.nestml._ast.ASTNeuron;
  * @author plotnikov, traeder
  */
 public class UnitRepresentation implements Comparable<UnitRepresentation>{
-  private int magnitude;
-  private int K, s, m, g, cd, mol, A;
-  private boolean ignoreMagnitude = false;
-
-
   /**
    * Helper class for organizing printing
    */
@@ -259,9 +252,13 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
   }
 
   private final String ERROR_CODE = "NESTML_UnitRepresentation: ";
+  private int magnitude;
+  private int K, s, m, g, cd, mol, A;
+  private boolean ignoreMagnitude = false;
+  private static UnitFilter targetUnitFilter = new NESTMLUnitFilter();
 
-  public boolean hasBiggerMagnitudeThan(UnitRepresentation other) {
-    return this.magnitude > other.magnitude;
+  public static UnitFilter getTargetUnitFilter(){
+    return targetUnitFilter;
   }
 
   public int getMagnitude() {
@@ -327,6 +324,14 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     return 0;
   }
 
+  /**
+   *
+   * @return A copy of the object with magnitude set to 0
+   */
+  public UnitRepresentation getBase(){
+    UnitRepresentation result = getBuilder().other(this).magnitude(0).build();
+    return result;
+  }
   /**
    *
    * @return A valid name for the given Unit. Not guaranteed to match the declaration of the type, but at least equivalent.

@@ -1,5 +1,3 @@
-import nestml.*
-
 neuron predefinedTypes:
 
 end

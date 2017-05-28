@@ -11,6 +11,7 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
 import de.monticore.literals.literals._ast.ASTFloatLiteral;
+import de.monticore.literals.literals._ast.ASTNumericLiteral;
 import de.monticore.symboltable.EnclosingScopeOfNodesInitializer;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.SourcePosition;
@@ -19,7 +20,6 @@ import org.apache.commons.io.FileUtils;
 import org.nest.commons._ast.ASTCommonsNode;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTNESTMLNumericLiteral;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
@@ -33,7 +33,6 @@ import org.nest.ode._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._ast.ASTSPLNode;
-import org.nest.spl._visitor.SPLInheritanceVisitor;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
@@ -41,8 +40,8 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.units.unitrepresentation.SIData;
 import org.nest.units.unitrepresentation.UnitRepresentation;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -57,11 +56,12 @@ import static com.google.common.base.Preconditions.*;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.lang.Math.pow;
 import static java.util.stream.Collectors.toList;
+import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**
  * Helper class containing common operations concerning ast nodes.
- * 
+ *
  * @author plotnikov, oberhoff
  */
 public final class AstUtils {
@@ -172,7 +172,7 @@ public final class AstUtils {
     return names.stream()
         .filter(name -> !name.contains("'"))
         .map(variableName -> resolve(variableName, scope)) // the variable existence checked by the context condition
-        .filter(VariableSymbol::isAlias)
+        .filter(VariableSymbol::isFunction)
         .collect(toList());
   }
 
@@ -298,10 +298,10 @@ public final class AstUtils {
   }
 
   // TODO It works only with multiline comments
-  public static String printComments(final ASTNode astNeuron) {
+  public static String printComments(final ASTNode astNode) {
     final StringBuilder output = new StringBuilder();
-    astNeuron.get_PreComments().forEach(comment -> output.append(comment.getText()));
-    astNeuron.get_PostComments().forEach(comment -> output.append(comment.getText()));
+    astNode.get_PreComments().forEach(comment -> output.append(comment.getText()));
+    astNode.get_PostComments().forEach(comment -> output.append(comment.getText()));
     return output.toString();
   }
 
@@ -521,10 +521,9 @@ public final class AstUtils {
     //create expression holding literal node to switch value and magnitude
     ASTFloatLiteral conversionFloatLiteral = ASTFloatLiteral.getBuilder().
         source(String.valueOf(literalSource)).build();
-    ASTNESTMLNumericLiteral conversionFinishedLiteral = ASTNESTMLNumericLiteral.getBuilder().
-        numericLiteral(conversionFloatLiteral).build();
+    //ASTNumericLiteral conversionFinishedLiteral = conversionFloatLiteral;
 
-    ASTExpr conversionLiteralExpr = ASTExpr.getBuilder().nESTMLNumericLiteral(conversionFinishedLiteral).build();
+    ASTExpr conversionLiteralExpr = ASTExpr.getBuilder().numericLiteral(conversionFloatLiteral).build();
     TypeSymbol magType = new TypeSymbol("[0,0,0,0,0,0,0,"+(-magDiff)+"]i", TypeSymbol.Type.UNIT);
     conversionLiteralExpr.setType(Either.value(magType));
 
@@ -537,5 +536,23 @@ public final class AstUtils {
     //put substitution in parentheses, just to be sure.
     ASTExpr substitueWithParents = ASTExpr.getBuilder().leftParentheses(true).rightParentheses(true).expr(substitute).build();
     return substitueWithParents;
+  }
+
+  public static Optional<String> convertSiName(String astVariable) {
+    final String varShortName = astVariable.toString();
+    for (String siUnit : SIData.getCorrectSIUnits()) {
+      if (varShortName.equals(siUnit)) {
+        TypeSymbol variableType = getType(varShortName);
+        UnitRepresentation variableRep = UnitRepresentation
+            .getBuilder()
+            .serialization(variableType.getName())
+            .build();
+        int magnitude = UnitRepresentation.getTargetUnitFilter()
+            .getDifferenceToRegisteredTarget(variableRep);
+        double magnitudeAsFactor = pow(10.0, magnitude);
+        return Optional.of(String.valueOf(magnitudeAsFactor));
+      }
+    }
+    return Optional.empty();
   }
 }

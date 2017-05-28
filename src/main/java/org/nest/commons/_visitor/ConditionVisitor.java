@@ -1,6 +1,5 @@
 package org.nest.commons._visitor;
 
-import com.google.common.reflect.TypeToken;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;

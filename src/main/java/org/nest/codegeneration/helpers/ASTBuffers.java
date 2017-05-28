@@ -122,8 +122,9 @@ public class ASTBuffers {
     }
     bufferType = bufferType.replace(".", "::"); // TODO review
 
-    return bufferType + " " + buffer.getName() + ";" +
-        "\n//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n";
+    return "//!< Buffer incoming " + buffer.getType().getName() + "s through delay, as sum\n" +
+           bufferType + " " + buffer.getName();
+
   }
 
   public String printBufferDeclarationValue(final VariableSymbol buffer) {

@@ -1,4 +1,4 @@
-component AliasInDecl:
+neuron AliasInDecl:
   parameters:
     n  integer
     function three integer = 3 # should be an error?

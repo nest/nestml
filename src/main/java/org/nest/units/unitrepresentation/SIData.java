@@ -61,7 +61,7 @@ public class SIData {
   private static String[] SIUnitsDerivedRaw =
       {"Hz","N","Pa","J","W","C","V","F","Ohm","S","Wb","T","H","lm","lx","Bq","Gy","Sv","kat"};
   private static String[] SIPrefixesRaw =
-      {"da","h","k","M","G","T","P","E","Z","Y","d","c","m","mu","n","p","f","a","z","y"};
+      {"k","M","G","T","P","E","Z","Y","m","mu","n","p","f","a","z","y"};
 
   private static List<String> SIUnits = Arrays.asList(SIUnitsRaw);
   private static List<String> SIUnitsDerived = Arrays.asList(SIUnitsDerivedRaw);
@@ -159,7 +159,7 @@ public class SIData {
     baseRepresentations.put("mol",mole);
     baseRepresentations.put("A",ampere);
 
-    prefixMagnitudes.put("da",1);
+
     prefixMagnitudes.put("k",3);
     prefixMagnitudes.put("M",6);
     prefixMagnitudes.put("G",9);
@@ -168,13 +168,11 @@ public class SIData {
     prefixMagnitudes.put("E",18);
     prefixMagnitudes.put("Z",21);
     prefixMagnitudes.put("Y",24);
-
-    prefixMagnitudes.put("d",-1);
     prefixMagnitudes.put("m",-3);
     prefixMagnitudes.put("mu",-6);
     prefixMagnitudes.put("n",-9);
     prefixMagnitudes.put("p",-12);
-    prefixMagnitudes.put("g",-15);
+    prefixMagnitudes.put("f",-15);
     prefixMagnitudes.put("a",-18);
     prefixMagnitudes.put("z",-21);
     prefixMagnitudes.put("y",-24);

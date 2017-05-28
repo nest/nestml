@@ -12,7 +12,7 @@ end
 
 t real
 h integer
-for h in 0 ... 10:
+for h in 0 ... 10 step 1:
   t1 integer
   t2 integer
   if true:
