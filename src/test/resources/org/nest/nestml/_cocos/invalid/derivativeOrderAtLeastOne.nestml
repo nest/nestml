@@ -5,7 +5,7 @@ neuron iaf_neuron_ode:
   end
 
   equations:
-      V_m' = t
+     V_m = t
   end
 
 end

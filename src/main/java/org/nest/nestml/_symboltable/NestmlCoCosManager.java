@@ -8,6 +8,7 @@ package org.nest.nestml._symboltable;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.*;
 import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
@@ -31,28 +32,55 @@ import java.util.List;
 public class NestmlCoCosManager {
 
   private final NESTMLCoCoChecker variablesExistenceChecker = new NESTMLCoCoChecker();
+  private final NESTMLCoCoChecker multipleDefinitionChecker = new NESTMLCoCoChecker();
   private final NESTMLCoCoChecker nestmlCoCoChecker = new NESTMLCoCoChecker();
 
   public NestmlCoCosManager() {
     registerVariableExistenceChecks();
+    registerMultipleDefinitionChecksChecks();
     registerCocos();
   }
 
-  public List<Finding> analyzeModel(final ASTNESTMLCompilationUnit root) {
+  public List<Finding> analyzeModel(final ASTNESTMLNode root) {
     Log.getFindings().clear();
     variablesExistenceChecker.checkAll(root);
     final boolean allVariablesDefined = Log.getFindings().stream().noneMatch(Finding::isError);
+    if (!allVariablesDefined) {
+      return LogHelper.getModelFindings(Log.getFindings());
+    }
 
-    if (allVariablesDefined) {
+    multipleDefinitionChecker.checkAll(root);
+    final boolean allVariablesDefinedAtMostOnce = Log.getFindings().stream().noneMatch(Finding::isError);
+    if (!allVariablesDefinedAtMostOnce) {
+      return LogHelper.getModelFindings(Log.getFindings());
+    }
+    else {
       nestmlCoCoChecker.checkAll(root);
     }
+
     return LogHelper.getModelFindings(Log.getFindings());
   }
 
   private void registerVariableExistenceChecks() {
     final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
-    nestmlCoCoChecker.addCoCo(variableDoesNotExist);
+    variablesExistenceChecker.addCoCo(variableDoesNotExist);
     SPLCoCosManager.addVariableExistenceCheck(variablesExistenceChecker);
+  }
+
+
+  private void registerMultipleDefinitionChecksChecks() {
+    final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes
+        = new MemberVariableDefinedMultipleTimes();
+    multipleDefinitionChecker.addCoCo(memberVariableDefinedMultipleTimes);
+
+    final FunctionDefinedMultipleTimes functionDefinedMultipleTimes
+        = new FunctionDefinedMultipleTimes();
+    multipleDefinitionChecker.addCoCo(functionDefinedMultipleTimes);
+
+    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
+    multipleDefinitionChecker.addCoCo(variableHasTypeName);
+
+    multipleDefinitionChecker.addCoCo(new SPLVariableDefinedMultipleTimes());
   }
 
   private void registerCocos() {
@@ -81,9 +109,6 @@ public class NestmlCoCosManager {
     final UnitDeclarationOnlyOnesAllowed unitDeclarationOnlyOnesAllowed = new UnitDeclarationOnlyOnesAllowed();
     nestmlCoCoChecker.addCoCo(unitDeclarationOnlyOnesAllowed);
 
-    final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes
-        = new MemberVariableDefinedMultipleTimes();
-    nestmlCoCoChecker.addCoCo(memberVariableDefinedMultipleTimes);
 
     final MemberVariablesInitialisedInCorrectOrder memberVariablesInitialisedInCorrectOrder
             = new MemberVariablesInitialisedInCorrectOrder();
@@ -127,9 +152,6 @@ public class NestmlCoCosManager {
     final BufferNotAssignable bufferNotAssignable = new BufferNotAssignable();
     nestmlCoCoChecker.addCoCo(bufferNotAssignable);
 
-    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
-    nestmlCoCoChecker.addCoCo(variableHasTypeName);
-
     final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
     nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);
 
@@ -149,20 +171,14 @@ public class NestmlCoCosManager {
     splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoChecker);
   }
 
-  List<Finding> checkStateVariables(final ASTNeuron astNeuron) {
+  List<Finding> checkThatVariablesDefinedOnce(final ASTNeuron astNeuron) {
     Log.getFindings().clear();
-    final NESTMLCoCoChecker uniquenessChecker = new NESTMLCoCoChecker();
-    uniquenessChecker.addCoCo(new SPLVariableDefinedMultipleTimes());
 
-    final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes = new MemberVariableDefinedMultipleTimes();
-    uniquenessChecker.addCoCo(memberVariableDefinedMultipleTimes);
-
-    final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
-    uniquenessChecker.addCoCo(equationsOnlyForStateVariables);
-
-    uniquenessChecker.checkAll(astNeuron);
+    variablesExistenceChecker.checkAll(astNeuron);
+    multipleDefinitionChecker.checkAll(astNeuron);
 
     return LogHelper.getModelFindings(Log.getFindings());
   }
+
 
 }

@@ -1,17 +1,13 @@
 neuron IAF:
+
   state:
     V_m mV
     U mV
   end
 
   equations:
-    U' = U'
-    V_m'' = t # Is that OK?
-    G1 = G2 # 2 Errors: LHS is undefined, RHS is undefined
-    V1' = V2 # 2 Errors: LHS is undefined, RHS is undefined
+    U' = U' # Errors: U' doesn't exist
+    function G real = G2 # Error: G2 doesn't exist
   end
 
-  update:
-    exp(y) # y is undefined
-  end
 end

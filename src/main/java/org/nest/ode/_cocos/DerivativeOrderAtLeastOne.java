@@ -33,7 +33,7 @@ import org.nest.ode._ast.ASTEquation;
  * @author plotnikov
  */
 public class DerivativeOrderAtLeastOne implements ODEASTEquationCoCo {
-  public static final String ERROR_CODE = "NESTML_DERIVATIVE_ORDER_AT_LEAST_ONE";
+
   private final NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   @Override

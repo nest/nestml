@@ -5,6 +5,8 @@
  */
 package org.nest.nestml._ast;
 
+import org.nest.nestml._symboltable.NESTMLLanguage;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -14,6 +16,7 @@ import java.util.Optional;
  * @author plotnikov
  */
 public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
+  static final String NEURON_UNDEFINED_AT_LINE = "__undefined__";;
   private Optional<String> packageName = Optional.empty();
   private String artifactName = "";
 
@@ -27,7 +30,7 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
   }
 
   protected ASTNESTMLCompilationUnit () {
-    // used in the MC generated code
+    // used in the MC generated code, don't remove
   }
 
   protected ASTNESTMLCompilationUnit (
@@ -43,6 +46,10 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
     return artifactName;
   }
 
+  public String getFilename() {
+    return artifactName + "." + NESTMLLanguage.FILE_ENDING;
+  }
+
   public Optional<String> getPackageName() {
     return packageName;
   }
@@ -55,6 +62,21 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
       return  getArtifactName();
     }
 
+  }
+
+  /**
+   * Returns the neuron name of a neuron which encloses the provided line number or an '__undefined__' string, if there
+   * is no neuron at that place.
+   */
+  public String getNeuronNameAtLine(final Integer line) {
+
+    for (ASTNeuron astNeuron:getNeurons()) {
+      if (line >= astNeuron.get_SourcePositionStart().getLine() && line <= astNeuron.get_SourcePositionEnd().getLine() ) {
+        return astNeuron.getName();
+      }
+
+    }
+    return NEURON_UNDEFINED_AT_LINE;
   }
 
 }

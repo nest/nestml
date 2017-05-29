@@ -20,9 +20,6 @@ import org.nest.utils.AstUtils;
  */
 class InvalidTypeOfInvariant implements SPLASTDeclarationCoCo {
 
-  public static final String ERROR_CODE = "NESTML_INVALID_TYPE_OF_INVARIANT";
-  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-
 
   public void check(final ASTDeclaration alias) {
     if (alias.getInvariant().isPresent()) {
@@ -31,13 +28,13 @@ class InvalidTypeOfInvariant implements SPLASTDeclarationCoCo {
       if (expressionType.isValue()) {
 
         if (!expressionType.getValue().equals(PredefinedTypes.getBooleanType())) {
-          final String msg = errorStrings.getErrorMsgInvariantMustBeBoolean(this,expressionType.toString());
+          final String msg = NestmlErrorStrings.getErrorMsgInvariantMustBeBoolean(this,expressionType.toString());
 
           Log.error(msg, alias.getInvariant().get().get_SourcePositionStart());
         }
       }
       else {
-        final String msg = errorStrings.getErrorMsgCannotComputeType(this,
+        final String msg = NestmlErrorStrings.getErrorMsgCannotComputeType(this,
                 AstUtils.toString(alias.getInvariant().get()));
 
         Log.warn(msg,alias.getInvariant().get().get_SourcePositionStart());

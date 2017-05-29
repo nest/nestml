@@ -58,7 +58,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
 
     final List<Finding> findings = compilationUnit.getNeurons()
         .stream()
-        .map(nestmlCoCosManager::checkStateVariables)
+        .map(nestmlCoCosManager::checkThatVariablesDefinedOnce)
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
 

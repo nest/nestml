@@ -29,9 +29,7 @@ public class ExpressionTypeVisitor implements CommonsVisitor {
   private static FunctionCallVisitor functionCallVisitor = new FunctionCallVisitor();
 
   private static BooleanLiteralVisitor booleanLiteralVisitor = new BooleanLiteralVisitor();
-
   private static NumericLiteralVisitor numericLiteralVisitor = new NumericLiteralVisitor();
-
   private static StringLiteralVisitor stringLiteralVisitor = new StringLiteralVisitor();
 
   private static VariableVisitor variableVisitor = new VariableVisitor();

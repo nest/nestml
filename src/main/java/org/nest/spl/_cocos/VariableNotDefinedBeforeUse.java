@@ -91,7 +91,7 @@ public class VariableNotDefinedBeforeUse implements
         }
         // e.g. x real = 2 * x
         if (varsOfCurrentDecl.contains(varRHS)) {
-          final String logMsg = SplErrorStrings.messageOwnAssignment(this, varRHS, decl.get_SourcePositionStart());
+          final String logMsg = SplErrorStrings.messageOwnAssignment(this, varRHS);
           error(logMsg, decl.get_SourcePositionStart());
         }
         else if (variable.get_SourcePositionStart().compareTo(variableSymbol.getAstNode().get().get_SourcePositionStart()) < 0) {
@@ -111,16 +111,15 @@ public class VariableNotDefinedBeforeUse implements
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Scope scope = node.getEnclosingScope().get();
 
-    VariableSymbol varOptional = VariableSymbol.resolve(varName, scope);
+    VariableSymbol variableDefinition = VariableSymbol.resolve(varName, scope);
 
     // exists
-    if (varOptional.getBlockType().equals(VariableSymbol.BlockType.LOCAL) &&
-        node.get_SourcePositionStart().compareTo(varOptional.getSourcePosition()) < 0) {
+    if (variableDefinition.getBlockType().equals(VariableSymbol.BlockType.LOCAL) &&
+        node.get_SourcePositionStart().compareTo(variableDefinition.getSourcePosition()) < 0) {
       final String msg = SplErrorStrings.messageDefinedBeforeUse(
           this,
           varName,
-          node.get_SourcePositionStart(),
-          varOptional.getSourcePosition());
+          variableDefinition.getSourcePosition());
       Log.error(msg, node.get_SourcePositionEnd());
     }
 

@@ -5,12 +5,16 @@
  */
 package org.nest.units.unitrepresentation;
 
+import org.nest.nestml._cocos.NestmlErrorStrings;
+import org.nest.units._cocos.UnitsErrorStrings;
+
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
+import static de.se_rwth.commons.logging.Log.trace;
 import static de.se_rwth.commons.logging.Log.warn;
 import static java.lang.Math.abs;
 import static org.nest.symboltable.predefined.PredefinedTypes.getRealType;
@@ -252,7 +256,6 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     }
   }
 
-  private final String ERROR_CODE = "NESTML_UnitRepresentation: ";
   private int magnitude;
   private int K, s, m, g, cd, mol, A;
   private boolean ignoreMagnitude = false;
@@ -501,14 +504,15 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     //factorize
     List<Factor> factors = new ArrayList<>();
     if(!factorize(factors,workingCopy)){
-      error(ERROR_CODE+ "Cannot factorize the Unit "+workingCopy.serialize());
-      return("unprintable");
+      error(UnitsErrorStrings.code(this) + ": Cannot factorize the Unit "+workingCopy.serialize());
+      return "unprintable";
     }
 
     //dump magnitude back into the results
     if(abs(this.magnitude)>factors.size()*24){
-      warn(ERROR_CODE+ "Cannot express magnitude "+magnitude+" with only " +(factors.size())+ " factors. (Absolute value of) cumulative magnitude must be <=24.");
-      return("unprintable");
+      trace(UnitsErrorStrings.code(this) + "Cannot express magnitude " + magnitude + " with only " + (factors.size()) +
+            " factors. (Absolute value of) cumulative magnitude must be <=24.", this.getClass().getSimpleName());
+      return "unprintable";
     }
     dumpMagnitude(factors,this.magnitude);
 

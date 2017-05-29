@@ -31,8 +31,7 @@ public class VariableHasTypeName implements SPLASTDeclarationCoCo {
       final Optional<TypeSymbol> res = scope.resolve(var, TypeSymbol.KIND);
       // could resolve type as variable, report an error
       res.ifPresent(typeSymbol -> Log.error(
-          SplErrorStrings.message(this, var, astDeclaration.get_SourcePositionStart()),
-          astDeclaration.get_SourcePositionEnd()));
+          SplErrorStrings.message(this, var), astDeclaration.get_SourcePositionEnd()));
 
     }
 

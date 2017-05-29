@@ -20,8 +20,6 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class AssignmentToAlias implements SPLASTAssignmentCoCo {
 
-  public static final String ERROR_CODE = "NESTML_Assignment";
-
   @Override
   public void check(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symboltable creator.");
@@ -30,7 +28,7 @@ public class AssignmentToAlias implements SPLASTAssignmentCoCo {
     final String variableName = astAssignment.getLhsVarialbe().toString();
     final VariableSymbol lhsVariable = VariableSymbol.resolve(variableName, scope);
     if (lhsVariable.isFunction()) {
-      String msg = NestmlErrorStrings.getInstance().getErrorMsg(this, variableName);
+      String msg = NestmlErrorStrings.getErrorMsg(this, variableName);
 
       error(msg, astAssignment.get_SourcePositionStart());
     }

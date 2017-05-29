@@ -10,13 +10,13 @@ import static de.se_rwth.commons.logging.Log.warn;
  * @author ptraeder
  */
 public class NoSemantics implements CommonsVisitor {
-  final String ERROR_CODE = "SPL_NO_SEMANTICS";
+
 
   @Override
   public void visit(ASTExpr expr) {
-    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +
-        "This expression is not implemented: " + AstUtils.toString(expr);
+    final String errorMsg = CommonsErrorStrings.message(this, AstUtils.toString(expr), expr.get_SourcePositionStart());
     expr.setType(Either.error(errorMsg));
-    warn(errorMsg,expr.get_SourcePositionStart());
+    warn(errorMsg, expr.get_SourcePositionStart());
   }
+
 }

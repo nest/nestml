@@ -21,8 +21,7 @@ public class AliasHasOneVar implements SPLASTDeclarationCoCo {
   public void check(final ASTDeclaration decl) {
     if (decl.isFunction()) {
       if (decl.getVars().size() != 1) {
-        final String msg = NestmlErrorStrings.message(this, decl.get_SourcePositionStart());
-
+        final String msg = NestmlErrorStrings.message(this);
         error(msg, decl.get_SourcePositionStart());
       }
 

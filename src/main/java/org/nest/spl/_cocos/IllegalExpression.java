@@ -109,12 +109,11 @@ public class IllegalExpression implements
             this,
             variableName,
             variableType.prettyPrint(),
-            expressionType.prettyPrint(),
-            node.get_SourcePositionStart());
+            expressionType.prettyPrint());
         if(isReal(variableType)&&isUnit(expressionType)){
           //TODO put in string class when I inevitably refactor it.
-          final String castMsg = messageCastToReal(this, expressionType.prettyPrint(), node.getExpr().get_SourcePositionStart());
-          warn(castMsg);
+          final String castMsg = messageCastToReal(this, expressionType.prettyPrint());
+          warn(castMsg, node.get_SourcePositionStart());
         } else if (isUnit(variableType)){ //assignee is unit -> drop warning not error
           warn(msg, node.get_SourcePositionStart());
         }
@@ -149,17 +148,15 @@ public class IllegalExpression implements
             this,
             varNameFromDeclaration,
             variableDeclarationType.prettyPrint(),
-            initializerExpressionType.getValue().prettyPrint(),
-            node.get_SourcePositionStart());
+            initializerExpressionType.getValue().prettyPrint());
           if(isReal(variableDeclarationType)&&isUnit(initializerExpressionType.getValue())){
             //TODO put in string class when I inevitably refactor it.
 
 
             final String castMsg = messageCastToReal(
                 this,
-                initializerExpressionType.getValue().prettyPrint(),
-                node.getExpr().get().get_SourcePositionStart());
-            warn(castMsg);
+                initializerExpressionType.getValue().prettyPrint());
+            warn(castMsg, node.get_SourcePositionStart());
           }else if (isUnit(variableDeclarationType)){ //assignee is unit -> drop warning not error
             warn(msg, node.get_SourcePositionStart());
           }
@@ -182,10 +179,7 @@ public class IllegalExpression implements
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
 
-      final String msg = SplErrorStrings.messageNonBoolean(
-          this,
-          exprType.getValue().prettyPrint(),
-          node.get_SourcePositionStart());
+      final String msg = SplErrorStrings.messageNonBoolean(this, exprType.getValue().prettyPrint());
       error(msg, node.get_SourcePositionStart());
     }
 
@@ -201,15 +195,11 @@ public class IllegalExpression implements
     final VariableSymbol iter = VariableSymbol.resolve(iterName, scope);
     TypeChecker tc = new TypeChecker();
     if (!tc.checkNumber(iter.getType())) {
-      final String msg = SplErrorStrings.messageForLoop(
-          this,
-          iterName,
-          iter.getType().getName(),
-          astfor.get_SourcePositionStart());
+      final String msg = SplErrorStrings.messageForLoop(this, iterName, iter.getType().getName());
       Log.error(msg);
     }
 
-    ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
+    final ExpressionTypeVisitor expressionTypeVisitor = new ExpressionTypeVisitor();
     astfor.getFrom().accept(expressionTypeVisitor);
 
     if (astfor.getFrom().getType().isValue()) {
@@ -217,8 +207,7 @@ public class IllegalExpression implements
         final String msg = SplErrorStrings.messageForLoopBound(
             this,
             AstUtils.toString(astfor.getFrom()),
-            astfor.getFrom().getType().getValue().getName(),
-            astfor.get_SourcePositionStart());
+            astfor.getFrom().getType().getValue().getName());
         Log.error(msg);
       }
     }
@@ -230,8 +219,7 @@ public class IllegalExpression implements
         final String msg = SplErrorStrings.messageForLoopBound(
             this,
             AstUtils.toString(astfor.getTo()),
-            astfor.getTo().getType().getValue().getName(),
-            astfor.get_SourcePositionStart());
+            astfor.getTo().getType().getValue().getName());
         Log.error(msg);
       }
     }
@@ -243,10 +231,7 @@ public class IllegalExpression implements
     final Either<TypeSymbol, String> exprType = node.getExpr().getType();
 
     if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
-      final String msg = SplErrorStrings.messageNonBoolean(
-          this,
-          exprType.getValue().prettyPrint(),
-          node.get_SourcePositionStart());
+      final String msg = SplErrorStrings.messageNonBoolean(this, exprType.getValue().prettyPrint());
       error(msg, node.get_SourcePositionStart());
 
     }
@@ -257,10 +242,7 @@ public class IllegalExpression implements
   public void check(final ASTWHILE_Stmt node) {
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     if (node.getExpr().getType().getValue() != getBooleanType()) {
-      final String msg = SplErrorStrings.messageNonBoolean(
-          this,
-          node.getExpr().getType().getValue().prettyPrint(),
-          node.get_SourcePositionStart());
+      final String msg = SplErrorStrings.messageNonBoolean(this, node.getExpr().getType().getValue().prettyPrint());
       error(msg, node.get_SourcePositionStart());
 
     }

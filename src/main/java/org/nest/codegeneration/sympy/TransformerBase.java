@@ -26,7 +26,7 @@ import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclarations;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**
- * Provides common methods for solver transformations.
+ * Provides common methods for AST transformations which are performed after SymPy analysis.
  *
  * @author plotnikov
  */
@@ -114,13 +114,11 @@ public class TransformerBase {
           break;
         }
       }
-
       return astNeuron;
     } else {
-      Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
+      Log.trace("The model has defined an ODE. But its solution is not used in the update state.", this.getClass().getSimpleName());
       return astNeuron;
     }
-
 
   }
 

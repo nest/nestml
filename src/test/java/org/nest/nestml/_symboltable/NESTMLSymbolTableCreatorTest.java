@@ -267,4 +267,5 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertTrue(spikeBuffers.size() == 1);
     assertTrue(spikeBuffers.get(0).isConductanceBased());
   }
+
 }

@@ -39,7 +39,7 @@ public class VectorVariableInNonVectorDeclaration implements SPLASTDeclarationCo
 
         // used is set here
         if (stentry.isVector() && !astDeclaration.getSizeParameter().isPresent()) {
-          final String msg = NestmlErrorStrings.message(this, stentry.getName(), astDeclaration.get_SourcePositionStart());
+          final String msg = NestmlErrorStrings.message(this, stentry.getName());
           error(msg, astDeclaration.get_SourcePositionStart());
         }
 

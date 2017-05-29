@@ -27,7 +27,6 @@ import static org.nest.utils.AstUtils.computeTypeName;
 public class InvalidTypesInDeclaration implements
     SPLASTDeclarationCoCo,
     NESTMLASTFunctionCoCo {
-  public static final String ERROR_CODE = "NESTML_INVALID_TYPES_DECLARATION";
 
   @Override
   public void check(final ASTDeclaration astDeclaration) {

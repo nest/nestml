@@ -79,7 +79,7 @@ public class ODESolverGenerator {
     else {
       final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
           + "is skipped.", neuron.getName());
-      Log.warn(msg);
+      Log.trace(msg, LOG_NAME);
 
       return empty();
     }
@@ -120,7 +120,7 @@ public class ODESolverGenerator {
     else {
       final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
           + "is skipped.", neuron.getName());
-      Log.warn(msg);
+      Log.trace(msg, LOG_NAME);
 
       return empty();
     }
@@ -137,7 +137,7 @@ public class ODESolverGenerator {
     final Scope scope = astOdeDeclaration.getEnclosingScope().get();
 
     if (astOdeDeclaration.getODEs().size() >= 1) {
-      Log.warn("It works only for a single ODE. Only the first equation will be used.");
+      Log.trace("It works only for a single ODE. Only the first equation will be used.", LOG_NAME);
     }
 
     glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));

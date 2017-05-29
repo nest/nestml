@@ -123,7 +123,7 @@ public class NestmlSymbols {
       return scope.resolve(variableName, VariableSymbol.KIND);
     }
     catch (ResolvedSeveralEntriesException e) {
-      Log.warn("The variable '" + variableName + "' is defined multiple times.");
+      Log.trace("The variable '" + variableName + "' is defined multiple times.", NestmlSymbols.class.getSimpleName());
     }
     return Optional.empty();
   }

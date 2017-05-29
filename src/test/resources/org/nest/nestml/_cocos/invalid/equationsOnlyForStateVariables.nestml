@@ -1,17 +1,17 @@
 neuron iaf_neuron_ode:
 
   state:
-    Volt mV
-    G ms
+    V_m mV
   end
 
   equations:
-    G' = e * t
-    Volt' = -1/Tau * Volt + 1/C_m
+      G' = e * t
+      Tau' = -1/Tau * V_m + 1/C_m
   end
 
   parameters:
     C_m     pF = 250pF # Capacity of the membrane
     Tau     ms = 10 # Membrane time constant.
+    G ms
   end
 end

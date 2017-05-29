@@ -36,8 +36,6 @@ import static com.google.common.base.Preconditions.checkArgument;
  * @author plotnikov
  */
 public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
-  public static final String ERROR_CODE = "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
-  private final NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   @Override
   public void check(final ASTEquation astEq) {
@@ -48,19 +46,19 @@ public class EquationsOnlyForStateVariables implements ODEASTEquationCoCo {
       final Optional<VariableSymbol> variableSymbol = scope.resolve(astEq.getLhs().getSimpleName(), VariableSymbol.KIND);
       if (variableSymbol.isPresent()) {
         if (!variableSymbol.get().isState()) {
-          final String msg = errorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());
+          final String msg = NestmlErrorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());
 
           Log.error(msg, astEq.get_SourcePositionStart());
         }
       }
       else {
-        final String msg = errorStrings.getErrorMsgVariableNotDefined(this, astEq.getLhs().getSimpleName());
+        final String msg = NestmlErrorStrings.getErrorMsgVariableNotDefined(this, astEq.getLhs().getSimpleName());
         Log.error(msg, astEq.get_SourcePositionStart());
       }
 
     }
     else {
-      Log.warn(ERROR_CODE + ": The lefthandside of an equation must be a derivative, e.g. " + astEq.getLhs().toString() + "'");
+      Log.trace("The lefthandside of an equation must be a derivative, e.g. " + astEq.getLhs().toString() + "'", this.getClass().getSimpleName());
     }
 
   }

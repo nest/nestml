@@ -4,17 +4,16 @@ import org.nest.commons._ast.ASTExpr;
 import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;
-import org.nest.utils.AstUtils;
 
 import static de.se_rwth.commons.logging.Log.error;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isInteger;
 import static org.nest.spl.symboltable.typechecking.TypeChecker.isNumeric;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
+
 /**
  * @author ptraeder
  */
-public class DotOperatorVisitor implements CommonsVisitor{
-  final String ERROR_CODE = "SPL_DOT_OPERATOR_VISITOR";
+public class DotOperatorVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr) {
@@ -33,18 +32,19 @@ public class DotOperatorVisitor implements CommonsVisitor{
     TypeSymbol lhsType = lhsTypeE.getValue();
     TypeSymbol rhsType = rhsTypeE.getValue();
 
-    if(expr.isModuloOp()){
-      if(isInteger(lhsType)&&isInteger(rhsType)){
+    if (expr.isModuloOp()) {
+      if (isInteger(lhsType) && isInteger(rhsType)) {
         expr.setType(Either.value(getIntegerType()));
         return;
-      }else{
-        final String errorMsg = ERROR_CODE + " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Modulo with non integer parameters";
+      }
+      else {
+        final String errorMsg = CommonsErrorStrings.messageModulo(this, expr.get_SourcePositionStart());
         expr.setType(Either.error(errorMsg));
-        error(errorMsg,expr.get_SourcePositionStart());
+        error(errorMsg, expr.get_SourcePositionStart());
         return;
       }
     }
-    if(expr.isDivOp() || expr.isTimesOp()) {
+    if (expr.isDivOp() || expr.isTimesOp()) {
       if (isNumeric(lhsType) && isNumeric(rhsType)) {
 
         // If both are units, calculate resulting Type
@@ -97,20 +97,22 @@ public class DotOperatorVisitor implements CommonsVisitor{
         }
       }
       //If a buffer is involved, the other unit takes precedent TODO: is this the intended semantic?
-      if(lhsType == getBufferType()){
+      if (lhsType == getBufferType()) {
         expr.setType(Either.value(rhsType));
         return;
       }
-      if(rhsType == getBufferType()){
+      if (rhsType == getBufferType()) {
         expr.setType(Either.value(lhsType));
         return;
       }
     }
 
     //Catch-all if no case has matched
-    final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Cannot determine the type of the expression: " +lhsType.prettyPrint()
-        +(expr.isDivOp()?" / ":" * ")+rhsType.prettyPrint();
+    final String typeMissmatch = lhsType.prettyPrint() + (expr.isDivOp() ? " / " : " * ") + rhsType.prettyPrint();
+
+
+    final String errorMsg = CommonsErrorStrings.messageType(this, typeMissmatch, expr.get_SourcePositionStart());
     expr.setType(Either.error(errorMsg));
-    error(errorMsg,expr.get_SourcePositionStart());
+    error(errorMsg, expr.get_SourcePositionStart());
   }
 }

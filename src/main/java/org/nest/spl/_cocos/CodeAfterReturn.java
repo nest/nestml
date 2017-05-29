@@ -59,8 +59,7 @@ public class CodeAfterReturn implements SPLASTBlockCoCo {
         final ASTSmall_Stmt small = stmt.getSmall_Stmt().get();
         // error, if return found in line and new small found
         if (r != null) {
-          addReport("Code after a return statement is not reachable!",
-                  r.get_SourcePositionStart());
+          addReport("Code after a return statement is not reachable!", r.get_SourcePositionStart());
           return r;
         }
         // Small_Stmt = (DottedName "=") => Assignment |
@@ -113,7 +112,7 @@ public class CodeAfterReturn implements SPLASTBlockCoCo {
   }
 
   private void addReport(final String errorMessage, final SourcePosition sourcePositionStart) {
-    Log.error(SplErrorStrings.message(this, errorMessage, sourcePositionStart));
+    Log.error(SplErrorStrings.message(this, errorMessage), sourcePositionStart);
   }
 
 }

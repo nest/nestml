@@ -29,9 +29,6 @@ import static org.nest.utils.AstUtils.computeTypeName;
  */
 public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
 
-  public static final String ERROR_CODE = "NESTML_MISSING_RETURN_STATEMENT_IN_FUNCTION";
-
-
   @Override
   public void check(final ASTFunction fun) {
     checkArgument(fun.getEnclosingScope().isPresent(), "No scope is assigned. Run symbol table creator.");
@@ -52,7 +49,7 @@ public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
       // if block not returning:
       if (isReturnBlock(fun.getBlock()) == null) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this, fun.getName(), deserializeUnitIfNotPrimitive(computeTypeName(fun.getReturnType().get())));
+        final String msg = NestmlErrorStrings.getErrorMsg(this, fun.getName(), deserializeUnitIfNotPrimitive(computeTypeName(fun.getReturnType().get())));
 
         Log.error(msg, fun.get_SourcePositionStart());
       }

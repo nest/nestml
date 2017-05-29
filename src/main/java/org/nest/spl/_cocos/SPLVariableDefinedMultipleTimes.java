@@ -50,7 +50,7 @@ public class SPLVariableDefinedMultipleTimes implements SPLASTBlockCoCo {
   private void checkIfVariableDefinedMultipleTimes(String var, Scope scope, ASTNode astDeclaration) {
     final Collection<Symbol> symbols = scope.resolveMany(var, VariableSymbol.KIND);
     if (symbols.size() > 1) {
-      Log.error(SplErrorStrings.message(this, var, astDeclaration.get_SourcePositionStart()));
+      Log.error(SplErrorStrings.message(this, var), astDeclaration.get_SourcePositionStart());
     }
 
   }

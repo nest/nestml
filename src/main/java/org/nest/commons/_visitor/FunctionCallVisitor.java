@@ -10,9 +10,12 @@ import org.nest.spl.symboltable.typechecking.Either;
 import org.nest.spl.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.units._cocos.UnitsErrorStrings;
 import org.nest.utils.AstUtils;
 
 import java.util.Optional;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * Checks all function calls in an expression. For a not-void methods returns just its return type. For a void methods,
@@ -21,23 +24,22 @@ import java.util.Optional;
  * @author plotnikov, ptraeder
  */
 public class FunctionCallVisitor implements CommonsVisitor {
-  final String ERROR_CODE = "SPL_FUNCTION_CALL_VISITOR";
 
   @Override
-  public void visit(final ASTExpr expr) {
+  public void visit(final ASTExpr expr) { // visits only function calls
+    checkState(expr.getFunctionCall().isPresent());
     final String functionName = expr.getFunctionCall().get().getCalleeName();
 
     final Optional<MethodSymbol> methodSymbol = NestmlSymbols.resolveMethod(expr.getFunctionCall().get());
 
     if (!methodSymbol.isPresent()) {
-      final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Cannot resolve the method: " + functionName;
+      final String errorMsg = AstUtils.print(expr.get_SourcePositionStart()) + " : " + "Cannot resolve the method: " + functionName;
       expr.setType(Either.error(errorMsg));
       return;
     }
 
     if (TypeChecker.isVoid(methodSymbol.get().getReturnType())) {
-      final String errorMsg = ERROR_CODE+ " " + AstUtils.print(expr.get_SourcePositionStart()) + " : " +"Function " + functionName + " with the return-type 'Void'"
-                              + " cannot be used in expressions. @" + expr.get_SourcePositionEnd();
+      final String errorMsg = UnitsErrorStrings.message(this, functionName);
       expr.setType(Either.error(errorMsg));
       return;
     }

@@ -17,7 +17,6 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class CurrentPortIsInhOrExc implements NESTMLASTInputLineCoCo {
 
-  public static final String ERROR_CODE = "NESTML_CURRENT_PORT_IS_INH_OR_EXC";
 
   @Override
   public void check(ASTInputLine inputLine) {

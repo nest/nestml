@@ -9,7 +9,7 @@ import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
 /**
  * @author ptraeder
  */
-public class BooleanLiteralVisitor implements CommonsVisitor{
+public class BooleanLiteralVisitor implements CommonsVisitor {
 
   @Override
   public void visit(ASTExpr expr) {

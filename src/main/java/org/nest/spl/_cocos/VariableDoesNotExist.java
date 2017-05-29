@@ -99,7 +99,7 @@ public class VariableDoesNotExist implements
       final String variableName = variable.toString();
 
       if (!exists(variableName, scope)) {
-        final String errorMsg = SplErrorStrings.message(this, variableName, expr.get_SourcePositionStart());
+        final String errorMsg = SplErrorStrings.message(this, variableName);
         error(errorMsg, variable.get_SourcePositionStart());
       }
 
@@ -112,13 +112,13 @@ public class VariableDoesNotExist implements
     final Scope scope = node.getEnclosingScope().get();
 
     if (!exists(variableName, scope)) {
-      final String errorMsg = SplErrorStrings.message(this, variableName, node.get_SourcePositionStart());
+      final String errorMsg = SplErrorStrings.message(this, variableName);
       error(errorMsg, node.get_SourcePositionStart());
     }
 
   }
 
   private boolean exists(final String variableName, final Scope scope) {
-    return scope.resolve(variableName, VariableSymbol.KIND).isPresent();
+    return scope.resolveMany(variableName, VariableSymbol.KIND).size() > 0;
   }
 }
