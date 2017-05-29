@@ -12,7 +12,7 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.ode._ast.ASTEquation;
+import org.nest.nestml._ast.ASTEquation;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 import org.nest.utils.FilesHelper;

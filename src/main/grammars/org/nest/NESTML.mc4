@@ -9,7 +9,7 @@ package org.nest;
   Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
   language which leans on the Python syntax.
 */
-grammar NESTML extends org.nest.SPL, org.nest.ODE {
+grammar NESTML extends org.nest.SPL {
 
   /** ASTNESTMLCompilationUnit represents the complete entire file with neuron and component models.
     @attribute packageName      The qualified name to artifact
@@ -18,6 +18,35 @@ grammar NESTML extends org.nest.SPL, org.nest.ODE {
   */
   NESTMLCompilationUnit = (Neuron | NEWLINE)* EOF;
 
+
+  /*********************************************************************************************************************
+  * Equations-Language
+  *********************************************************************************************************************/
+  /** ASTOdeDeclaration. Represents a block of equations and differential equations.
+
+    @attribute Equation      List with equations, e.g. "I = exp(t)" od differential equations.
+  */
+  OdeDeclaration  = (Equation | Shape | OdeFunction | NEWLINE)+;
+
+  OdeFunction = ([recordable:"recordable"])? "function" variableName:Name Datatype "=" Expr (";")?;
+
+  /** ASTeq Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
+    @attribute lhs      Left hand side, e.g. a Variable.
+    @attribute rhs      Expression defining the right hand side.
+  */
+  Equation = lhs:Derivative "=" rhs:Expr (";")?;
+
+  Derivative = name:Name (differentialOrder:"\'")*;
+
+  Shape = "shape" lhs:Variable "=" rhs:Expr (";")?;
+
+
+
+
+
+  /*********************************************************************************************************************
+  * Equations-Language
+  *********************************************************************************************************************/
   /** ASTNeuron represents neuron.
     @attribute Name    The name of the neuron
     @attribute Body    The body of the neuron, e.g. internal, state, parameter...

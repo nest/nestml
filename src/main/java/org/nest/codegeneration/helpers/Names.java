@@ -2,7 +2,7 @@ package org.nest.codegeneration.helpers;
 
 import com.google.common.base.Strings;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.ode._ast.ASTDerivative;
+import org.nest.nestml._ast.ASTDerivative;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 /**

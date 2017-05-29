@@ -4,7 +4,7 @@ import de.monticore.symboltable.Scope;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.ode._ast.ASTDerivative;
+import org.nest.nestml._ast.ASTDerivative;
 import org.nest.symboltable.symbols.NeuronSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;

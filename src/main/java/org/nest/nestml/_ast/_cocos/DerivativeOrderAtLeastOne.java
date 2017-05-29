@@ -18,11 +18,12 @@
  * You should have received a copy of the GNU General Public License
  * along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.nest.ode._cocos;
+package org.nest.nestml._ast._cocos;
 
 import de.se_rwth.commons.logging.Log;
+import org.nest.nestml._cocos.NESTMLASTEquationCoCo;
 import org.nest.nestml._cocos.NestmlErrorStrings;
-import org.nest.ode._ast.ASTEquation;
+import org.nest.nestml._ast.ASTEquation;
 
 /**
  * Syntactically it is possible to define an equation:
@@ -32,7 +33,7 @@ import org.nest.ode._ast.ASTEquation;
  *
  * @author plotnikov
  */
-public class DerivativeOrderAtLeastOne implements ODEASTEquationCoCo {
+public class DerivativeOrderAtLeastOne implements NESTMLASTEquationCoCo {
 
   private final NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 

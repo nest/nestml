@@ -5,8 +5,8 @@ import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.ode._ast.ASTDerivative;
-import org.nest.ode._ast.ASTShape;
+import org.nest.nestml._ast.ASTDerivative;
+import org.nest.nestml._ast.ASTShape;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 

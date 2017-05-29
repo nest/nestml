@@ -18,14 +18,15 @@
  * You should have received a copy of the GNU General Public License
  * along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.nest.ode._cocos;
+package org.nest.nestml._ast._cocos;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._cocos.NESTMLASTOdeDeclarationCoCo;
 import org.nest.nestml._cocos.NestmlErrorStrings;
-import org.nest.ode._ast.ASTDerivative;
-import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTDerivative;
+import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
@@ -37,7 +38,7 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author  plotnikov
  */
-public class VariableDoesNotExist implements ODEASTOdeDeclarationCoCo {
+public class VariableDoesNotExist implements NESTMLASTOdeDeclarationCoCo {
 
   @Override
   public void check(final ASTOdeDeclaration node) {

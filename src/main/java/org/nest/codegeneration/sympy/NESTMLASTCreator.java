@@ -9,7 +9,7 @@ import de.monticore.antlr4.MCConcreteParser;
 import org.nest.nestml._ast.ASTVar_Block;
 import org.nest.nestml._ast.NESTMLNodeFactory;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.ode._ast.ASTEquation;
+import org.nest.nestml._ast.ASTEquation;
 import org.nest.spl._ast.ASTAssignment;
 import org.nest.spl._ast.ASTDeclaration;
 

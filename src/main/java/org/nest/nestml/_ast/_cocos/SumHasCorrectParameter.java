@@ -18,13 +18,14 @@
  * You should have received a copy of the GNU General Public License
  * along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.nest.ode._cocos;
+package org.nest.nestml._ast._cocos;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._cocos.NESTMLASTOdeDeclarationCoCo;
 import org.nest.nestml._cocos.NestmlErrorStrings;
-import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.utils.AstUtils;
 
 import java.util.List;
@@ -38,13 +39,14 @@ import static org.nest.symboltable.predefined.PredefinedFunctions.CURR_SUM;
  *
  * @author plotnikov
  */
-public class SumHasCorrectParameter implements ODEASTOdeDeclarationCoCo {
+public class SumHasCorrectParameter implements NESTMLASTOdeDeclarationCoCo {
 
   @Override
   public void check(final ASTOdeDeclaration odeDeclaration) {
     final List<ASTFunctionCall> functions = AstUtils.getAll(odeDeclaration, ASTFunctionCall.class)
         .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(CURR_SUM) || astFunctionCall.getCalleeName().equals(COND_SUM))
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(CURR_SUM) ||
+                                   astFunctionCall.getCalleeName().equals(COND_SUM))
         .collect(toList());
 
     for (final ASTFunctionCall functionCall:functions) {

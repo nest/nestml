@@ -19,7 +19,7 @@ import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.ode._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.spl.prettyprinter.IReferenceConverter;
 import org.nest.spl.prettyprinter.LegacyExpressionPrinter;

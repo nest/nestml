@@ -5,14 +5,12 @@
 */
 package org.nest.nestml.prettyprinter;
 
-import de.se_rwth.commons.Names;
-import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.ode._ast.ASTOdeFunction;
-import org.nest.ode._ast.ASTShape;
+import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTOdeFunction;
+import org.nest.nestml._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;

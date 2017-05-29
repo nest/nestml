@@ -1,10 +1,11 @@
 package org.nest.units._visitor;
 
 import de.monticore.symboltable.Scope;
+import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeFunction;
-import org.nest.ode._ast.ASTShape;
+import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._ast.ASTOdeFunction;
+import org.nest.nestml._ast.ASTShape;
 import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
@@ -97,7 +98,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
   }
 
   @Override
-  public void traverse(org.nest.ode._ast.ASTOdeDeclaration node) {
+  public void traverse(ASTOdeDeclaration node) {
     //TODO: Find a sensible hierarchy for shapes,equations and aliases.
     for (ASTShape astShape : node.getShapes()) {
       astShape.accept(getRealThis());

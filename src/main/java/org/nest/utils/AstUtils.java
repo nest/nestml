@@ -24,10 +24,9 @@ import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.ode._ast.ASTDerivative;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTODENode;
-import org.nest.ode._ast.ASTShape;
+import org.nest.nestml._ast.ASTDerivative;
+import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._ast.ASTShape;
 import org.nest.spl._ast.ASTBlock;
 import org.nest.spl._ast.ASTReturnStmt;
 import org.nest.spl._ast.ASTSPLNode;
@@ -154,7 +153,7 @@ public final class AstUtils {
   /**
    * Returns all variables defined in the tree starting from the astNode.
    */
-  static List<String> getVariablesNamesFromAst(final ASTODENode astNode) {
+  static List<String> getVariablesNamesFromAst(final ASTNESTMLNode astNode) {
     final VariablesCollector variablesCollector = new VariablesCollector();
     astNode.accept(variablesCollector);
     return variablesCollector.getVariableNames();
@@ -163,7 +162,7 @@ public final class AstUtils {
   /**
    * Returns all aliases which are used in the tree beginning at astNode
    */
-  public static List<VariableSymbol> getAliasSymbols(final ASTODENode astNode) {
+  public static List<VariableSymbol> getAliasSymbols(final ASTNESTMLNode astNode) {
     checkState(astNode.getEnclosingScope().isPresent(), "Run symbol table creator");
     final Scope scope = astNode.getEnclosingScope().get();
     final List<String> names = getVariablesNamesFromAst(astNode);
@@ -243,12 +242,6 @@ public final class AstUtils {
     return variableSymbolsCollector.getVariables();
   }
 
-  public static List<VariableSymbol> getVariableSymbols(final ASTNESTMLNode astNode) {
-    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
-    astNode.accept(variableSymbolsCollector);
-    return variableSymbolsCollector.getVariables();
-  }
-
   public static List<VariableSymbol> getVariableSymbols(final ASTSPLNode astNode) {
     final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
     astNode.accept(variableSymbolsCollector);
@@ -258,7 +251,7 @@ public final class AstUtils {
    * Returns all variable symbols for variables which are defined in the subtree starting from
    * the astNode.
    */
-  public static List<VariableSymbol> getVariableSymbols(final ASTODENode astNode) {
+  public static List<VariableSymbol> getVariableSymbols(final ASTNESTMLNode astNode) {
     final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
     astNode.accept(variableSymbolsCollector);
 
@@ -345,11 +338,6 @@ public final class AstUtils {
     return odeCollector.getFunctionCall();
   }
 
-  public static Optional<ASTFunctionCall> getFunctionCall(final String functionName, final ASTODENode node) {
-    final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector(functionName);
-    odeCollector.startVisitor(node);
-    return odeCollector.getFunctionCall();
-  }
   /**
    * Integrate function give the connection between a buffer and shape. Therefore, it is needed to generate
    * correct update with the PSCInitialValues.
@@ -368,9 +356,6 @@ public final class AstUtils {
       node.accept(this);
     }
 
-    void startVisitor(ASTODENode node) {
-      node.accept(this);
-    }
 
     @Override
     public void visit(final ASTFunctionCall astFunctionCall) {

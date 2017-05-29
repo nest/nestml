@@ -7,14 +7,13 @@ package org.nest.nestml._symboltable;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.*;
-import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
-import org.nest.ode._cocos.EquationsOnlyForStateVariables;
-import org.nest.ode._cocos.SumHasCorrectParameter;
-import org.nest.ode._cocos.VariableDoesNotExist;
+import org.nest.nestml._ast._cocos.DerivativeOrderAtLeastOne;
+import org.nest.nestml._ast._cocos.EquationsOnlyForStateVariables;
+import org.nest.nestml._ast._cocos.SumHasCorrectParameter;
+import org.nest.nestml._ast._cocos.VariableDoesNotExist;
 import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.spl._cocos.SPLVariableDefinedMultipleTimes;
 import org.nest.spl._cocos.VariableHasTypeName;
