@@ -23,7 +23,7 @@ grammar ODE extends org.nest.Commons {
   */
   Equation = lhs:Derivative "=" rhs:Expr (";")?;
 
-  Derivative = name:QualifiedName (differentialOrder:"\'")*;
+  Derivative = name:Name (differentialOrder:"\'")*;
 
   Shape = "shape" lhs:Variable "=" rhs:Expr (";")?;
 

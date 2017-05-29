@@ -18,7 +18,7 @@ import java.util.List;
 public class ASTDerivative extends ASTDerivativeTOP {
 
   public ASTDerivative(
-      final ASTQualifiedName name,
+      final String name,
       final List<String> differentialOrder) {
     super(name, differentialOrder);
   }
@@ -29,7 +29,7 @@ public class ASTDerivative extends ASTDerivativeTOP {
   @Override
   public String toString() {
 
-    return name.toString() + Strings.repeat("'", getDifferentialOrder().size());
+    return name + Strings.repeat("'", getDifferentialOrder().size());
   }
 
   public String getSimpleName() {

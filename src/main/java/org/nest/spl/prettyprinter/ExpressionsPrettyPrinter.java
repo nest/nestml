@@ -10,7 +10,6 @@ import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.units.unitrepresentation.UnitRepresentation;
 
 import java.util.List;
 

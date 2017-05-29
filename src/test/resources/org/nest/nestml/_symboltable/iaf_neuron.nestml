@@ -78,7 +78,7 @@ neuron iaf_neuron:
 
     # Apply spikes delivered in this step: The spikes arriving at T+1 have an
     # immediate effect on the state of the neuron
-    y1 += PSCInitialValue * spikeBuffer.get_sum(t)
+    y1 += PSCInitialValue * spikeBuffer
 
     # threshold crossing
     if y3 >= Theta:
@@ -90,7 +90,7 @@ neuron iaf_neuron:
     end
 
     # set new input current
-    y0 = currentBuffer.get_sum(t)
+    y0 = currentBuffer
     newVarInMethod real = 1.0
   end
 

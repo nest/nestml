@@ -151,9 +151,9 @@ neuron aeif_cond_alpha_implicit_implicit:
       emit_spike()
     end
 
-    g_ex' += spikesEx.get_sum() * PSConInit_E
-    g_in' += spikesIn.get_sum() * PSConInit_I
-    I_stim = currents.get_sum()
+    g_ex' += spikesEx * PSConInit_E
+    g_in' += spikesIn * PSConInit_I
+    I_stim = currents
   end
 
 end

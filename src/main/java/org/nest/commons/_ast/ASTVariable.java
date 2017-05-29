@@ -18,7 +18,7 @@ import java.util.List;
 public class ASTVariable extends ASTVariableTOP {
 
   public ASTVariable(
-      final ASTQualifiedName name,
+      final String name,
       final List<String> differentialOrder) {
     super(name, differentialOrder);
   }
@@ -28,7 +28,7 @@ public class ASTVariable extends ASTVariableTOP {
 
   @Override
   public String toString() {
-    return name.toString() + Joiner.on("'").join(getDifferentialOrder());
+    return name + Joiner.on("'").join(getDifferentialOrder());
   }
 
 }

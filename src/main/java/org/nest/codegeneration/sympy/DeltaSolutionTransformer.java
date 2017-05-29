@@ -53,7 +53,7 @@ class DeltaSolutionTransformer extends TransformerBase {
    */
   private void addP33ToInternals(final ASTNeuron astNeuron) {
     // the function there, because otherwise this query wouldn't be made
-    ASTFunctionCall deltaShape = getFunctionCall(
+    final ASTFunctionCall deltaShape = getFunctionCall(
         PredefinedFunctions.DELTA,
         astNeuron.getBody().getODEBlock().get()).get();
     // delta is define as delta(t, tau) -> get the second argument

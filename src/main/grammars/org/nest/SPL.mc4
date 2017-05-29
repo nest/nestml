@@ -9,6 +9,19 @@ grammar SPL extends org.nest.Commons {
 
   SPLFile = ModuleDefinitionStatement Block;
 
+  ast QualifiedName =
+          method public String toString(){
+            return de.se_rwth.commons.Names.getQualifiedName(
+                this.getParts());
+  };
+
+  /** The ASTQualifiedName represents a possibly qualified name in the AST.
+      The different parts of a qualified name are separated by '.'; they are
+      stored in an ASTStringList.
+      @attribute parts A List of ASTStringList concludes all name parts
+  */
+  QualifiedName =parts:(Name& || ".")+;
+
   ModuleDefinitionStatement = "module" moduleName:QualifiedName;
 
   Block = ( Stmt | NEWLINE )*;

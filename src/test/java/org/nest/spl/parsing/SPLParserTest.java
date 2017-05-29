@@ -66,6 +66,9 @@ public class SPLParserTest extends ModelbasedTest {
     catch (IOException e) {
       throw new RuntimeException(e);
     }
+    if (!ast.isPresent()) {
+      System.out.println();
+    }
     assertTrue(ast.isPresent());
   }
 

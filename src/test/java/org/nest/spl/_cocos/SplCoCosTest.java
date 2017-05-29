@@ -214,7 +214,7 @@ public class SplCoCosTest {
         Paths.get(TEST_INVALID_MODELS_FOLDER, "funNotDefined.simple"),
         splCoCoChecker,
         SplErrorStrings.code(functionDoesNotExist),
-        3);
+        2);
   }
 
   private void checkModelAndAssertNoErrors(
