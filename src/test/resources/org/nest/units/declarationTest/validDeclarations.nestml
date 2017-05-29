@@ -1,10 +1,10 @@
 neuron validDeclarationTest:
   state:
     Resist Ohm
-    LiteralNumerator 1/ms = 20 [1/ms]
-    Multiplication A*GV = 1.21 [A*GV]
-    Pow V**2 = 30 [V**2]
-    Division A/V = 40 [A/V]
+    LiteralNumerator 1/ms = 20 /ms
+    Multiplication A*GV = 1.21 A*GV
+    Pow V**2 = 30 V**2
+    Division A/V = 40 A/V
   end
 
   input:

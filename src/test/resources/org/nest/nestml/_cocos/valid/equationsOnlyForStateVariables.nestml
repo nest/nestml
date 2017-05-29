@@ -1,13 +1,13 @@
 neuron iaf_neuron_ode:
 
   state:
-    V mV
+    V_m mV
     G ms
   end
 
   equations:
     G' = e * t
-    V' = -1/Tau * V + 1/C_m
+    V_m' = -1/Tau * V_m + 1/C_m
   end
 
   parameters:

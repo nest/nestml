@@ -15,7 +15,6 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.ode._ast.ASTEquation;
 import org.nest.ode._ast.ASTOdeDeclaration;
 import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.spl.prettyprinter.LegacyExpressionPrinter;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
@@ -166,7 +165,7 @@ public class ODESolverGenerator {
     glex.setGlobalValue("aliases", aliases);
     glex.setGlobalValue("neuronName", neuron.getName());
 
-    final ExpressionsPrettyPrinter expressionsPrinter  = new LegacyExpressionPrinter();
+    final ExpressionsPrettyPrinter expressionsPrinter  = new ExpressionsPrettyPrinter();
     glex.setGlobalValue("printer", expressionsPrinter);
     glex.setGlobalValue("odeTransformer", new OdeTransformer());
 

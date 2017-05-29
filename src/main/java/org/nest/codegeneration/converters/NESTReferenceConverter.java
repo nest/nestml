@@ -22,6 +22,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.codegeneration.helpers.VariableHelper.printOrigin;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
+import static org.nest.utils.AstUtils.convertSiName;
 
 /**
  * Converts constants, names and functions the NEST equivalents.
@@ -112,6 +113,11 @@ public class NESTReferenceConverter implements IReferenceConverter {
     checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symboltable creator");
     final String variableName = AstUtils.convertDevrivativeNameToSimpleName(astVariable);
     final Scope scope = astVariable.getEnclosingScope().get();
+
+    Optional<String> siUnitAsLiteral = convertSiName(astVariable.toString());
+    if(siUnitAsLiteral.isPresent()){
+      return siUnitAsLiteral.get();
+    }
 
     if (PredefinedVariables.E_CONSTANT.equals(variableName)) {
       return "numerics::e";

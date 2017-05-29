@@ -77,6 +77,9 @@ public class NestmlCoCosManager {
         = new FunctionDefinedMultipleTimes();
     multipleDefinitionChecker.addCoCo(functionDefinedMultipleTimes);
 
+    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
+    multipleDefinitionChecker.addCoCo(variableHasTypeName);
+
     multipleDefinitionChecker.addCoCo(new SPLVariableDefinedMultipleTimes());
   }
 
@@ -148,9 +151,6 @@ public class NestmlCoCosManager {
 
     final BufferNotAssignable bufferNotAssignable = new BufferNotAssignable();
     nestmlCoCoChecker.addCoCo(bufferNotAssignable);
-
-    final VariableHasTypeName variableHasTypeName = new VariableHasTypeName();
-    nestmlCoCoChecker.addCoCo(variableHasTypeName);
 
     final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
     nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);

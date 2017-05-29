@@ -16,7 +16,7 @@ neuron invalidShapes:
 
   equations:
     shape testShape = 1.5
-    testShape' = 10 [1/s]           #Error
+    testShape' = 10 /s           #Error
   end
 
   internals:

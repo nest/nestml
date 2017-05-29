@@ -75,12 +75,13 @@ public class PowVisitor implements CommonsVisitor {
 
 
   public Either<Integer, String> calculateNumericValue(ASTExpr expr) {
+    //TODO write tests for this
     if (expr.isLeftParentheses()) {
       return calculateNumericValue(expr.getExpr().get());
     }
-    else if (expr.getNESTMLNumericLiteral().isPresent()) {
-      if (expr.getNESTMLNumericLiteral().get().getNumericLiteral() instanceof ASTIntLiteral) {
-        ASTIntLiteral literal = (ASTIntLiteral) expr.getNESTMLNumericLiteral().get().getNumericLiteral();
+    else if (expr.getNumericLiteral().isPresent()) {
+      if (expr.getNumericLiteral().get() instanceof ASTIntLiteral) {
+        ASTIntLiteral literal = (ASTIntLiteral) expr.getNumericLiteral().get();
         return Either.value(literal.getValue());
       }
       else {

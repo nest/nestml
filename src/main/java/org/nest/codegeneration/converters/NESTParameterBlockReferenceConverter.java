@@ -12,6 +12,9 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
+import static org.nest.utils.AstUtils.convertSiName;
+
+import java.util.Optional;
 
 /**
  * Converts constants, names and functions the NEST equivalents.
@@ -26,6 +29,12 @@ public class NESTParameterBlockReferenceConverter extends NESTReferenceConverter
     checkArgument(astVariable.getEnclosingScope().isPresent(), "Run symboltable creator");
     final String variableName = astVariable.toString();
     final Scope scope = astVariable.getEnclosingScope().get();
+
+    Optional<String> siUnitAsLiteral = convertSiName(astVariable.toString());
+    if(siUnitAsLiteral.isPresent()){
+      return siUnitAsLiteral.get();
+    }
+
     if (PredefinedVariables.E_CONSTANT.equals(variableName)) {
       return "numerics::e";
     }

@@ -114,8 +114,8 @@ neuron iaf_cond_exp_sfa_rr_implicit:
 
     end
 
-    g_ex += spikesExc * 1 nS
-    g_in += spikesInh * 1 nS
+    g_ex += spikesExc * nS
+    g_in += spikesInh * nS
     I_stim = currents
   end
 

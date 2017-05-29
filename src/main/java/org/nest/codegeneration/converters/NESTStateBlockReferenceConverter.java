@@ -12,6 +12,9 @@ import org.nest.symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
+import static org.nest.utils.AstUtils.convertSiName;
+
+import java.util.Optional;
 
 /**
  * Converts constants, names and functions the NEST equivalents.
@@ -26,6 +29,11 @@ public class NESTStateBlockReferenceConverter extends NESTReferenceConverter {
     final String variableName = astVariable.toString();
     final Scope scope = astVariable.getEnclosingScope().get();
     final VariableSymbol variableSymbol = resolve(variableName, scope);
+
+    Optional<String> siUnitAsLiteral = convertSiName(astVariable.toString());
+    if(siUnitAsLiteral.isPresent()){
+      return siUnitAsLiteral.get();
+    }
 
     return (variableSymbol.isParameter()?"__p.":"") + Names.getter(variableSymbol) + "()";
   }

@@ -61,7 +61,7 @@ public class NestmlCoCosTest {
   @Test
   public void testResolvingOfPredefinedTypes() {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
-        Paths.get(TEST_MODELS_FOLDER, "resolvePredefinedTypes.nestml").toString(),
+        Paths.get(TEST_MODELS_FOLDER, "valid/resolvePredefinedTypes.nestml").toString(),
         Paths.get(TEST_MODELS_FOLDER));
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
@@ -467,7 +467,7 @@ public class NestmlCoCosTest {
         pathToInvalidModel,
         nestmlCoCoChecker,
         SplErrorStrings.code(variableHasTypeName),
-        2);
+        2*2); // this error is checked twice: as a part of the symboltable construction and in the coco
   }
 
   @Test
@@ -495,18 +495,18 @@ public class NestmlCoCosTest {
     final SPLCoCosManager splCoCosManager  = new SPLCoCosManager();
     splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoCheckerWithSPLCocos);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "splInFunctions/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/splInFunctions.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoCheckerWithSPLCocos,
         "SPL_");
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "splInFunctions/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/splInFunctions.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoCheckerWithSPLCocos,
         "SPL_",
-        16);
+        19);
 
   }
 
@@ -576,13 +576,13 @@ public class NestmlCoCosTest {
         = new EquationsOnlyForStateVariables();
     nestmlCoCoChecker.addCoCo(equationsOnlyForStateVariables);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "equationsOnlyForStateVariables/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/equationsOnlyForStateVariables.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         NestmlErrorStrings.code(equationsOnlyForStateVariables));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equationsOnlyForStateVariables/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/equationsOnlyForStateVariables.nestml");
 
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString(), Paths.get(TEST_MODELS_FOLDER));
     scopeCreator.runSymbolTableCreator(ast.get());
@@ -600,13 +600,13 @@ public class NestmlCoCosTest {
     final DerivativeOrderAtLeastOne derivativeOrderAtLeastOne = new DerivativeOrderAtLeastOne();
     nestmlCoCoChecker.addCoCo(derivativeOrderAtLeastOne);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "derivativeOrderAtLeastOne/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/derivativeOrderAtLeastOne.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         NestmlErrorStrings.code(derivativeOrderAtLeastOne));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "derivativeOrderAtLeastOne/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/derivativeOrderAtLeastOne.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,

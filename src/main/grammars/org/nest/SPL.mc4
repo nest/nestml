@@ -75,7 +75,7 @@ grammar SPL extends org.nest.Commons {
 
   ELSE_Clause = "else" BLOCK_OPEN Block;
 
-  FOR_Stmt = "for" var:Name "in" from:Expr "..." to:Expr ("step" step:SignedNumericLiteral)? BLOCK_OPEN Block BLOCK_CLOSE;
+  FOR_Stmt = "for" var:Name "in" from:Expr "..." to:Expr "step" step:SignedNumericLiteral BLOCK_OPEN Block BLOCK_CLOSE;
 
   WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
 

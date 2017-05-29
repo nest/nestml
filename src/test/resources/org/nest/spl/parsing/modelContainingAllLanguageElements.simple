@@ -10,7 +10,7 @@ print("" + 1)
 
 
 x1, y1 real
-for x1 in 1 ... 5 :
+for x1 in 1 ... 5 step 1:
     if x1 > 4:
         return x1
     end
@@ -29,13 +29,13 @@ while x2 <= 10 :
 end
 
 
-for x in 1 ... 5 :
+for x in 1 ... 5 step 1:
     if x2 > 4:
         return x2
     end
 end
 
-for x in 1 ... 5 :
+for x in 1 ... 5 step 1:
 end
 
 for x in 1 ... 5 step 2:

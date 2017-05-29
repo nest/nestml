@@ -53,12 +53,11 @@ grammar Commons extends de.monticore.types.Types, org.nest.Units {
          | condition:Expr "?" ifTrue:Expr ":" ifNot:Expr
          | FunctionCall
          | BooleanLiteral // true & false;
-         | NESTMLNumericLiteral
+         | NumericLiteral Variable
+         | NumericLiteral
          | StringLiteral
          | ["inf"]
          | Variable;
-
-  NESTMLNumericLiteral = NumericLiteral ("["type:UnitType"]"|plainType:Name)?;
 
 
   /**

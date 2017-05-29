@@ -8,14 +8,14 @@ package org.nest.units._visitor;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTNESTMLNumericLiteral;
+import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.spl._ast.ASTSPLNode;
-import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units._ast.ASTUnitsNode;
 import org.nest.units._cocos.UnitsErrorStrings;
+import org.nest.units.unitrepresentation.SIData;
 import org.nest.units.unitrepresentation.UnitTranslator;
 import org.nest.utils.LogHelper;
 
@@ -23,14 +23,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.nest.symboltable.predefined.PredefinedTypes.getTypeIfExists;
-
 /**
  * Type checking visitor for the UNITS grammar. Verifies that all units used are comprised of SI units.
  *
  * @author ptraeder
  */
 public class UnitsSIVisitor implements NESTMLVisitor {
+  private final static String ERROR_CODE = "NESTML_UnitsSIVisitor";
   private UnitTranslator translator = new UnitTranslator();
 
   /**
@@ -79,26 +78,6 @@ public class UnitsSIVisitor implements NESTMLVisitor {
 
     return Lists.newArrayList(findings);
   }
-  /**
-   * In case of a plainType given for a NESTMLNumericLiteral,
-   * verify that the given simple Unit exists and append a AstUnitType Node to hold the corresponding Unit Information
-   */
-  public void visit(final ASTNESTMLNumericLiteral node) {
-    if (node.plainTypeIsPresent()){ //Complex unit type handled by visit(ASTUnitType)
-      String unitPlain = node.getPlainType().get();
-      Optional<TypeSymbol> unitTypeSymbol = getTypeIfExists(unitPlain);
-      if(unitTypeSymbol.isPresent()){
-        ASTUnitType astUnitType = new ASTUnitType();
-        astUnitType.setUnit(unitPlain);
-        astUnitType.setSerializedUnit(unitTypeSymbol.get().getName());
-        node.setType(astUnitType);
-      }
-      else {
-        final String msg = UnitsErrorStrings.message(this,  unitPlain);
-        Log.error(msg, node.get_SourcePositionStart());
-      }
-    }
-  }
 
 
   /**
@@ -118,6 +97,30 @@ public class UnitsSIVisitor implements NESTMLVisitor {
       Log.error(msg, astUnitType.get_SourcePositionStart());
     }
 
+  }
+
+  /**
+   * Verify that if a literal is followed directly (only seperated by whitespaces) by a variable,
+   * that the variable is one of the predefined unit variables.
+   */
+  public void visit(ASTExpr node) {
+    if(node.numericLiteralIsPresent() && node.variableIsPresent()){
+      final String varName = node.getVariable().get().toString();
+      final List<String> validUnits = SIData.getCorrectSIUnits();
+      boolean valid = false;
+
+      for(String validUnit : validUnits){
+        if(varName.equals(validUnit)){
+          valid = true;
+          break;
+        }
+      }
+
+      if(!valid){
+        Log.error(ERROR_CODE + varName +"is not an SI unit.", node.get_SourcePositionStart());
+      }
+
+    }
   }
 
 }

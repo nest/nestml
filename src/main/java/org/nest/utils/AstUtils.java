@@ -38,7 +38,8 @@ import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units._visitor.UnitsSIVisitor;
-
+import org.nest.units.unitrepresentation.SIData;
+import org.nest.units.unitrepresentation.UnitRepresentation;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -51,7 +52,9 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.*;
 import static de.se_rwth.commons.logging.Log.info;
+import static java.lang.Math.pow;
 import static java.util.stream.Collectors.toList;
+import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.symboltable.symbols.VariableSymbol.resolve;
 
 /**
@@ -498,6 +501,24 @@ public final class AstUtils {
 
   public static String print(final SourcePosition sourcePosition) {
     return "<" + sourcePosition.getLine() + "," + sourcePosition.getColumn() + ">";
+  }
+
+  public static Optional<String> convertSiName(String astVariable) {
+    final String varShortName = astVariable.toString();
+    for (String siUnit : SIData.getCorrectSIUnits()) {
+      if (varShortName.equals(siUnit)) {
+        TypeSymbol variableType = getType(varShortName);
+        UnitRepresentation variableRep = UnitRepresentation
+            .getBuilder()
+            .serialization(variableType.getName())
+            .build();
+        int magnitude = UnitRepresentation.getTargetUnitFilter()
+            .getDifferenceToRegisteredTarget(variableRep);
+        double magnitudeAsFactor = pow(10.0, magnitude);
+        return Optional.of(String.valueOf(magnitudeAsFactor));
+      }
+    }
+    return Optional.empty();
   }
 
 }
