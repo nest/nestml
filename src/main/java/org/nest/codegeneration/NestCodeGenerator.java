@@ -68,7 +68,7 @@ public class NestCodeGenerator {
   public void analyseAndGenerate(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
+    info("Starts processing of the model: " + root.getArtifactName(), LOG_NAME);
 
     ASTNESTMLCompilationUnit workingVersion = root;
     for (int i = 0; i < root.getNeurons().size(); ++i) {
@@ -81,7 +81,7 @@ public class NestCodeGenerator {
         .getNeurons()
         .forEach(astNeuron -> generateNestCode(astNeuron, outputBase));
 
-    final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
+    final String msg = "Successfully generated NEST code for: '" + root.getArtifactName() + "' in: '"
         + outputBase.toAbsolutePath().toString() + "'";
     info(msg, LOG_NAME);
   }

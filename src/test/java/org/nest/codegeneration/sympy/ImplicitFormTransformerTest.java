@@ -51,7 +51,6 @@ public class ImplicitFormTransformerTest extends ModelbasedTest {
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
-    testant.setPackageName("codegeneration");
     testant.setArtifactName("iaf_cond_alpha");
     final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH);
     final Scope scope = scopeCreator2.runSymbolTableCreator(testant);

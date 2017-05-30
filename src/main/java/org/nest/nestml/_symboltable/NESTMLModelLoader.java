@@ -38,7 +38,6 @@ public class NESTMLModelLoader extends NESTMLModelLoaderTOP {
         .orElseThrow(() -> new RuntimeException(NO_CREATOR));
 
     ast.setArtifactName(Names.getSimpleName(modelName));
-    ast.setPackageName(Names.getQualifier(modelName));
 
     if (symbolTableCreator != null) {
       trace("Start creation of symbol table for model \"" + modelName + "\".",

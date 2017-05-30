@@ -54,36 +54,6 @@ public class NESTMLParserTest extends ModelbasedTest {
     }
   }
 
-  @Test
-  public void testNamesComputation() {
-    final Optional<String> packageName = parser.computePackageName(
-        Paths.get(TEST_MODEL1),
-        Paths.get("src/test/resources/", "command_line_base"));
-
-    final String artifactName = parser.computeArtifactName(Paths.get(TEST_MODEL1));
-    assertFalse(packageName.isPresent());
-    assertEquals("cli_example", artifactName);
-
-    final Optional<String> packageName2 = parser.computePackageName(
-        Paths.get(TEST_MODEL2),
-        Paths.get(TEST_MODEL_PATH));
-    final String artifactName2 = parser.computeArtifactName(Paths.get(TEST_MODEL2));
-    assertTrue(packageName2.isPresent());
-    assertEquals("sub", packageName2.get());
-    assertEquals("cli_example", artifactName2);
-  }
-
-  @Test
-  public void testEmptyPackage() {
-    final String emptyPackage = "src/test/resources/command_line_base/cli_example.nestml";
-    final Optional<String> packageName = parser.computePackageName(
-        Paths.get(TEST_MODEL1),
-        Paths.get(emptyPackage));
-
-    final String artifactName = parser.computeArtifactName(Paths.get(TEST_MODEL1));
-    assertFalse(packageName.isPresent());
-    assertEquals("cli_example", artifactName);
-  }
 
   /**
    * Checks that incorrectly stored files are not processed at all.

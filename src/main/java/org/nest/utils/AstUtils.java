@@ -18,15 +18,15 @@ import org.apache.commons.io.FileUtils;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
-import org.nest.nestml._visitor.UnitsSIVisitor;
-import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.nestml._symboltable.unitrepresentation.SIData;
 import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
+import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.nestml._visitor.UnitsSIVisitor;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 
 import java.io.File;
 import java.io.IOException;
@@ -429,17 +429,13 @@ public final class AstUtils {
       final NESTMLScopeCreator scopeCreator,
       final Path temporaryFolder) {
     try {
-      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getFullName() + ".tmp");
+      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getArtifactName() + ".tmp");
       printModelToFile(nestmlModel, outputTmpPath);
       info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
       final NESTMLParser parser = new NESTMLParser(temporaryFolder);
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
       withSolvedOde.setArtifactName(nestmlModel.getArtifactName());
-
-      if (nestmlModel.getPackageName().isPresent()) {
-        withSolvedOde.setPackageName(nestmlModel.getPackageName().get());
-      }
 
       scopeCreator.runSymbolTableCreator(withSolvedOde);
       return withSolvedOde;
@@ -455,10 +451,9 @@ public final class AstUtils {
   }
 
   public static Optional<String> convertSiName(String astVariable) {
-    final String variableName = astVariable;
     for (String siUnit : SIData.getCorrectSIUnits()) {
-      if (variableName.equals(siUnit)) {
-        TypeSymbol variableType = getType(variableName);
+      if (astVariable.equals(siUnit)) {
+        TypeSymbol variableType = getType(astVariable);
         UnitRepresentation variableRep = UnitRepresentation
             .getBuilder()
             .serialization(variableType.getName())

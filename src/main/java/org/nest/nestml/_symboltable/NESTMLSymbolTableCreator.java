@@ -73,11 +73,11 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     final MutableScope artifactScope = new ArtifactScope(
         empty(),
-        compilationUnitAst.getFullName(),
+        compilationUnitAst.getArtifactName(),
         Lists.newArrayList());
     putOnStack(artifactScope);
 
-    final String msg = "Adds an artifact scope for the NESTML model file: " + compilationUnitAst.getFullName();
+    final String msg = "Adds an artifact scope for the NESTML model file: " + compilationUnitAst.getArtifactName();
     trace(msg, LOGGER_NAME);
   }
 
@@ -86,7 +86,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     removeCurrentScope();
     setEnclosingScopeOfNodes(compilationUnitAst);
     final String msg = "Finishes handling and sets scopes on all ASTs for the artifact: " +
-        compilationUnitAst.getFullName();
+        compilationUnitAst.getArtifactName();
     trace(msg, LOGGER_NAME);
   }
 
