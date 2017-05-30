@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.nest.nestml.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
-import static org.nest.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 import static org.nest.utils.AstUtils.printComments;
 
 /**

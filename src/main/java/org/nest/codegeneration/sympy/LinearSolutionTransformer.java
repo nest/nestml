@@ -6,10 +6,10 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
-import org.nest.commons._ast.ASTExpr;
+import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclaration;
-import static org.nest.symboltable.symbols.VariableSymbol.resolve;
+import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**

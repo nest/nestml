@@ -9,12 +9,11 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
-import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.predefined.PredefinedTypes;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -78,7 +77,7 @@ public class NestmlCoCosTest {
     nestmlCoCoChecker.addCoCo((NESTMLASTAssignmentCoCo) variableNotDefinedBeforeUse);
     nestmlCoCoChecker.addCoCo((NESTMLASTDeclarationCoCo) variableNotDefinedBeforeUse);
     nestmlCoCoChecker.addCoCo((NESTMLASTFOR_StmtCoCo) variableNotDefinedBeforeUse);
-    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableNotDefinedBeforeUse);
+    nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCallCoCo) variableNotDefinedBeforeUse);
     nestmlCoCoChecker.addCoCo((NESTMLASTWHILE_StmtCoCo) variableNotDefinedBeforeUse);
 
     checkModelAndAssertNoErrors(
@@ -604,7 +603,7 @@ public class NestmlCoCosTest {
     nestmlCoCoChecker.addCoCo((NESTMLASTCompound_StmtCoCo) variableDoesNotExist);
     nestmlCoCoChecker.addCoCo((NESTMLASTAssignmentCoCo) variableDoesNotExist);
     nestmlCoCoChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);
-    nestmlCoCoChecker.addCoCo((CommonsASTFunctionCallCoCo) variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCallCoCo) variableDoesNotExist);
     nestmlCoCoChecker.addCoCo((NESTMLASTReturnStmtCoCo) variableDoesNotExist);
 
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/variableDoesNotExist.nestml");

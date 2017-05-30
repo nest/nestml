@@ -23,10 +23,10 @@ package org.nest.nestml.prettyprinter;
 import de.monticore.ast.ASTNode;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
-import org.nest.commons._ast.ASTBLOCK_CLOSE;
-import org.nest.commons._ast.ASTBLOCK_OPEN;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTBLOCK_CLOSE;
+import org.nest.nestml._ast.ASTBLOCK_OPEN;
+import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.utils.AstUtils;
@@ -35,7 +35,7 @@ import org.nest.utils.PrettyPrinterBase;
 import java.util.List;
 import java.util.Optional;
 
-import static org.nest.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 
 /**
  * Produces the concrete textual representation from the AST.

@@ -9,10 +9,10 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
-import org.nest.symboltable.NestmlSymbols;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.NestmlSymbols;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 

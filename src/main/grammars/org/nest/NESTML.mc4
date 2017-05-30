@@ -9,14 +9,91 @@ package org.nest;
   Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
   language which leans on the Python syntax.
 */
-grammar NESTML extends org.nest.Commons {
+grammar NESTML extends org.nest.Literals {
+
+  /**
+    Artifact entry-point
+  */
+  NESTMLCompilationUnit = (Neuron | NEWLINE)* EOF;
+
+  BLOCK_OPEN = ":";
+
+  BLOCK_CLOSE = "end";
+  /*********************************************************************************************************************
+  * Units-Language
+  *********************************************************************************************************************/
+
+  /**
+    ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
+    datatype.
+    @attribute boolean getters for integer, real, ...
+    @attribute unitType a SI datatype
+  */
+  Datatype = ["integer"]
+           | ["real"]
+           | ["string"]
+           | ["boolean"]
+           | ["void"]
+           | UnitType;
+  /**
+    ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
+    complex data type as 'mV/s'
+  */
+  UnitType = leftParentheses:"(" UnitType rightParentheses:")"
+           | base:UnitType pow:["**"] exponent:IntLiteral
+           | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
+           | unitlessLiteral:IntLiteral divOp:["/"] right:UnitType
+           | unit:Name;
+
+  /*********************************************************************************************************************
+  * Expressions-Language
+  *********************************************************************************************************************/
+  Expr = leftParentheses:["("] Expr rightParentheses:[")"]
+         | <rightassoc> base:Expr pow:["**"] exponent:Expr
+         | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
+         | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
+         | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
+         | left:Expr (shiftLeft:["<<"] | shiftRight:[">>"]) right:Expr
+         | left:Expr bitAnd:["&"] right:Expr
+         | left:Expr bitXor:["^"]  right:Expr
+         | left:Expr bitOr:["|"] right:Expr
+         | left:Expr (lt:["<"] |
+                      le:["<="] |
+                      eq:["=="] |
+                      ne:["!="] |
+                      ne2:["<>"] |
+                      ge:[">="] |
+                      gt:[">"]) right:Expr
+         | logicalNot:["not"] Expr
+         | left:Expr logicalAnd:["and"] right:Expr
+         | left:Expr logicalOr:["or"] right:Expr
+         | condition:Expr "?" ifTrue:Expr ":" ifNot:Expr
+         | FunctionCall
+         | BooleanLiteral // true & false;
+         | NumericLiteral Variable
+         | NumericLiteral
+         | StringLiteral
+         | ["inf"]
+         | Variable;
+
+  /**
+    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    @attribute name
+  */
+  Variable = Name (differentialOrder:"\'")*;
+
+  /**
+    ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
+    @attribute name The (qualified) name of the fucntions
+    @attribute args Comma separated list of expressions representing parameters.
+  */
+  FunctionCall = calleeName:Name "(" args:(Expr& || ",")* ")";
 
   /** ASTNESTMLCompilationUnit represents the complete entire file with neuron and component models.
     @attribute packageName      The qualified name to artifact
     @attribute Import           List of imported elements
     @attribute Neuron           The neuron representation
   */
-  NESTMLCompilationUnit = (Neuron | NEWLINE)* EOF;
 
 
   /*********************************************************************************************************************

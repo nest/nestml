@@ -23,12 +23,8 @@ package org.nest.nestml._cocos;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.utils.ASTNodes;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
-import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._ast.*;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.util.List;
@@ -44,7 +40,7 @@ import static de.se_rwth.commons.logging.Log.error;
 public class VariableDoesNotExist implements
     NESTMLASTOdeDeclarationCoCo,
     NESTMLASTAssignmentCoCo,
-    CommonsASTFunctionCallCoCo,
+    NESTMLASTFunctionCallCoCo,
     NESTMLASTDeclarationCoCo,
     NESTMLASTReturnStmtCoCo,
     NESTMLASTCompound_StmtCoCo {

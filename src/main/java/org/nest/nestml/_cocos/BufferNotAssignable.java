@@ -8,14 +8,14 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTAssignment;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
-import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
+import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
+import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
 
 /**
  * Checks that buffers cannot be assigned a value.

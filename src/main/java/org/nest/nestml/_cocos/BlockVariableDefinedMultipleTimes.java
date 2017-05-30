@@ -26,7 +26,7 @@ import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBlock;
 import org.nest.nestml._ast.ASTDeclaration;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.util.Collection;

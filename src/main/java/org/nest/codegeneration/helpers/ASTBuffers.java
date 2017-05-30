@@ -9,7 +9,7 @@ import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTInputType;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;

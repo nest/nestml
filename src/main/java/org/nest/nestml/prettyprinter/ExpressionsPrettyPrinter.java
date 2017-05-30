@@ -22,9 +22,9 @@ package org.nest.nestml.prettyprinter;
 
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTVariable;
 
 import java.util.List;
 

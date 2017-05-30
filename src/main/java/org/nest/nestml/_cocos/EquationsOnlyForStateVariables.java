@@ -23,9 +23,7 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTEquation;
-import org.nest.nestml._cocos.NESTMLASTEquationCoCo;
-import org.nest.nestml._cocos.NestmlErrorStrings;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 

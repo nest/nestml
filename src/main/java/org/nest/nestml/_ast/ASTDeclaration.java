@@ -22,8 +22,6 @@
 package org.nest.nestml._ast;
 
 import com.google.common.collect.Lists;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.units._ast.ASTDatatype;
 
 import java.util.List;
 

@@ -9,8 +9,8 @@ import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTDeclaration;
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;

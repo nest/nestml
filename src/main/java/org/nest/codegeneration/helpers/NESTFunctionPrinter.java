@@ -11,9 +11,9 @@ import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTParameter;
-import org.nest.symboltable.NestmlSymbols;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.NestmlSymbols;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
 
 import java.util.List;

@@ -1,13 +1,13 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.ast.ASTNode;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.nestml._ast.ASTDerivative;
 import org.nest.nestml._ast.ASTShape;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
 import java.util.ArrayList;

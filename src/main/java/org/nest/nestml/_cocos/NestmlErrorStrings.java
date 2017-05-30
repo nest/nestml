@@ -6,8 +6,7 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
-import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.units._cocos.UnitDeclarationOnlyOnesAllowed;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
 /**

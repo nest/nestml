@@ -23,7 +23,7 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTDeclaration;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 

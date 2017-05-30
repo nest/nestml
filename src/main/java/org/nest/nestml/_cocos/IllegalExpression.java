@@ -23,14 +23,14 @@ package org.nest.nestml._cocos;
 import com.google.common.base.Strings;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._visitor.ExpressionTypeVisitor;
+import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._visitor.ExpressionTypeVisitor;
 import org.nest.nestml._ast.*;
-import org.nest.symboltable.typechecking.Either;
-import org.nest.symboltable.typechecking.TypeChecker;
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.typechecking.Either;
+import org.nest.nestml._symboltable.typechecking.TypeChecker;
+import org.nest.nestml._symboltable.predefined.PredefinedTypes;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.util.Optional;
@@ -38,8 +38,8 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.symboltable.typechecking.TypeChecker.*;
-import static org.nest.symboltable.predefined.PredefinedTypes.getBooleanType;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.*;
+import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getBooleanType;
 import static org.nest.utils.AstUtils.computeTypeName;
 
 /**

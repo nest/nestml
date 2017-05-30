@@ -20,8 +20,8 @@
  */
 package org.nest.nestml.prettyprinter;
 
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTVariable;
 
 /**
  * Defines which names can be mapped.

@@ -7,7 +7,7 @@ package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTAssignment;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;

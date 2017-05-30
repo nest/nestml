@@ -7,17 +7,10 @@ package org.nest.nestml._symboltable;
 
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._cocos.*;
-import org.nest.nestml._cocos.DerivativeOrderAtLeastOne;
-import org.nest.nestml._cocos.EquationsOnlyForStateVariables;
-import org.nest.nestml._cocos.SumHasCorrectParameter;
-import org.nest.nestml._cocos.VariableDoesNotExist;
-import org.nest.nestml._cocos.BlockVariableDefinedMultipleTimes;
-import org.nest.nestml._cocos.VariableHasTypeName;
-import org.nest.units._cocos.UnitDeclarationOnlyOnesAllowed;
+import org.nest.nestml._cocos.UnitDeclarationOnlyOnesAllowed;
 import org.nest.utils.LogHelper;
 
 import java.util.List;
@@ -49,7 +42,7 @@ public class NestmlCoCosManager {
 
   private void registerVariableExistenceChecks() {
     final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
-    variableExistenceChecker.addCoCo((CommonsASTFunctionCallCoCo) variableDoesNotExist);
+    variableExistenceChecker.addCoCo((NESTMLASTFunctionCallCoCo) variableDoesNotExist);
     variableExistenceChecker.addCoCo((NESTMLASTAssignmentCoCo) variableDoesNotExist);
     variableExistenceChecker.addCoCo((NESTMLASTCompound_StmtCoCo) variableDoesNotExist);
     variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);

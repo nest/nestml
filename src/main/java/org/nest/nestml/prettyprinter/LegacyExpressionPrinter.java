@@ -21,8 +21,8 @@
 
 package org.nest.nestml.prettyprinter;
 
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._ast.ASTFunctionCall;
 
 /**
  * Created by ptraeder.

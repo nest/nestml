@@ -10,13 +10,13 @@ import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.predefined.PredefinedTypes;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.nest.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 import static org.nest.utils.AstUtils.computeTypeName;
 
 /**

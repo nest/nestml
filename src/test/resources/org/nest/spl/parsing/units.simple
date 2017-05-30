@@ -1,4 +1,0 @@
-module org.nest.spl.parsing.units
-
-#testVar1 nS/ms**2 = 1
-#testVar nS/ms**2 = 1 + testVar1

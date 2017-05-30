@@ -8,12 +8,12 @@ package org.nest.codegeneration.sympy;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._ast.ASTEquation;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 import org.nest.utils.FilesHelper;
 

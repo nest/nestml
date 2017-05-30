@@ -8,7 +8,7 @@ package org.nest.nestml._cocos;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;

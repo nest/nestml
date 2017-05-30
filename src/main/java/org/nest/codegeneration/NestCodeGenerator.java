@@ -23,7 +23,7 @@ import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.nestml.prettyprinter.IReferenceConverter;
 import org.nest.nestml.prettyprinter.LegacyExpressionPrinter;
-import org.nest.symboltable.NestmlSymbols;
+import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.utils.AstUtils;
 
 import java.io.File;

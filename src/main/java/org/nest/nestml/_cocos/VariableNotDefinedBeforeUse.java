@@ -25,15 +25,9 @@ import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.utils.ASTNodes;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
-import org.nest.commons._cocos.CommonsASTFunctionCallCoCo;
-import org.nest.nestml._ast.ASTAssignment;
-import org.nest.nestml._ast.ASTDeclaration;
-import org.nest.nestml._ast.ASTFOR_Stmt;
-import org.nest.nestml._ast.ASTWHILE_Stmt;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.*;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.Collection;
 import java.util.List;
@@ -52,7 +46,7 @@ public class VariableNotDefinedBeforeUse implements
     NESTMLASTDeclarationCoCo,
     NESTMLASTFOR_StmtCoCo,
     NESTMLASTWHILE_StmtCoCo,
-    CommonsASTFunctionCallCoCo {
+    NESTMLASTFunctionCallCoCo {
 
   @Override
   public void check(final ASTFOR_Stmt forstmt) {

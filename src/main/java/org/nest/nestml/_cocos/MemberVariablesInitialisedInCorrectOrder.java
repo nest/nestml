@@ -7,10 +7,10 @@ package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml._ast.ASTDeclaration;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;

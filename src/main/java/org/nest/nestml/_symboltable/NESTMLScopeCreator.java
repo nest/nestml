@@ -11,8 +11,7 @@ import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.symboltable.ScopeCreatorBase;
-import org.nest.units._visitor.ODEPostProcessingVisitor;
+import org.nest.nestml._visitor.ODEPostProcessingVisitor;
 import org.nest.utils.LogHelper;
 
 import java.nio.file.Path;

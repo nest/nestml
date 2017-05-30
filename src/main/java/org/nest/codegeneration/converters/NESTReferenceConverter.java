@@ -6,14 +6,14 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml.prettyprinter.IReferenceConverter;
-import org.nest.symboltable.NestmlSymbols;
-import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.NestmlSymbols;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.util.Optional;
@@ -21,7 +21,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.codegeneration.helpers.VariableHelper.printOrigin;
-import static org.nest.symboltable.symbols.VariableSymbol.resolve;
+import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
 import static org.nest.utils.AstUtils.convertSiName;
 
 /**

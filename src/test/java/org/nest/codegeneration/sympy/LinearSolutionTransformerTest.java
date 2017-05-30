@@ -10,8 +10,8 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

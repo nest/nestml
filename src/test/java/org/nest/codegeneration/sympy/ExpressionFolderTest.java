@@ -7,13 +7,13 @@ package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.commons._ast.ASTExpr;
+import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTAssignment;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;
 import java.io.StringReader;

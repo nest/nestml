@@ -8,10 +8,10 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTReturnStmt;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.symboltable.typechecking.Either;
-import org.nest.symboltable.typechecking.TypeChecker;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.typechecking.Either;
+import org.nest.nestml._symboltable.typechecking.TypeChecker;
 import org.nest.utils.AstUtils;
 
 import java.util.List;
@@ -20,8 +20,8 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.symboltable.typechecking.TypeChecker.isString;
-import static org.nest.symboltable.typechecking.TypeChecker.isVoid;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isString;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isVoid;
 
 /**
  * The type of all return expression must conform to the declaration type.

@@ -4,10 +4,10 @@ import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.*;
-import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.io.IOException;

@@ -21,16 +21,16 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.utils.AstUtils;
 
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.symboltable.predefined.PredefinedFunctions.COND_SUM;
-import static org.nest.symboltable.predefined.PredefinedFunctions.CURR_SUM;
+import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.COND_SUM;
+import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.CURR_SUM;
 
 /**
  * This class ensures that curr_sum(I,Buffer) gets only simple expression
