@@ -53,14 +53,6 @@ public class NestmlCoCosManagerTest extends ModelbasedTest {
 
 
   @Test
-  public void testGoodModels() throws IOException {
-
-    final File modelsFolder = Paths.get("src/test/resources/org/nest/nestml/parsing").toFile();
-
-    checkAllModelsInFolder(modelsFolder);
-  }
-
-  @Test
   public void testCodegenerationModels() throws IOException {
     final List<Path> models = collectNESTMLModelFilenames(TEST_MODEL_PATH);
     models.forEach(this::checkModel);

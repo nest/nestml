@@ -32,7 +32,7 @@ public class TypeIsDeclaredMultipleTimes implements NESTMLASTNeuronCoCo {
       node.getEnclosingScope().get().resolve(name, NeuronSymbol.KIND);
     }
     catch (ResolvedSeveralEntriesException e) {
-      final String msg = NestmlErrorStrings.getErrorMsg(this, name);
+      final String msg = NestmlErrorStrings.message(this, name);
 
      error(msg, node.get_SourcePositionEnd());
     }

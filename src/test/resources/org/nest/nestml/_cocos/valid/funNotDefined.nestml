@@ -1,0 +1,5 @@
+neuron Dummy:
+  function f():
+    random()
+  end
+end

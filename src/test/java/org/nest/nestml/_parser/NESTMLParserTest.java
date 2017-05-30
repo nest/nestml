@@ -95,7 +95,7 @@ public class NESTMLParserTest extends ModelbasedTest {
   public void testNonExistentType() throws IOException {
     final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/unparsable/wrongTypes.nestml");
     assertFalse(ast.isPresent());
-    List<Finding> findings = LogHelper.getModelFindings(Log.getFindings());
+    List<Finding> findings = LogHelper.getModelErrors(Log.getFindings());
     assertEquals(2, findings.size());
   }
 
@@ -104,7 +104,7 @@ public class NESTMLParserTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/unparsable/multipleVariablesWithSameName.nestml");
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
-    assertTrue(LogHelper.getModelFindings(Log.getFindings()).size() > 0);
+    assertTrue(LogHelper.getModelErrors(Log.getFindings()).size() > 0);
   }
 
   @Test

@@ -29,49 +29,34 @@ import java.util.List;
  */
 public class NestmlCoCosManager {
 
-  private final NESTMLCoCoChecker existenceChecker = new NESTMLCoCoChecker();
+  private final NESTMLCoCoChecker variableExistenceChecker = new NESTMLCoCoChecker();
+  private final NESTMLCoCoChecker methodExistenceChecker = new NESTMLCoCoChecker();
   private final NESTMLCoCoChecker multipleDefinitionChecker = new NESTMLCoCoChecker();
   private final NESTMLCoCoChecker nestmlCoCoChecker = new NESTMLCoCoChecker();
 
   public NestmlCoCosManager() {
-    registerExistenceChecks();
+    registerVariableExistenceChecks();
+    registerMethodChecks();
     registerMultipleDefinitionsChecksChecks();
     registerCocos();
   }
 
-  public List<Finding> analyzeModel(final ASTNESTMLNode root) {
-    Log.getFindings().clear();
-    existenceChecker.checkAll(root);
-    final boolean allVariablesDefined = Log.getFindings().stream().noneMatch(Finding::isError);
-    if (!allVariablesDefined) {
-      return LogHelper.getModelFindings(Log.getFindings());
-    }
-
-    multipleDefinitionChecker.checkAll(root);
-    final boolean allVariablesDefinedAtMostOnce = Log.getFindings().stream().noneMatch(Finding::isError);
-    if (!allVariablesDefinedAtMostOnce) {
-      return LogHelper.getModelFindings(Log.getFindings());
-    }
-    else {
-      nestmlCoCoChecker.checkAll(root);
-    }
-
-    return LogHelper.getModelFindings(Log.getFindings());
-  }
-
-  private void registerExistenceChecks() {
-    final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
-    existenceChecker.addCoCo((CommonsASTFunctionCallCoCo) variableDoesNotExist);
-    existenceChecker.addCoCo((NESTMLASTAssignmentCoCo) variableDoesNotExist);
-    existenceChecker.addCoCo((NESTMLASTCompound_StmtCoCo) variableDoesNotExist);
-    existenceChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);
-    existenceChecker.addCoCo((NESTMLASTOdeDeclarationCoCo) variableDoesNotExist);
-    existenceChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);
-
+  private void registerMethodChecks() {
     final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
-    existenceChecker.addCoCo(functionDoesNotExist);
+    methodExistenceChecker.addCoCo(functionDoesNotExist);
   }
 
+
+  private void registerVariableExistenceChecks() {
+    final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
+    variableExistenceChecker.addCoCo((CommonsASTFunctionCallCoCo) variableDoesNotExist);
+    variableExistenceChecker.addCoCo((NESTMLASTAssignmentCoCo) variableDoesNotExist);
+    variableExistenceChecker.addCoCo((NESTMLASTCompound_StmtCoCo) variableDoesNotExist);
+    variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);
+    variableExistenceChecker.addCoCo((NESTMLASTOdeDeclarationCoCo) variableDoesNotExist);
+    variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);
+
+  }
 
   private void registerMultipleDefinitionsChecksChecks() {
     final MemberVariableDefinedMultipleTimes memberVariableDefinedMultipleTimes
@@ -195,13 +180,40 @@ public class NestmlCoCosManager {
     nestmlCoCoChecker.addCoCo(variableBlockDefinedMultipleTimes);
   }
 
-  List<Finding> checkThatVariablesDefinedOnce(final ASTNeuron astNeuron) {
-    Log.getFindings().clear();
+  List<Finding> checkThatVariableDefinedAtLeastOnce(final ASTNeuron astNeuron) {
+    variableExistenceChecker.checkAll(astNeuron);
 
-    existenceChecker.checkAll(astNeuron);
-    multipleDefinitionChecker.checkAll(astNeuron);
-
-    return LogHelper.getModelFindings(Log.getFindings());
+    return LogHelper.getModelErrors(Log.getFindings());
   }
 
+  List<Finding> checkThatMethodDefinedAtLeastOnce(final ASTNeuron astNeuron) {
+    methodExistenceChecker.checkAll(astNeuron);
+
+    return LogHelper.getModelErrors(Log.getFindings());
+  }
+
+  List<Finding> checkThatElementDefinedAtMostOnce(final ASTNeuron astNeuron) {
+    multipleDefinitionChecker.checkAll(astNeuron);
+
+    return LogHelper.getModelErrors(Log.getFindings());
+  }
+
+  public List<Finding> analyzeModel(final ASTNESTMLNode root) {
+    variableExistenceChecker.checkAll(root);
+    final boolean allVariablesDefined = Log.getFindings().stream().noneMatch(Finding::isError);
+    if (!allVariablesDefined) {
+      return LogHelper.getModelErrors(Log.getFindings());
+    }
+
+    multipleDefinitionChecker.checkAll(root);
+    final boolean allVariablesDefinedAtMostOnce = Log.getFindings().stream().noneMatch(Finding::isError);
+    if (!allVariablesDefinedAtMostOnce) {
+      return LogHelper.getModelErrors(Log.getFindings());
+    }
+    else {
+      nestmlCoCoChecker.checkAll(root);
+    }
+
+    return LogHelper.getModelErrors(Log.getFindings());
+  }
 }

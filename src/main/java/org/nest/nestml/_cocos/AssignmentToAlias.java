@@ -27,7 +27,7 @@ public class AssignmentToAlias implements NESTMLASTAssignmentCoCo {
     final String variableName = astAssignment.getLhsVarialbe().toString();
     final VariableSymbol lhsVariable = VariableSymbol.resolve(variableName, scope);
     if (lhsVariable.isFunction()) {
-      String msg = NestmlErrorStrings.getErrorMsg(this, variableName);
+      String msg = NestmlErrorStrings.message(this, variableName);
 
       error(msg, astAssignment.get_SourcePositionStart());
     }

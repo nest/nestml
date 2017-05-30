@@ -70,7 +70,7 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
               }
             }
           }
-          final String errorMsg = NestmlErrorStrings.getErrorMsg(RestrictUseOfShapes.this);
+          final String errorMsg = NestmlErrorStrings.message(RestrictUseOfShapes.this);
 
           error(errorMsg,node.get_SourcePositionStart());
         }
@@ -80,7 +80,7 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
     public void visit(ASTDerivative node){
       for(String shapeName: shapes){
         if(node.getName().toString().equals(shapeName)){
-          final String errorMsg = NestmlErrorStrings.getErrorMsg(RestrictUseOfShapes.this);
+          final String errorMsg = NestmlErrorStrings.message(RestrictUseOfShapes.this);
           error(errorMsg,node.get_SourcePositionStart());
         }
       }

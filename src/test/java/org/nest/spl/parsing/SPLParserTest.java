@@ -29,12 +29,12 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
  */
 public class SPLParserTest extends ModelbasedTest {
   private final static  String LOG_NAME = SPLParserTest.class.getName();
-  private final NESTMLParser parser = new NESTMLParser();
+  private final NESTMLParser parser = new NESTMLParser(TEST_MODEL_PATH);
 
 
   @Test
   public void test() {
-    parseAndCheck(Paths.get("src/test/resources/org/nest/spl/parsing/comment.simple"));
+    parseAndCheck(Paths.get("src/test/resources/org/nest/nestml/parsing/comment.nestml"));
   }
 
   @Test

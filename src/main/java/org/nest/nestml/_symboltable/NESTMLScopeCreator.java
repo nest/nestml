@@ -9,16 +9,13 @@ import de.monticore.io.paths.ModelPath;
 import de.monticore.symboltable.GlobalScope;
 import de.monticore.symboltable.ResolverConfiguration;
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.symboltable.ScopeCreatorBase;
 import org.nest.units._visitor.ODEPostProcessingVisitor;
+import org.nest.utils.LogHelper;
 
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Creates a artifact scope, build the symbol table and adds predifined types.
@@ -31,7 +28,6 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   private final ModelPath modelPath;
   private final ResolverConfiguration resolverConfiguration;
   private final NESTMLLanguage nestmlLanguage;
-  private final NestmlCoCosManager nestmlCoCosManager = new NestmlCoCosManager();
 
   public GlobalScope getGlobalScope() {
     return globalScope;
@@ -56,13 +52,16 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
 
     Scope result = symbolTableCreator.createFromAST(compilationUnit);
 
+    /* TODO DO I NEED this check?
     final List<Finding> findings = compilationUnit.getNeurons()
         .stream()
         .map(nestmlCoCosManager::checkThatVariablesDefinedOnce)
         .flatMap(Collection::stream)
         .collect(Collectors.toList());
+     */
 
-    if (findings.isEmpty()) {
+    if (LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()).isEmpty() &&
+        LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()).isEmpty()) {
       final ODEPostProcessingVisitor odePostProcessingVisitor = new ODEPostProcessingVisitor();
       compilationUnit.accept(odePostProcessingVisitor);
     }

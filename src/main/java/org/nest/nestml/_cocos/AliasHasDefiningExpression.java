@@ -20,7 +20,7 @@ public class AliasHasDefiningExpression implements NESTMLASTDeclarationCoCo {
   public void check(final ASTDeclaration decl) {
     if (decl.isFunction()) {
       if (!decl.getExpr().isPresent()) {
-        final String msg = NestmlErrorStrings.getErrorMsg(this);
+        final String msg = NestmlErrorStrings.message(this);
 
         error(msg, decl.get_SourcePositionStart());
       }

@@ -21,8 +21,6 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import org.nest.nestml._cocos.NESTMLASTEquationCoCo;
-import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.nestml._ast.ASTEquation;
 
 /**
@@ -40,7 +38,7 @@ public class DerivativeOrderAtLeastOne implements NESTMLASTEquationCoCo {
   @Override
   public void check(final ASTEquation astEq) {
     if (astEq.getLhs().getDifferentialOrder().size() == 0) {
-      Log.error(errorStrings.getErrorMsg(this, astEq.getLhs().toString()), astEq.get_SourcePositionStart());
+      Log.error(errorStrings.message(this, astEq.getLhs().toString()), astEq.get_SourcePositionStart());
     }
 
   }

@@ -12,7 +12,8 @@ neuron iaf_neuron:
   equations:
     y0' = y0 + 1
     y0'' = y0' + 1
-    recordable function y3_tmp real = cond_sum(y1, spikeBuffer)
+    shape G = t
+    recordable function y3_tmp real = cond_sum(G, spikeBuffer)
     y3' = y3_tmp
   end
 

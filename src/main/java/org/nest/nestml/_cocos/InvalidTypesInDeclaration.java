@@ -70,7 +70,7 @@ public class InvalidTypesInDeclaration implements NESTMLASTDeclarationCoCo, NEST
   private void checkIfValidType(ASTNode astNode, String typeName, Optional<TypeSymbol> type) {
     if (!type.isPresent() || type.isPresent() && type.get().getName().endsWith("Logger")) {
       NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      String msg = errorStrings.getErrorMsg(this,typeName);
+      String msg = errorStrings.message(this,typeName);
 
       Log.error(msg, astNode.get_SourcePositionStart());
     }

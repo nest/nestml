@@ -114,7 +114,7 @@ public class VariableDoesNotExist implements
       final String variableName = variable.toString();
 
       if (!exists(variableName, scope)) {
-        final String errorMsg = SplErrorStrings.message(this, variableName);
+        final String errorMsg = NestmlErrorStrings.message(this, variableName);
         error(errorMsg, variable.get_SourcePositionStart());
       }
 
@@ -164,7 +164,7 @@ public class VariableDoesNotExist implements
     final Scope scope = node.getEnclosingScope().get();
 
     if (!exists(variableName, scope)) {
-      error(NestmlErrorStrings.getErrorMsg(this, variableName), node.get_SourcePositionStart());
+      error(NestmlErrorStrings.message(this, variableName), node.get_SourcePositionStart());
     }
 
   }

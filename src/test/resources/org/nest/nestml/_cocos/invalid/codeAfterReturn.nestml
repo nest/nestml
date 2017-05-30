@@ -1,0 +1,7 @@
+neuron Dummy:
+  function f() integer:
+    a integer = 15
+    return a
+    a = a + 12
+  end
+end

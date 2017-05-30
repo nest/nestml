@@ -48,7 +48,7 @@ public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
       // if block not returning:
       if (isReturnBlock(fun.getBlock()) == null) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = NestmlErrorStrings.getErrorMsg(this, fun.getName(), deserializeUnitIfNotPrimitive(computeTypeName(fun.getReturnType().get())));
+        final String msg = NestmlErrorStrings.message(this, fun.getName(), deserializeUnitIfNotPrimitive(computeTypeName(fun.getReturnType().get())));
 
         Log.error(msg, fun.get_SourcePositionStart());
       }

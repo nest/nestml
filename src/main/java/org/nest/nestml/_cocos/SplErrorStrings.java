@@ -38,17 +38,6 @@ public class SplErrorStrings {
   private SplErrorStrings() {
   }
 
-  static String message(final VariableDoesNotExist coco, final String variable) {
-    final String ERROR_MSG_FORMAT = "The variable %s is not defined.";
-
-    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable);
-  }
-
-  @SuppressWarnings({"unused"}) // used for the routing
-  static String code(final VariableDoesNotExist coco) {
-    return "SPL_VARIABLE_DOES_NOT_EXIST";
-  }
-
   static String message(final BlockVariableDefinedMultipleTimes coco, final String variable) {
     final String ERROR_MSG_FORMAT = "The variable %s defined multiple times.";
 

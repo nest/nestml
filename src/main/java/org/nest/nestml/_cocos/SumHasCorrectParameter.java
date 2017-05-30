@@ -23,8 +23,6 @@ package org.nest.nestml._cocos;
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.nestml._cocos.NESTMLASTOdeDeclarationCoCo;
-import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.utils.AstUtils;
 
@@ -65,7 +63,7 @@ public class SumHasCorrectParameter implements NESTMLASTOdeDeclarationCoCo {
    * Creates an error message for the {@code exprArgument}.
    */
   private void error(final ASTExpr exprArgument) {
-    final String msg = NestmlErrorStrings.getErrorMsg(this, AstUtils.toString(exprArgument));
+    final String msg = NestmlErrorStrings.message(this, AstUtils.toString(exprArgument));
 
     Log.error(msg);
   }

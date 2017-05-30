@@ -6,7 +6,7 @@ neuron IAF:
   end
 
   equations:
-    U' = U' # ERRORs: U' doesn't exist
+    U' = U' # ERROR: U' doesn't exist
     function G real = G2 # ERROR: G2 doesn't exist
   end
 

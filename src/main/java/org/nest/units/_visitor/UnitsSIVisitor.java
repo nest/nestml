@@ -47,8 +47,7 @@ public class UnitsSIVisitor implements NESTMLVisitor {
   public static List<Finding> convertSiUnitsToSignature(final ASTUnitsNode unit) {
     final UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
     unit.accept(unitsSIVisitor);
-    final List<Finding> findings = LogHelper.getModelFindings(Log.getFindings());
-    return findings;
+    return LogHelper.getModelErrors(Log.getFindings());
   }
 
   /**

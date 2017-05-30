@@ -27,15 +27,15 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class ExpressionsPrettyPrinterTest {
-  private final NESTMLParser nestmlParser = new NESTMLParser();
   private final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
+  private final NESTMLParser nestmlParser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
 
     final Optional<ASTNESTMLCompilationUnit> root = nestmlParser.parse
-        ("src/test/resources/org/nest/spl/parsing/complexExpressions.nestml");
+        ("src/test/resources/org/nest/nestml/parsing/complexExpressions.nestml");
     assertTrue(root.isPresent());
 
     NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));

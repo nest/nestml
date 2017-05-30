@@ -37,7 +37,7 @@ public class BufferNotAssignable implements NESTMLASTAssignmentCoCo {
     else if (var.get().getBlockType() == INPUT_BUFFER_CURRENT ||
         var.get().getBlockType() == INPUT_BUFFER_SPIKE) {
       NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      String msg = errorStrings.getErrorMsg(this,var.get().getName());
+      String msg = errorStrings.message(this,var.get().getName());
 
       error(msg, astAssignment.get_SourcePositionStart());
 

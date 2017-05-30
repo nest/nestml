@@ -5,7 +5,9 @@
  */
 package org.nest.symboltable.typechecking;
 
+import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -28,17 +30,22 @@ import static org.nest.symboltable.predefined.PredefinedTypes.*;
  * @author plotnikov
  */
 public class ExpressionTypeCalculatorTest {
-  private final NESTMLParser splParser = new NESTMLParser();
   public static final String TEST_MODEL_PATH = "src/test/resources/";
+  private final NESTMLParser nestmlParser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
+  private static final String TEST_POSITIVE_MODEL = "src/test/resources/org/nest/nestml/_cocos/valid"
+      + "/mathExpressions.nestml";
+  private static final String TEST_NEGATIVE_MODEL = "src/test/resources/org/nest/nestml/_cocos/invalid"
+      + "/mathExpressions.nestml";
 
-  private static final String TEST_POSITIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/valid"
-      + "/mathExpressions.simple";
-  private static final String TEST_NEGATIVE_MODEL = "src/test/resources/org/nest/spl/_cocos/invalid"
-      + "/mathExpressions.simple";
+  @Before
+  public void clearLog() {
+    Log.enableFailQuick(false);
+    Log.getFindings().clear();
+  }
 
   @Test
   public void testTypeCalculation() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> root = splParser.parse(TEST_POSITIVE_MODEL);
+    final Optional<ASTNESTMLCompilationUnit> root = nestmlParser.parse(TEST_POSITIVE_MODEL);
     assertTrue(root.isPresent());
 
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
@@ -137,7 +144,7 @@ public class ExpressionTypeCalculatorTest {
 
   @Test
   public void testNegativeExamples() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> root = splParser.parse(TEST_NEGATIVE_MODEL);
+    final Optional<ASTNESTMLCompilationUnit> root = nestmlParser.parse(TEST_NEGATIVE_MODEL);
     assertTrue(root.isPresent());
 
     final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));

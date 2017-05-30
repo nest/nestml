@@ -1,0 +1,24 @@
+neuron Dummy:
+  function f():
+    z real
+    if 1>0 :
+      x real # reports error
+      z real
+      x real # reports error
+    end
+
+    x real
+    while true:
+      x real
+      z real # reports error
+      z real # reports error
+    end
+
+    t1 real
+    h integer
+    for h in 0 ... 10 step 1:
+      t1 integer # reports error
+      t1 integer # reports error
+    end
+  end
+end

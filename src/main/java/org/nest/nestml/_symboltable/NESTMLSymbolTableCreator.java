@@ -64,6 +64,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     //TODO Maybe find a better place for this
     UnitsSIVisitor.convertSiUnitsToSignature(rootNode);
     rootNode.accept(this);
+    // TODO must return an optional
     return getFirstCreatedScope();
   }
 
@@ -110,28 +111,44 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
     }
 
-    final List<Finding> findings = nestmlCoCosManager.checkThatVariablesDefinedOnce(astNeuron);
-    if (findings.isEmpty()) {
-      if (astNeuron.getBody().getODEBlock().isPresent()) {
+    final List<Finding> undefinedVariables = nestmlCoCosManager.checkThatVariableDefinedAtLeastOnce(astNeuron);
 
-        final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkThatVariablesDefinedOnce(astNeuron);
+    if (undefinedVariables.isEmpty()) {
+      final List<Finding> undefinedMethods = nestmlCoCosManager.checkThatMethodDefinedAtLeastOnce(astNeuron);
+      if (undefinedMethods.isEmpty()) {
+        final List<Finding> multipleDefinitions = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
+        if (multipleDefinitions.isEmpty()) {
+          if (astNeuron.getBody().getODEBlock().isPresent()) {
 
-        if (afterAddingDerivedVariables.isEmpty()) {
-          assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
-          markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
+            final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
+
+            if (afterAddingDerivedVariables.isEmpty()) {
+              assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
+              markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
+            }
+            else {
+              final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one variable is " +
+                                 "defined multiple times";
+              Log.error(msg);
+            }
+
+          }
         }
         else {
           final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one variable is " +
-                             "defined multiple times";
+                             "defined multiple. See error log.";
           Log.error(msg);
         }
-
+      }
+      else {
+        final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one method is " +
+                           "undefined. See error log.";
       }
 
     }
     else {
       final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one variable is " +
-                         "defined multiple times";
+                         "undefined. See error log.";
       Log.error(msg);
     }
 

@@ -105,28 +105,6 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
   }
 
   @Test
-  public void testAddingP00Value() {
-    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
-    // false abstraction level
-    ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    linearSolutionTransformer.addAliasToInternals(modelRoot.getNeurons().get(0), P30_FILE);
-
-    printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
-
-    ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
-
-    final Scope scope = scopeCreator.runSymbolTableCreator(testant);
-    Optional<NeuronSymbol> symbol = scope.resolve(
-        NEURON_NAME,
-        NeuronSymbol.KIND);
-
-    final Optional<VariableSymbol> p00Symbol = symbol.get().getVariableByName("P30");
-
-    assertTrue(p00Symbol.isPresent());
-    assertTrue(p00Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
-  }
-
-  @Test
   public void testReplaceODEThroughMatrixMultiplication() {
     final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
     // false abstraction level
@@ -139,48 +117,5 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
     parseNESTMLModel(TARGET_TMP_MODEL_PATH);
   }
 
-  @Test
-  public void testAddingPSCInitialValue() {
-    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
-    // false abstraction level
-    ASTNESTMLCompilationUnit modelRoot = parseAndBuildSymboltable(MODEL_FILE_PATH);
-    linearSolutionTransformer.addDeclarationsToInternals(
-        modelRoot.getNeurons().get(0),
-        PSC_INITIAL_VALUE_FILE);
-    printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
-
-    ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
-
-    final Scope scope = scopeCreator.runSymbolTableCreator(testant);
-
-    Optional<NeuronSymbol> symbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
-
-    final Optional<VariableSymbol> pscInitialValue = symbol.get().getVariableByName("y1_I_shape_inPSCInitialValue");
-
-    assertTrue(pscInitialValue.isPresent());
-    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
-  }
-
-  @Test
-  public void testAddingStateVariables() {
-    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
-    final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    scopeCreator.runSymbolTableCreator(modelRoot);
-
-    linearSolutionTransformer.addStateVariables(STATE_VARIABLES_FILE, modelRoot.getNeurons().get(0));
-
-    printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
-
-    ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
-    testant.setPackageName("codegeneration");
-    testant.setArtifactName("iaf_psc_alpha_neuron");
-    final Scope scope = scopeCreator.runSymbolTableCreator(testant);
-
-    Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
-
-    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("y1_I_shape_in");
-    assertTrue(y1.isPresent());
-    assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
-  }
 
 }

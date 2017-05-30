@@ -1,6 +1,0 @@
-module org.nest.spl._cocos.funNotDefined
-
-bar() /* not defined */
-
-# not defined
-random(2) # not defined with parameter

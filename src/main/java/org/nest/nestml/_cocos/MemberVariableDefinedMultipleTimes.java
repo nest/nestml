@@ -75,7 +75,7 @@ public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
       final ASTNode astNode) {
     if (names.containsKey(var)) {
       NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      final String msg = errorStrings.getErrorMsg(this,var,
+      final String msg = errorStrings.message(this,var,
               names.get(var).getLine(),
               names.get(var).getColumn());
 

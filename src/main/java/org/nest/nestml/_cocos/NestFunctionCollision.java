@@ -36,7 +36,7 @@ public class NestFunctionCollision implements NESTMLASTFunctionCoCo {
 
       if (nestFunNames.contains(funName)) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this,funName);
+        final String msg = errorStrings.message(this,funName);
 
         error(msg, fun.get_SourcePositionStart());
       }
