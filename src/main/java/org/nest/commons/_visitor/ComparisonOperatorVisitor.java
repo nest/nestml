@@ -2,10 +2,10 @@ package org.nest.commons._visitor;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 
-import static org.nest.spl.symboltable.typechecking.TypeChecker.*;
+import static org.nest.symboltable.typechecking.TypeChecker.*;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**

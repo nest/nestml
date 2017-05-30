@@ -27,11 +27,8 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.nestml._ast.ASTDerivative;
 import org.nest.nestml._ast.ASTEquation;
 import org.nest.nestml._ast.ASTShape;
-import org.nest.spl._ast.ASTBlock;
-import org.nest.spl._ast.ASTReturnStmt;
-import org.nest.spl._ast.ASTSPLNode;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units._ast.ASTDatatype;
@@ -242,11 +239,6 @@ public final class AstUtils {
     return variableSymbolsCollector.getVariables();
   }
 
-  public static List<VariableSymbol> getVariableSymbols(final ASTSPLNode astNode) {
-    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
-    astNode.accept(variableSymbolsCollector);
-    return variableSymbolsCollector.getVariables();
-  }
   /**
    * Returns all variable symbols for variables which are defined in the subtree starting from
    * the astNode.

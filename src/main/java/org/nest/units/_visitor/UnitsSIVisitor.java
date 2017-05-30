@@ -11,7 +11,6 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.spl._ast.ASTSPLNode;
 import org.nest.units._ast.ASTUnitType;
 import org.nest.units._ast.ASTUnitsNode;
 import org.nest.units._cocos.UnitsErrorStrings;
@@ -48,19 +47,6 @@ public class UnitsSIVisitor implements NESTMLVisitor {
   public static List<Finding> convertSiUnitsToSignature(final ASTUnitsNode unit) {
     final UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
     unit.accept(unitsSIVisitor);
-    final List<Finding> findings = LogHelper.getModelFindings(Log.getFindings());
-    return findings;
-  }
-
-  /**
-   * Checks that all units used in the models are well defined. In case of SI units, converts them to its signature
-   * representation. In case of errors reports them as non empty return list
-   * @param compilationUnit Input model to check
-   * @return The list all type finding. Is emtpty iff the model doesn't contain any type issues.
-   */
-  public static List<Finding> convertSiUnitsToSignature(final ASTSPLNode compilationUnit) {
-    final UnitsSIVisitor unitsSIVisitor = new UnitsSIVisitor();
-    compilationUnit.accept(unitsSIVisitor);
     final List<Finding> findings = LogHelper.getModelFindings(Log.getFindings());
     return findings;
   }

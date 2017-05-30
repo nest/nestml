@@ -10,8 +10,8 @@ import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.spl._ast.ASTSPLFile;
-import org.nest.spl._parser.SPLParser;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._parser.NESTMLParser;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -22,14 +22,14 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.nest.utils.FilesHelper.collectSPLModelFilenames;
+import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 
 /**
  * Tests whether the model can be parsed or not
  */
 public class SPLParserTest extends ModelbasedTest {
   private final static  String LOG_NAME = SPLParserTest.class.getName();
-  private final SPLParser parser = new SPLParser();
+  private final NESTMLParser parser = new NESTMLParser();
 
 
   @Test
@@ -39,14 +39,14 @@ public class SPLParserTest extends ModelbasedTest {
 
   @Test
   public void testParsableModels() throws IOException {
-    final List<Path> filenames = collectSPLModelFilenames(Paths.get("src/test/resources/org/nest/spl"));
+    final List<Path> filenames = collectNESTMLModelFilenames(Paths.get("src/test/resources/org/nest/spl"));
 
     filenames.forEach(this::parseAndCheck);
   }
 
   @Test
   public void rightAssociativeExpression() throws IOException {
-    final SPLParser splParser = new SPLParser();
+    final NESTMLParser splParser = new NESTMLParser();
     splParser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
     final Optional<ASTExpr> result = splParser.parseExpr(new StringReader("e1**e2**e3"));
 
@@ -59,7 +59,7 @@ public class SPLParserTest extends ModelbasedTest {
   private void parseAndCheck(Path file) {
     Log.info(String.format("Processes the following file: %s", file.toString()), LOG_NAME);
 
-    Optional<ASTSPLFile> ast;
+    Optional<ASTNESTMLCompilationUnit> ast;
     try {
       ast = parser.parse(file.toString());
     }

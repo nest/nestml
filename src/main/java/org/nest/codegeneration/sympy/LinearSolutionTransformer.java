@@ -7,10 +7,8 @@ package org.nest.codegeneration.sympy;
 
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.*;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.nestml._ast.*;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;
@@ -249,8 +247,8 @@ public class LinearSolutionTransformer extends TransformerBase {
   private void addDeclarationToDynamics(
       final ASTBody astBodyDecorator,
       final ASTDeclaration astDeclaration) {
-    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
-    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
+    final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
+    final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
     astStmt.setSmall_Stmt(astSmall_stmt);
 
     astSmall_stmt.setDeclaration(astDeclaration);

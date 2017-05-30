@@ -4,15 +4,12 @@ import de.monticore.literals.literals._ast.ASTDoubleLiteral;
 import de.monticore.literals.literals._ast.ASTIntLiteral;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTVariable;
-import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.symboltable.typechecking.Either;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.units.unitrepresentation.UnitTranslator;
 
 import java.util.Optional;
 
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.*;
 
 /**

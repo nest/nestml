@@ -8,11 +8,11 @@ package org.nest.codegeneration.sympy;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.commons._ast.ASTExpr;
+import org.nest.nestml._ast.ASTAssignment;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;

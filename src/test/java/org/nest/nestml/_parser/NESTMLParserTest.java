@@ -5,7 +5,7 @@ import de.se_rwth.commons.logging.Log;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.spl._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.utils.AstUtils;
 import org.nest.utils.LogHelper;
 

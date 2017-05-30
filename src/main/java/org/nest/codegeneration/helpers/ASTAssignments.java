@@ -6,7 +6,7 @@
 package org.nest.codegeneration.helpers;
 
 import de.monticore.symboltable.Scope;
-import org.nest.spl._ast.ASTAssignment;
+import org.nest.nestml._ast.ASTAssignment;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 

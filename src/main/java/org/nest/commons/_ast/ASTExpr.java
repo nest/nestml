@@ -4,7 +4,7 @@ import de.monticore.literals.literals._ast.ASTBooleanLiteral;
 import de.monticore.literals.literals._ast.ASTNumericLiteral;
 import de.monticore.literals.literals._ast.ASTStringLiteral;
 import org.nest.commons._visitor.ExpressionTypeVisitor;
-import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.units.unitrepresentation.UnitRepresentation;

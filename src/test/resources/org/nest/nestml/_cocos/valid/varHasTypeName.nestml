@@ -6,4 +6,8 @@ neuron B:
   update:
     b mV = 0
   end
+
+  function method(VV mV):
+  end
+
 end

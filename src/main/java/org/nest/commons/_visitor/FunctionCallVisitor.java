@@ -6,8 +6,8 @@
 package org.nest.commons._visitor;
 
 import org.nest.commons._ast.ASTExpr;
-import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.spl.symboltable.typechecking.TypeChecker;
+import org.nest.symboltable.typechecking.Either;
+import org.nest.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.units._cocos.UnitsErrorStrings;

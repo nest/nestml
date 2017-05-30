@@ -14,7 +14,7 @@ import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTEquation;
 import org.nest.nestml._ast.ASTOdeDeclaration;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;

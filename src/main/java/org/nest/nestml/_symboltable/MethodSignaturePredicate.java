@@ -7,7 +7,7 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolPredicate;
-import org.nest.spl.symboltable.typechecking.TypeChecker;
+import org.nest.symboltable.typechecking.TypeChecker;
 import org.nest.symboltable.symbols.MethodSymbol;
 
 import java.util.ArrayList;
@@ -15,8 +15,8 @@ import java.util.List;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Objects.requireNonNull;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
+import static org.nest.symboltable.typechecking.TypeChecker.isReal;
+import static org.nest.symboltable.typechecking.TypeChecker.isUnit;
 import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 
 public class MethodSignaturePredicate implements SymbolPredicate {

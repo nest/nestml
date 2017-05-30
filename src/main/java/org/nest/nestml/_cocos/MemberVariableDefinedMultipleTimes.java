@@ -10,7 +10,7 @@ import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.utils.AstUtils;
 
 import java.util.Map;

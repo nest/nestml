@@ -7,8 +7,7 @@ package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.spl._cocos.SPLASTAssignmentCoCo;
+import org.nest.nestml._ast.ASTAssignment;
 import org.nest.symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
@@ -23,7 +22,7 @@ import static org.nest.symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER
  *
  * @author plotnikov
  */
-public class BufferNotAssignable implements SPLASTAssignmentCoCo {
+public class BufferNotAssignable implements NESTMLASTAssignmentCoCo {
 
   public void check(final ASTAssignment astAssignment) {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "Run symboltable creator.");

@@ -9,10 +9,9 @@ import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTParameter;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._cocos.SPLASTDeclarationCoCo;
 import org.nest.symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
@@ -24,9 +23,7 @@ import static org.nest.utils.AstUtils.computeTypeName;
  * TODO remove me!
  * @author ippen, plotnikov
  */
-public class InvalidTypesInDeclaration implements
-    SPLASTDeclarationCoCo,
-    NESTMLASTFunctionCoCo {
+public class InvalidTypesInDeclaration implements NESTMLASTDeclarationCoCo, NESTMLASTFunctionCoCo {
 
   @Override
   public void check(final ASTDeclaration astDeclaration) {

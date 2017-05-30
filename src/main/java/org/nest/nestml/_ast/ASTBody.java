@@ -13,9 +13,6 @@ import org.nest.codegeneration.sympy.NESTMLASTCreator;
 import org.nest.commons._ast.ASTBLOCK_CLOSE;
 import org.nest.commons._ast.ASTBLOCK_OPEN;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.nestml._ast.ASTEquation;
-import org.nest.nestml._ast.ASTShape;
-import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 

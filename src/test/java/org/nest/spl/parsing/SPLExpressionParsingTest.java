@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nest.commons._ast.ASTExpr;
-import org.nest.spl._parser.SPLParser;
+import org.nest.nestml._parser.NESTMLParser;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -23,7 +23,7 @@ public class SPLExpressionParsingTest {
   }
 
   public Optional<ASTExpr> parse(String input) throws RecognitionException, IOException {
-    final SPLParser parser = new SPLParser();
+    final NESTMLParser parser = new NESTMLParser();
     parser.setParserTarget(MCConcreteParser.ParserExecution.EOF);
     return parser.parseExpr(new StringReader(input));
   }

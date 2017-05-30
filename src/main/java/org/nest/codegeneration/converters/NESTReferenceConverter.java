@@ -8,7 +8,7 @@ package org.nest.codegeneration.converters;
 import de.monticore.symboltable.Scope;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.spl.prettyprinter.IReferenceConverter;
+import org.nest.nestml.prettyprinter.IReferenceConverter;
 import org.nest.symboltable.NestmlSymbols;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;

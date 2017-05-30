@@ -12,7 +12,7 @@ import org.nest.codegeneration.helpers.ASTBuffers;
 import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
-import org.nest.spl._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.utils.AstUtils;
 
 import java.util.Objects;

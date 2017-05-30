@@ -8,7 +8,6 @@ package org.nest.utils;
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._symboltable.NESTMLLanguage;
-import org.nest.spl._symboltable.SPLLanguage;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -28,11 +27,6 @@ public class FilesHelper {
 
   public static List<Path> collectNESTMLModelFilenames(final Path path) {
     final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + NESTMLLanguage.FILE_ENDING);
-    return FilesHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
-  }
-
-  public static List<Path> collectSPLModelFilenames(final Path path) {
-    final PathMatcher matcher = getDefault().getPathMatcher("glob:*." + SPLLanguage.FILE_ENDING);
     return FilesHelper.collectFiles(path, modelFile -> matcher.matches(modelFile.getFileName()));
   }
 

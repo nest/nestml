@@ -9,7 +9,7 @@ package org.nest;
   Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
   language which leans on the Python syntax.
 */
-grammar NESTML extends org.nest.SPL {
+grammar NESTML extends org.nest.Commons {
 
   /** ASTNESTMLCompilationUnit represents the complete entire file with neuron and component models.
     @attribute packageName      The qualified name to artifact
@@ -40,12 +40,81 @@ grammar NESTML extends org.nest.SPL {
 
   Shape = "shape" lhs:Variable "=" rhs:Expr (";")?;
 
+  /*********************************************************************************************************************
+  * Procedural-Language
+  *********************************************************************************************************************/
+
+  Block = ( Stmt | NEWLINE )*;
+
+  Stmt = Small_Stmt | Compound_Stmt;
+
+  Compound_Stmt = IF_Stmt
+                | FOR_Stmt
+                | WHILE_Stmt;
+
+  Small_Stmt = Assignment
+             | FunctionCall
+             | Declaration
+             | ReturnStmt;
+
+  Assignment = lhsVarialbe:Variable
+    (assignment:["="]       |
+     compoundSum:["+="]     |
+     compoundMinus:["-="]   |
+     compoundProduct:["*="] |
+     compoundQuotient:["/="]) Expr;
 
 
+  /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
+   'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
+    @attribute hide is true iff. declaration is not trackable.
+    @attribute function is true iff. declaration is an function.
+    @attribute vars          List with variables
+    @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
+    @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
+    @attribute expr An optional initial expression, e.g. 'a real = 10+10'
+    @attribute invariants List with optional invariants.
+   */
+  Declaration =
+    (["recordable"] )? (["function"])?
+    vars:Name ("," vars:Name)*
+    Datatype
+    ("[" sizeParameter:Name "]")?
+    ( "=" Expr)? SL_COMMENT?
+    ("[[" invariant:Expr "]]")?;
+
+  /** ASTDefiningVariable Signed variable name
+
+    @attribute minus An optional sing
+    @attribute definingVariable Name of the variable
+   */
+  DefiningVariable = (minus:["-"])? definingVariable:Name;
+
+  /** ATReturnStmt Models the return statement in a function.
+
+    @attribute minus An optional sing
+    @attribute definingVariable Name of the variable
+   */
+  ReturnStmt = "return" Expr?;
+
+  IF_Stmt = IF_Clause
+            ELIF_Clause*
+            (ELSE_Clause)?
+            BLOCK_CLOSE;
+
+  IF_Clause = "if" Expr BLOCK_OPEN Block;
+
+  ELIF_Clause = "elif" Expr BLOCK_OPEN Block;
+
+  ELSE_Clause = "else" BLOCK_OPEN Block;
+
+  FOR_Stmt = "for" var:Name "in" from:Expr "..." to:Expr "step" step:SignedNumericLiteral BLOCK_OPEN Block BLOCK_CLOSE;
+
+  WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
 
 
   /*********************************************************************************************************************
-  * Equations-Language
+  * Nestml-Language
   *********************************************************************************************************************/
   /** ASTNeuron represents neuron.
     @attribute Name    The name of the neuron

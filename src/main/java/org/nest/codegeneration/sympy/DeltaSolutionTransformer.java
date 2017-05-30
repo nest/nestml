@@ -7,10 +7,10 @@ package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
 import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTAssignment;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTStmt;
+import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTStmt;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 

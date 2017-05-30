@@ -6,10 +6,6 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
-import org.nest.nestml._ast._cocos.DerivativeOrderAtLeastOne;
-import org.nest.nestml._ast._cocos.EquationsOnlyForStateVariables;
-import org.nest.nestml._ast._cocos.SumHasCorrectParameter;
-import org.nest.nestml._ast._cocos.VariableDoesNotExist;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.units._cocos.UnitDeclarationOnlyOnesAllowed;
 import org.nest.utils.AstUtils;

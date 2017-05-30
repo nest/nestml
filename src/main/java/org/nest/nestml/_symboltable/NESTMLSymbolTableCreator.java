@@ -12,12 +12,6 @@ import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.nestml._ast.ASTEquation;
-import org.nest.nestml._ast.ASTOdeDeclaration;
-import org.nest.nestml._ast.ASTOdeFunction;
-import org.nest.nestml._ast.ASTShape;
-import org.nest.spl._ast.ASTCompound_Stmt;
-import org.nest.spl._ast.ASTDeclaration;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.MethodSymbol;
 import org.nest.symboltable.symbols.NeuronSymbol;
@@ -82,8 +76,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
         Lists.newArrayList());
     putOnStack(artifactScope);
 
-    final String msg = "Adds an artifact scope for the NESTML model file: " +
-        compilationUnitAst.getFullName();
+    final String msg = "Adds an artifact scope for the NESTML model file: " + compilationUnitAst.getFullName();
     trace(msg, LOGGER_NAME);
   }
 
@@ -444,25 +437,21 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       if (varBlock.get().isState()) {
         addVariablesFromDeclaration(
             astDeclaration,
-            currentTypeSymbol.get(),
             STATE);
       }
       else if (varBlock.get().isParameters ()) {
         addVariablesFromDeclaration(
             astDeclaration,
-            currentTypeSymbol.get(),
             VariableSymbol.BlockType.PARAMETERS);
       }
       else if (varBlock.get().isInternals()) {
         addVariablesFromDeclaration(
             astDeclaration,
-            currentTypeSymbol.get(),
             VariableSymbol.BlockType.INTERNALS);
       }
       else {
         addVariablesFromDeclaration(
             astDeclaration,
-            currentTypeSymbol.get(),
             VariableSymbol.BlockType.LOCAL);
       }
 
@@ -470,7 +459,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     else { // the declaration is defined inside a method
       addVariablesFromDeclaration(
           astDeclaration,
-          currentTypeSymbol.get(),
           VariableSymbol.BlockType.LOCAL);
 
     }
@@ -483,7 +471,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    */
   private void addVariablesFromDeclaration(
       final ASTDeclaration astDeclaration,
-      final NeuronSymbol currentTypeSymbol,
       final VariableSymbol.BlockType blockType) {
 
     for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible

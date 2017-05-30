@@ -6,9 +6,8 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.spl.symboltable.typechecking.Either;
+import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.symboltable.typechecking.Either;
 import org.nest.symboltable.predefined.PredefinedTypes;
 import org.nest.symboltable.symbols.TypeSymbol;
 import org.nest.utils.AstUtils;
@@ -18,7 +17,7 @@ import org.nest.utils.AstUtils;
  *
  * @author ppen, plotnikov
  */
-class InvalidTypeOfInvariant implements SPLASTDeclarationCoCo {
+class InvalidTypeOfInvariant implements NESTMLASTDeclarationCoCo {
 
 
   public void check(final ASTDeclaration alias) {

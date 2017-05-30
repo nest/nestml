@@ -10,7 +10,7 @@ import org.nest.codegeneration.helpers.GslNames;
 import org.nest.codegeneration.helpers.Names;
 import org.nest.commons._ast.ASTFunctionCall;
 import org.nest.commons._ast.ASTVariable;
-import org.nest.spl.prettyprinter.IReferenceConverter;
+import org.nest.nestml.prettyprinter.IReferenceConverter;
 import org.nest.symboltable.predefined.PredefinedFunctions;
 import org.nest.symboltable.predefined.PredefinedVariables;
 import org.nest.symboltable.symbols.VariableSymbol;

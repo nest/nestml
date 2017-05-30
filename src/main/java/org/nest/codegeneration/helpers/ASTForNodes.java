@@ -3,10 +3,9 @@ package org.nest.codegeneration.helpers;
 import de.monticore.literals.literals._ast.ASTSignedNumericLiteral;
 import de.monticore.prettyprint.IndentPrinter;
 import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
-import org.nest.spl._ast.ASTFOR_Stmt;
+import org.nest.nestml._ast.ASTFOR_Stmt;
 
 import java.math.BigDecimal;
-import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 

@@ -13,7 +13,7 @@ import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.units._visitor.UnitsSIVisitor;
 import org.nest.utils.AstUtils;
 
