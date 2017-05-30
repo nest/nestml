@@ -20,6 +20,7 @@
  */
 package org.nest.nestml.prettyprinter;
 
+import com.google.common.io.Files;
 import org.junit.Test;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -30,6 +31,7 @@ import org.nest.utils.AstUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
@@ -48,9 +50,13 @@ public class ExpressionsPrettyPrinterTest {
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
-
+    System.out.println("!!!BEGIN");
     final Optional<ASTNESTMLCompilationUnit> root = nestmlParser.parse
         ("src/test/resources/org/nest/nestml/parsing/complexExpressions.nestml");
+
+    Files.readLines(new java.io.File("src/test/resources/org/nest/nestml/parsing/complexExpressions.nestml"), Charset.defaultCharset()).forEach(System.out::println);
+    System.out.println("!!!END");
+
     assertTrue(root.isPresent());
 
     NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
