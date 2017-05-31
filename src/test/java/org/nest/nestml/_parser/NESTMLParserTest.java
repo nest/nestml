@@ -6,9 +6,9 @@ import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.utils.AstUtils;
 import org.nest.utils.LogHelper;
 
@@ -52,17 +52,6 @@ public class NESTMLParserTest extends ModelbasedTest {
       System.out.println(path.toString());
       parseNESTMLModel(path.toString());
     }
-  }
-
-
-  /**
-   * Checks that incorrectly stored files are not processed at all.
-   */
-  @Test
-  public void testFasleArtifactHandling() throws IOException {
-
-    final Optional<ASTNESTMLCompilationUnit> wrongFolderStructure = parser.parse("falseFileExtension.nestml");
-    assertFalse(wrongFolderStructure.isPresent());
   }
 
   @Test

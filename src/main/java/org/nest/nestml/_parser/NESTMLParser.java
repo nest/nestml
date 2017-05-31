@@ -58,7 +58,9 @@ public class NESTMLParser extends NESTMLParserTOP {
       List<Finding> typeFindings = UnitsSIVisitor.convertSiUnitsToSignature(res.get());
       if (!typeFindings.isEmpty()) {
         Log.error("The modelfile contains semantic errors with respect to SI units.");
+        Log.error(String.format("There ara %d errors", typeFindings.size()));
         typeFindings.forEach(System.out::println);
+        typeFindings.stream().map(Finding::toString).forEach(Log::error);
         return Optional.empty();
       }
 

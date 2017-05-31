@@ -50,12 +50,9 @@ public class ExpressionsPrettyPrinterTest {
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
-    System.out.println("!!!BEGIN");
+
     final Optional<ASTNESTMLCompilationUnit> root = nestmlParser.parse
         ("src/test/resources/org/nest/nestml/parsing/complexExpressions.nestml");
-
-    Files.readLines(new java.io.File("src/test/resources/org/nest/nestml/parsing/complexExpressions.nestml"), Charset.defaultCharset()).forEach(System.out::println);
-    System.out.println("!!!END");
 
     assertTrue(root.isPresent());
 
