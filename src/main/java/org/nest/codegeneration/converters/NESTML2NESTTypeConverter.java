@@ -1,8 +1,8 @@
 
 package org.nest.codegeneration.converters;
 
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.predefined.PredefinedTypes;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 
 /**
  * Converts NESTML types to the

@@ -1,0 +1,17 @@
+neuron Dummy:
+  function f():
+    x boolean
+    for x in 1 ... 5 step 1:
+
+    end
+
+    xx real
+    for xx in "Bob" ... 5 step 1:
+
+    end
+
+    for xx in 1 ... true step 1:
+
+    end
+  end
+end

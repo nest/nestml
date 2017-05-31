@@ -6,9 +6,8 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.spl._cocos.SPLASTAssignmentCoCo;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTAssignment;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
@@ -18,7 +17,7 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author (last commit) ippen, plotnikov
  */
-public class AssignmentToAlias implements SPLASTAssignmentCoCo {
+public class AssignmentToAlias implements NESTMLASTAssignmentCoCo {
 
   @Override
   public void check(final ASTAssignment astAssignment) {
@@ -28,7 +27,7 @@ public class AssignmentToAlias implements SPLASTAssignmentCoCo {
     final String variableName = astAssignment.getLhsVarialbe().toString();
     final VariableSymbol lhsVariable = VariableSymbol.resolve(variableName, scope);
     if (lhsVariable.isFunction()) {
-      String msg = NestmlErrorStrings.getErrorMsg(this, variableName);
+      String msg = NestmlErrorStrings.message(this, variableName);
 
       error(msg, astAssignment.get_SourcePositionStart());
     }

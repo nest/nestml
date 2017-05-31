@@ -24,7 +24,7 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTParameter;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 
 import java.util.List;
 import java.util.Optional;

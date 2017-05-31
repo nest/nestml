@@ -13,10 +13,10 @@ import de.monticore.symboltable.SymbolKind;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.se_rwth.commons.Names;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.UsageSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.UsageSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 import java.util.Set;

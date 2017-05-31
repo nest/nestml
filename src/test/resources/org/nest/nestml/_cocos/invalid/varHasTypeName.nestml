@@ -1,9 +1,12 @@
 neuron B:
   state:
-    ms ms = 15.0
+    ms ms = 15.0 # ERROR ms is predefined
   end
 
   update:
-    mV mV = 0
+    mV mV = 0 # ERROR mV is predefined
+  end
+
+  function method(V mV): # ERROR V is predefined
   end
 end

@@ -1,0 +1,18 @@
+neuron Dummy:
+  function f():
+    # it is a post commet 2
+    C_m pF = 250.0 # it is a post commet 2
+    # it is a post commet 2
+    tau_m ms = 10.0
+    tau_syn_ex ms = 2.0
+    #P11ex real = E ** (-h / tau_syn_ex) TODO
+    # TODO P21ex real = tau_m / (C_m * (1.0 - tau_m / tau_syn_ex)) * P11ex * (1.0 - pow(E, (h * (1.0 / tau_syn_ex - 1.0 / tau_m))))
+    t_ref    ms = 2ms
+    RefractoryCounts integer = steps(t_ref)
+    # it is a pre-comment 1
+    # TODO: implement me println("" + ((( C_m | (-3+6%2) & ~(0x4fa) | 0x23) >> 2) << 2)) # it is a post comment 1
+    # This expression is not implemented
+    # it is a post commet 2
+    tmp real = (11 > 12)?13:14
+  end
+end

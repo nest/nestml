@@ -12,11 +12,11 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.io.File;

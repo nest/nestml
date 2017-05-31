@@ -7,12 +7,12 @@ package org.nest.codegeneration.sympy;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.SolverType;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

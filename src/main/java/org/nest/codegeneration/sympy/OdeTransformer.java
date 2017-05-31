@@ -3,9 +3,9 @@ package org.nest.codegeneration.sympy;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
 import java.util.List;

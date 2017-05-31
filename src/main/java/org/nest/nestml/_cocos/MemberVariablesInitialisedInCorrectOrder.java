@@ -7,11 +7,10 @@ package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTVariable;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTVariable;
+import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +26,7 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author ippen, plotnikov
  */
-public class MemberVariablesInitialisedInCorrectOrder implements SPLASTDeclarationCoCo {
+public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTDeclarationCoCo {
 
   public void check(final ASTDeclaration declaration) {
     checkState(declaration.getEnclosingScope().isPresent(), "There is no scope assigned to the AST node: " + declaration);

@@ -6,14 +6,14 @@
 package org.nest.codegeneration.helpers;
 
 import de.monticore.symboltable.Scope;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTAssignment;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.nest.symboltable.symbols.VariableSymbol.resolve;
+import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
 
 /**
  * Computes how the setter call looks like
@@ -71,9 +71,8 @@ public class ASTAssignments {
     checkArgument(astAssignment.getEnclosingScope().isPresent(), "No scope. Run symbol table creator");
     final Scope scope = astAssignment.getEnclosingScope().get();
     final String lhsVarName = astAssignment.getLhsVarialbe().toString();
-    final VariableSymbol lhsVarSymbol = resolve(lhsVarName, scope);
 
-    return lhsVarSymbol;
+    return resolve(lhsVarName, scope);
   }
 
 

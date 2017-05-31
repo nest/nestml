@@ -5,8 +5,7 @@
  */
 package org.nest.nestml._cocos;
 
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._cocos.SPLASTDeclarationCoCo;
+import org.nest.nestml._ast.ASTDeclaration;
 
 import static de.se_rwth.commons.logging.Log.error;
 
@@ -15,14 +14,13 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author (last commit) ippen, plotnikov
  */
-public class AliasHasDefiningExpression implements SPLASTDeclarationCoCo {
+public class AliasHasDefiningExpression implements NESTMLASTDeclarationCoCo {
 
   @Override
   public void check(final ASTDeclaration decl) {
     if (decl.isFunction()) {
       if (!decl.getExpr().isPresent()) {
-        NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this);
+        final String msg = NestmlErrorStrings.message(this);
 
         error(msg, decl.get_SourcePositionStart());
       }

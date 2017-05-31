@@ -8,13 +8,13 @@ package org.nest.nestml._symboltable;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.monticore.symboltable.resolving.ResolvingInfo;
-import org.nest.symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.nest.symboltable.predefined.PredefinedFunctions.getMethodSymbolIfExists;
+import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.getMethodSymbolIfExists;
 
 /**
  * Returns a predefined methods if one exists: e.g. pow, exp, ...

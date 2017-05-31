@@ -23,7 +23,7 @@ public class CurrentPortIsInhOrExc implements NESTMLASTInputLineCoCo {
     if (inputLine.isCurrent() ) {
       if (!inputLine.getInputTypes().isEmpty()) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this);
+        final String msg = errorStrings.message(this);
        error(msg, inputLine.get_SourcePositionStart());
       }
 

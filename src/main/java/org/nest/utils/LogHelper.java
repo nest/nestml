@@ -71,12 +71,21 @@ public class LogHelper {
     return (int) l;
   }
 
+  @Deprecated
   public static List<Finding> getModelFindings(final List<Finding> findings) {
     final List<Finding> result = Lists.newArrayList();
     result.addAll(getErrorsByPrefix("NESTML_", findings));
     result.addAll(getErrorsByPrefix("SPL_", findings));
     result.addAll(getWarningsByPrefix("NESTML_", findings));
     result.addAll(getWarningsByPrefix("SPL_", findings));
+
+    return result;
+  }
+
+  public static List<Finding> getModelErrors(final List<Finding> findings) {
+    final List<Finding> result = Lists.newArrayList();
+    result.addAll(getErrorsByPrefix("NESTML_", findings));
+    result.addAll(getErrorsByPrefix("SPL_", findings));
 
     return result;
   }

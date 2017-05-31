@@ -12,17 +12,10 @@ import org.junit.Test;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
-import org.nest.ode._cocos.EquationsOnlyForStateVariables;
-import org.nest.ode._cocos.SumHasCorrectParameter;
-import org.nest.ode._cocos.VariableDoesNotExist;
-import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.spl._cocos.SplErrorStrings;
-import org.nest.spl._cocos.VariableHasTypeName;
-import org.nest.spl.symboltable.SPLCoCosManager;
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.predefined.PredefinedTypes;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
@@ -56,6 +49,120 @@ public class NestmlCoCosTest {
   @Before
   public void setup() {
     nestmlCoCoChecker = new NESTMLCoCoChecker();
+  }
+
+
+  @Test
+  public void testVarDefinedMultipleTimes() throws IOException {
+    final BlockVariableDefinedMultipleTimes BlockVariableDefinedMultipleTimes = new BlockVariableDefinedMultipleTimes();
+    nestmlCoCoChecker.addCoCo(BlockVariableDefinedMultipleTimes);
+
+    checkModelAndAssertNoErrors(
+        Paths.get(TEST_VALID_MODELS_FOLDER, "varDefinedMultipleTimes.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(BlockVariableDefinedMultipleTimes)
+    );
+
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_INVALID_MODELS_FOLDER, "varDefinedMultipleTimes.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(BlockVariableDefinedMultipleTimes),
+        12 * 2); // TODO must be 6! Some declrations are checked multiple times Checks take place 2 times
+  }
+
+  @Test
+  public void testVariableIsNotDefinedBeforeUse() throws IOException {
+    final VariableNotDefinedBeforeUse variableNotDefinedBeforeUse = new VariableNotDefinedBeforeUse();
+
+    nestmlCoCoChecker.addCoCo((NESTMLASTAssignmentCoCo) variableNotDefinedBeforeUse);
+    nestmlCoCoChecker.addCoCo((NESTMLASTDeclarationCoCo) variableNotDefinedBeforeUse);
+    nestmlCoCoChecker.addCoCo((NESTMLASTFOR_StmtCoCo) variableNotDefinedBeforeUse);
+    nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCallCoCo) variableNotDefinedBeforeUse);
+    nestmlCoCoChecker.addCoCo((NESTMLASTWHILE_StmtCoCo) variableNotDefinedBeforeUse);
+
+    checkModelAndAssertNoErrors(
+        Paths.get(TEST_VALID_MODELS_FOLDER, "varNotDefinedBeforeUse.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(variableNotDefinedBeforeUse)
+    );
+
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_INVALID_MODELS_FOLDER, "varNotDefinedBeforeUse.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(variableNotDefinedBeforeUse),
+        10);
+  }
+
+  @Test
+  public void testIllegalVarInFor() throws IOException {
+
+    final IllegalExpression illegalVarInFor = new IllegalExpression();
+    nestmlCoCoChecker.addCoCo((NESTMLASTFOR_StmtCoCo) illegalVarInFor);
+
+    checkModelAndAssertNoErrors(
+        Paths.get(TEST_VALID_MODELS_FOLDER, "illegalVarInFor.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(illegalVarInFor)
+    );
+
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_INVALID_MODELS_FOLDER, "illegalVarInFor.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(illegalVarInFor),
+        3);
+  }
+
+  @Test
+  public void testIllegalExpression() throws IOException {
+    final IllegalExpression illegalExpression = new IllegalExpression();
+    nestmlCoCoChecker.addCoCo((NESTMLASTAssignmentCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((NESTMLASTDeclarationCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((NESTMLASTELIF_ClauseCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((NESTMLASTFOR_StmtCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((NESTMLASTIF_ClauseCoCo) illegalExpression);
+    nestmlCoCoChecker.addCoCo((NESTMLASTWHILE_StmtCoCo) illegalExpression);
+
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_INVALID_MODELS_FOLDER, "illegalNumberExpressions.nestml"),
+        nestmlCoCoChecker,
+        "SPL_",
+        9);
+  }
+
+  @Test
+  public void testCodeAfterReturn() throws IOException {
+    final CodeAfterReturn codeAfterReturn = new CodeAfterReturn();
+    nestmlCoCoChecker.addCoCo(codeAfterReturn);
+
+    checkModelAndAssertNoErrors(
+        Paths.get(TEST_VALID_MODELS_FOLDER, "codeAfterReturn.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(codeAfterReturn)
+    );
+
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_INVALID_MODELS_FOLDER, "codeAfterReturn.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(codeAfterReturn),
+        1);
+  }
+
+  @Test
+  public void testFunctionExists() throws IOException {
+    final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
+    nestmlCoCoChecker.addCoCo(functionDoesNotExist);
+
+    checkModelAndAssertNoErrors(
+        Paths.get(TEST_VALID_MODELS_FOLDER, "funNotDefined.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(functionDoesNotExist)
+    );
+
+    checkModelAndAssertWithErrors(
+        Paths.get(TEST_INVALID_MODELS_FOLDER, "funNotDefined.nestml"),
+        nestmlCoCoChecker,
+        SplErrorStrings.code(functionDoesNotExist),
+        2 * 2); // ERRORs are reported as part of the symbol table and in course of the coco check
   }
 
   @Test
@@ -199,7 +306,7 @@ public class NestmlCoCosTest {
   public void testInvalidTypesInDeclaration() {
     final InvalidTypesInDeclaration invalidTypesInDeclaration = new InvalidTypesInDeclaration();
     nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCoCo) invalidTypesInDeclaration);
-    nestmlCoCoChecker.addCoCo((SPLASTDeclarationCoCo) invalidTypesInDeclaration);
+    nestmlCoCoChecker.addCoCo((NESTMLASTDeclarationCoCo) invalidTypesInDeclaration);
 
     // TODO referencing of the neurons must be enabled
     final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "invalidTypesInDeclaration/valid.nestml");
@@ -490,43 +597,27 @@ public class NestmlCoCosTest {
   }
 
   @Test
-  public void testSplInFunctions() {
-    final NESTMLCoCoChecker nestmlCoCoCheckerWithSPLCocos = new NESTMLCoCoChecker();
-    final SPLCoCosManager splCoCosManager  = new SPLCoCosManager();
-    splCoCosManager.addSPLCocosToNESTMLChecker(nestmlCoCoCheckerWithSPLCocos);
-
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/splInFunctions.nestml");
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoCheckerWithSPLCocos,
-        "SPL_");
-
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/splInFunctions.nestml");
-    checkModelAndAssertWithErrors(
-        pathToInvalidModel,
-        nestmlCoCoCheckerWithSPLCocos,
-        "SPL_",
-        19);
-
-  }
-
-  @Test
   public void testUndefinedVariablesInEquations() {
     final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
-    nestmlCoCoChecker.addCoCo(variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo((NESTMLASTOdeDeclarationCoCo) variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo((NESTMLASTCompound_StmtCoCo) variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo((NESTMLASTAssignmentCoCo) variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCallCoCo) variableDoesNotExist);
+    nestmlCoCoChecker.addCoCo((NESTMLASTReturnStmtCoCo) variableDoesNotExist);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "equations/validEquations.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/variableDoesNotExist.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         NestmlErrorStrings.code(variableDoesNotExist));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "equations/invalidEquations.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/variableDoesNotExist.nestml");
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString(), Paths.get(TEST_MODELS_FOLDER));
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
     Integer errorsFound = countErrorsByPrefix(NestmlErrorStrings.code(variableDoesNotExist), getFindings());
-    assertEquals(Integer.valueOf(2), errorsFound);
+    assertEquals(Integer.valueOf(11), errorsFound);
   }
 
   @Test

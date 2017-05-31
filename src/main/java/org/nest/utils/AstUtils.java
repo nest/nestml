@@ -15,31 +15,19 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.Util;
 import org.apache.commons.io.FileUtils;
-import org.nest.commons._ast.ASTCommonsNode;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.typechecking.Either;
+import org.nest.nestml._symboltable.unitrepresentation.SIData;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
+import org.nest.nestml._visitor.UnitsSIVisitor;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
-import org.nest.ode._ast.ASTDerivative;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTODENode;
-import org.nest.ode._ast.ASTShape;
-import org.nest.spl._ast.ASTBlock;
-import org.nest.spl._ast.ASTReturnStmt;
-import org.nest.spl._ast.ASTSPLNode;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.units._ast.ASTDatatype;
-import org.nest.units._ast.ASTUnitType;
-import org.nest.units._visitor.UnitsSIVisitor;
-import org.nest.units.unitrepresentation.SIData;
-import org.nest.units.unitrepresentation.UnitRepresentation;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -54,8 +42,8 @@ import static com.google.common.base.Preconditions.*;
 import static de.se_rwth.commons.logging.Log.info;
 import static java.lang.Math.pow;
 import static java.util.stream.Collectors.toList;
-import static org.nest.symboltable.predefined.PredefinedTypes.getType;
-import static org.nest.symboltable.symbols.VariableSymbol.resolve;
+import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getType;
+import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
 
 /**
  * Helper class containing common operations concerning ast nodes.
@@ -142,19 +130,11 @@ public final class AstUtils {
 
     return Lists.newArrayList(nodes);
   }
-  /**
-   * Returns all variables defined in the tree starting from the astNode.
-   */
-  public static List<String> getVariablesNamesFromAst(final ASTCommonsNode astNode) {
-    final VariablesCollector variablesCollector = new VariablesCollector();
-    astNode.accept(variablesCollector);
-    return variablesCollector.getVariableNames();
-  }
 
   /**
    * Returns all variables defined in the tree starting from the astNode.
    */
-  static List<String> getVariablesNamesFromAst(final ASTODENode astNode) {
+  public static List<String> getVariablesNamesFromAst(final ASTNESTMLNode astNode) {
     final VariablesCollector variablesCollector = new VariablesCollector();
     astNode.accept(variablesCollector);
     return variablesCollector.getVariableNames();
@@ -163,7 +143,7 @@ public final class AstUtils {
   /**
    * Returns all aliases which are used in the tree beginning at astNode
    */
-  public static List<VariableSymbol> getAliasSymbols(final ASTODENode astNode) {
+  public static List<VariableSymbol> getAliasSymbols(final ASTNESTMLNode astNode) {
     checkState(astNode.getEnclosingScope().isPresent(), "Run symbol table creator");
     final Scope scope = astNode.getEnclosingScope().get();
     final List<String> names = getVariablesNamesFromAst(astNode);
@@ -237,28 +217,7 @@ public final class AstUtils {
    * Returns all variable symbols for variables which are defined in the subtree starting from
    * the astNode.
    */
-  public static List<VariableSymbol> getVariableSymbols(final ASTCommonsNode astNode) {
-    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
-    astNode.accept(variableSymbolsCollector);
-    return variableSymbolsCollector.getVariables();
-  }
-
   public static List<VariableSymbol> getVariableSymbols(final ASTNESTMLNode astNode) {
-    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
-    astNode.accept(variableSymbolsCollector);
-    return variableSymbolsCollector.getVariables();
-  }
-
-  public static List<VariableSymbol> getVariableSymbols(final ASTSPLNode astNode) {
-    final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
-    astNode.accept(variableSymbolsCollector);
-    return variableSymbolsCollector.getVariables();
-  }
-  /**
-   * Returns all variable symbols for variables which are defined in the subtree starting from
-   * the astNode.
-   */
-  public static List<VariableSymbol> getVariableSymbols(final ASTODENode astNode) {
     final VariableSymbolsCollector variableSymbolsCollector = new VariableSymbolsCollector();
     astNode.accept(variableSymbolsCollector);
 
@@ -345,11 +304,6 @@ public final class AstUtils {
     return odeCollector.getFunctionCall();
   }
 
-  public static Optional<ASTFunctionCall> getFunctionCall(final String functionName, final ASTODENode node) {
-    final IntegrateFunctionCollector odeCollector = new IntegrateFunctionCollector(functionName);
-    odeCollector.startVisitor(node);
-    return odeCollector.getFunctionCall();
-  }
   /**
    * Integrate function give the connection between a buffer and shape. Therefore, it is needed to generate
    * correct update with the PSCInitialValues.
@@ -368,9 +322,6 @@ public final class AstUtils {
       node.accept(this);
     }
 
-    void startVisitor(ASTODENode node) {
-      node.accept(this);
-    }
 
     @Override
     public void visit(final ASTFunctionCall astFunctionCall) {
@@ -392,7 +343,7 @@ public final class AstUtils {
    */
   public static String getNameOfLHS(final ASTDerivative astVariable) {
     checkArgument(astVariable.getDifferentialOrder().size() > 0);
-    return astVariable.getName().toString() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
+    return astVariable.getName() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
   }
 
   /**
@@ -410,16 +361,16 @@ public final class AstUtils {
    */
   public static String getNameOfLHS(final ASTEquation astEquation) {
     if (astEquation.getLhs().getDifferentialOrder().size() == 0) {
-      return astEquation.getLhs().getName().toString(); // it is sometimes used in context conditions
+      return astEquation.getLhs().getName(); // it is sometimes used in context conditions
     }
     else {
-      return astEquation.getLhs().getName().toString() + Strings.repeat("'", astEquation.getLhs().getDifferentialOrder().size() - 1);
+      return astEquation.getLhs().getName() + Strings.repeat("'", astEquation.getLhs().getDifferentialOrder().size() - 1);
     }
   }
 
   public static String convertDevrivativeNameToSimpleName(final ASTVariable astVariable) {
     if (astVariable.getDifferentialOrder().size() > 0) {
-      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName().toString();
+      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName();
 
     }
     else {
@@ -478,17 +429,13 @@ public final class AstUtils {
       final NESTMLScopeCreator scopeCreator,
       final Path temporaryFolder) {
     try {
-      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getFullName() + ".tmp");
+      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getArtifactName() + ".tmp");
       printModelToFile(nestmlModel, outputTmpPath);
       info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
       final NESTMLParser parser = new NESTMLParser(temporaryFolder);
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
       withSolvedOde.setArtifactName(nestmlModel.getArtifactName());
-
-      if (nestmlModel.getPackageName().isPresent()) {
-        withSolvedOde.setPackageName(nestmlModel.getPackageName().get());
-      }
 
       scopeCreator.runSymbolTableCreator(withSolvedOde);
       return withSolvedOde;
@@ -504,10 +451,9 @@ public final class AstUtils {
   }
 
   public static Optional<String> convertSiName(String astVariable) {
-    final String varShortName = astVariable.toString();
     for (String siUnit : SIData.getCorrectSIUnits()) {
-      if (varShortName.equals(siUnit)) {
-        TypeSymbol variableType = getType(varShortName);
+      if (astVariable.equals(siUnit)) {
+        TypeSymbol variableType = getType(astVariable);
         UnitRepresentation variableRep = UnitRepresentation
             .getBuilder()
             .serialization(variableType.getName())

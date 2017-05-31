@@ -1,8 +1,8 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.ast.ASTNode;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.utils.AstUtils;

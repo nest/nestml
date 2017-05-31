@@ -12,9 +12,9 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.OdeProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.units._visitor.UnitsSIVisitor;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
+import org.nest.nestml._visitor.UnitsSIVisitor;
 import org.nest.utils.FilesHelper;
 
 import java.nio.file.Path;

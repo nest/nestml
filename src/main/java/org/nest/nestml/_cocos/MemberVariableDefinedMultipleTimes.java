@@ -10,7 +10,7 @@ import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.utils.AstUtils;
 
 import java.util.Map;
@@ -75,7 +75,7 @@ public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
       final ASTNode astNode) {
     if (names.containsKey(var)) {
       NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      final String msg = errorStrings.getErrorMsg(this,var,
+      final String msg = errorStrings.message(this,var,
               names.get(var).getLine(),
               names.get(var).getColumn());
 

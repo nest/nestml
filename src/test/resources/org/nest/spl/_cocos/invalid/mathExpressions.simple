@@ -1,8 +1,0 @@
-module org.nest.spl._cocos.invalid.mathExpression
-a real = ((( 1.0 | (-3+6%2) & ~(0x4fa) | 0x23 ^ 12) >> 2) << 2)
-k integer = ~1.0
-m real = 1 ** "a"
-m1 boolean = "a" and k != 0.0
-n boolean = not 1
-o1 real = 12? 13:14
-o2 real = true?13:"test"

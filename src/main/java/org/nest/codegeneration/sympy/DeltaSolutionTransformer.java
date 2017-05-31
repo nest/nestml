@@ -6,12 +6,12 @@
 package org.nest.codegeneration.sympy;
 
 import com.google.common.collect.Lists;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTAssignment;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._ast.ASTStmt;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTStmt;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
 import java.io.IOException;
@@ -53,7 +53,7 @@ class DeltaSolutionTransformer extends TransformerBase {
    */
   private void addP33ToInternals(final ASTNeuron astNeuron) {
     // the function there, because otherwise this query wouldn't be made
-    ASTFunctionCall deltaShape = getFunctionCall(
+    final ASTFunctionCall deltaShape = getFunctionCall(
         PredefinedFunctions.DELTA,
         astNeuron.getBody().getODEBlock().get()).get();
     // delta is define as delta(t, tau) -> get the second argument

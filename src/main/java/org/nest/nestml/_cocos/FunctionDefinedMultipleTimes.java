@@ -11,8 +11,8 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 
 import java.util.Collection;
 import java.util.Optional;

@@ -1,13 +1,13 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.ast.ASTNode;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.ode._ast.ASTDerivative;
-import org.nest.ode._ast.ASTShape;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._ast.ASTDerivative;
+import org.nest.nestml._ast.ASTShape;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
 import java.util.ArrayList;
@@ -70,7 +70,7 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
               }
             }
           }
-          final String errorMsg = NestmlErrorStrings.getErrorMsg(RestrictUseOfShapes.this);
+          final String errorMsg = NestmlErrorStrings.message(RestrictUseOfShapes.this);
 
           error(errorMsg,node.get_SourcePositionStart());
         }
@@ -80,7 +80,7 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
     public void visit(ASTDerivative node){
       for(String shapeName: shapes){
         if(node.getName().toString().equals(shapeName)){
-          final String errorMsg = NestmlErrorStrings.getErrorMsg(RestrictUseOfShapes.this);
+          final String errorMsg = NestmlErrorStrings.message(RestrictUseOfShapes.this);
           error(errorMsg,node.get_SourcePositionStart());
         }
       }

@@ -6,22 +6,16 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
-import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.helpers.GslNames;
 import org.nest.codegeneration.helpers.Names;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.commons._ast.ASTVariable;
-import org.nest.spl.prettyprinter.IReferenceConverter;
-import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
-import org.nest.units.unitrepresentation.SIData;
-import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTVariable;
+import org.nest.nestml.prettyprinter.IReferenceConverter;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkState;
-import static java.lang.Math.pow;
-import static org.nest.symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.utils.AstUtils.convertDevrivativeNameToSimpleName;
 import static org.nest.utils.AstUtils.convertSiName;
 

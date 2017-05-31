@@ -6,10 +6,9 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
-import org.nest.commons._ast.ASTVariable;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTVariable;
+import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 
@@ -24,7 +23,7 @@ import static de.se_rwth.commons.logging.Log.error;
  * threePlusFour integer = three + 4 <- error: threePlusFour is not a vector
  * @author plotnikov, ippen
  */
-public class VectorVariableInNonVectorDeclaration implements SPLASTDeclarationCoCo {
+public class VectorVariableInNonVectorDeclaration implements NESTMLASTDeclarationCoCo {
 
   @Override
   public void check(final ASTDeclaration astDeclaration) {

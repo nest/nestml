@@ -9,15 +9,14 @@ import com.google.common.base.Preconditions;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.nestml._ast.ASTFunction;
-import org.nest.spl._ast.*;
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._ast.*;
+import org.nest.nestml._symboltable.predefined.PredefinedTypes;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 import static org.nest.utils.AstUtils.computeTypeName;
 
 /**
@@ -49,7 +48,7 @@ public class MissingReturnStatementInFunction implements NESTMLASTFunctionCoCo {
       // if block not returning:
       if (isReturnBlock(fun.getBlock()) == null) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = NestmlErrorStrings.getErrorMsg(this, fun.getName(), deserializeUnitIfNotPrimitive(computeTypeName(fun.getReturnType().get())));
+        final String msg = NestmlErrorStrings.message(this, fun.getName(), deserializeUnitIfNotPrimitive(computeTypeName(fun.getReturnType().get())));
 
         Log.error(msg, fun.get_SourcePositionStart());
       }

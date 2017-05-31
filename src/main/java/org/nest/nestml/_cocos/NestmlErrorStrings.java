@@ -6,12 +6,7 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
-import org.nest.ode._cocos.DerivativeOrderAtLeastOne;
-import org.nest.ode._cocos.EquationsOnlyForStateVariables;
-import org.nest.ode._cocos.SumHasCorrectParameter;
-import org.nest.ode._cocos.VariableDoesNotExist;
-import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.units._cocos.UnitDeclarationOnlyOnesAllowed;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
 /**
@@ -61,7 +56,7 @@ public class NestmlErrorStrings {
     return "NESTML_FUNCTION_PARAMETER_HAS_TYPE_NAME";
   }
 
-  public String getErrorMsg(final UnitDeclarationOnlyOnesAllowed coco){
+  public String message(final UnitDeclarationOnlyOnesAllowed coco){
     final String ERROR_MSG_FORMAT = "Literals in Unit types may only be '1' (one)";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
@@ -70,7 +65,7 @@ public class NestmlErrorStrings {
     return "NESTML_UNIT_DECLARATION_ONLY_ONES_ALLOWED";
   }
 
-  static String getErrorMsg(final AliasHasDefiningExpression coco) {
+  static String message(final AliasHasDefiningExpression coco) {
     final String ERROR_MSG_FORMAT = "'function' must be always defined through an expression.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
@@ -96,7 +91,7 @@ public class NestmlErrorStrings {
     return "NESTML_INVALID_TYPE_OF_INVARIANT";
   }
 
-  static String getErrorMsg(final BufferNotAssignable coco, final String bufferName) {
+  static String message(final BufferNotAssignable coco, final String bufferName) {
     final String ERROR_MSG_FORMAT = "Buffer '" + bufferName + "' cannot be reassigned.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
@@ -133,7 +128,7 @@ public class NestmlErrorStrings {
     return "NESTML_FUNCTION_RETURNS_INCORRECT_VALUE";
   }
 
-  String getErrorMsg(final CurrentPortIsInhOrExc coco) {
+  String message(final CurrentPortIsInhOrExc coco) {
     final String ERROR_MSG_FORMAT = "Current input can neither be inhibitory nor excitatory.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
@@ -162,9 +157,9 @@ public class NestmlErrorStrings {
     return "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
   }
 
-  static String getErrorMsg(final MissingReturnStatementInFunction coco,
-                     final String functionName,
-                     final String returnType) {
+  static String message(final MissingReturnStatementInFunction coco,
+                        final String functionName,
+                        final String returnType) {
     final String ERROR_MSG_FORMAT = "Function '" + functionName + "' must return a result of type '"
                                              + returnType + "'";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
@@ -192,7 +187,7 @@ public class NestmlErrorStrings {
     return "NESTML_GETTER_SETTER_FUNCTION_NAMES";
   }
 
-  public static String getErrorMsg(final SumHasCorrectParameter coco, final String expression) {
+  public static String message(final SumHasCorrectParameter coco, final String expression) {
     final String ERROR_MSG_FORMAT = "The arguments of the I_sum must be atomic expressions: "
                                     + "e.g. V_m and not : " + expression;
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
@@ -203,7 +198,7 @@ public class NestmlErrorStrings {
     return "NESTML_SUM_HAS_INCORRECT_PARAMETER";
   }
 
-  static String getErrorMsg(final InvalidTypesInDeclaration coco, String typeName) {
+  static String message(final InvalidTypesInDeclaration coco, String typeName) {
     final String ERROR_MSG_FORMAT = "The type " + typeName + " is a neuron/component. No neurons/components allowed " +
                                     "in this place. Use the use-statement.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
@@ -214,10 +209,10 @@ public class NestmlErrorStrings {
     return "NESTML_INVALID_TYPES_DECLARATION";
   }
 
-  static String getErrorMsg(final MemberVariableDefinedMultipleTimes coco,
-                     final String varName,
-                     int line,
-                     int column) {
+  static String message(final MemberVariableDefinedMultipleTimes coco,
+                        final String varName,
+                        int line,
+                        int column) {
     final String ERROR_MSG_FORMAT =  "Variable '" + varName + "' is previously defined in line: "
                                      + line + ":" + column;
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
@@ -282,7 +277,7 @@ public class NestmlErrorStrings {
     return "NESTML_MULTIPLE_INH_EXC_MODIFIERS";
   }
 
-  static String getErrorMsg(NestFunctionCollision coco, String funName) {
+  static String message(NestFunctionCollision coco, String funName) {
     final String ERROR_MSG_FORMAT = "The function-name '" + funName
                                     + "' is already used by NEST. Please use another name.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
@@ -332,7 +327,7 @@ public class NestmlErrorStrings {
     return "NESTML_NEURON_WITH_MULTIPLE_OR_NO_OUTPUT";
   }
 
-  static String getErrorMsg(TypeIsDeclaredMultipleTimes coco, String typeName) {
+  static String message(TypeIsDeclaredMultipleTimes coco, String typeName) {
     return code(coco) + SEPARATOR + "The type '" + typeName + "' is defined multiple times.";
   }
 
@@ -341,7 +336,7 @@ public class NestmlErrorStrings {
     return "NESTML_TYPES_DECLARED_MULTIPLE_TIMES";
   }
 
-  static public String getErrorMsg(final DerivativeOrderAtLeastOne coco, final String variableName) {
+  static public String message(final DerivativeOrderAtLeastOne coco, final String variableName) {
 
     return code(coco) + SEPARATOR + "The variable on the righthandside of an equation must be derivative variable, e.g. "
            + variableName + "'";
@@ -352,7 +347,7 @@ public class NestmlErrorStrings {
     return "NESTML_DERIVATIVE_ORDER_AT_LEAST_ONE";
   }
 
-  static public String getErrorMsg(AssignmentToAlias assignmentToAlias, final String variableName) {
+  static public String message(AssignmentToAlias assignmentToAlias, final String variableName) {
     return code(assignmentToAlias) + SEPARATOR + "You cannot assign a value to an function: " + variableName;
   }
 
@@ -373,7 +368,7 @@ public class NestmlErrorStrings {
     return "NESTML_VARIABLE_BLOCK_DEFINED_MULTIPLE_TIMES";
   }
 
-  static public String getErrorMsg(final VariableDoesNotExist coco, final String variableName) {
+  static public String message(final VariableDoesNotExist coco, final String variableName) {
     final String ERROR_MSG_FORMAT = "The variable " + variableName + " is not defined";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
@@ -383,7 +378,7 @@ public class NestmlErrorStrings {
     return "NESTML_VARIABLE_DOESNT_EXIST";
   }
 
-  static public String getErrorMsg(final RestrictUseOfShapes coco) {
+  static public String message(final RestrictUseOfShapes coco) {
     final String ERROR_MSG_FORMAT = "Shapes may only be used as parameters to either " + PredefinedFunctions.CURR_SUM +
                                     " or " + PredefinedFunctions.COND_SUM;
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;

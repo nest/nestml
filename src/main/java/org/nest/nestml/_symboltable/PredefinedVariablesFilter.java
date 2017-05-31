@@ -8,8 +8,8 @@ package org.nest.nestml._symboltable;
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.monticore.symboltable.resolving.ResolvingInfo;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.Collection;
 import java.util.Map;

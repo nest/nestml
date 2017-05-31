@@ -1,6 +1,6 @@
 package org.nest.codegeneration.helpers;
 
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 /**
  * The class is responsible code snippets that access variables, e.g. locally, from state or parameters.
