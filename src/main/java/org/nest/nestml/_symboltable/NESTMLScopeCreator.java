@@ -7,7 +7,7 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.io.paths.ModelPath;
 import de.monticore.symboltable.GlobalScope;
-import de.monticore.symboltable.ResolverConfiguration;
+import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
@@ -25,7 +25,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
   private final static String LOG_NAME = "NESTML_" + NESTMLScopeCreator.class.getName();
   private GlobalScope globalScope;
   private final ModelPath modelPath;
-  private final ResolverConfiguration resolverConfiguration;
+  private final ResolvingConfiguration resolverConfiguration;
   private final NESTMLLanguage nestmlLanguage;
 
   public GlobalScope getGlobalScope() {
@@ -38,7 +38,7 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
 
     nestmlLanguage = new NESTMLLanguage();
 
-    resolverConfiguration = new ResolverConfiguration();
+    resolverConfiguration = new ResolvingConfiguration();
     resolverConfiguration.addDefaultFilters(nestmlLanguage.getResolvers());
   }
 
@@ -50,14 +50,6 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
         globalScope);
 
     Scope result = symbolTableCreator.createFromAST(compilationUnit);
-
-    /* TODO DO I NEED this check?
-    final List<Finding> findings = compilationUnit.getNeurons()
-        .stream()
-        .map(nestmlCoCosManager::checkThatVariablesDefinedOnce)
-        .flatMap(Collection::stream)
-        .collect(Collectors.toList());
-     */
 
     if (LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()).isEmpty() &&
         LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings()).isEmpty()) {

@@ -11,14 +11,14 @@ import de.monticore.symboltable.*;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
-import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.nestml._symboltable.predefined.PredefinedTypes;
 import org.nest.nestml._symboltable.symbols.MethodSymbol;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
-import org.nest.nestml._visitor.UnitsSIVisitor;
 import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
+import org.nest.nestml._visitor.NESTMLVisitor;
+import org.nest.nestml._visitor.UnitsSIVisitor;
 
 import java.util.Collection;
 import java.util.List;
@@ -47,9 +47,9 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   private Optional<ASTVar_Block> varBlock = empty();
 
   public NESTMLSymbolTableCreator(
-      final ResolverConfiguration resolverConfig,
+      final ResolvingConfiguration resolvingConfiguration,
       final MutableScope enclosingScope) {
-    super(resolverConfig, enclosingScope);
+    super(resolvingConfiguration, enclosingScope);
   }
 
   /**

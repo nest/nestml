@@ -7,7 +7,7 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.ArtifactScope;
 import de.monticore.symboltable.MutableScope;
-import de.monticore.symboltable.ResolverConfiguration;
+import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
@@ -31,10 +31,10 @@ public class NESTMLModelLoader extends NESTMLModelLoaderTOP {
       final ASTNESTMLCompilationUnit ast,
       final String modelName,
       final MutableScope enclosingScope,
-      final ResolverConfiguration resolverConfiguration) {
+      final ResolvingConfiguration resolvingConfiguration) {
     final String NO_CREATOR = "Register symbol table creator in the language.";
     final NESTMLSymbolTableCreator symbolTableCreator = getModelingLanguage()
-        .getSymbolTableCreator(resolverConfiguration, enclosingScope)
+        .getSymbolTableCreator(resolvingConfiguration, enclosingScope)
         .orElseThrow(() -> new RuntimeException(NO_CREATOR));
 
     ast.setArtifactName(Names.getSimpleName(modelName));
