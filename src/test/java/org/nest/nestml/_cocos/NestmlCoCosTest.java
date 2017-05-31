@@ -9,6 +9,7 @@ import de.se_rwth.commons.Names;
 import de.se_rwth.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
+import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
@@ -31,13 +32,7 @@ import static org.nest.utils.LogHelper.countErrorsByPrefix;
  *
  * @author plotnikov
  */
-public class NestmlCoCosTest {
-
-  @Before
-  public void clearLog() {
-    Log.enableFailQuick(false);
-    Log.getFindings().clear();
-  }
+public class NestmlCoCosTest extends ModelbasedTest {
 
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/";
   private static final String TEST_VALID_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/valid";
