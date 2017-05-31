@@ -22,6 +22,7 @@ package org.nest.nestml.prettyprinter;
 
 import com.google.common.io.Files;
 import org.junit.Test;
+import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
@@ -43,7 +44,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class ExpressionsPrettyPrinterTest {
+public class ExpressionsPrettyPrinterTest extends ModelbasedTest {
   private final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
   private final NESTMLParser nestmlParser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
