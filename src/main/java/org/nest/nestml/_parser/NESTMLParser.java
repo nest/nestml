@@ -30,7 +30,7 @@ import java.util.Optional;
  * @author plotnikov
  */
 public class NESTMLParser extends NESTMLParserTOP {
-
+  private final String DOC_STRING_START = "##";
   private final List<String> sourceText = Lists.newArrayList();
   private final Optional<Path> modelPath;
 
@@ -42,7 +42,6 @@ public class NESTMLParser extends NESTMLParserTOP {
     this.modelPath = Optional.of(modelPath);
   }
 
-
   @Override
   public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(final String filename)
       throws IOException, RecognitionException {
@@ -52,15 +51,13 @@ public class NESTMLParser extends NESTMLParserTOP {
     if (res.isPresent()) {
       setModelPackage(filename, res.get());
       // in case of no importstatements the first comment, that should belong to neuron, is interpreted as artifact
-      // //comment
+      // comment
       forwardModelComment(res.get());
 
-      List<Finding> typeFindings = UnitsSIVisitor.convertSiUnitsToSignature(res.get());
+      final List<Finding> typeFindings = UnitsSIVisitor.convertSiUnitsToSignature(res.get());
       if (!typeFindings.isEmpty()) {
         Log.error("The modelfile contains semantic errors with respect to SI units.");
         Log.error(String.format("There are %d errors", typeFindings.size()));
-        typeFindings.forEach(System.out::println);
-        typeFindings.stream().map(Finding::toString).forEach(Log::error);
         return Optional.empty();
       }
 
@@ -84,14 +81,15 @@ public class NESTMLParser extends NESTMLParserTOP {
    */
   private List<String> extractComments(final List<String> sourceText, int lineIndex) {
     final List<String> result = Lists.newArrayList();
-    if (sourceText.get(lineIndex).contains("#")) {
-      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf("#") + 1).trim());
+    if (sourceText.get(lineIndex).contains(DOC_STRING_START)) {
+      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf(DOC_STRING_START) + 1).trim());
     }
 
     while (lineIndex > 0) {
       --lineIndex;
-      if (sourceText.get(lineIndex).trim().startsWith("#")) {
-        result.add(0, sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf("#") + 1).trim());
+      final String currentLine = sourceText.get(lineIndex);
+      if (currentLine.trim().startsWith(DOC_STRING_START)) {
+        result.add(0, currentLine.substring(currentLine.indexOf(DOC_STRING_START) + 1).trim());
       }
       else {
         break;

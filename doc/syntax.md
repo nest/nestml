@@ -423,6 +423,8 @@ The content of spike and current buffers can be used by just using their plain n
 
 Currently there is support for GSL and exact integration.
 
+In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the `gsl_error_tol` parameter in a `SetStatus` call. The default value of the `gsl_error_tol` is `1e-3`.
+
 ### Concepts for refractoriness
 
 In order to model refractory and non-refractory states, two variables are necessary. The first variable (`t_ref`) defines the duration of the refractory period. The second variable (`ref_counts`) specifies the time of the refractory period that has already passed. It is initialized with 0 (the neuron is non-refractory) and set to the refractory offset every time the refractoriness condition holds. Else, the refractory offset is decremented.

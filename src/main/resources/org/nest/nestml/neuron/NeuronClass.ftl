@@ -121,6 +121,11 @@ ${neuronName}::Buffers_::Buffers_(const Buffers_ &, ${ast.getName()} &n): logger
 ${neuronName}::${neuronName}():Archiving_Node(), P_(), S_(), B_(*this)
 {
   recordablesMap_.create();
+   <#if useGSL>
+     // use a default `good` enough value for the absolute error.
+     // it cab be adjusted via `SetStatus`
+     P_.__gsl_error_tol = 1e-3;
+  </#if>
 
   <#list body.getParameterNonAliasSymbols() as parameter>
     ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, printerWithGetters])}
@@ -195,11 +200,11 @@ ${neuronName}::init_buffers_()
 
     if ( B_.__c == 0 )
     {
-      B_.__c = gsl_odeiv_control_y_new( 1e-6, 0.0 );
+      B_.__c = gsl_odeiv_control_y_new( P_.__gsl_error_tol, 0.0 );
     }
     else
     {
-      gsl_odeiv_control_init( B_.__c, 1e-6, 0.0, 1.0, 0.0 );
+      gsl_odeiv_control_init( B_.__c, P_.__gsl_error_tol, 0.0, 1.0, 0.0 );
     }
 
     if ( B_.__e == 0 )

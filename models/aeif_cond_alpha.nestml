@@ -33,8 +33,8 @@ SeeAlso: iaf_cond_alpha, aeif_cond_exp
 neuron aeif_cond_alpha_neuron:
 
   state:
-    V_m mV = E_L      # Membrane potential
-    w pA = 0pA        # Spike-adaptation current
+    V_m mV = E_L      ## Membrane potential
+    w pA = 0pA        ## Spike-adaptation current
   end
 
   equations:
@@ -42,7 +42,7 @@ neuron aeif_cond_alpha_neuron:
     shape g_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
 
-    # Add aliases to simplify the equation definition of V_m
+    ## Add functions to simplify the equation definition of V_m
     function exp_arg real = (V_bounded-V_th)/Delta_T
     function I_spike pA = g_L*Delta_T*exp(exp_arg)
     function I_syn_exc pA =   cond_sum(g_ex, spikesExc) * ( V_bounded - E_ex )
@@ -55,46 +55,46 @@ neuron aeif_cond_alpha_neuron:
 
   parameters:
     # membrane parameters
-    C_m   pF = 281.0pF       # Membrane Capacitance in pF
-    t_ref ms = 0.0ms         # Refractory period in ms
-    V_reset mV = -60.0mV     # Reset Potential in mV
-    g_L nS = 30.0nS          # Leak Conductance in nS
-    E_L mV = -70.6mV         # Leak reversal Potential (aka resting potential) in mV
-    I_e pA = 0pA             # Constant Current in pA
+    C_m   pF = 281.0pF       ## Membrane Capacitance in pF
+    t_ref ms = 0.0ms         ## Refractory period in ms
+    V_reset mV = -60.0mV     ## Reset Potential in mV
+    g_L nS = 30.0nS          ## Leak Conductance in nS
+    E_L mV = -70.6mV         ## Leak reversal Potential (aka resting potential) in mV
+    I_e pA = 0pA             ## Constant Current in pA
 
     # spike adaptation parameters
-    a nS = 4nS               # Subthreshold adaptation
-    b pA = 80.5pA            # pike-triggered adaptation
-    Delta_T mV = 2.0mV       # Slope factor
-    tau_w ms = 144.0ms       # Adaptation time constant
-    V_th mV = -50.4mV        # Threshold Potential in mV
-    V_peak mV = 0mV          # Spike detection threshold
+    a nS = 4nS               ## Subthreshold adaptation
+    b pA = 80.5pA            ## pike-triggered adaptation
+    Delta_T mV = 2.0mV       ## Slope factor
+    tau_w ms = 144.0ms       ## Adaptation time constant
+    V_th mV = -50.4mV        ## Threshold Potential in mV
+    V_peak mV = 0mV          ## Spike detection threshold
 
     # synaptic parameters
-    E_ex mV = 0mV            # Excitatory reversal Potential in mV
-    tau_syn_ex ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
-    E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
-    tau_syn_in ms = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+    E_ex mV = 0mV            ## Excitatory reversal Potential in mV
+    tau_syn_ex ms = 0.2ms    ## Synaptic Time Constant Excitatory Synapse in ms
+    E_in mV = -85.0mV        ## Inhibitory reversal Potential in mV
+    tau_syn_in ms = 2.0ms    ## Synaptic Time Constant for Inhibitory Synapse in ms
 
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
+    ## Input current injected by CurrentEvent.
+    ## This variable is used to transport the current applied into the
+    ## _dynamics function computing the derivative of the state vector.
     I_stim pA = 0pA
   end
 
   internals:
 
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    ## Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+    ## conductance excursion.
     PSConInit_E nS/ms = nS * e / tau_syn_ex
 
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
+    ## Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+    ## conductance excursion.
     PSConInit_I nS/ms = nS * e / tau_syn_in
 
-    # refractory time in steps
+    ## refractory time in steps
     RefractoryCounts integer = steps(t_ref)
-    # counts number of tick during the refractory period
+    ## counts number of tick during the refractory period
     r integer
   end
 
