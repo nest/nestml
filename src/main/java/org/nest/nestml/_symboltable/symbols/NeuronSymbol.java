@@ -30,8 +30,6 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   private final Type type;
 
-  private NeuronSymbol baseNeuron = null;
-
   public NeuronSymbol(final String name, final Type type) {
     super(name, KIND);
     this.type = type;
@@ -55,14 +53,14 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   }
 
   public Optional<VariableSymbol> getVariableByName(String variableName) {
-    return spannedScope.resolveLocally(variableName, VariableSymbol.KIND);
+    return getSpannedScope().resolveLocally(variableName, VariableSymbol.KIND);
   }
 
 
   @SuppressWarnings("unused") // it is used within freemarker templates
   public List<VariableSymbol> getCurrentBuffers() {
     final Collection<VariableSymbol> variableSymbols
-        = spannedScope.resolveLocally(VariableSymbol.KIND);
+        = getSpannedScope().resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_CURRENT))
         .collect(toList());
@@ -70,7 +68,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   @SuppressWarnings("unused") // it is used within freemarker templates
   public List<VariableSymbol> getSpikeBuffers() {
-    final Collection<VariableSymbol> variableSymbols = spannedScope.resolveLocally(VariableSymbol.KIND);
+    final Collection<VariableSymbol> variableSymbols = getSpannedScope().resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
         .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_SPIKE))
         .collect(toList());
@@ -85,17 +83,8 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
 
   public MethodSymbol getUpdateBlock() {
     // the existence is checked by a context condition
-    final Optional<MethodSymbol> methodSymbol = spannedScope.resolveLocally("dynamics", MethodSymbol.KIND);
+    final Optional<MethodSymbol> methodSymbol = getSpannedScope().resolveLocally("dynamics", MethodSymbol.KIND);
     return methodSymbol.get();
-  }
-
-  public void setBaseNeuron(NeuronSymbolReference baseNeuron) {
-    checkNotNull(baseNeuron );
-    this.baseNeuron = baseNeuron;
-  }
-
-  public Optional<NeuronSymbol> getBaseNeuron() {
-    return Optional.ofNullable(baseNeuron);
   }
 
   @SuppressWarnings("unused") // it is used in the NeuronHeader.ftl generator template

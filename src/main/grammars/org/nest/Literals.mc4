@@ -13,6 +13,7 @@ component grammar Literals extends de.monticore.literals.Literals {
   /*********************************************************************************************************************
   * Commons-Grammar fragment
   *********************************************************************************************************************/
+  // Defines single line comment. Stores the comment text.
   token SL_COMMENT =
     "#" (~('\n' |
       '\r' )
@@ -31,6 +32,6 @@ component grammar Literals extends de.monticore.literals.Literals {
 
   token WS = (' ' | '\t'):{_channel = HIDDEN;};
 
-  // this token enables a statement that is placed in two lines. The first line end with a `\` character
+  // this token enables an expression that stretches over multiple lines. The first line end with a `\` character
   token LINE_ESCAPE = '\\' '\r'? '\n':{_channel = HIDDEN;};
 }

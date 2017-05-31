@@ -8,7 +8,7 @@ package org.nest.nestml._symboltable;
 import com.google.common.collect.Sets;
 import de.monticore.CommonModelNameCalculator;
 import de.monticore.symboltable.MutableScope;
-import de.monticore.symboltable.ResolverConfiguration;
+import de.monticore.symboltable.ResolvingConfiguration;
 import de.monticore.symboltable.SymbolKind;
 import de.monticore.symboltable.resolving.CommonResolvingFilter;
 import de.se_rwth.commons.Names;
@@ -39,16 +39,16 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
   public NESTMLLanguage() {
     super("NESTML Language", FILE_ENDING);
 
-    addResolver(CommonResolvingFilter.create(NeuronSymbol.KIND));
+    addResolvingFilter(CommonResolvingFilter.create(NeuronSymbol.KIND));
 
-    addResolver(new PredefinedTypesFilter());
-    addResolver(new PredefinedMethodsFilter());
-    addResolver(CommonResolvingFilter.create(MethodSymbol.KIND));
+    addResolvingFilter(new PredefinedTypesFilter());
+    addResolvingFilter(new PredefinedMethodsFilter());
+    addResolvingFilter(CommonResolvingFilter.create(MethodSymbol.KIND));
 
-    addResolver(CommonResolvingFilter.create(VariableSymbol.KIND));
-    addResolver(new PredefinedVariablesFilter());
+    addResolvingFilter(CommonResolvingFilter.create(VariableSymbol.KIND));
+    addResolvingFilter(new PredefinedVariablesFilter());
 
-    addResolver(CommonResolvingFilter.create( UsageSymbol.KIND));
+    addResolvingFilter(CommonResolvingFilter.create( UsageSymbol.KIND));
 
     setModelNameCalculator(new CommonModelNameCalculator() {
 
@@ -67,7 +67,7 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
        * no artifact for it, but neuron is defined in a file defined by the fqn prefix.
        * TODO: it is a big hack for now! wait for the correct implementation in the ST infrastructure
        */
-      public String calculateModelName(final String name) {
+      String calculateModelName(final String name) {
         checkArgument(!isNullOrEmpty(name));
 
         // a.b.nestmlfile.IaFNeuron => a.b.nestmlfile is the artifact name
@@ -101,8 +101,8 @@ public class NESTMLLanguage extends NESTMLLanguageTOP {
 
   @Override
   public Optional<NESTMLSymbolTableCreator> getSymbolTableCreator(
-      ResolverConfiguration resolverConfiguration, MutableScope mutableScope) {
-    return Optional.of(new NESTMLSymbolTableCreator(resolverConfiguration, mutableScope));
+      ResolvingConfiguration resolvingConfiguration, MutableScope mutableScope) {
+    return Optional.of(new NESTMLSymbolTableCreator(resolvingConfiguration, mutableScope));
   }
 
 }
