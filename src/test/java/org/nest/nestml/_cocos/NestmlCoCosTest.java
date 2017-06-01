@@ -163,8 +163,7 @@ public class NestmlCoCosTest extends ModelbasedTest {
   @Test
   public void testResolvingOfPredefinedTypes() {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(
-        Paths.get(TEST_MODELS_FOLDER, "valid/resolvePredefinedTypes.nestml").toString(),
-        Paths.get(TEST_MODELS_FOLDER));
+        Paths.get(TEST_MODELS_FOLDER, "valid/resolvePredefinedTypes.nestml").toString());
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
 
@@ -179,7 +178,7 @@ public class NestmlCoCosTest extends ModelbasedTest {
   @Test
   public void testRestrictUseOfShapes(){
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        TEST_MODELS_FOLDER + "restrictUseOfShapes/valid.nestml", Paths.get(TEST_MODELS_FOLDER));
+        TEST_MODELS_FOLDER + "restrictUseOfShapes/valid.nestml");
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
     final RestrictUseOfShapes restrictUseOfShapes = new RestrictUseOfShapes();
@@ -193,7 +192,7 @@ public class NestmlCoCosTest extends ModelbasedTest {
     Log.getFindings().clear();
 
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
-        TEST_MODELS_FOLDER + "restrictUseOfShapes/invalid.nestml", Paths.get(TEST_MODELS_FOLDER));
+        TEST_MODELS_FOLDER + "restrictUseOfShapes/invalid.nestml");
     assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
 
@@ -608,7 +607,7 @@ public class NestmlCoCosTest extends ModelbasedTest {
         NestmlErrorStrings.code(variableDoesNotExist));
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/variableDoesNotExist.nestml");
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString(), Paths.get(TEST_MODELS_FOLDER));
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString());
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
     Integer errorsFound = countErrorsByPrefix(NestmlErrorStrings.code(variableDoesNotExist), getFindings());
@@ -670,7 +669,7 @@ public class NestmlCoCosTest extends ModelbasedTest {
 
     final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/equationsOnlyForStateVariables.nestml");
 
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString(), Paths.get(TEST_MODELS_FOLDER));
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString());
     scopeCreator.runSymbolTableCreator(ast.get());
 
     checkModelAndAssertWithErrors(
@@ -754,7 +753,7 @@ public class NestmlCoCosTest extends ModelbasedTest {
       final NESTMLCoCoChecker nestmlCoCoChecker,
       final String expectedErrorCode,
       final Integer expectedNumberCount) {
-    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel.toString(), Paths.get(TEST_MODELS_FOLDER));
+    final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel.toString());
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
     NESTMLPrettyPrinter p = NESTMLPrettyPrinter.Builder.build();

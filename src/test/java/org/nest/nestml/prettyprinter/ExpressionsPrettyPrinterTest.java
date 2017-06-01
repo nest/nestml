@@ -47,7 +47,7 @@ import static org.junit.Assert.assertTrue;
 public class ExpressionsPrettyPrinterTest extends ModelbasedTest {
   private final ExpressionsPrettyPrinter expressionsPrettyPrinter = new ExpressionsPrettyPrinter();
   private static final String TEST_MODEL_PATH = "src/test/resources/";
-  private final NESTMLParser nestmlParser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
+  private final NESTMLParser nestmlParser = new NESTMLParser();
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {

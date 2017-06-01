@@ -23,12 +23,10 @@ public class NESTMLRootCreator {
 
   /**
    * Parses the model and returns ast.
-   * @throws java.io.IOException
+   * @return AST Node or `empty`, the model contains syntactical errors
    */
-  public static Optional<ASTNESTMLCompilationUnit> getAstRoot(
-      final String modelFile,
-      final Path modelPath) {
-    final NESTMLParser parser = new NESTMLParser(modelPath);
+  public static Optional<ASTNESTMLCompilationUnit> getAstRoot(final String modelFile) {
+    final NESTMLParser parser = new NESTMLParser();
     try {
       return parser.parse(modelFile);
     }

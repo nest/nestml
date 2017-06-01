@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class NamesTest extends ModelbasedTest {
-  private static final String PSC_MODEL_WITH_ODE = "models/iaf_cond_alpha_implicit.nestml";
+  private static final String PSC_MODEL_WITH_ODE = "models/iaf_cond_alpha.nestml";
   private final Names names = new Names();
   @Test
   public void testComputationOfInverseFunction() {

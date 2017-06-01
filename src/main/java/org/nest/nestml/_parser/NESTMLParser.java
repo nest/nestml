@@ -19,8 +19,6 @@ import org.nest.utils.AstUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,18 +28,7 @@ import java.util.Optional;
  * @author plotnikov
  */
 public class NESTMLParser extends NESTMLParserTOP {
-
   private final List<String> sourceText = Lists.newArrayList();
-  private final Optional<Path> modelPath;
-
-  public NESTMLParser() {
-    modelPath = Optional.empty();
-  }
-
-  public NESTMLParser(final Path modelPath) {
-    this.modelPath = Optional.of(modelPath);
-  }
-
 
   @Override
   public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(final String filename)
@@ -50,17 +37,15 @@ public class NESTMLParser extends NESTMLParserTOP {
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
 
     if (res.isPresent()) {
-      setModelPackage(filename, res.get());
+      res.get().setArtifactName(Files.getNameWithoutExtension(filename));
       // in case of no importstatements the first comment, that should belong to neuron, is interpreted as artifact
-      // //comment
+      // comment
       forwardModelComment(res.get());
 
-      List<Finding> typeFindings = UnitsSIVisitor.convertSiUnitsToSignature(res.get());
+      final List<Finding> typeFindings = UnitsSIVisitor.convertSiUnitsToSignature(res.get());
       if (!typeFindings.isEmpty()) {
         Log.error("The modelfile contains semantic errors with respect to SI units.");
         Log.error(String.format("There are %d errors", typeFindings.size()));
-        typeFindings.forEach(System.out::println);
-        typeFindings.stream().map(Finding::toString).forEach(Log::error);
         return Optional.empty();
       }
 
@@ -84,20 +69,34 @@ public class NESTMLParser extends NESTMLParserTOP {
    */
   private List<String> extractComments(final List<String> sourceText, int lineIndex) {
     final List<String> result = Lists.newArrayList();
-    if (sourceText.get(lineIndex).contains("#")) {
-      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf("#") + 1).trim());
+    String DOC_STRING_START = "##";
+    if (sourceText.get(lineIndex).contains(DOC_STRING_START)) {
+      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf(DOC_STRING_START) + 1).trim());
     }
 
-    while (lineIndex > 0) {
-      --lineIndex;
-      if (sourceText.get(lineIndex).trim().startsWith("#")) {
-        result.add(0, sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf("#") + 1).trim());
+    int searchBackIndex = lineIndex - 1;
+    while (searchBackIndex > 0) {
+      final String currentLine = sourceText.get(searchBackIndex);
+      if (currentLine.trim().startsWith(DOC_STRING_START)) {
+        result.add(0, currentLine.substring(currentLine.indexOf(DOC_STRING_START) + 1).trim());
       }
       else {
         break;
       }
+      --searchBackIndex;
     }
 
+    int searchForwardIndex = lineIndex + 1;
+    while (searchForwardIndex < sourceText.size()) {
+      final String currentLine = sourceText.get(searchForwardIndex);
+      if (currentLine.trim().startsWith(DOC_STRING_START)) {
+        result.add(currentLine.substring(currentLine.indexOf(DOC_STRING_START) + 1).trim());
+      }
+      else {
+        break;
+      }
+      ++searchForwardIndex;
+    }
     return result;
   }
 
@@ -112,28 +111,6 @@ public class NESTMLParser extends NESTMLParserTOP {
       // copy of the list was necessary, since otherwise the list would be cleared in both nodes!
       root.get_PreComments().clear();
 
-    }
-
-  }
-
-  private void setModelPackage(final String filename, final ASTNESTMLCompilationUnit root) {
-    if (modelPath.isPresent()) {
-      final String artifactName = computeArtifactName(Paths.get(filename));
-
-      root.setArtifactName(artifactName);
-    }
-    else {
-      throw new RuntimeException("The parser must be instantiated with a model path.");
-    }
-  }
-
-
-  private String computeArtifactName(final Path artifactPath) {
-    final String filename = artifactPath.getFileName().getName(0).toString();
-    if (filename.endsWith(".nestml")) {
-      return filename.substring(0, filename.indexOf(".nestml"));
-    } else {
-      return filename;
     }
 
   }

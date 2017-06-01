@@ -33,20 +33,17 @@ References: Brette R and g_exrstner W (2005) Adaptive Exponential
 
 SeeAlso: iaf_cond_alpha, aeif_cond_exp
 */
-neuron aeif_cond_exp_implicit:
+neuron aeif_cond_exp_neuron:
 
   state:
     V_m mV = E_L  # Membrane potential
-    w pA = 0pA    # Spike-adaptation current
-    g_in nS = 0nS # Inhibitory synaptic conductance
-    g_ex nS = 0nS # Excitatory synaptic conductance
+    w pA = 0 pA    # Spike-adaptation current
   end
 
   equations:
-    function V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
-    # exp function for the g_in, g_ex
-    g_in' = -g_in/tau_syn_in
-    g_ex' = -g_ex/tau_syn_ex
+    function V_bounded mV = bounded_min(V_m, V_peak) # prevent exponential divergence
+    shape g_in = exp(-1/tau_syn_in*t)
+    shape g_ex = exp(-1/tau_syn_ex*t)
 
     # Add aliases to simplify the equation definition of V_m
     function exp_arg real = (V_bounded-V_th)/Delta_T
@@ -107,16 +104,14 @@ neuron aeif_cond_exp_implicit:
 
     if r > 0: # refractory
       r -= 1 # decrement refractory ticks count
-      V_m = V_reset
+      V_m = V_reset # clamp potential
     elif V_m >= V_peak: # threshold crossing detection
-      r = RefractoryCounts
+      r = RefractoryCounts + 1
       V_m = V_reset # clamp potential
       w += b
       emit_spike()
     end
 
-    g_ex += spikeExc * nS
-    g_in += spikeInh * nS
     I_stim = currents
   end
 

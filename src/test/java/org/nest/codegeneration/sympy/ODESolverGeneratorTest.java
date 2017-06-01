@@ -36,7 +36,7 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
   private static final String PATH_TO_PSC_MODEL = "models/iaf_psc_alpha.nestml";
   private static final String PATH_TO_PSC_DELTA_MODEL = "models/iaf_psc_delta.nestml";
   private static final String PATH_TO_COND_MODEL = "models/iaf_cond_alpha.nestml";
-  private static final String PATH_TO_COND_IMPLICIT_MODEL = "models/iaf_cond_alpha_implicit.nestml";
+  private static final String PATH_TO_COND_IMPLICIT_MODEL = "models/iaf_cond_alpha.nestml";
 
   private static final String OUTPUT_FOLDER = "target";
   private static final Path OUTPUT_SCRIPT_DIRECTORY = Paths.get(OUTPUT_FOLDER, "sympy");
@@ -64,7 +64,7 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
 
   @Test
   public void testReplacement() throws IOException {
-    final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
+    final NESTMLParser p = new NESTMLParser();
     final String ODE_DECLARATION = "V' = -1/Tau * V + 1/C_m * (curr_sum(G, spikes) + I_e + ext_currents)";
     final Optional<ASTEquation> ode = p.parseEquation(new StringReader(ODE_DECLARATION));
     assertTrue(ode.isPresent());
@@ -82,7 +82,7 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
   }
 
   private void generateAndCheck(final String pathToModel) throws IOException {
-    final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
+    final NESTMLParser p = new NESTMLParser();
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
     assertTrue(root.isPresent());
 

@@ -207,6 +207,10 @@ private:
       ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
     </#list>
 
+    <#if useGSL>
+    double __gsl_error_tol;
+    </#if>
+
     /** Initialize parameters to their default values. */
     Parameters_();
   };
@@ -478,6 +482,14 @@ void ${neuronName}::get_status(DictionaryDatum &__d) const
   </#if>
 
   (*__d)[nest::names::recordables] = recordablesMap_.get_list();
+  <#if useGSL>
+    def< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
+    if ( P_.__gsl_error_tol <= 0. )
+    {
+      throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
+    }
+  </#if>
+
 }
 
 inline
@@ -510,6 +522,14 @@ void ${neuronName}::set_status(const DictionaryDatum &__d)
       throw nest::BadProperty("The constraint '${idemPrinter.print(invariant)}' is violated!");
     }
   </#list>
+
+  <#if useGSL>
+  updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
+  if ( P_.__gsl_error_tol <= 0. )
+  {
+    throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
+  }
+  </#if>
 };
 
 #endif /* #ifndef ${neuronName?upper_case} */

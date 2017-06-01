@@ -126,6 +126,16 @@ e string = "Bob"
 f mV = -2e12mV
 ```
 
+##### Documentation strings
+Declarations can be enriched with special comments which than are taken into generated NEST documentation. To do so, `##` is used to introduce a doc string. A doc string can be spread over multiple lines around the declaration as long as there are no other statement or non doc string. 
+
+```
+var1 real # simple comment, not a docstring
+
+## starts docstring
+var2 real ## continuation of the doc string
+          ## continuation of the doc string
+```
 #### Assignments
 
 NESTML supports simple or compound assignments. The left-hand side of the assignment is always a variable. The right-hand side can be an arbitrary expression of a type which is compatible with the left-hand side.
@@ -422,6 +432,8 @@ The content of spike and current buffers can be used by just using their plain n
 ### Solver selection
 
 Currently there is support for GSL and exact integration.
+
+In the case that the model is solved with the GSL integrator, desired absolute error of an integration step can be adjusted with the `gsl_error_tol` parameter in a `SetStatus` call. The default value of the `gsl_error_tol` is `1e-3`.
 
 ### Concepts for refractoriness
 

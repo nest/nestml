@@ -28,9 +28,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
   private static final String PSC_MODEL_IMPERATIVE = "src/test/resources/codegeneration/imperative/iaf_psc_alpha_imperative.nestml";
   private static final String PSC_MODEL_THREE_BUFFERS = "src/test/resources/codegeneration/iaf_psc_alpha_three_buffers.nestml";
   private static final String NEURON_WITH_SETTER = "src/test/resources/codegeneration/neuron_with_setter.nestml";
-  private static final String COND_MODEL_IMPLICIT = "models/iaf_cond_alpha_implicit.nestml";
   private static final String COND_MODEL_WITH_ODE = "models/iaf_cond_alpha.nestml";
-  private static final String MODEL_PATH = "src/test/resources";
 
   @Before
   public void cleanUp() {
@@ -39,7 +37,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testPSCModelWithoutOde() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_IMPERATIVE, MODEL_PATH);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_IMPERATIVE);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
 
@@ -49,7 +47,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testPSCModelWithOde() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE, MODEL_PATH);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
 
@@ -58,18 +56,8 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
   }
 
   @Test
-  public void testCondModelWithImplicitOdes() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_IMPLICIT, MODEL_PATH);
-    scopeCreator.runSymbolTableCreator(root);
-    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, true);
-
-    generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
-    generator.generateNESTModuleCode(newArrayList(root), MODULE_NAME, CODE_GEN_OUTPUT);
-  }
-
-  @Test
   public void testCondModelWithShapes() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_WITH_ODE, MODEL_PATH);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_WITH_ODE);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, condMock, true);
 
@@ -79,7 +67,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testPSCModelWithThreeBuffers() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_THREE_BUFFERS, MODEL_PATH);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_THREE_BUFFERS);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
 
@@ -89,7 +77,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testNeuronWithSetter() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(NEURON_WITH_SETTER, MODEL_PATH);
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel(NEURON_WITH_SETTER);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
 

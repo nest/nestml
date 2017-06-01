@@ -37,7 +37,7 @@ public class UnitsTest extends ModelbasedTest {
   public void test_unit_assignments(){
     final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "src/test/resources/org/nest/units/assignmentTest/validAssignments.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/assignmentTest/validAssignments.nestml");
 
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
@@ -58,7 +58,7 @@ public class UnitsTest extends ModelbasedTest {
     assertEquals(0, warningsFound);
 
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
-        "src/test/resources/org/nest/units/assignmentTest/invalidAssignments.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/assignmentTest/invalidAssignments.nestml");
 
     assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
@@ -83,7 +83,7 @@ public class UnitsTest extends ModelbasedTest {
   public void test_unit_expressions(){
     final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "src/test/resources/org/nest/units/expressionTest/validExpressions.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/expressionTest/validExpressions.nestml");
 
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
@@ -104,7 +104,7 @@ public class UnitsTest extends ModelbasedTest {
     assertEquals(0, warningsFound);
 
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
-        "src/test/resources/org/nest/units/expressionTest/invalidExpressions.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/expressionTest/invalidExpressions.nestml");
 
     assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
@@ -129,7 +129,7 @@ public class UnitsTest extends ModelbasedTest {
   public void test_unit_ODEs(){
     final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "src/test/resources/org/nest/nestml/_cocos/valid/unitsInODEs.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/nestml/_cocos/valid/unitsInODEs.nestml");
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
 
@@ -149,7 +149,7 @@ public class UnitsTest extends ModelbasedTest {
     // TODO fails assertEquals(0, warningsFound);
 
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
-        "src/test/resources/org/nest/nestml/_cocos/invalid/unitsInODEs.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/nestml/_cocos/invalid/unitsInODEs.nestml");
 
     assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
@@ -174,7 +174,7 @@ public class UnitsTest extends ModelbasedTest {
   public void test_unit_declarations(){
     final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
     final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "src/test/resources/org/nest/units/declarationTest/validDeclarations.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/declarationTest/validDeclarations.nestml");
 
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
@@ -195,7 +195,7 @@ public class UnitsTest extends ModelbasedTest {
     assertEquals(0, warningsFound);
 
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
-        "src/test/resources/org/nest/units/declarationTest/invalidDeclarations.nestml", TEST_MODEL_PATH);
+        "src/test/resources/org/nest/units/declarationTest/invalidDeclarations.nestml");
 
     assertTrue(invalidRoot.isPresent());
     scopeCreator.runSymbolTableCreator(invalidRoot.get());
@@ -220,8 +220,7 @@ public class UnitsTest extends ModelbasedTest {
   @Test
   public void test_iaf_cond_alpha() {
     final NestmlCoCosManager completeChecker = new NestmlCoCosManager();
-    final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot(
-        "models/iaf_cond_alpha.nestml", TEST_MODEL_PATH);
+    final Optional<ASTNESTMLCompilationUnit> validRoot = getAstRoot("models/iaf_cond_alpha.nestml");
     assertTrue(validRoot.isPresent());
     scopeCreator.runSymbolTableCreator(validRoot.get());
     final List<Finding> findings = completeChecker.analyzeModel(validRoot.get());
