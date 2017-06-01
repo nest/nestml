@@ -44,7 +44,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
-    parseAndCheckNestmlModel("models/iaf_cond_alpha_implicit.nestml");
+    parseAndCheckNestmlModel("models/iaf_cond_alpha.nestml");
   }
 
   @Test

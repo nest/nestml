@@ -36,7 +36,7 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
   private static final String PATH_TO_PSC_MODEL = "models/iaf_psc_alpha.nestml";
   private static final String PATH_TO_PSC_DELTA_MODEL = "models/iaf_psc_delta.nestml";
   private static final String PATH_TO_COND_MODEL = "models/iaf_cond_alpha.nestml";
-  private static final String PATH_TO_COND_IMPLICIT_MODEL = "models/iaf_cond_alpha_implicit.nestml";
+  private static final String PATH_TO_COND_IMPLICIT_MODEL = "models/iaf_cond_alpha.nestml";
 
   private static final String OUTPUT_FOLDER = "target";
   private static final Path OUTPUT_SCRIPT_DIRECTORY = Paths.get(OUTPUT_FOLDER, "sympy");
