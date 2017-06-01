@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class NESTMLPrettyPrinterTest extends ModelbasedTest {
-  private final NESTMLParser nestmlParser = new NESTMLParser(TEST_MODEL_PATH);
+  private final NESTMLParser nestmlParser = new NESTMLParser();
   @BeforeClass
   public static void disableFailQuick() {
     Log.enableFailQuick(false);

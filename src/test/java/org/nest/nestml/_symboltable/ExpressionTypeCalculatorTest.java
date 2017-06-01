@@ -20,20 +20,16 @@
  */
 package org.nest.nestml._symboltable;
 
-import de.se_rwth.commons.logging.Log;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.utils.AstUtils;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -46,19 +42,17 @@ import static org.nest.nestml._symboltable.predefined.PredefinedTypes.*;
  * @author plotnikov
  */
 public class ExpressionTypeCalculatorTest extends ModelbasedTest {
-  public static final String TEST_MODEL_PATH = "src/test/resources/";
   private static final String TEST_POSITIVE_MODEL = "src/test/resources/org/nest/nestml/_cocos/valid"
                                                     + "/mathExpressions.nestml";
   private static final String TEST_NEGATIVE_MODEL = "src/test/resources/org/nest/nestml/_cocos/invalid"
                                                     + "/mathExpressions.nestml";
-  private final NESTMLParser nestmlParser = new NESTMLParser(Paths.get(TEST_MODEL_PATH));
 
   @Test
   public void testTypeCalculation() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> root = nestmlParser.parse(TEST_POSITIVE_MODEL);
+    final Optional<ASTNESTMLCompilationUnit> root = parser.parse(TEST_POSITIVE_MODEL);
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
+    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root.get());
     final List<ASTDeclaration> declarations = AstUtils.getAll(root.get(), ASTDeclaration.class);
 
@@ -154,10 +148,10 @@ public class ExpressionTypeCalculatorTest extends ModelbasedTest {
 
   @Test
   public void testNegativeExamples() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> root = nestmlParser.parse(TEST_NEGATIVE_MODEL);
+    final Optional<ASTNESTMLCompilationUnit> root = parser.parse(TEST_NEGATIVE_MODEL);
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
+    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
     scopeCreator.runSymbolTableCreator(root.get());
     final List<ASTDeclaration> declarations = AstUtils.getAll(root.get(), ASTDeclaration.class);
 

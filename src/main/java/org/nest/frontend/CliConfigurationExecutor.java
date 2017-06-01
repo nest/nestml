@@ -48,7 +48,7 @@ public class CliConfigurationExecutor {
   }
 
   void execute(final NestCodeGenerator generator, final CliConfiguration config) {
-    final NESTMLParser parser =  new NESTMLParser(config.getModelPath());
+    final NESTMLParser parser =  new NESTMLParser();
     final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getModelPath());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
 

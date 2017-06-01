@@ -432,7 +432,7 @@ public final class AstUtils {
       final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getArtifactName() + ".tmp");
       printModelToFile(nestmlModel, outputTmpPath);
       info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
-      final NESTMLParser parser = new NESTMLParser(temporaryFolder);
+      final NESTMLParser parser = new NESTMLParser();
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
       withSolvedOde.setArtifactName(nestmlModel.getArtifactName());

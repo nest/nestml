@@ -30,15 +30,7 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
  * @author plonikov
  */
 public class NESTMLParserTest extends ModelbasedTest {
-  private static final String TEST_MODEL1 = "src/test/resources/command_line_base/"
-      + "cli_example.nestml";
-
-  private static final String TEST_MODEL2 = "src/test/resources/"
-      + "command_line_base/sub/cli_example.nestml";
-
   private static final String TEST_MODEL_COMMENTS = "src/test/resources/comments/iaf_neuron.nestml";
-
-  private static final String TEST_MODEL_PATH = "src/test/resources/command_line_base/";
 
   @Test
   public void testAllModels() {
@@ -76,7 +68,7 @@ public class NESTMLParserTest extends ModelbasedTest {
     assertTrue(ast.isPresent());
     final List<ASTDeclaration> declarations = AstUtils.getAll(ast.get(), ASTDeclaration.class);
     for (final ASTDeclaration declaration:declarations) {
-      assertTrue(declaration.getComments().size() == 2);
+      assertEquals(3, declaration.getComments().size());
       declaration.getComments().forEach(System.out::println);
     }
 

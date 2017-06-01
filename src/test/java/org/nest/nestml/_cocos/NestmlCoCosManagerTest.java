@@ -40,8 +40,7 @@ public class NestmlCoCosManagerTest extends ModelbasedTest {
    *
    */
   private Optional<ASTNESTMLCompilationUnit> getAstRoot(String modelPath) throws IOException {
-    final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
-    final Optional<ASTNESTMLCompilationUnit> ast = p.parse(modelPath);
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse(modelPath);
     Assert.assertTrue(ast.isPresent());
     return ast;
   }
