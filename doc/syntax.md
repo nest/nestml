@@ -126,6 +126,16 @@ e string = "Bob"
 f mV = -2e12mV
 ```
 
+##### Documentation strings
+Declarations can be enriched with special comments which than are taken into generated NEST documentation. To do so, `##` is used to introduce a doc string. A doc string can be spread over multiple lines around the declaration as long as there are no other statement or non doc string. 
+
+```
+var1 real # simple comment, not a docstring
+
+## starts docstring
+var2 real ## continuation of the doc string
+          ## continuation of the doc string
+```
 #### Assignments
 
 NESTML supports simple or compound assignments. The left-hand side of the assignment is always a variable. The right-hand side can be an arbitrary expression of a type which is compatible with the left-hand side.
