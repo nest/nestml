@@ -12,6 +12,13 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NestmlCoCosManager;
+import org.nest.nestml._visitor.NESTMLVisitor;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
+import org.nest.spl._ast.ASTAssignment;
+import org.nest.spl._ast.ASTSmall_Stmt;
+import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.spl.prettyprinter.SPLPrettyPrinter;
+import org.nest.spl.prettyprinter.SPLPrettyPrinterFactory;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +33,21 @@ import static org.nest.nestml._symboltable.NESTMLRootCreator.getAstRoot;
  * @author traeder, plotnikov
  */
 public class UnitsTest extends ModelbasedTest {
+  AssignmentTestVisitor assignmentTestVisitor = new AssignmentTestVisitor();
+
+  class AssignmentTestVisitor implements NESTMLVisitor{
+
+    public void visit(ASTSmall_Stmt astSmall_stmt){
+      SPLPrettyPrinter printer = SPLPrettyPrinterFactory.createDefaultPrettyPrinter();
+      if(astSmall_stmt.assignmentIsPresent() || astSmall_stmt.declarationIsPresent()){
+        printer.print(astSmall_stmt);
+        Log.error("assignment: "+ printer.result().substring(0,printer.result().length()-1) +" line: "+astSmall_stmt.get_SourcePositionStart().getLine());
+
+
+      }
+
+    }
+  }
 
   @Before
   public void clearLog() {
@@ -56,6 +78,10 @@ public class UnitsTest extends ModelbasedTest {
         .count();
 
     assertEquals(10, warningsFound);
+
+    //some semantic tests on addition of units:
+    validRoot.get().accept(assignmentTestVisitor);
+
 
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
         "src/test/resources/org/nest/units/assignmentTest/invalidAssignments.nestml", TEST_MODEL_PATH);
