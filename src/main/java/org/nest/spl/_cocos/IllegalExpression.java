@@ -87,6 +87,9 @@ public class IllegalExpression implements
 
       handleAssignment(dummyAssignment);
 
+      //replace assignment in parameter node
+      node.setExpr(dummyExpression);
+
     }
 
 
