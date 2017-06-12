@@ -538,6 +538,13 @@ public final class AstUtils {
     return substitueWithParents;
   }
 
+  /**
+   * Converts a predefined UNIT variable to the appropriate literal depending on which target "natural" units have been
+   * defined for the language.
+   * For NESTML these are: ms,pF,mV,pA,nS,MOhm
+   * @param astVariable
+   * @return string holding the number 10 to the power of [difference between variable magnitude and target natural unit magnitude]
+   */
   public static Optional<String> convertSiName(String astVariable) {
     final String varShortName = astVariable.toString();
     for (String siUnit : SIData.getCorrectSIUnits()) {

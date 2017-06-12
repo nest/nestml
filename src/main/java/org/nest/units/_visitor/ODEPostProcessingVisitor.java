@@ -80,6 +80,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     }
     UnitRepresentation unitFromExpression = UnitRepresentation.getBuilder().serialization(typeFromExpression.getName()).build();
     //set any of the units to ignoreMagnitude
+    //Todo: Adapt to the fact that ignoreMagnitude is not necessary any longer
     unitFromExpression.setIgnoreMagnitude(false);
     //do the actual test:
     if(!unitFromExpression.equals(derivedVarUnit)){
