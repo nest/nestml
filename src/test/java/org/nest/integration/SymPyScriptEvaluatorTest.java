@@ -8,23 +8,21 @@ package org.nest.integration;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.SolverFrameworkGenerator;
+import org.nest.codegeneration.sympy.SolverResult;
 import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -51,23 +49,11 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
 
     final SymPyScriptEvaluator symPyScriptEvaluator = new SymPyScriptEvaluator();
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
     final ASTOdeDeclaration astOdeDeclaration =  root.get().getNeurons().get(0).getBody().getODEBlock().get();
 
-    final List<String> shapes = astOdeDeclaration.getShapes()
-        .stream()
-        .map(prettyPrinter::printShape)
-        .collect(Collectors.toList());
-    final List<String> functions = astOdeDeclaration.getOdeFunctions()
-        .stream()
-        .map(prettyPrinter::printODEAlias)
-        .collect(Collectors.toList());
-    final List<String> odes = astOdeDeclaration.getODEs()
-        .stream()
-        .map(prettyPrinter::printEquation)
-        .collect(Collectors.toList());
-
-    symPyScriptEvaluator.solveOdeWithShapes(odes.get(0), shapes, SYMPY_OUTPUT);
+    final SolverResult testant = symPyScriptEvaluator.solveOdeWithShapes(astOdeDeclaration, SYMPY_OUTPUT);
+    assertEquals("success", testant.status);
+    assertEquals("exact", testant.solver);
   }
 
   @Test

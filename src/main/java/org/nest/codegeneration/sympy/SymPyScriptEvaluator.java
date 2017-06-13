@@ -5,11 +5,10 @@
  */
 package org.nest.codegeneration.sympy;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import de.se_rwth.commons.logging.Log;
+import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.reporting.Reporter;
 
 import java.io.BufferedReader;
@@ -24,7 +23,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static de.se_rwth.commons.logging.Log.*;
+import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * The class is responsible for the execution of the PYTHON_INTERPRETER code which
@@ -45,7 +44,8 @@ public class SymPyScriptEvaluator {
   private static final String ODE_ANALYZER_SCRIPT = "OdeAnalyzer.py";
   private static final String ODE_ANALYZER_SOURCE = "org/nest/sympy/OdeAnalyzer.py";
 
-  public boolean solveOdeWithShapes(final String ode, final List<String> shapes, final Path output) {
+  public SolverResult solveOdeWithShapes(final ASTOdeDeclaration astOdeDeclaration,
+                                         final Path output) {
     try {
       reporter.reportProgress("Start long running SymPy script evaluation...");
 
@@ -53,37 +53,41 @@ public class SymPyScriptEvaluator {
       long start = System.nanoTime();
       final List<String> commands = Lists.newArrayList();
 
+      final SolverInput solverInput = new SolverInput(astOdeDeclaration);
       commands.add(PYTHON_INTERPRETER);
       commands.add(ODE_ANALYZER_SCRIPT);
-      commands.addAll(shapes);
+      commands.add(solverInput.toJSON());
 
-      final ProcessBuilder processBuilder = new ProcessBuilder().directory(output.toFile());
+      final ProcessBuilder processBuilder = new ProcessBuilder(
+          PYTHON_INTERPRETER,
+          ODE_ANALYZER_SCRIPT,
+          solverInput.toJSON()).directory(output.toFile()).command(commands);
 
       final Process res = processBuilder.start();
       res.waitFor();
       long end = System.nanoTime();
-      long elapsedTime = end - start;
-      final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
-          + (double)elapsedTime / 1000000000.0 +  " [s]";
-      reporter.reportProgress(msg);
-
 
       // reports standard output
       getListFromStream(res.getInputStream()).forEach(reporter::reportProgress);
       // reports errors
       getListFromStream(res.getErrorStream()).forEach(reporter::reportProgress);
 
+      long elapsedTime = end - start;
+      final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
+          + (double)elapsedTime / 1000000000.0 +  " [s]";
+      reporter.reportProgress(msg);
+
       if (getListFromStream(res.getErrorStream()).size() > 0) {
-        return false;
+        return SolverResult.getErrorResult();
       }
-      // Read generated matrix entries
+
+      return SolverResult.fromJSON(Paths.get(output.toString(), SolverResult.RESULT_FILE_NAME));
     }
     catch (IOException | InterruptedException e) {
       error("Cannot evaluate the SymPy solver scripts.", e);
-      return false;
+      return SolverResult.getErrorResult();
     }
 
-    return true;
   }
 
   private void copySolverFramework(final Path output) {
@@ -91,16 +95,18 @@ public class SymPyScriptEvaluator {
       final URL shapesPyUrl = getClass().getClassLoader().getResource(SHAPES_SOURCE);
       checkNotNull(shapesPyUrl, "Cannot read the solver script: " + SHAPES_SCRIPT);
       final String shapesPy = Resources.toString(shapesPyUrl, Charsets.UTF_8);
+      Files.write(Paths.get(output.toString(), SHAPES_SCRIPT), shapesPy.getBytes());
 
       final URL propMatrixUrl = getClass().getClassLoader().getResource(PROP_MATRIX_SOURCE);
       checkNotNull(propMatrixUrl, "Cannot read the solver script: " + PROP_MATRIX_SCRIPT);
-      final String propMatrixPy = Resources.toString(shapesPyUrl, Charsets.UTF_8);
+      final String propMatrixPy = Resources.toString(propMatrixUrl, Charsets.UTF_8);
+      Files.write(Paths.get(output.toString(), PROP_MATRIX_SCRIPT), propMatrixPy.getBytes());
 
       final URL odeAnalyzerUrl = getClass().getClassLoader().getResource(ODE_ANALYZER_SOURCE);
       checkNotNull(odeAnalyzerUrl, "Cannot read the solver script: " + ODE_ANALYZER_SCRIPT);
-      final String odeAnalyzerPy = Resources.toString(shapesPyUrl, Charsets.UTF_8);
+      final String odeAnalyzerPy = Resources.toString(odeAnalyzerUrl, Charsets.UTF_8);
+      Files.write(Paths.get(output.toString(), ODE_ANALYZER_SCRIPT), odeAnalyzerPy.getBytes());
 
-      Files.write(Paths.get(output.toString()), shapesPy.getBytes());
     }
     catch (IOException e) {
       throw new RuntimeException(e);

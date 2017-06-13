@@ -111,12 +111,12 @@ public class OdeProcessor {
 
     reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());
 
-    checkState(evaluator.solveOdeWithShapes(null, null, null), "Error during solver script evaluation.");
+    final SolverResult result = evaluator.solveOdeWithShapes(deepCopy.getBody().getODEBlock().get(), outputBase);
 
     final Path odeTypePath = Paths.get(outputBase.toString(), astNeuron.getName() + "." + TransformerBase.SOLVER_TYPE);
     final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
-    if (solutionType.equals(SolverType.EXACT)) {
+    if (result.equals("exact")) {
       reporter.reportProgress("ODE is solved exactly.");
 
       return linearSolutionTransformer.addExactSolution(

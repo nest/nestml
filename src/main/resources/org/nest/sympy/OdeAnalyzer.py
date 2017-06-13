@@ -130,4 +130,6 @@ class OdeAnalyzer(object):
 
 # MAIN ENTRY POINT ###
 if __name__ == "__main__":
-    OdeAnalyzer.compute_solution(sys.argv[1])
+    result = OdeAnalyzer.compute_solution(sys.argv[1])
+    f = open('result.tmp', 'w')
+    f.write(result)
