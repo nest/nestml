@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 public class CondMock extends OdeProcessor {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/cond/";
 
-  @Override
+  //@Override
   protected ASTNeuron handleNeuronWithODE(final ASTNeuron root, ASTNESTMLCompilationUnit artifactRoot, final Path outputBase) {
     Log.trace("Uses COND mock", this.getClass().getName());
     return getImplicitFormTransformer().transformToImplicitForm(

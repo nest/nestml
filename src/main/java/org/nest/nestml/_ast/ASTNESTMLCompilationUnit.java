@@ -26,9 +26,7 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
 
   protected ASTNESTMLCompilationUnit (
       java.util.List<org.nest.nestml._ast.ASTNeuron> neurons,
-      java.util.List<String> nEWLINEs
-
-  ) {
+      java.util.List<String> nEWLINEs) {
     super(neurons, nEWLINEs);
   }
 
@@ -39,7 +37,6 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
   public String getFilename() {
     return artifactName + "." + NESTMLLanguage.FILE_ENDING;
   }
-
 
   /**
    * Returns the neuron name of a neuron which encloses the provided line number or an '__undefined__' string, if there

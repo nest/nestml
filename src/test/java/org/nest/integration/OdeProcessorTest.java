@@ -69,7 +69,7 @@ public class OdeProcessorTest extends ModelbasedTest {
     final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(pathToModel));
     FilesHelper.deleteFilesInFolder(outputBase);
 
-    testant.solveODE(modelRoot.getNeurons().get(0), modelRoot, outputBase);
+    testant.solveODE(modelRoot.getNeurons().get(0), outputBase);
 
     UnitsSIVisitor.convertSiUnitsToSignature(modelRoot);
 

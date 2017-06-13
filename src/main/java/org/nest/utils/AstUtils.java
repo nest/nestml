@@ -39,7 +39,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.*;
-import static de.se_rwth.commons.logging.Log.info;
 import static java.lang.Math.pow;
 import static java.util.stream.Collectors.toList;
 import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getType;
@@ -424,21 +423,22 @@ public final class AstUtils {
    * b) The model developer can view how the solution was computed.
    * @return New root node of the altered model with an initialized symbol table
    */
-  public static ASTNESTMLCompilationUnit deepClone(
-      final ASTNESTMLCompilationUnit nestmlModel,
+  public static ASTNeuron deepClone(
+      final ASTNeuron astNeuron,
       final NESTMLScopeCreator scopeCreator,
       final Path temporaryFolder) {
     try {
-      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getArtifactName() + ".tmp");
-      printModelToFile(nestmlModel, outputTmpPath);
-      info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
+      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), astNeuron.getName() + ".tmp");
+      final ASTNESTMLCompilationUnit compilationUnit = NESTMLNodeFactory.createASTNESTMLCompilationUnit();
+      compilationUnit.setArtifactName(astNeuron.getName());
+      printModelToFile(compilationUnit, outputTmpPath);
       final NESTMLParser parser = new NESTMLParser();
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
-      withSolvedOde.setArtifactName(nestmlModel.getArtifactName());
+      withSolvedOde.setArtifactName(astNeuron.getName());
 
       scopeCreator.runSymbolTableCreator(withSolvedOde);
-      return withSolvedOde;
+      return withSolvedOde.getNeurons().get(0);
     }
     catch (IOException e) {
       throw  new RuntimeException(e);

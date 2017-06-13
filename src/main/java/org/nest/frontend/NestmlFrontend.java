@@ -10,6 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
 import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.reporting.Reporter;
 import org.nest.utils.FilesHelper;
 
 import java.io.*;

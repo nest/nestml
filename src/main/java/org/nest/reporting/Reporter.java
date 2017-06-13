@@ -18,7 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.nest.frontend;
+package org.nest.reporting;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,7 +26,6 @@ import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Optional;
@@ -37,7 +36,7 @@ import java.util.Optional;
  * @implSpec Not parallelizable, but the frontend is executed with one instance.
  * @author plotnikov
  */
-class Reporter {
+public class Reporter {
   // Not parallelizable, but the frontend is executed with one instance.
   static private Reporter reporter = new Reporter();
 
@@ -59,7 +58,7 @@ class Reporter {
     return reporter;
   }
 
-  void reportProgress(final String message) {
+  public void reportProgress(final String message) {
     System.out.println(Level.INFO + ": " + message);
   }
 
@@ -76,7 +75,7 @@ class Reporter {
 
   }
 
-  void printReports(final PrintStream info, final PrintStream err) {
+  public void printReports(final PrintStream info, final PrintStream err) {
     Optional<Report> error = neuronReports
         .stream()
         .filter(message -> message.severity.equals(Level.ERROR))
@@ -94,7 +93,7 @@ class Reporter {
 
   }
 
-  void addNeuronReports(
+  public void addNeuronReports(
       final String filename,
       final String neuronName,
       final List<Finding> messages) {
@@ -104,7 +103,7 @@ class Reporter {
         finding));
   }
 
-  void addNeuronReport(
+  public void addNeuronReport(
       final String filename,
       final String neuronName,
       final Finding finding) {
@@ -142,7 +141,7 @@ class Reporter {
 
   }
 
-  void addNeuronReport(
+  public void addNeuronReport(
       final String filename,
       final String neuronName,
       final Level severity,
@@ -178,7 +177,7 @@ class Reporter {
     return "";
   }
 
-  enum Level {
+  public enum Level {
     INFO("INFO"), WARNING("WARNING"), ERROR("ERROR");
 
     private final String text;

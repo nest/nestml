@@ -37,6 +37,11 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     this.expressionsPrinter = expressionsPrinter;
   }
 
+  public String print(final ASTNESTMLNode astNestmlNode) {
+    astNestmlNode.accept(this);
+    return this.result();
+  }
+
   /**
    *   NESTMLCompilationUnit = "package" packageName:QualifiedName
    *   BLOCK_OPEN
@@ -110,6 +115,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     else if (astVarBlock.isParameters ()) {
       println("parameters" + BLOCK_OPEN);
     }
+
     for (ASTDeclaration astDeclaration:astVarBlock.getDeclarations()) {
       printDeclarationStatement(astDeclaration);
       println();
@@ -173,33 +179,38 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     println("equations" + BLOCK_OPEN);
     indent();
 
-    astOdeDeclaration.getShapes().forEach(this::printShape);
-    astOdeDeclaration.getOdeFunctions().forEach(this::printODEAlias);
-    astOdeDeclaration.getODEs().forEach(this::printEquation);
+    astOdeDeclaration.getShapes().stream().map(this::printShape).forEach(this::println);
+    astOdeDeclaration.getOdeFunctions().stream().map(this::printODEAlias).forEach(this::println);
+    astOdeDeclaration.getODEs().stream().map(this::printEquation).forEach(this::println);
 
   }
 
-  private void printEquation(final ASTEquation astEquation) {
-    println(astEquation.getLhs() + " = " + expressionsPrinter.print(astEquation.getRhs()));
+  /**
+   * This method is used in freemaker template. Therefore, it must remain public.
+   */
+  public String printEquation(final ASTEquation astEquation) {
+    return astEquation.getLhs() + " = " + expressionsPrinter.print(astEquation.getRhs());
+  }
+
+  /**
+   * This method is used in freemaker template. Therefore, it must remain public.
+   */
+  public String printShape(final ASTShape astShape) {
+    return "shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs());
   }
 
   /**
    * This method is used in freemaker template. Therefore, remains public.
    */
-  public void printShape(final ASTShape astShape) {
-    println("shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs()));
-  }
-
-  /**
-   * This method is used in freemaker template. Therefore, remains public.
-   */
-  public void printODEAlias(final ASTOdeFunction astOdeAlias) {
+  public String printODEAlias(final ASTOdeFunction astOdeAlias) {
     final String datatype = deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astOdeAlias.getDatatype()));
+
     final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
+    final StringBuilder recordable = new StringBuilder();
     if (astOdeAlias.isRecordable()) {
-      print("recordable ");
+      recordable.append("recordable ");
     }
-    println("function " + astOdeAlias.getVariableName() + " " + datatype + " = " + initExpression);
+    return recordable.toString() + "function " + astOdeAlias.getVariableName() + " " + datatype + " = " + initExpression;
   }
 
   @Override

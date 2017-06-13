@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 public class PSCMock extends OdeProcessor {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/psc/";
 
-  @Override
+  //@Override
   protected ASTNeuron handleNeuronWithODE(final ASTNeuron astNeuron, ASTNESTMLCompilationUnit artifactRoot, final Path outputBase) {
     Log.trace("Uses PSC mock", this.getClass().getName());
     return getLinearSolutionTransformer().addExactSolution(

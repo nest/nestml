@@ -16,6 +16,7 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._symboltable.NestmlCoCosManager;
+import org.nest.reporting.Reporter;
 import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
@@ -37,7 +38,7 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
  *
  * @author plotnikov
  */
-public class CliConfigurationExecutor {
+class CliConfigurationExecutor {
 
   private static final String LOG_NAME = CliConfigurationExecutor.class.getName();
   private final NestmlCoCosManager checker = new NestmlCoCosManager();
