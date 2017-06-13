@@ -42,75 +42,75 @@ public class SolverResultTest {
 
   private final String exactSolution = "{\n" +
                                        "  \"status\": \"success\", \n" +
-                                       "  \"solver\": \"exact\", \n" +
                                        "  \"initial_values\": [\n" +
                                        "    {\n" +
-                                       "      \"__av__I_in__0\": \"0\"\n" +
+                                       "      \"av__I_shape_in__0\": \"0\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__av__I_in__1\": \"e/tau_syn_in\"\n" +
+                                       "      \"av__I_shape_in__1\": \"e*pA/tau_syn_in\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__av__I_ex__0\": \"0\"\n" +
+                                       "      \"av__I_shape_ex__0\": \"0\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__av__I_ex__1\": \"e/tau_syn_ex\"\n" +
+                                       "      \"av__I_shape_ex__1\": \"e*pA/tau_syn_ex\"\n" +
                                        "    }\n" +
                                        "  ], \n" +
                                        "  \"update_instructions\": [\n" +
-                                       "    \"V_m = __ode_var_factor * V_m + __const_input * (Tau - Tau*exp(-__h/Tau))\", \n" +
-                                       "    \"V_m += __I_in_0*__P_I_in_2_0 + __I_in_1*__P_I_in_2_1\", \n" +
-                                       "    \"V_m += __I_ex_0*__P_I_ex_2_0 + __I_ex_1*__P_I_ex_2_1\"\n" +
+                                       "    \"V_abs = __ode_var_factor * V_abs + __const_input * (Tau - Tau*exp(-__h/Tau))\", \n" +
+                                       "    \"V_abs += __I_shape_in_0*__P_I_shape_in_2_0 + __I_shape_in_1*__P_I_shape_in_2_1\", \n" +
+                                       "    \"V_abs += __I_shape_ex_0*__P_I_shape_ex_2_0 + __I_shape_ex_1*__P_I_shape_ex_2_1\"\n" +
                                        "  ], \n" +
+                                       "  \"solver\": \"exact\", \n" +
                                        "  \"ode_var_factor\": {\n" +
                                        "    \"__ode_var_factor\": \"exp(-__h/Tau)\"\n" +
                                        "  }, \n" +
                                        "  \"const_input\": {\n" +
-                                       "    \"__const_input\": \"I_e/C_m\"\n" +
+                                       "    \"__const_input\": \"(I_e + currents)/C_m\"\n" +
                                        "  }, \n" +
-                                       " \"propagator_elements\": [\n" +
+                                       "  \"propagator_elements\": [\n" +
                                        "    {\n" +
-                                       "      \"__P_I_in_0_0\": \"exp(-__h/tau_syn_in)\"\n" +
+                                       "      \"__P_I_shape_in_0_0\": \"exp(-__h/tau_syn_in)\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_in_1_0\": \"__h*exp(-__h/tau_syn_in)\"\n" +
+                                       "      \"__P_I_shape_in_1_0\": \"__h*exp(-__h/tau_syn_in)\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_in_1_1\": \"exp(-__h/tau_syn_in)\"\n" +
+                                       "      \"__P_I_shape_in_1_1\": \"exp(-__h/tau_syn_in)\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_in_2_0\": \"-Tau*tau_syn_in*(Tau*__h*exp(__h/Tau) + Tau*tau_syn_in*exp(__h/Tau) - Tau*tau_syn_in*exp(__h/tau_syn_in) - __h*tau_syn_in*exp(__h/Tau))*exp(-__h/tau_syn_in - __h/Tau)/(C_m*(Tau**2 - 2*Tau*tau_syn_in + tau_syn_in**2))\"\n" +
+                                       "      \"__P_I_shape_in_2_0\": \"-Tau*tau_syn_in*(Tau*__h*exp(__h/Tau) + Tau*tau_syn_in*exp(__h/Tau) - Tau*tau_syn_in*exp(__h/tau_syn_in) - __h*tau_syn_in*exp(__h/Tau))*exp(-__h/tau_syn_in - __h/Tau)/(C_m*(Tau**2 - 2*Tau*tau_syn_in + tau_syn_in**2))\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_in_2_1\": \"-Tau*tau_syn_in*(exp(__h/Tau) - exp(__h/tau_syn_in))*exp(-__h/tau_syn_in - __h/Tau)/(C_m*(Tau - tau_syn_in))\"\n" +
+                                       "      \"__P_I_shape_in_2_1\": \"-Tau*tau_syn_in*(exp(__h/Tau) - exp(__h/tau_syn_in))*exp(-__h/tau_syn_in - __h/Tau)/(C_m*(Tau - tau_syn_in))\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_in_2_2\": \"exp(-__h/Tau)\"\n" +
+                                       "      \"__P_I_shape_in_2_2\": \"exp(-__h/Tau)\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_ex_0_0\": \"exp(-__h/tau_syn_ex)\"\n" +
+                                       "      \"__P_I_shape_ex_0_0\": \"exp(-__h/tau_syn_ex)\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_ex_1_0\": \"__h*exp(-__h/tau_syn_ex)\"\n" +
+                                       "      \"__P_I_shape_ex_1_0\": \"__h*exp(-__h/tau_syn_ex)\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_ex_1_1\": \"exp(-__h/tau_syn_ex)\"\n" +
+                                       "      \"__P_I_shape_ex_1_1\": \"exp(-__h/tau_syn_ex)\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_ex_2_0\": \"-Tau*tau_syn_ex*(Tau*__h*exp(__h/Tau) + Tau*tau_syn_ex*exp(__h/Tau) - Tau*tau_syn_ex*exp(__h/tau_syn_ex) - __h*tau_syn_ex*exp(__h/Tau))*exp(-__h/tau_syn_ex - __h/Tau)/(C_m*(Tau**2 - 2*Tau*tau_syn_ex + tau_syn_ex**2))\"\n" +
+                                       "      \"__P_I_shape_ex_2_0\": \"-Tau*tau_syn_ex*(Tau*__h*exp(__h/Tau) + Tau*tau_syn_ex*exp(__h/Tau) - Tau*tau_syn_ex*exp(__h/tau_syn_ex) - __h*tau_syn_ex*exp(__h/Tau))*exp(-__h/tau_syn_ex - __h/Tau)/(C_m*(Tau**2 - 2*Tau*tau_syn_ex + tau_syn_ex**2))\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_ex_2_1\": \"-Tau*tau_syn_ex*(exp(__h/Tau) - exp(__h/tau_syn_ex))*exp(-__h/tau_syn_ex - __h/Tau)/(C_m*(Tau - tau_syn_ex))\"\n" +
+                                       "      \"__P_I_shape_ex_2_1\": \"-Tau*tau_syn_ex*(exp(__h/Tau) - exp(__h/tau_syn_ex))*exp(-__h/tau_syn_ex - __h/Tau)/(C_m*(Tau - tau_syn_ex))\"\n" +
                                        "    }, \n" +
                                        "    {\n" +
-                                       "      \"__P_I_ex_2_2\": \"exp(-__h/Tau)\"\n" +
+                                       "      \"__P_I_shape_ex_2_2\": \"exp(-__h/Tau)\"\n" +
                                        "    }\n" +
-                                       "  ],   \n" +
+                                       "  ], \n" +
                                        "  \"additional_state_variables\": [\n" +
-                                       "    \"__I_in0\", \n" +
-                                       "    \"__I_in1\", \n" +
-                                       "    \"__I_ex0\", \n" +
-                                       "    \"__I_ex1\"\n" +
+                                       "    \"I_shape_in0\", \n" +
+                                       "    \"I_shape_in1\", \n" +
+                                       "    \"I_shape_ex0\", \n" +
+                                       "    \"I_shape_ex1\"\n" +
                                        "  ]\n" +
                                        "}";
 
@@ -118,14 +118,14 @@ public class SolverResultTest {
   public void testErrorCase() {
     final SolverResult testant = SolverResult.fromJSON(errorCase); // must not fail
     Assert.assertNotNull(testant);
-
+    Assert.assertEquals("failed", testant.status);
   }
 
   @Test
   public void testExactSolution() {
-    final SolverResult testant = SolverResult.fromJSON(exactSolution); // must not fail
+    final SolverResult testant = SolverResult.fromJSON(exactSolution);
     Assert.assertNotNull(testant);
-
+    Assert.assertEquals("exact", testant.solver);
   }
 
 }

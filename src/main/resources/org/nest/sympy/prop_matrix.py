@@ -1,3 +1,4 @@
+from math import *
 from sympy import *
 from sympy.parsing.sympy_parser import parse_expr
 from sympy.matrices import zeros
@@ -11,7 +12,7 @@ class PropagatorCalculator(object):
     global h
 
     @staticmethod
-    def ode_to_prop_matrices(shapes, ode_var_str, ode_rhs_str):
+    def ode_to_prop_matrices(shapes, ode_var_str, ode_rhs_str, function_vars, function_definitions):
         """
         The function `ode_to_prop_matrices` calculates a so called proagator
         for any given linear constant coefficient ODE with an inhomogeneous part
@@ -32,14 +33,17 @@ class PropagatorCalculator(object):
         ode_rhs = "-1/Tau * V_m-1/C * (shape_alpha + shape_exp + shape_sin + currents + I_E)"
         prop_matrices, const_input, step_const = otpm.ode_to_prop_matrices(shapes, ode_var, ode_rhs)
         """
-        ode_rhs = parse_expr(ode_rhs_str)
+        for function_var, function_definition in zip(function_vars, function_definitions):
+            exec("{0} = parse_expr(\"{1}\")".format(function_var, function_definition))
+        # ode functions are defined in the local scope. it must be passed explicitly into the parse_exp,
+        # otherwise, all functions in the ode would not be recognized as `complex` symbols
+        ode_rhs = parse_expr(ode_rhs_str, local_dict=locals())
         ode_var = parse_expr(ode_var_str)
 
         # For V'= 1/Tau * V + 1/C * shape `ode_var_factor` is `1/Tau`
         # The `shape_factor` here is `1/C` this will be a list `shape_factors`
         # as different shapes will have different `shape_factors` and a sum of
-        # multiple differnt shapes is possible.
-
+        # multiple different shapes is possible.
         ode_var_factor = diff(ode_rhs, ode_var)
         shape_factors = []
         # This is a list of different propagator matrices for different shapes.
@@ -104,7 +108,7 @@ class PropagatorCalculator(object):
         ode_var_factor = {"__ode_var_factor": str(p_order_order)}
         const_input = {"__const_input": str(const_input)}
 
-        propagator_elements = {}
+        propagator_elements = []
         update_instructions = [ode_var_str + " = " + str(PropagatorCalculator.constant_input(step_const, ode_var_str))]
         for p, shape in zip(prop_matrices, shapes):
             P = zeros(shape.order + 1, shape.order + 1)
@@ -112,7 +116,7 @@ class PropagatorCalculator(object):
                 for j in range(shape.order + 1):
                     if simplify(p[i, j]) != sympify(0):
                         P[i, j] = parse_expr("__P_{}_{}_{}".format(shape.name, i, j))
-                        propagator_elements["__P_{}_{}_{}".format(shape.name, i, j)] = str(p[i, j])
+                        propagator_elements.append({"__P_{}_{}_{}".format(shape.name, i, j) : str(p[i, j])})
 
             y = zeros(shape.order + 1, 1)
             for i in range(shape.order):

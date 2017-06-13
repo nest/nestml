@@ -55,8 +55,8 @@
 
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import *
+
 from sympy.matrices import zeros
-import json
 
 # Define constants:
 # When we are checking if a function satisfies a linear homogeneous ODE
@@ -107,12 +107,12 @@ class ShapeFunction(object):
     From lowest derivative to highest.
     """
 
-    def __init__(self, name, function):
+    def __init__(self, name, function_def):
 
         self.name = parse_expr(name)
 
         # convert the shape function from a string to a symbolic expression
-        shape = parse_expr(function)
+        self.shape_expr = parse_expr(function_def)
 
         # found_ode is true if we find a linear homogeneous ODE that
         # `shape` satisfies
@@ -121,7 +121,7 @@ class ShapeFunction(object):
         # First we check if `shape` satisfies a linear homogeneous ODE
         # of order 1. `derivatives` is a list of all derivatives of `shape`
         # up to the order we are checking (which we just call 'order')
-        derivatives = [shape, diff(shape, t)]
+        derivatives = [self.shape_expr, diff(self.shape_expr, t)]
 
         # If `diff_rhs_lhs`, which is here shape'-derivative_factors*shape
         # equals 0 for some 'derivative_factors', 'shape' satisfies a
@@ -241,18 +241,15 @@ class ShapeFunction(object):
     def additional_state_variables(self):
         result = []
         for order in range(0, self.order):
-            result.append("__" + str(self.name) + str(order))
+            result.append(str(self.name) + str(order))
         return result
 
     def get_initial_values(self):
         result = []
         for idx, initial_value in enumerate(self.initial_values):
-            p = {"__iv__" + str(self.name) + "__" + str(idx): str(initial_value)}
+            p = {"av__" + str(self.name) + "__" + str(idx): str(initial_value)}
             result.append(p)
         return result
-
-    def get_ode_form(self):
-        return json.dumps(Result(self).__dict__)
 
 
 class ShapeODE(object):
@@ -280,14 +277,3 @@ class ShapeODE(object):
         for i, rhs in enumerate(self.ode_sys_rhs):
             for j, var in enumerate(self.ode_sys_var):
                 self.matrix[i, j] = diff(rhs, var)
-
-
-class Result:
-    """
-    The class is used to store computation results that are then easily converted into the json format
-    """
-
-    def __init__(self, shape):
-        self.initial_values = shape.get_initial_values()
-        self.state_variables = shape.additional_state_variables()
-        self.ode_form = shape.nestml_ode_form
