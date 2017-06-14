@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import org.nest.codegeneration.sympy.NESTMLASTCreator;
+import org.nest.codegeneration.sympy.AstCreator;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
@@ -264,7 +264,7 @@ public class ASTBody extends ASTBodyTOP {
 
   public void addToInternalBlock(final ASTDeclaration astDeclaration) {
     if (!this.getInternalBlock().isPresent()) {
-      final ASTVar_Block internalBlock = NESTMLASTCreator.createInternalBlock();
+      final ASTVar_Block internalBlock = AstCreator.createInternalBlock();
       getBodyElements().add(internalBlock);
     }
 

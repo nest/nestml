@@ -83,7 +83,7 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
 
-    final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH);
+    final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator();
     final Scope scope = scopeCreator2.runSymbolTableCreator(testant);
 
     Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);

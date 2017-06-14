@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.nest.utils.AstUtils.deepClone;
+import static org.nest.utils.AstUtils.deepCloneNeuron;
 import static org.nest.utils.AstUtils.getAllNeurons;
 
 /**
@@ -80,9 +80,9 @@ public class NestCodeGenerator {
       final ASTNeuron astNeuron,
       final Path outputBase) {
     reporter.reportProgress("Starts processing of the neuron: " + astNeuron.getName());
-    ASTNeuron workingVersion = deepClone(astNeuron, scopeCreator, outputBase);
+    ASTNeuron workingVersion = deepCloneNeuron(astNeuron, outputBase);
 
-    workingVersion = solveODESInNeuron(workingVersion, outputBase);
+    workingVersion = solveOdesAndShapes(workingVersion, outputBase);
     generateNestCode(workingVersion, outputBase);
 
     final String msg = "Successfully generated NEST code for: '" + astNeuron.getName() + "' in: '"
@@ -90,7 +90,7 @@ public class NestCodeGenerator {
     reporter.reportProgress(msg);
   }
 
-  private ASTNeuron solveODESInNeuron(
+  private ASTNeuron solveOdesAndShapes(
       final ASTNeuron astNeuron,
       final Path outputBase) {
 

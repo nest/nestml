@@ -23,7 +23,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author plotnikov
  */
-public class NESTMLASTCreator {
+public class AstCreator {
 
   private static final NESTMLParser PARSER = new NESTMLParser();
 
@@ -36,7 +36,7 @@ public class NESTMLASTCreator {
 
     try {
       return Files.lines(declarationFile)
-          .map(NESTMLASTCreator::createDeclaration)
+          .map(AstCreator::createDeclaration)
           .collect(Collectors.toList());
     }
     catch (IOException e) {

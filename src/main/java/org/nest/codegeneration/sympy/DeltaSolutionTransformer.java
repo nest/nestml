@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclaration;
+import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
 import static org.nest.utils.AstUtils.getFunctionCall;
 
 /**
@@ -61,7 +61,7 @@ class DeltaSolutionTransformer extends TransformerBase {
     final String tauConstant = deltaShape.getArgs().get(1).getVariable().get().toString();
     // TODO it could be a vector
     final String p33Declaration = "__P33__ real = exp(-__h__ / " + tauConstant + ")";
-    final ASTDeclaration astDeclaration =  NESTMLASTCreator.createDeclaration(p33Declaration);
+    final ASTDeclaration astDeclaration =  AstCreator.createDeclaration(p33Declaration);
     astNeuron.getBody().addToInternalBlock(astDeclaration);
   }
 
@@ -70,8 +70,8 @@ class DeltaSolutionTransformer extends TransformerBase {
       final List<ASTStmt> propagatorSteps = Lists.newArrayList();
 
 
-      final ASTAssignment updateAssignment = NESTMLASTCreator.createAssignment(Files.lines(propagatorStepFile).findFirst().get());
-      final ASTAssignment applyP33 = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "*=" +  "__P33__" );
+      final ASTAssignment updateAssignment = AstCreator.createAssignment(Files.lines(propagatorStepFile).findFirst().get());
+      final ASTAssignment applyP33 = AstCreator.createAssignment(updateAssignment.getLhsVarialbe() + "*=" + "__P33__" );
 
       propagatorSteps.add(statement(applyP33));
       propagatorSteps.add(statement(updateAssignment));
@@ -84,7 +84,7 @@ class DeltaSolutionTransformer extends TransformerBase {
       // Apply spikes from the buffer to the state variable
       for (ASTFunctionCall i_sum_call : i_sumCalls) {
         final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
-        final ASTAssignment applySpikes = NESTMLASTCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName);
+        final ASTAssignment applySpikes = AstCreator.createAssignment(updateAssignment.getLhsVarialbe() + "+=" + bufferName);
         propagatorSteps.add(statement(applySpikes));
       }
 

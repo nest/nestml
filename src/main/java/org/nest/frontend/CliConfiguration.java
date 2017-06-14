@@ -14,7 +14,7 @@ import java.nio.file.Paths;
  * @author plotnikov
  */
 public class CliConfiguration {
-  private final Path modelPath;
+  private final Path inputPath;
   private final Path targetPath;
   private final String jasonLogFile;
   private boolean isTracing;
@@ -22,7 +22,7 @@ public class CliConfiguration {
   private final String moduleName;
 
   public CliConfiguration(final Builder builder) {
-    this.modelPath = builder.modelPath;
+    this.inputPath = builder.modelPath;
     this.targetPath = builder.targetPath;
     this.jasonLogFile = builder.jasonLogFile;
     this.isTracing = builder.isTracing;
@@ -35,8 +35,8 @@ public class CliConfiguration {
     return isCodegeneration;
   }
 
-  Path getModelPath() {
-    return modelPath;
+  Path getInputPath() {
+    return inputPath;
   }
 
   Path getTargetPath() {

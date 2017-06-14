@@ -86,7 +86,7 @@ public class SolverFrameworkGeneratorTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     FilesHelper.deleteFilesInFolder(OUTPUT_SCRIPT_DIRECTORY);
@@ -107,7 +107,7 @@ public class SolverFrameworkGeneratorTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     FilesHelper.deleteFilesInFolder(OUTPUT_SCRIPT_DIRECTORY);

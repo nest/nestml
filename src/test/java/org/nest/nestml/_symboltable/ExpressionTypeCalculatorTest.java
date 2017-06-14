@@ -52,7 +52,7 @@ public class ExpressionTypeCalculatorTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> root = parser.parse(TEST_POSITIVE_MODEL);
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
     scopeCreator.runSymbolTableCreator(root.get());
     final List<ASTDeclaration> declarations = AstUtils.getAll(root.get(), ASTDeclaration.class);
 
@@ -151,7 +151,7 @@ public class ExpressionTypeCalculatorTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> root = parser.parse(TEST_NEGATIVE_MODEL);
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
     scopeCreator.runSymbolTableCreator(root.get());
     final List<ASTDeclaration> declarations = AstUtils.getAll(root.get(), ASTDeclaration.class);
 

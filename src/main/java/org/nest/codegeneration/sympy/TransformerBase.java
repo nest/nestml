@@ -19,8 +19,8 @@ import java.util.function.Function;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.createAssignment;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclarations;
+import static org.nest.codegeneration.sympy.AstCreator.createAssignment;
+import static org.nest.codegeneration.sympy.AstCreator.createDeclarations;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**
@@ -72,7 +72,7 @@ public class TransformerBase {
   ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, final Path updateStepFile) {
     try {
     final List<ASTStmt> propagatorSteps = Files.lines(updateStepFile)
-        .map(NESTMLASTCreator::createAssignment)
+        .map(AstCreator::createAssignment)
         .map(this::statement)
         .collect(toList());
       return replaceODEPropagationStep(astNeuron, propagatorSteps);

@@ -57,7 +57,7 @@ public class ExpressionsPrettyPrinterTest extends ModelbasedTest {
 
     assertTrue(root.isPresent());
 
-    NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(Paths.get(TEST_MODEL_PATH));
+    NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
     nestmlScopeCreator.runSymbolTableCreator(root.get());// do I need symbol table for the pretty printer
 
     final NESTMLParser parser = new NESTMLParser();

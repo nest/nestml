@@ -29,7 +29,7 @@ public class CliConfigurationExecutorTest extends ModelbasedTest {
   private final PSCMock pscMock = new PSCMock();
   private final CliConfiguration testConfig;
   private final CliConfigurationExecutor executor = new CliConfigurationExecutor();
-  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_INPUT_PATH);
+  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
 
   public CliConfigurationExecutorTest() {
     testConfig = new CliConfiguration.Builder()

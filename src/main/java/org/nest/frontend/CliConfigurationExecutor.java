@@ -50,11 +50,11 @@ class CliConfigurationExecutor {
 
   void execute(final NestCodeGenerator generator, final CliConfiguration config) {
     final NESTMLParser parser =  new NESTMLParser();
-    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getModelPath());
+    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputPath());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
 
     if (!modelRoots.isEmpty()) {
-      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getModelPath());
+      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
       reporter.reportProgress("Finished parsing nestml mdoels...");
       reporter.reportProgress("Remove temporary files...");
       if (!Files.exists(config.getTargetPath())) {
@@ -207,7 +207,7 @@ class CliConfigurationExecutor {
       generator.generateNESTModuleCode(modelRoots, config.getModuleName(), config.getTargetPath());
     }
     else {
-      reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getModelPath());
+      reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getInputPath());
     }
 
   }

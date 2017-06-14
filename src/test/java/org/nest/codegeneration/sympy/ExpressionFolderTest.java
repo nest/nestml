@@ -87,7 +87,7 @@ public class ExpressionFolderTest extends ModelbasedTest {
     final List<String> stateUpdates = Files.lines(STATE_UPDATE_STEPS_FILE).collect(toList());
     final List<ASTAssignment> stateUpdateAssignments = stateUpdates
         .stream()
-        .map(NESTMLASTCreator::createAssignment)
+        .map(AstCreator::createAssignment)
         .collect(toList());
 
     final List<ASTExpr> rhsExpressions = stateUpdateAssignments

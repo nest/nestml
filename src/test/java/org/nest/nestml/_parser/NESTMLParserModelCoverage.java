@@ -13,6 +13,7 @@ import org.nest.nestml._symboltable.NESTMLLanguage;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +31,11 @@ public class NESTMLParserModelCoverage extends ModelbasedTest {
   public void testParsableModels() throws IOException {
     final List<Path> filenames = collectFiles(
         TEST_MODEL_PATH,
-        model -> model.endsWith(NESTMLLanguage.FILE_ENDING));
+        model -> model.getFileName().toString().endsWith(NESTMLLanguage.FILE_ENDING));
+
+    filenames.addAll(collectFiles(
+        Paths.get("src/test/resources"),
+        model -> model.getFileName().toString().endsWith(NESTMLLanguage.FILE_ENDING) && !model.toString().contains("unparsable")));
 
     filenames.forEach(this::parseAndCheck);
   }

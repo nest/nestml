@@ -60,7 +60,7 @@ public class ImplicitFormTransformer extends TransformerBase {
   private void addEquationsToOdeBlock(final Path equationsFile, final ASTOdeDeclaration astOdeDeclaration) {
     try {
       final List<ASTEquation> equations = Files.lines(equationsFile)
-          .map(NESTMLASTCreator::createEquation)
+          .map(AstCreator::createEquation)
           .collect(toList());
       astOdeDeclaration.getODEs().addAll(equations);
     } catch (IOException e) {
@@ -84,7 +84,7 @@ public class ImplicitFormTransformer extends TransformerBase {
     return stateVariables
         .stream()
         .map(variable -> variable + " real")
-        .map(NESTMLASTCreator::createDeclaration)
+        .map(AstCreator::createDeclaration)
         .collect(toList());
   }
 

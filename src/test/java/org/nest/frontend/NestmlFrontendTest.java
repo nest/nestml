@@ -39,7 +39,7 @@ public class NestmlFrontendTest {
     assertTrue(testantLong.isPresent());
     assertTrue(testantLong.get().isTracing());
     assertFalse(testantLong.get().isCodegeneration());
-    assertEquals(testInputModelsPath, testantLong.get().getModelPath());
+    assertEquals(testInputModelsPath, testantLong.get().getInputPath());
     assertEquals(targetPath, testantLong.get().getTargetPath());
     assertEquals("integration", testantLong.get().getModuleName());
 
@@ -54,7 +54,7 @@ public class NestmlFrontendTest {
     assertTrue(testantShort.isPresent());
     assertTrue(testantShort.get().isTracing());
     assertFalse(testantShort.get().isCodegeneration());
-    assertEquals(testInputModelsPath, testantShort.get().getModelPath());
+    assertEquals(testInputModelsPath, testantShort.get().getInputPath());
     assertEquals(targetPath, testantShort.get().getTargetPath());
     assertEquals("integration", testantShort.get().getModuleName());
   }

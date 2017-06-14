@@ -111,7 +111,7 @@ public class NestmlFrontend {
     final Optional<CliConfiguration> cliConfiguration = createCLIConfiguration(args);
 
     if (cliConfiguration.isPresent()) {
-      final String inputPathMsg = "The input modelpath: " + cliConfiguration.get().getModelPath().toAbsolutePath().toString();
+      final String inputPathMsg = "The input modelpath: " + cliConfiguration.get().getInputPath().toAbsolutePath().toString();
       reporter.reportProgress(inputPathMsg);
 
       final String outputPathMsg = "The base output path: " + cliConfiguration.get().getTargetPath().toAbsolutePath().toString();
@@ -370,7 +370,7 @@ public class NestmlFrontend {
   private void executeConfiguration(final CliConfiguration configuration) {
     final CliConfigurationExecutor executor = new CliConfigurationExecutor();
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(configuration.getModelPath());
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
     final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(nestmlScopeCreator, configuration.isTracing());
 
     executor.execute(nestCodeGenerator, configuration);

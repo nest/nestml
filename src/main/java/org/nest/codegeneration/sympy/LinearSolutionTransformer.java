@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclaration;
+import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
 import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
@@ -157,7 +157,7 @@ public class LinearSolutionTransformer extends TransformerBase {
 
   private List<ASTAssignment> computeBackAssignments(Path stateVectorTmpBackAssignmentsFile) throws IOException {
     return Files.lines(stateVectorTmpBackAssignmentsFile)
-          .map(NESTMLASTCreator::createAssignment)
+          .map(AstCreator::createAssignment)
           .collect(Collectors.toList());
   }
 
@@ -170,7 +170,7 @@ public class LinearSolutionTransformer extends TransformerBase {
     final List<String> stateUpdates = Files.lines(stateVectorUpdateStepsFile).collect(toList());
     final List<ASTAssignment> stateUpdatesASTs = stateUpdates
         .stream()
-        .map(NESTMLASTCreator::createAssignment)
+        .map(AstCreator::createAssignment)
         .collect(toList());
 
     final List<ASTExpr> rhsExpressions = stateUpdatesASTs
@@ -211,7 +211,7 @@ public class LinearSolutionTransformer extends TransformerBase {
 
   private List<ASTDeclaration> computeTmpVariableDeclarations(Path stateVectorTmpDeclarationsFile, ASTBody astBody) throws IOException {
     final List<ASTDeclaration> tmpDeclarations = Files.lines(stateVectorTmpDeclarationsFile)
-        .map(NESTMLASTCreator::createDeclaration)
+        .map(AstCreator::createDeclaration)
         .collect(Collectors.toList());
 
     final List<VariableSymbol> shapeForVariable = tmpDeclarations

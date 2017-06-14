@@ -9,7 +9,6 @@ import org.nest.codegeneration.SolverType;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.reporting.Reporter;
 
@@ -19,7 +18,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.codegeneration.sympy.SolverFrameworkGenerator.generateODEAnalyserForDeltaShape;
-import static org.nest.utils.AstUtils.deepClone;
+import static org.nest.utils.AstUtils.deepCloneNeuron;
 import static org.nest.utils.AstUtils.getFunctionCall;
 
 /**
@@ -46,6 +45,7 @@ public class OdeProcessor {
       final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
     if (astBody.getODEBlock().isPresent()) {
+      reporter.reportProgress(String.format("The neuron %s contains an ODE block and will be analysed.", astNeuron.getName()));
       final Optional<ASTFunctionCall> deltaShape = getFunctionCall(
           PredefinedFunctions.DELTA, astBody.getODEBlock().get());
 
@@ -59,13 +59,6 @@ public class OdeProcessor {
     }
     reporter.reportProgress(String.format("The %s remains unchanged", astNeuron.getName()));
     return astNeuron;
-  }
-
-  private ASTNeuron deepCloneNeuron(
-      final ASTNeuron astNeuron,
-      final Path outputBase) {
-    final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(outputBase);
-    return deepClone(astNeuron, scopeCreator, outputBase);
   }
 
   private ASTNeuron handleDeltaShape(
@@ -107,16 +100,12 @@ public class OdeProcessor {
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final ASTNeuron deepCopy = deepCloneNeuron(astNeuron, outputBase);
-    // TODO prepare the neuron for the analysis
-
-    reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());
 
     final SolverResult result = evaluator.solveOdeWithShapes(deepCopy.getBody().getODEBlock().get(), outputBase);
+    reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());
 
-    final Path odeTypePath = Paths.get(outputBase.toString(), astNeuron.getName() + "." + TransformerBase.SOLVER_TYPE);
-    final SolverType solutionType = SolverType.fromFile(odeTypePath);
 
-    if (result.equals("exact")) {
+    if (result.solver.equals("exact")) {
       reporter.reportProgress("ODE is solved exactly.");
 
       return linearSolutionTransformer.addExactSolution(
@@ -130,7 +119,7 @@ public class OdeProcessor {
           Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE),
           Paths.get(outputBase.toString(), astNeuron.getName() + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE));
     }
-    else if (solutionType.equals(SolverType.NUMERIC)) {
+    else if (result.solver.equals("numeric")) {
       reporter.reportProgress("ODE is solved numerically.");
 
       return implicitFormTransformer.transformToImplicitForm(

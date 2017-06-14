@@ -43,7 +43,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> root = parser.parse(IAF_PSC_ALPHA);
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
@@ -80,7 +80,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> root = parser.parse(pathToModel);
     assertTrue(root.isPresent());
 
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
     nestmlScopeCreator.runSymbolTableCreator(root.get());
 
     FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);

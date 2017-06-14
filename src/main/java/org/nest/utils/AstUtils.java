@@ -30,6 +30,7 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Deque;
@@ -50,9 +51,7 @@ import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
  * @author plotnikov, oberhoff
  */
 public final class AstUtils {
-
-  private static final String LOG_NAME = AstUtils.class.getName();
-
+  private final static NESTMLParser parser = new NESTMLParser();
   /**
    * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the error order
    * @param queryNode The node direct parent of the given node
@@ -396,10 +395,10 @@ public final class AstUtils {
   }
 
   public static void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
+      final ASTNeuron astNeuron,
       final Path outputFile) {
     final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
-    root.accept(prettyPrinter);
+    astNeuron.accept(prettyPrinter);
 
     final File prettyPrintedModelFile = outputFile.toFile();
     try {
@@ -423,20 +422,17 @@ public final class AstUtils {
    * b) The model developer can view how the solution was computed.
    * @return New root node of the altered model with an initialized symbol table
    */
-  public static ASTNeuron deepClone(
+  public static ASTNeuron deepCloneNeuron(
       final ASTNeuron astNeuron,
-      final NESTMLScopeCreator scopeCreator,
       final Path temporaryFolder) {
     try {
       final Path outputTmpPath = Paths.get(temporaryFolder.toString(), astNeuron.getName() + ".tmp");
-      final ASTNESTMLCompilationUnit compilationUnit = NESTMLNodeFactory.createASTNESTMLCompilationUnit();
-      compilationUnit.setArtifactName(astNeuron.getName());
-      printModelToFile(compilationUnit, outputTmpPath);
-      final NESTMLParser parser = new NESTMLParser();
+
+      printModelToFile(astNeuron, outputTmpPath);
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
       withSolvedOde.setArtifactName(astNeuron.getName());
-
+      final NESTMLScopeCreator scopeCreator =  new NESTMLScopeCreator();
       scopeCreator.runSymbolTableCreator(withSolvedOde);
       return withSolvedOde.getNeurons().get(0);
     }

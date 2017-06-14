@@ -15,6 +15,7 @@ import org.nest.nestml._visitor.ODEPostProcessingVisitor;
 import org.nest.utils.LogHelper;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Creates a artifact scope, build the symbol table and adds predifined types.
@@ -32,9 +33,9 @@ public class NESTMLScopeCreator extends ScopeCreatorBase {
     return globalScope;
   }
 
-  public NESTMLScopeCreator(final Path modelPathAsString) {
-
-    modelPath = new ModelPath(modelPathAsString);
+  public NESTMLScopeCreator() {
+    // since NestML works only with single file we ignore the modelpath feature and stub it with the working path
+    modelPath = new ModelPath(Paths.get("./"));
 
     nestmlLanguage = new NESTMLLanguage();
 

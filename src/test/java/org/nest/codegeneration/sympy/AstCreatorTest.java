@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
  *
  * @author plotnikov
  */
-public class NESTMLASTCreatorTest {
+public class AstCreatorTest {
 
   private static final String P_30 = "P30";
 
@@ -25,7 +25,7 @@ public class NESTMLASTCreatorTest {
 
   @Test
   public void testConvertToDeclaration() throws Exception {
-    final ASTDeclaration testant = NESTMLASTCreator.createDeclarations(Paths.get(P30_FILE)).get(0);
+    final ASTDeclaration testant = AstCreator.createDeclarations(Paths.get(P30_FILE)).get(0);
     assertEquals(testant.getVars().get(0), P_30);
     assertTrue(testant.getExpr().isPresent());
 
@@ -36,7 +36,7 @@ public class NESTMLASTCreatorTest {
     final String testExpr = "P30 real = -Tau*tau_in*(Tau*h*exp(h/Tau) + Tau*tau_in*exp(h/Tau) - Tau*tau_in*exp"
         + "(h/tau_in) - "
         + "h*tau_in*exp(h/Tau))*exp(-h/tau_in - h/Tau)/(C*(Tau**2 - 2*Tau*tau_in + tau_in**2)) # PXX";
-    final ASTDeclaration testant = NESTMLASTCreator.createDeclaration(testExpr);
+    final ASTDeclaration testant = AstCreator.createDeclaration(testExpr);
     assertNotNull(testant);
     assertEquals(1, testant.getVars().size());
     assertEquals(P_30, testant.getVars().get(0));

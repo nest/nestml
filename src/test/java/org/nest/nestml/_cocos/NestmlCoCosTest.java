@@ -37,7 +37,7 @@ public class NestmlCoCosTest extends ModelbasedTest {
   private static final String TEST_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/";
   private static final String TEST_VALID_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/valid";
   private static final String TEST_INVALID_MODELS_FOLDER = "src/test/resources/org/nest/nestml/_cocos/invalid";
-  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources"));
+  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
 
   private NESTMLCoCoChecker nestmlCoCoChecker;
 
