@@ -4,7 +4,7 @@ import json
 from prop_matrix import PropagatorCalculator
 from shapes import ShapeFunction
 from OdeAnalyzer import OdeAnalyzer
-from OdeAnalyzer import Input
+from OdeAnalyzer import SolverInput
 
 cond_ode_block = '{' \
                  '"functions" : [ "I_syn_exc = g_ex*(V_m-E_ex)", "I_syn_inh = g_in*(V_m-E_in)", "I_leak = g_L*(V_m-E_L)" ],' \
@@ -52,13 +52,11 @@ class TestSolutionComputation(unittest.TestCase):
         print testant
 
     def test_analyzer_iaf_cond_alpha(self):
-
         testant = OdeAnalyzer.compute_solution(cond_ode_block)
         self.assertIsNotNone(testant)
         print testant
 
     def test_analyzer_iaf_psc_alpha(self):
-
         testant = OdeAnalyzer.compute_solution(psc_ode_block)
         self.assertIsNotNone(testant)
         print testant
@@ -68,7 +66,7 @@ class TestSolutionComputation(unittest.TestCase):
                   '"functions" : [ "I_syn_exc = cond_sum(g_ex, spikeExc)*(V_m-E_ex)]", "I_syn_inh = cond_sum(g_in, spikeInh)*(V_m-E_in)", "I_leak = g_L*(V_m-E_L)" ],' \
                   '"shapes" : [ "g_in = (e/tau_syn_in)*t*exp((-1)/tau_syn_in*t)", "g_ex = (e/tau_syn_ex)*t*exp((-1)/tau_syn_ex*t)" ],'\
                   '"ode" : "V_m\' = ((-I_leak)-I_syn_exc-I_syn_inh+I_stim+I_e)/C_m" }'
-        testant = Input(ode_block)
+        testant = SolverInput(ode_block)
         self.assertIsNotNone(testant)
 
 if __name__ == '__main__':

@@ -44,7 +44,7 @@ public class SymPyScriptEvaluator {
   private static final String ODE_ANALYZER_SCRIPT = "OdeAnalyzer.py";
   private static final String ODE_ANALYZER_SOURCE = "org/nest/sympy/OdeAnalyzer.py";
 
-  public SolverResult solveOdeWithShapes(final ASTOdeDeclaration astOdeDeclaration,
+  public SolverOutput solveOdeWithShapes(final ASTOdeDeclaration astOdeDeclaration,
                                          final Path output) {
     try {
       reporter.reportProgress("Start long running SymPy script evaluation...");
@@ -78,14 +78,14 @@ public class SymPyScriptEvaluator {
       reporter.reportProgress(msg);
 
       if (getListFromStream(res.getErrorStream()).size() > 0) {
-        return SolverResult.getErrorResult();
+        return SolverOutput.getErrorResult();
       }
 
-      return SolverResult.fromJSON(Paths.get(output.toString(), SolverResult.RESULT_FILE_NAME));
+      return SolverOutput.fromJSON(Paths.get(output.toString(), SolverOutput.RESULT_FILE_NAME));
     }
     catch (IOException | InterruptedException e) {
       error("Cannot evaluate the SymPy solver scripts.", e);
-      return SolverResult.getErrorResult();
+      return SolverOutput.getErrorResult();
     }
 
   }

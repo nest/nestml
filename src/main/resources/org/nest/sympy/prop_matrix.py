@@ -109,14 +109,14 @@ class PropagatorCalculator(object):
         const_input = {"__const_input": str(const_input)}
 
         propagator_elements = []
-        update_instructions = [ode_var_str + " = " + str(PropagatorCalculator.constant_input(step_const, ode_var_str))]
+        ode_var_update_instructions = [ode_var_str + " = " + str(PropagatorCalculator.constant_input(step_const, ode_var_str))]
         for p, shape in zip(prop_matrices, shapes):
             P = zeros(shape.order + 1, shape.order + 1)
             for i in range(shape.order + 1):
                 for j in range(shape.order + 1):
                     if simplify(p[i, j]) != sympify(0):
-                        P[i, j] = parse_expr("__P_{}_{}_{}".format(shape.name, i, j))
-                        propagator_elements.append({"__P_{}_{}_{}".format(shape.name, i, j) : str(p[i, j])})
+                        P[i, j] = parse_expr("__P_{}__{}_{}".format(shape.name, i, j))
+                        propagator_elements.append({"__P_{}__{}_{}".format(shape.name, i, j): str(p[i, j])})
 
             y = zeros(shape.order + 1, 1)
             for i in range(shape.order):
@@ -126,7 +126,14 @@ class PropagatorCalculator(object):
             P[shape.order, shape.order] = 0
             z = P * y
 
-            update_instructions.append(ode_var_str + " += " + str(z[shape.order]))
+            ode_var_update_instructions.append(ode_var_str + " += " + str(z[shape.order]))
 
-        return propagator_elements, ode_var_factor, const_input, update_instructions
+            shape_state_vector_as_expr = zeros(shape.order, 1)
+            for idx in range(len(shape.additional_shape_state_variables())):
+                shape_state_vector_as_expr[idx, 0] = Symbol(shape.additional_shape_state_variables()[idx])
+            shape_state_updates = P[:shape.order, :shape.order] * shape_state_vector_as_expr
+            for idx in range(0, shape_state_updates.rows):
+                shape.add_update_to_shape_state_variable(shape_state_vector_as_expr[idx], shape_state_updates[idx])
+
+        return propagator_elements, ode_var_factor, const_input, ode_var_update_instructions
 

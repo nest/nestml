@@ -34,12 +34,12 @@ public class DeltaSolutionTransformerTest extends ModelbasedTest {
 
   private final static Path PROPAGATPR_STEP_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/delta/",
-      NEURON_NAME + "." + LinearSolutionTransformer.PROPAGATOR_STEP_FILE);
+      NEURON_NAME + "." + DeltaSolutionTransformer.P30_FILE);
 
 
   @Test
   public void testAddingSolution() {
-    final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
+    final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
 
     final DeltaSolutionTransformer deltaSolutionTransformer = new DeltaSolutionTransformer();
@@ -49,7 +49,7 @@ public class DeltaSolutionTransformerTest extends ModelbasedTest {
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
-    ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
+    ASTNESTMLCompilationUnit testant = parseNestmlModel(TARGET_TMP_MODEL_PATH);
     final ASTNeuron astNeuron = testant.getNeurons().get(0);
     final Scope scope = scopeCreator.runSymbolTableCreator(testant);
     final Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);

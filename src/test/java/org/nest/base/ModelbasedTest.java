@@ -39,7 +39,7 @@ public class ModelbasedTest {
     Log.getFindings().clear();
   }
 
-  protected ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
+  protected ASTNESTMLCompilationUnit parseNestmlModel(final String pathToModel)  {
 
     try {
       return parser.parse(pathToModel).get();

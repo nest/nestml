@@ -37,7 +37,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testPSCModelWithoutOde() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_IMPERATIVE);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(PSC_MODEL_IMPERATIVE);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
 
@@ -47,7 +47,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testPSCModelWithOde() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(PSC_MODEL_WITH_ODE);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
 
@@ -57,7 +57,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testCondModelWithShapes() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(COND_MODEL_WITH_ODE);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(COND_MODEL_WITH_ODE);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, condMock, true);
 
@@ -67,7 +67,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testPSCModelWithThreeBuffers() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_THREE_BUFFERS);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(PSC_MODEL_THREE_BUFFERS);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
 
@@ -77,7 +77,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
 
   @Test
   public void testNeuronWithSetter() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(NEURON_WITH_SETTER);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(NEURON_WITH_SETTER);
     scopeCreator.runSymbolTableCreator(root);
     final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
 

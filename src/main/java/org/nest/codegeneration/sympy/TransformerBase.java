@@ -1,19 +1,19 @@
 package org.nest.codegeneration.sympy;
 
 import de.monticore.ast.ASTNode;
-import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.ScopeSpanningSymbol;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.*;
+import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -21,7 +21,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.AstCreator.createAssignment;
 import static org.nest.codegeneration.sympy.AstCreator.createDeclarations;
-import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**
  * Provides common methods for AST transformations which are performed after SymPy analysis.
@@ -29,12 +28,11 @@ import static org.nest.utils.AstUtils.getVectorizedVariable;
  * @author plotnikov
  */
 public class TransformerBase {
-  public final static String SOLVER_TYPE = "solverType.tmp";
-  public final static String PSC_INITIAL_VALUE_FILE = "pscInitialValues.tmp";
+  final NESTMLParser parser = new NESTMLParser();
   /**
    * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
    */
-  ASTNeuron addAliasToInternals(
+  ASTNeuron addVariableToInternals(
       final ASTNeuron astNeuron,
       final Path declarationFile) {
 
@@ -45,44 +43,40 @@ public class TransformerBase {
   }
 
   /**
-   * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
+   * Add a list with declarations to the internals block in the neuron.
    */
-  ASTNeuron addDeclarationsToInternals(
+  ASTNeuron addVariablesToInternals(
       final ASTNeuron astNeuron,
-      final Path declarationsFile) {
-    checkState(astNeuron.getSymbol().isPresent());
-    final Scope scope = ((ScopeSpanningSymbol)astNeuron.getSymbol().get()).getSpannedScope(); // valid, after the symboltable is created
-
-    final List<ASTDeclaration> pscInitialValues = createDeclarations(declarationsFile);
-    for (final ASTDeclaration astAliasDecl:pscInitialValues) {
-      // filter step: filter all variables, which very added during model analysis, but not added to the symbol table
-      final Optional<VariableSymbol> vectorizedVariable = getVectorizedVariable(astAliasDecl, scope);
-      if (vectorizedVariable.isPresent()) {
-        // the existence of the array parameter is ensured by the query
-        astAliasDecl.setSizeParameter(vectorizedVariable.get().getVectorParameter().get());
-      }
-
-    }
-
-    pscInitialValues.forEach(initialValue -> astNeuron.getBody().addToInternalBlock(initialValue));
-
+      final List<Map.Entry<String, String>> declarationsFile) {
+    declarationsFile.forEach(declaration -> addVariableToInternals(astNeuron, declaration));
     return astNeuron;
   }
 
-  ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, final Path updateStepFile) {
+  /**
+   * Adds the declaration of the P00 value to the nestml model. Note: very NEST specific.
+   */
+  ASTNeuron addVariableToInternals(
+      final ASTNeuron astNeuron,
+      final Map.Entry<String, String> declaration) {
     try {
-    final List<ASTStmt> propagatorSteps = Files.lines(updateStepFile)
-        .map(AstCreator::createAssignment)
-        .map(this::statement)
-        .collect(toList());
-      return replaceODEPropagationStep(astNeuron, propagatorSteps);
+      ASTExpr tmp = parser.parseExpr(new StringReader(declaration.getValue())).get(); // must not fail by constuction
+      final Optional<VariableSymbol> vectorVariable = AstUtils.getVectorizedVariable(tmp, astNeuron.getSpannedScope().get());
 
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot parse assignment statement.", e);
+      final String declarationString = declaration.getKey() + " real" +
+                                       vectorVariable.map(variableSymbol -> "[" + variableSymbol.getVectorParameter().get() + "]").orElse("")
+                                       + " = " + declaration.getValue();
+      final ASTDeclaration astDeclaration = parser.parseDeclaration(new StringReader(declarationString)).get();
+      vectorVariable.ifPresent(var -> astDeclaration.setSizeParameter(var.getVectorParameter().get()));
+      astNeuron.getBody().addToInternalBlock(astDeclaration);
+      return astNeuron;
     }
+    catch (IOException e) {
+      throw new RuntimeException("Must not fail by construction.");
+    }
+
   }
 
-  ASTNeuron replaceODEPropagationStep(final ASTNeuron astNeuron, List<ASTStmt> propagatorSteps) {
+  ASTNeuron replaceIntegrateCallThroughPropagation(final ASTNeuron astNeuron, List<String> propagatorSteps) {
 
     final ASTBody astBodyDecorator = astNeuron.getBody();
 
@@ -108,13 +102,15 @@ public class TransformerBase {
       for (int i = 0; i < astBlock.getStmts().size(); ++i) {
         if (astBlock.getStmts().get(i).equals(statement.get())) {
           astBlock.getStmts().remove(i);
-          astBlock.getStmts().addAll(i, propagatorSteps);
+          astBlock.getStmts().addAll(i, propagatorSteps.stream().map(AstCreator::createStatement).collect(toList()));
           break;
         }
       }
       return astNeuron;
     } else {
-      Log.trace("The model has defined an ODE. But its solution is not used in the update state.", this.getClass().getSimpleName());
+      Log.trace(
+          "The model has defined an ODE. But its solution is not used in the update state.",
+          this.getClass().getSimpleName());
       return astNeuron;
     }
 
@@ -122,31 +118,33 @@ public class TransformerBase {
 
   /**
    * Add updates of state variables with the PSC initial value and corresponding inputs from buffers.
-   *
-   * @param pathPSCInitialValueFile File with a list of PSC initial values for the corresponding shapes
-   * @param body The astnode of the neuron to which update assignments must be added
    */
   void addUpdatesWithPSCInitialValue(
-      final Path pathPSCInitialValueFile,
+      final SolverOutput solverOutput,
       final ASTBody body,
       final Function<String, String> stateVariableNameExtracter,
       final Function<String, String> shapeNameExtracter) {
     final List<ASTFunctionCall> i_sumCalls = OdeTransformer.get_sumFunctionCalls(body.getODEBlock().get());
 
-    final List<ASTDeclaration> pscInitialValues = createDeclarations(pathPSCInitialValueFile);
-    for (final ASTDeclaration pscInitialValue:pscInitialValues) {
-      final String pscInitialValueAsString = pscInitialValue.getVars().get(0);
+    final List<ASTDeclaration> pscInitialValues = solverOutput.initial_values
+        .stream()
+        .map(initialValue -> initialValue.getKey() + " real")
+        .map(AstCreator::createDeclaration)
+        .collect(toList());
 
+    for (final ASTDeclaration pscInitialValueDeclaration:pscInitialValues) {
+      final String pscInitialValue = pscInitialValueDeclaration.getVars().get(0);
 
-      final String shapeName = shapeNameExtracter.apply(pscInitialValueAsString);
-      final String variableName = stateVariableNameExtracter.apply(pscInitialValueAsString);
+      final String shapeName = shapeNameExtracter.apply(pscInitialValue);
+      final String shapeStateVariable = stateVariableNameExtracter.apply(pscInitialValue);
+
       for (ASTFunctionCall i_sum_call:i_sumCalls) {
         final String shapeNameInCall = AstUtils.toString(i_sum_call.getArgs().get(0));
         if (shapeNameInCall.equals(shapeName)) {
           final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
           final ASTAssignment pscUpdateStep = createAssignment(
-              variableName + " += " +  pscInitialValueAsString + " * "+ bufferName);
-          addAssignmentToDynamics(body, pscUpdateStep);
+              shapeStateVariable + " += " +  pscInitialValue + " * "+ bufferName);
+          addAssignmentToDynamics(pscUpdateStep, body);
         }
 
       }
@@ -156,17 +154,16 @@ public class TransformerBase {
   }
 
   void addAssignmentToDynamics(
-      final ASTBody astBodyDecorator,
-      final ASTAssignment yVarAssignment) {
+      final ASTAssignment astAssignment, final ASTBody astBody) {
     final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
     final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
 
     astStmt.setSmall_Stmt(astSmall_stmt);
 
     // Goal: add the y-assignments at the end of the expression
-    astSmall_stmt.setAssignment(yVarAssignment);
+    astSmall_stmt.setAssignment(astAssignment);
 
-    astBodyDecorator.getDynamics().get(0).getBlock().getStmts().add(astStmt);
+    astBody.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }
 
   ASTStmt statement(final ASTAssignment astAssignment) {

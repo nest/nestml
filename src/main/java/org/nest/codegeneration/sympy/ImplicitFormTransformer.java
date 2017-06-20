@@ -46,10 +46,10 @@ public class ImplicitFormTransformer extends TransformerBase {
       final Path equationsFile) {
     checkArgument(astNeuron.getBody().getODEBlock().isPresent());
 
-    ASTNeuron workingVersion = addDeclarationsToInternals(astNeuron, pscInitialValuesFile);
+    ASTNeuron workingVersion = addVariablesToInternals(astNeuron, null);
     workingVersion = replaceShapesThroughVariables(workingVersion);
     addUpdatesWithPSCInitialValue(
-        pscInitialValuesFile,
+        null,
         workingVersion.getBody(),
         variableNameExtracter,
         shapeNameExtracter);

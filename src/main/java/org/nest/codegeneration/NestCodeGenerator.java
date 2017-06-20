@@ -12,7 +12,7 @@ import de.monticore.generating.templateengine.GlobalExtensionManagement;
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.*;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.sympy.OdeProcessor;
+import org.nest.codegeneration.sympy.EquationBlockProcessor;
 import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTBody;
@@ -46,22 +46,22 @@ import static org.nest.utils.AstUtils.getAllNeurons;
  */
 public class NestCodeGenerator {
   private final static Reporter reporter = Reporter.get();
-  private final OdeProcessor odeProcessor;
+  private final EquationBlockProcessor equationBlockProcessor;
   private final NESTMLScopeCreator scopeCreator;
   private final Boolean enableTracing ;
 
   public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
-                           final OdeProcessor odeProcessor,
+                           final EquationBlockProcessor equationBlockProcessor,
                            boolean enableTracing) {
     this.scopeCreator = scopeCreator;
-    this.odeProcessor= odeProcessor;
+    this.equationBlockProcessor = equationBlockProcessor;
     this.enableTracing = enableTracing;
   }
 
   public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
                            boolean enableTracing) {
     this.scopeCreator = scopeCreator;
-    this.odeProcessor= new OdeProcessor();
+    this.equationBlockProcessor = new EquationBlockProcessor();
     this.enableTracing = enableTracing;
   }
 
@@ -72,8 +72,9 @@ public class NestCodeGenerator {
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
 
-    reporter.reportProgress("Starts generating code for the artifact: " + root.getArtifactName());
+    reporter.reportProgress("Starts generating code for the file: " + root.getArtifactName());
     root.getNeurons().forEach(astNeuron -> analyseAndGenerate(astNeuron, outputBase));
+    reporter.reportProgress("Finishes generating code for the file: " + root.getArtifactName());
   }
 
   private void analyseAndGenerate(
@@ -99,12 +100,11 @@ public class NestCodeGenerator {
     if (odesBlock.isPresent()) {
       if (odesBlock.get().getShapes().size() == 0 || odesBlock.get().getODEs().size() > 1) {
         reporter.reportProgress("The model will be solved numerically with GSL solver.");
-        markNumericSolver(astNeuron.getName(), outputBase);
         return astNeuron;
       }
       else {
         reporter.reportProgress(("The model will be analysed."));
-        return odeProcessor.solveODE(astNeuron, outputBase);
+        return equationBlockProcessor.solveOdeWithShapes(astNeuron, outputBase);
       }
 
     }
@@ -112,17 +112,6 @@ public class NestCodeGenerator {
       return astNeuron;
     }
 
-  }
-
-  private void markNumericSolver(final String neuronName, final Path outputBase) {
-    try {
-      Files.write("numeric",
-                  Paths.get(outputBase.toString(), neuronName + "." + TransformerBase.SOLVER_TYPE).toFile(),
-                  Charset.defaultCharset());
-    }
-    catch (IOException e) {
-      Log.error("Cannot write status file. Check you permissions.", e);
-    }
   }
 
   private void generateNestCode(

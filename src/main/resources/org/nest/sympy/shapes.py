@@ -1,4 +1,4 @@
-'''
+"""
    This script provides the framework for receiving properties
    of so called 'shapes' that are relevant for constructing an
    apropriate evolution scheme for the ODEs in which the shapes 
@@ -51,7 +51,7 @@
   
    The calculation of the properties, `order`, `name`, 
    `initial_values` and the system of ODEs in matrix form is canonical.
-'''
+"""
 
 from sympy.parsing.sympy_parser import parse_expr
 from sympy import *
@@ -237,11 +237,38 @@ class ShapeFunction(object):
         self.nestml_ode_form = "{} = {}".format(lhs, rhs)
         self.derivative_factors = list(simplify(derivative_factors))
         self.initial_values = [x.subs(t, 0) for x in derivatives[:-1]]
+        self.updates_to_state_shape_variables = []  # must be filled after the propagator matrix is computed
 
-    def additional_state_variables(self):
+    def additional_shape_state_variables(self):
         result = []
         for order in range(0, self.order):
-            result.append(str(self.name) + str(order))
+            result.append(str(self.name) + "__" + str(order))
+        return result
+
+    def add_update_to_shape_state_variable(self, shape_state_variable, shape_state_variable_update):
+        self.updates_to_state_shape_variables.insert(0, {str(shape_state_variable): str(shape_state_variable_update)})
+
+    def get_updates_to_shape_state_variables(self):
+        result = []
+        if self.order > 0:  # FIX ME
+            for entry_map in self.updates_to_state_shape_variables:
+                # by construction, there is only one value in the `entry_map`
+                for shape_state_variable, shape_state_variable_update in entry_map.iteritems():
+                    result.append({shape_state_variable + "_tmp": shape_state_variable})
+
+            for entry_map in self.updates_to_state_shape_variables:
+                # by construction, there is only one value in the `entry_map`
+                for shape_state_variable, shape_state_variable_update in entry_map.iteritems():
+                    result.append({shape_state_variable + "_tmp": shape_state_variable_update})
+
+            for entry_map in self.updates_to_state_shape_variables:
+                # by construction, there is only one value in the `entry_map`
+                for shape_state_variable, shape_state_variable_update in entry_map.iteritems():
+                    result.append({shape_state_variable: shape_state_variable + "_tmp"})
+
+        else:
+            result = self.updates_to_state_shape_variables
+
         return result
 
     def get_initial_values(self):

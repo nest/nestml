@@ -5,6 +5,7 @@
  */
 package org.nest.codegeneration.sympy;
 
+import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
@@ -13,8 +14,6 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -30,58 +29,20 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
   private static final String MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
   private static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
-  private final static Path P30_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.P30_FILE);
-
-  private final static Path PSC_INITIAL_VALUE_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.PSC_INITIAL_VALUE_FILE);
-
-  private final static Path STATE_VARIABLES_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VARIABLES_FILE);
-
-  private final static Path PROPAGATPR_MATRIX_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.PROPAGATOR_MATRIX_FILE);
-
-  private final static Path PROPAGATPR_STEP_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.PROPAGATOR_STEP_FILE);
-
-  private final static Path STATE_VECTOR_TMP_DECLARATIONS_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_DECLARATIONS_FILE);
-
-  private final static Path STATE_UPDATE_STEPS_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE);
-
-  private final static Path STATE_VECTOR_BACK_ASSIGNMENTS_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VECTOR_TMP_BACK_ASSIGNMENTS_FILE);
 
 
   @Test
   public void testExactSolutionTransformation() {
     final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
-    final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
+    final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
     linearSolutionTransformer.addExactSolution(
         modelRoot.getNeurons().get(0),
-        P30_FILE,
-        PSC_INITIAL_VALUE_FILE,
-        STATE_VARIABLES_FILE,
-        PROPAGATPR_MATRIX_FILE,
-        PROPAGATPR_STEP_FILE,
-        STATE_VECTOR_TMP_DECLARATIONS_FILE,
-        STATE_UPDATE_STEPS_FILE,
-        STATE_VECTOR_BACK_ASSIGNMENTS_FILE);
+        new SolverOutput());
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
-    ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
+    ASTNESTMLCompilationUnit testant = parseNestmlModel(TARGET_TMP_MODEL_PATH);
 
     final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator();
     final Scope scope = scopeCreator2.runSymbolTableCreator(testant);
@@ -108,13 +69,13 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
   public void testReplaceODEThroughMatrixMultiplication() {
     final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
     // false abstraction level
-    ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
-    linearSolutionTransformer.replaceODEPropagationStep(
+    ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
+    linearSolutionTransformer.replaceIntegrateCallThroughPropagation(
         modelRoot.getNeurons().get(0),
-        PROPAGATPR_STEP_FILE);
+        Lists.newArrayList());
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
-    parseNESTMLModel(TARGET_TMP_MODEL_PATH);
+    parseNestmlModel(TARGET_TMP_MODEL_PATH);
   }
 
 

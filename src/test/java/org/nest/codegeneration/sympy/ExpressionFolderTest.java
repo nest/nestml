@@ -36,10 +36,10 @@ public class ExpressionFolderTest extends ModelbasedTest {
   private static final String MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
   private final static Path STATE_VARIABLES_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VARIABLES_FILE);
+      NEURON_NAME + "." );
   private final static Path STATE_UPDATE_STEPS_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." + LinearSolutionTransformer.STATE_VECTOR_UPDATE_STEPS_FILE);
+      NEURON_NAME + ".");
 
   @Test
   public void testExpressionFolding() throws IOException {

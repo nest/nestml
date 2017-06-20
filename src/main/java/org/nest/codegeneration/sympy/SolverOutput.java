@@ -35,26 +35,27 @@ import java.util.Map;
 
 /**
  * Encapsulates solver response. Contains the following fields: status (failed, success), initial_values,
- * update_instructions, solver, ode_var_factor, const_input, propagator_elements,additional_state_variables
+ * ode_var_update_instructions, solver, ode_var_factor, const_input, propagator_elements,shape_state_variables
  */
-public class SolverResult {
+public class SolverOutput {
   final static String RESULT_FILE_NAME = "result.tmp";
   public String status = "";
   public List<Map.Entry<String, String>> initial_values = Lists.newArrayList();
-  public List<String> update_instructions = Lists.newArrayList();
+  public List<String> ode_var_update_instructions = Lists.newArrayList();
   public String solver = "";
   public Map.Entry<String, String> ode_var_factor = new HashMap.SimpleEntry<>("", "");
   public Map.Entry<String, String>  const_input = new HashMap.SimpleEntry<>("", "");
   public List<Map.Entry<String, String>> propagator_elements = Lists.newArrayList();
-  public List<String> additional_state_variables = Lists.newArrayList();
+  public List<String> shape_state_variables = Lists.newArrayList();
+  public List<Map.Entry<String, String>> updates_to_shape_state_variables = Lists.newArrayList();
 
-  private static final SolverResult ERROR_RESULT;
+  private static final SolverOutput ERROR_RESULT;
   static {
-    ERROR_RESULT = new SolverResult();
+    ERROR_RESULT = new SolverOutput();
     ERROR_RESULT.status = "failed";
   }
 
-  static SolverResult fromJSON(final Path solverResult) {
+  static SolverOutput fromJSON(final Path solverResult) {
     try {
       final List<String> tmp = Files.readLines(solverResult.toFile(), Charset.defaultCharset());
       return fromJSON(Joiner.on("\n").join(tmp));
@@ -64,10 +65,10 @@ public class SolverResult {
     }
   }
 
-  static SolverResult fromJSON(final String inJSON) {
+  static SolverOutput fromJSON(final String inJSON) {
     try {
       final ObjectMapper mapper = new ObjectMapper();
-      return mapper.readValue(inJSON, SolverResult.class);
+      return mapper.readValue(inJSON, SolverOutput.class);
 
     }
     catch (IOException e) {
@@ -75,7 +76,7 @@ public class SolverResult {
     }
   }
 
-  static SolverResult getErrorResult() {
+  static SolverOutput getErrorResult() {
     return ERROR_RESULT;
   }
 }

@@ -83,6 +83,18 @@ public class AstCreator {
 
   }
 
+  static ASTStmt createStatement(final String statementAsString) {
+    try {
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return PARSER.parseStmt(new StringReader(statementAsString)).get();
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+
+  }
+
   static public ASTVar_Block createInternalBlock() {
     final ASTVar_Block astVar_block =  NESTMLNodeFactory.createASTVar_Block();
     astVar_block.setInternals(true);

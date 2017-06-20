@@ -93,7 +93,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
     final ExpressionsPrettyPrinter prettyPrinter = new ExpressionsPrettyPrinter();
     final SPLPrettyPrinter splPrettyPrinter = new SPLPrettyPrinter(prettyPrinter);
 
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel("src/test/resources/org/nest/nestml/parsing/comment.nestml");
+    final ASTNESTMLCompilationUnit root = parseNestmlModel("src/test/resources/org/nest/nestml/parsing/comment.nestml");
 
     final Optional<ASTBlock> astBlock = AstUtils.getAny(root, ASTBlock.class);
 

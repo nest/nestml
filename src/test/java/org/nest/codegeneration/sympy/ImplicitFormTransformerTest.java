@@ -29,7 +29,7 @@ public class ImplicitFormTransformerTest extends ModelbasedTest {
 
   private final static Path PSC_INITIAL_VALUE_FILE = Paths.get(
       "src/test/resources/codegeneration/sympy/cond/",
-      ImplicitFormTransformer.PSC_INITIAL_VALUE_FILE);
+      ImplicitFormTransformer.EQUATIONS_FILE);
 
   private final static Path IMPLICTI_EQUATIONS = Paths.get(
       "src/test/resources/codegeneration/sympy/cond/",
@@ -41,7 +41,7 @@ public class ImplicitFormTransformerTest extends ModelbasedTest {
   @Test
   public void testExactSolutionTransformation() {
     final ImplicitFormTransformer implicitFormTransformer = new ImplicitFormTransformer();
-    final ASTNESTMLCompilationUnit modelRoot = parseNESTMLModel(MODEL_FILE_PATH);
+    final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
     implicitFormTransformer.transformToImplicitForm(
         modelRoot.getNeurons().get(0),
@@ -50,7 +50,7 @@ public class ImplicitFormTransformerTest extends ModelbasedTest {
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
-    ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
+    ASTNESTMLCompilationUnit testant = parseNestmlModel(TARGET_TMP_MODEL_PATH);
     testant.setArtifactName("iaf_cond_alpha");
     final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator();
     final Scope scope = scopeCreator2.runSymbolTableCreator(testant);

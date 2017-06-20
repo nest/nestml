@@ -8,7 +8,7 @@ from shapes import ShapeFunction
 from prop_matrix import PropagatorCalculator
 
 
-class Input:
+class SolverInput:
     """
     Parses and encapsulates JSON input into an object with the following fields:
     `functions`, `shapes`, `ode`
@@ -22,23 +22,33 @@ class Input:
         self.__dict__ = json.loads(json_serialization)
 
 
-class Result:
+class SolverOutput:
     """
     The class is used to store computation results that are then easily converted into the json format
     """
 
-    def __init__(self, status, solver, propagator_elements, ode_var_factor, const_input, update_instructions):
+    def __init__(self,
+                 status,
+                 solver,
+                 propagator_elements,
+                 ode_var_factor,
+                 const_input,
+                 ode_var_update_instructions):
         self.status = status
         self.solver = solver
         self.initial_values = []
         self.propagator_elements = propagator_elements
         self.ode_var_factor = ode_var_factor
-        self.update_instructions = update_instructions
-        self.additional_state_variables = []
+        self.ode_var_update_instructions = ode_var_update_instructions
+        self.shape_state_variables = []
         self.const_input = const_input
+        self.updates_to_shape_state_variables = []
 
-    def add_state_variables(self, state_variables):
-        self.additional_state_variables += state_variables
+    def add_shape_state_variables(self, state_variables):
+        self.shape_state_variables += state_variables
+
+    def add_updates_to_shape_state_variables(self, updates_to_state_shape_variable):
+        self.updates_to_shape_state_variables = updates_to_state_shape_variable
 
     def add_initial_values(self, initial_values):
         self.initial_values += initial_values
@@ -79,7 +89,7 @@ class OdeAnalyzer(object):
         
         :returns JSON object containing all data necessary to compute an update step.
         """
-        input_ode_block = Input(json_input)
+        input_ode_block = SolverInput(json_input)
 
         # extract the name of the ODE and its defining expression
         ode_definition = input_ode_block.ode.split('=')  # it is now a list with 2 elements
@@ -102,7 +112,7 @@ class OdeAnalyzer(object):
                 function_definitions.append(tmp[1].strip())
 
         if not (OdeAnalyzer.is_linear_constant_coefficient_ode(ode_var, ode_rhs, shape_functions, function_vars, function_definitions)):
-            result = Result("success", "numeric", None, None, None, None)
+            result = SolverOutput("success", "numeric", None, None, None, None)
             return json.dumps(result.__dict__, indent=2)
 
         calculator = PropagatorCalculator()
@@ -112,18 +122,26 @@ class OdeAnalyzer(object):
             ode_rhs,
             function_vars,
             function_definitions)
-        propagator_elements, ode_var_factor, const_input, update_instructions = calculator.prop_matrix_to_prop_step(
-            prop_matrices,
-            const_input,
-            step_const,
-            shape_functions,
-            ode_var)
+        propagator_elements, ode_var_factor, const_input, ode_var_update_instructions = \
+            calculator.prop_matrix_to_prop_step(
+                prop_matrices,
+                const_input,
+                step_const,
+                shape_functions,
+                ode_var)
 
         # build result JSON
-        result = Result("success", "exact", propagator_elements, ode_var_factor, const_input, update_instructions)
+        result = SolverOutput("success",
+                        "exact",
+                              propagator_elements,
+                              ode_var_factor,
+                              const_input,
+                              ode_var_update_instructions)
+
         for shape in shape_functions:
-            result.add_state_variables(shape.additional_state_variables())
+            result.add_shape_state_variables(shape.additional_shape_state_variables())
             result.add_initial_values(shape.get_initial_values())
+            result.add_updates_to_shape_state_variables(shape.get_updates_to_shape_state_variables())
 
         return json.dumps(result.__dict__, indent=2)
 

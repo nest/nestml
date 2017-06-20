@@ -216,26 +216,6 @@ class CliConfigurationExecutor {
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
       reporter.reportProgress("Generate NEST code from the artifact: " + root.getArtifactName());
       generator.analyseAndGenerate(root, config.getTargetPath());
-      checkGeneratedCode(root, config.getTargetPath());
-    }
-
-  }
-
-  private void checkGeneratedCode(final ASTNESTMLCompilationUnit root, final Path targetPath) {
-    for (final ASTNeuron astNeuron:root.getNeurons()) {
-      if (Files.exists(Paths.get(targetPath.toString(), astNeuron.getName() + "." + TransformerBase.SOLVER_TYPE))) {
-
-        final String msg = "NEST code for the neuron: " + astNeuron.getName() + " from file: " + root.getArtifactName() +
-                           " was generated.";
-        reporter.reportProgress(root.getArtifactName() + ": " + msg);
-
-      } else {
-        final String msg = "NEST code for the neuron: " + astNeuron.getName() + " in " + root.getArtifactName() +
-                           " wasn't generated.";
-        reporter.reportProgress(root.getArtifactName() + ":" + msg);
-
-      }
-
     }
 
   }

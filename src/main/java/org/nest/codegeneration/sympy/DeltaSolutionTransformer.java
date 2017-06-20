@@ -31,6 +31,7 @@ import static org.nest.utils.AstUtils.getFunctionCall;
  * @author plotnikov
  */
 class DeltaSolutionTransformer extends TransformerBase {
+  public final static String SOLVER_TYPE = "solverType.tmp";
   final static String PROPAGATOR_STEP = "propagator.step.tmp";
   final static String P30_FILE = "P30.tmp";
 
@@ -41,7 +42,7 @@ class DeltaSolutionTransformer extends TransformerBase {
 
     // TODO can this variable be a vecotr?
     astNeuron.getBody().addToInternalBlock(createDeclaration("__h__ ms = resolution()"));
-    addAliasToInternals(astNeuron, p30File);
+    addVariableToInternals(astNeuron, p30File);
     addP33ToInternals(astNeuron);
     addPropagatorStep(astNeuron, propagatorStep);
 
@@ -88,7 +89,7 @@ class DeltaSolutionTransformer extends TransformerBase {
         propagatorSteps.add(statement(applySpikes));
       }
 
-      replaceODEPropagationStep(astNeuron, propagatorSteps);
+      throw new RuntimeException("Unsupported");
     } catch (IOException e) {
       throw new RuntimeException("Cannot parse propagator step for the delta function", e);
     }

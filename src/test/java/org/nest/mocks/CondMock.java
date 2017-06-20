@@ -7,7 +7,7 @@ package org.nest.mocks;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.sympy.ImplicitFormTransformer;
-import org.nest.codegeneration.sympy.OdeProcessor;
+import org.nest.codegeneration.sympy.EquationBlockProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 
@@ -19,17 +19,8 @@ import java.nio.file.Paths;
  *
  * @author plotnikov
  */
-public class CondMock extends OdeProcessor {
+public class CondMock extends EquationBlockProcessor {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/cond/";
 
-  //@Override
-  protected ASTNeuron handleNeuronWithODE(final ASTNeuron root, ASTNESTMLCompilationUnit artifactRoot, final Path outputBase) {
-    Log.trace("Uses COND mock", this.getClass().getName());
-    return getImplicitFormTransformer().transformToImplicitForm(
-            root,
-            Paths.get(MOCK_RESOURCE_PATH, ImplicitFormTransformer.PSC_INITIAL_VALUE_FILE),
-            Paths.get(MOCK_RESOURCE_PATH, ImplicitFormTransformer.EQUATIONS_FILE)
-        );
-  }
 
 }
