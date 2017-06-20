@@ -5,14 +5,13 @@
  */
 package org.nest.frontend;
 
-import org.apache.commons.cli.CommandLine;
 import org.junit.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Tests various modis of the {@code NestmlFrontend} class. For this, several combinations of
@@ -25,28 +24,39 @@ public class NestmlFrontendTest {
 
   @Test
   public void testCreationOfConfiguration() throws Exception {
-
     final Path testInputModelsPath = Paths.get("testInputModelsPath");
-    final Path targetPath = Paths.get("targetPath");
+    final Path targetPath = Paths.get("testTargetPath");
 
-    final CliConfiguration testant = nestmlFrontend.createCLIConfiguration(new String[] {
+    final Optional<CliConfiguration> testantLong = nestmlFrontend.createCLIConfiguration(new String[] {
+        "--target", targetPath.toString(),
+        "--enable_tracing",
+        "--dry-run",
+        "--json_log", Paths.get(targetPath.toString(), "model_log.log").toString(),
+        "--module_name", "integration",
         testInputModelsPath.toString(),
-        "--target", targetPath.toString()
     });
 
-    assertTrue(testant.isCheckCoCos());
-    assertEquals(testInputModelsPath, testant.getInputBase());
-    assertEquals(targetPath, testant.getTargetPath());
-  }
+    assertTrue(testantLong.isPresent());
+    assertTrue(testantLong.get().isTracing());
+    assertFalse(testantLong.get().isCodegeneration());
+    assertEquals(testInputModelsPath, testantLong.get().getModelPath());
+    assertEquals(targetPath, testantLong.get().getTargetPath());
+    assertEquals("integration", testantLong.get().getModuleName());
 
-  @Test
-  public void testInputPath() throws Exception {
-    final String inputModelsPath = "./testTargetPath";
-    CommandLine cliArguments = nestmlFrontend.parseCLIArguments(
-        new String[] { "--target",  inputModelsPath});
-    final String testant = nestmlFrontend.interpretTargetPathArgument(cliArguments);
-    assertEquals(inputModelsPath, testant);
-
+    final Optional<CliConfiguration> testantShort = nestmlFrontend.createCLIConfiguration(new String[] {
+        "-t", targetPath.toString(),
+        "-e",
+        "-d",
+        "-j", Paths.get(targetPath.toString(), "model_log.log").toString(),
+        "-m", "integration",
+        testInputModelsPath.toString(),
+    });
+    assertTrue(testantShort.isPresent());
+    assertTrue(testantShort.get().isTracing());
+    assertFalse(testantShort.get().isCodegeneration());
+    assertEquals(testInputModelsPath, testantShort.get().getModelPath());
+    assertEquals(targetPath, testantShort.get().getTargetPath());
+    assertEquals("integration", testantShort.get().getModuleName());
   }
 
   @Test
@@ -59,9 +69,15 @@ public class NestmlFrontendTest {
   @Test
   public void testInvalidPath() {
     nestmlFrontend.start(new String[] {
-        "//bla/blu",
-        "--target", Paths.get("target", "cli_unparsable").toString()});
+        "--target", Paths.get("target", "cli_unparsable").toString(),
+        "//bla/blu",});
 
+    nestmlFrontend.start(new String[] {});
+  }
+
+
+  @Test
+  public void testHelp() {
     nestmlFrontend.start(new String[] {});
   }
 }

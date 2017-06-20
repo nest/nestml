@@ -1,0 +1,37 @@
+neuron Dummy:
+  function f():
+
+    b boolean = true
+
+    bar real = b ** 4 # error 1: boolean cannot be used as a base
+
+    foo integer = 3*b*6/b # error 2: boolean as a factor in devision
+
+    foobar integer = 3.0 << 4 >> 2.0 # error 3+4: no shift operation on float values
+
+    barfoo integer = 3.2 & 5 & 6.4 # error 5+6 no bit operation on float values
+
+    bafoo integer = 3.2 | 5 | 6.4 # error 7+8 no bit operation on float values
+
+    barfo integer = 3.2 ^ 5 ^ 6.4 # error 9+10 no bit operation on float values
+
+    if foo: # 11 integer is not a valid boolean expression
+
+    elif randomInt(): # 12 integer which is the return value of randomInt is not a valid boolean expression
+
+    elif b < 7: # 13 cannot compare boolean to integer
+
+    elif "abc" > "bca": # ok? 14 no comparison
+
+    end
+
+    while 1ms:
+    end
+    # TODO refactor it into good models
+    if true and true:
+    end
+
+    foo1 string = 1mS
+    foo2 integer = 1ms
+  end
+end

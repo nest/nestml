@@ -1,0 +1,37 @@
+/*
+ * Copyright (c) 2015 RWTH Aachen. All rights reserved.
+ *
+ * http://www.se-rwth.de/
+ */
+package org.nest;
+
+/**
+  Grammar representing ODE expressions.
+*/
+component grammar Literals extends de.monticore.literals.Literals {
+
+  /*********************************************************************************************************************
+  * Commons-Grammar fragment
+  *********************************************************************************************************************/
+  // Defines single line comment. Stores the comment text.
+  token SL_COMMENT =
+    "#" (~('\n' |
+      '\r' )
+    )* :
+    { _channel = HIDDEN;
+      if (getCompiler() != null) {
+        de.monticore.ast.Comment _comment = new de.monticore.ast.Comment(getText());
+        de.se_rwth.commons.SourcePosition startPos = new de.se_rwth.commons.SourcePosition(_tokenStartLine, _tokenStartCharPositionInLine);
+        _comment.set_SourcePositionStart(startPos);
+        _comment.set_SourcePositionEnd(getCompiler().computeEndPosition(startPos, getText()));
+        getCompiler().addComment(_comment);
+      }
+    };
+
+  token NEWLINE = ('\r' '\n' | '\r' | '\n' );
+
+  token WS = (' ' | '\t'):{_channel = HIDDEN;};
+
+  // this token enables an expression that stretches over multiple lines. The first line end with a `\` character
+  token LINE_ESCAPE = '\\' '\r'? '\n':{_channel = HIDDEN;};
+}

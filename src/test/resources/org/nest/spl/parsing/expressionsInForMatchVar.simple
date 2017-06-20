@@ -1,6 +1,0 @@
-module org.nest.spl._cocos.expressionsInForMatchVar
-
-i integer
-for i in 2.3 ... 15.6 step 0.1:
-
-end

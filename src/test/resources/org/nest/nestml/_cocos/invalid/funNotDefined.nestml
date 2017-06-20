@@ -1,0 +1,9 @@
+neuron Dummy:
+  function f():
+
+    bar() /* not defined */
+
+    # not defined
+    random(2) # not defined with parameter
+  end
+end

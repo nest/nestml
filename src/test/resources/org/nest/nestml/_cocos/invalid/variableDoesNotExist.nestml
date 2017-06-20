@@ -1,0 +1,32 @@
+neuron IAF:
+
+  state:
+    V_m mV
+    U mV
+  end
+
+  equations:
+    U' = U' # ERROR: U' doesn't exist
+    function G real = G2 # ERROR: G2 doesn't exist
+  end
+
+  function splTest():
+    x real = 3 * y # ERROR: y not defined
+
+    for a in aa ... aaa step 1: # 3 ERROR: a not defined
+    # blaa
+    end
+
+    if xx: # ERROR: xx not defined
+    end
+
+    if xxx: # ERROR xxx is undefined
+    elif yyy: # ERROR
+    end
+
+    while yy: # ERROR: yy not defined
+    end
+
+    steps(t_ref) # ERROR: t_ref not defined
+  end
+end

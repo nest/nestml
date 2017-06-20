@@ -8,7 +8,7 @@ package org.nest.nestml._cocos;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.resolving.ResolvedSeveralEntriesException;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
@@ -19,8 +19,6 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author ippen, plotnikov
  */
 public class TypeIsDeclaredMultipleTimes implements NESTMLASTNeuronCoCo {
-
-  public static final String ERROR_CODE = "NESTML_TYPES_DECLARED_MULTIPLE_TIMES";
 
   public void check(final ASTNeuron neuron) {
       check(neuron.getName(), neuron);
@@ -34,8 +32,7 @@ public class TypeIsDeclaredMultipleTimes implements NESTMLASTNeuronCoCo {
       node.getEnclosingScope().get().resolve(name, NeuronSymbol.KIND);
     }
     catch (ResolvedSeveralEntriesException e) {
-      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      final String msg = errorStrings.getErrorMsg(this, name);
+      final String msg = NestmlErrorStrings.message(this, name);
 
      error(msg, node.get_SourcePositionEnd());
     }

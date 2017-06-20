@@ -9,10 +9,10 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTFunction;
-import org.nest.symboltable.NestmlSymbols;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.NestmlSymbols;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
 
@@ -25,9 +25,6 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author (last commit) ippen, plotnikov
  */
 public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
-
-  public static final String ERROR_CODE = "NESTML_GETTER_SETTER_FUNCTION_NAMES";
-  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTFunction fun) {
     String funName = fun.getName();
@@ -43,7 +40,7 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
           && funName.equals("get_instance")
           && methodSymbol.get().getParameterTypes().size() == 0) {
 
-        final String msg = errorStrings.getErrorMsgGet_InstanceDefined(this);
+        final String msg = NestmlErrorStrings.getErrorMsgGet_InstanceDefined(this);
 
         error(msg, fun.get_SourcePositionStart());
         return;
@@ -56,27 +53,25 @@ public class GetterSetterFunctionNames implements NESTMLASTFunctionCoCo {
 
         if (var.isPresent()) {
           if (funName.startsWith("set_")) {
-            final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
-
+            final String msg = NestmlErrorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
             error(msg, fun.get_SourcePositionStart());
           }
 
           if (funName.startsWith("get_")) {
-            final String msg = errorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
-
+            final String msg = NestmlErrorStrings.getErrorMsgGeneratedFunctionDefined(this,funName,varName);
             error(msg, fun.get_SourcePositionStart());
           }
 
         }
         else {
-          Log.warn(ERROR_CODE + ":" + "Cannot resolve the variable: " + varName);
+          Log.trace("Cannot resolve the variable: " + varName, getClass().getSimpleName());
         }
 
       }
 
     }
     else {
-      Log.warn("The function is" + funName + " undefined.");
+      Log.trace("The function is" + funName + " undefined.", getClass().getSimpleName());
     }
 
   }

@@ -10,13 +10,16 @@ import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.nestml._ast.*;
-import org.nest.nestml._parser.NESTMLParser;
-import org.nest.spl._ast.ASTAssignment;
-import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.symboltable.predefined.PredefinedTypes;
-import org.nest.symboltable.symbols.*;
-import org.nest.utils.AstUtils;
+import org.nest.nestml._ast.ASTBody;
+import org.nest.nestml._ast.ASTBodyElement;
+import org.nest.nestml._ast.ASTFunction;
+import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.predefined.PredefinedTypes;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -25,7 +28,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
-import static org.nest.symboltable.NestmlSymbols.resolveMethod;
+import static org.nest.nestml._symboltable.NestmlSymbols.resolveMethod;
 
 /**
  *  Tests the symbol table infrastructure of the NESTML language
@@ -267,4 +270,5 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertTrue(spikeBuffers.size() == 1);
     assertTrue(spikeBuffers.get(0).isConductanceBased());
   }
+
 }

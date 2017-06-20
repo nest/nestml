@@ -17,14 +17,13 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class CurrentPortIsInhOrExc implements NESTMLASTInputLineCoCo {
 
-  public static final String ERROR_CODE = "NESTML_CURRENT_PORT_IS_INH_OR_EXC";
 
   @Override
   public void check(ASTInputLine inputLine) {
     if (inputLine.isCurrent() ) {
       if (!inputLine.getInputTypes().isEmpty()) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this);
+        final String msg = errorStrings.message(this);
        error(msg, inputLine.get_SourcePositionStart());
       }
 

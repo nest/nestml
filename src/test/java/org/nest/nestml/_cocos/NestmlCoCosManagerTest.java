@@ -40,8 +40,7 @@ public class NestmlCoCosManagerTest extends ModelbasedTest {
    *
    */
   private Optional<ASTNESTMLCompilationUnit> getAstRoot(String modelPath) throws IOException {
-    final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
-    final Optional<ASTNESTMLCompilationUnit> ast = p.parse(modelPath);
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse(modelPath);
     Assert.assertTrue(ast.isPresent());
     return ast;
   }
@@ -51,14 +50,6 @@ public class NestmlCoCosManagerTest extends ModelbasedTest {
     Log.getFindings().clear();
   }
 
-
-  @Test
-  public void testGoodModels() throws IOException {
-
-    final File modelsFolder = Paths.get("src/test/resources/org/nest/nestml/parsing").toFile();
-
-    checkAllModelsInFolder(modelsFolder);
-  }
 
   @Test
   public void testCodegenerationModels() throws IOException {

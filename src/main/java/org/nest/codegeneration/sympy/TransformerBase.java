@@ -4,12 +4,10 @@ import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTNeuron;
-import org.nest.spl._ast.*;
-import org.nest.symboltable.predefined.PredefinedFunctions;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._ast.*;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.io.IOException;
@@ -26,7 +24,7 @@ import static org.nest.codegeneration.sympy.NESTMLASTCreator.createDeclarations;
 import static org.nest.utils.AstUtils.getVectorizedVariable;
 
 /**
- * Provides common methods for solver transformations.
+ * Provides common methods for AST transformations which are performed after SymPy analysis.
  *
  * @author plotnikov
  */
@@ -114,13 +112,11 @@ public class TransformerBase {
           break;
         }
       }
-
       return astNeuron;
     } else {
-      Log.warn("The model has defined an ODE. But its solution is not used in the update state.");
+      Log.trace("The model has defined an ODE. But its solution is not used in the update state.", this.getClass().getSimpleName());
       return astNeuron;
     }
-
 
   }
 
@@ -162,8 +158,8 @@ public class TransformerBase {
   void addAssignmentToDynamics(
       final ASTBody astBodyDecorator,
       final ASTAssignment yVarAssignment) {
-    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
-    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
+    final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
+    final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
 
     astStmt.setSmall_Stmt(astSmall_stmt);
 
@@ -174,8 +170,8 @@ public class TransformerBase {
   }
 
   ASTStmt statement(final ASTAssignment astAssignment) {
-    final ASTSmall_Stmt astSmall_stmt = SPLNodeFactory.createASTSmall_Stmt();
-    final ASTStmt astStmt = SPLNodeFactory.createASTStmt();
+    final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
+    final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
     astSmall_stmt.setAssignment(astAssignment);
     astStmt.setSmall_Stmt(astSmall_stmt);
     return astStmt;

@@ -7,11 +7,10 @@ package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
-import org.nest.commons._ast.ASTVariable;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl._cocos.SPLASTDeclarationCoCo;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTVariable;
+import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +26,7 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author ippen, plotnikov
  */
-public class MemberVariablesInitialisedInCorrectOrder implements SPLASTDeclarationCoCo {
-  public static final String ERROR_CODE = "NESTML_MEMBER_VARIABLES_INITIALISED_IN_CORRECT_ORDER";
-  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
+public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTDeclarationCoCo {
 
   public void check(final ASTDeclaration declaration) {
     checkState(declaration.getEnclosingScope().isPresent(), "There is no scope assigned to the AST node: " + declaration);
@@ -73,10 +70,9 @@ public class MemberVariablesInitialisedInCorrectOrder implements SPLASTDeclarati
           VariableSymbol.KIND);
 
       if (!rhsSymbol.isPresent()) { // actually redudant and it is should be checked through another CoCo
-        final String msg = errorStrings.getErrorMsgVariableNotDefined(this,
-                astVariable.get_SourcePositionStart().toString(),
-                rhsVariableName);
-        Log.warn(msg);
+        final String msg = NestmlErrorStrings.getErrorMsgVariableNotDefined(this,
+            rhsVariableName);
+        Log.trace(msg, getClass().getSimpleName());
         return;
       }
       else  { //
@@ -107,9 +103,9 @@ public class MemberVariablesInitialisedInCorrectOrder implements SPLASTDeclarati
       // same block not parameter block
       if (isError.test(rhsSymbol.getSourcePosition().getLine(),
           lhsSymbol.getSourcePosition().getLine())) {
-        final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
-                rhsSymbol.getName(),
-                lhsSymbol.getName());
+        final String msg = NestmlErrorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
+            rhsSymbol.getName(),
+            lhsSymbol.getName());
 
         error(msg, lhsSymbol.getSourcePosition());
 
@@ -119,13 +115,12 @@ public class MemberVariablesInitialisedInCorrectOrder implements SPLASTDeclarati
 
     if (rhsSymbol.getBlockType() != lhsSymbol.getBlockType() &&
         rhsSymbol.getBlockType() != VariableSymbol.BlockType.PARAMETERS) {
-       final String msg = errorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
-              rhsSymbol.getName(),
-              lhsSymbol.getName());
+      final String msg = NestmlErrorStrings.getErrorMsgDeclaredInIncorrectOrder(this,
+          rhsSymbol.getName(),
+          lhsSymbol.getName());
 
       error(msg, lhsSymbol.getSourcePosition());
     }
-
 
   }
 

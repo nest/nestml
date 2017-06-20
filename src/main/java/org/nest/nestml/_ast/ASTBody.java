@@ -10,14 +10,7 @@ import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.sympy.NESTMLASTCreator;
-import org.nest.commons._ast.ASTBLOCK_CLOSE;
-import org.nest.commons._ast.ASTBLOCK_OPEN;
-import org.nest.commons._ast.ASTExpr;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.ode._ast.ASTShape;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.util.ArrayList;

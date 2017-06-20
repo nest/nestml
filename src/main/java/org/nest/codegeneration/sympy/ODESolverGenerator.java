@@ -12,11 +12,11 @@ import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.symboltable.predefined.PredefinedVariables;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.nestml._symboltable.predefined.PredefinedVariables;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.io.File;
@@ -79,7 +79,7 @@ public class ODESolverGenerator {
     else {
       final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
           + "is skipped.", neuron.getName());
-      Log.warn(msg);
+      Log.trace(msg, LOG_NAME);
 
       return empty();
     }
@@ -120,7 +120,7 @@ public class ODESolverGenerator {
     else {
       final String msg = String.format("The neuron %s doesn't contain an ODE. The script generation "
           + "is skipped.", neuron.getName());
-      Log.warn(msg);
+      Log.trace(msg, LOG_NAME);
 
       return empty();
     }
@@ -137,7 +137,7 @@ public class ODESolverGenerator {
     final Scope scope = astOdeDeclaration.getEnclosingScope().get();
 
     if (astOdeDeclaration.getODEs().size() >= 1) {
-      Log.warn("It works only for a single ODE. Only the first equation will be used.");
+      Log.trace("It works only for a single ODE. Only the first equation will be used.", LOG_NAME);
     }
 
     glex.setGlobalValue("ode", astOdeDeclaration.getODEs().get(0));

@@ -6,9 +6,9 @@
 package org.nest.codegeneration.sympy;
 
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.spl._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTDeclaration;
 
 import java.io.IOException;
 import java.nio.file.Files;

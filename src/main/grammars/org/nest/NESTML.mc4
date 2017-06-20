@@ -9,15 +9,190 @@ package org.nest;
   Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
   language which leans on the Python syntax.
 */
-grammar NESTML extends org.nest.SPL, org.nest.ODE {
+grammar NESTML extends org.nest.Literals {
+
+  /**
+    Artifact entry-point
+  */
+  NESTMLCompilationUnit = (Neuron | NEWLINE)* EOF;
+
+  BLOCK_OPEN = ":";
+
+  BLOCK_CLOSE = "end";
+  /*********************************************************************************************************************
+  * Units-Language
+  *********************************************************************************************************************/
+
+  /**
+    ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
+    datatype.
+    @attribute boolean getters for integer, real, ...
+    @attribute unitType a SI datatype
+  */
+  Datatype = ["integer"]
+           | ["real"]
+           | ["string"]
+           | ["boolean"]
+           | ["void"]
+           | UnitType;
+  /**
+    ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
+    complex data type as 'mV/s'
+  */
+  UnitType = leftParentheses:"(" UnitType rightParentheses:")"
+           | base:UnitType pow:["**"] exponent:IntLiteral
+           | left:UnitType (timesOp:["*"] | divOp:["/"]) right:UnitType
+           | unitlessLiteral:IntLiteral divOp:["/"] right:UnitType
+           | unit:Name;
+
+  /*********************************************************************************************************************
+  * Expressions-Language
+  *********************************************************************************************************************/
+  Expr = leftParentheses:["("] Expr rightParentheses:[")"]
+         | <rightassoc> base:Expr pow:["**"] exponent:Expr
+         | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
+         | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
+         | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
+         | left:Expr (shiftLeft:["<<"] | shiftRight:[">>"]) right:Expr
+         | left:Expr bitAnd:["&"] right:Expr
+         | left:Expr bitXor:["^"]  right:Expr
+         | left:Expr bitOr:["|"] right:Expr
+         | left:Expr (lt:["<"] |
+                      le:["<="] |
+                      eq:["=="] |
+                      ne:["!="] |
+                      ne2:["<>"] |
+                      ge:[">="] |
+                      gt:[">"]) right:Expr
+         | logicalNot:["not"] Expr
+         | left:Expr logicalAnd:["and"] right:Expr
+         | left:Expr logicalOr:["or"] right:Expr
+         | condition:Expr "?" ifTrue:Expr ":" ifNot:Expr
+         | FunctionCall
+         | BooleanLiteral // true & false;
+         | NumericLiteral Variable
+         | NumericLiteral
+         | StringLiteral
+         | ["inf"]
+         | Variable;
+
+  /**
+    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    @attribute name
+  */
+  Variable = Name (differentialOrder:"\'")*;
+
+  /**
+    ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
+    @attribute name The (qualified) name of the fucntions
+    @attribute args Comma separated list of expressions representing parameters.
+  */
+  FunctionCall = calleeName:Name "(" args:(Expr& || ",")* ")";
 
   /** ASTNESTMLCompilationUnit represents the complete entire file with neuron and component models.
     @attribute packageName      The qualified name to artifact
     @attribute Import           List of imported elements
     @attribute Neuron           The neuron representation
   */
-  NESTMLCompilationUnit = (Neuron | NEWLINE)* EOF;
 
+
+  /*********************************************************************************************************************
+  * Equations-Language
+  *********************************************************************************************************************/
+  /** ASTOdeDeclaration. Represents a block of equations and differential equations.
+
+    @attribute Equation      List with equations, e.g. "I = exp(t)" od differential equations.
+  */
+  OdeDeclaration  = (Equation | Shape | OdeFunction | NEWLINE)+;
+
+  OdeFunction = ([recordable:"recordable"])? "function" variableName:Name Datatype "=" Expr (";")?;
+
+  /** ASTeq Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
+    @attribute lhs      Left hand side, e.g. a Variable.
+    @attribute rhs      Expression defining the right hand side.
+  */
+  Equation = lhs:Derivative "=" rhs:Expr (";")?;
+
+  Derivative = name:Name (differentialOrder:"\'")*;
+
+  Shape = "shape" lhs:Variable "=" rhs:Expr (";")?;
+
+  /*********************************************************************************************************************
+  * Procedural-Language
+  *********************************************************************************************************************/
+
+  Block = ( Stmt | NEWLINE )*;
+
+  Stmt = Small_Stmt | Compound_Stmt;
+
+  Compound_Stmt = IF_Stmt
+                | FOR_Stmt
+                | WHILE_Stmt;
+
+  Small_Stmt = Assignment
+             | FunctionCall
+             | Declaration
+             | ReturnStmt;
+
+  Assignment = lhsVarialbe:Variable
+    (assignment:["="]       |
+     compoundSum:["+="]     |
+     compoundMinus:["-="]   |
+     compoundProduct:["*="] |
+     compoundQuotient:["/="]) Expr;
+
+
+  /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
+   'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
+    @attribute hide is true iff. declaration is not trackable.
+    @attribute function is true iff. declaration is an function.
+    @attribute vars          List with variables
+    @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
+    @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
+    @attribute expr An optional initial expression, e.g. 'a real = 10+10'
+    @attribute invariants List with optional invariants.
+   */
+  Declaration =
+    (["recordable"] )? (["function"])?
+    vars:Name ("," vars:Name)*
+    Datatype
+    ("[" sizeParameter:Name "]")?
+    ( "=" Expr)? SL_COMMENT?
+    ("[[" invariant:Expr "]]")?;
+
+  /** ASTDefiningVariable Signed variable name
+
+    @attribute minus An optional sing
+    @attribute definingVariable Name of the variable
+   */
+  DefiningVariable = (minus:["-"])? definingVariable:Name;
+
+  /** ATReturnStmt Models the return statement in a function.
+
+    @attribute minus An optional sing
+    @attribute definingVariable Name of the variable
+   */
+  ReturnStmt = "return" Expr?;
+
+  IF_Stmt = IF_Clause
+            ELIF_Clause*
+            (ELSE_Clause)?
+            BLOCK_CLOSE;
+
+  IF_Clause = "if" Expr BLOCK_OPEN Block;
+
+  ELIF_Clause = "elif" Expr BLOCK_OPEN Block;
+
+  ELSE_Clause = "else" BLOCK_OPEN Block;
+
+  FOR_Stmt = "for" var:Name "in" from:Expr "..." to:Expr "step" step:SignedNumericLiteral BLOCK_OPEN Block BLOCK_CLOSE;
+
+  WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
+
+
+  /*********************************************************************************************************************
+  * Nestml-Language
+  *********************************************************************************************************************/
   /** ASTNeuron represents neuron.
     @attribute Name    The name of the neuron
     @attribute Body    The body of the neuron, e.g. internal, state, parameter...

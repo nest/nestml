@@ -19,8 +19,6 @@ import static de.se_rwth.commons.logging.Log.error;
  */
 public class NestFunctionCollision implements NESTMLASTFunctionCoCo {
 
-  public static final String ERROR_CODE = "NESTML_NEST_FUNCTION_COLLISION";
-
   private Set<String> nestFunNames = ImmutableSet.of(
       "update",
       "calibrate",
@@ -38,7 +36,7 @@ public class NestFunctionCollision implements NESTMLASTFunctionCoCo {
 
       if (nestFunNames.contains(funName)) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-        final String msg = errorStrings.getErrorMsg(this,funName);
+        final String msg = errorStrings.message(this,funName);
 
         error(msg, fun.get_SourcePositionStart());
       }

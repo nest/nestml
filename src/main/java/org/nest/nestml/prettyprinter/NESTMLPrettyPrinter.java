@@ -5,26 +5,16 @@
 */
 package org.nest.nestml.prettyprinter;
 
-import de.se_rwth.commons.Names;
-import org.nest.commons._ast.ASTExpr;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.ode._ast.ASTOdeFunction;
-import org.nest.ode._ast.ASTShape;
-import org.nest.spl._ast.ASTBlock;
-import org.nest.spl._ast.ASTDeclaration;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.spl.prettyprinter.SPLPrettyPrinter;
 import org.nest.utils.AstUtils;
 import org.nest.utils.PrettyPrinterBase;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.nest.spl.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
+import static org.nest.nestml.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 import static org.nest.utils.AstUtils.printComments;
 
 /**

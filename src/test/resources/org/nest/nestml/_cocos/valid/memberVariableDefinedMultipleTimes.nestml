@@ -6,6 +6,7 @@ neuron NeuronInTest:
 
   equations:
     g_z'' = t
+    function gggg real = 12
   end
 
   parameters:
@@ -16,8 +17,5 @@ neuron NeuronInTest:
     z <- spike
   end
 
-  equations:
-    function g real = 12
-  end
 end
 

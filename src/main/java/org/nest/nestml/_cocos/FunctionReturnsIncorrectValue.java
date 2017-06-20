@@ -7,11 +7,11 @@ package org.nest.nestml._cocos;
 
 import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTFunction;
-import org.nest.spl._ast.ASTReturnStmt;
-import org.nest.spl.symboltable.typechecking.Either;
-import org.nest.spl.symboltable.typechecking.TypeChecker;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.TypeSymbol;
+import org.nest.nestml._ast.ASTReturnStmt;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.typechecking.Either;
+import org.nest.nestml._symboltable.typechecking.TypeChecker;
 import org.nest.utils.AstUtils;
 
 import java.util.List;
@@ -20,8 +20,8 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.error;
 import static de.se_rwth.commons.logging.Log.warn;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isString;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isVoid;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isString;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isVoid;
 
 /**
  * The type of all return expression must conform to the declaration type.
@@ -29,9 +29,6 @@ import static org.nest.spl.symboltable.typechecking.TypeChecker.isVoid;
  * @author ippen, plotnikov
  */
 public class FunctionReturnsIncorrectValue implements NESTMLASTFunctionCoCo {
-
-  public static final String ERROR_CODE = "NESTML_FUNCTION_RETURNS_INCORRECT_VALUE";
-  NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
 
   public void check(final ASTFunction fun) {
     checkState(fun.getEnclosingScope().isPresent(), "Function: " + fun.getName() + " has no scope assigned. ");
@@ -48,7 +45,7 @@ public class FunctionReturnsIncorrectValue implements NESTMLASTFunctionCoCo {
       // no return expression
       if (!r.getExpr().isPresent() && !isVoid(functionReturnType)) {
         // void return value
-        final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
+        final String msg = NestmlErrorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.getName());
 
        error(msg, r.get_SourcePositionStart());
 
@@ -58,7 +55,7 @@ public class FunctionReturnsIncorrectValue implements NESTMLASTFunctionCoCo {
 
         final Either<TypeSymbol, String> returnExpressionType = r.getExpr().get().getType();
         if (returnExpressionType.isError()) {
-          final String msg = errorStrings.getErrorMsgCannotDetermineExpressionType(this);
+          final String msg = NestmlErrorStrings.getErrorMsgCannotDetermineExpressionType(this);
 
           warn(msg, r.getExpr().get().get_SourcePositionStart());
           return;
@@ -71,7 +68,7 @@ public class FunctionReturnsIncorrectValue implements NESTMLASTFunctionCoCo {
 
         if (isVoid(functionReturnType) && !isVoid(returnExpressionType.getValue())) {
           // should return nothing, but does not
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
+          final String msg = NestmlErrorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
          error(msg, r.get_SourcePositionStart());
         }
@@ -79,33 +76,33 @@ public class FunctionReturnsIncorrectValue implements NESTMLASTFunctionCoCo {
         // same type is ok (e.g. string, boolean,integer, real,...)
         if (isString(functionReturnType) && !isString(returnExpressionType.getValue())) {
           // should return string, but does not
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
+          final String msg = NestmlErrorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
          error(msg, r.get_SourcePositionStart());
         }
 
         if (TypeChecker.isBoolean(functionReturnType) && !TypeChecker.isBoolean(returnExpressionType.getValue())) {
           // should return bool, but does not
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
+          final String msg = NestmlErrorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
          error(msg, r.get_SourcePositionStart());
         }
 
         if (TypeChecker.isUnit(functionReturnType) && !TypeChecker.isUnit(returnExpressionType.getValue())) {
           // should return unit, but does not
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
+          final String msg = NestmlErrorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
          warn(msg, r.get_SourcePositionStart());
         }
 
         if (TypeChecker.isInteger(functionReturnType) && TypeChecker.isReal(returnExpressionType.getValue())) {
           // integer rType and real eType is not ok
-          final String msg = errorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
+          final String msg = NestmlErrorStrings.getErrorMsgWrongReturnType(this,fun.getName(),functionReturnType.prettyPrint());
 
           error(msg, r.get_SourcePositionStart());
         }
 
-        final String msg = errorStrings.getErrorMsgCannotConvertReturnValue(this,returnExpressionType.getValue().getName(),functionReturnType.prettyPrint());
+        final String msg = NestmlErrorStrings.getErrorMsgCannotConvertReturnValue(this,returnExpressionType.getValue().getName(),functionReturnType.prettyPrint());
         if(TypeChecker.isUnit(functionReturnType)){
           warn(msg, r.get_SourcePositionStart());
         }else{

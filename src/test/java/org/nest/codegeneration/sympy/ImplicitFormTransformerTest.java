@@ -10,8 +10,8 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -51,7 +51,6 @@ public class ImplicitFormTransformerTest extends ModelbasedTest {
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNESTMLModel(TARGET_TMP_MODEL_PATH);
-    testant.setPackageName("codegeneration");
     testant.setArtifactName("iaf_cond_alpha");
     final NESTMLScopeCreator scopeCreator2 = new NESTMLScopeCreator(TEST_MODEL_PATH);
     final Scope scope = scopeCreator2.runSymbolTableCreator(testant);

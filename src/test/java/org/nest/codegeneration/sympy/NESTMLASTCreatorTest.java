@@ -6,7 +6,7 @@
 package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
-import org.nest.spl._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTDeclaration;
 
 import java.nio.file.Paths;
 

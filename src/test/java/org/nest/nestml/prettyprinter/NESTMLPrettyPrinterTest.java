@@ -4,8 +4,10 @@ import de.se_rwth.commons.logging.Log;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
+import org.nest.nestml._ast.ASTBlock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
+import org.nest.utils.AstUtils;
 import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
@@ -14,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.assertTrue;
 
@@ -24,7 +27,7 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class NESTMLPrettyPrinterTest extends ModelbasedTest {
-  private final NESTMLParser nestmlParser = new NESTMLParser(TEST_MODEL_PATH);
+  private final NESTMLParser nestmlParser = new NESTMLParser();
   @BeforeClass
   public static void disableFailQuick() {
     Log.enableFailQuick(false);
@@ -41,7 +44,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
-    parseAndCheckNestmlModel("models/iaf_cond_alpha_implicit.nestml");
+    parseAndCheckNestmlModel("models/iaf_cond_alpha.nestml");
   }
 
   @Test
@@ -83,6 +86,28 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
 
     final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseStringAsSPLFile(splPrettyPrinter.result());
     assertTrue(prettyPrintedRoot.isPresent());
+  }
+
+  @Test
+  public void testPrintingComment() throws IOException {
+    final ExpressionsPrettyPrinter prettyPrinter = new ExpressionsPrettyPrinter();
+    final SPLPrettyPrinter splPrettyPrinter = new SPLPrettyPrinter(prettyPrinter);
+
+    final ASTNESTMLCompilationUnit root = parseNESTMLModel("src/test/resources/org/nest/nestml/parsing/comment.nestml");
+
+    final Optional<ASTBlock> astBlock = AstUtils.getAny(root, ASTBlock.class);
+
+    assertTrue(astBlock.isPresent());
+    splPrettyPrinter.print(astBlock.get());
+    final String printedModel = splPrettyPrinter.result();
+    System.out.println(printedModel);
+
+    Optional<ASTBlock> prettyPrintedRoot = nestmlParser.parseBlock(new StringReader(splPrettyPrinter.result()));
+    assertTrue(prettyPrintedRoot.isPresent());
+
+    IntStream.range(1, 11).forEach(
+        index -> assertTrue("Comment" + index + " is missing.", printedModel.contains("Comment " + index)));
+
   }
 
 }

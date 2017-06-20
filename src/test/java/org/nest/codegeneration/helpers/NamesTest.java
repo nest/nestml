@@ -4,9 +4,9 @@ import de.monticore.symboltable.Scope;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.ode._ast.ASTDerivative;
-import org.nest.symboltable.symbols.NeuronSymbol;
-import org.nest.symboltable.symbols.VariableSymbol;
+import org.nest.nestml._ast.ASTDerivative;
+import org.nest.nestml._symboltable.symbols.NeuronSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
 import java.util.Optional;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class NamesTest extends ModelbasedTest {
-  private static final String PSC_MODEL_WITH_ODE = "models/iaf_cond_alpha_implicit.nestml";
+  private static final String PSC_MODEL_WITH_ODE = "models/iaf_cond_alpha.nestml";
   private final Names names = new Names();
   @Test
   public void testComputationOfInverseFunction() {

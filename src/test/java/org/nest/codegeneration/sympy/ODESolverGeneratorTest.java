@@ -8,12 +8,12 @@ package org.nest.codegeneration.sympy;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.ode._ast.ASTEquation;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 import org.nest.utils.FilesHelper;
 
@@ -36,7 +36,7 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
   private static final String PATH_TO_PSC_MODEL = "models/iaf_psc_alpha.nestml";
   private static final String PATH_TO_PSC_DELTA_MODEL = "models/iaf_psc_delta.nestml";
   private static final String PATH_TO_COND_MODEL = "models/iaf_cond_alpha.nestml";
-  private static final String PATH_TO_COND_IMPLICIT_MODEL = "models/iaf_cond_alpha_implicit.nestml";
+  private static final String PATH_TO_COND_IMPLICIT_MODEL = "models/iaf_cond_alpha.nestml";
 
   private static final String OUTPUT_FOLDER = "target";
   private static final Path OUTPUT_SCRIPT_DIRECTORY = Paths.get(OUTPUT_FOLDER, "sympy");
@@ -64,7 +64,7 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
 
   @Test
   public void testReplacement() throws IOException {
-    final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
+    final NESTMLParser p = new NESTMLParser();
     final String ODE_DECLARATION = "V' = -1/Tau * V + 1/C_m * (curr_sum(G, spikes) + I_e + ext_currents)";
     final Optional<ASTEquation> ode = p.parseEquation(new StringReader(ODE_DECLARATION));
     assertTrue(ode.isPresent());
@@ -82,7 +82,7 @@ public class ODESolverGeneratorTest extends ModelbasedTest {
   }
 
   private void generateAndCheck(final String pathToModel) throws IOException {
-    final NESTMLParser p = new NESTMLParser(TEST_MODEL_PATH);
+    final NESTMLParser p = new NESTMLParser();
     final Optional<ASTNESTMLCompilationUnit> root = p.parse(pathToModel);
     assertTrue(root.isPresent());
 

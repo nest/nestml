@@ -1,7 +1,7 @@
 package org.nest.codegeneration.helpers;
 
-import org.nest.commons._ast.ASTFunctionCall;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._ast.ASTFunctionCall;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 
 /**
  * Identifies the predefined function which integrates odes.

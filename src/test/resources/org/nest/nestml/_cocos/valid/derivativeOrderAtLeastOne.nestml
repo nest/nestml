@@ -1,0 +1,11 @@
+neuron iaf_neuron_ode:
+
+  state:
+    V_m mV
+  end
+
+  equations:
+    V_m' = t
+  end
+
+end

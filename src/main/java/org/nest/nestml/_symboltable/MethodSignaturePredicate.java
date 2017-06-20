@@ -7,19 +7,19 @@ package org.nest.nestml._symboltable;
 
 import de.monticore.symboltable.Symbol;
 import de.monticore.symboltable.SymbolPredicate;
-import org.nest.spl.symboltable.typechecking.TypeChecker;
-import org.nest.symboltable.symbols.MethodSymbol;
-import org.nest.symboltable.symbols.TypeSymbol;
-import org.nest.units.unitrepresentation.UnitRepresentation;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.typechecking.TypeChecker;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.google.common.base.Strings.emptyToNull;
 import static java.util.Objects.requireNonNull;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isReal;
-import static org.nest.spl.symboltable.typechecking.TypeChecker.isUnit;
-import static org.nest.symboltable.predefined.PredefinedTypes.getType;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isReal;
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isUnit;
+import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getType;
 
 public class MethodSignaturePredicate implements SymbolPredicate {
 

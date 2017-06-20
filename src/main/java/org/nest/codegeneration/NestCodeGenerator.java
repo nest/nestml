@@ -19,11 +19,11 @@ import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.ode._ast.ASTOdeDeclaration;
-import org.nest.spl.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.spl.prettyprinter.IReferenceConverter;
-import org.nest.spl.prettyprinter.LegacyExpressionPrinter;
-import org.nest.symboltable.NestmlSymbols;
+import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
+import org.nest.nestml.prettyprinter.IReferenceConverter;
+import org.nest.nestml.prettyprinter.LegacyExpressionPrinter;
+import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.utils.AstUtils;
 
 import java.io.File;
@@ -68,7 +68,7 @@ public class NestCodeGenerator {
   public void analyseAndGenerate(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    info("Starts processing of the model: " + root.getFullName(), LOG_NAME);
+    info("Starts processing of the model: " + root.getArtifactName(), LOG_NAME);
 
     ASTNESTMLCompilationUnit workingVersion = root;
     for (int i = 0; i < root.getNeurons().size(); ++i) {
@@ -81,7 +81,7 @@ public class NestCodeGenerator {
         .getNeurons()
         .forEach(astNeuron -> generateNestCode(astNeuron, outputBase));
 
-    final String msg = "Successfully generated NEST code for: '" + root.getFullName() + "' in: '"
+    final String msg = "Successfully generated NEST code for: '" + root.getArtifactName() + "' in: '"
         + outputBase.toAbsolutePath().toString() + "'";
     info(msg, LOG_NAME);
   }
@@ -93,7 +93,7 @@ public class NestCodeGenerator {
     final ASTBody astBody = astNeuron.getBody();
     final Optional<ASTOdeDeclaration> odesBlock = astBody.getODEBlock();
     if (odesBlock.isPresent()) {
-      if (odesBlock.get().getShapes().size() == 0) {
+      if (odesBlock.get().getShapes().size() == 0 || odesBlock.get().getODEs().size() > 1) {
         info("The model will be solved numerically with GSL solver.", LOG_NAME);
         markNumericSolver(astNeuron.getName(), outputBase);
         return astNeuron;
@@ -271,7 +271,7 @@ public class NestCodeGenerator {
     glex.setGlobalValue("useGSL", false);
 
     if (astBody.getODEBlock().isPresent()) {
-      if (astBody.getODEBlock().get().getShapes().size() == 0) {
+      if (astBody.getODEBlock().get().getShapes().size() == 0 || astBody.getODEBlock().get().getODEs().size() > 1) {
         glex.setGlobalValue("names", new GslNames());
         glex.setGlobalValue("useGSL", true);
 

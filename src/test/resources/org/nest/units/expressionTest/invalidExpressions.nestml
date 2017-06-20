@@ -54,8 +54,13 @@ neuron invalidExpressionTest:
     V1 = R1 / "string"          #Error: Division UnitType string
     V1 = "string"/R1            #Error: Mirrored ^  
 
+    # TODO this must be part of a different context conditions
     #If we change how functions are resolved, some of the Errors could potentially be Warnings
-    V1 = foo(1,R1)              #Error: Cannot resolve function
+
+    #V1 = foo(A1,R1)             #Error: Cannot resolve function
+    #V1 = foo(1,R1)              #Error: Cannot resolve function
+    #V1 = foo(A1,R1)             #Error: Cannot resolve function
+
     Int = foo(3A,2Ohm)          #Error: Returnvalue Unit, integer expected 
 
     V1 = 2 + 2V                 #Warning: Addition of integer and Unit ->assume Unit

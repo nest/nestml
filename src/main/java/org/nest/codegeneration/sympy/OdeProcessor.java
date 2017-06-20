@@ -7,12 +7,12 @@ package org.nest.codegeneration.sympy;
 
 import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.SolverType;
-import org.nest.commons._ast.ASTFunctionCall;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
-import org.nest.symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkState;
 import static de.se_rwth.commons.logging.Log.info;
+import static de.se_rwth.commons.logging.Log.trace;
 import static de.se_rwth.commons.logging.Log.warn;
 import static org.nest.codegeneration.sympy.ODESolverGenerator.generateODEAnalyserForDeltaShape;
 import static org.nest.codegeneration.sympy.ODESolverGenerator.generateSympyODEAnalyzer;
@@ -66,7 +67,7 @@ public class OdeProcessor {
     else {
       final String msg = "The neuron: " + astNeuron.getName() + " doesn't contain ODE. "
           + "The analysis is skipped.";
-      Log.warn(msg);
+      Log.trace(msg, LOG_NAME);
       return astNeuron;
     }
 
@@ -111,8 +112,9 @@ public class OdeProcessor {
             Paths.get(outputBase.toString(), astNeuron.getName() + "." + DeltaSolutionTransformer.PROPAGATOR_STEP));
       }
       else {
-        Log.warn(astNeuron.getName() + " has a delta shape function with a non-linear ODE.");
+        Log.trace(astNeuron.getName() + " has a delta shape function with a non-linear ODE.", LOG_NAME);
       }
+
     }
 
     return astNeuron;
@@ -160,12 +162,12 @@ public class OdeProcessor {
             Paths.get(outputBase.toString(),astNeuron.getName() + "." + ImplicitFormTransformer.EQUATIONS_FILE));
       }
       else {
-        warn(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.");
+        trace(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.", LOG_NAME);
         return astNeuron;
       }
     }
     else {
-      warn(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.");
+      trace(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.", LOG_NAME);
       return astNeuron;
     }
 
