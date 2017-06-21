@@ -27,11 +27,11 @@ import static org.nest.utils.AstUtils.getFunctionCall;
  *
  * @author plotnikov
  */
-public class EquationBlockProcessor {
+public class EquationsBlockProcessor {
   private final Reporter reporter = Reporter.get();
   private final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
   private final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
-  private final ImplicitFormTransformer implicitFormTransformer = new ImplicitFormTransformer();
+  private final ShapesToOdesTransformer shapesToOdesTransformer = new ShapesToOdesTransformer();
   private final DeltaSolutionTransformer deltaSolutionTransformer = new DeltaSolutionTransformer();
 
   /**
@@ -95,45 +95,29 @@ public class EquationBlockProcessor {
     return astNeuron;
   }
 
-  protected ASTNeuron handleNonDeltaShapes(
+  ASTNeuron handleNonDeltaShapes(
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final ASTNeuron deepCopy = deepCloneNeuron(astNeuron, outputBase);
 
-    final SolverOutput result = evaluator.solveOdeWithShapes(deepCopy.getBody().getODEBlock().get(), outputBase);
+    final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.getBody().getODEBlock().get(), outputBase);
     reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());
 
-    switch (result.solver) {
+    switch (solverOutput.solver) {
       case "exact":
-        reporter.reportProgress("ODE is solved exactly.");
+        reporter.reportProgress("Equations are solved exactly.");
+        return linearSolutionTransformer.addExactSolution(astNeuron, solverOutput);
 
-        return linearSolutionTransformer.addExactSolution(astNeuron, result);
       case "numeric":
-        reporter.reportProgress("ODE is solved numerically.");
+        reporter.reportProgress("Shapes will be solved with GLS.");
+        return shapesToOdesTransformer.transformShapesToOdeForm(solverOutput, astNeuron);
 
-        return implicitFormTransformer.transformToImplicitForm(
-            astNeuron,
-            Paths.get(outputBase.toString(), astNeuron.getName() + "." + ImplicitFormTransformer.EQUATIONS_FILE),
-            Paths.get(outputBase.toString(), astNeuron.getName() + "." + ImplicitFormTransformer.EQUATIONS_FILE));
       default:
-        reporter.reportProgress(astNeuron.getName() + ": ODEs could not be solved. The model remains unchanged.");
+        reporter.reportProgress(astNeuron.getName() +
+                                ": Equations or shapes could not be solved. The model remains unchanged.");
         return astNeuron;
     }
 
-  }
-
-  /**
-   * This method can be overloaded in tests and return a mock instead of real transformer.
-   */
-  protected LinearSolutionTransformer getLinearSolutionTransformer() {
-    return linearSolutionTransformer;
-  }
-
-  /**
-   * This method can be overloaded in tests and return a mock instead of real transformer.
-   */
-  protected ImplicitFormTransformer getImplicitFormTransformer() {
-    return implicitFormTransformer;
   }
 
 }

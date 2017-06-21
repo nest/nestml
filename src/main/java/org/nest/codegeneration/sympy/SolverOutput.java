@@ -48,6 +48,7 @@ public class SolverOutput {
   public List<Map.Entry<String, String>> propagator_elements = Lists.newArrayList();
   public List<String> shape_state_variables = Lists.newArrayList();
   public List<Map.Entry<String, String>> updates_to_shape_state_variables = Lists.newArrayList();
+  public List<Map.Entry<String, String>> shape_state_odes = Lists.newArrayList();
 
   private static final SolverOutput ERROR_RESULT;
   static {

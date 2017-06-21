@@ -5,21 +5,14 @@
  */
 package org.nest.mocks;
 
-import de.se_rwth.commons.logging.Log;
-import org.nest.codegeneration.sympy.ImplicitFormTransformer;
-import org.nest.codegeneration.sympy.EquationBlockProcessor;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTNeuron;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.nest.codegeneration.sympy.EquationsBlockProcessor;
 
 /**
  * Provides a mock for the cond_alpha neuron defined with an ode.
  *
  * @author plotnikov
  */
-public class CondMock extends EquationBlockProcessor {
+public class CondMock extends EquationsBlockProcessor {
   private final static String MOCK_RESOURCE_PATH = "src/test/resources/codegeneration/sympy/cond/";
 
 

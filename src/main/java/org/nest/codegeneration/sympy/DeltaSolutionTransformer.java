@@ -42,7 +42,7 @@ class DeltaSolutionTransformer extends TransformerBase {
 
     // TODO can this variable be a vecotr?
     astNeuron.getBody().addToInternalBlock(createDeclaration("__h__ ms = resolution()"));
-    addVariableToInternals(astNeuron, p30File);
+    //addVariableToInternals(astNeuron, p30File);
     addP33ToInternals(astNeuron);
     addPropagatorStep(astNeuron, propagatorStep);
 
@@ -69,8 +69,6 @@ class DeltaSolutionTransformer extends TransformerBase {
   private void addPropagatorStep(ASTNeuron astNeuron, Path propagatorStepFile) {
     try {
       final List<ASTStmt> propagatorSteps = Lists.newArrayList();
-
-
       final ASTAssignment updateAssignment = AstCreator.createAssignment(Files.lines(propagatorStepFile).findFirst().get());
       final ASTAssignment applyP33 = AstCreator.createAssignment(updateAssignment.getLhsVarialbe() + "*=" + "__P33__" );
 

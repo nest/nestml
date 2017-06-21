@@ -43,9 +43,13 @@ class SolverOutput:
         self.shape_state_variables = []
         self.const_input = const_input
         self.updates_to_shape_state_variables = []
+        self.shape_state_odes = []
 
     def add_shape_state_variables(self, state_variables):
         self.shape_state_variables += state_variables
+
+    def add_shape_state_odes(self, shape_state_odes):
+        self.shape_state_odes += shape_state_odes
 
     def add_updates_to_shape_state_variables(self, updates_to_state_shape_variable):
         self.updates_to_shape_state_variables = updates_to_state_shape_variable
@@ -81,7 +85,8 @@ class OdeAnalyzer(object):
             return False
 
     @staticmethod
-    def compute_solution(json_input):
+    def compute_solution(input_json):
+        input_ode_block = SolverInput(input_json)
         """
         The function computes a list with propagator matrices.
         :arguments A list starting with an ODE of the first order followed by shape definitions. An ODE is of the form 
@@ -89,7 +94,6 @@ class OdeAnalyzer(object):
         
         :returns JSON object containing all data necessary to compute an update step.
         """
-        input_ode_block = SolverInput(json_input)
 
         # extract the name of the ODE and its defining expression
         ode_definition = input_ode_block.ode.split('=')  # it is now a list with 2 elements
@@ -111,39 +115,53 @@ class OdeAnalyzer(object):
                 function_vars.append(tmp[0].strip())
                 function_definitions.append(tmp[1].strip())
 
-        if not (OdeAnalyzer.is_linear_constant_coefficient_ode(ode_var, ode_rhs, shape_functions, function_vars, function_definitions)):
-            result = SolverOutput("success", "numeric", None, None, None, None)
+        if OdeAnalyzer.is_linear_constant_coefficient_ode(ode_var,
+                                                          ode_rhs,
+                                                          shape_functions,
+                                                          function_vars,
+                                                          function_definitions):
+
+            calculator = PropagatorCalculator()
+            prop_matrices, const_input, step_const = calculator.ode_to_prop_matrices(
+                shape_functions,
+                ode_var,
+                ode_rhs,
+                function_vars,
+                function_definitions)
+            propagator_elements, ode_var_factor, const_input, ode_var_update_instructions = \
+                calculator.prop_matrix_to_prop_step(
+                    prop_matrices,
+                    const_input,
+                    step_const,
+                    shape_functions,
+                    ode_var)
+
+            # build result JSON
+            result = SolverOutput("success",
+                                  "exact",
+                                  propagator_elements,
+                                  ode_var_factor,
+                                  const_input,
+                                  ode_var_update_instructions)
+
+            for shape in shape_functions:
+                result.add_shape_state_variables(shape.additional_shape_state_variables())
+                result.add_initial_values(shape.get_initial_values())
+                result.add_updates_to_shape_state_variables(shape.get_updates_to_shape_state_variables())
+
+            return json.dumps(result.__dict__, indent=2)
+        else:
+            result = OdeAnalyzer.convert_shapes_to_odes(shape_functions)
             return json.dumps(result.__dict__, indent=2)
 
-        calculator = PropagatorCalculator()
-        prop_matrices, const_input, step_const = calculator.ode_to_prop_matrices(
-            shape_functions,
-            ode_var,
-            ode_rhs,
-            function_vars,
-            function_definitions)
-        propagator_elements, ode_var_factor, const_input, ode_var_update_instructions = \
-            calculator.prop_matrix_to_prop_step(
-                prop_matrices,
-                const_input,
-                step_const,
-                shape_functions,
-                ode_var)
-
-        # build result JSON
-        result = SolverOutput("success",
-                        "exact",
-                              propagator_elements,
-                              ode_var_factor,
-                              const_input,
-                              ode_var_update_instructions)
-
+    @staticmethod
+    def convert_shapes_to_odes(shape_functions):
+        result = SolverOutput("success", "numeric", None, None, None, None)
         for shape in shape_functions:
+            result.add_shape_state_odes(shape.nestml_ode_form)
             result.add_shape_state_variables(shape.additional_shape_state_variables())
             result.add_initial_values(shape.get_initial_values())
-            result.add_updates_to_shape_state_variables(shape.get_updates_to_shape_state_variables())
-
-        return json.dumps(result.__dict__, indent=2)
+        return result
 
 
 # MAIN ENTRY POINT ###

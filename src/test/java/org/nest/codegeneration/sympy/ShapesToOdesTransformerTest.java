@@ -13,8 +13,6 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -24,29 +22,18 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class ImplicitFormTransformerTest extends ModelbasedTest {
+public class ShapesToOdesTransformerTest extends ModelbasedTest {
   private static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
-
-  private final static Path PSC_INITIAL_VALUE_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/cond/",
-      ImplicitFormTransformer.EQUATIONS_FILE);
-
-  private final static Path IMPLICTI_EQUATIONS = Paths.get(
-      "src/test/resources/codegeneration/sympy/cond/",
-      ImplicitFormTransformer.EQUATIONS_FILE);
 
   private static final String NEURON_NAME = "iaf_cond_alpha_neuron";
   private static final String MODEL_FILE_PATH = "models/iaf_cond_alpha.nestml";
 
   @Test
   public void testExactSolutionTransformation() {
-    final ImplicitFormTransformer implicitFormTransformer = new ImplicitFormTransformer();
+    final ShapesToOdesTransformer shapesToOdesTransformer = new ShapesToOdesTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    implicitFormTransformer.transformToImplicitForm(
-        modelRoot.getNeurons().get(0),
-        PSC_INITIAL_VALUE_FILE,
-        IMPLICTI_EQUATIONS);
+    shapesToOdesTransformer.transformShapesToOdeForm(new SolverOutput(), modelRoot.getNeurons().get(0));
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 

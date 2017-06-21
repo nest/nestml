@@ -20,7 +20,8 @@ psc_ode_block = '{' \
 psc_ode_block2 = '{' \
                  '"ode" : "V_m\' = -V_m/Tau + (I_in + I_ex + I_e) / C_m", ' \
                  '"shapes" : ["I_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)", ' \
-                 '"I_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)" ] }'
+                 '"I_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)" ]' \
+                 '}'
 
 
 class TestSolutionComputation(unittest.TestCase):

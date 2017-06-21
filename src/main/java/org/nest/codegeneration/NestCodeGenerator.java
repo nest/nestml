@@ -5,16 +5,13 @@
  */
 package org.nest.codegeneration;
 
-import com.google.common.io.Files;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.*;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.sympy.EquationBlockProcessor;
+import org.nest.codegeneration.sympy.EquationsBlockProcessor;
 import org.nest.codegeneration.sympy.OdeTransformer;
-import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
@@ -28,8 +25,6 @@ import org.nest.reporting.Reporter;
 import org.nest.utils.AstUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -46,22 +41,22 @@ import static org.nest.utils.AstUtils.getAllNeurons;
  */
 public class NestCodeGenerator {
   private final static Reporter reporter = Reporter.get();
-  private final EquationBlockProcessor equationBlockProcessor;
+  private final EquationsBlockProcessor equationsBlockProcessor;
   private final NESTMLScopeCreator scopeCreator;
   private final Boolean enableTracing ;
 
   public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
-                           final EquationBlockProcessor equationBlockProcessor,
+                           final EquationsBlockProcessor equationsBlockProcessor,
                            boolean enableTracing) {
     this.scopeCreator = scopeCreator;
-    this.equationBlockProcessor = equationBlockProcessor;
+    this.equationsBlockProcessor = equationsBlockProcessor;
     this.enableTracing = enableTracing;
   }
 
   public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
                            boolean enableTracing) {
     this.scopeCreator = scopeCreator;
-    this.equationBlockProcessor = new EquationBlockProcessor();
+    this.equationsBlockProcessor = new EquationsBlockProcessor();
     this.enableTracing = enableTracing;
   }
 
@@ -104,7 +99,7 @@ public class NestCodeGenerator {
       }
       else {
         reporter.reportProgress(("The model will be analysed."));
-        return equationBlockProcessor.solveOdeWithShapes(astNeuron, outputBase);
+        return equationsBlockProcessor.solveOdeWithShapes(astNeuron, outputBase);
       }
 
     }

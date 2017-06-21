@@ -39,7 +39,7 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
     linearSolutionTransformer.addExactSolution(
         modelRoot.getNeurons().get(0),
         new SolverOutput());
-
+    assertTrue(false);
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNestmlModel(TARGET_TMP_MODEL_PATH);

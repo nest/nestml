@@ -103,6 +103,10 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   public void visit(final ASTVar_Block astVarBlock) {
     printBlockKeyword(astVarBlock);
     indent();
+    for (ASTDeclaration astDeclaration:astVarBlock.getDeclarations()) {
+      printDeclarationStatement(astDeclaration);
+      println();
+    }
   }
 
   private void printBlockKeyword(final ASTVar_Block astVarBlock) {
@@ -114,11 +118,6 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
     }
     else if (astVarBlock.isParameters ()) {
       println("parameters" + BLOCK_OPEN);
-    }
-
-    for (ASTDeclaration astDeclaration:astVarBlock.getDeclarations()) {
-      printDeclarationStatement(astDeclaration);
-      println();
     }
 
   }

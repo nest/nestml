@@ -10,7 +10,7 @@ import de.se_rwth.commons.Names;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.codegeneration.sympy.EquationBlockProcessor;
+import org.nest.codegeneration.sympy.EquationsBlockProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
@@ -27,13 +27,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plotnikov
  */
-public class EquationBlockProcessorTest extends ModelbasedTest {
+public class EquationsBlockProcessorTest extends ModelbasedTest {
   private static final String COND_MODEL_FILE = "models/iaf_cond_alpha.nestml";
   private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
   private static final String PSC_DELTA_MODEL_FILE = "models/iaf_psc_delta.nestml";
   private static final String PSC_NEURON_NAME = "iaf_neuron_nestml";
 
-  private final EquationBlockProcessor testant = new EquationBlockProcessor();
+  private final EquationsBlockProcessor testant = new EquationsBlockProcessor();
 
   @Test
   public void testPscModel() throws Exception {
@@ -50,7 +50,6 @@ public class EquationBlockProcessorTest extends ModelbasedTest {
     assertTrue(y2.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
   }
 
-  @Ignore
   @Test
   public void testCondModel() throws Exception {
     solveOdesAndShapes(COND_MODEL_FILE);

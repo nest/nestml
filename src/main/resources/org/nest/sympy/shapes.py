@@ -226,6 +226,10 @@ class ShapeFunction(object):
         if not found_ode:
             raise Exception("Shape does not satisfy any ODE of order <= {}".format(MAX_ORDER))
 
+        self.order = order
+        self.nestml_ode_form = []
+        for cur_order in range(1, order):
+            self.nestml_ode_form.append({name + "'" * cur_order: name + "'" * cur_order})
         # Compute the right and left hand side of the ODE that 'shape' satisfies
         rhs_str = []
         for k in range(order):
@@ -233,8 +237,7 @@ class ShapeFunction(object):
         rhs = " + ".join(rhs_str)
         lhs = name + "'" * order
 
-        self.order = order
-        self.nestml_ode_form = "{} = {}".format(lhs, rhs)
+        self.nestml_ode_form.append({lhs: rhs})
         self.derivative_factors = list(simplify(derivative_factors))
         self.initial_values = [x.subs(t, 0) for x in derivatives[:-1]]
         self.updates_to_state_shape_variables = []  # must be filled after the propagator matrix is computed

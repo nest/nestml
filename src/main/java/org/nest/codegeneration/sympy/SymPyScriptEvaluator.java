@@ -130,7 +130,6 @@ public class SymPyScriptEvaluator {
                          + (double)elapsedTime / 1000000000.0 +  " [s]";
       reporter.reportProgress(msg);
 
-
       // reports standard output
       getListFromStream(res.getInputStream()).forEach(reporter::reportProgress);
 
