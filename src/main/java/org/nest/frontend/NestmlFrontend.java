@@ -369,12 +369,9 @@ public class NestmlFrontend {
 
   private void executeConfiguration(final CliConfiguration configuration) {
     final CliConfigurationExecutor executor = new CliConfigurationExecutor();
-
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
-    final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(nestmlScopeCreator, configuration.isTracing());
+    final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(configuration.isTracing());
 
     executor.execute(nestCodeGenerator, configuration);
   }
-
 
 }

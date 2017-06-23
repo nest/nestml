@@ -16,7 +16,6 @@ import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTOdeDeclaration;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.nestml.prettyprinter.IReferenceConverter;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static org.nest.utils.AstUtils.deepCloneNeuron;
+import static org.nest.utils.AstUtils.deepCloneNeuronAndBuildSymbolTable;
 import static org.nest.utils.AstUtils.getAllNeurons;
 
 /**
@@ -42,20 +41,9 @@ import static org.nest.utils.AstUtils.getAllNeurons;
 public class NestCodeGenerator {
   private final static Reporter reporter = Reporter.get();
   private final EquationsBlockProcessor equationsBlockProcessor;
-  private final NESTMLScopeCreator scopeCreator;
   private final Boolean enableTracing ;
 
-  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
-                           final EquationsBlockProcessor equationsBlockProcessor,
-                           boolean enableTracing) {
-    this.scopeCreator = scopeCreator;
-    this.equationsBlockProcessor = equationsBlockProcessor;
-    this.enableTracing = enableTracing;
-  }
-
-  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
-                           boolean enableTracing) {
-    this.scopeCreator = scopeCreator;
+  public NestCodeGenerator(boolean enableTracing) {
     this.equationsBlockProcessor = new EquationsBlockProcessor();
     this.enableTracing = enableTracing;
   }
@@ -76,9 +64,10 @@ public class NestCodeGenerator {
       final ASTNeuron astNeuron,
       final Path outputBase) {
     reporter.reportProgress("Starts processing of the neuron: " + astNeuron.getName());
-    ASTNeuron workingVersion = deepCloneNeuron(astNeuron, outputBase);
+    ASTNeuron workingVersion = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
 
     workingVersion = solveOdesAndShapes(workingVersion, outputBase);
+    workingVersion = AstUtils.deepCloneNeuronAndBuildSymbolTable(workingVersion, outputBase);
     generateNestCode(workingVersion, outputBase);
 
     final String msg = "Successfully generated NEST code for: '" + astNeuron.getName() + "' in: '"
@@ -109,10 +98,7 @@ public class NestCodeGenerator {
 
   }
 
-  private void generateNestCode(
-      final ASTNeuron astNeuron,
-      final Path outputBase) {
-
+  private void generateNestCode(final ASTNeuron astNeuron, final Path outputBase) {
     final GlobalExtensionManagement glex = getGlexConfiguration();
     setNeuronGenerationParameter(glex, astNeuron);
     generateHeader(astNeuron, outputBase, glex);

@@ -36,8 +36,8 @@ public class OdeTransformer {
     // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
     final List<ASTFunctionCall> functionsCalls = getFunctionCalls(astOde, functions);
 
-    final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepCloneNeuron returns T
-    functionsCalls.forEach(functionCall -> replaceFunctionCallThroughFirstArgument(astOde, functionCall)); // TODO deepCloneNeuron
+    final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepCloneNeuronAndBuildSymbolTable returns T
+    functionsCalls.forEach(functionCall -> replaceFunctionCallThroughFirstArgument(astOde, functionCall)); // TODO deepCloneNeuronAndBuildSymbolTable
     return astOde;
   }
 
@@ -46,8 +46,8 @@ public class OdeTransformer {
     // since the transformation replaces the call inplace, make a copy to preserve the information for further steps
     final List<ASTFunctionCall> functionsCalls = get_sumFunctionCalls(astOde);
 
-    final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepCloneNeuron returns T
-    functionsCalls.forEach(functionCall -> replaceFunctionCallThroughFirstArgument(astOde, functionCall)); // TODO deepCloneNeuron
+    final T workingCopy = (T) astOde.deepClone(); // IT is OK, since the deepCloneNeuronAndBuildSymbolTable returns T
+    functionsCalls.forEach(functionCall -> replaceFunctionCallThroughFirstArgument(astOde, functionCall)); // TODO deepCloneNeuronAndBuildSymbolTable
     return astOde;
   }
 

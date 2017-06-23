@@ -18,7 +18,7 @@ import java.util.Optional;
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.codegeneration.sympy.SolverFrameworkGenerator.generateODEAnalyserForDeltaShape;
 import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.*;
-import static org.nest.utils.AstUtils.deepCloneNeuron;
+import static org.nest.utils.AstUtils.deepCloneNeuronAndBuildSymbolTable;
 import static org.nest.utils.AstUtils.getFunctionCall;
 
 /**
@@ -64,7 +64,7 @@ public class EquationsBlockProcessor {
       final ASTNeuron astNeuron,
       final Path outputBase) {
     final Optional<Path> generatedScript = generateODEAnalyserForDeltaShape(
-        deepCloneNeuron(astNeuron, outputBase),
+        deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase),
         outputBase);
 
     if(generatedScript.isPresent()) {
@@ -98,7 +98,7 @@ public class EquationsBlockProcessor {
   ASTNeuron handleNonDeltaShapes(
       final ASTNeuron astNeuron,
       final Path outputBase) {
-    final ASTNeuron deepCopy = deepCloneNeuron(astNeuron, outputBase);
+    final ASTNeuron deepCopy = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
 
     final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.getBody().getODEBlock().get(), outputBase);
     reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());

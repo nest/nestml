@@ -10,7 +10,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
-import de.monticore.symboltable.EnclosingScopeOfNodesInitializer;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.Util;
@@ -30,7 +29,6 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Deque;
@@ -140,6 +138,7 @@ public final class AstUtils {
 
   /**
    * Returns all aliases which are used in the tree beginning at astNode
+   * This method must remain public. It is used in Freemarker-templates.
    */
   public static List<VariableSymbol> getAliasSymbols(final ASTNESTMLNode astNode) {
     checkState(astNode.getEnclosingScope().isPresent(), "Run symbol table creator");
@@ -394,7 +393,7 @@ public final class AstUtils {
     return (!isInh && !isExc) || (isInh && isExc);
   }
 
-  public static void printModelToFile(
+  private static void printModelToFile(
       final ASTNeuron astNeuron,
       final Path outputFile) {
     final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
@@ -411,20 +410,13 @@ public final class AstUtils {
 
   }
 
-  public static void setEnclosingScopeOfNodes(final ASTNode root) {
-    EnclosingScopeOfNodesInitializer v = new EnclosingScopeOfNodesInitializer();
-    v.handle(root);
-  }
-
   /**
    * Model is printed and read again due 2 reasons:
    * a) Technically it is necessary to build a new symbol table
    * b) The model developer can view how the solution was computed.
    * @return New root node of the altered model with an initialized symbol table
    */
-  public static ASTNeuron deepCloneNeuron(
-      final ASTNeuron astNeuron,
-      final Path temporaryFolder) {
+  public static ASTNeuron deepCloneNeuronAndBuildSymbolTable(final ASTNeuron astNeuron, final Path temporaryFolder) {
     try {
       final Path outputTmpPath = Paths.get(temporaryFolder.toString(), astNeuron.getName() + ".tmp");
 

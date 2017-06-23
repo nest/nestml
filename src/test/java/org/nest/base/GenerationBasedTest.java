@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +33,7 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
 
   protected static final String MODULE_NAME = "integration";
   protected final Path CODE_GEN_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), MODULE_NAME);
-  private final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, true);
+  private final NestCodeGenerator generator = new NestCodeGenerator(true);
   private final NestmlCoCosManager checker = new NestmlCoCosManager();
 
   @Before
@@ -46,8 +47,11 @@ public abstract class GenerationBasedTest extends ModelbasedTest {
     generator.analyseAndGenerate(root, CODE_GEN_OUTPUT);
   }
 
-  protected void generateNESTModuleCode(final List<ASTNESTMLCompilationUnit> modelRoots) {
-    generator.generateNESTModuleCode(modelRoots, MODULE_NAME, CODE_GEN_OUTPUT);
+  protected void generateNESTModuleCode(final List<String> modelFileNames) {
+    final List<ASTNESTMLCompilationUnit> roots = modelFileNames.stream()
+        .map(this::parseAndBuildSymboltable)
+        .collect(Collectors.toList());
+    generator.generateNESTModuleCode(roots, MODULE_NAME, CODE_GEN_OUTPUT);
   }
 
   protected void checkCocos(final String pathToModel) {
