@@ -1,0 +1,10 @@
+neuron A:
+  parameters:
+    parameterVar ms = 20 ms
+  end
+
+  update:
+    parameterVar = 60 ms
+  end
+
+end

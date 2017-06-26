@@ -740,6 +740,19 @@ public class NestmlCoCosTest extends ModelbasedTest {
 
   }
 
+  @Test
+  public void testAssignmentToParameter(){
+    final AssignmentToParameter assignmentToParameter = new AssignmentToParameter();
+    nestmlCoCoChecker.addCoCo(assignmentToParameter);
+
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/assignmentToParameter.nestml");
+    checkModelAndAssertWithErrors(
+        pathToInvalidModel,
+        nestmlCoCoChecker,
+        NestmlErrorStrings.code(assignmentToParameter),
+        1);
+  }
+
   private void checkModelAndAssertNoErrors(
       final Path pathToModel,
       final NESTMLCoCoChecker nestmlCoCoChecker,

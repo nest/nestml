@@ -397,7 +397,7 @@ public class NestmlErrorStrings {
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  private static String code(AssignmentToParameter coco) {
+  static String code(AssignmentToParameter coco) {
     return "NESTML_ASSIGNMENT_TO_PARAMETER";
   }
 }
