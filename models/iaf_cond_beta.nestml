@@ -38,7 +38,7 @@ neuron iaf_cond_beta_neuron:
       function I_syn_exc pA = (F_E + cond_sum(GE, spikeExc)) * ( V_m - E_ex )
       function I_syn_inh pA = (F_I + cond_sum(GI, spikeInh)) * ( V_m - E_in )
       function I_leak pA = g_L * ( V_m - E_L ) # pa = nS * mV
-      V_m' =  (-I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
+      V_m' =  (-I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end
 
   parameters:
@@ -57,9 +57,6 @@ neuron iaf_cond_beta_neuron:
     I_e pA = 0pA            # Constant Current in pA
     F_E nS = 0nS            # Constant External input conductance in nS (excitatory).
     F_I nS = 0nS            # Constant External input conductance in nS (inhibitory).
-    I_stim pA = 0pA # Input current injected by CurrentEvent.
-                    # This variable is used to transport the current applied into the
-                    # _dynamics function computing the derivative of the state vector.
   end
 
   internals:
@@ -99,7 +96,6 @@ neuron iaf_cond_beta_neuron:
 
     GE' += spikeExc * PSConInit_E
     GI' += spikeInh * PSConInit_I
-    I_stim = currents
   end
 
 end

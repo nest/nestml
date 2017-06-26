@@ -118,7 +118,7 @@ neuron terub_neuron_gpe:
     g_in' = g_in' - ( g_in / tau_syn_in ) 
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + I_stim + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + currents + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m
 
     # channel dynamics
     gate_h' = g_phi_h *((h_inf-gate_h) / tau_h) / ms # h-variable
@@ -146,7 +146,6 @@ neuron terub_neuron_gpe:
     I_e        pA = 0pA    # Constant external input current in pA.
     E_gg			 mV = -100mV # reversal potential for inhibitory input (from GPe)
     t_ref      ms = 2ms    # refractory time in ms
-    I_stim     pA = 0pA
   end
 
   internals:
@@ -175,9 +174,6 @@ neuron terub_neuron_gpe:
       r = refractory_counts
       emit_spike()
     end
-
-    # set new input current
-    I_stim = currents
 
     g_ex' += spikeExc * PSCurrInit_E 
     g_in' += spikeInh * PSCurrInit_I 

@@ -121,7 +121,7 @@ neuron terub_neuron_stn:
     function I_ahp pA =  g_ahp * (Ca_con / (Ca_con + k1))    * (V_m - E_K )
 
     # V dot -- synaptic input are currents, inhib current is negative
-    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + I_stim + I_e + I_ex_mod + I_in_mod) / C_m
+    V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp) + currents + I_e + I_ex_mod + I_in_mod) / C_m
 
     #channel dynamics
     gate_h' = phi_h *((h_inf-gate_h) / tau_h) * mV/ms  # h-variable
@@ -156,7 +156,6 @@ neuron terub_neuron_stn:
     I_e        pA = 0pA    # Constant external input current in pA.
     E_gs			 mV = -85.0mV# reversal potential for inhibitory input (from GPe)
     t_ref      ms = 2ms    # refractory time in ms
-    I_stim     pA = 0pA
   end
 
   internals:
@@ -185,9 +184,6 @@ neuron terub_neuron_stn:
       r = refractory_counts
       emit_spike()
     end
-
-    # set new input current
-    I_stim = currents
 
     g_ex' += spikeExc * PSCurrInit_E * pA/ms
     g_in' += spikeInh * PSCurrInit_I * pA/ms

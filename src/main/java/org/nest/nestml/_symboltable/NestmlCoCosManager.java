@@ -169,6 +169,9 @@ public class NestmlCoCosManager {
     final AssignmentToAlias assignmentToAlias = new AssignmentToAlias();
     nestmlCoCoChecker.addCoCo(assignmentToAlias);
 
+    final AssignmentToParameter assignmentToParameter = new AssignmentToParameter();
+    nestmlCoCoChecker.addCoCo(assignmentToParameter);
+
     final VariableBlockDefinedMultipleTimes variableBlockDefinedMultipleTimes = new VariableBlockDefinedMultipleTimes();
     nestmlCoCoChecker.addCoCo(variableBlockDefinedMultipleTimes);
   }

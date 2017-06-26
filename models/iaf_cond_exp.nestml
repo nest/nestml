@@ -36,7 +36,7 @@ neuron iaf_cond_exp_neuron:
     function I_syn_exc pA = cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
     function I_syn_inh pA = cond_sum(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end
 
   parameters:
@@ -51,9 +51,6 @@ neuron iaf_cond_exp_neuron:
     tau_syn_ex ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_in ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse in ms
     I_e pA = 0pA           # Constant Current in pA
-    I_stim pA = 0pA # Input current injected by CurrentEvent.
-                    # This variable is used to transport the current applied into the
-                    # _dynamics function computing the derivative of the state vector.
   end
 
   internals:
@@ -81,7 +78,6 @@ neuron iaf_cond_exp_neuron:
     end
 
     # set new input current
-    I_stim = currents
   end
 
 end
@@ -126,7 +122,7 @@ neuron iaf_cond_exp_implicit:
     function I_syn_exc pA = cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
     function I_syn_inh pA = cond_sum(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end
 
   parameters:
@@ -141,9 +137,6 @@ neuron iaf_cond_exp_implicit:
     tau_synE ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse in ms
     tau_synI ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse in ms
     I_e pA = 0pA           # Constant Current in pA
-    I_stim pA = 0pA # Input current injected by CurrentEvent.
-                    # This variable is used to transport the current applied into the
-                    # _dynamics function computing the derivative of the state vector.
   end
 
   internals:
@@ -182,7 +175,6 @@ neuron iaf_cond_exp_implicit:
     g_ex += spikeExc * nS
     g_in += spikeInh * nS
     # set new input current
-    I_stim = currents
   end
 
 end

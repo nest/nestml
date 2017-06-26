@@ -47,7 +47,7 @@ neuron iaf_chxk_2008_implicit:
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + I_stim + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh - I_ahp + currents + I_e ) / C_m
   end
 
   parameters:
@@ -67,7 +67,6 @@ neuron iaf_chxk_2008_implicit:
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
     # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0pA
   end
 
   internals:
@@ -119,7 +118,6 @@ neuron iaf_chxk_2008_implicit:
 
     g_ex' += spikesExc * PSConInit_E
     g_in' += spikesInh * PSConInit_I
-    I_stim = currents
   end
 
 end

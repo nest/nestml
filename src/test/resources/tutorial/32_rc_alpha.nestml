@@ -7,6 +7,7 @@ neuron rc_alpha:
   state:
     V_m mV =  E_L
     g_ex pA = 0pA
+    refractory_counts integer = 0
   end
 
   equations:
@@ -25,7 +26,6 @@ neuron rc_alpha:
     function V_th mV = -55mV - E_L
     function V_reset mV = -70mV - E_L
     refractory_timeout ms = 2ms
-    refractory_counts integer = 0
     I_e pA = 0pA
   end
 

@@ -6,6 +6,7 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
+import groovyjarjarantlr.debug.SemanticPredicateEvent;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
@@ -389,4 +390,14 @@ public class NestmlErrorStrings {
     return "NESTML_RESTRICT_USE_OF_SHAPES";
   }
 
+  public static String errorAssignmentToParameter(AssignmentToParameter coco,
+      String lhsName,
+      SourcePosition sourcePositionStart) {
+    final String ERROR_MSG_FORMAT = "Cannot assign value to parameter variable " + lhsName + " at " +sourcePositionStart;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  private static String code(AssignmentToParameter coco) {
+    return "NESTML_ASSIGNMENT_TO_PARAMETER";
+  }
 }
