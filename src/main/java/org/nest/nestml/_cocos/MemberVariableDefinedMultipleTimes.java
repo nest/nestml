@@ -9,8 +9,9 @@ import com.google.common.collect.Maps;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.utils.AstUtils;
 
 import java.util.Map;
@@ -43,20 +44,14 @@ public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
     body.getInternalDeclarations().forEach(declaration -> addNames(varNames, declaration));
     body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
     body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
-
-    // only for equations of order more then 1 a variable will be declared
-    body.getEquations()
-        .stream()
-        .filter(astEquation -> astEquation.getLhs().getDifferentialOrder().size() > 1)
-        .forEach(astEquation -> addVariable(AstUtils.getNameOfLHS(astEquation), varNames, astEquation));
     body.getShapes().forEach(astShape -> addVariable(AstUtils.getNameOfLHS(astShape), varNames, astShape));
   }
 
   private void addNames(
       final Map<String, SourcePosition> names,
       final ASTDeclaration decl) {
-    for (final String var : decl.getVars()) {
-      addVariable(var, names, decl);
+    for (final ASTVariable variable : decl.getVars()) {
+      addVariable(variable.toString(), names, decl);
     }
 
   }
@@ -74,8 +69,7 @@ public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
       final Map<String, SourcePosition> names,
       final ASTNode astNode) {
     if (names.containsKey(var)) {
-      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      final String msg = errorStrings.message(this,var,
+      final String msg = NestmlErrorStrings.message(this,var,
               names.get(var).getLine(),
               names.get(var).getColumn());
 

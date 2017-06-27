@@ -47,7 +47,11 @@ public class ASTDerivative extends ASTDerivativeTOP {
   }
 
   public String getSimpleName() {
-    return name.toString();
+    return name;
+  }
+
+  public String getNameOfDerivedVariable() {
+    return name + Strings.repeat("'", Math.max(0, getDifferentialOrder().size() - 1));
   }
 
 }

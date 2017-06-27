@@ -30,14 +30,14 @@ class ShapesToOdesTransformer extends TransformerBase {
 
     ASTNeuron workingVersion = addVariablesToState(astNeuron, solverOutput.shape_state_variables);
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.initial_values);
-    workingVersion = replaceShapesThroughVariables(workingVersion);
-    addUpdatesWithPSCInitialValue(
+    workingVersion = removeShapes(workingVersion);
+    addUpdatesWithPSCInitialValues(
         solverOutput,
         workingVersion.getBody(),
         variableNameExtracter,
         shapeNameExtracter);
 
-    addShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.getBody().getODEBlock().get());
+    addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.getBody().getODEBlock().get());
 
     System.out.println("!!!!!!!!!!!!!Start DEBUG!!!!!!!!!!!!!!!!!");
     System.out.println(NESTMLPrettyPrinter.Builder.build().print(workingVersion));
@@ -45,22 +45,14 @@ class ShapesToOdesTransformer extends TransformerBase {
     return workingVersion;
   }
 
-  private void addShapeEquationsToEquationsBlock(
+  private void addStateShapeEquationsToEquationsBlock(
       final List<Map.Entry<String, String>> equationsFile,
       final ASTOdeDeclaration astOdeDeclaration) {
     final List<ASTEquation> equations = equationsFile.stream()
-        .map(ode -> ode.getKey() + " = " + ode.getValue())
+        .map(ode -> ode.getKey() + "' = " + ode.getValue())
         .map(AstCreator::createEquation)
         .collect(toList());
     astOdeDeclaration.getODEs().addAll(equations);
-  }
-
-  private ASTNeuron replaceShapesThroughVariables(ASTNeuron astNeuron) {
-    final List<ASTDeclaration> stateVariablesDeclarations = shapesToStateVariables(
-        astNeuron.getBody().getODEBlock().get());
-    stateVariablesDeclarations.forEach(stateVariable -> astNeuron.getBody().addToStateBlock(stateVariable));
-    astNeuron.getBody().getODEBlock().get().getShapes().clear();
-    return astNeuron;
   }
 
   private List<ASTDeclaration> shapesToStateVariables(final ASTOdeDeclaration astOdeDeclaration) {

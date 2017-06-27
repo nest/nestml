@@ -7,6 +7,11 @@ package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
+import org.nest.nestml._visitor.DotOperatorVisitor;
+import org.nest.nestml._visitor.FunctionCallVisitor;
+import org.nest.nestml._visitor.ODEPostProcessingVisitor;
+import org.nest.nestml._visitor.UnitsSIVisitor;
 import org.nest.utils.AstUtils;
 
 /**
@@ -387,6 +392,73 @@ public class NestmlErrorStrings {
   @SuppressWarnings("unused") // parameter is used for dispatch
   static String code(final RestrictUseOfShapes coco) {
     return "NESTML_RESTRICT_USE_OF_SHAPES";
+  }
+
+  public static String expressionCalculation(final ODEPostProcessingVisitor coco, final String description) {
+    final String ERROR_MSG_FORMAT = "Error in expression type calculation: " + description;
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  public static String expressionNonNumeric(final ODEPostProcessingVisitor coco) {
+    final String ERROR_MSG_FORMAT = "Type of LHS Variable in ODE is neither a Unit nor real at.";
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  public static String expressionMissmatch(
+      final ODEPostProcessingVisitor coco,
+      final String odeVariable,
+      final String odeType,
+      final String rhsType) {
+    final String ERROR_MSG_FORMAT = "The type of (derived) variable " + odeVariable + " is: " + odeType +
+                                    ". This does not match Type of RHS expression: " + rhsType;
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final ODEPostProcessingVisitor coco) {
+    return "NESTML_POST_PROCESSING_ERROR";
+  }
+
+  public static String message(final UnitsSIVisitor coco, final String unit) {
+    final String ERROR_MSG_FORMAT = "The unit " + unit + " is not a valid SI unit.";
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final UnitsSIVisitor coco) {
+    return "NESTML_SI_VISITOR";
+  }
+
+  public static String message(final FunctionCallVisitor coco, final String functionName) {
+    final String ERROR_MSG_FORMAT = "Function " + functionName + " with the return-type 'Void'"
+                                    + " cannot be used in expressions.";
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final FunctionCallVisitor coco) {
+    return "NESTML_FUNCTION_CALL_VISITOR";
+  }
+
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  static String code(final DotOperatorVisitor coco) {
+    return "NESTML_FUNCTION_CALL_VISITOR";
+  }
+  public static String message(final UnitRepresentation coco, final String representation) {
+    final String ERROR_MSG_FORMAT = "Cannot factorize the Unit " + representation;
+
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  @SuppressWarnings({"unused"}) // used for the routing
+  public static String code(final UnitRepresentation coco) {
+    return "NESTML_UNIT_REPRESENTATION";
   }
 
 }

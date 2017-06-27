@@ -5,7 +5,10 @@
  */
 package org.nest.nestml._ast;
 
+import de.se_rwth.commons.SourcePosition;
 import org.nest.nestml._symboltable.NESTMLLanguage;
+
+import java.util.Optional;
 
 /**
  * HC Class that encapsulates several comfort features to work with package definition in nestml.
@@ -51,6 +54,10 @@ public class ASTNESTMLCompilationUnit extends ASTNESTMLCompilationUnitTOP {
 
     }
     return NEURON_UNDEFINED_AT_LINE;
+  }
+
+  public String getNeuronNameAtLine(Optional<SourcePosition> sourcePosition) {
+    return sourcePosition.map(position -> getNeuronNameAtLine(position.getLine())).orElse(NEURON_UNDEFINED_AT_LINE);
   }
 
 }

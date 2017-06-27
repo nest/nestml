@@ -129,29 +129,21 @@ public class VariableDoesNotExist implements
               .forEach(variable -> checkVariableByName(variable.toString(), variable));
         }
     );
+
     node.getShapes().forEach(
-        ode-> AstUtils
-            .getAll(ode.getRhs(), ASTVariable.class)
+        shape-> AstUtils
+            .getAll(shape.getRhs(), ASTVariable.class)
             .forEach(variable -> checkVariableByName(variable.toString(), variable))
     );
+
     node.getEquations().forEach(
         ode-> {
-          checkVariableByName(ode.getLhs());
+          checkVariableByName(ode.getLhs().getNameOfDerivedVariable(), ode);
           AstUtils.getAll(ode.getRhs(), ASTVariable.class)
                   .forEach(variable -> checkVariableByName(variable.toString(), variable)); // it can be a D'' variable
         }
 
     );
-
-  }
-
-  private void checkVariableByName(final ASTDerivative astDerivative) {
-    if (astDerivative.getDifferentialOrder().size() == 0) {
-      checkVariableByName(astDerivative.toString(), astDerivative);
-    }
-    else {
-      checkVariableByName(AstUtils.getNameOfLHS(astDerivative), astDerivative);
-    }
 
   }
 

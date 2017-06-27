@@ -34,7 +34,6 @@ import static org.nest.codegeneration.sympy.OdeTransformer.getCondSumFunctionCal
 import static org.nest.nestml._symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.STATE;
 import static org.nest.utils.AstUtils.computeTypeName;
-import static org.nest.utils.AstUtils.getNameOfLHS;
 
 /**
  * Creates NESTML symbols.
@@ -107,10 +106,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
     final NestmlCoCosManager nestmlCoCosManager = new NestmlCoCosManager();
 
-    if (astNeuron.getBody().getODEBlock().isPresent()) {
-      addVariablesFromODEBlock(astNeuron.getBody().getODEBlock().get());
-    }
-
     final List<Finding> undefinedVariables = nestmlCoCosManager.checkThatVariableDefinedAtLeastOnce(astNeuron);
 
     if (undefinedVariables.isEmpty()) {
@@ -127,7 +122,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
               markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
             }
             else {
-              final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one variable is " +
+              final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one variable is " +
                                  "defined multiple times";
               Log.error(msg);
             }
@@ -135,44 +130,26 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
           }
         }
         else {
-          final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one variable is " +
+          final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one variable is " +
                              "defined multiple. See error log.";
           Log.error(msg);
         }
       }
       else {
-        final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one method is " +
+        final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one method is " +
                            "undefined. See error log.";
+        Log.error(msg);
       }
 
     }
     else {
-      final String msg = LOGGER_NAME + ": Cannot correctly build the symboltable, at least one variable is " +
+      final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one variable is " +
                          "undefined. See error log.";
       Log.error(msg);
     }
 
     removeCurrentScope();
     currentTypeSymbol = empty();
-  }
-
-  /**
-   * Analyzes the ode block and adds all variables, which are defined through ODEs. E.g.:
-   *   state:
-   *     GI nS = 0
-   *   end
-   *   equations:
-   *      GI'' = -GI'/tau_synI
-   *      GI' = GI' - GI/tau_synI
-   *   end
-   * Results in an additional variable for G' (first equations G''). For the sake of the simplicity
-   */
-  private void addVariablesFromODEBlock(final ASTOdeDeclaration astOdeDeclaration) {
-    astOdeDeclaration.getODEs()
-          .stream()
-          .filter(ode -> ode.getLhs().getDifferentialOrder().size() > 1)
-          .forEach(this::addDerivedVariable);
-
   }
 
   /**
@@ -203,53 +180,15 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     }
   }
 
-  /**
-   * Adds a variable that results from a right hand side an ODE: e.g. g_I'' -> g_I' is the new variable.
-   * The corresponding ODE is added in {@code addOdeToVariable}
-   *
-   */
-  private void addDerivedVariable(final ASTEquation ode) {
-    checkState(currentScope().isPresent());
-    final String variableName = getNameOfLHS(ode);
-    final String originalVarName = ode.getLhs().getName().toString(); //name of the original variable e.g. no trailing '
-
-    final Optional<VariableSymbol> originalSymbol = currentScope().get().resolve(originalVarName,VariableSymbol.KIND);
-    if (originalSymbol.isPresent()) {
-      final TypeSymbol originalType = originalSymbol.get().getType();
-      UnitRepresentation derivedUnit = UnitRepresentation.getBuilder().serialization(originalType.getName()).
-          ignoreMagnitude(true).build().deriveT(ode.getLhs().getDifferentialOrder().size() - 1);
-      final TypeSymbol derivedType = PredefinedTypes.getType(derivedUnit.serialize());
-
-      final VariableSymbol var = new VariableSymbol(variableName);
-
-      var.setAstNode(ode.getLhs());
-      var.setType(derivedType);
-      var.setRecordable(true);
-      var.setFunction(false);
-
-      var.setBlockType(VariableSymbol.BlockType.STATE);
-
-      addToScopeAndLinkWithNode(var, ode);
-
-      trace("Add new variable derived from the ODE: '" + var.getFullName() + "'.", LOGGER_NAME);
-    }
-    else {
-      Log.warn(LOGGER_NAME + ": " + String.format("The state %s variable is undefined", originalVarName));
-    }
-  }
-
   private void assignOdeToVariables(final ASTOdeDeclaration astOdeDeclaration) {
-      astOdeDeclaration
-          .getODEs()
-          .forEach(this::addOdeToVariable);
-
+      astOdeDeclaration.getODEs().forEach(this::addOdeToVariable);
   }
 
   private void addOdeToVariable(final ASTEquation ode) {
     checkState(this.currentScope().isPresent());
     final Scope scope = currentScope().get();
     if (ode.getLhs().getDifferentialOrder().size() > 0) {
-      final String variableName = getNameOfLHS(ode.getLhs());
+      final String variableName = ode.getLhs().getNameOfDerivedVariable();
       final Optional<VariableSymbol> stateVariable = scope.resolve(variableName, VariableSymbol.KIND);
 
       if (stateVariable.isPresent()) {
@@ -490,9 +429,9 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       final ASTDeclaration astDeclaration,
       final VariableSymbol.BlockType blockType) {
 
-    for (String varName : astDeclaration.getVars()) { // multiple vars in one decl possible
+    for (final ASTVariable variable : astDeclaration.getVars()) { // multiple vars in one decl possible
 
-      final VariableSymbol var = new VariableSymbol(varName);
+      final VariableSymbol var = new VariableSymbol(variable.toString());
       var.setAstNode(astDeclaration);
       final String typeName =  computeTypeName(astDeclaration.getDatatype());
       var.setType(PredefinedTypes.getType(typeName));

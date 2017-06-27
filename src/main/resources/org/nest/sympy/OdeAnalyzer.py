@@ -45,6 +45,9 @@ class SolverOutput:
         self.updates_to_shape_state_variables = []
         self.shape_state_odes = []
 
+    def decode_apostroph(self, ode):
+        return
+
     def add_shape_state_variables(self, state_variables):
         self.shape_state_variables += state_variables
 
@@ -52,7 +55,7 @@ class SolverOutput:
         self.shape_state_odes += shape_state_odes
 
     def add_updates_to_shape_state_variables(self, updates_to_state_shape_variable):
-        self.updates_to_shape_state_variables = updates_to_state_shape_variable
+        self.updates_to_shape_state_variables += updates_to_state_shape_variable
 
     def add_initial_values(self, initial_values):
         self.initial_values += initial_values

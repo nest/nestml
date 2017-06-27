@@ -6,11 +6,12 @@
 package org.nest.nestml._visitor;
 
 import org.nest.nestml._ast.ASTExpr;
+import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.nestml._symboltable.typechecking.TypeChecker;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml._symboltable.symbols.MethodSymbol;
-import org.nest.nestml._cocos.UnitsErrorStrings;
+import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.utils.AstUtils;
 
 import java.util.Optional;
@@ -39,7 +40,7 @@ public class FunctionCallVisitor implements NESTMLVisitor {
     }
 
     if (TypeChecker.isVoid(methodSymbol.get().getReturnType())) {
-      final String errorMsg = UnitsErrorStrings.message(this, functionName);
+      final String errorMsg = NestmlErrorStrings.message(this, functionName);
       expr.setType(Either.error(errorMsg));
       return;
     }

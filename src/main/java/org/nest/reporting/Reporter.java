@@ -62,6 +62,10 @@ public class Reporter {
     System.out.println(Level.INFO + ": " + message);
   }
 
+  public void reportProgress(final String message, Level level) {
+    System.out.println(level + ": " + message);
+  }
+
   public String printFindingsAsJsonString() {
     ObjectMapper mapper = new ObjectMapper();
     try {

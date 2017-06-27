@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plonikov
  */
-public class LinearSolutionTransformerTest extends ModelbasedTest {
+public class ExactSolutionTransformerTest extends ModelbasedTest {
   private static final String NEURON_NAME = "iaf_psc_alpha_neuron";
   private static final String MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
   private static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
@@ -33,10 +33,10 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
 
   @Test
   public void testExactSolutionTransformation() {
-    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    linearSolutionTransformer.addExactSolution(
+    exactSolutionTransformer.addExactSolution(
         modelRoot.getNeurons().get(0),
         new SolverOutput());
     assertTrue(false);
@@ -67,10 +67,10 @@ public class LinearSolutionTransformerTest extends ModelbasedTest {
 
   @Test
   public void testReplaceODEThroughMatrixMultiplication() {
-    final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
+    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
-    linearSolutionTransformer.replaceIntegrateCallThroughPropagation(
+    exactSolutionTransformer.replaceIntegrateCallThroughPropagation(
         modelRoot.getNeurons().get(0),
         Lists.newArrayList());
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);

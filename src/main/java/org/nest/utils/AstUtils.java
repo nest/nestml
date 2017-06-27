@@ -351,20 +351,6 @@ public final class AstUtils {
     return astShape.getLhs().toString();
   }
 
-  /**
-   * Computes the variable which is derived in the equation, e.g.: g_in'' = exp(t) means the derivation of the g_in'
-   * variable
-   *
-   */
-  public static String getNameOfLHS(final ASTEquation astEquation) {
-    if (astEquation.getLhs().getDifferentialOrder().size() == 0) {
-      return astEquation.getLhs().getName(); // it is sometimes used in context conditions
-    }
-    else {
-      return astEquation.getLhs().getName() + Strings.repeat("'", astEquation.getLhs().getDifferentialOrder().size() - 1);
-    }
-  }
-
   public static String convertDevrivativeNameToSimpleName(final ASTVariable astVariable) {
     if (astVariable.getDifferentialOrder().size() > 0) {
       return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName();

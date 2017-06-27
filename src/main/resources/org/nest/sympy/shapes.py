@@ -228,14 +228,23 @@ class ShapeFunction(object):
 
         self.order = order
         self.nestml_ode_form = []
-        for cur_order in range(1, order):
-            self.nestml_ode_form.append({name + "'" * cur_order: name + "'" * cur_order})
+
+        for cur_order in range(0, order-1):
+            if cur_order > 0:
+                self.nestml_ode_form.append({name + "__" + str(cur_order): name + "__" + str(cur_order + 1)})
+            else:
+                self.nestml_ode_form.append({name: name + "__1"})
         # Compute the right and left hand side of the ODE that 'shape' satisfies
         rhs_str = []
         for k in range(order):
-            rhs_str.append("{} * {}{}".format(simplify(derivative_factors[k]), name, "'" * k))
+            if k > 0:
+                rhs_str.append("{} * {}__{}".format(simplify(derivative_factors[k]), name, str(k)))
+
+            else:
+                rhs_str.append("{} * {}".format(simplify(derivative_factors[k]), name))
+
         rhs = " + ".join(rhs_str)
-        lhs = name + "'" * order
+        lhs = name + "__" + str(order-1)
 
         self.nestml_ode_form.append({lhs: rhs})
         self.derivative_factors = list(simplify(derivative_factors))
@@ -245,29 +254,28 @@ class ShapeFunction(object):
     def additional_shape_state_variables(self):
         result = []
         for order in range(0, self.order):
-            result.append(str(self.name) + "__" + str(order))
+            if order > 0:
+                result.append(str(self.name) + "__" + str(order))
+            else:
+                result.append(str(self.name))
         return result
 
     def add_update_to_shape_state_variable(self, shape_state_variable, shape_state_variable_update):
-        self.updates_to_state_shape_variables.insert(0, {str(shape_state_variable): str(shape_state_variable_update)})
+        self.updates_to_state_shape_variables = [{str(shape_state_variable): str(shape_state_variable_update)}] + self.updates_to_state_shape_variables
 
     def get_updates_to_shape_state_variables(self):
         result = []
         if self.order > 0:  # FIX ME
-            for entry_map in self.updates_to_state_shape_variables:
-                # by construction, there is only one value in the `entry_map`
-                for shape_state_variable, shape_state_variable_update in entry_map.iteritems():
-                    result.append({shape_state_variable + "_tmp": shape_state_variable})
 
             for entry_map in self.updates_to_state_shape_variables:
                 # by construction, there is only one value in the `entry_map`
                 for shape_state_variable, shape_state_variable_update in entry_map.iteritems():
-                    result.append({shape_state_variable + "_tmp": shape_state_variable_update})
+                    result.append({"__tmp__" + shape_state_variable: shape_state_variable_update})
 
             for entry_map in self.updates_to_state_shape_variables:
                 # by construction, there is only one value in the `entry_map`
                 for shape_state_variable, shape_state_variable_update in entry_map.iteritems():
-                    result.append({shape_state_variable: shape_state_variable + "_tmp"})
+                    result.append({shape_state_variable: "__tmp__" + shape_state_variable})
 
         else:
             result = self.updates_to_state_shape_variables
@@ -277,7 +285,10 @@ class ShapeFunction(object):
     def get_initial_values(self):
         result = []
         for idx, initial_value in enumerate(self.initial_values):
-            p = {"av__" + str(self.name) + "__" + str(idx): str(initial_value)}
+            if idx > 0:
+                p = {"iv__" + str(self.name) + "__" + str(idx): str(initial_value)}
+            else:
+                p = {"iv__" + str(self.name): str(initial_value)}
             result.append(p)
         return result
 

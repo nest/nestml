@@ -49,7 +49,7 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
   }
 
   @Test
-  public void testCondModelWithShapes() {
+  public void testCondModel() {
     final ArrayList<String> cond_models_with_shapes = Lists.newArrayList(COND_MODEL_WITH_ODE);
     cond_models_with_shapes.forEach(this::checkCocos);
     cond_models_with_shapes.forEach(this::invokeCodeGenerator);
@@ -72,10 +72,4 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
     generateNESTModuleCode(neurons_with_setters);
   }
 
-  @Test
-  public void testCondModel() {
-    nestmlCondModels.forEach(this::checkCocos);
-    nestmlCondModels.forEach(this::invokeCodeGenerator);
-    generateNESTModuleCode(nestmlCondModels);
-  }
 }

@@ -14,9 +14,12 @@ import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.reporting.Reporter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toSet;
 import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
 
 /**
@@ -25,7 +28,7 @@ import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
  *
  * @author plotnikov
  */
-class LinearSolutionTransformer extends TransformerBase {
+class ExactSolutionTransformer extends TransformerBase {
 
 
   ASTNeuron addExactSolution(
@@ -40,6 +43,7 @@ class LinearSolutionTransformer extends TransformerBase {
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
     workingVersion = addVariablesToState(workingVersion, solverOutput.shape_state_variables);
     workingVersion = addShapeStateUpdatesToUpdateBlock(workingVersion, solverOutput);
+    workingVersion = removeShapes(workingVersion);
 
     // oder is important, otherwise addShapeStateUpdatesToUpdateBlock will try to resolve state variables,
     // for which nor symbol are added. TODO filter them
@@ -54,18 +58,29 @@ class LinearSolutionTransformer extends TransformerBase {
     final ASTBody body = astNeuron.getBody();
 
     addStateUpdates(solverOutput, body);
-    addUpdatesWithPSCInitialValue(solverOutput, body, variableNameExtracter, shapeNameExtracter);
+    addUpdatesWithPSCInitialValues(solverOutput, body, variableNameExtracter, shapeNameExtracter);
 
     return astNeuron;
   }
 
   private void addStateUpdates(final SolverOutput solverOutput, final ASTBody astBody)  {
+    final Set<String> tempVariables = solverOutput.updates_to_shape_state_variables
+        .stream()
+        .map(Map.Entry::getKey)
+        .filter(update -> update.startsWith("__tmp"))
+        .collect(toSet());
+
+    tempVariables
+        .stream()
+        .map(update -> update + " real")
+        .map(AstCreator::createDeclaration)
+        .forEach(astAssignment -> addDeclrationToUpdateBlock(astAssignment, astBody));
 
     solverOutput.updates_to_shape_state_variables
         .stream()
         .map(update -> update.getKey() + " = " + update.getValue())
         .map(AstCreator::createAssignment)
-        .forEach(astAssignment -> addAssignmentToDynamics(astAssignment, astBody));
+        .forEach(astAssignment -> addAssignmentToUpdateBlock(astAssignment, astBody));
   }
 
   // TODO: enable the optimization

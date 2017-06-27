@@ -120,7 +120,7 @@ class PropagatorCalculator(object):
 
             y = zeros(shape.order + 1, 1)
             for i in range(shape.order):
-                y[i] = parse_expr("__{}_{}".format(shape.name, i))
+                y[i] = parse_expr(shape.additional_shape_state_variables()[i])
             y[shape.order] = ode_var
 
             P[shape.order, shape.order] = 0
@@ -131,6 +131,7 @@ class PropagatorCalculator(object):
             shape_state_vector_as_expr = zeros(shape.order, 1)
             for idx in range(len(shape.additional_shape_state_variables())):
                 shape_state_vector_as_expr[idx, 0] = Symbol(shape.additional_shape_state_variables()[idx])
+
             shape_state_updates = P[:shape.order, :shape.order] * shape_state_vector_as_expr
             for idx in range(0, shape_state_updates.rows):
                 shape.add_update_to_shape_state_variable(shape_state_vector_as_expr[idx], shape_state_updates[idx])

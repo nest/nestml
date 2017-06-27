@@ -160,21 +160,18 @@ class CliConfigurationExecutor {
       final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
       symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
+      symbolTableFindings.forEach(warning -> reporter.addNeuronReport(
+          modelRoot.getFilename(),
+          modelRoot.getNeuronNameAtLine(warning.getSourcePosition()),
+          warning));
+
       if (symbolTableFindings.isEmpty()) {
         reporter.reportProgress(modelRoot.getArtifactName() + ": Successfully built the symboltable.");
       } else {
-        reporter.reportProgress(modelRoot.getArtifactName() + ": Cannot built the symboltable.");
+        reporter.reportProgress(modelRoot.getArtifactName() + ": Cannot built the symboltable.", Reporter.Level.ERROR);
       }
       final Collection<Finding> symbolTableWarnings = LogHelper.getWarningsByPrefix("NESTML_", Log.getFindings());
 
-      symbolTableWarnings.addAll(LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
-
-      for (Finding warning:symbolTableWarnings) {
-        if (!warning.getSourcePosition().isPresent()) {
-          System.out.printf("");
-        }
-
-      }
       symbolTableWarnings.forEach(warning -> reporter.addNeuronReport(
           modelRoot.getFilename(),
           modelRoot.getNeuronNameAtLine(warning.getSourcePosition().get().getLine()),
@@ -205,6 +202,7 @@ class CliConfigurationExecutor {
   private void generateModuleCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     if (modelRoots.size() > 0) {
       generator.generateNESTModuleCode(modelRoots, config.getModuleName(), config.getTargetPath());
+      reporter.reportProgress(String.format("Generated NEST module: %s", config.getModuleName()));
     }
     else {
       reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getInputPath());

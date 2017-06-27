@@ -37,7 +37,7 @@ public class ASTDeclaration extends ASTDeclarationTOP {
 
   }
 
-  public ASTDeclaration(List<String> vars,
+  public ASTDeclaration(List<ASTVariable> vars,
                         ASTDatatype datatype,
                         String sizeParameter,
                         ASTExpr expr,

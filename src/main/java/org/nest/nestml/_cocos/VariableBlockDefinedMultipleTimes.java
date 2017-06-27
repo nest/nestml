@@ -44,7 +44,7 @@ public class VariableBlockDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
   }
 
   private void checkBlock(final ASTBody astBody, final String blockName, final Predicate<ASTVar_Block> blockType) {
-    final List<ASTVar_Block> blocks = filterVarBlockByType(astBody, ASTVar_Block::isState);
+    final List<ASTVar_Block> blocks = filterVarBlockByType(astBody, blockType);
     if (blocks.size() > 1) {
       final String msg = NestmlErrorStrings.error(this, blocks.get(0).get_SourcePositionStart(), blockName);
       Log.error(msg);

@@ -30,7 +30,7 @@ import static org.nest.utils.AstUtils.getFunctionCall;
 public class EquationsBlockProcessor {
   private final Reporter reporter = Reporter.get();
   private final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
-  private final LinearSolutionTransformer linearSolutionTransformer = new LinearSolutionTransformer();
+  private final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
   private final ShapesToOdesTransformer shapesToOdesTransformer = new ShapesToOdesTransformer();
   private final DeltaSolutionTransformer deltaSolutionTransformer = new DeltaSolutionTransformer();
 
@@ -106,7 +106,7 @@ public class EquationsBlockProcessor {
     switch (solverOutput.solver) {
       case "exact":
         reporter.reportProgress("Equations are solved exactly.");
-        return linearSolutionTransformer.addExactSolution(astNeuron, solverOutput);
+        return exactSolutionTransformer.addExactSolution(astNeuron, solverOutput);
 
       case "numeric":
         reporter.reportProgress("Shapes will be solved with GLS.");

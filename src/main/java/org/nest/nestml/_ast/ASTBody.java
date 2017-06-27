@@ -250,7 +250,7 @@ public class ASTBody extends ASTBodyTOP {
       final Scope scope) {
     return aliasDeclarations.stream()
         .flatMap(declaration -> declaration.getVars().stream()) // get all variables form the declaration
-        .map(variable -> VariableSymbol.resolve(variable, scope))
+        .map(variable -> VariableSymbol.resolve(variable.toString(), scope))
         .collect(toList());
   }
 

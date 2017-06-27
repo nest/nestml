@@ -154,7 +154,7 @@ grammar NESTML extends org.nest.Literals {
    */
   Declaration =
     (["recordable"] )? (["function"])?
-    vars:Name ("," vars:Name)*
+    vars:Variable ("," vars:Variable)*
     Datatype
     ("[" sizeParameter:Name "]")?
     ( "=" Expr)? SL_COMMENT?
@@ -245,7 +245,7 @@ grammar NESTML extends org.nest.Literals {
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
          V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
        end
-     @attribute ddeDeclaration Block with equations and differential equations.
+     @attribute odeDeclaration Block with equations and differential equations.
    */
   Equations implements BodyElement =
     "equations"

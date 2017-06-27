@@ -69,11 +69,13 @@ public class VariableNotDefinedBeforeUse implements
 
     if (decl.getExpr().isPresent()) {
 
-      final List<String> varsOfCurrentDecl = Lists.newArrayList(decl.getVars());
+      final List<ASTVariable> varsOfCurrentDecl = Lists.newArrayList(decl.getVars());
       final List<ASTVariable> variablesNamesRHS = ASTNodes.getSuccessors(decl.getExpr().get(), ASTVariable.class);
       // check if it is variable block or dynamics- or user-defined function. if yes, skip the check. It will be
       // checked through MemberVariablesInitialisedInCorrectOrder coco
-      final Collection<VariableSymbol> declarationSymbols = scope.resolveMany(varsOfCurrentDecl.get(0), VariableSymbol.KIND);
+      final Collection<VariableSymbol> declarationSymbols = scope.resolveMany(
+          varsOfCurrentDecl.get(0).toString(),
+          VariableSymbol.KIND);
 
       if(declarationSymbols.size()>1){ //named after an SI-Unit? Throw away predefined result.
         declarationSymbols.removeIf(VariableSymbol::isPredefined);

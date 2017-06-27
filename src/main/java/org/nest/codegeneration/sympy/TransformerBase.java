@@ -12,7 +12,6 @@ import org.nest.utils.AstUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,7 +22,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
 import static org.nest.codegeneration.sympy.AstCreator.createAssignment;
 import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
-import static org.nest.codegeneration.sympy.AstCreator.createDeclarations;
 import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
 
 /**
@@ -32,16 +30,23 @@ import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
  * @author plotnikov
  */
 public class TransformerBase {
-  // example initial value av__I_shape_in__1
+  // example initial value iv__I_shape_in
+  // example initial value iv__I_shape_in__1
   // the shape state variable is `I_shape_in__1`
   // the shape name is `I_shape_in`
-  protected final Function<String, String> variableNameExtracter
-      = initialValue -> initialValue.substring("av__".length());
+  final Function<String, String> variableNameExtracter = initialValue -> initialValue.substring("iv__".length());
 
-  protected final Function<String, String> shapeNameExtracter = initialValue -> {
-    return initialValue.substring("av__".length(), initialValue.lastIndexOf("__"));
+  final Function<String, String> shapeNameExtracter = initialValue -> {
+    final String tmp = initialValue.substring("iv__".length());
+    if (tmp.lastIndexOf("__") == -1) {
+      return tmp;
+    }
+    else {
+      return tmp.substring(0, tmp.lastIndexOf("__"));
+    }
   };
-  final NESTMLParser parser = new NESTMLParser();
+
+  private final NESTMLParser parser = new NESTMLParser();
 
   ASTNeuron addVariablesToState(final ASTNeuron astNeuron, final List<String> shapeStateVariables) {
     checkState(astNeuron.getBody().getEnclosingScope().isPresent());
@@ -70,7 +75,12 @@ public class TransformerBase {
    * @return Shapename as a string
    */
   private String getShapeNameFromStateVariable(final String shapeStateVariable) {
-    return shapeStateVariable.substring(0, shapeStateVariable.lastIndexOf("__"));
+    if (shapeStateVariable.lastIndexOf("__") == -1) {
+      return shapeStateVariable;
+    }
+    else {
+      return shapeStateVariable.substring(0, shapeStateVariable.lastIndexOf("__"));
+    }
   }
 
   /**
@@ -150,7 +160,7 @@ public class TransformerBase {
   /**
    * Add updates of state variables with the PSC initial value and corresponding inputs from buffers.
    */
-  void addUpdatesWithPSCInitialValue(
+  void addUpdatesWithPSCInitialValues(
       final SolverOutput solverOutput,
       final ASTBody body,
       final Function<String, String> stateVariableNameExtracter,
@@ -164,7 +174,7 @@ public class TransformerBase {
         .collect(toList());
 
     for (final ASTDeclaration pscInitialValueDeclaration:pscInitialValues) {
-      final String pscInitialValue = pscInitialValueDeclaration.getVars().get(0);
+      final String pscInitialValue = pscInitialValueDeclaration.getVars().get(0).toString();
 
       final String shapeName = shapeNameExtracter.apply(pscInitialValue);
       final String shapeStateVariable = stateVariableNameExtracter.apply(pscInitialValue);
@@ -175,7 +185,7 @@ public class TransformerBase {
           final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
           final ASTAssignment pscUpdateStep = createAssignment(
               shapeStateVariable + " += " +  pscInitialValue + " * "+ bufferName);
-          addAssignmentToDynamics(pscUpdateStep, body);
+          addAssignmentToUpdateBlock(pscUpdateStep, body);
         }
 
       }
@@ -184,8 +194,7 @@ public class TransformerBase {
 
   }
 
-  void addAssignmentToDynamics(
-      final ASTAssignment astAssignment, final ASTBody astBody) {
+  void addAssignmentToUpdateBlock(final ASTAssignment astAssignment, final ASTBody astBody) {
     final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
     final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
 
@@ -193,6 +202,18 @@ public class TransformerBase {
 
     // Goal: add the y-assignments at the end of the expression
     astSmall_stmt.setAssignment(astAssignment);
+
+    astBody.getDynamics().get(0).getBlock().getStmts().add(astStmt);
+  }
+
+  void addDeclrationToUpdateBlock(final ASTDeclaration astDeclaration, final ASTBody astBody) {
+    final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
+    final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
+
+    astStmt.setSmall_Stmt(astSmall_stmt);
+
+    // Goal: add the y-assignments at the end of the expression
+    astSmall_stmt.setDeclaration(astDeclaration);
 
     astBody.getDynamics().get(0).getBlock().getStmts().add(astStmt);
   }
@@ -205,4 +226,11 @@ public class TransformerBase {
     return astStmt;
   }
 
+  ASTNeuron removeShapes(ASTNeuron astNeuron) {
+    //final List<ASTDeclaration> stateVariablesDeclarations = shapesToStateVariables(
+    //    astNeuron.getBody().getODEBlock().get());
+    // stateVariablesDeclarations.forEach(stateVariable -> astNeuron.getBody().addToStateBlock(stateVariable));
+    astNeuron.getBody().getODEBlock().get().getShapes().clear();
+    return astNeuron;
+  }
 }
