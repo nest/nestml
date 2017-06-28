@@ -72,6 +72,7 @@ neuron iaf_psc_delta_neuron:
     V_abs mV = 0 mV
     refr_spikes_buffer mV = 0 mV
     function V_m mV = V_abs + E_L # Membrane potential.
+    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
@@ -95,7 +96,6 @@ neuron iaf_psc_delta_neuron:
   internals:
     h ms = resolution()
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
-    r integer                               # counts number of tick during the refractory period
   end
 
   input:

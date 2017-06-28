@@ -50,6 +50,7 @@ neuron terub_neuron_stn:
     gate_n     real # gating variable n
     gate_r     real # gating variable r
     Ca_con     real # gating variable r
+    r integer # counts number of tick during the refractory period
   end
 
   equations:
@@ -162,7 +163,6 @@ neuron terub_neuron_stn:
     PSCurrInit_E real = ms * e / tau_syn_ex
     PSCurrInit_I real = ms * e / tau_syn_in
     refractory_counts integer = steps(t_ref)
-    r integer # counts number of tick during the refractory period
   end
 
   input:

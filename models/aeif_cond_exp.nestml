@@ -40,6 +40,7 @@ neuron aeif_cond_exp_implicit:
     w pA = 0pA    # Spike-adaptation current
     g_in nS = 0nS # Inhibitory synaptic conductance
     g_ex nS = 0nS # Excitatory synaptic conductance
+    r integer                 # counts number of tick during the refractory period
   end
 
   equations:
@@ -89,8 +90,6 @@ neuron aeif_cond_exp_implicit:
   internals:
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
-    # counts number of tick during the refractory period
-    r integer
   end
 
   input:

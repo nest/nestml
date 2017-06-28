@@ -25,7 +25,7 @@ neuron iaf_cond_beta_neuron:
     V_m mV = E_L # membrane potential
     GI nS = 0 nS # inputs from the inh conductance
     GE nS = 0 nS # inputs from the exc conductance
-
+    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
@@ -69,7 +69,6 @@ neuron iaf_cond_beta_neuron:
     PSConInit_I nS/ms = nS * e / tau_syn_rise_I
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
-    r integer                               # counts number of tick during the refractory period
   end
 
   input:

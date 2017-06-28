@@ -93,6 +93,8 @@ neuron iaf_tum_2000_neuron:
 
   state:
     V_m mV # Membrane potential
+    r_tot  integer
+    r_abs  integer
   end
 
   equations:
@@ -137,9 +139,7 @@ neuron iaf_tum_2000_neuron:
     # results. However, a neuron model capable of operating with real valued
     # spike time may exhibit a different effective refractory time.
     RefractoryCountsAbs integer = steps(t_ref_abs) [[RefractoryCountsAbs > 0]]
-    r_abs  integer
     RefractoryCountsTot integer = steps(t_ref_tot) [[RefractoryCountsTot > 0]]
-    r_tot  integer
   end
 
 

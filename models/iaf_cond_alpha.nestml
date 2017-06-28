@@ -35,6 +35,7 @@ neuron iaf_cond_alpha_neuron:
 
   state:
     V_m mV = E_L   # membrane potential
+    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
@@ -67,7 +68,6 @@ neuron iaf_cond_alpha_neuron:
 
   internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
-    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -133,6 +133,7 @@ neuron iaf_cond_alpha_implicit:
     V_m mV = E_L     # membrane potential
     g_in nS = 0nS    # inputs from the inh conductance
     g_ex nS = 0nS    # inputs from the exc conductance
+    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
@@ -175,7 +176,6 @@ neuron iaf_cond_alpha_implicit:
     PSConInit_I real = ms * e / tau_syn_in
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
-    r integer                               # counts number of tick during the refractory period
   end
 
   input:

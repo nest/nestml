@@ -1,6 +1,10 @@
 neuron test:
   parameters:
-    p ms = 20 ms
+    d ms = 20 ms
+  end
+
+  state:
+    function c ms = 15.0
   end
 
   internals:
@@ -14,6 +18,7 @@ neuron test:
   update:
     a = 2. # error
     b = 2. # error
-    p = 4 ms #error
+    c = 12 # error
+    d = 4 ms #error
   end
 end

@@ -26,6 +26,7 @@ neuron iaf_psc_exp_multisynapse_neuron:
     V_abs mV # membrane potential
     function V_m mV = V_abs + E_L # Relative membrane potential.
                                # I.e. the real threshold is (V_m-E_L).
+    r integer                  # counts number of tick during the refractory period
   end
 
   equations:
@@ -53,8 +54,6 @@ neuron iaf_psc_exp_multisynapse_neuron:
   internals:
     # refractory time in steps
     RefractoryCounts integer = steps(t_ref)
-    # counts number of tick during the refractory period
-    r integer
   end
 
   input:
