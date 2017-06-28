@@ -165,7 +165,7 @@ public class TransformerBase {
       final ASTBody body,
       final Function<String, String> stateVariableNameExtracter,
       final Function<String, String> shapeNameExtracter) {
-    final List<ASTFunctionCall> i_sumCalls = OdeTransformer.get_sumFunctionCalls(body.getODEBlock().get());
+    final List<ASTFunctionCall> i_sumCalls = OdeTransformer.get_sumFunctionCalls(body.getOdeBlock().get());
 
     final List<ASTDeclaration> pscInitialValues = solverOutput.initial_values
         .stream()
@@ -228,9 +228,10 @@ public class TransformerBase {
 
   ASTNeuron removeShapes(ASTNeuron astNeuron) {
     //final List<ASTDeclaration> stateVariablesDeclarations = shapesToStateVariables(
-    //    astNeuron.getBody().getODEBlock().get());
+    //    astNeuron.getBody().getOdeBlock().get());
     // stateVariablesDeclarations.forEach(stateVariable -> astNeuron.getBody().addToStateBlock(stateVariable));
-    astNeuron.getBody().getODEBlock().get().getShapes().clear();
+    astNeuron.getBody().getOdeBlock().get().getShapes().clear();
     return astNeuron;
   }
+
 }

@@ -43,14 +43,12 @@ class ExactSolutionTransformer extends TransformerBase {
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
     workingVersion = addVariablesToState(workingVersion, solverOutput.shape_state_variables);
     workingVersion = addShapeStateUpdatesToUpdateBlock(workingVersion, solverOutput);
-    workingVersion = removeShapes(workingVersion);
+    workingVersion.getBody().removeOdeBlock();
 
     // oder is important, otherwise addShapeStateUpdatesToUpdateBlock will try to resolve state variables,
     // for which nor symbol are added. TODO filter them
     workingVersion = replaceIntegrateCallThroughPropagation(workingVersion, solverOutput.ode_var_update_instructions);
-    System.out.println("!!!!!!!!!!!!!Start DEBUG!!!!!!!!!!!!!!!!!");
-    System.out.println(NESTMLPrettyPrinter.Builder.build().print(workingVersion));
-    System.out.println("!!!!!!!!!!!!!End DEBUG!!!!!!!!!!!!!!!!!");
+
     return workingVersion;
   }
 

@@ -323,18 +323,23 @@ public class ASTBody extends ASTBodyTOP {
     return ImmutableList.copyOf(result);
   }
 
-  public Optional<ASTOdeDeclaration> getODEBlock() {
+  public Optional<ASTOdeDeclaration> getOdeBlock() {
     final Optional<ASTBodyElement> odeBlock = bodyElements
         .stream()
         .filter(astBodyElement -> astBodyElement instanceof ASTEquations)
         .findAny();
-    if (odeBlock.isPresent()) {
-      return Optional.of(((ASTEquations) odeBlock.get()).getOdeDeclaration()); // checked by the filter conditions
-    }
-    else {
-      return Optional.empty();
-    }
+    // checked by the filter conditions
+    return odeBlock.map(astBodyElement -> ((ASTEquations) astBodyElement).getOdeDeclaration());
 
+  }
+
+  public void removeOdeBlock() {
+    final Optional<ASTBodyElement> odeBlock = bodyElements
+        .stream()
+        .filter(astBodyElement -> astBodyElement instanceof ASTEquations)
+        .findAny();
+
+    odeBlock.ifPresent(astBodyElement -> bodyElements.remove(astBodyElement));
   }
 
   public List<VariableSymbol> getODEAliases() {

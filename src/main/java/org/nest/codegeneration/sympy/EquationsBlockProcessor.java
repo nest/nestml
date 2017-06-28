@@ -43,10 +43,10 @@ public class EquationsBlockProcessor {
    */
   public ASTNeuron solveOdeWithShapes(final ASTNeuron astNeuron, final Path outputBase) {
     final ASTBody astBody = astNeuron.getBody();
-    if (astBody.getODEBlock().isPresent()) {
+    if (astBody.getOdeBlock().isPresent()) {
 
       reporter.reportProgress(String.format("The neuron %s contains an ODE block. It will be analysed.", astNeuron.getName()));
-      final Optional<ASTFunctionCall> deltaShape = getFunctionCall(DELTA, astBody.getODEBlock().get());
+      final Optional<ASTFunctionCall> deltaShape = getFunctionCall(DELTA, astBody.getOdeBlock().get());
 
       if (deltaShape.isPresent()) {
         return handleDeltaShape(astNeuron, outputBase);
@@ -100,7 +100,7 @@ public class EquationsBlockProcessor {
       final Path outputBase) {
     final ASTNeuron deepCopy = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
 
-    final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.getBody().getODEBlock().get(), outputBase);
+    final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.getBody().getOdeBlock().get(), outputBase);
     reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());
 
     switch (solverOutput.solver) {

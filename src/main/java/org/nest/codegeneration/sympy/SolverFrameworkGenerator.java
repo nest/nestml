@@ -66,7 +66,7 @@ public class SolverFrameworkGenerator {
     final GeneratorSetup setup = new GeneratorSetup(new File(outputDirectory.toString()));
 
     final ASTBody astBodyDecorator = (neuron.getBody());
-    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getODEBlock();
+    final Optional<ASTOdeDeclaration> odeDefinition = astBodyDecorator.getOdeBlock();
 
     if (odeDefinition.isPresent()) {
       final Path generatedScriptFile = generateDeltaScript(
@@ -145,8 +145,8 @@ public class SolverFrameworkGenerator {
 
   public static String generateExactSolverCommand(final ASTNeuron neuron) {
     checkArgument(neuron.getEnclosingScope().isPresent(), "Run symboltable creator");
-    checkArgument(neuron.getBody().getODEBlock().isPresent(), "Supports only ODEs with an ODE block.");
-    final ASTOdeDeclaration astOdeDeclaration = neuron.getBody().getODEBlock().get();
+    checkArgument(neuron.getBody().getOdeBlock().isPresent(), "Supports only ODEs with an ODE block.");
+    final ASTOdeDeclaration astOdeDeclaration = neuron.getBody().getOdeBlock().get();
     checkArgument(astOdeDeclaration.getODEs().size() == 1 && astOdeDeclaration.getODEs().size() > 0,
                   "Exact solver supports only a single ode with at least one shape!");
 

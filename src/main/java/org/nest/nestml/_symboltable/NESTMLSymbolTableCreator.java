@@ -16,7 +16,6 @@ import org.nest.nestml._symboltable.symbols.MethodSymbol;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
-import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.nestml._visitor.UnitsSIVisitor;
 
@@ -99,8 +98,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   public void endVisit(final ASTNeuron astNeuron) {
     setEnclosingScopeOfNodes(astNeuron);
 
-    if (astNeuron.getBody().getODEBlock().isPresent()) {
-      addFunctionVariables(astNeuron.getBody().getODEBlock().get());
+    if (astNeuron.getBody().getOdeBlock().isPresent()) {
+      addFunctionVariables(astNeuron.getBody().getOdeBlock().get());
     }
 
     // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
@@ -113,13 +112,13 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       if (undefinedMethods.isEmpty()) {
         final List<Finding> multipleDefinitions = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
         if (multipleDefinitions.isEmpty()) {
-          if (astNeuron.getBody().getODEBlock().isPresent()) {
+          if (astNeuron.getBody().getOdeBlock().isPresent()) {
 
             final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
 
             if (afterAddingDerivedVariables.isEmpty()) {
-              assignOdeToVariables(astNeuron.getBody().getODEBlock().get());
-              markConductanceBasedBuffers(astNeuron.getBody().getODEBlock().get(), astNeuron.getBody().getInputLines());
+              assignOdeToVariables(astNeuron.getBody().getOdeBlock().get());
+              markConductanceBasedBuffers(astNeuron.getBody().getOdeBlock().get(), astNeuron.getBody().getInputLines());
             }
             else {
               final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one variable is " +

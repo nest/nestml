@@ -22,9 +22,6 @@ package org.nest.codegeneration.sympy;
 
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.codegeneration.sympy.SolverFrameworkGenerator;
-import org.nest.codegeneration.sympy.SolverOutput;
-import org.nest.codegeneration.sympy.SymPyScriptEvaluator;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
@@ -62,7 +59,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
     FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
 
     final SymPyScriptEvaluator symPyScriptEvaluator = new SymPyScriptEvaluator();
-    final ASTOdeDeclaration astOdeDeclaration =  root.get().getNeurons().get(0).getBody().getODEBlock().get();
+    final ASTOdeDeclaration astOdeDeclaration =  root.get().getNeurons().get(0).getBody().getOdeBlock().get();
 
     final SolverOutput testant = symPyScriptEvaluator.solveOdeWithShapes(astOdeDeclaration, SYMPY_OUTPUT);
     assertEquals("success", testant.status);

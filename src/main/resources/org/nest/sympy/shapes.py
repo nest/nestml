@@ -285,11 +285,13 @@ class ShapeFunction(object):
     def get_initial_values(self):
         result = []
         for idx, initial_value in enumerate(self.initial_values):
+            idx = len(self.initial_values) - (idx + 1)  # initial values are stored in the reversed order
+
             if idx > 0:
                 p = {"iv__" + str(self.name) + "__" + str(idx): str(initial_value)}
             else:
                 p = {"iv__" + str(self.name): str(initial_value)}
-            result.append(p)
+            result = [p] + result
         return result
 
 

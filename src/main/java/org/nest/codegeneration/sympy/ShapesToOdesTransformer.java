@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 class ShapesToOdesTransformer extends TransformerBase {
 
   ASTNeuron transformShapesToOdeForm(final SolverOutput solverOutput, final ASTNeuron astNeuron) {
-    checkArgument(astNeuron.getBody().getODEBlock().isPresent());
+    checkArgument(astNeuron.getBody().getOdeBlock().isPresent());
 
     ASTNeuron workingVersion = addVariablesToState(astNeuron, solverOutput.shape_state_variables);
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.initial_values);
@@ -37,11 +37,8 @@ class ShapesToOdesTransformer extends TransformerBase {
         variableNameExtracter,
         shapeNameExtracter);
 
-    addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.getBody().getODEBlock().get());
+    addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.getBody().getOdeBlock().get());
 
-    System.out.println("!!!!!!!!!!!!!Start DEBUG!!!!!!!!!!!!!!!!!");
-    System.out.println(NESTMLPrettyPrinter.Builder.build().print(workingVersion));
-    System.out.println("!!!!!!!!!!!!!End DEBUG!!!!!!!!!!!!!!!!!");
     return workingVersion;
   }
 
