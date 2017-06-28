@@ -12,11 +12,3 @@ services:
   
 before_install:
   - docker build -t nestml .
-
-
-install:
-  - pip install --user -r requirements.txt
-  - mvn clean
-
-script:
-  - mvn install
