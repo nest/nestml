@@ -39,8 +39,3 @@ RUN git clone https://github.com/nest/nestml.git
 WORKDIR /data/nestml
 RUN mvn install
 
-# Define default command.
-# Entry point is constructed in the invoking script
-
-COPY ./entrypoint.sh /
-ENTRYPOINT ["/entrypoint.sh"]
