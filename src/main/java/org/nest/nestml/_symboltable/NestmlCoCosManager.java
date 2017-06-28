@@ -166,9 +166,6 @@ public class NestmlCoCosManager {
     final DerivativeOrderAtLeastOne derivativeOrderAtLeastOne = new DerivativeOrderAtLeastOne();
     nestmlCoCoChecker.addCoCo(derivativeOrderAtLeastOne);
 
-    final AssignmentToAlias assignmentToAlias = new AssignmentToAlias();
-    nestmlCoCoChecker.addCoCo(assignmentToAlias);
-
     final VariableBlockDefinedMultipleTimes variableBlockDefinedMultipleTimes = new VariableBlockDefinedMultipleTimes();
     nestmlCoCoChecker.addCoCo(variableBlockDefinedMultipleTimes);
   }

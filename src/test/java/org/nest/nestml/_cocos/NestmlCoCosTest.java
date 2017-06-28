@@ -721,23 +721,16 @@ public class NestmlCoCosTest extends ModelbasedTest {
   }
 
   @Test
-  public void testAssignmentToAlias() {
-    final AssignmentToAlias assignmentToAlias = new AssignmentToAlias();
-    nestmlCoCoChecker.addCoCo(assignmentToAlias);
+  public void testIllegalAssignment(){
+    final IllegalAssignment illegalAssignment = new IllegalAssignment();
+    nestmlCoCoChecker.addCoCo(illegalAssignment);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/assignmentToAlias.nestml");
-    checkModelAndAssertNoErrors(
-        pathToValidModel,
-        nestmlCoCoChecker,
-        NestmlErrorStrings.code(assignmentToAlias));
-
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/assignmentToAlias.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/illegalAssignments.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        NestmlErrorStrings.code(assignmentToAlias),
-        1);
-
+        NestmlErrorStrings.code(illegalAssignment),
+        4);
   }
 
   private void checkModelAndAssertNoErrors(

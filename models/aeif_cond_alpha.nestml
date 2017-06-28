@@ -37,6 +37,7 @@ neuron aeif_cond_alpha_implicit:
     w pA = 0 pA        ## Spike-adaptation current
     g_in nS = 0 nS     ## Excitatory synaptic conductance
     g_ex nS = 0 nS     ## Inhibitory synaptic conductance in nS
+    r integer          ## counts number of tick during the refractory period
   end
 
   equations:
@@ -55,7 +56,7 @@ neuron aeif_cond_alpha_implicit:
     function I_syn_exc pA =   cond_sum(g_ex, spikesExc) * ( V_bounded - E_ex )
     function I_syn_inh pA =   cond_sum(g_in, spikesInh) * ( V_bounded - E_in )
 
-    V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
+    V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + currents ) / C_m
     w' = (a*(V_bounded - E_L) - w)/tau_w
   end
 
@@ -85,7 +86,6 @@ neuron aeif_cond_alpha_implicit:
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
     # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0 pA
   end
 
   internals:
@@ -100,9 +100,6 @@ neuron aeif_cond_alpha_implicit:
 
     ## refractory time in steps
     RefractoryCounts integer = steps(t_ref)
-
-    ## counts number of tick during the refractory period
-    r integer
   end
 
   input:
@@ -128,7 +125,6 @@ neuron aeif_cond_alpha_implicit:
 
     g_ex' += spikesExc * PSConInit_E
     g_in' += spikesInh * PSConInit_I
-    I_stim = currents
   end
 
 end

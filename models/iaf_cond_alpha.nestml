@@ -35,6 +35,7 @@ neuron iaf_cond_alpha_neuron:
 
   state:
     V_m mV = E_L   # membrane potential
+    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
@@ -45,7 +46,7 @@ neuron iaf_cond_alpha_neuron:
     function I_syn_inh pA =  cond_sum(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end
 
   parameters:
@@ -63,12 +64,10 @@ neuron iaf_cond_alpha_neuron:
     # Input current injected by CurrentEvent.
     # This variable is used to transport the current applied into the
     # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0pA
   end
 
   internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
-    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -90,7 +89,6 @@ neuron iaf_cond_alpha_neuron:
       emit_spike()
     end
     # set new input current
-    I_stim = currents
   end
 
 end
@@ -135,6 +133,7 @@ neuron iaf_cond_alpha_implicit:
     V_m mV = E_L     # membrane potential
     g_in nS = 0nS    # inputs from the inh conductance
     g_ex nS = 0nS    # inputs from the exc conductance
+    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
@@ -150,7 +149,7 @@ neuron iaf_cond_alpha_implicit:
     function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
 
-    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
+    V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end
 
   parameters:
@@ -165,9 +164,6 @@ neuron iaf_cond_alpha_implicit:
     tau_syn_ex ms = 0.2ms # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_in ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse in ms
     I_e pA = 0pA          # Constant Current in pA
-    I_stim pA = 0pA # Input current injected by CurrentEvent.
-                    # This variable is used to transport the current applied into the
-                    # _dynamics function computing the derivative of the state vector.
   end
 
   internals:
@@ -180,7 +176,6 @@ neuron iaf_cond_alpha_implicit:
     PSConInit_I real = ms * e / tau_syn_in
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
-    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -207,7 +202,6 @@ neuron iaf_cond_alpha_implicit:
     g_ex' += spikeExc * PSConInit_E * nS/ms
     g_in' += spikeInh * PSConInit_I * nS/ms
     # set new input current
-    I_stim = currents
   end
 
 end
