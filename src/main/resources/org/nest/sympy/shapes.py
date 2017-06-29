@@ -236,6 +236,7 @@ class ShapeFunction(object):
                 self.nestml_ode_form.append({name: name + "__1"})
         # Compute the right and left hand side of the ODE that 'shape' satisfies
         rhs_str = []
+
         for k in range(order):
             if k > 0:
                 rhs_str.append("{} * {}__{}".format(simplify(derivative_factors[k]), name, str(k)))
@@ -244,7 +245,10 @@ class ShapeFunction(object):
                 rhs_str.append("{} * {}".format(simplify(derivative_factors[k]), name))
 
         rhs = " + ".join(rhs_str)
-        lhs = name + "__" + str(order-1)
+        if order == 1:
+            lhs = name
+        else:
+            lhs = name + "__" + str(order-1)
 
         self.nestml_ode_form.append({lhs: rhs})
         self.derivative_factors = list(simplify(derivative_factors))
@@ -252,12 +256,16 @@ class ShapeFunction(object):
         self.updates_to_state_shape_variables = []  # must be filled after the propagator matrix is computed
 
     def additional_shape_state_variables(self):
+        """
+
+        :return: Creates list with state shapes variables in the `reversed` order, e.g. [I'', I', I]
+        """
         result = []
         for order in range(0, self.order):
             if order > 0:
-                result.append(str(self.name) + "__" + str(order))
+                result = [(str(self.name) + "__" + str(order))] + result
             else:
-                result.append(str(self.name))
+                result = [str(self.name)] + result
         return result
 
     def add_update_to_shape_state_variable(self, shape_state_variable, shape_state_variable_update):
@@ -285,8 +293,6 @@ class ShapeFunction(object):
     def get_initial_values(self):
         result = []
         for idx, initial_value in enumerate(self.initial_values):
-            idx = len(self.initial_values) - (idx + 1)  # initial values are stored in the reversed order
-
             if idx > 0:
                 p = {"iv__" + str(self.name) + "__" + str(idx): str(initial_value)}
             else:

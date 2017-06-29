@@ -6,11 +6,18 @@ from shapes import ShapeFunction
 from OdeAnalyzer import OdeAnalyzer
 from OdeAnalyzer import SolverInput
 
-cond_ode_block = '{' \
+cond_alpha_ode_block = '{' \
                  '"functions" : [ "I_syn_exc = g_ex*(V_m-E_ex)", "I_syn_inh = g_in*(V_m-E_in)", "I_leak = g_L*(V_m-E_L)" ],' \
                  '"shapes" : [ "g_in = (e/tau_syn_in)*t*exp((-1)/tau_syn_in*t)", "g_ex = (e/tau_syn_ex)*t*exp((-1)/tau_syn_ex*t)" ],' \
                  '"ode" : "V_m\' = (-I_leak-I_syn_exc-I_syn_inh+I_stim+I_e)/C_m"' \
                  '}'
+
+cond_exp_ode_block = '{' \
+                 '"functions" : [ "I_syn_exc = g_ex*(V_m-E_ex)", "I_syn_inh = g_in*(V_m-E_in)", "I_leak = g_L*(V_m-E_L)" ],' \
+                 '"shapes" : [ "g_in = exp(-1/tau_syn_in*t)", "g_ex = exp(-1/tau_syn_ex*t)" ],' \
+                 '"ode" : "V_m\' = (-I_leak-I_syn_exc-I_syn_inh+I_stim+I_e)/C_m"' \
+                 '}'
+
 psc_ode_block = '{' \
                 '"functions" : [ "I_syn = I_shape_in+I_shape_ex+I_e+currents" ],' \
                 '"shapes" : [ "I_shape_in = pA*(e/tau_syn_in)*t*exp((-1)/tau_syn_in*t)", "I_shape_ex = pA*(e/tau_syn_ex)*t*exp((-1)/tau_syn_ex*t)" ], ' \
@@ -30,7 +37,7 @@ class TestSolutionComputation(unittest.TestCase):
         testant = json.loads(OdeAnalyzer.compute_solution(psc_ode_block))
         self.assertTrue(testant["solver"] == "exact")
 
-        testant = json.loads(OdeAnalyzer.compute_solution(cond_ode_block))
+        testant = json.loads(OdeAnalyzer.compute_solution(cond_alpha_ode_block))
         self.assertTrue(testant["solver"] == "numeric")
 
     def test_propagator_matrix(self):
@@ -53,7 +60,12 @@ class TestSolutionComputation(unittest.TestCase):
         print testant
 
     def test_analyzer_iaf_cond_alpha(self):
-        testant = OdeAnalyzer.compute_solution(cond_ode_block)
+        testant = OdeAnalyzer.compute_solution(cond_alpha_ode_block)
+        self.assertIsNotNone(testant)
+        print testant
+
+    def test_analyzer_iaf_cond_exp(self):
+        testant = OdeAnalyzer.compute_solution(cond_exp_ode_block)
         self.assertIsNotNone(testant)
         print testant
 
