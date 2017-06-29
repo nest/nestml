@@ -6,6 +6,7 @@ neuron rc_shape:
 
   state:
     V_m mV =  E_L
+    refractory_counts integer = 0
   end
 
   equations:
@@ -23,7 +24,6 @@ neuron rc_shape:
     function V_th mV = -55mV - E_L
     function V_reset mV = -70mV - E_L
     refractory_timeout ms = 2ms
-    refractory_counts integer = 0
     I_e pA = 0pA
   end
 

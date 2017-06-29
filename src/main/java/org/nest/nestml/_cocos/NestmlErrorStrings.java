@@ -352,15 +352,6 @@ public class NestmlErrorStrings {
     return "NESTML_DERIVATIVE_ORDER_AT_LEAST_ONE";
   }
 
-  static public String message(AssignmentToAlias assignmentToAlias, final String variableName) {
-    return code(assignmentToAlias) + SEPARATOR + "You cannot assign a value to an function: " + variableName;
-  }
-
-  @SuppressWarnings("unused") // parameter is used for dispatch
-  static String code(final AssignmentToAlias coco) {
-    return "NESTML_ASSIGNMENT_TO_ALIAS";
-  }
-
   static String error(final VariableBlockDefinedMultipleTimes coco,
                       final SourcePosition sourcePosition,
                       final String block) {
@@ -394,6 +385,7 @@ public class NestmlErrorStrings {
     return "NESTML_RESTRICT_USE_OF_SHAPES";
   }
 
+<<<<<<< HEAD
   public static String expressionCalculation(final ODEPostProcessingVisitor coco, final String description) {
     final String ERROR_MSG_FORMAT = "Error in expression type calculation: " + description;
 
@@ -461,4 +453,37 @@ public class NestmlErrorStrings {
     return "NESTML_UNIT_REPRESENTATION";
   }
 
+=======
+  public static String errorAssignmentToParameter(final IllegalAssignment coco,
+                                                  final String lhsName,
+                                                  final SourcePosition sourcePositionStart) {
+    final String ERROR_MSG_FORMAT = "Cannot assign value to parameter symbol " + lhsName + " at " +sourcePositionStart;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  static String code(IllegalAssignment coco) {
+    return "NESTML_ILLEGAL_ASSIGNMENT";
+  }
+
+  public static String errorAssignmentToAlias(final IllegalAssignment coco,
+                                              final String lhsName,
+                                              final SourcePosition sourcePositionStart) {
+    final String ERROR_MSG_FORMAT = "Cannot assign value to alias symbol " + lhsName + " at " +sourcePositionStart;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  public static String errorAssignmentToEquation( final IllegalAssignment coco,
+                                                  final String lhsName,
+                                                  final SourcePosition sourcePositionStart) {
+    final String ERROR_MSG_FORMAT = "Cannot assign value to equation symbol " + lhsName + " at " +sourcePositionStart;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  public static String errorAssignmentToInternal( final IllegalAssignment coco,
+                                                  final String lhsName,
+                                                  final SourcePosition sourcePositionStart) {
+    final String ERROR_MSG_FORMAT = "Cannot assign value to internal symbol " + lhsName + " at " +sourcePositionStart;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+>>>>>>> upstream/master
 }

@@ -44,6 +44,7 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     g_ex nS      # inputs from the exc conductance
     g_sfa nS     # inputs from the sfa conductance
     g_rr nS      # inputs from the rr conductance
+    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
@@ -59,7 +60,7 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     function I_rr pA = g_rr * ( V_m - E_rr )
 
     # V dot
-    V_m' = ( -I_L + I_stim + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
+    V_m' = ( -I_L + currents + I_e - I_syn_exc - I_syn_inh - I_sfa - I_rr ) / C_m
   end
 
   parameters:
@@ -80,14 +81,10 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     E_sfa mV = -70.0mV       # spike-frequency adaptation conductance reversal potential
     E_rr mV = -70.0mV        # relative refractory mechanism conductance reversal potential
     I_e pA = 0pA           # Constant Current
-    I_stim pA = 0pA # Input current injected by CurrentEvent.
-                    # This variable is used to transport the current applied into the
-                    # _dynamics function computing the derivative of the state vector.
   end
 
   internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
-    r integer                               # counts number of tick during the refractory period
   end
 
   input:
@@ -116,7 +113,6 @@ neuron iaf_cond_exp_sfa_rr_implicit:
 
     g_ex += spikesExc * nS
     g_in += spikesInh * nS
-    I_stim = currents
   end
 
 end

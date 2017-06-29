@@ -49,6 +49,9 @@ neuron hh_cond_exp_traub_implicit:
     Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
     Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
     Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init )
+
+    r integer # counts number of tick during the refractory period
+
   end
 
   equations:
@@ -59,7 +62,7 @@ neuron hh_cond_exp_traub_implicit:
     function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
 
-    V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + I_stim + I_e ) / C_m
+    V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
 
     # channel dynamics
     function V_rel mV = V_m - V_T
@@ -94,12 +97,10 @@ neuron hh_cond_exp_traub_implicit:
     I_e pA = 0pA              # Constant Current in pA
     E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
     E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
-    I_stim pA = 0pA           # External input current
   end
 
   internals:
     RefractoryCounts integer = 20
-    r integer # counts number of tick during the refractory period
   end
 
   input:
@@ -123,7 +124,6 @@ neuron hh_cond_exp_traub_implicit:
     end
 
     # set new input current
-    I_stim = currents
 
     g_ex += spikeExc * nS
     g_in += spikeInh * nS
