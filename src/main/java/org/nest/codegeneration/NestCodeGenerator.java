@@ -16,6 +16,7 @@ import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._symboltable.NESTMLLanguage;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.nestml.prettyprinter.IReferenceConverter;
@@ -57,7 +58,8 @@ public class NestCodeGenerator {
 
     reporter.reportProgress("Starts generating code for the file: " + root.getArtifactName());
     root.getNeurons().forEach(astNeuron -> analyseAndGenerate(astNeuron, outputBase));
-    reporter.reportProgress("Finishes generating code for the file: " + root.getArtifactName());
+    reporter.reportProgress("Finishes generating code for the file: "
+                            + root.getArtifactName() + "." + NESTMLLanguage.FILE_ENDING);
   }
 
   private void analyseAndGenerate(
@@ -82,12 +84,16 @@ public class NestCodeGenerator {
     final ASTBody astBody = astNeuron.getBody();
     final Optional<ASTOdeDeclaration> odesBlock = astBody.getOdeBlock();
     if (odesBlock.isPresent()) {
-      if (odesBlock.get().getShapes().size() == 0 || odesBlock.get().getODEs().size() > 1) {
-        reporter.reportProgress("The model will be solved numerically with GSL solver.");
+      if (odesBlock.get().getShapes().size() == 0 && odesBlock.get().getODEs().size() > 1) {
+        final String msg = String.format(
+            "The neuron %s will be solved numerically with GSL solver without modification.",
+            astNeuron.getName());
+        reporter.reportProgress(msg);
         return astNeuron;
       }
       else {
-        reporter.reportProgress(("The model will be analysed."));
+        final String msg = String.format("The neuron %s will be analysed.", astNeuron.getName());
+        reporter.reportProgress(msg);
         return equationsBlockProcessor.solveOdeWithShapes(astNeuron, outputBase);
       }
 

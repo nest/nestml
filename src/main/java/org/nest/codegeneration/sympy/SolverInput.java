@@ -23,6 +23,7 @@ package org.nest.codegeneration.sympy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.nest.nestml._ast.ASTEquation;
 import org.nest.nestml._ast.ASTOdeDeclaration;
 import org.nest.nestml._ast.ASTOdeFunction;
@@ -57,6 +58,16 @@ class SolverInput {
         .stream()
         .map(this::printShape)
         .collect(Collectors.toList());
+  }
+
+  public SolverInput(final List<ASTShape> shapes) {
+    this.functions = Lists.newArrayList();
+    this.ode = null;
+    this.shapes = shapes
+        .stream()
+        .map(this::printShape)
+        .collect(Collectors.toList());
+
   }
 
   /**

@@ -178,6 +178,26 @@ public class ASTBody extends ASTBodyTOP {
 
   }
 
+  public List<VariableSymbol> getOdeDefinedSymbols() {
+    return this.getEnclosingScope().get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(stateSymbol -> (VariableSymbol) stateSymbol)
+        .filter(VariableSymbol::isState)
+        .filter(VariableSymbol::definedByODE)
+        .collect(toList());
+
+  }
+
+  public List<VariableSymbol> getStateSymbolsWithoutOde() {
+    return this.getEnclosingScope().get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(stateSymbol -> (VariableSymbol) stateSymbol)
+        .filter(VariableSymbol::isState)
+        .filter(variableSymbol -> !variableSymbol.definedByODE())
+        .collect(toList());
+
+  }
+
   public List<VariableSymbol> getStateAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get())
         .stream()

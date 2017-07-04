@@ -34,12 +34,8 @@ SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
 neuron iaf_cond_alpha_neuron:
 
   state:
-<<<<<<< HEAD
     V_m mV = E_L   ## membrane potential
-=======
-    V_m mV = E_L   # membrane potential
-    r integer                               # counts number of tick during the refractory period
->>>>>>> upstream/master
+    r integer      ## counts number of tick during the refractory period
   end
 
   equations:
@@ -54,7 +50,6 @@ neuron iaf_cond_alpha_neuron:
   end
 
   parameters:
-<<<<<<< HEAD
     V_th mV = -55.0mV    ## Threshold Potential in mV
     V_reset mV = -60.0mV ## Reset Potential in mV
     t_ref ms = 2.ms      ## Refractory period in ms
@@ -69,23 +64,6 @@ neuron iaf_cond_alpha_neuron:
     ## Input current injected by CurrentEvent.
     ## This variable is used to transport the current applied into the
     ## _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0pA
-=======
-    V_th mV = -55.0mV    # Threshold Potential in mV
-    V_reset mV = -60.0mV # Reset Potential in mV
-    t_ref ms = 2.ms     # Refractory period in ms
-    g_L nS = 16.6667nS   # Leak Conductance in nS
-    C_m pF = 250.0 pF      # Membrane Capacitance in pF
-    E_ex mV = 0mV        # Excitatory reversal Potential in mV
-    E_in mV = -85.0mV    # Inhibitory reversal Potential in mV
-    E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA           # Constant Current in pA
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
->>>>>>> upstream/master
   end
 
   internals:
@@ -110,7 +88,6 @@ neuron iaf_cond_alpha_neuron:
       V_m = V_reset # clamp potential
       emit_spike()
     end
-    # set new input current
   end
 
 end
@@ -157,8 +134,8 @@ neuron iaf_cond_alpha_implicit:
     g_in nS = 0nS    ## inputs from the inh conductance
     g_ex nS = 0nS    ## inputs from the exc conductance
 
-    g_in' nS/ms = 0# nS * e / tau_syn_in    ## inputs from the inh conductance
-    g_ex' nS/ms = 0# nS * e / tau_syn_ex    ## inputs from the exc conductance
+    g_in' nS/ms = nS * e / tau_syn_in    ## inputs from the inh conductance
+    g_ex' nS/ms = nS * e / tau_syn_ex    ## inputs from the exc conductance
   end
 
   equations:
@@ -175,7 +152,6 @@ neuron iaf_cond_alpha_implicit:
   end
 
   parameters:
-<<<<<<< HEAD
     V_th mV = -55.0mV     ## Threshold Potential in mV
     V_reset mV = -60.0mV  ## Reset Potential in mV
     t_ref ms = 2.0ms      ## Refractory period in ms
@@ -187,22 +163,6 @@ neuron iaf_cond_alpha_implicit:
     tau_syn_ex ms = 0.2ms ## Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_in ms = 2.0ms ## Synaptic Time Constant for Inhibitory Synapse in ms
     I_e pA = 0pA          ## Constant Current in pA
-    I_stim pA = 0pA ## Input current injected by CurrentEvent.
-                    ## This variable is used to transport the current applied into the
-                    ## _dynamics function computing the derivative of the state vector.
-=======
-    V_th mV = -55.0mV     # Threshold Potential in mV
-    V_reset mV = -60.0mV  # Reset Potential in mV
-    t_ref ms = 2.0ms      # Refractory period in ms
-    g_L nS = 16.6667nS    # Leak Conductance in nS
-    C_m pF = 250.0pF      # Membrane Capacitance in pF
-    E_ex mV = 0mV         # Excitatory reversal Potential in mV
-    E_in mV = -85.0mV     # Inhibitory reversal Potential in mV
-    E_L mV = -70.0mV      # Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 0.2ms # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA          # Constant Current in pA
->>>>>>> upstream/master
   end
 
   internals:
@@ -213,13 +173,7 @@ neuron iaf_cond_alpha_implicit:
     ## Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     ## conductance excursion.
     PSConInit_I real = ms * e / tau_syn_in
-
-<<<<<<< HEAD
     RefractoryCounts integer = steps(t_ref) ## refractory time in steps
-    r integer                               ## counts number of tick during the refractory period
-=======
-    RefractoryCounts integer = steps(t_ref) # refractory time in steps
->>>>>>> upstream/master
   end
 
   input:
@@ -245,7 +199,6 @@ neuron iaf_cond_alpha_implicit:
     # add incoming spikes
     g_ex' += spikeExc * PSConInit_E * nS/ms
     g_in' += spikeInh * PSConInit_I * nS/ms
-    # set new input current
   end
 
 end

@@ -160,13 +160,6 @@ grammar NESTML extends org.nest.Literals {
     ( "=" Expr)? SL_COMMENT?
     ("[[" invariant:Expr "]]")?;
 
-  /** ASTDefiningVariable Signed variable name
-
-    @attribute minus An optional sing
-    @attribute definingVariable Name of the variable
-   */
-  DefiningVariable = (minus:["-"])? definingVariable:Name;
-
   /** ATReturnStmt Models the return statement in a function.
 
     @attribute minus An optional sing

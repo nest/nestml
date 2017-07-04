@@ -22,11 +22,14 @@ package org.nest.nestml._cocos;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
 import de.monticore.utils.ASTNodes;
 import org.nest.nestml._ast.*;
+import org.nest.nestml._symboltable.symbols.MethodSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkState;
@@ -37,13 +40,13 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author  plotnikov
  */
-public class VariableDoesNotExist implements
+public class UsageOfAmbiguousName implements
     NESTMLASTOdeDeclarationCoCo,
     NESTMLASTAssignmentCoCo,
     NESTMLASTFunctionCallCoCo,
     NESTMLASTDeclarationCoCo,
     NESTMLASTReturnStmtCoCo,
-    NESTMLASTCompound_StmtCoCo {
+    NESTMLASTCompound_StmtCoCo{
 
   @Override
   public void check(final ASTCompound_Stmt node) {
@@ -109,10 +112,7 @@ public class VariableDoesNotExist implements
     for (final ASTVariable variable : variables) {
       final String variableName = variable.toString();
 
-      if (!exists(variableName, scope)) {
-        final String errorMsg = NestmlErrorStrings.message(this, variableName);
-        error(errorMsg, variable.get_SourcePositionStart());
-      }
+      checkVariableByName(variableName, variable);
 
     }
 
@@ -150,15 +150,15 @@ public class VariableDoesNotExist implements
   private void checkVariableByName(final String variableName, final ASTNode node) {
     checkState(node.getEnclosingScope().isPresent());
     final Scope scope = node.getEnclosingScope().get();
+    int symboDefinitions = scope.resolveMany(variableName, VariableSymbol.KIND).size();
+    if (symboDefinitions == 0) {
+      error(NestmlErrorStrings.messageVariableNotDefined(this, variableName), node.get_SourcePositionStart());
 
-    if (!exists(variableName, scope)) {
-      error(NestmlErrorStrings.message(this, variableName), node.get_SourcePositionStart());
+    }
+    else if (symboDefinitions > 1) {
+      error(NestmlErrorStrings.messageVariableDefinedMultipleTimes(this, variableName), node.get_SourcePositionStart());
     }
 
-  }
-
-  private boolean exists(final String variableName, final Scope scope) {
-    return scope.resolveMany(variableName, VariableSymbol.KIND).size() > 0;
   }
 
 }

@@ -38,6 +38,7 @@ import java.util.Map;
  * ode_var_update_instructions, solver, ode_var_factor, const_input, propagator_elements,shape_state_variables
  */
 public class SolverOutput {
+  // all fields must be public since they are set by the JSON framework
   final static String RESULT_FILE_NAME = "result.tmp";
   public String status = "";
   public List<Map.Entry<String, String>> initial_values = Lists.newArrayList();

@@ -60,4 +60,16 @@ public class SolverInputTest extends ModelbasedTest {
 
   }
 
+  @Test
+  public void test_shapes_only() {
+    ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(PSC_MODEL_FILE_PATH);
+
+    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getBody().getOdeBlock().get();
+    SolverInput solverInput = new SolverInput(odeBlock.getShapes());
+    String result = solverInput.toJSON();
+    System.out.println(result);
+    assertNotNull(result);
+
+  }
+
 }

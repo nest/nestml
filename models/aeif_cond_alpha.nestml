@@ -1,4 +1,3 @@
-
 /*
 Name: aeif_cond_alpha -  Conductance based exponential integrate-and-fire neuron
                          model according to Brette and Gerstner (2005).
@@ -160,11 +159,13 @@ SeeAlso: iaf_cond_alpha, aeif_cond_exp
 neuron aeif_cond_alpha_implicit:
 
   state:
-    V_m mV = E_L       ## Membrane potential
-    w pA = 0 pA        ## Spike-adaptation current
-    g_in nS = 0 nS     ## Excitatory synaptic conductance
-    g_ex nS = 0 nS     ## Inhibitory synaptic conductance in nS
-    r integer          ## counts number of tick during the refractory period
+    V_m mV = E_L           ## Membrane potential
+    w pA = 0 pA            ## Spike-adaptation current
+    g_in nS = 0 nS         ## Excitatory synaptic conductance
+    g_in' nS/mS = 0 nS/ms  ## Excitatory synaptic conductance
+    g_ex nS = 0 nS         ## Inhibitory synaptic conductance in nS
+    g_ex' nS/mS = 0 nS/ms  ## Inhibitory synaptic conductance in nS
+    r integer              ## counts number of tick during the refractory period
   end
 
   equations:
@@ -209,10 +210,6 @@ neuron aeif_cond_alpha_implicit:
     tau_syn_ex ms = 0.2 ms    ## Synaptic Time Constant Excitatory Synapse in ms
     E_in mV = -85.0 mV        ## Inhibitory reversal Potential in mV
     tau_syn_in ms = 2.0 ms    ## Synaptic Time Constant for Inhibitory Synapse in ms
-
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
   end
 
   internals:

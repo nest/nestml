@@ -42,7 +42,7 @@ import static org.nest.nestml._symboltable.NestmlSymbols.resolveMethod;
  *
  * @author ippen, plotnikov
  */
-public class FunctionDoesNotExist implements NESTMLASTFunctionCallCoCo {
+public class FunctionWithSignatureDoesNotExist implements NESTMLASTFunctionCallCoCo {
 
   @Override
   public void check(final ASTFunctionCall astFunctionCall) {

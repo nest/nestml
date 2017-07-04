@@ -364,14 +364,24 @@ public class NestmlErrorStrings {
     return "NESTML_VARIABLE_BLOCK_DEFINED_MULTIPLE_TIMES";
   }
 
-  static public String message(final VariableDoesNotExist coco, final String variableName) {
+  static public String messageVariableNotDefined(final UsageOfAmbiguousName coco, final String variableName) {
     final String ERROR_MSG_FORMAT = "The variable " + variableName + " is not defined";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
+  static public String messageVariableDefinedMultipleTimes(final UsageOfAmbiguousName coco, final String variableName) {
+    final String ERROR_MSG_FORMAT = "The variable " + variableName + " is defined multiple times";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  static public String messageFunctionDefinedMultipleTimes(final UsageOfAmbiguousName coco, final String variableName) {
+    final String ERROR_MSG_FORMAT = "The function " + variableName + " is defined multiple times";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
   @SuppressWarnings("unused") // parameter is used for dispatch
-  static String code(final VariableDoesNotExist coco) {
-    return "NESTML_VARIABLE_DOESNT_EXIST";
+  static String code(final UsageOfAmbiguousName coco) {
+    return "NESTML_NAME_IS_NOT_UNIQUE";
   }
 
   static public String message(final RestrictUseOfShapes coco) {
@@ -385,7 +395,6 @@ public class NestmlErrorStrings {
     return "NESTML_RESTRICT_USE_OF_SHAPES";
   }
 
-<<<<<<< HEAD
   public static String expressionCalculation(final ODEPostProcessingVisitor coco, final String description) {
     final String ERROR_MSG_FORMAT = "Error in expression type calculation: " + description;
 
@@ -453,7 +462,6 @@ public class NestmlErrorStrings {
     return "NESTML_UNIT_REPRESENTATION";
   }
 
-=======
   public static String errorAssignmentToParameter(final IllegalAssignment coco,
                                                   final String lhsName,
                                                   final SourcePosition sourcePositionStart) {
@@ -485,5 +493,5 @@ public class NestmlErrorStrings {
     final String ERROR_MSG_FORMAT = "Cannot assign value to internal symbol " + lhsName + " at " +sourcePositionStart;
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
->>>>>>> upstream/master
+
 }

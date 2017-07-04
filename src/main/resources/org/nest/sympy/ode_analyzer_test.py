@@ -30,6 +30,10 @@ psc_ode_block2 = '{' \
                  '"I_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)" ]' \
                  '}'
 
+shapes_only = '{'   '"functions" : [ ], '\
+              '"shapes" : [ "I_shape_in = pA*(e/tau_syn_in)*t*exp((-1)/tau_syn_in*t)", "I_shape_ex = pA*(e/tau_syn_ex)*t*exp((-1)/tau_syn_ex*t)" ],'\
+              '"ode" : null'\
+              '}'
 
 class TestSolutionComputation(unittest.TestCase):
 
@@ -71,6 +75,11 @@ class TestSolutionComputation(unittest.TestCase):
 
     def test_analyzer_iaf_psc_alpha(self):
         testant = OdeAnalyzer.compute_solution(psc_ode_block)
+        self.assertIsNotNone(testant)
+        print testant
+
+    def test_shapes_only(self):
+        testant = OdeAnalyzer.compute_solution(shapes_only)
         self.assertIsNotNone(testant)
         print testant
 

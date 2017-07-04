@@ -38,7 +38,6 @@ class ShapesToOdesTransformer extends TransformerBase {
         shapeNameExtracter);
 
     addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.getBody().getOdeBlock().get());
-
     return workingVersion;
   }
 

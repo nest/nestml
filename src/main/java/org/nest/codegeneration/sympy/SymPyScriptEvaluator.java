@@ -9,6 +9,7 @@ import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTShape;
 import org.nest.reporting.Reporter;
 
 import java.io.BufferedReader;
@@ -31,7 +32,7 @@ import static de.se_rwth.commons.logging.Log.error;
  *
  * @author plotnikov
  */
-public class SymPyScriptEvaluator {
+class SymPyScriptEvaluator {
   private final static Reporter reporter = Reporter.get();
 
   private final static String PYTHON_INTERPRETER = "python";
@@ -44,8 +45,15 @@ public class SymPyScriptEvaluator {
   private static final String ODE_ANALYZER_SCRIPT = "OdeAnalyzer.py";
   private static final String ODE_ANALYZER_SOURCE = "org/nest/sympy/OdeAnalyzer.py";
 
-  public SolverOutput solveOdeWithShapes(final ASTOdeDeclaration astOdeDeclaration,
-                                         final Path output) {
+  SolverOutput solveOdeWithShapes(final ASTOdeDeclaration astOdeDeclaration, final Path output) {
+    return executeSolver(new SolverInput(astOdeDeclaration), output);
+  }
+
+  SolverOutput solveShapes(final List<ASTShape> shapes, final Path output) {
+    return executeSolver(new SolverInput(shapes), output);
+  }
+
+  private SolverOutput executeSolver(final SolverInput solverInput, final Path output) {
     try {
       reporter.reportProgress("Start long running SymPy script evaluation...");
 
@@ -53,7 +61,6 @@ public class SymPyScriptEvaluator {
       long start = System.nanoTime();
       final List<String> commands = Lists.newArrayList();
 
-      final SolverInput solverInput = new SolverInput(astOdeDeclaration);
       commands.add(PYTHON_INTERPRETER);
       commands.add(ODE_ANALYZER_SCRIPT);
       commands.add(solverInput.toJSON());
@@ -113,7 +120,7 @@ public class SymPyScriptEvaluator {
     }
   }
 
-  public boolean evaluateCommand(final String command, final Path outputDirectory) {
+  boolean evaluateCommand(final String command, final Path outputDirectory) {
     try {
       reporter.reportProgress("Start long running SymPy script evaluation...");
       long start = System.nanoTime();

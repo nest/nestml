@@ -90,6 +90,7 @@ class OdeAnalyzer(object):
     @staticmethod
     def compute_solution(input_json):
         input_ode_block = SolverInput(input_json)
+
         """
         The function computes a list with propagator matrices.
         :arguments A list starting with an ODE of the first order followed by shape definitions. An ODE is of the form 
@@ -98,17 +99,21 @@ class OdeAnalyzer(object):
         :returns JSON object containing all data necessary to compute an update step.
         """
 
-        # extract the name of the ODE and its defining expression
-        ode_definition = input_ode_block.ode.split('=')  # it is now a list with 2 elements
-        ode_var = ode_definition[0].replace("'", "").strip()
-        ode_rhs = ode_definition[1].strip()
-
         shape_functions = [] # contains shape functions as ShapeFunction objects
         for shape_function in input_ode_block.shapes:
             tmp = shape_function.split('=')
             lhs_var = tmp[0].strip()
             rhs = tmp[1].strip()
             shape_functions.append(ShapeFunction(lhs_var, rhs))
+
+        if input_ode_block.ode is None:
+            result = OdeAnalyzer.convert_shapes_to_odes(shape_functions)
+            return json.dumps(result.__dict__, indent=2)
+
+        # extract the name of the ODE and its defining expression
+        ode_definition = input_ode_block.ode.split('=')  # it is now a list with 2 elements
+        ode_var = ode_definition[0].replace("'", "").strip()
+        ode_rhs = ode_definition[1].strip()
 
         function_vars = []  #
         function_definitions = []  # contains shape functions as ShapeFunction objects
