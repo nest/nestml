@@ -252,10 +252,11 @@ private:
       };
       //! state vector, must be C-array for GSL solver
       double y[ STATE_VEC_SIZE ];
+      <#list body.getStateSymbolsWithoutOde() as variable>
+        ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
+      </#list>
     </#if>
-    <#list body.getStateSymbolsWithoutOde() as variable>
-      ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
-    </#list>
+
     <#list body.getODEAliases() as odeAlias>
       ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [odeAlias])}
     </#list>

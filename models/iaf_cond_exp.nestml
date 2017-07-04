@@ -143,8 +143,8 @@ neuron iaf_cond_exp_implicit:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh <- inhibitory spike
+      spikeExc <- excitatory spike
       currents <- current
   end
 
