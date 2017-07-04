@@ -123,7 +123,7 @@ neuron hh_cond_exp_traub_neuron:
       emit_spike()
     end
 
-    # set new input current
+
 
     g_ex += spikeExc * nS
     g_in += spikeInh * nS
@@ -256,7 +256,7 @@ neuron hh_cond_exp_traub_implicit:
       emit_spike()
     end
 
-    # set new input current
+
 
     g_ex += spikeExc * nS
     g_in += spikeInh * nS

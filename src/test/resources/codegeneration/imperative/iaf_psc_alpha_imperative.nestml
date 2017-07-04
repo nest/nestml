@@ -120,7 +120,7 @@ neuron iaf_psc_alpha_mc_imperative:
           emit_spike()
       end
 
-      # set new input current
+
       y0 = currentBuffer
 
   end

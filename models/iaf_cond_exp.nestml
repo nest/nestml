@@ -77,7 +77,7 @@ neuron iaf_cond_exp_neuron:
       emit_spike()
     end
 
-    # set new input current
+
   end
 
 end

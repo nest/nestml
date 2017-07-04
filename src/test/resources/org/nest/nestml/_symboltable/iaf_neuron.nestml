@@ -90,7 +90,7 @@ neuron iaf_neuron:
         emit_spike()
     end
 
-    # set new input current
+
     y0 = currentBuffer
     newVarInMethod real = 1.0
   end

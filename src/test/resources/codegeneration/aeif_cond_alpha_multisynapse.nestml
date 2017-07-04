@@ -104,9 +104,7 @@ neuron aeif_cond_alpha_implicit_implicit:
     E_in mV = -85.0mV        # Inhibitory reversal Potential in mV
     tau_syn ms[receptors] = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
 
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
+
     I_stim pA = 0pA
   end
 
@@ -153,7 +151,7 @@ neuron aeif_cond_alpha_implicit_implicit:
 
     g_ex' += spikesEx * PSConInit_E
     g_in' += spikesIn * PSConInit_I
-    I_stim = currents
+
   end
 
 end

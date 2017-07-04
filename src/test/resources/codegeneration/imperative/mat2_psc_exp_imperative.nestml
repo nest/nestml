@@ -97,12 +97,12 @@ neuron mat2_exp_neuron:
       else:
         r = r -1 # neuron is totally refractory (cannot generate spikes)
 
-        # set new input current
+
         i_0 = currents
       end
 
     end
-    # set new input current
+
     i_0 = currents
 
   end
