@@ -29,6 +29,7 @@ import org.nest.codegeneration.sympy.EquationsBlockProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.utils.FilesHelper;
 
 import java.nio.file.Path;
@@ -46,17 +47,16 @@ public class EquationsBlockProcessorTest extends ModelbasedTest {
   private static final String COND_MODEL_FILE = "models/iaf_cond_alpha.nestml";
   private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
   private static final String PSC_DELTA_MODEL_FILE = "models/iaf_psc_delta.nestml";
-  private static final String PSC_NEURON_NAME = "iaf_neuron_nestml";
 
   private final EquationsBlockProcessor testant = new EquationsBlockProcessor();
 
   @Test
-  public void testPscModel() throws Exception {
+  public void test_psc_model() throws Exception {
     final Scope scope = solveOdesAndShapes(PSC_MODEL_FILE);
 
-    final Optional<NeuronSymbol> neuronSymbol = scope.resolve(PSC_NEURON_NAME, NeuronSymbol.KIND);
+    final Optional<NeuronSymbol> neuronSymbol = scope.resolve("iaf_neuron_nestml", NeuronSymbol.KIND);
 
-    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("G__0");
+    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("G");
     final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("G__1");
     assertTrue(y1.isPresent());
     assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
@@ -66,14 +66,26 @@ public class EquationsBlockProcessorTest extends ModelbasedTest {
   }
 
   @Test
-  public void testCondModel() throws Exception {
-    solveOdesAndShapes(COND_MODEL_FILE);
+  public void test_cond_model() throws Exception {
+    final Scope scope = solveOdesAndShapes(COND_MODEL_FILE);
+    final Optional<NeuronSymbol> neuronSymbol = scope.resolve("iaf_cond_alpha_neuron", NeuronSymbol.KIND);
+    final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("g_in");
+    final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("g_ex");
+    assertTrue(y1.isPresent());
+    assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
+
+    assertTrue(y2.isPresent());
+    assertTrue(y2.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
   }
 
-  @Ignore
   @Test
-  public void testDeltaModel() throws Exception {
-    solveOdesAndShapes(PSC_DELTA_MODEL_FILE);
+  public void test_delta_model() throws Exception {
+    final Scope scope =  solveOdesAndShapes(PSC_DELTA_MODEL_FILE);
+    final Optional<NeuronSymbol> neuronSymbol = scope.resolve("iaf_psc_delta_neuron", NeuronSymbol.KIND);
+    final Optional<VariableSymbol> var = neuronSymbol.get().getVariableByName("__ode_var_factor");
+    assertTrue(var.isPresent());
+    assertTrue(var.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
+
   }
 
   /**
@@ -86,7 +98,7 @@ public class EquationsBlockProcessorTest extends ModelbasedTest {
     FilesHelper.deleteFilesInFolder(outputBase);
 
     testant.solveOdeWithShapes(modelRoot.getNeurons().get(0), outputBase);
-
+    System.out.println(NESTMLPrettyPrinter.Builder.build().print(modelRoot.getNeurons().get(0)));
     return scopeCreator.runSymbolTableCreator(modelRoot);
   }
 

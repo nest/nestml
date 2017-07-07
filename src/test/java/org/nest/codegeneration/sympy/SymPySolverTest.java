@@ -40,17 +40,45 @@ import static org.junit.Assert.assertTrue;
  *
  * @author plonikov
  */
-public class SymPyScriptEvaluatorTest extends ModelbasedTest {
+public class SymPySolverTest extends ModelbasedTest {
   private static final String IAF_PSC_EXP = "models/iaf_psc_exp.nestml";
   private static final String IAF_PSC_ALPHA = "models/iaf_psc_alpha.nestml";
+  private static final String IAF_PSC_DELTA = "models/iaf_psc_delta.nestml";
   private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
-  private static final String COND_MODEL_FILE = "models/iaf_cond_alpha.nestml";
+  private static final String IAF_COND_ALPHA = "models/iaf_cond_alpha.nestml";
 
   private static final Path SYMPY_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "sympy");
 
   @Test
-  public void testPSC_ALPHA_MODEL_new_api() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> root = parser.parse(IAF_PSC_ALPHA);
+  public void test_iaf_psc_alpha() throws IOException {
+    final SolverOutput testant = executeSolver(IAF_PSC_ALPHA);
+    assertEquals("success", testant.status);
+    assertEquals("exact", testant.solver);
+  }
+
+  @Test
+  public void test_iaf_psc_exp() throws IOException {
+    final SolverOutput testant = executeSolver(IAF_PSC_EXP);
+    assertEquals("success", testant.status);
+    assertEquals("exact", testant.solver);
+  }
+
+  @Test
+  public void test_iaf_cond_alpha() throws IOException {
+    final SolverOutput testant = executeSolver(IAF_COND_ALPHA);
+    assertEquals("success", testant.status);
+    assertEquals("numeric", testant.solver);
+  }
+
+  @Test
+  public void test_iaf_psc_delta() throws IOException {
+    final SolverOutput testant = executeSolver(IAF_PSC_DELTA);
+    assertEquals("success", testant.status);
+    assertEquals("delta", testant.solver);
+  }
+
+  private SolverOutput executeSolver(final String pathToModel) throws IOException {
+    final Optional<ASTNESTMLCompilationUnit> root = parser.parse(pathToModel);
     assertTrue(root.isPresent());
 
     final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
@@ -58,15 +86,13 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
 
     FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
 
-    final SymPyScriptEvaluator symPyScriptEvaluator = new SymPyScriptEvaluator();
+    final SymPySolver symPySolver = new SymPySolver();
     final ASTOdeDeclaration astOdeDeclaration =  root.get().getNeurons().get(0).getBody().getOdeBlock().get();
 
-    final SolverOutput testant = symPyScriptEvaluator.solveOdeWithShapes(astOdeDeclaration, SYMPY_OUTPUT);
-    assertEquals("success", testant.status);
-    assertEquals("exact", testant.solver);
+    return symPySolver.solveOdeWithShapes(astOdeDeclaration, SYMPY_OUTPUT);
   }
 
-  @Test
+  /*@Test
   public void testPSC_ALPHA_MODEL() throws IOException {
     generateAndEvaluate(IAF_PSC_ALPHA);
   }
@@ -83,29 +109,7 @@ public class SymPyScriptEvaluatorTest extends ModelbasedTest {
 
   @Test
   public void testIAF_COND_ALPHA() throws IOException {
-    generateAndEvaluate(COND_MODEL_FILE);
-  }
-
-  private void generateAndEvaluate(final String pathToModel) throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> root = parser.parse(pathToModel);
-    assertTrue(root.isPresent());
-
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator();
-    nestmlScopeCreator.runSymbolTableCreator(root.get());
-
-    FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
-
-    final String generatedScript = SolverFrameworkGenerator.generateExactSolverCommand(
-        root.get().getNeurons().get(0));
-
-    final SymPyScriptEvaluator evaluator = new SymPyScriptEvaluator();
-
-    assertTrue(evaluator.evaluateCommand(generatedScript, SYMPY_OUTPUT));
-
-    // TODO
-    /*assertTrue(Files.exists(Paths.get(
-        SYMPY_OUTPUT.toString(),
-        root.get().getNeurons().get(0).getName() + "." + TransformerBase.SOLVER_TYPE)));*/
-  }
+    generateAndEvaluate(IAF_COND_ALPHA);
+  }*/
 
 }

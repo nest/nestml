@@ -24,15 +24,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static de.se_rwth.commons.logging.Log.error;
 
 /**
  * The class is responsible for the execution of the PYTHON_INTERPRETER code which
  * was generated from the neuron model.
+ * was generated from the neuron model.
  *
  * @author plotnikov
  */
-class SymPyScriptEvaluator {
+class SymPySolver {
   private final static Reporter reporter = Reporter.get();
 
   private final static String PYTHON_INTERPRETER = "python";
@@ -75,23 +75,27 @@ class SymPyScriptEvaluator {
       long end = System.nanoTime();
 
       // reports standard output
-      getListFromStream(res.getInputStream()).forEach(reporter::reportProgress);
+      getStreamAsListOfStrings(res.getInputStream()).forEach(reporter::reportProgress);
       // reports errors
-      getListFromStream(res.getErrorStream()).forEach(reporter::reportProgress);
+      getStreamAsListOfStrings(res.getErrorStream()).forEach(reporter::reportProgress);
 
       long elapsedTime = end - start;
       final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
           + (double)elapsedTime / 1000000000.0 +  " [s]";
       reporter.reportProgress(msg);
 
-      if (getListFromStream(res.getErrorStream()).size() > 0) {
+      if (getStreamAsListOfStrings(res.getErrorStream()).size() > 0) {
+        getStreamAsListOfStrings(res.getErrorStream())
+            .forEach(error -> reporter.reportProgress(error, Reporter.Level.ERROR));
+
+        reporter.reportProgress("Cannot evaluate the SymPy solver scripts.", Reporter.Level.ERROR);
         return SolverOutput.getErrorResult();
       }
 
       return SolverOutput.fromJSON(Paths.get(output.toString(), SolverOutput.RESULT_FILE_NAME));
     }
     catch (IOException | InterruptedException e) {
-      error("Cannot evaluate the SymPy solver scripts.", e);
+      reporter.reportProgress("Cannot evaluate the SymPy solver scripts.", Reporter.Level.ERROR);
       return SolverOutput.getErrorResult();
     }
 
@@ -120,43 +124,7 @@ class SymPyScriptEvaluator {
     }
   }
 
-  boolean evaluateCommand(final String command, final Path outputDirectory) {
-    try {
-      reporter.reportProgress("Start long running SymPy script evaluation...");
-      long start = System.nanoTime();
-
-      final ProcessBuilder processBuilder = new ProcessBuilder(
-          PYTHON_INTERPRETER, command)
-          .directory(outputDirectory.toFile());
-
-      final Process res = processBuilder.start();
-      res.waitFor();
-      long end = System.nanoTime();
-      long elapsedTime = end - start;
-      final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
-                         + (double)elapsedTime / 1000000000.0 +  " [s]";
-      reporter.reportProgress(msg);
-
-      // reports standard output
-      getListFromStream(res.getInputStream()).forEach(reporter::reportProgress);
-
-      // reports errors
-      getListFromStream(res.getErrorStream()).forEach(reporter::reportProgress);
-
-      if (getListFromStream(res.getErrorStream()).size() > 0) {
-        return false;
-      }
-      // Read generated matrix entries
-    }
-    catch (IOException | InterruptedException e) {
-      error("Cannot evaluate the SymPy script: " + outputDirectory.toString(), e);
-      return false;
-    }
-
-    return true;
-  }
-
-  private List<String> getListFromStream(final InputStream inputStream) throws IOException {
+  private List<String> getStreamAsListOfStrings(final InputStream inputStream) throws IOException {
     final BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
     return in.lines().collect(Collectors.toList());
   }

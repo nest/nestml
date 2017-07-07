@@ -35,6 +35,13 @@ shapes_only = '{'   '"functions" : [ ], '\
               '"ode" : null'\
               '}'
 
+delta_shape = '{' \
+              '"functions" : [ ],' \
+              '"shapes" : [ "G = delta(t, tau_m)" ],' \
+              '"ode" : "V_abs\' = (-1)/tau_m*V_abs+1/C_m*(G+I_e+currents)"'\
+              '}'
+
+
 class TestSolutionComputation(unittest.TestCase):
 
     def test_is_linear_constant_coefficient_ode(self):
@@ -84,12 +91,13 @@ class TestSolutionComputation(unittest.TestCase):
         print testant
 
     def test_creation_from_json(self):
-        ode_block = '{'\
-                  '"functions" : [ "I_syn_exc = cond_sum(g_ex, spikeExc)*(V_m-E_ex)]", "I_syn_inh = cond_sum(g_in, spikeInh)*(V_m-E_in)", "I_leak = g_L*(V_m-E_L)" ],' \
-                  '"shapes" : [ "g_in = (e/tau_syn_in)*t*exp((-1)/tau_syn_in*t)", "g_ex = (e/tau_syn_ex)*t*exp((-1)/tau_syn_ex*t)" ],'\
-                  '"ode" : "V_m\' = ((-I_leak)-I_syn_exc-I_syn_inh+I_stim+I_e)/C_m" }'
-        testant = SolverInput(ode_block)
+        testant = SolverInput(cond_alpha_ode_block)
         self.assertIsNotNone(testant)
+
+    def test_delta_shape(self):
+        testant = OdeAnalyzer.compute_solution(delta_shape)
+        self.assertIsNotNone(testant)
+        print testant
 
 if __name__ == '__main__':
     unittest.main()

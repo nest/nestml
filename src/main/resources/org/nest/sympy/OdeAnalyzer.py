@@ -1,11 +1,12 @@
 import json
-import sys
 
-from sympy.parsing.sympy_parser import parse_expr
 from sympy import *
+from sympy.parsing.sympy_parser import parse_expr
 
-from shapes import ShapeFunction
 from prop_matrix import PropagatorCalculator
+from shapes import ShapeFunction
+
+import sys
 
 
 class SolverInput:
@@ -13,6 +14,7 @@ class SolverInput:
     Parses and encapsulates JSON input into an object with the following fields:
     `functions`, `shapes`, `ode`
     """
+
     def __init__(self, json_serialization):
         # define variables that are set as a part of the JSON deserialisation
         self.functions = []
@@ -61,21 +63,25 @@ class SolverOutput:
         self.initial_values += initial_values
 
 
+h = symbols("__h")
+
+
 class OdeAnalyzer(object):
     """
     Orchestrates the execution of analysis activities which lead to a exact solution.
     """
 
     @staticmethod
-    def is_linear_constant_coefficient_ode(ode_var, ode_rhs, shapes, function_vars, function_definitions):
-        for shape in shapes:
-            exec("{} = parse_expr(\"{}\")".format(shape.name, shape.shape_expr))
+    def is_linear_constant_coefficient_ode(ode_var, ode_rhs, shape_vars, shape_definitions, function_vars,
+                                           function_definitions):
+        for shape, shape_definition in zip(shape_vars, shape_definitions):
+            exec ("{} = parse_expr(\"{}\")".format(shape, shape_definition))
 
         for function_var, function_definition in zip(function_vars, function_definitions):
-            exec("{} = parse_expr(\"{}\", local_dict=locals())".format(function_var, function_definition))
+            exec ("{} = parse_expr(\"{}\", local_dict=locals())".format(function_var, function_definition))
 
         # ode functions are defined in the local scope. it must be passed explicitly into the parse_exp,
-        # otherwise, all functions in the ode would not be recognized as `complex` symbols
+        # otherwise, all functions in the ode would not be recognized as `complex` defined through the rhs symbols
         ode_var = parse_expr(ode_var)
         ode_rhs = parse_expr(ode_rhs, local_dict=locals())
 
@@ -98,13 +104,64 @@ class OdeAnalyzer(object):
         
         :returns JSON object containing all data necessary to compute an update step.
         """
+        if len(input_ode_block.shapes) == 1:
+            tmp = input_ode_block.shapes[0].split('=')
+            shape_name = str(tmp[0])
+            shape_expr = parse_expr(tmp[1].strip())
+            if shape_expr.is_Function and str(shape_expr.func).startswith("delta"):
+                # extract the name of the ODE and its defining expression
+                ode_definition = input_ode_block.ode.split('=')  # it is now a list with 2 elements
+                ode_var = ode_definition[0].replace("'", "").strip()
+                ode_rhs = ode_definition[1].strip()
 
-        shape_functions = [] # contains shape functions as ShapeFunction objects
+                function_vars = []  #
+                function_definitions = []  # contains shape functions as ShapeFunction objects
+                if "functions" in input_ode_block.__dict__:
+                    for function_def in input_ode_block.functions:
+                        tmp = function_def.split('=')
+                        function_vars.append(tmp[0].strip())
+                        function_definitions.append(tmp[1].strip())
+
+                if OdeAnalyzer.is_linear_constant_coefficient_ode(ode_var,
+                                                                  ode_rhs,
+                                                                  [shape_name],
+                                                                  [shape_expr],
+                                                                  function_vars,
+                                                                  function_definitions):
+                    for function_var, function_definition in zip(function_vars, function_definitions):
+                        exec ("{} = parse_expr(\"{}\", local_dict=locals())".format(function_var, function_definition))
+
+                    # TODO discuss with Inga
+                    ode_rhs_expr = parse_expr(ode_rhs, local_dict=locals())
+                    const_input = simplify(1 / diff(ode_rhs_expr, parse_expr(shape_name)) * (
+                        ode_rhs_expr - diff(ode_rhs_expr, parse_expr(ode_var)) * parse_expr(ode_var)) - (
+                        parse_expr(shape_name)))
+
+                    c1 = diff(ode_rhs_expr, parse_expr(ode_var))
+                    # The symbol must be declared again. Otherwise, the right hand side will be used for the derivative
+                    c2 = diff(ode_rhs_expr, parse_expr(shape_name))
+
+                    tau_constant = shape_expr.args[1] # is is passed as the second argument of the delta function
+                    ode_var_factor = exp(-h/tau_constant)
+                    ode_var_update_instructions = [
+                        ode_var + " = __ode_var_factor * " + str(ode_var),
+                        ode_var + " += " + str(str(simplify(c2 / c1 * (exp(h * c1) - 1)))) + " * __const_input"]
+                    result = SolverOutput(
+                        "success",
+                        "delta",
+                        None,
+                        {"__ode_var_factor": str(ode_var_factor)},
+                        {"__const_input": str(const_input)},
+                        ode_var_update_instructions)
+                    return json.dumps(result.__dict__, indent=2)
+                return None
+
+        shape_functions = []  # contains shape functions as ShapeFunction objects
         for shape_function in input_ode_block.shapes:
             tmp = shape_function.split('=')
             lhs_var = tmp[0].strip()
-            rhs = tmp[1].strip()
-            shape_functions.append(ShapeFunction(lhs_var, rhs))
+            shape_expr = tmp[1].strip()
+            shape_functions.append(ShapeFunction(lhs_var, shape_expr))
 
         if input_ode_block.ode is None:
             result = OdeAnalyzer.convert_shapes_to_odes(shape_functions)
@@ -125,42 +182,48 @@ class OdeAnalyzer(object):
 
         if OdeAnalyzer.is_linear_constant_coefficient_ode(ode_var,
                                                           ode_rhs,
-                                                          shape_functions,
+                                                          [shape.name for shape in shape_functions],
+                                                          [shape.shape_expr for shape in shape_functions],
                                                           function_vars,
                                                           function_definitions):
 
-            calculator = PropagatorCalculator()
-            prop_matrices, const_input, step_const = calculator.ode_to_prop_matrices(
-                shape_functions,
-                ode_var,
-                ode_rhs,
-                function_vars,
-                function_definitions)
-            propagator_elements, ode_var_factor, const_input, ode_var_update_instructions = \
-                calculator.prop_matrix_to_prop_step(
-                    prop_matrices,
-                    const_input,
-                    step_const,
-                    shape_functions,
-                    ode_var)
-
-            # build result JSON
-            result = SolverOutput("success",
-                                  "exact",
-                                  propagator_elements,
-                                  ode_var_factor,
-                                  const_input,
-                                  ode_var_update_instructions)
-
-            for shape in shape_functions:
-                result.add_shape_state_variables(shape.additional_shape_state_variables())
-                result.add_initial_values(shape.get_initial_values())
-                result.add_updates_to_shape_state_variables(shape.get_updates_to_shape_state_variables())
-
-            return json.dumps(result.__dict__, indent=2)
-        else:
+            return OdeAnalyzer.compute_exact_solution(function_definitions,
+                                                      function_vars,
+                                                      ode_rhs,
+                                                      ode_var,
+                                                      shape_functions)
+        else:  # is_linear_constant_coefficient_ode evaluates to false
             result = OdeAnalyzer.convert_shapes_to_odes(shape_functions)
             return json.dumps(result.__dict__, indent=2)
+
+    @staticmethod
+    def compute_exact_solution(function_definitions, function_vars, ode_rhs, ode_var, shape_functions):
+        calculator = PropagatorCalculator()
+        prop_matrices, const_input, step_const = calculator.ode_to_prop_matrices(
+            shape_functions,
+            ode_var,
+            ode_rhs,
+            function_vars,
+            function_definitions)
+        propagator_elements, ode_var_factor, const_input, ode_var_update_instructions = \
+            calculator.prop_matrix_to_prop_step(
+                prop_matrices,
+                const_input,
+                step_const,
+                shape_functions,
+                ode_var)
+        # build result JSON
+        result = SolverOutput("success",
+                              "exact",
+                              propagator_elements,
+                              ode_var_factor,
+                              const_input,
+                              ode_var_update_instructions)
+        for shape in shape_functions:
+            result.add_shape_state_variables(shape.additional_shape_state_variables())
+            result.add_initial_values(shape.get_initial_values())
+            result.add_updates_to_shape_state_variables(shape.get_updates_to_shape_state_variables())
+        return json.dumps(result.__dict__, indent=2)
 
     @staticmethod
     def convert_shapes_to_odes(shape_functions):

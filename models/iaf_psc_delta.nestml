@@ -122,10 +122,9 @@ neuron iaf_psc_delta_neuron:
     else: # neuron is absolute refractory
       # read spikes from buffer and accumulate them, discounting
       # for decay until end of refractory period
+      # the buffer is clear automatically
       if with_refr_input:
         refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV
-      #else:
-      #  spikes = 0 # clear buffer entry, ignore spike
       end
       r -= 1
     end

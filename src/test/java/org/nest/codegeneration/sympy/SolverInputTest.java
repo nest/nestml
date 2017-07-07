@@ -35,6 +35,7 @@ import static org.junit.Assert.*;
 public class SolverInputTest extends ModelbasedTest {
   private static final String COND_MODEL_FILE_PATH = "models/iaf_cond_alpha.nestml";
   private static final String PSC_MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
+  private static final String DELTA_MODEL_FILE_PATH = "models/iaf_psc_delta.nestml";
 
   @Test
   public void test_cond_model() {
@@ -66,6 +67,18 @@ public class SolverInputTest extends ModelbasedTest {
 
     final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getBody().getOdeBlock().get();
     SolverInput solverInput = new SolverInput(odeBlock.getShapes());
+    String result = solverInput.toJSON();
+    System.out.println(result);
+    assertNotNull(result);
+
+  }
+
+  @Test
+  public void test_delta_shape() {
+    ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(DELTA_MODEL_FILE_PATH);
+
+    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getBody().getOdeBlock().get();
+    SolverInput solverInput = new SolverInput(odeBlock);
     String result = solverInput.toJSON();
     System.out.println(result);
     assertNotNull(result);

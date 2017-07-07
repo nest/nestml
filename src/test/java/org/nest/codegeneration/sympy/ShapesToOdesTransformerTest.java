@@ -33,7 +33,7 @@ public class ShapesToOdesTransformerTest extends ModelbasedTest {
     final ShapesToOdesTransformer shapesToOdesTransformer = new ShapesToOdesTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    shapesToOdesTransformer.transformShapesToOdeForm(new SolverOutput(), modelRoot.getNeurons().get(0));
+    shapesToOdesTransformer.transformShapesToOdeForm(modelRoot.getNeurons().get(0), new SolverOutput());
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
