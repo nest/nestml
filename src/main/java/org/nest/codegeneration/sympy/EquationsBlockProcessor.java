@@ -48,12 +48,8 @@ public class EquationsBlockProcessor {
       final ASTNeuron deepCopy = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
       // this function is called only for neurons with an ode block. thus, retrieving it is safe.
       if (deepCopy.getBody().getOdeBlock().get().getShapes().size() > 0 &&
-          deepCopy.getBody().getOdeBlock().get().getODEs().size() > 1) {
-        reporter.reportProgress("Shapes will be solved with GLS.");
-        final SolverOutput solverOutput = evaluator.solveShapes(deepCopy.getBody().getOdeBlock().get().getShapes(), outputBase);
-        return shapesToOdesTransformer.transformShapesToOdeForm(astNeuron, solverOutput);
-      }
-      else {
+          deepCopy.getBody().getOdeBlock().get().getODEs().size() == 1) {
+
         final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.getBody().getOdeBlock().get(), outputBase);
         reporter.reportProgress("The model ODE with shapes will be analyzed.");
         reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());
@@ -79,6 +75,11 @@ public class EquationsBlockProcessor {
                                     ": Equations or shapes could not be solved. The model remains unchanged.");
             return astNeuron;
         }
+      }
+      else if (deepCopy.getBody().getOdeBlock().get().getShapes().size() > 0) {
+        reporter.reportProgress("Shapes will be solved with GLS.");
+        final SolverOutput solverOutput = evaluator.solveShapes(deepCopy.getBody().getOdeBlock().get().getShapes(), outputBase);
+        return shapesToOdesTransformer.transformShapesToOdeForm(astNeuron, solverOutput);
 
       }
 
