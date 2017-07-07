@@ -14,7 +14,7 @@ public class GslNames {
   }
 
   public static String name(final VariableSymbol variableSymbol) {
-    if (!variableSymbol.isFunction() && variableSymbol.isState()) {
+    if (variableSymbol.definedByODE()) {
       return "y[State_::" + Names.convertToCPPName(variableSymbol.getName()) + "]";
     }
     else {

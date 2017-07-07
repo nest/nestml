@@ -10,6 +10,7 @@ import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
 import org.nest.codegeneration.NestCodeGenerator;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
+import org.nest.reporting.Reporter;
 import org.nest.utils.FilesHelper;
 
 import java.io.*;
@@ -110,7 +111,7 @@ public class NestmlFrontend {
     final Optional<CliConfiguration> cliConfiguration = createCLIConfiguration(args);
 
     if (cliConfiguration.isPresent()) {
-      final String inputPathMsg = "The input modelpath: " + cliConfiguration.get().getModelPath().toAbsolutePath().toString();
+      final String inputPathMsg = "The input modelpath: " + cliConfiguration.get().getInputPath().toAbsolutePath().toString();
       reporter.reportProgress(inputPathMsg);
 
       final String outputPathMsg = "The base output path: " + cliConfiguration.get().getTargetPath().toAbsolutePath().toString();
@@ -368,12 +369,9 @@ public class NestmlFrontend {
 
   private void executeConfiguration(final CliConfiguration configuration) {
     final CliConfigurationExecutor executor = new CliConfigurationExecutor();
-
-    final NESTMLScopeCreator nestmlScopeCreator = new NESTMLScopeCreator(configuration.getModelPath());
-    final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(nestmlScopeCreator, configuration.isTracing());
+    final NestCodeGenerator nestCodeGenerator = new NestCodeGenerator(configuration.isTracing());
 
     executor.execute(nestCodeGenerator, configuration);
   }
-
 
 }

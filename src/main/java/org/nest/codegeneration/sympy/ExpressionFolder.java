@@ -35,10 +35,7 @@ class ExpressionFolder {
     return internalVariables;
   }
 
-  void fold(
-      final ASTExpr expr,
-      final List<String> stateVariableNames,
-      final String variablePrefix) {
+  void fold(final ASTExpr expr, final List<String> stateVariableNames) {
     try {
       final ExpressionVisitor expressionVisitor = new ExpressionVisitor(stateVariableNames);
       expr.accept(expressionVisitor);
@@ -50,7 +47,7 @@ class ExpressionFolder {
         checkState(parent.get() instanceof ASTExpr, "Should not happen by construction.");
 
         final ASTExpr parentExpr = (ASTExpr) parent.get();
-        final String tmpVariable = variablePrefix + 1;
+        final String tmpVariable = "__P" + 1;
         internalVariables.add(tmpVariable);
         final Optional<ASTExpr> replacementVariable = parser.parseExpr(new StringReader(tmpVariable));
         if (parentExpr.getLeft().isPresent() && parentExpr.getLeft().get().equals(child)) {

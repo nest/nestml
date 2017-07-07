@@ -35,19 +35,19 @@ public class NestmlCoCosManager {
   }
 
   private void registerMethodChecks() {
-    final FunctionDoesNotExist functionDoesNotExist = new FunctionDoesNotExist();
-    methodExistenceChecker.addCoCo(functionDoesNotExist);
+    final FunctionWithSignatureDoesNotExist functionWithSignatureDoesNotExist = new FunctionWithSignatureDoesNotExist();
+    methodExistenceChecker.addCoCo(functionWithSignatureDoesNotExist);
   }
 
 
   private void registerVariableExistenceChecks() {
-    final VariableDoesNotExist variableDoesNotExist = new VariableDoesNotExist();
-    variableExistenceChecker.addCoCo((NESTMLASTFunctionCallCoCo) variableDoesNotExist);
-    variableExistenceChecker.addCoCo((NESTMLASTAssignmentCoCo) variableDoesNotExist);
-    variableExistenceChecker.addCoCo((NESTMLASTCompound_StmtCoCo) variableDoesNotExist);
-    variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);
-    variableExistenceChecker.addCoCo((NESTMLASTOdeDeclarationCoCo) variableDoesNotExist);
-    variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) variableDoesNotExist);
+    final UsageOfAmbiguousName usageOfAmbiguousName = new UsageOfAmbiguousName();
+    variableExistenceChecker.addCoCo((NESTMLASTFunctionCallCoCo) usageOfAmbiguousName);
+    variableExistenceChecker.addCoCo((NESTMLASTAssignmentCoCo) usageOfAmbiguousName);
+    variableExistenceChecker.addCoCo((NESTMLASTCompound_StmtCoCo) usageOfAmbiguousName);
+    variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) usageOfAmbiguousName);
+    variableExistenceChecker.addCoCo((NESTMLASTOdeDeclarationCoCo) usageOfAmbiguousName);
+    variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) usageOfAmbiguousName);
 
   }
 

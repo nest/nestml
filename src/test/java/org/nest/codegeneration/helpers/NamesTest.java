@@ -23,7 +23,7 @@ public class NamesTest extends ModelbasedTest {
   private final Names names = new Names();
   @Test
   public void testComputationOfInverseFunction() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(PSC_MODEL_WITH_ODE);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(PSC_MODEL_WITH_ODE);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
     final Optional<NeuronSymbol> neuronTypeOptional = modelScope.resolve(
         "iaf_cond_alpha_implicit",

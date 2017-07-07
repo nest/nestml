@@ -23,6 +23,7 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 
 import java.util.Optional;
@@ -41,13 +42,12 @@ public class VariableHasTypeName implements NESTMLASTDeclarationCoCo {
     checkArgument(astDeclaration.getEnclosingScope().isPresent(), "Declaration hast no scope. Run symboltable creator.");
     final Scope scope = astDeclaration.getEnclosingScope().get();
 
-    for (String var : astDeclaration.getVars()) {
+    for (final ASTVariable var : astDeclaration.getVars()) {
       // tries to resolve the variable name as type. if it is possible, then the variable name clashes with type name is reported as an error
-      final Optional<TypeSymbol> res = scope.resolve(var, TypeSymbol.KIND);
+      final Optional<TypeSymbol> res = scope.resolve(var.toString(), TypeSymbol.KIND);
       // could resolve type as variable, report an error
       res.ifPresent(typeSymbol -> Log.error(
-          SplErrorStrings.message(this, var), astDeclaration.get_SourcePositionEnd()));
-
+          SplErrorStrings.message(this, var.toString()), astDeclaration.get_SourcePositionEnd()));
     }
 
   }

@@ -238,11 +238,11 @@ public class SPLPrettyPrinter extends PrettyPrinterBase implements NESTMLVisitor
   }
 
   private void printDeclarationVariables(final ASTDeclaration astDeclaration) {
-    final List<String> variableNames = astDeclaration.getVars();
+    final List<ASTVariable> variableNames = astDeclaration.getVars();
     for (int variableIndex = 0; variableIndex < variableNames.size(); ++ variableIndex) {
       boolean isLastVariableInDeclaration = (variableIndex + 1) == variableNames.size();
 
-      print(variableNames.get(variableIndex));
+      print(variableNames.get(variableIndex).toString());
       if (!isLastVariableInDeclaration) {
         print(", ");
       }

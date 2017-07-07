@@ -34,8 +34,7 @@ public class SPLPrettyPrinterFactory {
   }
 
   public static SPLPrettyPrinter createDefaultPrettyPrinter(int indentionLevel) {
-    final SPLPrettyPrinter splPrettyPrinter =
-        new SPLPrettyPrinter(new ExpressionsPrettyPrinter());
+    final SPLPrettyPrinter splPrettyPrinter = new SPLPrettyPrinter(new ExpressionsPrettyPrinter());
     splPrettyPrinter.setIndentionLevel(indentionLevel);
     return splPrettyPrinter;
 

@@ -22,49 +22,51 @@ SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha */
 
 neuron iaf_cond_beta_neuron:
   state:
-    V_m mV = E_L # membrane potential
-    GI nS = 0 nS # inputs from the inh conductance
-    GE nS = 0 nS # inputs from the exc conductance
-    r integer                               # counts number of tick during the refractory period
+    V_m mV = E_L          ## membrane potential
+    g_in nS = 0 nS        ## inputs from the inh conductance
+    g_in' nS/ms = 0 nS/ms ## inputs from the inh conductance
+    g_ex nS = 0 nS        ## inputs from the exc conductance
+    g_ex' nS/ms = 0 nS/ms ## inputs from the exc conductance
+    r integer             ## counts number of tick during the refractory period
   end
 
   equations:
-      GI'' = -GI'/tau_syn_rise_I
-      GI' = GI' - GI/tau_syn_decay_I
+      g_in'' = -g_in'/tau_syn_rise_I
+      g_in' = g_in' - g_in/tau_syn_decay_I
 
-      GE'' = -GE'/tau_syn_rise_E
-      GE' = GE' -GE/tau_syn_decay_E 
+      g_ex'' = -g_ex'/tau_syn_rise_E
+      g_ex' = g_ex' -g_ex/tau_syn_decay_E
 
-      function I_syn_exc pA = (F_E + cond_sum(GE, spikeExc)) * ( V_m - E_ex )
-      function I_syn_inh pA = (F_I + cond_sum(GI, spikeInh)) * ( V_m - E_in )
+      function I_syn_exc pA = (F_E + cond_sum(g_ex, spikeExc)) * ( V_m - E_ex )
+      function I_syn_inh pA = (F_I + cond_sum(g_in, spikeInh)) * ( V_m - E_in )
       function I_leak pA = g_L * ( V_m - E_L ) # pa = nS * mV
       V_m' =  (-I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end
 
   parameters:
-    E_L mV = -85.0mV # Leak reversal Potential (aka resting potential) in mV
-    C_m pF = 250.0pF # Capacity of the membrane
-    t_ref ms = 2.0ms # Refractory period in ms
-    V_th mV = -55.0mV      # Threshold Potential in mV
-    V_reset mV = -60.0mV   # Reset Potential in mV
-    E_ex mV = 0mV          # Excitatory reversal Potential in mV
-    E_in mV = -85.0mV      # Inhibitory reversal Potential in mV
-    g_L nS = 16.6667nS     # Leak Conductance in nS
-    tau_syn_rise_I ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_decay_I ms = 2.0ms   # Synaptic Time Constant for Inhibitory Synapse in ms
-    tau_syn_rise_E ms = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_decay_E ms = 2.0ms   # Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA            # Constant Current in pA
-    F_E nS = 0nS            # Constant External input conductance in nS (excitatory).
-    F_I nS = 0nS            # Constant External input conductance in nS (inhibitory).
+    E_L mV = -85.0mV ## Leak reversal Potential (aka resting potential) in mV
+    C_m pF = 250.0pF ## Capacity of the membrane
+    t_ref ms = 2.0ms ## Refractory period in ms
+    V_th mV = -55.0mV      ## Threshold Potential in mV
+    V_reset mV = -60.0mV   ## Reset Potential in mV
+    E_ex mV = 0mV          ## Excitatory reversal Potential in mV
+    E_in mV = -85.0mV      ## Inhibitory reversal Potential in mV
+    g_L nS = 16.6667nS     ## Leak Conductance in nS
+    tau_syn_rise_I ms = 0.2ms    ## Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_decay_I ms = 2.0ms   ## Synaptic Time Constant for Inhibitory Synapse in ms
+    tau_syn_rise_E ms = 0.2ms    ## Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_decay_E ms = 2.0ms   ## Synaptic Time Constant for Inhibitory Synapse in ms
+    I_e pA = 0pA            ## Constant Current in pA
+    F_E nS = 0nS            ## Constant External input conductance in nS (excitatory).
+    F_I nS = 0nS            ## Constant External input conductance in nS (inhibitory).
   end
 
   internals:
-    # Impulse to add to GE' on spike arrival to evoke unit-amplitude
+
     # conductance excursion.
     PSConInit_E nS/ms = nS * e / tau_syn_rise_E
 
-    # Impulse to add to GI' on spike arrival to evoke unit-amplitude
+    # Impulse to add to g_in' on spike arrival to evoke unit-amplitude
     # conductance excursion.
     PSConInit_I nS/ms = nS * e / tau_syn_rise_I
 
@@ -93,8 +95,8 @@ neuron iaf_cond_beta_neuron:
 
     end
 
-    GE' += spikeExc * PSConInit_E
-    GI' += spikeInh * PSConInit_I
+    g_ex' += spikeExc * PSConInit_E
+    g_in' += spikeInh * PSConInit_I
   end
 
 end

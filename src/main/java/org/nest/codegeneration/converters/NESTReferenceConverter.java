@@ -97,8 +97,6 @@ public class NESTReferenceConverter implements IReferenceConverter {
           "nest::kernel().event_delivery_manager.send(*this, se, lag);";
     }
 
-    final Optional<MethodSymbol> functionSymbol = NestmlSymbols.resolveMethod(astFunctionCall);
-
     if (needsArguments(astFunctionCall)) {
       return functionName + "(%s)";
     }

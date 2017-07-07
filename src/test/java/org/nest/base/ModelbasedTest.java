@@ -30,7 +30,7 @@ public class ModelbasedTest {
   protected static final Path OUTPUT_FOLDER = Paths.get("target");
   protected static final Path TEST_MODEL_PATH = Paths.get("models");
   protected final NESTMLParser parser = new NESTMLParser();
-  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+  protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
 
 
   @Before
@@ -39,7 +39,7 @@ public class ModelbasedTest {
     Log.getFindings().clear();
   }
 
-  protected ASTNESTMLCompilationUnit parseNESTMLModel(final String pathToModel)  {
+  protected ASTNESTMLCompilationUnit parseNestmlModel(final String pathToModel)  {
 
     try {
       return parser.parse(pathToModel).get();
