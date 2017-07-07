@@ -33,7 +33,9 @@ public class ShapesToOdesTransformerTest extends ModelbasedTest {
     final ShapesToOdesTransformer shapesToOdesTransformer = new ShapesToOdesTransformer();
     final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    shapesToOdesTransformer.transformShapesToOdeForm(modelRoot.getNeurons().get(0), new SolverOutput());
+    shapesToOdesTransformer.transformShapesToOdeForm(
+        modelRoot.getNeurons().get(0),
+        SolverOutput.fromJSON(SolverJsonData.IAF_COND_ALPHA));
 
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
@@ -44,19 +46,19 @@ public class ShapesToOdesTransformerTest extends ModelbasedTest {
 
     Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
     assertTrue(neuronSymbol.isPresent());
-    final Optional<VariableSymbol> pscInitialValue1 = neuronSymbol.get().getVariableByName("g_in__D_PSCInitialValue");
+    final Optional<VariableSymbol> pscInitialValue1 = neuronSymbol.get().getVariableByName("iv__g_in");
     assertTrue(pscInitialValue1.isPresent());
     assertTrue(pscInitialValue1.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
-    final Optional<VariableSymbol> pscInitialValue2 = neuronSymbol.get().getVariableByName("g_ex__D_PSCInitialValue");
+    final Optional<VariableSymbol> pscInitialValue2 = neuronSymbol.get().getVariableByName("iv__g_in__1");
     assertTrue(pscInitialValue2.isPresent());
     assertTrue(pscInitialValue2.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
-    final Optional<VariableSymbol> shapeAsState = neuronSymbol.get().getVariableByName("g_ex");
+    final Optional<VariableSymbol> shapeAsState = neuronSymbol.get().getVariableByName("g_in");
     assertTrue(shapeAsState.isPresent());
     assertTrue(shapeAsState.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
 
-    final Optional<VariableSymbol> derivedStateVariable = neuronSymbol.get().getVariableByName("g_ex'");
+    final Optional<VariableSymbol> derivedStateVariable = neuronSymbol.get().getVariableByName("g_ex__1");
     assertTrue(derivedStateVariable.isPresent());
     assertTrue(derivedStateVariable.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
 

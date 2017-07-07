@@ -17,9 +17,6 @@ import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,14 +29,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ExpressionFolderTest extends ModelbasedTest {
   private static final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
-  private static final String NEURON_NAME = "iaf_psc_alpha_neuron";
   private static final String MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
-  private final static Path STATE_VARIABLES_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + "." );
-  private final static Path STATE_UPDATE_STEPS_FILE = Paths.get(
-      "src/test/resources/codegeneration/sympy/psc/",
-      NEURON_NAME + ".");
 
   @Test
   public void testExpressionFolding() throws IOException {
@@ -51,8 +41,8 @@ public class ExpressionFolderTest extends ModelbasedTest {
     final ExpressionFolder expressionFolder = new ExpressionFolder();
     expressionFolder.fold(
         ast.get(),
-        newArrayList("y1_I_shape_in", "y2_I_shape_in", "y1_I_shape_ex","y2_I_shape_ex"),
-        "__P");
+        newArrayList("y1_I_shape_in", "y2_I_shape_in", "y1_I_shape_ex","y2_I_shape_ex")
+    );
     System.out.println(printer.print(ast.get()));
   }
 
@@ -67,8 +57,8 @@ public class ExpressionFolderTest extends ModelbasedTest {
     final ExpressionFolder expressionFolder = new ExpressionFolder();
     expressionFolder.fold(
         ast.get(),
-        newArrayList("y1_I_shape_in", "y2_I_shape_in", "y1_I_shape_ex","y2_I_shape_ex"),
-        "__P");
+        newArrayList("y1_I_shape_in", "y2_I_shape_in", "y1_I_shape_ex","y2_I_shape_ex")
+    );
     System.out.println(printer.print(ast.get()));
   }
 
@@ -76,15 +66,20 @@ public class ExpressionFolderTest extends ModelbasedTest {
   public void testFoldingPipeline() throws IOException {
     final ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(MODEL_FILE_PATH);
     final ASTNeuron neuron = root.getNeurons().get(0);
+    final SolverOutput solverOutput = SolverOutput.fromJSON(SolverJsonData.IAF_PSC_ALPHA);
 
     final List<String> stateVariableNames = newArrayList();
     stateVariableNames.addAll(neuron.getBody().getStateSymbols()
         .stream()
         .map(VariableSymbol::getName)
         .collect(toList()));
-    stateVariableNames.addAll(Files.lines(STATE_VARIABLES_FILE).collect(toList()));
 
-    final List<String> stateUpdates = Files.lines(STATE_UPDATE_STEPS_FILE).collect(toList());
+    stateVariableNames.addAll(solverOutput.shape_state_variables);
+
+    final List<String> stateUpdates = solverOutput.updates_to_shape_state_variables
+        .stream().map(e -> e.getKey() + " = " + e.getValue())
+        .collect(toList());
+
     final List<ASTAssignment> stateUpdateAssignments = stateUpdates
         .stream()
         .map(AstCreator::createAssignment)
@@ -95,13 +90,14 @@ public class ExpressionFolderTest extends ModelbasedTest {
         .map(ASTAssignment::getExpr)
         .collect(toList());
 
-
     for (final ASTExpr expr:rhsExpressions) {
       final ExpressionFolder expressionFolder = new ExpressionFolder();
-      expressionFolder.fold(expr, stateVariableNames, "__P");
-      assertTrue(expressionFolder.getInternalVariables().size() == 1);
-    }
-  }
+      expressionFolder.fold(expr, stateVariableNames);
+      System.out.println(new ExpressionsPrettyPrinter().print(expr));
+      //assertTrue(expressionFolder.getInternalVariables().size() == 1);
 
+    }
+
+  }
 
 }

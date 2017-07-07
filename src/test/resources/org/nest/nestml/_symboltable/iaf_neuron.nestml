@@ -2,6 +2,7 @@ neuron iaf_neuron:
 
   state:
     y0 mV
+    y0' mV
     y1 mV
     y2 mV
     y3 mV

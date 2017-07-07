@@ -21,24 +21,14 @@ import java.util.List;
  */
 public class NestCodeGeneratorTest extends GenerationBasedTest {
   private static final String PSC_MODEL_WITH_ODE = "models/iaf_psc_alpha.nestml";
-  private static final String PSC_MODEL_IMPERATIVE = "src/test/resources/codegeneration/imperative/iaf_psc_alpha_imperative.nestml";
   private static final String PSC_MODEL_THREE_BUFFERS = "src/test/resources/codegeneration/iaf_psc_alpha_three_buffers.nestml";
-  private static final String NEURON_WITH_SETTER = "src/test/resources/codegeneration/neuron_with_setter.nestml";
   private static final String COND_MODEL_WITH_ODE = "models/iaf_cond_alpha.nestml";
-  private static final List<String> nestmlCondModels = Lists.newArrayList("models/iaf_cond_alpha.nestml");
 
   @Before
   public void cleanUp() {
     FilesHelper.deleteFilesInFolder(CODE_GEN_OUTPUT);
   }
 
-  @Test
-  public void testPSCModelWithoutOde() {
-    final ArrayList<String> psc_models = Lists.newArrayList(PSC_MODEL_IMPERATIVE);
-    psc_models.forEach(this::checkCocos);
-    psc_models.forEach(this::invokeCodeGenerator);
-    generateNESTModuleCode(psc_models);
-  }
 
   @Test
   public void testPSCModelWithOde() {
@@ -62,14 +52,6 @@ public class NestCodeGeneratorTest extends GenerationBasedTest {
     model_with_multiple_buffers.forEach(this::checkCocos);
     model_with_multiple_buffers.forEach(this::invokeCodeGenerator);
     generateNESTModuleCode(model_with_multiple_buffers);
-  }
-
-  @Test
-  public void testNeuronWithSetter() {
-    final ArrayList<String> neurons_with_setters = Lists.newArrayList(NEURON_WITH_SETTER);
-    neurons_with_setters.forEach(this::checkCocos);
-    neurons_with_setters.forEach(this::invokeCodeGenerator);
-    generateNESTModuleCode(neurons_with_setters);
   }
 
 }

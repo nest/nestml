@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.utils.AstUtils;
@@ -57,8 +58,7 @@ public class ExpressionTypeCalculatorTest extends ModelbasedTest {
     final List<ASTDeclaration> declarations = AstUtils.getAll(root.get(), ASTDeclaration.class);
 
     // b real = 1.0
-    final Either<TypeSymbol, String> typeOfB =
-        getByName(declarations, "b").getExpr().get().getType();
+    final Either<TypeSymbol, String> typeOfB = getByName(declarations, "b").getExpr().get().getType();
     assertTrue(typeOfB.isValue());
     Assert.assertEquals(getRealType(), typeOfB.getValue());
 
@@ -88,7 +88,7 @@ public class ExpressionTypeCalculatorTest extends ModelbasedTest {
 
     // Retrieves line: g = 1.0 + 1
     final Either<TypeSymbol, String> typeOfG =
-        getByName(declarations, "g").getExpr().get().getType();
+        getByName(declarations, "gg").getExpr().get().getType();
     assertTrue(typeOfG.isValue());
     Assert.assertEquals(getRealType(), typeOfG.getValue());
 
@@ -124,7 +124,7 @@ public class ExpressionTypeCalculatorTest extends ModelbasedTest {
 
     // Retrieves line: m boolean = true and l != 0.0
     final Either<TypeSymbol, String> typeOfM =
-        getByName(declarations, "m").getExpr().get().getType();
+        getByName(declarations, "m1").getExpr().get().getType();
     assertTrue(typeOfM.isValue());
     Assert.assertEquals(getBooleanType(), typeOfM.getValue());
 
@@ -162,7 +162,7 @@ public class ExpressionTypeCalculatorTest extends ModelbasedTest {
 
     // k integer = ~1.0
     final Either<TypeSymbol, String> typeOfK =
-        getByName(declarations, "k").getExpr().get().getType();
+        getByName(declarations, "kk").getExpr().get().getType();
     assertTrue(typeOfK.isError());
 
     // m real = 1 ** "a"
@@ -189,11 +189,17 @@ public class ExpressionTypeCalculatorTest extends ModelbasedTest {
   private ASTDeclaration getByName(
       final List<ASTDeclaration> declarations,
       final String variableName) {
-    final Optional<ASTDeclaration> declaration = declarations.stream().
-        filter(e -> e.getVars().contains(variableName))
-        .findFirst();
-    assertTrue(declaration.isPresent());
-    return declaration.get();
+
+    for (final ASTDeclaration astDeclaration:declarations) {
+      for (final ASTVariable astVariable:astDeclaration.getVars()) {
+        if (astVariable.toString().equals(variableName)) {
+          return astDeclaration;
+        }
+      }
+    }
+
+    assertTrue("No declration with this variable was found.", false);
+    throw new RuntimeException();
   }
 
 }

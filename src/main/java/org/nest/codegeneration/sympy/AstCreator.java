@@ -11,12 +11,6 @@ import org.nest.nestml._parser.NESTMLParser;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Takes a string or file serialization of an NESTML model and creates a corresponding AST from it.
@@ -31,29 +25,13 @@ public class AstCreator {
     PARSER.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
-  static List<ASTDeclaration> createDeclarations(final Path declarationFile) {
-    checkArgument(Files.exists(declarationFile), declarationFile.toString());
-
-    try {
-      return Files.lines(declarationFile)
-          .map(AstCreator::createDeclaration)
-          .collect(Collectors.toList());
-    }
-    catch (IOException e) {
-      final String msg = "Cannot parse declaration statement.";
-      throw new RuntimeException(msg, e);
-    }
-
-  }
-
   static ASTEquation createEquation(final String equation) {
     try {
-      final ASTEquation astEquation = PARSER.parseEquation(new StringReader(equation)).get();
 
-      return astEquation;
+      return PARSER.parseEquation(new StringReader(equation)).get();
     }
     catch (IOException e) {
-      final String msg = "Cannot parse declaration statement.";
+      final String msg = "Cannot parse equations statement. Should not happen by construction";
       throw new RuntimeException(msg, e);
     }
 

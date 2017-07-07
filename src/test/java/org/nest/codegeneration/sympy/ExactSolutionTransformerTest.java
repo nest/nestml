@@ -29,8 +29,6 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
   private static final String MODEL_FILE_PATH = "models/iaf_psc_alpha.nestml";
   private static final String TARGET_TMP_MODEL_PATH = "target/tmp.nestml";
 
-
-
   @Test
   public void testExactSolutionTransformation() {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
@@ -38,8 +36,8 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     scopeCreator.runSymbolTableCreator(modelRoot);
     exactSolutionTransformer.addExactSolution(
         modelRoot.getNeurons().get(0),
-        new SolverOutput());
-    assertTrue(false);
+        SolverOutput.fromJSON(SolverJsonData.IAF_PSC_ALPHA));
+
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     ASTNESTMLCompilationUnit testant = parseNestmlModel(TARGET_TMP_MODEL_PATH);
@@ -49,20 +47,19 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
 
     Optional<NeuronSymbol> neuronSymbol = scope.resolve(NEURON_NAME, NeuronSymbol.KIND);
 
-    final Optional<VariableSymbol> p30Symbol = neuronSymbol.get().getVariableByName("P30");
+    final Optional<VariableSymbol> p30Symbol = neuronSymbol.get().getVariableByName("__ode_var_factor");
     assertTrue(p30Symbol.isPresent());
     assertTrue(p30Symbol.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
-    final Optional<VariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("y1_I_shape_inPSCInitialValue");
+    final Optional<VariableSymbol> pscInitialValue = neuronSymbol.get().getVariableByName("I_shape_in__0");
     assertTrue(pscInitialValue.isPresent());
-    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
+    assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
 
 
-    final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("y2_I_shape_in");
+    final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("iv__I_shape_in__0");
     assertTrue(y2.isPresent());
-    assertTrue(y2.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
+    assertTrue(y2.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
 
-    assertTrue(neuronSymbol.get().getUpdateBlock().getSpannedScope().resolve("y2_I_shape_in_tmp", VariableSymbol.KIND).isPresent());
   }
 
   @Test

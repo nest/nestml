@@ -602,13 +602,13 @@ public class NestmlCoCosTest extends ModelbasedTest {
     nestmlCoCoChecker.addCoCo((NESTMLASTFunctionCallCoCo) usageOfAmbiguousName);
     nestmlCoCoChecker.addCoCo((NESTMLASTReturnStmtCoCo) usageOfAmbiguousName);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/usageOfAmbiguousName.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "valid/variableDoesNotExist.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
         NestmlErrorStrings.code(usageOfAmbiguousName));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/usageOfAmbiguousName.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "invalid/variableDoesNotExist.nestml");
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToInvalidModel.toString());
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());

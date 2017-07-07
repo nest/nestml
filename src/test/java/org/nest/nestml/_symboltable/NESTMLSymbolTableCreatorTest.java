@@ -36,8 +36,7 @@ import static org.nest.nestml._symboltable.NestmlSymbols.resolveMethod;
  */
 public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
-  private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/_symboltable/"
-      + "iaf_neuron.nestml";
+  private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/_symboltable/iaf_neuron.nestml";
 
   private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
 
