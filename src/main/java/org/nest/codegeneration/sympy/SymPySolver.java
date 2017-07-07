@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 /**
  * The class is responsible for the execution of the PYTHON_INTERPRETER code which
@@ -103,20 +104,23 @@ class SymPySolver {
 
   private void copySolverFramework(final Path output) {
     try {
+      if (!Files.exists(output)) {
+        Files.createDirectories(output);
+      }
       final URL shapesPyUrl = getClass().getClassLoader().getResource(SHAPES_SOURCE);
       checkNotNull(shapesPyUrl, "Cannot read the solver script: " + SHAPES_SCRIPT);
       final String shapesPy = Resources.toString(shapesPyUrl, Charsets.UTF_8);
-      Files.write(Paths.get(output.toString(), SHAPES_SCRIPT), shapesPy.getBytes());
+      Files.write(Paths.get(output.toString(), SHAPES_SCRIPT), shapesPy.getBytes(), CREATE);
 
       final URL propMatrixUrl = getClass().getClassLoader().getResource(PROP_MATRIX_SOURCE);
       checkNotNull(propMatrixUrl, "Cannot read the solver script: " + PROP_MATRIX_SCRIPT);
       final String propMatrixPy = Resources.toString(propMatrixUrl, Charsets.UTF_8);
-      Files.write(Paths.get(output.toString(), PROP_MATRIX_SCRIPT), propMatrixPy.getBytes());
+      Files.write(Paths.get(output.toString(), PROP_MATRIX_SCRIPT), propMatrixPy.getBytes(), CREATE);
 
       final URL odeAnalyzerUrl = getClass().getClassLoader().getResource(ODE_ANALYZER_SOURCE);
       checkNotNull(odeAnalyzerUrl, "Cannot read the solver script: " + ODE_ANALYZER_SCRIPT);
       final String odeAnalyzerPy = Resources.toString(odeAnalyzerUrl, Charsets.UTF_8);
-      Files.write(Paths.get(output.toString(), ODE_ANALYZER_SCRIPT), odeAnalyzerPy.getBytes());
+      Files.write(Paths.get(output.toString(), ODE_ANALYZER_SCRIPT), odeAnalyzerPy.getBytes(), CREATE);
 
     }
     catch (IOException e) {

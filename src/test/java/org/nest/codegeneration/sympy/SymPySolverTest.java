@@ -44,7 +44,6 @@ public class SymPySolverTest extends ModelbasedTest {
   private static final String IAF_PSC_EXP = "models/iaf_psc_exp.nestml";
   private static final String IAF_PSC_ALPHA = "models/iaf_psc_alpha.nestml";
   private static final String IAF_PSC_DELTA = "models/iaf_psc_delta.nestml";
-  private static final String PSC_MODEL_FILE = "models/iaf_neuron.nestml";
   private static final String IAF_COND_ALPHA = "models/iaf_cond_alpha.nestml";
 
   private static final Path SYMPY_OUTPUT = Paths.get(OUTPUT_FOLDER.toString(), "sympy");
