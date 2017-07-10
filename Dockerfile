@@ -15,15 +15,11 @@ RUN apk --update add sudo
 
 # Install mpmath, required by sympy
 WORKDIR /tmp
-RUN wget https://bootstrap.pypa.io/get-pip.py
+RUN wget https://bootstrap.pypa.io/get-
+.py
 RUN python get-pip.py
 RUN pip install mpmath
-
-# Install sympy, required by sympy
-WORKDIR /tmp
-RUN git clone https://github.com/sympy/sympy.git
-WORKDIR /tmp/sympy
-RUN python setup.py install
+RUN pip install sympy
 
 WORKDIR /tmp
 ENV MAVEN_VERSION 3.3.9
