@@ -15,8 +15,7 @@ RUN apk --update add sudo
 
 # Install mpmath, required by sympy
 WORKDIR /tmp
-RUN wget https://bootstrap.pypa.io/get-
-.py
+RUN wget https://bootstrap.pypa.io/get-pip.py
 RUN python get-pip.py
 RUN pip install mpmath
 RUN pip install sympy
