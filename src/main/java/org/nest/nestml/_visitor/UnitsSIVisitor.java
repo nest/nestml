@@ -26,7 +26,7 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTNESTMLNode;
 import org.nest.nestml._ast.ASTUnitType;
-import org.nest.nestml._cocos.UnitsErrorStrings;
+import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.nestml._symboltable.unitrepresentation.SIData;
 import org.nest.nestml._symboltable.unitrepresentation.UnitTranslator;
 import org.nest.utils.LogHelper;
@@ -79,7 +79,7 @@ public class UnitsSIVisitor implements NESTMLVisitor {
     }
     else {
       final String unit = astUnitType.unitIsPresent() ? astUnitType.getUnit().get() : astUnitType.toString();
-      final String msg = UnitsErrorStrings.message(this, unit);
+      final String msg = NestmlErrorStrings.message(this, unit);
       Log.error(msg, astUnitType.get_SourcePositionStart());
     }
 

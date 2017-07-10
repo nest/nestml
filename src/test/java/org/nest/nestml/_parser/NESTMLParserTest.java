@@ -42,7 +42,7 @@ public class NESTMLParserTest extends ModelbasedTest {
 
     for (final Path path:testModels) {
       System.out.println(path.toString());
-      parseNESTMLModel(path.toString());
+      parseNestmlModel(path.toString());
     }
   }
 

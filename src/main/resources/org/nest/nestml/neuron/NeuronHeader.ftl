@@ -245,13 +245,16 @@ private:
       //! Symbolic indices to the elements of the state vector y
       enum StateVecElems
       {
-        <#list body.getStateNonAliasSymbols() as variable>
+        <#list body.getOdeDefinedSymbols() as variable>
           ${names.convertToCPPName(variable.getName())}, ${variable.printComment("// ")}
         </#list>
         STATE_VEC_SIZE
       };
       //! state vector, must be C-array for GSL solver
       double y[ STATE_VEC_SIZE ];
+      <#list body.getStateSymbolsWithoutOde() as variable>
+        ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
+      </#list>
     </#if>
 
     <#list body.getODEAliases() as odeAlias>

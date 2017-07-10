@@ -9,7 +9,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import org.nest.codegeneration.sympy.NESTMLASTCreator;
+import org.nest.codegeneration.sympy.AstCreator;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
@@ -178,6 +178,26 @@ public class ASTBody extends ASTBodyTOP {
 
   }
 
+  public List<VariableSymbol> getOdeDefinedSymbols() {
+    return this.getEnclosingScope().get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(stateSymbol -> (VariableSymbol) stateSymbol)
+        .filter(VariableSymbol::isState)
+        .filter(VariableSymbol::definedByODE)
+        .collect(toList());
+
+  }
+
+  public List<VariableSymbol> getStateSymbolsWithoutOde() {
+    return this.getEnclosingScope().get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(stateSymbol -> (VariableSymbol) stateSymbol)
+        .filter(VariableSymbol::isState)
+        .filter(variableSymbol -> !variableSymbol.definedByODE())
+        .collect(toList());
+
+  }
+
   public List<VariableSymbol> getStateAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTVar_Block::isState), getEnclosingScope().get())
         .stream()
@@ -250,7 +270,7 @@ public class ASTBody extends ASTBodyTOP {
       final Scope scope) {
     return aliasDeclarations.stream()
         .flatMap(declaration -> declaration.getVars().stream()) // get all variables form the declaration
-        .map(variable -> VariableSymbol.resolve(variable, scope))
+        .map(variable -> VariableSymbol.resolve(variable.toString(), scope))
         .collect(toList());
   }
 
@@ -264,7 +284,7 @@ public class ASTBody extends ASTBodyTOP {
 
   public void addToInternalBlock(final ASTDeclaration astDeclaration) {
     if (!this.getInternalBlock().isPresent()) {
-      final ASTVar_Block internalBlock = NESTMLASTCreator.createInternalBlock();
+      final ASTVar_Block internalBlock = AstCreator.createInternalBlock();
       getBodyElements().add(internalBlock);
     }
 
@@ -323,18 +343,23 @@ public class ASTBody extends ASTBodyTOP {
     return ImmutableList.copyOf(result);
   }
 
-  public Optional<ASTOdeDeclaration> getODEBlock() {
+  public Optional<ASTOdeDeclaration> getOdeBlock() {
     final Optional<ASTBodyElement> odeBlock = bodyElements
         .stream()
         .filter(astBodyElement -> astBodyElement instanceof ASTEquations)
         .findAny();
-    if (odeBlock.isPresent()) {
-      return Optional.of(((ASTEquations) odeBlock.get()).getOdeDeclaration()); // checked by the filter conditions
-    }
-    else {
-      return Optional.empty();
-    }
+    // checked by the filter conditions
+    return odeBlock.map(astBodyElement -> ((ASTEquations) astBodyElement).getOdeDeclaration());
 
+  }
+
+  public void removeOdeBlock() {
+    final Optional<ASTBodyElement> odeBlock = bodyElements
+        .stream()
+        .filter(astBodyElement -> astBodyElement instanceof ASTEquations)
+        .findAny();
+
+    odeBlock.ifPresent(astBodyElement -> bodyElements.remove(astBodyElement));
   }
 
   public List<VariableSymbol> getODEAliases() {

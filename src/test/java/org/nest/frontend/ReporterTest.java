@@ -23,6 +23,7 @@ package org.nest.frontend;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.nest.reporting.Reporter;
 
 /**
  * @author plotnikov

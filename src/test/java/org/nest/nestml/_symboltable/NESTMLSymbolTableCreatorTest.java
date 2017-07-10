@@ -22,7 +22,6 @@ import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -37,14 +36,13 @@ import static org.nest.nestml._symboltable.NestmlSymbols.resolveMethod;
  */
 public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
-  private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/_symboltable/"
-      + "iaf_neuron.nestml";
+  private static final String MODEL_FILE_NAME = "src/test/resources/org/nest/nestml/_symboltable/iaf_neuron.nestml";
 
-  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(Paths.get("src/test/resources"));
+  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
 
   @Test
   public void testCreationOfSymtabAndResolvingOfSymbols() throws IOException {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(MODEL_FILE_NAME);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
     Collection<TypeSymbol> nestmlTypes = modelScope.resolveLocally(NeuronSymbol.KIND);
@@ -86,7 +84,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
    */
   @Test
   public void testResolvingFromSeparateBlocks() throws IOException {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
 
     scopeCreator.runSymbolTableCreator(root);
@@ -120,7 +118,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
   @Test
   public void testShadowingOfVariablesInMethods() throws IOException {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
 
     scopeCreator.runSymbolTableCreator(root);
@@ -171,7 +169,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
   @Test
   public void testPredefinedVariables() throws IOException {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(MODEL_FILE_NAME);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
     final Optional<VariableSymbol> fromGlobalScope
@@ -186,7 +184,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
   @Test
   public void testPredefinedMethods() throws IOException {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(MODEL_FILE_NAME);
     final Scope modelScope = scopeCreator.runSymbolTableCreator(root);
 
     final Optional<MethodSymbol> fromGlobalScope
@@ -219,7 +217,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
   @Test
   public void testResolvingOfPredefinedFunctions() throws IOException {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
 
     scopeCreator.runSymbolTableCreator(root);
@@ -242,7 +240,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
   @Test
   public void testResolvingPredefinedFunctions() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
     scopeCreator.runSymbolTableCreator(root);
     final ScopeSpanningSymbol symbol = (ScopeSpanningSymbol) root.getNeurons().get(0).getSymbol().get();
@@ -262,7 +260,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
   @Test
   public void testRecognitionOfConductanceBasedBuffers() {
-    final ASTNESTMLCompilationUnit root = parseNESTMLModel(MODEL_FILE_NAME);
+    final ASTNESTMLCompilationUnit root = parseNestmlModel(MODEL_FILE_NAME);
     assertEquals(1, root.getNeurons().size());
     scopeCreator.runSymbolTableCreator(root);
 

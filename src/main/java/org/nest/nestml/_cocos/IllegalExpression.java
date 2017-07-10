@@ -147,7 +147,7 @@ public class IllegalExpression implements
     // take an arbitrary var since the variables in the declaration
     // share the same type
     if (node.getExpr().isPresent()) {
-      final String varNameFromDeclaration = node.getVars().get(0);
+      final String varNameFromDeclaration = node.getVars().get(0).toString();
       final String declarationTypeName = computeTypeName(node.getDatatype());
 
       final Either<TypeSymbol, String> initializerExpressionType = node.getExpr().get().getType();

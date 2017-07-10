@@ -29,7 +29,7 @@ import org.nest.nestml._ast.ASTShape;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
-import org.nest.nestml._cocos.UnitsErrorStrings;
+import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 
 import java.util.Optional;
@@ -51,7 +51,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
   public void visit(final ASTShape astShape) {
     if (astShape.getRhs().getType().isError()) {
-      warn(UnitsErrorStrings.expressionCalculation(
+      warn(NestmlErrorStrings.expressionCalculation(
           this,
           astShape.getRhs().getType().getError()),
           astShape.get_SourcePositionStart());
@@ -63,7 +63,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
   public void visit(final ASTEquation astEquation) {
     if (astEquation.getRhs().getType().isError()) {
-      warn(UnitsErrorStrings.expressionCalculation(this, astEquation.getRhs().getType().getError()), astEquation.get_SourcePositionStart());
+      warn(NestmlErrorStrings.expressionCalculation(this, astEquation.getRhs().getType().getError()), astEquation.get_SourcePositionStart());
       return;
     }
     if (!astEquation.getEnclosingScope().isPresent()) {
@@ -83,7 +83,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
     if (varType.getType() != TypeSymbol.Type.UNIT &&
         varType != getRealType()) {
-      error(UnitsErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
+      error(NestmlErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
       return;
     }
 
@@ -95,7 +95,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
     if (typeFromExpression.getType() != TypeSymbol.Type.UNIT &&
         typeFromExpression != getRealType()) {
-      error(UnitsErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
+      error(NestmlErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
       return;
     }
     UnitRepresentation unitFromExpression = UnitRepresentation.getBuilder().serialization(typeFromExpression.getName()).build();
@@ -107,7 +107,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
 
       //derivedVarUnit.setMagnitude(0);
       //unitFromExpression.setMagnitude(0);
-      final String msg = UnitsErrorStrings.expressionMissmatch(
+      final String msg = NestmlErrorStrings.expressionMissmatch(
           this,
           astEquation.getLhs().toString(),
           derivedVarUnit.prettyPrint(),
