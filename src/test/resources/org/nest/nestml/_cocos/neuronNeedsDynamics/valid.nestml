@@ -1,4 +1,0 @@
-neuron NeuronWithDynamics:
-	update:
-	end
-end

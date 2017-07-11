@@ -1,4 +1,0 @@
-neuron OutputsNeuron:
-  output: current
-end
-

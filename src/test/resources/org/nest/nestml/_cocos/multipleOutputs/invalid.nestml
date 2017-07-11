@@ -1,4 +1,0 @@
-neuron OutputsNeuron:
-  output: spike
-  output: current
-end

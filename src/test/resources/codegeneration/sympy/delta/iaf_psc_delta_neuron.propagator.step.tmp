@@ -1,1 +1,0 @@
-V_abs += P30 * (I_e + currents) 

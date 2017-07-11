@@ -1,3 +1,0 @@
-neuron EmptyNeuron:
-  output: spike
-end

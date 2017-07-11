@@ -1,9 +1,0 @@
-neuron A:
-  state:
-    function a ms = 15.0
-  end
-
-  update:
-    a = 12 # error
-  end
-end

@@ -1,8 +1,0 @@
-
-neuron Foo:
-  update:
-  end
-end
-
-neuron Foo:
-end

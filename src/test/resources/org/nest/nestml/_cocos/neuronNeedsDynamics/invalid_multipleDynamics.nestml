@@ -1,7 +1,0 @@
-neuron MultipleDynamicsNeuron:
-  update:
-  end
-
-  update:
-  end
-end
