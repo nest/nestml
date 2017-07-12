@@ -13,8 +13,8 @@ neuron izhikevich_neuron:
   equations:
     # TODO Add 2 ODEs for the V_m und U_m.
     # You can use current buffer I directly in the ODE
-     v' = (0.04 *v *v/1mV + 5 * v + 140mV - u + I)/1ms
-     u' = (a*(b*v/1mV -v))/1ms
+    v' = (0.04 *v *v/mV + 5 * v + 140mV - u + I)/ms
+     u' = (a*(b*v/mV -v))/ms
   end
 
   parameters:
@@ -29,6 +29,7 @@ neuron izhikevich_neuron:
     # TODO add current buffer named I
     # NESTML Syntax for current buffers: buffer_name <- current
     I <- current
+    spikes <- spike
   end
 
   output: spike
@@ -37,7 +38,7 @@ neuron izhikevich_neuron:
     integrate_odes()
     # TODO: Implement threshold crossing check
 
-    # use an if-conditional block. The NESTML systax looks like:
+    # use an if-conditional block. The NESTML syntax looks like:
     # if a >= b:
     #   a += b
     #   b = a
