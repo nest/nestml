@@ -1,0 +1,1 @@
+antlr4 -Dlanguage=Python3 -o build -visitor -no-listener src/main/grammars/org/*.g4
