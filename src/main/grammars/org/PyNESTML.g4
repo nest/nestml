@@ -63,11 +63,10 @@ INF_LITERAL : ('inf');
 ************************GRAMMAR DEFINTION**********************************
 /**************************************************************************
 ***********************COMMENT LANGUAGE DEFINTION*************************/
-
 /**
 * Multi-line comments are encapsulated in Java Style comments tags or
 * by means of Python multi-line comment tags (""" ... """). Single line comments are introduced by a hashtag #.
-* Comments should be processed in the parser part in order to avoid problems with "evil characters".and reverse matching.
+* Comments should be processed in the parser part in order to avoid problems with "evil characters" and reverse matching.
 * TODO:Revise
 * Examples:
 *  (1) /* comment */
@@ -135,10 +134,10 @@ arithmeticExpression : lhs=expression (timesOp='*'| divOp='/' | modOp='%' ) rhs=
 *  (2) not r == 0
 *  (3) V_m > 50mV? V_m = 50mV: V_m = V_m
 */
-logicalExpression : logNot=('not') expr=expression
+logicalExpression : logNot='not' expr=expression
                   | lhs=expression (lt='<'|leq='<='|eq='=='|neq=('!='|'<>')|geq='>='|gt='>') rhs=expression
-                  | lhs=expression logAnd=('and') rhs=expression
-                  | lhs=expression logOr=('or') rhs=expression
+                  | lhs=expression logAnd='and' rhs=expression
+                  | lhs=expression logOr='or' rhs=expression
                   | condition=expression '?' ifTrue=expression ':' ifNotTrue=expression
                   ;
 
@@ -149,7 +148,7 @@ logicalExpression : logNot=('not') expr=expression
 * (2) steps(10ms)
 * (3) myFunc(10mV,1ms)
 */
-functionCall : functionName=STRING_LITERAL '(' (args=parameter)? ')';
+functionCall : functionName=STRING_LITERAL '(' (args=arguments)? ')';
 
 /**
 * If a function calls contains any parameters, it should consist of at leas one parameter expression, and if subsequent parameters are there, then
@@ -158,7 +157,7 @@ functionCall : functionName=STRING_LITERAL '(' (args=parameter)? ')';
 * (1) (10mV)
 * (2) (10mV,2mV)
 */
-parameter: expression (',' expression)*;
+arguments: expression (',' expression)*;
 
 /*******************************************************************************
 ****************************DATA-TYPE LANGUAGE DEFINTION************************/
@@ -242,7 +241,7 @@ simpleStatement : declaration | assignment | functionCall | return ;
 *  (1) recordable function g_reset = g_in - 50mV
 */
 declaration : ('recordable')? ('function')?
-              lhs=(Variable (',' Variable)? ) dataType
+              (variable (',' variable)? ) dataType
               ('[' index=STRING_LITERAL ']')?
               ('=' rhs=expression)? comment?
               ('[[' invariant=expression ']]')?
@@ -273,7 +272,7 @@ return : 'return' (returnValue=expression)?;
 *     ...
 *     end
 */
-compoundStatement : (ifBlock | whileBlock | forBlock) BLOCK_END;
+compoundStatement : (condBlock | whileBlock | forBlock) BLOCK_END;
 
 /**
 * If-blocks consist of a mandatory if condition and a set of corresponding expression, while else-if and else conditions as well
@@ -285,7 +284,7 @@ compoundStatement : (ifBlock | whileBlock | forBlock) BLOCK_END;
 *       ...
 *      end
 */
-ifBlock : 'if' ifCond=expression BLOCK_START ifBlock=block
+condBlock : 'if' ifCond=expression BLOCK_START ifBlock=block
          ('elif' elifCond=expression BLOCK_START elifBlock=block)*
          ('else' BLOCK_START elseBlock=block)?;
 
@@ -296,7 +295,7 @@ ifBlock : 'if' ifCond=expression BLOCK_START ifBlock=block
 *       ...
 *      end
 */
-whileBlock : 'while' whileCond=expression BLOCK_START whileBlock=block;
+whileBlock : 'while' whileCond=expression BLOCK_START content=block;
 
 /**
 * For-blocks consist of a iteration-variable and a range over which is iterated. An optional step length can be proved.
@@ -305,11 +304,121 @@ whileBlock : 'while' whileCond=expression BLOCK_START whileBlock=block;
 *       ...
 *      end
 */
-forBlock : 'for' item=STRING_LITERAL 'in' 'range' '(' from=expression ',' to=expression ',' (step=( ('+'|'-') NUMERIC_LITERAL)) BLOCK_START block;
+forBlock : 'for' item=STRING_LITERAL 'in' 'range' '(' from=expression ',' to=expression  (',' (stepPlus='+'|stepMinus='-') stepLength=NUMERIC_LITERAL)? BLOCK_START content=block;
 
 /*******************************************************************************
 *******************NEURON DECLARATION LANGUAGE DEFINTION************************/
 /**
-* First we define the entry point into the parsing process.
+* The entry point into the parsing process.
 */
 nestmlNeuronCollection : (neuron | NEWLINE )* EOF;
+
+/**
+* A neuron is introduced by the keyword "neuron", the name and a block containing all the details.
+*/
+neuron : 'neuron' neuronName=STRING_LITERAL BLOCK_START (bodyElement | NEWLINE)* BLOCK_END;
+
+/**
+* A body element is either a declaration block, an update block, an input block, an equations block or a function block.
+*/
+bodyElement : declarationBlock | updateBlock | inputBlock | equationBlock | outputBlock | functionBlock;
+
+
+/**
+* A declaration block consists of arbitrary many declarations.
+* Examples:
+*  (1) state:
+*        V_m mV = 10mV
+*      end
+*/
+declarationBlock : type=('state'|'parameters'|'internals')
+            BLOCK_START
+            (declaration | NEWLINE)*
+            BLOCK_END
+            ;
+
+/**
+* The update block as used to declare all operations as performed during the simulation.
+* Examples:
+*  (1) update:
+*       ...
+*      end
+*/
+updateBlock : type='update'
+            BLOCK_START
+            block
+            BLOCK_END
+            ;
+
+/**
+* The equations block as used to declare ode functions, equations and shapes.
+* Examples:
+*  (1) equations:
+*       ...
+*      end
+*/
+equationBlock : type='equations'
+           BLOCK_START
+           odeDeclaration
+           BLOCK_END
+           ;
+
+/**
+* Input declarations as used to declare input buffers of the neuron. A single model can have arbitrary
+* many buffers.
+* Examples:
+*  (1) input:
+*       ...
+*      end
+*/
+inputBlock : type='input'
+             BLOCK_START
+             (bufferDeclaration | NEWLINE)*
+             BLOCK_END
+             ;
+
+/**
+* A buffer declaration consists of a buffer name, an optional index in an array, the type of signals the buffer receives and the general type
+* of buffer.
+* Examples:
+*   (1) spike_in <- inhibitory spike
+*/
+bufferDeclaration : name=STRING_LITERAL
+                    ('[' index=STRING_LITERAL ']')?
+                    '<-' (inhibitory='inhibitory'|excitatory='excitatory')*
+                    (spike='spike'|current='current')
+                    ;
+
+/**
+* The output block as used to define a single output buffer.
+* Examples:
+*  (1) output:
+*        spike
+*      end
+*/
+outputBlock : type='output' BLOCK_START (spike='spike' | current='current') BLOCK_END;
+
+
+/**
+* The function block as used to declare used defined functions. Each declaration is introduced by the keyword function, a name of the
+* function, a set of optional arguments encapsulated in brackets, an optional return type and a block containing the body of the declaration.
+* Examples:
+*  (1) function myfunc(par1,par2) integer:
+*       ...
+*      end
+*/
+functionBlock : type='function' name=STRING_LITERAL '(' (args=parameters)? ')' (returnType=dataType)? BLOCK_START block BLOCK_END;
+
+/**
+* A list of parameters consists of at least one element. All elements are separated by a comma.
+* Examples:
+*  (1) 10mV, 2ms, ...
+*/
+parameters : parameter (',' parameter)*;
+
+/**
+* A single parameter consists of a type and the corresponding name.
+* Examples:
+*  (1) 1mV
+*/
+parameter : type=dataType name=STRING_LITERAL;
