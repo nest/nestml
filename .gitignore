@@ -2,7 +2,7 @@
 target/
 .idea/
 
-build/*
+build/
 
 .DS_Store
 .project

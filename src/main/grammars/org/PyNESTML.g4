@@ -1,424 +1,334 @@
+
 /**
- *@author kperun
- *The grammar as well as the definition of tokens for PyNESTML.
+  Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
+  language which leans on the Python syntax.
 */
 grammar PyNESTML;
 
-/*************************************************************************
-************************TOKENS DEFINTION**********************************/
-/**
-* The block start and finish tokens are used to indicate units of declaration.
-* Example:
-*   state:
-*    ...
-*   end
-*/
-BLOCK_START : ':' ;
+  nestmlCompilationUnit : (neuron | NEWLINE)* EOF;
 
-BLOCK_END : 'end' ;
+  SL_COMMENT :
+    '#' (~('\n' |'\r' ))* -> channel(HIDDEN);
 
-NEWLINE : ('\r' '\n' | '\r' | '\n' );
+  NEWLINE : ('\r' '\n' | '\r' | '\n' );
 
-WS : (' ' | '\t')->channel(HIDDEN);
+  WS : (' ' | '\t')->channel(HIDDEN);
 
-/**
-* In order to reduce problems during parsing we use only a limited alphabet and the underscore.
-* We do not allow strings which consist only of the underscore, since it could lead to undesired naming of variables.
-* Example:
-*  (1) __D_g_in
-*/
-STRING_LITERAL : ('_')* [a-zA-Z]* ('_')* [a-zA-Z]+;
+  // this token enables an expression that stretches over multiple lines. The first line end with a `\` character
+  LINE_ESCAPE : '\\' '\r'? '\n'->channel(HIDDEN);
 
-/**
-* Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
-* and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
-* the concept as currently used in NESTML with the lower case.
-*/
-BOOLEAN_TRUE_LITERAL : 'true' | 'True' ;
-BOOLEAN_FALSE_LITERAL : 'false' | 'False' ;
+  BLOCK_OPEN : ':';
 
-/**
-* Numeric literals. We allow integers as well as floats. Moreover, we ensure that values are either == 0 or
-* do not start with 0, e.g., 01221.012, where the leading 0 does not make sense.
-* Examples:
-*  (1) 1
-*  (2) 3.14
-*/
-NUMERIC_LITERAL :  ( [1-9][0-9]* | '0' ) ('.' [0-9]+)?;
+  BLOCK_CLOSE : 'end';
+  /*********************************************************************************************************************
+  * Units-Language
+  *********************************************************************************************************************/
 
-/**
-* An integer literal as often required for the exponent of a unit.
-* Examples:
-*  (1) 42
-*/
-INT_LITERAL : ([1-9][0-9]* | '0' );
+  /**
+    ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
+    datatype.
+    @attribute boolean getters for integer, real, ...
+    @attribute unitType a SI datatype
+  */
+  datatype : 'integer'
+           | 'real'
+           | 'string'
+           | 'boolean'
+           | 'void'
+           | unitType;
+  /**
+    ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
+    complex data type as 'mV/s'
+  */
+  unitType : leftParentheses='(' unitType rightParentheses=')'
+           | base=unitType powOp='**' exponent=INT_LITERAL
+           | left=unitType (timesOp='*' | divOp='/') right=unitType
+           | unitlessLiteral=INT_LITERAL divOp='/' right=unitType
+           | unit=NAME;
 
+  /*********************************************************************************************************************
+  * Expressions-Language
+  *********************************************************************************************************************/
+  expr : leftParentheses='(' expr rightParentheses=')'
+         | <assoc=right> base=expr powOp='**' exponent=expr
+         | (unaryPlus='+' | unaryMinus='-' | unaryTilde='~') term=expr
+         | left=expr (timesOp='*' | divOp='/' | moduloOp='%') right=expr
+         | left=expr (plusOp='+'  | minusOp='-') right=expr
+         | left=expr (shiftLeft='<<' | shiftRight='>>') right=expr
+         | left=expr bitAnd='&' right=expr
+         | left=expr bitXor='^'  right=expr
+         | left=expr bitOr='|' right=expr
+         | left=expr (lt='<' |
+                      le='<=' |
+                      eq='==' |
+                      ne='!=' |
+                      ne2='<>' |
+                      ge='>=' |
+                      gt='>') right=expr
+         | logicalNot='not' expr
+         | left=expr logicalAnd='and' right=expr
+         | left=expr logicalOr='or' right=expr
+         | condition=expr '?' ifTrue=expr ':' ifNot=expr
+         | functionCall
+         | BOOLEAN_LITERAL // true & false;
+         | NUMERIC_LITERAL variable
+         | NUMERIC_LITERAL
+         | STRING_LITERAL
+         | 'inf'
+         | variable;
 
-/**
-* The infinity element is represented by the keyword inf. We allow lower or upper case keywords.
-*/
-INF_LITERAL : ('inf');
+  /**
+    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    @attribute name
+  */
+  variable : NAME (differentialOrder='\'')*;
 
-/**************************************************************************
-************************GRAMMAR DEFINTION**********************************
-/**************************************************************************
-***********************COMMENT LANGUAGE DEFINTION*************************/
-/**
-* Multi-line comments are encapsulated in Java Style comments tags or
-* by means of Python multi-line comment tags (""" ... """). Single line comments are introduced by a hashtag #.
-* Comments should be processed in the parser part in order to avoid problems with "evil characters" and reverse matching.
-* TODO:Revise
-* Examples:
-*  (1) /* comment */
-/* (2) """ comment """
-*  (3) # comment
-*/
-comment : '#' (~(NEWLINE))* NEWLINE  /*everything which is not a new line */
-        | '/*' (~('*/'))*  '*/'      /*everything which is not a end of comment in Java style */
-        | '"""' (~('""""'))* '"""'   /*everything which is not a end of comment in Python style */
-        ;
+  /**
+    ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
+    @attribute name The (qualified) name of the fucntions
+    @attribute args Comma separated list of expressions representing parameters.
+  */
+  functionCall : calleeName=NAME '(' (args=arguments)? ')';
 
-/**************************************************************************
-**********************EXPRESSION LANGUAGE**********************************/
-/**
-* A variable consists of a name and an optional order.
-* Example:
-*   g_in''
-*/
-variable : var=STRING_LITERAL (order='\'')*;
-
-/**
-* An expression can be (1)simple, i.e. a numeric or alphabetical value with a signum, a (2)compound expression, i.e., consisting of two components
-* combined by an operator, or an expression (3)encapsulated in brackets.
-* Examples:
-* (1) 10mV, g_in
-* (2) V_m - 65mV, exp(10mV + V_m)
-* (3) (2+2)**2
-*/
-expression : simpleExpression | compoundExpression | leftParenthesis='(' expression rightParenthesis=')';
-
-/**
-* Simple expression are those composed of a signum and a numeric value or reference. Moreover, it is allowed to used boolean literals here.
-* Example:
-* (1) -10mV
-* TODO: we need to support units.
-*/
-simpleExpression : (unaryPlus='+' | unaryMinus='+' | unaryTilde='~')? (var=variable | num=NUMERIC_LITERAL | inf=INF_LITERAL ) | BOOLEAN_TRUE_LITERAL | BOOLEAN_FALSE_LITERAL;
-
-/**
-* A compound expression can be either:
-* (1) a power expression, e.g., 2**2.
-* (2) an arithmetic expression, e.g., 2+2, 2*2
-* (3) a logical expression, e.g., x == y
-* (4) a function call, e.g., myfunc(10ms)
-*/
-compoundExpression : arithmeticExpression | logicalExpression | functionCall;
+  arguments : expr (',' expr)*;
 
 
-/**
-* An arithmetic expression is a combination of a two expression by an arithmetic operator.
-* Example:
-*  (1) 10mV + V_m*2
-*  (2) 10mV**2
-*/
-arithmeticExpression : lhs=expression (timesOp='*'| divOp='/' | modOp='%' ) rhs=expression
-                     | lhs=expression (plusOp='+' | minusOp='-') rhs=expression
-                     | <assoc=right> base=expression powOp='**' exponent=expression
-                     ;
+  /*********************************************************************************************************************
+  * Equations-Language
+  *********************************************************************************************************************/
+  /** ASTOdeDeclaration. Represents a block of equations and differential equations.
 
-/**
-* Logic expressions are expressions which consisting of two sub-expression combined with a logic operator or a relation, the negation of a expression or the ternary
-* operator.
-* Examples:
-*  (1) 10mV > V_m
-*  (2) not r == 0
-*  (3) V_m > 50mV? V_m = 50mV: V_m = V_m
-*/
-logicalExpression : logNot='not' expr=expression
-                  | lhs=expression (lt='<'|leq='<='|eq='=='|neq=('!='|'<>')|geq='>='|gt='>') rhs=expression
-                  | lhs=expression logAnd='and' rhs=expression
-                  | lhs=expression logOr='or' rhs=expression
-                  | condition=expression '?' ifTrue=expression ':' ifNotTrue=expression
-                  ;
+    @attribute Equation      List with equations, e.g. "I = exp(t)" od differential equations.
+  */
+  odeDeclaration  : (equation | shape | odeFunction | NEWLINE)+;
 
-/**
-* Function calls represent calls to predefined (mathematical) or simulator specific functions.
-* Example:
-* (1) exp(10)
-* (2) steps(10ms)
-* (3) myFunc(10mV,1ms)
-*/
-functionCall : functionName=STRING_LITERAL '(' (args=arguments)? ')';
+  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expr (';')?;
 
-/**
-* If a function calls contains any parameters, it should consist of at leas one parameter expression, and if subsequent parameters are there, then
-* separated by a comma.
-* Example:
-* (1) (10mV)
-* (2) (10mV,2mV)
-*/
-arguments: expression (',' expression)*;
+  /** ASTeq Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
+    @attribute lhs      Left hand side, e.g. a Variable.
+    @attribute rhs      Expression defining the right hand side.
+  */
+  equation : lhs=derivative '=' rhs=expr (';')?;
 
-/*******************************************************************************
-****************************DATA-TYPE LANGUAGE DEFINTION************************/
-/**
-* Data-type Language: A defined element can have either a primitive data type or a SI unit type.
-* Example:
-*  (1) integer
-*  (2) mV
-*/
-dataType : primitiveType | unitType ;
+  derivative : name=NAME (differentialOrder='\'')*;
 
-/**
-* Primitive Data-types represent data types which are integrated in the language directly.
-* Example:
-*  (1) boolean
-*  (2) void
-*/
-primitiveType : 'boolean'
-              | 'void'
-              | 'integer'
-              | 'real'
-              | 'string'
-              ;
+  shape : 'shape' lhs=variable '=' rhs=expr (';')?;
 
-/**
-* Unit types are either plain text definitions of physical units, e.g., mV, or complex, compound
-* physical units, e.g., (mV/ms)
-* Examples:
-*  (1) mV
-*  (2) mS/ms
-*/
-unitType : leftParenthesis='(' unitType rightParenthesis=')'
-         | base=unitType powOp='**' exponent=INT_LITERAL
-         | lhs=unitType (timesOp='*' | divOp='/') rhs=unitType
-         | unitlessLhs=INT_LITERAL divOp='/' rhs=unitType
-         | unit=STRING_LITERAL
-         ;
+  /*********************************************************************************************************************
+  * Procedural-Language
+  *********************************************************************************************************************/
 
-/*******************************************************************************
-**********ORDINARY DIFFERENTIAL EQUATION LANGUAGE DEFINTION*********************/
+  block : ( stmt | NEWLINE )*;
 
-odeDeclaration : (odeFunction | odeShape | odeEquation | NEWLINE)*;
+  stmt : small_Stmt | compound_Stmt;
+
+  compound_Stmt : if_Stmt
+                | for_Stmt
+                | while_Stmt;
+
+  small_Stmt : assignment
+             | functionCall
+             | declaration
+             | returnStmt;
+
+  assignment : lhsVarialbe=variable
+    (directAssignment='='       |
+     compoundSum='+='     |
+     compoundMinus='-='   |
+     compoundProduct='*=' |
+     compoundQuotient='/=') expr;
 
 
-/**
-* Declaration of a ODE functions. Optionally, it can be set as recordable. It has to be introduced by the
-* keyword 'function', a name and the data-type.
-* Example:
-*  (1) function V_init mV = ....
-*/
-odeFunction : (recordable='recordable')? 'function' lhs=STRING_LITERAL dataType '=' expression ;
+  /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
+   'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
+    @attribute hide is true iff. declaration is not trackable.
+    @attribute function is true iff. declaration is an function.
+    @attribute vars          List with variables
+    @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
+    @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
+    @attribute expr An optional initial expression, e.g. 'a real = 10+10'
+    @attribute invariants List with optional invariants.
+   */
+  declaration :
+    ('recordable')? ('function')?
+    variable (',' variable)*
+    datatype
+    ('[' sizeParameter=NAME ']')?
+    ( '=' expr)? SL_COMMENT?
+    ('[[' invariant=expr ']]')?;
 
-/**
-* Equations consist of a right-hand side and a left-hand side combined by means of the equality symbol.
-* Example:
-*  (1) g_in' = g_in'' + V_in
-*/
-odeEquation : lhs=variable '=' rhs=expression ;
+  /** ATReturnStmt Models the return statement in a function.
 
-/**
-* ODE shapes are introduced by the keyword 'shape' and the name of the variable to which they belong. The
-* right-hand side defined the behavior.
-* Example:
-*  (1) shape f_in = .....
-*/
-odeShape : 'shape' lhs=variable '=' rhs=expression ;
+    @attribute minus An optional sing
+    @attribute definingVariable Name of the variable
+   */
+  returnStmt : 'return' expr?;
 
-/*********************************************************************
-********************FUNCTIONAL LANGUAGE DEFINTION*********************/
+  if_Stmt : if_Clause
+            elif_Clause*
+            (else_Clause)?
+            BLOCK_CLOSE;
 
-block : (statement | NEWLINE)* ;
+  if_Clause : 'if' expr BLOCK_OPEN block;
 
-statement : simpleStatement | compoundStatement ;
+  elif_Clause : 'elif' expr BLOCK_OPEN block;
 
-simpleStatement : declaration | assignment | functionCall | return ;
+  else_Clause : 'else' BLOCK_OPEN block;
 
-/**
-* A declaration can be a function (i.e., "alias") and recordable. Moreover, multi-declarations separated by comma are allowed. The left-hand side
-* is optional, but can be provided, as well as a comment, a array index assignment as well as a invariant.
-* Examples:
-*  (1) recordable function g_reset = g_in - 50mV
-*/
-declaration : ('recordable')? ('function')?
-              (variable (',' variable)? ) dataType
-              ('[' index=STRING_LITERAL ']')?
-              ('=' rhs=expression)? comment?
-              ('[[' invariant=expression ']]')?
-              ;
+  for_Stmt : 'for' var=NAME 'in' from=expr '...' to=expr 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
 
-/**
-* Assignments are used to assign values to variables. We support normal assignments as well as short-hand assignments for both, arithmetic as well
-* as bit operations.
-* Examples:
-*  (1) g_in += V_m
-*  (2) b_in <<= 2
-*/
-assignment : lhs=variable '=' rhs=expression
-           | lhs=variable (sumAssign='+=' | difAssign='-=' | proAssign='*=' | divAssign='/=' | modAssign='%=' | powAssign='**=') rhs=expression /*arithmetic compound assignments*/
-           | lhs=variable (bslAssign='<<' | bsrAssign='>>' | boAssign= '|' | baAssign='&' | bxAssign='^') rhs=expression /*bit operator compound assignments*/
-           ;
-
-/**
-* Return statements as used to indicated what is returned by the procedure.
-* Examples:
-*  (1) return V_m + 10mV
-*/
-return : 'return' (returnValue=expression)?;
-
-/**
-* Compound statements are those which initiate a new block of statements, i.e., if, while or for blocks.
-* (1) while V_m > 10mV:
-*     ...
-*     end
-*/
-compoundStatement : (condBlock | whileBlock | forBlock) BLOCK_END;
-
-/**
-* If-blocks consist of a mandatory if condition and a set of corresponding expression, while else-if and else conditions as well
-* as the corresponding blocks are optional.
-* Example:
-*  (1) if V_m > 10mV:
-*       ...
-*      elif V_m == 0mV:
-*       ...
-*      end
-*/
-condBlock : 'if' ifCond=expression BLOCK_START ifBlock=block
-         ('elif' elifCond=expression BLOCK_START elifBlock=block)*
-         ('else' BLOCK_START elseBlock=block)?;
-
-/**
-* While-blocks consist of a mandatory conditions and a block containing a set of statements.
-* Examples:
-*  (1) while V_m > 10mV:
-*       ...
-*      end
-*/
-whileBlock : 'while' whileCond=expression BLOCK_START content=block;
-
-/**
-* For-blocks consist of a iteration-variable and a range over which is iterated. An optional step length can be proved.
-* Examples:
-*  (1) for i in range(0,10,1):
-*       ...
-*      end
-*/
-forBlock : 'for' item=STRING_LITERAL 'in' 'range' '(' from=expression ',' to=expression  (',' (stepPlus='+'|stepMinus='-') stepLength=NUMERIC_LITERAL)? BLOCK_START content=block;
-
-/*******************************************************************************
-*******************NEURON DECLARATION LANGUAGE DEFINTION************************/
-/**
-* The entry point into the parsing process.
-*/
-nestmlNeuronCollection : (neuron | NEWLINE )* EOF;
-
-/**
-* A neuron is introduced by the keyword "neuron", the name and a block containing all the details.
-*/
-neuron : 'neuron' neuronName=STRING_LITERAL BLOCK_START (bodyElement | NEWLINE)* BLOCK_END;
-
-/**
-* A body element is either a declaration block, an update block, an input block, an equations block or a function block.
-*/
-bodyElement : declarationBlock | updateBlock | inputBlock | equationBlock | outputBlock | functionBlock;
+  while_Stmt : 'while' expr BLOCK_OPEN block BLOCK_CLOSE;
 
 
-/**
-* A declaration block consists of arbitrary many declarations.
-* Examples:
-*  (1) state:
-*        V_m mV = 10mV
-*      end
-*/
-declarationBlock : type=('state'|'parameters'|'internals')
-            BLOCK_START
-            (declaration | NEWLINE)*
-            BLOCK_END
-            ;
+  signedNumericLiteral : ('+' | '-') NUMERIC_LITERAL;
 
-/**
-* The update block as used to declare all operations as performed during the simulation.
-* Examples:
-*  (1) update:
-*       ...
-*      end
-*/
-updateBlock : type='update'
-            BLOCK_START
-            block
-            BLOCK_END
-            ;
+  /*********************************************************************************************************************
+  * Nestml-Language
+  *********************************************************************************************************************/
+  /** ASTNeuron represents neuron.
+    @attribute Name    The name of the neuron
+    @attribute Body    The body of the neuron, e.g. internal, state, parameter...
+  */
+  neuron : 'neuron' NAME body;
 
-/**
-* The equations block as used to declare ode functions, equations and shapes.
-* Examples:
-*  (1) equations:
-*       ...
-*      end
-*/
-equationBlock : type='equations'
-           BLOCK_START
-           odeDeclaration
-           BLOCK_END
-           ;
+  /** ASTBody The body of the neuron, e.g. internal, state, parameter...
+  */
+  body : BLOCK_OPEN
+           (NEWLINE | var_Block | dynamics | equations | inputBuffer | outputBuffer | function)*
+         BLOCK_CLOSE;
 
-/**
-* Input declarations as used to declare input buffers of the neuron. A single model can have arbitrary
-* many buffers.
-* Examples:
-*  (1) input:
-*       ...
-*      end
-*/
-inputBlock : type='input'
-             BLOCK_START
-             (bufferDeclaration | NEWLINE)*
-             BLOCK_END
-             ;
+  /** ASTVar_Block represent a block with variables, e.g.:
+    state:
+      y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
+    end
 
-/**
-* A buffer declaration consists of a buffer name, an optional index in an array, the type of signals the buffer receives and the general type
-* of buffer.
-* Examples:
-*   (1) spike_in <- inhibitory spike
-*/
-bufferDeclaration : name=STRING_LITERAL
-                    ('[' index=STRING_LITERAL ']')?
-                    '<-' (inhibitory='inhibitory'|excitatory='excitatory')*
-                    (spike='spike'|current='current')
-                    ;
+    @attribute state true if the varblock ist a state.
+    @attribute parameter true if the varblock ist a parameter.
+    @attribute internal true if the varblock ist a state internal.
+    @attribute AliasDecl a list with variable declarations.
+  */
+  var_Block:
+    ('state'|'parameters'|'internals')
+    BLOCK_OPEN
+      (declaration | NEWLINE)*
+    BLOCK_CLOSE;
 
-/**
-* The output block as used to define a single output buffer.
-* Examples:
-*  (1) output:
-*        spike
-*      end
-*/
-outputBlock : type='output' BLOCK_START (spike='spike' | current='current') BLOCK_END;
+  /** ASTDynamics a special function definition:
+      update:
+        if r == 0: # not refractory
+          integrate(V)
+        end
+      end
+     @attribute block Implementation of the dynamics.
+   */
+  dynamics:
+    'update'
+    BLOCK_OPEN
+      block
+    BLOCK_CLOSE;
 
+  /** ASTEquations a special function definition:
+       equations:
+         G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+         V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+       end
+     @attribute odeDeclaration Block with equations and differential equations.
+   */
+  equations:
+    'equations'
+    BLOCK_OPEN
+      odeDeclaration
+    BLOCK_CLOSE;
 
-/**
-* The function block as used to declare used defined functions. Each declaration is introduced by the keyword function, a name of the
-* function, a set of optional arguments encapsulated in brackets, an optional return type and a block containing the body of the declaration.
-* Examples:
-*  (1) function myfunc(par1,par2) integer:
-*       ...
-*      end
-*/
-functionBlock : type='function' name=STRING_LITERAL '(' (args=parameters)? ')' (returnType=dataType)? BLOCK_START block BLOCK_END;
+  /** ASTInput represents the input block:
+    input:
+      spikeBuffer   <- inhibitory excitatory spike
+      currentBuffer <- current
+    end
 
-/**
-* A list of parameters consists of at least one element. All elements are separated by a comma.
-* Examples:
-*  (1) 10mV, 2ms, ...
-*/
-parameters : parameter (',' parameter)*;
+    @attribute inputLine set of input lines.
+  */
+  inputBuffer: 'input'
+    BLOCK_OPEN
+      (inputLine | NEWLINE)*
+    BLOCK_CLOSE;
 
-/**
-* A single parameter consists of a type and the corresponding name.
-* Examples:
-*  (1) 1mV
-*/
-parameter : type=dataType name=STRING_LITERAL;
+  /** ASTInputLine represents a single line form the input, e.g.:
+      spikeBuffer   <- inhibitory excitatory spike
+
+    @attribute sizeParameter Optional parameter representing  multisynapse neuron.
+    @attribute sizeParameter Type of the inputchannel: e.g. inhibitory or excitatory (or both).
+    @attribute spike true iff the neuron is a spike.
+    @attribute current true iff. the neuron is a current.
+  */
+  inputLine :
+
+    ('[' sizeParameter=NAME ']')?
+    '<-' inputType*
+    ('spike' | 'current');
+
+  /** ASTInputType represents the type of the inputline e.g.: inhibitory or excitatory:
+    @attribute inhibitory true iff the neuron is a inhibitory.
+    @attribute excitatory true iff. the neuron is a excitatory.
+  */
+  inputType : ('inhibitory' | 'excitatory');
+
+  /** ASTOutput represents the output block of the neuron:
+        output: spike
+      @attribute spike true iff the neuron has a spike output.
+      @attribute current true iff. the neuron is a current output.
+    */
+  outputBuffer: 'output' BLOCK_OPEN ('spike' | 'current') ;
+
+  /** ASTFunction a function definition:
+      function set_V_m(v mV):
+        y3 = v - E_L
+      end
+    @attribute name Functionname.
+    @attribute parameters List with function parameters.
+    @attribute returnType Complex return type, e.g. String
+    @attribute primitiveType Primitive return type, e.g. int
+    @attribute block Implementation of the function.
+  */
+  function: 'function' NAME '(' parameters? ')' (returnType=datatype)?
+           BLOCK_OPEN
+             block
+           BLOCK_CLOSE;
+
+  /** ASTParameters models parameter list in function declaration.
+    @attribute parameters List with parameters.
+  */
+  parameters : parameter (',' parameter)*;
+
+  /** ASTParameter represents singe:
+      output: spike
+    @attribute compartments Lists with compartments.
+  */
+  parameter : NAME datatype;
+
+  STRING_LITERAL : ('_')* [a-zA-Z]* ('_')* [a-zA-Z]+;
+
+  /**
+  * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
+  * and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
+  * the concept as currently used in NESTML with the lower case.
+  */
+  BOOLEAN_LITERAL : 'true' | 'True' | 'false' | 'False' ;
+
+  /**
+  * Numeric literals. We allow integers as well as floats. Moreover, we ensure that values are either == 0 or
+  * do not start with 0, e.g., 01221.012, where the leading 0 does not make sense.
+  * Examples:
+  *  (1) 1
+  *  (2) 3.14
+  */
+  NUMERIC_LITERAL :  ( [1-9][0-9]* | '0' ) ('.' [0-9]+)?;
+
+  /**
+  * An integer literal as often required for the exponent of a unit.
+  * Examples:
+  *  (1) 42
+  */
+  INT_LITERAL : ([1-9][0-9]* | '0' );
+
+  NAME : ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*;
