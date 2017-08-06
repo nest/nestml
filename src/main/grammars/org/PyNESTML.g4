@@ -5,21 +5,9 @@
 */
 grammar PyNESTML;
 
-  nestmlCompilationUnit : (neuron | NEWLINE)* EOF;
+  import Tokens;
 
-  SL_COMMENT :
-    '#' (~('\n' |'\r' ))* -> channel(HIDDEN);
-
-  NEWLINE : ('\r' '\n' | '\r' | '\n' );
-
-  WS : (' ' | '\t')->channel(HIDDEN);
-
-  // this token enables an expression that stretches over multiple lines. The first line end with a `\` character
-  LINE_ESCAPE : '\\' '\r'? '\n'->channel(HIDDEN);
-
-  BLOCK_OPEN : ':';
-
-  BLOCK_CLOSE : 'end';
+  nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
   /*********************************************************************************************************************
   * Units-Language
   *********************************************************************************************************************/
@@ -73,7 +61,7 @@ grammar PyNESTML;
          | BOOLEAN_LITERAL // true & false;
          | NUMERIC_LITERAL variable
          | NUMERIC_LITERAL
-         | STRING_LITERAL
+         | NAME
          | 'inf'
          | variable;
 
@@ -175,12 +163,12 @@ grammar PyNESTML;
 
   else_Clause : 'else' BLOCK_OPEN block;
 
-  for_Stmt : 'for' var=NAME 'in' from=expr '...' to=expr 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
+  for_Stmt : 'for' var=NAME 'in' vrom=expr '...' to=expr 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
 
   while_Stmt : 'while' expr BLOCK_OPEN block BLOCK_CLOSE;
 
 
-  signedNumericLiteral : ('+' | '-') NUMERIC_LITERAL;
+  signedNumericLiteral : (negative='-') NUMERIC_LITERAL;
 
   /*********************************************************************************************************************
   * Nestml-Language
@@ -262,7 +250,7 @@ grammar PyNESTML;
     @attribute current true iff. the neuron is a current.
   */
   inputLine :
-
+    NAME
     ('[' sizeParameter=NAME ']')?
     '<-' inputType*
     ('spike' | 'current');
@@ -305,30 +293,3 @@ grammar PyNESTML;
     @attribute compartments Lists with compartments.
   */
   parameter : NAME datatype;
-
-  STRING_LITERAL : ('_')* [a-zA-Z]* ('_')* [a-zA-Z]+;
-
-  /**
-  * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
-  * and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
-  * the concept as currently used in NESTML with the lower case.
-  */
-  BOOLEAN_LITERAL : 'true' | 'True' | 'false' | 'False' ;
-
-  /**
-  * Numeric literals. We allow integers as well as floats. Moreover, we ensure that values are either == 0 or
-  * do not start with 0, e.g., 01221.012, where the leading 0 does not make sense.
-  * Examples:
-  *  (1) 1
-  *  (2) 3.14
-  */
-  NUMERIC_LITERAL :  ( [1-9][0-9]* | '0' ) ('.' [0-9]+)?;
-
-  /**
-  * An integer literal as often required for the exponent of a unit.
-  * Examples:
-  *  (1) 42
-  */
-  INT_LITERAL : ([1-9][0-9]* | '0' );
-
-  NAME : ( 'a'..'z' | 'A'..'Z' | '_' | '$' )( 'a'..'z' | 'A'..'Z' | '_' | '0'..'9' | '$' )*;

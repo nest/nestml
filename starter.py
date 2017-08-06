@@ -2,17 +2,21 @@ import sys
 from antlr4 import *
 sys.path.append('build/src/main/grammars/org')
 from PyNESTMLLexer import PyNESTMLLexer
-from PyNESTMLParsr import PyNESTMLParser
+from PyNESTMLParser import PyNESTMLParser
 
 
 
 def main(argv):
     input = FileStream("models/izhikevich.nestml")
-    lexer = SimpleExpressionGrammerLexer(input)
+    #inpute the file
+    lexer = PyNESTMLLexer(input)
+    #create a token stream
     stream = CommonTokenStream(lexer)
-    parser = SimpleExpressionGrammerParser(stream)
-    tree = parser.astNeuron()
-    
+    #parse the file
+    parser = PyNESTMLParser(stream)
+    tree = parser.nestmlCompilationUnit()
+
+
 
 if __name__ == '__main__':
     main(sys.argv)
