@@ -39,31 +39,28 @@ grammar PyNESTML;
   *********************************************************************************************************************/
   expr : leftParentheses='(' expr rightParentheses=')'
          | <assoc=right> base=expr powOp='**' exponent=expr
-         | (unaryPlus='+' | unaryMinus='-' | unaryTilde='~') term=expr
+         | unaryOperator term=expr
          | left=expr (timesOp='*' | divOp='/' | moduloOp='%') right=expr
          | left=expr (plusOp='+'  | minusOp='-') right=expr
-         | left=expr (shiftLeft='<<' | shiftRight='>>') right=expr
-         | left=expr bitAnd='&' right=expr
-         | left=expr bitXor='^'  right=expr
-         | left=expr bitOr='|' right=expr
-         | left=expr (lt='<' |
-                      le='<=' |
-                      eq='==' |
-                      ne='!=' |
-                      ne2='<>' |
-                      ge='>=' |
-                      gt='>') right=expr
+         | left=expr bitOperator right=expr
+         | left=expr comparisonOperator right=expr
          | logicalNot='not' expr
-         | left=expr logicalAnd='and' right=expr
-         | left=expr logicalOr='or' right=expr
+         | left=expr logicalOperator right=expr
          | condition=expr '?' ifTrue=expr ':' ifNot=expr
          | functionCall
          | BOOLEAN_LITERAL // true & false;
-         | NUMERIC_LITERAL variable
-         | NUMERIC_LITERAL
+         | NUMERIC_LITERAL (variable)?
          | NAME
          | 'inf'
          | variable;
+
+  unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
+
+  bitOperator : (bitAnd='&'| bitXor='^' | bitOr='|' | bitShiftLeft='<<' | bitShiftRight='>>');
+
+  comparisonOperator : (lt='<' | le='<=' | eq='==' | ne='!=' | ne2='<>' | ge='>=' | gt='>');
+
+  logicalOperator : (logicalAnd='and' | logicalOr='or');
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
