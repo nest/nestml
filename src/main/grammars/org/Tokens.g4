@@ -31,13 +31,6 @@ lexer grammar Tokens;
   *  (1) 1
   *  (2) 3.14
   */
-  NUMERIC_LITERAL :  ([1-9][0-9]*|'0')('.' [0-9]*)? | ('.' [0-9]+);
-
-  /**
-  * An integer literal as often required for the exponent of a unit.
-  * Examples:
-  *  (1) 42
-  */
-  INT_LITERAL : ([1-9][0-9]* | '0' );
+  NUMERIC_LITERAL :  ([1-9][0-9]* | '0' ) ('.' [0-9]*)?;
 
   NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;

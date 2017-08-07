@@ -29,9 +29,9 @@ grammar PyNESTML;
     complex data type as 'mV/s'
   */
   unitType : leftParentheses='(' unitType rightParentheses=')'
-           | base=unitType powOp='**' exponent=INT_LITERAL
+           | base=unitType powOp='**' exponent=NUMERIC_LITERAL
            | left=unitType (timesOp='*' | divOp='/') right=unitType
-           | unitlessLiteral=INT_LITERAL divOp='/' right=unitType
+           | unitlessLiteral=NUMERIC_LITERAL divOp='/' right=unitType
            | unit=NAME;
 
   /*********************************************************************************************************************
