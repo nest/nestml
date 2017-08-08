@@ -26,7 +26,6 @@ public class PredefinedTypes {
 
   static {
     registerPrimitiveTypes();
-    registerBufferType();
   }
 
   /**
@@ -61,10 +60,6 @@ public class PredefinedTypes {
     return implicitTypes.get("integer");
   }
 
-  public static TypeSymbol getBufferType() {
-    return implicitTypes.get("Buffer");
-  }
-
   public static TypeSymbol getUnitType() {
     return implicitTypes.get("unit");
   }
@@ -82,11 +77,6 @@ public class PredefinedTypes {
     typeSymbol.setPackageName("");
     implicitTypes.put(modelName, typeSymbol);
     return typeSymbol;
-  }
-
-  private static void registerBufferType() {
-    final TypeSymbol bufferType = new TypeSymbol("Buffer", TypeSymbol.Type.BUFFER);
-    implicitTypes.put("Buffer", bufferType);
   }
 
   public static Collection<TypeSymbol> getTypes() {

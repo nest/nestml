@@ -96,15 +96,6 @@ public class DotOperatorVisitor implements NESTMLVisitor {
           return;
         }
       }
-      //If a buffer is involved, the other unit takes precedent TODO: is this the intended semantic?
-      if (lhsType == getBufferType()) {
-        expr.setType(Either.value(rhsType));
-        return;
-      }
-      if (rhsType == getBufferType()) {
-        expr.setType(Either.value(lhsType));
-        return;
-      }
     }
 
     //Catch-all if no case has matched
