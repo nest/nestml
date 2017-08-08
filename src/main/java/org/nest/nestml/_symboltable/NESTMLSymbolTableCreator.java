@@ -16,8 +16,10 @@ import org.nest.nestml._symboltable.symbols.MethodSymbol;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.nestml._visitor.UnitsSIVisitor;
+import org.nest.utils.AstUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -29,7 +31,6 @@ import static de.se_rwth.commons.logging.Log.trace;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
-import static org.nest.codegeneration.sympy.OdeTransformer.getCondSumFunctionCall;
 import static org.nest.nestml._symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.STATE;
 import static org.nest.utils.AstUtils.computeTypeName;
@@ -205,12 +206,12 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   }
 
   /**
-   * For each buffer, if it is used in the Cond_sum function, a conductance flag is added. E.g. in
+   * For each buffer of type nS, a conductance flag is added. E.g. in
    * equations:
-   *   V_m = Cond_sum(GI, spikes)
+   *   V_m = convolve(GI, spikes)
    * end
    * input:
-   *   spikes <- spike
+   *   spikes nS <- spike
    * end
    *
    * spikes buffer is marked conductanceBased
@@ -220,29 +221,17 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     if (!inputLines.isEmpty()) {
 
-      final Collection<VariableSymbol> bufferSymbols = currentScope().get().resolveLocally(VariableSymbol.KIND);
+      final Collection<VariableSymbol> allVariables = currentScope().get().resolveLocally(VariableSymbol.KIND);
 
-      final Collection<VariableSymbol> spikeBuffers = bufferSymbols
+      final Collection<VariableSymbol> spikeBuffers = allVariables
           .stream()
           .filter(VariableSymbol::isSpikeBuffer)
           .collect(Collectors.toList());
-      final List<ASTNode> equations = Lists.newArrayList();
-      equations.addAll(astOdeDeclaration.getODEs());
-      equations.addAll(astOdeDeclaration.getOdeFunctions());
-
-      for (VariableSymbol spikeBuffer:spikeBuffers) {
-        final Optional<?> bufferInCondSumCall = equations
-            .stream()
-            .flatMap(astEquation -> getCondSumFunctionCall(astEquation).stream())
-            // that there is one parameter which is the simple name is granted by cocos
-            .map(astFunctionCall -> astFunctionCall.getArgs().get(1).getVariable().get())
-            .filter(variable -> variable.getName().toString().equals(spikeBuffer.getName()))
-            .findAny();
-
-        bufferInCondSumCall.ifPresent(o -> spikeBuffer.setConductanceBased(true));
-
+      for(VariableSymbol spikeBuffer : spikeBuffers){
+        if(spikeBuffer.getType().getName().equals(UnitRepresentation.lookupName("nS").get().serialize())){
+          spikeBuffer.setConductanceBased(true);
+        }
       }
-
     }
 
   }
@@ -265,13 +254,23 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     checkState(this.currentScope().isPresent());
     checkState(currentTypeSymbol.isPresent());
 
-    final TypeSymbol bufferType = PredefinedTypes.getBufferType();
+    //manually set datatype for current buffers and run UnitsVisitor to produce coherent state:
+    if(inputLineAst.currentIsPresent()){
+      ASTUnitType pAType = ASTUnitType.getBuilder().unit("pA").build();
+      inputLineAst.setDatatype(ASTDatatype.getBuilder().unitType(pAType).build());
+      UnitsSIVisitor.convertSiUnitsToSignature(inputLineAst);
+    }
 
-    final VariableSymbol var = new VariableSymbol(inputLineAst.getName());
+    //parser complains before we get here if datatypes are not set as expected:
+    TypeSymbol bufferType = PredefinedTypes.getType(AstUtils.computeTypeName(inputLineAst.getDatatype().get()));
+    //mark the typeSymbol as a buffer
+    bufferType.setBufferType(true);
+
+    final VariableSymbol var = new VariableSymbol(inputLineAst.getName().get());
 
     var.setType(bufferType);
 
-    if (inputLineAst.isCurrent()) {
+    if (inputLineAst.currentIsPresent()) {
       var.setBlockType(VariableSymbol.BlockType.INPUT_BUFFER_CURRENT);
     }
     else {
