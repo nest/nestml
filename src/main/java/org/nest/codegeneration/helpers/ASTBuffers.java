@@ -107,7 +107,7 @@ public class ASTBuffers {
   public String printBufferDeclaration(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "Run symboltable creator!");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
+    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName().get(), scope);
 
     return printBufferDeclaration(buffer);
   }
@@ -144,7 +144,7 @@ public class ASTBuffers {
   public String vectorParameter(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
+    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName().get(), scope);
     checkState(buffer.getVectorParameter().isPresent(), "Cannot resolve the variable: " + astInputLine.getName());
     return buffer.getVectorParameter().get();
   }
@@ -152,7 +152,7 @@ public class ASTBuffers {
   public boolean isVector(final ASTInputLine astInputLine) {
     checkArgument(astInputLine.getEnclosingScope().isPresent(), "");
     final Scope scope = astInputLine.getEnclosingScope().get();
-    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName(), scope);
+    final VariableSymbol buffer = VariableSymbol.resolve(astInputLine.getName().get(), scope);
 
     return buffer.getVectorParameter().isPresent();
   }
