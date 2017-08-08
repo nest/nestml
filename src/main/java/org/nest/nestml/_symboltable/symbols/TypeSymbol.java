@@ -8,6 +8,7 @@ package org.nest.nestml._symboltable.symbols;
 import com.google.common.collect.Lists;
 import de.monticore.symboltable.CommonSymbol;
 import de.monticore.symboltable.SymbolKind;
+import org.nest.nestml._symboltable.typechecking.TypeChecker;
 import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 
 import java.util.Collection;
@@ -22,15 +23,25 @@ public class TypeSymbol extends CommonSymbol {
   public final static TypeSymbolKind KIND = new TypeSymbolKind();
   private final Collection<MethodSymbol> builtInMethods = Lists.newArrayList();
   private final Type type;
+  private boolean isBufferType = false;
 
   public TypeSymbol(final TypeSymbol other) {
     this(other.getName(), other.type);
+    this.setBufferType(other.isBufferType);
     builtInMethods.addAll(other.builtInMethods);
   }
 
   public TypeSymbol(final String name, final Type type) {
     super(name, KIND);
     this.type = type;
+  }
+
+  public void setBufferType(boolean bufferType) {
+    isBufferType = bufferType;
+  }
+
+  public boolean isBufferType() {
+    return isBufferType;
   }
 
   public Type getType() {
@@ -57,7 +68,7 @@ public class TypeSymbol extends CommonSymbol {
       return unitRepresentation.prettyPrint();
     }
     else {
-      return getName(); //primitive and buffer
+      return getName(); //primitive
     }
 
   }
@@ -85,7 +96,7 @@ public class TypeSymbol extends CommonSymbol {
     return com.google.common.base.Objects.hashCode(this.getName(), this.type);
   }
 
-  public enum Type { UNIT, PRIMITIVE, BUFFER}
+  public enum Type { UNIT, PRIMITIVE, ERROR}
 
   private static class TypeSymbolKind implements SymbolKind {
 
