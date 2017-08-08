@@ -36,8 +36,8 @@ neuron iaf_chxk_2008_neuron:
     G_ahp'' = (-2/tau_ahp) * G_ahp'-(1/tau_ahp**2) * G_ahp
     G_ahp' = G_ahp'
 
-    function I_syn_exc pA = cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikesInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
@@ -74,8 +74,8 @@ neuron iaf_chxk_2008_neuron:
   end
 
   input:
-      spikesInh   <- inhibitory spike
-      spikesExc   <- excitatory spike
+      spikesInh nS <- inhibitory spike
+      spikesExc nS <- excitatory spike
       currents <- current
   end
 
@@ -161,8 +161,8 @@ neuron iaf_chxk_2008_implicit:
     G_ahp'' = -G_ahp' / tau_ahp
     G_ahp' = G_ahp' -  G_ahp / tau_ahp
 
-    function I_syn_inh pA = cond_sum(g_in, spikesInh) * (V_m - E_in)
-    function I_syn_exc pA = cond_sum(g_ex, spikesExc) * (V_m - E_ex)
+    function I_syn_inh pA = convolve(g_in, spikesInh) * (V_m - E_in)
+    function I_syn_exc pA = convolve(g_ex, spikesExc) * (V_m - E_ex)
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
@@ -199,8 +199,8 @@ neuron iaf_chxk_2008_implicit:
   end
 
   input:
-      spikesInh   <- inhibitory spike
-      spikesExc   <- excitatory spike
+      spikesInh nS <- inhibitory spike
+      spikesExc nS <- excitatory spike
       currents <- current
   end
 

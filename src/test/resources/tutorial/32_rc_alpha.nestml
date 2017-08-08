@@ -35,7 +35,7 @@ neuron rc_alpha:
   end
 
   input:
-    spikes   <- spike
+    spikes nS <- spike
     currents <- current
   end
 

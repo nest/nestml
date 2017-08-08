@@ -19,7 +19,7 @@ neuron NeuronInTest:
   end
 
   input:
-    y <- spike
+    y nS <- spike
   end
 
   equations:

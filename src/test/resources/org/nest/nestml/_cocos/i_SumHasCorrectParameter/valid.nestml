@@ -1,15 +1,15 @@
-neuron valid_curr_sum:
+neuron valid_convolve:
   state:
     V_m mV
     G pA
   end
 
   equations:
-    V_m' = V_m+curr_sum(G, spikes)
+    V_m' = V_m+convolve(G, spikes)
   end
 
   input:
-    spikes   <- spike
+    spikes nS <- spike
     currents <- current
   end
 end

@@ -62,7 +62,7 @@ neuron izhikevich_neuron:
   end
 
   input:
-    spikes   <- spike
+    spikes nS <- spike
     currents <- current
   end
 

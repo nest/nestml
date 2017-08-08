@@ -182,10 +182,10 @@ neuron ht_neuron_nestml:
   end
 
   input:
-      AMPA   <- spike
-      NMDA   <- spike
-      GABA_A <- spike
-      GABA_B <- spike
+      AMPA nS  <- spike
+      NMDA nS  <- spike
+      GABA_A nS <- spike
+      GABA_B nS <- spike
       currents <- current
   end
 

@@ -24,7 +24,7 @@ neuron rc_input:
   end
 
   input:
-    I_syn   <- spike
+    I_syn nS <- spike
   end
 
   output: spike

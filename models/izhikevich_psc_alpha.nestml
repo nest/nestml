@@ -41,8 +41,8 @@ neuron izhikevich_psc_alpha:
     shape I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     shape I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
-    function I_syn_exc pA = curr_sum(I_syn_ex, spikesExc)
-    function I_syn_inh pA = curr_sum(I_syn_in, spikesInh)
+    function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
+    function I_syn_inh pA = convolve(I_syn_in, spikesInh)
 
     V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
@@ -78,8 +78,8 @@ neuron izhikevich_psc_alpha:
   end
 
   input:
-    spikesInh <- inhibitory spike
-    spikesExc <- excitatory spike
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
     currents  <- current
   end
 
@@ -151,8 +151,8 @@ neuron izhikevich_psc_alpha_implicit:
     I_syn_in'' = -I_syn_in' / tau_syn_in 
     I_syn_in' = I_syn_in' - ( I_syn_in / tau_syn_in )
     
-    function I_syn_exc pA = curr_sum(I_syn_ex, spikesExc)
-    function I_syn_inh pA = curr_sum(I_syn_in, spikesInh)
+    function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
+    function I_syn_inh pA = convolve(I_syn_in, spikesInh)
     
     V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
@@ -188,8 +188,8 @@ neuron izhikevich_psc_alpha_implicit:
   end
 
   input:
-    spikesInh <- inhibitory spike
-    spikesExc <- excitatory spike
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
     currents  <- current
   end
 

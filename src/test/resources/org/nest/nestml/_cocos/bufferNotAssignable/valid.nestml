@@ -1,6 +1,6 @@
 neuron ReassignBuffer:
   input:
-      testBuffer <- spike
+      testBuffer nS <- spike
   end
 
 end

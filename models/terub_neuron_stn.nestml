@@ -95,8 +95,8 @@ neuron terub_neuron_stn:
     function k_Ca real = 22.5
     function k1 real = 15.0
 
-    function I_ex_mod pA = -curr_sum(g_ex,spikeExc)*V_m
-    function I_in_mod pA = curr_sum(g_in, spikeInh) * (V_m-E_gs)
+    function I_ex_mod pA = -convolve(g_ex,spikeExc)*V_m
+    function I_in_mod pA = convolve(g_in, spikeInh) * (V_m-E_gs)
 
     function tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
     function tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
@@ -161,8 +161,8 @@ neuron terub_neuron_stn:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
       currents <- current
   end
 
@@ -287,8 +287,8 @@ neuron terub_neuron_stn_implicit:
     function k_Ca real = 22.5
     function k1 real = 15.0
 
-    function I_ex_mod pA = -curr_sum(g_ex,spikeExc)*V_m
-    function I_in_mod pA = curr_sum(g_in, spikeInh) * (V_m-E_gs)
+    function I_ex_mod pA = -convolve(g_ex,spikeExc)*V_m
+    function I_in_mod pA = convolve(g_in, spikeInh) * (V_m-E_gs)
 
     function tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
     function tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
@@ -356,8 +356,8 @@ neuron terub_neuron_stn_implicit:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
       currents <- current
   end
 
