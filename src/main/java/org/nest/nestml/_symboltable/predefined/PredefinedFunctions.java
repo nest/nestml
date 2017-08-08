@@ -42,9 +42,7 @@ public class PredefinedFunctions {
   public static final String MIN = "min";
   public static final String BOUNDED_MIN = "bounded_min";
   public static final String INTEGRATE_ODES = "integrate_odes";
-  public static final String CURR_SUM = "curr_sum";
-  public static final String COND_SUM = "cond_sum";
-
+  public static final String CONVOLVE = "convolve";
 
   private static final Map<String, MethodSymbol> name2FunctionSymbol = Maps.newHashMap();
 
@@ -145,17 +143,11 @@ public class PredefinedFunctions {
     integrate.setReturnType(getVoidType());
     name2FunctionSymbol.put(INTEGRATE_ODES, integrate);
 
-    final MethodSymbol i_sum = createFunctionSymbol(CURR_SUM);
-    i_sum.addParameterType(getType("pA"));
-    i_sum.addParameterType(getRealType());
-    i_sum.setReturnType(getType("pA"));
-    name2FunctionSymbol.put(CURR_SUM, i_sum);
+    final MethodSymbol convolve = createFunctionSymbol(CONVOLVE);
+    convolve.addParameterType(getRealType());
+    convolve.addParameterType(getRealType());
+    name2FunctionSymbol.put(CONVOLVE, convolve);
 
-    final MethodSymbol cond_sum = createFunctionSymbol(COND_SUM);
-    cond_sum.addParameterType(getType("nS"));
-    cond_sum.addParameterType(getRealType());
-    cond_sum.setReturnType(getType("nS"));
-    name2FunctionSymbol.put(COND_SUM, cond_sum);
   }
 
   private static MethodSymbol createFunctionSymbol(final String functionName) {
