@@ -87,17 +87,17 @@ grammar PyNESTML;
   */
   odeDeclaration  : (equation | shape | odeFunction | NEWLINE)+;
 
-  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expr (';')?;
+  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expr;
 
   /** ASTeq Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
     @attribute lhs      Left hand side, e.g. a Variable.
     @attribute rhs      Expression defining the right hand side.
   */
-  equation : lhs=derivative '=' rhs=expr (';')?;
+  equation : lhs=derivative '=' rhs=expr;
 
   derivative : name=NAME (differentialOrder='\'')*;
 
-  shape : 'shape' lhs=variable '=' rhs=expr (';')?;
+  shape : 'shape' lhs=variable '=' rhs=expr;
 
   /*********************************************************************************************************************
   * Procedural-Language
