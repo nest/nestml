@@ -1,9 +1,8 @@
-import ASTNeuron
-
 """
 TODO header
 @author kperun
 """
+import ASTNeuron
 
 
 class ASTNESTMLCompilationUnit:

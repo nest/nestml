@@ -116,7 +116,7 @@ grammar PyNESTML;
              | declaration
              | returnStmt;
 
-  assignment : lhsVarialbe=variable
+  assignment : lhsVariable=variable
     (directAssignment='='       |
      compoundSum='+='     |
      compoundMinus='-='   |
