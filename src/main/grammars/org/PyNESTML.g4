@@ -164,7 +164,6 @@ grammar PyNESTML;
 
   while_Stmt : 'while' expr BLOCK_OPEN block BLOCK_CLOSE;
 
-
   signedNumericLiteral : (negative='-') NUMERIC_LITERAL;
 
   /*********************************************************************************************************************
