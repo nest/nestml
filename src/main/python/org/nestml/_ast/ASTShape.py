@@ -9,6 +9,8 @@ import ASTExpr
 class ASTShape:
     """
     This class is used to store shapes. 
+    Grammar:
+        shape : 'shape' lhs=variable '=' rhs=expr;
     """
     __lhs = None
     __rhs = None

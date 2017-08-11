@@ -11,7 +11,6 @@ class ASTReturnStmt:
         A ReturnStmt Models the return statement in a function.
         @attribute minus An optional sing
         @attribute definingVariable Name of the variable
-        
         Grammar:
             returnStmt : 'return' expr?;       
     """

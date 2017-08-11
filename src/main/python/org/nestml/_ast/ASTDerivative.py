@@ -7,6 +7,8 @@ TODO header
 class ASTDerivative:
     """
     This class is used to store a derivative, e.g., V_m'.
+    Grammar:
+        derivative : name=NAME (differentialOrder='\'')*;
     """
     __name = None
     __differentialOrder = None

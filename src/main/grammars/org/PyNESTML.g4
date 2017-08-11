@@ -37,6 +37,11 @@ grammar PyNESTML;
   /*********************************************************************************************************************
   * Expressions-Language
   *********************************************************************************************************************/
+  /**
+   ASTExpr, i.e., several subexpressions combined by one or more
+   operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
+   or a simple expression, e.g. 10mV.
+  */
   expr : leftParentheses='(' expr rightParentheses=')'
          | <assoc=right> base=expr powOp='**' exponent=expr
          | unaryOperator term=expr
@@ -47,12 +52,20 @@ grammar PyNESTML;
          | logicalNot='not' expr
          | left=expr logicalOperator right=expr
          | condition=expr '?' ifTrue=expr ':' ifNot=expr
-         | functionCall
-         | BOOLEAN_LITERAL // true & false;
-         | NUMERIC_LITERAL (variable)?
-         | NAME
-         | 'inf'
-         | variable;
+         | simpleExpr
+         ;
+
+
+  /**
+    ASTSimpleExpression, consisting of a single element without combining operator, e.g.,
+    10mV, inf, V_m.
+  */
+  simpleExpr : functionCall
+                   | BOOLEAN_LITERAL // true & false;
+                   | NUMERIC_LITERAL (variable)?
+                   | NAME
+                   | 'inf'
+                   | variable;
 
   unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
 

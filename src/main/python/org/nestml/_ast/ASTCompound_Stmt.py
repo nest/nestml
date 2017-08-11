@@ -10,6 +10,10 @@ import ASTFOR_Stmt
 class ASTCompound_Stmt:
     """
     This class is used to store compound statements.
+    Grammar:
+        compound_Stmt : if_Stmt
+                | for_Stmt
+                | while_Stmt;
     """
     __if_stmt = None
     __while_stmt = None

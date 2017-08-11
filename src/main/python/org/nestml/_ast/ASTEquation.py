@@ -9,6 +9,11 @@ import ASTExpr
 class ASTEquation:
     """
     This class is used to store ast equations, e.g., V_m' = 10mV + V_m.
+    ASTEquation Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
+    @attribute lhs      Left hand side, e.g. a Variable.
+    @attribute rhs      Expression defining the right hand side.
+    Grammar:
+        equation : lhs=derivative '=' rhs=expr;
     """
     __lhs = None
     __rhs = None

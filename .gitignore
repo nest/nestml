@@ -4,6 +4,8 @@ target/
 
 build/
 
+__*
+
 .DS_Store
 .project
 .classpath

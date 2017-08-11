@@ -1,22 +1,31 @@
-import ASTUnitType
-
 """
+@author kperun
 TODO header
 """
+
+import ASTUnitType
 
 
 class ASTDatatype:
     """
     A datatype class as used to store a datatype of an element.
+    ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
+    datatype.
+    @attribute boolean getters for integer, real, ...
+    @attribute unitType a SI datatype
+    datatype : 'integer'
+               | 'real'
+               | 'string'
+               | 'boolean'
+               | 'void'
+               | unitType;
     """
-
     __isInteger = False
     __isReal = False
     __isString = False
     __isBoolean = False
     __isVoid = False
-    # a unit type is not a boolean, but a concrete object
-    __isUnitType = None
+    __isUnitType = None  # a unit type is not a boolean, but a concrete object
 
     def __init__(self, isInteger=False, isReal=False, isString=False, isBoolean=False, isVoid=False,
                  isUnitType: ASTUnitType = None):

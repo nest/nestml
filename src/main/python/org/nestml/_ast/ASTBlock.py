@@ -6,9 +6,14 @@ import ASTStmt
 
 
 class ASTBlock:
+    """
+    This class is used to store a single block of declarations, i.e., statments.
+    Grammar:
+        block : ( stmt | NEWLINE )*;
+    """
     __stmts = None
 
-    def __init__(self,_stmts:list()=list()):
+    def __init__(self, _stmts: list = list()):
         """
         Standard constructor.
         :param _stmts: a list of statements 
@@ -17,7 +22,7 @@ class ASTBlock:
         self.__stmts = _stmts
 
     @classmethod
-    def makeASTBlock(cls,_stmts:list()=list()):
+    def makeASTBlock(cls, _stmts: list = list()):
         """
         Factory method of ASTBlock.
         :param _stmts: a list of statements 
@@ -33,7 +38,7 @@ class ASTBlock:
         """
         return self.__stmts
 
-    def addStmt(self,_stmt:ASTStmt=None):
+    def addStmt(self, _stmt: ASTStmt = None):
         """
         Adds a single statement to the list of statements.
         :param _stmt: a statement
@@ -43,7 +48,7 @@ class ASTBlock:
         """
         self.__stmts.append(_stmt)
 
-    def deleteStmt(self,_stmt:ASTStmt=None) -> bool:
+    def deleteStmt(self, _stmt: ASTStmt = None) -> bool:
         """
         Deletes the handed over statement.
         :param _stmt: 

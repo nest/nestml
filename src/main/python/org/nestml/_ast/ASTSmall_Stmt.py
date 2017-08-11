@@ -11,6 +11,11 @@ import ASTReturnStmt
 class ASTSmall_Stmt:
     """
     This class is used to store small statements, e.g., a declaration.
+    Grammar:
+        small_Stmt : assignment
+                 | functionCall
+                 | declaration
+                 | returnStmt;
     """
     __assignment = None
     __functionCall = None
