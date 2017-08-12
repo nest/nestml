@@ -42,17 +42,17 @@ grammar PyNESTML;
    operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
    or a simple expression, e.g. 10mV.
   */
-  expr : leftParentheses='(' expr rightParentheses=')'
-         | <assoc=right> base=expr powOp='**' exponent=expr
-         | unaryOperator term=expr
-         | left=expr (timesOp='*' | divOp='/' | moduloOp='%') right=expr
-         | left=expr (plusOp='+'  | minusOp='-') right=expr
-         | left=expr bitOperator right=expr
-         | left=expr comparisonOperator right=expr
-         | logicalNot='not' expr
-         | left=expr logicalOperator right=expr
-         | condition=expr '?' ifTrue=expr ':' ifNot=expr
-         | simpleExpr
+  expression : leftParentheses='(' expression rightParentheses=')'
+         | <assoc=right> base=expression powOp='**' exponent=expression
+         | unaryOperator term=expression
+         | left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
+         | left=expression (plusOp='+'  | minusOp='-') right=expression
+         | left=expression bitOperator right=expression
+         | left=expression comparisonOperator right=expression
+         | logicalNot='not' expression
+         | left=expression logicalOperator right=expression
+         | condition=expression '?' ifTrue=expression ':' ifNot=expression
+         | simpleExpression
          ;
 
 
@@ -60,7 +60,7 @@ grammar PyNESTML;
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,
     10mV, inf, V_m.
   */
-  simpleExpr : functionCall
+  simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false;
                    | NUMERIC_LITERAL (variable)?
                    | NAME
@@ -73,7 +73,7 @@ grammar PyNESTML;
 
   comparisonOperator : (lt='<' | le='<=' | eq='==' | ne='!=' | ne2='<>' | ge='>=' | gt='>');
 
-  logicalOperator : (logicalAnd='and' | logicalOr='or');
+  logicalOperator : (logicalAnd='and' | logicalOr='or' );
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
@@ -88,7 +88,7 @@ grammar PyNESTML;
   */
   functionCall : calleeName=NAME '(' (args=arguments)? ')';
 
-  arguments : expr (',' expr)*;
+  arguments : expression (',' expression)*;
 
 
   /*********************************************************************************************************************
@@ -100,17 +100,17 @@ grammar PyNESTML;
   */
   odeDeclaration  : (equation | shape | odeFunction | NEWLINE)+;
 
-  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expr;
+  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression;
 
   /** ASTeq Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
     @attribute lhs      Left hand side, e.g. a Variable.
     @attribute rhs      Expression defining the right hand side.
   */
-  equation : lhs=derivative '=' rhs=expr;
+  equation : lhs=derivative '=' rhs=expression;
 
   derivative : name=NAME (differentialOrder='\'')*;
 
-  shape : 'shape' lhs=variable '=' rhs=expr;
+  shape : 'shape' lhs=variable '=' rhs=expression;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -134,7 +134,7 @@ grammar PyNESTML;
      compoundSum='+='     |
      compoundMinus='-='   |
      compoundProduct='*=' |
-     compoundQuotient='/=') expr;
+     compoundQuotient='/=') expression;
 
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
@@ -152,30 +152,30 @@ grammar PyNESTML;
     variable (',' variable)*
     datatype
     ('[' sizeParameter=NAME ']')?
-    ( '=' expr)? SL_COMMENT?
-    ('[[' invariant=expr ']]')?;
+    ( '=' expression)? SL_COMMENT?
+    ('[[' invariant=expression ']]')?;
 
   /** ATReturnStmt Models the return statement in a function.
 
     @attribute minus An optional sing
     @attribute definingVariable Name of the variable
    */
-  returnStmt : 'return' expr?;
+  returnStmt : 'return' expression?;
 
   if_Stmt : if_Clause
             elif_Clause*
             (else_Clause)?
             BLOCK_CLOSE;
 
-  if_Clause : 'if' expr BLOCK_OPEN block;
+  if_Clause : 'if' expression BLOCK_OPEN block;
 
-  elif_Clause : 'elif' expr BLOCK_OPEN block;
+  elif_Clause : 'elif' expression BLOCK_OPEN block;
 
   else_Clause : 'else' BLOCK_OPEN block;
 
-  for_Stmt : 'for' var=NAME 'in' vrom=expr '...' to=expr 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
+  for_Stmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
 
-  while_Stmt : 'while' expr BLOCK_OPEN block BLOCK_CLOSE;
+  while_Stmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
 
   signedNumericLiteral : (negative='-') NUMERIC_LITERAL;
 

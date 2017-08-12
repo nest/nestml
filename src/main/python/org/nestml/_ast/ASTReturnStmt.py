@@ -2,7 +2,7 @@
 @author kperun
 TODO header
 """
-import ASTExpr
+import ASTExpression
 
 
 class ASTReturnStmt:
@@ -14,26 +14,26 @@ class ASTReturnStmt:
         Grammar:
             returnStmt : 'return' expr?;       
     """
-    __expr = None
+    __expression = None
 
-    def __init__(self, _expr: ASTExpr = None):
+    def __init__(self, _expression: ASTExpression = None):
         """
         Standard constructor.
-        :param _expr: an expression.
-        :type _expr: ASTExpr
+        :param _expression: an expression.
+        :type _expression: ASTExpression
         """
-        self.__expr = _expr
+        self.__expression = _expression
 
     @classmethod
-    def makeASTReturnStmt(cls, _expr: ASTExpr = None):
+    def makeASTReturnStmt(cls, _expression: ASTExpression = None):
         """
         Factory method of the ASTReturnStmt class.
-        :param _expr: an optional return expression.
-        :type _expr: ASTExpr
+        :param _expression: an optional return expression.
+        :type _expression: ASTExpression
         :return: a new ASTReturnStmt object.
         :rtype: ASTReturnStmt
         """
-        return cls(_expr)
+        return cls(_expression)
 
     def hasExpr(self) -> bool:
         """
@@ -41,12 +41,12 @@ class ASTReturnStmt:
         :return: True if has expression, otherwise False.
         :rtype: bool
         """
-        return self.__expr is not None
+        return self.__expression is not None
 
     def getExpr(self):
         """
         Returns the expression.
         :return: an expression.
-        :rtype: ASTExpr
+        :rtype: ASTExpression
         """
-        return self.__expr
+        return self.__expression

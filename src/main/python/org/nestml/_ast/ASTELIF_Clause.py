@@ -2,7 +2,7 @@
 @author kperun
 TODO header
 """
-import ASTExpr
+import ASTExpression
 import ASTBlock
 
 
@@ -10,16 +10,16 @@ class ASTELIF_Clause:
     """
     This class is used to store elif-clauses.
     Grammar:
-        elif_Clause : 'elif' expr BLOCK_OPEN block;
+        elif_Clause : 'elif' expression BLOCK_OPEN block;
     """
     __condition = None
     __block = None
 
-    def __init__(self, _condition: ASTExpr = None, _block: ASTBlock = None):
+    def __init__(self, _condition: ASTExpression = None, _block: ASTBlock = None):
         """
         Standard constructor.
         :param _condition: the condition of the block.
-        :type _condition: ASTExpr
+        :type _condition: ASTExpression
         :param _block: a block of statements.
         :type _block: ASTBlock
         """
@@ -27,11 +27,11 @@ class ASTELIF_Clause:
         self.__condition = _condition
 
     @classmethod
-    def makeASTELIF_Clause(cls, _condition: ASTExpr = None, _block: ASTBlock = None):
+    def makeASTELIF_Clause(cls, _condition: ASTExpression = None, _block: ASTBlock = None):
         """
         The factory method of the ASTELIF_Clause class.
         :param _condition: the condition of the block.
-        :type _condition: ASTExpr
+        :type _condition: ASTExpression
         :param _block: a block of statements.
         :type _block: ASTBlock
         :return: a new block
@@ -43,7 +43,7 @@ class ASTELIF_Clause:
         """
         Returns the condition of the block.
         :return: the condition.
-        :rtype: ASTExpr
+        :rtype: ASTExpression
         """
         return self.__condition
 

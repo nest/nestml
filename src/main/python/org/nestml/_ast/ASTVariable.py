@@ -30,7 +30,7 @@ class ASTVariable:
         self.__differentialOrder = _differentialOrder
 
     @classmethod
-    def makeASTVariable(cls,_name: str = None, _differentialOrder: int = 0):
+    def makeASTVariable(cls, _name: str = None, _differentialOrder: int = 0):
         """
         The factory method of the ASTVariable class.
         :param _name: the name of the variable
@@ -40,7 +40,7 @@ class ASTVariable:
         :return: a new ASTVariable object.
         :rtype: ASTVariable
         """
-        return cls(_name,_differentialOrder)
+        return cls(_name, _differentialOrder)
 
     def getName(self) -> str:
         """
@@ -57,3 +57,14 @@ class ASTVariable:
         :rtype: int
         """
         return self.__differentialOrder
+
+    def print(self) -> str:
+        """
+        Returns the string representation of the variable.
+        :return: the variable as a string.
+        :rtype: str
+        """
+        ret = self.__name
+        for i in range(1, self.__differentialOrder + 1):
+            ret += "'"
+        return ret

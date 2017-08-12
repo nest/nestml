@@ -3,7 +3,7 @@
 TODO header
 """
 import ASTDatatype
-import ASTExpr
+import ASTExpression
 
 
 class ASTDeclaration:
@@ -24,21 +24,21 @@ class ASTDeclaration:
             variable (',' variable)*
             datatype
             ('[' sizeParameter=NAME ']')?
-            ( '=' expr)? SL_COMMENT?
-            ('[[' invariant=expr ']]')?;
+            ( '=' expression)? SL_COMMENT?
+            ('[[' invariant=expression ']]')?;
     """
     __isRecordable = False
     __isFunction = False
     __variables = None
     __dataType = None
     __sizeParameter = None
-    __expr = None
+    __expression = None
     __comment = None
     __invariant = None
 
     def __init__(self, _isRecordable: bool = False, _isFunction: bool = False, _variables: list() = list(),
-                 _dataType: ASTDatatype = None, _sizeParameter: str = None, _expr: ASTExpr = None, _comment: str = None,
-                 _invariant: ASTExpr = None):
+                 _dataType: ASTDatatype = None, _sizeParameter: str = None, _expression: ASTExpression = None, _comment: str = None,
+                 _invariant: ASTExpression = None):
         """
         Standard constructor.
         :param _isRecordable: is a recordable declaration.
@@ -51,27 +51,27 @@ class ASTDeclaration:
         :type _dataType: ASTDataType
         :param _sizeParameter: an optional size parameter.
         :type _sizeParameter: str
-        :param _expr: an optional right-hand side expression.
-        :type _expr: ASTExpr
+        :param _expression: an optional right-hand side expression.
+        :type _expression: ASTExpression
         :param _comment: an optional comment.
         :type _comment: str
         :param _invariant: a optional invariant.
-        :type _invariant: ASTExpr.
+        :type _invariant: ASTExpression.
         """
         self.__isRecordable = _isRecordable
         self.__isFunction = _isFunction
         self.__variables = _variables
         self.__dataType = _dataType
         self.__sizeParameter = _sizeParameter
-        self.__expr = _expr
+        self.__expression = _expression
         self.__comment = _comment
         self.__invariant = _invariant
 
     @classmethod
     def makeASTDeclaration(cls, _isRecordable: bool = False, _isFunction: bool = False, _variables: list() = list(),
-                           _dataType: ASTDatatype = None, _sizeParameter: str = None, _expr: ASTExpr = None,
+                           _dataType: ASTDatatype = None, _sizeParameter: str = None, _expression: ASTExpression = None,
                            _comment: str = None,
-                           _invariant: ASTExpr = None):
+                           _invariant: ASTExpression = None):
         """
         The factory method of the ASTDeclaration class.
         :param _isRecordable: is a recordable declaration.
@@ -84,8 +84,8 @@ class ASTDeclaration:
         :type _dataType: ASTDataType
         :param _sizeParameter: an optional size parameter.
         :type _sizeParameter: str
-        :param _expr: an optional right-hand side expression.
-        :type _expr: ASTExpr
+        :param _expression: an optional right-hand side expression.
+        :type _expression: ASTExpr
         :param _comment: an optional comment.
         :type _comment: str
         :param _invariant: a optional invariant.
@@ -93,7 +93,7 @@ class ASTDeclaration:
         :return: a new ASTDeclaration object.
         :rtype: ASTDeclaration
         """
-        return cls(_isRecordable, _isFunction, _variables, _dataType, _sizeParameter, _expr, _comment, _invariant)
+        return cls(_isRecordable, _isFunction, _variables, _dataType, _sizeParameter, _expression, _comment, _invariant)
 
     def isRecordable(self)-> bool:
         """
@@ -143,21 +143,21 @@ class ASTDeclaration:
         """
         return self.__sizeParameter
 
-    def hasExpr(self) -> bool:
+    def hasExpression(self) -> bool:
         """
         Returns whether the declaration has a right-hand side expression or not.
         :return: True if right-hand side expression declared, else False.
         :rtype: bool
         """
-        return self.__expr is not None
+        return self.__expression is not None
 
     def getExpr(self):
         """
         Returns the right-hand side expression.
         :return: the right-hand side expression.
-        :rtype: ASTExpr
+        :rtype: ASTExpression
         """
-        return self.__expr
+        return self.__expression
 
     def hasComment(self) -> bool:
         """
@@ -187,6 +187,6 @@ class ASTDeclaration:
         """
         Returns the invariant.
         :return: the invariant
-        :rtype: ASTExpr
+        :rtype: ASTExpression
         """
         return self.__invariant

@@ -3,7 +3,7 @@
 TODO header
 """
 import ASTVariable
-import ASTExpr
+import ASTExpression
 
 
 class ASTShape:
@@ -15,25 +15,25 @@ class ASTShape:
     __lhs = None
     __rhs = None
 
-    def __init__(self, _lhs: ASTVariable = None, _rhs: ASTExpr = None):
+    def __init__(self, _lhs: ASTVariable = None, _rhs: ASTExpression = None):
         """
         Standard constructor of ASTShape.
         :param _lhs: the variable corresponding to the shape 
         :type _lhs: ASTVariable
         :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpr
+        :type _rhs: ASTExpression
         """
         self.__lhs = _lhs
         self.__rhs = _rhs
 
     @classmethod
-    def makeASTShape(cls,_lhs: ASTVariable = None, _rhs: ASTExpr = None):
+    def makeASTShape(cls,_lhs: ASTVariable = None, _rhs: ASTExpression = None):
         """
         Factory method of ASTShape.
         :param _lhs: the variable corresponding to the shape
         :type _lhs: ASTVariable
         :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpr
+        :type _rhs: ASTExpression
         :return: a new ASTShape object
         :rtype: ASTShape
         """
@@ -47,11 +47,11 @@ class ASTShape:
         """
         return self.__lhs
 
-    def getExpression(self)-> ASTExpr:
+    def getExpression(self)-> ASTExpression:
         """
         Returns the right-hand side expression.
         :return: the expression
-        :rtype: ASTExpr
+        :rtype: ASTExpression
         """
         return self.__rhs
 

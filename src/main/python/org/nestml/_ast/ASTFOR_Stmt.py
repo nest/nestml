@@ -2,7 +2,7 @@
 @author kperun
 TODO header
 """
-import ASTExpr
+import ASTExpression
 import ASTBlock
 
 
@@ -10,8 +10,8 @@ class ASTFOR_Stmt:
     """
     This class is used to store a for-block.
     Grammar:
-        for_Stmt : 'for' var=NAME 'in' vrom=expr 
-                    '...' to=expr 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
+        for_Stmt : 'for' var=NAME 'in' vrom=expression 
+                    '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
     """
     __variable = None
     __from = None
@@ -19,16 +19,16 @@ class ASTFOR_Stmt:
     __step = None
     __block = None
 
-    def __init__(self, _variable: str = None, _from: ASTExpr = None, _to: ASTExpr = None, _step: int = 0,
+    def __init__(self, _variable: str = None, _from: ASTExpression = None, _to: ASTExpression = None, _step: int = 0,
                  _block: ASTBlock = None):
         """
         Standard constructor.
         :param _variable: the step variable used for iteration.
         :type _variable: str
         :param _from: left bound of the range, i.e., start value.
-        :type _from: ASTExpr
+        :type _from: ASTExpression
         :param _to: right bound of the range, i.e., finish value.
-        :type _to: ASTExpr
+        :type _to: ASTExpression
         :param _step: the length of a single step.
         :type _step: int
         :param _block: a block of statements.
@@ -41,16 +41,16 @@ class ASTFOR_Stmt:
         self.__variable = _variable
 
     @classmethod
-    def makeASTFOR_Stmt(cls, _variable: str = None, _from: ASTExpr = None, _to: ASTExpr = None, _step: float = 0,
+    def makeASTFOR_Stmt(cls, _variable: str = None, _from: ASTExpression = None, _to: ASTExpression = None, _step: float = 0,
                         _block: ASTBlock = None):
         """
         The factory method of the ASTFOR_Stmt class.
         :param _variable: the step variable used for iteration.
         :type _variable: str
         :param _from: left bound of the range, i.e., start value.
-        :type _from: ASTExpr
+        :type _from: ASTExpression
         :param _to: right bound of the range, i.e., finish value.
-        :type _to: ASTExpr
+        :type _to: ASTExpression
         :param _step: the length of a single step.
         :type _step: float
         :param _block: a block of statements.
@@ -68,19 +68,19 @@ class ASTFOR_Stmt:
         """
         return self.__variable
 
-    def getFrom(self) -> ASTExpr:
+    def getFrom(self) -> ASTExpression:
         """
         Returns the from-statement.
         :return: the expression indicating the start value.
-        :rtype: ASTExpr
+        :rtype: ASTExpression
         """
         return self.__from
 
-    def getTo(self) -> ASTExpr:
+    def getTo(self) -> ASTExpression:
         """
         Returns the to-statement.
         :return: the expression indicating the finish value.
-        :rtype: ASTExpr
+        :rtype: ASTExpression
         """
         return self.__to
 

@@ -3,7 +3,7 @@
 TODO header
 """
 import ASTVariable
-import ASTExpr
+import ASTExpression
 
 
 class ASTAssignment:
@@ -15,7 +15,7 @@ class ASTAssignment:
             compoundSum='+='     |
             compoundMinus='-='   |
             compoundProduct='*=' |
-            compoundQuotient='/=') expr;
+            compoundQuotient='/=') expression;
     """
     __lhsVariable = None
     __isDirectAssignment = False
@@ -23,11 +23,11 @@ class ASTAssignment:
     __isCompoundMinus = False
     __isCompoundProduct = False
     __isCompoundQuotient = False
-    __expr = None
+    __expression = None
 
     def __init__(self, _lhs: ASTVariable = None, _isDirectAssignment: bool = False, _isCompoundSum: bool = False,
                  _isCompoundMinus: bool = False, _isCompoundProduct: bool = False, _isCompoundQuotient: bool = False,
-                 _expr: ASTExpr = None):
+                 _expression: ASTExpression = None):
         """
         Standard constructor.
         :param _lhs: the left-hand side variable to which is assigned to.
@@ -42,8 +42,8 @@ class ASTAssignment:
         :type _isCompoundProduct: bool
         :param _isCompoundQuotient: is a compound quotient
         :type _isCompoundQuotient: bool
-        :param _expr: an ast-expr object
-        :type _expr: ASTExpr
+        :param _expression: an ast-expression object
+        :type _expression: ASTExpression
         """
         self.__lhsVariable = _lhs
         self.__isDirectAssignment = _isDirectAssignment
@@ -51,14 +51,14 @@ class ASTAssignment:
         self.__isCompoundMinus = _isCompoundMinus
         self.__isCompoundProduct = _isCompoundProduct
         self.__isCompoundQuotient = _isCompoundQuotient
-        self.__expr = _expr
+        self.__expression = _expression
 
     @classmethod
     def makeASTAssignment(cls, _lhs: ASTVariable = None, _isDirectAssignment: bool = False,
                           _isCompoundSum: bool = False,
                           _isCompoundMinus: bool = False, _isCompoundProduct: bool = False,
                           _isCompoundQuotient: bool = False,
-                          _expr: ASTExpr = None):
+                          _expression: ASTExpression = None):
         """
         The factory method of the ASTAssignment class.
         :param _lhs: the left-hand side variable to which is assigned to.
@@ -73,13 +73,13 @@ class ASTAssignment:
         :type _isCompoundProduct: bool
         :param _isCompoundQuotient: is a compound quotient
         :type _isCompoundQuotient: bool
-        :param _expr: an ast-expr object
-        :type _expr: ASTExpr
+        :param _expression: an ast-expr object
+        :type _expression: ASTExpr
         :return: a new ASTAssignment object.
         :rtype: ASTAssignment
         """
         return cls(_lhs, _isDirectAssignment, _isCompoundSum, _isCompoundMinus, _isCompoundProduct, _isCompoundQuotient,
-                   _expr)
+                   _expression)
 
     def getVariable(self):
         """
@@ -135,7 +135,7 @@ class ASTAssignment:
         :return: expression object.
         :rtype: ASTExpression
         """
-        return self.__expr
+        return self.__expression
 
 
 

@@ -1,7 +1,7 @@
 """TODO header
 @author kperun
 """
-import ASTExpr
+import ASTExpression
 import ASTDatatype
 
 
@@ -16,7 +16,7 @@ class ASTOdeFunction:
     __expression = None
 
     def __init__(self, _isRecordable: bool = False, _variableName: str = None,
-                 _dataType: ASTDatatype = None, _expression: ASTExpr = None):
+                 _dataType: ASTDatatype = None, _expression: ASTExpression = None):
         """
         Standard constructor.
         :param _isRecordable: is this function recordable or not.
@@ -26,7 +26,7 @@ class ASTOdeFunction:
         :param _dataType: the datatype of the function.
         :type _dataType: ASTDataType
         :param _expression: the computation expression.
-        :type _expression: ASTExpr
+        :type _expression: ASTExpression
         """
         self.__isRecordable = _isRecordable
         self.__variableName = _variableName
@@ -35,7 +35,7 @@ class ASTOdeFunction:
 
     @classmethod
     def makeASTOdeFunction(cls, _isRecordable: bool = False, _variableName: str = None,
-                           _dataType: ASTDatatype = None, _expression: ASTExpr = None):
+                           _dataType: ASTDatatype = None, _expression: ASTExpression = None):
         """
         A factory method used to generate new ASTOdeFunction.
         :param _isRecordable: is this function recordable or not.
@@ -45,7 +45,7 @@ class ASTOdeFunction:
         :param _dataType: the datatype of the function.
         :type _dataType: ASTDataType
         :param _expression: the computation expression.
-        :type _expression: ASTExpr
+        :type _expression: ASTExpression
         """
         return cls(_isRecordable, _variableName, _dataType, _expression)
 
@@ -65,7 +65,7 @@ class ASTOdeFunction:
         """
         return self.__variableName
 
-    def getDataType(self) -> ASTDatatype():
+    def getDataType(self) -> ASTDatatype:
         """
         Returns the data type as an object of ASTDatatype.
         :return: the type as an object of ASTDatatype.
@@ -73,11 +73,11 @@ class ASTOdeFunction:
         """
         return self.__dataType
 
-    def getExpression(self) -> ASTExpr():
+    def getExpression(self) -> ASTExpression:
         """
-        Returns the expression as an object of ASTExpr.
-        :return: the expression as an object of ASTExpr.
-        :rtype: ASTExpr
+        Returns the expression as an object of ASTExpression.
+        :return: the expression as an object of ASTExpression.
+        :rtype: ASTExpression
         """
         return self.__dataType
 

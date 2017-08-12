@@ -2,7 +2,7 @@
 @author kperun
 TODO header
 """
-import ASTExpr
+import ASTExpression
 import ASTBlock
 
 
@@ -15,11 +15,11 @@ class ASTIF_Clause:
     __condition = None
     __block = None
 
-    def __init__(self, _condition: ASTExpr = None, _block: ASTBlock = None):
+    def __init__(self, _condition: ASTExpression = None, _block: ASTBlock = None):
         """
         Standard constructor.
         :param _condition: the condition of the block.
-        :type _condition: ASTExpr
+        :type _condition: ASTExpression
         :param _block: a block of statements.
         :type _block: ASTBlock
         """
@@ -27,11 +27,11 @@ class ASTIF_Clause:
         self.__condition = _condition
 
     @classmethod
-    def makeASTIF_Clause(cls, _condition: ASTExpr = None, _block: ASTBlock = None):
+    def makeASTIF_Clause(cls, _condition: ASTExpression = None, _block: ASTBlock = None):
         """
         The factory method of the ASTIF_Clause class.
         :param _condition: the condition of the block.
-        :type _condition: ASTExpr
+        :type _condition: ASTExpression
         :param _block: a block of statements.
         :type _block: ASTBlock
         :return: a new block
@@ -43,7 +43,7 @@ class ASTIF_Clause:
         """
         Returns the condition of the block.
         :return: the condition.
-        :rtype: ASTExpr
+        :rtype: ASTExpression
         """
         return self.__condition
 
