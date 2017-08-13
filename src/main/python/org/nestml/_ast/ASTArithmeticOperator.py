@@ -15,9 +15,10 @@ class ASTArithmeticOperator:
     __isModuloOp = False
     __isPlusOp = False
     __isMinusOp = False
+    __isPowOp = False
 
     def __init__(self, _isTimesOp: bool = False, _isDivOp: bool = False, _isModuloOp: bool = False,
-                 _isPlusOp: bool = False, _isMinusOp: bool = False):
+                 _isPlusOp: bool = False, _isMinusOp: bool = False, _isPowOp: bool = False):
         """
         Standard constructor.
         :param _isTimesOp: is the times operator.
@@ -30,16 +31,19 @@ class ASTArithmeticOperator:
         :type _isPlusOp: bool
         :param _isMinusOp: is the minus operator.
         :type _isMinusOp: bool
+        :param _isPowOp: is a power operator.
+        :type _isPowOp: bool
         """
         self.__isTimesOp = _isTimesOp
         self.__isDivOp = _isDivOp
         self.__isModuloOp = _isModuloOp
         self.__isPlusOp = _isPlusOp
         self.__isMinusOp = _isMinusOp
+        self.__isPowOp = _isPowOp
 
     @classmethod
     def makeASTArithmeticOperator(cls, _isTimesOp: bool = False, _isDivOp: bool = False, _isModuloOp: bool = False,
-                                  _isPlusOp: bool = False, _isMinusOp: bool = False):
+                                  _isPlusOp: bool = False, _isMinusOp: bool = False, _isPowOp: bool = False):
         """
         The factory method of the ASTArithmeticOperator class.
         :param _isTimesOp: is the times operator.
@@ -52,10 +56,12 @@ class ASTArithmeticOperator:
         :type _isPlusOp: bool
         :param _isMinusOp: is the minus operator.
         :type _isMinusOp: bool
+        :param _isPowOp: is a power operator.
+        :type _isPowOp: bool
         :return: a new ASTArithmeticOperator object.
         :rtype: ASTArithmeticOperator
         """
-        return cls(_isTimesOp, _isDivOp, _isModuloOp, _isPlusOp, _isMinusOp)
+        return cls(_isTimesOp, _isDivOp, _isModuloOp, _isPlusOp, _isMinusOp, _isPowOp)
 
     def isTimesOp(self) -> bool:
         """
@@ -83,7 +89,7 @@ class ASTArithmeticOperator:
 
     def isPlusOp(self) -> bool:
         """
-         Returns whether it is a plus operator or not.
+        Returns whether it is a plus operator or not.
         :return: True if plus operator, otherwise False.
         :rtype: bool
         """
@@ -91,11 +97,19 @@ class ASTArithmeticOperator:
 
     def isMinusOp(self) -> bool:
         """
-         Returns whether it is a minus operator or not.
+        Returns whether it is a minus operator or not.
         :return: True if minus operator, otherwise False.
         :rtype: bool
         """
         return self.__isMinusOp
+
+    def isPowOp(self) -> bool:
+        """
+        Returns whether it is a power operator or not.
+        :return: True if power operator, otherwise False.
+        :rtype: bool
+        """
+        return self.__isPowOp
 
     def print(self) -> str:
         """
@@ -113,5 +127,7 @@ class ASTArithmeticOperator:
             return ' + '
         elif self.__isMinusOp:
             return ' - '
+        elif self.__isPowOp:
+            return ' ** '
         else:
             raise Exception("(NESTML) Arithmetic operator not specified.")
