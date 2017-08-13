@@ -188,8 +188,8 @@ neuron izhikevich_psc_alpha_implicit:
   end
 
   input:
-    spikesInh nS <- inhibitory spike
-    spikesExc nS <- excitatory spike
+    spikesInh pA <- inhibitory spike
+    spikesExc pA <- excitatory spike
     currents  <- current
   end
 

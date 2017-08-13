@@ -99,7 +99,7 @@ neuron iaf_psc_delta_neuron:
   end
 
   input:
-    spikes nS <- spike
+    spikes pA <- spike
     currents <- current
   end
 

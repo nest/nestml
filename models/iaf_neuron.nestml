@@ -105,7 +105,7 @@ neuron iaf_neuron_nestml:
 
   # input sources
   input:
-    spikes nS <- spike
+    spikes pA <- spike
     currents <- current
   end
 

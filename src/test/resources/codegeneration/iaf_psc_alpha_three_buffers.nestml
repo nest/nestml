@@ -30,8 +30,8 @@ neuron iaf_psc_alpha_neuron:
   end
 
   input:
-    ex_spikes nS <- spike
-    in_spikes nS <- spike
+    ex_spikes pA <- spike
+    in_spikes pA <- spike
     additional_spikes nS <- inhibitory excitatory spike
     currents    <- current
   end

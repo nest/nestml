@@ -104,8 +104,8 @@ neuron iaf_psc_alpha_neuron:
   end
 
   input:
-    ex_spikes nS  <- excitatory spike
-    in_spikes nS  <- inhibitory spike
+    ex_spikes pA  <- excitatory spike
+    in_spikes pA  <- inhibitory spike
     currents    <- current
   end
 

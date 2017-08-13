@@ -58,7 +58,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
   end
 
   input:
-    spikes[receptors] nS <- spike
+    spikes[receptors] pA <- spike
     currents <- current
   end
 
