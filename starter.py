@@ -1,7 +1,7 @@
 import sys
 from antlr4 import *
 
-sys.path.append('build/src/main/grammars/org')
+sys.path.append('../../../../build/src/main/grammars/org')
 from PyNESTMLLexer import PyNESTMLLexer
 from PyNESTMLParser import PyNESTMLParser
 
