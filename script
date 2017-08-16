@@ -1,1 +1,1 @@
-antlr4 -Dlanguage=Python3 -visitor -no-listener -o target/ src/main/grammars/org/*.g4 
+antlr4 -Dlanguage=Python3 -visitor -no-listener pynestml/src/main/grammars/org/*.g4 

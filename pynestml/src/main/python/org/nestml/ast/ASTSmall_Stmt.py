@@ -1,0 +1,129 @@
+"""
+@author kperun
+TODO header
+"""
+from pynestml.src.main.python.org.nestml.ast.ASTAssignment import ASTAssignment
+from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
+from pynestml.src.main.python.org.nestml.ast.ASTReturnStmt import ASTReturnStmt
+from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
+
+
+class ASTSmall_Stmt:
+    """
+    This class is used to store small statements, e.g., a declaration.
+    Grammar:
+        small_Stmt : assignment
+                 | functionCall
+                 | declaration
+                 | returnStmt;
+    """
+    __assignment = None
+    __functionCall = None
+    __declaration = None
+    __returnStmt = None
+
+    def __init__(self, _assignment=None, _functionCall=None, _declaration=None, _returnStmt=None):
+        """
+        Standard constructor.
+        :param _assignment: an ast-assignment object.
+        :type _assignment: ASTAssignment
+        :param _functionCall: an ast-function call object.
+        :type _functionCall: ASTFunctionCall
+        :param _declaration: an ast-declaration object.
+        :type _declaration: ASTDeclaration
+        :param _returnStmt: an ast-return statement object.
+        :type _returnStmt: ASTReturnStmt
+        """
+        self.__assignment = _assignment
+        self.__functionCall = _functionCall
+        self.__declaration = _declaration
+        self.__returnStmt = _returnStmt
+
+    @classmethod
+    def makeASTSmall_Stmt(cls, _assignment=None, _functionCall=None, _declaration=None, _returnStmt=None):
+        """
+        Factory method of the ASTSmall_Stmt class.
+        :param _assignment: an ast-assignment object.
+        :type _assignment: ASTAssignment
+        :param _functionCall: an ast-function call object.
+        :type _functionCall: ASTFunctionCall
+        :param _declaration: an ast-declaration object.
+        :type _declaration: ASTDeclaration
+        :param _returnStmt: an ast-return statement object.
+        :type _returnStmt: ASTReturnStmt
+        :return: a new ASTSmall_Stmt object. 
+        :rtype: ASTSmall_Stmt
+        """
+        assert (_assignment is None or isinstance(_assignment, ASTAssignment)), \
+            '(PyNESTML.AST) Not an assignment provided.'
+        assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
+            '(PyNESTML.AST) Not a function call provided.'
+        assert (_declaration is None or isinstance(_declaration, ASTDeclaration)), \
+            '(PyNESTML.AST) Not a declaration provided.'
+        assert (_returnStmt is None or isinstance(_returnStmt, ASTReturnStmt)), \
+            '(PyNESTML.AST) Not a return statement provided.'
+        return cls(_assignment, _functionCall, _declaration, _returnStmt)
+
+    def isAssignment(self):
+        """
+        Returns whether it is an assignment statement or not.
+        :return: True if assignment, False else.
+        :rtype: bool
+        """
+        return self.__assignment is not None
+
+    def getAssignment(self):
+        """
+        Returns the assignment.
+        :return: the assignment statement.
+        :rtype: ASTAssignment
+        """
+        return self.__assignment
+
+    def isFunctionCall(self):
+        """
+        Returns whether it is an function call or not.
+        :return: True if function call, False else.
+        :rtype: bool
+        """
+        return self.__functionCall is not None
+
+    def getFunctionCall(self):
+        """
+        Returns the function call.
+        :return: the function call statement.
+        :rtype: ASTFunctionCall
+        """
+        return self.__functionCall
+
+    def isDeclaration(self):
+        """
+        Returns whether it is a declaration statement or not.
+        :return: True if declaration, False else.
+        :rtype: bool
+        """
+        return self.__declaration is not None
+
+    def getDeclaration(self):
+        """
+        Returns the assignment.
+        :return: the declaration statement.
+        :rtype: ASTDeclaration
+        """
+        return self.__declaration
+
+    def isReturnStmt(self):
+        """
+        Returns whether it is a return statement or not.
+        :return: True if return stmt, False else.
+        :rtype: bool
+        """
+        return self.__returnStmt is not None
+
+    def getReturnStmt(self):
+        """
+        Returns the return statement.
+        :return: the return statement.
+        :rtype: ASTReturn_Stmt
+        """
+        return self.__returnStmt

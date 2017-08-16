@@ -1,0 +1,434 @@
+/*
+This test neuron is used to test if parsing of expression works as required.
+See ExpressionParserTest.py.
+*/
+
+neuron ExpressionCollection:
+    update:
+        #neuron aeif_cond_alpha_neuron
+        test0 = E_L
+        test1 = 0pA
+        test2 = bounded_min(V_m, V_peak) # prevent exponential divergence
+        test3 = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
+        test4 = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+        test5 = (V_bounded-V_th)/Delta_T
+        test6 = g_L*Delta_T*exp(exp_arg)
+        test7 = cond_sum(g_ex, spikesExc) * ( V_bounded - E_ex )
+        test8 = cond_sum(g_in, spikesInh) * ( V_bounded - E_in )
+        test9 = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
+        test10 = (a*(V_m - E_L) - w)/tau_w
+        test11 = 281.0pF       ## Membrane Capacitance in pF
+        test12 = 0.0ms         ## Refractory period in ms
+        test13 = -60.0mV     ## Reset Potential in mV
+        test14 = 30.0nS          ## Leak Conductance in nS
+        test15 = -70.6mV         ## Leak reversal Potential (aka resting potential) in mV
+        test16 = 0pA
+        test17 = nS * e / tau_syn_ex
+        test18 = nS * e / tau_syn_in
+        test19 = steps(t_ref)
+        test20 = r > 0
+        test21 = V_m >= V_peak
+        #neuron aeif_cond_exp_neuron
+        test22 = E_L  # Membrane potential
+        test23= 0 pA    # Spike-adaptation current
+        test24 = bounded_min(V_m, V_peak) # prevent exponential divergence
+        test25 = exp(-1/tau_syn_in*t)
+        test26 = exp(-1/tau_syn_ex*t)
+        test27 = (V_bounded-V_th)/Delta_T
+        test28 = g_L*Delta_T*exp(exp_arg)
+        test29 = cond_sum(g_ex, spikeExc) * ( V_bounded - E_ex )
+        test30 = cond_sum(g_in, spikeInh) * ( V_bounded - E_in )
+        test31 = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
+        test32  = (a*(V_bounded - E_L) - w)/tau_w
+        test33 = 281.0pF     # Membrane Capacitance in pF
+        test34 = 0.0ms       # Refractory period in ms
+        test35 = -60.0mV   # Reset Potential in mV
+        test36 = 30.0nS        # Leak Conductance in nS
+        test37 = -70.6mV       # Leak reversal Potential (aka resting potential) in mV
+        test38 = 0pA           # Constant Current in pA
+        test39 = 4nS             # Subthreshold adaptation.
+        test40 = 80.5pA          # Spike-trigg_exred adaptation.
+        test41 = 2.0mV     # Slope factor
+        test42 = 144.0ms     # Adaptation time constant in
+        test43 = -50.4mV      # Threshold Potential
+        test44 = 0mV        # Spike detection threshold in mV.
+        test45 = 0mV            # Excitatory reversal Potential in mV
+        test46 = 0.2ms    # Synaptic Time Constant Excitatory Synapse in ms
+        test47 = -85.0mV        # Inhibitory reversal Potential in mV
+        test48 = 2.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+        test49 = 0pA
+        test50 = steps(t_ref)
+        test51 = r > 0 # refractory
+        test52 = V_reset # clamp potential
+        test53 = V_m >= V_peak # threshold crossing detection
+        test54 = RefractoryCounts + 1
+        test55 = V_reset # clamp potential
+        test56 += b
+        test57 = emit_spike()
+        test58 = min(V_m, V_peak) # prevent exponential divergence
+        test59' = -g_in/tau_syn_in
+        test60 = -g_ex/tau_syn_ex
+        test61 = (V_bounded-V_th)/Delta_T
+        test62 = g_L*Delta_T*exp(exp_arg)
+        test63 = cond_sum(g_ex, spikeExc) * ( V_bounded - E_ex )
+        test64 = cond_sum(g_in, spikeInh) * ( V_bounded - E_in )
+        test65 = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + currents ) / C_m
+        test66 = (a*(V_bounded - E_L) - w)/tau_w
+        test67 += spikeExc * nS
+        test68 += spikeInh * nS
+        #hh_cond_exp_traub_neuron
+        test69 mV = E_L #  Membrane potential
+        test70 = 0nS # Inhibitory synaptic conductance
+        test71 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
+        function test72 1/ms = 0.5 /ms * exp( ( 10. mV - V_m ) / 40. mV )
+        function test73 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
+        function test74 1/ms = 0.28/(ms* mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
+        function test75 1/ms = 0.128/ms * exp( ( 17. mV - V_m) / 18. mV )
+        function test76 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / ms
+        test77 real =  alpha_m_init / ( alpha_m_init + beta_m_init )
+        test78 real = alpha_h_init / ( alpha_h_init + beta_h_init )
+        test78 real =  alpha_n_init / ( alpha_n_init + beta_n_init )
+        function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
+        function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
+        function I_L   pA = g_L * ( V_m - E_L )
+        function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+        function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
+        V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+        # channel dynamics
+        function V_rel mV = V_m - V_T
+        function alpha_n 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_rel) / ( exp( ( 15. mV - V_rel) / 5. mV ) - 1. )
+        function beta_n 1/ms = 0.5 /ms * exp( ( 10. mV - V_rel ) / 40. mV )
+        function alpha_m 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_rel) / ( exp( ( 13. mV - V_rel) / 4. mV ) - 1. )
+        function beta_m 1/ms = 0.28/(ms* mV ) * ( V_rel  - 40. mV ) / ( exp( ( V_rel - 40. mV ) / 5. mV ) - 1. )
+        function alpha_h 1/ms = 0.128/ms * exp( ( 17. mV - V_rel) / 18. mV )
+        function beta_h 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_rel ) / 5. mV) ) ) / ms
+        Act_m' = ( alpha_m - ( alpha_m + beta_m ) * Act_m )
+        Act_h' = ( alpha_h - ( alpha_h + beta_h ) * Act_h )
+        Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n )
+        # synapses: exponential conductance
+        g_ex' = -g_ex / tau_syn_ex
+        g_in' = -g_in / tau_syn_in
+        g_Na nS = 20000.0nS       # Threshold Potential in mV
+        g_K nS = 6000.0nS         # K Conductance
+        g_L nS = 10nS             # Leak Conductance
+        C_m pF = 200.0pF          # Membrane Capacitance in pF
+        E_Na mV = 50mV            # Reversal potentials
+        E_K mV = -90.mV           # Potassium reversal potential
+        E_L mV = -60.mV           # Leak reversal Potential (aka resting potential) in mV
+        V_T mV = -63.0mV          # Voltage offset that controls dynamics. For default
+                                  # parameters, V_T = -63mV results in a threshold around -50mV.
+        tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse in ms
+        tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+        I_e pA = 0pA              # Constant Current in pA
+        E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
+        E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
+        RefractoryCounts integer = 20
+        g_ex += spikeExc * nS
+        g_in += spikeInh * nS
+        test79 = V_m > V_T + 30mV and U_old > V_m
+        V_m mV = E_L #  Membrane potential
+        g_in nS = 0nS # Inhibitory synaptic conductance
+        g_ex nS = 0nS # Excitatory synaptic conductance
+        function alpha_n_init 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_m) / ( exp( ( 15. mV - V_m) / 5. mV ) - 1. )
+        function beta_n_init 1/ms = 0.5 /ms * exp( ( 10. mV - V_m ) / 40. mV )
+        function alpha_m_init 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_m) / ( exp( ( 13. mV - V_m) / 4. mV ) - 1. )
+        function beta_m_init 1/ms = 0.28/(ms* mV ) * ( V_m  - 40. mV ) / ( exp( ( V_m - 40. mV ) / 5. mV ) - 1. )
+        function alpha_h_init 1/ms = 0.128/ms * exp( ( 17. mV - V_m) / 18. mV )
+        function beta_h_init 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_m ) / 5. mV) ) ) / ms
+        Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
+        Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )
+        Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init )
+        r integer # counts number of tick during the refractory period
+        function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
+        function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
+        function I_L   pA = g_L * ( V_m - E_L )
+        function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
+        function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
+        V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
+        # channel dynamics
+        function V_rel mV = V_m - V_T
+        function alpha_n 1/ms = 0.032/(ms* mV ) * ( 15. mV - V_rel) / ( exp( ( 15. mV - V_rel) / 5. mV ) - 1. )
+        function beta_n 1/ms = 0.5 /ms * exp( ( 10. mV - V_rel ) / 40. mV )
+        function alpha_m 1/ms = 0.32/(ms* mV ) * ( 13. mV - V_rel) / ( exp( ( 13. mV - V_rel) / 4. mV ) - 1. )
+        function beta_m 1/ms = 0.28/(ms* mV ) * ( V_rel  - 40. mV ) / ( exp( ( V_rel - 40. mV ) / 5. mV ) - 1. )
+        function alpha_h 1/ms = 0.128/ms * exp( ( 17. mV - V_rel) / 18. mV )
+        function beta_h 1/ms = ( 4. / ( 1. + exp( ( 40. mV - V_rel ) / 5. mV) ) ) / ms
+        Act_m' = ( alpha_m - ( alpha_m + beta_m ) * Act_m )
+        Act_h' = ( alpha_h - ( alpha_h + beta_h ) * Act_h )
+        Inact_n' = ( alpha_n - ( alpha_n + beta_n ) * Inact_n )
+        # synapses: exponential conductance
+        g_ex' = -g_ex / tau_syn_ex
+        g_in' = -g_in / tau_syn_in
+        g_Na nS = 20000.0nS       # Threshold Potential in mV
+        g_K nS = 6000.0nS         # K Conductance
+        g_L nS = 10nS             # Leak Conductance
+        C_m pF = 200.0pF          # Membrane Capacitance in pF
+        E_Na mV = 50mV            # Reversal potentials
+        E_K mV = -90.mV           # Potassium reversal potential
+        E_L mV = -60.mV           # Leak reversal Potential (aka resting potential) in mV
+        V_T mV = -63.0mV          # Voltage offset that controls dynamics. For default
+                                  # parameters, V_T = -63mV results in a threshold around -50mV.
+        tau_syn_ex ms = 5.0ms     # Synaptic Time Constant Excitatory Synapse in ms
+        tau_syn_in ms = 10.0ms    # Synaptic Time Constant for Inhibitory Synapse in ms
+        I_e pA = 0pA              # Constant Current in pA
+        E_ex mV = 0.0 mV          # Excitatory synaptic reversal potential
+        E_in mV = -80.0mV         # Inhibitory synaptic reversal potential
+        V_m mV = -65. mV # Membrane potential
+        function alpha_n_init real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
+        function beta_n_init  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
+        function alpha_m_init real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
+        function beta_m_init  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
+        function alpha_h_init real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
+        function beta_h_init  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+        Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m
+        Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Activation variable h
+        Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init ) # Inactivation variable n
+        r integer # number of steps in the current refractory phase
+        # synapses: alpha functions
+        I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
+        I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+        function I_syn_exc pA = curr_sum(I_syn_ex, spikeExc)
+        function I_syn_inh pA = curr_sum(I_syn_in, spikeInh)
+        function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
+        function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
+        function I_L   pA = g_L * ( V_m - E_L )
+        V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+        # Inact_n
+        function alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
+        function beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
+        Inact_n' = ( alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n ) / ms # n-variable
+        # Act_m
+        function alpha_m real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
+        function beta_m  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
+        Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / ms # m-variable
+        # Act_h'
+        function alpha_h real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
+        function beta_h  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+        Act_h' = ( alpha_h * ( 1 - Act_h ) - beta_h * Act_h ) / ms # h-variable
+        t_ref ms = 2.0 ms      # Refractory period
+        g_Na nS = 12000.0nS    # Sodium peak conductance
+        g_K nS = 3600.0nS      # Potassium peak conductance
+        g_L nS = 30nS          # Leak conductance
+        C_m pF = 100.0pF       # Membrane Capacitance
+        E_Na mV = 50mV         # Sodium reversal potential
+        E_K mV = -77.mV        # Potassium reversal potentia
+        E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential) in mV
+        tau_syn_ex ms = 0.2ms  # Rise time of the excitatory synaptic alpha function i
+        tau_syn_in ms = 2.0ms  # Rise time of the inhibitory synaptic alpha function
+        I_e pA = 0pA           # Constant Current in pA
+        RefractoryCounts integer = steps(t_ref)
+        U_old mV = V_m
+        integrate_odes()
+        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
+        if r > 0: # is refractory?
+          r -= 1
+        elif V_m > 0 mV and U_old > V_m: # threshold && maximum
+          r = RefractoryCounts
+          emit_spike()
+        end
+        V_m mV = -65. mV # Membrane potential
+        I_syn_ex pA  # inputs from the exc spikes
+        I_syn_ex' pA/ms  # inputs from the exc spikes
+        I_syn_in pA  # inputs from the inh spikes
+        I_syn_in' pA/ms  # inputs from the inh spikes
+        function alpha_n_init real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
+        function beta_n_init  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
+        function alpha_m_init real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
+        function beta_m_init  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
+        function alpha_h_init real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
+        function beta_h_init  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+        Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )   # Activation variable m
+        Act_h real = alpha_h_init / ( alpha_h_init + beta_h_init )    # Activation variable h
+        Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init ) # Inactivation variable n
+        r integer # number of steps in the current refractory phase
+        # synapses: alpha functions
+        I_syn_in' = I_syn_in'
+        I_syn_in'' = (-2/tau_syn_in) * I_syn_in'-(1/tau_syn_in**2) * I_syn_in
+        ## alpha function for the g_ex
+        I_syn_ex' = I_syn_ex'
+        I_syn_ex'' = (-2/tau_syn_ex) * I_syn_ex'-(1/tau_syn_ex**2) * I_syn_ex
+        function I_syn_exc pA = curr_sum(I_syn_ex, spikeExc)
+        function I_syn_inh pA = curr_sum(I_syn_in, spikeInh)
+        function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
+        function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
+        function I_L   pA = g_L * ( V_m - E_L )
+        V_m' =( -( I_Na + I_K + I_L ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+        # Inact_n
+        function alpha_n real = ( 0.01 * ( V_m / mV + 55. ) ) / ( 1. - exp( -( V_m / mV + 55. ) / 10. ) )
+        function beta_n  real = 0.125 * exp( -( V_m / mV + 65. ) / 80. )
+        Inact_n' = ( alpha_n * ( 1 - Inact_n ) - beta_n * Inact_n ) / ms # n-variable
+        # Act_m
+        function alpha_m real = ( 0.1 * ( V_m / mV + 40. ) ) / ( 1. - exp( -( V_m / mV + 40. ) / 10. ) )
+        function beta_m  real = 4. * exp( -( V_m / mV + 65. ) / 18. )
+        Act_m' = ( alpha_m * ( 1 - Act_m ) - beta_m * Act_m ) / ms # m-variable
+        # Act_h'
+        function alpha_h real = 0.07 * exp( -( V_m / mV + 65. ) / 20. )
+        function beta_h  real = 1. / ( 1. + exp( -( V_m / mV + 35. ) / 10. ) )
+        Act_h' = ( alpha_h * ( 1 - Act_h ) - beta_h * Act_h ) / ms # h-variable
+        t_ref ms = 2.0 ms      # Refractory period
+        g_Na nS = 12000.0nS    # Sodium peak conductance
+        g_K nS = 3600.0nS      # Potassium peak conductance
+        g_L nS = 30nS          # Leak conductance
+        C_m pF = 100.0pF       # Membrane Capacitance
+        E_Na mV = 50mV         # Sodium reversal potential
+        E_K mV = -77.mV        # Potassium reversal potentia
+        E_L mV = -54.402mV     # Leak reversal Potential (aka resting potential) in mV
+        tau_syn_ex ms = 0.2ms  # Rise time of the excitatory synaptic alpha function i
+        tau_syn_in ms = 2.0ms  # Rise time of the inhibitory synaptic alpha function
+        I_e pA = 0pA           # Constant Current in pA
+        # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
+        # conductance excursion.
+        PSConInit_E pA/ms = pA * e / tau_syn_ex
+        # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
+        # conductance excursion.
+        PSConInit_I pA/ms = pA * e / tau_syn_in
+        RefractoryCounts integer = steps(t_ref)
+        U_old mV = V_m
+        integrate_odes()
+        # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
+        g = r > 0
+        r -= 1
+        p = V_m > 0 mV and U_old > V_m # threshold && maximum
+        r = RefractoryCounts
+        u =  emit_spike()
+        I_syn_ex' += spikeExc * PSConInit_E
+        I_syn_in' += spikeInh * PSConInit_I
+        ########################
+        ##ht_neuron_nestml######
+        ########################
+        V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
+        Theta mV = Theta_eq # Threshold
+        g_AMPA, g_NMDA, g_GABAA, g_GABAB, IKNa_D, IT_m, IT_h, Ih_m nS
+        g_AMPA', g_NMDA', g_GABAA', g_GABAB' nS/ms
+        r_potassium integer
+        g_spike boolean = false
+        function I_syn_ampa pA = -g_AMPA * ( V_m - AMPA_E_rev )
+        function I_syn_nmda pA = -g_NMDA * ( V_m - NMDA_E_rev ) / ( 1 + exp( ( NMDA_Vact - V_m ) / NMDA_Sact ) )
+        function I_syn_gaba_a pA = -g_GABAA * ( V_m - GABA_A_E_rev )
+        function I_syn_gaba_b pA = -g_GABAB * ( V_m - GABA_B_E_rev )
+        function I_syn pA = I_syn_ampa + I_syn_nmda + I_syn_gaba_a + I_syn_gaba_b
+        # I_Na(p), m_inf^3 according to Compte et al, J Neurophysiol 2003 89:2707
+        function INaP_thresh mV = -55.7 pA
+        function INaP_slope mV = 7.7 pA
+        function m_inf_NaP real = 1.0 / ( 1.0 + exp( -( V_m - INaP_thresh ) / INaP_slope ) )
+        # Persistent Na current; member only to allow recording
+        recordable function I_NaP pA = -NaP_g_peak * pow( m_inf_NaP, 3.0 )* ( V_m - NaP_E_rev )
+        function d_half real = 0.25
+        function m_inf_KNa real = 1.0 / ( 1.0 + pow( d_half / IKNa_D, 3.5 ) )
+        # Depol act. K current; member only to allow recording
+        recordable function  I_KNa pA = -KNa_g_peak * m_inf_KNa * ( V_m - KNa_E_rev )
+        # Low-thresh Ca current; member only to allow recording
+        recordable function  I_T pA = -T_g_peak * IT_m * IT_m * IT_h * ( V_m - T_E_rev )
+        recordable function I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
+        # The spike current is only activate immediately after a spike.
+        function I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
+        V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + currents ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF
+        #############
+        # Intrinsic currents
+        #############
+        # I_T
+        function m_inf_T real = 1.0 / ( 1.0 + exp( -( V_m / mV + 59.0 ) / 6.2 ) )
+        function h_inf_T real = 1.0 / ( 1.0 + exp( ( V_m / mV + 83.0 ) / 4 ) )
+        function tau_m_h real = 1.0 / ( exp( -14.59 - 0.086 * V_m / mV ) + exp( -1.87 + 0.0701 * V_m / mV ) )
+        # I_KNa
+        function D_influx_peak real = 0.025
+        function tau_D real = 1250.0 # yes, 1.25s
+        function D_thresh mV = -10.0
+        function D_slope mV = 5.0
+        function D_influx real = 1.0 / ( 1.0 + exp( -( V_m - D_thresh ) / D_slope ) )
+        function I_Na pA = -g_NaL * ( V_m - E_Na )
+        function I_K pA = -g_KL * ( V_m - E_K )
+        Theta' = -( Theta - Theta_eq ) / Tau_theta
+        # equation modified from y[](1-D_eq) to (y[]-D_eq), since we'd not
+        # be converging to equilibrium otherwise
+        IKNa_D' = ( D_influx_peak * D_influx * nS - ( IKNa_D  - KNa_D_EQ / mV ) / tau_D ) / ms
+        function tau_m_T real = 0.22 / ( exp( -( V_m / mV + 132.0 ) / 16.7 ) + exp( ( V_m / mV + 16.8 ) / 18.2 ) ) + 0.13
+        function tau_h_T real = 8.2 + ( 56.6 + 0.27 * exp( ( V_m / mV + 115.2 ) / 5.0 ) ) / ( 1.0 + exp( ( V_m / mV + 86.0 ) / 3.2 ) )
+        function I_h_Vthreshold real = -75.0
+        function m_inf_h real = 1.0 / ( 1.0 + exp( ( V_m / mV - I_h_Vthreshold ) / 5.5 ) )
+        IT_m' = ( m_inf_T * nS - IT_m ) / tau_m_T / ms
+        IT_h' = ( h_inf_T * nS - IT_h ) / tau_h_T / ms
+        Ih_m' = ( m_inf_h * nS - Ih_m ) / tau_m_h / ms
+        #############
+        # Synapses
+        #############
+        g_AMPA'' = -g_AMPA' / AMPA_Tau_1
+        g_AMPA' = g_AMPA' - g_AMPA  / AMPA_Tau_2
+        g_NMDA'' = -g_NMDA' / NMDA_Tau_1
+        g_NMDA' = g_NMDA' - g_NMDA / NMDA_Tau_2
+        g_GABAA'' = -g_GABAA' / GABA_A_Tau_1
+        g_GABAA' = g_GABAA' - g_GABAA / GABA_A_Tau_2
+        g_GABAB'' = -g_GABAB' / GABA_B_Tau_1
+        g_GABAB' = g_GABAB' - g_GABAB /GABA_B_Tau_2
+        E_Na mV = 30.0mV
+        E_K mV = -90.0mV
+        g_NaL nS =  0.2nS
+        g_KL nS = 1.0nS       # 1.0 - 1.85
+        Tau_m ms = 16.0ms     # membrane time constant applying to all currents but repolarizing K-current (see [1, p 1677])
+        Theta_eq mV = -51.0mV # equilibrium value
+        Tau_theta ms = 2.0ms  # time constant
+        Tau_spike ms = 1.75ms # membrane time constant applying to repolarizing K-current
+        t_spike ms = 2.0ms    # duration of re-polarizing potassium current
+        # Parameters for synapse of type AMPA, GABA_A, GABA_B and NMDA
+        AMPA_g_peak nS = 0.1nS      # peak conductance
+        AMPA_E_rev mV = 0.0mV       # reversal potential
+        AMPA_Tau_1 ms = 0.5ms       # rise time
+        AMPA_Tau_2 ms = 2.4ms       # decay time, Tau_1 < Tau_2
+        NMDA_g_peak nS = 0.075nS    # peak conductance
+        NMDA_Tau_1 ms = 4.0ms       # rise time
+        NMDA_Tau_2 ms = 40.0ms      # decay time, Tau_1 < Tau_2
+        NMDA_E_rev mV = 0.0mV       # reversal potential
+        NMDA_Vact mV = -58.0mV      # inactive for V << Vact, inflection of sigmoid
+        NMDA_Sact mV = 2.5mV        # scale of inactivation
+        GABA_A_g_peak nS = 0.33nS   # peak conductance
+        GABA_A_Tau_1 ms = 1.0ms     # rise time
+        GABA_A_Tau_2 ms = 7.0ms     # decay time, Tau_1 < Tau_2
+        GABA_A_E_rev mV = -70.0mV   # reversal potential
+        GABA_B_g_peak nS = 0.0132nS # peak conductance
+        GABA_B_Tau_1 ms = 60.0ms    # rise time
+        GABA_B_Tau_2 ms = 200.0ms   # decay time, Tau_1 < Tau_2
+        GABA_B_E_rev mV = -90.0mV   # reversal potential for intrinsic current
+        # parameters for intrinsic currents
+        NaP_g_peak nS = 1.0nS       # peak conductance for intrinsic current
+        NaP_E_rev mV = 30.0mV       # reversal potential for intrinsic current
+        KNa_g_peak nS = 1.0nS       # peak conductance for intrinsic current
+        KNa_E_rev mV = -90.0mV      # reversal potential for intrinsic current
+        T_g_peak nS = 1.0nS         # peak conductance for intrinsic current
+        T_E_rev mV = 0.0mV          # reversal potential for intrinsic current
+        h_g_peak nS = 1.0nS         # peak conductance for intrinsic current
+        h_E_rev mV = -40.0mV        # reversal potential for intrinsic current
+        KNa_D_EQ pA = 0.001pA
+        AMPAInitialValue real = compute_synapse_constant( AMPA_Tau_1, AMPA_Tau_2, AMPA_g_peak )
+        NMDAInitialValue real = compute_synapse_constant( NMDA_Tau_1, NMDA_Tau_2, NMDA_g_peak )
+        GABA_AInitialValue real = compute_synapse_constant( GABA_A_Tau_1, GABA_A_Tau_2, GABA_A_g_peak )
+        GABA_BInitialValue real = compute_synapse_constant( GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak )
+        PotassiumRefractoryCounts integer = steps(t_spike)
+        integrate_odes()
+        # Deactivate potassium current after spike time have expired
+        test = (r_potassium > 0) and (r_potassium-1 == 0)
+        g_spike = false # Deactivate potassium current.
+        r_potassium -= 1
+        g_AMPA' += AMPAInitialValue * AMPA * nS/ms
+        g_NMDA' += NMDAInitialValue * NMDA * nS/ms
+        g_GABAA' += GABA_AInitialValue * GABA_A * nS/ms
+        g_GABAB' += GABA_BInitialValue * GABA_B * nS/ms
+        lop = (not g_spike) and V_m >= Theta
+        # Set V and Theta to the sodium reversal potential.
+        V_m = E_Na
+        Theta = E_Na
+        test = PotassiumRefractoryCounts > 0
+        g_spike = true
+        g_spike = false
+        r_potassium = PotassiumRefractoryCounts
+        emit_spike()
+        exact_integration_adjustment real = ( ( 1 / Tau_2 ) - ( 1 / Tau_1 ) ) * ms
+        t_peak real = ( Tau_2 * Tau_1 ) * log( Tau_2 / Tau_1 ) / ( Tau_2 - Tau_1 ) / ms
+        normalisation_factor real = 1 / ( exp( -t_peak / Tau_1 ) - exp( -t_peak / Tau_2 ) )
+        test = g_peak * normalisation_factor * exact_integration_adjustment
+        ##########################
+        ###iaf_chxk_2008_neuron###
+        ##########################
+
+
+    end
+end
