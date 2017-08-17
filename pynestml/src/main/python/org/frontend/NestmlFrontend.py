@@ -4,9 +4,9 @@ TODO header
 """
 import os, sys
 import argparse  # used for parsing of input arguments
-
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 from pynestml.src.main.python.org.nestml.parser.NESTMParserExceptions import InvalidPathException
+
 
 def main(args):
     parser = argparse.ArgumentParser(
@@ -31,8 +31,9 @@ def main(args):
         NESTMLParser.parseModel(parsed_args.path[0])
     elif os.path.isdir(parsed_args.path[0]):
         for filename in os.listdir(parsed_args.path[0]):
+            print(filename)
             if filename.endswith(".nestml"):
-                NESTMLParser.parseModel(filename)
+                NESTMLParser.parseModel(parsed_args.path[0] + filename)
     else:
         raise InvalidPathException('(NESTML) Provided path is invalid. See -h for more details.')
 

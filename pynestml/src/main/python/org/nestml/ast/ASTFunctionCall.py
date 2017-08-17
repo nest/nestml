@@ -3,6 +3,7 @@
 TODO header
 """
 
+
 class ASTFunctionCall:
     """
     This class is used to store a single function call.
@@ -15,7 +16,7 @@ class ASTFunctionCall:
     __calleeName = None
     __args = None
 
-    def __init__(self, _calleeName: str = None, _args: list = None):
+    def __init__(self, _calleeName=None, _args=None):
         """
         Standard constructor.
         :param _calleeName: the name of the function which is called.
@@ -28,7 +29,7 @@ class ASTFunctionCall:
         self.__args = _args
 
     @classmethod
-    def makeASTFunctionCall(cls, _calleeName: str = None, _args: list = None):
+    def makeASTFunctionCall(cls, _calleeName=None, _args=None):
         """
         Factory method of the ASTFunctionCall class.
         :param _calleeName: the name of the function which is called.
@@ -40,7 +41,7 @@ class ASTFunctionCall:
         """
         return cls(_calleeName, _args)
 
-    def getName(self) -> str:
+    def getName(self):
         """
         Returns the name of the called function.
         :return: the name of the function.
@@ -48,7 +49,7 @@ class ASTFunctionCall:
         """
         return self.__calleeName
 
-    def hasArgs(self) -> bool:
+    def hasArgs(self):
         """
         Returns whether function call has arguments or not.
         :return: True if has arguments, otherwise False.
@@ -64,7 +65,7 @@ class ASTFunctionCall:
         """
         return self.__args
 
-    def print(self) -> str:
+    def printAST(self):
         """
         Returns the string representation of the function call.
         :return: the function call as a string.
@@ -72,7 +73,7 @@ class ASTFunctionCall:
         """
         ret = str(self.__calleeName) + '('
         for i in range(0, len(self.__args)):
-            ret += self.__args[i].print()
+            ret += self.__args[i].printAST()
             if i < len(self.__args):  # in the case that it is not the last arg, print also a comma
                 ret += ','
         ret += ')'

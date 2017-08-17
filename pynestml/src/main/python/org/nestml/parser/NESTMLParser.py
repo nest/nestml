@@ -14,7 +14,7 @@ class NESTMLParser:
     """
 
     @classmethod
-    def parseModel(cls, file_path: str = None):
+    def parseModel(cls, file_path=None):
         """
         Parses a handed over model and returns the ast representation of it.
         :param file_path: the path to the file which shall be parsed.
@@ -23,12 +23,12 @@ class NESTMLParser:
         :rtype: ASTNESTMLCompilationUnit
         """
         try:
-            input = FileStream(file_path)
+            inputFile = FileStream(file_path)
         except IOError:
             print('(NESTML) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
         # create a lexer and hand over the input
-        lexer = PyNESTMLLexer(input)
+        lexer = PyNESTMLLexer(inputFile)
         # create a token stream
         stream = CommonTokenStream(lexer)
         # parse the file

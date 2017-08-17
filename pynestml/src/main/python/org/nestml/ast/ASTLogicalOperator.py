@@ -54,7 +54,7 @@ class ASTLogicalOperator:
         """
         return self.__isLogicalOr
 
-    def print(self):
+    def printAST(self):
         """
         Returns a string representing the operator.
         :return: a string representing the operator

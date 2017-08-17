@@ -125,7 +125,7 @@ class ASTComparisonOperator:
         """
         return self.__isGt
 
-    def print(self):
+    def printAST(self):
         """
         Returns the string representation of the operator.
         :return: the operator as a string.

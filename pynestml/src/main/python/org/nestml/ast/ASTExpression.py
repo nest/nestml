@@ -291,7 +291,7 @@ class ASTExpression:
         """
         return self.__ifNot
 
-    def print(self):
+    def printAST(self):
         """
         Returns the string representation of the expression.
         :return: the expression as a string.
@@ -304,11 +304,11 @@ class ASTExpression:
             if self.isLogicalNot():
                 ret += 'not '
             else:
-                ret += self.getUnaryOperator().print()
-            ret += self.getExpression().print()
+                ret += self.getUnaryOperator().printAST()
+            ret += self.getExpression().printAST()
             if self.hasRightParentheses():
                 ret += ')'
         elif self.isCompoundExpression():
-            ret += self.getBinaryOperator().print()
+            ret += self.getBinaryOperator().printAST()
         elif self.isTernaryOperator():
-            ret += self.getCondition().print() + '?' + self.getIfTrue().print() + ':' + self.getIfNot().print()
+            ret += self.getCondition().printAST() + '?' + self.getIfTrue().printAST() + ':' + self.getIfNot().printAST()

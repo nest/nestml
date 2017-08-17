@@ -59,7 +59,7 @@ class ASTVariable:
         """
         return self.__differentialOrder
 
-    def print(self):
+    def printAST(self):
         """
         Returns the string representation of the variable.
         :return: the variable as a string.

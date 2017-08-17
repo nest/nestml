@@ -15,7 +15,7 @@ class ASTBody:
     """
     __bodyElements = None
 
-    def __init__(self, _bodyElements: list = list()):
+    def __init__(self, _bodyElements=list()):
         """
         Standard constructor.
         :param _bodyElements: a list of elements, e.g. variable blocks.
@@ -24,7 +24,7 @@ class ASTBody:
         self.__bodyElements = _bodyElements
 
     @classmethod
-    def makeASTBody(cls, _bodyElements: list = list()):
+    def makeASTBody(cls, _bodyElements=list()):
         """
         Factory method of the ASTBody class.
         :param _bodyElements: a list of elements, e.g. variable blocks.
@@ -34,7 +34,7 @@ class ASTBody:
         """
         return cls(_bodyElements)
 
-    def getBodyElements(self) -> list():
+    def getBodyElements(self):
         """
         Returns the list of body elements.
         :return: a list of body elements.

@@ -6,6 +6,10 @@ build/
 
 __*
 
+dist/
+
+PyNESTML.egg-info/
+
 .DS_Store
 .project
 .classpath

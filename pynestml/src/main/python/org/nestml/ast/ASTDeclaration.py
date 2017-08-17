@@ -65,7 +65,7 @@ class ASTDeclaration:
         self.__invariant = _invariant
 
     @classmethod
-    def makeASTDeclaration(cls, _isRecordable=False, _isFunction: bool = False, _variables=list(), _dataType=None,
+    def makeASTDeclaration(cls, _isRecordable=False, _isFunction = False, _variables=list(), _dataType=None,
                            _sizeParameter=None, _expression=None, _comment=None, _invariant=None):
         """
         The factory method of the ASTDeclaration class.

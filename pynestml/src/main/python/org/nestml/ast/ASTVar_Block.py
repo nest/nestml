@@ -28,7 +28,7 @@ class ASTVar_Block:
     __isInternals = False
     __declarations = None
 
-    def __init__(self, _isState: bool, _isParameters=False, _isInternals=False, _declarations=list()):
+    def __init__(self, _isState, _isParameters=False, _isInternals=False, _declarations=list()):
         """
         Standard constructor.
         :param _isState: is a state block.

@@ -205,7 +205,7 @@ grammar PyNESTML;
     @attribute AliasDecl a list with variable declarations.
   */
   var_Block:
-    ('state'|'parameters'|'internals')
+    blockType=('state'|'parameters'|'internals')
     BLOCK_OPEN
       (declaration | NEWLINE)*
     BLOCK_CLOSE;

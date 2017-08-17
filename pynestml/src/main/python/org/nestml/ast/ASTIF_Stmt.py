@@ -55,7 +55,7 @@ class ASTIF_Stmt:
         """
         return self.__ifClause
 
-    def hasElifClauses(self) -> bool:
+    def hasElifClauses(self) :
         """
         Returns whether object contains elif clauses.
         :return: True if at leas one elif clause, False else.

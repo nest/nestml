@@ -170,14 +170,14 @@ class ASTSimpleExpression:
         """
         return self.__name
 
-    def print(self):
+    def printAST(self):
         """
         Returns the string representation of the simple expression.
         :return: the operator as a string.
         :rtype: str
         """
         if self.isFunctionCall():
-            return self.__functionCall.print()
+            return self.__functionCall.printAST()
         elif self.isBooleanTrue():
             return 'True'
         elif self.isBooleanFalse():
@@ -188,10 +188,10 @@ class ASTSimpleExpression:
             return self.__name
         elif self.isNumericLiteral():
             if self.isVariable():
-                return str(self.__numericLiteral) + self.__variable.print()
+                return str(self.__numericLiteral) + self.__variable.printAST()
             else:
                 return str(self.__numericLiteral)
         elif self.isVariable():
-            return self.__variable.print()
+            return self.__variable.printAST()
         else:
             raise Exception("(NESTML) Simple expression not specified.")

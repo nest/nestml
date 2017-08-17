@@ -27,6 +27,7 @@ class ASTNESTMLCompilationUnit:
         :return: a new object of type ASTNESTMLCompilationUnits.
         :rtype: ASTNESTMLCompilationUnits
         """
+        assert (_listOfNeurons is not None), '(NESTML) Handed none as list of neurons.'
         instance = cls()
         for i in _listOfNeurons:
             # ensure that only object of type Neuron are added

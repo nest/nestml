@@ -2833,6 +2833,7 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self.blockType = None # Token
 
         def BLOCK_OPEN(self):
             return self.getToken(PyNESTMLParser.BLOCK_OPEN, 0)
@@ -2873,9 +2874,10 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 406
+            localctx.blockType = self._input.LT(1)
             _la = self._input.LA(1)
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNESTMLParser.T__55) | (1 << PyNESTMLParser.T__56) | (1 << PyNESTMLParser.T__57))) != 0)):
-                self._errHandler.recoverInline(self)
+                localctx.blockType = self._errHandler.recoverInline(self)
             else:
                 self.consume()
             self.state = 407
