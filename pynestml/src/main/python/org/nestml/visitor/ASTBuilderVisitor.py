@@ -165,8 +165,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     # Visit a parse tree produced by PyNESTMLParser#var_Block.
     def visitVar_Block(self, ctx):
         declarations = list()
-        blockType = ctx.blockType
-        print(blockType)
+        blockType = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         for child in ctx.declaration():
             declarations.append(self.visit(child))
         if blockType == 'state':

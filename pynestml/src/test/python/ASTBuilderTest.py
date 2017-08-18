@@ -10,10 +10,10 @@ from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 
 class MyTestCase(unittest.TestCase):
     def test(self):
-        for filename in os.listdir(os.path.join('..', '..', '..', '..', 'models')):
+        for filename in os.listdir(os.path.join('..', 'resources')):
             if filename.endswith(".nestml"):
                 print("Start parsing " + filename + " ... ", end=''),
-                NESTMLParser.parseModel('../../../../models' + filename)
+                NESTMLParser.parseModel(os.path.join('..', 'resources',filename))
                 print("done")
 
 

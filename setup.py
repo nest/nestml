@@ -1,6 +1,10 @@
-from setuptools import setup
-import sys
+"""
+@author kperun
+TODO header
+"""
 
+from setuptools import setup, find_packages
+import sys
 
 setup(
     name='PyNESTML',
@@ -13,10 +17,10 @@ setup(
                 'appropriate numeric solver otherwise. PyNESTML represents a toolchain migrated from Java to Python.',
     license='GNU General Public License v2.0',
     url='https://github.com/kperun/nestml/tree/PyNestML',
-    packages=['pynestml'],
+    packages=find_packages(),
     install_requires=['numpy >= 1.8.2',
                       'sympy >= 1.0',
                       ('antlr4-python2-runtime' if sys.version_info.major == 2 else
                        'antlr4-python3-runtime')],
-
+    test_suite='pynestml.src.test.python.TestSuite',
 )
