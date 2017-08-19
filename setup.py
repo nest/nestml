@@ -22,5 +22,5 @@ setup(
                       'sympy >= 1.0',
                       ('antlr4-python2-runtime' if sys.version_info.major == 2 else
                        'antlr4-python3-runtime')],
-    test_suite='pynestml.src.test.python.TestSuite',
+    test_suite='pynestml.src.test.python',
 )

@@ -504,6 +504,12 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self.isInt = None # Token
+            self.isReal = None # Token
+            self.isString = None # Token
+            self.isBool = None # Token
+            self.isVoid = None # Token
+            self.unit = None # UnitTypeContext
 
         def unitType(self):
             return self.getTypedRuleContext(PyNESTMLParser.UnitTypeContext,0)
@@ -531,32 +537,32 @@ class PyNESTMLParser ( Parser ):
             if token in [PyNESTMLParser.T__0]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 95
-                self.match(PyNESTMLParser.T__0)
+                localctx.isInt = self.match(PyNESTMLParser.T__0)
 
             elif token in [PyNESTMLParser.T__1]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 96
-                self.match(PyNESTMLParser.T__1)
+                localctx.isReal = self.match(PyNESTMLParser.T__1)
 
             elif token in [PyNESTMLParser.T__2]:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 97
-                self.match(PyNESTMLParser.T__2)
+                localctx.isString = self.match(PyNESTMLParser.T__2)
 
             elif token in [PyNESTMLParser.T__3]:
                 self.enterOuterAlt(localctx, 4)
                 self.state = 98
-                self.match(PyNESTMLParser.T__3)
+                localctx.isBool = self.match(PyNESTMLParser.T__3)
 
             elif token in [PyNESTMLParser.T__4]:
                 self.enterOuterAlt(localctx, 5)
                 self.state = 99
-                self.match(PyNESTMLParser.T__4)
+                localctx.isVoid = self.match(PyNESTMLParser.T__4)
 
             elif token in [PyNESTMLParser.T__5, PyNESTMLParser.NUMERIC_LITERAL, PyNESTMLParser.NAME]:
                 self.enterOuterAlt(localctx, 6)
                 self.state = 100
-                self.unitType(0)
+                localctx.unit = self.unitType(0)
 
             else:
                 raise NoViableAltException(self)
@@ -712,7 +718,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
-            self.base = None # ExpressionContext
             self.left = None # ExpressionContext
             self.condition = None # ExpressionContext
             self.term = None # ExpressionContext
@@ -720,11 +725,10 @@ class PyNESTMLParser ( Parser ):
             self.leftParentheses = None # Token
             self.rightParentheses = None # Token
             self.powOp = None # Token
-            self.exponent = None # ExpressionContext
+            self.right = None # ExpressionContext
             self.timesOp = None # Token
             self.divOp = None # Token
             self.moduloOp = None # Token
-            self.right = None # ExpressionContext
             self.plusOp = None # Token
             self.minusOp = None # Token
             self.ifTrue = None # ExpressionContext
@@ -789,13 +793,13 @@ class PyNESTMLParser ( Parser ):
                 self.state = 132
                 localctx.logicalNot = self.match(PyNESTMLParser.T__13)
                 self.state = 133
-                self.expression(4)
+                localctx.term = self.expression(4)
 
             elif token in [PyNESTMLParser.T__5]:
                 self.state = 134
                 localctx.leftParentheses = self.match(PyNESTMLParser.T__5)
                 self.state = 135
-                self.expression(0)
+                localctx.term = self.expression(0)
                 self.state = 136
                 localctx.rightParentheses = self.match(PyNESTMLParser.T__6)
 
@@ -819,7 +823,7 @@ class PyNESTMLParser ( Parser ):
                     la_ = self._interp.adaptivePredict(self._input,10,self._ctx)
                     if la_ == 1:
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
-                        localctx.base = _prevctx
+                        localctx.left = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
                         self.state = 141
                         if not self.precpred(self._ctx, 10):
@@ -828,7 +832,7 @@ class PyNESTMLParser ( Parser ):
                         self.state = 142
                         localctx.powOp = self.match(PyNESTMLParser.T__7)
                         self.state = 143
-                        localctx.exponent = self.expression(10)
+                        localctx.right = self.expression(10)
                         pass
 
                     elif la_ == 2:
@@ -2087,6 +2091,8 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self.isRecordable = None # Token
+            self.isFunction = None # Token
             self.sizeParameter = None # Token
             self.invariant = None # ExpressionContext
 
@@ -2137,14 +2143,14 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__33:
                 self.state = 303
-                self.match(PyNESTMLParser.T__33)
+                localctx.isRecordable = self.match(PyNESTMLParser.T__33)
 
 
             self.state = 307
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__34:
                 self.state = 306
-                self.match(PyNESTMLParser.T__34)
+                localctx.isFunction = self.match(PyNESTMLParser.T__34)
 
 
             self.state = 309

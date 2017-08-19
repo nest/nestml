@@ -5,6 +5,7 @@ TODO header
 from pynestml.src.main.python.org.nestml.visitor import ASTBuilderVisitor
 from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
+from pynestml.src.main.grammars.org.PyNESTMLVisitor import PyNESTMLVisitor
 from antlr4 import *
 
 
@@ -34,4 +35,5 @@ class NESTMLParser:
         # parse the file
         parser = PyNESTMLParser(stream)
         # create a new visitor and return the new AST
-        return ASTBuilderVisitor.ASTBuilderVisitor().visit(parser.nestmlCompilationUnit())
+        astBuilderVisitor = ASTBuilderVisitor.ASTBuilderVisitor()
+        return astBuilderVisitor.visit(parser.nestmlCompilationUnit())

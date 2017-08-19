@@ -18,12 +18,12 @@ grammar PyNESTML;
     @attribute boolean getters for integer, real, ...
     @attribute unitType a SI datatype
   */
-  datatype : 'integer'
-           | 'real'
-           | 'string'
-           | 'boolean'
-           | 'void'
-           | unitType;
+  datatype : isInt='integer'
+           | isReal='real'
+           | isString='string'
+           | isBool='boolean'
+           | isVoid='void'
+           | unit=unitType;
   /**
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
     complex data type as 'mV/s'
@@ -42,14 +42,14 @@ grammar PyNESTML;
    operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
    or a simple expression, e.g. 10mV.
   */
-  expression : leftParentheses='(' expression rightParentheses=')'
-         | <assoc=right> base=expression powOp='**' exponent=expression
+  expression : leftParentheses='(' term=expression rightParentheses=')'
+         | <assoc=right> left=expression powOp='**' right=expression
          | unaryOperator term=expression
          | left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
          | left=expression (plusOp='+'  | minusOp='-') right=expression
          | left=expression bitOperator right=expression
          | left=expression comparisonOperator right=expression
-         | logicalNot='not' expression
+         | logicalNot='not' term=expression
          | left=expression logicalOperator right=expression
          | condition=expression '?' ifTrue=expression ':' ifNot=expression
          | simpleExpression
@@ -148,7 +148,7 @@ grammar PyNESTML;
     @attribute invariants List with optional invariants.
    */
   declaration :
-    ('recordable')? ('function')?
+    isRecordable='recordable'? isFunction='function'?
     variable (',' variable)*
     datatype
     ('[' sizeParameter=NAME ']')?
