@@ -86,7 +86,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         elif (condition is not None) and (ifTrue is not None) and (ifNot is not None):
             return ASTExpression.ASTExpression.makeTernaryExpression(_condition=condition, _ifTrue=ifTrue, _ifNot=ifNot)
         else:
-            raise UnknownExpressionTypeException('(NESTML) Type of expression not recognized.')
+            raise PyNESTMLUnknownExpressionTypeException('(NESTML.ASTBuilder) Type of expression not recognized.')
 
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
@@ -309,44 +309,65 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#for_Stmt.
     def visitFor_Stmt(self, ctx):
-        return self.visitChildren(ctx)
+        variable = str(ctx.NAME()) if ctx.NAME() is not None else None
+        From = self.visit(ctx.vrom) if ctx.vrom is not None else None
+        to = self.visit(ctx.to) if ctx.to is not None else None
+        step = self.visit(ctx.step) if ctx.step is not None else None
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        return ASTFOR_Stmt.ASTFOR_Stmt.makeASTFOR_Stmt(_variable=variable, _from=From, _to=to, _step=step, _block=block)
 
     # Visit a parse tree produced by PyNESTMLParser#while_Stmt.
     def visitWhile_Stmt(self, ctx):
-        return self.visitChildren(ctx)
+        cond = self.visit(ctx.expression()) if ctx.expression() is not None else None
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        return ASTWHILE_Stmt.ASTWHILE_Stmt.makeASTWHILE_Stmt(_condition=cond, _block=block)
 
     # Visit a parse tree produced by PyNESTMLParser#signedNumericLiteral.
     def visitSignedNumericLiteral(self, ctx):
-        return self.visitChildren(ctx)
+        isNeg = True if ctx.negative is not None else False
+        value = float(ctx.NUMERIC_LITERAL()) if ctx.NUMERIC_LITERAL() is not None else 0
+        if isNeg:
+            return -value
+        else:
+            return value
 
     # Visit a parse tree produced by PyNESTMLParser#neuron.
     def visitNeuron(self, ctx):
-        return ASTNeuron.ASTNeuron.makeASTNeuron(_name=str(ctx.NAME()), _body=self.visit(ctx.body()))
+        name = str(ctx.NAME()) if ctx.NAME() is not None else None
+        body = self.visit(ctx.body()) if ctx.body() is not None else None
+        return ASTNeuron.ASTNeuron.makeASTNeuron(_name=name, _body=body)
 
     # Visit a parse tree produced by PyNESTMLParser#body.
     def visitBody(self, ctx):
         body_elements = list()
         # visit all var_block children
-        for child in ctx.var_Block():
-            body_elements.append(self.visit(child))
-        for child in ctx.dynamics():
-            body_elements.append(self.visit(child))
-        for child in ctx.equations():
-            body_elements.append(self.visit(child))
-        for child in ctx.inputBuffer():
-            body_elements.append(self.visit(child))
-        for child in ctx.outputBuffer():
-            body_elements.append(self.visit(child))
-        for child in ctx.function():
-            body_elements.append(self.visit(child))
+        if ctx.var_Block() is not None:
+            for child in ctx.var_Block():
+                body_elements.append(self.visit(child))
+        if ctx.dynamics() is not None:
+            for child in ctx.dynamics():
+                body_elements.append(self.visit(child))
+        if ctx.equations() is not None:
+            for child in ctx.equations():
+                body_elements.append(self.visit(child))
+        if ctx.inputBuffer() is not None:
+            for child in ctx.inputBuffer():
+                body_elements.append(self.visit(child))
+        if ctx.outputBuffer() is not None:
+            for child in ctx.outputBuffer():
+                body_elements.append(self.visit(child))
+        if ctx.function() is not None:
+            for child in ctx.function():
+                body_elements.append(self.visit(child))
         return ASTBody.ASTBody.makeASTBody(_bodyElements=body_elements)
 
     # Visit a parse tree produced by PyNESTMLParser#var_Block.
     def visitVar_Block(self, ctx):
         declarations = list()
+        if ctx.declaration() is not None:
+            for child in ctx.declaration():
+                declarations.append(self.visit(child))
         blockType = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
-        for child in ctx.declaration():
-            declarations.append(self.visit(child))
         if blockType == 'state':
             return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=False, _isParameters=False, _isState=True,
                                                               _declarations=declarations)
@@ -357,34 +378,58 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=True, _isParameters=False, _isState=True,
                                                               _declarations=declarations)
         else:
-            raise UnknownBodyTypeException('(NESTML) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
+            raise PyNESTMLUnknownBodyTypeException('(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
             # Visit a parse tree produced by PyNESTMLParser#dynamics.
 
     def visitDynamics(self, ctx):
-        return self.visitChildren(ctx)
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        return ASTDynamics.ASTDynamics.makeASTDynamics(_block=block)
 
     # Visit a parse tree produced by PyNESTMLParser#equations.
     def visitEquations(self, ctx):
-        return self.visitChildren(ctx)
+        odeDecl = self.visit(ctx.odeDeclaration()) if ctx.odeDeclaration() is not None else None
+        return ASTEquations.ASTEquations.makeASTEquations(_block=odeDecl)
 
     # Visit a parse tree produced by PyNESTMLParser#inputBuffer.
     def visitInputBuffer(self, ctx):
-        return self.visitChildren(ctx)
+        inputLines = list()
+        if ctx.inputLine() is not None:
+            for line in ctx.inputLine():
+                inputLines.append(self.visit(line))
+        return ASTInput.ASTInput.makeASTInput(_inputDefinitions=inputLines)
 
     # Visit a parse tree produced by PyNESTMLParser#inputLine.
     def visitInputLine(self, ctx):
-        return self.visitChildren(ctx)
+        name = str(ctx.NAME()) if ctx.NAME() is not None else None
+        sizeParameter = str(ctx.sizeParameter) if ctx.sizeParameter is not None else None
+        inputTypes = list()
+        if ctx.inputType() is not None:
+            for Type in ctx.inputType():
+                inputTypes.append(self.visit(Type))
+        isCurrent = True if ctx.isCurrent is not None else False
+        isSpike = True if ctx.isSpike is not None else False
+        return ASTInputLine.ASTInputLine.makeASTInputLine(_name=name, _sizeParameter=sizeParameter,
+                                                          _inputTypes=inputTypes, _isCurrent=isCurrent,
+                                                          _isSpike=isSpike)
 
     # Visit a parse tree produced by PyNESTMLParser#inputType.
     def visitInputType(self, ctx):
-        return self.visitChildren(ctx)
+        isInhibitory = True if ctx.isInhibitory is not None else False
+        isExcitatory = True if ctx.isExcitatory is not None else False
+        return ASTInputType.ASTInputType.makeASTInputType(_isInhibitory=isInhibitory, _isExcitatory=isExcitatory)
 
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBuffer(self, ctx):
-        return self.visitChildren(ctx)
+        if ctx.isSpike is not None:
+            return ASTOutput.ASTOutput.makeASTOutput(_type='spike')
+        elif ctx.isCurrent is not None:
+            return ASTOutput.ASTOutput.makeASTOutput(_type='current')
+        else:
+            raise PyNESTMLUnknownOutputBufferType('(NESTML.ASTBuilder) Type of output buffer not recognized.')
 
     # Visit a parse tree produced by PyNESTMLParser#function.
     def visitFunction(self, ctx):
+        
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PyNESTMLParser#parameters.
@@ -396,9 +441,13 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-class UnknownBodyTypeException(Exception):
+class PyNESTMLUnknownBodyTypeException(Exception):
     pass
 
 
-class UnknownExpressionTypeException(Exception):
+class PyNESTMLUnknownExpressionTypeException(Exception):
+    pass
+
+
+class PyNESTMLUnknownOutputBufferType(Exception):
     pass

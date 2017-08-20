@@ -262,20 +262,20 @@ grammar PyNESTML;
     NAME
     ('[' sizeParameter=NAME ']')?
     '<-' inputType*
-    ('spike' | 'current');
+    (isCurrent = 'spike' | isSpike = 'current');
 
   /** ASTInputType represents the type of the inputline e.g.: inhibitory or excitatory:
     @attribute inhibitory true iff the neuron is a inhibitory.
     @attribute excitatory true iff. the neuron is a excitatory.
   */
-  inputType : ('inhibitory' | 'excitatory');
+  inputType : (isInhibitory='inhibitory' | isExcitatory='excitatory');
 
   /** ASTOutput represents the output block of the neuron:
         output: spike
       @attribute spike true iff the neuron has a spike output.
       @attribute current true iff. the neuron is a current output.
     */
-  outputBuffer: 'output' BLOCK_OPEN ('spike' | 'current') ;
+  outputBuffer: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
 
   /** ASTFunction a function definition:
       function set_V_m(v mV):
