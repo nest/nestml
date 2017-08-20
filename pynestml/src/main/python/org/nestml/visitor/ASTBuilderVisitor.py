@@ -47,6 +47,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             expression = self.visit(ctx.simpleExpression())
         elif ctx.term is not None:
             expression = self.visit(ctx.term)
+        else:
+            expression = None
         lhs = (self.visit(ctx.left) if ctx.left is not None else None)
         if ctx.powOp is not None:
             binaryOperator = ASTArithmeticOperator.ASTArithmeticOperator.makeASTArithmeticOperator(_isPowOp=True)
@@ -66,94 +68,193 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             binaryOperator = self.visit(ctx.comparisonOperator())
         elif ctx.logicalOperator() is not None:
             binaryOperator = self.visit(ctx.logicalOperator())
+        else:
+            binaryOperator = None
         rhs = (self.visit(ctx.right) if ctx.right is not None else None)
         condition = (self.visit(ctx.condition) if ctx.condition is not None else None)
         ifTrue = (self.visit(ctx.ifTrue) if ctx.ifTrue is not None else None)
         ifNot = (self.visit(ctx.ifNot) if ctx.ifNot is not None else None)
-        """
-        TODO
-        return ASTExpression.ASTExpression.makeASTExpression(_hasLeftParentheses=hasLeftParentheses,
-                                                             _hasRightParentheses=hasRightParentheses,
-                                                             _unaryOperator=unaryOperator, _isLogicalNot=isLogicalNot,
-                                                             _expression=expression, _lhs=lhs,
-                                                             _binaryOperator=binaryOperator,
-                                                             _rhs=rhs, _condition=condition, _ifTrue=ifTrue,
-                                                             _ifNot=ifNot)
-        """
+        if expression is not None:
+            return ASTExpression.ASTExpression.makeExpression(_hasLeftParentheses=hasLeftParentheses,
+                                                              _hasRightParentheses=hasRightParentheses,
+                                                              _isLogicalNot=isLogicalNot,
+                                                              _unaryOperator=unaryOperator,
+                                                              _expression=expression)
+        elif (lhs is not None) and (rhs is not None) and (binaryOperator is not None):
+            return ASTExpression.ASTExpression.makeCompoundExpression(_lhs=lhs, _binaryOperator=binaryOperator,
+                                                                      _rhs=rhs)
+        elif (condition is not None) and (ifTrue is not None) and (ifNot is not None):
+            return ASTExpression.ASTExpression.makeTernaryExpression(_condition=condition, _ifTrue=ifTrue, _ifNot=ifNot)
+        else:
+            raise UnknownExpressionTypeException('(NESTML) Type of expression not recognized.')
 
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
-        return self.visitChildren(ctx)
+        functionCall = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
+        name = (str(ctx.NAME()) if ctx.NAME() is not None else None)
+        booleanLiteral = ((True if str(
+            ctx.BOOLEAN_LITERAL().text) == r'[T|t]rue' else False) if ctx.BOOLEAN_LITERAL() is not None else None)
+        numericLiteral = (float(ctx.NUMERIC_LITERAL()) if ctx.NUMERIC_LITERAL() is not None else None)
+        isInf = (True if ctx.isInf is not None else False)
+        variable = (self.visit(ctx.variable()) if ctx.variable() is not None else False)
+        return ASTSimpleExpression.ASTSimpleExpression.makeASTSimpleExpression(_functionCall=functionCall, _name=name,
+                                                                               _booleanLiteral=booleanLiteral,
+                                                                               _numericLiteral=numericLiteral,
+                                                                               _isInf=isInf, _variable=variable)
 
     # Visit a parse tree produced by PyNESTMLParser#unaryOperator.
     def visitUnaryOperator(self, ctx):
-        return self.visitChildren(ctx)
+        isUnaryPlus = (True if ctx.unaryPlus is not None else False)
+        isUnaryMinus = (True if ctx.unaryMinus is not None else False)
+        isUnaryTilde = (True if ctx.unaryTilde is not None else False)
+        return ASTUnaryOperator.ASTUnaryOperator.makeASTUnaryOperator(_isUnaryPlus=isUnaryPlus,
+                                                                      _isUnaryMinus=isUnaryMinus,
+                                                                      _isUnaryTilde=isUnaryTilde)
 
     # Visit a parse tree produced by PyNESTMLParser#bitOperator.
     def visitBitOperator(self, ctx):
-        return self.visitChildren(ctx)
+        isBitAnd = (True if ctx.bitAnd is not None else False)
+        isBitXor = (True if ctx.bitXor is not None else False)
+        isBitOr = (True if ctx.bitOr is not None else False)
+        isBitShiftLeft = (True if ctx.bitShiftLeft is not None else False)
+        isBitShiftRight = (True if ctx.bitShiftRight is not None else False)
+        return ASTBitOperator.ASTBitOperator.makeASTBitOperator(_isBitAnd=isBitAnd, _isBitXor=isBitXor,
+                                                                _isBitOr=isBitOr,
+                                                                _isBitShiftLeft=isBitShiftLeft,
+                                                                _isBitShiftRight=isBitShiftRight)
 
     # Visit a parse tree produced by PyNESTMLParser#comparisonOperator.
     def visitComparisonOperator(self, ctx):
-        return self.visitChildren(ctx)
+        isLt = (True if ctx.lt is not None else False)
+        isLe = (True if ctx.le is not None else False)
+        isEq = (True if ctx.eq is not None else False)
+        isNe = (True if ctx.ne is not None else False)
+        isNe2 = (True if ctx.ne2 is not None else False)
+        isGe = (True if ctx.ge is not None else False)
+        isGt = (True if ctx.gt is not None else False)
+        return ASTComparisonOperator.ASTComparisonOperator.makeASTComparisonOperator(_isLt=isLt, _isLe=isLe,
+                                                                                     _isEq=isEq, _isNe=isNe,
+                                                                                     _isNe2=isNe2,
+                                                                                     _isGe=isGe, _isGt=isGt)
 
     # Visit a parse tree produced by PyNESTMLParser#logicalOperator.
     def visitLogicalOperator(self, ctx):
-        return self.visitChildren(ctx)
+        isLogicalAnd = (True if ctx.logicalAnd is not None else False)
+        isLogicalOr = (True if ctx.logicalOr is not None else False)
+        return ASTLogicalOperator.ASTLogicalOperator.makeASTLogicalOperator(_isLogicalAnd=isLogicalAnd,
+                                                                            _isLogicalOr=isLogicalOr)
 
     # Visit a parse tree produced by PyNESTMLParser#variable.
     def visitVariable(self, ctx):
-        diffOrder = (int(ctx.differentialOrder) if ctx.differentialOrder is not None else 0)
+        differentialOrder = (len(ctx.differentialOrder) if ctx.differentialOrder is not None else 0)
         return ASTVariable.ASTVariable.makeASTVariable(_name=str(ctx.NAME()),
-                                                       _differentialOrder=diffOrder)
+                                                       _differentialOrder=differentialOrder)
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):
-        return self.visitChildren(ctx)
+        name = (str(ctx.calleeName))
+        args = (self.visit(ctx.args) if ctx.args is not None else list())
+        return ASTFunctionCall.ASTFunctionCall.makeASTFunctionCall(_calleeName=name, _args=args)
 
     # Visit a parse tree produced by PyNESTMLParser#arguments.
     def visitArguments(self, ctx):
-        return self.visitChildren(ctx)
+        args = list()
+        if ctx.expression() is not None:
+            for arg in ctx.expression():
+                args.append(self.visit(arg))
+        return args
 
     # Visit a parse tree produced by PyNESTMLParser#odeDeclaration.
     def visitOdeDeclaration(self, ctx):
-        return self.visitChildren(ctx)
+        equations = list()
+        if ctx.equation() is not None:
+            for eq in ctx.equation():
+                equations.append(self.visit(eq))
+        shapes = list()
+        if ctx.shape() is not None:
+            for shape in ctx.shape():
+                shapes.append(self.visit(shape))
+        odeFunctions = list()
+        if ctx.odeFunction() is not None:
+            for fun in ctx.odeFunction():
+                equations.append(self.visit(fun))
+        return ASTOdeDeclaration.ASTOdeDeclaration.makeASTOdeDeclaration(_equations=equations, _shapes=shape,
+                                                                         _odeFunctions=odeFunctions)
 
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
     def visitOdeFunction(self, ctx):
-        return self.visitChildren(ctx)
+        isRecordable = (True if ctx.recordable is not None else False)
+        variableName = (str(ctx.variableName) if ctx.variableName is not None else None)
+        dataType = (self.visit(ctx.datatype()) if ctx.datatype() is not None else None)
+        expression = (self.visit(ctx.expression()) if ctx.expression() is not None else None)
+        return ASTOdeFunction.ASTOdeFunction.makeASTOdeFunction(_isRecordable=isRecordable, _variableName=variableName,
+                                                                _dataType=dataType,
+                                                                _expression=expression)
 
     # Visit a parse tree produced by PyNESTMLParser#equation.
     def visitEquation(self, ctx):
-        return self.visitChildren(ctx)
+        lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
+        rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
+        return ASTEquation.ASTEquation.makeASTEquation(_lhs=lhs, _rhs=rhs)
 
     # Visit a parse tree produced by PyNESTMLParser#derivative.
     def visitDerivative(self, ctx):
-        return self.visitChildren(ctx)
+        name = str(ctx.NAME()) if ctx.NAME() is not None else None
+        differentialOrder = len(ctx.differentialOrder) if ctx.differentialOrder is not None else 0
+        return ASTDerivative.ASTDerivative.makeASTDerivative(_name=name, _differentialOrder=differentialOrder)
 
     # Visit a parse tree produced by PyNESTMLParser#shape.
     def visitShape(self, ctx):
-        return self.visitChildren(ctx)
+        lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
+        rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
+        return ASTShape.ASTShape.makeASTShape(_lhs=lhs, _rhs=rhs)
 
     # Visit a parse tree produced by PyNESTMLParser#block.
     def visitBlock(self, ctx):
-        return self.visitChildren(ctx)
+        stmts = list()
+        if ctx.stmt() is not None:
+            for stmt in ctx.stmt():
+                stmts.append(self.visit(stmt))
+        return ASTBlock.ASTBlock.makeASTBlock(_stmts=stmts)
 
     # Visit a parse tree produced by PyNESTMLParser#stmt.
     def visitStmt(self, ctx):
-        return self.visitChildren(ctx)
+        small = self.visit(ctx.small_Stmt()) if ctx.small_Stmt() is not None else None
+        compound = self.visit(ctx.compound_Stmt()) if ctx.compound_Stmt() is not None else None
+        return ASTStmt.ASTStmt.makeASTStmt(_small_statement=small, _compound_statement=compound)
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
     def visitCompound_Stmt(self, ctx):
-        return self.visitChildren(ctx)
+        ifStmt = self.visit(ctx.if_Stmt()) if ctx.if_Stmt() is not None else None
+        whileStmt = self.visit(ctx.while_Stmt()) if ctx.while_Stmt() is not None else None
+        forStmt = self.visit(ctx.for_Stmt()) if ctx.for_Stmt() is not None else None
+        return ASTCompound_Stmt.ASTCompound_Stmt.makeASTCompound_Stmt(_if_stmt=ifStmt, _while_stmt=whileStmt,
+                                                                      _for_stmt=forStmt)
 
     # Visit a parse tree produced by PyNESTMLParser#small_Stmt.
     def visitSmall_Stmt(self, ctx):
-        return self.visitChildren(ctx)
+        assignment = self.visit(ctx.assignment()) if ctx.assignment() is not None else None
+        functionCall = self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None
+        declaration = self.visit(ctx.declaration()) if ctx.declaration() is not None else None
+        returnStmt = self.visit(ctx.returnStmt()) if ctx.returnStmt() is not None else None
+        return ASTSmall_Stmt.ASTSmall_Stmt.makeASTSmall_Stmt(_assignment=assignment, _functionCall=functionCall,
+                                                             _declaration=declaration, _returnStmt=returnStmt)
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
     def visitAssignment(self, ctx):
-        return self.visitChildren(ctx)
+        lhs = self.visit(ctx.lhsVariable) if ctx.lhsVariable is not None else None
+        isDirectAssignment = True if ctx.directAssignment is not None else False
+        isCompoundSum = True if ctx.compoundSum is not None else False
+        isCompoundMinus = True if ctx.compoundMinus is not None else False
+        isCompoundProduct = True if ctx.compoundProduct is not None else False
+        isCompoundQuotient = True if ctx.compoundQuotient is not None else False
+        expression = self.visit(ctx.expression()) if ctx.expression() is not None else None
+        return ASTAssignment.ASTAssignment.makeASTAssignment(_lhs=lhs, _isDirectAssignment=isDirectAssignment,
+                                                             _isCompoundSum=isCompoundSum,
+                                                             _isCompoundMinus=isCompoundMinus,
+                                                             _isCompoundProduct=isCompoundProduct,
+                                                             _isCompoundQuotient=isCompoundQuotient,
+                                                             _expression=expression)
 
     # Visit a parse tree produced by PyNESTMLParser#declaration.
     def visitDeclaration(self, ctx):
@@ -162,15 +263,11 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         variables = list()
         for var in ctx.variable():
             variables.append(self.visit(var))
-        dataType = self.visit(ctx.datatype())
-        sizeParam = str(ctx.NAME())
-
-        """
-        TODO
-        """
-        expression = self.visit(ctx.expression()[0])
-        comment = str(ctx.SL_COMMENT())
-        invariant = self.visit(ctx.invariant)
+        dataType = self.visit(ctx.datatype()) if ctx.datatype() is not None else None
+        sizeParam = str(ctx.NAME()) if ctx.NAME() is not None else None
+        expression = self.visit(ctx.expression()[0]) if ctx.expression() is not None else None
+        comment = str(ctx.SL_COMMENT()) if ctx.SL_COMMENT() is not None else None
+        invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
         return ASTDeclaration.ASTDeclaration.makeASTDeclaration(_isRecordable=isRecordable, _isFunction=isFunction,
                                                                 _variables=variables, _dataType=dataType,
                                                                 _sizeParameter=sizeParam,
@@ -179,23 +276,36 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#returnStmt.
     def visitReturnStmt(self, ctx):
-        return self.visitChildren(ctx)
+        retExpression = self.visit(ctx.expression()) if ctx.expression() is not None else None
+        return ASTReturnStmt.ASTReturnStmt.makeASTReturnStmt(_expression=retExpression)
 
     # Visit a parse tree produced by PyNESTMLParser#if_Stmt.
     def visitIf_Stmt(self, ctx):
-        return self.visitChildren(ctx)
+        ifClause = self.visit(ctx.if_Clause()) if ctx.if_Clause() is not None else None
+        elifClauses = list()
+        if ctx.elif_Clause() is not None:
+            for clause in ctx.elif_Clause():
+                elifClauses.append(self.visit(clause))
+        elseClause = self.visit(ctx.else_Clause()) if ctx.else_Clause() is not None else None
+        return ASTIF_Stmt.ASTIF_Stmt.makeASTIF_Stmt(_ifClause=ifClause, _elifClauses=elifClauses,
+                                                    _elseClause=elseClause)
 
     # Visit a parse tree produced by PyNESTMLParser#if_Clause.
     def visitIf_Clause(self, ctx):
-        return self.visitChildren(ctx)
+        condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        return ASTIF_Clause.ASTIF_Clause.makeASTIF_Clause(_condition=condition, _block=block)
 
     # Visit a parse tree produced by PyNESTMLParser#elif_Clause.
     def visitElif_Clause(self, ctx):
-        return self.visitChildren(ctx)
+        condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        return ASTELIF_Clause.ASTELIF_Clause.makeASTELIF_Clause(_condition=condition, _block=block)
 
     # Visit a parse tree produced by PyNESTMLParser#else_Clause.
     def visitElse_Clause(self, ctx):
-        return self.visitChildren(ctx)
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        return ASTELSE_Clause.ASTELSE_Clause.makeASTELSE_Clause(_block=block)
 
     # Visit a parse tree produced by PyNESTMLParser#for_Stmt.
     def visitFor_Stmt(self, ctx):
@@ -287,4 +397,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
 
 class UnknownBodyTypeException(Exception):
+    pass
+
+
+class UnknownExpressionTypeException(Exception):
     pass

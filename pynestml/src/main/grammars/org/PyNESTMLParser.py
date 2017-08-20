@@ -967,6 +967,7 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self.isInf = None # Token
 
         def functionCall(self):
             return self.getTypedRuleContext(PyNESTMLParser.FunctionCallContext,0)
@@ -1038,7 +1039,7 @@ class PyNESTMLParser ( Parser ):
             elif la_ == 5:
                 self.enterOuterAlt(localctx, 5)
                 self.state = 187
-                self.match(PyNESTMLParser.T__15)
+                localctx.isInf = self.match(PyNESTMLParser.T__15)
                 pass
 
             elif la_ == 6:

@@ -64,7 +64,7 @@ grammar PyNESTML;
                    | BOOLEAN_LITERAL // true & false;
                    | NUMERIC_LITERAL (variable)?
                    | NAME
-                   | 'inf'
+                   | isInf='inf'
                    | variable;
 
   unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
