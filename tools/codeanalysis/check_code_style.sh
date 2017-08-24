@@ -20,8 +20,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 # This script performs a static code analysis and can be used to verify 
-# if a source file fulfills the NEST coding style guidelines.
-# Run ./extras/check_code_style.sh --help for more detailed information.
+# if a source file fulfills the PyNestML coding style guidelines.
+# Run ./tools/codeanalysis/check_code_style.sh --help for more detailed information.
 
 # Set default parameters.
 unset FILE_TO_BE_CHECKED

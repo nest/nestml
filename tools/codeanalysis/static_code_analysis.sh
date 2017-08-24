@@ -19,18 +19,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
-# This shell script is part of the NEST Travis CI build and test environment.
-# It performs the static code analysis and is invoked by 'build.sh'.
-# The script is also executed when running 'check_code_style.sh' for
-# a local static code analysis.
-#
-# NOTE: This shell script is tightly coupled to Python script
-#       'extras/parse_travis_log.py'. 
-#       Any changes to message numbers (MSGBLDnnnn) have effects on 
-#       the build/test-log parsing process.
-#
-
 # Command line parameters.
 INCREMENTAL=${1}              # true or false, user needs to confirm befor checking a source file.
 FILE_NAMES=${2}               # The list of files or a single file to be checked.
