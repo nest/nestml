@@ -1,5 +1,5 @@
 
-# verify.cpp
+# verify.py
 #
 # This file is part of NEST.
 #
