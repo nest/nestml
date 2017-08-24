@@ -2099,6 +2099,7 @@ class PyNESTMLParser ( Parser ):
             self.isRecordable = None # Token
             self.isFunction = None # Token
             self.sizeParameter = None # Token
+            self.rhs = None # ExpressionContext
             self.invariant = None # ExpressionContext
 
         def variable(self, i:int=None):
@@ -2112,18 +2113,18 @@ class PyNESTMLParser ( Parser ):
             return self.getTypedRuleContext(PyNESTMLParser.DatatypeContext,0)
 
 
+        def SL_COMMENT(self):
+            return self.getToken(PyNESTMLParser.SL_COMMENT, 0)
+
+        def NAME(self):
+            return self.getToken(PyNESTMLParser.NAME, 0)
+
         def expression(self, i:int=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNESTMLParser.ExpressionContext)
             else:
                 return self.getTypedRuleContext(PyNESTMLParser.ExpressionContext,i)
 
-
-        def SL_COMMENT(self):
-            return self.getToken(PyNESTMLParser.SL_COMMENT, 0)
-
-        def NAME(self):
-            return self.getToken(PyNESTMLParser.NAME, 0)
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_declaration
@@ -2191,7 +2192,7 @@ class PyNESTMLParser ( Parser ):
                 self.state = 323
                 self.match(PyNESTMLParser.T__35)
                 self.state = 324
-                self.expression(0)
+                localctx.rhs = self.expression(0)
 
 
             self.state = 328

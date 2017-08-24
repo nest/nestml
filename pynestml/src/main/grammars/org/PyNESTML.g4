@@ -152,7 +152,7 @@ grammar PyNESTML;
     variable (',' variable)*
     datatype
     ('[' sizeParameter=NAME ']')?
-    ( '=' expression)? SL_COMMENT?
+    ( '=' rhs = expression)? SL_COMMENT?
     ('[[' invariant=expression ']]')?;
 
   /** ATReturnStmt Models the return statement in a function.

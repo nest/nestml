@@ -61,7 +61,7 @@ class ASTArithmeticOperator:
         :return: a new ASTArithmeticOperator object.
         :rtype: ASTArithmeticOperator
         """
-        assert (_isTimesOp or _isDivOp or _isModuloOp or _isPlusOp or _isModuloOp or _isPowOp), \
+        assert (_isTimesOp or _isDivOp or _isModuloOp or _isPlusOp or _isMinusOp or _isPowOp), \
             '(PyNESTML.AST) Type of arithmetic operator not specified.'
         return cls(_isTimesOp, _isDivOp, _isModuloOp, _isPlusOp, _isMinusOp, _isPowOp)
 

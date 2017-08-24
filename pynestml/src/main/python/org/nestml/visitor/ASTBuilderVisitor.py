@@ -28,7 +28,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isString = (True if ctx.isString is not None else False)
         isBool = (True if ctx.isBool is not None else False)
         isVoid = (True if ctx.isVoid is not None else False)
-        unit = self.visit(ctx.unitType());
+        unit = self.visit(ctx.unitType()) if ctx.unitType() is not None else None
         return ASTDatatype.ASTDatatype.makeASTDatatype(_isInteger=isInt, _isBoolean=isBool,
                                                        _isReal=isReal, _isString=isString, _isVoid=isVoid,
                                                        _isUnitType=unit)
@@ -94,9 +94,10 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         name = (str(ctx.NAME()) if ctx.NAME() is not None else None)
         booleanLiteral = ((True if str(
             ctx.BOOLEAN_LITERAL().text) == r'[T|t]rue' else False) if ctx.BOOLEAN_LITERAL() is not None else None)
-        numericLiteral = (float(ctx.NUMERIC_LITERAL()) if ctx.NUMERIC_LITERAL() is not None else None)
+        numericLiteral = (float(str(ctx.NUMERIC_LITERAL()))
+                          if ctx.NUMERIC_LITERAL() is not None else None)
         isInf = (True if ctx.isInf is not None else False)
-        variable = (self.visit(ctx.variable()) if ctx.variable() is not None else False)
+        variable = (self.visit(ctx.variable()) if ctx.variable() is not None else None)
         return ASTSimpleExpression.ASTSimpleExpression.makeASTSimpleExpression(_functionCall=functionCall, _name=name,
                                                                                _booleanLiteral=booleanLiteral,
                                                                                _numericLiteral=numericLiteral,
@@ -265,7 +266,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             variables.append(self.visit(var))
         dataType = self.visit(ctx.datatype()) if ctx.datatype() is not None else None
         sizeParam = str(ctx.NAME()) if ctx.NAME() is not None else None
-        expression = self.visit(ctx.expression()[0]) if ctx.expression() is not None else None
+        expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         comment = str(ctx.SL_COMMENT()) if ctx.SL_COMMENT() is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
         return ASTDeclaration.ASTDeclaration.makeASTDeclaration(_isRecordable=isRecordable, _isFunction=isFunction,
@@ -378,7 +379,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=True, _isParameters=False, _isState=True,
                                                               _declarations=declarations)
         else:
-            raise PyNESTMLUnknownBodyTypeException('(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
+            raise PyNESTMLUnknownBodyTypeException(
+                '(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
             # Visit a parse tree produced by PyNESTMLParser#dynamics.
 
     def visitDynamics(self, ctx):
@@ -429,16 +431,29 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#function.
     def visitFunction(self, ctx):
-        
-        return self.visitChildren(ctx)
+        name = str(ctx.NAME()) if ctx.NAME() is not None else None
+        parameters = self.visit(ctx.parameters()) if ctx.parameters() is not None else None
+        block = self.visit(ctx.block()) if ctx.block() is not None else None
+        returnType = self.visit(ctx.returnType) if ctx.returnType is not None else None
+        return ASTFunction.ASTFunction.makeASTFunction(_name=name, _parameters=parameters, _block=block,
+                                                       _returnType=returnType)
 
     # Visit a parse tree produced by PyNESTMLParser#parameters.
     def visitParameters(self, ctx):
-        return self.visitChildren(ctx)
+        parameters = list()
+        if ctx.parameter() is not None:
+            if type(ctx.parameter()) is list:
+                for par in ctx.parameter():
+                    parameters.append(self.visit(par))
+            else:
+                parameters.append(self.visit(ctx.parameter()))
+        return ASTParameters.ASTParameters.makeASTParameters(_parameterList=parameters)
 
     # Visit a parse tree produced by PyNESTMLParser#parameter.
     def visitParameter(self, ctx):
-        return self.visitChildren(ctx)
+        name = str(ctx.NAME()) if ctx.NAME() is not None else None
+        dataType = self.visit(ctx.datatype()) if ctx.datatype() is not None else None
+        return ASTParameter.ASTParameter.makeASTParameter(_name=name, _dataType=dataType)
 
 
 class PyNESTMLUnknownBodyTypeException(Exception):

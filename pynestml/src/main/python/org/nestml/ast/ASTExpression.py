@@ -74,7 +74,8 @@ class ASTExpression:
         """
         assert ((_unaryOperator is None) or (isinstance(_unaryOperator, ASTUnaryOperator))), \
             '(NESTML) Not an unary operator.'
-        assert ((_expression is None) or (isinstance(_expression, ASTExpression))), '(NESTML) Not an expression.'
+        assert ((_expression is None) or (isinstance(_expression, ASTExpression)) or (
+            isinstance(_expression, ASTSimpleExpression))), '(NESTML) Not an expression.'
         assert ((_binaryOperator is None) or (isinstance(_binaryOperator, ASTArithmeticOperator) or
                                               (isinstance(_binaryOperator, ASTBitOperator)) or
                                               (isinstance(_binaryOperator, ASTLogicalOperator)) or
@@ -90,11 +91,14 @@ class ASTExpression:
         self.__binaryOperator = _binaryOperator
         self.__rhs = _rhs
         # ternary operator
-        assert ((_condition is None) or (isinstance(_condition, ASTExpression))), \
+        assert (
+            (_condition is None) or (isinstance(_condition, ASTExpression)) or (
+                isinstance(_condition, ASTSimpleExpression))), \
             '(NESTML) Condition not an expression object.'
-        assert ((_ifTrue is None) or (isinstance(_ifTrue, ASTExpression))), \
+        assert (
+            (_ifTrue is None) or (isinstance(_ifTrue, ASTExpression)) or (isinstance(_ifTrue, ASTSimpleExpression))), \
             '(NESTML) If-true part of ternary operator not an expression object.'
-        assert ((_ifNot is None) or (isinstance(_ifNot, ASTExpression))), \
+        assert ((_ifNot is None) or (isinstance(_ifNot, ASTExpression)) or (isinstance(_ifNot, ASTSimpleExpression))), \
             '(NESTML) If-not part of ternary operator not an expression object.'
         self.__condition = _condition
         self.__ifTrue = _ifTrue
@@ -122,8 +126,6 @@ class ASTExpression:
         """
         assert ((_hasLeftParentheses ^ _hasRightParentheses) is False), \
             '(NESTML) Parenthesis on both sides of expression expected.'
-        assert ((_hasRightParentheses and _hasLeftParentheses) or (_unaryOperator is not None) or _isLogicalNot), \
-            '(NESTML) Expression build not correctly.'
         return cls(_hasLeftParentheses=_hasLeftParentheses, _hasRightParentheses=_hasRightParentheses,
                    _unaryOperator=_unaryOperator, _isLogicalNot=_isLogicalNot, _expression=_expression)
 
