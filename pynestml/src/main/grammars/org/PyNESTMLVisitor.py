@@ -89,6 +89,11 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNESTMLParser#differentialOrder.
+    def visitDifferentialOrder(self, ctx:PyNESTMLParser.DifferentialOrderContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNESTMLParser#shape.
     def visitShape(self, ctx:PyNESTMLParser.ShapeContext):
         return self.visitChildren(ctx)

@@ -53,3 +53,11 @@ class ASTEquation:
         :rtype: ASTExpression
         """
         return self.__rhs
+
+    def printAST(self):
+        """
+        Returns a string representation of the equation.
+        :return: a string representing the equation.
+        :rtype: str
+        """
+        return self.getLhs().printAST() + '=' + self.getRhs().printAST()

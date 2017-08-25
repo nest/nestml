@@ -49,3 +49,11 @@ class ASTEquations:
         :rtype: ASTBlock
         """
         return self.__block
+
+    def printAST(self):
+        """
+        Returns a string representation of the equations block.
+        :return: a string representing an equations block.
+        :rtype: str
+        """
+        return 'equations:\n' + self.getBlock().printAST() + '\n' + 'end'

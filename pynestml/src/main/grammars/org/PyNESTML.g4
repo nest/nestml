@@ -79,7 +79,7 @@ grammar PyNESTML;
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name
   */
-  variable : NAME (differentialOrder='\'')*;
+  variable : NAME (differentialOrder)*;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
@@ -108,7 +108,9 @@ grammar PyNESTML;
   */
   equation : lhs=derivative '=' rhs=expression;
 
-  derivative : name=NAME (differentialOrder='\'')*;
+  derivative : name=NAME (differentialOrder)*;
+
+  differentialOrder: '\'';
 
   shape : 'shape' lhs=variable '=' rhs=expression;
 

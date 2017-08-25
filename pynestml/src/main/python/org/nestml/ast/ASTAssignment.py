@@ -130,3 +130,23 @@ class ASTAssignment:
         :rtype: ASTExpression
         """
         return self.__expression
+
+    def printAST(self):
+        """
+        Returns a string representing the assignment.
+        :return: a string representing the assignment.
+        :rtype: str
+        """
+        ret = self.__lhsVariable.printAST()
+        if self.isCompoundQuotient():
+            ret += '/='
+        elif self.isCompoundProduct():
+            ret += '*='
+        elif self.isCompoundMinus():
+            ret += '-='
+        elif self.isCompoundSum():
+            ret += '+='
+        else:
+            ret += '='
+        ret += self.__expression.printAST()
+        return ret

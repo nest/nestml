@@ -27,7 +27,7 @@ class ASTFOR_Stmt:
         :param _to: right bound of the range, i.e., finish value.
         :type _to: ASTExpression
         :param _step: the length of a single step.
-        :type _step: int
+        :type _step: float
         :param _block: a block of statements.
         :type _block: ASTBlock
         """
@@ -95,3 +95,12 @@ class ASTFOR_Stmt:
         :rtype: ASTBlock
         """
         return self.__block
+
+    def printAST(self):
+        """
+        Returns a string representation of the for statement.
+        :return: a string representing the for statement.
+        :rtype: str
+        """
+        return 'for ' + self.getVariable().printAST() + ' in ' + self.getFrom().printAST() + '...' \
+               + self.getTo().printAST() + ' step ' + self.getStep() + ':\n' + self.getBlock().printAST() + '\nend'

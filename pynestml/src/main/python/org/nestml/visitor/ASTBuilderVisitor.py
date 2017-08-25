@@ -93,7 +93,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         functionCall = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
         name = (str(ctx.NAME()) if ctx.NAME() is not None else None)
         booleanLiteral = ((True if str(
-            ctx.BOOLEAN_LITERAL().text) == r'[T|t]rue' else False) if ctx.BOOLEAN_LITERAL() is not None else None)
+            ctx.BOOLEAN_LITERAL()) == r'[T|t]rue' else False) if ctx.BOOLEAN_LITERAL() is not None else None)
         numericLiteral = (float(str(ctx.NUMERIC_LITERAL()))
                           if ctx.NUMERIC_LITERAL() is not None else None)
         isInf = (True if ctx.isInf is not None else False)
@@ -147,7 +147,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#variable.
     def visitVariable(self, ctx):
-        differentialOrder = (len(ctx.differentialOrder) if ctx.differentialOrder is not None else 0)
+        differentialOrder = (len(ctx.differentialOrder()) if ctx.differentialOrder() is not None else 0)
         return ASTVariable.ASTVariable.makeASTVariable(_name=str(ctx.NAME()),
                                                        _differentialOrder=differentialOrder)
 
@@ -179,7 +179,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         if ctx.odeFunction() is not None:
             for fun in ctx.odeFunction():
                 equations.append(self.visit(fun))
-        return ASTOdeDeclaration.ASTOdeDeclaration.makeASTOdeDeclaration(_equations=equations, _shapes=shape,
+        return ASTOdeDeclaration.ASTOdeDeclaration.makeASTOdeDeclaration(_equations=equations, _shapes=shapes,
                                                                          _odeFunctions=odeFunctions)
 
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
@@ -201,7 +201,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     # Visit a parse tree produced by PyNESTMLParser#derivative.
     def visitDerivative(self, ctx):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
-        differentialOrder = len(ctx.differentialOrder) if ctx.differentialOrder is not None else 0
+        differentialOrder = len(ctx.differentialOrder()) if ctx.differentialOrder is not None else 0
         return ASTDerivative.ASTDerivative.makeASTDerivative(_name=name, _differentialOrder=differentialOrder)
 
     # Visit a parse tree produced by PyNESTMLParser#shape.

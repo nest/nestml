@@ -53,3 +53,11 @@ class ASTDerivative:
         :rtype: int
         """
         return self.__differentialOrder
+
+    def printAST(self):
+        """
+        Returns the string representation of the derivative.
+        :return: a string representation.
+        :rtype: str
+        """
+        return self.getName() + '\'' * self.getDifferentialOrder()

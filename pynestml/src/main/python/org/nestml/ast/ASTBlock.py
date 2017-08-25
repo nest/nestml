@@ -56,3 +56,15 @@ class ASTBlock:
         :rtype: bool
         """
         self.__stmts.remove(_stmt)
+
+    def printAST(self):
+        """
+        Returns the raw representation of the block as a string.
+        :return: a string representation
+        :rtype: str
+        """
+        ret = ''
+        for stmt in self.__stmts:
+            ret += stmt.printAST()
+            ret += '\n'
+        return ret

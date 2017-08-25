@@ -51,3 +51,11 @@ class ASTDynamics:
         :rtype: ASTBlock
         """
         return self.__block
+
+    def printAST(self):
+        """
+        Returns a string representation of a dynamics block.
+        :return: a string representing the dynamics block.
+        :rtype: str
+        """
+        return self.getBlock().printAST()

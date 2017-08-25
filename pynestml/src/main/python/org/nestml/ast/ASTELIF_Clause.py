@@ -52,3 +52,11 @@ class ASTELIF_Clause:
         :rtype: ASTBlock
         """
         return self.__block
+
+    def printAST(self):
+        """
+        Returns a string representation of the elif clause.
+        :return: a string representation of the elif clause.
+        :rtype: str
+        """
+        return 'elif ' + self.getCondition().printAST() + ':\n' + self.getBlock().printAST()

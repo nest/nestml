@@ -38,3 +38,11 @@ class ASTELSE_Clause:
         :rtype: ASTBlock
         """
         return self.__block
+
+    def printAST(self):
+        """
+        Returns a string representation of the else clause.
+        :return: a string representation of the else clause.
+        :rtype: str
+        """
+        return 'else:\n' + self.getBlock().printAST()

@@ -65,7 +65,7 @@ class ASTDeclaration:
         self.__invariant = _invariant
 
     @classmethod
-    def makeASTDeclaration(cls, _isRecordable=False, _isFunction = False, _variables=list(), _dataType=None,
+    def makeASTDeclaration(cls, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None,
                            _sizeParameter=None, _expression=None, _comment=None, _invariant=None):
         """
         The factory method of the ASTDeclaration class.
@@ -185,3 +185,27 @@ class ASTDeclaration:
         :rtype: ASTExpression
         """
         return self.__invariant
+
+    def printAST(self):
+        """
+        Returns a string representation of the declaration.
+        :return: a string representation.
+        :rtype: str
+        """
+        ret = ''
+        if self.isRecordable():
+            ret += 'recordable'
+        if self.isFunction():
+            ret += 'function'
+        for var in self.getVariables():
+            ret += var.printAST() + ','
+        ret -= ','
+        ret += self.getDataType().printAST()
+        if self.hasSizeParameter():
+            ret += '[' + self.getSizeParameter().printAST() + ']'
+        if self.hasExpression():
+            ret += self.getExpr().printAST()
+        if self.hasComment():
+            ret += self.getComment()
+        if self.hasInvariant():
+            ret += '[[' + self.getInvariant().printAST() + ']]'

@@ -93,3 +93,18 @@ class ASTCompound_Stmt:
         :rtype: ASTFOR_Stmt
         """
         return self.__for_stmt
+
+    def printAST(self):
+        """
+        Returns a string representation of the compound statement.
+        :return: a string representing the compound statement.
+        :rtype: str
+        """
+        if self.isIfStmt():
+            return self.getIfStmt().printAST()
+        elif self.isForStmt():
+            return self.getForStmt().printAST()
+        elif self.isWhileStmt():
+            return self.getWhileStmt().printAST()
+        else:
+            return '(NESTML.AST.PRINT) Unknown compound statement element.'

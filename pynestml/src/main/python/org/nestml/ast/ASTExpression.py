@@ -311,6 +311,8 @@ class ASTExpression:
             if self.hasRightParentheses():
                 ret += ')'
         elif self.isCompoundExpression():
+            ret += self.getLhs().printAST()
             ret += self.getBinaryOperator().printAST()
+            ret += self.getRhs().printAST()
         elif self.isTernaryOperator():
             ret += self.getCondition().printAST() + '?' + self.getIfTrue().printAST() + ':' + self.getIfNot().printAST()

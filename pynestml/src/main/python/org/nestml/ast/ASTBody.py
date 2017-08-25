@@ -41,3 +41,15 @@ class ASTBody:
         :rtype: list()
         """
         return self.__bodyElements
+
+    def printAST(self):
+        """
+        Returns a string representation of the body.
+        :return: a string representing the body.
+        :rtype: str
+        """
+        ret = ''
+        for elem in self.__bodyElements:
+            ret += elem.printAST()
+            ret += '\n'
+        return ret

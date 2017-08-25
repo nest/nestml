@@ -123,3 +123,22 @@ class ASTDatatype:
         :rtype: ASTUnitType
         """
         return self.__isUnitType
+
+    def printAST(self):
+        """
+        Returns a string representation of the data type.
+        :return: a string representation
+        :rtype: str
+        """
+        if self.isVoid():
+            return 'void'
+        elif self.isString():
+            return 'string'
+        elif self.isBoolean():
+            return 'boolean'
+        elif self.isInteger():
+            return 'integer'
+        elif self.isReal():
+            return 'real'
+        elif self.isUnitType():
+            return self.getUnitType().printAST()
