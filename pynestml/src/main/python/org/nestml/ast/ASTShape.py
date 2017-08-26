@@ -1,6 +1,26 @@
 """
+/*
+ *  ASTShape.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
@@ -38,7 +58,7 @@ class ASTShape:
         :rtype: ASTShape
         """
         assert (
-        _lhs is not None and isinstance(_lhs, ASTVariable)), '(PyNESTML.AST) No or wrong shape variable provided.'
+            _lhs is not None and isinstance(_lhs, ASTVariable)), '(PyNESTML.AST) No or wrong shape variable provided.'
         assert (
             _rhs is not None and isinstance(_rhs,
                                             ASTExpression)), '(PyNESTML.AST) No or wrong shape expression provided.'
@@ -59,3 +79,11 @@ class ASTShape:
         :rtype: ASTExpression
         """
         return self.__rhs
+
+    def printAST(self):
+        """
+        Returns a string representation of the shape.
+        :return: a string representation.
+        :rtype: str
+        """
+        return 'shape ' + self.getVariable().printAST() + ' = ' + self.getExpression().printAST()

@@ -95,6 +95,14 @@ class ASTFunction:
         """
         return self.__returnType is not None
 
+    def getReturnType(self):
+        """
+        Returns the return type of function.
+        :return: the return type 
+        :rtype: ASTDataType
+        """
+        return self.__returnType
+
     def getBlock(self):
         """
         Returns the block containing the definitions.
@@ -102,3 +110,18 @@ class ASTFunction:
         :rtype: ASTBlock
         """
         return self.__block
+
+    def printAST(self):
+        """
+        Returns a string representation of the function defintion.
+        :return: a string representation.
+        :rtype: str
+        """
+        ret = 'function ' + self.getName() + '('
+        if self.hasParameters():
+            ret += self.getParameters().printAST()
+        ret += ')'
+        if self.hasReturnType():
+            ret += self.getReturnType().printAST()
+        ret += ':\n' + self.getBlock().printAST() + '\nend'
+        return ret

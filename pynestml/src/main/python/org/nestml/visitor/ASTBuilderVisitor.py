@@ -167,20 +167,17 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#odeDeclaration.
     def visitOdeDeclaration(self, ctx):
-        equations = list()
+        elems = list()
         if ctx.equation() is not None:
             for eq in ctx.equation():
-                equations.append(self.visit(eq))
-        shapes = list()
+                elems.append(self.visit(eq))
         if ctx.shape() is not None:
             for shape in ctx.shape():
-                shapes.append(self.visit(shape))
-        odeFunctions = list()
+                elems.append(self.visit(shape))
         if ctx.odeFunction() is not None:
             for fun in ctx.odeFunction():
-                equations.append(self.visit(fun))
-        return ASTOdeDeclaration.ASTOdeDeclaration.makeASTOdeDeclaration(_equations=equations, _shapes=shapes,
-                                                                         _odeFunctions=odeFunctions)
+                elems.append(self.visit(fun))
+        return ASTOdeDeclaration.ASTOdeDeclaration.makeASTOdeDeclaration(_elements=elems)
 
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
     def visitOdeFunction(self, ctx):

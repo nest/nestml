@@ -194,4 +194,4 @@ class ASTSimpleExpression:
         elif self.isVariable():
             return self.__variable.printAST()
         else:
-            raise Exception("(NESTML) Simple expression not specified.")
+            raise Exception("(PyNESTML.AST) Simple expression not specified.")

@@ -1,6 +1,26 @@
 """
-@author kperun
-TODO header
+ /*
+ *  ASTInputLine.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+ @author kperun
 """
 
 
@@ -123,3 +143,22 @@ class ASTInputLine:
         :rtype: bool 
         """
         return self.__isCurrent
+
+    def printAST(self):
+        """
+        Returns a string representation of the input line.
+        :return: a string representing the input line.
+        :rtype: str
+        """
+        ret = self.getName()
+        if self.hasIndexParameter():
+            ret += '[' + self.getIndexParameter().printAST() + ']'
+        ret += '<-'
+        if self.hasIndexParameter():
+            for iType in self.getInputTypes():
+                ret += iType.printAST() + ' '
+        if self.isSpike():
+            ret += 'spike'
+        else:
+            ret += 'current'
+        return ret

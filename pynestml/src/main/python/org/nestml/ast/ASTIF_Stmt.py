@@ -1,6 +1,26 @@
 """
+ /*
+ *  ASTIF_Stmt.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
 
 
@@ -55,7 +75,7 @@ class ASTIF_Stmt:
         """
         return self.__ifClause
 
-    def hasElifClauses(self) :
+    def hasElifClauses(self):
         """
         Returns whether object contains elif clauses.
         :return: True if at leas one elif clause, False else.
@@ -86,3 +106,18 @@ class ASTIF_Stmt:
         :rtype: ASTELSE_Clause
         """
         return self.__elseClause
+
+    def printAST(self):
+        """
+        Returns a string representation of the if-statement.
+        :return: a string representation
+        :rtype: str
+        """
+        ret = self.getIfClause().printAST() + '\n'
+        if self.getElifClauses() is not None:
+            for clause in self.getElifClauses():
+                ret += clause.printAST() + '\n'
+        if self.getElseClause() is not None:
+            ret += self.getElseClause().printAST()
+        ret += 'end'
+        return ret
