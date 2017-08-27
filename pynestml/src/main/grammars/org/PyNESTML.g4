@@ -28,7 +28,7 @@ grammar PyNESTML;
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
     complex data type as 'mV/s'
   */
-  unitType : leftParentheses='(' unitType rightParentheses=')'
+  unitType : leftParentheses='(' compoundUnit=unitType rightParentheses=')'
            | base=unitType powOp='**' exponent=NUMERIC_LITERAL
            | left=unitType (timesOp='*' | divOp='/') right=unitType
            | unitlessLiteral=NUMERIC_LITERAL divOp='/' right=unitType

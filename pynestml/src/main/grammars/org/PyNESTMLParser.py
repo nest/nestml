@@ -592,6 +592,7 @@ class PyNESTMLParser ( Parser ):
             self.divOp = None # Token
             self.right = None # UnitTypeContext
             self.leftParentheses = None # Token
+            self.compoundUnit = None # UnitTypeContext
             self.rightParentheses = None # Token
             self.unit = None # Token
             self.timesOp = None # Token
@@ -645,7 +646,7 @@ class PyNESTMLParser ( Parser ):
                 self.state = 109
                 localctx.leftParentheses = self.match(PyNESTMLParser.T__5)
                 self.state = 110
-                self.unitType(0)
+                localctx.compoundUnit = self.unitType(0)
                 self.state = 111
                 localctx.rightParentheses = self.match(PyNESTMLParser.T__6)
 

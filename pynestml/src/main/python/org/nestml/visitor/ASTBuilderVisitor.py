@@ -35,6 +35,23 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#unitType.
     def visitUnitType(self, ctx):
+        leftParenthesis = True if ctx.leftParentheses is not None else False
+        compoundUnit = self.visit(ctx.compoundUnit) if ctx.compoundUnit is not None else None
+        rightParenthesis = True if ctx.rightParentheses is not None else False
+        base = self.visit(ctx.base) if ctx.base is not None else None
+        isPow = True if ctx.powOp is not None else False
+        exponent = int(str(ctx.exponent)) if ctx.exponent is not None else None
+        lhs = (
+        int(str(ctx.left)) if str(ctx.left).isdigit() else self.visit(ctx.left)) if ctx.left is not None else None
+        isTimes = True if ctx.timesOp is not None else False
+        isDiv = True if ctx.divOp is not None else False
+        rhs = self.visit(ctx.right) if ctx.right is not None else None
+        unit = str(ctx.unit) if ctx.unit is not None else None
+
+        return ASTUnitType.ASTUnitType.makeASTUnitType(_leftParentheses=leftParenthesis, _compoundUnit=compoundUnit,
+                                                       _rightParentheses=rightParenthesis, _base=base, _isPow=isPow,
+                                                       _exponent=exponent, _lhs=lhs, _rhs=rhs, _isDiv=isDiv,
+                                                       _isTimes=isTimes, _unit=unit)
         return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PyNESTMLParser#expression.

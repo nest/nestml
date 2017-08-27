@@ -198,8 +198,9 @@ class ASTDeclaration:
         if self.isFunction():
             ret += 'function'
         for var in self.getVariables():
-            ret += var.printAST() + ','
-        ret -= ','
+            ret += var.printAST()
+            if self.getVariables().index(var) < len(self.getVariables()):
+                ret += ','
         ret += self.getDataType().printAST()
         if self.hasSizeParameter():
             ret += '[' + self.getSizeParameter().printAST() + ']'

@@ -1,6 +1,26 @@
 """
+/*
+ *  ASTVar_Block.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
 
 
@@ -62,3 +82,54 @@ class ASTVar_Block:
         """
         assert (_isInternals or _isParameters or _isState), '(PyNESTML.AST) Type of variable block not specified.'
         return cls(_isState, _isParameters, _isInternals, _declarations)
+
+    def isState(self):
+        """
+        Returns whether it is a state block or not.
+        :return: True if state block, otherwise False.
+        :rtype: bool
+        """
+        return self.__isState
+
+    def isParameters(self):
+        """
+        Returns whether it is a parameters block or not.
+        :return: True if parameters block, otherwise False.
+        :rtype: bool
+        """
+        return self.__isParameters
+
+    def isInternals(self):
+        """
+        Returns whether it is an internals block or not.
+        :return: True if internals block, otherwise False.
+        :rtype: bool
+        """
+        return self.__isInternals
+
+    def getDeclarations(self):
+        """
+        Returns the set of stored declarations.
+        :return: set of declarations
+        :rtype: set(ASTDeclaration)
+        """
+        return self.__declarations
+
+    def printAST(self):
+        """
+        Returns a string representation of the variable block.
+        :return: a string representation
+        :rtype: str
+        """
+        ret = ''
+        if self.isState():
+            ret += 'state'
+        elif self.isParameters():
+            ret += 'parameters'
+        else:
+            ret += 'internals'
+        ret += ':\n'
+        if self.getDeclarations() is not None:
+            for decl in self.getDeclarations():
+                ret += decl.printAST() + '\n'
+        ret += 'end'

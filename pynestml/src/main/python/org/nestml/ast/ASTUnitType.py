@@ -1,5 +1,25 @@
 """
-TODO Header
+/*
+ *  ASTUnitType.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
 """
 
@@ -19,6 +39,7 @@ class ASTUnitType:
     # encapsulated or not
     __hasLeftParentheses = False
     __hasRightParentheses = False
+    __compoundUnit = None
     # pow expression
     __base = None
     __isPow = False
@@ -31,12 +52,14 @@ class ASTUnitType:
     # simple case, just a name
     __unit = None
 
-    def __init__(self, _leftParentheses=False, _rightParentheses=False, _base=None, _isPow=False, _exponent=None,
-                 _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None):
+    def __init__(self, _leftParentheses=False, _compoundUnit=None, _rightParentheses=False, _base=None, _isPow=False,
+                 _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None):
         """
         Standard constructor of ASTUnitType.
         :param _leftParentheses: contains a left parenthesis
         :type _leftParentheses: bool
+        :param _compoundUnit: a unit encapsulated in brackets
+        :type _compoundUnit: ASTUnitType
         :param _rightParentheses: contains a right parenthesis 
         :type _rightParentheses: bool
         :param _base: the base expression 
@@ -44,9 +67,9 @@ class ASTUnitType:
         :param _isPow: is a power expression
         :type _isPow: bool
         :param _exponent: the exponent expression
-        :type _exponent: ASTUnitType
+        :type _exponent: Integer
         :param _lhs: the left-hand side expression
-        :type _lhs: ASTUnitType
+        :type _lhs: ASTUnitType or Integer
         :param _rhs: the right-hand side expression
         :type _rhs: ASTUnitType
         :param _isDiv: is a division expression
@@ -56,14 +79,18 @@ class ASTUnitType:
         :param _unit: is a single unit, e.g. mV
         :type _unit: string
         """
-        # ensure correct typing
-        """
-        TODO
-        assert (isinstance(_base, ASTUnitType))
-        assert (isinstance(_exponent, ASTUnitType) is True)
-        assert (isinstance(_lhs, ASTUnitType) is True)
-        assert (isinstance(_rhs, ASTUnitType) is True)"""
+        assert (isinstance(_base, ASTUnitType) or isinstance(_base, str) or _base is None), \
+            '(PyNESTML.AST) Wrong type of base expression provided.'
+        assert (isinstance(_exponent, int) or _exponent is None), \
+            '(PyNESTML.AST) Wrong type of exponent provided, expected "int", provided %s' % type(_exponent)
+        assert (isinstance(_lhs, ASTUnitType) or isinstance(_lhs, str) or isinstance(_lhs, int) or _lhs is None), \
+            '(PyNESTML.AST) Wrong type of left-hand side expression provided.'
+        assert (isinstance(_rhs, ASTUnitType) or isinstance(_rhs, str) or _lhs is None), \
+            '(PyNESTML.AST) Wrong type of right-hand side expression provided.'
+        assert (isinstance(_compoundUnit, ASTUnitType) or isinstance(_compoundUnit, str) or _compoundUnit is None), \
+            '(PyNESTML.AST) Wrong type of encapsulated unit expression provided.'
         self.__hasLeftParentheses = _leftParentheses
+        self.__compoundUnit = _compoundUnit
         self.__hasRightParentheses = _rightParentheses
         self.__base = _base
         self.__isPow = _isPow
@@ -75,12 +102,15 @@ class ASTUnitType:
         self.__unit = _unit
 
     @classmethod
-    def makeASTUnitType(cls, _leftParentheses=False, _rightParentheses=False, _base=None, _isPow=False,
+    def makeASTUnitType(cls, _leftParentheses=False, _compoundUnit=None, _rightParentheses=False, _base=None,
+                        _isPow=False,
                         _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None):
         """
         Factory method used to create new instances of the class.
         :param _leftParentheses: contains a left parenthesis
         :type _leftParentheses: bool
+        :param _compoundUnit: a unit encapsulated in brackets
+        :type _compoundUnit: ASTUnitType
         :param _rightParentheses: contains a right parenthesis 
         :type _rightParentheses: bool
         :param _base: the base expression 
@@ -100,7 +130,8 @@ class ASTUnitType:
         :param _unit: is a single unit, e.g. mV
         :type _unit: string
         """
-        return cls(_leftParentheses, _rightParentheses, _base, _isPow, _exponent, _lhs, _rhs, _isDiv, _isTimes, _unit)
+        return cls(_leftParentheses, _compoundUnit, _rightParentheses, _base, _isPow, _exponent, _lhs, _rhs, _isDiv,
+                   _isTimes, _unit)
 
     def isEncapsulated(self):
         """
@@ -189,3 +220,30 @@ class ASTUnitType:
         :rtype: string
         """
         return self.__unit
+
+    def getCompoundUnit(self):
+        """
+        Returns the unit encapsulated in brackets, e.g.(10mV)
+        :return: a unit object.
+        :rtype: ASTUnitType
+        """
+        return self.__compoundUnit
+
+    def printAST(self):
+        """
+        Returns a string representation of the unit type.
+        :return: a string representation.
+        :rtype: str
+        """
+        if self.isEncapsulated():
+            return '(' + self.getCompoundUnit().printAST() + ')'
+        elif self.isPowerExpression():
+            return self.getBase().printAST() + '**' + self.getExponent()
+        elif self.isArithmeticExpression():
+            tLhs = (self.getLhs().printAST() if isinstance(self.getLhs(), ASTUnitType) else self.getLhs())
+            if self.isTimes():
+                return tLhs + '*' + self.getRhs().printAST()
+            else:
+                return tLhs + '/' + self.getRhs().printAST()
+        else:
+            return self.getSimpleUnit()
