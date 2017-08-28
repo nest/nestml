@@ -2,14 +2,15 @@ neuron valid_convolve:
   state:
     V_m mV
     G pA
+    V_m' mV/ms = 0.0 * mV/ms
   end
 
   equations:
-    V_m' = V_m+convolve(G, spikes)
+    V_m' =  V_m' + convolve(G, spikes)/ms
   end
 
   input:
-    spikes nS <- spike
+    spikes mV <- spike
     currents <- current
   end
 end

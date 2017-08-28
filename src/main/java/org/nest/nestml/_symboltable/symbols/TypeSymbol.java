@@ -64,8 +64,8 @@ public class TypeSymbol extends CommonSymbol {
 
   public String prettyPrint() {
     if (getType().equals(TypeSymbol.Type.UNIT)) {
-      UnitRepresentation unitRepresentation =UnitRepresentation.getBuilder().serialization(getName()).build();
-      return unitRepresentation.prettyPrint();
+      UnitRepresentation workingCopy =UnitRepresentation.getBuilder().serialization(getName()).build();
+      return workingCopy.prettyPrint();
     }
     else {
       return getName(); //primitive

@@ -6,7 +6,6 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
-import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.nestml._visitor.DotOperatorVisitor;
 import org.nest.nestml._visitor.FunctionCallVisitor;
@@ -192,15 +191,15 @@ public class NestmlErrorStrings {
     return "NESTML_GETTER_SETTER_FUNCTION_NAMES";
   }
 
-  public static String message(final SumHasCorrectParameter coco, final String expression) {
+  public static String message(final ConvolveHasCorrectParameter coco, final String expression) {
     final String ERROR_MSG_FORMAT = "The arguments of the I_sum must be atomic expressions: "
                                     + "e.g. V_m and not : " + expression;
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
-  static String code(final SumHasCorrectParameter coco) {
-    return "NESTML_SUM_HAS_INCORRECT_PARAMETER";
+  static String code(final ConvolveHasCorrectParameter coco) {
+    return "NESTML_CONVOLVE_HAS_INCORRECT_PARAMETER";
   }
 
   static String message(final InvalidTypesInDeclaration coco, String typeName) {

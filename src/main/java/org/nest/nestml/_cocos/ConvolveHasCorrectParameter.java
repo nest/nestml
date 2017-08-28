@@ -36,7 +36,7 @@ import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.CONVOL
  *
  * @author plotnikov
  */
-public class SumHasCorrectParameter implements NESTMLASTOdeDeclarationCoCo {
+public class ConvolveHasCorrectParameter implements NESTMLASTOdeDeclarationCoCo {
 
   @Override
   public void check(final ASTOdeDeclaration odeDeclaration) {
