@@ -64,11 +64,11 @@ neuron iaf_cond_beta_neuron:
   internals:
 
     # conductance excursion.
-    PSConInit_E nS/ms = nS * e / tau_syn_rise_E
+    PSConInit_E 1/ms = e / tau_syn_rise_E
 
     # Impulse to add to g_in' on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I nS/ms = nS * e / tau_syn_rise_I
+    PSConInit_I 1/ms = e / tau_syn_rise_I
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end

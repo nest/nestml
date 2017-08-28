@@ -161,8 +161,8 @@ neuron terub_neuron_stn:
   end
 
   input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
+      spikeInh pA <- inhibitory spike
+      spikeExc pA <- excitatory spike
       currents <- current
   end
 
@@ -350,14 +350,14 @@ neuron terub_neuron_stn_implicit:
   end
 
   internals:
-    PSCurrInit_E real = ms * e / tau_syn_ex
-    PSCurrInit_I real = ms * e / tau_syn_in
+    PSCurrInit_E 1/ms = e / tau_syn_ex
+    PSCurrInit_I 1/ms = e / tau_syn_in
     refractory_counts integer = steps(t_ref)
   end
 
   input:
-      spikeInh nS <- inhibitory spike
-      spikeExc nS <- excitatory spike
+      spikeInh pA <- inhibitory spike
+      spikeExc pA <- excitatory spike
       currents <- current
   end
 
@@ -375,8 +375,8 @@ neuron terub_neuron_stn_implicit:
       emit_spike()
     end
 
-    g_ex' += spikeExc * PSCurrInit_E * pA/ms
-    g_in' += spikeInh * PSCurrInit_I * pA/ms
+    g_ex' += spikeExc * PSCurrInit_E
+    g_in' += spikeInh * PSCurrInit_I
   end
 
 end

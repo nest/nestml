@@ -221,8 +221,8 @@ neuron iaf_cond_exp_sfa_rr_implicit:
       emit_spike()
     end
 
-    g_ex += spikesExc * nS
-    g_in += spikesInh * nS
+    g_ex += spikesExc
+    g_in += spikesInh
   end
 
 end

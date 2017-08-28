@@ -164,7 +164,7 @@ neuron aeif_cond_alpha_implicit:
     g_in nS = 0 nS         ## Excitatory synaptic conductance
     g_in' nS/mS = 0 nS/ms  ## Excitatory synaptic conductance
     g_ex nS = 0 nS         ## Inhibitory synaptic conductance in nS
-    g_ex' nS/mS = 0 nS/ms  ## Inhibitory synaptic conductance in nS
+    g_ex' nS/ms = 0 nS/ms  ## Inhibitory synaptic conductance in nS
     r integer              ## counts number of tick during the refractory period
   end
 
@@ -216,11 +216,11 @@ neuron aeif_cond_alpha_implicit:
 
     ## Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     ## conductance excursion.
-    PSConInit_E nS/ms = nS * e / tau_syn_ex
+    PSConInit_E 1/ms = e / tau_syn_ex
 
     ## Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     ## conductance excursion.
-    PSConInit_I nS/ms = nS * e / tau_syn_in
+    PSConInit_I 1/ms = e / tau_syn_in
 
     ## refractory time in steps
     RefractoryCounts integer = steps(t_ref)

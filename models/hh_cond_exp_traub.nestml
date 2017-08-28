@@ -125,8 +125,8 @@ neuron hh_cond_exp_traub_neuron:
 
 
 
-    g_ex += spikeExc * nS
-    g_in += spikeInh * nS
+    g_ex += spikeExc
+    g_in += spikeInh
   end
 
 end
@@ -258,8 +258,8 @@ neuron hh_cond_exp_traub_implicit:
 
 
 
-    g_ex += spikeExc * nS
-    g_in += spikeInh * nS
+    g_ex += spikeExc
+    g_in += spikeInh
   end
 
 end

@@ -162,8 +162,8 @@ neuron iaf_cond_exp_implicit:
     end
 
     # add incoming spikes
-    g_ex += spikeExc * nS
-    g_in += spikeInh * nS
+    g_ex += spikeExc
+    g_in += spikeInh
   end
 
 end

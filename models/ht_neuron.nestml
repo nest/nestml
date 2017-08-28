@@ -200,10 +200,10 @@ neuron ht_neuron_nestml:
     end
     r_potassium -= 1
 
-    g_AMPA' += AMPAInitialValue * AMPA * nS/ms
-    g_NMDA' += NMDAInitialValue * NMDA * nS/ms
-    g_GABAA' += GABA_AInitialValue * GABA_A * nS/ms
-    g_GABAB' += GABA_BInitialValue * GABA_B * nS/ms
+    g_AMPA' += AMPAInitialValue * AMPA /ms
+    g_NMDA' += NMDAInitialValue * NMDA /ms
+    g_GABAA' += GABA_AInitialValue * GABA_A /ms
+    g_GABAB' += GABA_BInitialValue * GABA_B /ms
 
     if (not g_spike) and V_m >= Theta:
       # Set V and Theta to the sodium reversal potential.

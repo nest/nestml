@@ -226,8 +226,8 @@ neuron aeif_cond_exp_implicit:
       emit_spike()
     end
 
-    g_ex += spikeExc * nS
-    g_in += spikeInh * nS
+    g_ex += spikeExc
+    g_in += spikeInh
   end
 
 end

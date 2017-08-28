@@ -133,8 +133,8 @@ neuron iaf_cond_alpha_implicit:
     g_in real = 0.0    ## inputs from the inh conductance
     g_ex real = 0.0    ## inputs from the exc conductance
 
-    g_in' 1/ms = 0    ## inputs from the inh conductance
-    g_ex' 1/ms = 0    ## inputs from the exc conductance
+    g_in' 1/ms = 0.0 *1/ms    ## inputs from the inh conductance
+    g_ex' 1/ms = 0.0 *1/ms    ## inputs from the exc conductance
 
     r integer ## refractory counter
   end
@@ -169,11 +169,11 @@ neuron iaf_cond_alpha_implicit:
   internals:
     ## Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     ## conductance excursion.
-    PSConInit_E nS/ms = nS * e / tau_syn_ex
+    PSConInit_E 1/ms = e / tau_syn_ex
 
     ## Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     ## conductance excursion.
-    PSConInit_I nS/ms = nS * e / tau_syn_in
+    PSConInit_I 1/ms = e / tau_syn_in
     RefractoryCounts integer = steps(t_ref) ## refractory time in steps
   end
 
@@ -198,8 +198,8 @@ neuron iaf_cond_alpha_implicit:
     end
 
     # add incoming spikes
-    g_ex' += spikeExc * PSConInit_E
-    g_in' += spikeInh * PSConInit_I
+    g_ex' += spikeExc * PSConInit_E / nS
+    g_in' += spikeInh * PSConInit_I / nS
   end
 
 end

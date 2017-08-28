@@ -331,14 +331,14 @@ neuron terub_neuron_gpe_implicit:
   end
 
   internals:
-    PSCurrInit_E pA/ms = pA * e / tau_syn_ex
-    PSCurrInit_I pA/ms = pA * e / tau_syn_in
+    PSCurrInit_E 1/ms =  e / tau_syn_ex
+    PSCurrInit_I 1/ms =  e / tau_syn_in
     refractory_counts integer = steps(t_ref)
   end
 
   input:
-    spikeInh nS <- inhibitory spike
-    spikeExc nS <- excitatory spike
+    spikeInh pA <- inhibitory spike
+    spikeExc pA <- excitatory spike
     currents <- current
   end
 

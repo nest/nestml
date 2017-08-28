@@ -124,7 +124,7 @@ neuron iaf_psc_delta_neuron:
       # for decay until end of refractory period
       # the buffer is clear automatically
       if with_refr_input:
-        refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV
+        refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV/pA
       end
       r -= 1
     end
