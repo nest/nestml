@@ -14,7 +14,7 @@ neuron iaf_neuron:
     y0' = y0 + 1
     y0'' = y0' + 1
     shape G = t
-    recordable function y3_tmp real = cond_sum(G, spikeBuffer)
+    recordable function y3_tmp real = convolve(G, spikeBuffer)
     y3' = y3_tmp
   end
 
@@ -61,7 +61,7 @@ neuron iaf_neuron:
   end
 
   input:
-    spikeBuffer   <- inhibitory excitatory spike
+    spikeBuffer nS <- inhibitory excitatory spike
     currentBuffer <- current
   end
 

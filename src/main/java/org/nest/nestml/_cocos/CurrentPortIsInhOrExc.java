@@ -20,7 +20,7 @@ public class CurrentPortIsInhOrExc implements NESTMLASTInputLineCoCo {
 
   @Override
   public void check(ASTInputLine inputLine) {
-    if (inputLine.isCurrent() ) {
+    if (inputLine.currentIsPresent() ) {
       if (!inputLine.getInputTypes().isEmpty()) {
         NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
         final String msg = errorStrings.message(this);

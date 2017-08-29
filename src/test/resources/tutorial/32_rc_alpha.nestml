@@ -31,11 +31,11 @@ neuron rc_alpha:
   end
 
   internals:
-    PSConInit_E pA/ms = 1.0 pA * e / tau_syn
+    PSConInit_E 1/ms = e / tau_syn
   end
 
   input:
-    spikes   <- spike
+    spikes pA <- spike
     currents <- current
   end
 

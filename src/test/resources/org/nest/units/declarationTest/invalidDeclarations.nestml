@@ -4,8 +4,8 @@ neuron invalidDeclarationTest:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
       currents <- current
   end
 

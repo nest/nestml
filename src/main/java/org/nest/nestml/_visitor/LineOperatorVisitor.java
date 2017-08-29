@@ -103,16 +103,6 @@ public class LineOperatorVisitor implements NESTMLVisitor {
       }
     }
 
-    //If a buffer is involved, the other unit takes precedent TODO: is this the intended semantic?
-    if (lhsType == getBufferType()) {
-      expr.setType(Either.value(rhsType));
-      return;
-    }
-    if (rhsType == getBufferType()) {
-      expr.setType(Either.value(lhsType));
-      return;
-    }
-
     //if we get here, we are in a general error state
     final String errorMsg = CommonsErrorStrings.messageDifferentTypes(
         this,

@@ -13,8 +13,10 @@ import org.nest.utils.PrettyPrinterBase;
 import java.util.List;
 import java.util.Optional;
 
+import static org.nest.nestml._symboltable.typechecking.TypeChecker.isPrimitiveTypeName;
 import static org.nest.nestml.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
+import static org.nest.utils.AstUtils.convertSiName;
 import static org.nest.utils.AstUtils.printComments;
 
 /**
@@ -225,8 +227,15 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
    */
   @Override
   public void visit(final ASTInputLine astInputLine) {
-    print(astInputLine.getName());
+    print(astInputLine.getName().get());
     printArrayParameter(astInputLine);
+
+    //print datatype for spike buffers
+    if(astInputLine.spikeIsPresent()) {
+      ASTDatatype bufferType = astInputLine.getDatatype().get();
+      print(" "+deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(bufferType)));
+    }
+
     print(" <- ");
     printInputTypes(astInputLine.getInputTypes());
     printOutputType(astInputLine);
@@ -251,7 +260,7 @@ public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInhe
   }
 
   private void printOutputType(final ASTInputLine astInputLine) {
-    if (astInputLine.isSpike()) {
+    if (astInputLine.spikeIsPresent()) {
       print("spike");
     }
     else {

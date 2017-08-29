@@ -18,7 +18,7 @@ import static de.se_rwth.commons.logging.Log.error;
 public class MultipleInhExcModifiers implements NESTMLASTInputLineCoCo {
 
   public void check(final ASTInputLine inputLine) {
-    if (inputLine.isSpike()) {
+    if (inputLine.spikeIsPresent()) {
       // get number of inh, exc keywords
       int inh = 0, exc = 0;
       for (ASTInputType inputType : inputLine.getInputTypes()) {

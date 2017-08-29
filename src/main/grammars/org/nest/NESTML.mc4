@@ -269,9 +269,14 @@ grammar NESTML extends org.nest.Literals {
   */
   InputLine =
     Name
-    ("[" sizeParameter:Name "]")?
+    ("[" sizeParameter:Name "]")?  
     "<-" InputType*
-    (["spike"] | ["current"]);
+    current:"current"|
+    Name
+    ("[" sizeParameter:Name "]")? 
+    Datatype 
+    "<-" InputType*
+    spike:"spike";
 
   /** ASTInputType represents the type of the inputline e.g.: inhibitory or excitatory:
     @attribute inhibitory true iff the neuron is a inhibitory.

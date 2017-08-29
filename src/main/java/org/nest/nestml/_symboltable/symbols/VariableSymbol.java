@@ -102,7 +102,7 @@ public class VariableSymbol extends CommonSymbol {
   public boolean isSpikeBuffer() {
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
-      return astInputLine.isSpike();
+      return astInputLine.spikeIsPresent();
     }
     return false;
   }
@@ -110,7 +110,7 @@ public class VariableSymbol extends CommonSymbol {
   public boolean isCurrentBuffer() {
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
-      return astInputLine.isCurrent();
+      return astInputLine.currentIsPresent();
     }
     return false;
   }
