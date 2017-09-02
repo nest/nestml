@@ -81,3 +81,4 @@ class ASTInput:
             for inputDef in self.getInputLines():
                 ret += inputDef.printAST() + '\n'
         ret += '\n'
+        return ret

@@ -114,3 +114,4 @@ class ASTOdeFunction:
             ret += 'recordable'
         ret += 'function ' + self.getVariableName() + ' ' + self.getDataType().printAST() + \
                ' = ' + self.getExpression().printAST()
+        return ret

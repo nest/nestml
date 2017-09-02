@@ -133,3 +133,4 @@ class ASTVar_Block:
             for decl in self.getDeclarations():
                 ret += decl.printAST() + '\n'
         ret += 'end'
+        return ret

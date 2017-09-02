@@ -305,7 +305,7 @@ class ASTExpression:
                 ret += '('
             if self.isLogicalNot():
                 ret += 'not '
-            else:
+            if self.isUnaryOperator():
                 ret += self.getUnaryOperator().printAST()
             ret += self.getExpression().printAST()
             if self.hasRightParentheses():
@@ -316,3 +316,4 @@ class ASTExpression:
             ret += self.getRhs().printAST()
         elif self.isTernaryOperator():
             ret += self.getCondition().printAST() + '?' + self.getIfTrue().printAST() + ':' + self.getIfNot().printAST()
+        return ret

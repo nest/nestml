@@ -210,3 +210,4 @@ class ASTDeclaration:
             ret += self.getComment()
         if self.hasInvariant():
             ret += '[[' + self.getInvariant().printAST() + ']]'
+        return ret
