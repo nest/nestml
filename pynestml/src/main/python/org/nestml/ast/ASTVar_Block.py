@@ -48,7 +48,7 @@ class ASTVar_Block:
     __isInternals = False
     __declarations = None
 
-    def __init__(self, _isState, _isParameters=False, _isInternals=False, _declarations=list()):
+    def __init__(self, _isState=False, _isParameters=False, _isInternals=False, _declarations=list()):
         """
         Standard constructor.
         :param _isState: is a state block.
@@ -81,7 +81,8 @@ class ASTVar_Block:
         :rtype: ASTVar_Block 
         """
         assert (_isInternals or _isParameters or _isState), '(PyNESTML.AST) Type of variable block not specified.'
-        return cls(_isState, _isParameters, _isInternals, _declarations)
+        return cls(_isState=_isState, _isParameters=_isParameters, _isInternals=_isInternals,
+                   _declarations=_declarations)
 
     def isState(self):
         """

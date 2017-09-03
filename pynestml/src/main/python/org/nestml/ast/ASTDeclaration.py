@@ -194,20 +194,20 @@ class ASTDeclaration:
         """
         ret = ''
         if self.isRecordable():
-            ret += 'recordable'
+            ret += 'recordable '
         if self.isFunction():
-            ret += 'function'
+            ret += 'function '
         for var in self.getVariables():
             ret += var.printAST()
-            if self.getVariables().index(var) < len(self.getVariables()):
+            if self.getVariables().index(var) < len(self.getVariables()) - 1:
                 ret += ','
-        ret += self.getDataType().printAST()
+        ret += ' ' + self.getDataType().printAST() + ' '
         if self.hasSizeParameter():
-            ret += '[' + self.getSizeParameter().printAST() + ']'
+            ret += '[' + self.getSizeParameter() + ']'
         if self.hasExpression():
-            ret += self.getExpr().printAST()
+            ret += ' = ' + self.getExpr().printAST() + ' '
         if self.hasComment():
-            ret += self.getComment()
+            ret += '#' + self.getComment()
         if self.hasInvariant():
-            ret += '[[' + self.getInvariant().printAST() + ']]'
+            ret += ' [[' + self.getInvariant().printAST() + ']]'
         return ret

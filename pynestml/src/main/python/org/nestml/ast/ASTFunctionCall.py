@@ -74,7 +74,7 @@ class ASTFunctionCall:
         ret = str(self.__calleeName) + '('
         for i in range(0, len(self.__args)):
             ret += self.__args[i].printAST()
-            if i < len(self.__args):  # in the case that it is not the last arg, print also a comma
+            if i < len(self.__args)-1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
         ret += ')'
         return ret

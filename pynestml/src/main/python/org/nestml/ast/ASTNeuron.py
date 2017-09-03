@@ -85,4 +85,4 @@ class ASTNeuron:
         :return: a string representation.
         :rtype: str
         """
-        return 'neuron ' + self.getName() + self.getBody().printAST()
+        return 'neuron ' + self.getName() + ':\n' + self.getBody().printAST() + '\nend'

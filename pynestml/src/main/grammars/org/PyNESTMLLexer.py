@@ -36,7 +36,7 @@ def serializedATN():
         buf.write("9\3:\3:\3:\3:\3:\3:\3:\3:\3:\3:\3:\3;\3;\3;\3;\3;\3;\3")
         buf.write(";\3;\3;\3;\3<\3<\3<\3<\3<\3<\3<\3=\3=\3=\3=\3=\3=\3=\3")
         buf.write("=\3=\3=\3>\3>\3>\3>\3>\3>\3?\3?\3?\3@\3@\3@\3@\3@\3@\3")
-        buf.write("A\3A\3A\3A\3A\3A\3A\3A\3B\3B\3B\3B\3B\3B\3B\3B\3B\3B\3")
+        buf.write("@\3@\3A\3A\3A\3A\3A\3A\3B\3B\3B\3B\3B\3B\3B\3B\3B\3B\3")
         buf.write("B\3C\3C\3C\3C\3C\3C\3C\3C\3C\3C\3C\3D\3D\3D\3D\3D\3D\3")
         buf.write("D\3E\3E\7E\u01c9\nE\fE\16E\u01cc\13E\3E\3E\3E\3E\7E\u01d2")
         buf.write("\nE\fE\16E\u01d5\13E\3E\3E\3E\3E\3E\3E\3E\7E\u01de\nE")
@@ -89,7 +89,7 @@ def serializedATN():
         buf.write("\3\2\2\2k\u0154\3\2\2\2m\u0159\3\2\2\2o\u015f\3\2\2\2")
         buf.write("q\u0166\3\2\2\2s\u016c\3\2\2\2u\u0177\3\2\2\2w\u0181\3")
         buf.write("\2\2\2y\u0188\3\2\2\2{\u0192\3\2\2\2}\u0198\3\2\2\2\177")
-        buf.write("\u019b\3\2\2\2\u0081\u01a1\3\2\2\2\u0083\u01a9\3\2\2\2")
+        buf.write("\u019b\3\2\2\2\u0081\u01a3\3\2\2\2\u0083\u01a9\3\2\2\2")
         buf.write("\u0085\u01b4\3\2\2\2\u0087\u01bf\3\2\2\2\u0089\u01e5\3")
         buf.write("\2\2\2\u008b\u01ec\3\2\2\2\u008d\u01ee\3\2\2\2\u008f\u01f2")
         buf.write("\3\2\2\2\u0091\u01fa\3\2\2\2\u0093\u01fc\3\2\2\2\u0095")
@@ -179,11 +179,11 @@ def serializedATN():
         buf.write("\7u\2\2\u0191z\3\2\2\2\u0192\u0193\7k\2\2\u0193\u0194")
         buf.write("\7p\2\2\u0194\u0195\7r\2\2\u0195\u0196\7w\2\2\u0196\u0197")
         buf.write("\7v\2\2\u0197|\3\2\2\2\u0198\u0199\7>\2\2\u0199\u019a")
-        buf.write("\7/\2\2\u019a~\3\2\2\2\u019b\u019c\7u\2\2\u019c\u019d")
-        buf.write("\7r\2\2\u019d\u019e\7k\2\2\u019e\u019f\7m\2\2\u019f\u01a0")
-        buf.write("\7g\2\2\u01a0\u0080\3\2\2\2\u01a1\u01a2\7e\2\2\u01a2\u01a3")
-        buf.write("\7w\2\2\u01a3\u01a4\7t\2\2\u01a4\u01a5\7t\2\2\u01a5\u01a6")
-        buf.write("\7g\2\2\u01a6\u01a7\7p\2\2\u01a7\u01a8\7v\2\2\u01a8\u0082")
+        buf.write("\7/\2\2\u019a~\3\2\2\2\u019b\u019c\7e\2\2\u019c\u019d")
+        buf.write("\7w\2\2\u019d\u019e\7t\2\2\u019e\u019f\7t\2\2\u019f\u01a0")
+        buf.write("\7g\2\2\u01a0\u01a1\7p\2\2\u01a1\u01a2\7v\2\2\u01a2\u0080")
+        buf.write("\3\2\2\2\u01a3\u01a4\7u\2\2\u01a4\u01a5\7r\2\2\u01a5\u01a6")
+        buf.write("\7k\2\2\u01a6\u01a7\7m\2\2\u01a7\u01a8\7g\2\2\u01a8\u0082")
         buf.write("\3\2\2\2\u01a9\u01aa\7k\2\2\u01aa\u01ab\7p\2\2\u01ab\u01ac")
         buf.write("\7j\2\2\u01ac\u01ad\7k\2\2\u01ad\u01ae\7d\2\2\u01ae\u01af")
         buf.write("\7k\2\2\u01af\u01b0\7v\2\2\u01b0\u01b1\7q\2\2\u01b1\u01b2")
@@ -339,7 +339,7 @@ class PyNESTMLLexer(Lexer):
             "'return'", "'if'", "'elif'", "'else'", "'for'", "'in'", "'...'", 
             "'step'", "'while'", "'neuron'", "'state'", "'parameters'", 
             "'internals'", "'update'", "'equations'", "'input'", "'<-'", 
-            "'spike'", "'current'", "'inhibitory'", "'excitatory'", "'output'", 
+            "'current'", "'spike'", "'inhibitory'", "'excitatory'", "'output'", 
             "':'", "'end'" ]
 
     symbolicNames = [ "<INVALID>",

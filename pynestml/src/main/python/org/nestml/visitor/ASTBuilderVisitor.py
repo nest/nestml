@@ -42,17 +42,16 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isPow = True if ctx.powOp is not None else False
         exponent = int(str(ctx.exponent)) if ctx.exponent is not None else None
         lhs = (
-        int(str(ctx.left)) if str(ctx.left).isdigit() else self.visit(ctx.left)) if ctx.left is not None else None
+            int(str(ctx.left)) if str(ctx.left).isdigit() else self.visit(ctx.left)) if ctx.left is not None else None
         isTimes = True if ctx.timesOp is not None else False
         isDiv = True if ctx.divOp is not None else False
         rhs = self.visit(ctx.right) if ctx.right is not None else None
-        unit = str(ctx.unit) if ctx.unit is not None else None
+        unit = str(ctx.unit.text) if ctx.unit is not None else None
 
         return ASTUnitType.ASTUnitType.makeASTUnitType(_leftParentheses=leftParenthesis, _compoundUnit=compoundUnit,
                                                        _rightParentheses=rightParenthesis, _base=base, _isPow=isPow,
                                                        _exponent=exponent, _lhs=lhs, _rhs=rhs, _isDiv=isDiv,
                                                        _isTimes=isTimes, _unit=unit)
-        return self.visitChildren(ctx)
 
     # Visit a parse tree produced by PyNESTMLParser#expression.
     def visitExpression(self, ctx):
@@ -68,17 +67,47 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             expression = None
         lhs = (self.visit(ctx.left) if ctx.left is not None else None)
         if ctx.powOp is not None:
-            binaryOperator = ASTArithmeticOperator.ASTArithmeticOperator.makeASTArithmeticOperator(_isPowOp=True)
+            sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.powOp.line,
+                                                                                  _startColumn=ctx.powOp.column,
+                                                                                  _endLine=ctx.powOp.line,
+                                                                                  _endColumn=ctx.powOp.column)
+            binaryOperator = ASTArithmeticOperator. \
+                ASTArithmeticOperator.makeASTArithmeticOperator(_isPowOp=True, _sourcePosition=sourcePos)
         elif ctx.timesOp is not None:
-            binaryOperator = ASTArithmeticOperator.ASTArithmeticOperator.makeASTArithmeticOperator(_isTimesOp=True)
+            sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.timesOp.line,
+                                                                                  _startColumn=ctx.timesOp.column,
+                                                                                  _endLine=ctx.timesOp.line,
+                                                                                  _endColumn=ctx.timesOp.column)
+            binaryOperator = ASTArithmeticOperator. \
+                ASTArithmeticOperator.makeASTArithmeticOperator(_isTimesOp=True, _sourcePosition=sourcePos)
         elif ctx.divOp is not None:
-            binaryOperator = ASTArithmeticOperator.ASTArithmeticOperator.makeASTArithmeticOperator(_isDivOp=True)
+            sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.divOp.line,
+                                                                                  _startColumn=ctx.divOp.column,
+                                                                                  _endLine=ctx.divOp.line,
+                                                                                  _endColumn=ctx.divOp.column)
+            binaryOperator = ASTArithmeticOperator. \
+                ASTArithmeticOperator.makeASTArithmeticOperator(_isDivOp=True, _sourcePosition=sourcePos)
         elif ctx.moduloOp is not None:
-            binaryOperator = ASTArithmeticOperator.ASTArithmeticOperator.makeASTArithmeticOperator(_isModuloOp=True)
+            sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.moduloOp.line,
+                                                                                  _startColumn=ctx.moduloOp.column,
+                                                                                  _endLine=ctx.moduloOp.line,
+                                                                                  _endColumn=ctx.moduloOp.column)
+            binaryOperator = ASTArithmeticOperator. \
+                ASTArithmeticOperator.makeASTArithmeticOperator(_isModuloOp=True, _sourcePosition=sourcePos)
         elif ctx.plusOp is not None:
-            binaryOperator = ASTArithmeticOperator.ASTArithmeticOperator.makeASTArithmeticOperator(_isPlusOp=True)
+            sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.plusOp.line,
+                                                                                  _startColumn=ctx.plusOp.column,
+                                                                                  _endLine=ctx.plusOp.line,
+                                                                                  _endColumn=ctx.plusOp.column)
+            binaryOperator = ASTArithmeticOperator. \
+                ASTArithmeticOperator.makeASTArithmeticOperator(_isPlusOp=True, _sourcePosition=sourcePos)
         elif ctx.minusOp is not None:
-            binaryOperator = ASTArithmeticOperator.ASTArithmeticOperator.makeASTArithmeticOperator(_isMinusOp=True)
+            sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.minusOp.line,
+                                                                                  _startColumn=ctx.minusOp.column,
+                                                                                  _endLine=ctx.minusOp.line,
+                                                                                  _endColumn=ctx.minusOp.column)
+            binaryOperator = ASTArithmeticOperator. \
+                ASTArithmeticOperator.makeASTArithmeticOperator(_isMinusOp=True, _sourcePosition=sourcePos)
         elif ctx.bitOperator() is not None:
             binaryOperator = self.visit(ctx.bitOperator())
         elif ctx.comparisonOperator() is not None:
@@ -170,7 +199,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
     def visitFunctionCall(self, ctx):
-        name = (str(ctx.calleeName))
+        name = (str(ctx.calleeName.text))
         args = (self.visit(ctx.args) if ctx.args is not None else list())
         return ASTFunctionCall.ASTFunctionCall.makeASTFunctionCall(_calleeName=name, _args=args)
 
@@ -184,22 +213,29 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#odeDeclaration.
     def visitOdeDeclaration(self, ctx):
+        "In order to preserve the order we use the getNext() method to get the next element\
+         according to the source position."
         elems = list()
         if ctx.equation() is not None:
             for eq in ctx.equation():
-                elems.append(self.visit(eq))
+                elems.append(eq)
         if ctx.shape() is not None:
             for shape in ctx.shape():
-                elems.append(self.visit(shape))
+                elems.append(shape)
         if ctx.odeFunction() is not None:
             for fun in ctx.odeFunction():
-                elems.append(self.visit(fun))
-        return ASTOdeDeclaration.ASTOdeDeclaration.makeASTOdeDeclaration(_elements=elems)
+                elems.append(fun)
+        ordered = list()
+        while len(elems) > 0:
+            elem = self.getNext(elems)
+            ordered.append(self.visit(elem))
+            elems.remove(elem)
+        return ASTOdeDeclaration.ASTOdeDeclaration.makeASTOdeDeclaration(_elements=ordered)
 
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
     def visitOdeFunction(self, ctx):
         isRecordable = (True if ctx.recordable is not None else False)
-        variableName = (str(ctx.variableName) if ctx.variableName is not None else None)
+        variableName = (str(ctx.variableName.text) if ctx.variableName is not None else None)
         dataType = (self.visit(ctx.datatype()) if ctx.datatype() is not None else None)
         expression = (self.visit(ctx.expression()) if ctx.expression() is not None else None)
         return ASTOdeFunction.ASTOdeFunction.makeASTOdeFunction(_isRecordable=isRecordable, _variableName=variableName,
@@ -354,27 +390,34 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#body.
     def visitBody(self, ctx):
+        "Here, in order to ensure that the correct order of elements is kept, we use a method which inspects \
+        a list of elements and returns the one with the smallest source line."
         body_elements = list()
         # visit all var_block children
         if ctx.var_Block() is not None:
             for child in ctx.var_Block():
-                body_elements.append(self.visit(child))
+                body_elements.append(child)
         if ctx.dynamics() is not None:
             for child in ctx.dynamics():
-                body_elements.append(self.visit(child))
+                body_elements.append(child)
         if ctx.equations() is not None:
             for child in ctx.equations():
-                body_elements.append(self.visit(child))
+                body_elements.append(child)
         if ctx.inputBuffer() is not None:
             for child in ctx.inputBuffer():
-                body_elements.append(self.visit(child))
+                body_elements.append(child)
         if ctx.outputBuffer() is not None:
             for child in ctx.outputBuffer():
-                body_elements.append(self.visit(child))
+                body_elements.append(child)
         if ctx.function() is not None:
             for child in ctx.function():
-                body_elements.append(self.visit(child))
-        return ASTBody.ASTBody.makeASTBody(_bodyElements=body_elements)
+                body_elements.append(child)
+        elements = list()
+        while len(body_elements) > 0:
+            elem = self.getNext(body_elements)
+            elements.append(self.visit(elem))
+            body_elements.remove(elem)
+        return ASTBody.ASTBody.makeASTBody(_bodyElements=elements)
 
     # Visit a parse tree produced by PyNESTMLParser#var_Block.
     def visitVar_Block(self, ctx):
@@ -390,7 +433,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=False, _isParameters=True, _isState=False,
                                                               _declarations=declarations)
         elif blockType == 'internals':
-            return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=True, _isParameters=False, _isState=True,
+            return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=True, _isParameters=False, _isState=False,
                                                               _declarations=declarations)
         else:
             raise PyNESTMLUnknownBodyTypeException(
@@ -416,7 +459,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#inputLine.
     def visitInputLine(self, ctx):
-        name = str(ctx.NAME()) if ctx.NAME() is not None else None
+        name = str(ctx.name.text) if ctx.name is not None else None
         sizeParameter = str(ctx.sizeParameter) if ctx.sizeParameter is not None else None
         inputTypes = list()
         if ctx.inputType() is not None:
@@ -468,6 +511,19 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         dataType = self.visit(ctx.datatype()) if ctx.datatype() is not None else None
         return ASTParameter.ASTParameter.makeASTParameter(_name=name, _dataType=dataType)
+
+    def getNext(self, _elements=list()):
+        """
+        This method is used to get the next element according to its source position.
+        :type _elements: a list of elements
+        :return: the next element
+        :rtype: object
+        """
+        currentFirst = None
+        for elem in _elements:
+            if currentFirst is None or currentFirst.start.line > elem.start.line:
+                currentFirst = elem
+        return currentFirst
 
 
 class PyNESTMLUnknownBodyTypeException(Exception):

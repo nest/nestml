@@ -79,4 +79,4 @@ class ASTIF_Clause:
         :return: a string representation
         :rtype: str
         """
-        return 'if ' + self.getCondition().printAST() + ':\n' + self.getBlock().printAST() + '\nend'
+        return 'if ' + self.getCondition().printAST() + ':\n' + self.getBlock().printAST()

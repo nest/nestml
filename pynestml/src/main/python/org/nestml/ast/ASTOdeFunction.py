@@ -69,7 +69,8 @@ class ASTOdeFunction:
         assert (_variableName is not None), '(NESTML.AST) No variable name provided.'
         assert (_dataType is not None), '(NESTML.AST) No variable datatype provided.'
         assert (_expression is not None), '(NESTML.AST) No computation expression provided.'
-        return cls(_isRecordable, _variableName, _dataType, _expression)
+        return cls(_isRecordable=_isRecordable, _variableName=_variableName, _dataType=_dataType,
+                   _expression=_expression)
 
     def isRecordable(self):
         """
@@ -101,7 +102,7 @@ class ASTOdeFunction:
         :return: the expression as an object of ASTExpression.
         :rtype: ASTExpression
         """
-        return self.__dataType
+        return self.__expression
 
     def printAST(self):
         """

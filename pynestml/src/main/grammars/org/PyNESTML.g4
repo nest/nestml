@@ -261,10 +261,10 @@ grammar PyNESTML;
     @attribute current true iff. the neuron is a current.
   */
   inputLine :
-    NAME
+    name=NAME
     ('[' sizeParameter=NAME ']')?
     '<-' inputType*
-    (isCurrent = 'spike' | isSpike = 'current');
+    (isCurrent = 'current' | isSpike = 'spike');
 
   /** ASTInputType represents the type of the inputline e.g.: inhibitory or excitatory:
     @attribute inhibitory true iff the neuron is a inhibitory.

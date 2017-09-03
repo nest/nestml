@@ -224,7 +224,7 @@ def serializedATN():
         buf.write("\3\2\2\2\u01cb\u01ca\3\2\2\2\u01ccO\3\2\2\2\u01cd\u01d0")
         buf.write("\7C\2\2\u01ce\u01d0\7D\2\2\u01cf\u01cd\3\2\2\2\u01cf\u01ce")
         buf.write("\3\2\2\2\u01d0Q\3\2\2\2\u01d1\u01d2\7E\2\2\u01d2\u01d5")
-        buf.write("\7J\2\2\u01d3\u01d6\7A\2\2\u01d4\u01d6\7B\2\2\u01d5\u01d3")
+        buf.write("\7J\2\2\u01d3\u01d6\7B\2\2\u01d4\u01d6\7A\2\2\u01d5\u01d3")
         buf.write("\3\2\2\2\u01d5\u01d4\3\2\2\2\u01d6S\3\2\2\2\u01d7\u01d8")
         buf.write("\7$\2\2\u01d8\u01d9\7N\2\2\u01d9\u01db\7\b\2\2\u01da\u01dc")
         buf.write("\5V,\2\u01db\u01da\3\2\2\2\u01db\u01dc\3\2\2\2\u01dc\u01dd")
@@ -265,7 +265,7 @@ class PyNESTMLParser ( Parser ):
                      "']]'", "'return'", "'if'", "'elif'", "'else'", "'for'", 
                      "'in'", "'...'", "'step'", "'while'", "'neuron'", "'state'", 
                      "'parameters'", "'internals'", "'update'", "'equations'", 
-                     "'input'", "'<-'", "'spike'", "'current'", "'inhibitory'", 
+                     "'input'", "'<-'", "'current'", "'spike'", "'inhibitory'", 
                      "'excitatory'", "'output'", "<INVALID>", "<INVALID>", 
                      "<INVALID>", "<INVALID>", "':'", "'end'" ]
 
@@ -3159,6 +3159,7 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
             super().__init__(parent, invokingState)
             self.parser = parser
+            self.name = None # Token
             self.sizeParameter = None # Token
             self.isCurrent = None # Token
             self.isSpike = None # Token
@@ -3196,7 +3197,7 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 442
-            self.match(PyNESTMLParser.NAME)
+            localctx.name = self.match(PyNESTMLParser.NAME)
             self.state = 446
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__41:
@@ -3324,13 +3325,13 @@ class PyNESTMLParser ( Parser ):
             self.match(PyNESTMLParser.BLOCK_OPEN)
             self.state = 467
             token = self._input.LA(1)
-            if token in [PyNESTMLParser.T__62]:
+            if token in [PyNESTMLParser.T__63]:
                 self.state = 465
-                localctx.isSpike = self.match(PyNESTMLParser.T__62)
+                localctx.isSpike = self.match(PyNESTMLParser.T__63)
 
-            elif token in [PyNESTMLParser.T__63]:
+            elif token in [PyNESTMLParser.T__62]:
                 self.state = 466
-                localctx.isCurrent = self.match(PyNESTMLParser.T__63)
+                localctx.isCurrent = self.match(PyNESTMLParser.T__62)
 
             else:
                 raise NoViableAltException(self)

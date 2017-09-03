@@ -80,5 +80,5 @@ class ASTInput:
         if self.getInputLines() is not None:
             for inputDef in self.getInputLines():
                 ret += inputDef.printAST() + '\n'
-        ret += '\n'
+        ret += 'end\n'
         return ret

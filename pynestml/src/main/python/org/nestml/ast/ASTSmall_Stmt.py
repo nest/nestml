@@ -154,4 +154,11 @@ class ASTSmall_Stmt:
         :return: a string representation.
         :rtype: str
         """
-        return 'TODO: Ordering important'
+        if self.isAssignment():
+            return self.getAssignment().printAST()
+        elif self.isFunctionCall():
+            return self.getFunctionCall().printAST()
+        elif self.isDeclaration():
+            return self.getDeclaration().printAST()
+        else:
+            return self.getReturnStmt().printAST()

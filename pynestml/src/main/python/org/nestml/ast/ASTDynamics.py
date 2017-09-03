@@ -58,4 +58,4 @@ class ASTDynamics:
         :return: a string representing the dynamics block.
         :rtype: str
         """
-        return self.getBlock().printAST()
+        return 'update:\n' + self.getBlock().printAST() + 'end'

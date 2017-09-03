@@ -113,10 +113,10 @@ class ASTIF_Stmt:
         :return: a string representation
         :rtype: str
         """
-        ret = self.getIfClause().printAST() + '\n'
+        ret = self.getIfClause().printAST()
         if self.getElifClauses() is not None:
             for clause in self.getElifClauses():
-                ret += clause.printAST() + '\n'
+                ret += clause.printAST()
         if self.getElseClause() is not None:
             ret += self.getElseClause().printAST()
         ret += 'end'

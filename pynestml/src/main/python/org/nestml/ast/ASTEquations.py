@@ -56,4 +56,4 @@ class ASTEquations:
         :return: a string representing an equations block.
         :rtype: str
         """
-        return 'equations:\n' + self.getBlock().printAST() + '\n' + 'end'
+        return 'equations:\n' + self.getBlock().printAST() + 'end'

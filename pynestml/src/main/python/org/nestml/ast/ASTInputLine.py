@@ -63,6 +63,7 @@ class ASTInputLine:
         """
         assert (_name is not None)
         assert (_isSpike != _isCurrent)
+        assert (_inputTypes is not None)
         self.__isCurrent = _isCurrent
         self.__isSpike = _isSpike
         self.__inputTypes = _inputTypes
@@ -86,7 +87,8 @@ class ASTInputLine:
         :return: a new ASTInputLine object.
         :rtype: ASTInputLine
         """
-        return cls(_name, _sizeParameter, _inputTypes, _isSpike, _isCurrent)
+        return cls(_name=_name, _sizeParameter=_sizeParameter, _inputTypes=_inputTypes, _isSpike=_isSpike,
+                   _isCurrent=_isCurrent)
 
     def getName(self):
         """
@@ -136,7 +138,7 @@ class ASTInputLine:
         """
         return self.__isSpike
 
-    def isSCurrent(self):
+    def isCurrent(self):
         """
         Returns whether this is a current buffer or not.
         :return: True if current buffer, False else.
@@ -152,9 +154,9 @@ class ASTInputLine:
         """
         ret = self.getName()
         if self.hasIndexParameter():
-            ret += '[' + self.getIndexParameter().printAST() + ']'
+            ret += '[' + self.getIndexParameter() + ']'
         ret += '<-'
-        if self.hasIndexParameter():
+        if self.hasInputTypes():
             for iType in self.getInputTypes():
                 ret += iType.printAST() + ' '
         if self.isSpike():

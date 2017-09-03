@@ -78,4 +78,4 @@ class ASTOutput:
         :return: a string representation
         :rtype: str
         """
-        return 'output :\n' + ('spike' if self.isSpike() else 'current');
+        return 'output: ' + ('spike' if self.isSpike() else 'current') + '\n'
