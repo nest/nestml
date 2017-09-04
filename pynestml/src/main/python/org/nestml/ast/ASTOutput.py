@@ -22,9 +22,10 @@
  */
  @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTOutput:
+class ASTOutput(ASTElement):
     """
     This class is used to store output buffer declarations.
     ASTOutput represents the output block of the neuron:
@@ -36,25 +37,31 @@ class ASTOutput:
     """
     __type = None
 
-    def __init__(self, _type=None):
+    def __init__(self, _type=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _type: the type of the output buffer.
         :type _type: str
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_type is "spike" or _type is _type is "current"), '(NESTML) Wrong type (=%s) of buffer provided' % _type
+        assert (_type is 'spike' or _type is _type is 'current'), \
+            '(PyNestML) Wrong type (=%s) of buffer provided!' % _type
+        super(ASTOutput, self).__init__(_sourcePosition)
         self.__type = _type
 
     @classmethod
-    def makeASTOutput(cls, _type=None):
+    def makeASTOutput(cls, _type=None, _sourcePosition=None):
         """
         Factory method of the ASTOutput class.
         :param _type: the type of the output buffer.
         :type _type: str
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTOutput object
         :rtype: ASTOutput
         """
-        return cls(_type)
+        return cls(_type, _sourcePosition)
 
     def isSpike(self):
         """
@@ -62,7 +69,7 @@ class ASTOutput:
         :return: True if spike, otherwise False.
         :rtype: bool
         """
-        return self.__type is "spike"
+        return self.__type is 'spike'
 
     def isCurrent(self):
         """
@@ -70,7 +77,7 @@ class ASTOutput:
         :return: True if current, otherwise False.
         :rtype: bool
         """
-        return self.__type is "current"
+        return self.__type is 'current'
 
     def printAST(self):
         """

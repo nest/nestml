@@ -1,10 +1,31 @@
 """
+/*
+ *  ASTBitOperator.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTBitOperator:
+class ASTBitOperator(ASTElement):
     """
     This class is used to store a single bit operator.
     Grammar:
@@ -16,9 +37,12 @@ class ASTBitOperator:
     __isBitShiftLeft = False
     __isBitShiftRight = False
 
-    def __init__(self, _isBitAnd=False, _isBitXor=False, _isBitOr=False, _isBitShiftLeft=False, _isBitShiftRight=False):
+    def __init__(self, _isBitAnd=False, _isBitXor=False, _isBitOr=False, _isBitShiftLeft=False, _isBitShiftRight=False,
+                 _sourcePosition=None):
         """
         Standard constructor.
+        :param_sourcePosition: the position of the element in the source
+        :type _sourcePosition: ASTSourcePosition
         :param _isBitAnd: is bit and operator.
         :type _isBitAnd: bool
         :param _isBitXor: is bit xor operator.
@@ -30,6 +54,7 @@ class ASTBitOperator:
         :param _isBitShiftRight: is bit shift right operator.
         :type _isBitShiftRight: bool
         """
+        super(ASTBitOperator, self).__init__(_sourcePosition)
         self.__isBitShiftRight = _isBitShiftRight
         self.__isBitShiftLeft = _isBitShiftLeft
         self.__isBitOr = _isBitOr
@@ -38,7 +63,7 @@ class ASTBitOperator:
 
     @classmethod
     def makeASTBitOperator(cls, _isBitAnd=False, _isBitXor=False, _isBitOr=False, _isBitShiftLeft=False,
-                           _isBitShiftRight=False):
+                           _isBitShiftRight=False, _sourcePosition=None):
         """
         The factory method of the ASTBitOperator class.
         :param _isBitAnd: is bit and operator.
@@ -51,10 +76,12 @@ class ASTBitOperator:
         :type _isBitShiftLeft: bool
         :param _isBitShiftRight: is bit shift right operator.
         :type _isBitShiftRight: bool
+        :param_sourcePosition: the position of the element in the source
+        :type _sourcePosition: ASTSourcePosition
         :return: a new ASTBitOperator object.
         :rtype: ASTBitOperator
         """
-        return cls(_isBitAnd, _isBitXor, _isBitOr, _isBitShiftLeft, _isBitShiftRight)
+        return cls(_isBitAnd, _isBitXor, _isBitOr, _isBitShiftLeft, _isBitShiftRight, _sourcePosition)
 
     def isBitAnd(self):
         """

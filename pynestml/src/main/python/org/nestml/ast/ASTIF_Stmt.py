@@ -22,9 +22,12 @@
  */
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTIF_Clause import ASTIF_Clause
+from pynestml.src.main.python.org.nestml.ast.ASTELSE_Clause import ASTELSE_Clause
 
 
-class ASTIF_Stmt:
+class ASTIF_Stmt(ASTElement):
     """
     This class is used to store a single if block.
     Grammar:
@@ -37,7 +40,7 @@ class ASTIF_Stmt:
     __elifClauses = None
     __elseClause = None
 
-    def __init__(self, _ifClause=None, _elifClauses=list(), _elseClause=None):
+    def __init__(self, _ifClause=None, _elifClauses=list(), _elseClause=None, _sourcePosition=None):
         """
         Standard construcotr.
         :param _ifClause: the if clause
@@ -46,13 +49,22 @@ class ASTIF_Stmt:
         :type _elifClauses: ASTELIF_Clause
         :param _elseClause: (optional) else clause
         :type _elseClause: ASTELSE_Clause
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_ifClause is not None and isinstance(_ifClause, ASTIF_Clause)), \
+            '(PyNestML.AST.If_Stmt) No or wrong type of if-clause provided!'
+        assert (_elifClauses is None or isinstance(_elifClauses, list)), \
+            '(PyNestML.AST.If_Stmt) Wrong type of elif-clauses provided!'
+        assert (_elseClause is None or isinstance(_elseClause, ASTELSE_Clause)), \
+            '(PyNestML.AST.If_Stmt) Wrong type of else-clauses provided!'
+        super(ASTIF_Stmt, self).__init__(_sourcePosition)
         self.__elseClause = _elseClause
         self.__ifClause = _ifClause
         self.__elifClauses = _elifClauses
 
     @classmethod
-    def makeASTIF_Stmt(cls, _ifClause=None, _elifClauses=list(), _elseClause=None):
+    def makeASTIF_Stmt(cls, _ifClause=None, _elifClauses=list(), _elseClause=None, _sourcePosition=None):
         """
         The factory method of the ASTIF_Stmt class.
         :param _ifClause: the if clause
@@ -61,11 +73,12 @@ class ASTIF_Stmt:
         :type _elifClauses: ASTELIF_Clause
         :param _elseClause: (optional) else clause
         :type _elseClause: ASTELSE_Clause
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTIF_Stmt object
         :rtype: ASTIF_Stmt
         """
-        assert (_ifClause is not None)  # at least the if-clause has to be given
-        return cls(_ifClause, _elifClauses, _elseClause)
+        return cls(_ifClause, _elifClauses, _elseClause, _sourcePosition)
 
     def getIfClause(self):
         """

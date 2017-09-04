@@ -1,6 +1,26 @@
 """
+/*
+ *  ASTExpression.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
 from pynestml.src.main.python.org.nestml.ast.ASTUnaryOperator import ASTUnaryOperator
 from pynestml.src.main.python.org.nestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
@@ -8,9 +28,10 @@ from pynestml.src.main.python.org.nestml.ast.ASTComparisonOperator import ASTCom
 from pynestml.src.main.python.org.nestml.ast.ASTBitOperator import ASTBitOperator
 from pynestml.src.main.python.org.nestml.ast.ASTLogicalOperator import ASTLogicalOperator
 from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTExpression:
+class ASTExpression(ASTElement):
     """
     ASTExpr, i.e., several subexpressions combined by one or more operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
     or a simple expression, e.g. 10mV.
@@ -45,7 +66,7 @@ class ASTExpression:
 
     def __init__(self, _hasLeftParentheses=False, _hasRightParentheses=False, _unaryOperator=None, _isLogicalNot=False,
                  _expression=None, _lhs=None, _binaryOperator=None, _rhs=None, _condition=None, _ifTrue=None,
-                 _ifNot=None):
+                 _ifNot=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _hasLeftParentheses: is encapsulated in brackets (left). 
@@ -71,6 +92,8 @@ class ASTExpression:
         :type _ifTrue: ASTExpression
         :param _ifNot: if condition does not hold, this expression is executed.
         :type _ifNot: ASTExpression
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
         assert ((_unaryOperator is None) or (isinstance(_unaryOperator, ASTUnaryOperator))), \
             '(NESTML) Not an unary operator.'
@@ -81,6 +104,7 @@ class ASTExpression:
                                               (isinstance(_binaryOperator, ASTLogicalOperator)) or
                                               (isinstance(_binaryOperator, ASTComparisonOperator)))), \
             '(NESTML) Not a binary operator.'
+        super(ASTExpression, self).__init__(_sourcePosition)
         self.__hasLeftParentheses = _hasLeftParentheses
         self.__hasRightParentheses = _hasRightParentheses
         self.__isLogicalNot = _isLogicalNot
@@ -106,7 +130,7 @@ class ASTExpression:
 
     @classmethod
     def makeExpression(cls, _hasLeftParentheses=False, _hasRightParentheses=False, _unaryOperator=None,
-                       _isLogicalNot=False, _expression=None):
+                       _isLogicalNot=False, _expression=None, _sourcePosition=None):
         """
         The factory method used to create expression which are either encapsulated in parentheses (e.g., (10mV)) 
         OR have a unary (e.g., ~bitVar), OR are negated (e.g., not logVar), or are simple expression (e.g., 10mV).
@@ -121,16 +145,19 @@ class ASTExpression:
         :param _expression: the expression either encapsulated in brackets or negated or with a with a unary op, or a 
         simple expression.
         :type _expression: ASTExpression
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTExpression object.
         :rtype: ASTExpression
         """
         assert ((_hasLeftParentheses ^ _hasRightParentheses) is False), \
             '(NESTML) Parenthesis on both sides of expression expected.'
         return cls(_hasLeftParentheses=_hasLeftParentheses, _hasRightParentheses=_hasRightParentheses,
-                   _unaryOperator=_unaryOperator, _isLogicalNot=_isLogicalNot, _expression=_expression)
+                   _unaryOperator=_unaryOperator, _isLogicalNot=_isLogicalNot, _expression=_expression,
+                   _sourcePosition=_sourcePosition)
 
     @classmethod
-    def makeCompoundExpression(cls, _lhs=None, _binaryOperator=None, _rhs=None):
+    def makeCompoundExpression(cls, _lhs=None, _binaryOperator=None, _rhs=None, _sourcePosition=None):
         """
         The factory method used to create compound expressions, e.g. 10mV + V_m.
         :param _lhs: the left-hand side expression.
@@ -139,16 +166,18 @@ class ASTExpression:
         :type _binaryOperator: one of ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
         :param _rhs: the right-hand side expression
         :type _rhs: ASTExpression
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTExpression object.
         :rtype: ASTExpression
         """
         assert (_lhs is not None), '(NESTML) The left-hand side expression must not be empty.'
         assert (_rhs is not None), '(NESTML) The right-hand side expression must not be empty.'
         assert (_binaryOperator is not None), '(NESTML) The binary operator mus not be empty.'
-        return cls(_lhs=_lhs, _binaryOperator=_binaryOperator, _rhs=_rhs)
+        return cls(_lhs=_lhs, _binaryOperator=_binaryOperator, _rhs=_rhs, _sourcePosition=_sourcePosition)
 
     @classmethod
-    def makeTernaryExpression(cls, _condition=None, _ifTrue=None, _ifNot=None):
+    def makeTernaryExpression(cls, _condition=None, _ifTrue=None, _ifNot=None, _sourcePosition=None):
         """
         The factory method used to create a ternary operator expression, e.g., 10mV<V_m?10mV:V_m
         :param _condition: the condition of a ternary operator
@@ -157,13 +186,15 @@ class ASTExpression:
         :type _ifTrue: ASTExpression
         :param _ifNot: if condition does not hold, this expression is executed.
         :type _ifNot: ASTExpression
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTExpression object.
         :rtype: ASTExpression
         """
         assert (_condition is not None), '(NESTML) Condition of ternary operator must not be empty.'
         assert (_ifTrue is not None), '(NESTML) The if-true case of ternary operator must not be empty.'
         assert (_ifNot is not None), '(NESTML) The if-not case of ternary operator must not be empty.'
-        return cls(_condition=_condition, _ifTrue=_ifTrue, _ifNot=_ifNot)
+        return cls(_condition=_condition, _ifTrue=_ifTrue, _ifNot=_ifNot, _sourcePosition=_sourcePosition)
 
     def isSimpleExpression(self):
         """

@@ -22,7 +22,7 @@
  */
  @author kperun
 """
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 
 
@@ -40,7 +40,8 @@ class ASTElement:
         :param _sourcePosition: a source position element.
         :type _sourcePosition: ASTSourcePosition
         """
-        assert (isinstance(_sourcePosition, ASTSourcePosition)), '(PyNestML.AST) No source position handed over!'
+        assert (_sourcePosition is None or isinstance(_sourcePosition, ASTSourcePosition)), \
+            '(PyNestML.AST) No source position handed over!'
         self.__sourcePosition = _sourcePosition
 
     def getSourcePosition(self):

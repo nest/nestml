@@ -1,10 +1,31 @@
 """
-TODO header
+/*
+ *  ASTEquation.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTEquation:
+class ASTEquation(ASTElement):
     """
     This class is used to store ast equations, e.g., V_m' = 10mV + V_m.
     ASTEquation Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
@@ -16,27 +37,34 @@ class ASTEquation:
     __lhs = None
     __rhs = None
 
-    def __init__(self, _lhs=None, _rhs=None):
+    def __init__(self, _lhs=None, _rhs=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _lhs: an object of type ASTDerivative
         :type _lhs: ASTDerivative
         :param _rhs: an object of type ASTExpression.
         :type _rhs: ASTExpression
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        super(ASTEquation, self).__init__(_sourcePosition)
         self.__lhs = _lhs
         self.__rhs = _rhs
 
     @classmethod
-    def makeASTEquation(cls, _lhs=None, _rhs=None):
+    def makeASTEquation(cls, _lhs=None, _rhs=None, _sourcePosition=None):
         """
         A factory method used to generate new ASTEquation.
         :param _lhs: an object of type ASTDerivative
         :type _lhs: ASTDerivative
         :param _rhs: an object of type ASTExpression
         :type _rhs: ASTExpression
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
+        :return a new ASTEquation object.
+        :rtype ASTEquation
         """
-        return cls(_lhs, _rhs)
+        return cls(_lhs, _rhs, _sourcePosition)
 
     def getLhs(self):
         """

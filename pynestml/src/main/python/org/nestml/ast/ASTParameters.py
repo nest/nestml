@@ -22,9 +22,10 @@
  */
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTParameters:
+class ASTParameters(ASTElement):
     """
     This class is used to store a set of parameters.
     ASTParameters models parameter list in function declaration.
@@ -34,23 +35,31 @@ class ASTParameters:
     """
     __parameterList = None
 
-    def __init__(self, _parameterList=list()):
+    def __init__(self, _parameterList=list(), _sourcePosition=None):
         """
         Standard constructor.
         :param _parameterList: a list of parameter objects. 
         :type _parameterList: list(ASTParameter)
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_parameterList is not None and isinstance(_parameterList, list)), \
+            '(PyNestML.AST.Parameters) No or wrong type of parameter list provided!'
+        super(ASTParameters, self).__init__(_sourcePosition)
         self.__parameterList = _parameterList
 
     @classmethod
-    def makeASTParameters(cls, _parameterList=list()):
+    def makeASTParameters(cls, _parameterList=list(), _sourcePosition=None):
         """
         Factory method of the ASTParameters class.
         :param _parameterList: a list of parameter objects. 
         :type _parameterList: list(ASTParameter)
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTParameters object.
         :rtype: ASTParameters
         """
+        return cls(_parameterList, _sourcePosition)
 
     def getParametersList(self):
         """

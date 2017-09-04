@@ -22,9 +22,10 @@
  */
  @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTLogicalOperator:
+class ASTLogicalOperator(ASTElement):
     """
     This class is used to store a single logical operator.
     Grammar:
@@ -33,30 +34,39 @@ class ASTLogicalOperator:
     __isLogicalAnd = False
     __isLogicalOr = False
 
-    def __init__(self, _isLogicalAnd=False, _isLogicalOr=False):
+    def __init__(self, _isLogicalAnd=False, _isLogicalOr=False, _sourcePosition=None):
         """
         Standard constructor.
         :param _isLogicalAnd: is logical and.
         :type _isLogicalAnd: bool
         :param _isLogicalOr: is logical or.
         :type _isLogicalOr: bool
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
-        assert _isLogicalAnd ^ _isLogicalOr, "(NESTML) Only one operator allowed."
+        assert (_isLogicalOr is None or isinstance(_isLogicalOr, bool)), \
+            '(PyNestML.AST.LogicalOperator) Wrong type of logical operator!'
+        assert (_isLogicalAnd is None or isinstance(_isLogicalAnd, bool)), \
+            '(PyNestML.AST.LogicalOperator) Wrong type of logical operator!'
+        assert (_isLogicalAnd ^ _isLogicalOr), '(PyNestML.AST.LogicalOperator) Only one operator allowed!'
+        super(ASTLogicalOperator, self).__init__(_sourcePosition)
         self.__isLogicalAnd = _isLogicalAnd
         self.__isLogicalOr = _isLogicalOr
 
     @classmethod
-    def makeASTLogicalOperator(cls, _isLogicalAnd=False, _isLogicalOr=False):
+    def makeASTLogicalOperator(cls, _isLogicalAnd=False, _isLogicalOr=False, _sourcePosition=None):
         """
         The factory method of the ASTLogicalOperator class.
         :param _isLogicalAnd: is logical and.
         :type _isLogicalAnd: bool
         :param _isLogicalOr: is logical or.
         :type _isLogicalOr: bool
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTLogicalOperator object.
         :rtype: ASTLogicalOperator
         """
-        return cls(_isLogicalAnd, _isLogicalOr)
+        return cls(_isLogicalAnd, _isLogicalOr, _sourcePosition)
 
     def isAnd(self):
         """

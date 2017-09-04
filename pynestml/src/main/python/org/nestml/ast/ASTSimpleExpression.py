@@ -24,9 +24,10 @@
 """
 from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
 from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTSimpleExpression:
+class ASTSimpleExpression(ASTElement):
     """
     This class is used to store a simple expression, e.g. +42mV.
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.
@@ -47,7 +48,7 @@ class ASTSimpleExpression:
     __isInf = False
 
     def __init__(self, _functionCall=None, _name=None, _booleanLiteral=None, _numericLiteral=None, _isInf=False,
-                 _variable=None):
+                 _variable=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _functionCall: a function call.
@@ -62,7 +63,21 @@ class ASTSimpleExpression:
         :type _isInf: bool
         :param _variable: a variable object.
         :type _variable: ASTVariable
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
+            '(PyNESTML.AST.SimpleExpression) Not a function call provided.'
+        assert (_name is None or isinstance(_name, str)), \
+            '(PyNESTML.AST.SimpleExpression) Not a string provided as name.'
+        assert (_booleanLiteral is None or isinstance(_booleanLiteral, bool)), \
+            '(PyNESTML.AST.SimpleExpression) Not a bool provided.'
+        assert (_isInf is None or isinstance(_isInf, bool)), \
+            '(PyNESTML.AST.SimpleExpression) Not a bool provided.'
+        assert (_variable is None or isinstance(_variable, ASTVariable)), \
+            '(PyNESTML.AST.SimpleExpression) Not a variable provided.'
+
+        super(ASTSimpleExpression, self).__init__(_sourcePosition)
         self.__functionCall = _functionCall
         self.__name = _name
         if _booleanLiteral is not None:
@@ -76,7 +91,7 @@ class ASTSimpleExpression:
 
     @classmethod
     def makeASTSimpleExpression(cls, _functionCall=None, _name=None, _booleanLiteral=None, _numericLiteral=None,
-                                _isInf=False, _variable=None):
+                                _isInf=False, _variable=None, _sourcePosition=None):
         """
         The factory method of the ASTSimpleExpression class.
         :param _functionCall: a function call.
@@ -91,16 +106,12 @@ class ASTSimpleExpression:
         :type _isInf: bool
         :param _variable: a variable object.
         :type _variable: ASTVariable
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTSimpleExpression object.
         :rtype: ASTSimpleExpression
         """
-        assert (_functionCall is None or isinstance(_functionCall,
-                                                    ASTFunctionCall)), '(PyNESTML.AST) Not a function call provided.'
-        assert (_name is None or isinstance(_name, str)), '(PyNESTML.AST) Not a string provided as name.'
-        assert (_booleanLiteral is None or isinstance(_booleanLiteral, bool)), '(PyNESTML.AST) Not a bool provided.'
-        assert (_isInf is None or isinstance(_isInf, bool)), '(PyNESTML.AST) Not a bool provided.'
-        assert (_variable is None or isinstance(_variable, ASTVariable)), '(PyNESTML.AST) Not a variable provided.'
-        return cls(_functionCall, _name, _booleanLiteral, _numericLiteral, _isInf, _variable)
+        return cls(_functionCall, _name, _booleanLiteral, _numericLiteral, _isInf, _variable, _sourcePosition)
 
     def isFunctionCall(self):
         """

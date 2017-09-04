@@ -23,36 +23,44 @@
 @author kperun
 """
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTNESTMLCompilationUnit:
+class ASTNESTMLCompilationUnit(ASTElement):
     """
     The ASTNESTMLCompilationUnit class as used to store a collection of processed ASTNeurons.
     """
     # a list of all processed neurons
     __neuron_list = None
 
-    def __init__(self):
+    def __init__(self, _sourcePosition=None):
         """
         Standard constructor of ASTNESTMLCompilationUnit.
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
-        self.__neuron_list = []
+        super(ASTNESTMLCompilationUnit, self).__init__(_sourcePosition)
+        self.__neuron_list = list()
 
     @classmethod
-    def makeASTNESTMLCompilationUnit(cls, _listOfNeurons=list()):
+    def makeASTNESTMLCompilationUnit(cls, _listOfNeurons=list(), _sourcePosition=None):
         """
         A factory method used to generate new ASTNESTMLCompilationUnits.
         :param _listOfNeurons: a list of ASTNeurons
         :type _listOfNeurons: list
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new object of type ASTNESTMLCompilationUnits.
         :rtype: ASTNESTMLCompilationUnits
         """
-        assert (_listOfNeurons is not None), '(NESTML) Handed none as list of neurons.'
-        instance = cls()
+        assert (_listOfNeurons is not None), '(PyNestML.AST.NESTMLCompilationUnit) Handed over element not a list!'
+        instance = cls(_sourcePosition)
         for i in _listOfNeurons:
             # ensure that only object of type Neuron are added
             if isinstance(i, ASTNeuron):
                 instance.addNeuron(i)
+            else:
+                raise NotANeuronException('(PyNestML.AST.NESTMLCompilationUnit) Not a neuron handed over!')
         return instance
 
     def addNeuron(self, _neuron):
@@ -60,7 +68,7 @@ class ASTNESTMLCompilationUnit:
         Expects an instance of neuron element which is added to the collection.
         :param _neuron: an instance of a neuron 
         :type _neuron: ASTNeuron
-        :return: no returnd value
+        :return: no returned value
         :rtype: void
         """
         assert (_neuron is not None), '(NESTML) "None" handed over as neuron to add.'
@@ -98,3 +106,7 @@ class ASTNESTMLCompilationUnit:
             for neuron in self.getNeuronList():
                 ret += neuron.printAST() + '\n'
         return ret
+
+
+class NotANeuronException(Exception):
+    pass

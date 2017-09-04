@@ -1,10 +1,34 @@
 """
+/*
+ *  ASTFunction.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
+from pynestml.src.main.python.org.nestml.ast.ASTParameters import ASTParameters
+from pynestml.src.main.python.org.nestml.ast.ASTReturnStmt import ASTReturnStmt
 
 
-class ASTFunction:
+class ASTFunction(ASTElement):
     """
     This class is used to store a user-defined function.
     ASTFunction a function definition:
@@ -27,7 +51,7 @@ class ASTFunction:
     __returnType = None
     __block = None
 
-    def __init__(self, _name=None, _parameters=None, _returnType=None, _block=None):
+    def __init__(self, _name=None, _parameters=None, _returnType=None, _block=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _name: the name of the defined function.
@@ -38,16 +62,24 @@ class ASTFunction:
         :type _returnType: ASTDataType
         :param _block: a block of declarations.
         :type _block: ASTBlock
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_name is not None)
-        assert (_block is not None)
+        assert (_name is not None and isinstance(_name, str)), '(PyNestML.AST.Function) No name or wrong type provided!'
+        assert (_block is not None and isinstance(_block, ASTBlock)), \
+            '(PyNestML.AST.Function) No block or wrong type provided!'
+        assert (_parameters is None or isinstance(_parameters, ASTParameters)), \
+            '(PyNestML.AST.Function) Wrong type of parameters provided!'
+        assert (_returnType is None or isinstance(_returnType, ASTReturnStmt)), \
+            '(PyNestML.AST.Function) Wrong type of return provided!'
+        super(ASTFunction, self).__init__(_sourcePosition)
         self.__block = _block
         self.__returnType = _returnType
         self.__parameters = _parameters
         self.__name = _name
 
     @classmethod
-    def makeASTFunction(cls, _name=None, _parameters=None, _returnType=None, _block=None):
+    def makeASTFunction(cls, _name=None, _parameters=None, _returnType=None, _block=None, _sourcePosition=None):
         """
         Factory method of the ASTFunction class.
         :param _name: the name of the defined function.
@@ -58,10 +90,12 @@ class ASTFunction:
         :type _returnType: ASTDataType
         :param _block: a block of declarations.
         :type _block: ASTBlock
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTFunction object.
         :rtype: ASTFunction
         """
-        return cls(_name, _parameters, _returnType, _block)
+        return cls(_name, _parameters, _returnType, _block, _sourcePosition)
 
     def getName(self):
         """

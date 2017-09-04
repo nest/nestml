@@ -22,9 +22,10 @@
  */
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTVariable:
+class ASTVariable(ASTElement):
     """
     This class is used to store a single variable.
     
@@ -36,32 +37,38 @@ class ASTVariable:
     __name = None
     __differentialOrder = None
 
-    def __init__(self, _name=None, _differentialOrder=0):
+    def __init__(self, _name=None, _differentialOrder=0, _sourcePosition=None):
         """
         Standard constructor.
         :param _name: the name of the variable
         :type _name: str
         :param _differentialOrder: the differential order of the variable.
         :type _differentialOrder: int
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
-        assert (
-            _differentialOrder >= 0), "(PyNESTML.AST) Differential order must be at least 0, is %d" % _differentialOrder
-        assert (_name is not None), "(PyNESTML.AST) Name of variable must not be None"
+        assert (_differentialOrder >= 0), \
+            '(PyNESTML.AST.Variable) Differential order must be at least 0, is %d' % _differentialOrder
+        assert (_name is not None), \
+            '(PyNESTML.AST.Variable) Name of variable must not be None'
+        super(ASTVariable, self).__init__(_sourcePosition)
         self.__name = _name
         self.__differentialOrder = _differentialOrder
 
     @classmethod
-    def makeASTVariable(cls, _name=None, _differentialOrder=0):
+    def makeASTVariable(cls, _name=None, _differentialOrder=0, _sourcePosition=None):
         """
         The factory method of the ASTVariable class.
         :param _name: the name of the variable
         :type _name: str
         :param _differentialOrder: the differential order of the variable.
         :type _differentialOrder: int
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTVariable object.
         :rtype: ASTVariable
         """
-        return cls(_name, _differentialOrder)
+        return cls(_name, _differentialOrder, _sourcePosition)
 
     def getName(self):
         """

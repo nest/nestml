@@ -54,8 +54,10 @@ class ASTArithmeticOperator(ASTElement):
         :type _isMinusOp: bool
         :param _isPowOp: is a power operator.
         :type _isPowOp: bool
+        :param _sourcePosition: the position of this element in the source file
+        :type _sourcePosition: ASTSourcePosition
         """
-        super().__init__(_sourcePosition=_sourcePosition)
+        super(ASTArithmeticOperator,self).__init__(_sourcePosition)
         self.__isTimesOp = _isTimesOp
         self.__isDivOp = _isDivOp
         self.__isModuloOp = _isModuloOp
@@ -82,6 +84,8 @@ class ASTArithmeticOperator(ASTElement):
         :type _isMinusOp: bool
         :param _isPowOp: is a power operator.
         :type _isPowOp: bool
+        :param _sourcePosition: the position of this element in the source file
+        :type _sourcePosition: ASTSourcePosition
         :return: a new ASTArithmeticOperator object.
         :rtype: ASTArithmeticOperator
         """
@@ -157,9 +161,3 @@ class ASTArithmeticOperator(ASTElement):
             return ' ** '
         else:
             raise Exception("(NESTML) Arithmetic operator not specified.")
-
-    def sourceEnd(self):
-        super(ASTArithmeticOperator, self).sourceEnd()
-
-    def sourceStart(self):
-        super(ASTArithmeticOperator, self).sourceStart()

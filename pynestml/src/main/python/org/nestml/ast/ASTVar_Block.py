@@ -22,9 +22,10 @@
  */
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTVar_Block:
+class ASTVar_Block(ASTElement):
     """
     This class is used to store a block of variable declarations.
     ASTVar_Block represent a block with variables, e.g.:
@@ -48,7 +49,8 @@ class ASTVar_Block:
     __isInternals = False
     __declarations = None
 
-    def __init__(self, _isState=False, _isParameters=False, _isInternals=False, _declarations=list()):
+    def __init__(self, _isState=False, _isParameters=False, _isInternals=False, _declarations=list(),
+                 _sourcePosition=None):
         """
         Standard constructor.
         :param _isState: is a state block.
@@ -59,14 +61,22 @@ class ASTVar_Block:
         :type _isInternals: bool
         :param _declarations: a list of declarations.
         :type _declarations: list(ASTDeclaration)
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_isInternals or _isParameters or _isState), \
+            '(PyNESTML.AST.Var_Block) Type of variable block not specified!'
+        assert (_declarations is None or isinstance(_declarations, list)), \
+            '(PyNESTML.AST.Var_Block) Wrong type of declaration provided'
+        super(ASTVar_Block, self).__init__(_sourcePosition)
         self.__declarations = _declarations
         self.__isInternals = _isInternals
         self.__isParameters = _isParameters
         self.__isState = _isState
 
     @classmethod
-    def makeASTVar_Block(cls, _isState=False, _isParameters=False, _isInternals=False, _declarations=list()):
+    def makeASTVar_Block(cls, _isState=False, _isParameters=False, _isInternals=False, _declarations=list(),
+                         _sourcePosition=None):
         """
         Factory method of the ASTVar_Block class.
         :param _isState: is a state block.
@@ -77,12 +87,13 @@ class ASTVar_Block:
         :type _isInternals: bool
         :param _declarations: a list of declarations.
         :type _declarations: list(ASTDeclaration)
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new variable block object.
         :rtype: ASTVar_Block 
         """
-        assert (_isInternals or _isParameters or _isState), '(PyNESTML.AST) Type of variable block not specified.'
         return cls(_isState=_isState, _isParameters=_isParameters, _isInternals=_isInternals,
-                   _declarations=_declarations)
+                   _declarations=_declarations, _sourcePosition=_sourcePosition)
 
     def isState(self):
         """

@@ -24,9 +24,10 @@
 """
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTWHILE_Stmt:
+class ASTWHILE_Stmt(ASTElement):
     """
     This class is used to store a new while-block.
     Grammar:
@@ -35,31 +36,38 @@ class ASTWHILE_Stmt:
     __condition = None
     __block = None
 
-    def __init__(self, _condition=None, _block=None):
+    def __init__(self, _condition=None, _block=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _condition: the condition of the block.
         :type _condition: ASTExpression
         :param _block: a block of statements.
         :type _block: ASTBlock
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_condition is not None and isinstance(_condition, ASTExpression)), \
+            '(PyNESTML.AST.While-Stmt) Handed over object not an expression.'
+        assert (_block is not None and isinstance(_block, ASTBlock)), \
+            '(PyNESTML.While-Stmt) Handed over object not a block.'
+        super(ASTWHILE_Stmt, self).__init__(_sourcePosition)
         self.__block = _block
         self.__condition = _condition
 
     @classmethod
-    def makeASTWHILE_Stmt(cls, _condition=None, _block=None):
+    def makeASTWHILE_Stmt(cls, _condition=None, _block=None, _sourcePosition=None):
         """
         The factory method of the ASTWHILE_Stmt class.
         :param _condition: the condition of the block.
         :type _condition: ASTExpression
         :param _block: a block of statements.
         :type _block: ASTBlock
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new block
         :rtype: ASTWHILE_Stmt
         """
-        assert (isinstance(_condition, ASTExpression)), '(PyNESTML.AST) Handed over object not an expression.'
-        assert (isinstance(_block, ASTBlock)), '(PyNESTML.AST) Handed over object not a block.'
-        return cls(_condition, _block)
+        return cls(_condition, _block, _sourcePosition)
 
     def getCondition(self):
         """

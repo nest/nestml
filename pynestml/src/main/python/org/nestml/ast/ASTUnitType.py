@@ -22,9 +22,10 @@
  */
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTUnitType:
+class ASTUnitType(ASTElement):
     """
     This class stores information regarding unit types and their properties.
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
@@ -53,7 +54,7 @@ class ASTUnitType:
     __unit = None
 
     def __init__(self, _leftParentheses=False, _compoundUnit=None, _rightParentheses=False, _base=None, _isPow=False,
-                 _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None):
+                 _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None, _sourcePosition=None):
         """
         Standard constructor of ASTUnitType.
         :param _leftParentheses: contains a left parenthesis
@@ -80,15 +81,16 @@ class ASTUnitType:
         :type _unit: string
         """
         assert (isinstance(_base, ASTUnitType) or isinstance(_base, str) or _base is None), \
-            '(PyNESTML.AST) Wrong type of base expression provided.'
+            '(PyNESTML.AST.UnitType) Wrong type of base expression provided.'
         assert (isinstance(_exponent, int) or _exponent is None), \
-            '(PyNESTML.AST) Wrong type of exponent provided, expected "int", provided %s' % type(_exponent)
+            '(PyNESTML.AST.UnitType) Wrong type of exponent provided, expected "int", provided %s' % type(_exponent)
         assert (isinstance(_lhs, ASTUnitType) or isinstance(_lhs, str) or isinstance(_lhs, int) or _lhs is None), \
-            '(PyNESTML.AST) Wrong type of left-hand side expression provided.'
+            '(PyNESTML.AST.UnitType) Wrong type of left-hand side expression provided.'
         assert (isinstance(_rhs, ASTUnitType) or isinstance(_rhs, str) or _lhs is None), \
-            '(PyNESTML.AST) Wrong type of right-hand side expression provided.'
+            '(PyNESTML.AST.UnitType) Wrong type of right-hand side expression provided.'
         assert (isinstance(_compoundUnit, ASTUnitType) or isinstance(_compoundUnit, str) or _compoundUnit is None), \
-            '(PyNESTML.AST) Wrong type of encapsulated unit expression provided.'
+            '(PyNESTML.AST.UnitType) Wrong type of encapsulated unit expression provided.'
+        super(ASTUnitType, self).__init__(_sourcePosition)
         self.__hasLeftParentheses = _leftParentheses
         self.__compoundUnit = _compoundUnit
         self.__hasRightParentheses = _rightParentheses
@@ -103,8 +105,8 @@ class ASTUnitType:
 
     @classmethod
     def makeASTUnitType(cls, _leftParentheses=False, _compoundUnit=None, _rightParentheses=False, _base=None,
-                        _isPow=False,
-                        _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False, _unit=None):
+                        _isPow=False, _exponent=None, _lhs=None, _rhs=None, _isDiv=False, _isTimes=False,
+                        _unit=None, _sourcePosition=None):
         """
         Factory method used to create new instances of the class.
         :param _leftParentheses: contains a left parenthesis
@@ -129,9 +131,13 @@ class ASTUnitType:
         :type _isTimes: bool
         :param _unit: is a single unit, e.g. mV
         :type _unit: string
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
+        :return a new ASTUnitType object.
+        :rtype ASTUnitType
         """
         return cls(_leftParentheses, _compoundUnit, _rightParentheses, _base, _isPow, _exponent, _lhs, _rhs, _isDiv,
-                   _isTimes, _unit)
+                   _isTimes, _unit, _sourcePosition)
 
     def isEncapsulated(self):
         """

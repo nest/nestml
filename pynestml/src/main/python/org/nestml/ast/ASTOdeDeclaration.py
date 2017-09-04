@@ -25,9 +25,10 @@
 from pynestml.src.main.python.org.nestml.ast.ASTEquation import ASTEquation
 from pynestml.src.main.python.org.nestml.ast.ASTShape import ASTShape
 from pynestml.src.main.python.org.nestml.ast.ASTOdeFunction import ASTOdeFunction
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTOdeDeclaration:
+class ASTOdeDeclaration(ASTElement):
     """
     This class is used to store an arbitrary ODE declaration, e.g., a shape.
     Grammar:
@@ -35,22 +36,29 @@ class ASTOdeDeclaration:
     """
     __elements = None
 
-    def __init__(self, _elements=list()):
+    def __init__(self, _elements=list(), _sourcePosition=None):
         """
         Standard constructor.
         :param _elements: a list of elements.
         :type _elements: list(ASTEquation|ASTShape|ASTOdeFunction)
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_elements is not None and isinstance(_elements, list)), \
+            '(PyNestML.AST.OdeDeclaration) Wrong type of declarations provided!'
+        super(ASTOdeDeclaration, self).__init__(_sourcePosition)
         self.__elements = _elements
 
     @classmethod
-    def makeASTOdeDeclaration(cls, _elements=list()):
+    def makeASTOdeDeclaration(cls, _elements=list(), _sourcePosition=None):
         """
         A factory method used to generate new ASTOdeDeclaration.
         :param _elements: a list of elements.
         :type _elements: list(ASTEquation|ASTShape|ASTOdeFunction)
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
-        return cls(_elements)
+        return cls(_elements, _sourcePosition)
 
     def getElements(self):
         """

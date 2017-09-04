@@ -1,10 +1,31 @@
 """
+/*
+ *  ASTDeclaration.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTDeclaration:
+class ASTDeclaration(ASTElement):
     """
     This class is used to store declarations.
     ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
@@ -34,8 +55,8 @@ class ASTDeclaration:
     __comment = None
     __invariant = None
 
-    def __init__(self, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None,
-                 _sizeParameter=None, _expression=None, _comment=None, _invariant=None):
+    def __init__(self, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None, _sizeParameter=None,
+                 _expression=None, _comment=None, _invariant=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _isRecordable: is a recordable declaration.
@@ -54,7 +75,10 @@ class ASTDeclaration:
         :type _comment: str
         :param _invariant: a optional invariant.
         :type _invariant: ASTExpression.
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        super(ASTDeclaration, self).__init__(_sourcePosition)
         self.__isRecordable = _isRecordable
         self.__isFunction = _isFunction
         self.__variables = _variables
@@ -66,7 +90,7 @@ class ASTDeclaration:
 
     @classmethod
     def makeASTDeclaration(cls, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None,
-                           _sizeParameter=None, _expression=None, _comment=None, _invariant=None):
+                           _sizeParameter=None, _expression=None, _comment=None, _invariant=None, _sourcePosition=None):
         """
         The factory method of the ASTDeclaration class.
         :param _isRecordable: is a recordable declaration.
@@ -85,10 +109,13 @@ class ASTDeclaration:
         :type _comment: str
         :param _invariant: a optional invariant.
         :type _invariant: ASTExpr.
+        :param _sourcePosition: the position of this element in the source file
+        :type _sourcePosition: ASTSourcePosition
         :return: a new ASTDeclaration object.
         :rtype: ASTDeclaration
         """
-        return cls(_isRecordable, _isFunction, _variables, _dataType, _sizeParameter, _expression, _comment, _invariant)
+        return cls(_isRecordable, _isFunction, _variables, _dataType, _sizeParameter,
+                   _expression, _comment, _invariant, _sourcePosition)
 
     def isRecordable(self):
         """

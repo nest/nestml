@@ -22,9 +22,10 @@
  */
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTInputType:
+class ASTInputType(ASTElement):
     """
     This class is used to store the type of a buffer.
     ASTInputType represents the type of the input line e.g.: inhibitory or excitatory:
@@ -36,30 +37,39 @@ class ASTInputType:
     __isInhibitory = False
     __isExcitatory = False
 
-    def __init__(self, _isInhibitory=False, _isExcitatory=False):
+    def __init__(self, _isInhibitory=False, _isExcitatory=False, _sourcePosition=None):
         """
         Standard constructor.
         :param _isInhibitory: is inhibitory buffer.
         :type _isInhibitory: bool
         :param _isExcitatory: is excitatory buffer.
         :type _isExcitatory: book
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_isExcitatory != _isInhibitory)
+        assert (_isInhibitory is None or isinstance(_isInhibitory, bool)), \
+            '(PyNestML.AST.InputType) Wrong type of specifier provided!'
+        assert (_isExcitatory is None or isinstance(_isExcitatory, bool)), \
+            '(PyNestML.AST.InputType) Wrong type of specifier provided!'
+        assert (_isExcitatory != _isInhibitory), '(PyNestML.AST.InputType) Buffer wrongly specified!'
+        super(ASTInputType, self).__init__(_sourcePosition)
         self.__isExcitatory = _isExcitatory
         self.__isInhibitory = _isInhibitory
 
     @classmethod
-    def makeASTInputType(cls, _isInhibitory=False, _isExcitatory=False):
+    def makeASTInputType(cls, _isInhibitory=False, _isExcitatory=False, _sourcePosition=None):
         """
         Factory method of the ASTInputType class.
         :param _isInhibitory: is inhibitory buffer.
         :type _isInhibitory: bool
         :param _isExcitatory: is excitatory buffer.
         :type _isExcitatory: book
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTInputType object.
         :rtype: ASTInputType
         """
-        return cls(_isInhibitory, _isExcitatory)
+        return cls(_isInhibitory, _isExcitatory, _sourcePosition)
 
     def isExcitatory(self):
         """

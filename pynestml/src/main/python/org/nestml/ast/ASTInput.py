@@ -23,9 +23,10 @@
  
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTInput:
+class ASTInput(ASTElement):
     """
     This class is used to store blocks of input definitions.
     ASTInput represents the input block:
@@ -43,24 +44,31 @@ class ASTInput:
     """
     __inputDefinitions = None
 
-    def __init__(self, _inputDefinitions=list()):
+    def __init__(self, _inputDefinitions=list(), _sourcePosition=None):
         """
         Standard constructor.
         :param _inputDefinitions: 
-        :type _inputDefinitions: list(ASTInputLine) 
+        :type _inputDefinitions: list(ASTInputLine)
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_inputDefinitions is not None and isinstance(_inputDefinitions, list)), \
+            '(PyNestML.AST.Input) No or wrong type of input definitions provided!'
+        super(ASTInput, self).__init__(_sourcePosition)
         self.__inputDefinitions = _inputDefinitions
 
     @classmethod
-    def makeASTInput(cls, _inputDefinitions=list()):
+    def makeASTInput(cls, _inputDefinitions=list(), _sourcePosition=None):
         """
         Factory method of the ASTInput class.
         :param _inputDefinitions: a list of input definitions.
         :type _inputDefinitions: list(ASTInputLine)
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTInput object
         :rtype: ASTInput
         """
-        return cls(_inputDefinitions)
+        return cls(_inputDefinitions, _sourcePosition)
 
     def getInputLines(self):
         """

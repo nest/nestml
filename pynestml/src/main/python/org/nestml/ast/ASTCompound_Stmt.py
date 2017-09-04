@@ -1,10 +1,31 @@
 """
+/*
+ *  ASTCompound_Stmt.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTCompound_Stmt:
+class ASTCompound_Stmt(ASTElement):
     """
     This class is used to store compound statements.
     Grammar:
@@ -16,7 +37,7 @@ class ASTCompound_Stmt:
     __while_stmt = None
     __for_stmt = None
 
-    def __init__(self, _if_stmt=None, _while_stmt=None, _for_stmt=None):
+    def __init__(self, _if_stmt=None, _while_stmt=None, _for_stmt=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _if_stmt: a if statement object
@@ -25,14 +46,17 @@ class ASTCompound_Stmt:
         :type _while_stmt: ASTWHILE_Stmt
         :param _for_stmt: a for statement object
         :type _for_stmt: ASTFOR_Stmt
+        :param _sourcePosition: The source position of the assignment
+        :type _sourcePosition: ASTSourcePosition
         """
+        super(ASTCompound_Stmt, self).__init__(_sourcePosition)
         self.__if_stmt = _if_stmt
         self.__while_stmt = _while_stmt
         self.__for_stmt = _for_stmt
 
     @classmethod
     def makeASTCompound_Stmt(cls, _if_stmt=None, _while_stmt=None,
-                             _for_stmt=None):
+                             _for_stmt=None, _sourcePosition=None):
         """
         Factory method of the ASTCompound_Stmt class.
         :param _if_stmt: a if statement object
@@ -41,10 +65,12 @@ class ASTCompound_Stmt:
         :type _while_stmt: ASTWHILE_Stmt
         :param _for_stmt: a for statement object
         :type _for_stmt: ASTFOR_Stmt
+        :param _sourcePosition: The source position of the assignment
+        :type _sourcePosition: ASTSourcePosition
         :return: a new compound_stmt object
         :rtype: ASTCompound_Stmt
         """
-        return cls(_if_stmt, _while_stmt, _for_stmt)
+        return cls(_if_stmt, _while_stmt, _for_stmt, _sourcePosition)
 
     def isIfStmt(self):
         """

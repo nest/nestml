@@ -1,10 +1,31 @@
 """
+/*
+ *  ASTDataType.py
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 @author kperun
-TODO header
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTDatatype:
+class ASTDatatype(ASTElement):
     """
     A datatype class as used to store a datatype of an element.
     ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
@@ -25,7 +46,8 @@ class ASTDatatype:
     __isVoid = False
     __isUnitType = None  # a unit type is not a boolean, but a concrete object
 
-    def __init__(self, _isInteger=False, _isReal=False, _isString=False, _isBoolean=False, _isVoid=False, _isUnitType=None):
+    def __init__(self, _isInteger=False, _isReal=False, _isString=False, _isBoolean=False, _isVoid=False,
+                 _isUnitType=None, _sourcePosition=None):
         """
         :param _isInteger: is an integer data type 
         :type _isInteger: boolean
@@ -39,7 +61,10 @@ class ASTDatatype:
         :type _isVoid: boolean
         :param _isUnitType: an object of type ASTUnitType
         :type _isUnitType: ASTUnitType
+        :param _sourcePosition: The source position of the assignment
+        :type _sourcePosition: ASTSourcePosition
         """
+        super(ASTDatatype,self).__init__(_sourcePosition)
         self.__isUnitType = _isUnitType
         self.__isVoid = _isVoid
         self.__isBoolean = _isBoolean
@@ -48,7 +73,8 @@ class ASTDatatype:
         self.__isInteger = _isInteger
 
     @classmethod
-    def makeASTDatatype(cls, _isInteger=False, _isReal=False, _isString=False,_isBoolean=False, _isVoid=False, _isUnitType=None):
+    def makeASTDatatype(cls, _isInteger=False, _isReal=False, _isString=False, _isBoolean=False,
+                        _isVoid=False, _isUnitType=None, _sourcePosition=None):
         """
         A factory method for creation of objects of this class.
         :param _isInteger: is an integer data type 
@@ -63,8 +89,12 @@ class ASTDatatype:
         :type _isVoid: boolean
         :param _isUnitType: an object of type ASTUnitType
         :type _isUnitType: ASTUnitType
+        :param _sourcePosition: The source position of the assignment
+        :type _sourcePosition: ASTSourcePosition
+        :return a new ASTDatatype object
+        :rtype ASTDatatype
         """
-        return cls(_isInteger, _isReal, _isString, _isBoolean, _isVoid, _isUnitType)
+        return cls(_isInteger, _isReal, _isString, _isBoolean, _isVoid, _isUnitType, _sourcePosition)
 
     def isInteger(self):
         """

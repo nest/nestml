@@ -23,9 +23,11 @@
 @author kperun
 """
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 
 
-class ASTReturnStmt:
+class ASTReturnStmt(ASTElement):
     """
     This class is used to store a return statement.
         A ReturnStmt Models the return statement in a function.
@@ -36,25 +38,32 @@ class ASTReturnStmt:
     """
     __expression = None
 
-    def __init__(self, _expression=None):
+    def __init__(self, _expression=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _expression: an expression.
         :type _expression: ASTExpression
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        super(ASTReturnStmt, self).__init__(_sourcePosition)
         self.__expression = _expression
 
     @classmethod
-    def makeASTReturnStmt(cls, _expression=None):
+    def makeASTReturnStmt(cls, _expression=None, _sourcePosition=None):
         """
         Factory method of the ASTReturnStmt class.
         :param _expression: an optional return expression.
         :type _expression: ASTExpression
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTReturnStmt object.
         :rtype: ASTReturnStmt
         """
-        assert (_expression is None or isinstance(_expression, ASTExpression))
-        return cls(_expression)
+        assert (_expression is None or isinstance(_expression, ASTExpression)
+                or isinstance(_expression, ASTSimpleExpression)), \
+            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided!'
+        return cls(_expression, _sourcePosition)
 
     def hasExpr(self):
         """

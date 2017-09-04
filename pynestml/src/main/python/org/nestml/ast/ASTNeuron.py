@@ -23,9 +23,10 @@
  @author kperun
 """
 from pynestml.src.main.python.org.nestml.ast.ASTBody import ASTBody
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTNeuron:
+class ASTNeuron(ASTElement):
     """
     This class is used to store instances of neurons.
     ASTNeuron represents neuron.
@@ -37,31 +38,36 @@ class ASTNeuron:
     __name = None
     __body = None
 
-    def __init__(self, _name=None, _body=None):
+    def __init__(self, _name=None, _body=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _name: the name of the neuron.
         :type _name: str
         :param _body: the body containing the definitions.
         :type _body: ASTBody
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_name is not None and isinstance(_name, str)), '(PyNestML.AST.Neuron) No neuron name provided.'
+        assert (_body is not None and isinstance(_body, ASTBody)), '(PyNestML.AST.Neuron) No neuron body provided.'
+        super(ASTNeuron, self).__init__(_sourcePosition)
         self.__name = _name
         self.__body = _body
 
     @classmethod
-    def makeASTNeuron(cls, _name=None, _body=None):
+    def makeASTNeuron(cls, _name=None, _body=None, _sourcePosition=None):
         """
         Factory method of the ASTNeuron class.
         :param _name: the name of the neuron
         :type _name: str
         :param _body: the body containing the definitions.
         :type _body: ASTBody
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTNeuron object.
         :rtype: ASTNeuron
         """
-        assert (_name is not None), '(NESTML.AST) No neuron name provided.'
-        assert (_body is not None), '(NESTML.AST) No neuron body provided.'
-        return cls(_name, _body)
+        return cls(_name, _body, _sourcePosition)
 
     def getName(self):
         """

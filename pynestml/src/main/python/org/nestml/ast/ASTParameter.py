@@ -22,9 +22,11 @@
  */
 @author kperun
 """
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
 
 
-class ASTParameter:
+class ASTParameter(ASTElement):
     """
     This class is used to store a single function parameter definition.
     ASTParameter represents singe:
@@ -36,25 +38,34 @@ class ASTParameter:
     __name = None
     __dataType = None
 
-    def __init__(self, _name=None, _dataType=None):
+    def __init__(self, _name=None, _dataType=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _name: the name of the parameter.
         :type _name: str
         :param _dataType: the type of the parameter. 
         :type _dataType: ASTDatatype
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.AST.Parameter) No or wrong type of name provided!'
+        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
+            '(PyNestML.AST.Parameter) No or wrong type of datatype provided!'
+        super(ASTParameter, self).__init__(_sourcePosition)
         self.__dataType = _dataType
         self.__name = _name
 
     @classmethod
-    def makeASTParameter(cls, _name=None, _dataType=None):
+    def makeASTParameter(cls, _name=None, _dataType=None, _sourcePosition=None):
         """
         The factory method of the ASTParameter class.
         :param _name: the name of the parameter.
         :type _name: str
         :param _dataType: the type of the parameter. 
         :type _dataType: ASTDatatype
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTParameter object.
         :rtype: ASTParameter
         """

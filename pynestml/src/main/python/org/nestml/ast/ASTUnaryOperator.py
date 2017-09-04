@@ -22,10 +22,10 @@
  */
 @author kperun
 """
-from __future__ import print_function
+from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTUnaryOperator:
+class ASTUnaryOperator(ASTElement):
     """
     This class is used to store a single unary operator, e.g., ~.
     Grammar:
@@ -35,7 +35,7 @@ class ASTUnaryOperator:
     __isUnaryMinus = False
     __isUnaryTilde = False
 
-    def __init__(self, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False):
+    def __init__(self, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False, _sourcePosition=None):
         """
         Standard constructor.
         :param _isUnaryPlus: is a unary plus.
@@ -44,13 +44,17 @@ class ASTUnaryOperator:
         :type _isUnaryMinus: bool
         :param _isUnaryTilde: is a unary tilde.
         :type _isUnaryTilde: bool
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_isUnaryTilde or _isUnaryMinus or _isUnaryPlus), '(PyNESTML.AST) Type of unary operator not specified.'
+        super(ASTUnaryOperator, self).__init__(_sourcePosition)
         self.__isUnaryPlus = _isUnaryPlus
         self.__isUnaryMinus = _isUnaryMinus
         self.__isUnaryTilde = _isUnaryTilde
 
     @classmethod
-    def makeASTUnaryOperator(cls, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False):
+    def makeASTUnaryOperator(cls, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False, _sourcePosition=None):
         """
         The factory method of the ASTUnaryOperator class.
         :param _isUnaryPlus: is a unary plus.
@@ -59,10 +63,11 @@ class ASTUnaryOperator:
         :type _isUnaryMinus: bool
         :param _isUnaryTilde: is a unary tilde.
         :type _isUnaryTilde: bool
+        :param _sourcePosition: the position of this element in the source file.
+        :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTUnaryOperator object.
         :rtype: ASTUnaryOperator
         """
-        assert (_isUnaryTilde or _isUnaryMinus or _isUnaryPlus), '(PyNESTML.AST) Type of unary operator not specified.'
         return cls(_isUnaryPlus, _isUnaryMinus, _isUnaryTilde)
 
     def isUnaryPlus(self):
