@@ -33,7 +33,7 @@ SeeAlso: iaf_cond_alpha, aeif_cond_exp
 neuron aeif_cond_alpha_neuron:
 
   state:
-    function V_m mV = E_L      ## Membrane potential
+    function V_m 1/mV = E_L      ## Membrane potential
     w pA = 0pA        ## Spike-adaptation current
   end
 
@@ -159,7 +159,7 @@ SeeAlso: iaf_cond_alpha, aeif_cond_exp
 neuron aeif_cond_alpha_implicit:
 
   state:
-    V_m mV = E_L           ## Membrane potential
+    V_m 1/smV = E_L           ## Membrane potential
     w pA = 0 pA            ## Spike-adaptation current
     g_in nS = 0 nS         ## Excitatory synaptic conductance
     g_in' nS/mS = 0 nS/ms  ## Excitatory synaptic conductance

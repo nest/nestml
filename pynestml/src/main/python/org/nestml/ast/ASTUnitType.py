@@ -248,8 +248,8 @@ class ASTUnitType(ASTElement):
         elif self.isArithmeticExpression():
             tLhs = (self.getLhs().printAST() if isinstance(self.getLhs(), ASTUnitType) else self.getLhs())
             if self.isTimes():
-                return tLhs + '*' + self.getRhs().printAST()
+                return str(tLhs) + '*' + self.getRhs().printAST()
             else:
-                return tLhs + '/' + self.getRhs().printAST()
+                return str(tLhs) + '/' + self.getRhs().printAST()
         else:
             return self.getSimpleUnit()

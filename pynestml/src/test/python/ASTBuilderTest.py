@@ -33,10 +33,10 @@ class ASTBuildingTest(unittest.TestCase):
     def test(self):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources'))):
             if filename.endswith(".nestml"):
-                ret = NESTMLParser.parseModel(
+                NESTMLParser.parseModel(
                     os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                                  filename))
-                print(ret.printAST())
+
 
 
 if __name__ == '__main__':
