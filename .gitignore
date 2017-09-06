@@ -10,6 +10,8 @@ dist/
 
 PyNESTML.egg-info/
 
+*.pyc
+
 .DS_Store
 .project
 .classpath
