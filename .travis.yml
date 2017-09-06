@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - "2.7"
   - "3.2"
   - "3.3"
   - "3.4"
@@ -13,7 +12,11 @@ python:
   - "nightly"
 
 before_install:
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
   - sudo python setup.py install
+
+install:
+  - pip install
 
 sudo: true
 
