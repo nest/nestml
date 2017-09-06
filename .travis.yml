@@ -1,9 +1,24 @@
 language: python
 
-sudo: false
-
 python:
+  - "2.6"
   - "2.7"
+  - "3.2"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  - "3.5-dev"
   - "3.6"
+  - "3.6-dev"
+  - "3.7-dev"
+  - "nightly"
 
-script: py.test
+before_install:
+  - sudo python setup.py
+
+sudo: true
+
+script:
+  - python pynestml/src/test/python/ASTBuilderTest.py
+  - python pynestml/src/test/python/ExpressionParserTest.py
+  - python pynestml/src/test/python/ParserTest.py

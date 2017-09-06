@@ -1,233 +1,227 @@
 # Generated from pynestml/src/main/grammars/org/PyNESTML.g4 by ANTLR 4.5.1
 from antlr4 import *
-if __name__ is not None and "." in __name__:
-    from .PyNESTMLParser import PyNESTMLParser
-else:
-    from PyNESTMLParser import PyNESTMLParser
 
 # This class defines a complete generic visitor for a parse tree produced by PyNESTMLParser.
 
 class PyNESTMLVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#nestmlCompilationUnit.
-    def visitNestmlCompilationUnit(self, ctx:PyNESTMLParser.NestmlCompilationUnitContext):
+    def visitNestmlCompilationUnit(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#datatype.
-    def visitDatatype(self, ctx:PyNESTMLParser.DatatypeContext):
+    def visitDatatype(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#unitType.
-    def visitUnitType(self, ctx:PyNESTMLParser.UnitTypeContext):
+    def visitUnitType(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#expression.
-    def visitExpression(self, ctx:PyNESTMLParser.ExpressionContext):
+    def visitExpression(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
-    def visitSimpleExpression(self, ctx:PyNESTMLParser.SimpleExpressionContext):
+    def visitSimpleExpression(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#unaryOperator.
-    def visitUnaryOperator(self, ctx:PyNESTMLParser.UnaryOperatorContext):
+    def visitUnaryOperator(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#bitOperator.
-    def visitBitOperator(self, ctx:PyNESTMLParser.BitOperatorContext):
+    def visitBitOperator(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#comparisonOperator.
-    def visitComparisonOperator(self, ctx:PyNESTMLParser.ComparisonOperatorContext):
+    def visitComparisonOperator(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#logicalOperator.
-    def visitLogicalOperator(self, ctx:PyNESTMLParser.LogicalOperatorContext):
+    def visitLogicalOperator(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#variable.
-    def visitVariable(self, ctx:PyNESTMLParser.VariableContext):
+    def visitVariable(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#functionCall.
-    def visitFunctionCall(self, ctx:PyNESTMLParser.FunctionCallContext):
+    def visitFunctionCall(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#arguments.
-    def visitArguments(self, ctx:PyNESTMLParser.ArgumentsContext):
+    def visitArguments(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#odeDeclaration.
-    def visitOdeDeclaration(self, ctx:PyNESTMLParser.OdeDeclarationContext):
+    def visitOdeDeclaration(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
-    def visitOdeFunction(self, ctx:PyNESTMLParser.OdeFunctionContext):
+    def visitOdeFunction(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#equation.
-    def visitEquation(self, ctx:PyNESTMLParser.EquationContext):
+    def visitEquation(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#derivative.
-    def visitDerivative(self, ctx:PyNESTMLParser.DerivativeContext):
+    def visitDerivative(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#differentialOrder.
-    def visitDifferentialOrder(self, ctx:PyNESTMLParser.DifferentialOrderContext):
+    def visitDifferentialOrder(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#shape.
-    def visitShape(self, ctx:PyNESTMLParser.ShapeContext):
+    def visitShape(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#block.
-    def visitBlock(self, ctx:PyNESTMLParser.BlockContext):
+    def visitBlock(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#stmt.
-    def visitStmt(self, ctx:PyNESTMLParser.StmtContext):
+    def visitStmt(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
-    def visitCompound_Stmt(self, ctx:PyNESTMLParser.Compound_StmtContext):
+    def visitCompound_Stmt(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#small_Stmt.
-    def visitSmall_Stmt(self, ctx:PyNESTMLParser.Small_StmtContext):
+    def visitSmall_Stmt(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
-    def visitAssignment(self, ctx:PyNESTMLParser.AssignmentContext):
+    def visitAssignment(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#declaration.
-    def visitDeclaration(self, ctx:PyNESTMLParser.DeclarationContext):
+    def visitDeclaration(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#returnStmt.
-    def visitReturnStmt(self, ctx:PyNESTMLParser.ReturnStmtContext):
+    def visitReturnStmt(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#if_Stmt.
-    def visitIf_Stmt(self, ctx:PyNESTMLParser.If_StmtContext):
+    def visitIf_Stmt(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#if_Clause.
-    def visitIf_Clause(self, ctx:PyNESTMLParser.If_ClauseContext):
+    def visitIf_Clause(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#elif_Clause.
-    def visitElif_Clause(self, ctx:PyNESTMLParser.Elif_ClauseContext):
+    def visitElif_Clause(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#else_Clause.
-    def visitElse_Clause(self, ctx:PyNESTMLParser.Else_ClauseContext):
+    def visitElse_Clause(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#for_Stmt.
-    def visitFor_Stmt(self, ctx:PyNESTMLParser.For_StmtContext):
+    def visitFor_Stmt(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#while_Stmt.
-    def visitWhile_Stmt(self, ctx:PyNESTMLParser.While_StmtContext):
+    def visitWhile_Stmt(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#signedNumericLiteral.
-    def visitSignedNumericLiteral(self, ctx:PyNESTMLParser.SignedNumericLiteralContext):
+    def visitSignedNumericLiteral(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#neuron.
-    def visitNeuron(self, ctx:PyNESTMLParser.NeuronContext):
+    def visitNeuron(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#body.
-    def visitBody(self, ctx:PyNESTMLParser.BodyContext):
+    def visitBody(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#var_Block.
-    def visitVar_Block(self, ctx:PyNESTMLParser.Var_BlockContext):
+    def visitVar_Block(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#dynamics.
-    def visitDynamics(self, ctx:PyNESTMLParser.DynamicsContext):
+    def visitDynamics(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#equations.
-    def visitEquations(self, ctx:PyNESTMLParser.EquationsContext):
+    def visitEquations(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#inputBuffer.
-    def visitInputBuffer(self, ctx:PyNESTMLParser.InputBufferContext):
+    def visitInputBuffer(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#inputLine.
-    def visitInputLine(self, ctx:PyNESTMLParser.InputLineContext):
+    def visitInputLine(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#inputType.
-    def visitInputType(self, ctx:PyNESTMLParser.InputTypeContext):
+    def visitInputType(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
-    def visitOutputBuffer(self, ctx:PyNESTMLParser.OutputBufferContext):
+    def visitOutputBuffer(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#function.
-    def visitFunction(self, ctx:PyNESTMLParser.FunctionContext):
+    def visitFunction(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#parameters.
-    def visitParameters(self, ctx:PyNESTMLParser.ParametersContext):
+    def visitParameters(self, ctx):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by PyNESTMLParser#parameter.
-    def visitParameter(self, ctx:PyNESTMLParser.ParameterContext):
+    def visitParameter(self, ctx):
         return self.visitChildren(ctx)
 
 
-
-del PyNESTMLParser
