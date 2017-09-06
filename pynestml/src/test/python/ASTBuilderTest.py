@@ -36,7 +36,7 @@ class ASTBuildingTest(unittest.TestCase):
                 NESTMLParser.parseModel(
                     os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                                  filename))
-
+        return
 
 
 if __name__ == '__main__':

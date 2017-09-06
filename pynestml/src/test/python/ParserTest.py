@@ -43,7 +43,7 @@ class LexerParserTest(unittest.TestCase):
                 stream = CommonTokenStream(lexer)
                 # parse the file
                 PyNESTMLParser(stream)
-
+        return
 
 if __name__ == '__main__':
     unittest.main()
