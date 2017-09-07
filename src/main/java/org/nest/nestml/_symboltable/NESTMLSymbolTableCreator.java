@@ -42,7 +42,7 @@ import static org.nest.utils.AstUtils.computeTypeName;
 public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implements NESTMLVisitor {
   private static String LOGGER_NAME = "NESTML_SymbolTableCreator";
   private Optional<NeuronSymbol> currentTypeSymbol = empty();
-  private Optional<ASTVar_Block> varBlock = empty();
+  private Optional<ASTBlockWithVariables> varBlock = empty();
 
   public NESTMLSymbolTableCreator(
       final ResolvingConfiguration resolvingConfiguration,
@@ -98,8 +98,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   public void endVisit(final ASTNeuron astNeuron) {
     setEnclosingScopeOfNodes(astNeuron);
 
-    if (astNeuron.getBody().getOdeBlock().isPresent()) {
-      addFunctionVariables(astNeuron.getBody().getOdeBlock().get());
+    if (astNeuron.getOdeBlock().isPresent()) {
+      addFunctionVariables(astNeuron.getOdeBlock().get());
     }
 
     // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
@@ -112,13 +112,13 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       if (undefinedMethods.isEmpty()) {
         final List<Finding> multipleDefinitions = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
         if (multipleDefinitions.isEmpty()) {
-          if (astNeuron.getBody().getOdeBlock().isPresent()) {
+          if (astNeuron.getOdeBlock().isPresent()) {
 
             final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
 
             if (afterAddingDerivedVariables.isEmpty()) {
-              assignOdeToVariables(astNeuron.getBody().getOdeBlock().get());
-              markConductanceBasedBuffers(astNeuron.getBody().getOdeBlock().get(), astNeuron.getBody().getInputLines());
+              assignOdeToVariables(astNeuron.getOdeBlock().get());
+              markConductanceBasedBuffers(astNeuron.getOdeBlock().get(), astNeuron.getInputLines());
             }
             else {
               final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one variable is " +
@@ -227,6 +227,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
           .filter(VariableSymbol::isSpikeBuffer)
           .collect(Collectors.toList());
       final List<ASTNode> equations = Lists.newArrayList();
+
       equations.addAll(astOdeDeclaration.getODEs());
       equations.addAll(astOdeDeclaration.getOdeFunctions());
 
@@ -236,11 +237,10 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
             .flatMap(astEquation -> getCondSumFunctionCall(astEquation).stream())
             // that there is one parameter which is the simple name is granted by cocos
             .map(astFunctionCall -> astFunctionCall.getArgs().get(1).getVariable().get())
-            .filter(variable -> variable.getName().toString().equals(spikeBuffer.getName()))
+            .filter(variable -> variable.getName().equals(spikeBuffer.getName()))
             .findAny();
 
         bufferInCondSumCall.ifPresent(o -> spikeBuffer.setConductanceBased(true));
-
       }
 
     }
@@ -264,9 +264,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   public void visit(final ASTInputLine inputLineAst) {
     checkState(this.currentScope().isPresent());
     checkState(currentTypeSymbol.isPresent());
-
     final TypeSymbol bufferType = PredefinedTypes.getBufferType();
-
     final VariableSymbol var = new VariableSymbol(inputLineAst.getName());
 
     var.setType(bufferType);
@@ -339,7 +337,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     removeCurrentScope();
   }
 
-  public void visit(final ASTDynamics dynamicsAst) {
+  public void visit(final ASTUpdateBlock dynamicsAst) {
     checkState(this.currentScope().isPresent());
     checkState(currentTypeSymbol.isPresent(), "This statement is defined in a nestml type.");
 
@@ -353,17 +351,17 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   }
 
   @Override
-  public void endVisit(final ASTDynamics de) {
+  public void endVisit(final ASTUpdateBlock astUpdateBlock) {
     removeCurrentScope();
   }
 
   @Override
-  public void visit(final ASTVar_Block astVarBlock) {
+  public void visit(final ASTBlockWithVariables astVarBlock) {
     varBlock = of(astVarBlock);
   }
 
   @Override
-  public void endVisit(final ASTVar_Block astVarBlock) {
+  public void endVisit(final ASTBlockWithVariables astVarBlock) {
     varBlock = empty();
   }
 

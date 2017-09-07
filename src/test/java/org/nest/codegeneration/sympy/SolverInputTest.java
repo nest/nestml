@@ -41,7 +41,7 @@ public class SolverInputTest extends ModelbasedTest {
   public void test_cond_model() {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(COND_MODEL_FILE_PATH);
 
-    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getBody().getOdeBlock().get();
+    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getOdeBlock().get();
     SolverInput solverInput = new SolverInput(odeBlock);
     String result = solverInput.toJSON();
     System.out.println(result);
@@ -53,7 +53,7 @@ public class SolverInputTest extends ModelbasedTest {
   public void test_psc_model() {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(PSC_MODEL_FILE_PATH);
 
-    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getBody().getOdeBlock().get();
+    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getOdeBlock().get();
     SolverInput solverInput = new SolverInput(odeBlock);
     String result = solverInput.toJSON();
     System.out.println(result);
@@ -65,7 +65,7 @@ public class SolverInputTest extends ModelbasedTest {
   public void test_shapes_only() {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(PSC_MODEL_FILE_PATH);
 
-    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getBody().getOdeBlock().get();
+    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getOdeBlock().get();
     SolverInput solverInput = new SolverInput(odeBlock.getShapes());
     String result = solverInput.toJSON();
     System.out.println(result);
@@ -77,7 +77,7 @@ public class SolverInputTest extends ModelbasedTest {
   public void test_delta_shape() {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(DELTA_MODEL_FILE_PATH);
 
-    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getBody().getOdeBlock().get();
+    final ASTOdeDeclaration odeBlock = root.getNeurons().get(0).getOdeBlock().get();
     SolverInput solverInput = new SolverInput(odeBlock);
     String result = solverInput.toJSON();
     System.out.println(result);

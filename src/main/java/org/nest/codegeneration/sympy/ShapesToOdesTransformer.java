@@ -9,6 +9,7 @@ import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTEquation;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 
 import java.util.List;
 import java.util.Map;
@@ -25,18 +26,19 @@ import static java.util.stream.Collectors.toList;
 class ShapesToOdesTransformer extends TransformerBase {
 
   ASTNeuron transformShapesToOdeForm(final ASTNeuron astNeuron, final SolverOutput solverOutput) {
-    checkArgument(astNeuron.getBody().getOdeBlock().isPresent());
+    checkArgument(astNeuron.getOdeBlock().isPresent());
 
     ASTNeuron workingVersion = addVariablesToState(astNeuron, solverOutput.shape_state_variables);
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.initial_values);
     workingVersion = removeShapes(workingVersion);
     addUpdatesWithPSCInitialValues(
         solverOutput,
-        workingVersion.getBody(),
+        workingVersion,
         variableNameExtracter,
         shapeNameExtracter);
 
-    addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.getBody().getOdeBlock().get());
+    addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.getOdeBlock().get());
+
     return workingVersion;
   }
 

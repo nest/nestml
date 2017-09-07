@@ -157,7 +157,7 @@ grammar NESTML extends org.nest.Literals {
     vars:Variable ("," vars:Variable)*
     Datatype
     ("[" sizeParameter:Name "]")?
-    ( "=" Expr)? SL_COMMENT?
+    ( "=" Expr)?
     ("[[" invariant:Expr "]]")?;
 
   /** ATReturnStmt Models the return statement in a function.
@@ -190,20 +190,12 @@ grammar NESTML extends org.nest.Literals {
     @attribute Name    The name of the neuron
     @attribute Body    The body of the neuron, e.g. internal, state, parameter...
   */
-  Neuron = "neuron" Name Body;
+  Neuron = "neuron" Name
+    BLOCK_OPEN
+      (NEWLINE | BlockWithVariables | UpdateBlock | Equations | Input | Output | Function)*
+    BLOCK_CLOSE;
 
-  /** ASTBodyElement represents a single entry in the neuron or component: e.g. internal, state,
-      parameter... The interface is used to enable language extension.
-  */
-  interface BodyElement;
-
-  /** ASTBody The body of the neuron, e.g. internal, state, parameter...
-  */
-  Body = BLOCK_OPEN
-           (NEWLINE | BodyElement)*
-         BLOCK_CLOSE;
-
-  /** ASTVar_Block represent a block with variables, e.g.:
+  /** ASTBlockWithVariables represent a block with variables, e.g.:
     state:
       y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
     end
@@ -213,7 +205,7 @@ grammar NESTML extends org.nest.Literals {
     @attribute internal true if the varblock ist a state internal.
     @attribute AliasDecl a list with variable declarations.
   */
-  Var_Block implements BodyElement =
+  BlockWithVariables =
     (["state"]|["parameters"]|["internals"])
     BLOCK_OPEN
       (Declaration | NEWLINE)*
@@ -227,7 +219,7 @@ grammar NESTML extends org.nest.Literals {
       end
      @attribute block Implementation of the dynamics.
    */
-  Dynamics implements BodyElement =
+  UpdateBlock =
     "update"
     BLOCK_OPEN
       Block
@@ -240,7 +232,7 @@ grammar NESTML extends org.nest.Literals {
        end
      @attribute odeDeclaration Block with equations and differential equations.
    */
-  Equations implements BodyElement =
+  Equations =
     "equations"
     BLOCK_OPEN
       OdeDeclaration
@@ -254,7 +246,7 @@ grammar NESTML extends org.nest.Literals {
 
     @attribute inputLine set of input lines.
   */
-  Input implements BodyElement = "input"
+  Input = "input"
     BLOCK_OPEN
       (InputLine | NEWLINE)*
     BLOCK_CLOSE;
@@ -284,7 +276,7 @@ grammar NESTML extends org.nest.Literals {
       @attribute spike true iff the neuron has a spike output.
       @attribute current true iff. the neuron is a current output.
     */
-  Output implements BodyElement = "output" BLOCK_OPEN (["spike"] | ["current"]) ;
+  Output = "output" BLOCK_OPEN (["spike"] | ["current"]) ;
 
   /** ASTFunction a function definition:
       function set_V_m(v mV):
@@ -296,7 +288,7 @@ grammar NESTML extends org.nest.Literals {
     @attribute primitiveType Primitive return type, e.g. int
     @attribute block Implementation of the function.
   */
-  Function implements BodyElement = "function" Name "(" Parameters? ")" (returnType:Datatype)?
+  Function = "function" Name "(" Parameters? ")" (returnType:Datatype)?
            BLOCK_OPEN
              Block
            BLOCK_CLOSE;

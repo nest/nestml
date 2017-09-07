@@ -73,9 +73,16 @@ public class AstCreator {
 
   }
 
-  static public ASTVar_Block createInternalBlock() {
-    final ASTVar_Block astVar_block =  NESTMLNodeFactory.createASTVar_Block();
+  static public ASTBlockWithVariables createInternalBlock() {
+    final ASTBlockWithVariables astVar_block =  NESTMLNodeFactory.createASTBlockWithVariables();
     astVar_block.setInternals(true);
+
+    return astVar_block;
+  }
+
+  static public ASTBlockWithVariables createStateBlock() {
+    final ASTBlockWithVariables astVar_block =  NESTMLNodeFactory.createASTBlockWithVariables();
+    astVar_block.setState(true);
 
     return astVar_block;
   }

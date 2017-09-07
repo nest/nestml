@@ -5,6 +5,11 @@
 */
 package org.nest.nestml.prettyprinter;
 
+import de.monticore.ast.ASTNode;
+import de.monticore.ast.Comment;
+import de.monticore.prettyprint.CommentPrettyPrinter;
+import de.monticore.prettyprint.IndentPrinter;
+import de.monticore.types.prettyprint.TypesPrettyPrinterConcreteVisitor;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.utils.AstUtils;
@@ -13,347 +18,260 @@ import org.nest.utils.PrettyPrinterBase;
 import java.util.List;
 import java.util.Optional;
 
-import static org.nest.nestml.prettyprinter.SPLPrettyPrinterFactory.createDefaultPrettyPrinter;
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 import static org.nest.utils.AstUtils.printComments;
 
 /**
- * Provides convenient  functions to statically type interfaces astnodes resulting from the Body-grammar
+ * Provides convenient  functions to statically type interfaces ast-nodes resulting from the Body-grammar
  * production.
  *
- * @author (last commit) $Author$
- * @version $Revision$, $Date$
+ * @author plotnikov
  */
-public class NESTMLPrettyPrinter extends PrettyPrinterBase implements NESTMLInheritanceVisitor {
+public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
+  private static final String BLOCK_CLOSE = "end";
+  private static final String BLOCK_OPEN = ":";
   private final ExpressionsPrettyPrinter expressionsPrinter;
+  private final ASTNESTMLNode root;
+  private final IndentPrinter printer = new IndentPrinter();
 
-  public static class Builder {
-    public static NESTMLPrettyPrinter build() {
-      return new NESTMLPrettyPrinter(new ExpressionsPrettyPrinter());
-    }
+  private NESTMLPrettyPrinter(final ASTNESTMLNode root) {
+    this.expressionsPrinter = new ExpressionsPrettyPrinter();
+    this.root = root;
   }
 
-  private NESTMLPrettyPrinter(final ExpressionsPrettyPrinter expressionsPrinter) {
-    this.expressionsPrinter = expressionsPrinter;
+  public static String print(final ASTNESTMLNode astNestmlNode) {
+    final NESTMLPrettyPrinter prettyPrinter = new NESTMLPrettyPrinter(astNestmlNode);
+    astNestmlNode.accept(prettyPrinter);
+    return prettyPrinter.printer.getContent();
   }
 
-  public String print(final ASTNESTMLNode astNestmlNode) {
-    astNestmlNode.accept(this);
-    return this.result();
-  }
+  ////////////////////////////////////////////////////////////////////////////
+  // NESTML PART
+  ////////////////////////////////////////////////////////////////////////////
 
   /**
-   *   NESTMLCompilationUnit = "package" packageName:QualifiedName
-   *   BLOCK_OPEN
-   *   (Import | NEWLINE)*
-   *   (Neuron | Component | SL_COMMENT | NEWLINE)*
-   *   BLOCK_CLOSE (SL_COMMENT | NEWLINE)*;
+   * Neuron = "neuron" Name
+     BLOCK_OPEN
+       (NEWLINE |
+        BlockWithVariables |
+        UpdateBlock |
+        Equations |
+        Input |
+        Output |
+        Function)*
+     BLOCK_CLOSE;
+   * @param astNeuron
    */
   @Override
-  public void visit(final ASTNESTMLCompilationUnit node) {
-    printCommentsIfPresent(node);
-  }
+  public void handle(final ASTNeuron astNeuron) {
+    CommentPrettyPrinter.printPreComments(astNeuron, printer);
 
+    printer.println("neuron " + astNeuron.getName() + BLOCK_OPEN);
+    printer.indent();
 
-  /**
-   * Grammar:
-   * Neuron = "neuron" Name Body;
-   */
-  @Override
-  public void visit(final ASTNeuron astNeuron) {
-    printCommentsIfPresent(astNeuron);
+    printNodes(astNeuron.getBlockWithVariabless());
+    printNodes(astNeuron.getUpdateBlocks());
+    printNodes(astNeuron.getEquationss());
+    printNodes(astNeuron.getInputs());
+    printNodes(astNeuron.getOutputs());
+    printNodes(astNeuron.getFunctions());
 
-    print("neuron " + astNeuron.getName());
-  }
-
-  /**
-   * Grammar:
-   * Body = BLOCK_OPEN ( SL_COMMENT | NEWLINE | BodyElement)* BLOCK_CLOSE;
-   */
-  @Override
-  public void visit(final ASTBody astBody) {
-    printCommentsIfPresent(astBody);
-    println(BLOCK_OPEN);
-    indent();
-  }
-
-  /**
-   * Grammar:
-   * Body = BLOCK_OPEN ( SL_COMMENT | NEWLINE | BodyElement)* BLOCK_CLOSE;
-   */
-  @Override
-  public void endVisit(final ASTBody astBody) {
-    unindent();
-    println(BLOCK_CLOSE);
+    printer.unindent();
+    printer.println(BLOCK_CLOSE);
+    CommentPrettyPrinter.printPostComments(astNeuron, printer);
   }
 
   @Override
-  public void visit(final ASTBodyElement astBodyElement) {
-    printCommentsIfPresent(astBodyElement);
-  }
-  /**
-   * Var_Block implements BodyElement =
-   * ([state:"state"]|[para:"parameter"]|[internal:"internal"])
-   *  BLOCK_OPEN
-   *     (AliasDecl (";" AliasDecl)* (";")?
-   *     | SL_COMMENT | NEWLINE)*
-   *  BLOCK_CLOSE;
-   */
-  @Override
-  public void visit(final ASTVar_Block astVarBlock) {
-    printBlockKeyword(astVarBlock);
-    indent();
-    for (ASTDeclaration astDeclaration:astVarBlock.getDeclarations()) {
-      printDeclarationStatement(astDeclaration);
-      println();
-    }
+  public void handle(final ASTBlockWithVariables astBlockWithVariables) {
+    CommentPrettyPrinter.printPreComments(astBlockWithVariables, printer);
+
+    printBlockKeyword(astBlockWithVariables);
+    printer.indent();
+
+    astBlockWithVariables.getDeclarations().forEach(node -> node.accept(this));
+
+    printer.unindent();
+    printer.println(BLOCK_CLOSE);
+    CommentPrettyPrinter.printPostComments(astBlockWithVariables, printer);
   }
 
-  private void printBlockKeyword(final ASTVar_Block astVarBlock) {
+  private void printBlockKeyword(final ASTBlockWithVariables astVarBlock) {
     if (astVarBlock.isState()) {
-      println("state" + BLOCK_OPEN);
+      printer.println("state" + BLOCK_OPEN);
     }
     else if (astVarBlock.isInternals()) {
-      println("internals" + BLOCK_OPEN);
+      printer.println("internals" + BLOCK_OPEN);
     }
     else if (astVarBlock.isParameters ()) {
-      println("parameters" + BLOCK_OPEN);
+      printer.println("parameters" + BLOCK_OPEN);
     }
 
   }
 
-  private void printDeclarationStatement(final ASTDeclaration astDeclaration) {
-    final SPLPrettyPrinter splPrettyPrinter = createDefaultPrettyPrinter(getIndentionLevel());
-    splPrettyPrinter.printDeclaration(astDeclaration);
-    print(splPrettyPrinter.result());
+  public void handle(final ASTUpdateBlock astUpdateBlock) {
+    printer.println("update" + BLOCK_OPEN);
+    printer.indent();
+    printNode(astUpdateBlock.getBlock());
+    printer.unindent();
+    printer.println(BLOCK_CLOSE);
+  }
+
+  private void printNodes(final List<? extends ASTNESTMLNode> nodes) {
+    for (ASTNESTMLNode node:nodes) {
+      printNode(node);
+    }
+  }
+
+  private void printNode(ASTNESTMLNode node) {
+      node.accept(this);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////
+  // SPL PART
+  ////////////////////////////////////////////////////////////////////////////
+  public void handle(final ASTDeclaration astDeclaration) {
+    astDeclaration.getDocStrings().forEach(printer::println);
+
+    printAliasPrefix(astDeclaration);
+    printDeclarationVariables(astDeclaration);
+    printDeclarationType(astDeclaration);
+    printOptionalInitializationExpression(astDeclaration);
+    printInvariants(astDeclaration);
+    CommentPrettyPrinter.printPostComments(astDeclaration, printer);
+    printer.println();
+  }
+
+  private void printAliasPrefix(final ASTDeclaration astAliasDecl) {
+    if (astAliasDecl.isRecordable()) {
+      printer.print("recordable ");
+    }
+
+    if (astAliasDecl.isFunction()) {
+      printer.print("function ");
+    }
+  }
+
+  private void printInvariants(final ASTDeclaration astAliasDecl) {
+    if (astAliasDecl.getInvariant().isPresent()) {
+      printer.print("[[");
+      final ASTExpr astInvariant = astAliasDecl.getInvariant().get();
+      printer.print(expressionsPrinter.print(astInvariant));
+      printer.print("]]");
+
+    }
   }
 
 
+  private void printDeclarationVariables(final ASTDeclaration astDeclaration) {
+    final List<ASTVariable> variableNames = astDeclaration.getVars();
+    for (int variableIndex = 0; variableIndex < variableNames.size(); ++ variableIndex) {
+      boolean isLastVariableInDeclaration = (variableIndex + 1) == variableNames.size();
+
+      printer.print(variableNames.get(variableIndex).toString());
+      if (!isLastVariableInDeclaration) {
+        printer.print(", ");
+      }
+
+    }
+
+    printer.print(" ");
+  }
+
+  private void printDeclarationType(final ASTDeclaration astDeclaration) {
+    printer.print(deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astDeclaration.getDatatype())));
+    if (astDeclaration.getSizeParameter().isPresent()) {
+      printer.print(" [" + astDeclaration.getSizeParameter().get() + "]");
+    }
+
+  }
+
+  private void printOptionalInitializationExpression(final ASTDeclaration astDeclaration) {
+    if (astDeclaration.getExpr().isPresent()) {
+      printer.print(" = " + expressionsPrinter.print(astDeclaration.getExpr().get()));
+    }
+
+  }
+
+  /**
+   * Small_Stmt = Assignment| FunctionCall | Declaration | ReturnStmt;
+   */
   @Override
-  public void endVisit(final ASTVar_Block astVarBlock) {
-    unindent();
-    println(BLOCK_CLOSE);
+  public void handle(final ASTSmall_Stmt astSmallStmt ) {
+    CommentPrettyPrinter.printPreComments(astSmallStmt, printer);
+
+    if (astSmallStmt.getAssignment().isPresent()) {
+      my_handle(astSmallStmt.getAssignment().get());
+    } else if (astSmallStmt.getFunctionCall().isPresent()) {
+      my_handle(astSmallStmt.getFunctionCall().get());
+    }  else if (astSmallStmt.getDeclaration().isPresent()) {
+      // TODO: must be also a functions that is get called from the corresponding method
+      astSmallStmt.getDeclaration().get().accept(this);
+    }  else if (astSmallStmt.getReturnStmt().isPresent()) {
+      my_handle(astSmallStmt.getReturnStmt().get());
+    }
+    printer.println();
+    CommentPrettyPrinter.printPreComments(astSmallStmt, printer);
   }
 
   /**
    * Grammar:
-   * Input implements BodyElement = "input"
-   * BLOCK_OPEN
-   *   (InputLine | SL_COMMENT | NEWLINE)*
-   * BLOCK_CLOSE;
+   * Assignment = variableName:QualifiedName "=" Expr;
    */
-  @Override
-  public void visit(final ASTInput astInput) {
-    println("input" + BLOCK_OPEN);
-    indent();
+  public void my_handle(final ASTAssignment astAssignment) {
+    final String lhsVariableName = astAssignment.getLhsVarialbe().toString();
+    final String rhsOfAssignment = expressionsPrinter.print(astAssignment.getExpr());
+    if (astAssignment.isAssignment()) {
+      printer.print(lhsVariableName + " = " + rhsOfAssignment);
+    }
+    if (astAssignment.isCompoundSum()) {
+      printer.print(lhsVariableName + " += " + rhsOfAssignment);
+    }
+    if (astAssignment.isCompoundMinus()) {
+      printer.print(lhsVariableName + " -= " + rhsOfAssignment);
+    }
+    if (astAssignment.isCompoundProduct()) {
+      printer.print(lhsVariableName + " *= " + rhsOfAssignment);
+    }
+    if (astAssignment.isCompoundQuotient()) {
+      printer.print(lhsVariableName + " /= " + rhsOfAssignment);
+    }
+
   }
 
   /**
    * Grammar:
-   * Input implements BodyElement = "input"
-   * BLOCK_OPEN
-   *   (InputLine | SL_COMMENT | NEWLINE)*
-   * BLOCK_CLOSE;
+   * FunctionCall = QualifiedName "(" ArgList ")";
+   * ArgList = (args:Expr ("," args:Expr)*)?;
    */
-  @Override
-  public void endVisit(final ASTInput astInput) {
-    unindent();
-    println(BLOCK_CLOSE);
-  }
 
-  /**
-   * Equations implements BodyElement =
-   * "equations"
-   * BLOCK_OPEN
-   *   OdeDeclaration
-   * BLOCK_CLOSE;
-   *
-   * OdeDeclaration  = (Eq | Shape | ODEAlias | NEWLINE)+;
-   * Equation = lhs:Derivative "=" rhs:Expr (";")?;
-   * Derivative = name:QualifiedName (differentialOrder:"\'")*;
-   * ODEAlias = variableName:Name Datatype "=" Expr;
-   */
-  @Override
-  public void visit(final ASTOdeDeclaration astOdeDeclaration) {
-    println("equations" + BLOCK_OPEN);
-    indent();
-
-    astOdeDeclaration.getShapes().stream().map(this::printShape).forEach(this::println);
-    astOdeDeclaration.getOdeFunctions().stream().map(this::printODEAlias).forEach(this::println);
-    astOdeDeclaration.getODEs().stream().map(this::printEquation).forEach(this::println);
-
-  }
-
-  /**
-   * This method is used in freemaker template. Therefore, it must remain public.
-   */
-  public String printEquation(final ASTEquation astEquation) {
-    return astEquation.getLhs() + " = " + expressionsPrinter.print(astEquation.getRhs());
-  }
-
-  /**
-   * This method is used in freemaker template. Therefore, it must remain public.
-   */
-  public String printShape(final ASTShape astShape) {
-    return "shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs());
-  }
-
-  /**
-   * This method is used in freemaker template. Therefore, remains public.
-   */
-  public String printODEAlias(final ASTOdeFunction astOdeAlias) {
-    final String datatype = deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astOdeAlias.getDatatype()));
-
-    final String initExpression = expressionsPrinter.print(astOdeAlias.getExpr());
-    final StringBuilder recordable = new StringBuilder();
-    if (astOdeAlias.isRecordable()) {
-      recordable.append("recordable ");
-    }
-    return recordable.toString() + "function " + astOdeAlias.getVariableName() + " " + datatype + " = " + initExpression;
-  }
-
-  @Override
-  public void endVisit(final ASTEquations astEquations) {
-    unindent();
-    println(BLOCK_CLOSE);
-  }
-
-  /**
-   * grammar
-   * InputLine = Name "<-" InputType* ([spike:"spike"]|[current:"current"]);
-   * InputType = (["inhibitory"]|["excitatory"]);
-   */
-  @Override
-  public void visit(final ASTInputLine astInputLine) {
-    print(astInputLine.getName());
-    printArrayParameter(astInputLine);
-    print(" <- ");
-    printInputTypes(astInputLine.getInputTypes());
-    printOutputType(astInputLine);
-    println();
-  }
-
-  private void printInputTypes(final List<ASTInputType> inputTypes) {
-    for (final ASTInputType inputType:inputTypes) {
-      if (inputType.isInhibitory()) {
-        print("inhibitory ");
-      }
-      else {
-        print("excitatory ");
+  public void my_handle(final ASTFunctionCall astFunctionCall) {
+    final String functionName = astFunctionCall.getCalleeName();
+    printer.print(functionName + "(");
+    final List<ASTExpr> functionArguments = astFunctionCall.getArgs();
+    for (int argumentIndex = 0; argumentIndex < functionArguments.size(); ++argumentIndex) {
+      boolean isLastFunctionArgument = (argumentIndex + 1) == functionArguments.size();
+      final ASTExpr currentArgument = functionArguments.get(argumentIndex);
+      printer.print(expressionsPrinter.print(currentArgument));
+      if (!isLastFunctionArgument) {
+        printer.print(", ");
       }
 
     }
-
+    printer.print(")");
   }
 
-  private void printArrayParameter(final ASTInputLine astInputLine) {
-    astInputLine.getSizeParameter().ifPresent(parameter -> print("[" + parameter + "]"));
-  }
+  /**
+   * ReturnStmt = "return" Expr?;
+   */
+  public void my_handle(final ASTReturnStmt astReturnStmt) {
 
-  private void printOutputType(final ASTInputLine astInputLine) {
-    if (astInputLine.isSpike()) {
-      print("spike");
+    if (astReturnStmt.getExpr().isPresent()) {
+      final String returnExpressionAsString = expressionsPrinter.print(astReturnStmt.getExpr().get());
+      printer.print("return " + returnExpressionAsString);
     }
     else {
-      print("current");
+      printer.print("return");
     }
 
   }
-
-  /**
-   * Output implements BodyElement =
-   * "output" BLOCK_OPEN ([spike:"spike"]|[current:"current"]) ;
-   */
-  @Override
-  public void visit(final ASTOutput astOutput) {
-    print("output: ");
-    if (astOutput.isSpike()) {
-      print("spike");
-    }
-    else {
-      print("current");
-    }
-
-    println();
-  }
-
-  /**
-   * Function implements BodyElement =
-     "function" Name "(" Parameters? ")" (returnType:QualifiedName | PrimitiveType)?
-     BLOCK_OPEN
-       Block
-     BLOCK_CLOSE;
-   */
-  @Override
-  public void visit(final ASTFunction astFunction) {
-    print("function " + astFunction.getName());
-    printParameters(astFunction.getParameters());
-    printOptionalReturnValue(astFunction);
-    println(BLOCK_OPEN);
-    indent();
-    printSplBlock(astFunction.getBlock());
-    unindent();
-    println(BLOCK_CLOSE);
-
-  }
-
-  private void printParameters(final Optional<ASTParameters> functionParameters) {
-    print("(");
-    if (functionParameters.isPresent()) {
-      final List<ASTParameter> astParameters = functionParameters.get().getParameters();
-      for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
-        boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
-        final ASTParameter curParameter = astParameters.get(curParameterIndex);
-        print(curParameter.getName() + " " + deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(curParameter.getDatatype())));
-        if (!isLastParameter) {
-          print(", ");
-        }
-
-      }
-
-    }
-    print(")");
-  }
-
-  private void printOptionalReturnValue(final ASTFunction astFunction) {
-    if (astFunction.getReturnType().isPresent()) {
-      print(deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astFunction.getReturnType().get())));
-    }
-
-  }
-
-
-  private void printSplBlock(final ASTBlock astBlock) {
-    final  SPLPrettyPrinter splPrinter = createDefaultPrettyPrinter(getIndentionLevel());
-    splPrinter.print(astBlock);
-
-    print(splPrinter.result());
-  }
-
-  /**
-   * Dynamics implements BodyElement =
-   * "update:"
-   *   BLOCK_OPEN
-   *     Block
-   *   BLOCK_CLOSE;
-   */
-  @Override
-  public void visit(final ASTDynamics astDynamics) {
-    print("update");
-    println(BLOCK_OPEN);
-    indent();
-    printSplBlock(astDynamics.getBlock());
-    unindent();
-    println();
-    println(BLOCK_CLOSE);
-  }
-
-  private void printCommentsIfPresent(final ASTNESTMLNode astNestmlNode) {
-    final String comment = printComments(astNestmlNode);
-    if (!comment.isEmpty()) {
-      println(comment);
-    }
-
-  }
-
 }

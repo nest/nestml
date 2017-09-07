@@ -5,9 +5,8 @@
  */
 package org.nest.codegeneration.sympy;
 
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.reporting.Reporter;
 
 import java.nio.file.Path;
@@ -39,18 +38,15 @@ public class EquationsBlockProcessor {
    * @return Transformed neuron with either: exact solution or transformed shapes to its ODE notation
    */
   public ASTNeuron solveOdeWithShapes(final ASTNeuron astNeuron, final Path outputBase) {
-    final ASTBody astBody = astNeuron.getBody();
-    if (astBody.getOdeBlock().isPresent()) {
-
+    if (astNeuron.getOdeBlock().isPresent()) {
       reporter.reportProgress(String.format("The neuron %s contains an ODE block. It will be analysed.", astNeuron.getName()));
-      final Optional<ASTFunctionCall> deltaShape = getFunctionCall(DELTA, astBody.getOdeBlock().get());
 
       final ASTNeuron deepCopy = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
       // this function is called only for neurons with an ode block. thus, retrieving it is safe.
-      if (deepCopy.getBody().getOdeBlock().get().getShapes().size() > 0 &&
-          deepCopy.getBody().getOdeBlock().get().getODEs().size() == 1) {
+      if (deepCopy.getOdeBlock().get().getShapes().size() > 0 &&
+          deepCopy.getOdeBlock().get().getODEs().size() == 1) {
 
-        final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.getBody().getOdeBlock().get(), outputBase);
+        final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.getOdeBlock().get(), outputBase);
         reporter.reportProgress("The model ODE with shapes will be analyzed.");
         reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());
 
@@ -76,9 +72,9 @@ public class EquationsBlockProcessor {
             return astNeuron;
         }
       }
-      else if (deepCopy.getBody().getOdeBlock().get().getShapes().size() > 0) {
+      else if (deepCopy.getOdeBlock().get().getShapes().size() > 0) {
         reporter.reportProgress("Shapes will be solved with GLS.");
-        final SolverOutput solverOutput = evaluator.solveShapes(deepCopy.getBody().getOdeBlock().get().getShapes(), outputBase);
+        final SolverOutput solverOutput = evaluator.solveShapes(deepCopy.getOdeBlock().get().getShapes(), outputBase);
         return shapesToOdesTransformer.transformShapesToOdeForm(astNeuron, solverOutput);
 
       }

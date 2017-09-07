@@ -98,7 +98,7 @@ public class EquationsBlockProcessorTest extends ModelbasedTest {
     FilesHelper.deleteFilesInFolder(outputBase);
 
     testant.solveOdeWithShapes(modelRoot.getNeurons().get(0), outputBase);
-    System.out.println(NESTMLPrettyPrinter.Builder.build().print(modelRoot.getNeurons().get(0)));
+    System.out.println(NESTMLPrettyPrinter.print(modelRoot.getNeurons().get(0)));
     return scopeCreator.runSymbolTableCreator(modelRoot);
   }
 

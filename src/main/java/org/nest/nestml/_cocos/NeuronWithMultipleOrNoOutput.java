@@ -6,7 +6,6 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.logging.Log;
-import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTOutput;
 
@@ -21,7 +20,7 @@ import java.util.List;
 public class NeuronWithMultipleOrNoOutput implements NESTMLASTNeuronCoCo {
 
   public void check(ASTNeuron neuron) {
-    ASTBody bodyDecorator = (neuron.getBody());
+    ASTNeuron bodyDecorator = (neuron);
     final List<ASTOutput> outputs = bodyDecorator.getOutputs();
 
     if (outputs.size() == 0) {

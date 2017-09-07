@@ -382,12 +382,10 @@ public final class AstUtils {
   private static void printModelToFile(
       final ASTNeuron astNeuron,
       final Path outputFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
-    astNeuron.accept(prettyPrinter);
 
     final File prettyPrintedModelFile = outputFile.toFile();
     try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.result());
+      FileUtils.write(prettyPrintedModelFile, NESTMLPrettyPrinter.print(astNeuron));
     }
     catch (IOException e) {
       final String msg = "Cannot write the prettyprinted model to the file: " + outputFile;

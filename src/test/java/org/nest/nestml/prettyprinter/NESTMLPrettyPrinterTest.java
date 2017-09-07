@@ -7,7 +7,6 @@ import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTBlock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._parser.NESTMLParser;
-import org.nest.utils.AstUtils;
 import org.nest.utils.FilesHelper;
 
 import java.io.IOException;
@@ -28,12 +27,8 @@ import static org.junit.Assert.assertTrue;
  */
 public class NESTMLPrettyPrinterTest extends ModelbasedTest {
   private final NESTMLParser nestmlParser = new NESTMLParser();
-  @BeforeClass
-  public static void disableFailQuick() {
-    Log.enableFailQuick(false);
-  }
 
-  private Optional<ASTNESTMLCompilationUnit> parseStringAsSPLFile(final String fileAsString) throws IOException {
+  private Optional<ASTNESTMLCompilationUnit> parseString(final String fileAsString) throws IOException {
     return nestmlParser.parse(new StringReader(fileAsString));
   }
 
@@ -78,31 +73,28 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
   private void parseAndCheckNestmlModel(String pathToModel) throws IOException {
     System.out.println("Handles the model: " + pathToModel);
 
-    final NESTMLPrettyPrinter splPrettyPrinter = NESTMLPrettyPrinter.Builder.build();
-    final Optional<ASTNESTMLCompilationUnit> splModelRoot = nestmlParser.parse(pathToModel);
-    assertTrue("Cannot parse the model: " + pathToModel, splModelRoot.isPresent());
+    final Optional<ASTNESTMLCompilationUnit> modelRoot = nestmlParser.parse(pathToModel);
+    assertTrue("Cannot parse the model: " + pathToModel, modelRoot.isPresent());
 
-    splModelRoot.get().accept(splPrettyPrinter);
-
-    final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseStringAsSPLFile(splPrettyPrinter.result());
+    System.out.printf(NESTMLPrettyPrinter.print(modelRoot.get()));
+    final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseString(NESTMLPrettyPrinter.print(modelRoot.get()));
     assertTrue(prettyPrintedRoot.isPresent());
   }
 
   @Test
   public void testPrintingComment() throws IOException {
-    final ExpressionsPrettyPrinter prettyPrinter = new ExpressionsPrettyPrinter();
-    final SPLPrettyPrinter splPrettyPrinter = new SPLPrettyPrinter(prettyPrinter);
 
     final ASTNESTMLCompilationUnit root = parseNestmlModel("src/test/resources/org/nest/nestml/parsing/comment.nestml");
 
-    final Optional<ASTBlock> astBlock = AstUtils.getAny(root, ASTBlock.class);
 
-    assertTrue(astBlock.isPresent());
-    splPrettyPrinter.print(astBlock.get());
-    final String printedModel = splPrettyPrinter.result();
+
+    final String printedModel = NESTMLPrettyPrinter.print(root.getNeurons().get(0).getFunctions().get(0).getBlock());
+
+    System.out.println("!!!");
     System.out.println(printedModel);
+    System.out.println("!!!");
 
-    Optional<ASTBlock> prettyPrintedRoot = nestmlParser.parseBlock(new StringReader(splPrettyPrinter.result()));
+    Optional<ASTBlock> prettyPrintedRoot = nestmlParser.parseBlock(new StringReader(printedModel));
     assertTrue(prettyPrintedRoot.isPresent());
 
     IntStream.range(1, 11).forEach(

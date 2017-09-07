@@ -751,8 +751,6 @@ public class NestmlCoCosTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> ast = getAstRoot(pathToModel.toString());
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
-    NESTMLPrettyPrinter p = NESTMLPrettyPrinter.Builder.build();
-    ast.get().accept(p);
 
     nestmlCoCoChecker.checkAll(ast.get());
 

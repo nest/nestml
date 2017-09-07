@@ -56,7 +56,7 @@ public class NESTMLParser extends NESTMLParserTOP {
       for (final ASTDeclaration astDeclaration:declarations) {
         int line = astDeclaration.get_SourcePositionStart().getLine();
         final List<String> variableComments = extractComments(sourceText, line - 1);
-        variableComments.forEach(astDeclaration::addComment);
+        variableComments.forEach(astDeclaration::addDocString);
       }
 
     }
@@ -71,14 +71,14 @@ public class NESTMLParser extends NESTMLParserTOP {
     final List<String> result = Lists.newArrayList();
     String DOC_STRING_START = "##";
     if (sourceText.get(lineIndex).contains(DOC_STRING_START)) {
-      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf(DOC_STRING_START) + 1).trim());
+      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf(DOC_STRING_START)).trim());
     }
 
     int searchBackIndex = lineIndex - 1;
     while (searchBackIndex > 0) {
       final String currentLine = sourceText.get(searchBackIndex);
       if (currentLine.trim().startsWith(DOC_STRING_START)) {
-        result.add(0, currentLine.substring(currentLine.indexOf(DOC_STRING_START) + 1).trim());
+        result.add(0, currentLine.substring(currentLine.indexOf(DOC_STRING_START)).trim());
       }
       else {
         break;

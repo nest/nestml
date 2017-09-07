@@ -86,7 +86,7 @@ public class SymPySolverTest extends ModelbasedTest {
     FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
 
     final SymPySolver symPySolver = new SymPySolver();
-    final ASTOdeDeclaration astOdeDeclaration =  root.get().getNeurons().get(0).getBody().getOdeBlock().get();
+    final ASTOdeDeclaration astOdeDeclaration =  root.get().getNeurons().get(0).getOdeBlock().get();
 
     return symPySolver.solveOdeWithShapes(astOdeDeclaration, SYMPY_OUTPUT);
   }

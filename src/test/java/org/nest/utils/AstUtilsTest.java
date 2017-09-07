@@ -23,9 +23,9 @@ public class AstUtilsTest extends ModelbasedTest {
   @Test
   public void testComputationAliases() {
     final ASTNESTMLCompilationUnit astCompilationUnit = parseAndBuildSymboltable(PSC_MODEL_WITH_ODE);
-    Assert.assertTrue(astCompilationUnit.getNeurons().get(0).getBody().getOdeBlock().isPresent());
+    Assert.assertTrue(astCompilationUnit.getNeurons().get(0).getOdeBlock().isPresent());
 
-    final List<VariableSymbol> aliasesIn = AstUtils.getAliasSymbols(astCompilationUnit.getNeurons().get(0).getBody().getOdeBlock().get());
+    final List<VariableSymbol> aliasesIn = AstUtils.getAliasSymbols(astCompilationUnit.getNeurons().get(0).getOdeBlock().get());
     final Optional<VariableSymbol> testant = aliasesIn.stream().filter(alias -> alias.getName().equals("I_syn_ampa")).findAny();
     Assert.assertTrue(testant.isPresent());
   }

@@ -50,7 +50,6 @@ public class NESTReferenceConverter implements IReferenceConverter {
   public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
     checkState(astFunctionCall.getEnclosingScope().isPresent(), "No scope assigned. Run SymbolTable creator.");
 
-    final Scope scope = astFunctionCall.getEnclosingScope().get();
     final String functionName = astFunctionCall.getCalleeName();
 
     if ("and".equals(functionName)) {

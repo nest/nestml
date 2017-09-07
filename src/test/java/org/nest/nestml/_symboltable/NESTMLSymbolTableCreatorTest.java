@@ -10,10 +10,10 @@ import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.ScopeSpanningSymbol;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTBodyElement;
+import org.nest.nestml._ast.ASTBlockWithVariables;
 import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.nestml._symboltable.predefined.PredefinedTypes;
 import org.nest.nestml._symboltable.symbols.MethodSymbol;
@@ -89,9 +89,9 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
     scopeCreator.runSymbolTableCreator(root);
 
-    final ASTBody astBodyDecorator = (root.getNeurons().get(0).getBody());
+    final ASTNeuron astNeuronDecorator = (root.getNeurons().get(0));
 
-    final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
+    final Optional<ASTBlockWithVariables> neuronState = astNeuronDecorator.getStateBlock();
     assertTrue(neuronState.isPresent());
 
     // retrieve state block
@@ -100,13 +100,13 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertTrue(y0Symbol.isPresent());
 
     // retrieve parameter block
-    final Scope parameterScope = astBodyDecorator.getParameterBlock().get().getEnclosingScope().get();
+    final Scope parameterScope = astNeuronDecorator.getParameterBlock().get().getEnclosingScope().get();
     assertSame(stateScope, parameterScope);
     assertTrue(parameterScope.resolve("y0", VariableSymbol.KIND).isPresent());
     assertTrue(parameterScope.resolve("C_m", VariableSymbol.KIND).isPresent());
 
     // retrieve dynamics block
-    final Scope dynamicsScope = astBodyDecorator.getDynamics().get(0).getBlock().getEnclosingScope().get();
+    final Scope dynamicsScope = astNeuronDecorator.getUpdateBlocks().get(0).getBlock().getEnclosingScope().get();
 
     final Optional<VariableSymbol> newVarInMethodSymbol
         = dynamicsScope.resolve("newVarInMethod", VariableSymbol.KIND);
@@ -123,9 +123,9 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
     scopeCreator.runSymbolTableCreator(root);
 
-    final ASTBody astBodyDecorator = (root.getNeurons().get(0).getBody());
+    final ASTNeuron astNeuronDecorator = (root.getNeurons().get(0));
 
-    final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
+    final Optional<ASTBlockWithVariables> neuronState = astNeuronDecorator.getStateBlock();
     assertTrue(neuronState.isPresent());
     final Optional<VariableSymbol> testVarFromParameter =
         neuronState.get().getEnclosingScope().get().resolve("scopeTestVar",
@@ -136,7 +136,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertTrue(testVarFromParameter.get().getType().equals(PredefinedTypes.getStringType()));
 
     // check the symbol in function block
-    final Optional<ASTFunction> scopeTestingFunction = astBodyDecorator
+    final Optional<ASTFunction> scopeTestingFunction = astNeuronDecorator
         .getFunctions()
         .stream()
         .filter(astFunction -> astFunction.getName().equals("scopeTestingFunction"))
@@ -222,9 +222,9 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
 
     scopeCreator.runSymbolTableCreator(root);
 
-    final ASTBody astBodyDecorator = (root.getNeurons().get(0).getBody());
+    final ASTNeuron astNeuronDecorator = (root.getNeurons().get(0));
 
-    final Optional<ASTBodyElement> neuronState = astBodyDecorator.getStateBlock();
+    final Optional<ASTBlockWithVariables> neuronState = astNeuronDecorator.getStateBlock();
     assertTrue(neuronState.isPresent());
 
     // retrieve state block
@@ -264,7 +264,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     assertEquals(1, root.getNeurons().size());
     scopeCreator.runSymbolTableCreator(root);
 
-    final List<VariableSymbol> spikeBuffers = root.getNeurons().get(0).getBody().getSpikeBuffers();
+    final List<VariableSymbol> spikeBuffers = root.getNeurons().get(0).getSpikeBuffers();
     assertTrue(spikeBuffers.size() == 1);
     assertTrue(spikeBuffers.get(0).isConductanceBased());
   }

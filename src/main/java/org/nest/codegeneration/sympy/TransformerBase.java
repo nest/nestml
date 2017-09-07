@@ -49,20 +49,19 @@ public class TransformerBase {
   private final NESTMLParser parser = new NESTMLParser();
 
   ASTNeuron addVariablesToState(final ASTNeuron astNeuron, final List<String> shapeStateVariables) {
-    checkState(astNeuron.getBody().getEnclosingScope().isPresent());
-    final Scope scope = astNeuron.getBody().getEnclosingScope().get();
 
-    final List<VariableSymbol> correspondingShapeSymbols = shapeStateVariables
-        .stream()
-        .map(this::getShapeNameFromStateVariable)
-        .map(shapeName -> resolve(shapeName, scope))
-        .collect(Collectors.toList());
+    //final List<String> correspondingShapeSymbols = shapeStateVariables
+    //    .stream()
+    //    .map(this::getShapeNameFromStateVariable)
+    //    .collect(Collectors.toList());
 
     for (int i = 0; i < shapeStateVariables.size(); ++i) {
-      final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getVectorParameter().get() + "]":"";
-      final String stateVarDeclaration = shapeStateVariables.get(i) + " real " + vectorDatatype;
+      // final Scope scope = astNeuron.getEnclosingScope().get();
+      //checkState(astNeuron.getEnclosingScope().isPresent());
+      //final String vectorDatatype = correspondingShapeSymbols.get(i).isVector()?"[" + correspondingShapeSymbols.get(i).getVectorParameter().get() + "]":"";
+      final String stateVarDeclaration = shapeStateVariables.get(i) + " real";
 
-      astNeuron.getBody().addToStateBlock(createDeclaration(stateVarDeclaration));
+      astNeuron.addToStateBlock(createDeclaration(stateVarDeclaration));
     }
 
     return astNeuron;
@@ -108,7 +107,7 @@ public class TransformerBase {
                                        + " = " + declaration.getValue();
       final ASTDeclaration astDeclaration = parser.parseDeclaration(new StringReader(declarationString)).get();
       vectorVariable.ifPresent(var -> astDeclaration.setSizeParameter(var.getVectorParameter().get()));
-      astNeuron.getBody().addToInternalBlock(astDeclaration);
+      astNeuron.addToInternalBlock(astDeclaration);
       return astNeuron;
     }
     catch (IOException e) {
@@ -118,13 +117,10 @@ public class TransformerBase {
   }
 
   ASTNeuron replaceIntegrateCallThroughPropagation(final ASTNeuron astNeuron, List<String> propagatorSteps) {
-
-    final ASTBody astBodyDecorator = astNeuron.getBody();
-
     // It must work for multiple integrate calls!
     final Optional<ASTFunctionCall> integrateCall = AstUtils.getFunctionCall(
         PredefinedFunctions.INTEGRATE_ODES,
-        astBodyDecorator.getDynamics().get(0));
+        astNeuron.getUpdateBlocks().get(0));
 
     if (integrateCall.isPresent()) {
       final Optional<ASTNode> smallStatement = AstUtils.getParent(integrateCall.get(), astNeuron);
@@ -162,7 +158,7 @@ public class TransformerBase {
    */
   void addUpdatesWithPSCInitialValues(
       final SolverOutput solverOutput,
-      final ASTBody body,
+      final ASTNeuron body,
       final Function<String, String> stateVariableNameExtracter,
       final Function<String, String> shapeNameExtracter) {
     final List<ASTFunctionCall> i_sumCalls = OdeTransformer.get_sumFunctionCalls(body.getOdeBlock().get());
@@ -194,7 +190,7 @@ public class TransformerBase {
 
   }
 
-  void addAssignmentToUpdateBlock(final ASTAssignment astAssignment, final ASTBody astBody) {
+  void addAssignmentToUpdateBlock(final ASTAssignment astAssignment, final ASTNeuron astNeuron) {
     final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
     final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
 
@@ -203,10 +199,10 @@ public class TransformerBase {
     // Goal: add the y-assignments at the end of the expression
     astSmall_stmt.setAssignment(astAssignment);
 
-    astBody.getDynamics().get(0).getBlock().getStmts().add(astStmt);
+    astNeuron.getUpdateBlocks().get(0).getBlock().getStmts().add(astStmt);
   }
 
-  void addDeclrationToUpdateBlock(final ASTDeclaration astDeclaration, final ASTBody astBody) {
+  void addDeclrationToUpdateBlock(final ASTDeclaration astDeclaration, final ASTNeuron astNeuron) {
     final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
     final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
 
@@ -215,7 +211,7 @@ public class TransformerBase {
     // Goal: add the y-assignments at the end of the expression
     astSmall_stmt.setDeclaration(astDeclaration);
 
-    astBody.getDynamics().get(0).getBlock().getStmts().add(astStmt);
+    astNeuron.getUpdateBlocks().get(0).getBlock().getStmts().add(astStmt);
   }
 
   ASTStmt statement(final ASTAssignment astAssignment) {
@@ -227,10 +223,7 @@ public class TransformerBase {
   }
 
   ASTNeuron removeShapes(ASTNeuron astNeuron) {
-    //final List<ASTDeclaration> stateVariablesDeclarations = shapesToStateVariables(
-    //    astNeuron.getBody().getOdeBlock().get());
-    // stateVariablesDeclarations.forEach(stateVariable -> astNeuron.getBody().addToStateBlock(stateVariable));
-    astNeuron.getBody().getOdeBlock().get().getShapes().clear();
+    astNeuron.getOdeBlock().get().getShapes().clear();
     return astNeuron;
   }
 

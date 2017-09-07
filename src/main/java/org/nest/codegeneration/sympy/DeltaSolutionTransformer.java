@@ -29,11 +29,11 @@ class DeltaSolutionTransformer extends TransformerBase {
 
     ASTNeuron workingVersion = astNeuron;
     //addVariableToInternals(astNeuron, p30File);
-    workingVersion.getBody().addToInternalBlock(createDeclaration("__h ms = resolution()"));
+    workingVersion.addToInternalBlock(createDeclaration("__h ms = resolution()"));
     workingVersion = addVariableToInternals(workingVersion, solverOutput.const_input);
     workingVersion = addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
 
-    final List<ASTFunctionCall> i_sumCalls = AstUtils.getAll(astNeuron.getBody().getOdeBlock().get(), ASTFunctionCall.class)
+    final List<ASTFunctionCall> i_sumCalls = AstUtils.getAll(astNeuron.getOdeBlock().get(), ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM))
         .collect(toList());
@@ -41,7 +41,7 @@ class DeltaSolutionTransformer extends TransformerBase {
     // Apply spikes from the buffer to the state variable
     for (ASTFunctionCall i_sum_call : i_sumCalls) {
       final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
-      solverOutput.ode_var_update_instructions.add(astNeuron.getBody().getEquations().get(0).getLhs().getName() + "+=" + bufferName);
+      solverOutput.ode_var_update_instructions.add(astNeuron.getEquations().get(0).getLhs().getName() + "+=" + bufferName);
     }
 
     workingVersion = replaceIntegrateCallThroughPropagation(workingVersion, solverOutput.ode_var_update_instructions);

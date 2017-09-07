@@ -278,7 +278,7 @@ ${neuronName}::update(
        </#if>
     </#list>
 
-    <#assign dynamics = body.getDynamicsBlock().get()>
+    <#assign dynamics = body.getUpdateBlock().get()>
     ${tc.include("org.nest.spl.Block", dynamics.getBlock())}
 
     // voltage logging

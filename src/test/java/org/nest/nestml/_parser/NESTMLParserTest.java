@@ -68,8 +68,8 @@ public class NESTMLParserTest extends ModelbasedTest {
     assertTrue(ast.isPresent());
     final List<ASTDeclaration> declarations = AstUtils.getAll(ast.get(), ASTDeclaration.class);
     for (final ASTDeclaration declaration:declarations) {
-      assertEquals(3, declaration.getComments().size());
-      declaration.getComments().forEach(System.out::println);
+      assertEquals(3, declaration.getDocStrings().size());
+      declaration.getDocStrings().forEach(System.out::println);
     }
 
   }
