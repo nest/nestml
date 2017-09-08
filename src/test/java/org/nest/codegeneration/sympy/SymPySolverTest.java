@@ -23,7 +23,7 @@ package org.nest.codegeneration.sympy;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.utils.FilesHelper;
 
@@ -86,7 +86,7 @@ public class SymPySolverTest extends ModelbasedTest {
     FilesHelper.deleteFilesInFolder(SYMPY_OUTPUT);
 
     final SymPySolver symPySolver = new SymPySolver();
-    final ASTOdeDeclaration astOdeDeclaration =  root.get().getNeurons().get(0).getOdeBlock().get();
+    final ASTEquationsBlock astOdeDeclaration =  root.get().getNeurons().get(0).findEquationsBlock().get();
 
     return symPySolver.solveOdeWithShapes(astOdeDeclaration, SYMPY_OUTPUT);
   }

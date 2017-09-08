@@ -1,7 +1,8 @@
 neuron Dummy:
   function f():
     # Comment 1
-    if 1 > 2:# Comment 2
+    if 1 > 2:
+      # Comment 2
       # Comment 3
       if 3 > 4:
         # Comment 4
@@ -12,7 +13,8 @@ neuron Dummy:
       else:
         # Comment 6
         cc integer
-      end # Comment 7
+      end
+      # Comment 7
 
       if true:
         # Comment 8
@@ -20,7 +22,8 @@ neuron Dummy:
       end
       # Comment 9
       # Comment 10
-      a integer = 11 # comment 11
+      a integer = 11
+      # comment 11
     end
   end
 

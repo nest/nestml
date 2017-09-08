@@ -41,7 +41,7 @@ import static de.se_rwth.commons.logging.Log.error;
  * @author  plotnikov
  */
 public class UsageOfAmbiguousName implements
-    NESTMLASTOdeDeclarationCoCo,
+    NESTMLASTEquationsBlockCoCo,
     NESTMLASTAssignmentCoCo,
     NESTMLASTFunctionCallCoCo,
     NESTMLASTDeclarationCoCo,
@@ -120,7 +120,7 @@ public class UsageOfAmbiguousName implements
 
 
   @Override
-  public void check(final ASTOdeDeclaration node) {
+  public void check(final ASTEquationsBlock node) {
     node.getOdeFunctions().forEach(
         oderAlias-> {
           checkVariableByName(oderAlias.getVariableName(), node);

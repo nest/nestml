@@ -8,7 +8,7 @@ package org.nest.codegeneration.sympy;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
-import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._ast.ASTShape;
 import org.nest.reporting.Reporter;
 
@@ -46,7 +46,7 @@ class SymPySolver {
   private static final String ODE_ANALYZER_SCRIPT = "OdeAnalyzer.py";
   private static final String ODE_ANALYZER_SOURCE = "org/nest/sympy/OdeAnalyzer.py";
 
-  SolverOutput solveOdeWithShapes(final ASTOdeDeclaration astOdeDeclaration, final Path output) {
+  SolverOutput solveOdeWithShapes(final ASTEquationsBlock astOdeDeclaration, final Path output) {
     return executeSolver(new SolverInput(astOdeDeclaration), output);
   }
 

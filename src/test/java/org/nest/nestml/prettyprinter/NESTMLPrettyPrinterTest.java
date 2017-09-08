@@ -20,7 +20,7 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Processes all NESTML modles. Then, prettyprints them and parses again, to check the soundness of
+ * Processes all NESTML models. Then, prettyprints them and parses again, to check the soundness of
  * the printed models.
  *
  * @author plotnikov
@@ -39,7 +39,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
 
   @Test
   public void testThatPrettyPrinterProducesParsableOutput() throws IOException {
-    parseAndCheckNestmlModel("models/iaf_cond_alpha.nestml");
+    parseAndCheckNestmlModel("src/test/resources/org/nest/nestml/parsing/comment.nestml");
   }
 
   @Test
@@ -76,7 +76,7 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
     final Optional<ASTNESTMLCompilationUnit> modelRoot = nestmlParser.parse(pathToModel);
     assertTrue("Cannot parse the model: " + pathToModel, modelRoot.isPresent());
 
-    System.out.printf(NESTMLPrettyPrinter.print(modelRoot.get()));
+    System.out.println(NESTMLPrettyPrinter.print(modelRoot.get()));
     final Optional<ASTNESTMLCompilationUnit> prettyPrintedRoot = parseString(NESTMLPrettyPrinter.print(modelRoot.get()));
     assertTrue(prettyPrintedRoot.isPresent());
   }
@@ -86,13 +86,9 @@ public class NESTMLPrettyPrinterTest extends ModelbasedTest {
 
     final ASTNESTMLCompilationUnit root = parseNestmlModel("src/test/resources/org/nest/nestml/parsing/comment.nestml");
 
-
-
     final String printedModel = NESTMLPrettyPrinter.print(root.getNeurons().get(0).getFunctions().get(0).getBlock());
 
-    System.out.println("!!!");
     System.out.println(printedModel);
-    System.out.println("!!!");
 
     Optional<ASTBlock> prettyPrintedRoot = nestmlParser.parseBlock(new StringReader(printedModel));
     assertTrue(prettyPrintedRoot.isPresent());

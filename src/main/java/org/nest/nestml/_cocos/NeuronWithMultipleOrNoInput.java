@@ -19,7 +19,7 @@ import static de.se_rwth.commons.logging.Log.error;
 public class NeuronWithMultipleOrNoInput implements NESTMLASTNeuronCoCo {
 
   public void check(final ASTNeuron neuron) {
-    List<ASTInput> inputBlocks = neuron.getInputs();
+    List<ASTInputBlock> inputBlocks = neuron.getInputBlocks();
     if (inputBlocks.size() == 0) {
       final String msg = NestmlErrorStrings.errorNoInput(this);
       error(msg, neuron.get_SourcePositionStart());

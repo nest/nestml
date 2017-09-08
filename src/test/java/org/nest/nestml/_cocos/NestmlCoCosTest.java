@@ -595,7 +595,7 @@ public class NestmlCoCosTest extends ModelbasedTest {
   @Test
   public void testUndefinedVariablesInEquations() {
     final UsageOfAmbiguousName usageOfAmbiguousName = new UsageOfAmbiguousName();
-    nestmlCoCoChecker.addCoCo((NESTMLASTOdeDeclarationCoCo) usageOfAmbiguousName);
+    nestmlCoCoChecker.addCoCo((NESTMLASTEquationsBlockCoCo) usageOfAmbiguousName);
     nestmlCoCoChecker.addCoCo((NESTMLASTCompound_StmtCoCo) usageOfAmbiguousName);
     nestmlCoCoChecker.addCoCo((NESTMLASTAssignmentCoCo) usageOfAmbiguousName);
     nestmlCoCoChecker.addCoCo((NESTMLASTDeclarationCoCo) usageOfAmbiguousName);

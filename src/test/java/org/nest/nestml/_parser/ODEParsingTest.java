@@ -26,7 +26,7 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTEquation;
-import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTEquationsBlock;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -46,9 +46,11 @@ public class ODEParsingTest extends ModelbasedTest {
   @Test
   public void testOdeDefinition() throws IOException {
     final String odeDeclarationAsString =
-            "I = w * (E/tau_in) * t * exp(-1/tau_in*t)\n" +
-            "V' = -1/Tau * V + 1/C*I\n" ;
-    Optional<ASTOdeDeclaration> res = parseOdeDeclaration(odeDeclarationAsString);
+            "equations:\n" +
+            "  I = w * (E/tau_in) * t * exp(-1/tau_in*t)\n" +
+            "  V' = -1/Tau * V + 1/C*I\n" +
+            "end\n";
+    Optional<ASTEquationsBlock> res = parseOdeDeclaration(odeDeclarationAsString);
     assertTrue(res.isPresent());
   }
 
@@ -73,9 +75,9 @@ public class ODEParsingTest extends ModelbasedTest {
   }
 
 
-  private Optional<ASTOdeDeclaration> parseOdeDeclaration(String input) throws RecognitionException, IOException {
+  private Optional<ASTEquationsBlock> parseOdeDeclaration(String input) throws RecognitionException, IOException {
 
-    return parser.parseOdeDeclaration(new StringReader(input));
+    return parser.parseEquationsBlock(new StringReader(input));
   }
 
 

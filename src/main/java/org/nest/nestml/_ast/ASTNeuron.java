@@ -38,9 +38,9 @@ public class ASTNeuron extends ASTNeuronTOP {
       final List<String> nEWLINEs,
       final List<ASTBlockWithVariables> blockWithVariabless,
       final List<ASTUpdateBlock> updateBlocks,
-      final List<ASTEquations> equationss,
-      final List<ASTInput> inputs,
-      final List<ASTOutput> outputs,
+      final List<ASTEquationsBlock> equationss,
+      final List<ASTInputBlock> inputs,
+      final List<ASTOutputBlock> outputs,
       final List<ASTFunction> functions,
       final ASTBLOCK_CLOSE bLOCK_close) {
     super(name, bLOCK_open, nEWLINEs, blockWithVariabless, updateBlocks, equationss, inputs, outputs, functions, bLOCK_close);
@@ -113,9 +113,9 @@ public class ASTNeuron extends ASTNeuronTOP {
   }
 
   public List<ASTEquation> getEquations() {
-    final Optional<ASTEquations> equations = findEquationsBlock();
+    final Optional<ASTEquationsBlock> equations = findEquationsBlock();
     if (equations.isPresent()) {
-      return equations.get().getOdeDeclaration().getODEs();
+      return equations.get().getODEs();
     }
     else {
       return Lists.newArrayList();
@@ -123,9 +123,9 @@ public class ASTNeuron extends ASTNeuronTOP {
   }
 
   public List<ASTShape> getShapes() {
-    final Optional<ASTEquations> equations = findEquationsBlock();
+    final Optional<ASTEquationsBlock> equations = findEquationsBlock();
     if (equations.isPresent()) {
-      return equations.get().getOdeDeclaration().getShapes();
+      return equations.get().getShapes();
     }
     else {
       return Lists.newArrayList();
@@ -139,8 +139,8 @@ public class ASTNeuron extends ASTNeuronTOP {
         .collect(toList());
   }
 
-  private Optional<ASTEquations> findEquationsBlock() {
-    return this.getEquationss()
+  public Optional<ASTEquationsBlock> findEquationsBlock() {
+    return this.getEquationsBlocks()
         .stream()
         .findFirst();
 
@@ -298,22 +298,15 @@ public class ASTNeuron extends ASTNeuronTOP {
   public List<ASTInputLine> getInputLines() {
     List<ASTInputLine> result = Lists.newArrayList();
 
-    for (final ASTInput inputLine : this.getInputs()) {
-      result.addAll(inputLine.getInputLines());
+    for (final ASTInputBlock inputBlock : this.getInputBlocks()) {
+      result.addAll(inputBlock.getInputLines());
     }
 
     return result;
   }
 
-  public Optional<ASTOdeDeclaration> getOdeBlock() {
-    final Optional<ASTEquations> odeBlock = findEquationsBlock();
-    // checked by the filter conditions
-    return odeBlock.map(astBodyElement -> (astBodyElement).getOdeDeclaration());
-
-  }
-
-  public void removeOdeBlock() {
-    this.setEquationss(Lists.newArrayList());
+  public void removeEquationsBlock() {
+    this.setEquationsBlocks(Lists.newArrayList());
   }
 
   public List<VariableSymbol> getODEAliases() {

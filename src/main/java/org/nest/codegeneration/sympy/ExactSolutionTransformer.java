@@ -41,7 +41,7 @@ class ExactSolutionTransformer extends TransformerBase {
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
     workingVersion = addVariablesToState(workingVersion, solverOutput.shape_state_variables);
     workingVersion = addShapeStateUpdatesToUpdateBlock(workingVersion, solverOutput);
-    workingVersion.removeOdeBlock();
+    workingVersion.removeEquationsBlock();
 
     // oder is important, otherwise addShapeStateUpdatesToUpdateBlock will try to resolve state variables,
     // for which nor symbol are added. TODO filter them

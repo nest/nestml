@@ -14,7 +14,7 @@ import org.nest.codegeneration.sympy.EquationsBlockProcessor;
 import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._symboltable.NESTMLLanguage;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
@@ -81,7 +81,7 @@ public class NestCodeGenerator {
       final ASTNeuron astNeuron,
       final Path outputBase) {
 
-    final Optional<ASTOdeDeclaration> odesBlock = astNeuron.getOdeBlock();
+    final Optional<ASTEquationsBlock> odesBlock = astNeuron.findEquationsBlock();
     if (odesBlock.isPresent()) {
       if (odesBlock.get().getShapes().size() == 0 && odesBlock.get().getODEs().size() > 1) {
         final String msg = String.format(
@@ -248,9 +248,9 @@ public class NestCodeGenerator {
   private void defineSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
     glex.setGlobalValue("useGSL", false);
 
-    if (neuron.getOdeBlock().isPresent()) {
-      if (neuron.getOdeBlock().get().getShapes().size() == 0 ||
-          neuron.getOdeBlock().get().getODEs().size() > 1) {
+    if (neuron.findEquationsBlock().isPresent()) {
+      if (neuron.findEquationsBlock().get().getShapes().size() == 0 ||
+          neuron.findEquationsBlock().get().getODEs().size() > 1) {
         glex.setGlobalValue("names", new GslNames());
         glex.setGlobalValue("useGSL", true);
 

@@ -98,8 +98,8 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   public void endVisit(final ASTNeuron astNeuron) {
     setEnclosingScopeOfNodes(astNeuron);
 
-    if (astNeuron.getOdeBlock().isPresent()) {
-      addFunctionVariables(astNeuron.getOdeBlock().get());
+    if (astNeuron.findEquationsBlock().isPresent()) {
+      addFunctionVariables(astNeuron.findEquationsBlock().get());
     }
 
     // new variable from the ODE block could be added. Check, whether they don't clutter with existing one
@@ -112,13 +112,13 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       if (undefinedMethods.isEmpty()) {
         final List<Finding> multipleDefinitions = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
         if (multipleDefinitions.isEmpty()) {
-          if (astNeuron.getOdeBlock().isPresent()) {
+          if (astNeuron.findEquationsBlock().isPresent()) {
 
             final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
 
             if (afterAddingDerivedVariables.isEmpty()) {
-              assignOdeToVariables(astNeuron.getOdeBlock().get());
-              markConductanceBasedBuffers(astNeuron.getOdeBlock().get(), astNeuron.getInputLines());
+              assignOdeToVariables(astNeuron.findEquationsBlock().get());
+              markConductanceBasedBuffers(astNeuron.findEquationsBlock().get(), astNeuron.getInputLines());
             }
             else {
               final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one variable is " +
@@ -159,7 +159,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    *   end
    * Results in an additional variable for G' (first equations G''). For the sake of the simplicity
    */
-  private void addFunctionVariables(final ASTOdeDeclaration astOdeDeclaration) {
+  private void addFunctionVariables(final ASTEquationsBlock astOdeDeclaration) {
     for (final ASTOdeFunction astOdeAlias:astOdeDeclaration.getOdeFunctions()) {
       final VariableSymbol var = new VariableSymbol(astOdeAlias.getVariableName());
       var.setAstNode(astOdeAlias);
@@ -179,7 +179,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     }
   }
 
-  private void assignOdeToVariables(final ASTOdeDeclaration astOdeDeclaration) {
+  private void assignOdeToVariables(final ASTEquationsBlock astOdeDeclaration) {
       astOdeDeclaration.getODEs().forEach(this::addOdeToVariable);
   }
 
@@ -215,7 +215,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    *
    * spikes buffer is marked conductanceBased
    */
-  private void markConductanceBasedBuffers(final ASTOdeDeclaration astOdeDeclaration, List<ASTInputLine> inputLines) {
+  private void markConductanceBasedBuffers(final ASTEquationsBlock astOdeDeclaration, List<ASTInputLine> inputLines) {
     checkState(currentScope().isPresent());
 
     if (!inputLines.isEmpty()) {

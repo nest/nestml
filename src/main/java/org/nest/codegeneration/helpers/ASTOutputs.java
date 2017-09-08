@@ -7,7 +7,7 @@ package org.nest.codegeneration.helpers;
 
 import de.monticore.ast.ASTNode;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._ast.ASTOutput;
+import org.nest.nestml._ast.ASTOutputBlock;
 
 import java.util.List;
 
@@ -18,13 +18,13 @@ import java.util.List;
  */
 public class ASTOutputs {
   public static boolean isOutputEventPresent(final ASTNeuron astNeuron) {
-    return !astNeuron.getOutputs().isEmpty();
+    return !astNeuron.getOutputBlocks().isEmpty();
   }
 
   public static String printOutputEvent(final ASTNeuron astNeuron) {
-    final List<ASTOutput> neuronOutputs = astNeuron.getOutputs();
+    final List<ASTOutputBlock> neuronOutputs = astNeuron.getOutputBlocks();
     if (!neuronOutputs.isEmpty()) {
-      ASTOutput output = neuronOutputs.get(0);
+      ASTOutputBlock output = neuronOutputs.get(0);
 
       if (output.isSpike()) {
         return "nest::SpikeEvent";

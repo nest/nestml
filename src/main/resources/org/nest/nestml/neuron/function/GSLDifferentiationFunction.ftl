@@ -15,7 +15,7 @@ ${neuronName}_dynamics( double, const double y[], double f[], void* pnode )
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
 
-  <#list body.getOdeBlock().get().getODEs() as ode>
+  <#list body.findEquationsBlock().get().getODEs() as ode>
     <#assign simpleOde = odeTransformer.replaceSumCalls(ode)>
     <#list astUtils.getAliasSymbols(ode) as function>
       <#if !function.isInEquation()>

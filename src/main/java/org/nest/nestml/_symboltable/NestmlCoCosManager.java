@@ -46,7 +46,7 @@ public class NestmlCoCosManager {
     variableExistenceChecker.addCoCo((NESTMLASTAssignmentCoCo) usageOfAmbiguousName);
     variableExistenceChecker.addCoCo((NESTMLASTCompound_StmtCoCo) usageOfAmbiguousName);
     variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) usageOfAmbiguousName);
-    variableExistenceChecker.addCoCo((NESTMLASTOdeDeclarationCoCo) usageOfAmbiguousName);
+    variableExistenceChecker.addCoCo((NESTMLASTEquationsBlockCoCo) usageOfAmbiguousName);
     variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) usageOfAmbiguousName);
 
   }

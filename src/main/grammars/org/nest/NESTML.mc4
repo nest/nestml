@@ -95,16 +95,9 @@ grammar NESTML extends org.nest.Literals {
     @attribute Neuron           The neuron representation
   */
 
-
   /*********************************************************************************************************************
   * Equations-Language
   *********************************************************************************************************************/
-  /** ASTOdeDeclaration. Represents a block of equations and differential equations.
-
-    @attribute Equation      List with equations, e.g. "I = exp(t)" od differential equations.
-  */
-  OdeDeclaration  = (Equation | Shape | OdeFunction | NEWLINE)+;
-
   OdeFunction = ([recordable:"recordable"])? "function" variableName:Name Datatype "=" Expr (";")?;
 
   /** ASTeq Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
@@ -192,7 +185,7 @@ grammar NESTML extends org.nest.Literals {
   */
   Neuron = "neuron" Name
     BLOCK_OPEN
-      (NEWLINE | BlockWithVariables | UpdateBlock | Equations | Input | Output | Function)*
+      (NEWLINE | BlockWithVariables | UpdateBlock | EquationsBlock | InputBlock | OutputBlock | Function)*
     BLOCK_CLOSE;
 
   /** ASTBlockWithVariables represent a block with variables, e.g.:
@@ -232,10 +225,10 @@ grammar NESTML extends org.nest.Literals {
        end
      @attribute odeDeclaration Block with equations and differential equations.
    */
-  Equations =
+  EquationsBlock =
     "equations"
     BLOCK_OPEN
-      OdeDeclaration
+      (Equation | Shape | OdeFunction | NEWLINE)+
     BLOCK_CLOSE;
 
   /** ASTInput represents the input block:
@@ -246,7 +239,7 @@ grammar NESTML extends org.nest.Literals {
 
     @attribute inputLine set of input lines.
   */
-  Input = "input"
+  InputBlock = "input"
     BLOCK_OPEN
       (InputLine | NEWLINE)*
     BLOCK_CLOSE;
@@ -276,7 +269,7 @@ grammar NESTML extends org.nest.Literals {
       @attribute spike true iff the neuron has a spike output.
       @attribute current true iff. the neuron is a current output.
     */
-  Output = "output" BLOCK_OPEN (["spike"] | ["current"]) ;
+  OutputBlock = "output" BLOCK_OPEN (["spike"] | ["current"]) ;
 
   /** ASTFunction a function definition:
       function set_V_m(v mV):

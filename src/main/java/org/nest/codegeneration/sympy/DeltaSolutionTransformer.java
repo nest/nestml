@@ -33,7 +33,7 @@ class DeltaSolutionTransformer extends TransformerBase {
     workingVersion = addVariableToInternals(workingVersion, solverOutput.const_input);
     workingVersion = addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
 
-    final List<ASTFunctionCall> i_sumCalls = AstUtils.getAll(astNeuron.getOdeBlock().get(), ASTFunctionCall.class)
+    final List<ASTFunctionCall> i_sumCalls = AstUtils.getAll(astNeuron.findEquationsBlock().get(), ASTFunctionCall.class)
         .stream()
         .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM))
         .collect(toList());

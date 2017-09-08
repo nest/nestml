@@ -7,9 +7,8 @@ package org.nest.codegeneration.sympy;
 
 import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._ast.ASTOdeDeclaration;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +25,7 @@ import static java.util.stream.Collectors.toList;
 class ShapesToOdesTransformer extends TransformerBase {
 
   ASTNeuron transformShapesToOdeForm(final ASTNeuron astNeuron, final SolverOutput solverOutput) {
-    checkArgument(astNeuron.getOdeBlock().isPresent());
+    checkArgument(astNeuron.findEquationsBlock().isPresent());
 
     ASTNeuron workingVersion = addVariablesToState(astNeuron, solverOutput.shape_state_variables);
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.initial_values);
@@ -37,14 +36,14 @@ class ShapesToOdesTransformer extends TransformerBase {
         variableNameExtracter,
         shapeNameExtracter);
 
-    addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.getOdeBlock().get());
+    addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.findEquationsBlock().get());
 
     return workingVersion;
   }
 
   private void addStateShapeEquationsToEquationsBlock(
       final List<Map.Entry<String, String>> equationsFile,
-      final ASTOdeDeclaration astOdeDeclaration) {
+      final ASTEquationsBlock astOdeDeclaration) {
     final List<ASTEquation> equations = equationsFile.stream()
         .map(ode -> ode.getKey() + "' = " + ode.getValue())
         .map(AstCreator::createEquation)
@@ -52,7 +51,7 @@ class ShapesToOdesTransformer extends TransformerBase {
     astOdeDeclaration.getODEs().addAll(equations);
   }
 
-  private List<ASTDeclaration> shapesToStateVariables(final ASTOdeDeclaration astOdeDeclaration) {
+  private List<ASTDeclaration> shapesToStateVariables(final ASTEquationsBlock astOdeDeclaration) {
     final List<String> stateVariables = astOdeDeclaration.getShapes()
         .stream()
         .map(shape -> shape.getLhs().toString())

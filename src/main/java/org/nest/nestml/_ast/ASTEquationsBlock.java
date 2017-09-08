@@ -1,5 +1,5 @@
 /*
- * ASTOdeDeclaration.java
+ * ASTEquationsBlock.java
  *
  * This file is part of NEST.
  *
@@ -21,7 +21,7 @@
 package org.nest.nestml._ast;
 
 import org.nest.nestml._ast.ASTEquation;
-import org.nest.nestml._ast.ASTOdeDeclarationTOP;
+import org.nest.nestml._ast.ASTEquationsBlockTOP;
 import org.nest.nestml._ast.ASTOdeFunction;
 import org.nest.nestml._ast.ASTShape;
 
@@ -32,17 +32,19 @@ import java.util.List;
  *
  * @author plotnikov
  */
-public class ASTOdeDeclaration extends ASTOdeDeclarationTOP {
-  public ASTOdeDeclaration() {
+public class ASTEquationsBlock extends ASTEquationsBlockTOP {
+  public ASTEquationsBlock() {
 
   }
 
-  public ASTOdeDeclaration(
+  public ASTEquationsBlock(
+      final ASTBLOCK_OPEN bLOCK_OPEN,
       final List<ASTEquation> equations,
       final List<ASTShape> shapes,
       final List<ASTOdeFunction> oDEAliass,
-      final List<String> nEWLINEs) {
-    super(equations, shapes, oDEAliass, nEWLINEs);
+      final List<String> nEWLINEs,
+      final ASTBLOCK_CLOSE bLOCK_CLOSE ) {
+    super(bLOCK_OPEN, equations, shapes, oDEAliass, nEWLINEs, bLOCK_CLOSE);
   }
 
   @Override
