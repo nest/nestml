@@ -23,9 +23,45 @@
 @author kperun
 """
 
+
 class Symbol:
     """
     This class is ues to store information regarding a single symbol as required for a correct handling of scopes
-    and context conditions.
+    and context conditions. A single symbol is a declaration or an argument of a function.
+    E.g.:   V_m mV = .... 
+            function x(arg1,...)
     """
-    pass
+    __source_position = None
+    __element_reference = None
+
+    def __init__(self, _sourcePosition=None, _elementReference=None):
+        """
+        Standard constructor of the Symbol class.
+        :param _sourcePosition: the source position of this symbol.
+        :type _sourcePosition: ASTSourcePosition
+        :param _elementReference: an ast object.
+        :type _elementReference: ASTObject
+        """
+        self.__source_position = _sourcePosition
+        self.__element_reference = _elementReference
+
+    def getSourcePosition(self):
+        """
+        Returns the source position of this symbol.
+        :return: the source position
+        :rtype: ASTSourcePosition
+        """
+        return self.__source_position
+
+    def getReferencedObject(self):
+        """
+        Returns the referenced object.
+        :return: the referenced object.
+        :rtype: ASTObject
+        """
+        return self.__element_reference
+
+
+
+
+
