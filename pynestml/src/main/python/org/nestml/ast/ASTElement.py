@@ -41,7 +41,7 @@ class ASTElement:
         :type _sourcePosition: ASTSourcePosition
         """
         assert (_sourcePosition is None or isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.AST) No source position handed over!'
+            '(PyNestML.AST.Element) No source position handed over!'
         self.__sourcePosition = _sourcePosition
 
     def getSourcePosition(self):

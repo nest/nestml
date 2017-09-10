@@ -32,9 +32,9 @@ class ASTUnitType(ASTElement):
     complex data type as 'mV/s'
   
     unitType : leftParentheses='(' unitType rightParentheses=')'
-               | base=unitType powOp='**' exponent=NUMERIC_LITERAL
+               | base=unitType powOp='**' exponent=INTEGER
                | left=unitType (timesOp='*' | divOp='/') right=unitType
-               | unitlessLiteral=NUMERIC_LITERAL divOp='/' right=unitType
+               | unitlessLiteral=INTEGER divOp='/' right=unitType
                | unit=NAME;
     """
     # encapsulated or not
@@ -68,7 +68,7 @@ class ASTUnitType(ASTElement):
         :param _isPow: is a power expression
         :type _isPow: bool
         :param _exponent: the exponent expression
-        :type _exponent: Integer
+        :type _exponent: int
         :param _lhs: the left-hand side expression
         :type _lhs: ASTUnitType or Integer
         :param _rhs: the right-hand side expression
@@ -81,15 +81,17 @@ class ASTUnitType(ASTElement):
         :type _unit: string
         """
         assert (isinstance(_base, ASTUnitType) or isinstance(_base, str) or _base is None), \
-            '(PyNESTML.AST.UnitType) Wrong type of base expression provided.'
+            '(PyNestML.AST.UnitType) Wrong type of base expression provided.'
         assert (isinstance(_exponent, int) or _exponent is None), \
-            '(PyNESTML.AST.UnitType) Wrong type of exponent provided, expected "int", provided %s' % type(_exponent)
+            '(PyNestML.AST.UnitType) Wrong type of exponent provided, expected integer, provided %s' % type(_exponent)
         assert (isinstance(_lhs, ASTUnitType) or isinstance(_lhs, str) or isinstance(_lhs, int) or _lhs is None), \
-            '(PyNESTML.AST.UnitType) Wrong type of left-hand side expression provided.'
+            '(PyNestML.AST.UnitType) Wrong type of left-hand side expression provided!'
         assert (isinstance(_rhs, ASTUnitType) or isinstance(_rhs, str) or _lhs is None), \
-            '(PyNESTML.AST.UnitType) Wrong type of right-hand side expression provided.'
+            '(PyNestML.AST.UnitType) Wrong type of right-hand side expression provided!'
         assert (isinstance(_compoundUnit, ASTUnitType) or isinstance(_compoundUnit, str) or _compoundUnit is None), \
-            '(PyNESTML.AST.UnitType) Wrong type of encapsulated unit expression provided.'
+            '(PyNestML.AST.UnitType) Wrong type of encapsulated unit expression provided!'
+        assert (_lhs is None or isinstance(_lhs, ASTUnitType) or isinstance(_lhs, int)), \
+            '(PyNestML.AST.UnitType) Wrong type of left-hand side expression provided!'
         super(ASTUnitType, self).__init__(_sourcePosition)
         self.__hasLeftParentheses = _leftParentheses
         self.__compoundUnit = _compoundUnit

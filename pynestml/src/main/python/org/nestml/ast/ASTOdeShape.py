@@ -1,6 +1,6 @@
 """
 /*
- *  ASTShape.py
+ *  ASTOdeShape.py
  *
  *  This file is part of NEST.
  *
@@ -27,18 +27,18 @@ from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTShape(ASTElement):
+class ASTOdeShape(ASTElement):
     """
     This class is used to store shapes. 
     Grammar:
-        shape : 'shape' lhs=variable '=' rhs=expr;
+        odeShape : 'shape' lhs=variable '=' rhs=expr;
     """
     __lhs = None
     __rhs = None
 
     def __init__(self, _lhs=None, _rhs=None, _sourcePosition=None):
         """
-        Standard constructor of ASTShape.
+        Standard constructor of ASTOdeShape.
         :param _lhs: the variable corresponding to the shape 
         :type _lhs: ASTVariable
         :param _rhs: the right-hand side expression
@@ -47,17 +47,17 @@ class ASTShape(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
-            '(PyNestML.AST.Shape) No or wrong type of left-hand side variable provided!'
+            '(PyNestML.AST.OdeShape) No or wrong type of left-hand side variable provided!'
         assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
-            '(PyNestML.AST.Shape) No or wrong type o right-hand side expression provided!'
-        super(ASTShape, self).__init__(_sourcePosition)
+            '(PyNestML.AST.OdeShape) No or wrong type of right-hand side expression provided!'
+        super(ASTOdeShape, self).__init__(_sourcePosition)
         self.__lhs = _lhs
         self.__rhs = _rhs
 
     @classmethod
-    def makeASTShape(cls, _lhs=None, _rhs=None, _sourcePosition=None):
+    def makeASTOdeShape(cls, _lhs=None, _rhs=None, _sourcePosition=None):
         """
-        Factory method of ASTShape.
+        Factory method of ASTOdeShape.
         :param _lhs: the variable corresponding to the shape
         :type _lhs: ASTVariable
         :param _rhs: the right-hand side expression
@@ -65,7 +65,7 @@ class ASTShape(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTShape object
-        :rtype: ASTShape
+        :rtype: ASTOdeShape
         """
         return cls(_lhs, _rhs, _sourcePosition)
 

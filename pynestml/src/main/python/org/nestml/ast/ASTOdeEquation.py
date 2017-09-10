@@ -1,6 +1,6 @@
 """
 /*
- *  ASTEquation.py
+ *  ASTOdeEquation.py
  *
  *  This file is part of NEST.
  *
@@ -23,16 +23,19 @@
 @author kperun
 """
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTDerivative import ASTDerivative
+from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 
 
-class ASTEquation(ASTElement):
+class ASTOdeEquation(ASTElement):
     """
     This class is used to store ast equations, e.g., V_m' = 10mV + V_m.
-    ASTEquation Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
+    ASTOdeEquation Represents an equation, e.g. "I = exp(t)" or represents an differential equations,
+     e.g. "V_m' = V_m+1".
     @attribute lhs      Left hand side, e.g. a Variable.
     @attribute rhs      Expression defining the right hand side.
     Grammar:
-        equation : lhs=derivative '=' rhs=expression;
+        odeEquation : lhs=derivative '=' rhs=expression;
     """
     __lhs = None
     __rhs = None
@@ -47,22 +50,26 @@ class ASTEquation(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        super(ASTEquation, self).__init__(_sourcePosition)
+        assert (_lhs is not None and isinstance(_lhs, ASTDerivative)), \
+            '(PyNestML.AST.OdeEquation) No or wrong type of left-hand side derivative handed over!'
+        assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
+            '(PyNestML.AST.OdeEquation) No or wrong type of right-hand side expression handed over! '
+        super(ASTOdeEquation, self).__init__(_sourcePosition)
         self.__lhs = _lhs
         self.__rhs = _rhs
 
     @classmethod
-    def makeASTEquation(cls, _lhs=None, _rhs=None, _sourcePosition=None):
+    def makeASTOdeEquation(cls, _lhs=None, _rhs=None, _sourcePosition=None):
         """
-        A factory method used to generate new ASTEquation.
+        A factory method used to generate new ASTOdeEquation.
         :param _lhs: an object of type ASTDerivative
         :type _lhs: ASTDerivative
         :param _rhs: an object of type ASTExpression
         :type _rhs: ASTExpression
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
-        :return a new ASTEquation object.
-        :rtype ASTEquation
+        :return a new ASTOdeEquation object.
+        :rtype ASTOdeEquation
         """
         return cls(_lhs, _rhs, _sourcePosition)
 

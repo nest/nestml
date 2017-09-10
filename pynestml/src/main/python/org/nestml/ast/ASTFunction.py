@@ -25,7 +25,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
 from pynestml.src.main.python.org.nestml.ast.ASTParameters import ASTParameters
-from pynestml.src.main.python.org.nestml.ast.ASTReturnStmt import ASTReturnStmt
+from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
 
 
 class ASTFunction(ASTElement):
@@ -70,7 +70,8 @@ class ASTFunction(ASTElement):
             '(PyNestML.AST.Function) No block or wrong type provided!'
         assert (_parameters is None or isinstance(_parameters, ASTParameters)), \
             '(PyNestML.AST.Function) Wrong type of parameters provided!'
-        assert (_returnType is None or isinstance(_returnType, ASTReturnStmt)), \
+        print(type(_returnType))
+        assert (_returnType is None or isinstance(_returnType, ASTDatatype)), \
             '(PyNestML.AST.Function) Wrong type of return provided!'
         super(ASTFunction, self).__init__(_sourcePosition)
         self.__block = _block

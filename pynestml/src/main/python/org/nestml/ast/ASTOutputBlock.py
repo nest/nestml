@@ -1,6 +1,6 @@
 """
 /*
- *  ASTOutput.py
+ *  ASTOutputBlock.py
  *
  *  This file is part of NEST.
  *
@@ -23,9 +23,10 @@
  @author kperun
 """
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from enum import Enum
 
 
-class ASTOutput(ASTElement):
+class ASTOutputBlock(ASTElement):
     """
     This class is used to store output buffer declarations.
     ASTOutput represents the output block of the neuron:
@@ -33,7 +34,7 @@ class ASTOutput(ASTElement):
       @attribute spike true iff the neuron has a spike output.
       @attribute current true iff. the neuron is a current output.
     Grammar:
-        outputBuffer: 'output' BLOCK_OPEN ('spike' | 'current') ;
+        outputBlock: 'output' BLOCK_OPEN ('spike' | 'current') ;
     """
     __type = None
 
@@ -41,25 +42,25 @@ class ASTOutput(ASTElement):
         """
         Standard constructor.
         :param _type: the type of the output buffer.
-        :type _type: str
+        :type _type: SignalType
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_type is 'spike' or _type is _type is 'current'), \
-            '(PyNestML) Wrong type (=%s) of buffer provided!' % _type
-        super(ASTOutput, self).__init__(_sourcePosition)
+        assert (_type is SignalType.SPIKE or _type is _type is SignalType.CURRENT), \
+            '(PyNestML.AST.OutputBlock) Wrong type (=%s) of buffer provided!' % _type
+        super(ASTOutputBlock, self).__init__(_sourcePosition)
         self.__type = _type
 
     @classmethod
-    def makeASTOutput(cls, _type=None, _sourcePosition=None):
+    def makeASTOutputBlock(cls, _type=None, _sourcePosition=None):
         """
-        Factory method of the ASTOutput class.
+        Factory method of the ASTOutputBlock class.
         :param _type: the type of the output buffer.
         :type _type: str
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTOutput object
-        :rtype: ASTOutput
+        :return: a new ASTOutputBlock object
+        :rtype: ASTOutputBlock
         """
         return cls(_type, _sourcePosition)
 
@@ -69,7 +70,7 @@ class ASTOutput(ASTElement):
         :return: True if spike, otherwise False.
         :rtype: bool
         """
-        return self.__type is 'spike'
+        return self.__type is SignalType.SPIKE
 
     def isCurrent(self):
         """
@@ -77,7 +78,7 @@ class ASTOutput(ASTElement):
         :return: True if current, otherwise False.
         :rtype: bool
         """
-        return self.__type is 'current'
+        return self.__type is SignalType.CURRENT
 
     def printAST(self):
         """
@@ -86,3 +87,11 @@ class ASTOutput(ASTElement):
         :rtype: str
         """
         return 'output: ' + ('spike' if self.isSpike() else 'current') + '\n'
+
+
+class SignalType(Enum):
+    """
+    This enum is used to describe the type of the emitted signal. 
+    """
+    SPIKE = 1
+    CURRENT = 2

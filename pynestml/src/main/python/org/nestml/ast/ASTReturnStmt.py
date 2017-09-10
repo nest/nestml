@@ -46,6 +46,9 @@ class ASTReturnStmt(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_expression is None or isinstance(_expression, ASTExpression)
+                or isinstance(_expression, ASTSimpleExpression)), \
+            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided!'
         super(ASTReturnStmt, self).__init__(_sourcePosition)
         self.__expression = _expression
 
@@ -60,9 +63,6 @@ class ASTReturnStmt(ASTElement):
         :return: a new ASTReturnStmt object.
         :rtype: ASTReturnStmt
         """
-        assert (_expression is None or isinstance(_expression, ASTExpression)
-                or isinstance(_expression, ASTSimpleExpression)), \
-            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided!'
         return cls(_expression, _sourcePosition)
 
     def hasExpr(self):

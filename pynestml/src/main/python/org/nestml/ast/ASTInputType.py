@@ -51,7 +51,8 @@ class ASTInputType(ASTElement):
             '(PyNestML.AST.InputType) Wrong type of specifier provided!'
         assert (_isExcitatory is None or isinstance(_isExcitatory, bool)), \
             '(PyNestML.AST.InputType) Wrong type of specifier provided!'
-        assert (_isExcitatory != _isInhibitory), '(PyNestML.AST.InputType) Buffer wrongly specified!'
+        assert (_isExcitatory != _isInhibitory), \
+            '(PyNestML.AST.InputType) Buffer wrongly specified!'
         super(ASTInputType, self).__init__(_sourcePosition)
         self.__isExcitatory = _isExcitatory
         self.__isInhibitory = _isInhibitory

@@ -31,7 +31,7 @@ class ASTBody(ASTElement):
     ASTBody The body of the neuron, e.g. internal, state, parameter...
     Grammar:
         body : BLOCK_OPEN
-               (NEWLINE | var_Block | dynamics | equations | inputBuffer | outputBuffer | function)*
+               (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
                BLOCK_CLOSE;        
     """
     __bodyElements = None

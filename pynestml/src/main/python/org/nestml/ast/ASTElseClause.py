@@ -1,6 +1,6 @@
 """
 /*
- *  ASTELSE_Clause.py
+ *  ASTElseClause.py
  *
  *  This file is part of NEST.
  *
@@ -25,11 +25,11 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTELSE_Clause(ASTElement):
+class ASTElseClause(ASTElement):
     """
     This class is used to store a single else-clause.
     Grammar:
-        else_Clause : 'else' BLOCK_OPEN block;
+        elseClause : 'else' BLOCK_OPEN block;
     """
     __block = None
 
@@ -41,19 +41,19 @@ class ASTELSE_Clause(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        super(ASTELSE_Clause, self).__init__(_sourcePosition)
+        super(ASTElseClause, self).__init__(_sourcePosition)
         self.__block = _block
 
     @classmethod
-    def makeASTELSE_Clause(cls, _block=None, _sourcePosition=None):
+    def makeASTElseClause(cls, _block=None, _sourcePosition=None):
         """
-        The factory method of the ASTELSE_Clause class.
+        The factory method of the ASTElseClause class.
         :param _block: a block of statements.
         :type _block: ASTBlock
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new block
-        :rtype: ASTELSE_Clause
+        :rtype: ASTElseClause
         """
         return cls(_block, _sourcePosition)
 

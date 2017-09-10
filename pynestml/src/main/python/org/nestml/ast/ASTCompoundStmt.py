@@ -1,6 +1,6 @@
 """
 /*
- *  ASTCompound_Stmt.py
+ *  ASTCompoundStmt.py
  *
  *  This file is part of NEST.
  *
@@ -23,54 +23,63 @@
 @author kperun
 """
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTIfStmt import ASTIfStmt
+from pynestml.src.main.python.org.nestml.ast.ASTWhileStmt import ASTWhileStmt
+from pynestml.src.main.python.org.nestml.ast.ASTForStmt import ASTForStmt
 
 
-class ASTCompound_Stmt(ASTElement):
+class ASTCompoundStmt(ASTElement):
     """
     This class is used to store compound statements.
     Grammar:
-        compound_Stmt : if_Stmt
-                | for_Stmt
-                | while_Stmt;
+        compoundStmt : ifStmt
+                | forStmt
+                | whileStmt;
     """
-    __if_stmt = None
-    __while_stmt = None
-    __for_stmt = None
+    __ifStmt = None
+    __whileStmt = None
+    __forStmt = None
 
-    def __init__(self, _if_stmt=None, _while_stmt=None, _for_stmt=None, _sourcePosition=None):
+    def __init__(self, _ifStmt=None, _whileStmt=None, _forStmt=None, _sourcePosition=None):
         """
         Standard constructor.
-        :param _if_stmt: a if statement object
-        :type _if_stmt: ASTIF_Stmt
-        :param _while_stmt: a while statement object
-        :type _while_stmt: ASTWHILE_Stmt
-        :param _for_stmt: a for statement object
-        :type _for_stmt: ASTFOR_Stmt
+        :param _ifStmt: a if statement object
+        :type _ifStmt: ASTIfStmt
+        :param _whileStmt: a while statement object
+        :type _whileStmt: ASTWhileStmt
+        :param _forStmt: a for statement object
+        :type _forStmt: ASTForStmt
         :param _sourcePosition: The source position of the assignment
         :type _sourcePosition: ASTSourcePosition
         """
-        super(ASTCompound_Stmt, self).__init__(_sourcePosition)
-        self.__if_stmt = _if_stmt
-        self.__while_stmt = _while_stmt
-        self.__for_stmt = _for_stmt
+        super(ASTCompoundStmt, self).__init__(_sourcePosition)
+        assert (_ifStmt is None or isinstance(_ifStmt, ASTIfStmt)), \
+            '(PyNestML.AST.CompoundStmt) Wrong type of if-statement handed over!'
+        assert (_whileStmt is None or isinstance(_whileStmt, ASTWhileStmt)), \
+            '(PyNestML.AST.CompoundStmt) Wrong type of while-statement handed over!'
+        assert (_forStmt is None or isinstance(_forStmt, ASTForStmt)), \
+            '(PyNestML.AST.CompoundStmt) Wrong type of for-statement handed over!'
+        self.__ifStmt = _ifStmt
+        self.__whileStmt = _whileStmt
+        self.__forStmt = _forStmt
 
     @classmethod
-    def makeASTCompound_Stmt(cls, _if_stmt=None, _while_stmt=None,
-                             _for_stmt=None, _sourcePosition=None):
+    def makeASTCompoundStmt(cls, _ifStmt=None, _whileStmt=None,
+                            _forStmt=None, _sourcePosition=None):
         """
         Factory method of the ASTCompound_Stmt class.
-        :param _if_stmt: a if statement object
-        :type _if_stmt: ASTIF_Stmt
-        :param _while_stmt: a while statement object
-        :type _while_stmt: ASTWHILE_Stmt
-        :param _for_stmt: a for statement object
-        :type _for_stmt: ASTFOR_Stmt
+        :param _ifStmt: a if statement object
+        :type _ifStmt: ASTIfStmt
+        :param _whileStmt: a while statement object
+        :type _whileStmt: ASTWhileStmt
+        :param _forStmt: a for statement object
+        :type _forStmt: ASTForStmt
         :param _sourcePosition: The source position of the assignment
         :type _sourcePosition: ASTSourcePosition
-        :return: a new compound_stmt object
-        :rtype: ASTCompound_Stmt
+        :return: a new compound statement object
+        :rtype: ASTCompoundStmt
         """
-        return cls(_if_stmt, _while_stmt, _for_stmt, _sourcePosition)
+        return cls(_ifStmt, _whileStmt, _forStmt, _sourcePosition)
 
     def isIfStmt(self):
         """
@@ -78,15 +87,15 @@ class ASTCompound_Stmt(ASTElement):
         :return: True if if stmt, False else.
         :rtype: bool
         """
-        return self.__if_stmt is not None
+        return self.__ifStmt is not None
 
     def getIfStmt(self):
         """
         Returns the "if" statement.
         :return: the "if" statement.
-        :rtype: ASTIF_Stmt
+        :rtype: ASTIfStmt
         """
-        return self.__if_stmt
+        return self.__ifStmt
 
     def isWhileStmt(self):
         """
@@ -94,15 +103,15 @@ class ASTCompound_Stmt(ASTElement):
         :return: True if "while" stmt, False else.
         :rtype: bool
         """
-        return self.__while_stmt is not None
+        return self.__whileStmt is not None
 
     def getWhileStmt(self):
         """
         Returns the while statement.
         :return: the while statement.
-        :rtype: ASTWHILE_Stmt
+        :rtype: ASTWhileStmt
         """
-        return self.__while_stmt
+        return self.__whileStmt
 
     def isForStmt(self):
         """
@@ -110,15 +119,15 @@ class ASTCompound_Stmt(ASTElement):
         :return: True if "for" stmt, False else.
         :rtype: bool
         """
-        return self.__for_stmt is not None
+        return self.__forStmt is not None
 
     def getForStmt(self):
         """
         Returns the for statement.
         :return: the for statement.
-        :rtype: ASTFOR_Stmt
+        :rtype: ASTForStmt
         """
-        return self.__for_stmt
+        return self.__forStmt
 
     def printAST(self):
         """
@@ -133,4 +142,4 @@ class ASTCompound_Stmt(ASTElement):
         elif self.isWhileStmt():
             return self.getWhileStmt().printAST()
         else:
-            return '(NESTML.AST.PRINT) Unknown compound statement element.'
+            return '(NESTML.AST.CompoundStmt.Print) Unknown compound statement element.'

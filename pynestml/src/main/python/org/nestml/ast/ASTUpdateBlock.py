@@ -1,6 +1,6 @@
 """
 /*
- *  ASTDynamics.py
+ *  ASTUpdateBlock.py
  *
  *  This file is part of NEST.
  *
@@ -23,12 +23,13 @@
 @author kperun
 """
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
 
 
-class ASTDynamics(ASTElement):
+class ASTUpdateBlock(ASTElement):
     """
     This class is used to store dynamic blocks.
-    ASTDynamics a special function definition:
+    ASTUpdateBlock is a special function definition:
       update:
         if r == 0: # not refractory
           integrate(V)
@@ -37,7 +38,7 @@ class ASTDynamics(ASTElement):
      @attribute block Implementation of the dynamics.
    
     Grammar:
-        dynamics:
+        updateBlock:
             'update'
             BLOCK_OPEN
               block
@@ -53,20 +54,21 @@ class ASTDynamics(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        super(ASTDynamics, self).__init__(_sourcePosition)
-        assert (_block is not None)
+        super(ASTUpdateBlock, self).__init__(_sourcePosition)
+        assert (_block is not None and isinstance(_block, ASTBlock)), \
+            '(PyNestML.AST.UpdateBlock) No or wrong type handed over!'
         self.__block = _block
 
     @classmethod
-    def makeASTDynamics(cls, _block=None, _sourcePosition=None):
+    def makeASTUpdateBlock(cls, _block=None, _sourcePosition=None):
         """
-        Factory method of the ASTDynamics class.
+        Factory method of the ASTUpdateBlock class.
         :param _block: a block of definitions.
         :type _block: ASTBlock
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTDynamics object.
-        :rtype: ASTDynamics
+        :return: a new ASTUpdateBlock object.
+        :rtype: ASTUpdateBlock
         """
         return cls(_block, _sourcePosition)
 
@@ -80,8 +82,8 @@ class ASTDynamics(ASTElement):
 
     def printAST(self):
         """
-        Returns a string representation of a dynamics block.
-        :return: a string representing the dynamics block.
+        Returns a string representation of an update block.
+        :return: a string representing the update block.
         :rtype: str
         """
         return 'update:\n' + self.getBlock().printAST() + 'end'

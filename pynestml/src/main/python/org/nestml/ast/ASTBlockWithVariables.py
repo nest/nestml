@@ -1,6 +1,6 @@
 """
 /*
- *  ASTVar_Block.py
+ *  ASTBlockWithVariables.py
  *
  *  This file is part of NEST.
  *
@@ -25,10 +25,10 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTVar_Block(ASTElement):
+class ASTBlockWithVariables(ASTElement):
     """
     This class is used to store a block of variable declarations.
-    ASTVar_Block represent a block with variables, e.g.:
+    ASTBlockWithVariables.py represent a block with variables, e.g.:
         state:
           y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
         end
@@ -38,7 +38,7 @@ class ASTVar_Block(ASTElement):
     @attribute internal true if the varblock is a state internal.
     @attribute AliasDecl a list with variable declarations
     Grammar:
-        var_Block:
+        blockWithVariables:
             ('state'|'parameters'|'internals')
             BLOCK_OPEN
               (declaration | NEWLINE)*
@@ -68,17 +68,17 @@ class ASTVar_Block(ASTElement):
             '(PyNESTML.AST.Var_Block) Type of variable block not specified!'
         assert (_declarations is None or isinstance(_declarations, list)), \
             '(PyNESTML.AST.Var_Block) Wrong type of declaration provided'
-        super(ASTVar_Block, self).__init__(_sourcePosition)
+        super(ASTBlockWithVariables, self).__init__(_sourcePosition)
         self.__declarations = _declarations
         self.__isInternals = _isInternals
         self.__isParameters = _isParameters
         self.__isState = _isState
 
     @classmethod
-    def makeASTVar_Block(cls, _isState=False, _isParameters=False, _isInternals=False, _declarations=list(),
-                         _sourcePosition=None):
+    def makeASTBlockWithVariables(cls, _isState=False, _isParameters=False, _isInternals=False, _declarations=list(),
+                                  _sourcePosition=None):
         """
-        Factory method of the ASTVar_Block class.
+        Factory method of the ASTBlockWithVariables class.
         :param _isState: is a state block.
         :type _isState: bool
         :param _isParameters: is a parameter block.
@@ -90,7 +90,7 @@ class ASTVar_Block(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new variable block object.
-        :rtype: ASTVar_Block 
+        :rtype: ASTBlockWithVariables 
         """
         return cls(_isState=_isState, _isParameters=_isParameters, _isInternals=_isInternals,
                    _declarations=_declarations, _sourcePosition=_sourcePosition)

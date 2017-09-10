@@ -1,6 +1,6 @@
 """
  /*
- *  ASTIF_Stmt.py
+ *  ASTIfStmt.py
  *
  *  This file is part of NEST.
  *
@@ -23,17 +23,17 @@
 @author kperun
 """
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
-from pynestml.src.main.python.org.nestml.ast.ASTIF_Clause import ASTIF_Clause
-from pynestml.src.main.python.org.nestml.ast.ASTELSE_Clause import ASTELSE_Clause
+from pynestml.src.main.python.org.nestml.ast.ASTIfClause import ASTIfClause
+from pynestml.src.main.python.org.nestml.ast.ASTElseClause import ASTElseClause
 
 
-class ASTIF_Stmt(ASTElement):
+class ASTIfStmt(ASTElement):
     """
     This class is used to store a single if block.
     Grammar:
-        if_Stmt : if_Clause
-                    elif_Clause*
-                    (else_Clause)?
+        ifStmt : ifClause
+                    elifClause*
+                    (elseClause)?
                     BLOCK_CLOSE;
     """
     __ifClause = None
@@ -43,40 +43,40 @@ class ASTIF_Stmt(ASTElement):
     def __init__(self, _ifClause=None, _elifClauses=list(), _elseClause=None, _sourcePosition=None):
         """
         Standard construcotr.
-        :param _ifClause: the if clause
-        :type _ifClause: ASTIF_Clause
+        :param _ifClause: the if-clause
+        :type _ifClause: ASTIfClause
         :param _elifClauses: (optional) list of elif clauses
-        :type _elifClauses: ASTELIF_Clause
+        :type _elifClauses: ASTElifClause
         :param _elseClause: (optional) else clause
-        :type _elseClause: ASTELSE_Clause
+        :type _elseClause: ASTElseClause
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_ifClause is not None and isinstance(_ifClause, ASTIF_Clause)), \
-            '(PyNestML.AST.If_Stmt) No or wrong type of if-clause provided!'
+        assert (_ifClause is not None and isinstance(_ifClause, ASTIfClause)), \
+            '(PyNestML.AST.IfStmt) No or wrong type of if-clause provided!'
         assert (_elifClauses is None or isinstance(_elifClauses, list)), \
-            '(PyNestML.AST.If_Stmt) Wrong type of elif-clauses provided!'
-        assert (_elseClause is None or isinstance(_elseClause, ASTELSE_Clause)), \
-            '(PyNestML.AST.If_Stmt) Wrong type of else-clauses provided!'
-        super(ASTIF_Stmt, self).__init__(_sourcePosition)
+            '(PyNestML.AST.IfStmt) Wrong type of elif-clauses provided!'
+        assert (_elseClause is None or isinstance(_elseClause, ASTElseClause)), \
+            '(PyNestML.AST.IfStmt) Wrong type of else-clauses provided!'
+        super(ASTIfStmt, self).__init__(_sourcePosition)
         self.__elseClause = _elseClause
         self.__ifClause = _ifClause
         self.__elifClauses = _elifClauses
 
     @classmethod
-    def makeASTIF_Stmt(cls, _ifClause=None, _elifClauses=list(), _elseClause=None, _sourcePosition=None):
+    def makeASTIfStmt(cls, _ifClause=None, _elifClauses=list(), _elseClause=None, _sourcePosition=None):
         """
-        The factory method of the ASTIF_Stmt class.
+        The factory method of the ASTIfStmt class.
         :param _ifClause: the if clause
-        :type _ifClause: ASTIF_Clause
+        :type _ifClause: ASTIfClause
         :param _elifClauses: (optional) list of elif clauses
-        :type _elifClauses: ASTELIF_Clause
+        :type _elifClauses: ASTElifClause
         :param _elseClause: (optional) else clause
-        :type _elseClause: ASTELSE_Clause
+        :type _elseClause: ASTElseClause
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTIF_Stmt object
-        :rtype: ASTIF_Stmt
+        :return: a new ASTIfStmt object
+        :rtype: ASTIfStmt
         """
         return cls(_ifClause, _elifClauses, _elseClause, _sourcePosition)
 
@@ -84,7 +84,7 @@ class ASTIF_Stmt(ASTElement):
         """
         Returns the if-clause.
         :return: the if clause
-        :rtype: ASTIF_Clause
+        :rtype: ASTfClause
         """
         return self.__ifClause
 
@@ -100,7 +100,7 @@ class ASTIF_Stmt(ASTElement):
         """
         Returns a list of elif-clauses.
         :return: a list of elif-clauses.
-        :rtype: list(ASTELIF_Clause)
+        :rtype: list(ASTElifClause)
         """
         return self.__elifClauses
 
@@ -116,7 +116,7 @@ class ASTIF_Stmt(ASTElement):
         """
         Returns the else-clause.
         :return: the else-clause.
-        :rtype: ASTELSE_Clause
+        :rtype: ASTElseClause
         """
         return self.__elseClause
 

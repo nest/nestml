@@ -33,11 +33,11 @@ class ASTSimpleExpression(ASTElement):
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,10mV, inf, V_m.
     Grammar:
     simpleExpression : functionCall
-                       | BOOLEAN_LITERAL // true & false
-                       | NUMERIC_LITERAL (variable)?
-                       | NAME
-                       | 'inf'
-                       | variable;
+                   | BOOLEAN_LITERAL // true & false;
+                   | (INTEGER|FLOAT) (variable)?
+                   | NAME
+                   | isInf='inf'
+                   | variable;
     """
     __functionCall = None
     __name = None
@@ -67,16 +67,17 @@ class ASTSimpleExpression(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
-            '(PyNESTML.AST.SimpleExpression) Not a function call provided.'
+            '(PyNestML.AST.SimpleExpression) Not a function call provided.'
         assert (_name is None or isinstance(_name, str)), \
-            '(PyNESTML.AST.SimpleExpression) Not a string provided as name.'
+            '(PyNestML.AST.SimpleExpression) Not a string provided as name.'
         assert (_booleanLiteral is None or isinstance(_booleanLiteral, bool)), \
-            '(PyNESTML.AST.SimpleExpression) Not a bool provided.'
+            '(PyNestML.AST.SimpleExpression) Not a bool provided.'
         assert (_isInf is None or isinstance(_isInf, bool)), \
-            '(PyNESTML.AST.SimpleExpression) Not a bool provided.'
+            '(PyNestML.AST.SimpleExpression) Not a bool provided.'
         assert (_variable is None or isinstance(_variable, ASTVariable)), \
-            '(PyNESTML.AST.SimpleExpression) Not a variable provided.'
-
+            '(PyNestML.AST.SimpleExpression) Not a variable provided.'
+        assert (_numericLiteral is None or isinstance(_numericLiteral, int) or isinstance(_numericLiteral, float)), \
+            '(PyNestML.AST.SimpleExpression) Not a number handed over!'
         super(ASTSimpleExpression, self).__init__(_sourcePosition)
         self.__functionCall = _functionCall
         self.__name = _name
@@ -225,4 +226,4 @@ class ASTSimpleExpression(ASTElement):
         elif self.isVariable():
             return self.__variable.printAST()
         else:
-            raise Exception("(PyNESTML.AST) Simple expression not specified.")
+            raise Exception("(PyNESTML.AST.SimpleExpression.Print) Simple expression not specified.")

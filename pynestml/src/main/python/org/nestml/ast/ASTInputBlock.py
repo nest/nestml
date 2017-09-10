@@ -1,6 +1,6 @@
 """
  /*
- *  ASTInput.py
+ *  ASTInputBlock.py
  *
  *  This file is part of NEST.
  *
@@ -26,10 +26,10 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTInput(ASTElement):
+class ASTInputBlock(ASTElement):
     """
     This class is used to store blocks of input definitions.
-    ASTInput represents the input block:
+    ASTInputBlock represents the input block:
         input:
           spikeBuffer   <- inhibitory excitatory spike
           currentBuffer <- current
@@ -37,7 +37,7 @@ class ASTInput(ASTElement):
 
     @attribute inputLine set of input lines.
     Grammar:
-          inputBuffer: 'input'
+          inputBlock: 'input'
             BLOCK_OPEN
               (inputLine | NEWLINE)*
             BLOCK_CLOSE;
@@ -54,19 +54,19 @@ class ASTInput(ASTElement):
         """
         assert (_inputDefinitions is not None and isinstance(_inputDefinitions, list)), \
             '(PyNestML.AST.Input) No or wrong type of input definitions provided!'
-        super(ASTInput, self).__init__(_sourcePosition)
+        super(ASTInputBlock, self).__init__(_sourcePosition)
         self.__inputDefinitions = _inputDefinitions
 
     @classmethod
-    def makeASTInput(cls, _inputDefinitions=list(), _sourcePosition=None):
+    def makeASTInputBlock(cls, _inputDefinitions=list(), _sourcePosition=None):
         """
-        Factory method of the ASTInput class.
+        Factory method of the ASTInputBlock class.
         :param _inputDefinitions: a list of input definitions.
         :type _inputDefinitions: list(ASTInputLine)
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTInput object
-        :rtype: ASTInput
+        :return: a new ASTInputBlock object
+        :rtype: ASTInputBlock
         """
         return cls(_inputDefinitions, _sourcePosition)
 

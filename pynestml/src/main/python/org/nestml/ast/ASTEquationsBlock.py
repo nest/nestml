@@ -1,6 +1,6 @@
 """
 /*
- *  ASTEquations.py
+ *  ASTEquationsBlock.py
  *
  *  This file is part of NEST.
  *
@@ -25,56 +25,57 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTEquations(ASTElement):
+class ASTEquationsBlock(ASTElement):
     """
     This class is used to store an equations block.
-    ASTEquations a special function definition:
+    ASTEquationsBlock a special function definition:
        equations:
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
          V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
        end
      @attribute odeDeclaration Block with equations and differential equations.
      Grammar:
-          equations:
+          equationsBlock:
             'equations'
             BLOCK_OPEN
-              odeDeclaration
+              (odeFunction|odeEquation|odeShape|NEWLINE)+
             BLOCK_CLOSE;
     """
-    __block = None
+    __declarations = None
 
-    def __init__(self, _block=None, _sourcePosition=None):
+    def __init__(self, _declarations=None, _sourcePosition=None):
         """
         Standard constructor.
-        :param _block: a block of definitions.
-        :type _block: ASTBlock
+        :param _declarations: a block of definitions.
+        :type _declarations: ASTBlock
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_block is not None)
-        super(ASTEquations, self).__init__(_sourcePosition)
-        self.__block = _block
+        assert (_declarations is not None and isinstance(_declarations, list)), \
+            '(PyNestML.AST.EquationsBlock) No or wrong type of declarations handed over!'
+        super(ASTEquationsBlock, self).__init__(_sourcePosition)
+        self.__declarations = _declarations
 
     @classmethod
-    def makeASTEquations(cls, _block=None, _sourcePosition=None):
+    def makeASTEquationsBlock(cls, _declarations=None, _sourcePosition=None):
         """
-        Factory method of the ASTEquations class.
-        :param _block: a block of definitions.
-        :type _block: ASTBlock
+        Factory method of the ASTEquationsBlock class.
+        :param _declarations: a block of definitions.
+        :type _declarations: ASTBlock
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTEquations object.
-        :rtype: ASTEquations
+        :rtype: ASTEquationsBlock
         """
-        return cls(_block, _sourcePosition)
+        return cls(_declarations, _sourcePosition)
 
-    def getBlock(self):
+    def getDeclarations(self):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: ASTBlock
+        :rtype: 
         """
-        return self.__block
+        return self.__declarations
 
     def printAST(self):
         """
@@ -82,4 +83,7 @@ class ASTEquations(ASTElement):
         :return: a string representing an equations block.
         :rtype: str
         """
-        return 'equations:\n' + self.getBlock().printAST() + 'end'
+        ret = 'equations:\n'
+        for decl in self.getDeclarations():
+            ret += decl.printAST() + '\n'
+        return ret + 'end'

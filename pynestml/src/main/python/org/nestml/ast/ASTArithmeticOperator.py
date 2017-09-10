@@ -57,7 +57,7 @@ class ASTArithmeticOperator(ASTElement):
         :param _sourcePosition: the position of this element in the source file
         :type _sourcePosition: ASTSourcePosition
         """
-        super(ASTArithmeticOperator,self).__init__(_sourcePosition)
+        super(ASTArithmeticOperator, self).__init__(_sourcePosition)
         self.__isTimesOp = _isTimesOp
         self.__isDivOp = _isDivOp
         self.__isModuloOp = _isModuloOp
@@ -90,7 +90,7 @@ class ASTArithmeticOperator(ASTElement):
         :rtype: ASTArithmeticOperator
         """
         assert (_isTimesOp or _isDivOp or _isModuloOp or _isPlusOp or _isMinusOp or _isPowOp), \
-            '(PyNESTML.AST) Type of arithmetic operator not specified.'
+            '(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified.'
         return cls(_isTimesOp, _isDivOp, _isModuloOp, _isPlusOp, _isMinusOp, _isPowOp, _sourcePosition)
 
     def isTimesOp(self):
@@ -160,4 +160,11 @@ class ASTArithmeticOperator(ASTElement):
         elif self.__isPowOp:
             return ' ** '
         else:
-            raise Exception("(NESTML) Arithmetic operator not specified.")
+            raise InvalidArithmeticOperator('(PyNestML.ArithmeticOperator.Print) Arithmetic operator not specified.')
+
+
+class InvalidArithmeticOperator(Exception):
+    """
+    This exception is thrown whenever the arithmetic operator has not been specified.
+    """
+    pass

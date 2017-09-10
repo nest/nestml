@@ -1,6 +1,6 @@
 """
 /*
- *  ASTELIF_Clause.py
+ *  ASTElifClause.py
  *
  *  This file is part of NEST.
  *
@@ -25,11 +25,11 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTELIF_Clause(ASTElement):
+class ASTElifClause(ASTElement):
     """
     This class is used to store elif-clauses.
     Grammar:
-        elif_Clause : 'elif' expression BLOCK_OPEN block;
+        elifClause : 'elif' expression BLOCK_OPEN block;
     """
     __condition = None
     __block = None
@@ -44,14 +44,14 @@ class ASTELIF_Clause(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        super(ASTELIF_Clause, self).__init__(_sourcePosition)
+        super(ASTElifClause, self).__init__(_sourcePosition)
         self.__block = _block
         self.__condition = _condition
 
     @classmethod
-    def makeASTELIF_Clause(cls, _condition=None, _block=None, _sourcePosition=None):
+    def makeASTElifClause(cls, _condition=None, _block=None, _sourcePosition=None):
         """
-        The factory method of the ASTELIF_Clause class.
+        The factory method of the ASTElifClause class.
         :param _condition: the condition of the block.
         :type _condition: ASTExpression
         :param _block: a block of statements.
@@ -59,7 +59,7 @@ class ASTELIF_Clause(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new block
-        :rtype: ASTELIF_Clause
+        :rtype: ASTElifClause
         """
         return cls(_condition, _block, _sourcePosition)
 

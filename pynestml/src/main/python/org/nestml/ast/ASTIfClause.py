@@ -1,6 +1,6 @@
 """
  /*
- *  ASTIF_Clause.py
+ *  ASTIfClause.py
  *
  *  This file is part of NEST.
  *
@@ -27,11 +27,11 @@ from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
 
 
-class ASTIF_Clause(ASTElement):
+class ASTIfClause(ASTElement):
     """
     This class is used to store a single if-clause.
     Grammar:
-        if_Clause : 'if' expr BLOCK_OPEN block;
+        ifClause : 'if' expr BLOCK_OPEN block;
     """
     __condition = None
     __block = None
@@ -47,17 +47,17 @@ class ASTIF_Clause(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_condition is not None and isinstance(_condition, ASTExpression)), \
-            '(PyNestML.AST.If_Clause) No or wrong type of condition provided!'
+            '(PyNestML.AST.IfClause) No or wrong type of condition provided!'
         assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.If_Clause) No or wrong type of block provided!'
-        super(ASTIF_Clause, self).__init__(_sourcePosition)
+            '(PyNestML.AST.IfClause) No or wrong type of block provided!'
+        super(ASTIfClause, self).__init__(_sourcePosition)
         self.__block = _block
         self.__condition = _condition
 
     @classmethod
-    def makeASTIF_Clause(cls, _condition=None, _block=None, _sourcePosition=None):
+    def makeASTIfClause(cls, _condition=None, _block=None, _sourcePosition=None):
         """
-        The factory method of the ASTIF_Clause class.
+        The factory method of the ASTIfClause class.
         :param _condition: the condition of the block.
         :type _condition: ASTExpression
         :param _block: a block of statements.
@@ -65,7 +65,7 @@ class ASTIF_Clause(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new block
-        :rtype: ASTIF_Clause
+        :rtype: ASTIfClause
         """
         return cls(_condition, _block, _sourcePosition)
 

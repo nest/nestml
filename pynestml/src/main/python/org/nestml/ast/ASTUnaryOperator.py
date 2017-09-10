@@ -107,4 +107,11 @@ class ASTUnaryOperator(ASTElement):
         elif self.__isUnaryTilde:
             return '~'
         else:
-            raise Exception("(NESTML) Unary operator not specified.")
+            raise InvalidUnaryOperator('(PyNestML.AST.UnaryOperator.Print) Unary operator not specified!')
+
+
+class InvalidUnaryOperator(Exception):
+    """
+    This exception is thrown whenever the unary operator has not been specified.
+    """
+    pass

@@ -1,6 +1,6 @@
 """
 /*
- *  ASTDataType.py
+ *  ASTDatatype.py
  *
  *  This file is part of NEST.
  *

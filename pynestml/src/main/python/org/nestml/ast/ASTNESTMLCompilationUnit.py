@@ -53,7 +53,8 @@ class ASTNESTMLCompilationUnit(ASTElement):
         :return: a new object of type ASTNESTMLCompilationUnits.
         :rtype: ASTNESTMLCompilationUnits
         """
-        assert (_listOfNeurons is not None), '(PyNestML.AST.NESTMLCompilationUnit) Handed over element not a list!'
+        assert (_listOfNeurons is not None and isinstance(_listOfNeurons, list)), \
+            '(PyNestML.AST.NESTMLCompilationUnit) Handed over element not a list!'
         instance = cls(_sourcePosition)
         for i in _listOfNeurons:
             # ensure that only object of type Neuron are added
@@ -71,7 +72,8 @@ class ASTNESTMLCompilationUnit(ASTElement):
         :return: no returned value
         :rtype: void
         """
-        assert (_neuron is not None), '(NESTML) "None" handed over as neuron to add.'
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.AST.CompilationUnit) None or wrong type of neuron handed over!'
         self.__neuron_list.append(_neuron)
 
     def deleteNeuron(self, _neuron=None):

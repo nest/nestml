@@ -45,6 +45,14 @@ class ASTSourcePosition:
         :param _endColumn: The end column of the object
         :type _endColumn: int
         """
+        assert (_startColumn is not None and isinstance(_startColumn, int)), \
+            '(PyNestML.AST.SourcePosition) Handed over element not an integer!'
+        assert (_startLine is not None and isinstance(_startLine, int)), \
+            '(PyNestML.AST.SourcePosition) Handed over element not an integer!'
+        assert (_endColumn is not None and isinstance(_endColumn, int)), \
+            '(PyNestML.AST.SourcePosition) Handed over element not an integer!'
+        assert (_endLine is not None and isinstance(_endLine, int)), \
+            '(PyNestML.AST.SourcePosition) Handed over element not an integer!'
         self.__startLine = _startLine
         self.__startColumn = _startColumn
         self.__endLine = _endLine

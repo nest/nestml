@@ -22,8 +22,8 @@
  */
 @author kperun
 """
-from pynestml.src.main.python.org.nestml.ast.ASTSmall_Stmt import ASTSmall_Stmt
-from pynestml.src.main.python.org.nestml.ast.ASTCompound_Stmt import ASTCompound_Stmt
+from pynestml.src.main.python.org.nestml.ast.ASTSmallStmt import ASTSmallStmt
+from pynestml.src.main.python.org.nestml.ast.ASTCompoundStmt import ASTCompoundStmt
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
@@ -34,40 +34,41 @@ class ASTStmt(ASTElement):
     __small_statement = None
     __compound_statement = None
 
-    def __init__(self, _small_statement=None, _compound_statement=None, _sourcePosition=None):
+    def __init__(self, _smallStatement=None, _compoundStatement=None, _sourcePosition=None):
         """
         Standard constructor.
-        :param _small_statement: a small statement
-        :type _small_statement: ASTSmall_Stmt 
-        :param _compound_statement: a compound statement
-        :type _compound_statement: ASTCompound_Stmt
+        :param _smallStatement: a small statement
+        :type _smallStatement: ASTSmallStmt 
+        :param _compoundStatement: a compound statement
+        :type _compoundStatement: ASTCompoundStmt
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_small_statement is None or _compound_statement is None), \
-            '(PyNESTML.AST.Stmt) Type of statement not clear.'
-        assert (_small_statement is None or isinstance(_small_statement, ASTSmall_Stmt)), \
-            '(PyNESTML.AST.Stmt) Not a small statement provided.'
-        assert (_compound_statement is None or isinstance(_compound_statement, ASTCompound_Stmt)), \
-            '(PyNESTML.AST.Stmt) Not a compound statement provided.'
+        assert (_smallStatement is None or _compoundStatement is None), \
+            '(PyNestML.AST.Stmt) Type of statement not clear.'
+        assert (_smallStatement is None or isinstance(_smallStatement, ASTSmallStmt)), \
+            '(PyNestML.AST.Stmt) Not a small statement provided.'
+        assert (_compoundStatement is None or isinstance(_compoundStatement, ASTCompoundStmt)), \
+            '(PyNestML.AST.Stmt) Not a compound statement provided.'
         super(ASTStmt, self).__init__(_sourcePosition)
-        self.__small_statement = _small_statement
-        self.__compound_statement = _compound_statement
+        self.__small_statement = _smallStatement
+        self.__compound_statement = _compoundStatement
 
     @classmethod
-    def makeASTStmt(cls, _small_statement=None, _compound_statement=None, _sourcePosition=None):
+    def makeASTStmt(cls, _smallStatement=None, _compoundStatement=None, _sourcePosition=None):
         """
         Factory method of the ASTStmt class.
-        :param _small_statement: a small statement.
-        :type _small_statement: ASTSmall_Stmt
-        :param _compound_statement: a compound statement
-        :type _compound_statement: ASTCompound_Stmt
+        :param _smallStatement: a small statement.
+        :type _smallStatement: ASTSmallStmt
+        :param _compoundStatement: a compound statement
+        :type _compoundStatement: ASTCompoundStmt
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTStmt object
         :rtype: ASTStmt
         """
-        return cls(_small_statement, _compound_statement, _sourcePosition)
+        return cls(_smallStatement=_smallStatement, _compoundStatement=_compoundStatement,
+                   _sourcePosition=_sourcePosition)
 
     def isSmallStmt(self):
         """

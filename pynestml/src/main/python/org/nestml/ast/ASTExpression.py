@@ -96,14 +96,14 @@ class ASTExpression(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert ((_unaryOperator is None) or (isinstance(_unaryOperator, ASTUnaryOperator))), \
-            '(NESTML) Not an unary operator.'
+            '(PyNestML.AST.Expression) Not an unary operator!'
         assert ((_expression is None) or (isinstance(_expression, ASTExpression)) or (
-            isinstance(_expression, ASTSimpleExpression))), '(NESTML) Not an expression.'
+            isinstance(_expression, ASTSimpleExpression))), '(NESTML) Not an expression!'
         assert ((_binaryOperator is None) or (isinstance(_binaryOperator, ASTArithmeticOperator) or
                                               (isinstance(_binaryOperator, ASTBitOperator)) or
                                               (isinstance(_binaryOperator, ASTLogicalOperator)) or
                                               (isinstance(_binaryOperator, ASTComparisonOperator)))), \
-            '(NESTML) Not a binary operator.'
+            '(PyNestML.AST.Expression) Not a binary operator!'
         super(ASTExpression, self).__init__(_sourcePosition)
         self.__hasLeftParentheses = _hasLeftParentheses
         self.__hasRightParentheses = _hasRightParentheses
@@ -118,12 +118,12 @@ class ASTExpression(ASTElement):
         assert (
             (_condition is None) or (isinstance(_condition, ASTExpression)) or (
                 isinstance(_condition, ASTSimpleExpression))), \
-            '(NESTML) Condition not an expression object.'
+            '(PyNestML.AST.Expression) Condition not an expression!'
         assert (
             (_ifTrue is None) or (isinstance(_ifTrue, ASTExpression)) or (isinstance(_ifTrue, ASTSimpleExpression))), \
-            '(NESTML) If-true part of ternary operator not an expression object.'
+            '(PyNestML.AST.Expression) If-true part of ternary operator not an expression!'
         assert ((_ifNot is None) or (isinstance(_ifNot, ASTExpression)) or (isinstance(_ifNot, ASTSimpleExpression))), \
-            '(NESTML) If-not part of ternary operator not an expression object.'
+            '(PyNestML.AST.Expression) If-not part of ternary operator not an expression!'
         self.__condition = _condition
         self.__ifTrue = _ifTrue
         self.__ifNot = _ifNot
@@ -151,7 +151,7 @@ class ASTExpression(ASTElement):
         :rtype: ASTExpression
         """
         assert ((_hasLeftParentheses ^ _hasRightParentheses) is False), \
-            '(NESTML) Parenthesis on both sides of expression expected.'
+            '(PyNestML.AST.Expression) Parenthesis on both sides of expression expected!'
         return cls(_hasLeftParentheses=_hasLeftParentheses, _hasRightParentheses=_hasRightParentheses,
                    _unaryOperator=_unaryOperator, _isLogicalNot=_isLogicalNot, _expression=_expression,
                    _sourcePosition=_sourcePosition)
@@ -171,9 +171,12 @@ class ASTExpression(ASTElement):
         :return: a new ASTExpression object.
         :rtype: ASTExpression
         """
-        assert (_lhs is not None), '(NESTML) The left-hand side expression must not be empty.'
-        assert (_rhs is not None), '(NESTML) The right-hand side expression must not be empty.'
-        assert (_binaryOperator is not None), '(NESTML) The binary operator mus not be empty.'
+        assert (_lhs is not None and isinstance(_lhs, ASTExpression)), \
+            '(PyNestML.AST.Expression) The left-hand side is empty or not an expression!'
+        assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
+            '(PyNestML.AST.Expression) The right-hand side is empty or not an expression!'
+        assert (_binaryOperator is not None), \
+            '(PyNestML.AST.Expression) The binary operator is empty!'
         return cls(_lhs=_lhs, _binaryOperator=_binaryOperator, _rhs=_rhs, _sourcePosition=_sourcePosition)
 
     @classmethod
@@ -191,9 +194,12 @@ class ASTExpression(ASTElement):
         :return: a new ASTExpression object.
         :rtype: ASTExpression
         """
-        assert (_condition is not None), '(NESTML) Condition of ternary operator must not be empty.'
-        assert (_ifTrue is not None), '(NESTML) The if-true case of ternary operator must not be empty.'
-        assert (_ifNot is not None), '(NESTML) The if-not case of ternary operator must not be empty.'
+        assert (_condition is not None and isinstance(_condition, ASTExpression)), \
+            '(PyNestML.AST.Expression) Condition of ternary operator is empty or not an expression!'
+        assert (_ifTrue is not None and isinstance(_ifTrue, ASTExpression)), \
+            '(PyNestML.AST.Expression) The if-true case of ternary operator is empty or not an expression!'
+        assert (_ifNot is not None and isinstance(_ifNot, ASTExpression)), \
+            '(PyNestML.AST.Expression) The if-not case of ternary operator is empty or not an expression!'
         return cls(_condition=_condition, _ifTrue=_ifTrue, _ifNot=_ifNot, _sourcePosition=_sourcePosition)
 
     def isSimpleExpression(self):

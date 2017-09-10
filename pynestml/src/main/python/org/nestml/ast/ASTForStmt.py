@@ -1,6 +1,6 @@
 """
 /*
- *  ASTFOR_Stmt.py
+ *  ASTForStmt.py
  *
  *  This file is part of NEST.
  *
@@ -27,11 +27,11 @@ from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
 
 
-class ASTFOR_Stmt(ASTElement):
+class ASTForStmt(ASTElement):
     """
     This class is used to store a for-block.
     Grammar:
-        for_Stmt : 'for' var=NAME 'in' vrom=expression 
+        forStmt : 'for' var=NAME 'in' vrom=expression 
                     '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
     """
     __variable = None
@@ -66,7 +66,7 @@ class ASTFOR_Stmt(ASTElement):
             '(PyNestML.AST.For_Stmt) No step size or wrong type provided!'
         assert (_block is not None and isinstance(_from, ASTBlock)), \
             '(PyNestML.AST.For_Stmt) No block or wrong type provided!'
-        super(ASTFOR_Stmt, self).__init__(_sourcePosition)
+        super(ASTForStmt, self).__init__(_sourcePosition)
         self.__block = _block
         self.__step = _step
         self.__to = _to
@@ -74,9 +74,9 @@ class ASTFOR_Stmt(ASTElement):
         self.__variable = _variable
 
     @classmethod
-    def makeASTFOR_Stmt(cls, _variable=None, _from=None, _to=None, _step=0, _block=None, _sourcePosition=None):
+    def makeASTForStmt(cls, _variable=None, _from=None, _to=None, _step=0, _block=None, _sourcePosition=None):
         """
-        The factory method of the ASTFOR_Stmt class.
+        The factory method of the ASTForStmt class.
         :param _variable: the step variable used for iteration.
         :type _variable: str
         :param _from: left bound of the range, i.e., start value.
@@ -89,8 +89,8 @@ class ASTFOR_Stmt(ASTElement):
         :type _block: ASTBlock 
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTFOR_Stmt object.
-        :rtype: ASTFOR_Stmt
+        :return: a new ASTForStmt object.
+        :rtype: ASTForStmt
         """
         return cls(_variable, _from, _to, _step, _block, _sourcePosition)
 

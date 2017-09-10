@@ -48,7 +48,8 @@ class ASTLogicalOperator(ASTElement):
             '(PyNestML.AST.LogicalOperator) Wrong type of logical operator!'
         assert (_isLogicalAnd is None or isinstance(_isLogicalAnd, bool)), \
             '(PyNestML.AST.LogicalOperator) Wrong type of logical operator!'
-        assert (_isLogicalAnd ^ _isLogicalOr), '(PyNestML.AST.LogicalOperator) Only one operator allowed!'
+        assert (_isLogicalAnd ^ _isLogicalOr),\
+            '(PyNestML.AST.LogicalOperator) Only one operator allowed!'
         super(ASTLogicalOperator, self).__init__(_sourcePosition)
         self.__isLogicalAnd = _isLogicalAnd
         self.__isLogicalOr = _isLogicalOr

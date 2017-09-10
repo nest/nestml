@@ -1,6 +1,6 @@
 """
 /*
- *  ASTSmall_Stmt.py
+ *  ASTSmallStmt.py
  *
  *  This file is part of NEST.
  *
@@ -29,11 +29,11 @@ from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaratio
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
 
-class ASTSmall_Stmt(ASTElement):
+class ASTSmallStmt(ASTElement):
     """
     This class is used to store small statements, e.g., a declaration.
     Grammar:
-        small_Stmt : assignment
+        smallStmt : assignment
                  | functionCall
                  | declaration
                  | returnStmt;
@@ -59,24 +59,24 @@ class ASTSmall_Stmt(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_assignment is None or isinstance(_assignment, ASTAssignment)), \
-            '(PyNESTML.AST) Not an assignment provided.'
+            '(PyNestML.AST.SmallStmt) Not an assignment provided.'
         assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
-            '(PyNESTML.AST) Not a function call provided.'
+            '(PyNestTML.AST.SmallStmt) Not a function call provided.'
         assert (_declaration is None or isinstance(_declaration, ASTDeclaration)), \
-            '(PyNESTML.AST) Not a declaration provided.'
+            '(PyNestML.AST.SmallStmt) Not a declaration provided.'
         assert (_returnStmt is None or isinstance(_returnStmt, ASTReturnStmt)), \
-            '(PyNESTML.AST) Not a return statement provided.'
-        super(ASTSmall_Stmt, self).__init__(_sourcePosition)
+            '(PyNestML.AST.SmallStmt) Not a return statement provided.'
+        super(ASTSmallStmt, self).__init__(_sourcePosition)
         self.__assignment = _assignment
         self.__functionCall = _functionCall
         self.__declaration = _declaration
         self.__returnStmt = _returnStmt
 
     @classmethod
-    def makeASTSmall_Stmt(cls, _assignment=None, _functionCall=None, _declaration=None,
-                          _returnStmt=None, _sourcePosition=None):
+    def makeASTSmallStmt(cls, _assignment=None, _functionCall=None, _declaration=None,
+                         _returnStmt=None, _sourcePosition=None):
         """
-        Factory method of the ASTSmall_Stmt class.
+        Factory method of the ASTSmallStmt class.
         :param _assignment: an ast-assignment object.
         :type _assignment: ASTAssignment
         :param _functionCall: an ast-function call object.
@@ -87,8 +87,8 @@ class ASTSmall_Stmt(ASTElement):
         :type _returnStmt: ASTReturnStmt
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
-        :return: a new ASTSmall_Stmt object. 
-        :rtype: ASTSmall_Stmt
+        :return: a new ASTSmallStmt object. 
+        :rtype: ASTSmallStmt
         """
         return cls(_assignment, _functionCall, _declaration, _returnStmt, _sourcePosition)
 
