@@ -70,7 +70,6 @@ class ASTFunction(ASTElement):
             '(PyNestML.AST.Function) No block or wrong type provided!'
         assert (_parameters is None or isinstance(_parameters, ASTParameters)), \
             '(PyNestML.AST.Function) Wrong type of parameters provided!'
-        print(type(_returnType))
         assert (_returnType is None or isinstance(_returnType, ASTDatatype)), \
             '(PyNestML.AST.Function) Wrong type of return provided!'
         super(ASTFunction, self).__init__(_sourcePosition)

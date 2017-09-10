@@ -172,4 +172,4 @@ class ASTComparisonOperator(ASTElement):
         elif self.__isGt:
             return ' > '
         else:
-            raise Exception("(NESTML) Comparison operator not specified.")
+            raise Exception('(PyNestML.AST.ComparisonOperator.Print) Comparison operator not specified!')

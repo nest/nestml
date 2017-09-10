@@ -49,13 +49,13 @@ class ASTWhileStmt(ASTElement):
         assert (_condition is not None and isinstance(_condition, ASTExpression)), \
             '(PyNestML.AST.WhileStmt) Handed over object not an expression!'
         assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.WhileStmt) Handed over object not a block!'
+            '(PyNestML.AST.WhileStmt) Handed over object not a block!'
         super(ASTWhileStmt, self).__init__(_sourcePosition)
         self.__block = _block
         self.__condition = _condition
 
     @classmethod
-    def makeASTWHILE_Stmt(cls, _condition=None, _block=None, _sourcePosition=None):
+    def makeASTWhileStmt(cls, _condition=None, _block=None, _sourcePosition=None):
         """
         The factory method of the ASTWhileStmt class.
         :param _condition: the condition of the block.

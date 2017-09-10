@@ -64,8 +64,8 @@ class ASTForStmt(ASTElement):
             '(PyNestML.AST.ForStmt) No to-statement or wrong type provided!'
         assert (_step is not None and (isinstance(_step, int) or isinstance(_step, float))), \
             '(PyNestML.AST.ForStmt) No step size or wrong type provided %s!'
-        assert (_block is not None and isinstance(_from, ASTBlock)), \
-            '(PyNestML.AST.For_Stmt) No block or wrong type provided!'
+        assert (_block is not None and isinstance(_block, ASTBlock)), \
+            '(PyNestML.AST.ForStmt) No block or wrong type provided!'
         super(ASTForStmt, self).__init__(_sourcePosition)
         self.__block = _block
         self.__step = _step
@@ -140,5 +140,5 @@ class ASTForStmt(ASTElement):
         :return: a string representing the for statement.
         :rtype: str
         """
-        return 'for ' + self.getVariable().printAST() + ' in ' + self.getFrom().printAST() + '...' \
-               + self.getTo().printAST() + ' step ' + self.getStep() + ':\n' + self.getBlock().printAST() + '\nend'
+        return 'for ' + self.getVariable() + ' in ' + self.getFrom().printAST() + '...' \
+               + self.getTo().printAST() + ' step ' + str(self.getStep()) + ':\n' + self.getBlock().printAST() + '\nend'
