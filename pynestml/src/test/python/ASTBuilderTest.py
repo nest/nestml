@@ -35,9 +35,9 @@ class ASTBuildingTest(unittest.TestCase):
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
                 print('Start creating AST for ' + filename),
-                model =NESTMLParser.parseModel(
+                model = NESTMLParser.parseModel(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
-                                                                                      'models'), filename
+                                                                                      'models'), filename)))
                 print(' ...done')
         return
 
