@@ -42,6 +42,7 @@ class Symbol:
         :param _elementReference: an ast object.
         :type _elementReference: ASTObject
         """
+        assert (_elementReference is not None), '(PyNestML.SymbolTable.Symbol) No AST reference provided!'
         self.__source_position = _sourcePosition
         self.__element_reference = _elementReference
 
@@ -60,8 +61,3 @@ class Symbol:
         :rtype: ASTObject
         """
         return self.__element_reference
-
-
-
-
-
