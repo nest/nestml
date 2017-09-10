@@ -57,13 +57,13 @@ class ASTForStmt(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_variable is not None and isinstance(_variable, str)), \
-            '(PyNestML.AST.For_Stmt) No iteration variable or wrong type provided!'
+            '(PyNestML.AST.ForStmt) No iteration variable or wrong type provided!'
         assert (_from is not None and isinstance(_from, ASTExpression)), \
-            '(PyNestML.AST.For_Stmt) No from-statement or wrong type provided!'
+            '(PyNestML.AST.ForStmt) No from-statement or wrong type provided!'
         assert (_to is not None and isinstance(_from, ASTExpression)), \
-            '(PyNestML.AST.For_Stmt) No to-statement or wrong type provided!'
-        assert (_step is not None and isinstance(_from, int)), \
-            '(PyNestML.AST.For_Stmt) No step size or wrong type provided!'
+            '(PyNestML.AST.ForStmt) No to-statement or wrong type provided!'
+        assert (_step is not None and (isinstance(_step, int) or isinstance(_step, float))), \
+            '(PyNestML.AST.ForStmt) No step size or wrong type provided %s!'
         assert (_block is not None and isinstance(_from, ASTBlock)), \
             '(PyNestML.AST.For_Stmt) No block or wrong type provided!'
         super(ASTForStmt, self).__init__(_sourcePosition)
