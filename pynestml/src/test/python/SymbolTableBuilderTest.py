@@ -1,6 +1,6 @@
-/**
- *
- *  BlockTest.nestml
+"""
+/*
+ *  SymbolTableBuilderTest.py
  *
  *  This file is part of NEST.
  *
@@ -19,20 +19,21 @@
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
- *
- *@author kperun
- * This model is used to test if all non-actively used types of blocks are readable, and if the corresponding AST
- * can be created. It is used to test the following part of the grammar:
- * forStmt : 'for' var=NAME 'in' vrom=expression '...'
- *           to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
- * whileStmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
-*/
-neuron BlockTest:
-    update:
-        while j < 3.14 and j>0 or False==true:
-            for i in 10-3.14 ... 10+3.14e0 step -1:
-                j += i
-            end
-        end
-    end
-end
+ */
+@author kperun
+"""
+
+from __future__ import print_function
+
+import unittest
+import os
+from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
+
+
+class SymbolTableBuilderTest(unittest.TestCase):
+    def test(self):
+        return
+
+
+if __name__ == '__main__':
+    unittest.main()

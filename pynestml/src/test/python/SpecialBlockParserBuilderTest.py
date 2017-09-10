@@ -36,7 +36,6 @@ class SpecialBlockParserBuilderTest(unittest.TestCase):
     """
 
     def test(self):
-        return
         print('Start special block parsing and AST-building test...'),
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
