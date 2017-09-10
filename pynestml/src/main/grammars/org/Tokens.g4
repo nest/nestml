@@ -47,13 +47,39 @@ lexer grammar Tokens;
   */
   BOOLEAN_LITERAL : 'true' | 'True' | 'false' | 'False' ;
 
+  NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;
+
   /**
   * Numeric literals. We allow integers as well as floats. Moreover, we ensure that values are either == 0 or
   * do not start with 0, e.g., 01221.012, where the leading 0 does not make sense.
   * Examples:
-  *  (1) 1
-  *  (2) 3.14
+  *  (1) 1 -> integer
+  *  (2) 3.14 -> float
+  *  (3) 10E10 -> float with exponent
   */
-  NUMERIC_LITERAL :  ([1-9][0-9]* | '0' ) ('.' [0-9]*)?;
+  INTEGER : NON_ZERO_INTEGER
+          | '0';
 
-  NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;
+  fragment NON_ZERO_INTEGER : [1-9][0-9]*;
+
+  /**
+  * The following declaration originates from Antrl4 Python Grammar definition as distributed under the MIT license.
+  * link: https://github.com/antlr/grammars-v4/blob/master/python3/Python3.g4
+  */
+  /*
+  * A flaot can be a point float, e.g., 10.05 or 0.1, or an exponent float, e.g. 10E10.
+  */
+  FLOAT : POINT_FLOAT | EXPONENT_FLOAT;
+
+  fragment POINT_FLOAT : (NON_ZERO_INTEGER |'0')? FRACTION
+                       | (NON_ZERO_INTEGER |'0') '.'
+                       ;
+
+  fragment EXPONENT_FLOAT: ( NON_ZERO_INTEGER | POINT_FLOAT ) EXPONENT ;
+
+  /**
+  * The exponent is introduced by e or E, the signum and an integer.
+  */
+  fragment EXPONENT: [eE] [+-]? (NON_ZERO_INTEGER |'0');
+
+  fragment FRACTION: '.' [0-9]+;

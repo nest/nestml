@@ -52,9 +52,9 @@ grammar PyNESTML;
     complex data type as 'mV/s'
   */
   unitType : leftParentheses='(' compoundUnit=unitType rightParentheses=')'
-           | base=unitType powOp='**' exponent=NUMERIC_LITERAL
+           | base=unitType powOp='**' exponent=INTEGER
            | left=unitType (timesOp='*' | divOp='/') right=unitType
-           | unitlessLiteral=NUMERIC_LITERAL divOp='/' right=unitType
+           | unitlessLiteral=INTEGER divOp='/' right=unitType
            | unit=NAME;
 
   /*********************************************************************************************************************
@@ -85,7 +85,7 @@ grammar PyNESTML;
   */
   simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false;
-                   | NUMERIC_LITERAL (variable)?
+                   | (INTEGER|FLOAT) (variable)?
                    | NAME
                    | isInf='inf'
                    | variable;
@@ -117,25 +117,16 @@ grammar PyNESTML;
   /*********************************************************************************************************************
   * Equations-Language
   *********************************************************************************************************************/
-  /** ASTOdeDeclaration. Represents a block of equations and differential equations.
-
-    @attribute Equation      List with equations, e.g. "I = exp(t)" od differential equations.
-  */
-  odeDeclaration  : (equation | shape | odeFunction | NEWLINE)+;
 
   odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression;
 
-  /** ASTeq Represents an equation, e.g. "I = exp(t)" or represents an differential equations, e.g. "V_m' = V_m+1".
-    @attribute lhs      Left hand side, e.g. a Variable.
-    @attribute rhs      Expression defining the right hand side.
-  */
-  equation : lhs=derivative '=' rhs=expression;
+  odeEquation : lhs=derivative '=' rhs=expression;
 
   derivative : name=NAME (differentialOrder)*;
 
   differentialOrder: '\'';
 
-  shape : 'shape' lhs=variable '=' rhs=expression;
+  odeShape : 'shape' lhs=variable '=' rhs=expression;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -143,13 +134,13 @@ grammar PyNESTML;
 
   block : ( stmt | NEWLINE )*;
 
-  stmt : small_Stmt | compound_Stmt;
+  stmt : smallStmt | compoundStmt;
 
-  compound_Stmt : if_Stmt
-                | for_Stmt
-                | while_Stmt;
+  compoundStmt : ifStmt
+                | forStmt
+                | whileStmt;
 
-  small_Stmt : assignment
+  smallStmt : assignment
              | functionCall
              | declaration
              | returnStmt;
@@ -187,22 +178,22 @@ grammar PyNESTML;
    */
   returnStmt : 'return' expression?;
 
-  if_Stmt : if_Clause
-            elif_Clause*
-            (else_Clause)?
+  ifStmt : ifClause
+            elifClause*
+            (elseClause)?
             BLOCK_CLOSE;
 
-  if_Clause : 'if' expression BLOCK_OPEN block;
+  ifClause : 'if' expression BLOCK_OPEN block;
 
-  elif_Clause : 'elif' expression BLOCK_OPEN block;
+  elifClause : 'elif' expression BLOCK_OPEN block;
 
-  else_Clause : 'else' BLOCK_OPEN block;
+  elseClause : 'else' BLOCK_OPEN block;
 
-  for_Stmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
+  forStmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
 
-  while_Stmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
+  whileStmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
 
-  signedNumericLiteral : (negative='-') NUMERIC_LITERAL;
+  signedNumericLiteral : (negative='-') (INTEGER|FLOAT);
 
   /*********************************************************************************************************************
   * Nestml-Language
@@ -216,7 +207,7 @@ grammar PyNESTML;
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
   */
   body : BLOCK_OPEN
-           (NEWLINE | var_Block | dynamics | equations | inputBuffer | outputBuffer | function)*
+         (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
          BLOCK_CLOSE;
 
   /** ASTVar_Block represent a block with variables, e.g.:
@@ -229,7 +220,7 @@ grammar PyNESTML;
     @attribute internal true if the varblock ist a state internal.
     @attribute AliasDecl a list with variable declarations.
   */
-  var_Block:
+  blockWithVariables:
     blockType=('state'|'parameters'|'internals')
     BLOCK_OPEN
       (declaration | NEWLINE)*
@@ -243,7 +234,7 @@ grammar PyNESTML;
       end
      @attribute block Implementation of the dynamics.
    */
-  dynamics:
+  updateBlock:
     'update'
     BLOCK_OPEN
       block
@@ -256,10 +247,10 @@ grammar PyNESTML;
        end
      @attribute odeDeclaration Block with equations and differential equations.
    */
-  equations:
+  equationsBlock:
     'equations'
     BLOCK_OPEN
-      odeDeclaration
+      (odeFunction|odeEquation|odeShape|NEWLINE)+
     BLOCK_CLOSE;
 
   /** ASTInput represents the input block:
@@ -270,7 +261,7 @@ grammar PyNESTML;
 
     @attribute inputLine set of input lines.
   */
-  inputBuffer: 'input'
+  inputBlock: 'input'
     BLOCK_OPEN
       (inputLine | NEWLINE)*
     BLOCK_CLOSE;
@@ -300,7 +291,7 @@ grammar PyNESTML;
       @attribute spike true iff the neuron has a spike output.
       @attribute current true iff. the neuron is a current output.
     */
-  outputBuffer: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
+  outputBlock: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
 
   /** ASTFunction a function definition:
       function set_V_m(v mV):
