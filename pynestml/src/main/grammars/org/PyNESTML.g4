@@ -193,7 +193,7 @@ grammar PyNESTML;
 
   whileStmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
 
-  signedNumericLiteral : (negative='-')? (INTEGER|FLOAT);
+  signedNumericLiteral : (negative='-'?) (INTEGER|FLOAT);
 
   /*********************************************************************************************************************
   * Nestml-Language
