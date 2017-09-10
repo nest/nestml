@@ -28,6 +28,7 @@ from antlr4 import *
 from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.nestml.ast.ASTOutputBlock import SignalType
 
+
 class ASTBuilderVisitor(ParseTreeVisitor):
     """
     This class is used to create an internal representation of the model by means of an abstract syntax tree.
