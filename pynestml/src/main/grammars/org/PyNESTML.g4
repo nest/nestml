@@ -210,7 +210,7 @@ grammar PyNESTML;
          (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
          BLOCK_CLOSE;
 
-  /** ASTVar_Block represent a block with variables, e.g.:
+  /** ASTBlockWithVariables represent a block with variables, e.g.:
     state:
       y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
     end
@@ -226,7 +226,7 @@ grammar PyNESTML;
       (declaration | NEWLINE)*
     BLOCK_CLOSE;
 
-  /** ASTDynamics a special function definition:
+  /** ASTUpdateBlock a special function definition:
       update:
         if r == 0: # not refractory
           integrate(V)
@@ -240,7 +240,7 @@ grammar PyNESTML;
       block
     BLOCK_CLOSE;
 
-  /** ASTEquations a special function definition:
+  /** ASTEquationsBlock a special function definition:
        equations:
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
          V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
@@ -253,7 +253,7 @@ grammar PyNESTML;
       (odeFunction|odeEquation|odeShape|NEWLINE)+
     BLOCK_CLOSE;
 
-  /** ASTInput represents the input block:
+  /** ASTInputBlock represents the input block:
     input:
       spikeBuffer   <- inhibitory excitatory spike
       currentBuffer <- current
@@ -286,7 +286,7 @@ grammar PyNESTML;
   */
   inputType : (isInhibitory='inhibitory' | isExcitatory='excitatory');
 
-  /** ASTOutput represents the output block of the neuron:
+  /** ASTOutputBlock represents the output block of the neuron:
         output: spike
       @attribute spike true iff the neuron has a spike output.
       @attribute current true iff. the neuron is a current output.
