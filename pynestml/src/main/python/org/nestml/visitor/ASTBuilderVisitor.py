@@ -22,7 +22,7 @@
  */
 @author kperun
 """
-
+import re
 from antlr4 import *
 # import all ASTClasses
 from pynestml.src.main.python.org.nestml.ast import *
@@ -177,8 +177,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     def visitSimpleExpression(self, ctx):
         functionCall = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
         name = (str(ctx.NAME()) if ctx.NAME() is not None else None)
-        booleanLiteral = ((True if str(
-            ctx.BOOLEAN_LITERAL()) == r'[T|t]rue' else False) if ctx.BOOLEAN_LITERAL() is not None else None)
+        booleanLiteral = ((True if re.match(r'[Tt]rue', str(ctx.BOOLEAN_LITERAL())) else False)
+                          if ctx.BOOLEAN_LITERAL() is not None else None)
         if ctx.INTEGER() is not None:
             numericLiteral = int(str(ctx.INTEGER()))
         elif ctx.FLOAT() is not None:
