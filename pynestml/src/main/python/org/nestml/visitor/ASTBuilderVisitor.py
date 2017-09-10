@@ -26,7 +26,7 @@
 from antlr4 import *
 # import all ASTClasses
 from pynestml.src.main.python.org.nestml.ast import *
-
+from pynestml.src.main.python.org.nestml.ast.ASTOutputBlock import SignalType
 
 class ASTBuilderVisitor(ParseTreeVisitor):
     """
@@ -178,8 +178,12 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         name = (str(ctx.NAME()) if ctx.NAME() is not None else None)
         booleanLiteral = ((True if str(
             ctx.BOOLEAN_LITERAL()) == r'[T|t]rue' else False) if ctx.BOOLEAN_LITERAL() is not None else None)
-        numericLiteral = (float(str(ctx.NUMERIC_LITERAL()))
-                          if ctx.NUMERIC_LITERAL() is not None else None)
+        if ctx.INTEGER() is not None:
+            numericLiteral = int(str(ctx.INTEGER()))
+        elif ctx.FLOAT() is not None:
+            numericLiteral = float(str(ctx.FLOAT()))
+        else:
+            numericLiteral = None
         isInf = (True if ctx.isInf is not None else False)
         variable = (self.visit(ctx.variable()) if ctx.variable() is not None else None)
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
@@ -283,31 +287,6 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                 args.append(self.visit(arg))
         return args
 
-    # Visit a parse tree produced by PyNESTMLParser#odeDeclaration.
-    def visitOdeDeclaration(self, ctx):
-        "In order to preserve the order we use the getNext() method to get the next element\
-         according to the source position."
-        elems = list()
-        if ctx.equation() is not None:
-            for eq in ctx.equation():
-                elems.append(eq)
-        if ctx.shape() is not None:
-            for shape in ctx.shape():
-                elems.append(shape)
-        if ctx.odeFunction() is not None:
-            for fun in ctx.odeFunction():
-                elems.append(fun)
-        ordered = list()
-        while len(elems) > 0:
-            elem = self.getNext(elems)
-            ordered.append(self.visit(elem))
-            elems.remove(elem)
-        sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
-        return ASTOdeDeclaration.ASTOdeDeclaration.makeASTOdeDeclaration(_elements=ordered, _sourcePosition=sourcePos)
-
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
     def visitOdeFunction(self, ctx):
         isRecordable = (True if ctx.recordable is not None else False)
@@ -323,14 +302,14 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                 _expression=expression, _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#equation.
-    def visitEquation(self, ctx):
+    def visitOdeEquation(self, ctx):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTEquation.ASTEquation.makeASTEquation(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
+        return ASTOdeEquation.ASTOdeEquation.makeASTOdeEquation(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#derivative.
     def visitDerivative(self, ctx):
@@ -345,14 +324,14 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                              _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#shape.
-    def visitShape(self, ctx):
+    def visitOdeShape(self, ctx):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTShape.ASTShape.makeASTShape(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
+        return ASTOdeShape.ASTOdeShape.makeASTOdeShape(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#block.
     def visitBlock(self, ctx):
@@ -368,29 +347,29 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#stmt.
     def visitStmt(self, ctx):
-        small = self.visit(ctx.small_Stmt()) if ctx.small_Stmt() is not None else None
-        compound = self.visit(ctx.compound_Stmt()) if ctx.compound_Stmt() is not None else None
+        small = self.visit(ctx.smallStmt()) if ctx.smallStmt() is not None else None
+        compound = self.visit(ctx.compoundStmt()) if ctx.compoundStmt() is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTStmt.ASTStmt.makeASTStmt(_small_statement=small, _compound_statement=compound,
+        return ASTStmt.ASTStmt.makeASTStmt(_smallStatement=small, _compoundStatement=compound,
                                            _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
-    def visitCompound_Stmt(self, ctx):
-        ifStmt = self.visit(ctx.if_Stmt()) if ctx.if_Stmt() is not None else None
-        whileStmt = self.visit(ctx.while_Stmt()) if ctx.while_Stmt() is not None else None
-        forStmt = self.visit(ctx.for_Stmt()) if ctx.for_Stmt() is not None else None
+    def visitCompoundStmt(self, ctx):
+        ifStmt = self.visit(ctx.ifStmt()) if ctx.ifStmt() is not None else None
+        whileStmt = self.visit(ctx.whileStmt()) if ctx.whileStmt() is not None else None
+        forStmt = self.visit(ctx.forStmt()) if ctx.forStmt() is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTCompound_Stmt.ASTCompound_Stmt.makeASTCompound_Stmt(_if_stmt=ifStmt, _while_stmt=whileStmt,
-                                                                      _for_stmt=forStmt, _sourcePosition=sourcePos)
+        return ASTCompoundStmt.ASTCompoundStmt.makeASTCompoundStmt(_ifStmt=ifStmt, _whileStmt=whileStmt,
+                                                                   _forStmt=forStmt, _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#small_Stmt.
-    def visitSmall_Stmt(self, ctx):
+    def visitSmallStmt(self, ctx):
         assignment = self.visit(ctx.assignment()) if ctx.assignment() is not None else None
         functionCall = self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None
         declaration = self.visit(ctx.declaration()) if ctx.declaration() is not None else None
@@ -399,9 +378,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTSmall_Stmt.ASTSmall_Stmt.makeASTSmall_Stmt(_assignment=assignment, _functionCall=functionCall,
-                                                             _declaration=declaration, _returnStmt=returnStmt,
-                                                             _sourcePosition=sourcePos)
+        return ASTSmallStmt.ASTSmallStmt.makeASTSmallStmt(_assignment=assignment, _functionCall=functionCall,
+                                                          _declaration=declaration, _returnStmt=returnStmt,
+                                                          _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#assignment.
     def visitAssignment(self, ctx):
@@ -454,53 +433,53 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _endColumn=ctx.stop.column)
         return ASTReturnStmt.ASTReturnStmt.makeASTReturnStmt(_expression=retExpression, _sourcePosition=sourcePos)
 
-    # Visit a parse tree produced by PyNESTMLParser#if_Stmt.
-    def visitIf_Stmt(self, ctx):
-        ifClause = self.visit(ctx.if_Clause()) if ctx.if_Clause() is not None else None
+    # Visit a parse tree produced by PyNESTMLParser#ifStmt.
+    def visitIfStmt(self, ctx):
+        ifClause = self.visit(ctx.ifClause()) if ctx.ifClause() is not None else None
         elifClauses = list()
-        if ctx.elif_Clause() is not None:
-            for clause in ctx.elif_Clause():
+        if ctx.elifClause() is not None:
+            for clause in ctx.elifClause():
                 elifClauses.append(self.visit(clause))
-        elseClause = self.visit(ctx.else_Clause()) if ctx.else_Clause() is not None else None
+        elseClause = self.visit(ctx.elseClause()) if ctx.elseClause() is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTIF_Stmt.ASTIF_Stmt.makeASTIF_Stmt(_ifClause=ifClause, _elifClauses=elifClauses,
-                                                    _elseClause=elseClause, _sourcePosition=sourcePos)
+        return ASTIfStmt.ASTIfStmt.makeASTIfStmt(_ifClause=ifClause, _elifClauses=elifClauses,
+                                                 _elseClause=elseClause, _sourcePosition=sourcePos)
 
-    # Visit a parse tree produced by PyNESTMLParser#if_Clause.
-    def visitIf_Clause(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#ifClause.
+    def visitIfClause(self, ctx):
         condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTIF_Clause.ASTIF_Clause.makeASTIF_Clause(_condition=condition, _block=block, _sourcePosition=sourcePos)
+        return ASTIfClause.ASTIfClause.makeASTIfClause(_condition=condition, _block=block, _sourcePosition=sourcePos)
 
-    # Visit a parse tree produced by PyNESTMLParser#elif_Clause.
-    def visitElif_Clause(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#elifClause.
+    def visitElifClause(self, ctx):
         condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTELIF_Clause.ASTELIF_Clause.makeASTELIF_Clause(_condition=condition, _block=block,
-                                                                _sourcePosition=sourcePos)
+        return ASTElifClause.ASTElifClause.makeASTElifClause(_condition=condition, _block=block,
+                                                             _sourcePosition=sourcePos)
 
-    # Visit a parse tree produced by PyNESTMLParser#else_Clause.
-    def visitElse_Clause(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#elseClause.
+    def visitElseClause(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTELSE_Clause.ASTELSE_Clause.makeASTELSE_Clause(_block=block, _sourcePosition=sourcePos)
+        return ASTElseClause.ASTElseClause.makeASTElseClause(_block=block, _sourcePosition=sourcePos)
 
-    # Visit a parse tree produced by PyNESTMLParser#for_Stmt.
-    def visitFor_Stmt(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#forStmt.
+    def visitForStmt(self, ctx):
         variable = str(ctx.NAME()) if ctx.NAME() is not None else None
         From = self.visit(ctx.vrom) if ctx.vrom is not None else None
         to = self.visit(ctx.to) if ctx.to is not None else None
@@ -510,23 +489,26 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTFOR_Stmt.ASTFOR_Stmt.makeASTFOR_Stmt(_variable=variable, _from=From, _to=to, _step=step,
-                                                       _block=block, _sourcePosition=sourcePos)
+        return ASTForStmt.ASTForStmt.makeASTForStmt(_variable=variable, _from=From, _to=to, _step=step,
+                                                    _block=block, _sourcePosition=sourcePos)
 
-    # Visit a parse tree produced by PyNESTMLParser#while_Stmt.
-    def visitWhile_Stmt(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#whileStmt.
+    def visitWhileStmt(self, ctx):
         cond = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTWHILE_Stmt.ASTWHILE_Stmt.makeASTWHILE_Stmt(_condition=cond, _block=block, _sourcePosition=sourcePos)
+        return ASTWhileStmt.ASTWhileStmt.makeASTWhileStmt(_condition=cond, _block=block, _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#signedNumericLiteral.
     def visitSignedNumericLiteral(self, ctx):
         isNeg = True if ctx.negative is not None else False
-        value = float(ctx.NUMERIC_LITERAL()) if ctx.NUMERIC_LITERAL() is not None else 0
+        if ctx.INTEGER() is not None:
+            value = int(str(ctx.INTEGER()))
+        else:
+            value = float(str(ctx.FLOAT()))
         if isNeg:
             return -value
         else:
@@ -548,20 +530,20 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         a list of elements and returns the one with the smallest source line."
         body_elements = list()
         # visit all var_block children
-        if ctx.var_Block() is not None:
-            for child in ctx.var_Block():
+        if ctx.blockWithVariables() is not None:
+            for child in ctx.blockWithVariables():
                 body_elements.append(child)
-        if ctx.dynamics() is not None:
-            for child in ctx.dynamics():
+        if ctx.updateBlock() is not None:
+            for child in ctx.updateBlock():
                 body_elements.append(child)
-        if ctx.equations() is not None:
-            for child in ctx.equations():
+        if ctx.equationsBlock() is not None:
+            for child in ctx.equationsBlock():
                 body_elements.append(child)
-        if ctx.inputBuffer() is not None:
-            for child in ctx.inputBuffer():
+        if ctx.inputBlock() is not None:
+            for child in ctx.inputBlock():
                 body_elements.append(child)
-        if ctx.outputBuffer() is not None:
-            for child in ctx.outputBuffer():
+        if ctx.outputBlock() is not None:
+            for child in ctx.outputBlock():
                 body_elements.append(child)
         if ctx.function() is not None:
             for child in ctx.function():
@@ -577,8 +559,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _endColumn=ctx.stop.column)
         return ASTBody.ASTBody.makeASTBody(_bodyElements=elements, _sourcePosition=sourcePos)
 
-    # Visit a parse tree produced by PyNESTMLParser#var_Block.
-    def visitVar_Block(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
+    def visitBlockWithVariables(self, ctx):
         declarations = list()
         if ctx.declaration() is not None:
             for child in ctx.declaration():
@@ -589,38 +571,56 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
         if blockType == 'state':
-            return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=False, _isParameters=False, _isState=True,
-                                                              _declarations=declarations, _sourcePosition=sourcePos)
+            return ASTBlockWithVariables.ASTBlockWithVariables.makeASTBlockWithVariables(
+                _isInternals=False, _isParameters=False, _isState=True,
+                _declarations=declarations, _sourcePosition=sourcePos)
         elif blockType == 'parameters':
-            return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=False, _isParameters=True, _isState=False,
-                                                              _declarations=declarations, _sourcePosition=sourcePos)
+            return ASTBlockWithVariables.ASTBlockWithVariables.makeASTBlockWithVariables(
+                _isInternals=False, _isParameters=True, _isState=False,
+                _declarations=declarations, _sourcePosition=sourcePos)
         elif blockType == 'internals':
-            return ASTVar_Block.ASTVar_Block.makeASTVar_Block(_isInternals=True, _isParameters=False, _isState=False,
-                                                              _declarations=declarations, _sourcePosition=sourcePos)
+            return ASTBlockWithVariables.ASTBlockWithVariables.makeASTBlockWithVariables(
+                _isInternals=True, _isParameters=False, _isState=False,
+                _declarations=declarations, _sourcePosition=sourcePos)
         else:
             raise PyNESTMLUnknownBodyTypeException(
                 '(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
             # Visit a parse tree produced by PyNESTMLParser#dynamics.
 
-    def visitDynamics(self, ctx):
+    def visitUpdateBlock(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTDynamics.ASTDynamics.makeASTDynamics(_block=block, _sourcePosition=sourcePos)
+        return ASTUpdateBlock.ASTUpdateBlock.makeASTUpdateBlock(_block=block, _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#equations.
-    def visitEquations(self, ctx):
-        odeDecl = self.visit(ctx.odeDeclaration()) if ctx.odeDeclaration() is not None else None
+    def visitEquationsBlock(self, ctx):
+        elems = list()
+        if ctx.odeEquation() is not None:
+            for eq in ctx.odeEquation():
+                elems.append(eq)
+        if ctx.odeShape() is not None:
+            for shape in ctx.odeShape():
+                elems.append(shape)
+        if ctx.odeFunction() is not None:
+            for fun in ctx.odeFunction():
+                elems.append(fun)
+        ordered = list()
+        while len(elems) > 0:
+            elem = self.getNext(elems)
+            ordered.append(self.visit(elem))
+            elems.remove(elem)
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTEquations.ASTEquations.makeASTEquations(_block=odeDecl, _sourcePosition=sourcePos)
+        return ASTEquationsBlock.ASTEquationsBlock.makeASTEquationsBlock(_declarations=ordered,
+                                                                         _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#inputBuffer.
-    def visitInputBuffer(self, ctx):
+    def visitInputBlock(self, ctx):
         inputLines = list()
         if ctx.inputLine() is not None:
             for line in ctx.inputLine():
@@ -629,25 +629,29 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTInput.ASTInput.makeASTInput(_inputDefinitions=inputLines, _sourcePosition=sourcePos)
+        return ASTInputBlock.ASTInputBlock.makeASTInputBlock(_inputDefinitions=inputLines, _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#inputLine.
     def visitInputLine(self, ctx):
         name = str(ctx.name.text) if ctx.name is not None else None
-        sizeParameter = str(ctx.sizeParameter) if ctx.sizeParameter is not None else None
+        sizeParameter = str(ctx.sizeParameter.text) if ctx.sizeParameter is not None else None
         inputTypes = list()
         if ctx.inputType() is not None:
             for Type in ctx.inputType():
                 inputTypes.append(self.visit(Type))
-        isCurrent = True if ctx.isCurrent is not None else False
-        isSpike = True if ctx.isSpike is not None else False
+        if ctx.isCurrent:
+            signalType = SignalType.CURRENT
+        elif ctx.isSpike:
+            signalType = SignalType.SPIKE
+        else:
+            signalType = None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
         return ASTInputLine.ASTInputLine.makeASTInputLine(_name=name, _sizeParameter=sizeParameter,
-                                                          _inputTypes=inputTypes, _isCurrent=isCurrent,
-                                                          _isSpike=isSpike, _sourcePosition=sourcePos)
+                                                          _inputTypes=inputTypes, _signalType=signalType,
+                                                          _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#inputType.
     def visitInputType(self, ctx):
@@ -661,15 +665,17 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                           _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
-    def visitOutputBuffer(self, ctx):
+    def visitOutputBlock(self, ctx):
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
         if ctx.isSpike is not None:
-            return ASTOutput.ASTOutput.makeASTOutput(_type='spike', _sourcePosition=sourcePos)
+            return ASTOutputBlock.ASTOutputBlock.makeASTOutputBlock(_type=ASTOutputBlock.SignalType.SPIKE,
+                                                                    _sourcePosition=sourcePos)
         elif ctx.isCurrent is not None:
-            return ASTOutput.ASTOutput.makeASTOutput(_type='current', _sourcePosition=sourcePos)
+            return ASTOutputBlock.ASTOutputBlock.makeASTOutputBlock(_type=ASTOutputBlock.SignalType.CURRENT,
+                                                                    _sourcePosition=sourcePos)
         else:
             raise PyNESTMLUnknownOutputBufferType('(NESTML.ASTBuilder) Type of output buffer not recognized.')
 
