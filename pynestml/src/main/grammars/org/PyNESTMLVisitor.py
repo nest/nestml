@@ -65,18 +65,13 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#odeDeclaration.
-    def visitOdeDeclaration(self, ctx):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by PyNESTMLParser#odeFunction.
     def visitOdeFunction(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#equation.
-    def visitEquation(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#odeEquation.
+    def visitOdeEquation(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -90,8 +85,8 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#shape.
-    def visitShape(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#odeShape.
+    def visitOdeShape(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -105,13 +100,13 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
-    def visitCompound_Stmt(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#compoundStmt.
+    def visitCompoundStmt(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#small_Stmt.
-    def visitSmall_Stmt(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#smallStmt.
+    def visitSmallStmt(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -130,33 +125,33 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#if_Stmt.
-    def visitIf_Stmt(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#ifStmt.
+    def visitIfStmt(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#if_Clause.
-    def visitIf_Clause(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#ifClause.
+    def visitIfClause(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#elif_Clause.
-    def visitElif_Clause(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#elifClause.
+    def visitElifClause(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#else_Clause.
-    def visitElse_Clause(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#elseClause.
+    def visitElseClause(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#for_Stmt.
-    def visitFor_Stmt(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#forStmt.
+    def visitForStmt(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#while_Stmt.
-    def visitWhile_Stmt(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#whileStmt.
+    def visitWhileStmt(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -175,23 +170,23 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#var_Block.
-    def visitVar_Block(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
+    def visitBlockWithVariables(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#dynamics.
-    def visitDynamics(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#updateBlock.
+    def visitUpdateBlock(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#equations.
-    def visitEquations(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#equationsBlock.
+    def visitEquationsBlock(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#inputBuffer.
-    def visitInputBuffer(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#inputBlock.
+    def visitInputBlock(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -205,8 +200,8 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
-    def visitOutputBuffer(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#outputBlock.
+    def visitOutputBlock(self, ctx):
         return self.visitChildren(ctx)
 
 
