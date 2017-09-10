@@ -23,7 +23,6 @@
  @author kperun
 """
 
-
 import unittest
 from antlr4 import *
 import os
@@ -35,16 +34,21 @@ class ExpressionParsingTest(unittest.TestCase):
     """
     This text is used to check the parsing of the expression sub-language.
     """
+
     def test(self):
-        inputFile = FileStream(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
-                               'ExpressionCollection.nestml'))
+        print('Start Expression Parser Test...'),
+        inputFile = FileStream(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'ExpressionCollection.nestml'))
         lexer = PyNESTMLLexer(inputFile)
         # create a token stream
         stream = CommonTokenStream(lexer)
         # parse the file
         parser = PyNESTMLParser(stream)
-        tree = parser.nestmlCompilationUnit()
-
-        if __name__ == '__main__':
-            unittest.main()
+        parser.nestmlCompilationUnit()
+        print('done')
         return
+
+
+if __name__ == '__main__':
+    unittest.main()

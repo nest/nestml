@@ -31,11 +31,14 @@ from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 
 class ASTBuildingTest(unittest.TestCase):
     def test(self):
-        for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources'))):
+        for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                 os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
-                NESTMLParser.parseModel(
-                    os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
-                                 filename))
+                print('Start creating AST for ' + filename),
+                model =NESTMLParser.parseModel(
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
+                                                                                      'models'), filename
+                print(' ...done')
         return
 
 

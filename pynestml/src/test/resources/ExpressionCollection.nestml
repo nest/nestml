@@ -6,6 +6,8 @@ See ExpressionParserTest.py.
 neuron ExpressionCollection:
     update:
         #neuron aeif_cond_alpha_neuron
+        testA ms**2 = 1
+        testB 1/ms = 12
         test0 = E_L
         test1 = 0pA
         test2 = bounded_min(V_m, V_peak) # prevent exponential divergence

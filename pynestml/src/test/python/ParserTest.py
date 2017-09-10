@@ -34,16 +34,24 @@ class LexerParserTest(unittest.TestCase):
     """
     This test is used to test the parser and lexer for correct functionality.
     """
+
     def test(self):
-        for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources'))):
+        for filename in os.listdir(
+                os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', '..', '..', '..',
+                                                                                      'models')))):
             if filename.endswith(".nestml"):
-                inputFile = FileStream(os.path.join(os.path.dirname(__file__), '..', 'resources', filename))
+                inputFile = FileStream(
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
+                                                                                      'models'), filename)))
+                print('Start parsing ' + filename),
                 lexer = PyNESTMLLexer(inputFile)
                 # create a token stream
                 stream = CommonTokenStream(lexer)
                 # parse the file
                 PyNESTMLParser(stream)
+                print(' ...done')
         return
+
 
 if __name__ == '__main__':
     unittest.main()
