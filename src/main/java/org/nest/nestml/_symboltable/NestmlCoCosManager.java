@@ -145,7 +145,7 @@ public class NestmlCoCosManager {
     nestmlCoCoChecker.addCoCo(neuronWithMultipleOrNoInput);
 
     final RestrictUseOfShapes restrictUseOfShapes = new RestrictUseOfShapes();
-    nestmlCoCoChecker.addCoCo(restrictUseOfShapes);
+    // TODO nestmlCoCoChecker.addCoCo(restrictUseOfShapes);
 
     final FunctionReturnsIncorrectValue functionReturnsIncorrectValue = new FunctionReturnsIncorrectValue();
     nestmlCoCoChecker.addCoCo(functionReturnsIncorrectValue);

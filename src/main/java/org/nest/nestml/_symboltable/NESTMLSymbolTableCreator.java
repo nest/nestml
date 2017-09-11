@@ -18,6 +18,7 @@ import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.nestml._visitor.UnitsSIVisitor;
+import org.nest.utils.AstUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +34,7 @@ import static org.nest.codegeneration.sympy.OdeTransformer.getCondSumFunctionCal
 import static org.nest.nestml._symboltable.symbols.NeuronSymbol.Type.NEURON;
 import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.STATE;
 import static org.nest.utils.AstUtils.computeTypeName;
+import static org.nest.utils.AstUtils.getNameOfDerivedVariable;
 
 /**
  * Creates NESTML symbols.
@@ -297,26 +299,24 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     addToScopeAndLinkWithNode(methodSymbol, funcAst);
 
     // Parameters
-    if (funcAst.getParameters().isPresent()) {
-      for (ASTParameter p : funcAst.getParameters().get().getParameters()) {
-        String typeName = computeTypeName(p.getDatatype());
-        Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
+    for (ASTParameter p : funcAst.getParameters()) {
+      String typeName = computeTypeName(p.getDatatype());
+      Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
 
-        checkState(type.isPresent());
+      checkState(type.isPresent());
 
-        methodSymbol.addParameterType(type.get());
+      methodSymbol.addParameterType(type.get());
 
-        // add a var entry for method body
-        VariableSymbol var = new VariableSymbol(p.getName());
-        var.setAstNode(p);
-        var.setType(type.get());
+      // add a var entry for method body
+      VariableSymbol var = new VariableSymbol(p.getName());
+      var.setAstNode(p);
+      var.setType(type.get());
 
-        var.setBlockType(VariableSymbol.BlockType.LOCAL);
-        addToScopeAndLinkWithNode(var, p);
-
-      }
+      var.setBlockType(VariableSymbol.BlockType.LOCAL);
+      addToScopeAndLinkWithNode(var, p);
 
     }
+
     // return type
     if (funcAst.getReturnType().isPresent()) {
       final String returnTypeName = computeTypeName(funcAst.getReturnType().get());
@@ -464,11 +464,18 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   @Override
   public void visit(final ASTShape astShape) {
     final TypeSymbol type = PredefinedTypes.getType("real");
-    final VariableSymbol var = new VariableSymbol(astShape.getLhs().toString());
+    final String shapeVariableName;
+    if (astShape.getLhs().getDifferentialOrder().size() > 0) {
+      shapeVariableName = AstUtils.getNameOfDerivedVariable(astShape.getLhs());
+    }
+    else {
+      shapeVariableName = astShape.getLhs().toString();
+    }
+    final VariableSymbol var = new VariableSymbol(shapeVariableName);
 
     var.setAstNode(astShape);
     var.setType(type);
-    var.setRecordable(true);
+    var.setRecordable(false);
     var.setFunction(false);
     var.setDeclaringExpression(astShape.getRhs());
     var.setBlockType(VariableSymbol.BlockType.SHAPE);

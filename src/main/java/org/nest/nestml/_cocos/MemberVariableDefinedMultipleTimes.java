@@ -39,7 +39,7 @@ public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
     body.getInternalDeclarations().forEach(declaration -> addNames(varNames, declaration));
     body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
     body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
-    body.getShapes().forEach(astShape -> addVariable(AstUtils.getNameOfLHS(astShape), varNames, astShape));
+    body.getShapes().forEach(astShape -> addVariable(AstUtils.getNameOfDerivedVariable(astShape), varNames, astShape));
   }
 
   private void addNames(final Map<String, SourcePosition> names, final ASTDeclaration decl) {

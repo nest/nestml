@@ -30,8 +30,9 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
       return shapeNames;
     }
 
-    @Override public void visit(ASTShape node) {
-      ASTVariable shapeVar = node.getLhs();
+    @Override
+    public void visit(ASTShape node) {
+      ASTDerivative shapeVar = node.getLhs();
       shapeNames.add(shapeVar.getName().toString());
     }
   }

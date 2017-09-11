@@ -57,15 +57,10 @@ public class NestmlSymbols {
     checkArgument(astFunction.getEnclosingScope().isPresent(), "Run symbol table creator");
 
     final List<String> callTypes;
-    if (astFunction.getParameters().isPresent()) {
-      callTypes = astFunction.getParameters().get().getParameters()
-          .stream()
-          .map(astParameter -> AstUtils.computeTypeName(astParameter.getDatatype()))
-          .collect(toList());
-    }
-    else {
-      callTypes = Lists.newArrayList();
-    }
+    callTypes = astFunction.getParameters()
+        .stream()
+        .map(astParameter -> AstUtils.computeTypeName(astParameter.getDatatype()))
+        .collect(toList());
 
     return resolveMethod(astFunction.getName(), callTypes, astFunction.getEnclosingScope().get());
   }

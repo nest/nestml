@@ -338,7 +338,7 @@ public final class AstUtils {
    * If the variable is ues as a RHS of an equation, e.g. g_in'' = exp(t) then a variable g_in' should be added.
    *
    */
-  public static String getNameOfLHS(final ASTDerivative astVariable) {
+  public static String getNameOfDerivedVariable(final ASTDerivative astVariable) {
     checkArgument(astVariable.getDifferentialOrder().size() > 0);
     return astVariable.getName() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
   }
@@ -347,7 +347,7 @@ public final class AstUtils {
    * Returns the name of the shape, 'shape g_in = t' -> g_n
    *
    */
-  public static String getNameOfLHS(ASTShape astShape) {
+  public static String getNameOfDerivedVariable(ASTShape astShape) {
     return astShape.getLhs().toString();
   }
 

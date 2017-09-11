@@ -175,21 +175,18 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
   }
 
 
-  private void printParameters(final Optional<ASTParameters> functionParameters) {
+  private void printParameters(final List<ASTParameter> astParameters) {
     printer.print("(");
-    if (functionParameters.isPresent()) {
-      final List<ASTParameter> astParameters = functionParameters.get().getParameters();
-      for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
-        boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
-        final ASTParameter curParameter = astParameters.get(curParameterIndex);
-        printer.print(curParameter.getName() + " " + deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(curParameter.getDatatype())));
-        if (!isLastParameter) {
-          printer.print(", ");
-        }
-
+    for (int curParameterIndex = 0; curParameterIndex < astParameters.size(); ++curParameterIndex) {
+      boolean isLastParameter = (curParameterIndex + 1) == astParameters.size();
+      final ASTParameter curParameter = astParameters.get(curParameterIndex);
+      printer.print(curParameter.getName() + " " + deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(curParameter.getDatatype())));
+      if (!isLastParameter) {
+        printer.print(", ");
       }
 
     }
+
     printer.print(")");
   }
 
