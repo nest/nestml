@@ -535,8 +535,10 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
       final ASTELSE_Clause elseClause = ifStatement.getELSE_Clause().get();
       CommentPrettyPrinter.printPreComments(elseClause, printer);
       CommentPrettyPrinter.printPostComments(elseClause, printer);
-
+      printer.println("else " + BLOCK_OPEN);
+      printer.indent();
       printNode(elseClause.getBlock());
+      printer.unindent();
       printer.println(BLOCK_CLOSE);
     }
     CommentPrettyPrinter.printPostComments(ifStatement, printer);
