@@ -24,6 +24,7 @@
 """
 from abc import ABCMeta
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
+from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 
 
 class ASTElement:
@@ -33,16 +34,22 @@ class ASTElement:
     """
     __metaclass__ = ABCMeta
     __sourcePosition = None
+    __symbol = None
 
-    def __init__(self, _sourcePosition=None):
+    def __init__(self, _sourcePosition=None, _scope=None):
         """
         The standard constructor.
         :param _sourcePosition: a source position element.
         :type _sourcePosition: ASTSourcePosition
+        :param _scope: the scope in which this element is embedded in.
+        :type _scope: Scope
         """
         assert (_sourcePosition is None or isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.AST.Element) No source position handed over!'
+        assert (_scope is None or isinstance(_scope, Scope)), \
+            '(PyNestML.AST.Element) Wrong type of scope handed over!'
         self.__sourcePosition = _sourcePosition
+        self.__scope = _scope
 
     def getSourcePosition(self):
         """
@@ -51,3 +58,21 @@ class ASTElement:
         :rtype: ASTSourcePosition
         """
         return self.__sourcePosition
+
+    def getScope(self):
+        """
+        Returns the scope of this element.
+        :return: a scope object.
+        :rtype: Scope 
+        """
+        return self.__scope
+
+    def updateScope(self, _scope=None):
+        """
+        Updates the scope of this element.
+        :param _scope: a scope object.
+        :type _scope: Scope
+        """
+        assert (_scope is not None and isinstance(_scope, Scope)), \
+            '(PyNestML.AST.Element) No or wrong type of scope provided (%s)!' % (type(_scope))
+        self.__scope = _scope

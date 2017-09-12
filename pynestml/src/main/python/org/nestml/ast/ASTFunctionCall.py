@@ -47,7 +47,7 @@ class ASTFunctionCall(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_calleeName is not None),\
+        assert (_calleeName is not None and isinstance(_calleeName, str)), \
             '(PyNestML.AST.FunctionCall) Name of called function not provided!'
         assert (_args is None or isinstance(_args, list)), \
             '(PyNestML.AST.FunctionCall) Arguments must be list of expressions!'

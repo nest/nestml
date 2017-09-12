@@ -22,6 +22,7 @@
  */
 @author kperun
 """
+from enum import Enum
 
 
 class Symbol:
@@ -31,28 +32,35 @@ class Symbol:
     E.g.:   V_m mV = .... 
             function x(arg1,...)
     """
-    __source_position = None
     __element_reference = None
+    __scope = None
+    __type = None
+    __name = None
 
-    def __init__(self, _sourcePosition=None, _elementReference=None):
+    def __init__(self, _elementReference=None, _scope=None, _type=None, _name=None):
         """
         Standard constructor of the Symbol class.
-        :param _sourcePosition: the source position of this symbol.
-        :type _sourcePosition: ASTSourcePosition
         :param _elementReference: an ast object.
         :type _elementReference: ASTObject
+        :param _scope: the scope in which this element is embedded in.
+        :type _scope: Scope
+        :param _type: the type of this symbol, i.e., VARIABLE or FUNCTION
+        :type _type: SymbolType
+        :param _name: the name of the corresponding element
+        :type _name: str
         """
+        from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
         assert (_elementReference is not None), '(PyNestML.SymbolTable.Symbol) No AST reference provided!'
-        self.__source_position = _sourcePosition
+        assert (_scope is not None and isinstance(_scope, Scope)), \
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of scope provided!'
+        assert (_type is not None and isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Symbol) Type of symbol not or wrongly specified!'
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.Symbol) Name of symbol not or wrongly specified!'
         self.__element_reference = _elementReference
-
-    def getSourcePosition(self):
-        """
-        Returns the source position of this symbol.
-        :return: the source position
-        :rtype: ASTSourcePosition
-        """
-        return self.__source_position
+        self.__scope = _scope
+        self.__type = _type
+        self.__name = _name
 
     def getReferencedObject(self):
         """
@@ -61,3 +69,48 @@ class Symbol:
         :rtype: ASTObject
         """
         return self.__element_reference
+
+    def getCorrespondingScope(self):
+        """
+        Returns the scope in which this symbol is embedded in.
+        :return: a scope object.
+        :rtype: Scope
+        """
+        return self.__scope
+
+    def getSymbolType(self):
+        """
+        Returns the type of this symbol.
+        :return: the type of the symbol
+        :rtype: SymbolType
+        """
+        return self.__type
+
+    def getSymbolName(self):
+        """
+        Returns the name of this symbol.
+        :return: the name of the symbol.
+        :rtype: str
+        """
+        return self.__name
+
+    def printSymbol(self):
+        """
+        Returns a string representation of this symbol object.
+        :return: a string representation
+        :rtype: str
+        """
+        if self.getSymbolType() is SymbolType.FUNCTION:
+            return '[' + str(self.getSymbolName()) + ',' + 'FUNCTION' \
+                   + ',' + self.getReferencedObject().getSourcePosition().printSourcePosition() + ']'
+        else:
+            return '[' + str(self.getSymbolName()) + ',' + 'VARIABLE' + \
+                   ',' + self.getReferencedObject().getSourcePosition().printSourcePosition() + ']'
+
+
+class SymbolType(Enum):
+    """
+    This enum is used to represent the type of a function as used to resolve and store symbols.
+    """
+    VARIABLE = 1
+    FUNCTION = 2

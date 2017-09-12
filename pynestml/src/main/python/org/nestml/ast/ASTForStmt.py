@@ -50,7 +50,7 @@ class ASTForStmt(ASTElement):
         :param _to: right bound of the range, i.e., finish value.
         :type _to: ASTExpression
         :param _step: the length of a single step.
-        :type _step: float
+        :type _step: float/int
         :param _block: a block of statements.
         :type _block: ASTBlock
         :param _sourcePosition: the position of this element in the source file.

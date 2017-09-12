@@ -52,24 +52,34 @@ class SymbolTableASTVisitor:
         :return: a single neuron.
         :rtype: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron.ASTNeuron)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of neuron provided!'
-        scope = Scope(_scopeType=ScopeType.GLOBAL, _sourcePosition=_neuron.getSourcePosition())
+        scope = Scope(_scopeType=ScopeType.GLOBAL, _enclosingScope=None, _sourcePosition=_neuron.getSourcePosition())
         _neuron.updateScope(scope)
-        # first, create foll all elements as defined in the var blocks the corresponding GLOBAL symbols
-        for bodyElement in _neuron.getBody():
-            bodyElement.updateScope(scope)
-            if isinstance(bodyElement, ASTBlockWithVariables):
+        _neuron.getBody().updateScope(scope)
+        cls.__visitBody(_neuron.getBody())
+        return
+
+    @classmethod
+    def __visitBody(cls, _body=None):
+        """
+        Private method: Used to visit a single neuron body and create the corresponding scope.
+        :param _body: a single body element.
+        :type _body: ASTBody
+        """
+        for bodyElement in _body.getBodyElements():
+            bodyElement.updateScope(_body.getScope())
+            if isinstance(bodyElement, ASTBlockWithVariables.ASTBlockWithVariables):
                 cls.__visitBlockWithVariable(bodyElement)
-            elif isinstance(bodyElement, ASTUpdateBlock):
+            elif isinstance(bodyElement, ASTUpdateBlock.ASTUpdateBlock):
                 cls.__visitUpdateBlock(bodyElement)
-            elif isinstance(bodyElement, ASTEquationsBlock):
+            elif isinstance(bodyElement, ASTEquationsBlock.ASTEquationsBlock):
                 cls.__visitEquationsBlock(bodyElement)
-            elif isinstance(bodyElement, ASTInputBlock):
+            elif isinstance(bodyElement, ASTInputBlock.ASTInputBlock):
                 cls.__visitInputBlock(bodyElement)
-            elif isinstance(bodyElement, ASTOutputBlock):
+            elif isinstance(bodyElement, ASTOutputBlock.ASTOutputBlock):
                 cls.__visitOutputBlock(bodyElement)
-            elif isinstance(bodyElement, ASTFunction):
+            elif isinstance(bodyElement, ASTFunction.ASTFunction):
                 cls.__visitFunctionBlock(bodyElement)
         return
 
@@ -80,16 +90,18 @@ class SymbolTableASTVisitor:
         :param _block: a function block object.
         :type _block: ASTFunction
         """
-        assert (_block is not None and isinstance(_block, ASTFunction)), \
+        assert (_block is not None and isinstance(_block, ASTFunction.ASTFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function block provided!'
         symbol = Symbol(_scope=_block.getScope(), _elementReference=_block,
                         _name=_block.getName(), _type=SymbolType.FUNCTION)
         _block.getScope().addSymbol(symbol)
-        scope = Scope(_scopeType=ScopeType.FUNCTION, _sourcePosition=_block.getSourcePosition())
+        scope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
+                      _sourcePosition=_block.getSourcePosition())
         for arg in _block.getParameters().getParametersList():
             arg.updateScope(scope)
             scope.addSymbol(Symbol(_elementReference=arg, _scope=scope, _type=SymbolType.VARIABLE, _name=arg.getName()))
-            cls.__visitDataType(arg.getDatatType())
+            arg.getDataType().updateScope(scope)
+            cls.__visitDataType(arg.getDataType())
         _block.getBlock().updateScope(scope)
         cls.__visitBlock(_block.getBlock())
         return
@@ -101,9 +113,10 @@ class SymbolTableASTVisitor:
         :param _block: an update block object. 
         :type _block: ASTDynamics
         """
-        assert (_block is not None and isinstance(_block, ASTUpdateBlock)), \
+        assert (_block is not None and isinstance(_block, ASTUpdateBlock.ASTUpdateBlock)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of update-block provided!'
-        scope = Scope(_scopeType=ScopeType.UPDATE, _sourcePosition=_block.getSourcePosition())
+        scope = Scope(_scopeType=ScopeType.UPDATE, _enclosingScope=_block.getScope(),
+                      _sourcePosition=_block.getSourcePosition())
         _block.getScope().addScope(scope)
         _block.getBlock().updateScope(scope)
         cls.__visitBlock(_block.getBlock())
@@ -116,17 +129,20 @@ class SymbolTableASTVisitor:
         :param _block: a block object.
         :type _block: ASTBlock
         """
-        assert (_block is not None and isinstance(_block, ASTBlock)), \
+        assert (_block is not None and isinstance(_block, ASTBlock.ASTBlock)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of block provided!'
         for stmt in _block.getStmts():
             if stmt.isSmallStmt():
                 stmt.updateScope(_block.getScope())
-                cls.__visitSmallStmt(stmt)
+                stmt.getSmallStmt().updateScope(_block.getScope())
+                cls.__visitSmallStmt(stmt.getSmallStmt())
             else:
-                innerScope = Scope(_scopeType=ScopeType.LOCAL, _sourcePosition=stmt.getSourcePosition())
+                innerScope = Scope(_scopeType=ScopeType.LOCAL, _enclosingScope=_block.getScope(),
+                                   _sourcePosition=stmt.getSourcePosition())
                 _block.getScope().addScope(innerScope)
                 stmt.updateScope(innerScope)
-                cls.__visitCompoundStmt(stmt)
+                stmt.getCompoundStmt().updateScope(innerScope)
+                cls.__visitCompoundStmt(stmt.getCompoundStmt())
         return
 
     @classmethod
@@ -136,19 +152,19 @@ class SymbolTableASTVisitor:
         :param _stmt: a single small statement.
         :type _stmt: ASTSmallStatement
         """
-        assert (_stmt is not None and isinstance(_stmt, ASTSmallStmt)), \
+        assert (_stmt is not None and isinstance(_stmt, ASTSmallStmt.ASTSmallStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of small statement provided!'
         if _stmt.isDeclaration():
-            _stmt.getDeclaration().updateScope(_stmt.getScope)
+            _stmt.getDeclaration().updateScope(_stmt.getScope())
             cls.__visitDeclaration(_stmt.getDeclaration())
         elif _stmt.isAssignment():
-            _stmt.isAssignment().updateScope(_stmt.getScope)
+            _stmt.getAssignment().updateScope(_stmt.getScope())
             cls.__visitAssignment(_stmt.getAssignment())
         elif _stmt.isFunctionCall():
-            _stmt.isFunctionCall().updateScope(_stmt.getScope)
+            _stmt.getFunctionCall().updateScope(_stmt.getScope())
             cls.__visitFunctionCall(_stmt.getFunctionCall())
         elif _stmt.isReturnStmt():
-            _stmt.isReturnStmt().updateScope(_stmt.getScope)
+            _stmt.getReturnStmt().updateScope(_stmt.getScope())
             cls.__visitReturnStmt(_stmt.getReturnStmt())
         return
 
@@ -159,7 +175,7 @@ class SymbolTableASTVisitor:
         :param _stmt: a single compound statement.
         :type _stmt: ASTCompoundStatement
         """
-        assert (_stmt is not None and isinstance(_stmt, ASTCompoundStmt)), \
+        assert (_stmt is not None and isinstance(_stmt, ASTCompoundStmt.ASTCompoundStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of compound statement provided!'
         if _stmt.isIfStmt():
             _stmt.getIfStmt().updateScope(_stmt.getScope())
@@ -181,7 +197,7 @@ class SymbolTableASTVisitor:
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
-        assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
+        assert (_assignment is not None and isinstance(_assignment, ASTAssignment.ASTAssignment)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of assignment provided!'
         _assignment.getVariable().updateScope(_assignment.getScope())
         cls.__visitVariable(_assignment.getVariable())
@@ -198,7 +214,7 @@ class SymbolTableASTVisitor:
         :return: no return value, since neither scope nor symbol is created
         :rtype: void
         """
-        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
+        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall.ASTFunctionCall)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function call provided!'
         for arg in _functionCall.getArgs():
             arg.updateScope(_functionCall.getScope())
@@ -215,14 +231,14 @@ class SymbolTableASTVisitor:
         :return: the scope is update without a return value.
         :rtype: void
         """
-        assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
+        assert (_declaration is not None and isinstance(_declaration, ASTDeclaration.ASTDeclaration)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided!'
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
             _declaration.getScope().addSymbol(Symbol(_scope=_declaration.getScope(), _elementReference=_declaration,
                                                      _name=var.getName(), _type=SymbolType.VARIABLE))
             cls.__visitVariable(var)
-        _declaration.getDataType().updeteScope(_declaration.getScope())
+        _declaration.getDataType().updateScope(_declaration.getScope())
         cls.__visitDataType(_declaration.getDataType())
         if _declaration.hasExpression():
             _declaration.getExpr().updateScope(_declaration.getScope())
@@ -239,7 +255,7 @@ class SymbolTableASTVisitor:
         :param _returnStmt: a return statement object.
         :type _returnStmt: ASTReturnStmt
         """
-        assert (_returnStmt is not None and isinstance(_returnStmt, ASTReturnStmt)), \
+        assert (_returnStmt is not None and isinstance(_returnStmt, ASTReturnStmt.ASTReturnStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of return statement provided!'
         if _returnStmt.hasExpr():
             _returnStmt.getExpr().updateScope(_returnStmt.getScope())
@@ -253,12 +269,12 @@ class SymbolTableASTVisitor:
         :param _ifStmt: an if-statement object.
         :type _ifStmt: ASTIfStmt
         """
-        assert (_ifStmt is not None and isinstance(_ifStmt, ASTIfStmt)), \
+        assert (_ifStmt is not None and isinstance(_ifStmt, ASTIfStmt.ASTIfStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of if-statement provided!'
         _ifStmt.getIfClause().updateScope(_ifStmt.getScope())
         cls.__visitIfClause(_ifStmt.getIfClause())
-        for elIf in _ifStmt.getElif():
-            elIf.updateScope(_ifStmt.getScope)
+        for elIf in _ifStmt.getElifClauses():
+            elIf.updateScope(_ifStmt.getScope())
             cls.__visitElifClause(elIf)
         if _ifStmt.hasElseClause():
             _ifStmt.getElseClause().updateScope(_ifStmt.getScope())
@@ -272,7 +288,7 @@ class SymbolTableASTVisitor:
         :param _ifClause: an if clause.
         :type _ifClause: ASTIfClause
         """
-        assert (_ifClause is not None and isinstance(_ifClause, ASTIfClause)), \
+        assert (_ifClause is not None and isinstance(_ifClause, ASTIfClause.ASTIfClause)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of if-clause handed over!'
         _ifClause.getCondition().updateScope(_ifClause.getScope())
         cls.__visitExpression(_ifClause.getCondition())
@@ -287,7 +303,7 @@ class SymbolTableASTVisitor:
         :param _elifClause: an elif clause.
         :type _elifClause: ASTElifClause
         """
-        assert (_elifClause is not None and isinstance(_elifClause, ASTElifClause)), \
+        assert (_elifClause is not None and isinstance(_elifClause, ASTElifClause.ASTElifClause)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of elif-clause handed over!'
         _elifClause.getCondition().updateScope(_elifClause.getScope())
         cls.__visitExpression(_elifClause.getCondition())
@@ -302,7 +318,7 @@ class SymbolTableASTVisitor:
         :param _elseClause: an else clause.
         :type _elseClause: ASTElseClause
         """
-        assert (_elseClause is not None and isinstance(_elseClause, ASTElseClause)), \
+        assert (_elseClause is not None and isinstance(_elseClause, ASTElseClause.ASTElseClause)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of else-clause handed over!'
         _elseClause.getBlock().updateScope(_elseClause.getScope())
         cls.__visitBlock(_elseClause.getBlock())
@@ -315,7 +331,7 @@ class SymbolTableASTVisitor:
         :param _forStmt: a for-statement. 
         :type _forStmt: ASTForStmt
         """
-        assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt)), \
+        assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt.ASTForStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of for-statement provided!'
         _forStmt.getFrom().updateScope(_forStmt.getScope())
         cls.__visitExpression(_forStmt.getFrom())
@@ -332,7 +348,7 @@ class SymbolTableASTVisitor:
         :param _whileStmt: a while-statement.
         :type _whileStmt: ASTWhileStmt
         """
-        assert (_whileStmt is not None and isinstance(_whileStmt, ASTWhileStmt)), \
+        assert (_whileStmt is not None and isinstance(_whileStmt, ASTWhileStmt.ASTWhileStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of while-statement provided!'
         _whileStmt.getCondition().updateScope(_whileStmt.getScope())
         cls.__visitExpression(_whileStmt.getCondition())
@@ -347,7 +363,7 @@ class SymbolTableASTVisitor:
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
-        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
+        assert (_dataType is not None and isinstance(_dataType, ASTDatatype.ASTDatatype)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided!'
         if _dataType.isUnitType():
             _dataType.getUnitType().updateScope(_dataType.getScope())
@@ -361,7 +377,7 @@ class SymbolTableASTVisitor:
         :param _unitType: a unit type.
         :type _unitType: ASTUnitType
         """
-        assert (_unitType is not None and isinstance(_unitType, ASTUnitType)), \
+        assert (_unitType is not None and isinstance(_unitType, ASTUnitType.ASTUnitType)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of unit-typ provided!'
         if _unitType.isPowerExpression():
             _unitType.getBase().updateScope(_unitType.getScope())
@@ -370,10 +386,11 @@ class SymbolTableASTVisitor:
             _unitType.getCompoundUnit().updateScope(_unitType.getScope())
             cls.__visitUnitType(_unitType.getCompoundUnit())
         elif _unitType.isDiv() or _unitType.isTimes():
-            if isinstance(_unitType.getLhs(), ASTUnitType):  # regard that lhs can be a numeric Or a unit-type
+            if isinstance(_unitType.getLhs(),
+                          ASTUnitType.ASTUnitType):  # regard that lhs can be a numeric Or a unit-type
                 _unitType.getLhs().updateScope(_unitType.getScope())
                 cls.__visitUnitType(_unitType.getLhs())
-            _unitType.getRhs().updateScope(_unitType)
+            _unitType.getRhs().updateScope(_unitType.getScope())
             cls.__visitUnitType(_unitType.getRhs())
         return
 
@@ -384,7 +401,8 @@ class SymbolTableASTVisitor:
         :param _expr: an expression.
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and (isinstance(_expr, ASTExpression) or isinstance(_expr, ASTSimpleExpression))), \
+        assert (_expr is not None and (isinstance(_expr, ASTExpression.ASTExpression)
+                                       or isinstance(_expr, ASTSimpleExpression.ASTSimpleExpression))), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of expression handed over!'
         if _expr.isSimpleExpression():
             _expr.getExpression().updateScope(_expr.getScope())
@@ -396,11 +414,11 @@ class SymbolTableASTVisitor:
             _expr.getLhs().updateScope(_expr.getScope())
             cls.__visitExpression(_expr.getLhs())
             _expr.getBinaryOperator().updateScope(_expr.getScope())
-            if isinstance(_expr.getBinaryOperator(), ASTBitOperator):
+            if isinstance(_expr.getBinaryOperator(), ASTBitOperator.ASTBitOperator):
                 cls.__visitBitOperator(_expr.getBinaryOperator())
-            elif isinstance(_expr.getBinaryOperator(), ASTComparisonOperator):
+            elif isinstance(_expr.getBinaryOperator(), ASTComparisonOperator.ASTComparisonOperator):
                 cls.__visitComparisonOperator(_expr.getBinaryOperator())
-            elif isinstance(_expr.getBinaryOperator(), ASTLogicalOperator):
+            elif isinstance(_expr.getBinaryOperator(), ASTLogicalOperator.ASTLogicalOperator):
                 cls.__visitLogicalOperator(_expr.getBinaryOperator())
             else:
                 cls.__visitArithmeticOperator(_expr.getBinaryOperator())
@@ -422,7 +440,7 @@ class SymbolTableASTVisitor:
         :param _expr: a simple expression. 
         :type _expr: ASTSimpleExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
+        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression.ASTSimpleExpression)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of simple expression provided!'
         if _expr.isFunctionCall():
             _expr.getFunctionCall().updateScope(_expr.getScope())
@@ -439,7 +457,7 @@ class SymbolTableASTVisitor:
         :param _unaryOp: a single unary operator. 
         :type _unaryOp: ASTUnaryOperator
         """
-        assert (_unaryOp is not None and isinstance(_unaryOp, ASTUnaryOperator)), \
+        assert (_unaryOp is not None and isinstance(_unaryOp, ASTUnaryOperator.ASTUnaryOperator)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of unary operator provided!'
         return
 
@@ -450,7 +468,7 @@ class SymbolTableASTVisitor:
         :param _bitOp: a single bit operator. 
         :type _bitOp: ASTBitOperator
         """
-        assert (_bitOp is not None and isinstance(_bitOp, ASTBitOperator)), \
+        assert (_bitOp is not None and isinstance(_bitOp, ASTBitOperator.ASTBitOperator)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of bit operator provided!'
         return
 
@@ -461,7 +479,7 @@ class SymbolTableASTVisitor:
         :param _comparisonOp: a single comparison operator.
         :type _comparisonOp: ASTComparisonOperator
         """
-        assert (_comparisonOp is not None and isinstance(_comparisonOp, ASTComparisonOperator)), \
+        assert (_comparisonOp is not None and isinstance(_comparisonOp, ASTComparisonOperator.ASTComparisonOperator)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of comparison operator provided!'
         return
 
@@ -472,7 +490,7 @@ class SymbolTableASTVisitor:
         :param _logicalOp: a single logical operator.
         :type _logicalOp: ASTLogicalOperator
         """
-        assert (_logicalOp is not None and isinstance(_logicalOp, ASTLogicalOperator)), \
+        assert (_logicalOp is not None and isinstance(_logicalOp, ASTLogicalOperator.ASTLogicalOperator)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of logical operator provided!'
         return
 
@@ -483,7 +501,7 @@ class SymbolTableASTVisitor:
         :param _variable: a single variable.
         :type _variable: ASTVariable
         """
-        assert (_variable is not None and isinstance(_variable, ASTVariable)), \
+        assert (_variable is not None and isinstance(_variable, ASTVariable.ASTVariable)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of variable provided!'
         return
 
@@ -494,13 +512,13 @@ class SymbolTableASTVisitor:
         :param _odeFunction: a single ode-function.
         :type _odeFunction: ASTOdeFunction
         """
-        assert (_odeFunction is not None and isinstance(_odeFunction, ASTOdeFunction)), \
+        assert (_odeFunction is not None and isinstance(_odeFunction, ASTOdeFunction.ASTOdeFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-function provided!'
         symbol = Symbol(_elementReference=_odeFunction, _scope=_odeFunction.getScope(),
                         _type=SymbolType.VARIABLE, _name=_odeFunction.getVariableName())
         _odeFunction.getScope().addSymbol(symbol)
-        _odeFunction.getDatyType().updateScope(_odeFunction.getScope())
-        cls.__visitDataType(_odeFunction.getDatyType())
+        _odeFunction.getDataType().updateScope(_odeFunction.getScope())
+        cls.__visitDataType(_odeFunction.getDataType())
         _odeFunction.getExpression().updateScope(_odeFunction.getScope())
         cls.__visitExpression(_odeFunction.getExpression())
         return
@@ -512,7 +530,7 @@ class SymbolTableASTVisitor:
         :param _odeShape: a single ode-shape.
         :type _odeShape: ASTOdeShape
         """
-        assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape)), \
+        assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape.ASTOdeShape)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided!'
         symbol = Symbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
                         _type=SymbolType.VARIABLE, _name=_odeShape.getVariable().getName())
@@ -530,7 +548,7 @@ class SymbolTableASTVisitor:
         :param _equation: a single ode-equation.
         :type _equation: ASTOdeEquation
         """
-        assert (_equation is not None and isinstance(_equation, ASTOdeEquation)), \
+        assert (_equation is not None and isinstance(_equation, ASTOdeEquation.ASTOdeEquation)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-equation handed over!'
         _equation.getLhs().updateScope(_equation.getScope())
         cls.__visitDerivative(_equation.getLhs())
@@ -545,7 +563,7 @@ class SymbolTableASTVisitor:
         :param _block: a block with declared variables.
         :type _block: ASTBlockWithVariables
         """
-        assert (_block is not None and isinstance(_block, ASTBlockWithVariables)), \
+        assert (_block is not None and isinstance(_block, ASTBlockWithVariables.ASTBlockWithVariables)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of block with variables provided!'
         for decl in _block.getDeclarations():
             decl.updateScope(_block.getScope())
@@ -559,13 +577,13 @@ class SymbolTableASTVisitor:
         :param _block: a single equations block.
         :type _block: ASTEquationsBlock
         """
-        assert (_block is not None and isinstance(_block, ASTEquationsBlock)), \
+        assert (_block is not None and isinstance(_block, ASTEquationsBlock.ASTEquationsBlock)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of equations block provided!'
         for decl in _block.getDeclarations():
             decl.updateScope(_block.getScope())
-            if isinstance(decl, ASTOdeFunction):
+            if isinstance(decl, ASTOdeFunction.ASTOdeFunction):
                 cls.__visitOdeFunction(decl)
-            elif isinstance(decl, ASTOdeShape):
+            elif isinstance(decl, ASTOdeShape.ASTOdeShape):
                 cls.__visitOdeShape(decl)
             else:
                 cls.__visitOdeEquation(decl)
@@ -578,7 +596,7 @@ class SymbolTableASTVisitor:
         :param _block: a single input block.
         :type _block: ASTInputBlock
         """
-        assert (_block is not None and isinstance(_block, ASTInputBlock)), \
+        assert (_block is not None and isinstance(_block, ASTInputBlock.ASTInputBlock)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of input-block provided!'
         for line in _block.getInputLines():
             line.updateScope(_block.getScope())
@@ -592,7 +610,7 @@ class SymbolTableASTVisitor:
         :param _block: a single output block. 
         :type _block: ASTOutputBlock
         """
-        assert (_block is not None and isinstance(_block, ASTOutputBlock)), \
+        assert (_block is not None and isinstance(_block, ASTOutputBlock.ASTOutputBlock)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of output-block provided!'
         return
 
@@ -603,7 +621,7 @@ class SymbolTableASTVisitor:
         :param _line: a single input line.
         :type _line: ASTInputLine
         """
-        assert (_line is not None and isinstance(_line, ASTInputLine)), \
+        assert (_line is not None and isinstance(_line, ASTInputLine.ASTInputLine)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of input-line provided!'
         symbol = Symbol(_elementReference=_line, _scope=_line.getScope(),
                         _type=SymbolType.VARIABLE, _name=_line.getName())
@@ -620,7 +638,7 @@ class SymbolTableASTVisitor:
         :param _type: a single input-type.
         :type _type: ASTInputType
         """
-        assert (_type is not None and isinstance(_type, ASTInputType)), \
+        assert (_type is not None and isinstance(_type, ASTInputType.ASTInputType)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of input-type provided!'
         return
 
@@ -631,7 +649,7 @@ class SymbolTableASTVisitor:
         :param _derivative: a single derivative.
         :type _derivative: ASTDerivative
         """
-        assert (_derivative is not None and isinstance(_derivative, ASTDerivative)), \
+        assert (_derivative is not None and isinstance(_derivative, ASTDerivative.ASTDerivative)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of derivative provided!'
         return
 
@@ -642,6 +660,6 @@ class SymbolTableASTVisitor:
         :param _arithmeticOp: a single arithmetic operator.
         :type _arithmeticOp: ASTArithmeticOperator
         """
-        assert (_arithmeticOp is not None and isinstance(_arithmeticOp, ASTArithmeticOperator)), \
+        assert (_arithmeticOp is not None and isinstance(_arithmeticOp, ASTArithmeticOperator.ASTArithmeticOperator)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of arithmetic operator provided!'
         return

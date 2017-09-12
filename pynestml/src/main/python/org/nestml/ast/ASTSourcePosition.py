@@ -106,3 +106,12 @@ class ASTSourcePosition:
         :rtype: int
         """
         return self.__endColumn
+
+    def printSourcePosition(self):
+        """
+        Returns a string representation of the source position of this element.
+        :return: a string representation
+        :rtype: str
+        """
+        return '{' + str(self.getStartLine()) + ':' + str(self.getStartColumn()) + ';' + \
+               str(self.getEndLine()) + ':' + str(self.getEndColumn()) + '}'

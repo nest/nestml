@@ -32,11 +32,10 @@ class Scope:
     This class is used to store a single scope, i.e., a set of elements as declared in this scope directly and 
     a set of sub-scopes with additional elements.
     """
-    __enclosing_scope = None
-    __declared_symbols = None
-    __declared_scopes = None
+    __enclosingScope = None
+    __declaredElements = None
     __scope_type = None
-    __source_position = None
+    __sourcePosition = None
 
     def __init__(self, _scopeType=None, _enclosingScope=None, _sourcePosition=None):
         """
@@ -49,15 +48,16 @@ class Scope:
         :type _sourcePosition: SourcePosition
         """
         assert (isinstance(_scopeType, ScopeType)), '(PyNestML.SymbolTable.Scope) Type of scope not defined!'
-        assert (isinstance(_enclosingScope, Scope)), '(PyNestML.SymbolTable.Scope) Not a scope object handed over!'
+        assert (_enclosingScope is None or isinstance(_enclosingScope, Scope)), \
+            '(PyNestML.SymbolTable.Scope) Not a scope object handed over!'
         assert (isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.Scope) No source position handed over!'
-        self.__declared_scopes = list()
-        self.__declared_symbols = list()
+        self.__declaredElements = list()
         self.__scope_type = _scopeType
-        self.__enclosing_scope = _enclosingScope
+        self.__enclosingScope = _enclosingScope
+        self.__sourcePosition = _sourcePosition
 
-    def addSymbolToScope(self, _symbol=None):
+    def addSymbol(self, _symbol=None):
         """
         Adds the handed over symbol to the current scope.
         :param _symbol: a single symbol object.
@@ -67,9 +67,9 @@ class Scope:
         """
         assert (isinstance(_symbol, Symbol)), \
             '(PyNestML.SymbolTable.Scope) Non-symbol object can not be added to the scope!'
-        self.__declared_symbols.append(_symbol)
+        self.__declaredElements.append(_symbol)
 
-    def addScopeToScope(self, _scope=None):
+    def addScope(self, _scope=None):
         """
         Adds the handed over scope as a sub-scope to the current one.
         :param _scope: a single scope object.
@@ -79,7 +79,7 @@ class Scope:
         """
         assert (isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Scope) Non-scope object can not be added to the scope!'
-        self.__declared_scopes.append(_scope)
+        self.__declaredElements.append(_scope)
 
     def deleteSymbol(self, _symbol=None):
         """
@@ -91,8 +91,8 @@ class Scope:
         """
         assert (isinstance(_symbol, Symbol)), \
             '(PyNestML.SymbolTable.Scope) Non-symbol object can not be deleted from the scope!'
-        if _symbol in self.__declared_symbols:
-            self.__declared_scopes.remove(_symbol)
+        if _symbol in self.__declaredElements:
+            self.__declaredElements.remove(_symbol)
             return True
         else:
             return False
@@ -107,19 +107,23 @@ class Scope:
         """
         assert (isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Scope) Non-scope object can not be deleted from the scope.'
-        if _scope in self.__declared_scopes:
-            self.__declared_scopes.remove(_scope)
+        if _scope in self.__declaredElements:
+            self.__declaredElements.remove(_scope)
             return True
         else:
             return False
 
-    def getSymbolsInCurrentScope(self):
+    def getSymbolsInThisScope(self):
         """
         Returns the set of elements as defined in this scope, but not in the corresponding super scope.
         :return: a list of symbols defined only in this scope, but not in the upper scopes.
         :rtype: list
         """
-        return self.__declared_symbols
+        ret = list()
+        for elem in self.__declaredElements:
+            if isinstance(elem, Symbol):
+                ret.append(elem)
+        return ret
 
     def getSymbolsInCompleteScope(self):
         """
@@ -128,9 +132,9 @@ class Scope:
         :rtype: list
         """
         symbols = list()
-        if self.__enclosing_scope is not None:
-            symbols.append(self.__enclosing_scope.getSymbols())
-        symbols.append(self.__declared_symbols)
+        if self.__enclosingScope is not None:
+            symbols.append(self.__enclosingScope.getSymbols())
+        symbols.append(self.getSymbolsInThisScope())
         return symbols
 
     def getScopes(self):
@@ -139,21 +143,28 @@ class Scope:
         :return: a list of scope objects
         :rtype: list
         """
-        return self.__declared_scopes
+        ret = list()
+        for elem in self.__declaredElements:
+            if isinstance(elem, Scope):
+                ret.append(elem)
+        return ret
 
     def resolveSymbol(self, _symbol=None):
         """
+        TODO
         Returns the scope of the handed over symbol.
         :return: the corresponding scope object.
         :rtype: Scope
         """
-        assert (isinstance(_symbol, Symbol)), '(PyNestML.SymbolTable.Scope) Not a symbol object!'
-        if _symbol in self.__declared_symbols:
+        assert (isinstance(_symbol, Symbol)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol provided!'
+        ret = None
+        if _symbol in self.__declaredElements:
             return self
-        elif self.hasEnclosingScope():
-            return self.getEnclosingScope().resolveSymbol(_symbol)
-        else:
-            return None
+        if self.hasEnclosingScope():
+            ret = self.getEnclosingScope().resolveSymbol(_symbol)
+            if ret is not None:
+                return ret
 
     def getEnclosingScope(self):
         """
@@ -161,8 +172,8 @@ class Scope:
         :return: a scope symbol if available.
         :rtype: Scope
         """
-        if self.__enclosing_scope is not None:
-            return self.__enclosing_scope
+        if self.__enclosingScope is not None:
+            return self.__enclosingScope
         else:
             return None
 
@@ -172,7 +183,7 @@ class Scope:
         :return: True, if enclosed, otherwise False.
         :rtype: bool
         """
-        return (self.__enclosing_scope is not None) and (self.__scope_type is not ScopeType.GLOBAL)
+        return (self.__enclosingScope is not None) and (self.__scope_type is not ScopeType.GLOBAL)
 
     def getSourcePosition(self):
         """
@@ -180,7 +191,7 @@ class Scope:
         :return: 
         :rtype: 
         """
-        return self.__source_position
+        return self.__sourcePosition
 
     def getScopeType(self):
         """
@@ -189,6 +200,43 @@ class Scope:
         :rtype: ScopeType
         """
         return self.__scope_type
+
+    def getDepthOfScope(self):
+        """
+        Returns the depth of this scope.
+        :return: the level of encapsulation of this scope.
+        :rtype: int
+        """
+        depth = 0
+        if self.hasEnclosingScope():
+            depth += 1 + self.getEnclosingScope().getDepthOfScope()
+        return depth
+
+    def printScope(self):
+        """
+        Returns a string representation of symbol table as used for debug purpose.
+        :return: a string representation of the scope and its sub-scope.
+        :rtype: str
+        """
+        ret = ''
+        if self.getScopeType() is ScopeType.GLOBAL:
+            ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + '<' + 'GLOBAL' \
+                   + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
+        elif self.getScopeType() is ScopeType.UPDATE:
+            ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + '<' + 'UPDATE' \
+                   + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
+        elif self.getScopeType() is ScopeType.FUNCTION:
+            ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + '<' + 'FUNCTION' \
+                   + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
+        else:
+            ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + '<' + 'LOCAL' \
+                   + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
+        for elem in self.__declaredElements:
+            if isinstance(elem, Symbol):
+                ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + elem.printSymbol() + '\n'
+            else:
+                ret += elem.printScope()
+        return ret
 
 
 class ScopeType(Enum):

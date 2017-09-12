@@ -22,10 +22,10 @@
  */
 @author kperun
 """
-from pynestml.src.main.python.org.nestml.visitor import ASTBuilderVisitor
 from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
-from pynestml.src.main.grammars.org.PyNESTMLVisitor import PyNESTMLVisitor
+from pynestml.src.main.python.org.nestml.visitor import ASTBuilderVisitor
+from pynestml.src.main.python.org.nestml.visitor import ASTSymbolTableVisitor
 from antlr4 import *
 
 
@@ -56,4 +56,7 @@ class NESTMLParser:
         parser = PyNESTMLParser(stream)
         # create a new visitor and return the new AST
         astBuilderVisitor = ASTBuilderVisitor.ASTBuilderVisitor()
-        return astBuilderVisitor.visit(parser.nestmlCompilationUnit())
+        ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
+        for neuron in ast.getNeuronList():
+            ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
+        return ast
