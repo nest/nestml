@@ -143,11 +143,11 @@ public class NestmlErrorStrings {
     return "NESTML_CURRENT_PORT_IS_INH_OR_EXC";
   }
 
-  static public String getErrorMsgAssignToNonState(
+  static public String message(
       final EquationsOnlyForStateVariables coco,
       final String variableName) {
-    final String ERROR_MSG_FORMAT = "The variable '" + variableName + "' is not a state"
-                                    + " variable and, therefore, cannot be used on the left side of an equation.";
+    final String ERROR_MSG_FORMAT = "The variable " + variableName + " must defined in the 'initial_values' block"
+                                    + " for being used on the left side of an ODE.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 

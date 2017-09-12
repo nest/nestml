@@ -38,13 +38,12 @@ public class ASTNeuron extends ASTNeuronTOP {
       final List<String> nEWLINEs,
       final List<ASTBlockWithVariables> blockWithVariabless,
       final List<ASTUpdateBlock> updateBlocks,
-      final List<ASTInitialValuesBlock> astInitialValuesBlocks,
       final List<ASTEquationsBlock> equationss,
       final List<ASTInputBlock> inputs,
       final List<ASTOutputBlock> outputs,
       final List<ASTFunction> functions,
       final ASTBLOCK_CLOSE bLOCK_close) {
-    super(name, bLOCK_open, nEWLINEs, blockWithVariabless, updateBlocks, astInitialValuesBlocks, equationss, inputs, outputs, functions, bLOCK_close);
+    super(name, bLOCK_open, nEWLINEs, blockWithVariabless, updateBlocks, equationss, inputs, outputs, functions, bLOCK_close);
   }
 
   public Optional<ASTUpdateBlock> getUpdateBlock() {
@@ -136,7 +135,7 @@ public class ASTNeuron extends ASTNeuronTOP {
   public List<VariableSymbol> variablesDefinedByODE() {
     return getStateSymbols()
         .stream()
-        .filter(VariableSymbol::definedByODE)
+        .filter(VariableSymbol::isInInitialValues)
         .collect(toList());
   }
 
@@ -166,7 +165,7 @@ public class ASTNeuron extends ASTNeuronTOP {
         .stream()
         .map(stateSymbol -> (VariableSymbol) stateSymbol)
         .filter(VariableSymbol::isState)
-        .filter(VariableSymbol::definedByODE)
+        .filter(VariableSymbol::isInInitialValues)
         .collect(toList());
 
   }
@@ -176,7 +175,7 @@ public class ASTNeuron extends ASTNeuronTOP {
         .stream()
         .map(stateSymbol -> (VariableSymbol) stateSymbol)
         .filter(VariableSymbol::isState)
-        .filter(variableSymbol -> !variableSymbol.definedByODE())
+        .filter(variableSymbol -> !variableSymbol.isInInitialValues())
         .collect(toList());
 
   }

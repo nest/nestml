@@ -58,7 +58,6 @@ public class FunctionParameterHasTypeName implements NESTMLASTFunctionCoCo {
 
     }
 
-
   }
 
 }

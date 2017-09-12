@@ -53,10 +53,10 @@ class CliConfigurationExecutor {
     final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputPath());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
 
+    reporter.reportProgress("Finished parsing nestml mdoels...");
+
     if (!modelRoots.isEmpty()) {
       final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
-      reporter.reportProgress("Finished parsing nestml mdoels...");
-      reporter.reportProgress("Remove temporary files...");
       if (!Files.exists(config.getTargetPath())) {
         try {
           Files.createDirectories(config.getTargetPath());
@@ -65,6 +65,7 @@ class CliConfigurationExecutor {
           Log.error("Cannot create the output foder: " + config.getTargetPath().toString(), e);
         }
       }
+
       cleanUpWorkingFolder(config.getTargetPath());
 
       processNestmlModels(modelRoots, config, scopeCreator, generator);
@@ -145,7 +146,7 @@ class CliConfigurationExecutor {
   }
 
   private void cleanUpWorkingFolder(final Path targetPath) {
-    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith(".tmp") || file.endsWith(".nestml"));
+    FilesHelper.deleteFilesInFolder(targetPath, file -> file.toString().endsWith(".tmp"));
   }
 
   private void processNestmlModels(

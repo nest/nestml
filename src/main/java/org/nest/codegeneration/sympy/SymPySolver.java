@@ -81,7 +81,7 @@ class SymPySolver {
       getStreamAsListOfStrings(res.getErrorStream()).forEach(reporter::reportProgress);
 
       long elapsedTime = end - start;
-      final String msg = "Successfully evaluated the SymPy script. Elapsed time: "
+      final String msg = "SymPy script was evaluated. Elapsed time: "
           + (double)elapsedTime / 1000000000.0 +  " [s]";
       reporter.reportProgress(msg);
 

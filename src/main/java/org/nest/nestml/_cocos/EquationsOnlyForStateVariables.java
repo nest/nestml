@@ -44,8 +44,8 @@ public class EquationsOnlyForStateVariables implements NESTMLASTEquationCoCo {
     if (astEq.getLhs().getDifferentialOrder().size() > 0) {
       final Optional<VariableSymbol> variableSymbol = scope.resolve(astEq.getLhs().getSimpleName(), VariableSymbol.KIND);
       if (variableSymbol.isPresent()) {
-        if (!variableSymbol.get().isState()) {
-          final String msg = NestmlErrorStrings.getErrorMsgAssignToNonState(this,variableSymbol.get().getName());
+        if (!variableSymbol.get().isInInitialValues()) {
+          final String msg = NestmlErrorStrings.message(this,variableSymbol.get().getName());
 
           Log.error(msg, astEq.get_SourcePositionStart());
         }

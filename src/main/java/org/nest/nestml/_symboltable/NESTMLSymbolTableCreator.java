@@ -18,7 +18,6 @@ import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.nestml._visitor.UnitsSIVisitor;
-import org.nest.utils.AstUtils;
 
 import java.util.Collection;
 import java.util.List;
@@ -32,9 +31,9 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static org.nest.codegeneration.sympy.OdeTransformer.getCondSumFunctionCall;
 import static org.nest.nestml._symboltable.symbols.NeuronSymbol.Type.NEURON;
-import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.STATE;
+import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.*;
+import static org.nest.nestml._symboltable.symbols.VariableSymbol.VariableType.*;
 import static org.nest.utils.AstUtils.computeTypeName;
-import static org.nest.utils.AstUtils.getNameOfDerivedVariable;
 
 /**
  * Creates NESTML symbols.
@@ -111,24 +110,16 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
     if (undefinedVariables.isEmpty()) {
       final List<Finding> undefinedMethods = nestmlCoCosManager.checkThatMethodDefinedAtLeastOnce(astNeuron);
+
       if (undefinedMethods.isEmpty()) {
         final List<Finding> multipleDefinitions = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
         if (multipleDefinitions.isEmpty()) {
           if (astNeuron.findEquationsBlock().isPresent()) {
 
-            final List<Finding> afterAddingDerivedVariables = nestmlCoCosManager.checkThatElementDefinedAtMostOnce(astNeuron);
-
-            if (afterAddingDerivedVariables.isEmpty()) {
               assignOdeToVariables(astNeuron.findEquationsBlock().get());
               markConductanceBasedBuffers(astNeuron.findEquationsBlock().get(), astNeuron.getInputLines());
-            }
-            else {
-              final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one variable is " +
-                                 "defined multiple times";
-              Log.error(msg);
-            }
-
           }
+
         }
         else {
           final String msg = LOGGER_NAME + " : Cannot correctly build the symboltable, at least one variable is " +
@@ -163,7 +154,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    */
   private void addFunctionVariables(final ASTEquationsBlock astOdeDeclaration) {
     for (final ASTOdeFunction astOdeAlias:astOdeDeclaration.getOdeFunctions()) {
-      final VariableSymbol var = new VariableSymbol(astOdeAlias.getVariableName());
+      final VariableSymbol var = new VariableSymbol(astOdeAlias.getVariableName(), EQUATIONS, VARIABLE);
       var.setAstNode(astOdeAlias);
       final String typeName =  computeTypeName(astOdeAlias.getDatatype());
       Optional<TypeSymbol> type = PredefinedTypes.getTypeIfExists(typeName);
@@ -172,8 +163,6 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       var.setRecordable(astOdeAlias.isRecordable());
       var.setFunction(true);
       var.setDeclaringExpression(astOdeAlias.getExpr());
-
-      var.setBlockType(VariableSymbol.BlockType.EQUATION);
 
       addToScopeAndLinkWithNode(var, astOdeAlias);
 
@@ -267,16 +256,9 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     checkState(this.currentScope().isPresent());
     checkState(currentTypeSymbol.isPresent());
     final TypeSymbol bufferType = PredefinedTypes.getBufferType();
-    final VariableSymbol var = new VariableSymbol(inputLineAst.getName());
+    final VariableSymbol var = new VariableSymbol(inputLineAst.getName(), INPUT, BUFFER);
 
     var.setType(bufferType);
-
-    if (inputLineAst.isCurrent()) {
-      var.setBlockType(VariableSymbol.BlockType.INPUT_BUFFER_CURRENT);
-    }
-    else {
-      var.setBlockType(VariableSymbol.BlockType.INPUT_BUFFER_SPIKE);
-    }
 
     if (inputLineAst.getSizeParameter().isPresent()) {
       var.setVectorParameter(inputLineAst.getSizeParameter().get());
@@ -308,11 +290,10 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       methodSymbol.addParameterType(type.get());
 
       // add a var entry for method body
-      VariableSymbol var = new VariableSymbol(p.getName());
+      VariableSymbol var = new VariableSymbol(p.getName(), LOCAL, VARIABLE);
       var.setAstNode(p);
       var.setType(type.get());
 
-      var.setBlockType(VariableSymbol.BlockType.LOCAL);
       addToScopeAndLinkWithNode(var, p);
 
     }
@@ -388,24 +369,19 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     if (this.varBlock.isPresent()) {
 
       if (varBlock.get().isState()) {
-        addVariablesFromDeclaration(
-            astDeclaration,
-            STATE);
+        addVariablesFromDeclaration(astDeclaration, STATE);
       }
-      else if (varBlock.get().isParameters ()) {
-        addVariablesFromDeclaration(
-            astDeclaration,
-            VariableSymbol.BlockType.PARAMETERS);
+      else if (varBlock.get().isParameters()) {
+        addVariablesFromDeclaration(astDeclaration, VariableSymbol.BlockType.PARAMETERS);
       }
       else if (varBlock.get().isInternals()) {
-        addVariablesFromDeclaration(
-            astDeclaration,
-            VariableSymbol.BlockType.INTERNALS);
+        addVariablesFromDeclaration(astDeclaration, VariableSymbol.BlockType.INTERNALS);
+      }
+      else if (varBlock.get().isInitial_values()) {
+        addVariablesFromDeclaration(astDeclaration, VariableSymbol.BlockType.INITIAL_VALUES);
       }
       else {
-        addVariablesFromDeclaration(
-            astDeclaration,
-            VariableSymbol.BlockType.LOCAL);
+        checkState(false, "This branch is by grammar construction unreachable.");
       }
 
     }
@@ -422,19 +398,17 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
    * Adds variables from a declaration. Distinguishes between the place of the declaration, e.g.
    * local, state, ...
    */
-  private void addVariablesFromDeclaration(
-      final ASTDeclaration astDeclaration,
-      final VariableSymbol.BlockType blockType) {
+  private void addVariablesFromDeclaration(final ASTDeclaration astDeclaration,
+                                           final VariableSymbol.BlockType blockType) {
 
     for (final ASTVariable variable : astDeclaration.getVars()) { // multiple vars in one decl possible
 
-      final VariableSymbol var = new VariableSymbol(variable.toString());
+      final VariableSymbol var = new VariableSymbol(variable.toString(), blockType, VARIABLE);
       var.setAstNode(astDeclaration);
       final String typeName =  computeTypeName(astDeclaration.getDatatype());
       var.setType(PredefinedTypes.getType(typeName));
 
       boolean isRecordableVariable = blockType == STATE || astDeclaration.isRecordable();
-
       if (isRecordableVariable) {
         // otherwise is set to false.
         var.setRecordable(true);
@@ -452,10 +426,9 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
         var.setVectorParameter(astDeclaration.getSizeParameter().get());
       }
 
-      var.setBlockType(blockType);
       addToScopeAndLinkWithNode(var, astDeclaration);
 
-      trace("Adds new variable '" + var.getFullName() + "'.", LOGGER_NAME);
+      trace("Adds new variable: " + var.getName(), LOGGER_NAME);
 
     }
 
@@ -463,26 +436,22 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
 
   @Override
   public void visit(final ASTShape astShape) {
-    final TypeSymbol type = PredefinedTypes.getType("real");
-    final String shapeVariableName;
-    if (astShape.getLhs().getDifferentialOrder().size() > 0) {
-      shapeVariableName = AstUtils.getNameOfDerivedVariable(astShape.getLhs());
+    // in this case the shape is defined is a function. no initialvalues are necessary
+    if (astShape.getLhs().getDifferentialOrder().size() == 0) {
+      final TypeSymbol type = PredefinedTypes.getType("real");
+      final VariableSymbol var = new VariableSymbol(astShape.getLhs().toString(), EQUATIONS, SHAPE);
+
+      var.setAstNode(astShape);
+      var.setType(type);
+      var.setRecordable(false);
+      var.setFunction(false);
+      var.setDeclaringExpression(astShape.getRhs());
+
+      addToScopeAndLinkWithNode(var, astShape);
+
+      trace("Adds new shape variable '" + var.getFullName() + "'.", LOGGER_NAME);
     }
-    else {
-      shapeVariableName = astShape.getLhs().toString();
-    }
-    final VariableSymbol var = new VariableSymbol(shapeVariableName);
 
-    var.setAstNode(astShape);
-    var.setType(type);
-    var.setRecordable(false);
-    var.setFunction(false);
-    var.setDeclaringExpression(astShape.getRhs());
-    var.setBlockType(VariableSymbol.BlockType.SHAPE);
-
-    addToScopeAndLinkWithNode(var, astShape);
-
-    trace("Adds new shape variable '" + var.getFullName() + "'.", LOGGER_NAME);
   }
 
 }

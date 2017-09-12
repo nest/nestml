@@ -15,6 +15,7 @@ import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTEquationsBlock;
+import org.nest.nestml._ast.ASTShape;
 import org.nest.nestml._symboltable.NESTMLLanguage;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
@@ -72,7 +73,7 @@ public class NestCodeGenerator {
 
     generateNestCode(workingVersion, outputBase);
 
-    final String msg = "Successfully generated NEST code for: '" + astNeuron.getName() + "' in: '"
+    final String msg = "Successfully generated NEST code for the neuron: '" + astNeuron.getName() + "' in: '"
         + outputBase.toAbsolutePath().toString() + "'";
     reporter.reportProgress(msg);
   }
@@ -185,7 +186,7 @@ public class NestCodeGenerator {
         initSLI,
         neurons.get(0)); // an arbitrary AST to match the signature
 
-    reporter.reportProgress("Successfully generated NEST module code in " + outputDirectory);
+    reporter.reportProgress("Successfully generated NEST module code in " + outputDirectory.toAbsolutePath());
   }
 
   private GlobalExtensionManagement getGlexConfiguration() {
@@ -193,19 +194,13 @@ public class NestCodeGenerator {
     final NESTReferenceConverter converter = new NESTReferenceConverter();
     final ExpressionsPrettyPrinter expressionsPrinter  = new LegacyExpressionPrinter(converter);
 
-    final IReferenceConverter parameterBlockConverter = new NESTParameterBlockReferenceConverter();
-    final ExpressionsPrettyPrinter parameterBlockPrinter = new LegacyExpressionPrinter(parameterBlockConverter);
 
-    final IReferenceConverter stateBlockReferenceConverter = new NESTStateBlockReferenceConverter();
-    final ExpressionsPrettyPrinter stateBlockPrettyPrinter = new LegacyExpressionPrinter(stateBlockReferenceConverter);
 
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);
     glex.setGlobalValue("idemPrinter", new LegacyExpressionPrinter());
     // this printer is used in one of the variable blocks. there, S_, V_, B_ structs are not defined and getters
     // setters must be used instead.
-    glex.setGlobalValue("printerWithGetters", parameterBlockPrinter);
-    glex.setGlobalValue("stateBlockPrettyPrinter", stateBlockPrettyPrinter);
     return glex;
   }
 
@@ -249,7 +244,7 @@ public class NestCodeGenerator {
     glex.setGlobalValue("useGSL", false);
 
     if (neuron.findEquationsBlock().isPresent()) {
-      if (neuron.findEquationsBlock().get().getShapes().size() == 0 ||
+      if (!functionShapeExists(neuron.findEquationsBlock().get().getShapes()) ||
           neuron.findEquationsBlock().get().getODEs().size() > 1) {
         glex.setGlobalValue("names", new GslNames());
         glex.setGlobalValue("useGSL", true);
@@ -263,4 +258,7 @@ public class NestCodeGenerator {
 
   }
 
+  private boolean functionShapeExists(final List<ASTShape> shapes) {
+    return shapes.stream().anyMatch(shape -> shape.getLhs().getDifferentialOrder().size() == 0);
+  }
 }

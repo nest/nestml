@@ -98,6 +98,9 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
     else if (astVarBlock.isParameters ()) {
       printer.println("parameters" + BLOCK_OPEN);
     }
+    else if (astVarBlock.isInitial_values ()) {
+      printer.println("initial_values" + BLOCK_OPEN);
+    }
 
   }
 

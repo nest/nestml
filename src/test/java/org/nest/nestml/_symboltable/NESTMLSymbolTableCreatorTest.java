@@ -55,17 +55,19 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     final Optional<VariableSymbol> y0TVariable = neuronTypeOptional.get().getSpannedScope().resolve("y0", VariableSymbol.KIND);
     final Optional<VariableSymbol> y1Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y1", VariableSymbol.KIND);
     assertTrue(y0TVariable.isPresent());
-    assertTrue(y0TVariable.get().definedByODE());
+    assertTrue(y0TVariable.get().isInInitialValues());
+    assertTrue(y0TVariable.get().getOdeDeclaration().isPresent());
     assertTrue(y0TVariable.get().isRecordable());
 
     assertTrue(y1Varialbe.isPresent());
-    assertFalse(y1Varialbe.get().definedByODE());
-    assertTrue(y1Varialbe.get().isRecordable());
+    assertTrue(y1Varialbe.get().isInInitialValues());
+    assertTrue(y1Varialbe.get().getOdeDeclaration().isPresent());
 
     // Checks that the derived variable is also resolvable
     final Optional<VariableSymbol> Dy0Varialbe = neuronTypeOptional.get().getSpannedScope().resolve("y0'", VariableSymbol.KIND);
     assertTrue(Dy0Varialbe.isPresent());
-    assertTrue(Dy0Varialbe.get().definedByODE());
+    assertTrue(Dy0Varialbe.get().isInInitialValues());
+    assertTrue(Dy0Varialbe.get().getOdeDeclaration().isPresent());
 
     final Optional<VariableSymbol> C_mVarialbe = neuronTypeOptional.get().getSpannedScope().resolve("C_m", VariableSymbol.KIND);
     assertTrue(C_mVarialbe.isPresent());

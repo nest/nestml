@@ -8,16 +8,12 @@ package org.nest.nestml._symboltable.symbols;
 import de.monticore.ast.Comment;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.SymbolKind;
-import org.nest.nestml._symboltable.symbols.references.NeuronSymbolReference;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.stream.Collectors.toList;
-import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
-import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
 
 /**
  * Represents the entire neuron or component, e.g. iaf_neuron.
@@ -62,7 +58,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
     final Collection<VariableSymbol> variableSymbols
         = getSpannedScope().resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
-        .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_CURRENT))
+        .filter(VariableSymbol::isCurrentBuffer)
         .collect(toList());
   }
 
@@ -70,7 +66,7 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   public List<VariableSymbol> getSpikeBuffers() {
     final Collection<VariableSymbol> variableSymbols = getSpannedScope().resolveLocally(VariableSymbol.KIND);
     return variableSymbols.stream()
-        .filter(variable -> variable.getBlockType().equals(INPUT_BUFFER_SPIKE))
+        .filter(VariableSymbol::isSpikeBuffer)
         .collect(toList());
   }
 

@@ -128,11 +128,11 @@ ${neuronName}::${neuronName}():Archiving_Node(), P_(), S_(), B_(*this)
   </#if>
 
   <#list body.getParameterNonAliasSymbols() as parameter>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, printerWithGetters])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, expressionsPrinter])}
   </#list>
 
   <#list body.getStateNonAliasSymbols() as state>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, printerWithGetters])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, expressionsPrinter])}
   </#list>
 
 }

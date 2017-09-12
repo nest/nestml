@@ -185,7 +185,6 @@ grammar NESTML extends org.nest.Literals {
       ( NEWLINE |
         BlockWithVariables |
         UpdateBlock |
-        InitialValuesBlock |
         EquationsBlock |
         InputBlock |
         OutputBlock |
@@ -203,7 +202,7 @@ grammar NESTML extends org.nest.Literals {
     @attribute AliasDecl a list with variable declarations.
   */
   BlockWithVariables =
-    (["state"]|["parameters"]|["internals"])
+    (["state"] | ["parameters"] | ["internals"] | ["initial_values"])
     BLOCK_OPEN
       (Declaration | NEWLINE)*
     BLOCK_CLOSE;
@@ -220,20 +219,6 @@ grammar NESTML extends org.nest.Literals {
     "update"
     BLOCK_OPEN
       Block
-    BLOCK_CLOSE;
-
-  /** ASTInitialValues a special function definition:
-       initial_values:
-         g_in nS = 0nS
-         g_ex nS = 0nS
-         g_ex' nS/ms = nS * e / tau_syn_ex
-         g_in' nS/ms = nS * e / tau_syn_in
-       end
-   */
-  InitialValuesBlock =
-    "initial_values"
-    BLOCK_OPEN
-      (Declaration | NEWLINE)*
     BLOCK_CLOSE;
 
   /** ASTEquations a special function definition:
@@ -270,11 +255,7 @@ grammar NESTML extends org.nest.Literals {
     @attribute spike true iff the neuron is a spike.
     @attribute current true iff. the neuron is a current.
   */
-  InputLine =
-    Name
-    ("[" sizeParameter:Name "]")?
-    "<-" InputType*
-    (["spike"] | ["current"]);
+  InputLine = Name ("[" sizeParameter:Name "]")? "<-" InputType* (["spike"] | ["current"]);
 
   /** ASTInputType represents the type of the inputline e.g.: inhibitory or excitatory:
     @attribute inhibitory true iff the neuron is a inhibitory.
