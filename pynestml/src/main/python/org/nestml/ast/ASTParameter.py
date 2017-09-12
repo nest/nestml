@@ -69,7 +69,7 @@ class ASTParameter(ASTElement):
         :return: a new ASTParameter object.
         :rtype: ASTParameter
         """
-        return cls(_name, _dataType)
+        return cls(_name=_name, _dataType=_dataType, _sourcePosition=_sourcePosition)
 
     def getName(self):
         """

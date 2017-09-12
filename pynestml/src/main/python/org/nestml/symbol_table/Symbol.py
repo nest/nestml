@@ -32,7 +32,7 @@ class Symbol:
     E.g.:   V_m mV = .... 
             function x(arg1,...)
     """
-    __element_reference = None
+    __elementReference = None
     __scope = None
     __type = None
     __name = None
@@ -57,7 +57,7 @@ class Symbol:
             '(PyNestML.SymbolTable.Symbol) Type of symbol not or wrongly specified!'
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Symbol) Name of symbol not or wrongly specified!'
-        self.__element_reference = _elementReference
+        self.__elementReference = _elementReference
         self.__scope = _scope
         self.__type = _type
         self.__name = _name
@@ -68,7 +68,7 @@ class Symbol:
         :return: the referenced object.
         :rtype: ASTObject
         """
-        return self.__element_reference
+        return self.__elementReference
 
     def getCorrespondingScope(self):
         """

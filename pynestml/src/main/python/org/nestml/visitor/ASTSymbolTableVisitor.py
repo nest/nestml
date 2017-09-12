@@ -97,6 +97,7 @@ class SymbolTableASTVisitor:
         _block.getScope().addSymbol(symbol)
         scope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
                       _sourcePosition=_block.getSourcePosition())
+        _block.getScope().addScope(scope)
         for arg in _block.getParameters().getParametersList():
             arg.updateScope(scope)
             scope.addSymbol(Symbol(_elementReference=arg, _scope=scope, _type=SymbolType.VARIABLE, _name=arg.getName()))

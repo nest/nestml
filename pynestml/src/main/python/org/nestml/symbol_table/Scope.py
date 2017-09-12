@@ -24,6 +24,7 @@
 """
 from enum import Enum
 from pynestml.src.main.python.org.nestml.symbol_table.Symbol import Symbol
+from pynestml.src.main.python.org.nestml.symbol_table.Symbol import SymbolType
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 
 
@@ -149,22 +150,51 @@ class Scope:
                 ret.append(elem)
         return ret
 
-    def resolveSymbol(self, _symbol=None):
+    def resolveSymbol(self, _name=None, _type=None):
         """
-        TODO
-        Returns the scope of the handed over symbol.
+        Resolves the handed over name and type and returns the scope in which the corresponding symbol has been defined.
+        :param _name: the name of the element.
+        :type _name: str
+        :param _type: the type of the element
+        :type _type: SymbolType
+        :return: the scope in which the element has been defined in
+        :rtype: Scope
+        """
+        gScope = self.getGlobalScope()
+        return gScope.__resolveSymbolInSpannedScope(_name, _type)
+
+    def __resolveSymbolInSpannedScope(self, _name=None, _type=None):
+        """
+        Private method: returns this scope or one of the sub-scopes in which the handed over symbol is defined in.
         :return: the corresponding scope object.
         :rtype: Scope
         """
-        assert (isinstance(_symbol, Symbol)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol provided!'
         ret = None
-        if _symbol in self.__declaredElements:
+        assert (isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
+        assert (isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided!'
+        for sim in self.getSymbolsInThisScope():
+            if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
+                return self
+        for elem in self.getScopes():  # otherwise check if it is in one of the sub-scopes
+            temp = elem.__resolveSymbolInSpannedScope(_name, _type)
+            if temp is not None:
+                return temp
+        return None
+
+    def getGlobalScope(self):
+        """
+        Returns the GLOBAL scope in which all sub-scopes are embedded in.
+        :return: the global scope element.
+        :rtype: Scope
+        """
+        if self.getScopeType() is ScopeType.GLOBAL:
             return self
-        if self.hasEnclosingScope():
-            ret = self.getEnclosingScope().resolveSymbol(_symbol)
-            if ret is not None:
-                return ret
+        elif self.hasEnclosingScope():
+            return self.getEnclosingScope().getGlobalScope()
+        else:
+            return None
 
     def getEnclosingScope(self):
         """
