@@ -26,7 +26,10 @@ from __future__ import print_function
 
 import unittest
 import os
+from antlr4 import *
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
+from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
+from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 
 
 class ASTBuildingTest(unittest.TestCase):
@@ -34,11 +37,18 @@ class ASTBuildingTest(unittest.TestCase):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
-                print('Start creating AST for ' + filename),
-                model = NESTMLParser.parseModel(
+                print('Start creating AST for ' + filename + ' ...'),
+                inputFile = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
                                                                                       'models'), filename)))
-                print(' ...done')
+                lexer = PyNESTMLLexer(inputFile)
+                # create a token stream
+                stream = CommonTokenStream(lexer)
+                # parse the file
+                parser = PyNESTMLParser(stream)
+                parser.nestmlCompilationUnit()
+                print('done')
+                return
         return
 
 

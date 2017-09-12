@@ -32,6 +32,18 @@ from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 
 class SymbolTableBuilderTest(unittest.TestCase):
     def test(self):
+        for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                                                 os.path.join('..', '..', '..', '..', 'models')))):
+            if filename.endswith(".nestml"):
+                print('Start creating ast and symbol table for ' + filename),
+                model = NESTMLParser.parseModel(
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
+                                                                                      'models'), filename)))
+                for neuron in model.getNeuronList():
+                    print(neuron.getName())
+                    print(neuron.getScope().printScope() + '\n')
+
+                print(' ...done')
         return
 
 

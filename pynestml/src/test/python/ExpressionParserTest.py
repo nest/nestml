@@ -36,7 +36,7 @@ class ExpressionParsingTest(unittest.TestCase):
     """
 
     def test(self):
-        print('Start Expression Parser Test...'),
+        #print('Start Expression Parser Test...'),
         inputFile = FileStream(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'ExpressionCollection.nestml'))
@@ -46,7 +46,7 @@ class ExpressionParsingTest(unittest.TestCase):
         # parse the file
         parser = PyNESTMLParser(stream)
         parser.nestmlCompilationUnit()
-        print('done')
+        #print('done')
         return
 
 
