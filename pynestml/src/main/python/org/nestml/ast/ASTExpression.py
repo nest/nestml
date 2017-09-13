@@ -330,6 +330,66 @@ class ASTExpression(ASTElement):
         """
         return self.__ifNot
 
+    def getVariables(self):
+        """
+        Returns a list of all variables as used in this expression.
+        :return: a list of variables.
+        :rtype: list(ASTVariable)
+        """
+        ret = list()
+        if self.isSimpleExpression() and self.getExpression().isVariable():
+            ret.append(self.getExpression().getVariable())
+        elif self.isUnaryOperator():
+            ret.extend(self.getExpression().getVariables())
+        elif self.isCompoundExpression():
+            ret.extend(self.getLhs().getVariables())
+            ret.extend(self.getRhs().getVariables())
+        elif self.isTernaryOperator():
+            ret.extend(self.getCondition().getVariables())
+            ret.extend(self.getIfTrue().getVariables())
+            ret.extend(self.getIfNot().getVariables())
+        return ret
+
+    def getUnits(self):
+        """
+        Returns a list of all units as use in this expression.
+        :return: a list of all used units.
+        :rtype: list(ASTVariable)
+        """
+        ret = list()
+        if self.isSimpleExpression() and self.getExpression().hasUnit():
+            ret.append(self.getExpression().getVariable())
+        elif self.isUnaryOperator():
+            ret.extend(self.getExpression().getUnits())
+        elif self.isCompoundExpression():
+            ret.extend(self.getLhs().getUnits())
+            ret.extend(self.getRhs().getUnits())
+        elif self.isTernaryOperator():
+            ret.extend(self.getCondition().getUnits())
+            ret.extend(self.getIfTrue().getUnits())
+            ret.extend(self.getIfNot().getUnits())
+        return ret
+
+    def getFunctions(self):
+        """
+        Returns a list of all function calls as used in this expression
+        :return: a list of all function calls in this expression.
+        :rtype: list(ASTFunctionCall)
+        """
+        ret = list()
+        if self.isSimpleExpression() and self.getExpression().isFunctionCall():
+            ret.append(self.getExpression().getFunctionCall())
+        elif self.isUnaryOperator():
+            ret.extend(self.getExpression().getFunctions())
+        elif self.isCompoundExpression():
+            ret.extend(self.getLhs().getFunctions())
+            ret.extend(self.getRhs().getFunctions())
+        elif self.isTernaryOperator():
+            ret.extend(self.getCondition().getFunctions())
+            ret.extend(self.getIfTrue().getFunctions())
+            ret.extend(self.getIfNot().getFunctions())
+        return ret
+
     def printAST(self):
         """
         Returns the string representation of the expression.

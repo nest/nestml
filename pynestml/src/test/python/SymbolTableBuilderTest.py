@@ -27,7 +27,11 @@ from __future__ import print_function
 
 import unittest
 import os
-from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
+from antlr4 import *
+from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
+from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
+from pynestml.src.main.python.org.nestml.visitor.ASTSymbolTableVisitor import SymbolTableASTVisitor
+from pynestml.src.main.python.org.nestml.visitor.ASTBuilderVisitor import ASTBuilderVisitor
 
 
 class SymbolTableBuilderTest(unittest.TestCase):
@@ -35,15 +39,20 @@ class SymbolTableBuilderTest(unittest.TestCase):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
-                print('Start creating ast and symbol table for ' + filename),
-                model = NESTMLParser.parseModel(
+                inputFile = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
                                                                                       'models'), filename)))
-                for neuron in model.getNeuronList():
-                    print(neuron.getName())
-                    print(neuron.getScope().printScope() + '\n')
-
-                print(' ...done')
+                lexer = PyNESTMLLexer(inputFile)
+                # create a token stream
+                stream = CommonTokenStream(lexer)
+                # parse the file
+                parser = PyNESTMLParser(stream)
+                # create a new visitor and return the new AST
+                astBuilderVisitor = ASTBuilderVisitor()
+                ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
+                # update the corresponding symbol tables
+                for neuron in ast.getNeuronList():
+                    SymbolTableASTVisitor.updateSymbolTable(neuron)
         return
 
 

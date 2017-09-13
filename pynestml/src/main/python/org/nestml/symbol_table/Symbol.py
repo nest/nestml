@@ -54,9 +54,9 @@ class Symbol:
         assert (_scope is not None and isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of scope provided!'
         assert (_type is not None and isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Symbol) Type of symbol not or wrongly specified!'
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-type provided!'
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.Symbol) Name of symbol not or wrongly specified!'
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-name provided!'
         self.__elementReference = _elementReference
         self.__scope = _scope
         self.__type = _type
@@ -93,6 +93,17 @@ class Symbol:
         :rtype: str
         """
         return self.__name
+
+    def isDefinedBefore(self, _sourcePosition):
+        """
+        For a handed over source position, this method checks if this symbol has been defined before the handed
+        over position.
+        :param _sourcePosition: the position of a different element.
+        :type _sourcePosition: ASTSourcePosition
+        :return: True, if defined before or at the sourcePosition, otherwise False.
+        :rtype: bool
+        """
+        return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
 
     def printSymbol(self):
         """

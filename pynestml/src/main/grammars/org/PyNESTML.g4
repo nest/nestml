@@ -86,7 +86,6 @@ grammar PyNESTML;
   simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false;
                    | (INTEGER|FLOAT) (variable)?
-                   | NAME
                    | isInf='inf'
                    | variable;
 

@@ -35,7 +35,7 @@ class Scope:
     """
     __enclosingScope = None
     __declaredElements = None
-    __scope_type = None
+    __scopeType = None
     __sourcePosition = None
 
     def __init__(self, _scopeType=None, _enclosingScope=None, _sourcePosition=None):
@@ -54,7 +54,7 @@ class Scope:
         assert (isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.Scope) No source position handed over!'
         self.__declaredElements = list()
-        self.__scope_type = _scopeType
+        self.__scopeType = _scopeType
         self.__enclosingScope = _enclosingScope
         self.__sourcePosition = _sourcePosition
 
@@ -69,6 +69,7 @@ class Scope:
         assert (isinstance(_symbol, Symbol)), \
             '(PyNestML.SymbolTable.Scope) Non-symbol object can not be added to the scope!'
         self.__declaredElements.append(_symbol)
+        return
 
     def addScope(self, _scope=None):
         """
@@ -81,6 +82,7 @@ class Scope:
         assert (isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Scope) Non-scope object can not be added to the scope!'
         self.__declaredElements.append(_scope)
+        return
 
     def deleteSymbol(self, _symbol=None):
         """
@@ -134,7 +136,7 @@ class Scope:
         """
         symbols = list()
         if self.__enclosingScope is not None:
-            symbols.append(self.__enclosingScope.getSymbols())
+            symbols.append(self.__enclosingScope.getSymbolsInThisScope())
         symbols.append(self.getSymbolsInThisScope())
         return symbols
 
@@ -150,7 +152,7 @@ class Scope:
                 ret.append(elem)
         return ret
 
-    def resolveSymbol(self, _name=None, _type=None):
+    def resolveToScope(self, _name=None, _type=None):
         """
         Resolves the handed over name and type and returns the scope in which the corresponding symbol has been defined.
         :param _name: the name of the element.
@@ -161,27 +163,81 @@ class Scope:
         :rtype: Scope
         """
         gScope = self.getGlobalScope()
-        return gScope.__resolveSymbolInSpannedScope(_name, _type)
+        scopes = gScope.__resolveToScopeInSpannedScope(_name, _type)
+        # the following step is done in order to return, whenever the list contains only one element, only this element
+        if isinstance(scopes, list) and len(scopes) == 1:
+            return scopes[0]
+        elif len(scopes) == 0:
+            return None
+        else:
+            return scopes
 
-    def __resolveSymbolInSpannedScope(self, _name=None, _type=None):
+    def __resolveToScopeInSpannedScope(self, _name=None, _type=None):
         """
         Private method: returns this scope or one of the sub-scopes in which the handed over symbol is defined in.
         :return: the corresponding scope object.
         :rtype: Scope
         """
-        ret = None
+        ret = list()
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
         assert (isinstance(_type, SymbolType)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided!'
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
-                return self
+                ret.append(self)
         for elem in self.getScopes():  # otherwise check if it is in one of the sub-scopes
-            temp = elem.__resolveSymbolInSpannedScope(_name, _type)
+            temp = elem.__resolveToScopeInSpannedScope(_name, _type)
             if temp is not None:
-                return temp
-        return None
+                ret.extend(temp)
+        return ret
+
+    def resolveToSymbol(self, _name=None, _type=None):
+        """
+        Resolves the name and type and returns the corresponding symbol. Caution: Here, we also take redeclaration into
+         account. This has to be prevented - if required - by cocos.
+        :param _name: the name of the element.
+        :type _name: str
+        :param _type: the type of the element
+        :type _type: SymbolType
+        :return: a single symbol element.
+        :rtype: Symbol/list(Symbols)
+        """
+        assert (isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
+        assert (isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided!'
+        gScope = self.getGlobalScope()
+        symbols = gScope.__resolveToSymbolInSpannedScope(_name, _type)
+        # the following step is done in order to return, whenever the list contains only one element, only this element
+        if isinstance(symbols, list) and len(symbols) == 1:
+            return symbols[0]
+        elif len(symbols) == 0:
+            return None
+        else:
+            return symbols
+
+    def __resolveToSymbolInSpannedScope(self, _name=None, _type=None):
+        """
+        Private method: returns a symbol if the handed over name and type belong to a symbol in this or one of the
+         sub-scope. Caution: Here, we also take redeclaration into account. This has to be prevented - if required -
+         by cocos.
+        :return: the corresponding symbol object.
+        :rtype: list(Symbol)
+        """
+        ret = list()
+        assert (isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
+        assert (isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided!'
+        for sim in self.getSymbolsInThisScope():
+            if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
+                ret.append(sim)
+        for elem in self.getScopes():  # otherwise check if it is in one of the sub-scopes
+            temp = elem.__resolveToSymbolInSpannedScope(_name, _type)
+            if temp is not None:
+                ret.extend(temp)
+        return ret
 
     def getGlobalScope(self):
         """
@@ -213,7 +269,7 @@ class Scope:
         :return: True, if enclosed, otherwise False.
         :rtype: bool
         """
-        return (self.__enclosingScope is not None) and (self.__scope_type is not ScopeType.GLOBAL)
+        return (self.__enclosingScope is not None) and (self.__scopeType is not ScopeType.GLOBAL)
 
     def getSourcePosition(self):
         """
@@ -229,7 +285,22 @@ class Scope:
         :return: a ScopeType element.
         :rtype: ScopeType
         """
-        return self.__scope_type
+        return self.__scopeType
+
+    def isEnclosedIn(self, _scope=None):
+        """
+        Returns if this scope is directly or indirectly enclosed in the handed over scope.
+        :param _scope: the scope in which this scope can be enclosed in.
+        :type _scope Scope
+        :return: True, if this scope is directly or indirectly enclosed in the handed over one, otherwise False.
+        :rtype: bool
+        """
+        if self.hasEnclosingScope() and self.getEnclosingScope() is _scope:
+            return True
+        elif self.hasEnclosingScope():
+            return self.getEnclosingScope().isEnclosedIn(_scope)
+        else:
+            return False
 
     def getDepthOfScope(self):
         """

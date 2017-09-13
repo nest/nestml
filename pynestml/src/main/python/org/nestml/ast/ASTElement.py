@@ -34,7 +34,7 @@ class ASTElement:
     """
     __metaclass__ = ABCMeta
     __sourcePosition = None
-    __symbol = None
+    __scope = None
 
     def __init__(self, _sourcePosition=None, _scope=None):
         """

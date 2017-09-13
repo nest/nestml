@@ -26,6 +26,8 @@ from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
 from pynestml.src.main.python.org.nestml.visitor import ASTBuilderVisitor
 from pynestml.src.main.python.org.nestml.visitor import ASTSymbolTableVisitor
+from pynestml.src.main.python.org.nestml.cocos.CoCoElementDefined import CoCoElementDefined
+from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 from antlr4 import *
 
 
@@ -46,7 +48,7 @@ class NESTMLParser:
         try:
             inputFile = FileStream(file_path)
         except IOError:
-            print('(NESTML) File ' + str(file_path) + ' not found. Processing is stopped!')
+            print('(PyNestML.Parser) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
         # create a lexer and hand over the input
         lexer = PyNESTMLLexer(inputFile)
@@ -57,6 +59,15 @@ class NESTMLParser:
         # create a new visitor and return the new AST
         astBuilderVisitor = ASTBuilderVisitor.ASTBuilderVisitor()
         ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
+        # update the corresponding symbol tables
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
+        # now check that all context conditions hold
+        cocosToCheck = list()
+        allElementsDefinedCoco = CoCoElementDefined()
+        cocosToCheck.append(allElementsDefinedCoco)
+        cocoManager = CoCosManager(cocosToCheck)
+        for neuron in ast.getNeuronList():
+            cocoManager.checkCocos(neuron)
+
         return ast

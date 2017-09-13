@@ -43,13 +43,13 @@ class LexerParserTest(unittest.TestCase):
                 inputFile = FileStream(
                     os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
                                                                                       'models'), filename)))
-                print('Start parsing ' + filename),
+                # print('Start parsing ' + filename),
                 lexer = PyNESTMLLexer(inputFile)
                 # create a token stream
                 stream = CommonTokenStream(lexer)
                 # parse the file
                 PyNESTMLParser(stream)
-                print(' ...done')
+                # print(' ...done')
         return
 
 

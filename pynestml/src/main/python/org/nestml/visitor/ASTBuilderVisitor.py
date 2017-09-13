@@ -176,7 +176,6 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
         functionCall = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
-        name = (str(ctx.NAME()) if ctx.NAME() is not None else None)
         booleanLiteral = ((True if re.match(r'[Tt]rue', str(ctx.BOOLEAN_LITERAL())) else False)
                           if ctx.BOOLEAN_LITERAL() is not None else None)
         if ctx.INTEGER() is not None:
@@ -191,7 +190,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTSimpleExpression.ASTSimpleExpression.makeASTSimpleExpression(_functionCall=functionCall, _name=name,
+        return ASTSimpleExpression.ASTSimpleExpression.makeASTSimpleExpression(_functionCall=functionCall,
                                                                                _booleanLiteral=booleanLiteral,
                                                                                _numericLiteral=numericLiteral,
                                                                                _isInf=isInf, _variable=variable,

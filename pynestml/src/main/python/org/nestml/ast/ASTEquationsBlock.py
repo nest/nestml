@@ -73,7 +73,7 @@ class ASTEquationsBlock(ASTElement):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: 
+        :rtype: ASTOdeFunction|ASTOdeEquation|ASTOdeShape
         """
         return self.__declarations
 
