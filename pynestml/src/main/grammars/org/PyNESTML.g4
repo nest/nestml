@@ -30,6 +30,7 @@ grammar PyNESTML;
   import Tokens;
 
   nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
+
   /*********************************************************************************************************************
   * Units-Language
   *********************************************************************************************************************/
@@ -59,6 +60,7 @@ grammar PyNESTML;
   /*********************************************************************************************************************
   * Expressions-Language
   *********************************************************************************************************************/
+
   /**
    ASTExpr, i.e., several subexpressions combined by one or more
    operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
@@ -110,7 +112,6 @@ grammar PyNESTML;
   functionCall : calleeName=NAME '(' (args=arguments)? ')';
 
   arguments : expression (',' expression)*;
-
 
   /*********************************************************************************************************************
   * Equations-Language
@@ -196,6 +197,7 @@ grammar PyNESTML;
   /*********************************************************************************************************************
   * Nestml-Language
   *********************************************************************************************************************/
+
   /** ASTNeuron represents neuron.
     @attribute Name    The name of the neuron
     @attribute Body    The body of the neuron, e.g. internal, state, parameter...

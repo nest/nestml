@@ -21,7 +21,7 @@
 
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast import *
-from pynestml.src.main.python.org.nestml.symbol_table.Symbol import SymbolType
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 from pynestml.src.main.python.org.nestml.visitor.ASTCoCoVisitor import ASTCoCoVisitor
 

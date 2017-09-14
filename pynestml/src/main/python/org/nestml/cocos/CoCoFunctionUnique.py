@@ -31,7 +31,7 @@ class CoCoFunctionUnique(CoCo):
         :param _neuron: a single neuron
         :type _neuron: ASTNeuron
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.Symbol import SymbolType
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         for func in _neuron.getFunctions():
             symbols = _neuron.getScope().resolveToSymbol(func.getName(), SymbolType.FUNCTION)
             if isinstance(symbols, list) and len(symbols) > 1:

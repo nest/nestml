@@ -1,5 +1,5 @@
 #
-# PredefinedFunctions.py
+# PredefinedVariables.py
 #
 # This file is part of NEST.
 #
@@ -18,30 +18,22 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+class PredefinedVariables:
+    """
+    This class is used to store all predefined variables as generally available. 
+    """
+    __E_CONSTANT = 'e'
+    __TIME_CONSTANT = 't'
+
+    #TODO
 
 
-class PredefinedFunctions:
-    """
-    This class is used to represent all predefined functions of NESTML.
-    """
-    __TIME_RESOLUTION = 'resolution'
-    __TIME_STEPS = 'steps'
-    __EMIT_SPIKE = 'emit_spike'
-    __PRINT = 'print'
-    __PRINTLN = 'println'
-    __POW = 'pow'
-    __EXP = 'exp'
-    __LOG = 'log'
-    __LOGGER_INFO = 'info'
-    __LOGGER_WARNING = 'warning'
-    __RANDOM = 'random'
-    __RANDOM_INT = 'randomInt'
-    __EXPM1 = 'expm1'
-    __DELTA = 'delta'
-    __MAX = 'max'
-    __BOUNDED_MAX = 'bounded_max'
-    __MIN = 'min'
-    __BOUNDED_MIN = 'bounded_min'
-    __INTEGRATE_ODES = 'integrate_odes'
-    __CURR_SUM = 'curr_sum'
-    __COND_SUM = 'cond_sum'
+    @classmethod
+    def registerVariable(cls,_scope=None,_name=None):
+        """
+        
+        :param _scope: 
+        :type _scope: 
+        :return: 
+        :rtype: 
+        """

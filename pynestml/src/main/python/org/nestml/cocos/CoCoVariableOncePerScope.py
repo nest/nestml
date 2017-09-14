@@ -47,7 +47,7 @@ class CoCoVariableOncePerScope(CoCo):
         for sym1 in _scope.getSymbolsInThisScope():  # TODO: in o(n^2), maybe a better is solution possible
             for sym2 in _scope.getSymbolsInThisScope():
                 if sym1 is not sym2 and sym1.getSymbolName() == sym2.getSymbolName() and \
-                                sym1.getSymbolType() == sym1.getSymbolType():
+                                sym1.getSymbolType() == sym2.getSymbolType():
                     raise VariableRedeclaredInSameScopeException('Variable %s redeclared!' % sym1.getSymbolName())
         for scope in _scope.getScopes():
             self.__checkScope(scope)

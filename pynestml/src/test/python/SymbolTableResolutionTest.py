@@ -25,7 +25,7 @@ from __future__ import print_function
 import unittest
 import os
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
-from pynestml.src.main.python.org.nestml.symbol_table.Symbol import SymbolType
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 
 

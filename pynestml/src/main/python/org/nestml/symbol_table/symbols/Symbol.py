@@ -111,10 +111,12 @@ class Symbol:
         if self.getSymbolType() is SymbolType.FUNCTION:
             return '[' + str(self.getSymbolName()) + ',' + 'FUNCTION' \
                    + ',' + self.getReferencedObject().getSourcePosition().printSourcePosition() + ']'
-        else:
+        elif self.getSymbolType() is SymbolType.VARIABLE:
             return '[' + str(self.getSymbolName()) + ',' + 'VARIABLE' + \
                    ',' + self.getReferencedObject().getSourcePosition().printSourcePosition() + ']'
-
+        else:
+            return '[' + str(self.getSymbolName()) + ',' + 'TYPE' + \
+                   ',' + self.getReferencedObject().getSourcePosition().printSourcePosition() + ']'
 
 class SymbolType(Enum):
     """
@@ -122,3 +124,4 @@ class SymbolType(Enum):
     """
     VARIABLE = 1
     FUNCTION = 2
+    TYPE = 3
