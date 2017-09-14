@@ -1,27 +1,24 @@
-"""
-/*
- *  ASTExpression.py
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-@author kperun
-"""
+#
+# ASTExpression.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from pynestml.src.main.python.org.nestml.ast.ASTUnaryOperator import ASTUnaryOperator
 from pynestml.src.main.python.org.nestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.src.main.python.org.nestml.ast.ASTComparisonOperator import ASTComparisonOperator
@@ -329,6 +326,66 @@ class ASTExpression(ASTElement):
         :rtype: ASTExpression
         """
         return self.__ifNot
+
+    def getVariables(self):
+        """
+        Returns a list of all variables as used in this expression.
+        :return: a list of variables.
+        :rtype: list(ASTVariable)
+        """
+        ret = list()
+        if self.isSimpleExpression() and self.getExpression().isVariable():
+            ret.append(self.getExpression().getVariable())
+        elif self.isUnaryOperator():
+            ret.extend(self.getExpression().getVariables())
+        elif self.isCompoundExpression():
+            ret.extend(self.getLhs().getVariables())
+            ret.extend(self.getRhs().getVariables())
+        elif self.isTernaryOperator():
+            ret.extend(self.getCondition().getVariables())
+            ret.extend(self.getIfTrue().getVariables())
+            ret.extend(self.getIfNot().getVariables())
+        return ret
+
+    def getUnits(self):
+        """
+        Returns a list of all units as use in this expression.
+        :return: a list of all used units.
+        :rtype: list(ASTVariable)
+        """
+        ret = list()
+        if self.isSimpleExpression() and self.getExpression().hasUnit():
+            ret.append(self.getExpression().getVariable())
+        elif self.isUnaryOperator():
+            ret.extend(self.getExpression().getUnits())
+        elif self.isCompoundExpression():
+            ret.extend(self.getLhs().getUnits())
+            ret.extend(self.getRhs().getUnits())
+        elif self.isTernaryOperator():
+            ret.extend(self.getCondition().getUnits())
+            ret.extend(self.getIfTrue().getUnits())
+            ret.extend(self.getIfNot().getUnits())
+        return ret
+
+    def getFunctions(self):
+        """
+        Returns a list of all function calls as used in this expression
+        :return: a list of all function calls in this expression.
+        :rtype: list(ASTFunctionCall)
+        """
+        ret = list()
+        if self.isSimpleExpression() and self.getExpression().isFunctionCall():
+            ret.append(self.getExpression().getFunctionCall())
+        elif self.isUnaryOperator():
+            ret.extend(self.getExpression().getFunctions())
+        elif self.isCompoundExpression():
+            ret.extend(self.getLhs().getFunctions())
+            ret.extend(self.getRhs().getFunctions())
+        elif self.isTernaryOperator():
+            ret.extend(self.getCondition().getFunctions())
+            ret.extend(self.getIfTrue().getFunctions())
+            ret.extend(self.getIfNot().getFunctions())
+        return ret
 
     def printAST(self):
         """

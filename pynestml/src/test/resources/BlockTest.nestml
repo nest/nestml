@@ -20,7 +20,6 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- *@author kperun
  * This model is used to test if all non-actively used types of blocks are readable, and if the corresponding AST
  * can be created. It is used to test the following part of the grammar:
  * forStmt : 'for' var=NAME 'in' vrom=expression '...'

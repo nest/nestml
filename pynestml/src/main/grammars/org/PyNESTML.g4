@@ -18,7 +18,6 @@
  *  You should have received a copy of the GNU General Public License
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @author dplotnikov, kperun
  */
 
 
@@ -86,7 +85,6 @@ grammar PyNESTML;
   simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false;
                    | (INTEGER|FLOAT) (variable)?
-                   | NAME
                    | isInf='inf'
                    | variable;
 

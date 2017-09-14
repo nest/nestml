@@ -1,27 +1,24 @@
-"""
- /*
- *  ASTSourcePosition.py
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-@author kperun
-"""
+#
+# ASTSourcePosition.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+
 
 
 class ASTSourcePosition:
@@ -115,3 +112,49 @@ class ASTSourcePosition:
         """
         return '{' + str(self.getStartLine()) + ':' + str(self.getStartColumn()) + ';' + \
                str(self.getEndLine()) + ':' + str(self.getEndColumn()) + '}'
+
+    def equals(self, _sourcePosition=None):
+        """
+        Checks if the handed over position is equal to this.
+        :param _sourcePosition: a source position.
+        :type _sourcePosition: ASTSourcePosition
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        return self.getStartLine() == _sourcePosition.getStartLine() and \
+               self.getStartColumn() == _sourcePosition.getStartColumn() and \
+               self.getEndLine() == _sourcePosition.getEndLine() and \
+               self.getEndColumn() == _sourcePosition.getEndColumn()
+
+    def before(self, _sourcePosition=None):
+        """
+        Checks if the handed over position is smaller than this.
+        :param _sourcePosition: a source position.
+        :type _sourcePosition: ASTSourcePosition
+        :return: True if smaller, otherwise False
+        :rtype: bool
+        """
+        if self.getStartLine() < _sourcePosition.getStartLine():
+            return True
+        elif self.getStartLine() == _sourcePosition.getStartLine() and \
+                        self.getStartColumn() < _sourcePosition.getStartColumn():
+            return True
+        else:
+            return False
+
+    def encloses(self, _sourcePosition=None):
+        """
+        Checks if the handed over position is enclosed in this source position, e.g.,
+            line 0 to 10 encloses lines 0 to 9 etc.
+        :param _sourcePosition: a source position 
+        :type _sourcePosition: ASTSourcePosition
+        :return: True if enclosed, otherwise False.
+        :rtype: bool
+        """
+        if self.getStartLine() <= _sourcePosition.getStartLine() and \
+                        self.getEndLine() <= _sourcePosition.getEndLine() and \
+                        self.getStartColumn() <= _sourcePosition.getStartColumn() and \
+                        self.getEndColumn() <= _sourcePosition.getEndColumn():
+            return True
+        else:
+            return False

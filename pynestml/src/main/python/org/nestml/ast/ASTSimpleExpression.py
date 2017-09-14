@@ -1,27 +1,24 @@
-"""
-/*
- *  ASTSimpleExpression.py
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-@author kperun
-"""
+#
+# ASTSimpleExpression.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
 from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
@@ -35,19 +32,17 @@ class ASTSimpleExpression(ASTElement):
     simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false;
                    | (INTEGER|FLOAT) (variable)?
-                   | NAME
                    | isInf='inf'
                    | variable;
     """
     __functionCall = None
-    __name = None
     __numericLiteral = None
     __variable = None
     __isBooleanTrue = False
     __isBooleanFalse = False
     __isInf = False
 
-    def __init__(self, _functionCall=None, _name=None, _booleanLiteral=None, _numericLiteral=None, _isInf=False,
+    def __init__(self, _functionCall=None, _booleanLiteral=None, _numericLiteral=None, _isInf=False,
                  _variable=None, _sourcePosition=None):
         """
         Standard constructor.
@@ -68,8 +63,6 @@ class ASTSimpleExpression(ASTElement):
         """
         assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
             '(PyNestML.AST.SimpleExpression) Not a function call provided.'
-        assert (_name is None or isinstance(_name, str)), \
-            '(PyNestML.AST.SimpleExpression) Not a string provided as name.'
         assert (_booleanLiteral is None or isinstance(_booleanLiteral, bool)), \
             '(PyNestML.AST.SimpleExpression) Not a bool provided.'
         assert (_isInf is None or isinstance(_isInf, bool)), \
@@ -80,7 +73,6 @@ class ASTSimpleExpression(ASTElement):
             '(PyNestML.AST.SimpleExpression) Not a number handed over!'
         super(ASTSimpleExpression, self).__init__(_sourcePosition)
         self.__functionCall = _functionCall
-        self.__name = _name
         if _booleanLiteral is not None:
             if _booleanLiteral is 'True' or _booleanLiteral is 'true':
                 self.__isBooleanTrue = True
@@ -91,7 +83,7 @@ class ASTSimpleExpression(ASTElement):
         self.__variable = _variable
 
     @classmethod
-    def makeASTSimpleExpression(cls, _functionCall=None, _name=None, _booleanLiteral=None, _numericLiteral=None,
+    def makeASTSimpleExpression(cls, _functionCall=None, _booleanLiteral=None, _numericLiteral=None,
                                 _isInf=False, _variable=None, _sourcePosition=None):
         """
         The factory method of the ASTSimpleExpression class.
@@ -112,7 +104,7 @@ class ASTSimpleExpression(ASTElement):
         :return: a new ASTSimpleExpression object.
         :rtype: ASTSimpleExpression
         """
-        return cls(_functionCall, _name, _booleanLiteral, _numericLiteral, _isInf, _variable, _sourcePosition)
+        return cls(_functionCall, _booleanLiteral, _numericLiteral, _isInf, _variable, _sourcePosition)
 
     def isFunctionCall(self):
         """
@@ -176,7 +168,15 @@ class ASTSimpleExpression(ASTElement):
         :return: True if has a variable, otherwise False.
         :rtype: bool
         """
-        return self.__variable is not None
+        return self.__variable is not None and self.__numericLiteral is None
+
+    def hasUnit(self):
+        """
+        Returns whether this is a numeric literal with a defined unit.
+        :return: True if numeric literal with unit, otherwise False. 
+        :rtype: bool
+        """
+        return self.__variable is not None and self.__numericLiteral is not None
 
     def getVariable(self):
         """
@@ -185,22 +185,6 @@ class ASTSimpleExpression(ASTElement):
         :rtype: ASTVariable
         """
         return self.__variable
-
-    def isName(self):
-        """
-        Returns whether it is a simple name or not.
-        :return: True if has a simple name, otherwise False.
-        :rtype: bool
-        """
-        return self.__name is not None
-
-    def getName(self):
-        """
-        Returns the name.
-        :return: the name.
-        :rtype: str
-        """
-        return self.__name
 
     def printAST(self):
         """
@@ -216,8 +200,6 @@ class ASTSimpleExpression(ASTElement):
             return 'False'
         elif self.isInfLiteral():
             return 'inf'
-        elif self.isName():
-            return self.__name
         elif self.isNumericLiteral():
             if self.isVariable():
                 return str(self.__numericLiteral) + self.__variable.printAST()

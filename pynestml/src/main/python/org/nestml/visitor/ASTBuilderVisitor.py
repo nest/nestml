@@ -1,27 +1,24 @@
-"""
-/*
- *  ASTBuilderVisitor.py
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-@author kperun
-"""
+#
+# ASTBuilderVisitor.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+
 import re
 from antlr4 import *
 # import all ASTClasses
@@ -176,7 +173,6 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
         functionCall = (self.visit(ctx.functionCall()) if ctx.functionCall() is not None else None)
-        name = (str(ctx.NAME()) if ctx.NAME() is not None else None)
         booleanLiteral = ((True if re.match(r'[Tt]rue', str(ctx.BOOLEAN_LITERAL())) else False)
                           if ctx.BOOLEAN_LITERAL() is not None else None)
         if ctx.INTEGER() is not None:
@@ -191,7 +187,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTSimpleExpression.ASTSimpleExpression.makeASTSimpleExpression(_functionCall=functionCall, _name=name,
+        return ASTSimpleExpression.ASTSimpleExpression.makeASTSimpleExpression(_functionCall=functionCall,
                                                                                _booleanLiteral=booleanLiteral,
                                                                                _numericLiteral=numericLiteral,
                                                                                _isInf=isInf, _variable=variable,
