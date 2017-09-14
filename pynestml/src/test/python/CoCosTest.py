@@ -24,6 +24,7 @@ import unittest
 import os
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 from pynestml.src.main.python.org.nestml.cocos.CoCoElementDefined import ElementNotDefined
+from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUnique import BlockNotUniqueException
 
 
 class ElementInSameLine(unittest.TestCase):
@@ -44,6 +45,17 @@ class ElementNotDefinedInScope(unittest.TestCase):
                 os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                              'CoCoElementNotDefined.nestml'))
         except ElementNotDefined:
+            return
+        return 1  # meaning an error
+
+
+class EachBlockUnique(unittest.TestCase):
+    def test(self):
+        try:
+            model = NESTMLParser.parseModel(
+                os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                             'CoCoEachBlockUnique.nestml'))
+        except BlockNotUniqueException:
             return
         return 1  # meaning an error
 

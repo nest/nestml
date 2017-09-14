@@ -5,6 +5,7 @@ target/
 build/
 
 __*
+!__init__.py
 
 dist/
 

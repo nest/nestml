@@ -100,6 +100,9 @@ class SymbolTableASTVisitor:
             scope.addSymbol(Symbol(_elementReference=arg, _scope=scope, _type=SymbolType.VARIABLE, _name=arg.getName()))
             arg.getDataType().updateScope(scope)
             cls.__visitDataType(arg.getDataType())
+        if _block.hasReturnType():
+            _block.getReturnType().updateScope(scope)
+            cls.__visitDataType(_block.getReturnType())
         _block.getBlock().updateScope(scope)
         cls.__visitBlock(_block.getBlock())
         return

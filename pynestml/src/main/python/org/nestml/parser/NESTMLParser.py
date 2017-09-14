@@ -23,7 +23,7 @@ from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
 from pynestml.src.main.python.org.nestml.visitor import ASTBuilderVisitor
 from pynestml.src.main.python.org.nestml.visitor import ASTSymbolTableVisitor
-from pynestml.src.main.python.org.nestml.cocos.CoCoElementDefined import CoCoElementDefined
+from pynestml.src.main.python.org.nestml.cocos import *
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 from antlr4 import *
 
@@ -61,8 +61,11 @@ class NESTMLParser:
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
         # now check that all context conditions hold
         cocosToCheck = list()
-        allElementsDefinedCoco = CoCoElementDefined()
-        cocosToCheck.append(allElementsDefinedCoco)
+        cocosToCheck.append(CoCoElementDefined.CoCoElementDefined())
+        cocosToCheck.append(CoCoEachBlockUnique.CoCoEachBlockUnique())
+        cocosToCheck.append(CoCoFunctionUnique.CoCoFunctionUnique())
+        cocosToCheck.append(CoCoVariableOncePerScope.CoCoVariableOncePerScope())
+        # hand over the list of cocos to check to the the manager
         cocoManager = CoCosManager(cocosToCheck)
         for neuron in ast.getNeuronList():
             cocoManager.checkCocos(neuron)

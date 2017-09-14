@@ -23,4 +23,4 @@ sudo: true
 script:
   - python pynestml/src/test/python/ASTBuilderTest.py
   - python pynestml/src/test/python/ExpressionParserTest.py
-  - python pynestml/src/test/python/ParserTest.py
+  - python pynestml/src/test/python/LexerParserTest.py

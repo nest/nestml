@@ -20,9 +20,10 @@
 
 
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
-from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
+from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.nestml.symbol_table.Symbol import SymbolType
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
+from pynestml.src.main.python.org.nestml.visitor.ASTCoCoVisitor import ASTCoCoVisitor
 
 
 class CoCoElementDefined(CoCo):
@@ -31,13 +32,15 @@ class CoCoElementDefined(CoCo):
     previously defined.
     """
 
-    def checkCoCo(self, _neuron=None):
+    def checkCoCo(self, _astNeuron=None):
         """
         Checks if this coco applies for the handed over neuron. Models which use not defined elements are not 
         correct, thus an exception is generated. Caution: This 
-        :param _neuron: a single neuron instance.
-        :type _neuron: ASTNeuron
+        :param _astNeuron: a single neuron instance.
+        :type _astNeuron: ASTNeuron
         """
+        """
+        TODO
         scope = _neuron.getScope()
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.ElementDefined) No or wrong type of neuron handed over!'
@@ -63,6 +66,19 @@ class CoCoElementDefined(CoCo):
                             raise ElementNotDefined()
 
         return
+        """
+        cocoVisitor = ASTCoCoVisitor()
+        cocoVisitor.visitNeuron(_ast=_astNeuron, _coco=self.__coco)
+
+    @classmethod
+    def __coco(self, _ast=None):
+        """
+        Private method: Provides a set of operations which are executed according to the context in order to ensure 
+        properties.
+        """
+        if isinstance(_ast, ASTVariable.ASTVariable):
+            pass
+        pass
 
 
 class ElementNotDefined(Exception):
