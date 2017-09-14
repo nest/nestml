@@ -35,8 +35,6 @@
          | simpleExpression
          ;
  * and the respective sub-rules.
- *
- *
 */
 
 neuron ExpressionCollection:

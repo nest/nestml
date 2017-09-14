@@ -20,11 +20,10 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- *@author kperun
  * This model is used to check if all cocos work correctly by detecting corresponding broken context.
 */
 neuron CoCoElementNotDefined:
     state:
-        test1 integer = test2 # case 1
+        test1 integer = test2 # case 1: variable set to a not defined value
     end
 end

@@ -1,27 +1,24 @@
-"""
-/*
- *  NestmlFrontend.py
- *
- *  This file is part of NEST.
- *
- *  Copyright (C) 2004 The NEST Initiative
- *
- *  NEST is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  NEST is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- *
- */
-@author kperun
-"""
+#
+# NestmlFrontend.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+
 import os, sys
 import argparse  # used for parsing of input arguments
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
@@ -44,7 +41,7 @@ def main(args):
 
     if parsed_args.path is None:
         # check if the mandatory path arg has been handed over, just terminate
-        raise InvalidPathException('(NESTML) No path to source model/s provided. See -h for more details.')
+        raise InvalidPathException('(PyNestML.Frontend) No path to source model/s provided. See -h for more details.')
 
     # now first check if it is a single file or a dir
     if os.path.isfile(parsed_args.path[0]):
@@ -55,7 +52,7 @@ def main(args):
             if filename.endswith(".nestml"):
                 NESTMLParser.parseModel(parsed_args.path[0] + filename)
     else:
-        raise InvalidPathException('(NESTML) Provided path is invalid. See -h for more details.')
+        raise InvalidPathException('(PyNestML.Frontend) Provided path is invalid. See -h for more details.')
 
 
 if __name__ == '__main__':
