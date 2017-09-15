@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
   Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
   language which leans on the Python syntax.
@@ -78,7 +77,6 @@ grammar PyNESTML;
          | condition=expression '?' ifTrue=expression ':' ifNot=expression
          | simpleExpression
          ;
-
 
   /**
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,
@@ -150,7 +148,6 @@ grammar PyNESTML;
      compoundMinus='-='   |
      compoundProduct='*=' |
      compoundQuotient='/=') expression;
-
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
