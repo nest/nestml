@@ -35,7 +35,7 @@ public class ASTBodyTest extends ModelbasedTest {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(PSC_MODEL_THREE_BUFFERS);
     final ASTBody astBody = root.getNeurons().get(0).getBody();
     final List<VariableSymbol> buffers = astBody.getCurrentBuffers();
-    assertEquals(1, buffers.size());
+    assertEquals(3, buffers.size()); //3 because the sppike buffers that have been declared as pA also count as CurrentBuffers
   }
 
 }
