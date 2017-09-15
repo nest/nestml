@@ -355,7 +355,7 @@ ${neuronName}::handle(nest::CurrentEvent& e)
   const double weight=e.get_weight();
 
   // add weighted current; HEP 2002-10-04
-  <#list body.getCurrentBuffers() as buffer>
+  <#list body.getBuffersDeclaredAsCurrent() as buffer>
     get_${buffer.getName()}().add_value(
                e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                weight * current );

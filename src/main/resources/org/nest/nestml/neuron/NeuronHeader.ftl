@@ -319,7 +319,7 @@ private:
 
     </#if>
 
-    <#list body.getCurrentBuffers() as inputLine>
+    <#list body.getBuffersDeclaredAsCurrent() as inputLine>
       ${bufferHelper.printBufferDeclaration(inputLine)};
       ${bufferHelper.printBufferGetter(inputLine, true)}
       ${bufferHelper.printBufferDeclarationValue(inputLine)};
