@@ -190,7 +190,7 @@ public class IllegalExpression implements
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Either<TypeSymbol, String> exprType = node.getExpr().getType();
 
-    if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
+    if (exprType.isValue() && !exprType.getValue().equals(getBooleanType())) {
 
       final String msg = SplErrorStrings.messageNonBoolean(this, exprType.getValue().prettyPrint());
       error(msg, node.get_SourcePositionStart());
@@ -243,7 +243,7 @@ public class IllegalExpression implements
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
     final Either<TypeSymbol, String> exprType = node.getExpr().getType();
 
-    if (exprType.isValue() && exprType.getValue() != getBooleanType()) {
+    if (exprType.isValue() && !exprType.getValue().equals(getBooleanType())) {
       final String msg = SplErrorStrings.messageNonBoolean(this, exprType.getValue().prettyPrint());
       error(msg, node.get_SourcePositionStart());
 
@@ -254,7 +254,7 @@ public class IllegalExpression implements
   @Override
   public void check(final ASTWHILE_Stmt node) {
     checkArgument(node.getEnclosingScope().isPresent(), "No scope assigned. Please, run symboltable creator.");
-    if (node.getExpr().getType().getValue() != getBooleanType()) {
+    if (!node.getExpr().getType().getValue().equals(getBooleanType())) {
       final String msg = SplErrorStrings.messageNonBoolean(this, node.getExpr().getType().getValue().prettyPrint());
       error(msg, node.get_SourcePositionStart());
 

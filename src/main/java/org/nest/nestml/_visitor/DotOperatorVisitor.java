@@ -85,13 +85,13 @@ public class DotOperatorVisitor implements NESTMLVisitor {
 
         }
         //if no Units are involved, Real takes priority
-        if (lhsType == getRealType() || rhsType == getRealType()) {
+        if (lhsType.equals(getRealType()) || rhsType.equals(getRealType())) {
           expr.setType(Either.value(getRealType()));
           return;
         }
 
         // e.g. both are integers, but check to be sure
-        if (lhsType == getIntegerType() || rhsType == getIntegerType()) {
+        if (lhsType.equals(getIntegerType()) || rhsType.equals(getIntegerType())) {
           expr.setType(Either.value(getIntegerType()));
           return;
         }

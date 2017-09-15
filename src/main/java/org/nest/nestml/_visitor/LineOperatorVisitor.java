@@ -36,9 +36,9 @@ public class LineOperatorVisitor implements NESTMLVisitor {
     if (expr.isPlusOp()) {
       // String concatenation has a prio. If one of the operands is a string, the remaining sub-expression becomes a string
 
-      if ((lhsType == (getStringType()) ||
-           rhsType == (getStringType())) &&
-          (rhsType != (getVoidType()) && lhsType != (getVoidType()))) {
+      if ((lhsType.equals(getStringType()) ||
+           rhsType.equals(getStringType())) &&
+          (!rhsType.equals(getVoidType()) && !lhsType.equals(getVoidType()))) {
         expr.setType(Either.value(getStringType()));
         return;
       }
