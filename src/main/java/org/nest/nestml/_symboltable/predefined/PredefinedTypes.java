@@ -104,13 +104,13 @@ public class PredefinedTypes {
         In Case of UNITS always return a TS with serialization as name*/
   public static Optional<TypeSymbol> getTypeIfExists(final String typeName) {
     if (implicitTypes.containsKey(typeName)) {
-      return Optional.of(implicitTypes.get(typeName));
+      return Optional.of(new TypeSymbol(implicitTypes.get(typeName)));
     }
     else if (SIData.getCorrectSIUnits().contains(typeName)) {
       Optional<UnitRepresentation> unitRepresentation = UnitRepresentation.lookupName(typeName);
       if (unitRepresentation.isPresent()) {
         registerType(unitRepresentation.get().serialize(), TypeSymbol.Type.UNIT);
-        return Optional.of(implicitTypes.get(unitRepresentation.get().serialize()));
+        return Optional.of(new TypeSymbol(implicitTypes.get(unitRepresentation.get().serialize())));
       }
       return Optional.empty();
     }
@@ -123,7 +123,7 @@ public class PredefinedTypes {
       catch (IllegalStateException e){
         return Optional.empty();
       }
-      return Optional.of(implicitTypes.get(typeName));
+      return Optional.of(new TypeSymbol(implicitTypes.get(typeName)));
     }
 
   }
