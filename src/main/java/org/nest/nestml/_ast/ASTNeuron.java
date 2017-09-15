@@ -115,7 +115,7 @@ public class ASTNeuron extends ASTNeuronTOP {
   public List<ASTEquation> getEquations() {
     final Optional<ASTEquationsBlock> equations = findEquationsBlock();
     if (equations.isPresent()) {
-      return equations.get().getODEs();
+      return equations.get().getEquations();
     }
     else {
       return Lists.newArrayList();
@@ -130,13 +130,6 @@ public class ASTNeuron extends ASTNeuronTOP {
     else {
       return Lists.newArrayList();
     }
-  }
-
-  public List<VariableSymbol> variablesDefinedByODE() {
-    return getStateSymbols()
-        .stream()
-        .filter(VariableSymbol::isInInitialValues)
-        .collect(toList());
   }
 
   public Optional<ASTEquationsBlock> findEquationsBlock() {
@@ -160,25 +153,14 @@ public class ASTNeuron extends ASTNeuronTOP {
 
   }
 
-  public List<VariableSymbol> getOdeDefinedSymbols() {
+  public List<VariableSymbol> getInitialValuesSymbols() {
     return this.getSpannedScope().get().resolveLocally(VariableSymbol.KIND)
         .stream()
-        .map(stateSymbol -> (VariableSymbol) stateSymbol)
-        .filter(VariableSymbol::isState)
+        .map(variable -> (VariableSymbol) variable)
         .filter(VariableSymbol::isInInitialValues)
         .collect(toList());
-
   }
 
-  public List<VariableSymbol> getStateSymbolsWithoutOde() {
-    return this.getSpannedScope().get().resolveLocally(VariableSymbol.KIND)
-        .stream()
-        .map(stateSymbol -> (VariableSymbol) stateSymbol)
-        .filter(VariableSymbol::isState)
-        .filter(variableSymbol -> !variableSymbol.isInInitialValues())
-        .collect(toList());
-
-  }
 
   public List<VariableSymbol> getStateAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTBlockWithVariables::isState), getSpannedScope().get())

@@ -26,7 +26,7 @@ import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
  *
  * @author plotnikov
  */
-class ExactSolutionTransformer extends TransformerBase {
+class ExactSolutionTransformer {
 
 
   ASTNeuron addExactSolution(
@@ -35,24 +35,28 @@ class ExactSolutionTransformer extends TransformerBase {
     ASTNeuron workingVersion = astNeuron;
     workingVersion.addToInternalBlock(createDeclaration("__h ms = resolution()"));
 
-    workingVersion = addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
-    workingVersion = addVariableToInternals(workingVersion, solverOutput.const_input);
-    workingVersion = addVariablesToInternals(workingVersion, solverOutput.initial_values);
-    workingVersion = addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
-    workingVersion = addVariablesToState(workingVersion, solverOutput.shape_state_variables);
+    workingVersion = TransformerBase.addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
+    workingVersion = TransformerBase.addVariableToInternals(workingVersion, solverOutput.const_input);
+    workingVersion = TransformerBase.addVariablesToInternals(workingVersion, solverOutput.initial_values);
+    workingVersion = TransformerBase.addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
+    workingVersion = TransformerBase.addVariablesToState(workingVersion, solverOutput.shape_state_variables);
     workingVersion = addShapeStateUpdatesToUpdateBlock(workingVersion, solverOutput);
     workingVersion.removeEquationsBlock();
 
     // oder is important, otherwise addShapeStateUpdatesToUpdateBlock will try to resolve state variables,
     // for which nor symbol are added. TODO filter them
-    workingVersion = replaceIntegrateCallThroughPropagation(workingVersion, solverOutput.ode_var_update_instructions);
+    workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(workingVersion, solverOutput.ode_var_update_instructions);
 
     return workingVersion;
   }
 
   private ASTNeuron addShapeStateUpdatesToUpdateBlock(final ASTNeuron astNeuron, final SolverOutput solverOutput) {
     addStateUpdates(solverOutput, astNeuron);
-    addUpdatesWithPSCInitialValues(solverOutput, astNeuron, variableNameExtracter, shapeNameExtracter);
+    TransformerBase.addShapeVariableUpdatesWithIncomingSpikes(
+        solverOutput,
+        astNeuron,
+        TransformerBase.variableNameExtracter,
+        TransformerBase.shapeNameExtracter);
 
     return astNeuron;
   }
@@ -68,13 +72,13 @@ class ExactSolutionTransformer extends TransformerBase {
         .stream()
         .map(update -> update + " real")
         .map(AstCreator::createDeclaration)
-        .forEach(astAssignment -> addDeclrationToUpdateBlock(astAssignment, astNeuron));
+        .forEach(astAssignment -> TransformerBase.addDeclarationToUpdateBlock(astAssignment, astNeuron));
 
     solverOutput.updates_to_shape_state_variables
         .stream()
         .map(update -> update.getKey() + " = " + update.getValue())
         .map(AstCreator::createAssignment)
-        .forEach(astAssignment -> addAssignmentToUpdateBlock(astAssignment, astNeuron));
+        .forEach(astAssignment -> TransformerBase.addAssignmentToUpdateBlock(astAssignment, astNeuron));
   }
 
   // TODO: enable the optimization

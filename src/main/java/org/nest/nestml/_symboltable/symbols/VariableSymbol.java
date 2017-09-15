@@ -30,7 +30,7 @@ import static org.nest.utils.AstUtils.getVectorizedVariable;
  */
 public class VariableSymbol extends CommonSymbol {
   public static final VariableSymbolKind KIND = new VariableSymbolKind();
-  private final VariableType variableType;
+  private VariableType variableType;
   private BlockType blockType;
 
   private ASTExpr declaringExpression = null;
@@ -182,6 +182,14 @@ public class VariableSymbol extends CommonSymbol {
 
   public boolean isInInitialValues() {
     return blockType == BlockType.INITIAL_VALUES;
+  }
+
+  public void markShape() {
+    this.variableType = VariableType.SHAPE;
+  }
+
+  public boolean isShape() {
+    return variableType == VariableType.SHAPE;
   }
 
   public boolean isInternal() {

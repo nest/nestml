@@ -5,12 +5,18 @@
  */
 package org.nest.codegeneration.sympy;
 
+import com.google.common.collect.Lists;
+import org.nest.nestml._ast.ASTAssignment;
+import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._ast.ASTShape;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.reporting.Reporter;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.nest.utils.AstUtils.deepCloneNeuronAndBuildSymbolTable;
 
@@ -42,7 +48,7 @@ public class EquationsBlockProcessor {
       // this function is called only for neurons with an ode block. thus, retrieving it is safe.
       if (deepCopy.findEquationsBlock().get().getShapes().size() > 0 &&
           !odeShapeExists(deepCopy.findEquationsBlock().get().getShapes()) &&
-          deepCopy.findEquationsBlock().get().getODEs().size() == 1) {
+          deepCopy.findEquationsBlock().get().getEquations().size() == 1) {
 
         final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.findEquationsBlock().get(), outputBase);
         reporter.reportProgress("The model ODE with shapes will be analyzed.");
@@ -82,8 +88,37 @@ public class EquationsBlockProcessor {
       }
 
     }
-    reporter.reportProgress(String.format("The %s remains unchanged", astNeuron.getName()));
+
+    applyIncomingSpikes(astNeuron);
+
     return astNeuron;
+  }
+
+  private void applyIncomingSpikes(ASTNeuron astNeuron) {
+    reporter.reportProgress("Apply spikes to buffers...");
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    final List<ASTFunctionCall> convCalls = OdeTransformer.get_sumFunctionCalls(astNeuron);
+    final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
+
+    final List<ASTAssignment> spikesUpdates = Lists.newArrayList();
+    for (ASTFunctionCall convCall:convCalls) {
+      String shape = convCall.getArgs().get(0).getVariable().get().toString();
+      String buffer = convCall.getArgs().get(1).getVariable().get().toString();
+
+      List<VariableSymbol> shapeSymbols = astNeuron.getInitialValuesSymbols()
+          .stream()
+          .filter(variableSymbol -> variableSymbol.getName().matches(shape + "(')*"))
+          .collect(Collectors.toList());
+
+      spikesUpdates.addAll(shapeSymbols
+          .stream()
+          .map(shapeSymbol -> AstCreator.createAssignment(
+              shapeSymbol.getName() + " += " + buffer + " * " + printer.print(shapeSymbol.getDeclaringExpression().get())))
+          .collect(Collectors.toList()));
+
+    }
+    final TransformerBase transformerBase = new TransformerBase();
+    spikesUpdates.forEach(update -> transformerBase.addAssignmentToUpdateBlock(update, astNeuron));
   }
 
   private boolean odeShapeExists(final List<ASTShape> shapes) {

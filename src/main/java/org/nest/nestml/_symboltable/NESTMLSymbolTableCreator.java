@@ -116,7 +116,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
         if (multipleDefinitions.isEmpty()) {
           if (astNeuron.findEquationsBlock().isPresent()) {
 
-              assignOdeToVariables(astNeuron.findEquationsBlock().get());
+              connectOdesToInitialValues(astNeuron.findEquationsBlock().get());
               markConductanceBasedBuffers(astNeuron.findEquationsBlock().get(), astNeuron.getInputLines());
           }
 
@@ -170,31 +170,51 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
     }
   }
 
-  private void assignOdeToVariables(final ASTEquationsBlock astOdeDeclaration) {
-      astOdeDeclaration.getODEs().forEach(this::addOdeToVariable);
+  private void connectOdesToInitialValues(final ASTEquationsBlock astOdeDeclaration) {
+      astOdeDeclaration.getEquations().forEach(equation -> connectOdeToVariable(equation.getLhs(), equation.getRhs()));
+
+      astOdeDeclaration.getShapes()
+          .stream()
+          .filter(astShape -> astShape.getLhs().getDifferentialOrder().size() > 0)
+          .forEach(astShape -> connectOdeToVariable(astShape.getLhs(), astShape.getRhs()));
+
+      astOdeDeclaration.getShapes()
+          .stream()
+          .map(ASTShape::getLhs)
+          .forEach(this::markShapeVariables);
   }
 
-  private void addOdeToVariable(final ASTEquation ode) {
+  private void connectOdeToVariable(final ASTDerivative derivedVariable, final ASTExpr astExpr) {
     checkState(this.currentScope().isPresent());
     final Scope scope = currentScope().get();
-    if (ode.getLhs().getDifferentialOrder().size() > 0) {
-      final String variableName = ode.getLhs().getNameOfDerivedVariable();
-      final Optional<VariableSymbol> stateVariable = scope.resolve(variableName, VariableSymbol.KIND);
+      final String variableName = derivedVariable.getNameOfDerivedVariable();
+      final Optional<VariableSymbol> variable = scope.resolve(variableName, VariableSymbol.KIND);
 
-      if (stateVariable.isPresent()) {
-        stateVariable.get().setOdeDeclaration(ode.getRhs());
+      if (variable.isPresent()) {
+        variable.get().setOdeDeclaration(astExpr);
       }
       else {
-        Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " + variableName, ode.get_SourcePositionStart());
+        Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " +
+                 variableName, derivedVariable.get_SourcePositionStart());
       }
-    }
-    else {
-      Log.warn("NESTMLSymbolTableCreator: The lefthandside of an equation must be a derivative, e.g. " + ode.getLhs().toString() + "'", ode.get_SourcePositionStart());
-    }
-
 
   }
 
+  private void markShapeVariables(final ASTDerivative derivedVariable) {
+    checkState(this.currentScope().isPresent());
+    final Scope scope = currentScope().get();
+    final String variableName = derivedVariable.getNameOfDerivedVariable();
+    final Optional<VariableSymbol> variable = scope.resolve(variableName, VariableSymbol.KIND);
+
+    if (variable.isPresent()) {
+      variable.get().markShape();
+    }
+    else {
+      Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " +
+               variableName, derivedVariable.get_SourcePositionStart());
+    }
+
+  }
   /**
    * For each buffer, if it is used in the Cond_sum function, a conductance flag is added. E.g. in
    * equations:
@@ -219,7 +239,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
           .collect(Collectors.toList());
       final List<ASTNode> equations = Lists.newArrayList();
 
-      equations.addAll(astOdeDeclaration.getODEs());
+      equations.addAll(astOdeDeclaration.getEquations());
       equations.addAll(astOdeDeclaration.getOdeFunctions());
 
       for (VariableSymbol spikeBuffer:spikeBuffers) {
@@ -408,7 +428,7 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
       final String typeName =  computeTypeName(astDeclaration.getDatatype());
       var.setType(PredefinedTypes.getType(typeName));
 
-      boolean isRecordableVariable = blockType == STATE || astDeclaration.isRecordable();
+      boolean isRecordableVariable = blockType == STATE || blockType == INITIAL_VALUES || astDeclaration.isRecordable();
       if (isRecordableVariable) {
         // otherwise is set to false.
         var.setRecordable(true);

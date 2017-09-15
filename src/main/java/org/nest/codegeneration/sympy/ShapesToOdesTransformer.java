@@ -5,7 +5,6 @@
  */
 package org.nest.codegeneration.sympy;
 
-import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTEquation;
 import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._ast.ASTNeuron;
@@ -22,19 +21,19 @@ import static java.util.stream.Collectors.toList;
  *
  * @author plotnikov
  */
-class ShapesToOdesTransformer extends TransformerBase {
+class ShapesToOdesTransformer {
 
   ASTNeuron transformShapesToOdeForm(final ASTNeuron astNeuron, final SolverOutput solverOutput) {
     checkArgument(astNeuron.findEquationsBlock().isPresent());
 
-    ASTNeuron workingVersion = addVariablesToState(astNeuron, solverOutput.shape_state_variables);
-    workingVersion = addVariablesToInternals(workingVersion, solverOutput.initial_values);
-    workingVersion = removeShapes(workingVersion);
-    addUpdatesWithPSCInitialValues(
+    ASTNeuron workingVersion = TransformerBase.addVariablesToState(astNeuron, solverOutput.shape_state_variables);
+    workingVersion = TransformerBase.addVariablesToInternals(workingVersion, solverOutput.initial_values);
+    workingVersion = TransformerBase.removeShapes(workingVersion);
+    TransformerBase.addShapeVariableUpdatesWithIncomingSpikes(
         solverOutput,
         workingVersion,
-        variableNameExtracter,
-        shapeNameExtracter);
+        TransformerBase.variableNameExtracter,
+        TransformerBase.shapeNameExtracter);
 
     addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.findEquationsBlock().get());
 
@@ -48,20 +47,7 @@ class ShapesToOdesTransformer extends TransformerBase {
         .map(ode -> ode.getKey() + "' = " + ode.getValue())
         .map(AstCreator::createEquation)
         .collect(toList());
-    astOdeDeclaration.getODEs().addAll(equations);
-  }
-
-  private List<ASTDeclaration> shapesToStateVariables(final ASTEquationsBlock astOdeDeclaration) {
-    final List<String> stateVariables = astOdeDeclaration.getShapes()
-        .stream()
-        .map(shape -> shape.getLhs().toString())
-        .collect(toList());
-
-    return stateVariables
-        .stream()
-        .map(variable -> variable + " real")
-        .map(AstCreator::createDeclaration)
-        .collect(toList());
+    astOdeDeclaration.getEquations().addAll(equations);
   }
 
 }

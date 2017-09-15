@@ -232,7 +232,7 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
 
     astOdeDeclaration.getShapes().forEach(astShape -> printShape(astShape, printer));
     astOdeDeclaration.getOdeFunctions().forEach(astOdeFunction -> printOdeFunctions(astOdeFunction, printer));
-    astOdeDeclaration.getODEs().forEach(astEquation -> printEquation(astEquation, printer));
+    astOdeDeclaration.getEquations().forEach(astEquation -> printEquation(astEquation, printer));
 
     printer.unindent();
     printer.println(BLOCK_CLOSE);

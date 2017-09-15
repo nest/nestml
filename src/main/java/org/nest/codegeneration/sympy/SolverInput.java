@@ -47,7 +47,7 @@ class SolverInput {
     ASTEquationsBlock tmp = odeBlock.deepClone();
     tmp = OdeTransformer.replaceSumCalls(tmp);
 
-    ode = printEquation(tmp.getODEs().get(0));
+    ode = printEquation(tmp.getEquations().get(0));
 
     functions = tmp.getOdeFunctions()
         .stream()

@@ -11,6 +11,7 @@ public class VariableHelper {
     switch (variableSymbol.getBlockType()) {
       case STATE:
       case EQUATIONS:
+      case INITIAL_VALUES:
         return  "S_.";
       case PARAMETERS:
         return  "P_.";

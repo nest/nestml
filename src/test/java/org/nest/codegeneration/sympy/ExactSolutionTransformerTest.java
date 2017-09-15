@@ -67,7 +67,7 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
-    exactSolutionTransformer.replaceIntegrateCallThroughPropagation(
+    TransformerBase.replaceIntegrateCallThroughPropagation(
         modelRoot.getNeurons().get(0),
         Lists.newArrayList());
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);

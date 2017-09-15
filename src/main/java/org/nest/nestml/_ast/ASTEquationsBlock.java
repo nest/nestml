@@ -52,7 +52,4 @@ public class ASTEquationsBlock extends ASTEquationsBlockTOP {
     return shapes;
   }
 
-  public List<ASTEquation> getODEs() {
-    return equations;
-  }
 }

@@ -22,7 +22,7 @@ import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
  *
  * @author plotnikov
  */
-class DeltaSolutionTransformer extends TransformerBase {
+class DeltaSolutionTransformer {
 
   ASTNeuron addExactSolution(
       final SolverOutput solverOutput, final ASTNeuron astNeuron) {
@@ -30,8 +30,8 @@ class DeltaSolutionTransformer extends TransformerBase {
     ASTNeuron workingVersion = astNeuron;
     //addVariableToInternals(astNeuron, p30File);
     workingVersion.addToInternalBlock(createDeclaration("__h ms = resolution()"));
-    workingVersion = addVariableToInternals(workingVersion, solverOutput.const_input);
-    workingVersion = addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
+    workingVersion = TransformerBase.addVariableToInternals(workingVersion, solverOutput.const_input);
+    workingVersion = TransformerBase.addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
 
     final List<ASTFunctionCall> i_sumCalls = AstUtils.getAll(astNeuron.findEquationsBlock().get(), ASTFunctionCall.class)
         .stream()
@@ -44,7 +44,9 @@ class DeltaSolutionTransformer extends TransformerBase {
       solverOutput.ode_var_update_instructions.add(astNeuron.getEquations().get(0).getLhs().getName() + "+=" + bufferName);
     }
 
-    workingVersion = replaceIntegrateCallThroughPropagation(workingVersion, solverOutput.ode_var_update_instructions);
+    workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(
+        workingVersion,
+        solverOutput.ode_var_update_instructions);
     return workingVersion;
   }
 

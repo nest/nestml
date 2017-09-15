@@ -84,7 +84,7 @@ public class NestCodeGenerator {
 
     final Optional<ASTEquationsBlock> odesBlock = astNeuron.findEquationsBlock();
     if (odesBlock.isPresent()) {
-      if (odesBlock.get().getShapes().size() == 0 && odesBlock.get().getODEs().size() > 1) {
+      if (odesBlock.get().getShapes().size() == 0 && odesBlock.get().getEquations().size() > 1) {
         final String msg = String.format(
             "The neuron %s will be solved numerically with GSL solver without modification.",
             astNeuron.getName());
@@ -191,10 +191,8 @@ public class NestCodeGenerator {
 
   private GlobalExtensionManagement getGlexConfiguration() {
     final GlobalExtensionManagement glex = new GlobalExtensionManagement();
-    final NESTReferenceConverter converter = new NESTReferenceConverter();
+    final NESTReferenceConverter converter = new NESTReferenceConverter(false);
     final ExpressionsPrettyPrinter expressionsPrinter  = new LegacyExpressionPrinter(converter);
-
-
 
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);
@@ -245,11 +243,11 @@ public class NestCodeGenerator {
 
     if (neuron.findEquationsBlock().isPresent()) {
       if (!functionShapeExists(neuron.findEquationsBlock().get().getShapes()) ||
-          neuron.findEquationsBlock().get().getODEs().size() > 1) {
+          neuron.findEquationsBlock().get().getEquations().size() > 1) {
         glex.setGlobalValue("names", new GslNames());
         glex.setGlobalValue("useGSL", true);
 
-        final IReferenceConverter converter = new NESTArrayStateReferenceConverter();
+        final NESTReferenceConverter converter = new NESTReferenceConverter(true);
         final ExpressionsPrettyPrinter expressionsPrinter = new LegacyExpressionPrinter(converter);
         glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
       }

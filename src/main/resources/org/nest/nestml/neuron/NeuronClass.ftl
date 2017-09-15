@@ -40,7 +40,7 @@
 
 #include "${neuronName}.h"
 
-<#assign stateSize = body.getEquations()?size>
+<#assign stateSize = body.getInitialValuesSymbols()?size>
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
@@ -61,6 +61,9 @@ namespace nest
       ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [internal])}
     </#list>
     <#list body.getParameterSymbols() as parameter>
+      ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [parameter])}
+    </#list>
+    <#list body.getInitialValuesSymbols() as parameter>
       ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [parameter])}
     </#list>
     <#list body.getODEAliases() as odeAlias>
@@ -134,6 +137,11 @@ ${neuronName}::${neuronName}():Archiving_Node(), P_(), S_(), B_(*this)
   <#list body.getStateNonAliasSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, expressionsPrinter])}
   </#list>
+
+  <#list body.getInitialValuesSymbols() as initial_value>
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [initial_value, expressionsPrinter])}
+  </#list>
+
 
 }
 
