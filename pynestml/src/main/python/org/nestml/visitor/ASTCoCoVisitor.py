@@ -257,9 +257,9 @@ class ASTCoCoVisitor:
             '(PyNestML.CoCo.Visitor) No or wrong type of equations block provided!'
         _coco(_ast)
         for decl in _ast.getDeclarations():
-            if isinstance(decl, ASTOdeShape):
+            if isinstance(decl, ASTOdeShape.ASTOdeShape):
                 cls.visitOdeShape(decl, _coco)
-            elif isinstance(decl, ASTOdeFunction):
+            elif isinstance(decl, ASTOdeFunction.ASTOdeFunction):
                 cls.visitOdeFunction(decl, _coco)
             else:
                 cls.visitOdeEquation(decl, _coco)

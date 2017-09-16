@@ -22,7 +22,6 @@
 
 lexer grammar Tokens;
 
-
   SL_COMMENT : ('#' (~('\n' |'\r' ))*|
                '/*' .*? '*/' | '"""' .*? '"""')
                -> channel(HIDDEN)
@@ -65,6 +64,7 @@ lexer grammar Tokens;
   * The following declaration originates from Antrl4 Python Grammar definition as distributed under the MIT license.
   * link: https://github.com/antlr/grammars-v4/blob/master/python3/Python3.g4
   */
+
   /*
   * A flaot can be a point float, e.g., 10.05 or 0.1, or an exponent float, e.g. 10E10.
   */
