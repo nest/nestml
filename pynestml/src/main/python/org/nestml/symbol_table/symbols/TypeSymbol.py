@@ -26,6 +26,10 @@ from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 class TypeSymbol(Symbol):
     """
     This class is used to represent a single type symbol which represents the type of a element, e.g., a variable.
+    
+        Attributes:
+        __type      The type of this type symbol, i.e., buffer, variable or unit. Type: TypeSymbolType
+    
     """
     __type = None
 
@@ -66,7 +70,7 @@ class TypeSymbol(Symbol):
         """
         Checks if the handed over type symbol object is equal to this (value-wise).
         :param _other: a type symbol object.
-        :type _other: TypeSymbol or subclass.
+        :type _other: Symbol or subclass.
         :return: True if equal, otherwise False.
         :rtype: bool
         """
@@ -75,6 +79,51 @@ class TypeSymbol(Symbol):
                self.getReferencedObject() == _other.getReferencedObject() and \
                self.getSymbolName() == _other.getSymbolName() and \
                self.getCorrespondingScope() == _other.getCorrespondingScope()
+
+    @classmethod
+    def getRealType(cls):
+        """
+        Returns a new type symbol representing the type real.
+        :return: a new Real type type symbol
+        :rtype: 
+        """
+        return cls(_name='real', _type=TypeSymbolType.PRIMITIVE)
+
+    @classmethod
+    def getVoidType(cls):
+        """
+        
+        :return: 
+        :rtype: 
+        """
+        return cls(_name='void', _type=TypeSymbolType.PRIMITIVE)
+
+    @classmethod
+    def getBooleanType(cls):
+        """
+        
+        :return: 
+        :rtype: 
+        """
+        return cls(_name='boolean', _type=TypeSymbolType.PRIMITIVE)
+
+    @classmethod
+    def getStringType(cls):
+        """
+        
+        :return: 
+        :rtype: 
+        """
+        return cls(_name='string', _type=TypeSymbolType.PRIMITIVE)
+
+    @classmethod
+    def getIntegerType(cls):
+        """
+        
+        :return: 
+        :rtype: 
+        """
+        return cls(_name='integer', _type=TypeSymbolType.PRIMITIVE)
 
 
 class TypeSymbolType(Enum):

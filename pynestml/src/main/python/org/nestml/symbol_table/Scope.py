@@ -20,7 +20,6 @@
 
 from enum import Enum
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symbol
-from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 
 
@@ -177,8 +176,6 @@ class Scope:
         ret = list()
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
-        assert (isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided!'
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
                 ret.append(self)
@@ -201,8 +198,6 @@ class Scope:
         """
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
-        assert (isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided!'
         gScope = self.getGlobalScope()
         symbols = gScope.__resolveToSymbolInSpannedScope(_name, _type)
         # the following step is done in order to return, whenever the list contains only one element, only this element
@@ -224,8 +219,6 @@ class Scope:
         ret = list()
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
-        assert (isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided!'
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
                 ret.append(sim)

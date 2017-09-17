@@ -21,19 +21,21 @@
 class PredefinedVariables:
     """
     This class is used to store all predefined variables as generally available. 
+    
+    Attributes:
+        __E_CONSTANT     The euler constant symbol, i.e. e. Type: str
+        __TIME_CONSTANT  The time variable stating the current time since start of simulation. Type: str
+    
     """
     __E_CONSTANT = 'e'
     __TIME_CONSTANT = 't'
 
-    #TODO
-
-
     @classmethod
-    def registerVariable(cls,_scope=None,_name=None):
+    def registerPredefinedVariables(cls, _scope=None):
         """
-        
-        :param _scope: 
-        :type _scope: 
-        :return: 
-        :rtype: 
+        Registers the predefined variables in the handed over scope.
+        :param _scope: a single, global scope
+        :type _scope: Scope
         """
+        print('TODO')
+        pass

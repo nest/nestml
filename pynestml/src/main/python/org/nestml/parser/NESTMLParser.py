@@ -57,6 +57,7 @@ class NESTMLParser:
         astBuilderVisitor = ASTBuilderVisitor.ASTBuilderVisitor()
         ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
         # update the corresponding symbol tables
+        """
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
         # now check that all context conditions hold
@@ -69,5 +70,5 @@ class NESTMLParser:
         cocoManager = CoCosManager(cocosToCheck)
         for neuron in ast.getNeuronList():
             cocoManager.checkCocos(neuron)
-
+        """
         return ast

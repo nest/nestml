@@ -84,7 +84,7 @@ class Symbol:
         """
         from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of position object handed over!'
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided!'
         return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
 
     @abstractmethod

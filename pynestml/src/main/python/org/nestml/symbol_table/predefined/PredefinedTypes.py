@@ -56,7 +56,7 @@ class PredefinedTypes:
         """
         assert (_scope is not None and isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='real', _type=TypeSymbolType.PRIMITIVE,_scope=_scope)
+        symbol = TypeSymbol(_name='real', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
         _scope.addSymbol(symbol)
         return
 
@@ -69,7 +69,7 @@ class PredefinedTypes:
         """
         assert (_scope is not None and isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='void', _type=SymbolType.Type, _elementReference=None, _scope=_scope)
+        symbol = TypeSymbol(_name='void', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
         _scope.addSymbol(symbol)
         return
 
@@ -82,7 +82,7 @@ class PredefinedTypes:
         """
         assert (_scope is not None and isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='boolean', _type=SymbolType.Type, _elementReference=None, _scope=_scope)
+        symbol = TypeSymbol(_name='boolean', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
         _scope.addSymbol(symbol)
         return
 
@@ -95,7 +95,7 @@ class PredefinedTypes:
         """
         assert (_scope is not None and isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='string', _type=SymbolType.Type, _elementReference=None, _scope=_scope)
+        symbol = TypeSymbol(_name='string', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
         _scope.addSymbol(symbol)
         return
 
@@ -108,6 +108,6 @@ class PredefinedTypes:
         """
         assert (_scope is not None and isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='integer', _type=SymbolType.Type, _elementReference=None, _scope=_scope)
+        symbol = TypeSymbol(_name='integer', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
         _scope.addSymbol(symbol)
         return
