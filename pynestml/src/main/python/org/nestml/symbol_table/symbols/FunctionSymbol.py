@@ -19,42 +19,50 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.#
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symbol
-from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
 
 
 class FunctionSymbol(Symbol):
     """
     This class is used to store a single function symbol, e.g. the definition of the function max.
     """
-    __name = None
-    __args = None
+    __paramTypes = None
     __returnType = None
+    __isPredefined = False
 
-    def __init__(self, _name=None, _args=list(), _returnType=None, _elementReference=None, _scope=None):
+    def __init__(self, _name=None, _paramTypes=list(), _returnType=None, _elementReference=None, _scope=None,
+                 _isPredefined=False):
         """
         Standard constructor.
         :param _name: the name of the function symbol.
         :type _name: str
-        :param _args: a list of argument types.
-        :type _args: list(TypeSymbol)
+        :param _paramTypes: a list of argument types.
+        :type _paramTypes: list(TypeSymbol)
         :param _returnType: the return type of the function.
         :type _returnType: TypeSymbol
+        :param _elementReference: a reference to the ASTFunction which corresponds to this symbol (if not predefined)
+        :type _elementReference: ASTFunction
+        :param _scope: a reference to the scope in which this symbol is defined in
+        :type _scope: Scope
+        :param _isPredefined: True, if this element is a predefined one, otherwise False.
+        :type _isPredefined: bool
         """
-        super(Symbol, self).__init__(_elementReference=_elementReference,
-                                     _scope=_scope, _type=SymbolType.FUNCTION, _name=_name)
-        assert (_name is not None and isinstance(_returnType, TypeSymbol)), \
+        super(FunctionSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
+        assert (_returnType is not None and isinstance(_returnType, TypeSymbol)), \
             '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided!'
-        for arg in _args:
+        for arg in _paramTypes:
             assert (arg is not None and isinstance(arg, TypeSymbol)), \
                 '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of argument provided!'
-        self.__args = _args
+        assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
+            'PyNestML.SymbolTable.FunctionSymbol) No or wrong type of predefined-specification provided!'
+        self.__paramTypes = _paramTypes
         self.__returnType = _returnType
+        self.__isPredefined = _isPredefined
 
     def printSymbol(self):
         ret = 'MethodSymbol[' + super(Symbol).getSymbolName() + ', Parameters = '
-        for arg in self.__args:
-            ret + arg.printSymbol()
-            if arg < len(self.__args) - 1:  # in the case that it is not the last arg, print also a comma
+        for arg in self.__paramTypes:
+            ret += arg.printSymbol()
+            if arg < len(self.__paramTypes) - 1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
         return ret + ']'
 
@@ -82,7 +90,7 @@ class FunctionSymbol(Symbol):
         :return: a list of parameter types.
         :rtype: list(TypeSymbol)
         """
-        return self.__args
+        return self.__paramTypes
 
     def addParameterType(self, _newType=None):
         """
@@ -92,7 +100,15 @@ class FunctionSymbol(Symbol):
         """
         assert (_newType is not None and isinstance(_newType, TypeSymbol)), \
             '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided!'
-        self.__args.append(_newType)
+        self.__paramTypes.append(_newType)
+
+    def isPredefined(self):
+        """
+        Returns whether it is a predefined function or not.
+        :return: True if predefined, otherwise False
+        :rtype: bool
+        """
+        return self.__isPredefined
 
     def equals(self, _other=None):
         """
@@ -102,11 +118,11 @@ class FunctionSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if type(_other) != type(self) or self.__name != _other.getName() \
-                or not self.__returnType.equals() or len(self.__args) != len(_other.getParameterTypes()):
+        if type(_other) != type(self) or self.__name != _other.getSymbolName() \
+                or not self.__returnType.equals() or len(self.__paramTypes) != len(_other.getParameterTypes()):
             return False
         otherArgs = _other.getParameterTypes()
-        for i in range(0, len(self.__args)):
-            if not self.__args[i].equals(otherArgs[i]):
+        for i in range(0, len(self.__paramTypes)):
+            if not self.__paramTypes[i].equals(otherArgs[i]):
                 return False
         return True

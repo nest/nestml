@@ -17,32 +17,25 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
-from enum import Enum
+from abc import ABCMeta, abstractmethod
 
 
 class Symbol:
     """
-    This class is ues to store information regarding a single symbol as required for a correct handling of scopes
-    and context conditions. A single symbol is a declaration or an argument of a function.
-    E.g.:   V_m mV = .... 
-            function x(arg1,...)
+    This abstract class represents a super-class for all concrete symbols as stored in a symbol table.
     """
+    __metaclass__ = ABCMeta
     __elementReference = None
     __scope = None
-    __type = None
     __name = None
 
-    def __init__(self, _elementReference=None, _scope=None, _type=None, _name=None):
+    def __init__(self, _elementReference=None, _scope=None, _name=None):
         """
         Standard constructor of the Symbol class.
         :param _elementReference: an ast object.
         :type _elementReference: ASTObject
         :param _scope: the scope in which this element is embedded in.
         :type _scope: Scope
-        :param _type: the type of this symbol, i.e., VARIABLE or FUNCTION
-        :type _type: SymbolType
         :param _name: the name of the corresponding element
         :type _name: str
         """
@@ -50,13 +43,10 @@ class Symbol:
         assert (_elementReference is not None), '(PyNestML.SymbolTable.Symbol) No AST reference provided!'
         assert (_scope is not None and isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of scope provided!'
-        assert (_type is not None and isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-type provided!'
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-name provided!'
         self.__elementReference = _elementReference
         self.__scope = _scope
-        self.__type = _type
         self.__name = _name
 
     def getReferencedObject(self):
@@ -75,14 +65,6 @@ class Symbol:
         """
         return self.__scope
 
-    def getSymbolType(self):
-        """
-        Returns the type of this symbol.
-        :return: the type of the symbol
-        :rtype: SymbolType
-        """
-        return self.__type
-
     def getSymbolName(self):
         """
         Returns the name of this symbol.
@@ -91,7 +73,7 @@ class Symbol:
         """
         return self.__name
 
-    def isDefinedBefore(self, _sourcePosition):
+    def isDefinedBefore(self, _sourcePosition=None):
         """
         For a handed over source position, this method checks if this symbol has been defined before the handed
         over position.
@@ -100,28 +82,28 @@ class Symbol:
         :return: True, if defined before or at the sourcePosition, otherwise False.
         :rtype: bool
         """
+        from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
+        assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of position object handed over!'
         return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
 
+    @abstractmethod
     def printSymbol(self):
         """
-        Returns a string representation of this symbol object.
+        Returns a string representation of this symbol object. This class has to be specified in the corresponding
+        sub-class.
         :return: a string representation
         :rtype: str
         """
-        if self.getSymbolType() is SymbolType.FUNCTION:
-            return '[' + str(self.getSymbolName()) + ',' + 'FUNCTION' \
-                   + ',' + self.getReferencedObject().getSourcePosition().printSourcePosition() + ']'
-        elif self.getSymbolType() is SymbolType.VARIABLE:
-            return '[' + str(self.getSymbolName()) + ',' + 'VARIABLE' + \
-                   ',' + self.getReferencedObject().getSourcePosition().printSourcePosition() + ']'
-        else:
-            return '[' + str(self.getSymbolName()) + ',' + 'TYPE' + \
-                   ',' + self.getReferencedObject().getSourcePosition().printSourcePosition() + ']'
+        pass
 
-class SymbolType(Enum):
-    """
-    This enum is used to represent the type of a function as used to resolve and store symbols.
-    """
-    VARIABLE = 1
-    FUNCTION = 2
-    TYPE = 3
+    @abstractmethod
+    def equals(self, _other=None):
+        """
+        Checks if the handed over object is equal to this (value-wise).
+        :param _other: a symbol object.
+        :type _other: Symbol or subclass.
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        pass

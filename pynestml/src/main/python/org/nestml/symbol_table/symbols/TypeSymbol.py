@@ -27,23 +27,24 @@ class TypeSymbol(Symbol):
     """
     This class is used to represent a single type symbol which represents the type of a element, e.g., a variable.
     """
-    __name = None
     __type = None
 
-    def __init__(self, _name=None, _typeType=None, _scope=None):
+    def __init__(self, _elementReference=None, _scope=None, _name=None, _type=None):
         """
         Standard constructor.
+        :param _elementReference: a reference to the first element where this type has been used/defined
+        :type _elementReference: Object (or None, if predefined)
         :param _name: the name of the type symbol
         :type _name: str
-        :param _typeType: the type of the type symbol
-        :type _typeType: TypeSymbolType
+        :param _type: the type of the type symbol
+        :type _type: TypeSymbolType
         :param _scope: the scope in which this type is defined in 
         :type _scope: Scope
         """
-        super(Symbol, self).__init__(_elementReference=None, _scope=_scope, _type=SymbolType.TYPE, _name=_name)
-        assert (_typeType is not None and isinstance(_typeType, TypeSymbolType)), \
-            '(PyNestML.SymbolTable.TypeSymbol) No or wrong type of type-type provided!'
-        self.__type = _typeType
+        super(TypeSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
+        assert (_type is not None and isinstance(_type, TypeSymbolType)), \
+            '(PyNestML.SymbolTable.TypeSymbol) No or wrong type of type provided!'
+        self.__type = _type
 
     def getType(self):
         """
@@ -52,6 +53,28 @@ class TypeSymbol(Symbol):
         :rtype: TypeSymbolType
         """
         return self.__type
+
+    def printSymbol(self):
+        """
+        Returns a string representation of this symbol.
+        :return: a string representation.
+        :rtype: str
+        """
+        return 'TypeSymbol[' + self.getSymbolName() + ',' + str(self.getType()) + ']'
+
+    def equals(self, _other=None):
+        """
+        Checks if the handed over type symbol object is equal to this (value-wise).
+        :param _other: a type symbol object.
+        :type _other: TypeSymbol or subclass.
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        return type(self) != type(_other) and \
+               self.getType() == _other.getType() and \
+               self.getReferencedObject() == _other.getReferencedObject() and \
+               self.getSymbolName() == _other.getSymbolName() and \
+               self.getCorrespondingScope() == _other.getCorrespondingScope()
 
 
 class TypeSymbolType(Enum):
