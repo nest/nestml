@@ -66,7 +66,7 @@ lexer grammar Tokens;
   */
 
   /*
-  * A flaot can be a point float, e.g., 10.05 or 0.1, or an exponent float, e.g. 10E10.
+  * A float can be a point float, e.g., 10.05 or 0.1, or an exponent float, e.g. 10E10.
   */
   FLOAT : POINT_FLOAT | EXPONENT_FLOAT;
 
