@@ -20,7 +20,6 @@
  *
  */
 
-
 /**
   Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
   language which leans on the Python syntax.
@@ -29,16 +28,15 @@ grammar PyNESTML;
 
   import Tokens;
 
-  nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
   /*********************************************************************************************************************
   * Units-Language
   *********************************************************************************************************************/
 
   /**
-    ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
-    datatype.
+    ASTDatatype. Represents predefined data types and gives a possibility to use an unit
+    data type.
     @attribute boolean getters for integer, real, ...
-    @attribute unitType a SI datatype
+    @attribute unitType a SI data type
   */
   datatype : isInt='integer'
            | isReal='real'
@@ -47,7 +45,7 @@ grammar PyNESTML;
            | isVoid='void'
            | unit=unitType;
   /**
-    ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
+    ASTUnitType. Represents an unit data type. It can be a plain data type as 'mV' or a
     complex data type as 'mV/s'
   */
   unitType : leftParentheses='(' compoundUnit=unitType rightParentheses=')'
@@ -59,6 +57,7 @@ grammar PyNESTML;
   /*********************************************************************************************************************
   * Expressions-Language
   *********************************************************************************************************************/
+
   /**
    ASTExpr, i.e., several subexpressions combined by one or more
    operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
@@ -76,7 +75,6 @@ grammar PyNESTML;
          | condition=expression '?' ifTrue=expression ':' ifNot=expression
          | simpleExpression
          ;
-
 
   /**
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,
@@ -104,13 +102,12 @@ grammar PyNESTML;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
-    @attribute name The (qualified) name of the fucntions
+    @attribute name The (qualified) name of the functions
     @attribute args Comma separated list of expressions representing parameters.
   */
   functionCall : calleeName=NAME '(' (args=arguments)? ')';
 
   arguments : expression (',' expression)*;
-
 
   /*********************************************************************************************************************
   * Equations-Language
@@ -149,7 +146,6 @@ grammar PyNESTML;
      compoundMinus='-='   |
      compoundProduct='*=' |
      compoundQuotient='/=') expression;
-
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
@@ -194,8 +190,14 @@ grammar PyNESTML;
   signedNumericLiteral : (negative='-'?) (INTEGER|FLOAT);
 
   /*********************************************************************************************************************
-  * Nestml-Language
+  * NestML-Language
   *********************************************************************************************************************/
+
+  /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
+    @attribute neuron_list a list of processed models.
+  */
+  nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
+
   /** ASTNeuron represents neuron.
     @attribute Name    The name of the neuron
     @attribute Body    The body of the neuron, e.g. internal, state, parameter...
@@ -213,9 +215,9 @@ grammar PyNESTML;
       y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
     end
 
-    @attribute state true if the varblock ist a state.
-    @attribute parameter true if the varblock ist a parameter.
-    @attribute internal true if the varblock ist a state internal.
+    @attribute state true if the varblock is a state.
+    @attribute parameter true if the varblock is a parameter.
+    @attribute internal true if the varblock is a state internal.
     @attribute AliasDecl a list with variable declarations.
   */
   blockWithVariables:

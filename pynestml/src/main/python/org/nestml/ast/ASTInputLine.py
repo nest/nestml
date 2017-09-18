@@ -150,6 +150,36 @@ class ASTInputLine(ASTElement):
         """
         return self.__signalType is SignalType.CURRENT
 
+    def isExcitatory(self):
+        """
+        Returns whether this buffer is excitatory or not. For this, it has to be marked explicitly by the 
+        excitatory keyword or no keywords at all shall occur (implicitly all types).
+        :return: True if excitatory, False otherwise.
+        :rtype: bool
+        """
+        if self.getInputTypes() is not None and len(self.getInputTypes()) == 0:
+            return True
+        for typE in self.getInputTypes():
+            if typE.isExcitatory():
+                return True
+        return False
+
+    def isInhibitory(self):
+        """
+        Returns whether this buffer is inhibitory or not. For this, it has to be marked explicitly by the 
+        inhibitory keyword or no keywords at all shall occur (implicitly all types).
+        :return: True if inhibitory, False otherwise.
+        :rtype: bool
+        """
+        if self.getInputTypes() is not None and len(self.getInputTypes()) == 0:
+            return True
+        for typE in self.getInputTypes():
+            if typE.isInhibitory():
+                return True
+        return False
+
+
+
     def printAST(self):
         """
         Returns a string representation of the input line.

@@ -30,16 +30,22 @@ class ASTElement:
     """
     __metaclass__ = ABCMeta
     __sourcePosition = None
+    __scope = None
 
-    def __init__(self, _sourcePosition=None):
+    def __init__(self, _sourcePosition=None, _scope=None):
         """
         The standard constructor.
         :param _sourcePosition: a source position element.
         :type _sourcePosition: ASTSourcePosition
+        :param _scope: the scope in which this element is embedded in.
+        :type _scope: Scope
         """
         assert (_sourcePosition is None or isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.AST.Element) No source position handed over!'
+        assert (_scope is None or isinstance(_scope, Scope)), \
+            '(PyNestML.AST.Element) Wrong type of scope handed over!'
         self.__sourcePosition = _sourcePosition
+        self.__scope = _scope
 
     def getSourcePosition(self):
         """
@@ -47,5 +53,8 @@ class ASTElement:
         :return: an source position object.
         :rtype: ASTSourcePosition
         """
-        return self.__sourcePosition
+        if self.__sourcePosition is not None:
+            return self.__sourcePosition
+        else:
+            return ASTSourcePosition(_startColumn=-1, _startLine=-1, _endColumn=-1, _endLine=-1)
 

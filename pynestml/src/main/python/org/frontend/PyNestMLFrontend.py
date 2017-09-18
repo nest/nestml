@@ -22,7 +22,7 @@
 import os, sys
 import argparse  # used for parsing of input arguments
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
-from pynestml.src.main.python.org.nestml.parser.NESTMParserExceptions import InvalidPathException
+from pynestml.src.main.python.org.nestml.parser.NESTMLParserExceptions import InvalidPathException
 
 
 def main(args):

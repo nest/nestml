@@ -1,12 +1,13 @@
-# Generated from pynestml/src/main/grammars/org/PyNESTML.g4 by ANTLR 4.5.1
+# Generated from pynestml/src/main/grammars/org/PyNESTML.g4 by ANTLR 4.7
 # encoding: utf-8
 from __future__ import print_function
 from antlr4 import *
 from io import StringIO
+import sys
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write(u"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3")
+        buf.write(u"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3")
         buf.write(u"O\u01ef\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t")
         buf.write(u"\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r")
         buf.write(u"\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4")
@@ -14,37 +15,37 @@ def serializedATN():
         buf.write(u"\t\30\4\31\t\31\4\32\t\32\4\33\t\33\4\34\t\34\4\35\t")
         buf.write(u"\35\4\36\t\36\4\37\t\37\4 \t \4!\t!\4\"\t\"\4#\t#\4$")
         buf.write(u"\t$\4%\t%\4&\t&\4\'\t\'\4(\t(\4)\t)\4*\t*\4+\t+\4,\t")
-        buf.write(u",\3\2\3\2\7\2[\n\2\f\2\16\2^\13\2\3\2\3\2\3\3\3\3\3\3")
-        buf.write(u"\3\3\3\3\3\3\5\3h\n\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4")
-        buf.write(u"\3\4\5\4s\n\4\3\4\3\4\3\4\5\4x\n\4\3\4\3\4\3\4\3\4\7")
-        buf.write(u"\4~\n\4\f\4\16\4\u0081\13\4\3\5\3\5\3\5\3\5\3\5\3\5\3")
-        buf.write(u"\5\3\5\3\5\3\5\3\5\5\5\u008e\n\5\3\5\3\5\3\5\3\5\3\5")
-        buf.write(u"\3\5\3\5\5\5\u0097\n\5\3\5\3\5\3\5\3\5\5\5\u009d\n\5")
-        buf.write(u"\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5")
-        buf.write(u"\3\5\3\5\3\5\3\5\3\5\3\5\7\5\u00b2\n\5\f\5\16\5\u00b5")
-        buf.write(u"\13\5\3\6\3\6\3\6\3\6\5\6\u00bb\n\6\3\6\3\6\5\6\u00bf")
-        buf.write(u"\n\6\3\7\3\7\3\7\5\7\u00c4\n\7\3\b\3\b\3\b\3\b\3\b\5")
-        buf.write(u"\b\u00cb\n\b\3\t\3\t\3\t\3\t\3\t\3\t\3\t\5\t\u00d4\n")
-        buf.write(u"\t\3\n\3\n\5\n\u00d8\n\n\3\13\3\13\7\13\u00dc\n\13\f")
-        buf.write(u"\13\16\13\u00df\13\13\3\f\3\f\3\f\5\f\u00e4\n\f\3\f\3")
-        buf.write(u"\f\3\r\3\r\3\r\7\r\u00eb\n\r\f\r\16\r\u00ee\13\r\3\16")
-        buf.write(u"\5\16\u00f1\n\16\3\16\3\16\3\16\3\16\3\16\3\16\3\17\3")
-        buf.write(u"\17\3\17\3\17\3\20\3\20\7\20\u00ff\n\20\f\20\16\20\u0102")
-        buf.write(u"\13\20\3\21\3\21\3\22\3\22\3\22\3\22\3\22\3\23\3\23\7")
-        buf.write(u"\23\u010d\n\23\f\23\16\23\u0110\13\23\3\24\3\24\5\24")
-        buf.write(u"\u0114\n\24\3\25\3\25\3\25\5\25\u0119\n\25\3\26\3\26")
-        buf.write(u"\3\26\3\26\5\26\u011f\n\26\3\27\3\27\3\27\3\27\3\27\3")
-        buf.write(u"\27\5\27\u0127\n\27\3\27\3\27\3\30\5\30\u012c\n\30\3")
-        buf.write(u"\30\5\30\u012f\n\30\3\30\3\30\3\30\7\30\u0134\n\30\f")
-        buf.write(u"\30\16\30\u0137\13\30\3\30\3\30\3\30\3\30\5\30\u013d")
-        buf.write(u"\n\30\3\30\3\30\5\30\u0141\n\30\3\30\5\30\u0144\n\30")
-        buf.write(u"\3\30\3\30\3\30\3\30\5\30\u014a\n\30\3\31\3\31\5\31\u014e")
-        buf.write(u"\n\31\3\32\3\32\7\32\u0152\n\32\f\32\16\32\u0155\13\32")
-        buf.write(u"\3\32\5\32\u0158\n\32\3\32\3\32\3\33\3\33\3\33\3\33\3")
-        buf.write(u"\33\3\34\3\34\3\34\3\34\3\34\3\35\3\35\3\35\3\35\3\36")
-        buf.write(u"\3\36\3\36\3\36\3\36\3\36\3\36\3\36\3\36\3\36\3\36\3")
-        buf.write(u"\36\3\37\3\37\3\37\3\37\3\37\3\37\3 \5 \u017d\n \3 \3")
-        buf.write(u" \3!\3!\3!\3!\3\"\3\"\3\"\3\"\3\"\3\"\3\"\3\"\7\"\u018d")
+        buf.write(u",\3\2\3\2\3\2\3\2\3\2\3\2\5\2_\n\2\3\3\3\3\3\3\3\3\3")
+        buf.write(u"\3\3\3\3\3\3\3\3\3\5\3j\n\3\3\3\3\3\3\3\5\3o\n\3\3\3")
+        buf.write(u"\3\3\3\3\3\3\7\3u\n\3\f\3\16\3x\13\3\3\4\3\4\3\4\3\4")
+        buf.write(u"\3\4\3\4\3\4\3\4\3\4\3\4\3\4\5\4\u0085\n\4\3\4\3\4\3")
+        buf.write(u"\4\3\4\3\4\3\4\3\4\5\4\u008e\n\4\3\4\3\4\3\4\3\4\5\4")
+        buf.write(u"\u0094\n\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3")
+        buf.write(u"\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\7\4\u00a9\n\4\f\4")
+        buf.write(u"\16\4\u00ac\13\4\3\5\3\5\3\5\3\5\5\5\u00b2\n\5\3\5\3")
+        buf.write(u"\5\5\5\u00b6\n\5\3\6\3\6\3\6\5\6\u00bb\n\6\3\7\3\7\3")
+        buf.write(u"\7\3\7\3\7\5\7\u00c2\n\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b")
+        buf.write(u"\5\b\u00cb\n\b\3\t\3\t\5\t\u00cf\n\t\3\n\3\n\7\n\u00d3")
+        buf.write(u"\n\n\f\n\16\n\u00d6\13\n\3\13\3\13\3\13\5\13\u00db\n")
+        buf.write(u"\13\3\13\3\13\3\f\3\f\3\f\7\f\u00e2\n\f\f\f\16\f\u00e5")
+        buf.write(u"\13\f\3\r\5\r\u00e8\n\r\3\r\3\r\3\r\3\r\3\r\3\r\3\16")
+        buf.write(u"\3\16\3\16\3\16\3\17\3\17\7\17\u00f6\n\17\f\17\16\17")
+        buf.write(u"\u00f9\13\17\3\20\3\20\3\21\3\21\3\21\3\21\3\21\3\22")
+        buf.write(u"\3\22\7\22\u0104\n\22\f\22\16\22\u0107\13\22\3\23\3\23")
+        buf.write(u"\5\23\u010b\n\23\3\24\3\24\3\24\5\24\u0110\n\24\3\25")
+        buf.write(u"\3\25\3\25\3\25\5\25\u0116\n\25\3\26\3\26\3\26\3\26\3")
+        buf.write(u"\26\3\26\5\26\u011e\n\26\3\26\3\26\3\27\5\27\u0123\n")
+        buf.write(u"\27\3\27\5\27\u0126\n\27\3\27\3\27\3\27\7\27\u012b\n")
+        buf.write(u"\27\f\27\16\27\u012e\13\27\3\27\3\27\3\27\3\27\5\27\u0134")
+        buf.write(u"\n\27\3\27\3\27\5\27\u0138\n\27\3\27\5\27\u013b\n\27")
+        buf.write(u"\3\27\3\27\3\27\3\27\5\27\u0141\n\27\3\30\3\30\5\30\u0145")
+        buf.write(u"\n\30\3\31\3\31\7\31\u0149\n\31\f\31\16\31\u014c\13\31")
+        buf.write(u"\3\31\5\31\u014f\n\31\3\31\3\31\3\32\3\32\3\32\3\32\3")
+        buf.write(u"\32\3\33\3\33\3\33\3\33\3\33\3\34\3\34\3\34\3\34\3\35")
+        buf.write(u"\3\35\3\35\3\35\3\35\3\35\3\35\3\35\3\35\3\35\3\35\3")
+        buf.write(u"\35\3\36\3\36\3\36\3\36\3\36\3\36\3\37\5\37\u0174\n\37")
+        buf.write(u"\3\37\3\37\3 \3 \7 \u017a\n \f \16 \u017d\13 \3 \3 \3")
+        buf.write(u"!\3!\3!\3!\3\"\3\"\3\"\3\"\3\"\3\"\3\"\3\"\7\"\u018d")
         buf.write(u"\n\"\f\"\16\"\u0190\13\"\3\"\3\"\3#\3#\3#\3#\7#\u0198")
         buf.write(u"\n#\f#\16#\u019b\13#\3#\3#\3$\3$\3$\3$\3$\3%\3%\3%\3")
         buf.write(u"%\3%\3%\6%\u01aa\n%\r%\16%\u01ab\3%\3%\3&\3&\3&\3&\7")
@@ -53,200 +54,201 @@ def serializedATN():
         buf.write(u"\3\'\3\'\5\'\u01ca\n\'\3(\3(\5(\u01ce\n(\3)\3)\3)\3)")
         buf.write(u"\5)\u01d4\n)\3*\3*\3*\3*\5*\u01da\n*\3*\3*\5*\u01de\n")
         buf.write(u"*\3*\3*\3*\3*\3+\3+\3+\7+\u01e7\n+\f+\16+\u01ea\13+\3")
-        buf.write(u",\3,\3,\3,\2\4\6\b-\2\4\6\b\n\f\16\20\22\24\26\30\32")
+        buf.write(u",\3,\3,\3,\2\4\4\6-\2\4\6\b\n\f\16\20\22\24\26\30\32")
         buf.write(u"\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTV\2\4\3\2N")
-        buf.write(u"O\3\2:<\u0221\2\\\3\2\2\2\4g\3\2\2\2\6r\3\2\2\2\b\u008d")
-        buf.write(u"\3\2\2\2\n\u00be\3\2\2\2\f\u00c3\3\2\2\2\16\u00ca\3\2")
-        buf.write(u"\2\2\20\u00d3\3\2\2\2\22\u00d7\3\2\2\2\24\u00d9\3\2\2")
-        buf.write(u"\2\26\u00e0\3\2\2\2\30\u00e7\3\2\2\2\32\u00f0\3\2\2\2")
-        buf.write(u"\34\u00f8\3\2\2\2\36\u00fc\3\2\2\2 \u0103\3\2\2\2\"\u0105")
-        buf.write(u"\3\2\2\2$\u010e\3\2\2\2&\u0113\3\2\2\2(\u0118\3\2\2\2")
-        buf.write(u"*\u011e\3\2\2\2,\u0120\3\2\2\2.\u012b\3\2\2\2\60\u014b")
-        buf.write(u"\3\2\2\2\62\u014f\3\2\2\2\64\u015b\3\2\2\2\66\u0160\3")
-        buf.write(u"\2\2\28\u0165\3\2\2\2:\u0169\3\2\2\2<\u0175\3\2\2\2>")
-        buf.write(u"\u017c\3\2\2\2@\u0180\3\2\2\2B\u0184\3\2\2\2D\u0193\3")
-        buf.write(u"\2\2\2F\u019e\3\2\2\2H\u01a3\3\2\2\2J\u01af\3\2\2\2L")
-        buf.write(u"\u01ba\3\2\2\2N\u01cd\3\2\2\2P\u01cf\3\2\2\2R\u01d5\3")
-        buf.write(u"\2\2\2T\u01e3\3\2\2\2V\u01eb\3\2\2\2X[\5@!\2Y[\7G\2\2")
-        buf.write(u"ZX\3\2\2\2ZY\3\2\2\2[^\3\2\2\2\\Z\3\2\2\2\\]\3\2\2\2")
-        buf.write(u"]_\3\2\2\2^\\\3\2\2\2_`\7\2\2\3`\3\3\2\2\2ah\7\3\2\2")
-        buf.write(u"bh\7\4\2\2ch\7\5\2\2dh\7\6\2\2eh\7\7\2\2fh\5\6\4\2ga")
-        buf.write(u"\3\2\2\2gb\3\2\2\2gc\3\2\2\2gd\3\2\2\2ge\3\2\2\2gf\3")
-        buf.write(u"\2\2\2h\5\3\2\2\2ij\b\4\1\2jk\7N\2\2kl\7\f\2\2ls\5\6")
-        buf.write(u"\4\4mn\7\b\2\2no\5\6\4\2op\7\t\2\2ps\3\2\2\2qs\7M\2\2")
-        buf.write(u"ri\3\2\2\2rm\3\2\2\2rq\3\2\2\2s\177\3\2\2\2tw\f\5\2\2")
-        buf.write(u"ux\7\13\2\2vx\7\f\2\2wu\3\2\2\2wv\3\2\2\2xy\3\2\2\2y")
-        buf.write(u"~\5\6\4\6z{\f\6\2\2{|\7\n\2\2|~\7N\2\2}t\3\2\2\2}z\3")
-        buf.write(u"\2\2\2~\u0081\3\2\2\2\177}\3\2\2\2\177\u0080\3\2\2\2")
-        buf.write(u"\u0080\7\3\2\2\2\u0081\177\3\2\2\2\u0082\u0083\b\5\1")
-        buf.write(u"\2\u0083\u0084\5\f\7\2\u0084\u0085\5\b\5\13\u0085\u008e")
-        buf.write(u"\3\2\2\2\u0086\u0087\7\20\2\2\u0087\u008e\5\b\5\6\u0088")
-        buf.write(u"\u0089\7\b\2\2\u0089\u008a\5\b\5\2\u008a\u008b\7\t\2")
-        buf.write(u"\2\u008b\u008e\3\2\2\2\u008c\u008e\5\n\6\2\u008d\u0082")
-        buf.write(u"\3\2\2\2\u008d\u0086\3\2\2\2\u008d\u0088\3\2\2\2\u008d")
-        buf.write(u"\u008c\3\2\2\2\u008e\u00b3\3\2\2\2\u008f\u0090\f\f\2")
-        buf.write(u"\2\u0090\u0091\7\n\2\2\u0091\u00b2\5\b\5\f\u0092\u0096")
-        buf.write(u"\f\n\2\2\u0093\u0097\7\13\2\2\u0094\u0097\7\f\2\2\u0095")
-        buf.write(u"\u0097\7\r\2\2\u0096\u0093\3\2\2\2\u0096\u0094\3\2\2")
-        buf.write(u"\2\u0096\u0095\3\2\2\2\u0097\u0098\3\2\2\2\u0098\u00b2")
-        buf.write(u"\5\b\5\13\u0099\u009c\f\t\2\2\u009a\u009d\7\16\2\2\u009b")
-        buf.write(u"\u009d\7\17\2\2\u009c\u009a\3\2\2\2\u009c\u009b\3\2\2")
-        buf.write(u"\2\u009d\u009e\3\2\2\2\u009e\u00b2\5\b\5\n\u009f\u00a0")
-        buf.write(u"\f\b\2\2\u00a0\u00a1\5\16\b\2\u00a1\u00a2\5\b\5\t\u00a2")
-        buf.write(u"\u00b2\3\2\2\2\u00a3\u00a4\f\7\2\2\u00a4\u00a5\5\20\t")
-        buf.write(u"\2\u00a5\u00a6\5\b\5\b\u00a6\u00b2\3\2\2\2\u00a7\u00a8")
-        buf.write(u"\f\5\2\2\u00a8\u00a9\5\22\n\2\u00a9\u00aa\5\b\5\6\u00aa")
-        buf.write(u"\u00b2\3\2\2\2\u00ab\u00ac\f\4\2\2\u00ac\u00ad\7\21\2")
-        buf.write(u"\2\u00ad\u00ae\5\b\5\2\u00ae\u00af\7J\2\2\u00af\u00b0")
-        buf.write(u"\5\b\5\5\u00b0\u00b2\3\2\2\2\u00b1\u008f\3\2\2\2\u00b1")
-        buf.write(u"\u0092\3\2\2\2\u00b1\u0099\3\2\2\2\u00b1\u009f\3\2\2")
-        buf.write(u"\2\u00b1\u00a3\3\2\2\2\u00b1\u00a7\3\2\2\2\u00b1\u00ab")
-        buf.write(u"\3\2\2\2\u00b2\u00b5\3\2\2\2\u00b3\u00b1\3\2\2\2\u00b3")
-        buf.write(u"\u00b4\3\2\2\2\u00b4\t\3\2\2\2\u00b5\u00b3\3\2\2\2\u00b6")
-        buf.write(u"\u00bf\5\26\f\2\u00b7\u00bf\7L\2\2\u00b8\u00ba\t\2\2")
-        buf.write(u"\2\u00b9\u00bb\5\24\13\2\u00ba\u00b9\3\2\2\2\u00ba\u00bb")
-        buf.write(u"\3\2\2\2\u00bb\u00bf\3\2\2\2\u00bc\u00bf\7\22\2\2\u00bd")
-        buf.write(u"\u00bf\5\24\13\2\u00be\u00b6\3\2\2\2\u00be\u00b7\3\2")
-        buf.write(u"\2\2\u00be\u00b8\3\2\2\2\u00be\u00bc\3\2\2\2\u00be\u00bd")
-        buf.write(u"\3\2\2\2\u00bf\13\3\2\2\2\u00c0\u00c4\7\16\2\2\u00c1")
-        buf.write(u"\u00c4\7\17\2\2\u00c2\u00c4\7\23\2\2\u00c3\u00c0\3\2")
-        buf.write(u"\2\2\u00c3\u00c1\3\2\2\2\u00c3\u00c2\3\2\2\2\u00c4\r")
-        buf.write(u"\3\2\2\2\u00c5\u00cb\7\24\2\2\u00c6\u00cb\7\25\2\2\u00c7")
-        buf.write(u"\u00cb\7\26\2\2\u00c8\u00cb\7\27\2\2\u00c9\u00cb\7\30")
-        buf.write(u"\2\2\u00ca\u00c5\3\2\2\2\u00ca\u00c6\3\2\2\2\u00ca\u00c7")
-        buf.write(u"\3\2\2\2\u00ca\u00c8\3\2\2\2\u00ca\u00c9\3\2\2\2\u00cb")
-        buf.write(u"\17\3\2\2\2\u00cc\u00d4\7\31\2\2\u00cd\u00d4\7\32\2\2")
-        buf.write(u"\u00ce\u00d4\7\33\2\2\u00cf\u00d4\7\34\2\2\u00d0\u00d4")
-        buf.write(u"\7\35\2\2\u00d1\u00d4\7\36\2\2\u00d2\u00d4\7\37\2\2\u00d3")
-        buf.write(u"\u00cc\3\2\2\2\u00d3\u00cd\3\2\2\2\u00d3\u00ce\3\2\2")
-        buf.write(u"\2\u00d3\u00cf\3\2\2\2\u00d3\u00d0\3\2\2\2\u00d3\u00d1")
-        buf.write(u"\3\2\2\2\u00d3\u00d2\3\2\2\2\u00d4\21\3\2\2\2\u00d5\u00d8")
-        buf.write(u"\7 \2\2\u00d6\u00d8\7!\2\2\u00d7\u00d5\3\2\2\2\u00d7")
-        buf.write(u"\u00d6\3\2\2\2\u00d8\23\3\2\2\2\u00d9\u00dd\7M\2\2\u00da")
-        buf.write(u"\u00dc\5 \21\2\u00db\u00da\3\2\2\2\u00dc\u00df\3\2\2")
-        buf.write(u"\2\u00dd\u00db\3\2\2\2\u00dd\u00de\3\2\2\2\u00de\25\3")
-        buf.write(u"\2\2\2\u00df\u00dd\3\2\2\2\u00e0\u00e1\7M\2\2\u00e1\u00e3")
-        buf.write(u"\7\b\2\2\u00e2\u00e4\5\30\r\2\u00e3\u00e2\3\2\2\2\u00e3")
-        buf.write(u"\u00e4\3\2\2\2\u00e4\u00e5\3\2\2\2\u00e5\u00e6\7\t\2")
-        buf.write(u"\2\u00e6\27\3\2\2\2\u00e7\u00ec\5\b\5\2\u00e8\u00e9\7")
-        buf.write(u"\"\2\2\u00e9\u00eb\5\b\5\2\u00ea\u00e8\3\2\2\2\u00eb")
-        buf.write(u"\u00ee\3\2\2\2\u00ec\u00ea\3\2\2\2\u00ec\u00ed\3\2\2")
-        buf.write(u"\2\u00ed\31\3\2\2\2\u00ee\u00ec\3\2\2\2\u00ef\u00f1\7")
-        buf.write(u"#\2\2\u00f0\u00ef\3\2\2\2\u00f0\u00f1\3\2\2\2\u00f1\u00f2")
-        buf.write(u"\3\2\2\2\u00f2\u00f3\7$\2\2\u00f3\u00f4\7M\2\2\u00f4")
-        buf.write(u"\u00f5\5\4\3\2\u00f5\u00f6\7%\2\2\u00f6\u00f7\5\b\5\2")
-        buf.write(u"\u00f7\33\3\2\2\2\u00f8\u00f9\5\36\20\2\u00f9\u00fa\7")
-        buf.write(u"%\2\2\u00fa\u00fb\5\b\5\2\u00fb\35\3\2\2\2\u00fc\u0100")
-        buf.write(u"\7M\2\2\u00fd\u00ff\5 \21\2\u00fe\u00fd\3\2\2\2\u00ff")
-        buf.write(u"\u0102\3\2\2\2\u0100\u00fe\3\2\2\2\u0100\u0101\3\2\2")
-        buf.write(u"\2\u0101\37\3\2\2\2\u0102\u0100\3\2\2\2\u0103\u0104\7")
-        buf.write(u"&\2\2\u0104!\3\2\2\2\u0105\u0106\7\'\2\2\u0106\u0107")
-        buf.write(u"\5\24\13\2\u0107\u0108\7%\2\2\u0108\u0109\5\b\5\2\u0109")
-        buf.write(u"#\3\2\2\2\u010a\u010d\5&\24\2\u010b\u010d\7G\2\2\u010c")
-        buf.write(u"\u010a\3\2\2\2\u010c\u010b\3\2\2\2\u010d\u0110\3\2\2")
-        buf.write(u"\2\u010e\u010c\3\2\2\2\u010e\u010f\3\2\2\2\u010f%\3\2")
-        buf.write(u"\2\2\u0110\u010e\3\2\2\2\u0111\u0114\5*\26\2\u0112\u0114")
-        buf.write(u"\5(\25\2\u0113\u0111\3\2\2\2\u0113\u0112\3\2\2\2\u0114")
-        buf.write(u"\'\3\2\2\2\u0115\u0119\5\62\32\2\u0116\u0119\5:\36\2")
-        buf.write(u"\u0117\u0119\5<\37\2\u0118\u0115\3\2\2\2\u0118\u0116")
-        buf.write(u"\3\2\2\2\u0118\u0117\3\2\2\2\u0119)\3\2\2\2\u011a\u011f")
-        buf.write(u"\5,\27\2\u011b\u011f\5\26\f\2\u011c\u011f\5.\30\2\u011d")
-        buf.write(u"\u011f\5\60\31\2\u011e\u011a\3\2\2\2\u011e\u011b\3\2")
-        buf.write(u"\2\2\u011e\u011c\3\2\2\2\u011e\u011d\3\2\2\2\u011f+\3")
-        buf.write(u"\2\2\2\u0120\u0126\5\24\13\2\u0121\u0127\7%\2\2\u0122")
-        buf.write(u"\u0127\7(\2\2\u0123\u0127\7)\2\2\u0124\u0127\7*\2\2\u0125")
-        buf.write(u"\u0127\7+\2\2\u0126\u0121\3\2\2\2\u0126\u0122\3\2\2\2")
-        buf.write(u"\u0126\u0123\3\2\2\2\u0126\u0124\3\2\2\2\u0126\u0125")
-        buf.write(u"\3\2\2\2\u0127\u0128\3\2\2\2\u0128\u0129\5\b\5\2\u0129")
-        buf.write(u"-\3\2\2\2\u012a\u012c\7#\2\2\u012b\u012a\3\2\2\2\u012b")
-        buf.write(u"\u012c\3\2\2\2\u012c\u012e\3\2\2\2\u012d\u012f\7$\2\2")
-        buf.write(u"\u012e\u012d\3\2\2\2\u012e\u012f\3\2\2\2\u012f\u0130")
-        buf.write(u"\3\2\2\2\u0130\u0135\5\24\13\2\u0131\u0132\7\"\2\2\u0132")
-        buf.write(u"\u0134\5\24\13\2\u0133\u0131\3\2\2\2\u0134\u0137\3\2")
-        buf.write(u"\2\2\u0135\u0133\3\2\2\2\u0135\u0136\3\2\2\2\u0136\u0138")
-        buf.write(u"\3\2\2\2\u0137\u0135\3\2\2\2\u0138\u013c\5\4\3\2\u0139")
-        buf.write(u"\u013a\7,\2\2\u013a\u013b\7M\2\2\u013b\u013d\7-\2\2\u013c")
-        buf.write(u"\u0139\3\2\2\2\u013c\u013d\3\2\2\2\u013d\u0140\3\2\2")
-        buf.write(u"\2\u013e\u013f\7%\2\2\u013f\u0141\5\b\5\2\u0140\u013e")
-        buf.write(u"\3\2\2\2\u0140\u0141\3\2\2\2\u0141\u0143\3\2\2\2\u0142")
-        buf.write(u"\u0144\7F\2\2\u0143\u0142\3\2\2\2\u0143\u0144\3\2\2\2")
-        buf.write(u"\u0144\u0149\3\2\2\2\u0145\u0146\7.\2\2\u0146\u0147\5")
-        buf.write(u"\b\5\2\u0147\u0148\7/\2\2\u0148\u014a\3\2\2\2\u0149\u0145")
-        buf.write(u"\3\2\2\2\u0149\u014a\3\2\2\2\u014a/\3\2\2\2\u014b\u014d")
-        buf.write(u"\7\60\2\2\u014c\u014e\5\b\5\2\u014d\u014c\3\2\2\2\u014d")
-        buf.write(u"\u014e\3\2\2\2\u014e\61\3\2\2\2\u014f\u0153\5\64\33\2")
-        buf.write(u"\u0150\u0152\5\66\34\2\u0151\u0150\3\2\2\2\u0152\u0155")
-        buf.write(u"\3\2\2\2\u0153\u0151\3\2\2\2\u0153\u0154\3\2\2\2\u0154")
-        buf.write(u"\u0157\3\2\2\2\u0155\u0153\3\2\2\2\u0156\u0158\58\35")
-        buf.write(u"\2\u0157\u0156\3\2\2\2\u0157\u0158\3\2\2\2\u0158\u0159")
-        buf.write(u"\3\2\2\2\u0159\u015a\7K\2\2\u015a\63\3\2\2\2\u015b\u015c")
-        buf.write(u"\7\61\2\2\u015c\u015d\5\b\5\2\u015d\u015e\7J\2\2\u015e")
-        buf.write(u"\u015f\5$\23\2\u015f\65\3\2\2\2\u0160\u0161\7\62\2\2")
-        buf.write(u"\u0161\u0162\5\b\5\2\u0162\u0163\7J\2\2\u0163\u0164\5")
-        buf.write(u"$\23\2\u0164\67\3\2\2\2\u0165\u0166\7\63\2\2\u0166\u0167")
-        buf.write(u"\7J\2\2\u0167\u0168\5$\23\2\u01689\3\2\2\2\u0169\u016a")
-        buf.write(u"\7\64\2\2\u016a\u016b\7M\2\2\u016b\u016c\7\65\2\2\u016c")
-        buf.write(u"\u016d\5\b\5\2\u016d\u016e\7\66\2\2\u016e\u016f\5\b\5")
-        buf.write(u"\2\u016f\u0170\7\67\2\2\u0170\u0171\5> \2\u0171\u0172")
-        buf.write(u"\7J\2\2\u0172\u0173\5$\23\2\u0173\u0174\7K\2\2\u0174")
-        buf.write(u";\3\2\2\2\u0175\u0176\78\2\2\u0176\u0177\5\b\5\2\u0177")
-        buf.write(u"\u0178\7J\2\2\u0178\u0179\5$\23\2\u0179\u017a\7K\2\2")
-        buf.write(u"\u017a=\3\2\2\2\u017b\u017d\7\17\2\2\u017c\u017b\3\2")
-        buf.write(u"\2\2\u017c\u017d\3\2\2\2\u017d\u017e\3\2\2\2\u017e\u017f")
-        buf.write(u"\t\2\2\2\u017f?\3\2\2\2\u0180\u0181\79\2\2\u0181\u0182")
-        buf.write(u"\7M\2\2\u0182\u0183\5B\"\2\u0183A\3\2\2\2\u0184\u018e")
-        buf.write(u"\7J\2\2\u0185\u018d\7G\2\2\u0186\u018d\5D#\2\u0187\u018d")
-        buf.write(u"\5F$\2\u0188\u018d\5H%\2\u0189\u018d\5J&\2\u018a\u018d")
-        buf.write(u"\5P)\2\u018b\u018d\5R*\2\u018c\u0185\3\2\2\2\u018c\u0186")
-        buf.write(u"\3\2\2\2\u018c\u0187\3\2\2\2\u018c\u0188\3\2\2\2\u018c")
-        buf.write(u"\u0189\3\2\2\2\u018c\u018a\3\2\2\2\u018c\u018b\3\2\2")
-        buf.write(u"\2\u018d\u0190\3\2\2\2\u018e\u018c\3\2\2\2\u018e\u018f")
-        buf.write(u"\3\2\2\2\u018f\u0191\3\2\2\2\u0190\u018e\3\2\2\2\u0191")
-        buf.write(u"\u0192\7K\2\2\u0192C\3\2\2\2\u0193\u0194\t\3\2\2\u0194")
-        buf.write(u"\u0199\7J\2\2\u0195\u0198\5.\30\2\u0196\u0198\7G\2\2")
-        buf.write(u"\u0197\u0195\3\2\2\2\u0197\u0196\3\2\2\2\u0198\u019b")
-        buf.write(u"\3\2\2\2\u0199\u0197\3\2\2\2\u0199\u019a\3\2\2\2\u019a")
-        buf.write(u"\u019c\3\2\2\2\u019b\u0199\3\2\2\2\u019c\u019d\7K\2\2")
-        buf.write(u"\u019dE\3\2\2\2\u019e\u019f\7=\2\2\u019f\u01a0\7J\2\2")
-        buf.write(u"\u01a0\u01a1\5$\23\2\u01a1\u01a2\7K\2\2\u01a2G\3\2\2")
-        buf.write(u"\2\u01a3\u01a4\7>\2\2\u01a4\u01a9\7J\2\2\u01a5\u01aa")
-        buf.write(u"\5\32\16\2\u01a6\u01aa\5\34\17\2\u01a7\u01aa\5\"\22\2")
-        buf.write(u"\u01a8\u01aa\7G\2\2\u01a9\u01a5\3\2\2\2\u01a9\u01a6\3")
-        buf.write(u"\2\2\2\u01a9\u01a7\3\2\2\2\u01a9\u01a8\3\2\2\2\u01aa")
-        buf.write(u"\u01ab\3\2\2\2\u01ab\u01a9\3\2\2\2\u01ab\u01ac\3\2\2")
-        buf.write(u"\2\u01ac\u01ad\3\2\2\2\u01ad\u01ae\7K\2\2\u01aeI\3\2")
-        buf.write(u"\2\2\u01af\u01b0\7?\2\2\u01b0\u01b5\7J\2\2\u01b1\u01b4")
-        buf.write(u"\5L\'\2\u01b2\u01b4\7G\2\2\u01b3\u01b1\3\2\2\2\u01b3")
-        buf.write(u"\u01b2\3\2\2\2\u01b4\u01b7\3\2\2\2\u01b5\u01b3\3\2\2")
-        buf.write(u"\2\u01b5\u01b6\3\2\2\2\u01b6\u01b8\3\2\2\2\u01b7\u01b5")
-        buf.write(u"\3\2\2\2\u01b8\u01b9\7K\2\2\u01b9K\3\2\2\2\u01ba\u01be")
-        buf.write(u"\7M\2\2\u01bb\u01bc\7,\2\2\u01bc\u01bd\7M\2\2\u01bd\u01bf")
-        buf.write(u"\7-\2\2\u01be\u01bb\3\2\2\2\u01be\u01bf\3\2\2\2\u01bf")
-        buf.write(u"\u01c0\3\2\2\2\u01c0\u01c4\7@\2\2\u01c1\u01c3\5N(\2\u01c2")
-        buf.write(u"\u01c1\3\2\2\2\u01c3\u01c6\3\2\2\2\u01c4\u01c2\3\2\2")
-        buf.write(u"\2\u01c4\u01c5\3\2\2\2\u01c5\u01c9\3\2\2\2\u01c6\u01c4")
-        buf.write(u"\3\2\2\2\u01c7\u01ca\7A\2\2\u01c8\u01ca\7B\2\2\u01c9")
-        buf.write(u"\u01c7\3\2\2\2\u01c9\u01c8\3\2\2\2\u01caM\3\2\2\2\u01cb")
-        buf.write(u"\u01ce\7C\2\2\u01cc\u01ce\7D\2\2\u01cd\u01cb\3\2\2\2")
-        buf.write(u"\u01cd\u01cc\3\2\2\2\u01ceO\3\2\2\2\u01cf\u01d0\7E\2")
-        buf.write(u"\2\u01d0\u01d3\7J\2\2\u01d1\u01d4\7B\2\2\u01d2\u01d4")
-        buf.write(u"\7A\2\2\u01d3\u01d1\3\2\2\2\u01d3\u01d2\3\2\2\2\u01d4")
-        buf.write(u"Q\3\2\2\2\u01d5\u01d6\7$\2\2\u01d6\u01d7\7M\2\2\u01d7")
-        buf.write(u"\u01d9\7\b\2\2\u01d8\u01da\5T+\2\u01d9\u01d8\3\2\2\2")
-        buf.write(u"\u01d9\u01da\3\2\2\2\u01da\u01db\3\2\2\2\u01db\u01dd")
-        buf.write(u"\7\t\2\2\u01dc\u01de\5\4\3\2\u01dd\u01dc\3\2\2\2\u01dd")
-        buf.write(u"\u01de\3\2\2\2\u01de\u01df\3\2\2\2\u01df\u01e0\7J\2\2")
-        buf.write(u"\u01e0\u01e1\5$\23\2\u01e1\u01e2\7K\2\2\u01e2S\3\2\2")
-        buf.write(u"\2\u01e3\u01e8\5V,\2\u01e4\u01e5\7\"\2\2\u01e5\u01e7")
-        buf.write(u"\5V,\2\u01e6\u01e4\3\2\2\2\u01e7\u01ea\3\2\2\2\u01e8")
-        buf.write(u"\u01e6\3\2\2\2\u01e8\u01e9\3\2\2\2\u01e9U\3\2\2\2\u01ea")
-        buf.write(u"\u01e8\3\2\2\2\u01eb\u01ec\7M\2\2\u01ec\u01ed\5\4\3\2")
-        buf.write(u"\u01edW\3\2\2\2:Z\\grw}\177\u008d\u0096\u009c\u00b1\u00b3")
-        buf.write(u"\u00ba\u00be\u00c3\u00ca\u00d3\u00d7\u00dd\u00e3\u00ec")
-        buf.write(u"\u00f0\u0100\u010c\u010e\u0113\u0118\u011e\u0126\u012b")
-        buf.write(u"\u012e\u0135\u013c\u0140\u0143\u0149\u014d\u0153\u0157")
-        buf.write(u"\u017c\u018c\u018e\u0197\u0199\u01a9\u01ab\u01b3\u01b5")
-        buf.write(u"\u01be\u01c4\u01c9\u01cd\u01d3\u01d9\u01dd\u01e8")
+        buf.write(u"O\3\2:<\2\u0221\2^\3\2\2\2\4i\3\2\2\2\6\u0084\3\2\2\2")
+        buf.write(u"\b\u00b5\3\2\2\2\n\u00ba\3\2\2\2\f\u00c1\3\2\2\2\16\u00ca")
+        buf.write(u"\3\2\2\2\20\u00ce\3\2\2\2\22\u00d0\3\2\2\2\24\u00d7\3")
+        buf.write(u"\2\2\2\26\u00de\3\2\2\2\30\u00e7\3\2\2\2\32\u00ef\3\2")
+        buf.write(u"\2\2\34\u00f3\3\2\2\2\36\u00fa\3\2\2\2 \u00fc\3\2\2\2")
+        buf.write(u"\"\u0105\3\2\2\2$\u010a\3\2\2\2&\u010f\3\2\2\2(\u0115")
+        buf.write(u"\3\2\2\2*\u0117\3\2\2\2,\u0122\3\2\2\2.\u0142\3\2\2\2")
+        buf.write(u"\60\u0146\3\2\2\2\62\u0152\3\2\2\2\64\u0157\3\2\2\2\66")
+        buf.write(u"\u015c\3\2\2\28\u0160\3\2\2\2:\u016c\3\2\2\2<\u0173\3")
+        buf.write(u"\2\2\2>\u017b\3\2\2\2@\u0180\3\2\2\2B\u0184\3\2\2\2D")
+        buf.write(u"\u0193\3\2\2\2F\u019e\3\2\2\2H\u01a3\3\2\2\2J\u01af\3")
+        buf.write(u"\2\2\2L\u01ba\3\2\2\2N\u01cd\3\2\2\2P\u01cf\3\2\2\2R")
+        buf.write(u"\u01d5\3\2\2\2T\u01e3\3\2\2\2V\u01eb\3\2\2\2X_\7\3\2")
+        buf.write(u"\2Y_\7\4\2\2Z_\7\5\2\2[_\7\6\2\2\\_\7\7\2\2]_\5\4\3\2")
+        buf.write(u"^X\3\2\2\2^Y\3\2\2\2^Z\3\2\2\2^[\3\2\2\2^\\\3\2\2\2^")
+        buf.write(u"]\3\2\2\2_\3\3\2\2\2`a\b\3\1\2ab\7\b\2\2bc\5\4\3\2cd")
+        buf.write(u"\7\t\2\2dj\3\2\2\2ef\7N\2\2fg\7\f\2\2gj\5\4\3\4hj\7M")
+        buf.write(u"\2\2i`\3\2\2\2ie\3\2\2\2ih\3\2\2\2jv\3\2\2\2kn\f\5\2")
+        buf.write(u"\2lo\7\13\2\2mo\7\f\2\2nl\3\2\2\2nm\3\2\2\2op\3\2\2\2")
+        buf.write(u"pu\5\4\3\6qr\f\6\2\2rs\7\n\2\2su\7N\2\2tk\3\2\2\2tq\3")
+        buf.write(u"\2\2\2ux\3\2\2\2vt\3\2\2\2vw\3\2\2\2w\5\3\2\2\2xv\3\2")
+        buf.write(u"\2\2yz\b\4\1\2z{\7\b\2\2{|\5\6\4\2|}\7\t\2\2}\u0085\3")
+        buf.write(u"\2\2\2~\177\5\n\6\2\177\u0080\5\6\4\13\u0080\u0085\3")
+        buf.write(u"\2\2\2\u0081\u0082\7\20\2\2\u0082\u0085\5\6\4\6\u0083")
+        buf.write(u"\u0085\5\b\5\2\u0084y\3\2\2\2\u0084~\3\2\2\2\u0084\u0081")
+        buf.write(u"\3\2\2\2\u0084\u0083\3\2\2\2\u0085\u00aa\3\2\2\2\u0086")
+        buf.write(u"\u0087\f\f\2\2\u0087\u0088\7\n\2\2\u0088\u00a9\5\6\4")
+        buf.write(u"\f\u0089\u008d\f\n\2\2\u008a\u008e\7\13\2\2\u008b\u008e")
+        buf.write(u"\7\f\2\2\u008c\u008e\7\r\2\2\u008d\u008a\3\2\2\2\u008d")
+        buf.write(u"\u008b\3\2\2\2\u008d\u008c\3\2\2\2\u008e\u008f\3\2\2")
+        buf.write(u"\2\u008f\u00a9\5\6\4\13\u0090\u0093\f\t\2\2\u0091\u0094")
+        buf.write(u"\7\16\2\2\u0092\u0094\7\17\2\2\u0093\u0091\3\2\2\2\u0093")
+        buf.write(u"\u0092\3\2\2\2\u0094\u0095\3\2\2\2\u0095\u00a9\5\6\4")
+        buf.write(u"\n\u0096\u0097\f\b\2\2\u0097\u0098\5\f\7\2\u0098\u0099")
+        buf.write(u"\5\6\4\t\u0099\u00a9\3\2\2\2\u009a\u009b\f\7\2\2\u009b")
+        buf.write(u"\u009c\5\16\b\2\u009c\u009d\5\6\4\b\u009d\u00a9\3\2\2")
+        buf.write(u"\2\u009e\u009f\f\5\2\2\u009f\u00a0\5\20\t\2\u00a0\u00a1")
+        buf.write(u"\5\6\4\6\u00a1\u00a9\3\2\2\2\u00a2\u00a3\f\4\2\2\u00a3")
+        buf.write(u"\u00a4\7\21\2\2\u00a4\u00a5\5\6\4\2\u00a5\u00a6\7J\2")
+        buf.write(u"\2\u00a6\u00a7\5\6\4\5\u00a7\u00a9\3\2\2\2\u00a8\u0086")
+        buf.write(u"\3\2\2\2\u00a8\u0089\3\2\2\2\u00a8\u0090\3\2\2\2\u00a8")
+        buf.write(u"\u0096\3\2\2\2\u00a8\u009a\3\2\2\2\u00a8\u009e\3\2\2")
+        buf.write(u"\2\u00a8\u00a2\3\2\2\2\u00a9\u00ac\3\2\2\2\u00aa\u00a8")
+        buf.write(u"\3\2\2\2\u00aa\u00ab\3\2\2\2\u00ab\7\3\2\2\2\u00ac\u00aa")
+        buf.write(u"\3\2\2\2\u00ad\u00b6\5\24\13\2\u00ae\u00b6\7L\2\2\u00af")
+        buf.write(u"\u00b1\t\2\2\2\u00b0\u00b2\5\22\n\2\u00b1\u00b0\3\2\2")
+        buf.write(u"\2\u00b1\u00b2\3\2\2\2\u00b2\u00b6\3\2\2\2\u00b3\u00b6")
+        buf.write(u"\7\22\2\2\u00b4\u00b6\5\22\n\2\u00b5\u00ad\3\2\2\2\u00b5")
+        buf.write(u"\u00ae\3\2\2\2\u00b5\u00af\3\2\2\2\u00b5\u00b3\3\2\2")
+        buf.write(u"\2\u00b5\u00b4\3\2\2\2\u00b6\t\3\2\2\2\u00b7\u00bb\7")
+        buf.write(u"\16\2\2\u00b8\u00bb\7\17\2\2\u00b9\u00bb\7\23\2\2\u00ba")
+        buf.write(u"\u00b7\3\2\2\2\u00ba\u00b8\3\2\2\2\u00ba\u00b9\3\2\2")
+        buf.write(u"\2\u00bb\13\3\2\2\2\u00bc\u00c2\7\24\2\2\u00bd\u00c2")
+        buf.write(u"\7\25\2\2\u00be\u00c2\7\26\2\2\u00bf\u00c2\7\27\2\2\u00c0")
+        buf.write(u"\u00c2\7\30\2\2\u00c1\u00bc\3\2\2\2\u00c1\u00bd\3\2\2")
+        buf.write(u"\2\u00c1\u00be\3\2\2\2\u00c1\u00bf\3\2\2\2\u00c1\u00c0")
+        buf.write(u"\3\2\2\2\u00c2\r\3\2\2\2\u00c3\u00cb\7\31\2\2\u00c4\u00cb")
+        buf.write(u"\7\32\2\2\u00c5\u00cb\7\33\2\2\u00c6\u00cb\7\34\2\2\u00c7")
+        buf.write(u"\u00cb\7\35\2\2\u00c8\u00cb\7\36\2\2\u00c9\u00cb\7\37")
+        buf.write(u"\2\2\u00ca\u00c3\3\2\2\2\u00ca\u00c4\3\2\2\2\u00ca\u00c5")
+        buf.write(u"\3\2\2\2\u00ca\u00c6\3\2\2\2\u00ca\u00c7\3\2\2\2\u00ca")
+        buf.write(u"\u00c8\3\2\2\2\u00ca\u00c9\3\2\2\2\u00cb\17\3\2\2\2\u00cc")
+        buf.write(u"\u00cf\7 \2\2\u00cd\u00cf\7!\2\2\u00ce\u00cc\3\2\2\2")
+        buf.write(u"\u00ce\u00cd\3\2\2\2\u00cf\21\3\2\2\2\u00d0\u00d4\7M")
+        buf.write(u"\2\2\u00d1\u00d3\5\36\20\2\u00d2\u00d1\3\2\2\2\u00d3")
+        buf.write(u"\u00d6\3\2\2\2\u00d4\u00d2\3\2\2\2\u00d4\u00d5\3\2\2")
+        buf.write(u"\2\u00d5\23\3\2\2\2\u00d6\u00d4\3\2\2\2\u00d7\u00d8\7")
+        buf.write(u"M\2\2\u00d8\u00da\7\b\2\2\u00d9\u00db\5\26\f\2\u00da")
+        buf.write(u"\u00d9\3\2\2\2\u00da\u00db\3\2\2\2\u00db\u00dc\3\2\2")
+        buf.write(u"\2\u00dc\u00dd\7\t\2\2\u00dd\25\3\2\2\2\u00de\u00e3\5")
+        buf.write(u"\6\4\2\u00df\u00e0\7\"\2\2\u00e0\u00e2\5\6\4\2\u00e1")
+        buf.write(u"\u00df\3\2\2\2\u00e2\u00e5\3\2\2\2\u00e3\u00e1\3\2\2")
+        buf.write(u"\2\u00e3\u00e4\3\2\2\2\u00e4\27\3\2\2\2\u00e5\u00e3\3")
+        buf.write(u"\2\2\2\u00e6\u00e8\7#\2\2\u00e7\u00e6\3\2\2\2\u00e7\u00e8")
+        buf.write(u"\3\2\2\2\u00e8\u00e9\3\2\2\2\u00e9\u00ea\7$\2\2\u00ea")
+        buf.write(u"\u00eb\7M\2\2\u00eb\u00ec\5\2\2\2\u00ec\u00ed\7%\2\2")
+        buf.write(u"\u00ed\u00ee\5\6\4\2\u00ee\31\3\2\2\2\u00ef\u00f0\5\34")
+        buf.write(u"\17\2\u00f0\u00f1\7%\2\2\u00f1\u00f2\5\6\4\2\u00f2\33")
+        buf.write(u"\3\2\2\2\u00f3\u00f7\7M\2\2\u00f4\u00f6\5\36\20\2\u00f5")
+        buf.write(u"\u00f4\3\2\2\2\u00f6\u00f9\3\2\2\2\u00f7\u00f5\3\2\2")
+        buf.write(u"\2\u00f7\u00f8\3\2\2\2\u00f8\35\3\2\2\2\u00f9\u00f7\3")
+        buf.write(u"\2\2\2\u00fa\u00fb\7&\2\2\u00fb\37\3\2\2\2\u00fc\u00fd")
+        buf.write(u"\7\'\2\2\u00fd\u00fe\5\22\n\2\u00fe\u00ff\7%\2\2\u00ff")
+        buf.write(u"\u0100\5\6\4\2\u0100!\3\2\2\2\u0101\u0104\5$\23\2\u0102")
+        buf.write(u"\u0104\7G\2\2\u0103\u0101\3\2\2\2\u0103\u0102\3\2\2\2")
+        buf.write(u"\u0104\u0107\3\2\2\2\u0105\u0103\3\2\2\2\u0105\u0106")
+        buf.write(u"\3\2\2\2\u0106#\3\2\2\2\u0107\u0105\3\2\2\2\u0108\u010b")
+        buf.write(u"\5(\25\2\u0109\u010b\5&\24\2\u010a\u0108\3\2\2\2\u010a")
+        buf.write(u"\u0109\3\2\2\2\u010b%\3\2\2\2\u010c\u0110\5\60\31\2\u010d")
+        buf.write(u"\u0110\58\35\2\u010e\u0110\5:\36\2\u010f\u010c\3\2\2")
+        buf.write(u"\2\u010f\u010d\3\2\2\2\u010f\u010e\3\2\2\2\u0110\'\3")
+        buf.write(u"\2\2\2\u0111\u0116\5*\26\2\u0112\u0116\5\24\13\2\u0113")
+        buf.write(u"\u0116\5,\27\2\u0114\u0116\5.\30\2\u0115\u0111\3\2\2")
+        buf.write(u"\2\u0115\u0112\3\2\2\2\u0115\u0113\3\2\2\2\u0115\u0114")
+        buf.write(u"\3\2\2\2\u0116)\3\2\2\2\u0117\u011d\5\22\n\2\u0118\u011e")
+        buf.write(u"\7%\2\2\u0119\u011e\7(\2\2\u011a\u011e\7)\2\2\u011b\u011e")
+        buf.write(u"\7*\2\2\u011c\u011e\7+\2\2\u011d\u0118\3\2\2\2\u011d")
+        buf.write(u"\u0119\3\2\2\2\u011d\u011a\3\2\2\2\u011d\u011b\3\2\2")
+        buf.write(u"\2\u011d\u011c\3\2\2\2\u011e\u011f\3\2\2\2\u011f\u0120")
+        buf.write(u"\5\6\4\2\u0120+\3\2\2\2\u0121\u0123\7#\2\2\u0122\u0121")
+        buf.write(u"\3\2\2\2\u0122\u0123\3\2\2\2\u0123\u0125\3\2\2\2\u0124")
+        buf.write(u"\u0126\7$\2\2\u0125\u0124\3\2\2\2\u0125\u0126\3\2\2\2")
+        buf.write(u"\u0126\u0127\3\2\2\2\u0127\u012c\5\22\n\2\u0128\u0129")
+        buf.write(u"\7\"\2\2\u0129\u012b\5\22\n\2\u012a\u0128\3\2\2\2\u012b")
+        buf.write(u"\u012e\3\2\2\2\u012c\u012a\3\2\2\2\u012c\u012d\3\2\2")
+        buf.write(u"\2\u012d\u012f\3\2\2\2\u012e\u012c\3\2\2\2\u012f\u0133")
+        buf.write(u"\5\2\2\2\u0130\u0131\7,\2\2\u0131\u0132\7M\2\2\u0132")
+        buf.write(u"\u0134\7-\2\2\u0133\u0130\3\2\2\2\u0133\u0134\3\2\2\2")
+        buf.write(u"\u0134\u0137\3\2\2\2\u0135\u0136\7%\2\2\u0136\u0138\5")
+        buf.write(u"\6\4\2\u0137\u0135\3\2\2\2\u0137\u0138\3\2\2\2\u0138")
+        buf.write(u"\u013a\3\2\2\2\u0139\u013b\7F\2\2\u013a\u0139\3\2\2\2")
+        buf.write(u"\u013a\u013b\3\2\2\2\u013b\u0140\3\2\2\2\u013c\u013d")
+        buf.write(u"\7.\2\2\u013d\u013e\5\6\4\2\u013e\u013f\7/\2\2\u013f")
+        buf.write(u"\u0141\3\2\2\2\u0140\u013c\3\2\2\2\u0140\u0141\3\2\2")
+        buf.write(u"\2\u0141-\3\2\2\2\u0142\u0144\7\60\2\2\u0143\u0145\5")
+        buf.write(u"\6\4\2\u0144\u0143\3\2\2\2\u0144\u0145\3\2\2\2\u0145")
+        buf.write(u"/\3\2\2\2\u0146\u014a\5\62\32\2\u0147\u0149\5\64\33\2")
+        buf.write(u"\u0148\u0147\3\2\2\2\u0149\u014c\3\2\2\2\u014a\u0148")
+        buf.write(u"\3\2\2\2\u014a\u014b\3\2\2\2\u014b\u014e\3\2\2\2\u014c")
+        buf.write(u"\u014a\3\2\2\2\u014d\u014f\5\66\34\2\u014e\u014d\3\2")
+        buf.write(u"\2\2\u014e\u014f\3\2\2\2\u014f\u0150\3\2\2\2\u0150\u0151")
+        buf.write(u"\7K\2\2\u0151\61\3\2\2\2\u0152\u0153\7\61\2\2\u0153\u0154")
+        buf.write(u"\5\6\4\2\u0154\u0155\7J\2\2\u0155\u0156\5\"\22\2\u0156")
+        buf.write(u"\63\3\2\2\2\u0157\u0158\7\62\2\2\u0158\u0159\5\6\4\2")
+        buf.write(u"\u0159\u015a\7J\2\2\u015a\u015b\5\"\22\2\u015b\65\3\2")
+        buf.write(u"\2\2\u015c\u015d\7\63\2\2\u015d\u015e\7J\2\2\u015e\u015f")
+        buf.write(u"\5\"\22\2\u015f\67\3\2\2\2\u0160\u0161\7\64\2\2\u0161")
+        buf.write(u"\u0162\7M\2\2\u0162\u0163\7\65\2\2\u0163\u0164\5\6\4")
+        buf.write(u"\2\u0164\u0165\7\66\2\2\u0165\u0166\5\6\4\2\u0166\u0167")
+        buf.write(u"\7\67\2\2\u0167\u0168\5<\37\2\u0168\u0169\7J\2\2\u0169")
+        buf.write(u"\u016a\5\"\22\2\u016a\u016b\7K\2\2\u016b9\3\2\2\2\u016c")
+        buf.write(u"\u016d\78\2\2\u016d\u016e\5\6\4\2\u016e\u016f\7J\2\2")
+        buf.write(u"\u016f\u0170\5\"\22\2\u0170\u0171\7K\2\2\u0171;\3\2\2")
+        buf.write(u"\2\u0172\u0174\7\17\2\2\u0173\u0172\3\2\2\2\u0173\u0174")
+        buf.write(u"\3\2\2\2\u0174\u0175\3\2\2\2\u0175\u0176\t\2\2\2\u0176")
+        buf.write(u"=\3\2\2\2\u0177\u017a\5@!\2\u0178\u017a\7G\2\2\u0179")
+        buf.write(u"\u0177\3\2\2\2\u0179\u0178\3\2\2\2\u017a\u017d\3\2\2")
+        buf.write(u"\2\u017b\u0179\3\2\2\2\u017b\u017c\3\2\2\2\u017c\u017e")
+        buf.write(u"\3\2\2\2\u017d\u017b\3\2\2\2\u017e\u017f\7\2\2\3\u017f")
+        buf.write(u"?\3\2\2\2\u0180\u0181\79\2\2\u0181\u0182\7M\2\2\u0182")
+        buf.write(u"\u0183\5B\"\2\u0183A\3\2\2\2\u0184\u018e\7J\2\2\u0185")
+        buf.write(u"\u018d\7G\2\2\u0186\u018d\5D#\2\u0187\u018d\5F$\2\u0188")
+        buf.write(u"\u018d\5H%\2\u0189\u018d\5J&\2\u018a\u018d\5P)\2\u018b")
+        buf.write(u"\u018d\5R*\2\u018c\u0185\3\2\2\2\u018c\u0186\3\2\2\2")
+        buf.write(u"\u018c\u0187\3\2\2\2\u018c\u0188\3\2\2\2\u018c\u0189")
+        buf.write(u"\3\2\2\2\u018c\u018a\3\2\2\2\u018c\u018b\3\2\2\2\u018d")
+        buf.write(u"\u0190\3\2\2\2\u018e\u018c\3\2\2\2\u018e\u018f\3\2\2")
+        buf.write(u"\2\u018f\u0191\3\2\2\2\u0190\u018e\3\2\2\2\u0191\u0192")
+        buf.write(u"\7K\2\2\u0192C\3\2\2\2\u0193\u0194\t\3\2\2\u0194\u0199")
+        buf.write(u"\7J\2\2\u0195\u0198\5,\27\2\u0196\u0198\7G\2\2\u0197")
+        buf.write(u"\u0195\3\2\2\2\u0197\u0196\3\2\2\2\u0198\u019b\3\2\2")
+        buf.write(u"\2\u0199\u0197\3\2\2\2\u0199\u019a\3\2\2\2\u019a\u019c")
+        buf.write(u"\3\2\2\2\u019b\u0199\3\2\2\2\u019c\u019d\7K\2\2\u019d")
+        buf.write(u"E\3\2\2\2\u019e\u019f\7=\2\2\u019f\u01a0\7J\2\2\u01a0")
+        buf.write(u"\u01a1\5\"\22\2\u01a1\u01a2\7K\2\2\u01a2G\3\2\2\2\u01a3")
+        buf.write(u"\u01a4\7>\2\2\u01a4\u01a9\7J\2\2\u01a5\u01aa\5\30\r\2")
+        buf.write(u"\u01a6\u01aa\5\32\16\2\u01a7\u01aa\5 \21\2\u01a8\u01aa")
+        buf.write(u"\7G\2\2\u01a9\u01a5\3\2\2\2\u01a9\u01a6\3\2\2\2\u01a9")
+        buf.write(u"\u01a7\3\2\2\2\u01a9\u01a8\3\2\2\2\u01aa\u01ab\3\2\2")
+        buf.write(u"\2\u01ab\u01a9\3\2\2\2\u01ab\u01ac\3\2\2\2\u01ac\u01ad")
+        buf.write(u"\3\2\2\2\u01ad\u01ae\7K\2\2\u01aeI\3\2\2\2\u01af\u01b0")
+        buf.write(u"\7?\2\2\u01b0\u01b5\7J\2\2\u01b1\u01b4\5L\'\2\u01b2\u01b4")
+        buf.write(u"\7G\2\2\u01b3\u01b1\3\2\2\2\u01b3\u01b2\3\2\2\2\u01b4")
+        buf.write(u"\u01b7\3\2\2\2\u01b5\u01b3\3\2\2\2\u01b5\u01b6\3\2\2")
+        buf.write(u"\2\u01b6\u01b8\3\2\2\2\u01b7\u01b5\3\2\2\2\u01b8\u01b9")
+        buf.write(u"\7K\2\2\u01b9K\3\2\2\2\u01ba\u01be\7M\2\2\u01bb\u01bc")
+        buf.write(u"\7,\2\2\u01bc\u01bd\7M\2\2\u01bd\u01bf\7-\2\2\u01be\u01bb")
+        buf.write(u"\3\2\2\2\u01be\u01bf\3\2\2\2\u01bf\u01c0\3\2\2\2\u01c0")
+        buf.write(u"\u01c4\7@\2\2\u01c1\u01c3\5N(\2\u01c2\u01c1\3\2\2\2\u01c3")
+        buf.write(u"\u01c6\3\2\2\2\u01c4\u01c2\3\2\2\2\u01c4\u01c5\3\2\2")
+        buf.write(u"\2\u01c5\u01c9\3\2\2\2\u01c6\u01c4\3\2\2\2\u01c7\u01ca")
+        buf.write(u"\7A\2\2\u01c8\u01ca\7B\2\2\u01c9\u01c7\3\2\2\2\u01c9")
+        buf.write(u"\u01c8\3\2\2\2\u01caM\3\2\2\2\u01cb\u01ce\7C\2\2\u01cc")
+        buf.write(u"\u01ce\7D\2\2\u01cd\u01cb\3\2\2\2\u01cd\u01cc\3\2\2\2")
+        buf.write(u"\u01ceO\3\2\2\2\u01cf\u01d0\7E\2\2\u01d0\u01d3\7J\2\2")
+        buf.write(u"\u01d1\u01d4\7B\2\2\u01d2\u01d4\7A\2\2\u01d3\u01d1\3")
+        buf.write(u"\2\2\2\u01d3\u01d2\3\2\2\2\u01d4Q\3\2\2\2\u01d5\u01d6")
+        buf.write(u"\7$\2\2\u01d6\u01d7\7M\2\2\u01d7\u01d9\7\b\2\2\u01d8")
+        buf.write(u"\u01da\5T+\2\u01d9\u01d8\3\2\2\2\u01d9\u01da\3\2\2\2")
+        buf.write(u"\u01da\u01db\3\2\2\2\u01db\u01dd\7\t\2\2\u01dc\u01de")
+        buf.write(u"\5\2\2\2\u01dd\u01dc\3\2\2\2\u01dd\u01de\3\2\2\2\u01de")
+        buf.write(u"\u01df\3\2\2\2\u01df\u01e0\7J\2\2\u01e0\u01e1\5\"\22")
+        buf.write(u"\2\u01e1\u01e2\7K\2\2\u01e2S\3\2\2\2\u01e3\u01e8\5V,")
+        buf.write(u"\2\u01e4\u01e5\7\"\2\2\u01e5\u01e7\5V,\2\u01e6\u01e4")
+        buf.write(u"\3\2\2\2\u01e7\u01ea\3\2\2\2\u01e8\u01e6\3\2\2\2\u01e8")
+        buf.write(u"\u01e9\3\2\2\2\u01e9U\3\2\2\2\u01ea\u01e8\3\2\2\2\u01eb")
+        buf.write(u"\u01ec\7M\2\2\u01ec\u01ed\5\2\2\2\u01edW\3\2\2\2:^in")
+        buf.write(u"tv\u0084\u008d\u0093\u00a8\u00aa\u00b1\u00b5\u00ba\u00c1")
+        buf.write(u"\u00ca\u00ce\u00d4\u00da\u00e3\u00e7\u00f7\u0103\u0105")
+        buf.write(u"\u010a\u010f\u0115\u011d\u0122\u0125\u012c\u0133\u0137")
+        buf.write(u"\u013a\u0140\u0144\u014a\u014e\u0173\u0179\u017b\u018c")
+        buf.write(u"\u018e\u0197\u0199\u01a9\u01ab\u01b3\u01b5\u01be\u01c4")
+        buf.write(u"\u01c9\u01cd\u01d3\u01d9\u01dd\u01e8")
         return buf.getvalue()
 
 
@@ -296,37 +298,37 @@ class PyNESTMLParser ( Parser ):
                       u"BLOCK_OPEN", u"BLOCK_CLOSE", u"BOOLEAN_LITERAL", 
                       u"NAME", u"INTEGER", u"FLOAT" ]
 
-    RULE_nestmlCompilationUnit = 0
-    RULE_datatype = 1
-    RULE_unitType = 2
-    RULE_expression = 3
-    RULE_simpleExpression = 4
-    RULE_unaryOperator = 5
-    RULE_bitOperator = 6
-    RULE_comparisonOperator = 7
-    RULE_logicalOperator = 8
-    RULE_variable = 9
-    RULE_functionCall = 10
-    RULE_arguments = 11
-    RULE_odeFunction = 12
-    RULE_odeEquation = 13
-    RULE_derivative = 14
-    RULE_differentialOrder = 15
-    RULE_odeShape = 16
-    RULE_block = 17
-    RULE_stmt = 18
-    RULE_compoundStmt = 19
-    RULE_smallStmt = 20
-    RULE_assignment = 21
-    RULE_declaration = 22
-    RULE_returnStmt = 23
-    RULE_ifStmt = 24
-    RULE_ifClause = 25
-    RULE_elifClause = 26
-    RULE_elseClause = 27
-    RULE_forStmt = 28
-    RULE_whileStmt = 29
-    RULE_signedNumericLiteral = 30
+    RULE_datatype = 0
+    RULE_unitType = 1
+    RULE_expression = 2
+    RULE_simpleExpression = 3
+    RULE_unaryOperator = 4
+    RULE_bitOperator = 5
+    RULE_comparisonOperator = 6
+    RULE_logicalOperator = 7
+    RULE_variable = 8
+    RULE_functionCall = 9
+    RULE_arguments = 10
+    RULE_odeFunction = 11
+    RULE_odeEquation = 12
+    RULE_derivative = 13
+    RULE_differentialOrder = 14
+    RULE_odeShape = 15
+    RULE_block = 16
+    RULE_stmt = 17
+    RULE_compoundStmt = 18
+    RULE_smallStmt = 19
+    RULE_assignment = 20
+    RULE_declaration = 21
+    RULE_returnStmt = 22
+    RULE_ifStmt = 23
+    RULE_ifClause = 24
+    RULE_elifClause = 25
+    RULE_elseClause = 26
+    RULE_forStmt = 27
+    RULE_whileStmt = 28
+    RULE_signedNumericLiteral = 29
+    RULE_nestmlCompilationUnit = 30
     RULE_neuron = 31
     RULE_body = 32
     RULE_blockWithVariables = 33
@@ -340,18 +342,17 @@ class PyNESTMLParser ( Parser ):
     RULE_parameters = 41
     RULE_parameter = 42
 
-    ruleNames =  [ u"nestmlCompilationUnit", u"datatype", u"unitType", u"expression", 
-                   u"simpleExpression", u"unaryOperator", u"bitOperator", 
-                   u"comparisonOperator", u"logicalOperator", u"variable", 
-                   u"functionCall", u"arguments", u"odeFunction", u"odeEquation", 
-                   u"derivative", u"differentialOrder", u"odeShape", u"block", 
-                   u"stmt", u"compoundStmt", u"smallStmt", u"assignment", 
-                   u"declaration", u"returnStmt", u"ifStmt", u"ifClause", 
-                   u"elifClause", u"elseClause", u"forStmt", u"whileStmt", 
-                   u"signedNumericLiteral", u"neuron", u"body", u"blockWithVariables", 
-                   u"updateBlock", u"equationsBlock", u"inputBlock", u"inputLine", 
-                   u"inputType", u"outputBlock", u"function", u"parameters", 
-                   u"parameter" ]
+    ruleNames =  [ u"datatype", u"unitType", u"expression", u"simpleExpression", 
+                   u"unaryOperator", u"bitOperator", u"comparisonOperator", 
+                   u"logicalOperator", u"variable", u"functionCall", u"arguments", 
+                   u"odeFunction", u"odeEquation", u"derivative", u"differentialOrder", 
+                   u"odeShape", u"block", u"stmt", u"compoundStmt", u"smallStmt", 
+                   u"assignment", u"declaration", u"returnStmt", u"ifStmt", 
+                   u"ifClause", u"elifClause", u"elseClause", u"forStmt", 
+                   u"whileStmt", u"signedNumericLiteral", u"nestmlCompilationUnit", 
+                   u"neuron", u"body", u"blockWithVariables", u"updateBlock", 
+                   u"equationsBlock", u"inputBlock", u"inputLine", u"inputType", 
+                   u"outputBlock", u"function", u"parameters", u"parameter" ]
 
     EOF = Token.EOF
     T__0=1
@@ -432,85 +433,13 @@ class PyNESTMLParser ( Parser ):
     INTEGER=76
     FLOAT=77
 
-    def __init__(self, input):
-        super(PyNESTMLParser, self).__init__(input)
-        self.checkVersion("4.5.1")
+    def __init__(self, input, output=sys.stdout):
+        super(PyNESTMLParser, self).__init__(input, output=output)
+        self.checkVersion("4.7")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
 
-
-    class NestmlCompilationUnitContext(ParserRuleContext):
-
-        def __init__(self, parser, parent=None, invokingState=-1):
-            super(PyNESTMLParser.NestmlCompilationUnitContext, self).__init__(parent, invokingState)
-            self.parser = parser
-
-        def EOF(self):
-            return self.getToken(PyNESTMLParser.EOF, 0)
-
-        def neuron(self, i=None):
-            if i is None:
-                return self.getTypedRuleContexts(PyNESTMLParser.NeuronContext)
-            else:
-                return self.getTypedRuleContext(PyNESTMLParser.NeuronContext,i)
-
-
-        def NEWLINE(self, i=None):
-            if i is None:
-                return self.getTokens(PyNESTMLParser.NEWLINE)
-            else:
-                return self.getToken(PyNESTMLParser.NEWLINE, i)
-
-        def getRuleIndex(self):
-            return PyNESTMLParser.RULE_nestmlCompilationUnit
-
-        def accept(self, visitor):
-            if hasattr(visitor, "visitNestmlCompilationUnit"):
-                return visitor.visitNestmlCompilationUnit(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-
-
-    def nestmlCompilationUnit(self):
-
-        localctx = PyNESTMLParser.NestmlCompilationUnitContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 0, self.RULE_nestmlCompilationUnit)
-        self._la = 0 # Token type
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 90
-            self._errHandler.sync(self)
-            _la = self._input.LA(1)
-            while _la==PyNESTMLParser.T__54 or _la==PyNESTMLParser.NEWLINE:
-                self.state = 88
-                token = self._input.LA(1)
-                if token in [PyNESTMLParser.T__54]:
-                    self.state = 86
-                    self.neuron()
-
-                elif token in [PyNESTMLParser.NEWLINE]:
-                    self.state = 87
-                    self.match(PyNESTMLParser.NEWLINE)
-
-                else:
-                    raise NoViableAltException(self)
-
-                self.state = 92
-                self._errHandler.sync(self)
-                _la = self._input.LA(1)
-
-            self.state = 93
-            self.match(PyNESTMLParser.EOF)
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
-        return localctx
 
     class DatatypeContext(ParserRuleContext):
 
@@ -543,40 +472,41 @@ class PyNESTMLParser ( Parser ):
     def datatype(self):
 
         localctx = PyNESTMLParser.DatatypeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 2, self.RULE_datatype)
+        self.enterRule(localctx, 0, self.RULE_datatype)
         try:
-            self.state = 101
+            self.state = 92
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__0]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 95
+                self.state = 86
                 localctx.isInt = self.match(PyNESTMLParser.T__0)
-
+                pass
             elif token in [PyNESTMLParser.T__1]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 96
+                self.state = 87
                 localctx.isReal = self.match(PyNESTMLParser.T__1)
-
+                pass
             elif token in [PyNESTMLParser.T__2]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 97
+                self.state = 88
                 localctx.isString = self.match(PyNESTMLParser.T__2)
-
+                pass
             elif token in [PyNESTMLParser.T__3]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 98
+                self.state = 89
                 localctx.isBool = self.match(PyNESTMLParser.T__3)
-
+                pass
             elif token in [PyNESTMLParser.T__4]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 99
+                self.state = 90
                 localctx.isVoid = self.match(PyNESTMLParser.T__4)
-
+                pass
             elif token in [PyNESTMLParser.T__5, PyNESTMLParser.NAME, PyNESTMLParser.INTEGER]:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 100
+                self.state = 91
                 localctx.unit = self.unitType(0)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -595,19 +525,16 @@ class PyNESTMLParser ( Parser ):
             self.parser = parser
             self.base = None # UnitTypeContext
             self.left = None # UnitTypeContext
-            self.unitlessLiteral = None # Token
-            self.divOp = None # Token
-            self.right = None # UnitTypeContext
             self.leftParentheses = None # Token
             self.compoundUnit = None # UnitTypeContext
             self.rightParentheses = None # Token
+            self.unitlessLiteral = None # Token
+            self.divOp = None # Token
+            self.right = None # UnitTypeContext
             self.unit = None # Token
             self.timesOp = None # Token
             self.powOp = None # Token
             self.exponent = None # Token
-
-        def INTEGER(self):
-            return self.getToken(PyNESTMLParser.INTEGER, 0)
 
         def unitType(self, i=None):
             if i is None:
@@ -615,6 +542,9 @@ class PyNESTMLParser ( Parser ):
             else:
                 return self.getTypedRuleContext(PyNESTMLParser.UnitTypeContext,i)
 
+
+        def INTEGER(self):
+            return self.getToken(PyNESTMLParser.INTEGER, 0)
 
         def NAME(self):
             return self.getToken(PyNESTMLParser.NAME, 0)
@@ -635,68 +565,71 @@ class PyNESTMLParser ( Parser ):
         _parentState = self.state
         localctx = PyNESTMLParser.UnitTypeContext(self, self._ctx, _parentState)
         _prevctx = localctx
-        _startState = 4
-        self.enterRecursionRule(localctx, 4, self.RULE_unitType, _p)
+        _startState = 2
+        self.enterRecursionRule(localctx, 2, self.RULE_unitType, _p)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 112
+            self.state = 103
+            self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNESTMLParser.INTEGER]:
-                self.state = 104
-                localctx.unitlessLiteral = self.match(PyNESTMLParser.INTEGER)
-                self.state = 105
-                localctx.divOp = self.match(PyNESTMLParser.T__9)
-                self.state = 106
-                localctx.right = self.unitType(2)
-
-            elif token in [PyNESTMLParser.T__5]:
-                self.state = 107
+            if token in [PyNESTMLParser.T__5]:
+                self.state = 95
                 localctx.leftParentheses = self.match(PyNESTMLParser.T__5)
-                self.state = 108
+                self.state = 96
                 localctx.compoundUnit = self.unitType(0)
-                self.state = 109
+                self.state = 97
                 localctx.rightParentheses = self.match(PyNESTMLParser.T__6)
-
+                pass
+            elif token in [PyNESTMLParser.INTEGER]:
+                self.state = 99
+                localctx.unitlessLiteral = self.match(PyNESTMLParser.INTEGER)
+                self.state = 100
+                localctx.divOp = self.match(PyNESTMLParser.T__9)
+                self.state = 101
+                localctx.right = self.unitType(2)
+                pass
             elif token in [PyNESTMLParser.NAME]:
-                self.state = 111
+                self.state = 102
                 localctx.unit = self.match(PyNESTMLParser.NAME)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
             self._ctx.stop = self._input.LT(-1)
-            self.state = 125
+            self.state = 116
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,6,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,4,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     if self._parseListeners is not None:
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
-                    self.state = 123
-                    la_ = self._interp.adaptivePredict(self._input,5,self._ctx)
+                    self.state = 114
+                    self._errHandler.sync(self)
+                    la_ = self._interp.adaptivePredict(self._input,3,self._ctx)
                     if la_ == 1:
                         localctx = PyNESTMLParser.UnitTypeContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_unitType)
-                        self.state = 114
+                        self.state = 105
                         if not self.precpred(self._ctx, 3):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
-                        self.state = 117
+                        self.state = 108
+                        self._errHandler.sync(self)
                         token = self._input.LA(1)
                         if token in [PyNESTMLParser.T__8]:
-                            self.state = 115
+                            self.state = 106
                             localctx.timesOp = self.match(PyNESTMLParser.T__8)
-
+                            pass
                         elif token in [PyNESTMLParser.T__9]:
-                            self.state = 116
+                            self.state = 107
                             localctx.divOp = self.match(PyNESTMLParser.T__9)
-
+                            pass
                         else:
                             raise NoViableAltException(self)
 
-                        self.state = 119
+                        self.state = 110
                         localctx.right = self.unitType(4)
                         pass
 
@@ -704,20 +637,20 @@ class PyNESTMLParser ( Parser ):
                         localctx = PyNESTMLParser.UnitTypeContext(self, _parentctx, _parentState)
                         localctx.base = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_unitType)
-                        self.state = 120
+                        self.state = 111
                         if not self.precpred(self._ctx, 4):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 4)")
-                        self.state = 121
+                        self.state = 112
                         localctx.powOp = self.match(PyNESTMLParser.T__7)
-                        self.state = 122
+                        self.state = 113
                         localctx.exponent = self.match(PyNESTMLParser.INTEGER)
                         pass
 
              
-                self.state = 127
+                self.state = 118
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,6,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,4,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -734,10 +667,10 @@ class PyNESTMLParser ( Parser ):
             self.parser = parser
             self.left = None # ExpressionContext
             self.condition = None # ExpressionContext
-            self.term = None # ExpressionContext
-            self.logicalNot = None # Token
             self.leftParentheses = None # Token
+            self.term = None # ExpressionContext
             self.rightParentheses = None # Token
+            self.logicalNot = None # Token
             self.powOp = None # Token
             self.right = None # ExpressionContext
             self.timesOp = None # Token
@@ -748,15 +681,15 @@ class PyNESTMLParser ( Parser ):
             self.ifTrue = None # ExpressionContext
             self.ifNot = None # ExpressionContext
 
-        def unaryOperator(self):
-            return self.getTypedRuleContext(PyNESTMLParser.UnaryOperatorContext,0)
-
-
         def expression(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNESTMLParser.ExpressionContext)
             else:
                 return self.getTypedRuleContext(PyNESTMLParser.ExpressionContext,i)
+
+
+        def unaryOperator(self):
+            return self.getTypedRuleContext(PyNESTMLParser.UnaryOperatorContext,0)
 
 
         def simpleExpression(self):
@@ -791,61 +724,63 @@ class PyNESTMLParser ( Parser ):
         _parentState = self.state
         localctx = PyNESTMLParser.ExpressionContext(self, self._ctx, _parentState)
         _prevctx = localctx
-        _startState = 6
-        self.enterRecursionRule(localctx, 6, self.RULE_expression, _p)
+        _startState = 4
+        self.enterRecursionRule(localctx, 4, self.RULE_expression, _p)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 139
+            self.state = 130
+            self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNESTMLParser.T__11, PyNESTMLParser.T__12, PyNESTMLParser.T__16]:
-                self.state = 129
-                self.unaryOperator()
-                self.state = 130
-                localctx.term = self.expression(9)
-
-            elif token in [PyNESTMLParser.T__13]:
-                self.state = 132
-                localctx.logicalNot = self.match(PyNESTMLParser.T__13)
-                self.state = 133
-                localctx.term = self.expression(4)
-
-            elif token in [PyNESTMLParser.T__5]:
-                self.state = 134
+            if token in [PyNESTMLParser.T__5]:
+                self.state = 120
                 localctx.leftParentheses = self.match(PyNESTMLParser.T__5)
-                self.state = 135
+                self.state = 121
                 localctx.term = self.expression(0)
-                self.state = 136
+                self.state = 122
                 localctx.rightParentheses = self.match(PyNESTMLParser.T__6)
-
+                pass
+            elif token in [PyNESTMLParser.T__11, PyNESTMLParser.T__12, PyNESTMLParser.T__16]:
+                self.state = 124
+                self.unaryOperator()
+                self.state = 125
+                localctx.term = self.expression(9)
+                pass
+            elif token in [PyNESTMLParser.T__13]:
+                self.state = 127
+                localctx.logicalNot = self.match(PyNESTMLParser.T__13)
+                self.state = 128
+                localctx.term = self.expression(4)
+                pass
             elif token in [PyNESTMLParser.T__15, PyNESTMLParser.BOOLEAN_LITERAL, PyNESTMLParser.NAME, PyNESTMLParser.INTEGER, PyNESTMLParser.FLOAT]:
-                self.state = 138
+                self.state = 129
                 self.simpleExpression()
-
+                pass
             else:
                 raise NoViableAltException(self)
 
             self._ctx.stop = self._input.LT(-1)
-            self.state = 177
+            self.state = 168
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,11,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     if self._parseListeners is not None:
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
-                    self.state = 175
-                    la_ = self._interp.adaptivePredict(self._input,10,self._ctx)
+                    self.state = 166
+                    self._errHandler.sync(self)
+                    la_ = self._interp.adaptivePredict(self._input,8,self._ctx)
                     if la_ == 1:
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                        self.state = 141
+                        self.state = 132
                         if not self.precpred(self._ctx, 10):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 10)")
-                        self.state = 142
+                        self.state = 133
                         localctx.powOp = self.match(PyNESTMLParser.T__7)
-                        self.state = 143
+                        self.state = 134
                         localctx.right = self.expression(10)
                         pass
 
@@ -853,28 +788,29 @@ class PyNESTMLParser ( Parser ):
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                        self.state = 144
+                        self.state = 135
                         if not self.precpred(self._ctx, 8):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 8)")
-                        self.state = 148
+                        self.state = 139
+                        self._errHandler.sync(self)
                         token = self._input.LA(1)
                         if token in [PyNESTMLParser.T__8]:
-                            self.state = 145
+                            self.state = 136
                             localctx.timesOp = self.match(PyNESTMLParser.T__8)
-
+                            pass
                         elif token in [PyNESTMLParser.T__9]:
-                            self.state = 146
+                            self.state = 137
                             localctx.divOp = self.match(PyNESTMLParser.T__9)
-
+                            pass
                         elif token in [PyNESTMLParser.T__10]:
-                            self.state = 147
+                            self.state = 138
                             localctx.moduloOp = self.match(PyNESTMLParser.T__10)
-
+                            pass
                         else:
                             raise NoViableAltException(self)
 
-                        self.state = 150
+                        self.state = 141
                         localctx.right = self.expression(9)
                         pass
 
@@ -882,24 +818,25 @@ class PyNESTMLParser ( Parser ):
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                        self.state = 151
+                        self.state = 142
                         if not self.precpred(self._ctx, 7):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 7)")
-                        self.state = 154
+                        self.state = 145
+                        self._errHandler.sync(self)
                         token = self._input.LA(1)
                         if token in [PyNESTMLParser.T__11]:
-                            self.state = 152
+                            self.state = 143
                             localctx.plusOp = self.match(PyNESTMLParser.T__11)
-
+                            pass
                         elif token in [PyNESTMLParser.T__12]:
-                            self.state = 153
+                            self.state = 144
                             localctx.minusOp = self.match(PyNESTMLParser.T__12)
-
+                            pass
                         else:
                             raise NoViableAltException(self)
 
-                        self.state = 156
+                        self.state = 147
                         localctx.right = self.expression(8)
                         pass
 
@@ -907,13 +844,13 @@ class PyNESTMLParser ( Parser ):
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                        self.state = 157
+                        self.state = 148
                         if not self.precpred(self._ctx, 6):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 6)")
-                        self.state = 158
+                        self.state = 149
                         self.bitOperator()
-                        self.state = 159
+                        self.state = 150
                         localctx.right = self.expression(7)
                         pass
 
@@ -921,13 +858,13 @@ class PyNESTMLParser ( Parser ):
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                        self.state = 161
+                        self.state = 152
                         if not self.precpred(self._ctx, 5):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 5)")
-                        self.state = 162
+                        self.state = 153
                         self.comparisonOperator()
-                        self.state = 163
+                        self.state = 154
                         localctx.right = self.expression(6)
                         pass
 
@@ -935,13 +872,13 @@ class PyNESTMLParser ( Parser ):
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
                         localctx.left = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                        self.state = 165
+                        self.state = 156
                         if not self.precpred(self._ctx, 3):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
-                        self.state = 166
+                        self.state = 157
                         self.logicalOperator()
-                        self.state = 167
+                        self.state = 158
                         localctx.right = self.expression(4)
                         pass
 
@@ -949,24 +886,24 @@ class PyNESTMLParser ( Parser ):
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
                         localctx.condition = _prevctx
                         self.pushNewRecursionContext(localctx, _startState, self.RULE_expression)
-                        self.state = 169
+                        self.state = 160
                         if not self.precpred(self._ctx, 2):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 2)")
-                        self.state = 170
+                        self.state = 161
                         self.match(PyNESTMLParser.T__14)
-                        self.state = 171
+                        self.state = 162
                         localctx.ifTrue = self.expression(0)
-                        self.state = 172
+                        self.state = 163
                         self.match(PyNESTMLParser.BLOCK_OPEN)
-                        self.state = 173
+                        self.state = 164
                         localctx.ifNot = self.expression(3)
                         pass
 
              
-                self.state = 179
+                self.state = 170
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,11,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,9,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1015,35 +952,38 @@ class PyNESTMLParser ( Parser ):
     def simpleExpression(self):
 
         localctx = PyNESTMLParser.SimpleExpressionContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 8, self.RULE_simpleExpression)
+        self.enterRule(localctx, 6, self.RULE_simpleExpression)
         self._la = 0 # Token type
         try:
-            self.state = 188
-            la_ = self._interp.adaptivePredict(self._input,13,self._ctx)
+            self.state = 179
+            self._errHandler.sync(self)
+            la_ = self._interp.adaptivePredict(self._input,11,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 180
+                self.state = 171
                 self.functionCall()
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 181
+                self.state = 172
                 self.match(PyNESTMLParser.BOOLEAN_LITERAL)
                 pass
 
             elif la_ == 3:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 182
+                self.state = 173
                 _la = self._input.LA(1)
                 if not(_la==PyNESTMLParser.INTEGER or _la==PyNESTMLParser.FLOAT):
                     self._errHandler.recoverInline(self)
                 else:
+                    self._errHandler.reportMatch(self)
                     self.consume()
-                self.state = 184
-                la_ = self._interp.adaptivePredict(self._input,12,self._ctx)
+                self.state = 175
+                self._errHandler.sync(self)
+                la_ = self._interp.adaptivePredict(self._input,10,self._ctx)
                 if la_ == 1:
-                    self.state = 183
+                    self.state = 174
                     self.variable()
 
 
@@ -1051,13 +991,13 @@ class PyNESTMLParser ( Parser ):
 
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 186
+                self.state = 177
                 localctx.isInf = self.match(PyNESTMLParser.T__15)
                 pass
 
             elif la_ == 5:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 187
+                self.state = 178
                 self.variable()
                 pass
 
@@ -1095,23 +1035,24 @@ class PyNESTMLParser ( Parser ):
     def unaryOperator(self):
 
         localctx = PyNESTMLParser.UnaryOperatorContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 10, self.RULE_unaryOperator)
+        self.enterRule(localctx, 8, self.RULE_unaryOperator)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 193
+            self.state = 184
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__11]:
-                self.state = 190
+                self.state = 181
                 localctx.unaryPlus = self.match(PyNESTMLParser.T__11)
-
+                pass
             elif token in [PyNESTMLParser.T__12]:
-                self.state = 191
+                self.state = 182
                 localctx.unaryMinus = self.match(PyNESTMLParser.T__12)
-
+                pass
             elif token in [PyNESTMLParser.T__16]:
-                self.state = 192
+                self.state = 183
                 localctx.unaryTilde = self.match(PyNESTMLParser.T__16)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1150,31 +1091,32 @@ class PyNESTMLParser ( Parser ):
     def bitOperator(self):
 
         localctx = PyNESTMLParser.BitOperatorContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 12, self.RULE_bitOperator)
+        self.enterRule(localctx, 10, self.RULE_bitOperator)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 200
+            self.state = 191
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__17]:
-                self.state = 195
+                self.state = 186
                 localctx.bitAnd = self.match(PyNESTMLParser.T__17)
-
+                pass
             elif token in [PyNESTMLParser.T__18]:
-                self.state = 196
+                self.state = 187
                 localctx.bitXor = self.match(PyNESTMLParser.T__18)
-
+                pass
             elif token in [PyNESTMLParser.T__19]:
-                self.state = 197
+                self.state = 188
                 localctx.bitOr = self.match(PyNESTMLParser.T__19)
-
+                pass
             elif token in [PyNESTMLParser.T__20]:
-                self.state = 198
+                self.state = 189
                 localctx.bitShiftLeft = self.match(PyNESTMLParser.T__20)
-
+                pass
             elif token in [PyNESTMLParser.T__21]:
-                self.state = 199
+                self.state = 190
                 localctx.bitShiftRight = self.match(PyNESTMLParser.T__21)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1215,39 +1157,40 @@ class PyNESTMLParser ( Parser ):
     def comparisonOperator(self):
 
         localctx = PyNESTMLParser.ComparisonOperatorContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 14, self.RULE_comparisonOperator)
+        self.enterRule(localctx, 12, self.RULE_comparisonOperator)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 209
+            self.state = 200
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__22]:
-                self.state = 202
+                self.state = 193
                 localctx.lt = self.match(PyNESTMLParser.T__22)
-
+                pass
             elif token in [PyNESTMLParser.T__23]:
-                self.state = 203
+                self.state = 194
                 localctx.le = self.match(PyNESTMLParser.T__23)
-
+                pass
             elif token in [PyNESTMLParser.T__24]:
-                self.state = 204
+                self.state = 195
                 localctx.eq = self.match(PyNESTMLParser.T__24)
-
+                pass
             elif token in [PyNESTMLParser.T__25]:
-                self.state = 205
+                self.state = 196
                 localctx.ne = self.match(PyNESTMLParser.T__25)
-
+                pass
             elif token in [PyNESTMLParser.T__26]:
-                self.state = 206
+                self.state = 197
                 localctx.ne2 = self.match(PyNESTMLParser.T__26)
-
+                pass
             elif token in [PyNESTMLParser.T__27]:
-                self.state = 207
+                self.state = 198
                 localctx.ge = self.match(PyNESTMLParser.T__27)
-
+                pass
             elif token in [PyNESTMLParser.T__28]:
-                self.state = 208
+                self.state = 199
                 localctx.gt = self.match(PyNESTMLParser.T__28)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1283,19 +1226,20 @@ class PyNESTMLParser ( Parser ):
     def logicalOperator(self):
 
         localctx = PyNESTMLParser.LogicalOperatorContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 16, self.RULE_logicalOperator)
+        self.enterRule(localctx, 14, self.RULE_logicalOperator)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 213
+            self.state = 204
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__29]:
-                self.state = 211
+                self.state = 202
                 localctx.logicalAnd = self.match(PyNESTMLParser.T__29)
-
+                pass
             elif token in [PyNESTMLParser.T__30]:
-                self.state = 212
+                self.state = 203
                 localctx.logicalOr = self.match(PyNESTMLParser.T__30)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1338,21 +1282,21 @@ class PyNESTMLParser ( Parser ):
     def variable(self):
 
         localctx = PyNESTMLParser.VariableContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 18, self.RULE_variable)
+        self.enterRule(localctx, 16, self.RULE_variable)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 215
+            self.state = 206
             self.match(PyNESTMLParser.NAME)
-            self.state = 219
+            self.state = 210
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,18,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
-                    self.state = 216
+                    self.state = 207
                     self.differentialOrder() 
-                self.state = 221
+                self.state = 212
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,18,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -1392,22 +1336,23 @@ class PyNESTMLParser ( Parser ):
     def functionCall(self):
 
         localctx = PyNESTMLParser.FunctionCallContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 20, self.RULE_functionCall)
+        self.enterRule(localctx, 18, self.RULE_functionCall)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 222
+            self.state = 213
             localctx.calleeName = self.match(PyNESTMLParser.NAME)
-            self.state = 223
+            self.state = 214
             self.match(PyNESTMLParser.T__5)
-            self.state = 225
+            self.state = 216
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNESTMLParser.T__5) | (1 << PyNESTMLParser.T__11) | (1 << PyNESTMLParser.T__12) | (1 << PyNESTMLParser.T__13) | (1 << PyNESTMLParser.T__15) | (1 << PyNESTMLParser.T__16))) != 0) or ((((_la - 74)) & ~0x3f) == 0 and ((1 << (_la - 74)) & ((1 << (PyNESTMLParser.BOOLEAN_LITERAL - 74)) | (1 << (PyNESTMLParser.NAME - 74)) | (1 << (PyNESTMLParser.INTEGER - 74)) | (1 << (PyNESTMLParser.FLOAT - 74)))) != 0):
-                self.state = 224
+                self.state = 215
                 localctx.args = self.arguments()
 
 
-            self.state = 227
+            self.state = 218
             self.match(PyNESTMLParser.T__6)
         except RecognitionException as re:
             localctx.exception = re
@@ -1445,21 +1390,21 @@ class PyNESTMLParser ( Parser ):
     def arguments(self):
 
         localctx = PyNESTMLParser.ArgumentsContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 22, self.RULE_arguments)
+        self.enterRule(localctx, 20, self.RULE_arguments)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 229
+            self.state = 220
             self.expression(0)
-            self.state = 234
+            self.state = 225
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==PyNESTMLParser.T__31:
-                self.state = 230
+                self.state = 221
                 self.match(PyNESTMLParser.T__31)
-                self.state = 231
+                self.state = 222
                 self.expression(0)
-                self.state = 236
+                self.state = 227
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1505,26 +1450,27 @@ class PyNESTMLParser ( Parser ):
     def odeFunction(self):
 
         localctx = PyNESTMLParser.OdeFunctionContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 24, self.RULE_odeFunction)
+        self.enterRule(localctx, 22, self.RULE_odeFunction)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 238
+            self.state = 229
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__32:
-                self.state = 237
+                self.state = 228
                 localctx.recordable = self.match(PyNESTMLParser.T__32)
 
 
-            self.state = 240
+            self.state = 231
             self.match(PyNESTMLParser.T__33)
-            self.state = 241
+            self.state = 232
             localctx.variableName = self.match(PyNESTMLParser.NAME)
-            self.state = 242
+            self.state = 233
             self.datatype()
-            self.state = 243
+            self.state = 234
             self.match(PyNESTMLParser.T__34)
-            self.state = 244
+            self.state = 235
             self.expression(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1565,14 +1511,14 @@ class PyNESTMLParser ( Parser ):
     def odeEquation(self):
 
         localctx = PyNESTMLParser.OdeEquationContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 26, self.RULE_odeEquation)
+        self.enterRule(localctx, 24, self.RULE_odeEquation)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 246
+            self.state = 237
             localctx.lhs = self.derivative()
-            self.state = 247
+            self.state = 238
             self.match(PyNESTMLParser.T__34)
-            self.state = 248
+            self.state = 239
             localctx.rhs = self.expression(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1614,19 +1560,19 @@ class PyNESTMLParser ( Parser ):
     def derivative(self):
 
         localctx = PyNESTMLParser.DerivativeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 28, self.RULE_derivative)
+        self.enterRule(localctx, 26, self.RULE_derivative)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 250
+            self.state = 241
             localctx.name = self.match(PyNESTMLParser.NAME)
-            self.state = 254
+            self.state = 245
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==PyNESTMLParser.T__35:
-                self.state = 251
+                self.state = 242
                 self.differentialOrder()
-                self.state = 256
+                self.state = 247
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1660,10 +1606,10 @@ class PyNESTMLParser ( Parser ):
     def differentialOrder(self):
 
         localctx = PyNESTMLParser.DifferentialOrderContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 30, self.RULE_differentialOrder)
+        self.enterRule(localctx, 28, self.RULE_differentialOrder)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 257
+            self.state = 248
             self.match(PyNESTMLParser.T__35)
         except RecognitionException as re:
             localctx.exception = re
@@ -1704,16 +1650,16 @@ class PyNESTMLParser ( Parser ):
     def odeShape(self):
 
         localctx = PyNESTMLParser.OdeShapeContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 32, self.RULE_odeShape)
+        self.enterRule(localctx, 30, self.RULE_odeShape)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 259
+            self.state = 250
             self.match(PyNESTMLParser.T__36)
-            self.state = 260
+            self.state = 251
             localctx.lhs = self.variable()
-            self.state = 261
+            self.state = 252
             self.match(PyNESTMLParser.T__34)
-            self.state = 262
+            self.state = 253
             localctx.rhs = self.expression(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1757,28 +1703,29 @@ class PyNESTMLParser ( Parser ):
     def block(self):
 
         localctx = PyNESTMLParser.BlockContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 34, self.RULE_block)
+        self.enterRule(localctx, 32, self.RULE_block)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 268
+            self.state = 259
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while ((((_la - 33)) & ~0x3f) == 0 and ((1 << (_la - 33)) & ((1 << (PyNESTMLParser.T__32 - 33)) | (1 << (PyNESTMLParser.T__33 - 33)) | (1 << (PyNESTMLParser.T__45 - 33)) | (1 << (PyNESTMLParser.T__46 - 33)) | (1 << (PyNESTMLParser.T__49 - 33)) | (1 << (PyNESTMLParser.T__53 - 33)) | (1 << (PyNESTMLParser.NEWLINE - 33)) | (1 << (PyNESTMLParser.NAME - 33)))) != 0):
-                self.state = 266
+                self.state = 257
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.T__32, PyNESTMLParser.T__33, PyNESTMLParser.T__45, PyNESTMLParser.T__46, PyNESTMLParser.T__49, PyNESTMLParser.T__53, PyNESTMLParser.NAME]:
-                    self.state = 264
+                    self.state = 255
                     self.stmt()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
-                    self.state = 265
+                    self.state = 256
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
-                self.state = 270
+                self.state = 261
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
@@ -1819,20 +1766,21 @@ class PyNESTMLParser ( Parser ):
     def stmt(self):
 
         localctx = PyNESTMLParser.StmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 36, self.RULE_stmt)
+        self.enterRule(localctx, 34, self.RULE_stmt)
         try:
-            self.state = 273
+            self.state = 264
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__32, PyNESTMLParser.T__33, PyNESTMLParser.T__45, PyNESTMLParser.NAME]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 271
+                self.state = 262
                 self.smallStmt()
-
+                pass
             elif token in [PyNESTMLParser.T__46, PyNESTMLParser.T__49, PyNESTMLParser.T__53]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 272
+                self.state = 263
                 self.compoundStmt()
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1877,25 +1825,26 @@ class PyNESTMLParser ( Parser ):
     def compoundStmt(self):
 
         localctx = PyNESTMLParser.CompoundStmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 38, self.RULE_compoundStmt)
+        self.enterRule(localctx, 36, self.RULE_compoundStmt)
         try:
-            self.state = 278
+            self.state = 269
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__46]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 275
+                self.state = 266
                 self.ifStmt()
-
+                pass
             elif token in [PyNESTMLParser.T__49]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 276
+                self.state = 267
                 self.forStmt()
-
+                pass
             elif token in [PyNESTMLParser.T__53]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 277
+                self.state = 268
                 self.whileStmt()
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1944,31 +1893,32 @@ class PyNESTMLParser ( Parser ):
     def smallStmt(self):
 
         localctx = PyNESTMLParser.SmallStmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 40, self.RULE_smallStmt)
+        self.enterRule(localctx, 38, self.RULE_smallStmt)
         try:
-            self.state = 284
-            la_ = self._interp.adaptivePredict(self._input,27,self._ctx)
+            self.state = 275
+            self._errHandler.sync(self)
+            la_ = self._interp.adaptivePredict(self._input,25,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 280
+                self.state = 271
                 self.assignment()
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 281
+                self.state = 272
                 self.functionCall()
                 pass
 
             elif la_ == 3:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 282
+                self.state = 273
                 self.declaration()
                 pass
 
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 283
+                self.state = 274
                 self.returnStmt()
                 pass
 
@@ -2016,37 +1966,38 @@ class PyNESTMLParser ( Parser ):
     def assignment(self):
 
         localctx = PyNESTMLParser.AssignmentContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 42, self.RULE_assignment)
+        self.enterRule(localctx, 40, self.RULE_assignment)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 286
+            self.state = 277
             localctx.lhsVariable = self.variable()
-            self.state = 292
+            self.state = 283
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__34]:
-                self.state = 287
+                self.state = 278
                 localctx.directAssignment = self.match(PyNESTMLParser.T__34)
-
+                pass
             elif token in [PyNESTMLParser.T__37]:
-                self.state = 288
+                self.state = 279
                 localctx.compoundSum = self.match(PyNESTMLParser.T__37)
-
+                pass
             elif token in [PyNESTMLParser.T__38]:
-                self.state = 289
+                self.state = 280
                 localctx.compoundMinus = self.match(PyNESTMLParser.T__38)
-
+                pass
             elif token in [PyNESTMLParser.T__39]:
-                self.state = 290
+                self.state = 281
                 localctx.compoundProduct = self.match(PyNESTMLParser.T__39)
-
+                pass
             elif token in [PyNESTMLParser.T__40]:
-                self.state = 291
+                self.state = 282
                 localctx.compoundQuotient = self.match(PyNESTMLParser.T__40)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
-            self.state = 294
+            self.state = 285
             self.expression(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -2106,75 +2057,81 @@ class PyNESTMLParser ( Parser ):
     def declaration(self):
 
         localctx = PyNESTMLParser.DeclarationContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 44, self.RULE_declaration)
+        self.enterRule(localctx, 42, self.RULE_declaration)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 297
+            self.state = 288
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__32:
-                self.state = 296
+                self.state = 287
                 localctx.isRecordable = self.match(PyNESTMLParser.T__32)
 
 
-            self.state = 300
+            self.state = 291
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__33:
-                self.state = 299
+                self.state = 290
                 localctx.isFunction = self.match(PyNESTMLParser.T__33)
 
 
-            self.state = 302
+            self.state = 293
             self.variable()
-            self.state = 307
+            self.state = 298
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==PyNESTMLParser.T__31:
-                self.state = 303
+                self.state = 294
                 self.match(PyNESTMLParser.T__31)
-                self.state = 304
+                self.state = 295
                 self.variable()
-                self.state = 309
+                self.state = 300
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 310
+            self.state = 301
             self.datatype()
-            self.state = 314
+            self.state = 305
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__41:
-                self.state = 311
+                self.state = 302
                 self.match(PyNESTMLParser.T__41)
-                self.state = 312
+                self.state = 303
                 localctx.sizeParameter = self.match(PyNESTMLParser.NAME)
-                self.state = 313
+                self.state = 304
                 self.match(PyNESTMLParser.T__42)
 
 
-            self.state = 318
+            self.state = 309
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__34:
-                self.state = 316
+                self.state = 307
                 self.match(PyNESTMLParser.T__34)
-                self.state = 317
+                self.state = 308
                 localctx.rhs = self.expression(0)
 
 
-            self.state = 321
+            self.state = 312
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.SL_COMMENT:
-                self.state = 320
+                self.state = 311
                 self.match(PyNESTMLParser.SL_COMMENT)
 
 
-            self.state = 327
+            self.state = 318
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__43:
-                self.state = 323
+                self.state = 314
                 self.match(PyNESTMLParser.T__43)
-                self.state = 324
+                self.state = 315
                 localctx.invariant = self.expression(0)
-                self.state = 325
+                self.state = 316
                 self.match(PyNESTMLParser.T__44)
 
 
@@ -2211,15 +2168,16 @@ class PyNESTMLParser ( Parser ):
     def returnStmt(self):
 
         localctx = PyNESTMLParser.ReturnStmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 46, self.RULE_returnStmt)
+        self.enterRule(localctx, 44, self.RULE_returnStmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 329
+            self.state = 320
             self.match(PyNESTMLParser.T__45)
-            self.state = 331
-            la_ = self._interp.adaptivePredict(self._input,36,self._ctx)
+            self.state = 322
+            self._errHandler.sync(self)
+            la_ = self._interp.adaptivePredict(self._input,34,self._ctx)
             if la_ == 1:
-                self.state = 330
+                self.state = 321
                 self.expression(0)
 
 
@@ -2270,30 +2228,31 @@ class PyNESTMLParser ( Parser ):
     def ifStmt(self):
 
         localctx = PyNESTMLParser.IfStmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 48, self.RULE_ifStmt)
+        self.enterRule(localctx, 46, self.RULE_ifStmt)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 333
+            self.state = 324
             self.ifClause()
-            self.state = 337
+            self.state = 328
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==PyNESTMLParser.T__47:
-                self.state = 334
+                self.state = 325
                 self.elifClause()
-                self.state = 339
+                self.state = 330
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 341
+            self.state = 332
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__48:
-                self.state = 340
+                self.state = 331
                 self.elseClause()
 
 
-            self.state = 343
+            self.state = 334
             self.match(PyNESTMLParser.BLOCK_CLOSE)
         except RecognitionException as re:
             localctx.exception = re
@@ -2335,16 +2294,16 @@ class PyNESTMLParser ( Parser ):
     def ifClause(self):
 
         localctx = PyNESTMLParser.IfClauseContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 50, self.RULE_ifClause)
+        self.enterRule(localctx, 48, self.RULE_ifClause)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 345
+            self.state = 336
             self.match(PyNESTMLParser.T__46)
-            self.state = 346
+            self.state = 337
             self.expression(0)
-            self.state = 347
+            self.state = 338
             self.match(PyNESTMLParser.BLOCK_OPEN)
-            self.state = 348
+            self.state = 339
             self.block()
         except RecognitionException as re:
             localctx.exception = re
@@ -2386,16 +2345,16 @@ class PyNESTMLParser ( Parser ):
     def elifClause(self):
 
         localctx = PyNESTMLParser.ElifClauseContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 52, self.RULE_elifClause)
+        self.enterRule(localctx, 50, self.RULE_elifClause)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 350
+            self.state = 341
             self.match(PyNESTMLParser.T__47)
-            self.state = 351
+            self.state = 342
             self.expression(0)
-            self.state = 352
+            self.state = 343
             self.match(PyNESTMLParser.BLOCK_OPEN)
-            self.state = 353
+            self.state = 344
             self.block()
         except RecognitionException as re:
             localctx.exception = re
@@ -2433,14 +2392,14 @@ class PyNESTMLParser ( Parser ):
     def elseClause(self):
 
         localctx = PyNESTMLParser.ElseClauseContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 54, self.RULE_elseClause)
+        self.enterRule(localctx, 52, self.RULE_elseClause)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 355
+            self.state = 346
             self.match(PyNESTMLParser.T__48)
-            self.state = 356
+            self.state = 347
             self.match(PyNESTMLParser.BLOCK_OPEN)
-            self.state = 357
+            self.state = 348
             self.block()
         except RecognitionException as re:
             localctx.exception = re
@@ -2499,30 +2458,30 @@ class PyNESTMLParser ( Parser ):
     def forStmt(self):
 
         localctx = PyNESTMLParser.ForStmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 56, self.RULE_forStmt)
+        self.enterRule(localctx, 54, self.RULE_forStmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 359
+            self.state = 350
             self.match(PyNESTMLParser.T__49)
-            self.state = 360
+            self.state = 351
             localctx.var = self.match(PyNESTMLParser.NAME)
-            self.state = 361
+            self.state = 352
             self.match(PyNESTMLParser.T__50)
-            self.state = 362
+            self.state = 353
             localctx.vrom = self.expression(0)
-            self.state = 363
+            self.state = 354
             self.match(PyNESTMLParser.T__51)
-            self.state = 364
+            self.state = 355
             localctx.to = self.expression(0)
-            self.state = 365
+            self.state = 356
             self.match(PyNESTMLParser.T__52)
-            self.state = 366
+            self.state = 357
             localctx.step = self.signedNumericLiteral()
-            self.state = 367
+            self.state = 358
             self.match(PyNESTMLParser.BLOCK_OPEN)
-            self.state = 368
+            self.state = 359
             self.block()
-            self.state = 369
+            self.state = 360
             self.match(PyNESTMLParser.BLOCK_CLOSE)
         except RecognitionException as re:
             localctx.exception = re
@@ -2567,18 +2526,18 @@ class PyNESTMLParser ( Parser ):
     def whileStmt(self):
 
         localctx = PyNESTMLParser.WhileStmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 58, self.RULE_whileStmt)
+        self.enterRule(localctx, 56, self.RULE_whileStmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 371
+            self.state = 362
             self.match(PyNESTMLParser.T__53)
-            self.state = 372
+            self.state = 363
             self.expression(0)
-            self.state = 373
+            self.state = 364
             self.match(PyNESTMLParser.BLOCK_OPEN)
-            self.state = 374
+            self.state = 365
             self.block()
-            self.state = 375
+            self.state = 366
             self.match(PyNESTMLParser.BLOCK_CLOSE)
         except RecognitionException as re:
             localctx.exception = re
@@ -2616,23 +2575,98 @@ class PyNESTMLParser ( Parser ):
     def signedNumericLiteral(self):
 
         localctx = PyNESTMLParser.SignedNumericLiteralContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 60, self.RULE_signedNumericLiteral)
+        self.enterRule(localctx, 58, self.RULE_signedNumericLiteral)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 378
+            self.state = 369
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__12:
-                self.state = 377
+                self.state = 368
                 localctx.negative = self.match(PyNESTMLParser.T__12)
 
 
-            self.state = 380
+            self.state = 371
             _la = self._input.LA(1)
             if not(_la==PyNESTMLParser.INTEGER or _la==PyNESTMLParser.FLOAT):
                 self._errHandler.recoverInline(self)
             else:
+                self._errHandler.reportMatch(self)
                 self.consume()
+        except RecognitionException as re:
+            localctx.exception = re
+            self._errHandler.reportError(self, re)
+            self._errHandler.recover(self, re)
+        finally:
+            self.exitRule()
+        return localctx
+
+    class NestmlCompilationUnitContext(ParserRuleContext):
+
+        def __init__(self, parser, parent=None, invokingState=-1):
+            super(PyNESTMLParser.NestmlCompilationUnitContext, self).__init__(parent, invokingState)
+            self.parser = parser
+
+        def EOF(self):
+            return self.getToken(PyNESTMLParser.EOF, 0)
+
+        def neuron(self, i=None):
+            if i is None:
+                return self.getTypedRuleContexts(PyNESTMLParser.NeuronContext)
+            else:
+                return self.getTypedRuleContext(PyNESTMLParser.NeuronContext,i)
+
+
+        def NEWLINE(self, i=None):
+            if i is None:
+                return self.getTokens(PyNESTMLParser.NEWLINE)
+            else:
+                return self.getToken(PyNESTMLParser.NEWLINE, i)
+
+        def getRuleIndex(self):
+            return PyNESTMLParser.RULE_nestmlCompilationUnit
+
+        def accept(self, visitor):
+            if hasattr(visitor, "visitNestmlCompilationUnit"):
+                return visitor.visitNestmlCompilationUnit(self)
+            else:
+                return visitor.visitChildren(self)
+
+
+
+
+    def nestmlCompilationUnit(self):
+
+        localctx = PyNESTMLParser.NestmlCompilationUnitContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 60, self.RULE_nestmlCompilationUnit)
+        self._la = 0 # Token type
+        try:
+            self.enterOuterAlt(localctx, 1)
+            self.state = 377
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            while _la==PyNESTMLParser.T__54 or _la==PyNESTMLParser.NEWLINE:
+                self.state = 375
+                self._errHandler.sync(self)
+                token = self._input.LA(1)
+                if token in [PyNESTMLParser.T__54]:
+                    self.state = 373
+                    self.neuron()
+                    pass
+                elif token in [PyNESTMLParser.NEWLINE]:
+                    self.state = 374
+                    self.match(PyNESTMLParser.NEWLINE)
+                    pass
+                else:
+                    raise NoViableAltException(self)
+
+                self.state = 379
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+
+            self.state = 380
+            self.match(PyNESTMLParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2772,35 +2806,36 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while ((((_la - 34)) & ~0x3f) == 0 and ((1 << (_la - 34)) & ((1 << (PyNESTMLParser.T__33 - 34)) | (1 << (PyNESTMLParser.T__55 - 34)) | (1 << (PyNESTMLParser.T__56 - 34)) | (1 << (PyNESTMLParser.T__57 - 34)) | (1 << (PyNESTMLParser.T__58 - 34)) | (1 << (PyNESTMLParser.T__59 - 34)) | (1 << (PyNESTMLParser.T__60 - 34)) | (1 << (PyNESTMLParser.T__66 - 34)) | (1 << (PyNESTMLParser.NEWLINE - 34)))) != 0):
                 self.state = 394
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.NEWLINE]:
                     self.state = 387
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 elif token in [PyNESTMLParser.T__55, PyNESTMLParser.T__56, PyNESTMLParser.T__57]:
                     self.state = 388
                     self.blockWithVariables()
-
+                    pass
                 elif token in [PyNESTMLParser.T__58]:
                     self.state = 389
                     self.updateBlock()
-
+                    pass
                 elif token in [PyNESTMLParser.T__59]:
                     self.state = 390
                     self.equationsBlock()
-
+                    pass
                 elif token in [PyNESTMLParser.T__60]:
                     self.state = 391
                     self.inputBlock()
-
+                    pass
                 elif token in [PyNESTMLParser.T__66]:
                     self.state = 392
                     self.outputBlock()
-
+                    pass
                 elif token in [PyNESTMLParser.T__33]:
                     self.state = 393
                     self.function()
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -2869,6 +2904,7 @@ class PyNESTMLParser ( Parser ):
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNESTMLParser.T__55) | (1 << PyNESTMLParser.T__56) | (1 << PyNESTMLParser.T__57))) != 0)):
                 localctx.blockType = self._errHandler.recoverInline(self)
             else:
+                self._errHandler.reportMatch(self)
                 self.consume()
             self.state = 402
             self.match(PyNESTMLParser.BLOCK_OPEN)
@@ -2877,15 +2913,16 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while ((((_la - 33)) & ~0x3f) == 0 and ((1 << (_la - 33)) & ((1 << (PyNESTMLParser.T__32 - 33)) | (1 << (PyNESTMLParser.T__33 - 33)) | (1 << (PyNESTMLParser.NEWLINE - 33)) | (1 << (PyNESTMLParser.NAME - 33)))) != 0):
                 self.state = 405
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.T__32, PyNESTMLParser.T__33, PyNESTMLParser.NAME]:
                     self.state = 403
                     self.declaration()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
                     self.state = 404
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -3020,23 +3057,24 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while True:
                 self.state = 423
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.T__32, PyNESTMLParser.T__33]:
                     self.state = 419
                     self.odeFunction()
-
+                    pass
                 elif token in [PyNESTMLParser.NAME]:
                     self.state = 420
                     self.odeEquation()
-
+                    pass
                 elif token in [PyNESTMLParser.T__36]:
                     self.state = 421
                     self.odeShape()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
                     self.state = 422
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -3109,15 +3147,16 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while _la==PyNESTMLParser.NEWLINE or _la==PyNESTMLParser.NAME:
                 self.state = 433
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.NAME]:
                     self.state = 431
                     self.inputLine()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
                     self.state = 432
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -3180,6 +3219,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 440
             localctx.name = self.match(PyNESTMLParser.NAME)
             self.state = 444
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__41:
                 self.state = 441
@@ -3203,15 +3243,16 @@ class PyNESTMLParser ( Parser ):
                 _la = self._input.LA(1)
 
             self.state = 455
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__62]:
                 self.state = 453
                 localctx.isCurrent = self.match(PyNESTMLParser.T__62)
-
+                pass
             elif token in [PyNESTMLParser.T__63]:
                 self.state = 454
                 localctx.isSpike = self.match(PyNESTMLParser.T__63)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -3251,15 +3292,16 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 459
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__64]:
                 self.state = 457
                 localctx.isInhibitory = self.match(PyNESTMLParser.T__64)
-
+                pass
             elif token in [PyNESTMLParser.T__65]:
                 self.state = 458
                 localctx.isExcitatory = self.match(PyNESTMLParser.T__65)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -3305,15 +3347,16 @@ class PyNESTMLParser ( Parser ):
             self.state = 462
             self.match(PyNESTMLParser.BLOCK_OPEN)
             self.state = 465
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__63]:
                 self.state = 463
                 localctx.isSpike = self.match(PyNESTMLParser.T__63)
-
+                pass
             elif token in [PyNESTMLParser.T__62]:
                 self.state = 464
                 localctx.isCurrent = self.match(PyNESTMLParser.T__62)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -3379,6 +3422,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 469
             self.match(PyNESTMLParser.T__5)
             self.state = 471
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.NAME:
                 self.state = 470
@@ -3388,6 +3432,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 473
             self.match(PyNESTMLParser.T__6)
             self.state = 475
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNESTMLParser.T__0) | (1 << PyNESTMLParser.T__1) | (1 << PyNESTMLParser.T__2) | (1 << PyNESTMLParser.T__3) | (1 << PyNESTMLParser.T__4) | (1 << PyNESTMLParser.T__5))) != 0) or _la==PyNESTMLParser.NAME or _la==PyNESTMLParser.INTEGER:
                 self.state = 474
@@ -3510,8 +3555,8 @@ class PyNESTMLParser ( Parser ):
     def sempred(self, localctx, ruleIndex, predIndex):
         if self._predicates == None:
             self._predicates = dict()
-        self._predicates[2] = self.unitType_sempred
-        self._predicates[3] = self.expression_sempred
+        self._predicates[1] = self.unitType_sempred
+        self._predicates[2] = self.expression_sempred
         pred = self._predicates.get(ruleIndex, None)
         if pred is None:
             raise Exception("No predicate with index:" + str(ruleIndex))

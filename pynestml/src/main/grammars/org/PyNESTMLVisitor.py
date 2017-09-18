@@ -1,14 +1,9 @@
-# Generated from pynestml/src/main/grammars/org/PyNESTML.g4 by ANTLR 4.5.1
+# Generated from pynestml/src/main/grammars/org/PyNESTML.g4 by ANTLR 4.7
 from antlr4 import *
 
 # This class defines a complete generic visitor for a parse tree produced by PyNESTMLParser.
 
 class PyNESTMLVisitor(ParseTreeVisitor):
-
-    # Visit a parse tree produced by PyNESTMLParser#nestmlCompilationUnit.
-    def visitNestmlCompilationUnit(self, ctx):
-        return self.visitChildren(ctx)
-
 
     # Visit a parse tree produced by PyNESTMLParser#datatype.
     def visitDatatype(self, ctx):
@@ -157,6 +152,11 @@ class PyNESTMLVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#signedNumericLiteral.
     def visitSignedNumericLiteral(self, ctx):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by PyNESTMLParser#nestmlCompilationUnit.
+    def visitNestmlCompilationUnit(self, ctx):
         return self.visitChildren(ctx)
 
 
