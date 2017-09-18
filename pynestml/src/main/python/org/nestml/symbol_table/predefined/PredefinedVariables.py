@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
 
 
 class PredefinedVariables:
@@ -26,49 +27,90 @@ class PredefinedVariables:
     Attributes:
         __E_CONSTANT     The euler constant symbol, i.e. e. Type: str
         __TIME_CONSTANT  The time variable stating the current time since start of simulation. Type: str
+        __name2VariableSymbol A list of all currently defined variables. Type: list(VariableSymbol)
     
     """
+    __name2VariableSymbol = {}  # a map from names to symbols
+
     __E_CONSTANT = 'e'
     __TIME_CONSTANT = 't'
 
     @classmethod
-    def registerPredefinedVariables(cls, _scope=None):
+    def registerPredefinedVariables(cls):
         """
-        Registers the predefined variables in the handed over scope.
-        :param _scope: a single, global scope
-        :type _scope: Scope
+        Registers the predefined variables.
         """
-        cls.__registerEulerConstant(_scope)
-        cls.__registerTimeConstant(_scope)
+        # TODO: Registration of units.
+        cls.__registerEulerConstant()
+        cls.__registerTimeConstant()
         return
 
     @classmethod
-    def __registerEulerConstant(cls, _scope):
+    def __registerEulerConstant(cls):
         """
-        Adds the euler constant e to the handed over scope.    
-        :param _scope: a scope element.
-        :type _scope: Scope
+        Adds the euler constant e.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
-        symbol = VariableSymbol(_name='e', _scope=_scope, _blockType=BlockType.STATE,
+        symbol = VariableSymbol(_name='e', _blockType=BlockType.STATE,
                                 _isPredefined=True, _typeSymbol=TypeSymbol.getRealType())
-        _scope.addSymbol(symbol)
+        cls.__name2VariableSymbol[cls.__E_CONSTANT] = symbol
         return
 
     @classmethod
-    def __registerTimeConstant(cls, _scope):
+    def __registerTimeConstant(cls):
         """
-        Adds the time constant t to the handed over scope.    
-        :param _scope: a scope element.
-        :type _scope: Scope
+        Adds the time constant t.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
         print('PredefinedVariables.TODO: Constant t currently real-typed!')
-        symbol = VariableSymbol(_name='t', _scope=_scope, _blockType=BlockType.STATE,
+        symbol = VariableSymbol(_name='t', _blockType=BlockType.STATE,
                                 _isPredefined=True, _typeSymbol=TypeSymbol.getRealType())
-        _scope.addSymbol(symbol)
+        cls.__name2VariableSymbol[cls.__TIME_CONSTANT] = symbol
         return
+
+    @classmethod
+    def getTimeConstant(cls):
+        """
+        Returns a copy of the variable symbol representing the time constant t.    
+        :return: a variable symbol.
+        :rtype: VariableSymbol
+        """
+        return copy(cls.__name2VariableSymbol[cls.__TIME_CONSTANT])
+
+    @classmethod
+    def getEulerConstant(cls):
+        """
+        Returns a copy of the variable symbol representing the euler constant t.    
+        :return: a variable symbol.
+        :rtype: VariableSymbol
+        """
+        return copy(cls.__name2VariableSymbol[cls.__E_CONSTANT])
+
+    @classmethod
+    def getVariableIfExists(cls, _name=None):
+        """
+        Returns the variable symbol belonging to the handed over name if such an element exists.
+        :param _name: the name of a symbol.
+        :type _name: str
+        :return: a variable symbol if one exists, otherwise none
+        :rtype: None or VariableSymbol
+        """
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.PredefinedVariables) No or wrong type of name provided!'
+        if _name in cls.__name2VariableSymbol.keys():
+            return copy(cls.__name2VariableSymbol[_name])
+        else:
+            return None
+
+    @classmethod
+    def getVariables(cls):
+        """
+        Returns the list of all defined variables.
+        :return: a list of variable symbols.
+        :rtype: list(VariableSymbol)
+        """
+        return copy(cls.__name2VariableSymbol)

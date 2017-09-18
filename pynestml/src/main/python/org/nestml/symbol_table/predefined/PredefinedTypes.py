@@ -26,88 +26,79 @@ from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import 
 class PredefinedTypes:
     """
     This class represents all types which are predefined in the system.
+    
+    Attributes:
+        __name2type     A dict from names of variables to the corresponding type symbols.
+    
     """
+    __name2type = {}
+    __REAL_TYPE = 'real'
+    __VOID_TYPE = 'void'
+    __BOOLEAN_TYPE = 'boolean'
+    __STRING_TYPE = 'string'
+    __INTEGER_TYPE = 'integer'
 
     @classmethod
-    def registerPrimitiveTypes(cls, _scope=None):
+    def registerPrimitiveTypes(cls):
         """
         Adds a set of primitive data types to the handed over scope. It assures that those types are valid and can
         be used.
-        :param _scope: a single scope object. In order to avoid problems, this scope should global.
-        :type _scope: Scope
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        assert (_scope.getScopeType() == ScopeType.GLOBAL), \
-            '(PyNestML.SymbolTable.Predefined) Handed over scope not global!'
-        cls.__registerReal(_scope)
-        cls.__registerVoid(_scope)
-        cls.__registerBoolean(_scope)
-        cls.__registerString(_scope)
-        cls.__registerInteger(_scope)
+        cls.__registerReal()
+        cls.__registerVoid()
+        cls.__registerBoolean()
+        cls.__registerString()
+        cls.__registerInteger()
         return
 
     @classmethod
-    def __registerReal(cls, _scope=None):
+    def __registerReal(cls):
         """
-        Adds the real type to the handed over scope.
-        :param _scope: a single scope object.
-        :type _scope: Scope
+        Adds the real type symbol to the dict of predefined types.
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='real', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
-        _scope.addSymbol(symbol)
+        symbol = TypeSymbol(_name=cls.__REAL_TYPE, _type=TypeSymbolType.PRIMITIVE)
+        cls.__name2type[cls.__REAL_TYPE] = symbol
         return
 
     @classmethod
-    def __registerVoid(cls, _scope=None):
+    def __registerVoid(cls):
         """
-        Adds the void type to the handed over scope.
-        :param _scope: a single scope object.
-        :type _scope: Scope 
+        Adds the void type to the dict of predefined types.
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='void', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
-        _scope.addSymbol(symbol)
+        symbol = TypeSymbol(_name='void', _type=TypeSymbolType.PRIMITIVE)
+        cls.__name2type[cls.__VOID_TYPE] = symbol
         return
 
     @classmethod
-    def __registerBoolean(cls, _scope=None):
+    def __registerBoolean(cls):
         """
-        Adds the boolean type to the handed over scope.
-        :param _scope: a single scope object.
-        :type _scope: Scope 
+        Adds the boolean type to the dict of predefined types.
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='boolean', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
-        _scope.addSymbol(symbol)
+        symbol = TypeSymbol(_name='boolean', _type=TypeSymbolType.PRIMITIVE)
+        cls.__name2type[cls.__BOOLEAN_TYPE] = symbol
         return
 
     @classmethod
-    def __registerString(cls, _scope=None):
+    def __registerString(cls):
         """
-        Adds the string type to the handed over scope.
-        :param _scope: a single scope object.
-        :type _scope: Scope 
+        Adds the string type to the dict of predefined types.
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='string', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
-        _scope.addSymbol(symbol)
+        symbol = TypeSymbol(_name='string', _type=TypeSymbolType.PRIMITIVE)
+        cls.__name2type[cls.__STRING_TYPE] = symbol
         return
 
     @classmethod
-    def __registerInteger(cls, _scope=None):
+    def __registerInteger(cls):
         """
-        Adds the integer type to the handed over scope.
-        :param _scope: a single scope object.
-        :type _scope: Scope 
+        Adds the integer type to the dict of predefined types.
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Predefined) No or wrong type of scope provided!'
-        symbol = TypeSymbol(_name='integer', _type=TypeSymbolType.PRIMITIVE, _scope=_scope)
-        _scope.addSymbol(symbol)
+        symbol = TypeSymbol(_name='integer', _type=TypeSymbolType.PRIMITIVE)
+        cls.__name2type[cls.__INTEGER_TYPE] = symbol
         return
+
+    """
+    TODO: registerBufferTypes
+          getTypes
+          getType
+          getTypeIfExists
+    """

@@ -23,7 +23,6 @@ from __future__ import print_function
 import unittest
 import os
 from antlr4 import *
-from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
 from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 
@@ -45,7 +44,6 @@ class ASTBuildingTest(unittest.TestCase):
                 parser.nestmlCompilationUnit()
                 # print('done')
                 return
-        return
 
 
 if __name__ == '__main__':

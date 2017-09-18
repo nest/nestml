@@ -43,7 +43,6 @@ class Scope:
         :param _sourcePosition: the start and end of the scope in the source file
         :type _sourcePosition: SourcePosition
         """
-        assert (isinstance(_scopeType, ScopeType)), '(PyNestML.SymbolTable.Scope) Type of scope not defined!'
         assert (_enclosingScope is None or isinstance(_enclosingScope, Scope)), \
             '(PyNestML.SymbolTable.Scope) Not a scope object handed over!'
         assert (isinstance(_sourcePosition, ASTSourcePosition)), \
@@ -329,7 +328,7 @@ class Scope:
         return ret
 
 
-class ScopeType(Enum):
+class ScopeType:
     """
     This enum is used to distinguish between different types of scopes, namely:
         -The global scope, in which all the sub-scopes are embedded.

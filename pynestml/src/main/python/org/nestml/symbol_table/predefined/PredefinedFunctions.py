@@ -17,12 +17,36 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+from copy import copy
 
 
 class PredefinedFunctions:
     """
     This class is used to represent all predefined functions of NESTML.
+    
+    Attributes:
+        __TIME_RESOLUTION       The callee name of the resolution function.
+        __TIME_STEPS            The callee name of the time-steps function.
+        __EMIT_SPIKE            The callee name of the emit-spike function.
+        __PRINT                 The callee name of the print function.
+        __PRINTLN               The callee name of the println function.
+        __POW                   The callee name of the power function.
+        __EXP                   The callee name of the exponent function.
+        __LOG                   The callee name of the logarithm function.
+        __LOGGER_INFO           The callee name of the logger-info function.
+        __LOGGER_WARNING        The callee name of the logger-warning function.
+        __RANDOM                The callee name of the random function.
+        __RANDOM_INT            The callee name of the random int function.
+        __EXPM1                 The callee name of the exponent (alternative) function.
+        __DELTA                 The callee name of the delta function.
+        __MAX                   The callee name of the max function.
+        __BOUNDED_MAX           The callee name of the bounded-max function.
+        __MIN                   The callee name of the min function.
+        __BOUNDED_MIN           The callee name of the bounded-min function.     
+        __INTEGRATE_ODES        The callee name of the integrate-ode function.
+        __CURR_SUM              The callee name of the curr-sum function.
+        __COND_SUM              The callee name of the cond-sum function.
+        __name2FunctionSymbol   A dict of function symbols as currently defined.
     """
     __TIME_RESOLUTION = 'resolution'
     __TIME_STEPS = 'steps'
@@ -45,28 +69,40 @@ class PredefinedFunctions:
     __INTEGRATE_ODES = 'integrate_odes'
     __CURR_SUM = 'curr_sum'
     __COND_SUM = 'cond_sum'
+    __name2FunctionSymbol = {}  # a map dict from function-names to symbols
 
     @classmethod
-    def registerPredefinedVariables(cls, _scope):
+    def registerPredefinedVariables(cls):
         """
-        Registers all predefined functions into the handed over scope.
-        :param _scope: a single scope.
-        :type _scope: Scope
+        Registers all predefined functions.
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.PredefinedFunctions) No or wrong type of scope handed over!'
-        cls.__registerTimeStepsFunction(_scope)
-        cls.__registerEmitSpikeFunction(_scope)
-        cls.__registerPrintFunction(_scope)
+        cls.__registerTimeResolutionFunction()
+        cls.__registerTimeStepsFunction()
+        cls.__registerEmitSpikeFunction()
+        cls.__registerPrintFunction()
+        cls.__registerPrintLnFunction()
+        cls.__registerPowerFunction()
+        cls.__registerExponentFunction()
+        cls.__registerLogFunction()
+        cls.__registerLoggerInfoFunction()
+        cls.__registerLoggerWarningFunction()
+        cls.__registerRandomFunction()
+        cls.__registerRandomIntFunction()
+        cls.__registerExp1Function()
+        cls.__registerDeltaFunction()
+        cls.__registerMaxFunction()
+        cls.__registerMaxBoundedFunction()
+        cls.__registerMinFunction()
+        cls.__registerMinBoundedFunction()
+        cls.__registerIntegratedOdesFunction()
+        cls.__registerCurrSumFunction()
+        cls.__registerCondSumFunction()
         return
 
     @classmethod
-    def __registerTimeStepsFunction(cls, _scope=None):
+    def __registerTimeStepsFunction(cls):
         """
-        Registers the time-resolution into th scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope
+        Registers the time-resolution.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -75,31 +111,27 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())
         symbol = FunctionSymbol(_name=cls.__TIME_STEPS, _paramTypes=params,
                                 _returnType=TypeSymbol.getIntegerType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__TIME_STEPS] = symbol
         return
 
     @classmethod
-    def __registerEmitSpikeFunction(cls, _scope=None):
+    def __registerEmitSpikeFunction(cls):
         """
-        Registers the emit function into th scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope
+        Registers the emit-spike function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__EMIT_SPIKE, _paramTypes=list(),
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__EMIT_SPIKE] = symbol
         return
 
     @classmethod
-    def __registerPrintFunction(cls, _scope=None):
+    def __registerPrintFunction(cls):
         """
-        Registers the print function into th scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope
+        Registers the print function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -107,31 +139,27 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getStringType())
         symbol = FunctionSymbol(_name=cls.__PRINT, _paramTypes=params,
                                 _returnType=TypeSymbol.getVoidType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__PRINT] = symbol
         return
 
     @classmethod
-    def __registerPrintLnFunction(cls, _scope=None):
+    def __registerPrintLnFunction(cls):
         """
-        Registers the print-line function into th scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope
+        Registers the print-line function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__PRINTLN, _paramTypes=list(),
                                 _returnType=TypeSymbol.getVoidType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__PRINTLN] = symbol
         return
 
     @classmethod
-    def __registerPowerFunction(cls, _scope):
+    def __registerPowerFunction(cls):
         """
-        Registers the power function into the scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the power function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -140,16 +168,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())  # the exponent type
         symbol = FunctionSymbol(_name=cls.__POW, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__POW] = symbol
         return
 
     @classmethod
-    def __registerExponentFunction(cls, _scope):
+    def __registerExponentFunction(cls):
         """
-        Registers the exponent (e(X)) function into the scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the exponent (e(X)) function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -157,16 +183,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())  # the argument
         symbol = FunctionSymbol(_name=cls.__EXP, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__EXP] = symbol
         return
 
     @classmethod
-    def __registerLogFunction(cls, _scope):
+    def __registerLogFunction(cls):
         """
-        Registers the logarithm function (to base 10) into the scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the logarithm function (to base 10).
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -174,16 +198,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())  # the argument
         symbol = FunctionSymbol(_name=cls.__LOG, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__LOG] = symbol
         return
 
     @classmethod
-    def __registerLoggerInfoFunction(cls, _scope):
+    def __registerLoggerInfoFunction(cls):
         """
         Registers the logger info method into the scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -191,16 +213,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getStringType())  # the argument
         symbol = FunctionSymbol(_name=cls.__LOGGER_INFO, _paramTypes=params,
                                 _returnType=TypeSymbol.getVoidType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__LOGGER_INFO] = symbol
         return
 
     @classmethod
-    def __registerLoggerWarningFunction(cls, _scope):
+    def __registerLoggerWarningFunction(cls):
         """
-        Registers the logger warning method into the scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the logger warning method.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -208,62 +228,54 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getStringType())  # the argument
         symbol = FunctionSymbol(_name=cls.__LOGGER_WARNING, _paramTypes=params,
                                 _returnType=TypeSymbol.getVoidType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__LOGGER_WARNING] = symbol
         return
 
     @classmethod
-    def __registerRandomFunction(cls, _scope):
+    def __registerRandomFunction(cls):
         """
-        Registers the random method into the scope as used to generate a random real-typed value.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the random method as used to generate a random real-typed value.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__RANDOM, _paramTypes=list(),
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__RANDOM] = symbol
         return
 
     @classmethod
-    def __registerRandomIntFunction(cls, _scope):
+    def __registerRandomIntFunction(cls):
         """
-        Registers the random method into the scope as used to generate a random integer-typed value.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the random method as used to generate a random integer-typed value.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__RANDOM_INT, _paramTypes=list(),
                                 _returnType=TypeSymbol.getIntegerType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__RANDOM_INT] = symbol
         return
 
     @classmethod
-    def __registerTimeResolutionFunction(cls, _scope):
+    def __registerTimeResolutionFunction(cls):
         """
-        Registers the time resolution function into the scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the time resolution function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         print('PredefinedFunctions.TODO: Time resolution real typed instead of ms!')
         symbol = FunctionSymbol(_name=cls.__TIME_RESOLUTION, _paramTypes=list(),
                                 _returnType=TypeSymbol.getRealType(),  # TODO here
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__TIME_RESOLUTION] = symbol
         return
 
     @classmethod
-    def __registerExp1Function(cls, _scope):
+    def __registerExp1Function(cls):
         """
         Registers the alternative version of the exponent function, exp1.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -271,16 +283,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())  # the argument
         symbol = FunctionSymbol(_name=cls.__EXPM1, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__EXPM1] = symbol
         return
 
     @classmethod
-    def __registerDeltaFunction(cls, _scope):
+    def __registerDeltaFunction(cls):
         """
-        Registers the delta function into scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the delta function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -290,16 +300,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())  # todo here
         symbol = FunctionSymbol(_name=cls.__DELTA, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__DELTA] = symbol
         return
 
     @classmethod
-    def __registerMaxFunction(cls, _scope):
+    def __registerMaxFunction(cls):
         """
-        Registers the maximum function into scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the maximum function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -308,16 +316,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())
         symbol = FunctionSymbol(_name=cls.__MAX, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__MAX] = symbol
         return
 
     @classmethod
-    def __registerMaxBoundedFunction(cls, _scope):
+    def __registerMaxBoundedFunction(cls):
         """
-        Registers the maximum (bounded) function into scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the maximum (bounded) function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -326,16 +332,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())
         symbol = FunctionSymbol(_name=cls.__BOUNDED_MAX, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__BOUNDED_MAX] = symbol
         return
 
     @classmethod
-    def __registerMinFunction(cls, _scope):
+    def __registerMinFunction(cls):
         """
-        Registers the minimum function into scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the minimum function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -344,16 +348,14 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())
         symbol = FunctionSymbol(_name=cls.__MIN, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__MIN] = symbol
         return
 
     @classmethod
-    def __registerMinBoundedFunction(cls, _scope):
+    def __registerMinBoundedFunction(cls):
         """
-        Registers the minimum (bounded) function into scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the minimum (bounded) function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
@@ -362,46 +364,79 @@ class PredefinedFunctions:
         params.append(TypeSymbol.getRealType())
         symbol = FunctionSymbol(_name=cls.__BOUNDED_MIN, _paramTypes=params,
                                 _returnType=TypeSymbol.getRealType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__BOUNDED_MIN] = symbol
         return
 
     @classmethod
-    def __registerIntegratedOdesFunction(cls, _scope):
+    def __registerIntegratedOdesFunction(cls):
         """
-        Registers the integrate-odes function into scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the integrate-odes function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
         symbol = FunctionSymbol(_name=cls.__INTEGRATE_ODES, _paramTypes=params,
                                 _returnType=TypeSymbol.getVoidType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__INTEGRATE_ODES] = symbol
         return
 
     @classmethod
-    def __registerIntegratedOdesFunction(cls, _scope):
+    def __registerCurrSumFunction(cls):
         """
-        Registers the integrate-odes function into scope.
-        :param _scope: a single scope element.
-        :type _scope: Scope 
+        Registers the curr_sum function into scope.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        print('PredefinedFunctions.TODO: Curr sum input typed instead of pA!')
         params = list()
-        symbol = FunctionSymbol(_name=cls.__INTEGRATE_ODES, _paramTypes=params,
-                                _returnType=TypeSymbol.getVoidType(),
-                                _elementReference=None, _scope=_scope, _isPredefined=True)
-        _scope.addSymbol(symbol)
+        params.append(TypeSymbol.getRealType())  # TODO here: pA
+        params.append(TypeSymbol.getRealType())
+        symbol = FunctionSymbol(_name=cls.__CURR_SUM, _paramTypes=params,
+                                _returnType=TypeSymbol.getRealType(),  # todo: pA
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__CURR_SUM] = symbol
         return
 
-    final
-    MethodSymbol
-    i_sum = createFunctionSymbol(CURR_SUM);
-    i_sum.addParameterType(getType("pA"));
-    i_sum.addParameterType(getRealType());
-    i_sum.setReturnType(getType("pA"));
-    name2FunctionSymbol.put(CURR_SUM, i_sum);
+    @classmethod
+    def __registerCondSumFunction(cls):
+        """
+        Registers the cond_sum function into scope.
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        print('PredefinedFunctions.TODO: Curr sum input typed instead of nS!')
+        params = list()
+        params.append(TypeSymbol.getRealType())  # TODO here: nS
+        params.append(TypeSymbol.getRealType())
+        symbol = FunctionSymbol(_name=cls.__COND_SUM, _paramTypes=params,
+                                _returnType=TypeSymbol.getRealType(),  # todo pA
+                                _elementReference=None, _isPredefined=True)
+        cls.__name2FunctionSymbol[cls.__COND_SUM] = symbol
+        return
+
+    @classmethod
+    def getFunctionSymbols(cls):
+        """
+        Returns a copy of the dict containing all predefined functions symbols.
+        :return: a copy of the dict containing the functions symbols
+        :rtype: copy(dict(FunctionSymbol)
+        """
+        return copy(cls.__name2FunctionSymbol)
+
+    @classmethod
+    def getMethodSymbolIfExists(cls, _name=None):
+        """
+        Returns a copy of a element in the set of defined functions if one exists, otherwise None
+        :param _name: the name of the function symbol
+        :type _name: str
+        :return: a copy of the element if such exists in the dict, otherwise None
+        :rtype: None or FunctionSymbol
+        """
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.PredefinedFunctions) No or wrong type of name provided!'
+        if _name in cls.__name2FunctionSymbol.keys():
+            return copy(cls.__name2FunctionSymbol[_name])
+        else:
+            return None
