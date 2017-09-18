@@ -17,10 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
-from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbolType
+from copy import copy
 
 
 class PredefinedTypes:
@@ -37,6 +36,7 @@ class PredefinedTypes:
     __BOOLEAN_TYPE = 'boolean'
     __STRING_TYPE = 'string'
     __INTEGER_TYPE = 'integer'
+    __BUFFER_TYPE = 'Buffer'
 
     @classmethod
     def registerPrimitiveTypes(cls):
@@ -65,7 +65,7 @@ class PredefinedTypes:
         """
         Adds the void type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name='void', _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__VOID_TYPE, _type=TypeSymbolType.PRIMITIVE)
         cls.__name2type[cls.__VOID_TYPE] = symbol
         return
 
@@ -74,7 +74,7 @@ class PredefinedTypes:
         """
         Adds the boolean type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name='boolean', _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__BOOLEAN_TYPE, _type=TypeSymbolType.PRIMITIVE)
         cls.__name2type[cls.__BOOLEAN_TYPE] = symbol
         return
 
@@ -83,7 +83,7 @@ class PredefinedTypes:
         """
         Adds the string type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name='string', _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__STRING_TYPE, _type=TypeSymbolType.PRIMITIVE)
         cls.__name2type[cls.__STRING_TYPE] = symbol
         return
 
@@ -92,13 +92,115 @@ class PredefinedTypes:
         """
         Adds the integer type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name='integer', _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__INTEGER_TYPE, _type=TypeSymbolType.PRIMITIVE)
         cls.__name2type[cls.__INTEGER_TYPE] = symbol
         return
 
+    @classmethod
+    def __registerBuffer(cls):
+        """
+        Adds the buffer type to the dict of predefined types.
+        """
+        symbol = TypeSymbol(_name=cls.__BUFFER_TYPE, _type=TypeSymbolType.BUFFER)
+        cls.__name2type[cls.__BUFFER_TYPE] = symbol
+        return
+
+    @classmethod
+    def getTypes(cls):
+        """
+        Returns the list of all predefined types.
+        :return: a copy of a list of all predefined types.
+        :rtype: copy(list(TypeSymbol)
+        """
+        return copy(cls.__name2type)
+
+    @classmethod
+    def getType(cls, _name=None):
+        """
+        Returns the symbol corresponding to the handed over name.
+        :param _name: the name of a symbol
+        :type _name: str
+        :return: a copy of a TypeSymbol
+        :rtype: copy(TypeSymbol)
+        """
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided!'
+        typE = cls.getTypeIfExists(_name)
+        if typE is not None:
+            return typE
+        else:
+            raise RuntimeException(
+                '(PyNestML.SymbolTable.PredefinedTypes) Cannot resolve the predefined type: ' + _name)
+
+    @classmethod
+    def getTypeIfExists(cls, _name=None):
+        """
+        Return a TypeSymbol for
+        -registered types
+        -Correct SI Units in name ("ms")
+        -Correct Serializations of a UnitRepresentation
+
+        In Case of UNITS always return a TS with serialization as name
+        :param _name: the name of the symbol. 
+        :type _name: str
+        :return: a single symbol or none
+        :rtype: TypeSymbol or None
+        """
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided!'
+        if _name in cls.__name2type:
+            return copy(cls.__name2type[_name])
+        else:
+            print('SymbolTable.PredefinedTypes: TODO')
+
+    @classmethod
+    def getRealType(cls):
+        """
+        Returns a type symbol of type real.
+        :return: a real symbol.
+        :rtype: TypeSymbol
+        """
+        return cls.__name2type[cls.__REAL_TYPE]
+
+    @classmethod
+    def getVoidType(cls):
+        """
+        Returns a type symbol of type void.
+        :return: a void symbol.
+        :rtype: TypeSymbol
+        """
+        return cls.__name2type[cls.__VOID_TYPE]
+
+    @classmethod
+    def getBooleanType(cls):
+        """
+        Returns a type symbol of type boolean.
+        :return: a boolean symbol.
+        :rtype: TypeSymbol
+        """
+        return cls.__name2type[cls.__BOOLEAN_TYPE]
+
+    @classmethod
+    def getStringType(cls):
+        """
+        Returns a new type symbol of type string.
+        :return: a new string symbol.
+        :rtype: TypeSymbol 
+        """
+        return cls.__name2type[cls.__STRING_TYPE]
+
+    @classmethod
+    def getIntegerType(cls):
+        """
+        Returns a new type symbol of type integer.
+        :return: a new integer symbol.
+        :rtype: TypeSymbol
+        """
+        return cls.__name2type[cls.__INTEGER_TYPE]
+
+
+class RuntimeException(Exception):
     """
-    TODO: registerBufferTypes
-          getTypes
-          getType
-          getTypeIfExists
+    This exception is thrown whenever a general errors occurs at runtime.
     """
+    pass

@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from copy import copy
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
 
 
 class PredefinedFunctions:
@@ -105,12 +106,11 @@ class PredefinedFunctions:
         Registers the time-resolution.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         print('PredefinedFunctions.TODO: Time steps input real typed instead of ms!')
         params = list()
-        params.append(TypeSymbol.getRealType())
+        params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__TIME_STEPS, _paramTypes=params,
-                                _returnType=TypeSymbol.getIntegerType(),
+                                _returnType=PredefinedTypes.getIntegerType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__TIME_STEPS] = symbol
         return
@@ -121,9 +121,8 @@ class PredefinedFunctions:
         Registers the emit-spike function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__EMIT_SPIKE, _paramTypes=list(),
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__EMIT_SPIKE] = symbol
         return
@@ -136,9 +135,9 @@ class PredefinedFunctions:
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getStringType())
+        params.append(PredefinedTypes.getStringType())
         symbol = FunctionSymbol(_name=cls.__PRINT, _paramTypes=params,
-                                _returnType=TypeSymbol.getVoidType(),
+                                _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__PRINT] = symbol
         return
@@ -151,7 +150,7 @@ class PredefinedFunctions:
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__PRINTLN, _paramTypes=list(),
-                                _returnType=TypeSymbol.getVoidType(),
+                                _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__PRINTLN] = symbol
         return
@@ -164,10 +163,10 @@ class PredefinedFunctions:
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getRealType())  # the base type
-        params.append(TypeSymbol.getRealType())  # the exponent type
+        params.append(PredefinedTypes.getRealType())  # the base type
+        params.append(PredefinedTypes.getRealType())  # the exponent type
         symbol = FunctionSymbol(_name=cls.__POW, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__POW] = symbol
         return
@@ -178,11 +177,10 @@ class PredefinedFunctions:
         Registers the exponent (e(X)) function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getRealType())  # the argument
+        params.append(PredefinedTypes.getRealType())  # the argument
         symbol = FunctionSymbol(_name=cls.__EXP, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__EXP] = symbol
         return
@@ -193,11 +191,10 @@ class PredefinedFunctions:
         Registers the logarithm function (to base 10).
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getRealType())  # the argument
+        params.append(PredefinedTypes.getRealType())  # the argument
         symbol = FunctionSymbol(_name=cls.__LOG, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__LOG] = symbol
         return
@@ -208,11 +205,10 @@ class PredefinedFunctions:
         Registers the logger info method into the scope.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getStringType())  # the argument
+        params.append(PredefinedTypes.getStringType())  # the argument
         symbol = FunctionSymbol(_name=cls.__LOGGER_INFO, _paramTypes=params,
-                                _returnType=TypeSymbol.getVoidType(),
+                                _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__LOGGER_INFO] = symbol
         return
@@ -223,11 +219,10 @@ class PredefinedFunctions:
         Registers the logger warning method.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getStringType())  # the argument
+        params.append(PredefinedTypes.getStringType())  # the argument
         symbol = FunctionSymbol(_name=cls.__LOGGER_WARNING, _paramTypes=params,
-                                _returnType=TypeSymbol.getVoidType(),
+                                _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__LOGGER_WARNING] = symbol
         return
@@ -240,7 +235,7 @@ class PredefinedFunctions:
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__RANDOM, _paramTypes=list(),
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__RANDOM] = symbol
         return
@@ -251,9 +246,8 @@ class PredefinedFunctions:
         Registers the random method as used to generate a random integer-typed value.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__RANDOM_INT, _paramTypes=list(),
-                                _returnType=TypeSymbol.getIntegerType(),
+                                _returnType=PredefinedTypes.getIntegerType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__RANDOM_INT] = symbol
         return
@@ -264,10 +258,9 @@ class PredefinedFunctions:
         Registers the time resolution function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         print('PredefinedFunctions.TODO: Time resolution real typed instead of ms!')
         symbol = FunctionSymbol(_name=cls.__TIME_RESOLUTION, _paramTypes=list(),
-                                _returnType=TypeSymbol.getRealType(),  # TODO here
+                                _returnType=PredefinedTypes.getRealType(),  # TODO here
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__TIME_RESOLUTION] = symbol
         return
@@ -278,11 +271,10 @@ class PredefinedFunctions:
         Registers the alternative version of the exponent function, exp1.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getRealType())  # the argument
+        params.append(PredefinedTypes.getRealType())  # the argument
         symbol = FunctionSymbol(_name=cls.__EXPM1, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__EXPM1] = symbol
         return
@@ -293,13 +285,12 @@ class PredefinedFunctions:
         Registers the delta function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         print('PredefinedFunctions.TODO: Delta function real typed instead of ms!')
         params = list()
-        params.append(TypeSymbol.getRealType())  # todo here
-        params.append(TypeSymbol.getRealType())  # todo here
+        params.append(PredefinedTypes.getRealType())  # todo here
+        params.append(PredefinedTypes.getRealType())  # todo here
         symbol = FunctionSymbol(_name=cls.__DELTA, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__DELTA] = symbol
         return
@@ -310,12 +301,11 @@ class PredefinedFunctions:
         Registers the maximum function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getRealType())
-        params.append(TypeSymbol.getRealType())
+        params.append(PredefinedTypes.getRealType())
+        params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__MAX, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__MAX] = symbol
         return
@@ -326,12 +316,11 @@ class PredefinedFunctions:
         Registers the maximum (bounded) function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getRealType())
-        params.append(TypeSymbol.getRealType())
+        params.append(PredefinedTypes.getRealType())
+        params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__BOUNDED_MAX, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__BOUNDED_MAX] = symbol
         return
@@ -342,12 +331,11 @@ class PredefinedFunctions:
         Registers the minimum function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getRealType())
-        params.append(TypeSymbol.getRealType())
+        params.append(PredefinedTypes.getRealType())
+        params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__MIN, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__MIN] = symbol
         return
@@ -358,12 +346,11 @@ class PredefinedFunctions:
         Registers the minimum (bounded) function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
-        params.append(TypeSymbol.getRealType())
-        params.append(TypeSymbol.getRealType())
+        params.append(PredefinedTypes.getRealType())
+        params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__BOUNDED_MIN, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),
+                                _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__BOUNDED_MIN] = symbol
         return
@@ -374,10 +361,9 @@ class PredefinedFunctions:
         Registers the integrate-odes function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
         symbol = FunctionSymbol(_name=cls.__INTEGRATE_ODES, _paramTypes=params,
-                                _returnType=TypeSymbol.getVoidType(),
+                                _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__INTEGRATE_ODES] = symbol
         return
@@ -388,13 +374,12 @@ class PredefinedFunctions:
         Registers the curr_sum function into scope.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         print('PredefinedFunctions.TODO: Curr sum input typed instead of pA!')
         params = list()
-        params.append(TypeSymbol.getRealType())  # TODO here: pA
-        params.append(TypeSymbol.getRealType())
+        params.append(PredefinedTypes.getRealType())  # TODO here: pA
+        params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__CURR_SUM, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),  # todo: pA
+                                _returnType=PredefinedTypes.getRealType(),  # todo: pA
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__CURR_SUM] = symbol
         return
@@ -408,10 +393,10 @@ class PredefinedFunctions:
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         print('PredefinedFunctions.TODO: Curr sum input typed instead of nS!')
         params = list()
-        params.append(TypeSymbol.getRealType())  # TODO here: nS
-        params.append(TypeSymbol.getRealType())
+        params.append(PredefinedTypes.getRealType())  # TODO here: nS
+        params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__COND_SUM, _paramTypes=params,
-                                _returnType=TypeSymbol.getRealType(),  # todo pA
+                                _returnType=PredefinedTypes.getRealType(),  # todo pA
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__COND_SUM] = symbol
         return

@@ -80,51 +80,6 @@ class TypeSymbol(Symbol):
                self.getSymbolName() == _other.getSymbolName() and \
                self.getCorrespondingScope() == _other.getCorrespondingScope()
 
-    @classmethod
-    def getRealType(cls):
-        """
-        Returns a new type symbol of type real.
-        :return: a new real symbol.
-        :rtype: TypeSymbol
-        """
-        return cls(_name='real', _type=TypeSymbolType.PRIMITIVE)
-
-    @classmethod
-    def getVoidType(cls):
-        """
-        Returns a new type symbol of type void.
-        :return: a new void symbol.
-        :rtype: TypeSymbol
-        """
-        return cls(_name='void', _type=TypeSymbolType.PRIMITIVE)
-
-    @classmethod
-    def getBooleanType(cls):
-        """
-        Returns a new type symbol of type boolean.
-        :return: a new boolean symbol.
-        :rtype: TypeSymbol
-        """
-        return cls(_name='boolean', _type=TypeSymbolType.PRIMITIVE)
-
-    @classmethod
-    def getStringType(cls):
-        """
-        Returns a new type symbol of type string.
-        :return: a new string symbol.
-        :rtype: TypeSymbol 
-        """
-        return cls(_name='string', _type=TypeSymbolType.PRIMITIVE)
-
-    @classmethod
-    def getIntegerType(cls):
-        """
-        Returns a new type symbol of type integer.
-        :return: a new integer symbol.
-        :rtype: TypeSymbol
-        """
-        return cls(_name='integer', _type=TypeSymbolType.PRIMITIVE)
-
 
 class TypeSymbolType(Enum):
     """
