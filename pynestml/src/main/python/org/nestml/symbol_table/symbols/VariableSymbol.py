@@ -32,6 +32,7 @@ class VariableSymbol(Symbol):
         __isPredefined        Indicates whether this symbol is predefined, e.g., t or e. Type: bool
         __isFunction          Indicates whether this symbol belongs to a function. Type: bool
         __isRecordable        Indicates whether this symbol belongs to a recordable element. Type: bool
+        __typeSymbol          The concrete type of this varible.
     """
     __blockType = None
     __vectorParameter = None
@@ -39,10 +40,11 @@ class VariableSymbol(Symbol):
     __isPredefined = False
     __isFunction = False
     __isRecordable = False
+    __typeSymbol = None
 
     def __init__(self, _elementReference=None, _scope=None, _name=None, _blockType=None, _vectorParameter=None,
-                 _declaringExpression=None,
-                 _isPredefined=False, _isFunction=None, _isRecordable=False):
+                 _declaringExpression=None, _isPredefined=False, _isFunction=False, _isRecordable=False,
+                 _typeSymbol=None):
         """
         Standard constructor.
         :param _elementReference: a reference to the first element where this type has been used/defined
@@ -63,6 +65,8 @@ class VariableSymbol(Symbol):
         :type _isFunction: bool
         :param _isRecordable: indicates whether this elements is recordable or not.
         :type _isRecordable: bool
+        :param _typeSymbol: a type symbol representing the concrete type of this variable
+        :type _typeSymbol: TypeSymbol
         """
         super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
         assert (_blockType is not None and isinstance(_blockType, BlockType)), \
@@ -78,12 +82,16 @@ class VariableSymbol(Symbol):
             '(PyNestML.SymbolTable.VariableSymbol) Is-function is not bool!'
         assert (_isRecordable is not None and isinstance(_isRecordable, bool)), \
             '(PyNestML.SymbolTable.VariableSymbol) Is-recordable is not bool!'
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong of type-symbol provided!'
         self.__blockType = _blockType
         self.__vectorParameter = _vectorParameter
         self.__declaringExpression = _declaringExpression
         self.__isPredefined = _isPredefined
         self.__isFunction = _isFunction
         self.__isRecordable = _isRecordable
+        self.__typeSymbol = _typeSymbol
 
     def getVectorParameter(self):
         """

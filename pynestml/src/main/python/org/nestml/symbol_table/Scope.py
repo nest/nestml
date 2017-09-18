@@ -162,7 +162,7 @@ class Scope:
         # the following step is done in order to return, whenever the list contains only one element, only this element
         if isinstance(scopes, list) and len(scopes) == 1:
             return scopes[0]
-        elif len(scopes) == 0:
+        elif isinstance(scopes,list) and len(scopes) == 0:
             return None
         else:
             return scopes
@@ -188,7 +188,7 @@ class Scope:
     def resolveToSymbol(self, _name=None, _type=None):
         """
         Resolves the name and type and returns the corresponding symbol. Caution: Here, we also take redeclaration into
-         account. This has to be prevented - if required - by cocos.
+        account. This has to be prevented - if required - by cocos.
         :param _name: the name of the element.
         :type _name: str
         :param _type: the type of the element

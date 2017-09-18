@@ -54,7 +54,10 @@ class ASTElement:
         :return: an source position object.
         :rtype: ASTSourcePosition
         """
-        return self.__sourcePosition
+        if self.__sourcePosition is not None:
+            return self.__sourcePosition
+        else:
+            return ASTSourcePosition(_startColumn=-1, _startLine=-1, _endColumn=-1, _endLine=-1)
 
     def getScope(self):
         """

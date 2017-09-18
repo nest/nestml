@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+
 class PredefinedVariables:
     """
     This class is used to store all predefined variables as generally available. 
@@ -37,5 +38,37 @@ class PredefinedVariables:
         :param _scope: a single, global scope
         :type _scope: Scope
         """
-        print('TODO')
-        pass
+        cls.__registerEulerConstant(_scope)
+        cls.__registerTimeConstant(_scope)
+        return
+
+    @classmethod
+    def __registerEulerConstant(cls, _scope):
+        """
+        Adds the euler constant e to the handed over scope.    
+        :param _scope: a scope element.
+        :type _scope: Scope
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+        symbol = VariableSymbol(_name='e', _scope=_scope, _blockType=BlockType.STATE,
+                                _isPredefined=True, _typeSymbol=TypeSymbol.getRealType())
+        _scope.addSymbol(symbol)
+        return
+
+    @classmethod
+    def __registerTimeConstant(cls, _scope):
+        """
+        Adds the time constant t to the handed over scope.    
+        :param _scope: a scope element.
+        :type _scope: Scope
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+        print('PredefinedVariables.TODO: Constant t currently real-typed!')
+        symbol = VariableSymbol(_name='t', _scope=_scope, _blockType=BlockType.STATE,
+                                _isPredefined=True, _typeSymbol=TypeSymbol.getRealType())
+        _scope.addSymbol(symbol)
+        return
