@@ -1,12 +1,13 @@
-# Generated from pynestml/src/main/grammars/org/PyNESTML.g4 by ANTLR 4.5.1
+# Generated from pynestml/src/main/grammars/org/PyNESTML.g4 by ANTLR 4.7
 # encoding: utf-8
 from __future__ import print_function
 from antlr4 import *
 from io import StringIO
+import sys
 
 def serializedATN():
     with StringIO() as buf:
-        buf.write(u"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3")
+        buf.write(u"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3")
         buf.write(u"O\u01ef\4\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t")
         buf.write(u"\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13\t\13\4\f\t\f\4\r\t\r")
         buf.write(u"\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22\4")
@@ -55,7 +56,7 @@ def serializedATN():
         buf.write(u"*\3*\3*\3*\3*\3+\3+\3+\7+\u01e7\n+\f+\16+\u01ea\13+\3")
         buf.write(u",\3,\3,\3,\2\4\6\b-\2\4\6\b\n\f\16\20\22\24\26\30\32")
         buf.write(u"\34\36 \"$&(*,.\60\62\64\668:<>@BDFHJLNPRTV\2\4\3\2N")
-        buf.write(u"O\3\2:<\u0221\2\\\3\2\2\2\4g\3\2\2\2\6r\3\2\2\2\b\u008d")
+        buf.write(u"O\3\2:<\2\u0221\2\\\3\2\2\2\4g\3\2\2\2\6r\3\2\2\2\b\u008d")
         buf.write(u"\3\2\2\2\n\u00be\3\2\2\2\f\u00c3\3\2\2\2\16\u00ca\3\2")
         buf.write(u"\2\2\20\u00d3\3\2\2\2\22\u00d7\3\2\2\2\24\u00d9\3\2\2")
         buf.write(u"\2\26\u00e0\3\2\2\2\30\u00e7\3\2\2\2\32\u00f0\3\2\2\2")
@@ -72,18 +73,18 @@ def serializedATN():
         buf.write(u"]_\3\2\2\2^\\\3\2\2\2_`\7\2\2\3`\3\3\2\2\2ah\7\3\2\2")
         buf.write(u"bh\7\4\2\2ch\7\5\2\2dh\7\6\2\2eh\7\7\2\2fh\5\6\4\2ga")
         buf.write(u"\3\2\2\2gb\3\2\2\2gc\3\2\2\2gd\3\2\2\2ge\3\2\2\2gf\3")
-        buf.write(u"\2\2\2h\5\3\2\2\2ij\b\4\1\2jk\7N\2\2kl\7\f\2\2ls\5\6")
-        buf.write(u"\4\4mn\7\b\2\2no\5\6\4\2op\7\t\2\2ps\3\2\2\2qs\7M\2\2")
-        buf.write(u"ri\3\2\2\2rm\3\2\2\2rq\3\2\2\2s\177\3\2\2\2tw\f\5\2\2")
+        buf.write(u"\2\2\2h\5\3\2\2\2ij\b\4\1\2jk\7\b\2\2kl\5\6\4\2lm\7\t")
+        buf.write(u"\2\2ms\3\2\2\2no\7N\2\2op\7\f\2\2ps\5\6\4\4qs\7M\2\2")
+        buf.write(u"ri\3\2\2\2rn\3\2\2\2rq\3\2\2\2s\177\3\2\2\2tw\f\5\2\2")
         buf.write(u"ux\7\13\2\2vx\7\f\2\2wu\3\2\2\2wv\3\2\2\2xy\3\2\2\2y")
         buf.write(u"~\5\6\4\6z{\f\6\2\2{|\7\n\2\2|~\7N\2\2}t\3\2\2\2}z\3")
         buf.write(u"\2\2\2~\u0081\3\2\2\2\177}\3\2\2\2\177\u0080\3\2\2\2")
         buf.write(u"\u0080\7\3\2\2\2\u0081\177\3\2\2\2\u0082\u0083\b\5\1")
-        buf.write(u"\2\u0083\u0084\5\f\7\2\u0084\u0085\5\b\5\13\u0085\u008e")
-        buf.write(u"\3\2\2\2\u0086\u0087\7\20\2\2\u0087\u008e\5\b\5\6\u0088")
-        buf.write(u"\u0089\7\b\2\2\u0089\u008a\5\b\5\2\u008a\u008b\7\t\2")
-        buf.write(u"\2\u008b\u008e\3\2\2\2\u008c\u008e\5\n\6\2\u008d\u0082")
-        buf.write(u"\3\2\2\2\u008d\u0086\3\2\2\2\u008d\u0088\3\2\2\2\u008d")
+        buf.write(u"\2\u0083\u0084\7\b\2\2\u0084\u0085\5\b\5\2\u0085\u0086")
+        buf.write(u"\7\t\2\2\u0086\u008e\3\2\2\2\u0087\u0088\5\f\7\2\u0088")
+        buf.write(u"\u0089\5\b\5\13\u0089\u008e\3\2\2\2\u008a\u008b\7\20")
+        buf.write(u"\2\2\u008b\u008e\5\b\5\6\u008c\u008e\5\n\6\2\u008d\u0082")
+        buf.write(u"\3\2\2\2\u008d\u0087\3\2\2\2\u008d\u008a\3\2\2\2\u008d")
         buf.write(u"\u008c\3\2\2\2\u008e\u00b3\3\2\2\2\u008f\u0090\f\f\2")
         buf.write(u"\2\u0090\u0091\7\n\2\2\u0091\u00b2\5\b\5\f\u0092\u0096")
         buf.write(u"\f\n\2\2\u0093\u0097\7\13\2\2\u0094\u0097\7\f\2\2\u0095")
@@ -432,9 +433,9 @@ class PyNESTMLParser ( Parser ):
     INTEGER=76
     FLOAT=77
 
-    def __init__(self, input):
-        super(PyNESTMLParser, self).__init__(input)
-        self.checkVersion("4.5.1")
+    def __init__(self, input, output=sys.stdout):
+        super(PyNESTMLParser, self).__init__(input, output=output)
+        self.checkVersion("4.7")
         self._interp = ParserATNSimulator(self, self.atn, self.decisionsToDFA, self.sharedContextCache)
         self._predicates = None
 
@@ -486,15 +487,16 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while _la==PyNESTMLParser.T__54 or _la==PyNESTMLParser.NEWLINE:
                 self.state = 88
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.T__54]:
                     self.state = 86
                     self.neuron()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
                     self.state = 87
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -546,37 +548,38 @@ class PyNESTMLParser ( Parser ):
         self.enterRule(localctx, 2, self.RULE_datatype)
         try:
             self.state = 101
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__0]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 95
                 localctx.isInt = self.match(PyNESTMLParser.T__0)
-
+                pass
             elif token in [PyNESTMLParser.T__1]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 96
                 localctx.isReal = self.match(PyNESTMLParser.T__1)
-
+                pass
             elif token in [PyNESTMLParser.T__2]:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 97
                 localctx.isString = self.match(PyNESTMLParser.T__2)
-
+                pass
             elif token in [PyNESTMLParser.T__3]:
                 self.enterOuterAlt(localctx, 4)
                 self.state = 98
                 localctx.isBool = self.match(PyNESTMLParser.T__3)
-
+                pass
             elif token in [PyNESTMLParser.T__4]:
                 self.enterOuterAlt(localctx, 5)
                 self.state = 99
                 localctx.isVoid = self.match(PyNESTMLParser.T__4)
-
+                pass
             elif token in [PyNESTMLParser.T__5, PyNESTMLParser.NAME, PyNESTMLParser.INTEGER]:
                 self.enterOuterAlt(localctx, 6)
                 self.state = 100
                 localctx.unit = self.unitType(0)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -595,19 +598,16 @@ class PyNESTMLParser ( Parser ):
             self.parser = parser
             self.base = None # UnitTypeContext
             self.left = None # UnitTypeContext
-            self.unitlessLiteral = None # Token
-            self.divOp = None # Token
-            self.right = None # UnitTypeContext
             self.leftParentheses = None # Token
             self.compoundUnit = None # UnitTypeContext
             self.rightParentheses = None # Token
+            self.unitlessLiteral = None # Token
+            self.divOp = None # Token
+            self.right = None # UnitTypeContext
             self.unit = None # Token
             self.timesOp = None # Token
             self.powOp = None # Token
             self.exponent = None # Token
-
-        def INTEGER(self):
-            return self.getToken(PyNESTMLParser.INTEGER, 0)
 
         def unitType(self, i=None):
             if i is None:
@@ -615,6 +615,9 @@ class PyNESTMLParser ( Parser ):
             else:
                 return self.getTypedRuleContext(PyNESTMLParser.UnitTypeContext,i)
 
+
+        def INTEGER(self):
+            return self.getToken(PyNESTMLParser.INTEGER, 0)
 
         def NAME(self):
             return self.getToken(PyNESTMLParser.NAME, 0)
@@ -640,27 +643,28 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 112
+            self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNESTMLParser.INTEGER]:
+            if token in [PyNESTMLParser.T__5]:
                 self.state = 104
-                localctx.unitlessLiteral = self.match(PyNESTMLParser.INTEGER)
-                self.state = 105
-                localctx.divOp = self.match(PyNESTMLParser.T__9)
-                self.state = 106
-                localctx.right = self.unitType(2)
-
-            elif token in [PyNESTMLParser.T__5]:
-                self.state = 107
                 localctx.leftParentheses = self.match(PyNESTMLParser.T__5)
-                self.state = 108
+                self.state = 105
                 localctx.compoundUnit = self.unitType(0)
-                self.state = 109
+                self.state = 106
                 localctx.rightParentheses = self.match(PyNESTMLParser.T__6)
-
+                pass
+            elif token in [PyNESTMLParser.INTEGER]:
+                self.state = 108
+                localctx.unitlessLiteral = self.match(PyNESTMLParser.INTEGER)
+                self.state = 109
+                localctx.divOp = self.match(PyNESTMLParser.T__9)
+                self.state = 110
+                localctx.right = self.unitType(2)
+                pass
             elif token in [PyNESTMLParser.NAME]:
                 self.state = 111
                 localctx.unit = self.match(PyNESTMLParser.NAME)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -674,6 +678,7 @@ class PyNESTMLParser ( Parser ):
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
                     self.state = 123
+                    self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,5,self._ctx)
                     if la_ == 1:
                         localctx = PyNESTMLParser.UnitTypeContext(self, _parentctx, _parentState)
@@ -684,15 +689,16 @@ class PyNESTMLParser ( Parser ):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 3)")
                         self.state = 117
+                        self._errHandler.sync(self)
                         token = self._input.LA(1)
                         if token in [PyNESTMLParser.T__8]:
                             self.state = 115
                             localctx.timesOp = self.match(PyNESTMLParser.T__8)
-
+                            pass
                         elif token in [PyNESTMLParser.T__9]:
                             self.state = 116
                             localctx.divOp = self.match(PyNESTMLParser.T__9)
-
+                            pass
                         else:
                             raise NoViableAltException(self)
 
@@ -734,10 +740,10 @@ class PyNESTMLParser ( Parser ):
             self.parser = parser
             self.left = None # ExpressionContext
             self.condition = None # ExpressionContext
-            self.term = None # ExpressionContext
-            self.logicalNot = None # Token
             self.leftParentheses = None # Token
+            self.term = None # ExpressionContext
             self.rightParentheses = None # Token
+            self.logicalNot = None # Token
             self.powOp = None # Token
             self.right = None # ExpressionContext
             self.timesOp = None # Token
@@ -748,15 +754,15 @@ class PyNESTMLParser ( Parser ):
             self.ifTrue = None # ExpressionContext
             self.ifNot = None # ExpressionContext
 
-        def unaryOperator(self):
-            return self.getTypedRuleContext(PyNESTMLParser.UnaryOperatorContext,0)
-
-
         def expression(self, i=None):
             if i is None:
                 return self.getTypedRuleContexts(PyNESTMLParser.ExpressionContext)
             else:
                 return self.getTypedRuleContext(PyNESTMLParser.ExpressionContext,i)
+
+
+        def unaryOperator(self):
+            return self.getTypedRuleContext(PyNESTMLParser.UnaryOperatorContext,0)
 
 
         def simpleExpression(self):
@@ -796,31 +802,32 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 139
+            self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [PyNESTMLParser.T__11, PyNESTMLParser.T__12, PyNESTMLParser.T__16]:
+            if token in [PyNESTMLParser.T__5]:
                 self.state = 129
-                self.unaryOperator()
-                self.state = 130
-                localctx.term = self.expression(9)
-
-            elif token in [PyNESTMLParser.T__13]:
-                self.state = 132
-                localctx.logicalNot = self.match(PyNESTMLParser.T__13)
-                self.state = 133
-                localctx.term = self.expression(4)
-
-            elif token in [PyNESTMLParser.T__5]:
-                self.state = 134
                 localctx.leftParentheses = self.match(PyNESTMLParser.T__5)
-                self.state = 135
+                self.state = 130
                 localctx.term = self.expression(0)
-                self.state = 136
+                self.state = 131
                 localctx.rightParentheses = self.match(PyNESTMLParser.T__6)
-
+                pass
+            elif token in [PyNESTMLParser.T__11, PyNESTMLParser.T__12, PyNESTMLParser.T__16]:
+                self.state = 133
+                self.unaryOperator()
+                self.state = 134
+                localctx.term = self.expression(9)
+                pass
+            elif token in [PyNESTMLParser.T__13]:
+                self.state = 136
+                localctx.logicalNot = self.match(PyNESTMLParser.T__13)
+                self.state = 137
+                localctx.term = self.expression(4)
+                pass
             elif token in [PyNESTMLParser.T__15, PyNESTMLParser.BOOLEAN_LITERAL, PyNESTMLParser.NAME, PyNESTMLParser.INTEGER, PyNESTMLParser.FLOAT]:
                 self.state = 138
                 self.simpleExpression()
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -834,6 +841,7 @@ class PyNESTMLParser ( Parser ):
                         self.triggerExitRuleEvent()
                     _prevctx = localctx
                     self.state = 175
+                    self._errHandler.sync(self)
                     la_ = self._interp.adaptivePredict(self._input,10,self._ctx)
                     if la_ == 1:
                         localctx = PyNESTMLParser.ExpressionContext(self, _parentctx, _parentState)
@@ -858,19 +866,20 @@ class PyNESTMLParser ( Parser ):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 8)")
                         self.state = 148
+                        self._errHandler.sync(self)
                         token = self._input.LA(1)
                         if token in [PyNESTMLParser.T__8]:
                             self.state = 145
                             localctx.timesOp = self.match(PyNESTMLParser.T__8)
-
+                            pass
                         elif token in [PyNESTMLParser.T__9]:
                             self.state = 146
                             localctx.divOp = self.match(PyNESTMLParser.T__9)
-
+                            pass
                         elif token in [PyNESTMLParser.T__10]:
                             self.state = 147
                             localctx.moduloOp = self.match(PyNESTMLParser.T__10)
-
+                            pass
                         else:
                             raise NoViableAltException(self)
 
@@ -887,15 +896,16 @@ class PyNESTMLParser ( Parser ):
                             from antlr4.error.Errors import FailedPredicateException
                             raise FailedPredicateException(self, "self.precpred(self._ctx, 7)")
                         self.state = 154
+                        self._errHandler.sync(self)
                         token = self._input.LA(1)
                         if token in [PyNESTMLParser.T__11]:
                             self.state = 152
                             localctx.plusOp = self.match(PyNESTMLParser.T__11)
-
+                            pass
                         elif token in [PyNESTMLParser.T__12]:
                             self.state = 153
                             localctx.minusOp = self.match(PyNESTMLParser.T__12)
-
+                            pass
                         else:
                             raise NoViableAltException(self)
 
@@ -1019,6 +1029,7 @@ class PyNESTMLParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.state = 188
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,13,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -1039,8 +1050,10 @@ class PyNESTMLParser ( Parser ):
                 if not(_la==PyNESTMLParser.INTEGER or _la==PyNESTMLParser.FLOAT):
                     self._errHandler.recoverInline(self)
                 else:
+                    self._errHandler.reportMatch(self)
                     self.consume()
                 self.state = 184
+                self._errHandler.sync(self)
                 la_ = self._interp.adaptivePredict(self._input,12,self._ctx)
                 if la_ == 1:
                     self.state = 183
@@ -1099,19 +1112,20 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 193
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__11]:
                 self.state = 190
                 localctx.unaryPlus = self.match(PyNESTMLParser.T__11)
-
+                pass
             elif token in [PyNESTMLParser.T__12]:
                 self.state = 191
                 localctx.unaryMinus = self.match(PyNESTMLParser.T__12)
-
+                pass
             elif token in [PyNESTMLParser.T__16]:
                 self.state = 192
                 localctx.unaryTilde = self.match(PyNESTMLParser.T__16)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1154,27 +1168,28 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 200
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__17]:
                 self.state = 195
                 localctx.bitAnd = self.match(PyNESTMLParser.T__17)
-
+                pass
             elif token in [PyNESTMLParser.T__18]:
                 self.state = 196
                 localctx.bitXor = self.match(PyNESTMLParser.T__18)
-
+                pass
             elif token in [PyNESTMLParser.T__19]:
                 self.state = 197
                 localctx.bitOr = self.match(PyNESTMLParser.T__19)
-
+                pass
             elif token in [PyNESTMLParser.T__20]:
                 self.state = 198
                 localctx.bitShiftLeft = self.match(PyNESTMLParser.T__20)
-
+                pass
             elif token in [PyNESTMLParser.T__21]:
                 self.state = 199
                 localctx.bitShiftRight = self.match(PyNESTMLParser.T__21)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1219,35 +1234,36 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 209
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__22]:
                 self.state = 202
                 localctx.lt = self.match(PyNESTMLParser.T__22)
-
+                pass
             elif token in [PyNESTMLParser.T__23]:
                 self.state = 203
                 localctx.le = self.match(PyNESTMLParser.T__23)
-
+                pass
             elif token in [PyNESTMLParser.T__24]:
                 self.state = 204
                 localctx.eq = self.match(PyNESTMLParser.T__24)
-
+                pass
             elif token in [PyNESTMLParser.T__25]:
                 self.state = 205
                 localctx.ne = self.match(PyNESTMLParser.T__25)
-
+                pass
             elif token in [PyNESTMLParser.T__26]:
                 self.state = 206
                 localctx.ne2 = self.match(PyNESTMLParser.T__26)
-
+                pass
             elif token in [PyNESTMLParser.T__27]:
                 self.state = 207
                 localctx.ge = self.match(PyNESTMLParser.T__27)
-
+                pass
             elif token in [PyNESTMLParser.T__28]:
                 self.state = 208
                 localctx.gt = self.match(PyNESTMLParser.T__28)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1287,15 +1303,16 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 213
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__29]:
                 self.state = 211
                 localctx.logicalAnd = self.match(PyNESTMLParser.T__29)
-
+                pass
             elif token in [PyNESTMLParser.T__30]:
                 self.state = 212
                 localctx.logicalOr = self.match(PyNESTMLParser.T__30)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1401,6 +1418,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 223
             self.match(PyNESTMLParser.T__5)
             self.state = 225
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNESTMLParser.T__5) | (1 << PyNESTMLParser.T__11) | (1 << PyNESTMLParser.T__12) | (1 << PyNESTMLParser.T__13) | (1 << PyNESTMLParser.T__15) | (1 << PyNESTMLParser.T__16))) != 0) or ((((_la - 74)) & ~0x3f) == 0 and ((1 << (_la - 74)) & ((1 << (PyNESTMLParser.BOOLEAN_LITERAL - 74)) | (1 << (PyNESTMLParser.NAME - 74)) | (1 << (PyNESTMLParser.INTEGER - 74)) | (1 << (PyNESTMLParser.FLOAT - 74)))) != 0):
                 self.state = 224
@@ -1510,6 +1528,7 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 238
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__32:
                 self.state = 237
@@ -1766,15 +1785,16 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while ((((_la - 33)) & ~0x3f) == 0 and ((1 << (_la - 33)) & ((1 << (PyNESTMLParser.T__32 - 33)) | (1 << (PyNESTMLParser.T__33 - 33)) | (1 << (PyNESTMLParser.T__45 - 33)) | (1 << (PyNESTMLParser.T__46 - 33)) | (1 << (PyNESTMLParser.T__49 - 33)) | (1 << (PyNESTMLParser.T__53 - 33)) | (1 << (PyNESTMLParser.NEWLINE - 33)) | (1 << (PyNESTMLParser.NAME - 33)))) != 0):
                 self.state = 266
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.T__32, PyNESTMLParser.T__33, PyNESTMLParser.T__45, PyNESTMLParser.T__46, PyNESTMLParser.T__49, PyNESTMLParser.T__53, PyNESTMLParser.NAME]:
                     self.state = 264
                     self.stmt()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
                     self.state = 265
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -1822,17 +1842,18 @@ class PyNESTMLParser ( Parser ):
         self.enterRule(localctx, 36, self.RULE_stmt)
         try:
             self.state = 273
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__32, PyNESTMLParser.T__33, PyNESTMLParser.T__45, PyNESTMLParser.NAME]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 271
                 self.smallStmt()
-
+                pass
             elif token in [PyNESTMLParser.T__46, PyNESTMLParser.T__49, PyNESTMLParser.T__53]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 272
                 self.compoundStmt()
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1880,22 +1901,23 @@ class PyNESTMLParser ( Parser ):
         self.enterRule(localctx, 38, self.RULE_compoundStmt)
         try:
             self.state = 278
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__46]:
                 self.enterOuterAlt(localctx, 1)
                 self.state = 275
                 self.ifStmt()
-
+                pass
             elif token in [PyNESTMLParser.T__49]:
                 self.enterOuterAlt(localctx, 2)
                 self.state = 276
                 self.forStmt()
-
+                pass
             elif token in [PyNESTMLParser.T__53]:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 277
                 self.whileStmt()
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -1947,6 +1969,7 @@ class PyNESTMLParser ( Parser ):
         self.enterRule(localctx, 40, self.RULE_smallStmt)
         try:
             self.state = 284
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,27,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
@@ -2022,27 +2045,28 @@ class PyNESTMLParser ( Parser ):
             self.state = 286
             localctx.lhsVariable = self.variable()
             self.state = 292
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__34]:
                 self.state = 287
                 localctx.directAssignment = self.match(PyNESTMLParser.T__34)
-
+                pass
             elif token in [PyNESTMLParser.T__37]:
                 self.state = 288
                 localctx.compoundSum = self.match(PyNESTMLParser.T__37)
-
+                pass
             elif token in [PyNESTMLParser.T__38]:
                 self.state = 289
                 localctx.compoundMinus = self.match(PyNESTMLParser.T__38)
-
+                pass
             elif token in [PyNESTMLParser.T__39]:
                 self.state = 290
                 localctx.compoundProduct = self.match(PyNESTMLParser.T__39)
-
+                pass
             elif token in [PyNESTMLParser.T__40]:
                 self.state = 291
                 localctx.compoundQuotient = self.match(PyNESTMLParser.T__40)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -2111,6 +2135,7 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 297
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__32:
                 self.state = 296
@@ -2118,6 +2143,7 @@ class PyNESTMLParser ( Parser ):
 
 
             self.state = 300
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__33:
                 self.state = 299
@@ -2141,6 +2167,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 310
             self.datatype()
             self.state = 314
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__41:
                 self.state = 311
@@ -2152,6 +2179,7 @@ class PyNESTMLParser ( Parser ):
 
 
             self.state = 318
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__34:
                 self.state = 316
@@ -2161,6 +2189,7 @@ class PyNESTMLParser ( Parser ):
 
 
             self.state = 321
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.SL_COMMENT:
                 self.state = 320
@@ -2168,6 +2197,7 @@ class PyNESTMLParser ( Parser ):
 
 
             self.state = 327
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__43:
                 self.state = 323
@@ -2217,6 +2247,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 329
             self.match(PyNESTMLParser.T__45)
             self.state = 331
+            self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,36,self._ctx)
             if la_ == 1:
                 self.state = 330
@@ -2287,6 +2318,7 @@ class PyNESTMLParser ( Parser ):
                 _la = self._input.LA(1)
 
             self.state = 341
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__48:
                 self.state = 340
@@ -2621,6 +2653,7 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 378
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__12:
                 self.state = 377
@@ -2632,6 +2665,7 @@ class PyNESTMLParser ( Parser ):
             if not(_la==PyNESTMLParser.INTEGER or _la==PyNESTMLParser.FLOAT):
                 self._errHandler.recoverInline(self)
             else:
+                self._errHandler.reportMatch(self)
                 self.consume()
         except RecognitionException as re:
             localctx.exception = re
@@ -2772,35 +2806,36 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while ((((_la - 34)) & ~0x3f) == 0 and ((1 << (_la - 34)) & ((1 << (PyNESTMLParser.T__33 - 34)) | (1 << (PyNESTMLParser.T__55 - 34)) | (1 << (PyNESTMLParser.T__56 - 34)) | (1 << (PyNESTMLParser.T__57 - 34)) | (1 << (PyNESTMLParser.T__58 - 34)) | (1 << (PyNESTMLParser.T__59 - 34)) | (1 << (PyNESTMLParser.T__60 - 34)) | (1 << (PyNESTMLParser.T__66 - 34)) | (1 << (PyNESTMLParser.NEWLINE - 34)))) != 0):
                 self.state = 394
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.NEWLINE]:
                     self.state = 387
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 elif token in [PyNESTMLParser.T__55, PyNESTMLParser.T__56, PyNESTMLParser.T__57]:
                     self.state = 388
                     self.blockWithVariables()
-
+                    pass
                 elif token in [PyNESTMLParser.T__58]:
                     self.state = 389
                     self.updateBlock()
-
+                    pass
                 elif token in [PyNESTMLParser.T__59]:
                     self.state = 390
                     self.equationsBlock()
-
+                    pass
                 elif token in [PyNESTMLParser.T__60]:
                     self.state = 391
                     self.inputBlock()
-
+                    pass
                 elif token in [PyNESTMLParser.T__66]:
                     self.state = 392
                     self.outputBlock()
-
+                    pass
                 elif token in [PyNESTMLParser.T__33]:
                     self.state = 393
                     self.function()
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -2869,6 +2904,7 @@ class PyNESTMLParser ( Parser ):
             if not((((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNESTMLParser.T__55) | (1 << PyNESTMLParser.T__56) | (1 << PyNESTMLParser.T__57))) != 0)):
                 localctx.blockType = self._errHandler.recoverInline(self)
             else:
+                self._errHandler.reportMatch(self)
                 self.consume()
             self.state = 402
             self.match(PyNESTMLParser.BLOCK_OPEN)
@@ -2877,15 +2913,16 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while ((((_la - 33)) & ~0x3f) == 0 and ((1 << (_la - 33)) & ((1 << (PyNESTMLParser.T__32 - 33)) | (1 << (PyNESTMLParser.T__33 - 33)) | (1 << (PyNESTMLParser.NEWLINE - 33)) | (1 << (PyNESTMLParser.NAME - 33)))) != 0):
                 self.state = 405
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.T__32, PyNESTMLParser.T__33, PyNESTMLParser.NAME]:
                     self.state = 403
                     self.declaration()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
                     self.state = 404
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -3020,23 +3057,24 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while True:
                 self.state = 423
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.T__32, PyNESTMLParser.T__33]:
                     self.state = 419
                     self.odeFunction()
-
+                    pass
                 elif token in [PyNESTMLParser.NAME]:
                     self.state = 420
                     self.odeEquation()
-
+                    pass
                 elif token in [PyNESTMLParser.T__36]:
                     self.state = 421
                     self.odeShape()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
                     self.state = 422
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -3109,15 +3147,16 @@ class PyNESTMLParser ( Parser ):
             _la = self._input.LA(1)
             while _la==PyNESTMLParser.NEWLINE or _la==PyNESTMLParser.NAME:
                 self.state = 433
+                self._errHandler.sync(self)
                 token = self._input.LA(1)
                 if token in [PyNESTMLParser.NAME]:
                     self.state = 431
                     self.inputLine()
-
+                    pass
                 elif token in [PyNESTMLParser.NEWLINE]:
                     self.state = 432
                     self.match(PyNESTMLParser.NEWLINE)
-
+                    pass
                 else:
                     raise NoViableAltException(self)
 
@@ -3180,6 +3219,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 440
             localctx.name = self.match(PyNESTMLParser.NAME)
             self.state = 444
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.T__41:
                 self.state = 441
@@ -3203,15 +3243,16 @@ class PyNESTMLParser ( Parser ):
                 _la = self._input.LA(1)
 
             self.state = 455
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__62]:
                 self.state = 453
                 localctx.isCurrent = self.match(PyNESTMLParser.T__62)
-
+                pass
             elif token in [PyNESTMLParser.T__63]:
                 self.state = 454
                 localctx.isSpike = self.match(PyNESTMLParser.T__63)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -3251,15 +3292,16 @@ class PyNESTMLParser ( Parser ):
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 459
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__64]:
                 self.state = 457
                 localctx.isInhibitory = self.match(PyNESTMLParser.T__64)
-
+                pass
             elif token in [PyNESTMLParser.T__65]:
                 self.state = 458
                 localctx.isExcitatory = self.match(PyNESTMLParser.T__65)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -3305,15 +3347,16 @@ class PyNESTMLParser ( Parser ):
             self.state = 462
             self.match(PyNESTMLParser.BLOCK_OPEN)
             self.state = 465
+            self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [PyNESTMLParser.T__63]:
                 self.state = 463
                 localctx.isSpike = self.match(PyNESTMLParser.T__63)
-
+                pass
             elif token in [PyNESTMLParser.T__62]:
                 self.state = 464
                 localctx.isCurrent = self.match(PyNESTMLParser.T__62)
-
+                pass
             else:
                 raise NoViableAltException(self)
 
@@ -3379,6 +3422,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 469
             self.match(PyNESTMLParser.T__5)
             self.state = 471
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==PyNESTMLParser.NAME:
                 self.state = 470
@@ -3388,6 +3432,7 @@ class PyNESTMLParser ( Parser ):
             self.state = 473
             self.match(PyNESTMLParser.T__6)
             self.state = 475
+            self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & ((1 << PyNESTMLParser.T__0) | (1 << PyNESTMLParser.T__1) | (1 << PyNESTMLParser.T__2) | (1 << PyNESTMLParser.T__3) | (1 << PyNESTMLParser.T__4) | (1 << PyNESTMLParser.T__5))) != 0) or _la==PyNESTMLParser.NAME or _la==PyNESTMLParser.INTEGER:
                 self.state = 474
