@@ -86,24 +86,3 @@ class Symbol:
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided!'
         return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
-
-    @abstractmethod
-    def printSymbol(self):
-        """
-        Returns a string representation of this symbol object. This class has to be specified in the corresponding
-        sub-class.
-        :return: a string representation
-        :rtype: str
-        """
-        pass
-
-    @abstractmethod
-    def equals(self, _other=None):
-        """
-        Checks if the handed over object is equal to this (value-wise).
-        :param _other: a symbol object.
-        :type _other: Symbol or subclass.
-        :return: True if equal, otherwise False.
-        :rtype: bool
-        """
-        pass
