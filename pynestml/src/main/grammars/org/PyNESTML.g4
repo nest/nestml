@@ -28,17 +28,15 @@ grammar PyNESTML;
 
   import Tokens;
 
-  nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
-
   /*********************************************************************************************************************
   * Units-Language
   *********************************************************************************************************************/
 
   /**
-    ASTDatatype. Represents predefined datatypes and gives a possibility to use an unit
-    datatype.
+    ASTDatatype. Represents predefined data types and gives a possibility to use an unit
+    data type.
     @attribute boolean getters for integer, real, ...
-    @attribute unitType a SI datatype
+    @attribute unitType a SI data type
   */
   datatype : isInt='integer'
            | isReal='real'
@@ -47,7 +45,7 @@ grammar PyNESTML;
            | isVoid='void'
            | unit=unitType;
   /**
-    ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
+    ASTUnitType. Represents an unit data type. It can be a plain data type as 'mV' or a
     complex data type as 'mV/s'
   */
   unitType : leftParentheses='(' compoundUnit=unitType rightParentheses=')'
@@ -104,7 +102,7 @@ grammar PyNESTML;
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
-    @attribute name The (qualified) name of the fucntions
+    @attribute name The (qualified) name of the functions
     @attribute args Comma separated list of expressions representing parameters.
   */
   functionCall : calleeName=NAME '(' (args=arguments)? ')';
@@ -192,8 +190,13 @@ grammar PyNESTML;
   signedNumericLiteral : (negative='-'?) (INTEGER|FLOAT);
 
   /*********************************************************************************************************************
-  * Nestml-Language
+  * NestML-Language
   *********************************************************************************************************************/
+
+  /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
+    @attribute neuron_list a list of processed models.
+  */
+  nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
 
   /** ASTNeuron represents neuron.
     @attribute Name    The name of the neuron
@@ -212,9 +215,9 @@ grammar PyNESTML;
       y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
     end
 
-    @attribute state true if the varblock ist a state.
-    @attribute parameter true if the varblock ist a parameter.
-    @attribute internal true if the varblock ist a state internal.
+    @attribute state true if the varblock is a state.
+    @attribute parameter true if the varblock is a parameter.
+    @attribute internal true if the varblock is a state internal.
     @attribute AliasDecl a list with variable declarations.
   */
   blockWithVariables:
