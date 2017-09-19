@@ -22,6 +22,7 @@
 from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
 from pynestml.src.main.python.org.nestml.visitor import ASTBuilderVisitor
+from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
 from pynestml.src.main.python.org.nestml.visitor import ASTSymbolTableVisitor
 from pynestml.src.main.python.org.nestml.cocos import *
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
@@ -56,11 +57,14 @@ class NESTMLParser:
         # create a new visitor and return the new AST
         astBuilderVisitor = ASTBuilderVisitor.ASTBuilderVisitor()
         ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
-        # update the corresponding symbol tables
-        """
+        # create and update the corresponding symbol tables
+        SymbolTable.initializeSymbolTable(ast.getSourcePosition())
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
+            SymbolTable.addNeuronScope(neuron.getScope())
+        print(SymbolTable.printSymbolTable())
         # now check that all context conditions hold
+        """
         cocosToCheck = list()
         cocosToCheck.append(CoCoElementDefined.CoCoElementDefined())
         cocosToCheck.append(CoCoEachBlockUnique.CoCoEachBlockUnique())

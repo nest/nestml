@@ -40,11 +40,10 @@ class Symbol:
         :type _name: str
         """
         from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
-        assert (_elementReference is not None), '(PyNestML.SymbolTable.Symbol) No AST reference provided!'
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of scope provided!'
+        assert (_scope is None or isinstance(_scope, Scope)), \
+            '(PyNestML.SymbolTable.Symbol) Wrong type of scope provided!'
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-name provided!'
+            '(PyNestML.SymbolTable.Symbol) Wrong type of symbol-name provided!'
         self.__elementReference = _elementReference
         self.__scope = _scope
         self.__name = _name
@@ -86,3 +85,9 @@ class Symbol:
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided!'
         return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
+
+    def printSymbol(self):
+        """
+        Returns a string representation of this symbol.
+        """
+        return ''

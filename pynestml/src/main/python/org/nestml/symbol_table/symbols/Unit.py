@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
+
 class Unit:
     """
     This class is used to represent a single physical unit consisting of the seven SI base units.
@@ -73,4 +74,66 @@ class Unit:
         self.__AMOUNT_OF_SUBSTANCE = _amountOfSubstance
         self.__LUMINOUS_INTENSITY = _luminousIntensity
 
-    
+    def getName(self):
+        """
+        Returns the name of the physical unit.
+        :return: the name of the unit.
+        :rtype: str
+        """
+        return self.__name
+
+    def getLengthExponent(self):
+        """
+        Returns the exponent of the length dimension.
+        :return: exponent of the length dimension.
+        :rtype: int
+        """
+        return self.__LENGTH
+
+    def getMassExponent(self):
+        """
+        Returns the exponent of the mass dimension.
+        :return: exponent of the mass dimension.
+        :rtype: int
+        """
+        return self.__MASS
+
+    def getTimeExponent(self):
+        """
+        Returns the exponent of the time dimension.
+        :return: exponent of the time dimension.
+        :rtype: int
+        """
+        return self.__TIME
+
+    def getElectricCurrentExponent(self):
+        """
+        Returns the exponent of the electric current dimension.
+        :return: exponent of the electric current dimension.
+        :rtype: int
+        """
+        return self.__ELECTRIC_CURRENT
+
+    def getThermodynamicTemperatureExponent(self):
+        """
+        Returns the exponent of the thermodynamic temperature dimension.
+        :return: exponent of the thermodynamic temperature dimension.
+        :rtype: int
+        """
+        return self.__THERMODYNAMIC_TEMPERATURE
+
+    def getAmountOfSubstanceExponent(self):
+        """
+        Returns the exponent of the amount of substance dimension.
+        :return: exponent of the amount of substance dimension.
+        :rtype: int
+        """
+        return self.__AMOUNT_OF_SUBSTANCE
+
+    def getLuminousIntensity(self):
+        """
+        Returns the exponent of the luminous intensity dimension.
+        :return: exponent of the luminous intensity  dimension.
+        :rtype: int
+        """
+        return self.__LUMINOUS_INTENSITY

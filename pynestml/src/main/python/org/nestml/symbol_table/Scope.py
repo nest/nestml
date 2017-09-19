@@ -328,14 +328,16 @@ class Scope:
         return ret
 
 
-class ScopeType:
+class ScopeType(Enum):
     """
     This enum is used to distinguish between different types of scopes, namely:
-        -The global scope, in which all the sub-scopes are embedded.
+        -The compilation unit scope, consisting of arbitrary many global scope.
+        -The global scope (neuron), in which all the sub-scopes are embedded.
         -The function scope, as embedded in the global scope.
         -The update scope, as embedded in the global scope.
         -The local scope, as embedded in the update or function scope (e.g. if branches etc.).
     """
+    COMPILATION_UNIT = 0
     GLOBAL = 1
     UPDATE = 2
     FUNCTION = 3

@@ -47,7 +47,7 @@ class FunctionSymbol(Symbol):
         :type _isPredefined: bool
         """
         super(FunctionSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
-        assert (_returnType is not None and isinstance(_returnType, TypeSymbol)), \
+        assert (_returnType is None or isinstance(_returnType, TypeSymbol)), \
             '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided!'
         for arg in _paramTypes:
             assert (arg is not None and isinstance(arg, TypeSymbol)), \
@@ -59,6 +59,9 @@ class FunctionSymbol(Symbol):
         self.__isPredefined = _isPredefined
 
     def printSymbol(self):
+        """
+        Returns a string representation of this symbol.
+        """
         ret = 'MethodSymbol[' + super(Symbol).getSymbolName() + ', Parameters = '
         for arg in self.__paramTypes:
             ret += arg.printSymbol()

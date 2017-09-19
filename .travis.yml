@@ -13,11 +13,17 @@ before_install:
   - sudo python setup.py install
 
 install:
+  - pip install --upgrade pip enum34
   - pip install -r requirements.txt
 
 sudo: true
 
 script:
-  - python pynestml/src/test/python/ASTBuilderTest.py
-  - python pynestml/src/test/python/ExpressionParserTest.py
   - python pynestml/src/test/python/LexerParserTest.py
+  - python pynestml/src/test/python/SpecialBlockParserBuilder.py
+  - python pynestml/src/test/python/ExpressionParserTest.py
+  - python pynestml/src/test/python/ASTBuilderTest.py
+  - python pynestml/src/test/python/SymbolTableBuilderTest.py
+  - python pynestml/src/test/python/SymbolTableResolutionTest.py
+  - python pynestml/src/test/python/CoCosTest.py
+

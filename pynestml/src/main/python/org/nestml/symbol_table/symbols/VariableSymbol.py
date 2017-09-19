@@ -71,10 +71,10 @@ class VariableSymbol(Symbol):
         super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
         assert (_blockType is not None and isinstance(_blockType, BlockType)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided!'
-        assert (_vectorParameter is not None and isinstance(_vectorParameter, str)), \
+        assert (_vectorParameter is None or isinstance(_vectorParameter, str)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of vector parameter provided!'
         from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
-        assert (_declaringExpression is not None and isinstance(_declaringExpression, ASTExpression)), \
+        assert (_declaringExpression is None or isinstance(_declaringExpression, ASTExpression)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of declaring expression provided!'
         assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
             '(PyNestML.SymbolTable.VariableSymbol) Is-predefined is not bool!'
@@ -92,6 +92,14 @@ class VariableSymbol(Symbol):
         self.__isFunction = _isFunction
         self.__isRecordable = _isRecordable
         self.__typeSymbol = _typeSymbol
+
+    def hasVectorParameter(self):
+        """
+        Returns whether this variable symbol has a vector parameter.
+        :return: True if vector parameter available, otherwise False. 
+        :rtype: bool
+        """
+        return self.__vectorParameter is not None and type(self.__vectorParameter) == str
 
     def getVectorParameter(self):
         """

@@ -41,7 +41,7 @@ class PredefinedTypes:
     @classmethod
     def registerPrimitiveTypes(cls):
         """
-        Adds a set of primitive data types to the handed over scope. It assures that those types are valid and can
+        Adds a set of primitive data types to the set of predefined types. It assures that those types are valid and can
         be used.
         """
         cls.__registerReal()
@@ -49,6 +49,14 @@ class PredefinedTypes:
         cls.__registerBoolean()
         cls.__registerString()
         cls.__registerInteger()
+        return
+
+    @classmethod
+    def registerBufferType(cls):
+        """
+        Adds the buffer type to the set of predefined types. It assures that those types are valid and can be used.
+        """
+        cls.__registerBuffer()
         return
 
     @classmethod

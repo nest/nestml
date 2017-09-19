@@ -50,11 +50,11 @@ class PredefinedVariables:
         """
         Adds the euler constant e.
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
         symbol = VariableSymbol(_name='e', _blockType=BlockType.STATE,
-                                _isPredefined=True, _typeSymbol=TypeSymbol.getRealType())
+                                _isPredefined=True, _typeSymbol=PredefinedTypes.getRealType())
         cls.__name2VariableSymbol[cls.__E_CONSTANT] = symbol
         return
 
@@ -63,12 +63,12 @@ class PredefinedVariables:
         """
         Adds the time constant t.
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
         print('PredefinedVariables.TODO: Constant t currently real-typed!')
         symbol = VariableSymbol(_name='t', _blockType=BlockType.STATE,
-                                _isPredefined=True, _typeSymbol=TypeSymbol.getRealType())
+                                _isPredefined=True, _typeSymbol=PredefinedTypes.getRealType())
         cls.__name2VariableSymbol[cls.__TIME_CONSTANT] = symbol
         return
 

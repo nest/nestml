@@ -86,15 +86,21 @@ class SymbolTableASTVisitor:
         :param _block: a function block object.
         :type _block: ASTFunction
         """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol, TypeSymbolType
+
         assert (_block is not None and isinstance(_block, ASTFunction.ASTFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function block provided!'
-        symbol = Symbol(_scope=_block.getScope(), _elementReference=_block,
-                        _name=_block.getName())
+        symbol = FunctionSymbol(_scope=_block.getScope(), _elementReference=_block,
+                                _name=_block.getName(), _isPredefined=False)
         _block.getScope().addSymbol(symbol)
         scope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
                       _sourcePosition=_block.getSourcePosition())
         _block.getScope().addScope(scope)
+        params = list()
         for arg in _block.getParameters().getParametersList():
+            params.append(TypeSymbol(_elementReference=arg, _scope=scope, _name=arg.getDataType(),
+                                     _type=TypeSymbolType.PRIMITIVE))  # TODO: here a corresponding processing is required
             arg.updateScope(scope)
             scope.addSymbol(Symbol(_elementReference=arg, _scope=scope, _name=arg.getName()))
             arg.getDataType().updateScope(scope)
@@ -363,11 +369,15 @@ class SymbolTableASTVisitor:
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol,TypeSymbolType
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype.ASTDatatype)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided!'
         if _dataType.isUnitType():
             _dataType.getUnitType().updateScope(_dataType.getScope())
-            cls.__visitUnitType(_dataType.getUnitType())
+            return cls.__visitUnitType(_dataType.getUnitType())
+        else:
+            TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
+                       _type=TypeSymbolType.PRIMITIVE)
         return
 
     @classmethod
@@ -377,6 +387,7 @@ class SymbolTableASTVisitor:
         :param _unitType: a unit type.
         :type _unitType: ASTUnitType
         """
+        print('SymbolTableVisitor: TodO creation of a unit!')
         assert (_unitType is not None and isinstance(_unitType, ASTUnitType.ASTUnitType)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of unit-typ provided!'
         if _unitType.isPowerExpression():
