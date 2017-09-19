@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-class Unit:
+class UnitType:
     """
     This class is used to represent a single physical unit consisting of the seven SI base units.
     

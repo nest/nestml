@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
-from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbolType
 from copy import copy
 
 
@@ -56,7 +55,7 @@ class PredefinedTypes:
         """
         Adds the buffer type to the set of predefined types. It assures that those types are valid and can be used.
         """
-        cls.__registerBuffer()
+        # cls.__registerBuffer() TODO
         return
 
     @classmethod
@@ -64,7 +63,7 @@ class PredefinedTypes:
         """
         Adds the real type symbol to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__REAL_TYPE, _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__REAL_TYPE, _isReal=True)
         cls.__name2type[cls.__REAL_TYPE] = symbol
         return
 
@@ -73,7 +72,7 @@ class PredefinedTypes:
         """
         Adds the void type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__VOID_TYPE, _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__VOID_TYPE, _isVoid=True)
         cls.__name2type[cls.__VOID_TYPE] = symbol
         return
 
@@ -82,7 +81,7 @@ class PredefinedTypes:
         """
         Adds the boolean type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__BOOLEAN_TYPE, _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__BOOLEAN_TYPE, _isBoolean=True)
         cls.__name2type[cls.__BOOLEAN_TYPE] = symbol
         return
 
@@ -91,7 +90,7 @@ class PredefinedTypes:
         """
         Adds the string type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__STRING_TYPE, _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__STRING_TYPE, _isString=True)
         cls.__name2type[cls.__STRING_TYPE] = symbol
         return
 
@@ -100,7 +99,7 @@ class PredefinedTypes:
         """
         Adds the integer type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__INTEGER_TYPE, _type=TypeSymbolType.PRIMITIVE)
+        symbol = TypeSymbol(_name=cls.__INTEGER_TYPE, _isInteger=True)
         cls.__name2type[cls.__INTEGER_TYPE] = symbol
         return
 
@@ -109,7 +108,7 @@ class PredefinedTypes:
         """
         Adds the buffer type to the dict of predefined types.
         """
-        symbol = TypeSymbol(_name=cls.__BUFFER_TYPE, _type=TypeSymbolType.BUFFER)
+        symbol = TypeSymbol(_name=cls.__BUFFER_TYPE, _isBuffer=True)
         cls.__name2type[cls.__BUFFER_TYPE] = symbol
         return
 

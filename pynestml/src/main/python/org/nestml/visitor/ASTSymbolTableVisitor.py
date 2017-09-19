@@ -87,7 +87,7 @@ class SymbolTableASTVisitor:
         :type _block: ASTFunction
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol, TypeSymbolType
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
 
         assert (_block is not None and isinstance(_block, ASTFunction.ASTFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function block provided!'
@@ -99,8 +99,8 @@ class SymbolTableASTVisitor:
         _block.getScope().addScope(scope)
         params = list()
         for arg in _block.getParameters().getParametersList():
-            params.append(TypeSymbol(_elementReference=arg, _scope=scope, _name=arg.getDataType(),
-                                     _type=TypeSymbolType.PRIMITIVE))  # TODO: here a corresponding processing is required
+            params.append(TypeSymbol(_elementReference=arg, _scope=scope, _name='TODO',_isVoid=True))# TODO
+            # TODO: here a corresponding processing is required
             arg.updateScope(scope)
             scope.addSymbol(Symbol(_elementReference=arg, _scope=scope, _name=arg.getName()))
             arg.getDataType().updateScope(scope)
@@ -369,15 +369,14 @@ class SymbolTableASTVisitor:
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol,TypeSymbolType
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype.ASTDatatype)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided!'
         if _dataType.isUnitType():
             _dataType.getUnitType().updateScope(_dataType.getScope())
             return cls.__visitUnitType(_dataType.getUnitType())
         else:
-            TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
-                       _type=TypeSymbolType.PRIMITIVE)
+            TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),_isVoid=True)#todo
         return
 
     @classmethod
