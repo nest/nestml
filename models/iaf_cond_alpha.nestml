@@ -34,11 +34,11 @@ SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
 neuron iaf_cond_alpha_neuron:
 
   state:
-    r integer      ## counts number of tick during the refractory period
+    r integer      # counts number of tick during the refractory period
   end
 
   initial_values:
-    V_m mV = E_L   ## membrane potential
+    V_m mV = E_L   # membrane potential
   end
 
   equations:
@@ -53,20 +53,17 @@ neuron iaf_cond_alpha_neuron:
   end
 
   parameters:
-    V_th mV = -55.0mV    ## Threshold Potential in mV
-    V_reset mV = -60.0mV ## Reset Potential in mV
-    t_ref ms = 2.ms      ## Refractory period in ms
-    g_L nS = 16.6667nS   ## Leak Conductance in nS
-    C_m pF = 250.0 pF    ## Membrane Capacitance in pF
-    E_ex mV = 0mV        ## Excitatory reversal Potential in mV
-    E_in mV = -85.0mV    ## Inhibitory reversal Potential in mV
-    E_L mV = -70.0mV     ## Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 0.2ms  ## Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 2.0ms  ## Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA           ## Constant Current in pA
-    ## Input current injected by CurrentEvent.
-    ## This variable is used to transport the current applied into the
-    ## _dynamics function computing the derivative of the state vector.
+    V_th mV = -55.0mV    # Threshold Potential in mV
+    V_reset mV = -60.0mV # Reset Potential in mV
+    t_ref ms = 2.ms      # Refractory period in ms
+    g_L nS = 16.6667nS   # Leak Conductance in nS
+    C_m pF = 250.0 pF    # Membrane Capacitance in pF
+    E_ex mV = 0mV        # Excitatory reversal Potential in mV
+    E_in mV = -85.0mV    # Inhibitory reversal Potential in mV
+    E_L mV = -70.0mV     # Leak reversal Potential (aka resting potential) in mV
+    tau_syn_ex ms = 0.2ms  # Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_in ms = 2.0ms  # Synaptic Time Constant for Inhibitory Synapse in ms
+    I_e pA = 0pA           # Constant Current in pA
   end
 
   internals:
@@ -94,7 +91,6 @@ neuron iaf_cond_alpha_neuron:
   end
 
 end
-
 
 /*
 Name: iaf_cond_alpha_implicit - Simple conductance based leaky integrate-and-fire neuron
@@ -132,11 +128,11 @@ SeeAlso: iaf_cond_exp, iaf_cond_alpha_mc
 neuron iaf_cond_alpha_implicit:
 
   state:
-    r integer ## refractory counter
+    r integer # refractory counter
   end
 
   initial_values:
-    V_m mV = E_L     ## membrane potential
+    V_m mV = E_L     # membrane potential
     g_in nS = 0nS
     g_in' nS/ms = nS * e / tau_syn_in
     g_ex nS = 0nS
@@ -158,21 +154,21 @@ neuron iaf_cond_alpha_implicit:
   end
 
   parameters:
-    V_th mV = -55.0mV     ## Threshold Potential in mV
-    V_reset mV = -60.0mV  ## Reset Potential in mV
-    t_ref ms = 2.0ms      ## Refractory period in ms
-    g_L nS = 16.6667nS    ## Leak Conductance in nS
-    C_m pF = 250.0pF      ## Membrane Capacitance in pF
-    E_ex mV = 0mV         ## Excitatory reversal Potential in mV
-    E_in mV = -85.0mV     ## Inhibitory reversal Potential in mV
-    E_L mV = -70.0mV      ## Leak reversal Potential (aka resting potential) in mV
-    tau_syn_ex ms = 0.2ms ## Synaptic Time Constant Excitatory Synapse in ms
-    tau_syn_in ms = 2.0ms ## Synaptic Time Constant for Inhibitory Synapse in ms
-    I_e pA = 0pA          ## Constant Current in pA
+    V_th mV = -55.0mV     # Threshold Potential in mV
+    V_reset mV = -60.0mV  # Reset Potential in mV
+    t_ref ms = 2.0ms      # Refractory period in ms
+    g_L nS = 16.6667nS    # Leak Conductance in nS
+    C_m pF = 250.0pF      # Membrane Capacitance in pF
+    E_ex mV = 0mV         # Excitatory reversal Potential in mV
+    E_in mV = -85.0mV     # Inhibitory reversal Potential in mV
+    E_L mV = -70.0mV      # Leak reversal Potential (aka resting potential) in mV
+    tau_syn_ex ms = 0.2ms # Synaptic Time Constant Excitatory Synapse in ms
+    tau_syn_in ms = 2.0ms # Synaptic Time Constant for Inhibitory Synapse in ms
+    I_e pA = 0pA          # Constant Current in pA
   end
 
   internals:
-    RefractoryCounts integer = steps(t_ref) ## refractory time in steps
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
   input:

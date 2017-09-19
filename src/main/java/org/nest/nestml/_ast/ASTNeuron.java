@@ -153,6 +153,16 @@ public class ASTNeuron extends ASTNeuronTOP {
 
   }
 
+  public List<ASTDeclaration> getInitialValuesDeclarations() {
+    Optional<ASTBlockWithVariables> initialValuesBlock = getBlockWithVariabless()
+        .stream()
+        .filter(ASTBlockWithVariables::isInitial_values)
+        .findFirst();
+    final List<ASTDeclaration> initialValuesDeclarations = Lists.newArrayList();
+    initialValuesBlock.ifPresent(block -> initialValuesDeclarations.addAll(block.getDeclarations()));
+    return initialValuesDeclarations;
+  }
+
   public List<VariableSymbol> getInitialValuesSymbols() {
     return this.getSpannedScope().get().resolveLocally(VariableSymbol.KIND)
         .stream()
@@ -258,6 +268,20 @@ public class ASTNeuron extends ASTNeuronTOP {
 
   }
 
+  public void addToInitialValuesBlock(ASTDeclaration astDeclaration) {
+    if (!this.getInternalBlock().isPresent()) {
+      final ASTBlockWithVariables internalBlock = AstCreator.createInitialValuesBlock();
+      getBlockWithVariabless().add(internalBlock);
+    }
+
+    this.getBlockWithVariabless().forEach(block -> {
+      if (block.isInitial_values()) {
+        block.getDeclarations().add(astDeclaration);
+      }
+
+    });
+  }
+
   public void addToStateBlock(final ASTDeclaration astDeclaration) {
     if (!this.getInternalBlock().isPresent()) {
       final ASTBlockWithVariables stateBlock = AstCreator.createStateBlock();
@@ -338,6 +362,10 @@ public class ASTNeuron extends ASTNeuronTOP {
         .map(inputBuffer -> (VariableSymbol) inputBuffer)
         .filter(VariableSymbol::isBuffer)
         .anyMatch(VariableSymbol::isVector);
+  }
+
+  public void removeShapes() {
+    this.findEquationsBlock().get().getShapes().clear();
   }
 
 }

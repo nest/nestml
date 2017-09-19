@@ -120,7 +120,7 @@ if __name__ == "__main__":
   models = list()
   
 
-  models.append( ("iaf_cond_alpha", "iaf_cond_alpha_implicit", None, 0.001))
+  models.append( ("iaf_cond_alpha_implicit", "iaf_cond_alpha_neuron", None, 0.001))
 
 
   for reference, testant, gsl_error_tol, tollerance in models:

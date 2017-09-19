@@ -86,4 +86,23 @@ public class AstCreator {
 
     return astVar_block;
   }
+
+  static public ASTBlockWithVariables createInitialValuesBlock() {
+    final ASTBlockWithVariables astVar_block =  NESTMLNodeFactory.createASTBlockWithVariables();
+    astVar_block.setInitial_values(true);
+
+    return astVar_block;
+  }
+
+  public static ASTShape createShape(final String shapeAsString) {
+
+    try {
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return PARSER.parseShape(new StringReader(shapeAsString)).get();
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+  }
 }

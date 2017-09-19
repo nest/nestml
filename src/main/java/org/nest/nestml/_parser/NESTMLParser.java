@@ -69,7 +69,7 @@ public class NESTMLParser extends NESTMLParserTOP {
    */
   private List<String> extractComments(final List<String> sourceText, int lineIndex) {
     final List<String> result = Lists.newArrayList();
-    String DOC_STRING_START = "##";
+    String DOC_STRING_START = "#";
     if (sourceText.get(lineIndex).contains(DOC_STRING_START)) {
       result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf(DOC_STRING_START)).trim());
     }
@@ -90,7 +90,7 @@ public class NESTMLParser extends NESTMLParserTOP {
     while (searchForwardIndex < sourceText.size()) {
       final String currentLine = sourceText.get(searchForwardIndex);
       if (currentLine.trim().startsWith(DOC_STRING_START)) {
-        result.add(currentLine.substring(currentLine.indexOf(DOC_STRING_START) + 1).trim());
+        result.add(currentLine.substring(currentLine.indexOf(DOC_STRING_START) ).trim());
       }
       else {
         break;

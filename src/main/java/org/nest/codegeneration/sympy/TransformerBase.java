@@ -1,19 +1,23 @@
 package org.nest.codegeneration.sympy;
 
+import com.google.common.collect.Lists;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.utils.AstUtils;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
@@ -105,7 +109,7 @@ final public class TransformerBase {
   static ASTNeuron addVariablesToInitialValues(
       final ASTNeuron astNeuron,
       final List<Map.Entry<String, String>> declarationsFile) {
-    declarationsFile.forEach(declaration -> addVariableToInternals(astNeuron, declaration));
+    declarationsFile.forEach(declaration -> addVariableToInitialValue(astNeuron, declaration));
     return astNeuron;
   }
 
@@ -124,16 +128,16 @@ final public class TransformerBase {
                                        + " = " + declaration.getValue();
       final ASTDeclaration astDeclaration = parser.parseDeclaration(new StringReader(declarationString)).get();
       vectorVariable.ifPresent(var -> astDeclaration.setSizeParameter(var.getVectorParameter().get()));
-      //astNeuron.addToInitialValuesBlock(astDeclaration);
-      throw new RuntimeException();
-      //return astNeuron;
+      astNeuron.addToInitialValuesBlock(astDeclaration);
+
+      return astNeuron;
+
     }
     catch (IOException e) {
       throw new RuntimeException("Must not fail by construction.");
     }
 
   }
-
 
   static ASTNeuron replaceIntegrateCallThroughPropagation(final ASTNeuron astNeuron, List<String> propagatorSteps) {
     // It must work for multiple integrate calls!
@@ -172,55 +176,6 @@ final public class TransformerBase {
 
   }
 
-  /**
-   * Add updates of state variables with the PSC initial value and corresponding inputs from buffers.
-   */
-  static void addShapeVariableUpdatesWithIncomingSpikes(
-      final SolverOutput solverOutput,
-      final ASTNeuron body,
-      final Function<String, String> stateVariableNameExtracter,
-      final Function<String, String> shapeNameExtracter) {
-    final List<ASTFunctionCall> i_sumCalls = OdeTransformer.get_sumFunctionCalls(body.findEquationsBlock().get());
-
-    final List<ASTDeclaration> pscInitialValues = solverOutput.initial_values
-        .stream()
-        .map(initialValue -> initialValue.getKey() + " real")
-        .map(AstCreator::createDeclaration)
-        .collect(toList());
-
-    for (final ASTDeclaration pscInitialValueDeclaration:pscInitialValues) {
-      final String pscInitialValue = pscInitialValueDeclaration.getVars().get(0).toString();
-
-      final String shapeName = shapeNameExtracter.apply(pscInitialValue);
-      final String shapeStateVariable = stateVariableNameExtracter.apply(pscInitialValue);
-
-      for (ASTFunctionCall i_sum_call:i_sumCalls) {
-        final String shapeNameInCall = AstUtils.toString(i_sum_call.getArgs().get(0));
-        if (shapeNameInCall.equals(shapeName)) {
-          final String bufferName = AstUtils.toString(i_sum_call.getArgs().get(1));
-          final ASTAssignment pscUpdateStep = createAssignment(
-              shapeStateVariable + " += " +  pscInitialValue + " * "+ bufferName);
-          addAssignmentToUpdateBlock(pscUpdateStep, body);
-        }
-
-      }
-
-    }
-
-  }
-
-  static void addAssignmentToUpdateBlock(final ASTAssignment astAssignment, final ASTNeuron astNeuron) {
-    final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
-    final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
-
-    astStmt.setSmall_Stmt(astSmall_stmt);
-
-    // Goal: add the y-assignments at the end of the expression
-    astSmall_stmt.setAssignment(astAssignment);
-
-    astNeuron.getUpdateBlocks().get(0).getBlock().getStmts().add(astStmt);
-  }
-
   static void addDeclarationToUpdateBlock(final ASTDeclaration astDeclaration, final ASTNeuron astNeuron) {
     final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
     final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
@@ -233,9 +188,58 @@ final public class TransformerBase {
     astNeuron.getUpdateBlocks().get(0).getBlock().getStmts().add(astStmt);
   }
 
-  static ASTNeuron removeShapes(ASTNeuron astNeuron) {
-    astNeuron.findEquationsBlock().get().getShapes().clear();
-    return astNeuron;
+  public static List<Map.Entry<String, String>> computeShapeStateVariablesWithInitialValues(SolverOutput solverOutput) {
+    List<Map.Entry<String, String>> stateShapeVariablesWithInitialValues = Lists.newArrayList();
+
+    for (final String shapeStateVariable : solverOutput.shape_state_variables) {
+      for (Map.Entry<String, String> initialValue:solverOutput.initial_values) {
+        if (initialValue.getKey().endsWith(shapeStateVariable)) {
+          stateShapeVariablesWithInitialValues.add(new HashMap.SimpleEntry<>(shapeStateVariable, initialValue.getValue()));
+        }
+
+      }
+
+    }
+    return stateShapeVariablesWithInitialValues;
   }
 
+  static void applyIncomingSpikes(final ASTNeuron astNeuron) {
+    final List<ASTFunctionCall> convCalls = OdeTransformer.get_sumFunctionCalls(astNeuron);
+    final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
+
+    final List<ASTAssignment> spikesUpdates = Lists.newArrayList();
+    for (ASTFunctionCall convCall:convCalls) {
+      String shape = convCall.getArgs().get(0).getVariable().get().toString();
+      String buffer = convCall.getArgs().get(1).getVariable().get().toString();
+
+      // variables could be added during the current transformation and, therefore, are not a part of the AST now.
+      // therefore they must be found on the AST level and not via SymbolTable
+      for (ASTDeclaration astDeclaration:astNeuron.getInitialValuesDeclarations()) {
+        for (ASTVariable variable:astDeclaration.getVars()) {
+          if (variable.toString().matches(shape + "(')*") || // handwritten models
+              variable.toString().matches(shape + "__\\d+$")) { // generated models
+            spikesUpdates.add(AstCreator.createAssignment(
+                variable.toString() + " += " + buffer + " * " + printer.print(astDeclaration.getExpr().get())));
+          }
+
+        }
+
+      }
+
+    }
+    spikesUpdates.forEach(update -> addAssignmentToUpdateBlock(update, astNeuron));
+  }
+
+
+  static void addAssignmentToUpdateBlock(final ASTAssignment astAssignment, final ASTNeuron astNeuron) {
+    final ASTStmt astStmt = NESTMLNodeFactory.createASTStmt();
+    final ASTSmall_Stmt astSmall_stmt = NESTMLNodeFactory.createASTSmall_Stmt();
+
+    astStmt.setSmall_Stmt(astSmall_stmt);
+
+    // Goal: add the y-assignments at the end of the expression
+    astSmall_stmt.setAssignment(astAssignment);
+
+    astNeuron.getUpdateBlocks().get(0).getBlock().getStmts().add(astStmt);
+  }
 }

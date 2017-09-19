@@ -69,6 +69,8 @@ public class NestCodeGenerator {
     ASTNeuron workingVersion = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
 
     workingVersion = solveOdesAndShapes(workingVersion, outputBase);
+    // this is the only way to get fresh symbol table now!
+    // TODO add functionality to refresh symboltable based on the commonvisitor
     workingVersion = AstUtils.deepCloneNeuronAndBuildSymbolTable(workingVersion, outputBase);
 
     generateNestCode(workingVersion, outputBase);

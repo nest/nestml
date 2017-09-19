@@ -247,7 +247,7 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
   }
 
   /**
-   * This method is used in freemaker template. Therefore, it must remain public.
+   * This method is used in freemarker template. Therefore, it must remain public.
    */
   public String printShape(final ASTShape astShape) {
     return "shape " + astShape.getLhs() + " = " + expressionsPrinter.print(astShape.getRhs());
