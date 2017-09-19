@@ -32,7 +32,7 @@ setup(
     url='https://github.com/nest/nestml/tree/PyNestML',
     packages=find_packages(),
     install_requires=['numpy >= 1.8.2',
-                      'sympy >= 1.0',
+                      'sympy >= 1.0.1',
                       ('antlr4-python2-runtime' if sys.version_info.major == 2 else
                        'antlr4-python3-runtime')],
     test_suite='pynestml.src.test.python',
