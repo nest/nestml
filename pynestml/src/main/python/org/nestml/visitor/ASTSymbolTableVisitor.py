@@ -386,7 +386,7 @@ class SymbolTableASTVisitor:
         :param _unitType: a unit type.
         :type _unitType: ASTUnitType
         """
-        print('SymbolTableVisitor: TodO creation of a unit!')
+        #print('SymbolTableVisitor: TodO creation of a unit!')
         assert (_unitType is not None and isinstance(_unitType, ASTUnitType.ASTUnitType)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of unit-typ provided!'
         if _unitType.isPowerExpression():

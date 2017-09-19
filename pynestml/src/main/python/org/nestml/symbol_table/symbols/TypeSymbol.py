@@ -86,6 +86,8 @@ class TypeSymbol(Symbol):
             '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-buffer provided!'
         assert (_unit is not None or _isInteger or _isReal or _isVoid or _isBoolean or _isString), \
             '(PyNestML.SymbolTable.TypeSymbol) Type of symbol not specified!'
+        assert (_isInteger + _isReal + _isVoid + _isBoolean + _isString + (_unit is not None) == 1), \
+            '(PyNestML.SymbolTable.TypeSymbol) Type of symbol over-specified!'
         super(TypeSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
         self.__unit = _unit
         self.__isInteger = _isInteger

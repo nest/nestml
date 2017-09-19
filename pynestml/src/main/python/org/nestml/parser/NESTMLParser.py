@@ -62,7 +62,7 @@ class NESTMLParser:
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
             SymbolTable.addNeuronScope(neuron.getScope())
-        print(SymbolTable.printSymbolTable())
+        #print(SymbolTable.printSymbolTable())
         # now check that all context conditions hold
         """
         cocosToCheck = list()
