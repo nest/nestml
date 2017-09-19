@@ -20,7 +20,7 @@ sudo: true
 
 script:
   - python pynestml/src/test/python/LexerParserTest.py
-  - python pynestml/src/test/python/SpecialBlockParserBuilder.py
+  - python pynestml/src/test/python/SpecialBlockParserBuilderTest.py
   - python pynestml/src/test/python/ExpressionParserTest.py
   - python pynestml/src/test/python/ASTBuilderTest.py
   - python pynestml/src/test/python/SymbolTableBuilderTest.py
