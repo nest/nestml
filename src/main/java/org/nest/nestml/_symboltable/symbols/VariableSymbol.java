@@ -242,7 +242,7 @@ public class VariableSymbol extends CommonSymbol {
     final StringBuffer output = new StringBuffer();
     if(getAstNode().isPresent() && getAstNode().get() instanceof ASTDeclaration) {
       final ASTDeclaration astDeclaration = (ASTDeclaration) getAstNode().get();
-      astDeclaration.getDocStrings().forEach(comment -> output.append(prefix).append(" ").append(comment));
+      astDeclaration.getDocStrings().forEach(comment -> output.append(prefix).append(" ").append(comment).append("\n"));
     }
 
     return output.toString();

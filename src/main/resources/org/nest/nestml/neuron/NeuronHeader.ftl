@@ -241,6 +241,10 @@ private:
       <#list body.getStateNonAliasSymbols() as variable>
         ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
       </#list>
+      <#list body.getInitialValuesSymbols() as variable>
+        ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
+      </#list>
+
     <#else>
       //! Symbolic indices to the elements of the state vector y
       enum StateVecElems

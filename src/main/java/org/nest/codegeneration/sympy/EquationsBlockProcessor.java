@@ -91,12 +91,13 @@ public class EquationsBlockProcessor {
         workingVersion =  shapesToOdesTransformer.transformShapesToOdeForm(astNeuron, solverOutput);
 
       }
+      else {
+        applyIncomingSpikes(workingVersion);
+      }
 
     }
-    reporter.reportProgress("Apply spikes to buffers...");
-    applyIncomingSpikes(workingVersion);
 
-    return astNeuron;
+    return workingVersion;
   }
 
   private boolean odeShapeExists(final List<ASTShape> shapes) {

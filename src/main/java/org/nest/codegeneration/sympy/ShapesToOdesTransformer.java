@@ -18,6 +18,7 @@ import java.util.Map;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.stream.Collectors.toList;
+import static org.nest.codegeneration.sympy.TransformerBase.applyIncomingSpikes;
 import static org.nest.codegeneration.sympy.TransformerBase.computeShapeStateVariablesWithInitialValues;
 
 /**
@@ -36,7 +37,10 @@ class ShapesToOdesTransformer {
 
     // TODO actually, only shapes that are solved must be reseted
     astNeuron.removeShapes();
+
     addStateShapeEquationsToEquationsBlock(solverOutput.shape_state_odes, workingVersion.findEquationsBlock().get());
+    applyIncomingSpikes(workingVersion);
+
     return workingVersion;
   }
 

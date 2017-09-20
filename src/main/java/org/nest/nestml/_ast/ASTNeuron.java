@@ -154,13 +154,17 @@ public class ASTNeuron extends ASTNeuronTOP {
   }
 
   public List<ASTDeclaration> getInitialValuesDeclarations() {
-    Optional<ASTBlockWithVariables> initialValuesBlock = getBlockWithVariabless()
-        .stream()
-        .filter(ASTBlockWithVariables::isInitial_values)
-        .findFirst();
+    Optional<ASTBlockWithVariables> initialValuesBlock = getInitialValuesBlock();
     final List<ASTDeclaration> initialValuesDeclarations = Lists.newArrayList();
     initialValuesBlock.ifPresent(block -> initialValuesDeclarations.addAll(block.getDeclarations()));
     return initialValuesDeclarations;
+  }
+
+  public Optional<ASTBlockWithVariables> getInitialValuesBlock() {
+    return getBlockWithVariabless()
+          .stream()
+          .filter(ASTBlockWithVariables::isInitial_values)
+          .findFirst();
   }
 
   public List<VariableSymbol> getInitialValuesSymbols() {
@@ -295,10 +299,6 @@ public class ASTNeuron extends ASTNeuronTOP {
 
     });
 
-  }
-
-  private Optional<ASTUpdateBlock> findDynamics() {
-    return this.getUpdateBlocks().stream().findFirst();
   }
 
   public List<ASTInputLine> getInputLines() {

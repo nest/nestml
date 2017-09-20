@@ -51,7 +51,6 @@ neuron hh_cond_exp_traub_neuron:
     Inact_n real =  alpha_n_init / ( alpha_n_init + beta_n_init )
 
     r integer # counts number of tick during the refractory period
-
   end
 
   equations:

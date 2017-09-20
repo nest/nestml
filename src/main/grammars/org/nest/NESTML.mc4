@@ -12,9 +12,7 @@ package org.nest;
 grammar NESTML extends org.nest.Literals {
 
   /** ASTNESTMLCompilationUnit represents the complete entire file with neuron and component models.
-      @attribute packageName      The qualified name to artifact
-      @attribute Import           List of imported elements
-      @attribute Neuron           The neuron representation
+      @attribute Neuron   The neuron representation
     */
   NESTMLCompilationUnit = (Neuron | NEWLINE)* EOF;
 
@@ -38,6 +36,7 @@ grammar NESTML extends org.nest.Literals {
            | ["boolean"]
            | ["void"]
            | UnitType;
+
   /**
     ASTUnitType. Represents an unit datatype. It can be a plain datatype as 'mV' or a
     complex data type as 'mV/s'
@@ -52,32 +51,32 @@ grammar NESTML extends org.nest.Literals {
   * Expressions-Language
   *********************************************************************************************************************/
   Expr = leftParentheses:["("] Expr rightParentheses:[")"]
-         | <rightassoc> base:Expr pow:["**"] exponent:Expr
-         | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
-         | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
-         | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
-         | left:Expr (shiftLeft:["<<"] | shiftRight:[">>"]) right:Expr
-         | left:Expr bitAnd:["&"] right:Expr
-         | left:Expr bitXor:["^"]  right:Expr
-         | left:Expr bitOr:["|"] right:Expr
-         | left:Expr (lt:["<"] |
-                      le:["<="] |
-                      eq:["=="] |
-                      ne:["!="] |
-                      ne2:["<>"] |
-                      ge:[">="] |
-                      gt:[">"]) right:Expr
-         | logicalNot:["not"] Expr
-         | left:Expr logicalAnd:["and"] right:Expr
-         | left:Expr logicalOr:["or"] right:Expr
-         | condition:Expr "?" ifTrue:Expr ":" ifNot:Expr
-         | FunctionCall
-         | BooleanLiteral // true & false;
-         | NumericLiteral Variable
-         | NumericLiteral
-         | StringLiteral
-         | ["inf"]
-         | Variable;
+       | <rightassoc> base:Expr pow:["**"] exponent:Expr
+       | (unaryPlus:["+"] | unaryMinus:["-"] | unaryTilde:["~"]) term:Expr
+       | left:Expr (timesOp:["*"] | divOp:["/"] | moduloOp:["%"]) right:Expr
+       | left:Expr (plusOp:["+"] | minusOp:["-"]) right:Expr
+       | left:Expr (shiftLeft:["<<"] | shiftRight:[">>"]) right:Expr
+       | left:Expr bitAnd:["&"] right:Expr
+       | left:Expr bitXor:["^"]  right:Expr
+       | left:Expr bitOr:["|"] right:Expr
+       | left:Expr (lt:["<"] |
+                    le:["<="] |
+                    eq:["=="] |
+                    ne:["!="] |
+                    ne2:["<>"] |
+                    ge:[">="] |
+                    gt:[">"]) right:Expr
+       | logicalNot:["not"] Expr
+       | left:Expr logicalAnd:["and"] right:Expr
+       | left:Expr logicalOr:["or"] right:Expr
+       | condition:Expr "?" ifTrue:Expr ":" ifNot:Expr
+       | FunctionCall
+       | BooleanLiteral // true & false;
+       | NumericLiteral Variable
+       | NumericLiteral
+       | StringLiteral
+       | ["inf"]
+       | Variable;
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
@@ -131,7 +130,6 @@ grammar NESTML extends org.nest.Literals {
      compoundProduct:["*="] |
      compoundQuotient:["/="]) Expr;
 
-
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
     @attribute hide is true iff. declaration is not trackable.
@@ -171,7 +169,6 @@ grammar NESTML extends org.nest.Literals {
   FOR_Stmt = "for" var:Name "in" from:Expr "..." to:Expr "step" step:SignedNumericLiteral BLOCK_OPEN Block BLOCK_CLOSE;
 
   WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
-
 
   /*********************************************************************************************************************
   * Nestml-Language
@@ -235,10 +232,10 @@ grammar NESTML extends org.nest.Literals {
     BLOCK_CLOSE;
 
   /** ASTInput represents the input block:
-    input:
-      spikeBuffer   <- inhibitory excitatory spike
-      currentBuffer <- current
-    end
+  input:
+    spikeBuffer   <- inhibitory excitatory spike
+    currentBuffer <- current
+  end
 
     @attribute inputLine set of input lines.
   */

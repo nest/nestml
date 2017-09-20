@@ -19,7 +19,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
-import static org.nest.codegeneration.sympy.TransformerBase.computeShapeStateVariablesWithInitialValues;
+import static org.nest.codegeneration.sympy.TransformerBase.*;
 
 /**
  * Takes SymPy result with the linear solution of the ODE and the source AST.
@@ -35,35 +35,39 @@ class ExactSolutionTransformer {
     ASTNeuron workingVersion = astNeuron;
     workingVersion.addToInternalBlock(createDeclaration("__h ms = resolution()"));
 
-    workingVersion = TransformerBase.addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
-    workingVersion = TransformerBase.addVariableToInternals(workingVersion, solverOutput.const_input);
-    workingVersion = TransformerBase.addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
+    workingVersion = addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
+    workingVersion = addVariableToInternals(workingVersion, solverOutput.const_input);
+    workingVersion = addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
 
-    final List<Map.Entry<String, String>> stateShapeVariablesWithInitialValues
-        = computeShapeStateVariablesWithInitialValues(solverOutput);
-    workingVersion = TransformerBase.addVariablesToInitialValues(workingVersion, stateShapeVariablesWithInitialValues);
+    final List<Map.Entry<String, String>> stateShapeVariablesWithInitialValues =
+        computeShapeStateVariablesWithInitialValues(solverOutput);
 
-    workingVersion = addShapeStateUpdatesToUpdateBlock(workingVersion, solverOutput);
+    // copy initial block variables to the state block, since they are not backed through an ODE.
+    astNeuron.getInitialValuesDeclarations()
+        .forEach(astNeuron::addToStateBlock);
+
+    workingVersion = addVariablesToInitialValues(workingVersion, stateShapeVariablesWithInitialValues);
     addStateUpdates(solverOutput, workingVersion);
-    workingVersion.removeEquationsBlock();
 
     workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(
         workingVersion,
         solverOutput.ode_var_update_instructions);
 
+    applyIncomingSpikes(workingVersion);
+
+    // get rid of the ODE stuff since the model is solved exactly and all ODEs are removed.
+    workingVersion.removeEquationsBlock();
+
+    stateShapeVariablesWithInitialValues
+        .stream()
+        .map(Map.Entry::getKey)
+        .map(shapeStateVariable -> createDeclaration(shapeStateVariable + " real"))
+        .forEach(astNeuron::addToStateBlock);
+
+    workingVersion.getInitialValuesBlock().ifPresent(block -> block.getDeclarations().clear());
+
+    // since there is no
     return workingVersion;
-  }
-
-  private ASTNeuron addShapeStateUpdatesToUpdateBlock(final ASTNeuron astNeuron, final SolverOutput solverOutput) {
-
-
-    /*addShapeVariableUpdatesWithIncomingSpikes(
-        solverOutput,
-        astNeuron,
-        TransformerBase.variableNameExtracter,
-        TransformerBase.shapeNameExtracter);*/
-
-    return astNeuron;
   }
 
   private void addStateUpdates(final SolverOutput solverOutput, final ASTNeuron astNeuron)  {
