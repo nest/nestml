@@ -35,14 +35,14 @@ class PredefinedTypes:
     __BOOLEAN_TYPE = 'boolean'
     __STRING_TYPE = 'string'
     __INTEGER_TYPE = 'integer'
-    __BUFFER_TYPE = 'Buffer'
 
     @classmethod
-    def registerPrimitiveTypes(cls):
+    def registerTypes(cls):
         """
-        Adds a set of primitive data types to the set of predefined types. It assures that those types are valid and can
-        be used.
+        Adds a set of primitive and unit data types to the set of predefined types. It assures that those types are
+        valid and can be used.
         """
+        cls.__registerUnits()
         cls.__registerReal()
         cls.__registerVoid()
         cls.__registerBoolean()
@@ -51,11 +51,17 @@ class PredefinedTypes:
         return
 
     @classmethod
-    def registerBufferType(cls):
+    def __registerUnits(cls):
         """
-        Adds the buffer type to the set of predefined types. It assures that those types are valid and can be used.
+        Adds all units as predefined type symbols to the list of available types.
         """
-        # cls.__registerBuffer() TODO
+        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
+        units = PredefinedUnits.getUnits()
+        for unitName in units.keys():
+            tSymbol = TypeSymbol(_elementReference=None, _name=unitName,
+                                 _unit=units[unitName], _isInteger=False, _isReal=False, _isVoid=False,
+                                 _isBoolean=False, _isString=False, _isBuffer=False)
+            cls.__name2type[unitName] = tSymbol
         return
 
     @classmethod
@@ -104,15 +110,6 @@ class PredefinedTypes:
         return
 
     @classmethod
-    def __registerBuffer(cls):
-        """
-        Adds the buffer type to the dict of predefined types.
-        """
-        symbol = TypeSymbol(_name=cls.__BUFFER_TYPE, _isBuffer=True)
-        cls.__name2type[cls.__BUFFER_TYPE] = symbol
-        return
-
-    @classmethod
     def getTypes(cls):
         """
         Returns the list of all predefined types.
@@ -158,7 +155,7 @@ class PredefinedTypes:
         if _name in cls.__name2type:
             return copy(cls.__name2type[_name])
         else:
-            print('SymbolTable.PredefinedTypes: TODO')
+            return None
 
     @classmethod
     def getRealType(cls):

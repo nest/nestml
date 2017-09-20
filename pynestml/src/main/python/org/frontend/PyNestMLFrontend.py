@@ -36,6 +36,8 @@ def main(args):
                         help='Path to a single file or a directory containing the source models.')
     parser.add_argument('-target', metavar='Target', type=str, nargs='?',
                         help='Path to a target directory where models should be generated to.')
+    parser.add_argument('-dry', type=str,nargs='?',help='Indicates that a dry run shall be performed, i.e.,'
+                                                        ' without generating a target model.')
     # now parse the handed over args
     parsed_args = parser.parse_args(args)
 
@@ -43,6 +45,15 @@ def main(args):
         # check if the mandatory path arg has been handed over, just terminate
         raise InvalidPathException('(PyNestML.Frontend) No path to source model/s provided. See -h for more details.')
 
+    # initialize all predefined elements, we do this in order to use the same elements for all the neurons
+    from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
+    PredefinedUnits.registerUnits()
+    from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
+    PredefinedTypes.registerTypes()
+    from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
+    PredefinedFunctions.registerPredefinedFunctions()
+    from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
+    PredefinedVariables.registerPredefinedVariables()
     # now first check if it is a single file or a dir
     if os.path.isfile(parsed_args.path[0]):
         NESTMLParser.parseModel(parsed_args.path[0])

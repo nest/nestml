@@ -61,7 +61,7 @@ class NESTMLParser:
         SymbolTable.initializeSymbolTable(ast.getSourcePosition())
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
-            SymbolTable.addNeuronScope(neuron.getScope())
+            SymbolTable.addNeuronScope(neuron.getName(),neuron.getScope())
         #print(SymbolTable.printSymbolTable())
         # now check that all context conditions hold
         """

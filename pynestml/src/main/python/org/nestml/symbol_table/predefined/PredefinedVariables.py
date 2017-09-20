@@ -40,7 +40,6 @@ class PredefinedVariables:
         """
         Registers the predefined variables.
         """
-        # TODO: Registration of units.
         cls.__registerEulerConstant()
         cls.__registerTimeConstant()
         return
@@ -66,9 +65,8 @@ class PredefinedVariables:
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
-        print('PredefinedVariables.TODO: Constant t currently real-typed!')
         symbol = VariableSymbol(_name='t', _blockType=BlockType.STATE,
-                                _isPredefined=True, _typeSymbol=PredefinedTypes.getRealType())
+                                _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists('ms'))
         cls.__name2VariableSymbol[cls.__TIME_CONSTANT] = symbol
         return
 

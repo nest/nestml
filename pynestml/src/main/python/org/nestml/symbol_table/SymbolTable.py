@@ -26,33 +26,25 @@ class SymbolTable:
     This class is used to store a single symbol table, consisting of scope and symbols.
     
     Attributes:
-        __compilationUnitScope       The global (most top) scope of this compilation unit. Type: Scope
+        __name2neuronScope A dict from the name of a neuron to the corresponding scope. Type str->Scope
+        __sourcePosition The source position of the overall compilation unit. Type ASTSourcePosition
     """
-    __globalScope = None
+    __name2neuronScope = {}
+    __sourcePosition = None
 
     @classmethod
     def initializeSymbolTable(cls, _sourcePosition=None):
         """
-        Standard constructor.
-        :param _sourcePosition: the source position of the whole compilation unit.
-        :type _sourcePosition: ASTSourcePosition
+        Standard initializer.
         """
         from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.SymbolTable) No or wrong type of source position provided!'
-        cls.__globalScope = Scope(_scopeType=ScopeType.COMPILATION_UNIT, _sourcePosition=_sourcePosition)
-        # initialize all predefined elements
-        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
-        PredefinedTypes.registerPrimitiveTypes()
-        PredefinedTypes.registerBufferType()
-        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
-        PredefinedFunctions.registerPredefinedFunctions()
-        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
-        PredefinedVariables.registerPredefinedVariables()
+        cls.__sourcePosition = _sourcePosition
         return
 
     @classmethod
-    def addNeuronScope(cls, _scope=None):
+    def addNeuronScope(cls, _name, _scope=None):
         """
         Adds a single neuron scope to the set of stored scopes.
         :return: a single scope element.
@@ -62,21 +54,23 @@ class SymbolTable:
             '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided!'
         assert (_scope.getScopeType() == ScopeType.GLOBAL), \
             '(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!'
-        if _scope not in cls.__globalScope.getScopes():
-            cls.__globalScope.addScope(_scope)
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided!'
+        if _name not in cls.__name2neuronScope.keys():
+            cls.__name2neuronScope[_name] = _scope
         return
 
     @classmethod
-    def deleteNeuronScope(cls, _scope=None):
+    def deleteNeuronScope(cls, _name=None):
         """
         Deletes a single neuron scope from the set of stored scopes.
-        :return: a single scope element.
+        :return: the name of the scope to delete.
         :rtype: Scope
         """
-        assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided!'
-        if _scope in cls.__globalScope.getScopes():
-            cls.__globalScope.deleteScope(_scope)
+        assert (_name is not None and isinstance(_name, Scope)), \
+            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided!'
+        if _name in cls.__name2neuronScope.keys():
+            del cls.__name2neuronScope[_name]
         return
 
     @classmethod
@@ -85,6 +79,8 @@ class SymbolTable:
         Prints the content of this symbol table.
         """
         ret = ''
-        for scope in cls.__globalScope.getScopes():
-            ret += scope.printScope()
+        for _name in cls.__name2neuronScope.keys():
+            ret += '--------------------------------------------------'
+            ret += _name + ':'
+            ret += cls.__name2neuronScope[_name].printScope()
         return ret

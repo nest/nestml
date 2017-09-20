@@ -106,9 +106,8 @@ class PredefinedFunctions:
         Registers the time-resolution.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        print('PredefinedFunctions.TODO: Time steps input real typed instead of ms!')
         params = list()
-        params.append(PredefinedTypes.getRealType())
+        params.append(PredefinedTypes.getTypeIfExists('ms'))
         symbol = FunctionSymbol(_name=cls.__TIME_STEPS, _paramTypes=params,
                                 _returnType=PredefinedTypes.getIntegerType(),
                                 _elementReference=None, _isPredefined=True)
@@ -258,9 +257,8 @@ class PredefinedFunctions:
         Registers the time resolution function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        print('PredefinedFunctions.TODO: Time resolution real typed instead of ms!')
         symbol = FunctionSymbol(_name=cls.__TIME_RESOLUTION, _paramTypes=list(),
-                                _returnType=PredefinedTypes.getRealType(),  # TODO here
+                                _returnType=PredefinedTypes.getTypeIfExists('ms'),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__TIME_RESOLUTION] = symbol
         return
@@ -285,10 +283,9 @@ class PredefinedFunctions:
         Registers the delta function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        print('PredefinedFunctions.TODO: Delta function real typed instead of ms!')
         params = list()
-        params.append(PredefinedTypes.getRealType())  # todo here
-        params.append(PredefinedTypes.getRealType())  # todo here
+        params.append(PredefinedTypes.getTypeIfExists('ms'))
+        params.append(PredefinedTypes.getTypeIfExists('ms'))
         symbol = FunctionSymbol(_name=cls.__DELTA, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
@@ -374,12 +371,11 @@ class PredefinedFunctions:
         Registers the curr_sum function into scope.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        print('PredefinedFunctions.TODO: Curr sum input typed instead of pA!')
         params = list()
-        params.append(PredefinedTypes.getRealType())  # TODO here: pA
+        params.append(PredefinedTypes.getTypeIfExists('pA'))
         params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__CURR_SUM, _paramTypes=params,
-                                _returnType=PredefinedTypes.getRealType(),  # todo: pA
+                                _returnType=PredefinedTypes.getTypeIfExists('pA'),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__CURR_SUM] = symbol
         return
@@ -390,13 +386,11 @@ class PredefinedFunctions:
         Registers the cond_sum function into scope.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
-        print('PredefinedFunctions.TODO: Curr sum input typed instead of nS!')
         params = list()
-        params.append(PredefinedTypes.getRealType())  # TODO here: nS
+        params.append(PredefinedTypes.getTypeIfExists('nS'))
         params.append(PredefinedTypes.getRealType())
         symbol = FunctionSymbol(_name=cls.__COND_SUM, _paramTypes=params,
-                                _returnType=PredefinedTypes.getRealType(),  # todo pA
+                                _returnType=PredefinedTypes.getTypeIfExists('nS'),
                                 _elementReference=None, _isPredefined=True)
         cls.__name2FunctionSymbol[cls.__COND_SUM] = symbol
         return
