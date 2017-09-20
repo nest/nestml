@@ -46,7 +46,6 @@ class FunctionSymbol(Symbol):
         :param _isPredefined: True, if this element is a predefined one, otherwise False.
         :type _isPredefined: bool
         """
-        super(FunctionSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
         assert (_returnType is None or isinstance(_returnType, TypeSymbol)), \
             '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided!'
         for arg in _paramTypes:
@@ -54,6 +53,9 @@ class FunctionSymbol(Symbol):
                 '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of argument provided!'
         assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
             'PyNestML.SymbolTable.FunctionSymbol) No or wrong type of predefined-specification provided!'
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        super(FunctionSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
+                                             _name=_name, _symbolType=SymbolType.FUNCTION)
         self.__paramTypes = _paramTypes
         self.__returnType = _returnType
         self.__isPredefined = _isPredefined

@@ -38,7 +38,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append(' -logging_level ERRORS')
         main(params)
         from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
-        print(SymbolTable.printSymbolTable())
+        #print(SymbolTable.printSymbolTable())
 
 
 if __name__ == '__main__':

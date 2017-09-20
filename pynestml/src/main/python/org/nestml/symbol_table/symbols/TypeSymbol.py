@@ -70,6 +70,7 @@ class TypeSymbol(Symbol):
         :param _isBuffer: indicates whether this symbol represents a buffer of a certain type, e.g. integer.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.UnitType import UnitType
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (_unit is None or isinstance(_unit, UnitType)), \
             '(PyNestML.SymbolTable.TypeSymbol) Wrong type of unit provided!'
         assert (isinstance(_isInteger, bool)), \
@@ -88,7 +89,8 @@ class TypeSymbol(Symbol):
             '(PyNestML.SymbolTable.TypeSymbol) Type of symbol not specified!'
         assert (_isInteger + _isReal + _isVoid + _isBoolean + _isString + (_unit is not None) == 1), \
             '(PyNestML.SymbolTable.TypeSymbol) Type of symbol over-specified!'
-        super(TypeSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
+        super(TypeSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
+                                         _name=_name, _symbolType=SymbolType.TYPE)
         self.__unit = _unit
         self.__isInteger = _isInteger
         self.__isReal = _isReal

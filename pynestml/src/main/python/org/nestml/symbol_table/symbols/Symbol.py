@@ -17,7 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from abc import ABCMeta, abstractmethod
+from abc import ABCMeta
+from enum import Enum
 
 
 class Symbol:
@@ -28,8 +29,9 @@ class Symbol:
     __elementReference = None
     __scope = None
     __name = None
+    __symbolType = None
 
-    def __init__(self, _elementReference=None, _scope=None, _name=None):
+    def __init__(self, _elementReference=None, _scope=None, _name=None, _symbolType=None):
         """
         Standard constructor of the Symbol class.
         :param _elementReference: an ast object.
@@ -44,9 +46,12 @@ class Symbol:
             '(PyNestML.SymbolTable.Symbol) Wrong type of scope provided!'
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Symbol) Wrong type of symbol-name provided!'
+        assert (_symbolType is not None and isinstance(_symbolType, SymbolType)), \
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-type provided!'
         self.__elementReference = _elementReference
         self.__scope = _scope
         self.__name = _name
+        self.__symbolType = _symbolType
 
     def getReferencedObject(self):
         """
@@ -72,6 +77,14 @@ class Symbol:
         """
         return self.__name
 
+    def getSymbolType(self):
+        """
+        Returns the type of this symbol.
+        :return: the type of this symbol.
+        :rtype: SymbolType
+        """
+        return self.__symbolType
+
     def isDefinedBefore(self, _sourcePosition=None):
         """
         For a handed over source position, this method checks if this symbol has been defined before the handed
@@ -91,3 +104,12 @@ class Symbol:
         Returns a string representation of this symbol.
         """
         return ''
+
+
+class SymbolType(Enum):
+    """
+    An enumeration of all possible symbol types to make processing easier.
+    """
+    VARIABLE = 1
+    TYPE = 2
+    FUNCTION = 3

@@ -68,7 +68,6 @@ class VariableSymbol(Symbol):
         :param _typeSymbol: a type symbol representing the concrete type of this variable
         :type _typeSymbol: TypeSymbol
         """
-        super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope, _name=_name)
         assert (_blockType is not None and isinstance(_blockType, BlockType)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided!'
         assert (_vectorParameter is None or isinstance(_vectorParameter, str)), \
@@ -85,6 +84,9 @@ class VariableSymbol(Symbol):
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong of type-symbol provided!'
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
+                                             _name=_name, _symbolType=SymbolType.VARIABLE)
         self.__blockType = _blockType
         self.__vectorParameter = _vectorParameter
         self.__declaringExpression = _declaringExpression
