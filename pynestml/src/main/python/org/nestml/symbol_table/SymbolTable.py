@@ -80,7 +80,7 @@ class SymbolTable:
         """
         ret = ''
         for _name in cls.__name2neuronScope.keys():
-            ret += '--------------------------------------------------'
-            ret += _name + ':'
+            ret += '--------------------------------------------------\n'
+            ret += _name + ':\n'
             ret += cls.__name2neuronScope[_name].printScope()
         return ret

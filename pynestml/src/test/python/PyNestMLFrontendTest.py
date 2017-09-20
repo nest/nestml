@@ -26,6 +26,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
     """
     Tests if the frontend works as intended and is able to process handed over arguments.
     """
+
     def test(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                  os.path.join('..', '..', '..', '..', 'models',
@@ -34,7 +35,10 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('-path')
         params.append(path)
         params.append(' -dry')
+        params.append(' -logging_level ERRORS')
         main(params)
+        from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
+        print(SymbolTable.printSymbolTable())
 
 
 if __name__ == '__main__':

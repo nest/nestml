@@ -161,7 +161,7 @@ class Scope:
         # the following step is done in order to return, whenever the list contains only one element, only this element
         if isinstance(scopes, list) and len(scopes) == 1:
             return scopes[0]
-        elif isinstance(scopes,list) and len(scopes) == 0:
+        elif isinstance(scopes, list) and len(scopes) == 0:
             return None
         else:
             return scopes
@@ -307,22 +307,11 @@ class Scope:
         :return: a string representation of the scope and its sub-scope.
         :rtype: str
         """
-        ret = ''
-        if self.getScopeType() is ScopeType.GLOBAL:
-            ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + '<' + 'GLOBAL' \
-                   + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
-        elif self.getScopeType() is ScopeType.UPDATE:
-            ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + '<' + 'UPDATE' \
-                   + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
-        elif self.getScopeType() is ScopeType.FUNCTION:
-            ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + '<' + 'FUNCTION' \
-                   + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
-        else:
-            ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + '<' + 'LOCAL' \
-                   + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
+        ret = ('-' * 2 * (self.getDepthOfScope())) + '<' + self.getScopeType().name \
+              + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
         for elem in self.__declaredElements:
             if isinstance(elem, Symbol):
-                ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + elem.printSymbol() + '\n'
+                ret += ('-' * 2 * (self.getDepthOfScope())) + elem.printSymbol() + '\n'
             else:
                 ret += elem.printScope()
         return ret
@@ -331,14 +320,10 @@ class Scope:
 class ScopeType(Enum):
     """
     This enum is used to distinguish between different types of scopes, namely:
-        -The compilation unit scope, consisting of arbitrary many global scope.
         -The global scope (neuron), in which all the sub-scopes are embedded.
         -The function scope, as embedded in the global scope.
         -The update scope, as embedded in the global scope.
-        -The local scope, as embedded in the update or function scope (e.g. if branches etc.).
     """
-    COMPILATION_UNIT = 0
     GLOBAL = 1
     UPDATE = 2
     FUNCTION = 3
-    LOCAL = 4

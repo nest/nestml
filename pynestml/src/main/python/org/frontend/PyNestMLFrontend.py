@@ -38,13 +38,16 @@ def main(args):
                         help='Path to a target directory where models should be generated to.')
     parser.add_argument('-dry', type=str,nargs='?',help='Indicates that a dry run shall be performed, i.e.,'
                                                         ' without generating a target model.')
+    parser.add_argument('-logging_level',nargs='?',help='Indicates which messages shall be logged and printed to the'
+                                                        'screen. Available ={ALL,WARNING/S,ERROR/S}, Standard is ALL.')
     # now parse the handed over args
     parsed_args = parser.parse_args(args)
-
     if parsed_args.path is None:
         # check if the mandatory path arg has been handed over, just terminate
         raise InvalidPathException('(PyNestML.Frontend) No path to source model/s provided. See -h for more details.')
-
+    # initialize the logger
+    from pynestml.src.main.python.org.utils.Logger import Logger
+    Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level))
     # initialize all predefined elements, we do this in order to use the same elements for all the neurons
     from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
     PredefinedUnits.registerUnits()
