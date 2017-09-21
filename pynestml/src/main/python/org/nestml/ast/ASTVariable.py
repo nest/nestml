@@ -32,6 +32,8 @@ class ASTVariable(ASTElement):
     """
     __name = None
     __differentialOrder = None
+    # the corresponding type symbol
+    __typeSymbol = None
 
     def __init__(self, _name=None, _differentialOrder=0, _sourcePosition=None):
         """
@@ -81,6 +83,25 @@ class ASTVariable(ASTElement):
         :rtype: int
         """
         return self.__differentialOrder
+
+    def getTypeSymbol(self):
+        """
+        Returns the type symbol of this expression.
+        :return: a single type symbol.
+        :rtype: TypeSymbol
+        """
+        return self.__typeSymbol
+
+    def setTypeSymbol(self, _typeSymbol=None):
+        """
+        Updates the current type symbol to the handed over one.
+        :param _typeSymbol: a single type symbol object.
+        :type _typeSymbol: TypeSymbol
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
+            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
+        self.__typeSymbol = _typeSymbol
 
     def printAST(self):
         """

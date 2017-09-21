@@ -153,18 +153,15 @@ class SymbolTableASTVisitor(object):
         :type _block: ASTBlock
         """
         assert (_block is not None and isinstance(_block, ASTBlock.ASTBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of block provided!'
+            '(PyNestML.SymbolTable.Visitor) No or wrong type of block provided %s!' % type(_block)
         for stmt in _block.getStmts():
             if stmt.isSmallStmt():
                 stmt.updateScope(_block.getScope())
                 stmt.getSmallStmt().updateScope(_block.getScope())
                 cls.visitSmallStmt(stmt.getSmallStmt())
             else:
-                innerScope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
-                                   _sourcePosition=stmt.getSourcePosition())
-                _block.getScope().addScope(innerScope)
-                stmt.updateScope(innerScope)
-                stmt.getCompoundStmt().updateScope(innerScope)
+                stmt.updateScope(_block.getScope())
+                stmt.getCompoundStmt().updateScope(_block.getScope())
                 cls.visitCompoundStmt(stmt.getCompoundStmt())
         return
 
@@ -176,7 +173,7 @@ class SymbolTableASTVisitor(object):
         :type _stmt: ASTSmallStatement
         """
         assert (_stmt is not None and isinstance(_stmt, ASTSmallStmt.ASTSmallStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of small statement provided!'
+            '(PyNestML.SymbolTable.Visitor) No or wrong type of small statement provided (%s)!' % type(_stmt)
         if _stmt.isDeclaration():
             _stmt.getDeclaration().updateScope(_stmt.getScope())
             cls.visitDeclaration(_stmt.getDeclaration())
@@ -258,6 +255,7 @@ class SymbolTableASTVisitor(object):
             '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided!'
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
+            # TODO
             # _declaration.getScope().addSymbol(Symbol(_scope=_declaration.getScope(), _elementReference=_declaration,
             #                                         _name=var.getName()))
             cls.visitVariable(var)
@@ -386,6 +384,7 @@ class SymbolTableASTVisitor(object):
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
+        # TODO
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype.ASTDatatype)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided!'
@@ -411,7 +410,6 @@ class SymbolTableASTVisitor(object):
             Logger.logAndPrintMessage('Data type not recognized!', LOGGING_LEVEL.ERROR)
             symbol = None
         _dataType.getScope().addSymbol(symbol)
-
         return
 
     @classmethod

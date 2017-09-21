@@ -60,6 +60,8 @@ class ASTExpression(ASTElement):
     __condition = None
     __ifTrue = None
     __ifNot = None
+    # the corresponding type symbol.
+    __typeSymbol = None
 
     def __init__(self, _hasLeftParentheses=False, _hasRightParentheses=False, _unaryOperator=None, _isLogicalNot=False,
                  _expression=None, _lhs=None, _binaryOperator=None, _rhs=None, _condition=None, _ifTrue=None,
@@ -386,6 +388,25 @@ class ASTExpression(ASTElement):
             ret.extend(self.getIfTrue().getFunctions())
             ret.extend(self.getIfNot().getFunctions())
         return ret
+
+    def getTypeSymbol(self):
+        """
+        Returns the type symbol of this expression.
+        :return: a single type symbol.
+        :rtype: TypeSymbol
+        """
+        return self.__typeSymbol
+
+    def setTypeSymbol(self, _typeSymbol=None):
+        """
+        Updates the current type symbol to the handed over one.
+        :param _typeSymbol: a single type symbol object.
+        :type _typeSymbol: TypeSymbol
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
+            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
+        self.__typeSymbol = _typeSymbol
 
     def printAST(self):
         """

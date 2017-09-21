@@ -266,10 +266,31 @@ class VariableSymbol(Symbol):
             sourcePosition = self.getReferencedObject().getSourcePosition().printSourcePosition()
         else:
             sourcePosition = 'predefined'
-        vectorValue  = self.getVectorParameter() if self.hasVectorParameter() else ' none'
+        vectorValue = self.getVectorParameter() if self.hasVectorParameter() else ' none'
+        type = self.getTypeSymbol().printSymbol()
 
-        return 'VariableSymbol[' + self.getSymbolName() + ', ' + str(self.getBlockType()) + ', ' \
-               + 'array parameter: ' + vectorValue + ', @' + sourcePosition + ')'
+        return 'VariableSymbol[' + self.getSymbolName() + ', type=' + type + ', ' + str(self.getBlockType()) + ', ' \
+               + 'array parameter=' + vectorValue + ', @' + sourcePosition + ')'
+
+    def getTypeSymbol(self):
+        """
+        Returns the corresponding type symbol.
+        :return: the current type symbol.
+        :rtype: TypeSymbol
+        """
+        return self.__typeSymbol
+
+    def setTypeSymbol(self, _typeSymbol=None):
+        """
+        Updates the current type symbol to a new one.
+        :param _typeSymbol: a new type symbol.
+        :type _typeSymbol: TypeSymbol
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
+        self.__typeSymbol = _typeSymbol
+        return
 
     def equals(self, _other=None):
         """
