@@ -22,9 +22,10 @@
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 from pynestml.src.main.python.org.nestml.ast import *
+from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 
 
-class SymbolTableASTVisitor:
+class SymbolTableASTVisitor(object):
     """
     This class is used to create a symbol table from a handed over AST.
     """
@@ -38,10 +39,10 @@ class SymbolTableASTVisitor:
         :return: a new symbol table
         :rtype: SymbolTable
         """
-        return SymbolTableASTVisitor.__visitNeuron(_astNeuron)
+        return SymbolTableASTVisitor.visitNeuron(_astNeuron)
 
     @classmethod
-    def __visitNeuron(cls, _neuron=None):
+    def visitNeuron(cls, _neuron=None):
         """
         Private method: Used to visit a single neuron and create the corresponding global as well as local scopes.
         :return: a single neuron.
@@ -52,11 +53,11 @@ class SymbolTableASTVisitor:
         scope = Scope(_scopeType=ScopeType.GLOBAL, _sourcePosition=_neuron.getSourcePosition())
         _neuron.updateScope(scope)
         _neuron.getBody().updateScope(scope)
-        cls.__visitBody(_neuron.getBody())
+        cls.visitBody(_neuron.getBody())
         return
 
     @classmethod
-    def __visitBody(cls, _body=None):
+    def visitBody(cls, _body=None):
         """
         Private method: Used to visit a single neuron body and create the corresponding scope.
         :param _body: a single body element.
@@ -65,21 +66,21 @@ class SymbolTableASTVisitor:
         for bodyElement in _body.getBodyElements():
             bodyElement.updateScope(_body.getScope())
             if isinstance(bodyElement, ASTBlockWithVariables.ASTBlockWithVariables):
-                cls.__visitBlockWithVariable(bodyElement)
+                cls.visitBlockWithVariable(bodyElement)
             elif isinstance(bodyElement, ASTUpdateBlock.ASTUpdateBlock):
-                cls.__visitUpdateBlock(bodyElement)
+                cls.visitUpdateBlock(bodyElement)
             elif isinstance(bodyElement, ASTEquationsBlock.ASTEquationsBlock):
-                cls.__visitEquationsBlock(bodyElement)
+                cls.visitEquationsBlock(bodyElement)
             elif isinstance(bodyElement, ASTInputBlock.ASTInputBlock):
-                cls.__visitInputBlock(bodyElement)
+                cls.visitInputBlock(bodyElement)
             elif isinstance(bodyElement, ASTOutputBlock.ASTOutputBlock):
-                cls.__visitOutputBlock(bodyElement)
+                cls.visitOutputBlock(bodyElement)
             elif isinstance(bodyElement, ASTFunction.ASTFunction):
-                cls.__visitFunctionBlock(bodyElement)
+                cls.visitFunctionBlock(bodyElement)
         return
 
     @classmethod
-    def __visitFunctionBlock(cls, _block=None):
+    def visitFunctionBlock(cls, _block=None):
         """
         Private method: Used to visit a single function block and create the corresponding scope.
         :param _block: a function block object.
@@ -87,12 +88,11 @@ class SymbolTableASTVisitor:
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
-
         assert (_block is not None and isinstance(_block, ASTFunction.ASTFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function block provided!'
-        #symbol = FunctionSymbol(_scope=_block.getScope(), _elementReference=_block,
+        # symbol = FunctionSymbol(_scope=_block.getScope(), _elementReference=_block, _paramTypes=list(),
         #                        _name=_block.getName(), _isPredefined=False)
-        #_block.getScope().addSymbol(symbol)
+        # _block.getScope().addSymbol(symbol)
         scope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
                       _sourcePosition=_block.getSourcePosition())
         _block.getScope().addScope(scope)
@@ -101,18 +101,18 @@ class SymbolTableASTVisitor:
             params.append(TypeSymbol(_elementReference=arg, _scope=scope, _name='TODO', _isVoid=True))  # TODO
             # TODO: here a corresponding processing is required
             arg.updateScope(scope)
-            #scope.addSymbol(Symbol(_elementReference=arg, _scope=scope, _name=arg.getName()))
+            # scope.addSymbol(Symbol(_elementReference=arg, _scope=scope, _name=arg.getName()))
             arg.getDataType().updateScope(scope)
-            cls.__visitDataType(arg.getDataType())
+            cls.visitDataType(arg.getDataType())
         if _block.hasReturnType():
             _block.getReturnType().updateScope(scope)
-            cls.__visitDataType(_block.getReturnType())
+            cls.visitDataType(_block.getReturnType())
         _block.getBlock().updateScope(scope)
-        cls.__visitBlock(_block.getBlock())
+        cls.visitBlock(_block.getBlock())
         return
 
     @classmethod
-    def __visitUpdateBlock(cls, _block=None):
+    def visitUpdateBlock(cls, _block=None):
         """
         Private method: Used to visit a single update block and create the corresponding scope.
         :param _block: an update block object. 
@@ -124,11 +124,11 @@ class SymbolTableASTVisitor:
                       _sourcePosition=_block.getSourcePosition())
         _block.getScope().addScope(scope)
         _block.getBlock().updateScope(scope)
-        cls.__visitBlock(_block.getBlock())
+        cls.visitBlock(_block.getBlock())
         return
 
     @classmethod
-    def __visitBlock(cls, _block=None):
+    def visitBlock(cls, _block=None):
         """
         Private method: Used to visit a single block of statements, create and update the corresponding scope.
         :param _block: a block object.
@@ -140,18 +140,18 @@ class SymbolTableASTVisitor:
             if stmt.isSmallStmt():
                 stmt.updateScope(_block.getScope())
                 stmt.getSmallStmt().updateScope(_block.getScope())
-                cls.__visitSmallStmt(stmt.getSmallStmt())
+                cls.visitSmallStmt(stmt.getSmallStmt())
             else:
                 innerScope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
                                    _sourcePosition=stmt.getSourcePosition())
                 _block.getScope().addScope(innerScope)
                 stmt.updateScope(innerScope)
                 stmt.getCompoundStmt().updateScope(innerScope)
-                cls.__visitCompoundStmt(stmt.getCompoundStmt())
+                cls.visitCompoundStmt(stmt.getCompoundStmt())
         return
 
     @classmethod
-    def __visitSmallStmt(cls, _stmt=None):
+    def visitSmallStmt(cls, _stmt=None):
         """
         Private method: Used to visit a single small statement and create the corresponding sub-scope.
         :param _stmt: a single small statement.
@@ -161,20 +161,20 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of small statement provided!'
         if _stmt.isDeclaration():
             _stmt.getDeclaration().updateScope(_stmt.getScope())
-            cls.__visitDeclaration(_stmt.getDeclaration())
+            cls.visitDeclaration(_stmt.getDeclaration())
         elif _stmt.isAssignment():
             _stmt.getAssignment().updateScope(_stmt.getScope())
-            cls.__visitAssignment(_stmt.getAssignment())
+            cls.visitAssignment(_stmt.getAssignment())
         elif _stmt.isFunctionCall():
             _stmt.getFunctionCall().updateScope(_stmt.getScope())
-            cls.__visitFunctionCall(_stmt.getFunctionCall())
+            cls.visitFunctionCall(_stmt.getFunctionCall())
         elif _stmt.isReturnStmt():
             _stmt.getReturnStmt().updateScope(_stmt.getScope())
-            cls.__visitReturnStmt(_stmt.getReturnStmt())
+            cls.visitReturnStmt(_stmt.getReturnStmt())
         return
 
     @classmethod
-    def __visitCompoundStmt(cls, _stmt=None):
+    def visitCompoundStmt(cls, _stmt=None):
         """
         Private method: Used to visit a single compound statement and create the corresponding sub-scope. 
         :param _stmt: a single compound statement.
@@ -184,17 +184,17 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of compound statement provided!'
         if _stmt.isIfStmt():
             _stmt.getIfStmt().updateScope(_stmt.getScope())
-            cls.__visitIfStmt(_stmt.getIfStmt())
+            cls.visitIfStmt(_stmt.getIfStmt())
         elif _stmt.isWhileStmt():
             _stmt.getWhileStmt().updateScope(_stmt.getScope())
-            cls.__visitWhileStmt(_stmt.getWhileStmt())
+            cls.visitWhileStmt(_stmt.getWhileStmt())
         else:
             _stmt.getForStmt().updateScope(_stmt.getScope())
-            cls.__visitForStmt(_stmt.getForStmt())
+            cls.visitForStmt(_stmt.getForStmt())
         return
 
     @classmethod
-    def __visitAssignment(cls, _assignment=None):
+    def visitAssignment(cls, _assignment=None):
         """
         Private method: Used to visit a single assignment and update the its corresponding scope.
         :param _assignment: an assignment object.
@@ -205,13 +205,13 @@ class SymbolTableASTVisitor:
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment.ASTAssignment)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of assignment provided!'
         _assignment.getVariable().updateScope(_assignment.getScope())
-        cls.__visitVariable(_assignment.getVariable())
+        cls.visitVariable(_assignment.getVariable())
         _assignment.getExpression().updateScope(_assignment.getScope())
-        cls.__visitExpression(_assignment.getExpression())
+        cls.visitExpression(_assignment.getExpression())
         return
 
     @classmethod
-    def __visitFunctionCall(cls, _functionCall=None):
+    def visitFunctionCall(cls, _functionCall=None):
         """
         Private method: Used to visit a single function call and update its corresponding scope.
         :param _functionCall: a function call object.
@@ -223,11 +223,11 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function call provided!'
         for arg in _functionCall.getArgs():
             arg.updateScope(_functionCall.getScope())
-            cls.__visitExpression(arg)
+            cls.visitExpression(arg)
         return
 
     @classmethod
-    def __visitDeclaration(cls, _declaration=None):
+    def visitDeclaration(cls, _declaration=None):
         """
         Private method: Used to visit a single declaration, update its scope and return the corresponding set of
         symbols
@@ -242,19 +242,19 @@ class SymbolTableASTVisitor:
             var.updateScope(_declaration.getScope())
             # _declaration.getScope().addSymbol(Symbol(_scope=_declaration.getScope(), _elementReference=_declaration,
             #                                         _name=var.getName()))
-            cls.__visitVariable(var)
+            cls.visitVariable(var)
         _declaration.getDataType().updateScope(_declaration.getScope())
-        cls.__visitDataType(_declaration.getDataType())
+        cls.visitDataType(_declaration.getDataType())
         if _declaration.hasExpression():
             _declaration.getExpr().updateScope(_declaration.getScope())
-            cls.__visitExpression(_declaration.getExpr())
+            cls.visitExpression(_declaration.getExpr())
         if _declaration.hasInvariant():
             _declaration.getInvariant().updateScope(_declaration.getScope())
-            cls.__visitExpression(_declaration.getInvariant())
+            cls.visitExpression(_declaration.getInvariant())
         return
 
     @classmethod
-    def __visitReturnStmt(cls, _returnStmt=None):
+    def visitReturnStmt(cls, _returnStmt=None):
         """
         Private method: Used to visit a single return statement and update its scope.
         :param _returnStmt: a return statement object.
@@ -264,11 +264,11 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of return statement provided!'
         if _returnStmt.hasExpr():
             _returnStmt.getExpr().updateScope(_returnStmt.getScope())
-            cls.__visitExpression(_returnStmt.getExpr())
+            cls.visitExpression(_returnStmt.getExpr())
         return
 
     @classmethod
-    def __visitIfStmt(cls, _ifStmt=None):
+    def visitIfStmt(cls, _ifStmt=None):
         """
         Private method: Used to visit a single if-statement, update its scope and create the corresponding sub-scope.
         :param _ifStmt: an if-statement object.
@@ -277,17 +277,17 @@ class SymbolTableASTVisitor:
         assert (_ifStmt is not None and isinstance(_ifStmt, ASTIfStmt.ASTIfStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of if-statement provided!'
         _ifStmt.getIfClause().updateScope(_ifStmt.getScope())
-        cls.__visitIfClause(_ifStmt.getIfClause())
+        cls.visitIfClause(_ifStmt.getIfClause())
         for elIf in _ifStmt.getElifClauses():
             elIf.updateScope(_ifStmt.getScope())
-            cls.__visitElifClause(elIf)
+            cls.visitElifClause(elIf)
         if _ifStmt.hasElseClause():
             _ifStmt.getElseClause().updateScope(_ifStmt.getScope())
-            cls.__visitElseClause(_ifStmt.getElseClause())
+            cls.visitElseClause(_ifStmt.getElseClause())
         return
 
     @classmethod
-    def __visitIfClause(cls, _ifClause=None):
+    def visitIfClause(cls, _ifClause=None):
         """
         Private method: Used to visit a single if-clause, update its scope and create the corresponding sub-scope.
         :param _ifClause: an if clause.
@@ -296,13 +296,13 @@ class SymbolTableASTVisitor:
         assert (_ifClause is not None and isinstance(_ifClause, ASTIfClause.ASTIfClause)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of if-clause handed over!'
         _ifClause.getCondition().updateScope(_ifClause.getScope())
-        cls.__visitExpression(_ifClause.getCondition())
+        cls.visitExpression(_ifClause.getCondition())
         _ifClause.getBlock().updateScope(_ifClause.getScope())
-        cls.__visitBlock(_ifClause.getBlock())
+        cls.visitBlock(_ifClause.getBlock())
         return
 
     @classmethod
-    def __visitElifClause(cls, _elifClause=None):
+    def visitElifClause(cls, _elifClause=None):
         """
         Private method: Used to visit a single elif-clause, update its scope and create the corresponding sub-scope.
         :param _elifClause: an elif clause.
@@ -311,13 +311,13 @@ class SymbolTableASTVisitor:
         assert (_elifClause is not None and isinstance(_elifClause, ASTElifClause.ASTElifClause)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of elif-clause handed over!'
         _elifClause.getCondition().updateScope(_elifClause.getScope())
-        cls.__visitExpression(_elifClause.getCondition())
+        cls.visitExpression(_elifClause.getCondition())
         _elifClause.getBlock().updateScope(_elifClause.getScope())
-        cls.__visitBlock(_elifClause.getBlock())
+        cls.visitBlock(_elifClause.getBlock())
         return
 
     @classmethod
-    def __visitElseClause(cls, _elseClause=None):
+    def visitElseClause(cls, _elseClause=None):
         """
         Private method: Used to visit a single else-clause, update its scope and create the corresponding sub-scope.
         :param _elseClause: an else clause.
@@ -326,11 +326,11 @@ class SymbolTableASTVisitor:
         assert (_elseClause is not None and isinstance(_elseClause, ASTElseClause.ASTElseClause)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of else-clause handed over!'
         _elseClause.getBlock().updateScope(_elseClause.getScope())
-        cls.__visitBlock(_elseClause.getBlock())
+        cls.visitBlock(_elseClause.getBlock())
         return
 
     @classmethod
-    def __visitForStmt(cls, _forStmt=None):
+    def visitForStmt(cls, _forStmt=None):
         """
         Private method: Used to visit a single for-stmt, update its scope and create the corresponding sub-scope.
         :param _forStmt: a for-statement. 
@@ -339,15 +339,15 @@ class SymbolTableASTVisitor:
         assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt.ASTForStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of for-statement provided!'
         _forStmt.getFrom().updateScope(_forStmt.getScope())
-        cls.__visitExpression(_forStmt.getFrom())
+        cls.visitExpression(_forStmt.getFrom())
         _forStmt.getTo().updateScope(_forStmt.getScope())
-        cls.__visitExpression(_forStmt.getTo())
+        cls.visitExpression(_forStmt.getTo())
         _forStmt.getBlock().updateScope(_forStmt.getScope())
-        cls.__visitBlock(_forStmt.getBlock())
+        cls.visitBlock(_forStmt.getBlock())
         return
 
     @classmethod
-    def __visitWhileStmt(cls, _whileStmt=None):
+    def visitWhileStmt(cls, _whileStmt=None):
         """
         Private method: Used to visit a single while-stmt, update its scope and create the corresponding sub-scope.
         :param _whileStmt: a while-statement.
@@ -356,13 +356,13 @@ class SymbolTableASTVisitor:
         assert (_whileStmt is not None and isinstance(_whileStmt, ASTWhileStmt.ASTWhileStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of while-statement provided!'
         _whileStmt.getCondition().updateScope(_whileStmt.getScope())
-        cls.__visitExpression(_whileStmt.getCondition())
+        cls.visitExpression(_whileStmt.getCondition())
         _whileStmt.getBlock().updateScope(_whileStmt.getScope())
-        cls.__visitBlock(_whileStmt.getBlock())
+        cls.visitBlock(_whileStmt.getBlock())
         return
 
     @classmethod
-    def __visitDataType(cls, _dataType=None):
+    def visitDataType(cls, _dataType=None):
         """
         Private method: Used to visit a single data-type and update its scope. 
         :param _dataType: a data-type.
@@ -373,14 +373,31 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided!'
         if _dataType.isUnitType():
             _dataType.getUnitType().updateScope(_dataType.getScope())
-            return cls.__visitUnitType(_dataType.getUnitType())
+            return cls.visitUnitType(_dataType.getUnitType())
+        elif _dataType.isInteger():
+            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
+                                _isInteger=True)
+        elif _dataType.isReal():
+            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
+                                _isReal=True)
+        elif _dataType.isString():
+            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
+                                _isString=True)
+        elif _dataType.isBoolean():
+            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
+                                _isBoolean=True)
+        elif _dataType.isVoid():
+            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
+                                _isVoid=True)
         else:
-            TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
-                       _isVoid=True)  # todo
+            Logger.logAndPrintMessage('Data type not recognized!', LOGGING_LEVEL.ERROR)
+            symbol = None
+        _dataType.getScope().addSymbol(symbol)
+
         return
 
     @classmethod
-    def __visitUnitType(cls, _unitType=None):
+    def visitUnitType(cls, _unitType=None):
         """
         Private method: Used to visit a single unit-type and update its scope.
         :param _unitType: a unit type.
@@ -391,21 +408,21 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of unit-typ provided!'
         if _unitType.isPowerExpression():
             _unitType.getBase().updateScope(_unitType.getScope())
-            cls.__visitUnitType(_unitType.getBase())
+            cls.visitUnitType(_unitType.getBase())
         elif _unitType.isEncapsulated():
             _unitType.getCompoundUnit().updateScope(_unitType.getScope())
-            cls.__visitUnitType(_unitType.getCompoundUnit())
+            cls.visitUnitType(_unitType.getCompoundUnit())
         elif _unitType.isDiv() or _unitType.isTimes():
             if isinstance(_unitType.getLhs(),
                           ASTUnitType.ASTUnitType):  # regard that lhs can be a numeric Or a unit-type
                 _unitType.getLhs().updateScope(_unitType.getScope())
-                cls.__visitUnitType(_unitType.getLhs())
+                cls.visitUnitType(_unitType.getLhs())
             _unitType.getRhs().updateScope(_unitType.getScope())
-            cls.__visitUnitType(_unitType.getRhs())
+            cls.visitUnitType(_unitType.getRhs())
         return
 
     @classmethod
-    def __visitExpression(cls, _expr=None):
+    def visitExpression(cls, _expr=None):
         """
         Private method: Used to visit a single expression and update its scope.
         :param _expr: an expression.
@@ -416,35 +433,35 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of expression handed over!'
         if _expr.isSimpleExpression():
             _expr.getExpression().updateScope(_expr.getScope())
-            cls.__visitSimpleExpression(_expr.getExpression())
+            cls.visitSimpleExpression(_expr.getExpression())
         if _expr.isUnaryOperator():
             _expr.getUnaryOperator().updateScope(_expr.getScope())
-            cls.__visitUnaryOperator(_expr.getUnaryOperator())
+            cls.visitUnaryOperator(_expr.getUnaryOperator())
         if _expr.isCompoundExpression():
             _expr.getLhs().updateScope(_expr.getScope())
-            cls.__visitExpression(_expr.getLhs())
+            cls.visitExpression(_expr.getLhs())
             _expr.getBinaryOperator().updateScope(_expr.getScope())
             if isinstance(_expr.getBinaryOperator(), ASTBitOperator.ASTBitOperator):
-                cls.__visitBitOperator(_expr.getBinaryOperator())
+                cls.visitBitOperator(_expr.getBinaryOperator())
             elif isinstance(_expr.getBinaryOperator(), ASTComparisonOperator.ASTComparisonOperator):
-                cls.__visitComparisonOperator(_expr.getBinaryOperator())
+                cls.visitComparisonOperator(_expr.getBinaryOperator())
             elif isinstance(_expr.getBinaryOperator(), ASTLogicalOperator.ASTLogicalOperator):
-                cls.__visitLogicalOperator(_expr.getBinaryOperator())
+                cls.visitLogicalOperator(_expr.getBinaryOperator())
             else:
-                cls.__visitArithmeticOperator(_expr.getBinaryOperator())
+                cls.visitArithmeticOperator(_expr.getBinaryOperator())
             _expr.getRhs().updateScope(_expr.getScope())
-            cls.__visitExpression(_expr.getRhs())
+            cls.visitExpression(_expr.getRhs())
         if _expr.isTernaryOperator():
             _expr.getCondition().updateScope(_expr.getScope())
-            cls.__visitExpression(_expr.getCondition())
+            cls.visitExpression(_expr.getCondition())
             _expr.getIfTrue().updateScope(_expr.getScope())
-            cls.__visitExpression(_expr.getIfTrue())
+            cls.visitExpression(_expr.getIfTrue())
             _expr.getIfNot().updateScope(_expr.getScope())
-            cls.__visitExpression(_expr.getIfNot())
+            cls.visitExpression(_expr.getIfNot())
         return
 
     @classmethod
-    def __visitSimpleExpression(cls, _expr=None):
+    def visitSimpleExpression(cls, _expr=None):
         """
         Private method: Used to visit a single simple expression and update its scope.
         :param _expr: a simple expression. 
@@ -454,14 +471,14 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of simple expression provided!'
         if _expr.isFunctionCall():
             _expr.getFunctionCall().updateScope(_expr.getScope())
-            cls.__visitFunctionCall(_expr.getFunctionCall())
+            cls.visitFunctionCall(_expr.getFunctionCall())
         elif _expr.isVariable():
             _expr.getVariable().updateScope(_expr.getScope())
-            cls.__visitVariable(_expr.getVariable())
+            cls.visitVariable(_expr.getVariable())
         return
 
     @classmethod
-    def __visitUnaryOperator(cls, _unaryOp=None):
+    def visitUnaryOperator(cls, _unaryOp=None):
         """
         Private method: Used to visit a single unary operator and update its scope.
         :param _unaryOp: a single unary operator. 
@@ -472,7 +489,7 @@ class SymbolTableASTVisitor:
         return
 
     @classmethod
-    def __visitBitOperator(cls, _bitOp=None):
+    def visitBitOperator(cls, _bitOp=None):
         """
         Private method: Used to visit a single unary operator and update its scope.
         :param _bitOp: a single bit operator. 
@@ -483,7 +500,7 @@ class SymbolTableASTVisitor:
         return
 
     @classmethod
-    def __visitComparisonOperator(cls, _comparisonOp=None):
+    def visitComparisonOperator(cls, _comparisonOp=None):
         """
         Private method: Used to visit a single comparison operator and update its scope.
         :param _comparisonOp: a single comparison operator.
@@ -494,7 +511,7 @@ class SymbolTableASTVisitor:
         return
 
     @classmethod
-    def __visitLogicalOperator(cls, _logicalOp=None):
+    def visitLogicalOperator(cls, _logicalOp=None):
         """
         Private method: Used to visit a single logical operator and update its scope.
         :param _logicalOp: a single logical operator.
@@ -505,7 +522,7 @@ class SymbolTableASTVisitor:
         return
 
     @classmethod
-    def __visitVariable(cls, _variable=None):
+    def visitVariable(cls, _variable=None):
         """
         Private method: Used to visit a single variable and update its scope.
         :param _variable: a single variable.
@@ -516,7 +533,7 @@ class SymbolTableASTVisitor:
         return
 
     @classmethod
-    def __visitOdeFunction(cls, _odeFunction=None):
+    def visitOdeFunction(cls, _odeFunction=None):
         """
         Private method: Used to visit a single ode-function, create the corresponding symbol and update the scope.
         :param _odeFunction: a single ode-function.
@@ -524,17 +541,17 @@ class SymbolTableASTVisitor:
         """
         assert (_odeFunction is not None and isinstance(_odeFunction, ASTOdeFunction.ASTOdeFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-function provided!'
-        #symbol = Symbol(_elementReference=_odeFunction, _scope=_odeFunction.getScope()
+        # symbol = Symbol(_elementReference=_odeFunction, _scope=_odeFunction.getScope()
         #                , _name=_odeFunction.getVariableName())
-        #_odeFunction.getScope().addSymbol(symbol)
+        # _odeFunction.getScope().addSymbol(symbol)
         _odeFunction.getDataType().updateScope(_odeFunction.getScope())
-        cls.__visitDataType(_odeFunction.getDataType())
+        cls.visitDataType(_odeFunction.getDataType())
         _odeFunction.getExpression().updateScope(_odeFunction.getScope())
-        cls.__visitExpression(_odeFunction.getExpression())
+        cls.visitExpression(_odeFunction.getExpression())
         return
 
     @classmethod
-    def __visitOdeShape(cls, _odeShape=None):
+    def visitOdeShape(cls, _odeShape=None):
         """
         Private method: Used to visit a single ode-shape, create the corresponding symbol and update the scope.
         :param _odeShape: a single ode-shape.
@@ -543,17 +560,17 @@ class SymbolTableASTVisitor:
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
         assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape.ASTOdeShape)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided!'
-        #symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
+        # symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
         #                        _name=_odeShape.getVariable().getName())
         # _odeShape.getScope().addSymbol(symbol)
         _odeShape.getVariable().updateScope(_odeShape.getScope())
-        cls.__visitVariable(_odeShape.getVariable())
+        cls.visitVariable(_odeShape.getVariable())
         _odeShape.getExpression().updateScope(_odeShape.getScope())
-        cls.__visitExpression(_odeShape.getExpression())
+        cls.visitExpression(_odeShape.getExpression())
         return
 
     @classmethod
-    def __visitOdeEquation(cls, _equation=None):
+    def visitOdeEquation(cls, _equation=None):
         """
         Private method: Used to visit a single ode-equation and update the corresponding scope.
         :param _equation: a single ode-equation.
@@ -562,13 +579,13 @@ class SymbolTableASTVisitor:
         assert (_equation is not None and isinstance(_equation, ASTOdeEquation.ASTOdeEquation)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-equation handed over!'
         _equation.getLhs().updateScope(_equation.getScope())
-        cls.__visitDerivative(_equation.getLhs())
+        cls.visitDerivative(_equation.getLhs())
         _equation.getRhs().updateScope(_equation.getScope())
-        cls.__visitExpression(_equation.getRhs())
+        cls.visitExpression(_equation.getRhs())
         return
 
     @classmethod
-    def __visitBlockWithVariable(cls, _block=None):
+    def visitBlockWithVariable(cls, _block=None):
         """
         Private method: Used to visit a single block of variables and update its scope.
         :param _block: a block with declared variables.
@@ -578,11 +595,11 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of block with variables provided!'
         for decl in _block.getDeclarations():
             decl.updateScope(_block.getScope())
-            cls.__visitDeclaration(decl)
+            cls.visitDeclaration(decl)
         return
 
     @classmethod
-    def __visitEquationsBlock(cls, _block=None):
+    def visitEquationsBlock(cls, _block=None):
         """
         Private method: Used to visit a single equations block and update its scope.
         :param _block: a single equations block.
@@ -593,15 +610,15 @@ class SymbolTableASTVisitor:
         for decl in _block.getDeclarations():
             decl.updateScope(_block.getScope())
             if isinstance(decl, ASTOdeFunction.ASTOdeFunction):
-                cls.__visitOdeFunction(decl)
+                cls.visitOdeFunction(decl)
             elif isinstance(decl, ASTOdeShape.ASTOdeShape):
-                cls.__visitOdeShape(decl)
+                cls.visitOdeShape(decl)
             else:
-                cls.__visitOdeEquation(decl)
+                cls.visitOdeEquation(decl)
         return
 
     @classmethod
-    def __visitInputBlock(cls, _block=None):
+    def visitInputBlock(cls, _block=None):
         """
         Private method: Used to visit a single input block and update its scope.
         :param _block: a single input block.
@@ -611,11 +628,11 @@ class SymbolTableASTVisitor:
             '(PyNestML.SymbolTable.Visitor) No or wrong type of input-block provided!'
         for line in _block.getInputLines():
             line.updateScope(_block.getScope())
-            cls.__visitInputLine(line)
+            cls.visitInputLine(line)
         return
 
     @classmethod
-    def __visitOutputBlock(cls, _block=None):
+    def visitOutputBlock(cls, _block=None):
         """
         Private method: Used to visit a single output block and visit its scope.
         :param _block: a single output block. 
@@ -626,7 +643,7 @@ class SymbolTableASTVisitor:
         return
 
     @classmethod
-    def __visitInputLine(cls, _line=None):
+    def visitInputLine(cls, _line=None):
         """
         Private method: Used to visit a single input line, create the corresponding symbol and update the scope.
         :param _line: a single input line.
@@ -635,15 +652,15 @@ class SymbolTableASTVisitor:
         assert (_line is not None and isinstance(_line, ASTInputLine.ASTInputLine)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of input-line provided!'
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
-        #symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName())
-        #_line.getScope().addSymbol(symbol)
+        # symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName())
+        # _line.getScope().addSymbol(symbol)
         for inputType in _line.getInputTypes():
-            cls.__visitInputType(inputType)
+            cls.visitInputType(inputType)
             inputType.updateScope(_line.getScope())
         return
 
     @classmethod
-    def __visitInputType(cls, _type=None):
+    def visitInputType(cls, _type=None):
         """
         Private method: Used to visit a single input type and update its scope.
         :param _type: a single input-type.
@@ -654,7 +671,7 @@ class SymbolTableASTVisitor:
         return
 
     @classmethod
-    def __visitDerivative(cls, _derivative=None):
+    def visitDerivative(cls, _derivative=None):
         """
         Private method: Used to visit a single derivative and update its scope.
         :param _derivative: a single derivative.
@@ -665,7 +682,7 @@ class SymbolTableASTVisitor:
         return
 
     @classmethod
-    def __visitArithmeticOperator(cls, _arithmeticOp=None):
+    def visitArithmeticOperator(cls, _arithmeticOp=None):
         """
         Private method: Used to visit a single arithmetic operator and update its scope.
         :param _arithmeticOp: a single arithmetic operator.

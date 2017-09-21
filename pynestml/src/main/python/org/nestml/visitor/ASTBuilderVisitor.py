@@ -55,9 +55,12 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                                    _startColumn=ctx.start.column,
                                                                                    _endLine=ctx.stop.line,
                                                                                    _endColumn=ctx.stop.column)
-        return ASTDatatype.ASTDatatype.makeASTDatatype(_isInteger=isInt, _isBoolean=isBool,
-                                                       _isReal=isReal, _isString=isString, _isVoid=isVoid,
-                                                       _isUnitType=unit, _sourcePosition=sourcePosition)
+        ret = ASTDatatype.ASTDatatype.makeASTDatatype(_isInteger=isInt, _isBoolean=isBool,
+                                                      _isReal=isReal, _isString=isString, _isVoid=isVoid,
+                                                      _isUnitType=unit, _sourcePosition=sourcePosition)
+        from pynestml.src.main.python.org.nestml.visitor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
+        ASTUnitTypeVisitor.visitDatatype(ret)
+        return ret
 
     # Visit a parse tree produced by PyNESTMLParser#unitType.
     def visitUnitType(self, ctx):
