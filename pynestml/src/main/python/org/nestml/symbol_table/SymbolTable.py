@@ -41,6 +41,7 @@ class SymbolTable:
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.SymbolTable) No or wrong type of source position provided!'
         cls.__sourcePosition = _sourcePosition
+        cls.__name2neuronScope = {}
         return
 
     @classmethod
@@ -71,6 +72,14 @@ class SymbolTable:
             '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided!'
         if _name in cls.__name2neuronScope.keys():
             del cls.__name2neuronScope[_name]
+        return
+
+    @classmethod
+    def cleanUpTable(cls):
+        """
+        Deletes all entries as stored in the symbol table.
+        """
+        cls.__name2neuronScope = {}
         return
 
     @classmethod

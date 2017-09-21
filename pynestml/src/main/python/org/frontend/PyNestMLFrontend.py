@@ -49,14 +49,16 @@ def main(args):
     # initialize the logger
     from pynestml.src.main.python.org.utils.Logger import Logger
     Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level))
-    # initialize all predefined elements, we do this in order to use the same elements for all the neurons
+    # initialize the predefined elements
     from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
     PredefinedUnits.registerUnits()
     from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
     PredefinedTypes.registerTypes()
-    from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
+    from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import \
+        PredefinedFunctions
     PredefinedFunctions.registerPredefinedFunctions()
-    from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
+    from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import \
+        PredefinedVariables
     PredefinedVariables.registerPredefinedVariables()
     # now first check if it is a single file or a dir
     if os.path.isfile(parsed_args.path[0]):

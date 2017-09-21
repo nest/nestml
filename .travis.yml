@@ -27,3 +27,4 @@ script:
   - python pynestml/src/test/python/SymbolTableResolutionTest.py
   - python pynestml/src/test/python/CoCosTest.py
   - python pynestml/src/test/python/PyNestMLFrontendTest.py
+  - python pynestml/src/test/python/NESTMLTest.py

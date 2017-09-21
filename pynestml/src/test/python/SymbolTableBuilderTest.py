@@ -27,10 +27,21 @@ from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
 from pynestml.src.main.python.org.nestml.visitor.ASTSymbolTableVisitor import SymbolTableASTVisitor
 from pynestml.src.main.python.org.nestml.visitor.ASTBuilderVisitor import ASTBuilderVisitor
+from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
+from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class SymbolTableBuilderTest(unittest.TestCase):
     def test(self):
+        PredefinedUnits.registerUnits()
+        PredefinedTypes.registerTypes()
+        PredefinedFunctions.registerPredefinedFunctions()
+        PredefinedVariables.registerPredefinedVariables()
+        Logger.initLogger(LOGGING_LEVEL.ERROR)
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
@@ -46,8 +57,11 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 astBuilderVisitor = ASTBuilderVisitor()
                 ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
                 # update the corresponding symbol tables
+                SymbolTable.initializeSymbolTable(ast.getSourcePosition())
                 for neuron in ast.getNeuronList():
                     SymbolTableASTVisitor.updateSymbolTable(neuron)
+                    SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.getScope())
+                print(SymbolTable.printSymbolTable())
         return
 
 

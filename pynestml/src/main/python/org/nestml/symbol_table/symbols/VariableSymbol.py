@@ -69,21 +69,23 @@ class VariableSymbol(Symbol):
         :type _typeSymbol: TypeSymbol
         """
         assert (_blockType is not None and isinstance(_blockType, BlockType)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided!'
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided (%s)!' % type(_typeSymbol)
         assert (_vectorParameter is None or isinstance(_vectorParameter, str)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of vector parameter provided!'
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of vector parameter provided (%s)!' % type(
+                _typeSymbol)
         from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
         assert (_declaringExpression is None or isinstance(_declaringExpression, ASTExpression)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of declaring expression provided!'
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of declaring expression provided (%s)!' % type(
+                _typeSymbol)
         assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-predefined is not bool!'
+            '(PyNestML.SymbolTable.VariableSymbol) Is-predefined is not bool (%s)!' % type(_typeSymbol)
         assert (_isFunction is not None and isinstance(_isFunction, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-function is not bool!'
+            '(PyNestML.SymbolTable.VariableSymbol) Is-function is not bool (%s)!' % type(_typeSymbol)
         assert (_isRecordable is not None and isinstance(_isRecordable, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-recordable is not bool!'
+            '(PyNestML.SymbolTable.VariableSymbol) Is-recordable is not bool (%s)!' % type(_typeSymbol)
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong of type-symbol provided!'
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong of type-symbol provided (%s)!' % type(_typeSymbol)
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
                                              _name=_name, _symbolType=SymbolType.VARIABLE)
@@ -260,10 +262,14 @@ class VariableSymbol(Symbol):
         return self.getBlockType() == BlockType.SHAPE
 
     def printSymbol(self):
+        if self.getReferencedObject() is not None:
+            sourcePosition = self.getReferencedObject().getSourcePosition().printSourcePosition()
+        else:
+            sourcePosition = 'predefined'
+        vectorValue  = self.getVectorParameter() if self.hasVectorParameter() else ' none'
+
         return 'VariableSymbol[' + self.getSymbolName() + ', ' + str(self.getBlockType()) + ', ' \
-               + 'array parameter: ' + self.getVectorParameter() + \
-               (self.getReferencedObject().getSourcePosition().printSourcePosition() if self.getReferencedObject()
-                                                                                        is not None else '') + ')'
+               + 'array parameter: ' + vectorValue + ', @' + sourcePosition + ')'
 
     def equals(self, _other=None):
         """

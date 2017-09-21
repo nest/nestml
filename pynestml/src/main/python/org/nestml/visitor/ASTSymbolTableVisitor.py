@@ -23,6 +23,10 @@ from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
 
 
 class SymbolTableASTVisitor(object):
@@ -86,27 +90,41 @@ class SymbolTableASTVisitor(object):
         :param _block: a function block object.
         :type _block: ASTFunction
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+        from pynestml.src.main.python.org.nestml.visitor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
         assert (_block is not None and isinstance(_block, ASTFunction.ASTFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function block provided!'
-        # symbol = FunctionSymbol(_scope=_block.getScope(), _elementReference=_block, _paramTypes=list(),
-        #                        _name=_block.getName(), _isPredefined=False)
-        # _block.getScope().addSymbol(symbol)
+        symbol = FunctionSymbol(_scope=_block.getScope(), _elementReference=_block, _paramTypes=list(),
+                                _name=_block.getName(), _isPredefined=False)
+        _block.getScope().addSymbol(symbol)
         scope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
                       _sourcePosition=_block.getSourcePosition())
         _block.getScope().addScope(scope)
-        params = list()
         for arg in _block.getParameters().getParametersList():
-            params.append(TypeSymbol(_elementReference=arg, _scope=scope, _name='TODO', _isVoid=True))  # TODO
-            # TODO: here a corresponding processing is required
-            arg.updateScope(scope)
-            # scope.addSymbol(Symbol(_elementReference=arg, _scope=scope, _name=arg.getName()))
+            # first visit the data type to ensure that variable symbol can receive a combined data type
             arg.getDataType().updateScope(scope)
             cls.visitDataType(arg.getDataType())
+            # given the fact that the name is not directly equivalent to the one as stated in the model,
+            # we have to get it by the sub-visitor
+            typeName = ASTUnitTypeVisitor.visitDatatype(arg.getDataType())
+            # first collect the types for the parameters of the function symbol
+            symbol.addParameterType(PredefinedTypes.getTypeIfExists(typeName))
+            # update the scope of the arg
+            arg.updateScope(scope)
+            # create the corresponding variable symbol representing the parameter
+            varSymbol = VariableSymbol(_elementReference=arg, _scope=scope, _name=arg.getName(),
+                                       _blockType=BlockType.LOCAL,
+                                       _declaringExpression=None, _isPredefined=False, _isFunction=False,
+                                       _isRecordable=False,
+                                       _typeSymbol=PredefinedTypes.getTypeIfExists(typeName))
+            scope.addSymbol(varSymbol)
         if _block.hasReturnType():
             _block.getReturnType().updateScope(scope)
             cls.visitDataType(_block.getReturnType())
+            symbol.setReturnType(
+                PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_block.getReturnType())))
+        else:
+            symbol.setReturnType(PredefinedTypes.getVoidType())
         _block.getBlock().updateScope(scope)
         cls.visitBlock(_block.getBlock())
         return

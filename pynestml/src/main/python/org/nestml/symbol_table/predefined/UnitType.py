@@ -63,3 +63,11 @@ class UnitType(object):
         :rtype: sympy.physics.unit.quantities.Quantity
         """
         return self.__unit
+
+    def printUnit(self):
+        """
+        Returns a string representation of this unit symbol.
+        :return: a string representation.
+        :rtype: str
+        """
+        return 'Unit ' + self.getName() + ' (' + str(self.getUnit()) + ')'

@@ -24,6 +24,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolT
 from pynestml.src.main.python.org.nestml.visitor import ASTSymbolTableVisitor
 from pynestml.src.main.python.org.nestml.cocos import *
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
+from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from antlr4 import *
 
 
@@ -46,6 +47,8 @@ class NESTMLParser(object):
         except IOError:
             print('(PyNestML.Parser) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
+
+        Logger.logAndPrintMessage('Start processing ' + file_path, LOGGING_LEVEL.ALL)
         # create a lexer and hand over the input
         lexer = PyNESTMLLexer(inputFile)
         # create a token stream

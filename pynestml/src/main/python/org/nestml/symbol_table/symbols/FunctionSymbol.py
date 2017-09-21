@@ -62,12 +62,16 @@ class FunctionSymbol(Symbol):
         """
         Returns a string representation of this symbol.
         """
-        ret = 'MethodSymbol[' + super(Symbol).getSymbolName() + ', Parameters = '
+        ret = 'FunctionSymbol[' + self.getSymbolName() + ', Parameters = {'
         for arg in self.__paramTypes:
             ret += arg.printSymbol()
-            if arg < len(self.__paramTypes) - 1:  # in the case that it is not the last arg, print also a comma
+            if self.__paramTypes.index(arg) < len(
+                    self.__paramTypes) - 1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
-        return ret + ']'
+        ret += '}, return type = ' + (self.getReturnType().printSymbol())
+        ret += ', @' + (self.getReferencedObject().getSourcePosition().printSourcePosition()
+                        if self.getReferencedObject() is not None else 'predefined') + ']'
+        return ret
 
     def getReturnType(self):
         """

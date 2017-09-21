@@ -57,11 +57,14 @@ class ASTUnitTypeVisitor(object):
             symbol = PredefinedTypes.getVoidType()
             _dataType.setTypeSymbol(symbol)
         else:
+            symbol = None
             Logger.logAndPrintMessage('Data type of %s in line %s not specified!'
                                       % (_dataType.printAST(), _dataType.getSourcePosition().printSourcePosition()),
                                       LOGGING_LEVEL.ERROR)
-
-        return
+        if symbol is not None:
+            return symbol.getSymbolName()
+        else:
+            return 'UNKNOWN'  # todo
 
     @classmethod
     def visitUnitType(cls, _unitType=None):
