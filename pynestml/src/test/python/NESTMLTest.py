@@ -42,6 +42,7 @@ class NESTMLTest(unittest.TestCase):
                 PredefinedUnits.registerUnits()
                 PredefinedTypes.registerTypes()
                 PredefinedFunctions.registerPredefinedFunctions()
+                PredefinedFunctions.registerPredefinedFunctions()
                 PredefinedVariables.registerPredefinedVariables()
                 Logger.initLogger(LOGGING_LEVEL.NO)
                 # print('Start creating AST for ' + filename + ' ...'),

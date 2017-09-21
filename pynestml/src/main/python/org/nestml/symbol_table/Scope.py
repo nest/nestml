@@ -332,7 +332,7 @@ class Scope(object):
               + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
         for elem in self.__declaredElements:
             if isinstance(elem, Symbol):
-                ret += ('-' * 2 * (self.getDepthOfScope())) + elem.printSymbol() + '\n'
+                ret += ('-' * 2 * (self.getDepthOfScope()+1)) + elem.printSymbol() + '\n'
             else:
                 ret += elem.printScope()
         return ret

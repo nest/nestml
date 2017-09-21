@@ -69,20 +69,20 @@ class VariableSymbol(Symbol):
         :type _typeSymbol: TypeSymbol
         """
         assert (_blockType is not None and isinstance(_blockType, BlockType)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided (%s)!' % type(_typeSymbol)
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided (%s)!' % type(_blockType)
         assert (_vectorParameter is None or isinstance(_vectorParameter, str)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of vector parameter provided (%s)!' % type(
-                _typeSymbol)
+                _vectorParameter)
         from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
         assert (_declaringExpression is None or isinstance(_declaringExpression, ASTExpression)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of declaring expression provided (%s)!' % type(
-                _typeSymbol)
+                _declaringExpression)
         assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-predefined is not bool (%s)!' % type(_typeSymbol)
+            '(PyNestML.SymbolTable.VariableSymbol) Is-predefined is not bool (%s)!' % type(_isPredefined)
         assert (_isFunction is not None and isinstance(_isFunction, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-function is not bool (%s)!' % type(_typeSymbol)
+            '(PyNestML.SymbolTable.VariableSymbol) Is-function is not bool (%s)!' % type(_isFunction)
         assert (_isRecordable is not None and isinstance(_isRecordable, bool)), \
-            '(PyNestML.SymbolTable.VariableSymbol) Is-recordable is not bool (%s)!' % type(_typeSymbol)
+            '(PyNestML.SymbolTable.VariableSymbol) Is-recordable is not bool (%s)!' % type(_isRecordable)
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong of type-symbol provided (%s)!' % type(_typeSymbol)

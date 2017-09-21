@@ -251,13 +251,23 @@ class SymbolTableASTVisitor(object):
         :return: the scope is update without a return value.
         :rtype: void
         """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol, BlockType
+        from pynestml.src.main.python.org.nestml.visitor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
         assert (_declaration is not None and isinstance(_declaration, ASTDeclaration.ASTDeclaration)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided!'
+            '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided (%s)!' % type(_declaration)
+
+        expression = _declaration.getExpr() if _declaration.hasExpression() else None
+        typeName = ASTUnitTypeVisitor.visitDatatype(_declaration.getDataType())
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
-            # TODO
-            # _declaration.getScope().addSymbol(Symbol(_scope=_declaration.getScope(), _elementReference=_declaration,
-            #                                         _name=var.getName()))
+            _declaration.getScope().addSymbol(VariableSymbol(_elementReference=_declaration,
+                                                             _scope=_declaration.getScope(),
+                                                             _name=var.getName(), _blockType=BlockType.LOCAL,  # Todo
+                                                             _declaringExpression=expression, _isPredefined=False,
+                                                             _isFunction=_declaration.isFunction(),
+                                                             _isRecordable=_declaration.isRecordable(),
+                                                             _typeSymbol=PredefinedTypes.getTypeIfExists(typeName)
+                                                             ))
             cls.visitVariable(var)
         _declaration.getDataType().updateScope(_declaration.getScope())
         cls.visitDataType(_declaration.getDataType())
@@ -384,32 +394,13 @@ class SymbolTableASTVisitor(object):
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
-        # TODO
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype.ASTDatatype)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided!'
         if _dataType.isUnitType():
             _dataType.getUnitType().updateScope(_dataType.getScope())
             return cls.visitUnitType(_dataType.getUnitType())
-        elif _dataType.isInteger():
-            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
-                                _isInteger=True)
-        elif _dataType.isReal():
-            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
-                                _isReal=True)
-        elif _dataType.isString():
-            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
-                                _isString=True)
-        elif _dataType.isBoolean():
-            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
-                                _isBoolean=True)
-        elif _dataType.isVoid():
-            symbol = TypeSymbol(_elementReference=_dataType, _scope=_dataType.getScope(), _name=_dataType.printAST(),
-                                _isVoid=True)
-        else:
-            Logger.logAndPrintMessage('Data type not recognized!', LOGGING_LEVEL.ERROR)
-            symbol = None
-        _dataType.getScope().addSymbol(symbol)
+        # besides updating the scope no operations are required, since no type symbols are added to the scope.
         return
 
     @classmethod
@@ -419,7 +410,6 @@ class SymbolTableASTVisitor(object):
         :param _unitType: a unit type.
         :type _unitType: ASTUnitType
         """
-        # print('SymbolTableVisitor: TodO creation of a unit!')
         assert (_unitType is not None and isinstance(_unitType, ASTUnitType.ASTUnitType)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of unit-typ provided!'
         if _unitType.isPowerExpression():
@@ -429,8 +419,7 @@ class SymbolTableASTVisitor(object):
             _unitType.getCompoundUnit().updateScope(_unitType.getScope())
             cls.visitUnitType(_unitType.getCompoundUnit())
         elif _unitType.isDiv() or _unitType.isTimes():
-            if isinstance(_unitType.getLhs(),
-                          ASTUnitType.ASTUnitType):  # regard that lhs can be a numeric Or a unit-type
+            if isinstance(_unitType.getLhs(), ASTUnitType.ASTUnitType):  # lhs can be a numeric Or a unit-type
                 _unitType.getLhs().updateScope(_unitType.getScope())
                 cls.visitUnitType(_unitType.getLhs())
             _unitType.getRhs().updateScope(_unitType.getScope())
@@ -555,11 +544,19 @@ class SymbolTableASTVisitor(object):
         :param _odeFunction: a single ode-function.
         :type _odeFunction: ASTOdeFunction
         """
+        from pynestml.src.main.python.org.nestml.visitor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
         assert (_odeFunction is not None and isinstance(_odeFunction, ASTOdeFunction.ASTOdeFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-function provided!'
-        # symbol = Symbol(_elementReference=_odeFunction, _scope=_odeFunction.getScope()
-        #                , _name=_odeFunction.getVariableName())
-        # _odeFunction.getScope().addSymbol(symbol)
+        typeSymbol = PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_odeFunction.getDataType()))
+        symbol = VariableSymbol(_elementReference=_odeFunction, _scope=_odeFunction.getScope(),
+                                _name=_odeFunction.getVariableName(),
+                                _blockType=BlockType.EQUATION,
+                                _declaringExpression=_odeFunction.getExpression(),
+                                _isPredefined=False, _isFunction=True,
+                                _isRecordable=_odeFunction.isRecordable(),
+                                _typeSymbol=typeSymbol)
+        _odeFunction.getScope().addSymbol(symbol)
         _odeFunction.getDataType().updateScope(_odeFunction.getScope())
         cls.visitDataType(_odeFunction.getDataType())
         _odeFunction.getExpression().updateScope(_odeFunction.getScope())
@@ -574,11 +571,21 @@ class SymbolTableASTVisitor(object):
         :type _odeShape: ASTOdeShape
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
+        from pynestml.src.main.python.org.nestml.visitor.ASTUnitTypeVisitor import ASTUnitTypeVisitor
         assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape.ASTOdeShape)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided!'
-        # symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
-        #                        _name=_odeShape.getVariable().getName())
-        # _odeShape.getScope().addSymbol(symbol)
+        """
+        TODO
+        typeSymbol = PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_odeShape.getDataType()))
+        symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
+                                _name=_odeShape.getVariableName(),
+                                _blockType=_odeShape.EQUATION,
+                                _declaringExpression=_odeShape.getExpression(),
+                                _isPredefined=False, _isFunction=True,
+                                _isRecordable=_odeShape.isRecordable(),
+                                _typeSymbol=typeSymbol)
+        _odeShape.getScope().addSymbol(symbol)
+        """
         _odeShape.getVariable().updateScope(_odeShape.getScope())
         cls.visitVariable(_odeShape.getVariable())
         _odeShape.getExpression().updateScope(_odeShape.getScope())
@@ -665,11 +672,18 @@ class SymbolTableASTVisitor(object):
         :param _line: a single input line.
         :type _line: ASTInputLine
         """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
         assert (_line is not None and isinstance(_line, ASTInputLine.ASTInputLine)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of input-line provided!'
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
-        # symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName())
-        # _line.getScope().addSymbol(symbol)
+        bufferType = BlockType.INPUT_BUFFER_SPIKE if _line.isSpike() else BlockType.INPUT_BUFFER_CURRENT
+        typeSymbol = PredefinedTypes.getTypeIfExists('nS') if _line.isSpike() else PredefinedTypes.getTypeIfExists('pA')
+        typeSymbol.setBuffer(True)  # set it as a buffer
+        symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName(),
+                                _blockType=bufferType, _vectorParameter=_line.getIndexParameter(),
+                                _declaringExpression=None, _isPredefined=False, _isFunction=False, _isRecordable=False,
+                                _typeSymbol=typeSymbol)
+        _line.getScope().addSymbol(symbol)
         for inputType in _line.getInputTypes():
             cls.visitInputType(inputType)
             inputType.updateScope(_line.getScope())

@@ -119,7 +119,7 @@ class TypeSymbol(Symbol):
             elemType = self.getUnit().printUnit()
         if self.isBuffer():
             elemType += ' buffer'
-        return 'TypeSymbol[' + elemType + ', buffer=' + str(self.isBuffer()) + ']'
+        return 'TypeSymbol[' + elemType + ']'
 
     def getUnit(self):
         """
@@ -201,6 +201,15 @@ class TypeSymbol(Symbol):
         :rtype: bool
         """
         return self.__isBuffer
+
+    def setBuffer(self, _isBuffer=None):
+        """
+        Indicates whether this is a buffer object or not.
+        :param _isBuffer: True if object shall be buffer, otherwise False.
+        :type _isBuffer: bool
+        """
+        self.__isBuffer = _isBuffer
+        return
 
     def equals(self, _other=None):
         """
