@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from sympy.physics.units.quantities import Quantity
+from sympy.physics.units.quantities import Quantity, Mul, Pow
 
 
 class UnitType(object):
@@ -41,9 +41,10 @@ class UnitType(object):
         :type _unit: Unit
         """
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.UnitType) No or wrong type of name provided!'
-        assert (_unit is not None and isinstance(_unit, Quantity)), \
-            '(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided!'
+            '(PyNestML.SymbolTable.UnitType) No or wrong type of name provided (%s)!' % type(_name)
+        assert (_unit is not None and (isinstance(_unit, Quantity)
+                                       or isinstance(_unit, Mul) or isinstance(_unit, Pow))), \
+            '(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided (%s)!' % type(_unit)
         self.__name = _name
         self.__unit = _unit
 

@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from pynestml.src.main.grammars.org.PyNESTMLParser import PyNESTMLParser
 from pynestml.src.main.grammars.org.PyNESTMLLexer import PyNESTMLLexer
 from pynestml.src.main.python.org.nestml.visitor import ASTBuilderVisitor
@@ -29,7 +27,7 @@ from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 from antlr4 import *
 
 
-class NESTMLParser:
+class NESTMLParser(object):
     """
     This class contains several method used to parse handed over models and returns them as one or more AST trees.
     """
@@ -61,8 +59,8 @@ class NESTMLParser:
         SymbolTable.initializeSymbolTable(ast.getSourcePosition())
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
-            SymbolTable.addNeuronScope(neuron.getName(),neuron.getScope())
-        #print(SymbolTable.printSymbolTable())
+            SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())
+        # print(SymbolTable.printSymbolTable())
         # now check that all context conditions hold
         """
         cocosToCheck = list()

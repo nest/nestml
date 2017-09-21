@@ -107,14 +107,18 @@ class Logger(object):
         :return: a single logging level.
         :rtype: LOGGING_LEVEL
         """
-        if type(_string) != str or _string.capitalize() == 'ALL':
-            return LOGGING_LEVEL.ALL
-        elif _string.capitalize() == 'WARNING' or _string.capitalize() == 'WARNINGS':
-            return LOGGING_LEVEL.WARNING
-        elif _string.capitalize() == 'ERROR' or _string.capitalize() == 'ERRORS':
+        if type(_string) != str:
             return LOGGING_LEVEL.ERROR
+        elif _string == 'ALL':
+            return LOGGING_LEVEL.ALL
+        elif _string == 'WARNING' or _string == 'WARNINGS':
+            return LOGGING_LEVEL.WARNING
+        elif _string == 'ERROR' or _string == 'ERRORS':
+            return LOGGING_LEVEL.ERROR
+        elif _string == 'NO':
+            return LOGGING_LEVEL.NO
         else:
-            return LOGGING_LEVEL.NOT_DEFINED
+            return LOGGING_LEVEL.ERROR
 
 
 class LOGGING_LEVEL(Enum):
@@ -124,3 +128,4 @@ class LOGGING_LEVEL(Enum):
     ALL = 0
     WARNING = 1
     ERROR = 2
+    NO = 3

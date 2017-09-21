@@ -34,11 +34,12 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params = list()
         params.append('-path')
         params.append(path)
-        params.append(' -dry')
-        params.append(' -logging_level ERRORS')
+        params.append('-dry')
+        params.append('-logging_level')
+        params.append('NO')
         main(params)
         from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
-        #print(SymbolTable.printSymbolTable())
+        # print(SymbolTable.printSymbolTable())
 
 
 if __name__ == '__main__':

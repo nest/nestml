@@ -17,14 +17,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from abc import ABCMeta
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 
 
-class ASTElement:
+class ASTElement(object):
     """
     This class is not a part of the grammar but is used to store commonalities of all possible ast classes, e.g.,
     the source position. This class is abstract, thus no instances can be created.

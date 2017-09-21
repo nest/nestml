@@ -23,7 +23,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symb
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 
 
-class Scope:
+class Scope(object):
     """
     This class is used to store a single scope, i.e., a set of elements as declared in this scope directly and 
     a set of sub-scopes with additional elements.
@@ -146,9 +146,10 @@ class Scope:
                 ret.append(elem)
         return ret
 
-    def resolveToScope(self, _name=None, _type=None):
+    def resolveToAllScopes(self, _name=None, _type=None):
         """
         Resolves the handed over name and type and returns the scope in which the corresponding symbol has been defined.
+        If element has been defined in several scopes, all scopes are returned as a list.
         :param _name: the name of the element.
         :type _name: str
         :param _type: the type of the element
@@ -184,10 +185,11 @@ class Scope:
                 ret.extend(temp)
         return ret
 
-    def resolveToSymbol(self, _name=None, _type=None):
+    def resolveToAllSymbols(self, _name=None, _type=None):
         """
         Resolves the name and type and returns the corresponding symbol. Caution: Here, we also take redeclaration into
         account. This has to be prevented - if required - by cocos.
+        If element has been defined in several scopes, all scopes are returned as a list.
         :param _name: the name of the element.
         :type _name: str
         :param _type: the type of the element
@@ -226,6 +228,25 @@ class Scope:
             if temp is not None:
                 ret.extend(temp)
         return ret
+
+    def resolveToSymbol(self, _name=None, _type=None):
+        """
+        Returns the first scope (starting from this) in which the handed over symbol has been defined, i.e., starting
+        from this, climbs recursively upwards unit the element has been located or no enclosing scope is left.
+        :param _name: the name of the symbol. 
+        :type _name: str
+        :param _type: the type of the symbol, i.e., Variable,function or type.
+        :type _type: SymbolType
+        :return: the first matching scope.
+        :rtype: Scope.
+        """
+        for sim in self.getSymbolsInThisScope():
+            if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
+                return self
+        if self.hasEnclosingScope():
+            return self.getEnclosingScope().resolveToSymbol(_name, _type)
+        else:
+            return None
 
     def getGlobalScope(self):
         """

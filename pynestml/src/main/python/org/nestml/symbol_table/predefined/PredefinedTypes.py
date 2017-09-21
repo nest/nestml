@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL,Logger
 from copy import copy
 
 
@@ -128,7 +129,7 @@ class PredefinedTypes:
         :rtype: copy(TypeSymbol)
         """
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
         typE = cls.getTypeIfExists(_name)
         if typE is not None:
             return typE
@@ -147,11 +148,11 @@ class PredefinedTypes:
         In Case of UNITS always return a TS with serialization as name
         :param _name: the name of the symbol. 
         :type _name: str
-        :return: a single symbol or none
+        :return: a single symbol copy or none
         :rtype: TypeSymbol or None
         """
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
         if _name in cls.__name2type:
             return copy(cls.__name2type[_name])
         else:
@@ -160,38 +161,38 @@ class PredefinedTypes:
     @classmethod
     def getRealType(cls):
         """
-        Returns a type symbol of type real.
+        Returns a copy of the type symbol of type real.
         :return: a real symbol.
         :rtype: TypeSymbol
         """
-        return cls.__name2type[cls.__REAL_TYPE]
+        return copy(cls.__name2type[cls.__REAL_TYPE])
 
     @classmethod
     def getVoidType(cls):
         """
-        Returns a type symbol of type void.
+        Returns a copy of the type symbol of type void.
         :return: a void symbol.
         :rtype: TypeSymbol
         """
-        return cls.__name2type[cls.__VOID_TYPE]
+        return copy(cls.__name2type[cls.__VOID_TYPE])
 
     @classmethod
     def getBooleanType(cls):
         """
-        Returns a type symbol of type boolean.
+        Returns a copy of the type symbol of type boolean.
         :return: a boolean symbol.
         :rtype: TypeSymbol
         """
-        return cls.__name2type[cls.__BOOLEAN_TYPE]
+        return copy(cls.__name2type[cls.__BOOLEAN_TYPE])
 
     @classmethod
     def getStringType(cls):
         """
-        Returns a new type symbol of type string.
+        Returns a copy of the type symbol of type string.
         :return: a new string symbol.
         :rtype: TypeSymbol 
         """
-        return cls.__name2type[cls.__STRING_TYPE]
+        return copy(cls.__name2type[cls.__STRING_TYPE])
 
     @classmethod
     def getIntegerType(cls):
@@ -200,7 +201,22 @@ class PredefinedTypes:
         :return: a new integer symbol.
         :rtype: TypeSymbol
         """
-        return cls.__name2type[cls.__INTEGER_TYPE]
+        return copy(cls.__name2type[cls.__INTEGER_TYPE])
+
+    @classmethod
+    def registerType(cls, _symbol=None):
+        """
+        Registers a new type into the system.
+        :param: a single type symbol.
+        :type: TypeSymbol
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        assert (_symbol is not None and isinstance(_symbol, TypeSymbol)), \
+            '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of symbol provided (%s)!' % (type(_symbol))
+        if not _symbol.isPrimitive() and _symbol.getUnit().getName() not in cls.__name2type.keys():
+            cls.__name2type[_symbol.getUnit().getName()] = _symbol
+            Logger.logAndPrintMessage('New type registered %s.' %_symbol.getUnit().getName(),LOGGING_LEVEL.ALL)
+        return
 
 
 class RuntimeException(Exception):

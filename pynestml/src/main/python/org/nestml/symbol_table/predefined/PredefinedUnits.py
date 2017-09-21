@@ -17,13 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from sympy.physics.units.prefixes import PREFIXES, kilo
+from sympy.physics.units.prefixes import PREFIXES
 from sympy.physics.units.quantities import Quantity
 from sympy.physics.units.definitions import meter, kilogram, second, ampere, kelvin, mole, candela  # base units
 from sympy.physics.units.definitions import radian, steradian, hertz, newton, pascal, joule, watt, coulomb, volt, farad
 from sympy.physics.units.definitions import ohm, siemens, weber, tesla, henry, degree, lux
 from sympy.physics.units.definitions import length, luminous_intensity, time, amount_of_substance
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.UnitType import UnitType
+from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class PredefinedUnits(object):
@@ -63,7 +64,7 @@ class PredefinedUnits(object):
         cls.__prefixlessUnits.append(weber)
         cls.__prefixlessUnits.append(tesla)
         cls.__prefixlessUnits.append(henry)
-        # cls.__prefixlessUnits.append(degree)
+        # cls.__prefixlessUnits.append(degree) # currently not required
         cls.__prefixlessUnits.append(lux)
         # the sympy system misses the following units:lumen, becquerel,gray,sievert,katal
         lumen = Quantity('lumen', luminous_intensity, candela, 'lm')
@@ -96,11 +97,23 @@ class PredefinedUnits(object):
         :rtype: UnitType
         """
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.PredefinedUnits) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.PredefinedUnits) No or wrong type of name provided (%s)!' %type(_name)
         if _name in cls.__name2unit.keys():
             return cls.__name2unit[_name]
         else:
+            Logger.logAndPrintMessage('Unit does not exist (%s)' % _name, LOGGING_LEVEL.WARNING)
             return None
+
+    @classmethod
+    def registerUnit(cls, _unit=None):
+        """
+        Registers the handed over unit in the set of the predefined units.
+        :param _unit: a single unit type.
+        :type _unit: UnitType
+        """
+        if _unit.getName() is not cls.__name2unit.keys():
+            cls.__name2unit[_unit.getName()] = _unit
+        return
 
     @classmethod
     def getUnits(cls):

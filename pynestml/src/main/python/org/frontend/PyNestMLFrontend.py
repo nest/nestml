@@ -36,10 +36,11 @@ def main(args):
                         help='Path to a single file or a directory containing the source models.')
     parser.add_argument('-target', metavar='Target', type=str, nargs='?',
                         help='Path to a target directory where models should be generated to.')
-    parser.add_argument('-dry', type=str,nargs='?',help='Indicates that a dry run shall be performed, i.e.,'
-                                                        ' without generating a target model.')
-    parser.add_argument('-logging_level',nargs='?',help='Indicates which messages shall be logged and printed to the'
-                                                        'screen. Available ={ALL,WARNING/S,ERROR/S}, Standard is ALL.')
+    parser.add_argument('-dry', action='store_true', help='Indicates that a dry run shall be performed, i.e.,'
+                                                          ' without generating a target model.')
+    parser.add_argument('-logging_level', type=str, nargs='?',
+                        help='Indicates which messages shall be logged and printed to the'
+                             'screen. Available ={ALL,WARNING/S,ERROR/S,NO}, Standard is ERRORS.')
     # now parse the handed over args
     parsed_args = parser.parse_args(args)
     if parsed_args.path is None:

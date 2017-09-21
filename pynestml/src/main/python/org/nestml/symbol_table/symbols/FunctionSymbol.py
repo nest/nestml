@@ -46,8 +46,6 @@ class FunctionSymbol(Symbol):
         :param _isPredefined: True, if this element is a predefined one, otherwise False.
         :type _isPredefined: bool
         """
-        assert (_returnType is None or isinstance(_returnType, TypeSymbol)), \
-            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided!'
         for arg in _paramTypes:
             assert (arg is not None and isinstance(arg, TypeSymbol)), \
                 '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of argument provided!'

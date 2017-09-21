@@ -181,8 +181,8 @@ class ASTUnitType(ASTElement):
     def getExponent(self):
         """
         Returns the exponent expression if present.
-        :return: ASTUnitType instance if present, otherwise None.
-        :rtype: ASTUnitType
+        :return: Integer if present, otherwise None.
+        :rtype: int
         """
         return self.__exponent
 

@@ -19,9 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
-
-class ASTSourcePosition:
+class ASTSourcePosition(object):
     """
     This class is used to store information regarding the source position of an element.
     """

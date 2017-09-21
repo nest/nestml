@@ -105,7 +105,6 @@ class TypeSymbol(Symbol):
         :return: a string representation.
         :rtype: str
         """
-        elemType = ''
         if self.isInteger():
             elemType = 'integer'
         elif self.isReal():
@@ -120,7 +119,7 @@ class TypeSymbol(Symbol):
             elemType = self.getUnit().printUnit()
         if self.isBuffer():
             elemType += ' buffer'
-        return 'TypeSymbol[' + self.getSymbolName() + ',' + elemType + ']'
+        return 'TypeSymbol[' + elemType + ', buffer=' + str(self.isBuffer()) + ']'
 
     def getUnit(self):
         """
@@ -138,6 +137,22 @@ class TypeSymbol(Symbol):
         """
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.UnitType import UnitType
         return self.__unit is not None and isinstance(self.__unit, UnitType)
+
+    def getSympyUnit(self):
+        """
+        Returns the sympy unit as encapsulated in the unit type object.
+        :return: a single sympy unit. 
+        :rtype: Symbol (sympy)
+        """
+        return self.__unit.getUnit()
+
+    def isPrimitive(self):
+        """
+        Returns whether this symbol represents a primitive type.
+        :return: true if primitive, otherwise false.
+        :rtype: bool
+        """
+        return self.__isString or self.__isBoolean or self.__isVoid or self.__isReal or self.__isInteger
 
     def isInteger(self):
         """

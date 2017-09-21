@@ -42,6 +42,7 @@ class ASTDatatype(ASTElement):
     __isBoolean = False
     __isVoid = False
     __isUnitType = None  # a unit type is not a boolean, but a concrete object
+    __typeSymbol = None  # the corresponding type symbol
 
     def __init__(self, _isInteger=False, _isReal=False, _isString=False, _isBoolean=False, _isVoid=False,
                  _isUnitType=None, _sourcePosition=None):
@@ -150,6 +151,26 @@ class ASTDatatype(ASTElement):
         :rtype: ASTUnitType
         """
         return self.__isUnitType
+
+    def getTypeSymbol(self):
+        """
+        Returns the corresponding type symbol.
+        :return: a single type symbol element.
+        :rtype: TypeSymbol
+        """
+        return self.__typeSymbol
+
+    def setTypeSymbol(self, _typeSymbol=None):
+        """
+        Updates the current type symbol to the handed over one.
+        :param _typeSymbol: a new type symbol element.
+        :type _typeSymbol: TypeSymbol.
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
+            '(PyNestML.AST.DataType) No or wrong type of type symbol provided (%s)!' % (type(_typeSymbol))
+        self.__typeSymbol = _typeSymbol
+        return
 
     def printAST(self):
         """
