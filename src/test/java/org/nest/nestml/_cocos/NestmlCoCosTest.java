@@ -703,21 +703,21 @@ public class NestmlCoCosTest extends ModelbasedTest {
   }
   
   @Test
-  public void testI_SumHasCorrectParameter() {
-    final SumHasCorrectParameter sumHasCorrectParameter = new SumHasCorrectParameter();
-    nestmlCoCoChecker.addCoCo(sumHasCorrectParameter);
+  public void testConvolveHasCorrectParameter() {
+    final ConvolveHasCorrectParameter convolveHasCorrectParameter = new ConvolveHasCorrectParameter();
+    nestmlCoCoChecker.addCoCo(convolveHasCorrectParameter);
 
-    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "i_SumHasCorrectParameter/valid.nestml");
+    final Path pathToValidModel = Paths.get(TEST_MODELS_FOLDER, "ConvolveHasCorrectParameter/valid.nestml");
     checkModelAndAssertNoErrors(
         pathToValidModel,
         nestmlCoCoChecker,
-        NestmlErrorStrings.code(sumHasCorrectParameter));
+        NestmlErrorStrings.code(convolveHasCorrectParameter));
 
-    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "i_SumHasCorrectParameter/invalid.nestml");
+    final Path pathToInvalidModel = Paths.get(TEST_MODELS_FOLDER, "ConvolveHasCorrectParameter/invalid.nestml");
     checkModelAndAssertWithErrors(
         pathToInvalidModel,
         nestmlCoCoChecker,
-        NestmlErrorStrings.code(sumHasCorrectParameter),
+        NestmlErrorStrings.code(convolveHasCorrectParameter),
         3);
 
   }

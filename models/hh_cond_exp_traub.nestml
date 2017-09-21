@@ -59,8 +59,8 @@ neuron hh_cond_exp_traub_neuron:
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
-    function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
     V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
 
@@ -104,8 +104,8 @@ neuron hh_cond_exp_traub_neuron:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh nS  <- inhibitory spike
+      spikeExc nS  <- excitatory spike
       currents <- current
   end
 
@@ -125,8 +125,8 @@ neuron hh_cond_exp_traub_neuron:
 
 
 
-    g_ex += spikeExc * nS
-    g_in += spikeInh * nS
+    g_ex += spikeExc
+    g_in += spikeInh
   end
 
 end
@@ -192,8 +192,8 @@ neuron hh_cond_exp_traub_implicit:
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
-    function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
     V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
 
@@ -237,8 +237,8 @@ neuron hh_cond_exp_traub_implicit:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh nS  <- inhibitory spike
+      spikeExc nS  <- excitatory spike
       currents <- current
   end
 
@@ -258,8 +258,8 @@ neuron hh_cond_exp_traub_implicit:
 
 
 
-    g_ex += spikeExc * nS
-    g_in += spikeInh * nS
+    g_ex += spikeExc
+    g_in += spikeInh
   end
 
 end

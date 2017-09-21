@@ -82,7 +82,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     varType = varSymbol.get().getType();
 
     if (varType.getType() != TypeSymbol.Type.UNIT &&
-        varType != getRealType()) {
+        !varType.equals(getRealType()) ) {
       error(NestmlErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
       return;
     }
@@ -94,7 +94,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     TypeSymbol typeFromExpression = astEquation.getRhs().getType().getValue();
 
     if (typeFromExpression.getType() != TypeSymbol.Type.UNIT &&
-        typeFromExpression != getRealType()) {
+        !typeFromExpression.equals(getRealType()) ) {
       error(NestmlErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
       return;
     }

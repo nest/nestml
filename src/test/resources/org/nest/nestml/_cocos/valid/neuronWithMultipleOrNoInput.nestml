@@ -1,6 +1,6 @@
 neuron neuronWithInput:
   input:
-    spikes <- spike
+    spikes nS <- spike
 
   end
 end

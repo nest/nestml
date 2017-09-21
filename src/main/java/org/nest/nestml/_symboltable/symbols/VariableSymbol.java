@@ -13,6 +13,8 @@ import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTUnitType;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import java.util.Objects;
@@ -102,15 +104,35 @@ public class VariableSymbol extends CommonSymbol {
   public boolean isSpikeBuffer() {
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
-      return astInputLine.isSpike();
+      return astInputLine.spikeIsPresent();
     }
     return false;
   }
 
   public boolean isCurrentBuffer() {
+    //either it is defined as current
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
-      return astInputLine.isCurrent();
+      if (astInputLine.currentIsPresent()){
+        return true; //we want to continue if it is not true
+      }
+    }
+    //or it is a spike buffer with type pA
+    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
+      if(astInputLine.datatypeIsPresent()){
+        String spikeDataTypeName = AstUtils.computeTypeName(astInputLine.getDatatype().get());
+        try{
+          String spikeUnitName = UnitRepresentation.getBuilder().serialization(spikeDataTypeName).build().prettyPrint();
+          if(spikeUnitName.equals("pA")){
+            return true;
+          }
+        }
+        catch(IllegalStateException e)
+        {
+          return false;
+        }
+      }
     }
     return false;
   }

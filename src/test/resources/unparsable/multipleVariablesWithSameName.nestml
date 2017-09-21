@@ -81,7 +81,7 @@ neuron iaf_neuron_neuron:
   # Declarative description of the updates rules
   equations:
       shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-      V_abs' = -1/Tau * V_abs + 1/C_m * (curr_sum(G, spikes) + I_e + currents)
+      V_abs' = -1/Tau * V_abs + 1/C_m * (convolve(G, spikes) + I_e + currents)
   end
 
   # these parameter are adjusted from outside
@@ -105,7 +105,7 @@ neuron iaf_neuron_neuron:
 
   # input sources
   input:
-    spikes   <- spike
+    spikes nS <- spike
     currents <- current
   end
 

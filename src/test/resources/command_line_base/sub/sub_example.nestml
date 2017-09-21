@@ -58,8 +58,8 @@ neuron iaf_cond_alpha_implicit:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh real <- inhibitory spike
+      spikeExc real <- excitatory spike
       currents <- current
   end
 
@@ -147,8 +147,8 @@ neuron iaf_cond_alpha_implicit2:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh real <- inhibitory spike
+      spikeExc real <- excitatory spike
       currents <- current
   end
 

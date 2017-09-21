@@ -24,7 +24,7 @@ public class ASTInputs {
     final List<ASTInputLine> neuronInputLines = bodyDecorator.getInputLines();
     Optional<ASTInputLine> inputSpikeCandidate = neuronInputLines
         .stream()
-        .filter(ASTInputLine::isSpike)
+        .filter(ASTInputLine::spikeIsPresent)
         .findFirst();
     return inputSpikeCandidate.isPresent();
   }
@@ -34,7 +34,7 @@ public class ASTInputs {
     final List<ASTInputLine> neuronInputLines = bodyDecorator.getInputLines();
     Optional<ASTInputLine> inputSpikeCandidate = neuronInputLines
         .stream()
-        .filter(ASTInputLine::isCurrent)
+        .filter(ASTInputLine::currentIsPresent)
         .findFirst();
     return inputSpikeCandidate.isPresent();
   }

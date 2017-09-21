@@ -3,8 +3,8 @@ neuron validShapes:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
       currents <- current
   end
 
@@ -21,7 +21,8 @@ neuron validShapes:
   end
 
   update:
-    curr_sum(testShape)
-    cond_sum(testShape)
+    convolve(testShape,spikeInh)
+    convolve(testShape,spikeExc)
+    convolve(testShape,currents)
   end
 end

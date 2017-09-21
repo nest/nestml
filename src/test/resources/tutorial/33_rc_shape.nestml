@@ -11,7 +11,7 @@ neuron rc_shape:
 
   equations:
     shape g_ex = (e/tau_syn) * t * exp(-1/tau_syn*t)
-    function I_syn pA = curr_sum(g_ex, spikes) + currents + I_e
+    function I_syn pA = convolve(g_ex, spikes) + currents + I_e
     V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
 
@@ -32,7 +32,7 @@ neuron rc_shape:
   end
 
   input:
-    spikes   <- spike
+    spikes nS <- spike
     currents <- current
   end
 

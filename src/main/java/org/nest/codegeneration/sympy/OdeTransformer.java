@@ -8,6 +8,7 @@ import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.utils.AstUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,14 +22,12 @@ import java.util.stream.Collectors;
  */
 public class OdeTransformer {
   private static final List<String> functions = Lists.newArrayList(
-      PredefinedFunctions.CURR_SUM,
-      PredefinedFunctions.COND_SUM,
+      PredefinedFunctions.CONVOLVE,
       PredefinedFunctions.BOUNDED_MIN,
       PredefinedFunctions.BOUNDED_MAX);
 
   private static final List<String> sumFunctions = Lists.newArrayList(
-      PredefinedFunctions.CURR_SUM,
-      PredefinedFunctions.COND_SUM);
+      PredefinedFunctions.CONVOLVE);
 
 
   // this function is used in freemarker templates und must be public
@@ -69,14 +68,7 @@ public class OdeTransformer {
         .filter(astFunctionCall -> functionNames.contains(astFunctionCall.getCalleeName()))
         .collect(Collectors.toList());
   }
-
-  public static List<ASTFunctionCall> getCondSumFunctionCall(final ASTNode workingCopy) {
-    return AstUtils.getAll(workingCopy, ASTFunctionCall.class)
-        .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(PredefinedFunctions.COND_SUM))
-        .collect(Collectors.toList());
-  }
-
+  
   private static void replaceFunctionCallThroughFirstArgument(final ASTNode astOde, final ASTFunctionCall node) {
     final Optional<ASTNode> parent = AstUtils.getParent(node, astOde);
     Preconditions.checkState(parent.isPresent());

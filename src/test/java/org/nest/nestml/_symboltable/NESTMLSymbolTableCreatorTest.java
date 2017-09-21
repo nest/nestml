@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.nest.nestml._symboltable.NestmlSymbols.resolveMethod;
+import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getRealType;
 
 /**
  *  Tests the symbol table infrastructure of the NESTML language
@@ -111,7 +112,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
     final Optional<VariableSymbol> newVarInMethodSymbol
         = dynamicsScope.resolve("newVarInMethod", VariableSymbol.KIND);
     assertTrue(newVarInMethodSymbol.isPresent());
-    assertTrue(newVarInMethodSymbol.get().getType().equals(PredefinedTypes.getRealType()));
+    assertTrue(newVarInMethodSymbol.get().getType().equals(getRealType()));
 
 
   }
@@ -164,7 +165,7 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
             .resolve("scopeTestVar", VariableSymbol.KIND);
 
     assertTrue(testVarFromIfBlock.isPresent());
-    assertTrue(testVarFromIfBlock.get().getType().equals(PredefinedTypes.getRealType()));
+    assertTrue(testVarFromIfBlock.get().getType().equals(getRealType()));
   }
 
   @Test
@@ -199,19 +200,8 @@ public class NESTMLSymbolTableCreatorTest extends ModelbasedTest {
         = resolveMethod("exp", Lists.newArrayList("real"), modelScope);
     assertTrue(withPredicate.isPresent());
 
-    Optional<MethodSymbol> I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("pA", "real"), modelScope);
+    Optional<MethodSymbol> I_sumOptional = resolveMethod(PredefinedFunctions.CONVOLVE, Lists.newArrayList("real", "real"), modelScope);
     assertTrue(I_sumOptional.isPresent());
-    I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
-    assertFalse(I_sumOptional.isPresent());
-    I_sumOptional = resolveMethod(PredefinedFunctions.CURR_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
-    assertFalse(I_sumOptional.isPresent());
-
-    Optional<MethodSymbol> Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "real"), modelScope);
-    assertTrue(Cond_sumOptional.isPresent());
-    Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("pA", "Buffer"), modelScope);
-    assertFalse(Cond_sumOptional.isPresent());
-    Cond_sumOptional = resolveMethod(PredefinedFunctions.COND_SUM, Lists.newArrayList("nS", "Buffer"), modelScope);
-    assertFalse(Cond_sumOptional.isPresent());
   }
 
 

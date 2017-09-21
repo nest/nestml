@@ -157,8 +157,8 @@ public class NestmlCoCosManager {
     final BufferNotAssignable bufferNotAssignable = new BufferNotAssignable();
     nestmlCoCoChecker.addCoCo(bufferNotAssignable);
 
-    final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
-    nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);
+    final ConvolveHasCorrectParameter _convolveHasCorrectParameter = new ConvolveHasCorrectParameter();
+    nestmlCoCoChecker.addCoCo(_convolveHasCorrectParameter);
 
     final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
     nestmlCoCoChecker.addCoCo(equationsOnlyForStateVariables);

@@ -394,6 +394,25 @@ public class ASTBody extends ASTBodyTOP {
         .collect(Collectors.toList());
   }
 
+  public List<VariableSymbol> getBuffersDeclaredAsCurrent() {
+    return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(inputBuffer -> (VariableSymbol) inputBuffer)
+        .filter(this::bufferIsDeclaredAsCurrent)
+        .collect(Collectors.toList());
+  }
+
+  private boolean bufferIsDeclaredAsCurrent(VariableSymbol vs){
+    if (vs.getAstNode().isPresent() && vs.getAstNode().get() instanceof ASTInputLine) {
+      final ASTInputLine astInputLine = (ASTInputLine) vs.getAstNode().get();
+      if (astInputLine.currentIsPresent()){
+        return true;
+      }
+    }
+    return false;
+  }
+
+
   public List<VariableSymbol> getMultipleReceptors() {
     return enclosingScope.get().resolveLocally(VariableSymbol.KIND)
         .stream()

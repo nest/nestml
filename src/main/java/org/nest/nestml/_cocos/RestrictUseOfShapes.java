@@ -64,8 +64,7 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
             if(grandparent.isPresent() &&
                 grandparent.get() instanceof ASTFunctionCall){
               ASTFunctionCall grandparentCall = (ASTFunctionCall) grandparent.get();
-              if(grandparentCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM) ||
-                 grandparentCall.getCalleeName().equals(PredefinedFunctions.COND_SUM)){
+              if(grandparentCall.getCalleeName().equals(PredefinedFunctions.CONVOLVE)){
                 continue;
               }
             }
