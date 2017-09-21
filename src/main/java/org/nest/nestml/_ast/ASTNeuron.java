@@ -175,6 +175,24 @@ public class ASTNeuron extends ASTNeuronTOP {
         .collect(toList());
   }
 
+  public List<VariableSymbol> getNonFunctionInitialValuesSymbols() {
+    return this.getSpannedScope().get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(variable -> (VariableSymbol) variable)
+        .filter(VariableSymbol::isInInitialValues)
+        .filter(variableSymbol -> !variableSymbol.isFunction())
+        .collect(toList());
+  }
+
+  public List<VariableSymbol> getFunctionInitialValuesSymbols() {
+    return this.getSpannedScope().get().resolveLocally(VariableSymbol.KIND)
+        .stream()
+        .map(variable -> (VariableSymbol) variable)
+        .filter(VariableSymbol::isInInitialValues)
+        .filter(VariableSymbol::isFunction)
+        .collect(toList());
+  }
+
 
   public List<VariableSymbol> getStateAliasSymbols() {
     return getVariableSymbols(getDeclarationsFromBlock(ASTBlockWithVariables::isState), getSpannedScope().get())

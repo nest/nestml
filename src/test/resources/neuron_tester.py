@@ -60,8 +60,8 @@ if __name__ == "__main__":
   # test_multysinapse()
   models = list()
 
-  models.append( ("aeif_cond_exp", "aeif_cond_exp_implicit", None, 0.001))
-  models.append( ("aeif_cond_exp", "aeif_cond_exp_neuron", None, 0.001))
+  models.append( ("hh_cond_exp_traub", "hh_cond_exp_traub_implicit", None, 0.001))
+  models.append( ("hh_cond_exp_traub", "hh_cond_exp_traub_neuron", None, 0.001))
 
   for reference, testant, gsl_error_tol, tollerance in models:
     test(reference, testant, gsl_error_tol, tollerance)

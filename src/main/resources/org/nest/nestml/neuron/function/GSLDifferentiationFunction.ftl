@@ -30,7 +30,7 @@ ${neuronName}_dynamics( double, const double ode_state[], double f[], void* pnod
     double ${names.name(function)} = ${expressionsPrinterForGSL.print(declaringExpression)};
   </#list>
 
-  <#list ast.getInitialValuesSymbols() as odeVariable>
+  <#list ast.getNonFunctionInitialValuesSymbols() as odeVariable>
     <#assign simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDeclaration().get())>
     f[ ${names.arrayIndex(odeVariable)} ] = ${expressionsPrinterForGSL.print(simpleOde)};
   </#list>

@@ -40,7 +40,7 @@
 
 #include "${neuronName}.h"
 
-<#assign stateSize = body.getInitialValuesSymbols()?size>
+<#assign stateSize = body.getNonFunctionInitialValuesSymbols()?size>
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
@@ -63,8 +63,8 @@ namespace nest
     <#list body.getParameterSymbols() as parameter>
       ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [parameter])}
     </#list>
-    <#list body.getInitialValuesSymbols() as parameter>
-      ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [parameter])}
+    <#list body.getInitialValuesSymbols() as initial_value>
+      ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [initial_value])}
     </#list>
     <#list body.getODEAliases() as odeAlias>
       ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [odeAlias])}

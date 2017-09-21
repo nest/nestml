@@ -127,8 +127,9 @@ public class NestmlFrontendTest {
   @Test
   public void manually() {
     final String[] args = new String[] {
-        "models/aeif_cond_exp.nestml",
+        "models/hh_cond_exp_traub.nestml",
         "--json_log", "model_issues",
+        "--enable_tracing",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);

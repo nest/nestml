@@ -249,7 +249,7 @@ private:
       //! Symbolic indices to the elements of the state vector y
       enum StateVecElems
       {
-        <#list body.getInitialValuesSymbols() as variable>
+        <#list body.getNonFunctionInitialValuesSymbols() as variable>
           ${names.convertToCPPName(variable.getName())}, ${variable.printComment("// ")}
         </#list>
         STATE_VEC_SIZE
@@ -257,6 +257,9 @@ private:
       //! state vector, must be C-array for GSL solver
       double ode_state[ STATE_VEC_SIZE ];
       <#list body.getStateSymbols() as variable>
+        ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
+      </#list>
+      <#list body.getFunctionInitialValuesSymbols() as variable>
         ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
       </#list>
     </#if>
