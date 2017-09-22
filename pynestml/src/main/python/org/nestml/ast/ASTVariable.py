@@ -84,6 +84,14 @@ class ASTVariable(ASTElement):
         """
         return self.__differentialOrder
 
+    def getCompleteName(self):
+        """
+        Returns the complete name, consisting of the name and the differential order.
+        :return: the complete name.
+        :rtype: str
+        """
+        return self.getName() + '\'' * self.getDifferentialOrder()
+
     def getTypeSymbol(self):
         """
         Returns the type symbol of this expression.

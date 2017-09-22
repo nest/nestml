@@ -93,7 +93,12 @@ class ASTNeuron(ASTElement):
         for elem in self.getBody().getBodyElements():
             if isinstance(elem, ASTFunction):
                 ret.append(elem)
-        return ret
+        if isinstance(ret,list) and len(ret)==1:
+            return ret[0]
+        elif isinstance(ret,list) and len(ret)==0:
+            return None
+        else:
+            return ret
 
     def getUpdateBlocks(self):
         """
@@ -106,7 +111,12 @@ class ASTNeuron(ASTElement):
         for elem in self.getBody().getBodyElements():
             if isinstance(elem, ASTUpdateBlock):
                 ret.append(elem)
-        return ret
+        if isinstance(ret,list) and len(ret)==1:
+            return ret[0]
+        elif isinstance(ret,list) and len(ret)==0:
+            return None
+        else:
+            return ret
 
     def getStateBlocks(self):
         """
@@ -119,7 +129,12 @@ class ASTNeuron(ASTElement):
         for elem in self.getBody().getBodyElements():
             if isinstance(elem, ASTBlockWithVariables) and elem.isState():
                 ret.append(elem)
-        return ret
+        if isinstance(ret,list) and len(ret)==1:
+            return ret[0]
+        elif isinstance(ret,list) and len(ret)==0:
+            return None
+        else:
+            return ret
 
     def getParameterBlocks(self):
         """
@@ -132,7 +147,12 @@ class ASTNeuron(ASTElement):
         for elem in self.getBody().getBodyElements():
             if isinstance(elem, ASTBlockWithVariables) and elem.isParameters():
                 ret.append(elem)
-        return ret
+        if isinstance(ret,list) and len(ret)==1:
+            return ret[0]
+        elif isinstance(ret,list) and len(ret)==0:
+            return None
+        else:
+            return ret
 
     def getInternalsBlocks(self):
         """
@@ -145,7 +165,12 @@ class ASTNeuron(ASTElement):
         for elem in self.getBody().getBodyElements():
             if isinstance(elem, ASTBlockWithVariables) and elem.isInternals():
                 ret.append(elem)
-        return ret
+        if isinstance(ret,list) and len(ret)==1:
+            return ret[0]
+        elif isinstance(ret,list) and len(ret)==0:
+            return None
+        else:
+            return ret
 
     def getEquationsBlocks(self):
         """
@@ -158,7 +183,12 @@ class ASTNeuron(ASTElement):
         for elem in self.getBody().getBodyElements():
             if isinstance(elem, ASTEquationsBlock):
                 ret.append(elem)
-        return ret
+        if isinstance(ret,list) and len(ret)==1:
+            return ret[0]
+        elif isinstance(ret,list) and len(ret)==0:
+            return None
+        else:
+            return ret
 
     def getInputBlocks(self):
         """
@@ -171,7 +201,12 @@ class ASTNeuron(ASTElement):
         for elem in self.getBody().getBodyElements():
             if isinstance(elem, ASTInputBlock):
                 ret.append(elem)
-        return ret
+        if isinstance(ret,list) and len(ret)==1:
+            return ret[0]
+        elif isinstance(ret,list) and len(ret)==0:
+            return None
+        else:
+            return ret
 
     def getOutputBlocks(self):
         """
@@ -184,7 +219,12 @@ class ASTNeuron(ASTElement):
         for elem in self.getBody().getBodyElements():
             if isinstance(elem, ASTOutputBlock):
                 ret.append(elem)
-        return ret
+        if isinstance(ret,list) and len(ret)==1:
+            return ret[0]
+        elif isinstance(ret,list) and len(ret)==0:
+            return None
+        else:
+            return ret
 
     def printAST(self):
         """

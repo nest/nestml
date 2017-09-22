@@ -157,6 +157,11 @@ class Scope(object):
         :return: the scope in which the element has been defined in
         :rtype: Scope
         """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        assert (isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
+        assert (isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
         gScope = self.getGlobalScope()
         scopes = gScope.__resolveToScopeInSpannedScope(_name, _type)
         # the following step is done in order to return, whenever the list contains only one element, only this element
@@ -173,9 +178,12 @@ class Scope(object):
         :return: the corresponding scope object.
         :rtype: Scope
         """
-        ret = list()
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
+        assert (isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
+        ret = list()
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
                 ret.append(self)
@@ -197,8 +205,11 @@ class Scope(object):
         :return: a single symbol element.
         :rtype: Symbol/list(Symbols)
         """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
+        assert (isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
         gScope = self.getGlobalScope()
         symbols = gScope.__resolveToSymbolInSpannedScope(_name, _type)
         # the following step is done in order to return, whenever the list contains only one element, only this element
@@ -217,9 +228,12 @@ class Scope(object):
         :return: the corresponding symbol object.
         :rtype: list(Symbol)
         """
-        ret = list()
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
+        assert (isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
+        ret = list()
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
                 ret.append(sim)
@@ -240,6 +254,11 @@ class Scope(object):
         :return: the first matching scope.
         :rtype: Scope.
         """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        assert (isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
+        assert (isinstance(_type, SymbolType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
                 return self
@@ -332,7 +351,7 @@ class Scope(object):
               + ',' + self.getSourcePosition().printSourcePosition() + '>' + '\n'
         for elem in self.__declaredElements:
             if isinstance(elem, Symbol):
-                ret += ('-' * 2 * (self.getDepthOfScope()+1)) + elem.printSymbol() + '\n'
+                ret += ('-' * 2 * (self.getDepthOfScope() + 1)) + elem.printSymbol() + '\n'
             else:
                 ret += elem.printScope()
         return ret

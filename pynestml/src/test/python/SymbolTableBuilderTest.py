@@ -41,7 +41,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
         PredefinedTypes.registerTypes()
         PredefinedFunctions.registerPredefinedFunctions()
         PredefinedVariables.registerPredefinedVariables()
-        Logger.initLogger(LOGGING_LEVEL.ERROR)
+        Logger.initLogger(LOGGING_LEVEL.ALL)
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):

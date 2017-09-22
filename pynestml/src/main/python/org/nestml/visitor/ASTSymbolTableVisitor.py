@@ -68,11 +68,17 @@ class SymbolTableASTVisitor(object):
         _neuron.updateScope(scope)
         _neuron.getBody().updateScope(scope)
         cls.visitBody(_neuron.getBody())
+        # before following checks occur, we need to ensure several simple properties
+        # TODO
+
         # the following part is done in order to mark conductance based buffers as such.
-        buffers = (inputLine for block in _neuron.getInputBlocks() for inputLine in block.getInputLines())
-        odeDeclarations = (decl for block in _neuron.getEquationsBlocks() for decl in block.getDeclarations()
-                           if not isinstance(decl, ASTOdeShape.ASTOdeShape))
+        buffers = (buffer for buffer in _neuron.getInputBlocks().getInputLines())
+        odeDeclarations = (decl for decl in _neuron.getEquationsBlocks().getDeclarations() if
+                           not isinstance(decl, ASTOdeShape.ASTOdeShape))
         cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
+        # now update the equations
+        equationBlock = _neuron.getEquationsBlocks()
+        cls.assignOdeToVariables(equationBlock)
         return
 
     @classmethod
@@ -282,7 +288,8 @@ class SymbolTableASTVisitor(object):
             typeSymbol = PredefinedTypes.getTypeIfExists(typeName)
             _declaration.getScope().addSymbol(VariableSymbol(_elementReference=_declaration,
                                                              _scope=_declaration.getScope(),
-                                                             _name=var.getName(), _blockType=cls.__currentBlockType,
+                                                             _name=var.getName() + '\'' * var.getDifferentialOrder(),
+                                                             _blockType=cls.__currentBlockType,
                                                              _declaringExpression=expression, _isPredefined=False,
                                                              _isFunction=_declaration.isFunction(),
                                                              _isRecordable=isRecordable,
@@ -759,7 +766,10 @@ class SymbolTableASTVisitor(object):
             if buffer.isSpike():
                 # and each function call in each declaration if it occurs as the second arg of a cond_sum
                 for decl in _odeDeclarations:
-                    expression = decl.getRhs() if isinstance(decl, ASTOdeEquation.ASTOdeEquation) else decl.getExpression()
+                    if isinstance(decl, ASTOdeEquation.ASTOdeEquation):
+                        expression = decl.getRhs()
+                    else:
+                        expression = decl.getExpression()
                     for func in expression.getFunctions():
                         if func.getName() == 'cond_sum' and func.hasArgs() and func.getArgs()[
                             1].printAST() == buffer.getName():
@@ -768,4 +778,51 @@ class SymbolTableASTVisitor(object):
                             Logger.logAndPrintMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
                                                       LOGGING_LEVEL.ALL)
 
+        return
+
+    @classmethod
+    def assignOdeToVariables(cls, _odeBlock=None):
+        """
+        Adds for each variable symbol the corresponding ode declaration if present.
+        :param _odeBlock: a single block of ode declarations.
+        :type _odeBlock: ASTEquations
+        """
+        assert (_odeBlock is not None and isinstance(_odeBlock, ASTEquationsBlock.ASTEquationsBlock)), \
+            '(PyNestML.SymbolTable.Visitor) No or wrong type of equations block provided (%s)!' % type(_odeBlock)
+        for decl in _odeBlock.getDeclarations():
+            if isinstance(decl, ASTOdeEquation.ASTOdeEquation):
+                cls.addOdeToVariable(decl)
+
+    @classmethod
+    def addOdeToVariable(cls, _odeEquation=None):
+        """
+        Resolves to the corresponding symbol and updates the corresponding ode-declaration. In the case that 
+        :param _odeEquation: a single ode-equation
+        :type _odeEquation: ASTOdeEquation
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        assert (_odeEquation is not None and isinstance(_odeEquation, ASTOdeEquation.ASTOdeEquation)), \
+            '(PyNestML.SymbolTable.Visitor) No or wrong type of equation provided (%s)!' % type(_odeEquation)
+        # in the case it is of order
+        diffOrder = _odeEquation.getLhs().getDifferentialOrder() - 1
+        # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
+        existingSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName() + '\'' * diffOrder,
+                                                               SymbolType.VARIABLE)
+        if existingSymbol is not None:
+            existingSymbol.setOdeDefinition(_odeEquation.getRhs())
+            Logger.logAndPrintMessage('Ode declaration updated to %s.' % _odeEquation.getLhs().getName(),
+                                      LOGGING_LEVEL.ALL)
+        else:  # create a new symbol
+            # if an existing symbol does not exists, we derive the base symbol, e.g. V_m
+            baseSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName(), SymbolType.VARIABLE)
+            newSymbol = VariableSymbol(_elementReference=_odeEquation, _scope=cls.__globalScope,
+                                       _name=_odeEquation.getLhs().getName() + '\'' * diffOrder,
+                                       _blockType=BlockType.EQUATION,
+                                       _declaringExpression=_odeEquation.getRhs(),
+                                       _isPredefined=False, _isFunction=False, _isRecordable=False,
+                                       _typeSymbol=PredefinedTypes.
+                                       getTypeIfExists(baseSymbol.getTypeSymbol().printSymbol()))  # todo
+            cls.__globalScope.addSymbol(newSymbol)
+            Logger.logAndPrintMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
+                                      LOGGING_LEVEL.ALL)
         return
