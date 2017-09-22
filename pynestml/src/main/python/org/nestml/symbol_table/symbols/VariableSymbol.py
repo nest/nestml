@@ -282,11 +282,12 @@ class VariableSymbol(Symbol):
         else:
             sourcePosition = 'predefined'
         vectorValue = self.getVectorParameter() if self.hasVectorParameter() else 'none'
-        type = self.getTypeSymbol().printSymbol()
+        typE = self.getTypeSymbol().printSymbol()
         recordable = 'recordable, ' if self.isRecordable() else ''
         func = 'function, ' if self.isFunction() else ''
-        return 'VariableSymbol[' + self.getSymbolName() + ', type=' + type + ', ' + str(self.getBlockType()) + ', ' \
-               + recordable + func + 'array parameter=' + vectorValue + ', @' + sourcePosition + ')'
+        conductanceBased = 'conductance based, ' if self.isConductanceBased() else ''
+        return 'VariableSymbol[' + self.getSymbolName() + ', type=' + typE + ', ' + str(self.getBlockType()) + ', ' \
+               + recordable + func + conductanceBased + 'array parameter=' + vectorValue + ', @' + sourcePosition + ')'
 
     def getTypeSymbol(self):
         """
@@ -335,7 +336,7 @@ class VariableSymbol(Symbol):
         self.__odeDeclaration = _expression
         return
 
-    def isConductanceBase(self):
+    def isConductanceBased(self):
         """
         Indicates whether this element is conductance based.
         :return: True if conductance based, otherwise False.
@@ -372,7 +373,7 @@ class VariableSymbol(Symbol):
                self.getDeclaringExpression() == _other.getDeclaringExpression() and \
                self.isPredefined() == _other.isPredefined() and \
                self.isFunction() == _other.isFunction() and \
-               self.isConductanceBase() == _other.isConductanceBase() and \
+               self.isConductanceBased() == _other.isConductanceBased() and \
                self.isRecordable() == _other.isRecordable()
 
 

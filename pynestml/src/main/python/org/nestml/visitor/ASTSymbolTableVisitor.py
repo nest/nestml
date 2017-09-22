@@ -37,8 +37,10 @@ class SymbolTableASTVisitor(object):
         __currentBlockType This variable is used to store information regarding which block with declarations is 
                             currently visited. It is used to update the BlockType of variable symbols to the correct
                             element.
+        __globalScope      Stores the current global scope as required to resolve symbols.                    
     """
     __currentBlockType = None
+    __globalScope = None
 
     @classmethod
     def updateSymbolTable(cls, _astNeuron=None):
@@ -61,9 +63,16 @@ class SymbolTableASTVisitor(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron.ASTNeuron)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of neuron provided (%s)!' % type(_neuron)
         scope = Scope(_scopeType=ScopeType.GLOBAL, _sourcePosition=_neuron.getSourcePosition())
+        # store current global scope, it is required for resolving of symbols
+        cls.__globalScope = scope
         _neuron.updateScope(scope)
         _neuron.getBody().updateScope(scope)
         cls.visitBody(_neuron.getBody())
+        # the following part is done in order to mark conductance based buffers as such.
+        buffers = (inputLine for block in _neuron.getInputBlocks() for inputLine in block.getInputLines())
+        odeDeclarations = (decl for block in _neuron.getEquationsBlocks() for decl in block.getDeclarations()
+                           if not isinstance(decl, ASTOdeShape.ASTOdeShape))
+        cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
         return
 
     @classmethod
@@ -731,4 +740,30 @@ class SymbolTableASTVisitor(object):
         """
         assert (_arithmeticOp is not None and isinstance(_arithmeticOp, ASTArithmeticOperator.ASTArithmeticOperator)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of arithmetic operator provided!'
+        return
+
+    @classmethod
+    def markConductanceBasedBuffers(cls, _odeDeclarations=None, _inputLines=None):
+        """
+        Inspects all handed over buffer definitions and updates them to conductance based if they occur as part of
+        a cond_sum expression.
+        :param _odeDeclarations: a set of ode declarations.
+        :type _odeDeclarations: ASTOdeEquation,ASTOdeFunction
+        :param _inputLines: a set of input buffers.
+        :type _inputLines: ASTInputLine
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        # check for each defined buffer
+        for buffer in _inputLines:
+            # and each function call in each declaration if it occurs as the second arg of a cond_sum
+            for decl in _odeDeclarations:
+                expression = decl.getRhs() if isinstance(decl, ASTOdeEquation.ASTOdeEquation) else decl.getExpression()
+                for func in expression.getFunctions():
+                    if func.getName() == 'cond_sum' and func.hasArgs() and func.getArgs()[
+                        1].printAST() == buffer.getName():
+                        symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolType.VARIABLE)
+                        symbol.setConductanceBased(True)
+                        Logger.logAndPrintMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
+                                                  LOGGING_LEVEL.ALL)
+
         return
