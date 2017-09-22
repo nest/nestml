@@ -121,6 +121,16 @@ class VariableSymbol(Symbol):
         """
         return self.__blockType
 
+    def setBlockType(self, _newType=None):
+        """
+        Updates the block type of this variable symbol.
+        :param _newType: a new block type.
+        :type _newType: BlockType
+        """
+        assert (_newType is not None and isinstance(_newType, BlockType)), \
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided (%s)!' % type(_newType)
+        self.__blockType = _newType
+
     def getDeclaringExpression(self):
         """
         Returns the expression declaring the value of this symbol.
@@ -266,11 +276,12 @@ class VariableSymbol(Symbol):
             sourcePosition = self.getReferencedObject().getSourcePosition().printSourcePosition()
         else:
             sourcePosition = 'predefined'
-        vectorValue = self.getVectorParameter() if self.hasVectorParameter() else ' none'
+        vectorValue = self.getVectorParameter() if self.hasVectorParameter() else 'none'
         type = self.getTypeSymbol().printSymbol()
-
+        recordable = 'recordable, ' if self.isRecordable() else ''
+        func = 'function, ' if self.isFunction() else ''
         return 'VariableSymbol[' + self.getSymbolName() + ', type=' + type + ', ' + str(self.getBlockType()) + ', ' \
-               + 'array parameter=' + vectorValue + ', @' + sourcePosition + ')'
+               + recordable + func + 'array parameter=' + vectorValue + ', @' + sourcePosition + ')'
 
     def getTypeSymbol(self):
         """
