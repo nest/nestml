@@ -44,7 +44,7 @@ class ASTOutputBlock(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_type is SignalType.SPIKE or _type is _type is SignalType.CURRENT), \
-            '(PyNestML.AST.OutputBlock) Wrong type (=%s) of buffer provided!' % _type
+            '(PyNestML.AST.OutputBlock) Wrong type of buffer provided (%s)!' % _type
         super(ASTOutputBlock, self).__init__(_sourcePosition)
         self.__type = _type
 

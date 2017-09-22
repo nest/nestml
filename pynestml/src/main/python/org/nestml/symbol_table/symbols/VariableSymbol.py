@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symbol
+from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 from enum import Enum
 
 
@@ -32,7 +33,9 @@ class VariableSymbol(Symbol):
         __isPredefined        Indicates whether this symbol is predefined, e.g., t or e. Type: bool
         __isFunction          Indicates whether this symbol belongs to a function. Type: bool
         __isRecordable        Indicates whether this symbol belongs to a recordable element. Type: bool
-        __typeSymbol          The concrete type of this varible.
+        __typeSymbol          The concrete type of this variable.
+        __odeDeclaration      Used to store the corresponding ode declaration. 
+        __isConductanceBased  Indicates whether this buffer is used in a cond_sum expression.
     """
     __blockType = None
     __vectorParameter = None
@@ -41,6 +44,8 @@ class VariableSymbol(Symbol):
     __isFunction = False
     __isRecordable = False
     __typeSymbol = None
+    __odeDeclaration = None
+    __isConductanceBased = False
 
     def __init__(self, _elementReference=None, _scope=None, _name=None, _blockType=None, _vectorParameter=None,
                  _declaringExpression=None, _isPredefined=False, _isFunction=False, _isRecordable=False,
@@ -303,6 +308,53 @@ class VariableSymbol(Symbol):
         self.__typeSymbol = _typeSymbol
         return
 
+    def isOdeDefined(self):
+        """
+        Returns whether this element is defined by a ode.
+        :return: True if ode defined, otherwise False.
+        :rtype: bool
+        """
+        return self.__odeDeclaration is not None and isinstance(self.__odeDeclaration, ASTExpression)
+
+    def getOdeDefinition(self):
+        """
+        Returns the ode defining the value of this variable symbol.
+        :return: the expression defining the value.
+        :rtype: ASTExpression
+        """
+        return self.__odeDeclaration
+
+    def setOdeDefinition(self, _expression=None):
+        """
+        Updates the currently stored ode-definition to the handed-over one.
+        :param _expression: a single expression object.
+        :type _expression: ASTExpression
+        """
+        assert (_expression is not None and isinstance(_expression, ASTExpression)), \
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of expression provided (%s)!' % type(_expression)
+        self.__odeDeclaration = _expression
+        return
+
+    def isConductanceBase(self):
+        """
+        Indicates whether this element is conductance based.
+        :return: True if conductance based, otherwise False.
+        :rtype: bool
+        """
+        return self.__isConductanceBased
+
+    def setConductanceBased(self, _isConductanceBase=None):
+        """
+        Updates the information regarding the conductance property of this element.
+        :param _isConductanceBase: the new status.
+        :type _isConductanceBase: bool
+        """
+        assert (_isConductanceBase is not None and isinstance(_isConductanceBase, bool)), \
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of conductance-based property provided (%s)!' \
+            % type(_isConductanceBase)
+        self.__isConductanceBased = _isConductanceBase
+        return
+
     def equals(self, _other=None):
         """
         Compares the handed over object to this value-wise.
@@ -320,6 +372,7 @@ class VariableSymbol(Symbol):
                self.getDeclaringExpression() == _other.getDeclaringExpression() and \
                self.isPredefined() == _other.isPredefined() and \
                self.isFunction() == _other.isFunction() and \
+               self.isConductanceBase() == _other.isConductanceBase() and \
                self.isRecordable() == _other.isRecordable()
 
 

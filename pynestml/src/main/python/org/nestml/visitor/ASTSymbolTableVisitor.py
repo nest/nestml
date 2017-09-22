@@ -59,7 +59,7 @@ class SymbolTableASTVisitor(object):
         :rtype: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron.ASTNeuron)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of neuron provided!'
+            '(PyNestML.SymbolTable.Visitor) No or wrong type of neuron provided (%s)!' % type(_neuron)
         scope = Scope(_scopeType=ScopeType.GLOBAL, _sourcePosition=_neuron.getSourcePosition())
         _neuron.updateScope(scope)
         _neuron.getBody().updateScope(scope)
@@ -119,8 +119,7 @@ class SymbolTableASTVisitor(object):
             arg.updateScope(scope)
             # create the corresponding variable symbol representing the parameter
             varSymbol = VariableSymbol(_elementReference=arg, _scope=scope, _name=arg.getName(),
-                                       _blockType=BlockType.LOCAL,
-                                       _declaringExpression=None, _isPredefined=False, _isFunction=False,
+                                       _blockType=BlockType.LOCAL, _isPredefined=False, _isFunction=False,
                                        _isRecordable=False,
                                        _typeSymbol=PredefinedTypes.getTypeIfExists(typeName))
             scope.addSymbol(varSymbol)
