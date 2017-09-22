@@ -755,15 +755,17 @@ class SymbolTableASTVisitor(object):
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         # check for each defined buffer
         for buffer in _inputLines:
-            # and each function call in each declaration if it occurs as the second arg of a cond_sum
-            for decl in _odeDeclarations:
-                expression = decl.getRhs() if isinstance(decl, ASTOdeEquation.ASTOdeEquation) else decl.getExpression()
-                for func in expression.getFunctions():
-                    if func.getName() == 'cond_sum' and func.hasArgs() and func.getArgs()[
-                        1].printAST() == buffer.getName():
-                        symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolType.VARIABLE)
-                        symbol.setConductanceBased(True)
-                        Logger.logAndPrintMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
-                                                  LOGGING_LEVEL.ALL)
+            # we only check it for spike buffers
+            if buffer.isSpike():
+                # and each function call in each declaration if it occurs as the second arg of a cond_sum
+                for decl in _odeDeclarations:
+                    expression = decl.getRhs() if isinstance(decl, ASTOdeEquation.ASTOdeEquation) else decl.getExpression()
+                    for func in expression.getFunctions():
+                        if func.getName() == 'cond_sum' and func.hasArgs() and func.getArgs()[
+                            1].printAST() == buffer.getName():
+                            symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolType.VARIABLE)
+                            symbol.setConductanceBased(True)
+                            Logger.logAndPrintMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
+                                                      LOGGING_LEVEL.ALL)
 
         return
