@@ -2,4 +2,5 @@ numpy >= 1.8.2
 sympy >= 1.0
 antlr4-python3-runtime >= 4.7; python_version >= '3.0'
 antlr4-python2-runtime >= 4.7; python_version < '3.0'
+enu34 >=1.1.6
 setuptools
