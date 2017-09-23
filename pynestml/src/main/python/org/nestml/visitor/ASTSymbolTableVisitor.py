@@ -24,7 +24,6 @@ from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol, BlockType
 
@@ -422,7 +421,6 @@ class SymbolTableASTVisitor(object):
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype.ASTDatatype)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided!'
         if _dataType.isUnitType():
@@ -708,7 +706,7 @@ class SymbolTableASTVisitor(object):
         typeSymbol.setBuffer(True)  # set it as a buffer
         symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName(),
                                 _blockType=bufferType, _vectorParameter=_line.getIndexParameter(),
-                                _declaringExpression=None, _isPredefined=False, _isFunction=False, _isRecordable=False,
+                                _isPredefined=False, _isFunction=False, _isRecordable=False,
                                 _typeSymbol=typeSymbol)
         _line.getScope().addSymbol(symbol)
         for inputType in _line.getInputTypes():
@@ -759,7 +757,7 @@ class SymbolTableASTVisitor(object):
         :param _inputLines: a set of input buffers.
         :type _inputLines: ASTInputLine
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
         # check for each defined buffer
         for buffer in _inputLines:
             # we only check it for spike buffers
@@ -773,7 +771,7 @@ class SymbolTableASTVisitor(object):
                     for func in expression.getFunctions():
                         if func.getName() == 'cond_sum' and func.hasArgs() and func.getArgs()[
                             1].printAST() == buffer.getName():
-                            symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolType.VARIABLE)
+                            symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolKind.VARIABLE)
                             symbol.setConductanceBased(True)
                             Logger.logAndPrintMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
                                                       LOGGING_LEVEL.ALL)
@@ -800,21 +798,21 @@ class SymbolTableASTVisitor(object):
         :param _odeEquation: a single ode-equation
         :type _odeEquation: ASTOdeEquation
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
         assert (_odeEquation is not None and isinstance(_odeEquation, ASTOdeEquation.ASTOdeEquation)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of equation provided (%s)!' % type(_odeEquation)
-        # in the case it is of order
+        # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
         diffOrder = _odeEquation.getLhs().getDifferentialOrder() - 1
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
         existingSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName() + '\'' * diffOrder,
-                                                               SymbolType.VARIABLE)
+                                                               SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
-            Logger.logAndPrintMessage('Ode declaration updated to %s.' % _odeEquation.getLhs().getName(),
+            Logger.logAndPrintMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),
                                       LOGGING_LEVEL.ALL)
-        else:  # create a new symbol
+        else:  # create a new symbol, however, this should never happen since only exiting symbols shall be updated
             # if an existing symbol does not exists, we derive the base symbol, e.g. V_m
-            baseSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName(), SymbolType.VARIABLE)
+            baseSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName(), SymbolKind.VARIABLE)
             newSymbol = VariableSymbol(_elementReference=_odeEquation, _scope=cls.__globalScope,
                                        _name=_odeEquation.getLhs().getName() + '\'' * diffOrder,
                                        _blockType=BlockType.EQUATION,

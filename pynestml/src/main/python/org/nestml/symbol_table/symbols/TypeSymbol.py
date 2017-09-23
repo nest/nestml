@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from enum import Enum
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symbol
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 
@@ -70,7 +69,7 @@ class TypeSymbol(Symbol):
         :param _isBuffer: indicates whether this symbol represents a buffer of a certain type, e.g. integer.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.UnitType import UnitType
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
         assert (_unit is None or isinstance(_unit, UnitType)), \
             '(PyNestML.SymbolTable.TypeSymbol) Wrong type of unit provided!'
         assert (isinstance(_isInteger, bool)), \
@@ -90,7 +89,7 @@ class TypeSymbol(Symbol):
         assert (_isInteger + _isReal + _isVoid + _isBoolean + _isString + (_unit is not None) == 1), \
             '(PyNestML.SymbolTable.TypeSymbol) Type of symbol over-specified!'
         super(TypeSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
-                                         _name=_name, _symbolType=SymbolType.TYPE)
+                                         _name=_name, _symbolKind=SymbolKind.TYPE)
         self.__unit = _unit
         self.__isInteger = _isInteger
         self.__isReal = _isReal

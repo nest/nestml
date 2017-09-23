@@ -41,7 +41,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
         PredefinedTypes.registerTypes()
         PredefinedFunctions.registerPredefinedFunctions()
         PredefinedVariables.registerPredefinedVariables()
-        Logger.initLogger(LOGGING_LEVEL.ALL)
+        Logger.initLogger(LOGGING_LEVEL.ERROR)
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
@@ -61,7 +61,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 for neuron in ast.getNeuronList():
                     SymbolTableASTVisitor.updateSymbolTable(neuron)
                     SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.getScope())
-                print(SymbolTable.printSymbolTable())
+                #print(SymbolTable.printSymbolTable())
         return
 
 

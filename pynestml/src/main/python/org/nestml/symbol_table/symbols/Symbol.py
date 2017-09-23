@@ -29,9 +29,9 @@ class Symbol:
     __elementReference = None
     __scope = None
     __name = None
-    __symbolType = None
+    __symbolKind = None
 
-    def __init__(self, _elementReference=None, _scope=None, _name=None, _symbolType=None):
+    def __init__(self, _elementReference=None, _scope=None, _name=None, _symbolKind=None):
         """
         Standard constructor of the Symbol class.
         :param _elementReference: an ast object.
@@ -40,18 +40,19 @@ class Symbol:
         :type _scope: Scope
         :param _name: the name of the corresponding element
         :type _name: str
+        :type _symbolKind: 
         """
         from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
         assert (_scope is None or isinstance(_scope, Scope)), \
             '(PyNestML.SymbolTable.Symbol) Wrong type of scope provided!'
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Symbol) Wrong type of symbol-name provided!'
-        assert (_symbolType is not None and isinstance(_symbolType, SymbolType)), \
+        assert (_symbolKind is not None and isinstance(_symbolKind, SymbolKind)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-type provided!'
         self.__elementReference = _elementReference
         self.__scope = _scope
         self.__name = _name
-        self.__symbolType = _symbolType
+        self.__symbolKind = _symbolKind
 
     def getReferencedObject(self):
         """
@@ -77,13 +78,13 @@ class Symbol:
         """
         return self.__name
 
-    def getSymbolType(self):
+    def getSymbolKind(self):
         """
         Returns the type of this symbol.
         :return: the type of this symbol.
-        :rtype: SymbolType
+        :rtype: SymbolKind
         """
-        return self.__symbolType
+        return self.__symbolKind
 
     def isDefinedBefore(self, _sourcePosition=None):
         """
@@ -106,7 +107,7 @@ class Symbol:
         return ''
 
 
-class SymbolType(Enum):
+class SymbolKind(Enum):
     """
     An enumeration of all possible symbol types to make processing easier.
     """

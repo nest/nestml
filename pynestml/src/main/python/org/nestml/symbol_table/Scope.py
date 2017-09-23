@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import Enum
-from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symbol
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symbol, SymbolKind
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 
 
@@ -153,15 +153,14 @@ class Scope(object):
         :param _name: the name of the element.
         :type _name: str
         :param _type: the type of the element
-        :type _type: SymbolType
+        :type _type: SymbolKind
         :return: the scope in which the element has been defined in
         :rtype: Scope
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
+        assert (isinstance(_type, SymbolKind)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         gScope = self.getGlobalScope()
         scopes = gScope.__resolveToScopeInSpannedScope(_name, _type)
         # the following step is done in order to return, whenever the list contains only one element, only this element
@@ -175,17 +174,20 @@ class Scope(object):
     def __resolveToScopeInSpannedScope(self, _name=None, _type=None):
         """
         Private method: returns this scope or one of the sub-scopes in which the handed over symbol is defined in.
+        :param _name: the name of the element.
+        :type _name: str
+        :param _type: the type of the element
+        :type _type: SymbolKind
         :return: the corresponding scope object.
         :rtype: Scope
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
+        assert (isinstance(_type, SymbolKind)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         ret = list()
         for sim in self.getSymbolsInThisScope():
-            if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
+            if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
                 ret.append(self)
         for elem in self.getScopes():  # otherwise check if it is in one of the sub-scopes
             temp = elem.__resolveToScopeInSpannedScope(_name, _type)
@@ -205,11 +207,10 @@ class Scope(object):
         :return: a single symbol element.
         :rtype: Symbol/list(Symbols)
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
+        assert (isinstance(_type, SymbolKind)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         gScope = self.getGlobalScope()
         symbols = gScope.__resolveToSymbolInSpannedScope(_name, _type)
         # the following step is done in order to return, whenever the list contains only one element, only this element
@@ -223,19 +224,22 @@ class Scope(object):
     def __resolveToSymbolInSpannedScope(self, _name=None, _type=None):
         """
         Private method: returns a symbol if the handed over name and type belong to a symbol in this or one of the
-         sub-scope. Caution: Here, we also take redeclaration into account. This has to be prevented - if required -
-         by cocos.
+        sub-scope. Caution: Here, we also take redeclaration into account. This has to be prevented - if required -
+        by cocos.
+        :param _name: the name of the element.
+        :type _name: str
+        :param _type: the type of the element
+        :type _type: SymbolType
         :return: the corresponding symbol object.
         :rtype: list(Symbol)
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
+        assert (isinstance(_type, SymbolKind)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         ret = list()
         for sim in self.getSymbolsInThisScope():
-            if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
+            if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
                 ret.append(sim)
         for elem in self.getScopes():  # otherwise check if it is in one of the sub-scopes
             temp = elem.__resolveToSymbolInSpannedScope(_name, _type)
@@ -254,13 +258,12 @@ class Scope(object):
         :return: the first matching scope.
         :rtype: Scope.
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
         assert (isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolType)), \
-            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-type provided (%s)!' % type(_type)
+        assert (isinstance(_type, SymbolKind)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         for sim in self.getSymbolsInThisScope():
-            if sim.getSymbolName() == _name and sim.getSymbolType() == _type:
+            if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
                 return self
         if self.hasEnclosingScope():
             return self.getEnclosingScope().resolveToSymbol(_name, _type)

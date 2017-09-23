@@ -17,8 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
-from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
+from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope, ScopeType
 
 
 class SymbolTable:

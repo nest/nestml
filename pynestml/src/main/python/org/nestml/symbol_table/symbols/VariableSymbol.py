@@ -91,9 +91,9 @@ class VariableSymbol(Symbol):
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong of type-symbol provided (%s)!' % type(_typeSymbol)
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolType
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
         super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
-                                             _name=_name, _symbolType=SymbolType.VARIABLE)
+                                             _name=_name, _symbolKind=SymbolKind.VARIABLE)
         self.__blockType = _blockType
         self.__vectorParameter = _vectorParameter
         self.__declaringExpression = _declaringExpression
