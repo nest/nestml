@@ -22,11 +22,21 @@
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 
 
-class CoCosManager:
+class CoCosManager(object):
     """
     This class is used to ensure that a handed over list of cocos holds.
     """
     __cocosToCheck = None
+
+
+    @classmethod
+    def initializeCoCosManager(cls):
+        """
+        Initializes the coco manager and initializes all individual cocos.
+        """
+        pass
+
+
 
     def __init__(self, _cocos=list()):
         """

@@ -41,6 +41,12 @@ In order to ensure correct installation and resolving of dependencies, Python's 
 
 * [Antlr4 runtime environment in the version >= 4.7](https://github.com/antlr/antlr4/blob/master/doc/python-target.md)
 
+In the case that no 'enum' package is found, additionally, enum34 has to be updated by
+
+```
+pip install --upgrade pip enum34
+```
+
 After the installation, change the current directory to:
 
 ```

@@ -13,6 +13,7 @@ before_install:
   - sudo python setup.py install
 
 install:
+  - pip install --upgrade pip enum34
   - pip install -r requirements.txt
 
 sudo: true
