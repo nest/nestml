@@ -26,6 +26,8 @@ from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol, BlockType
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
 
 
 class SymbolTableASTVisitor(object):
@@ -66,18 +68,28 @@ class SymbolTableASTVisitor(object):
         cls.__globalScope = scope
         _neuron.updateScope(scope)
         _neuron.getBody().updateScope(scope)
+        # now first, we add all predefiend elements to the scope
+        variables = PredefinedVariables.getVariables()
+        functions = PredefinedFunctions.getFunctionSymbols()
+        for symbol in variables.keys():
+            _neuron.getScope().addSymbol(variables[symbol])
+        for symbol in functions.keys():
+            _neuron.getScope().addSymbol(functions[symbol])
+        # now create the actual scope
         cls.visitBody(_neuron.getBody())
         # before following checks occur, we need to ensure several simple properties
         # TODO
 
         # the following part is done in order to mark conductance based buffers as such.
-        buffers = (buffer for buffer in _neuron.getInputBlocks().getInputLines())
-        odeDeclarations = (decl for decl in _neuron.getEquationsBlocks().getDeclarations() if
-                           not isinstance(decl, ASTOdeShape.ASTOdeShape))
-        cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
+        if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None:
+            buffers = (buffer for buffer in _neuron.getInputBlocks().getInputLines())
+            odeDeclarations = (decl for decl in _neuron.getEquationsBlocks().getDeclarations() if
+                               not isinstance(decl, ASTOdeShape.ASTOdeShape))
+            cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
         # now update the equations
-        equationBlock = _neuron.getEquationsBlocks()
-        cls.assignOdeToVariables(equationBlock)
+        if _neuron.getEquationsBlocks() is not None:
+            equationBlock = _neuron.getEquationsBlocks()
+            cls.assignOdeToVariables(equationBlock)
         return
 
     @classmethod

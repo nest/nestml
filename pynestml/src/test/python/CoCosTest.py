@@ -24,7 +24,23 @@ import unittest
 import os
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 from pynestml.src.main.python.org.nestml.cocos.CoCoElementDefined import ElementNotDefined
-from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUnique import BlockNotUniqueException
+from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionUnique import FunctionRedeclared
+from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUniqueAndDefined import BlockNotUniqueException
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
+from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
+
+# minor setup steps required
+Logger.initLogger(LOGGING_LEVEL.ERROR)
+SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
+PredefinedUnits.registerUnits()
+PredefinedTypes.registerTypes()
+PredefinedVariables.registerPredefinedVariables()
+PredefinedFunctions.registerPredefinedFunctions()
 
 
 class ElementInSameLine(unittest.TestCase):
@@ -55,13 +71,24 @@ class ElementNotDefinedInScope(unittest.TestCase):
 
 class EachBlockUnique(unittest.TestCase):
     def test(self):
-        print('Test ' + str(type(self)) + ' not active!' )
-        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         try:
             model = NESTMLParser.parseModel(
                 os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                              'CoCoEachBlockUnique.nestml'))
         except BlockNotUniqueException:
+            return
+        return 1  # meaning an error
+
+
+class FunctionUniqueAndDefined(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        try:
+            model = NESTMLParser.parseModel(
+                os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                             'CoCoFunctionNotUnique.nestml'))
+        except FunctionRedeclared:
             return
         return 1  # meaning an error
 

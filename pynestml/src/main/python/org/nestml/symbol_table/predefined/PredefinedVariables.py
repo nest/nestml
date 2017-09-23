@@ -77,7 +77,7 @@ class PredefinedVariables:
         :return: a variable symbol.
         :rtype: VariableSymbol
         """
-        return copy(cls.__name2VariableSymbol[cls.__TIME_CONSTANT])
+        return cls.__name2VariableSymbol[cls.__TIME_CONSTANT]
 
     @classmethod
     def getEulerConstant(cls):
@@ -86,7 +86,7 @@ class PredefinedVariables:
         :return: a variable symbol.
         :rtype: VariableSymbol
         """
-        return copy(cls.__name2VariableSymbol[cls.__E_CONSTANT])
+        return cls.__name2VariableSymbol[cls.__E_CONSTANT]
 
     @classmethod
     def getVariableIfExists(cls, _name=None):
@@ -100,7 +100,7 @@ class PredefinedVariables:
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.PredefinedVariables) No or wrong type of name provided!'
         if _name in cls.__name2VariableSymbol.keys():
-            return copy(cls.__name2VariableSymbol[_name])
+            return cls.__name2VariableSymbol[_name]
         else:
             return None
 
@@ -111,4 +111,4 @@ class PredefinedVariables:
         :return: a list of variable symbols.
         :rtype: list(VariableSymbol)
         """
-        return copy(cls.__name2VariableSymbol)
+        return cls.__name2VariableSymbol

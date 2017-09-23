@@ -402,7 +402,7 @@ class PredefinedFunctions:
         :return: a copy of the dict containing the functions symbols
         :rtype: copy(dict(FunctionSymbol)
         """
-        return copy(cls.__name2FunctionSymbol)
+        return cls.__name2FunctionSymbol
 
     @classmethod
     def getMethodSymbolIfExists(cls, _name=None):
@@ -416,6 +416,6 @@ class PredefinedFunctions:
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.PredefinedFunctions) No or wrong type of name provided!'
         if _name in cls.__name2FunctionSymbol.keys():
-            return copy(cls.__name2FunctionSymbol[_name])
+            return cls.__name2FunctionSymbol[_name]
         else:
             return None

@@ -22,7 +22,7 @@
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
-from pynestml.src.main.python.org.nestml.visitor.ASTCoCoVisitor import ASTCoCoVisitor
+from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 
 
 class CoCoElementDefined(CoCo):
@@ -66,8 +66,9 @@ class CoCoElementDefined(CoCo):
 
         return
         """
-        cocoVisitor = ASTCoCoVisitor()
-        cocoVisitor.visitNeuron(_ast=_astNeuron, _coco=self.__coco)
+        pass
+        #cocoVisitor = ASTCoCoVisitor()
+        #cocoVisitor.visitNeuron(_ast=_astNeuron, _coco=self.__coco)
 
     @classmethod
     def __coco(self, _ast=None):

@@ -21,7 +21,7 @@
 from enum import Enum
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symbol, SymbolKind
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
-
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 
 class Scope(object):
     """

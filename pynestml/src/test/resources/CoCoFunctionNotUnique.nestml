@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoEachBlockUnique.nestml
+ *  CoCoFunctionNotUnique.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,16 +20,23 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if each block is defined at most once.
+ * This model is used to test if broken CoCos are identified correctly. Here, if redeclaration of functions is detected.
  *
 */
 
-neuron CoCoEachBlockUnique:
-    state:
-        test1 void = 0
+neuron CoCoFunctionNotUnique:
+    function delta(Tau_a ms,Tau_b ms) real:
+        test ms = 1ms
     end
 
-    state:
-        test2 void = 0
+    input:
+        # in order to generate an ast
     end
+
+    output: spike
+
+    update:
+        # in order to generate an ast
+    end
+
 end

@@ -24,6 +24,7 @@ from antlr4 import *
 # import all ASTClasses
 from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.nestml.ast.ASTOutputBlock import SignalType
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTBuilderVisitor(ParseTreeVisitor):
@@ -522,7 +523,15 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTNeuron.ASTNeuron.makeASTNeuron(_name=name, _body=body, _sourcePosition=sourcePos)
+        # after we have constructed the ast of the neuron, we can ensure some basic properties which should always hold
+        # we have to check if each type of block is defined at most once (except for function), and that input,output
+        # and update are defined once
+        from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUniqueAndDefined import \
+            CoCoEachBlockUniqueAndDefined
+        neuron = ASTNeuron.ASTNeuron.makeASTNeuron(_name=name, _body=body, _sourcePosition=sourcePos)
+        CoCoEachBlockUniqueAndDefined.checkCoCo(_neuron=neuron)
+        # now the ast seems to be correct, return it
+        return neuron
 
     # Visit a parse tree produced by PyNESTMLParser#body.
     def visitBody(self, ctx):

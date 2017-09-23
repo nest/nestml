@@ -94,8 +94,8 @@ class Logger(object):
             '(PyNestML.Logger) No or wrong type of logging-level provided!'
         if cls.__loggingLevel.value <= _logLevel.value:
             cls.__log[cls.__currMessage] = (_message, _logLevel)
+            print('[' + str(cls.__currMessage) + ':' + str(_logLevel.name) + ']:' + str(_message))
             cls.__currMessage += 1
-            print('[' + str(_logLevel.name) + ']:' + str(_message))
         return
 
     @classmethod
@@ -119,6 +119,18 @@ class Logger(object):
             return LOGGING_LEVEL.NO
         else:
             return LOGGING_LEVEL.ERROR
+
+    @classmethod
+    def setLoggingLevel(cls, _level=None):
+        """
+        Updates the logging level to the handed over one.
+        :param _level: a new logging level.
+        :type _level: LOGGING_LEVEL
+        """
+        assert (_level is not None and isinstance(_level, LOGGING_LEVEL)), \
+            '(PyNestML.Utils.Logger) No or wrong type of logging-level provided (%s)!' % type(_level)
+        cls.__loggingLevel = _level
+        return
 
 
 class LOGGING_LEVEL(Enum):
