@@ -56,12 +56,30 @@ class CoCoVariableOncePerScope(CoCo):
                 if sym1 is not sym2 and sym1.getSymbolName() == sym2.getSymbolName() and \
                                 sym1.getSymbolKind() == sym2.getSymbolKind() and \
                                 sym1.getSymbolKind() == SymbolKind.VARIABLE and \
-                        sym1.getReferencedObject().getSourcePosition(). \
-                                before(sym2.getReferencedObject().getSourcePosition()):
-                    Logger.logMessage(
-                        '[' + _neuron.getName() + '.nestml] Variable %s redeclared at %s ! First declared at %s.'
-                        % (sym1.getSymbolName(), sym2.getReferencedObject().getSourcePosition().printSourcePosition(),
-                           sym1.getReferencedObject().getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
+                                sym2 not in checked:
+                    if sym1.isPredefined():
+                        Logger.logMessage(
+                            '[' + _neuron.getName() + '.nestml] Predefined variable %s redeclared at %s !'
+                            % (
+                                sym1.getSymbolName(),
+                                sym2.getReferencedObject().getSourcePosition().printSourcePosition()),
+                            LOGGING_LEVEL.ERROR)
+                    elif sym2.isPredefined():
+                        Logger.logMessage(
+                            '[' + _neuron.getName() + '.nestml] Predefined variable %s redeclared at %s !'
+                            % (
+                                sym1.getSymbolName(),
+                                sym1.getReferencedObject().getSourcePosition().printSourcePosition()),
+                            LOGGING_LEVEL.ERROR)
+                    elif sym1.getReferencedObject().getSourcePosition().before(
+                            sym2.getReferencedObject().getSourcePosition()):
+                        Logger.logMessage(
+                            '[' + _neuron.getName() + '.nestml] Variable %s redeclared at %s ! First declared at %s.'
+                            % (
+                                sym1.getSymbolName(),
+                                sym2.getReferencedObject().getSourcePosition().printSourcePosition(),
+                                sym1.getReferencedObject().getSourcePosition().printSourcePosition()),
+                            LOGGING_LEVEL.ERROR)
             checked.append(sym1)
         for scope in _scope.getScopes():
             cls.__checkScope(_neuron, scope)

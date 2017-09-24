@@ -20,6 +20,8 @@
 
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
 
 
 class ASTDeclaration(ASTElement):
@@ -75,6 +77,27 @@ class ASTDeclaration(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_isRecordable is not None and isinstance(_isRecordable, bool)), \
+            '(PyNestML.AST.Declaration) No or wrong type of is-recordable specification provided (%s)!' \
+            % type(_isRecordable)
+        assert (_isFunction is not None and isinstance(_isFunction, bool)), \
+            '(PyNestML.AST.Declaration) No or wrong type of is-function specification provided (%s)!' \
+            % type(_isFunction)
+        assert (_variables is not None and isinstance(_variables, list)), \
+            '(PyNestML.AST.Declaration) No or wrong type of variable-list provided (%s)!' \
+            % type(_variables)
+        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
+            '(PyNestML.AST.Declaration) No or wrong type of data-type provided (%s)!' \
+            % type(_dataType)
+        assert (_sizeParameter is None or isinstance(_sizeParameter, str)), \
+            '(PyNestML.AST.Declaration) No or wrong type of index provided (%s)!' \
+            % type(_sizeParameter)
+        assert (_expression is None or isinstance(_expression, ASTExpression)), \
+            '(PyNestML.AST.Declaration) No or wrong type of expression provided (%s)!' \
+            % type(_sizeParameter)
+        assert (_invariant is None or isinstance(_invariant, ASTExpression)), \
+            '(PyNestML.AST.Declaration) No or wrong type of expression provided (%s)!' \
+            % type(_expression)
         super(ASTDeclaration, self).__init__(_sourcePosition)
         self.__isRecordable = _isRecordable
         self.__isFunction = _isFunction

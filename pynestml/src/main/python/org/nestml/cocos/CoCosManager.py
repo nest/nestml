@@ -24,6 +24,9 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionCallsConsistent impor
 from pynestml.src.main.python.org.nestml.cocos.CoCoAllVariablesDefined import CoCoAllVariablesDefined
 from pynestml.src.main.python.org.nestml.cocos.CoCoVariableOncePerScope import CoCoVariableOncePerScope
 from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionHaveRhs import CoCoFunctionHaveRhs
+from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionMaxOneLhs import CoCoFunctionMaxOneLhs
+from pynestml.src.main.python.org.nestml.cocos.CoCoBufferNotAssigned import CoCoBufferNotAssigned
+from pynestml.src.main.python.org.nestml.cocos.CoCoCorrectOrderInEquation import CoCoCorrectOrderInEquation
 
 
 class CoCosManager(object):
@@ -36,6 +39,9 @@ class CoCosManager(object):
     __variablesUnique = None
     __variablesDefinedBeforeUsage = None
     __functionsHaveRhs = None
+    __functionsHaveMaxOneLhs = None
+    __noValuesAssignedToBuffers = None
+    __orderOfEquationsCorrect = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -48,6 +54,9 @@ class CoCosManager(object):
         cls.__variablesUnique = CoCoVariableOncePerScope.checkCoCo
         cls.__variablesDefinedBeforeUsage = CoCoAllVariablesDefined.checkCoCo
         cls.__functionsHaveRhs = CoCoFunctionHaveRhs.checkCoCo
+        cls.__functionsHaveMaxOneLhs = CoCoFunctionMaxOneLhs.checkCoCo
+        cls.__noValuesAssignedToBuffers = CoCoBufferNotAssigned.checkCoCo
+        cls.__orderOfEquationsCorrect = CoCoCorrectOrderInEquation.checkCoCo
         return
 
     @classmethod
@@ -116,9 +125,9 @@ class CoCosManager(object):
         return
 
     @classmethod
-    def checkVariablesDefinedBeforeUsage(cls, _neuron):
+    def checkVariablesDefinedBeforeUsage(cls, _neuron=None):
         """
-        Checks that all variables are defined before beeing used.
+        Checks that all variables are defined before being used.
         :param _neuron: a single neuron.
         :type _neuron: ASTNeuron
         """
@@ -128,15 +137,72 @@ class CoCosManager(object):
         return
 
     @classmethod
-    def checkFunctionsHaveRhs(cls, _neuron):
+    def checkFunctionsHaveRhs(cls, _neuron=None):
         """
         Checks that all functions have a right-hand side, e.g., function V_reset mV = V_m - 55mV 
-        :param _neuron: 
-        :type _neuron: 
-        :return: 
-        :rtype: 
+        :param _neuron: a single neuron object
+        :type _neuron: ASTNeuron 
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__functionsHaveRhs(_neuron)
+        return
+
+    @classmethod
+    def checkFunctionHasMaxOneLhs(cls, _neuron=None):
+        """
+        Checks that all functions have exactly one left-hand side, e.g., function V_reset mV = V_m - 55mV 
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__functionsHaveMaxOneLhs(_neuron)
+        return
+
+    @classmethod
+    def checkNoValuesAssignedToBuffers(cls, _neuron=None):
+        """
+        Checks that no values are assigned to buffers.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__noValuesAssignedToBuffers(_neuron)
+        return
+
+    @classmethod
+    def checkOrderOfEquationsCorrect(cls, _neuron=None):
+        """
+        Checks that all equations specify the order of the variable.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__orderOfEquationsCorrect(_neuron)
+        return
+
+    @classmethod
+    def postSymbolTableBuilderChecks(cls, _neuron=None):
+        """
+        Checks the following constraints:
+            CoCosManager.checkFunctionDefined(_neuron)
+            CoCosManager.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
+            CoCosManager.checkVariablesUniqueInScope(_neuron)
+            CoCosManager.checkVariablesDefinedBeforeUsage(_neuron)
+            CoCosManager.checkFunctionsHaveRhs(_neuron)
+            CoCosManager.checkFunctionHasMaxOneLhs(_neuron)
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        cls.checkFunctionDefined(_neuron)
+        cls.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
+        cls.checkVariablesUniqueInScope(_neuron)
+        cls.checkVariablesDefinedBeforeUsage(_neuron)
+        cls.checkFunctionsHaveRhs(_neuron)
+        cls.checkFunctionHasMaxOneLhs(_neuron)
+        cls.checkNoValuesAssignedToBuffers(_neuron)
+        cls.checkOrderOfEquationsCorrect(_neuron)
         return

@@ -77,11 +77,7 @@ class SymbolTableASTVisitor(object):
         # now create the actual scope
         cls.visitBody(_neuron.getBody())
         # before following checks occur, we need to ensure several simple properties
-        CoCosManager.checkFunctionDefined(_neuron)
-        CoCosManager.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
-        CoCosManager.checkVariablesUniqueInScope(_neuron)
-        CoCosManager.checkVariablesDefinedBeforeUsage(_neuron)
-        CoCosManager.checkFunctionsHaveRhs(_neuron)
+        CoCosManager.postSymbolTableBuilderChecks(_neuron)
         # the following part is done in order to mark conductance based buffers as such.
         if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None:
             buffers = (buffer for buffer in _neuron.getInputBlocks().getInputLines())

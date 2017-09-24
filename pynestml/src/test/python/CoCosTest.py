@@ -43,7 +43,6 @@ PredefinedFunctions.registerPredefinedFunctions()
 CoCosManager.initializeCoCosManager()
 
 
-
 class ElementDefinedAfterUsage(unittest.TestCase):
     def test(self):
         return
@@ -103,12 +102,44 @@ class FunctionUniqueAndDefined(unittest.TestCase):
                          'CoCoFunctionNotUnique.nestml'))
         return
 
+
 class FunctionsHaveRhs(unittest.TestCase):
     def test(self):
+        return
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoFunctionHasNoRhs.nestml'))
+        return
+
+
+class FunctionHasSeveralLhs(unittest.TestCase):
+    def test(self):
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoFunctionWithSeveralLhs.nestml'))
+        return
+
+
+class NoValuesAssignedToBuffers(unittest.TestCase):
+    def test(self):
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoValueAssignedToBuffer.nestml'))
+        return
+
+
+class OrderOfEquationsCorrect(unittest.TestCase):
+    def test(self):
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoNoOrderOfEquations.nestml'))
         return
 
 
