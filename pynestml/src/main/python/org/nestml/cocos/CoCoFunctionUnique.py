@@ -18,14 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
-from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL,Logger
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
-from pynestml.src.main.python.org.nestml.visitor.ASTExpressionCollectorVisitor import ASTExpressionCollectorVisitor
+
 
 class CoCoFunctionUnique(CoCo):
     """
-    This Coco ensures that each function is defined exactly once (thus no redeclaration occurs), furthermore,
-    for all function calls, it checks if the corresponding function has been declared.
+    This Coco ensures that each function is defined exactly once (thus no redeclaration occurs).
     """
 
     @classmethod
@@ -35,19 +34,15 @@ class CoCoFunctionUnique(CoCo):
         :param _neuron: a single neuron
         :type _neuron: ASTNeuron
         """
-
-        # first check if no function has been redeclared
+        # check if no function has been redeclared
         for func in _neuron.getFunctions():
             symbols = _neuron.getScope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
             if isinstance(symbols, list) and len(symbols) > 1:
-                Logger.logAndPrintMessage('['+_neuron.getName()+'.nestml] Predefined function %s redeclared at %s.'
-                                          %(func.getName(),func.getSourcePosition().printSourcePosition()),
+                Logger.logAndPrintMessage('[' + _neuron.getName() + '.nestml] Predefined function %s redeclared at %s.'
+                                          % (func.getName(), func.getSourcePosition().printSourcePosition()),
                                           LOGGING_LEVEL.ERROR)
                 raise FunctionRedeclared()
-        # now, for all expressions, check for all function calls, the corresponding function is declared.
-        # TODO: here we have to consider the type of the arguments
-        expression =  ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron)
-        pass
+        return
 
 
 class FunctionRedeclared(Exception):

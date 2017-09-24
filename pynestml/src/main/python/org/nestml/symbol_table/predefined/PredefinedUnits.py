@@ -42,6 +42,8 @@ class PredefinedUnits(object):
         Registers all predefined units into th system.
         """
         # first store all base units and the derived units without the prefix in a list
+        cls.__name2unit = {}
+        cls.__prefixlessUnits = list()
         cls.__prefixlessUnits.append(meter)
         cls.__prefixlessUnits.append(kilogram)
         cls.__prefixlessUnits.append(second)

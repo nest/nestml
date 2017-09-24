@@ -77,6 +77,7 @@ class PredefinedFunctions:
         """
         Registers all predefined functions.
         """
+        cls.__name2FunctionSymbol = {}
         cls.__registerTimeResolutionFunction()
         cls.__registerTimeStepsFunction()
         cls.__registerEmitSpikeFunction()

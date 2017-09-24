@@ -43,6 +43,7 @@ class PredefinedTypes:
         Adds a set of primitive and unit data types to the set of predefined types. It assures that those types are
         valid and can be used.
         """
+        cls.__name2type = {}
         cls.__registerUnits()
         cls.__registerReal()
         cls.__registerVoid()

@@ -31,7 +31,6 @@ class PredefinedVariables:
     
     """
     __name2VariableSymbol = {}  # a map from names to symbols
-
     __E_CONSTANT = 'e'
     __TIME_CONSTANT = 't'
 
@@ -40,6 +39,7 @@ class PredefinedVariables:
         """
         Registers the predefined variables.
         """
+        cls.__name2VariableSymbol = {}
         cls.__registerEulerConstant()
         cls.__registerTimeConstant()
         return

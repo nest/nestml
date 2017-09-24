@@ -24,10 +24,22 @@ import unittest
 import os
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
-from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
+from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
+from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
+
+# setups the infrastructure
+PredefinedUnits.registerUnits()
+PredefinedTypes.registerTypes()
+PredefinedFunctions.registerPredefinedFunctions()
+PredefinedVariables.registerPredefinedVariables()
+SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
+Logger.initLogger(LOGGING_LEVEL.NO)
+CoCosManager.initializeCoCosManager()
 
 
 class NESTMLTest(unittest.TestCase):
@@ -39,12 +51,6 @@ class NESTMLTest(unittest.TestCase):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
-                PredefinedUnits.registerUnits()
-                PredefinedTypes.registerTypes()
-                PredefinedFunctions.registerPredefinedFunctions()
-                PredefinedFunctions.registerPredefinedFunctions()
-                PredefinedVariables.registerPredefinedVariables()
-                Logger.initLogger(LOGGING_LEVEL.NO)
                 # print('Start creating AST for ' + filename + ' ...'),
                 NESTMLParser.parseModel(os.path.join(os.path.dirname(__file__),
                                                      os.path.join(os.path.join('..', '..', '..', '..',

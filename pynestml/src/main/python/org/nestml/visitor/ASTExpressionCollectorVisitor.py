@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 
 
 class ASTExpressionCollectorVisitor(object):
@@ -54,6 +53,7 @@ class ASTExpressionCollectorVisitor(object):
         if _neuron.getFunctions() is not None:
             for func in _neuron.getFunctions():
                 ret.extend(cls.collectExpressionsInFunctionBlock(func))
+        ret = (x for x in ret if x is not None)
         return ret
 
     @classmethod

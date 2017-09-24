@@ -33,6 +33,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
+from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 # minor setup steps required
 Logger.initLogger(LOGGING_LEVEL.ERROR)
@@ -41,7 +42,7 @@ PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
 PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
-
+CoCosManager.initializeCoCosManager()
 
 class ElementInSameLine(unittest.TestCase):
     def test(self):

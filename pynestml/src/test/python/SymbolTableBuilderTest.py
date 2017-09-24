@@ -17,9 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-from __future__ import print_function
-
 import unittest
 import os
 from antlr4 import *
@@ -33,15 +30,21 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
+from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
+
+# setups the infrastructure
+PredefinedUnits.registerUnits()
+PredefinedTypes.registerTypes()
+PredefinedFunctions.registerPredefinedFunctions()
+PredefinedVariables.registerPredefinedVariables()
+SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
+Logger.initLogger(LOGGING_LEVEL.ERROR)
+CoCosManager.initializeCoCosManager()
 
 
 class SymbolTableBuilderTest(unittest.TestCase):
     def test(self):
-        PredefinedUnits.registerUnits()
-        PredefinedTypes.registerTypes()
-        PredefinedFunctions.registerPredefinedFunctions()
-        PredefinedVariables.registerPredefinedVariables()
-        Logger.initLogger(LOGGING_LEVEL.ERROR)
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
@@ -61,7 +64,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 for neuron in ast.getNeuronList():
                     SymbolTableASTVisitor.updateSymbolTable(neuron)
                     SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.getScope())
-                #print(SymbolTable.printSymbolTable())
+                    # print(SymbolTable.printSymbolTable())
         return
 
 

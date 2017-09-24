@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 from pynestml.src.main.python.org.nestml.ast import *
@@ -28,6 +26,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol, BlockType
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
+from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 
 class SymbolTableASTVisitor(object):
@@ -68,7 +67,7 @@ class SymbolTableASTVisitor(object):
         cls.__globalScope = scope
         _neuron.updateScope(scope)
         _neuron.getBody().updateScope(scope)
-        # now first, we add all predefiend elements to the scope
+        # now first, we add all predefined elements to the scope
         variables = PredefinedVariables.getVariables()
         functions = PredefinedFunctions.getFunctionSymbols()
         for symbol in variables.keys():
@@ -78,7 +77,7 @@ class SymbolTableASTVisitor(object):
         # now create the actual scope
         cls.visitBody(_neuron.getBody())
         # before following checks occur, we need to ensure several simple properties
-        # TODO
+        CoCosManager.checkCocos(_neuron)
 
         # the following part is done in order to mark conductance based buffers as such.
         if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None:
@@ -216,6 +215,8 @@ class SymbolTableASTVisitor(object):
             cls.visitAssignment(_stmt.getAssignment())
         elif _stmt.isFunctionCall():
             _stmt.getFunctionCall().updateScope(_stmt.getScope())
+            if _stmt.getFunctionCall().getScope() is None:
+                print('bingo')
             cls.visitFunctionCall(_stmt.getFunctionCall())
         elif _stmt.isReturnStmt():
             _stmt.getReturnStmt().updateScope(_stmt.getScope())
@@ -480,6 +481,8 @@ class SymbolTableASTVisitor(object):
         if _expr.isUnaryOperator():
             _expr.getUnaryOperator().updateScope(_expr.getScope())
             cls.visitUnaryOperator(_expr.getUnaryOperator())
+            _expr.getExpression().updateScope(_expr.getScope())
+            cls.visitExpression(_expr.getExpression())
         if _expr.isCompoundExpression():
             _expr.getLhs().updateScope(_expr.getScope())
             cls.visitExpression(_expr.getLhs())
