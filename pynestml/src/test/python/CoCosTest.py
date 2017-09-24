@@ -24,8 +24,6 @@ import unittest
 import os
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
 from pynestml.src.main.python.org.nestml.cocos.CoCoAllVariablesDefined import CoCoAllVariablesDefined
-from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionUnique import FunctionRedeclared
-from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUniqueAndDefined import BlockNotUniqueException
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
@@ -34,7 +32,6 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunct
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
-from pynestml.src.main.python.org.nestml.cocos.CoCoVariableOncePerScope import VariableRedeclared
 
 # minor setup steps required
 Logger.initLogger(LOGGING_LEVEL.ALL)
@@ -46,67 +43,65 @@ PredefinedFunctions.registerPredefinedFunctions()
 CoCosManager.initializeCoCosManager()
 
 
+
+class ElementDefinedAfterUsage(unittest.TestCase):
+    def test(self):
+        #return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoVariableDefinedAfterUsage.nestml'))
+        return
+
+
 class ElementInSameLine(unittest.TestCase):
     def test(self):
-        print('Test ' + str(type(self)) + ' not active!')
         return
-        try:
-            model = NESTMLParser.parseModel(
-                os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
-                             'CoCoElementInSameLine.nestml'))
-        except ElementNotDefined:
-            return
-        return 1  # meaning an error
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoElementInSameLine.nestml'))
+        return
 
 
 class ElementNotDefinedInScope(unittest.TestCase):
     def test(self):
-        print('Test ' + str(type(self)) + ' not active!')
         return
-        try:
-            model = NESTMLParser.parseModel(
-                os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
-                             'CoCoElementNotDefined.nestml'))
-        except ElementNotDefined:
-            return
-        return 1  # meaning an error
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoVariableNotDefined.nestml'))
+        return
 
 
 class VariableRedeclaration(unittest.TestCase):
     def test(self):
-
-        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
-        try:
-            model = NESTMLParser.parseModel(
-                os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
-                             'VariableRedeclared.nestml'))
-        except VariableRedeclared:
-            return
-        return 1  # meaning an error
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'VariableRedeclared.nestml'))
+        return
 
 
 class EachBlockUnique(unittest.TestCase):
     def test(self):
-        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
-        try:
-            model = NESTMLParser.parseModel(
-                os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
-                             'CoCoEachBlockUnique.nestml'))
-        except BlockNotUniqueException:
-            return
-        return 1  # meaning an error
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoEachBlockUnique.nestml'))
+        return
 
 
 class FunctionUniqueAndDefined(unittest.TestCase):
     def test(self):
-        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
-        try:
-            model = NESTMLParser.parseModel(
-                os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
-                             'CoCoFunctionNotUnique.nestml'))
-        except FunctionRedeclared:
-            return
-        return 1  # meaning an error
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoFunctionNotUnique.nestml'))
+        return
 
 
 if __name__ == '__main__':

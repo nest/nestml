@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
-from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL,Logger
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from copy import copy
 
 
@@ -216,7 +216,7 @@ class PredefinedTypes:
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of symbol provided (%s)!' % (type(_symbol))
         if not _symbol.isPrimitive() and _symbol.getUnit().getName() not in cls.__name2type.keys():
             cls.__name2type[_symbol.getUnit().getName()] = _symbol
-            Logger.logAndPrintMessage('New type registered %s.' %_symbol.getUnit().getName(),LOGGING_LEVEL.ALL)
+            Logger.logMessage('New type registered %s.' % _symbol.getUnit().getName(), LOGGING_LEVEL.ALL)
         return
 
 

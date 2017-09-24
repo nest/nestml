@@ -44,49 +44,23 @@ class CoCoFunctionCallsConsistent(CoCo):
                 symbols = func.getScope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
                 # first check if the function has been declared
                 if symbols is None:
-                    Logger.logAndPrintMessage(
-                        '[' + _neuron.getName() + '.nestml] Function %s at %s is not declared!'
-                        % (func.getName(), func.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
-                    raise FunctionNotDeclared()
+                    Logger.logMessage('[' + _neuron.getName() + '.nestml] Function %s at %s is not declared!'
+                                      % (func.getName(), func.getSourcePosition().printSourcePosition()),
+                                      LOGGING_LEVEL.ERROR)
                 # now check if the number of arguments is the same as in the symbol
                 if len(func.getArgs()) != len(symbols.getParameterTypes()):
-                    Logger.logAndPrintMessage(
+                    Logger.logMessage(
                         '[' + _neuron.getName() + '.nestml] Wrong number of arguments in function-call %s at %s! '
                                                   'Expected %s, found %s.'
                         % (func.getName(), func.getSourcePosition().printSourcePosition(),
                            len(symbols.getParameterTypes()), len(func.getArgs())), LOGGING_LEVEL.ERROR)
-                    raise FunctionCallWrongNumberOfArguments()
                 # Todo: here we have to ensure correct typing of elements.
                 # TODO: @philip treader
                 # finally check if the call is correctly typed
                 for arg in func.getArgs():
                     if None is not None:
-                        Logger.logAndPrintMessage(
+                        Logger.logMessage(
                             '[' + _neuron.getName() + '.nestml] Argument of function-call %s at %s is wrongly typed! '
                                                       'Expected %s, found %s.'
                             % (func.getName(), func.getSourcePosition().printSourcePosition(), 'TODO', 'TODO'),
                             LOGGING_LEVEL.ERROR)
-                        raise FunctionCallWronglyTyped()
-
-
-class FunctionNotDeclared(Exception):
-    """
-    This exception is thrown whenever a function call is used with a now defined function.
-    """
-    pass
-
-
-class FunctionCallWrongNumberOfArguments(Exception):
-    """
-    This Exception is thrown whenever a function call uses a function with a wrong number of arguments.
-    """
-    pass
-
-
-class FunctionCallWronglyTyped(Exception):
-    """
-    This exception is thrown whenever a function call uses arguments of wrong type, e.g., expected integer, handed
-    over string.
-    """
-    pass

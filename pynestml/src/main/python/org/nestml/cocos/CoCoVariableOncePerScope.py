@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 
 
 class CoCoVariableOncePerScope(CoCo):
@@ -49,22 +50,19 @@ class CoCoVariableOncePerScope(CoCo):
         :param _scope: a single scope to check.
         :type _scope: Scope
         """
+        checked = list()
         for sym1 in _scope.getSymbolsInThisScope():  # TODO: in o(n^2), maybe a better solution is possible
             for sym2 in _scope.getSymbolsInThisScope():
                 if sym1 is not sym2 and sym1.getSymbolName() == sym2.getSymbolName() and \
-                                sym1.getSymbolKind() == sym2.getSymbolKind():
-                    Logger.logAndPrintMessage(
+                                sym1.getSymbolKind() == sym2.getSymbolKind() and \
+                                sym1.getSymbolKind() == SymbolKind.VARIABLE and \
+                        sym1.getReferencedObject().getSourcePosition(). \
+                                before(sym2.getReferencedObject().getSourcePosition()):
+                    Logger.logMessage(
                         '[' + _neuron.getName() + '.nestml] Variable %s redeclared at %s ! First declared at %s.'
                         % (sym1.getSymbolName(), sym2.getReferencedObject().getSourcePosition().printSourcePosition(),
                            sym1.getReferencedObject().getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
-                    raise VariableRedeclared()
+            checked.append(sym1)
         for scope in _scope.getScopes():
             cls.__checkScope(_neuron, scope)
         return
-
-
-class VariableRedeclared(Exception):
-    """
-    This exception is thrown whenever a variable has been re-declared in the same scope.
-    """
-    pass

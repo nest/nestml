@@ -27,7 +27,8 @@ class Logger(object):
         LEVELS:
             ALL         Print all received messages.
             WARNING     Print all received warning.
-            ERROR      Print all received error.
+            ERROR       Print all received errors.
+            NO          Print no messages
     Hereby, errors are the most specific level, thus no warnings and non critical messages are shown. If logging 
     level is set to WARNING, only warnings and errors are printed. Only if level is set to ALL, all messages 
     are printed.
@@ -63,7 +64,8 @@ class Logger(object):
     @classmethod
     def logMessage(cls, _message=None, _logLevel=None):
         """
-        Logs the handed over message on the handed over level only if current level is set to corresponding level.
+        Logs the handed over message on the handed over. If the current logging is appropriate, the 
+        message is also printed.
         :param _message: a message. 
         :type _message: str
         :param _logLevel: the corresponding log level.
@@ -73,29 +75,10 @@ class Logger(object):
             '(PyNestML.Logger) No or wrong type of message provided!'
         assert (_logLevel is not None and isinstance(_logLevel, LOGGING_LEVEL)), \
             '(PyNestML.Logger) No or wrong type of logging-level provided!'
+        cls.__log[cls.__currMessage] = (_message, _logLevel)
+        cls.__currMessage += 1
         if cls.__loggingLevel.value <= _logLevel.value:
-            cls.__log[cls.__currMessage] = (_message, _logLevel)
-            cls.__currMessage += 1
-        return
-
-    @classmethod
-    def logAndPrintMessage(cls, _message=None, _logLevel=None):
-        """
-        Logs and prints to the screen the handed over message on the handed over level only if current level is 
-        set to corresponding level.
-        :param _message: a message. 
-        :type _message: str
-        :param _logLevel: the corresponding log level.
-        :type _logLevel: LOGGING_LEVEL 
-        """
-        assert (_message is not None and isinstance(_message, str)), \
-            '(PyNestML.Logger) No or wrong type of message provided!'
-        assert (_logLevel is not None and isinstance(_logLevel, LOGGING_LEVEL)), \
-            '(PyNestML.Logger) No or wrong type of logging-level provided!'
-        if cls.__loggingLevel.value <= _logLevel.value:
-            cls.__log[cls.__currMessage] = (_message, _logLevel)
             print('[' + str(cls.__currMessage) + ':' + str(_logLevel.name) + ']:' + str(_message))
-            cls.__currMessage += 1
         return
 
     @classmethod
@@ -131,6 +114,21 @@ class Logger(object):
             '(PyNestML.Utils.Logger) No or wrong type of logging-level provided (%s)!' % type(_level)
         cls.__loggingLevel = _level
         return
+
+    @classmethod
+    def getAllMessagesOfLevel(cls, _level=None):
+        """
+        Returns all messages which have a certain type or lower.
+        :param _level: a
+        :type _level: 
+        :return: a list of messages with their levels.
+        :rtype: list((str,Logging_Level)
+        """
+        ret = list()
+        for (message, level) in cls.__log.values():
+            if level.value >= _level:
+                ret.append((message, level))
+        return ret
 
 
 class LOGGING_LEVEL(Enum):

@@ -37,69 +37,48 @@ class CoCoEachBlockUniqueAndDefined(CoCo):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.ElementDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
         if isinstance(_neuron.getStateBlocks(), list) and len(_neuron.getStateBlocks()) > 1:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] State block not unique, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotUniqueException('State block not unique!')
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] State block not unique, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        # check that update block is defined exactly once
         if isinstance(_neuron.getUpdateBlocks(), list) and len(_neuron.getUpdateBlocks()) > 1:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Update block not unique, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotUniqueException('Update block not unique!')
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Update block not unique, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        elif _neuron.getUpdateBlocks() is None:
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Update block not defined, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        elif isinstance(_neuron.getUpdateBlocks(), list) and len(_neuron.getUpdateBlocks()) == 0:
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Update block not defined, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        # check that parameters block is defined at most once
         if isinstance(_neuron.getParameterBlocks(), list) and len(_neuron.getParameterBlocks()) > 1:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Parameters block not unique, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotUniqueException('Parameters block not unique!')
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Parameters block not unique, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        # check that internals block is defined at most once
         if isinstance(_neuron.getInternalsBlocks(), list) and len(_neuron.getInternalsBlocks()) > 1:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Internals block not unique, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotUniqueException('Internals block not unique!')
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Internals block not unique, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        # check that equations block is defined at most once
         if isinstance(_neuron.getEquationsBlocks(), list) and len(_neuron.getEquationsBlocks()) > 1:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Equations block not unique, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotUniqueException('Equations block not unique!')
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Equations block not unique, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        # check that input block is defined exactly once
         if isinstance(_neuron.getInputBlocks(), list) and len(_neuron.getInputBlocks()) > 1:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Input block not unique, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotUniqueException('Input block not unique!')
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Input block not unique, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        elif isinstance(_neuron.getInputBlocks(), list) and len(_neuron.getInputBlocks()) == 0:
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Input block not defined, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        elif _neuron.getInputBlocks() is None:
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Input block not defined, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        # check that output block is defined exactly once
         if isinstance(_neuron.getOutputBlocks(), list) and len(_neuron.getOutputBlocks()) > 1:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Output block not unique, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotUniqueException('Output block not unique!')
-        if isinstance(_neuron.getUpdateBlocks(), list) and len(_neuron.getUpdateBlocks()) == 0:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Update block not defined, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotDefinedException('Update block not defined!')
-        if isinstance(_neuron.getInputBlocks(), list) and len(_neuron.getInputBlocks()) == 0:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Input block not defined, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotDefinedException('Input block not defined!')
-        if isinstance(_neuron.getOutputBlocks(), list) and len(_neuron.getOutputBlocks()) == 0:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Output block not defined, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotDefinedException('Output block not defined!')
-        if _neuron.getUpdateBlocks() is None:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Update block not defined, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotDefinedException('Update block not defined!')
-        if _neuron.getInputBlocks() is None:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Input block not defined, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotDefinedException('Input block not defined!')
-        if _neuron.getOutputBlocks() is None:
-            Logger.logAndPrintMessage('[' + _neuron.getName() + '] Output block not defined, model not correct!',
-                                      LOGGING_LEVEL.ERROR)
-            raise BlockNotDefinedException('Output block not defined!')
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Output block not unique, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        elif isinstance(_neuron.getOutputBlocks(), list) and len(_neuron.getOutputBlocks()) == 0:
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Output block not defined, model not correct!',
+                              LOGGING_LEVEL.ERROR)
+        elif _neuron.getOutputBlocks() is None:
+            Logger.logMessage('[' + _neuron.getName() + '.nestml] Output block not defined, model not correct!',
+                              LOGGING_LEVEL.ERROR)
         return
-
-
-class BlockNotUniqueException(Exception):
-    """
-    This exception is generated whenever several blocks of the same type are created.
-    """
-    pass
-
-
-class BlockNotDefinedException(Exception):
-    """
-    This exception is thrown whenever a required type of block has not been defined.
-    """
-    pass

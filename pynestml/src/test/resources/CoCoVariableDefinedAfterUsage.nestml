@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoElementInSameLine.nestml
+ *  CoCoVariableDefinedAfterUsage.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,19 +20,25 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context.
+ * This model is used to test if broken CoCos are identified correctly. Here, if not defined variables are detected.
+ *
 */
-neuron CoCoElementInSameLine:
+
+neuron CoCoVariableDefinedAfterUsage:
     state:
-        test1 integer = test1 # case 1: variable set to value as currently declared
+        test1 mV = 10mV+10mV
+    end
+    update:
+        #test1 = test2 + test1
     end
 
-    update:
-        # required for creation of a correct ast
-    end
+    #state:
+        #test1 mV = 10mV
+        #test2 integer = test1
+    #end
 
     input:
-        # required for creation of a correct ast
+
     end
 
     output: spike

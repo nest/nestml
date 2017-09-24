@@ -22,6 +22,10 @@
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 from pynestml.src.main.python.org.nestml.visitor.ASTExpressionCollectorVisitor import ASTExpressionCollectorVisitor
+from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
 
 
 class CoCoAllVariablesDefined(CoCo):
@@ -29,6 +33,7 @@ class CoCoAllVariablesDefined(CoCo):
     This class represents a constraint condition which ensures that all elements as used in expressions have been
     previously defined.
     """
+
     @classmethod
     def checkCoCo(cls, _neuron=None):
         """
@@ -38,17 +43,32 @@ class CoCoAllVariablesDefined(CoCo):
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.ElementDefined) No or wrong type of neuron provided (%s)!' %type(_neuron)
+            '(PyNestML.CoCo.ElementDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
         # for each variable in all expressions, check if the variable has been defined previously
         expressions = ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron)
         for expr in expressions:
             for var in expr.getVariables():
-                #print(var.getName())
-                pass
-
-
-class ElementNotDefined(Exception):
-    """
-    This exception is thrown whenever an element, which is used in an expression, has not been defined.
-    """
-    pass
+                # first check that we are not dealing with a variable as part of something like 10*nS
+                if PredefinedTypes.getTypeIfExists(var.getName()) is None:
+                    symbol = var.getScope().resolveToAllSymbols(var.getCompleteName(), SymbolKind.VARIABLE)
+                    # first test if the symbol has been defined at least
+                    if symbol is None:
+                        Logger.logMessage(
+                            '[' + _neuron.getName() + '.nestml] Variable %s at %s not declared before usage!'
+                            % (var.getName(), var.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
+                    # now check if it has been defined before usage, except for buffers
+                    elif not symbol.isPredefined() and symbol.getBlockType() != BlockType.INPUT_BUFFER_CURRENT and \
+                                    symbol.getBlockType() != BlockType.INPUT_BUFFER_SPIKE:
+                        # except for parameters, those can be defined after
+                        if not symbol.getReferencedObject().getSourcePosition().before(var.getSourcePosition()) and \
+                                        symbol.getBlockType() != BlockType.PARAMETERS:
+                            Logger.logMessage(
+                                '[' + _neuron.getName() + '.nestml] Variable %s at %s used before declaration!'
+                                % (var.getName(), var.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
+                            # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
+                        if symbol.getReferencedObject().getSourcePosition().encloses(var.getSourcePosition()):
+                            Logger.logMessage(
+                                '[' + _neuron.getName() + '.nestml] Variable %s at %s defined recursively!'
+                                % (var.getName(), symbol.getReferencedObject().
+                                   getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
+        return

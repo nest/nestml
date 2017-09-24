@@ -47,7 +47,7 @@ class NESTMLParser(object):
             print('(PyNestML.Parser) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
 
-        Logger.logAndPrintMessage('Start processing ' + file_path, LOGGING_LEVEL.ALL)
+        Logger.logMessage('Start processing ' + file_path, LOGGING_LEVEL.ALL)
         # create a lexer and hand over the input
         lexer = PyNESTMLLexer(inputFile)
         # create a token stream
@@ -64,8 +64,4 @@ class NESTMLParser(object):
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
             SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())
-
-        # hand over the list of cocos to check to the the manager
-        for neuron in ast.getNeuronList():
-            CoCosManager.checkCocos(neuron)
         return ast

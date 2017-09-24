@@ -77,8 +77,10 @@ class SymbolTableASTVisitor(object):
         # now create the actual scope
         cls.visitBody(_neuron.getBody())
         # before following checks occur, we need to ensure several simple properties
-        CoCosManager.checkCocos(_neuron)
-
+        CoCosManager.checkFunctionDefined(_neuron)
+        CoCosManager.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
+        CoCosManager.checkVariablesUniqueInScope(_neuron)
+        CoCosManager.checkVariablesDefinedBeforeUsage(_neuron)
         # the following part is done in order to mark conductance based buffers as such.
         if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None:
             buffers = (buffer for buffer in _neuron.getInputBlocks().getInputLines())
@@ -788,8 +790,8 @@ class SymbolTableASTVisitor(object):
                             1].printAST() == buffer.getName():
                             symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolKind.VARIABLE)
                             symbol.setConductanceBased(True)
-                            Logger.logAndPrintMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
-                                                      LOGGING_LEVEL.ALL)
+                            Logger.logMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
+                                              LOGGING_LEVEL.ALL)
 
         return
 
@@ -823,8 +825,8 @@ class SymbolTableASTVisitor(object):
                                                                SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
-            Logger.logAndPrintMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),
-                                      LOGGING_LEVEL.ALL)
+            Logger.logMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),
+                              LOGGING_LEVEL.ALL)
         else:  # create a new symbol, however, this should never happen since only exiting symbols shall be updated
             # if an existing symbol does not exists, we derive the base symbol, e.g. V_m
             baseSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName(), SymbolKind.VARIABLE)
@@ -836,6 +838,6 @@ class SymbolTableASTVisitor(object):
                                        _typeSymbol=PredefinedTypes.
                                        getTypeIfExists(baseSymbol.getTypeSymbol().printSymbol()))  # todo
             cls.__globalScope.addSymbol(newSymbol)
-            Logger.logAndPrintMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
-                                      LOGGING_LEVEL.ALL)
+            Logger.logMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
+                              LOGGING_LEVEL.ALL)
         return

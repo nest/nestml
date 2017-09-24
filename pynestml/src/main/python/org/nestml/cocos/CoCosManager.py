@@ -22,6 +22,7 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionUnique import CoCoFun
 from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
 from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionCallsConsistent import CoCoFunctionCallsConsistent
 from pynestml.src.main.python.org.nestml.cocos.CoCoAllVariablesDefined import CoCoAllVariablesDefined
+from pynestml.src.main.python.org.nestml.cocos.CoCoVariableOncePerScope import CoCoVariableOncePerScope
 
 
 class CoCosManager(object):
@@ -32,6 +33,7 @@ class CoCosManager(object):
     __eachBlockUniqueAndDefined = None
     __functionCallDefinedAndTyped = None
     __variablesUnique = None
+    __variablesDefinedBeforeUsage = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -41,7 +43,8 @@ class CoCosManager(object):
         cls.__functionDefinedUniquely = CoCoFunctionUnique.checkCoCo
         cls.__eachBlockUniqueAndDefined = CoCoEachBlockUniqueAndDefined.checkCoCo
         cls.__functionCallDefinedAndTyped = CoCoFunctionCallsConsistent.checkCoCo
-        cls.__variablesUnique = CoCoAllVariablesDefined.checkCoCo
+        cls.__variablesUnique = CoCoVariableOncePerScope.checkCoCo
+        cls.__variablesDefinedBeforeUsage = CoCoAllVariablesDefined.checkCoCo
         return
 
     @classmethod
@@ -55,10 +58,10 @@ class CoCosManager(object):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.checkEachBlockUniqueAndDefined(_neuron)
         cls.checkFunctionDefined(_neuron)
         cls.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
         cls.checkVariablesUniqueInScope(_neuron)
+        cls.checkVariablesDefinedBeforeUsage(_neuron)
         return
 
     @classmethod
@@ -107,4 +110,16 @@ class CoCosManager(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__variablesUnique(_neuron)
+        return
+
+    @classmethod
+    def checkVariablesDefinedBeforeUsage(cls, _neuron):
+        """
+        Checks that all variables are defined before beeing used.
+        :param _neuron: a single neuron.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__variablesDefinedBeforeUsage(_neuron)
         return

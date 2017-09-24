@@ -68,13 +68,18 @@ class ASTExpressionCollectorVisitor(object):
         if _block is None:
             return list()
         from pynestml.src.main.python.org.nestml.ast.ASTBlockWithVariables import ASTBlockWithVariables
-        assert (_block is not None and isinstance(_block, ASTBlockWithVariables)), \
+        assert (_block is not None and (isinstance(_block, ASTBlockWithVariables) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of state block provided (%s)!' % type(_block)
-        assert (_block.isState()), \
+        assert (isinstance(_block, list) or _block.isState()), \
             '(PyNestML.Visitor.ExpressionCollector) Not a state block provided!'
         ret = list()
-        for decl in _block.getDeclarations():
-            ret.append(decl.getExpr())
+        if isinstance(_block, list):
+            for block in _block:
+                for decl in block.getDeclarations():
+                    ret.append(decl.getExpr())
+        else:
+            for decl in _block.getDeclarations():
+                ret.append(decl.getExpr())
         return ret
 
     @classmethod
@@ -89,13 +94,18 @@ class ASTExpressionCollectorVisitor(object):
         if _block is None:
             return list()
         from pynestml.src.main.python.org.nestml.ast.ASTBlockWithVariables import ASTBlockWithVariables
-        assert (_block is not None and isinstance(_block, ASTBlockWithVariables)), \
+        assert (_block is not None and (isinstance(_block, ASTBlockWithVariables) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of parameters block provided (%s)!' % type(_block)
-        assert (_block.isParameters()), \
+        assert (isinstance(_block, list) or _block.isParameters()), \
             '(PyNestML.Visitor.ExpressionCollector) Not a parameters block provided!'
         ret = list()
-        for decl in _block.getDeclarations():
-            ret.append(decl.getExpr())
+        if isinstance(_block, list):
+            for block in _block:
+                for decl in block.getDeclarations():
+                    ret.append(decl.getExpr())
+        else:
+            for decl in _block.getDeclarations():
+                ret.append(decl.getExpr())
         return ret
 
     @classmethod
@@ -110,13 +120,18 @@ class ASTExpressionCollectorVisitor(object):
         if _block is None:
             return list()
         from pynestml.src.main.python.org.nestml.ast.ASTBlockWithVariables import ASTBlockWithVariables
-        assert (_block is not None and isinstance(_block, ASTBlockWithVariables)), \
+        assert (_block is not None and (isinstance(_block, ASTBlockWithVariables) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of internals block provided (%s)!' % type(_block)
-        assert (_block.isInternals()), \
+        assert (isinstance(_block, list) or _block.isInternals()), \
             '(PyNestML.Visitor.ExpressionCollector) Not a internals block provided!'
         ret = list()
-        for decl in _block.getDeclarations():
-            ret.append(decl.getExpr())
+        if isinstance(_block, list):
+            for block in _block:
+                for decl in block.getDeclarations():
+                    ret.append(decl.getExpr())
+        else:
+            for decl in _block.getDeclarations():
+                ret.append(decl.getExpr())
         return ret
 
     @classmethod
@@ -131,9 +146,15 @@ class ASTExpressionCollectorVisitor(object):
         if _block is None:
             return list()
         from pynestml.src.main.python.org.nestml.ast.ASTUpdateBlock import ASTUpdateBlock
-        assert (_block is not None and isinstance(_block, ASTUpdateBlock)), \
+        assert (_block is not None and (isinstance(_block, ASTUpdateBlock) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of update block provided (%s)!' % type(_block)
-        return cls.collectExpressionInBlock(_block.getBlock())
+        if isinstance(_block, list):
+            ret = list()
+            for block in _block:
+                ret.extend(cls.collectExpressionInBlock(block))
+            return ret
+        else:
+            return cls.collectExpressionInBlock(_block.getBlock())
 
     @classmethod
     def collectExpressionsInEquationsBlock(cls, _block=None):
@@ -150,16 +171,26 @@ class ASTExpressionCollectorVisitor(object):
         from pynestml.src.main.python.org.nestml.ast.ASTOdeEquation import ASTOdeEquation
         from pynestml.src.main.python.org.nestml.ast.ASTOdeShape import ASTOdeShape
         from pynestml.src.main.python.org.nestml.ast.ASTOdeFunction import ASTOdeFunction
-        assert (_block is not None and isinstance(_block, ASTEquationsBlock)), \
+        assert (_block is not None and (isinstance(_block, ASTEquationsBlock) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of equations block provided (%s)!' % type(_block)
         ret = list()
-        for decl in _block.getDeclarations():
-            if isinstance(decl, ASTOdeFunction):
-                ret.append(decl.getExpression())
-            elif isinstance(decl, ASTOdeShape):
-                ret.append(decl.getExpression())
-            elif isinstance(decl, ASTOdeEquation):
-                ret.append(decl.getRhs())
+        if isinstance(_block, list):
+            for block in _block:
+                for decl in block.getDeclarations():
+                    if isinstance(decl, ASTOdeFunction):
+                        ret.append(decl.getExpression())
+                    elif isinstance(decl, ASTOdeShape):
+                        ret.append(decl.getExpression())
+                    elif isinstance(decl, ASTOdeEquation):
+                        ret.append(decl.getRhs())
+        else:
+            for decl in _block.getDeclarations():
+                if isinstance(decl, ASTOdeFunction):
+                    ret.append(decl.getExpression())
+                elif isinstance(decl, ASTOdeShape):
+                    ret.append(decl.getExpression())
+                elif isinstance(decl, ASTOdeEquation):
+                    ret.append(decl.getRhs())
         return ret
 
     @classmethod
@@ -174,9 +205,15 @@ class ASTExpressionCollectorVisitor(object):
         if _block is None:
             return list()
         from pynestml.src.main.python.org.nestml.ast.ASTFunction import ASTFunction
-        assert (_block is not None and isinstance(_block, ASTFunction)), \
+        assert (_block is not None and (isinstance(_block, ASTFunction) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of function block provided (%s)!' % type(_block)
-        return cls.collectExpressionInBlock(_block.getBlock())
+        if isinstance(_block, list):
+            ret = list()
+            for block in _block:
+                ret.extend(cls.collectExpressionInBlock(block.getBlock()))
+            return ret
+        else:
+            return cls.collectExpressionInBlock(_block.getBlock())
 
     @classmethod
     def collectExpressionInBlock(cls, _block=None):

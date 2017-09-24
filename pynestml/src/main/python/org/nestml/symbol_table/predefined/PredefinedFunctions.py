@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from copy import copy
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
 
 
@@ -133,7 +132,6 @@ class PredefinedFunctions:
         Registers the print function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
         params.append(PredefinedTypes.getStringType())
         symbol = FunctionSymbol(_name=cls.__PRINT, _paramTypes=params,
@@ -148,7 +146,6 @@ class PredefinedFunctions:
         Registers the print-line function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__PRINTLN, _paramTypes=list(),
                                 _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
@@ -161,7 +158,6 @@ class PredefinedFunctions:
         Registers the power function.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         params = list()
         params.append(PredefinedTypes.getRealType())  # the base type
         params.append(PredefinedTypes.getRealType())  # the exponent type
@@ -233,7 +229,6 @@ class PredefinedFunctions:
         Registers the random method as used to generate a random real-typed value.
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         symbol = FunctionSymbol(_name=cls.__RANDOM, _paramTypes=list(),
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)

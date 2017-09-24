@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoElementInSameLine.nestml
+ *  CoCoVariableNotDefined.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,19 +20,17 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context.
+ * This model is used to test if broken CoCos are identified correctly. Here, if not defined variables are detected.
+ *
 */
-neuron CoCoElementInSameLine:
-    state:
-        test1 integer = test1 # case 1: variable set to value as currently declared
-    end
 
+neuron CoCoVariableNotDefined:
     update:
-        # required for creation of a correct ast
+        test1 = test2 +1
     end
 
     input:
-        # required for creation of a correct ast
+
     end
 
     output: spike

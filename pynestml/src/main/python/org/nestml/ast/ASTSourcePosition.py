@@ -150,9 +150,9 @@ class ASTSourcePosition(object):
         :rtype: bool
         """
         if self.getStartLine() <= _sourcePosition.getStartLine() and \
-                        self.getEndLine() <= _sourcePosition.getEndLine() and \
+                        self.getEndLine() >= _sourcePosition.getEndLine() and \
                         self.getStartColumn() <= _sourcePosition.getStartColumn() and \
-                        self.getEndColumn() <= _sourcePosition.getEndColumn():
+                        self.getEndColumn() >= _sourcePosition.getEndColumn():
             return True
         else:
             return False
