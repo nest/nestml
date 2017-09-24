@@ -336,8 +336,8 @@ class ASTExpression(ASTElement):
         :rtype: list(ASTVariable)
         """
         ret = list()
-        if self.isSimpleExpression() and self.getExpression().getVariables():
-            ret.append(self.getExpression().getVariables())
+        if self.isSimpleExpression() and self.getExpression().isVariable():
+            ret.append(self.getExpression().getVariable())
         elif self.isUnaryOperator():
             ret.extend(self.getExpression().getVariables())
         elif self.isCompoundExpression():

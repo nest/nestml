@@ -36,7 +36,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append(path)
         params.append('-dry')
         params.append('-logging_level')
-        params.append('NO')
+        params.append('ERROR')
         main(params)
         from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
         # print(SymbolTable.printSymbolTable())

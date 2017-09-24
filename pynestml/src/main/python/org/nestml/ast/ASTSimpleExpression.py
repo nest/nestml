@@ -122,6 +122,17 @@ class ASTSimpleExpression(ASTElement):
         """
         return self.__functionCall
 
+    def getFunctions(self):
+        """
+        This function is used for better interactions with the general expression ast class.
+        :return: returns a single list with this function call if such an exists, otherwise an empty list
+        :rtype: list(ASTFunctionCall)
+        """
+        ret = list()
+        if self.isFunctionCall():
+            ret.append(self.getFunctionCall())
+        return ret
+
     def isBooleanTrue(self):
         """
         Returns whether it is a boolean true literal.
@@ -170,6 +181,17 @@ class ASTSimpleExpression(ASTElement):
         """
         return self.__variable is not None and self.__numericLiteral is None
 
+    def getVariables(self):
+        """
+        This function is used for better interactions with the general expression ast class.
+        :return: returns a single list with this variable if such an exists, otherwise an empty list
+        :rtype: list(ASTVariable)
+        """
+        ret = list()
+        if self.isVariable():
+            ret.append(self.getVariable())
+        return ret
+
     def hasUnit(self):
         """
         Returns whether this is a numeric literal with a defined unit.
@@ -177,6 +199,17 @@ class ASTSimpleExpression(ASTElement):
         :rtype: bool
         """
         return self.__variable is not None and self.__numericLiteral is not None
+
+    def getUnits(self):
+        """
+        This function is used for better interactions with the general expression ast class.
+        :return: returns a single list with unit if such an exists, otherwise an empty list
+        :rtype: list(ASTVariable)
+        """
+        ret = list()
+        if self.hasUnit():
+            ret.append(self.getVariable())
+        return ret
 
     def getVariable(self):
         """

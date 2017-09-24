@@ -23,6 +23,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symb
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 
+
 class Scope(object):
     """
     This class is used to store a single scope, i.e., a set of elements as declared in this scope directly and 

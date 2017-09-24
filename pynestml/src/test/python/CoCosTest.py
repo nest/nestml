@@ -23,7 +23,7 @@ from __future__ import print_function
 import unittest
 import os
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
-from pynestml.src.main.python.org.nestml.cocos.CoCoElementDefined import ElementNotDefined
+from pynestml.src.main.python.org.nestml.cocos.CoCoAllVariablesDefined import CoCoAllVariablesDefined
 from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionUnique import FunctionRedeclared
 from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUniqueAndDefined import BlockNotUniqueException
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
@@ -34,15 +34,17 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunct
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import PredefinedVariables
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
+from pynestml.src.main.python.org.nestml.cocos.CoCoVariableOncePerScope import VariableRedeclared
 
 # minor setup steps required
-Logger.initLogger(LOGGING_LEVEL.ERROR)
+Logger.initLogger(LOGGING_LEVEL.ALL)
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
 PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
 PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
 CoCosManager.initializeCoCosManager()
+
 
 class ElementInSameLine(unittest.TestCase):
     def test(self):
@@ -66,6 +68,19 @@ class ElementNotDefinedInScope(unittest.TestCase):
                 os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                              'CoCoElementNotDefined.nestml'))
         except ElementNotDefined:
+            return
+        return 1  # meaning an error
+
+
+class VariableRedeclaration(unittest.TestCase):
+    def test(self):
+
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        try:
+            model = NESTMLParser.parseModel(
+                os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                             'VariableRedeclared.nestml'))
+        except VariableRedeclared:
             return
         return 1  # meaning an error
 

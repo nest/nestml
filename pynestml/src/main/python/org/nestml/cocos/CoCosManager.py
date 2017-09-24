@@ -20,7 +20,8 @@
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionUnique import CoCoFunctionUnique
 from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
-from pynestml.src.main.python.org.nestml.cocos.CoCoAllFunctionsDeclared import CoCoAllFunctionsDeclared
+from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionCallsConsistent import CoCoFunctionCallsConsistent
+from pynestml.src.main.python.org.nestml.cocos.CoCoAllVariablesDefined import CoCoAllVariablesDefined
 
 
 class CoCosManager(object):
@@ -30,6 +31,7 @@ class CoCosManager(object):
     __functionDefinedUniquely = None
     __eachBlockUniqueAndDefined = None
     __functionCallDefinedAndTyped = None
+    __variablesUnique = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -38,7 +40,8 @@ class CoCosManager(object):
         """
         cls.__functionDefinedUniquely = CoCoFunctionUnique.checkCoCo
         cls.__eachBlockUniqueAndDefined = CoCoEachBlockUniqueAndDefined.checkCoCo
-        cls.__functionCallDefinedAndTyped = CoCoAllFunctionsDeclared.checkCoCo
+        cls.__functionCallDefinedAndTyped = CoCoFunctionCallsConsistent.checkCoCo
+        cls.__variablesUnique = CoCoAllVariablesDefined.checkCoCo
         return
 
     @classmethod
@@ -52,9 +55,10 @@ class CoCosManager(object):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__functionDefinedUniquely(_neuron)
-        cls.__eachBlockUniqueAndDefined(_neuron)
-        cls.__functionCallDefinedAndTyped(_neuron)
+        cls.checkEachBlockUniqueAndDefined(_neuron)
+        cls.checkFunctionDefined(_neuron)
+        cls.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
+        cls.checkVariablesUniqueInScope(_neuron)
         return
 
     @classmethod
@@ -81,7 +85,7 @@ class CoCosManager(object):
         return
 
     @classmethod
-    def checkFunctionDeclaredAndCorrectlyTyped(cls, _neuron):
+    def checkFunctionDeclaredAndCorrectlyTyped(cls, _neuron=None):
         """
         Checks if in the handed over neuron all function calls use existing functions and the argumets are 
         correctly typed.
@@ -91,4 +95,16 @@ class CoCosManager(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__functionCallDefinedAndTyped(_neuron)
+        return
+
+    @classmethod
+    def checkVariablesUniqueInScope(cls, _neuron=None):
+        """
+        Checks that all variables have been declared at most once per scope.
+        :param _neuron: a single neuron instance
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__variablesUnique(_neuron)
         return

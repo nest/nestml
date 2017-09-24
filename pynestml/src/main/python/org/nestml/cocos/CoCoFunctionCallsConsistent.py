@@ -23,7 +23,7 @@ from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 
 
-class CoCoAllFunctionsDeclared(CoCo):
+class CoCoFunctionCallsConsistent(CoCo):
     """
     This coco ensures that for all function calls in the handed over neuron, the corresponding function is 
     defined and the types of arguments in the function call correspond to the one in the function symbol.
