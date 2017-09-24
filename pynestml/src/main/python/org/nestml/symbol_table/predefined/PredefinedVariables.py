@@ -51,9 +51,9 @@ class PredefinedVariables:
     @classmethod
     def __registerPredefinedTypeVariables(cls):
         """
-        Registers all predefined type variables, e.g., mV.
+        Registers all predefined type variables, e.g., mV and integer.
         """
-        for name in PredefinedUnits.getUnits().keys():
+        for name in PredefinedTypes.getTypes().keys():
             symbol = VariableSymbol(_name=name, _blockType=BlockType.STATE,
                                     _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists(name))
             cls.__name2VariableSymbol[name] = symbol

@@ -27,7 +27,6 @@
 neuron CoCoNoOrderOfEquations:
     state:
         V_m mV = 10mV
-        mV mV = 10mV
     end
 
     equations:
