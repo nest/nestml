@@ -40,10 +40,7 @@ class CoCoAllFunctionsDeclared(CoCo):
         # TODO: here we have to consider the type of the arguments
         expressions = ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron)
         for expr in expressions:
-            for func in expr.getFunctions():  # TODO: here, sometimes a function call does not have a scope -> should not happen
-                if func.getScope() is None:
-                    print('bingo')
-
+            for func in expr.getFunctions():
                 symbols = func.getScope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
                 if symbols is None:
                     Logger.logAndPrintMessage(
@@ -51,6 +48,24 @@ class CoCoAllFunctionsDeclared(CoCo):
                         % (func.getName(), func.getSourcePosition().printSourcePosition()),
                         LOGGING_LEVEL.ERROR)
                     raise FunctionNotDeclared()
+                # Todo: here we have to ensure correct typing of elements.
+                # TODO: @philip treader
+                if len(func.getArgs()) != len(symbols.getParameterTypes()):
+                    Logger.logAndPrintMessage(
+                        '[' + _neuron.getName() + '.nestml] Wrong number arguments in function-call %s at %s! '
+                                                  'Expected %s, found %s.'
+                        % (func.getName(), func.getSourcePosition().printSourcePosition(),
+                           len(symbols.getParameterTypes()), func.getArgs()))
+                    raise FunctionCallWronglyTyped()
+
+                for arg in func.getArgs():
+                    if None is not None:
+                        Logger.logAndPrintMessage(
+                            '[' + _neuron.getName() + '.nestml] Argument of function-call %s at %s is wrongly typed! '
+                                                      'Expected %s, found %s.'
+                            % (func.getName(), func.getSourcePosition().printSourcePosition(), 'TODO', 'TODO'),
+                            LOGGING_LEVEL.ERROR)
+                        raise FunctionCallWronglyTyped()
 
 
 class FunctionNotDeclared(Exception):

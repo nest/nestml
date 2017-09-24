@@ -54,7 +54,7 @@ class CoCosManager(object):
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__functionDefinedUniquely(_neuron)
         cls.__eachBlockUniqueAndDefined(_neuron)
-        cls.__functionCallDefinedAndTyped(_neuron=_neuron)
+        cls.__functionCallDefinedAndTyped(_neuron)
         return
 
     @classmethod

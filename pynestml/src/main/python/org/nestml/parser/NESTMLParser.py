@@ -54,6 +54,8 @@ class NESTMLParser(object):
         stream = CommonTokenStream(lexer)
         # parse the file
         parser = PyNESTMLParser(stream)
+        # initialize the coco manager since several cocos are check during creation of ast
+        CoCosManager.initializeCoCosManager()
         # create a new visitor and return the new AST
         astBuilderVisitor = ASTBuilderVisitor.ASTBuilderVisitor()
         ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
@@ -62,8 +64,7 @@ class NESTMLParser(object):
         for neuron in ast.getNeuronList():
             ASTSymbolTableVisitor.SymbolTableASTVisitor.updateSymbolTable(neuron)
             SymbolTable.addNeuronScope(neuron.getName(), neuron.getScope())
-        # now check that all context conditions hold
-        CoCosManager.initializeCoCosManager()
+
         # hand over the list of cocos to check to the the manager
         for neuron in ast.getNeuronList():
             CoCosManager.checkCocos(neuron)

@@ -29,6 +29,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVaria
 from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
+from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 # minor setup steps required
 Logger.initLogger(LOGGING_LEVEL.ERROR)
@@ -37,7 +38,7 @@ PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
 PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
-
+CoCosManager.initializeCoCosManager()
 
 class SymbolTableResolutionTest(unittest.TestCase):
     """
