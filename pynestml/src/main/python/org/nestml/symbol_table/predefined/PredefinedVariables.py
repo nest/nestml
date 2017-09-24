@@ -17,6 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
 
 
 class PredefinedVariables:
@@ -41,6 +45,18 @@ class PredefinedVariables:
         cls.__name2VariableSymbol = {}
         cls.__registerEulerConstant()
         cls.__registerTimeConstant()
+        cls.__registerPredefinedTypeVariables()
+        return
+
+    @classmethod
+    def __registerPredefinedTypeVariables(cls):
+        """
+        Registers all predefined type variables, e.g., mV.
+        """
+        for name in PredefinedUnits.getUnits().keys():
+            symbol = VariableSymbol(_name=name, _blockType=BlockType.STATE,
+                                    _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists(name))
+            cls.__name2VariableSymbol[name] = symbol
         return
 
     @classmethod
@@ -48,9 +64,6 @@ class PredefinedVariables:
         """
         Adds the euler constant e.
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
         symbol = VariableSymbol(_name='e', _blockType=BlockType.STATE,
                                 _isPredefined=True, _typeSymbol=PredefinedTypes.getRealType())
         cls.__name2VariableSymbol[cls.__E_CONSTANT] = symbol
@@ -61,9 +74,6 @@ class PredefinedVariables:
         """
         Adds the time constant t.
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
         symbol = VariableSymbol(_name='t', _blockType=BlockType.STATE,
                                 _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists('ms'))
         cls.__name2VariableSymbol[cls.__TIME_CONSTANT] = symbol

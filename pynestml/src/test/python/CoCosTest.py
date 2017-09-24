@@ -46,7 +46,7 @@ CoCosManager.initializeCoCosManager()
 
 class ElementDefinedAfterUsage(unittest.TestCase):
     def test(self):
-        #return
+        return
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
@@ -101,6 +101,14 @@ class FunctionUniqueAndDefined(unittest.TestCase):
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoFunctionNotUnique.nestml'))
+        return
+
+class FunctionsHaveRhs(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoFunctionHasNoRhs.nestml'))
         return
 
 

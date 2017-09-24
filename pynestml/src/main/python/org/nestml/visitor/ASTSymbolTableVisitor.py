@@ -81,6 +81,7 @@ class SymbolTableASTVisitor(object):
         CoCosManager.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
         CoCosManager.checkVariablesUniqueInScope(_neuron)
         CoCosManager.checkVariablesDefinedBeforeUsage(_neuron)
+        CoCosManager.checkFunctionsHaveRhs(_neuron)
         # the following part is done in order to mark conductance based buffers as such.
         if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None:
             buffers = (buffer for buffer in _neuron.getInputBlocks().getInputLines())

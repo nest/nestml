@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableDefinedAfterUsage.nestml
+ *  CoCoFunctionHasNoRhs.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,23 +20,10 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if not defined variables are detected.
- *
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context.
 */
-
-neuron CoCoVariableDefinedAfterUsage:
-    update:
-        test1 = test2 + test1
-    end
-
+neuron CoCoFunctionHasNoRhs:
     state:
-        test1 mV = 10mV
-        test2 integer = test1
+        function V_rest mV  # the missing rhs should be detected
     end
-
-    input:
-
-    end
-
-    output: spike
 end

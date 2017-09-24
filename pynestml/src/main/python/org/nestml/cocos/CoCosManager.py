@@ -23,6 +23,7 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUniqueAndDefined imp
 from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionCallsConsistent import CoCoFunctionCallsConsistent
 from pynestml.src.main.python.org.nestml.cocos.CoCoAllVariablesDefined import CoCoAllVariablesDefined
 from pynestml.src.main.python.org.nestml.cocos.CoCoVariableOncePerScope import CoCoVariableOncePerScope
+from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionHaveRhs import CoCoFunctionHaveRhs
 
 
 class CoCosManager(object):
@@ -34,6 +35,7 @@ class CoCosManager(object):
     __functionCallDefinedAndTyped = None
     __variablesUnique = None
     __variablesDefinedBeforeUsage = None
+    __functionsHaveRhs = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -45,6 +47,7 @@ class CoCosManager(object):
         cls.__functionCallDefinedAndTyped = CoCoFunctionCallsConsistent.checkCoCo
         cls.__variablesUnique = CoCoVariableOncePerScope.checkCoCo
         cls.__variablesDefinedBeforeUsage = CoCoAllVariablesDefined.checkCoCo
+        cls.__functionsHaveRhs = CoCoFunctionHaveRhs.checkCoCo
         return
 
     @classmethod
@@ -122,4 +125,18 @@ class CoCosManager(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__variablesDefinedBeforeUsage(_neuron)
+        return
+
+    @classmethod
+    def checkFunctionsHaveRhs(cls, _neuron):
+        """
+        Checks that all functions have a right-hand side, e.g., function V_reset mV = V_m - 55mV 
+        :param _neuron: 
+        :type _neuron: 
+        :return: 
+        :rtype: 
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__functionsHaveRhs(_neuron)
         return
