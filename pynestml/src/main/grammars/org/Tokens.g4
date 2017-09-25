@@ -45,6 +45,12 @@ lexer grammar Tokens;
   */
   BOOLEAN_LITERAL : 'true' | 'True' | 'false' | 'False' ;
 
+  /**
+  * String literals are always enclosed in "...".
+  */
+
+  STRING_LITERAL : '"' ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )* '"';
+
   NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;
 
   /**

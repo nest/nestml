@@ -190,6 +190,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             numericLiteral = None
         isInf = (True if ctx.isInf is not None else False)
         variable = (self.visit(ctx.variable()) if ctx.variable() is not None else None)
+        string = (str(ctx.string) if ctx.string is not None else None)
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
@@ -198,6 +199,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                                _booleanLiteral=booleanLiteral,
                                                                                _numericLiteral=numericLiteral,
                                                                                _isInf=isInf, _variable=variable,
+                                                                               _string = string,
                                                                                _sourcePosition=sourcePos)
 
     # Visit a parse tree produced by PyNESTMLParser#unaryOperator.
