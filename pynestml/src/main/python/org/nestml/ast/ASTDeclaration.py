@@ -42,7 +42,7 @@ class ASTDeclaration(ASTElement):
             variable (',' variable)*
             datatype
             ('[' sizeParameter=NAME ']')?
-            ( '=' expression)? SL_COMMENT?
+            ( '=' expression)?
             ('[[' invariant=expression ']]')?;
     """
     __isRecordable = False
@@ -51,11 +51,10 @@ class ASTDeclaration(ASTElement):
     __dataType = None
     __sizeParameter = None
     __expression = None
-    __comment = None
     __invariant = None
 
     def __init__(self, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None, _sizeParameter=None,
-                 _expression=None, _comment=None, _invariant=None, _sourcePosition=None):
+                 _expression=None, _invariant=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _isRecordable: is a recordable declaration.
@@ -70,8 +69,6 @@ class ASTDeclaration(ASTElement):
         :type _sizeParameter: str
         :param _expression: an optional right-hand side expression.
         :type _expression: ASTExpression
-        :param _comment: an optional comment.
-        :type _comment: str
         :param _invariant: a optional invariant.
         :type _invariant: ASTExpression.
         :param _sourcePosition: the position of this element in the source file.
@@ -105,12 +102,11 @@ class ASTDeclaration(ASTElement):
         self.__dataType = _dataType
         self.__sizeParameter = _sizeParameter
         self.__expression = _expression
-        self.__comment = _comment
         self.__invariant = _invariant
 
     @classmethod
     def makeASTDeclaration(cls, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None,
-                           _sizeParameter=None, _expression=None, _comment=None, _invariant=None, _sourcePosition=None):
+                           _sizeParameter=None, _expression=None, _invariant=None, _sourcePosition=None):
         """
         The factory method of the ASTDeclaration class.
         :param _isRecordable: is a recordable declaration.
@@ -125,8 +121,6 @@ class ASTDeclaration(ASTElement):
         :type _sizeParameter: str
         :param _expression: an optional right-hand side expression.
         :type _expression: ASTExpr
-        :param _comment: an optional comment.
-        :type _comment: str
         :param _invariant: a optional invariant.
         :type _invariant: ASTExpr.
         :param _sourcePosition: the position of this element in the source file
@@ -135,7 +129,7 @@ class ASTDeclaration(ASTElement):
         :rtype: ASTDeclaration
         """
         return cls(_isRecordable, _isFunction, _variables, _dataType, _sizeParameter,
-                   _expression, _comment, _invariant, _sourcePosition)
+                   _expression, _invariant, _sourcePosition)
 
     def isRecordable(self):
         """
@@ -201,22 +195,6 @@ class ASTDeclaration(ASTElement):
         """
         return self.__expression
 
-    def hasComment(self):
-        """
-        Returns whether declaration has a comment.
-        :return: True if has comment, otherwise False.
-        :rtype: bool
-        """
-        return self.__comment is not None
-
-    def getComment(self):
-        """
-        Returns the comment.
-        :return: the comment.
-        :rtype: str
-        """
-        return self.__comment
-
     def hasInvariant(self):
         """
         Returns whether the declaration has a invariant or not.
@@ -253,8 +231,6 @@ class ASTDeclaration(ASTElement):
             ret += '[' + self.getSizeParameter() + ']'
         if self.hasExpression():
             ret += ' = ' + self.getExpr().printAST() + ' '
-        if self.hasComment():
-            ret += '#' + self.getComment()
         if self.hasInvariant():
             ret += ' [[' + self.getInvariant().printAST() + ']]'
         return ret

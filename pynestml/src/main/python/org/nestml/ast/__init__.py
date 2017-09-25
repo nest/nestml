@@ -1,10 +1,9 @@
 __all__ = ['ASTArithmeticOperator', 'ASTAssignment', 'ASTBitOperator', 'ASTBlock',
            'ASTBody', 'ASTComparisonOperator', 'ASTCompoundStmt', 'ASTDatatype',
-           'ASTDeclaration', 'ASTDerivative', 'ASTUpdateBlock', 'ASTElifClause', 'ASTElseClause',
+           'ASTDeclaration', 'ASTUpdateBlock', 'ASTElifClause', 'ASTElseClause',
            'ASTOdeEquation', 'ASTEquationsBlock', 'ASTExpression', 'ASTForStmt', 'ASTFunction', 'ASTFunctionCall',
            'ASTIfClause', 'ASTIfStmt', 'ASTInputBlock', 'ASTInputLine', 'ASTInputType', 'ASTLogicalOperator',
            'ASTNESTMLCompilationUnit', 'ASTNeuron', 'ASTOdeFunction', 'ASTOutputBlock',
-           'ASTParameter', 'ASTParameters', 'ASTReturnStmt', 'ASTOdeShape', 'ASTSimpleExpression', 'ASTSmallStmt',
-           'ASTStmt',
+           'ASTParameter', 'ASTReturnStmt', 'ASTOdeShape', 'ASTSimpleExpression', 'ASTSmallStmt',
            'ASTUnaryOperator', 'ASTUnitType', 'ASTBlockWithVariables', 'ASTVariable', 'ASTWhileStmt',
            'ASTSourcePosition', 'ASTElement']

@@ -20,7 +20,6 @@
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
-from pynestml.src.main.python.org.nestml.ast.ASTParameters import ASTParameters
 from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
 
 

@@ -223,22 +223,6 @@ class ASTHigherOrderVisitor:
         return
 
     @classmethod
-    def visitDerivative(cls, _ast=None, _func=None):
-        """
-        Visits a single declaration and executes the operation this node.
-        :param _ast: a single derivative element.
-        :type _ast: ASTDerivative
-        :param _func: a single single function.
-        :type _func: fun
-        """
-        assert (_ast is not None and isinstance(_ast, ASTDerivative.ASTDerivative)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of derivative provided (%s)!' % type(_ast)
-        assert (_func is not None and callable(_func)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
-        _func(_ast)
-        return
-
-    @classmethod
     def visitElifClause(cls, _ast=None, _func=None):
         """
         Visits a single elif-clause and executes the operation this node.
@@ -623,24 +607,6 @@ class ASTHigherOrderVisitor:
         return
 
     @classmethod
-    def visitParameters(cls, _ast=None, _func=None):
-        """
-        Visits a single parameter and executes the operation this node.
-        :param _ast: a singe parameter.
-        :type _ast: ASTParameter
-        :param _func: a single single function.
-        :type _func: fun
-        """
-        assert (_ast is not None and isinstance(_ast, ASTParameters.ASTParameters)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of parameters provided (%s)!' % type(_ast)
-        assert (_func is not None and callable(_func)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
-        _func(_ast)
-        for par in _ast.getParametersList():
-            cls.visitParameter(par)
-        return
-
-    @classmethod
     def visitReturnStmt(cls, _ast=None, _func=None):
         """
         Visits a single return statement and executes the operation this node.
@@ -700,26 +666,6 @@ class ASTHigherOrderVisitor:
             cls.visitFunctionCall(_ast.getFunctionCall(), _func)
         elif _ast.isReturnStmt():
             cls.visitReturnStmt(_ast.getReturnStmt(), _func)
-        return
-
-    @classmethod
-    def visitStmt(cls, _ast=None, _func=None):
-        """
-        Visits a single statement and executes the operation this node.
-        :param _ast: a single statement.
-        :type _ast: ASTStmt
-        :param _func: a single single function.
-        :type _func: fun
-        """
-        assert (_ast is not None and isinstance(_ast, ASTStmt.ASTStmt)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of statement provided (%s)!' % type(_ast)
-        assert (_func is not None and callable(_func)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
-        _func(_ast)
-        if _ast.isSmallStmt():
-            cls.visitSmallStmt(_ast.getSmallStmt(), _func)
-        else:
-            cls.visitCompoundStmt(_ast.getCompoundStmt(), _func)
         return
 
     @classmethod

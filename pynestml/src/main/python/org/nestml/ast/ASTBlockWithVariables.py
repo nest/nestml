@@ -35,8 +35,8 @@ class ASTBlockWithVariables(ASTElement):
     @attribute internal true if the varblock is a state internal.
     @attribute AliasDecl a list with variable declarations
     Grammar:
-        blockWithVariables:
-            ('state'|'parameters'|'internals')
+         blockWithVariables:
+            blockType=('state'|'parameters'|'internals'|'initial_values')
             BLOCK_OPEN
               (declaration | NEWLINE)*
             BLOCK_CLOSE;
@@ -44,10 +44,11 @@ class ASTBlockWithVariables(ASTElement):
     __isState = False
     __isParameters = False
     __isInternals = False
+    __isInitValues = False
     __declarations = None
 
-    def __init__(self, _isState=False, _isParameters=False, _isInternals=False, _declarations=list(),
-                 _sourcePosition=None):
+    def __init__(self, _isState=False, _isParameters=False, _isInternals=False, _isInitialValues=False,
+                 _declarations=list(), _sourcePosition=None):
         """
         Standard constructor.
         :param _isState: is a state block.
@@ -56,24 +57,29 @@ class ASTBlockWithVariables(ASTElement):
         :type _isParameters: bool 
         :param _isInternals: is an internals block.
         :type _isInternals: bool
+        :param _isInitialValues: is an initial values block.
+        :type _isInitialValues: bool
         :param _declarations: a list of declarations.
         :type _declarations: list(ASTDeclaration)
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_isInternals or _isParameters or _isState), \
-            '(PyNESTML.AST.Var_Block) Type of variable block not specified!'
+        assert (_isInternals or _isParameters or _isState or _isInitialValues), \
+            '(PyNESTML.AST.BlockWithVariables) Type of variable block specified!'
+        assert ((_isInternals + _isParameters + _isState + _isInitialValues) == 1), \
+            '(PyNestML.AST.BlockWithVariables) Type of block ambiguous!'
         assert (_declarations is None or isinstance(_declarations, list)), \
-            '(PyNESTML.AST.Var_Block) Wrong type of declaration provided'
+            '(PyNESTML.AST.BlockWithVariables) Wrong type of declaration provided (%s)!' % type(_declarations)
         super(ASTBlockWithVariables, self).__init__(_sourcePosition)
         self.__declarations = _declarations
         self.__isInternals = _isInternals
         self.__isParameters = _isParameters
+        self.__isInitValues = _isInitialValues
         self.__isState = _isState
 
     @classmethod
-    def makeASTBlockWithVariables(cls, _isState=False, _isParameters=False, _isInternals=False, _declarations=list(),
-                                  _sourcePosition=None):
+    def makeASTBlockWithVariables(cls, _isState=False, _isParameters=False, _isInternals=False, _isInitialValues=False,
+                                  _declarations=list(), _sourcePosition=None):
         """
         Factory method of the ASTBlockWithVariables class.
         :param _isState: is a state block.
@@ -82,6 +88,8 @@ class ASTBlockWithVariables(ASTElement):
         :type _isParameters: bool 
         :param _isInternals: is an internals block.
         :type _isInternals: bool
+        :param _isInitialValues: is an initial values block.
+        :type _isInitialValues: bool
         :param _declarations: a list of declarations.
         :type _declarations: list(ASTDeclaration)
         :param _sourcePosition: the position of this element in the source file.
@@ -90,7 +98,7 @@ class ASTBlockWithVariables(ASTElement):
         :rtype: ASTBlockWithVariables 
         """
         return cls(_isState=_isState, _isParameters=_isParameters, _isInternals=_isInternals,
-                   _declarations=_declarations, _sourcePosition=_sourcePosition)
+                   _isInitialValues=_isInitialValues, _declarations=_declarations, _sourcePosition=_sourcePosition)
 
     def isState(self):
         """
@@ -116,6 +124,14 @@ class ASTBlockWithVariables(ASTElement):
         """
         return self.__isInternals
 
+    def isInitialValues(self):
+        """
+        Returns whether it is a initial-values block.
+        :return: True if initial values block, otherwise False.
+        :rtype: bool
+        """
+        return self.__isInitValues
+
     def getDeclarations(self):
         """
         Returns the set of stored declarations.
@@ -135,8 +151,10 @@ class ASTBlockWithVariables(ASTElement):
             ret += 'state'
         elif self.isParameters():
             ret += 'parameters'
-        else:
+        elif self.isInternals():
             ret += 'internals'
+        else:
+            ret += 'initial_values'
         ret += ':\n'
         if self.getDeclarations() is not None:
             for decl in self.getDeclarations():
