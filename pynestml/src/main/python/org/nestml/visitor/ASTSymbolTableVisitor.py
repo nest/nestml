@@ -20,6 +20,7 @@
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 from pynestml.src.main.python.org.nestml.ast import *
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
@@ -29,7 +30,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVaria
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 
-class SymbolTableASTVisitor(object):
+class SymbolTableASTVisitor(NESTMLVisitor):
     """
     This class is used to create a symbol table from a handed over AST.
     
@@ -212,8 +213,6 @@ class SymbolTableASTVisitor(object):
             cls.visitAssignment(_stmt.getAssignment())
         elif _stmt.isFunctionCall():
             _stmt.getFunctionCall().updateScope(_stmt.getScope())
-            if _stmt.getFunctionCall().getScope() is None:
-                print('bingo')
             cls.visitFunctionCall(_stmt.getFunctionCall())
         elif _stmt.isReturnStmt():
             _stmt.getReturnStmt().updateScope(_stmt.getScope())

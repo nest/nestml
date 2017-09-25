@@ -249,6 +249,7 @@ class ASTExpression(ASTElement):
         """
         return self.__isLogicalNot
 
+
     def isUnaryOperator(self):
         """
         Returns whether the expression uses an unary operator.
