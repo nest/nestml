@@ -44,13 +44,13 @@ class CoCoBufferNotAssigned(CoCo):
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.ElementDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
+            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__assignments = list()
         ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectAssignments)
         for assign in cls.__assignments:
             symbol = assign.getScope().resolveToAllSymbols(assign.getVariable().getName(), SymbolKind.VARIABLE)
-            if symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
-                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT:
+            if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
+                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
                 Logger.logMessage(
                     '[' + _neuron.getName() + '.nestml] Value assigned to buffer "%s" at %s!'
                     % (assign.getVariable().getCompleteName(), assign.getSourcePosition().printSourcePosition()),

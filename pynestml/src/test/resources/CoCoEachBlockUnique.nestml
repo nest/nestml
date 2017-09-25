@@ -32,4 +32,14 @@ neuron CoCoEachBlockUnique:
     state:
         test2 void = 0
     end
+
+    update:
+        # required for creation of a correct ast
+    end
+
+    input:
+        # required for creation of a correct ast
+    end
+
+    output: spike
 end

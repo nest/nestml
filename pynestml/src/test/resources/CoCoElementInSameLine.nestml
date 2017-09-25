@@ -20,7 +20,8 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context.
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if
+ * recursive definition is detected.
 */
 neuron CoCoElementInSameLine:
     state:

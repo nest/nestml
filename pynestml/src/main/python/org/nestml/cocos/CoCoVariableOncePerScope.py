@@ -37,7 +37,7 @@ class CoCoVariableOncePerScope(CoCo):
         """
         from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo) No or wrong type of neuron provided (%s)!' % type(_neuron)
+            '(PyNestML.CoCo.VariableOncePerScope) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__checkScope(_neuron, _neuron.getScope())
         return
 

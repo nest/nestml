@@ -21,6 +21,7 @@ from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.visitor.ASTExpressionCollectorVisitor import ASTExpressionCollectorVisitor
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
+from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 
 
 class CoCoFunctionCallsConsistent(CoCo):
@@ -36,6 +37,8 @@ class CoCoFunctionCallsConsistent(CoCo):
         :param _neuron: a single neuron instance.
         :type _neuron: ASTNeuron
         """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(_neuron)
         # now, for all expressions, check for all function calls, the corresponding function is declared.
         # TODO: here we have to consider the type of the arguments
         expressions = ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron)

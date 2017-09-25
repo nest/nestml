@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableDefinedAfterUsage.nestml
+ *  CoCoNestNamespaceCollision.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,23 +20,25 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if usage before declaration is detected.
+ * This model is used to test if broken CoCos are identified correctly. Here, if the collision with the nest namespace
+ * is detected.
  *
 */
 
-neuron CoCoVariableDefinedAfterUsage:
-    update:
-        test1 = test2 + test1
+neuron CoCoNestNamespaceCollision:
+
+    function handle(Tau_1 mV):# <- function handle already in nest namespace
+        return
     end
 
-    state:
-        test1 mV = 10mV
-        test2 integer = test1
+    update:
+        # required for construction of a correct ast
     end
 
     input:
-
+        # required for construction of a correct ast
     end
 
     output: spike
+
 end

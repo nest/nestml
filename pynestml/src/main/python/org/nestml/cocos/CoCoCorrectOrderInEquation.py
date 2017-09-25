@@ -47,7 +47,7 @@ class CoCoCorrectOrderInEquation(CoCo):
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.ElementDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
+            '(PyNestML.CoCo.OrderInEquation) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__odeEquations = list()
         ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectOdeEquations)
         for eq in cls.__odeEquations:

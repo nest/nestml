@@ -20,8 +20,8 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, it
- * checks if a variable has been redeclared in a single scope.
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if
+ * a variable has been redeclared in a single scope.
 */
 neuron CoCoVariableRedeclaredInSameScope:
     state:

@@ -20,7 +20,8 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if redeclaration of functions is detected.
+ * This model is used to test if broken CoCos are identified correctly. Here, if redeclaration of predefined functions
+  is detected.
  *
 */
 

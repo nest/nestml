@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableDefinedAfterUsage.nestml
+ *  CoCoUnitNumeratorNotOne.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,22 +20,20 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if usage before declaration is detected.
- *
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if the
+ * incorrect numerator of the unit is detected.
 */
-
-neuron CoCoVariableDefinedAfterUsage:
-    update:
-        test1 = test2 + test1
+neuron CoCoUnitNumeratorNotOne:
+    state:
+        test1 2/s = 10 / s # case 1: variable set to value as currently declared
     end
 
-    state:
-        test1 mV = 10mV
-        test2 integer = test1
+    update:
+        # required for creation of a correct ast
     end
 
     input:
-
+        # required for creation of a correct ast
     end
 
     output: spike

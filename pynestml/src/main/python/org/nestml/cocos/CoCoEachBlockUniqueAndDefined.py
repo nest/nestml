@@ -35,7 +35,7 @@ class CoCoEachBlockUniqueAndDefined(CoCo):
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.ElementDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
+            '(PyNestML.CoCo.BlocksUniques) No or wrong type of neuron provided (%s)!' % type(_neuron)
         if isinstance(_neuron.getStateBlocks(), list) and len(_neuron.getStateBlocks()) > 1:
             Logger.logMessage('[' + _neuron.getName() + '.nestml] State block not unique, model not correct!',
                               LOGGING_LEVEL.ERROR)

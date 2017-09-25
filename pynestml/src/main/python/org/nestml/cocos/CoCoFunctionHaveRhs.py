@@ -37,7 +37,7 @@ class CoCoFunctionHaveRhs(CoCo):
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.ElementDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
+            '(PyNestML.CoCo.FunctionWithRhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__declarations = list()
         ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectDeclarations)
         for decl in cls.__declarations:

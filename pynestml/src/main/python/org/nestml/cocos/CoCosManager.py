@@ -27,6 +27,9 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionHaveRhs import CoCoFu
 from pynestml.src.main.python.org.nestml.cocos.CoCoFunctionMaxOneLhs import CoCoFunctionMaxOneLhs
 from pynestml.src.main.python.org.nestml.cocos.CoCoBufferNotAssigned import CoCoBufferNotAssigned
 from pynestml.src.main.python.org.nestml.cocos.CoCoCorrectOrderInEquation import CoCoCorrectOrderInEquation
+from pynestml.src.main.python.org.nestml.cocos.CoCoCorrectNumeratorOfUnit import CoCoCorrectNumeratorOfUnit
+from pynestml.src.main.python.org.nestml.cocos.CoCoNeuronNameUnique import CoCoNeuronNameUnique
+from pynestml.src.main.python.org.nestml.cocos.CoCoNoNestNameSpaceCollision import CoCoNoNestNameSpaceCollision
 
 
 class CoCosManager(object):
@@ -42,6 +45,9 @@ class CoCosManager(object):
     __functionsHaveMaxOneLhs = None
     __noValuesAssignedToBuffers = None
     __orderOfEquationsCorrect = None
+    __numeratorOfUnitIsOne = None
+    __multipleNeuronsWithSameName = None
+    __nestNameSpaceCollision = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -57,6 +63,9 @@ class CoCosManager(object):
         cls.__functionsHaveMaxOneLhs = CoCoFunctionMaxOneLhs.checkCoCo
         cls.__noValuesAssignedToBuffers = CoCoBufferNotAssigned.checkCoCo
         cls.__orderOfEquationsCorrect = CoCoCorrectOrderInEquation.checkCoCo
+        cls.__numeratorOfUnitIsOne = CoCoCorrectNumeratorOfUnit.checkCoCo
+        cls.__multipleNeuronsWithSameName = CoCoNeuronNameUnique.checkCoCo
+        cls.__nestNameSpaceCollision = CoCoNoNestNameSpaceCollision.checkCoCo
         return
 
     @classmethod
@@ -185,6 +194,43 @@ class CoCosManager(object):
         return
 
     @classmethod
+    def checkNumeratorOfUnitIsOneIfNumeric(cls, _neuron=None):
+        """
+        Checks that all units which have a numeric numerator use 1.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__numeratorOfUnitIsOne(_neuron)
+        return
+
+    @classmethod
+    def checkNeuronNamesUnique(cls, _compilationUnit=None):
+        """
+        Checks that all declared neurons in a compilation unit have a unique name.
+        :param _compilationUnit: a single compilation unit.
+        :type _compilationUnit: ASTCompilationUnit
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+        assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNESTMLCompilationUnit)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of compilation unit provided (%s)!' % type(_compilationUnit)
+        cls.__multipleNeuronsWithSameName(_compilationUnit)
+        return
+
+    @classmethod
+    def checkNoNestNamespaceCollisions(cls, _neuron=None):
+        """
+        Checks that all units which have a numeric numerator use 1.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__nestNameSpaceCollision(_neuron)
+        return
+
+    @classmethod
     def postSymbolTableBuilderChecks(cls, _neuron=None):
         """
         Checks the following constraints:
@@ -194,6 +240,7 @@ class CoCosManager(object):
             CoCosManager.checkVariablesDefinedBeforeUsage(_neuron)
             CoCosManager.checkFunctionsHaveRhs(_neuron)
             CoCosManager.checkFunctionHasMaxOneLhs(_neuron)
+            CoCosManager.checkNumeratorOfUnitIsOneIfNumeric(_neuron)
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
@@ -205,4 +252,6 @@ class CoCosManager(object):
         cls.checkFunctionHasMaxOneLhs(_neuron)
         cls.checkNoValuesAssignedToBuffers(_neuron)
         cls.checkOrderOfEquationsCorrect(_neuron)
+        cls.checkNumeratorOfUnitIsOneIfNumeric(_neuron)
+        cls.checkNoNestNamespaceCollisions(_neuron)
         return

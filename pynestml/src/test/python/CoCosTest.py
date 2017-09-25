@@ -79,7 +79,7 @@ class VariableRedeclaration(unittest.TestCase):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
-                         'VariableRedeclared.nestml'))
+                         'CoCoVariableRedeclared.nestml'))
         return
 
 
@@ -140,6 +140,36 @@ class OrderOfEquationsCorrect(unittest.TestCase):
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoNoOrderOfEquations.nestml'))
+        return
+
+
+class NumeratorOfUnitOne(unittest.TestCase):
+    def test(self):
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoUnitNumeratorNotOne.nestml'))
+        return
+
+
+class NamesOfNeuronsUnique(unittest.TestCase):
+    def test(self):
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoMultipleNeuronsWithEqualName.nestml'))
+        return
+
+
+class NoNestCollision(unittest.TestCase):
+    def test(self):
+        return
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoNestNamespaceCollision.nestml'))
         return
 
 

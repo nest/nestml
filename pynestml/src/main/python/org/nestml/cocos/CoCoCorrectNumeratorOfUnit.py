@@ -1,5 +1,5 @@
 #
-# CoCoFunctionMaxOneLhs.py
+# CoCoCorrectNumeratorOfUnit.py
 #
 # This file is part of NEST.
 #
@@ -23,16 +23,16 @@ from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import AS
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
-class CoCoFunctionMaxOneLhs(CoCo):
+class CoCoCorrectNumeratorOfUnit(CoCo):
     """
-    This coco ensures that whenever a function (aka alias) is declared, only one left-hand side is presend.
+    This coco ensures that all units which consist of a dividend and divisor, where the numerator is a numeric
+    value, have 1 as the numerator. 
     Allowed:
-        function V_rest mV = V_m - 55mV
+        V_m 1/mV = ...
     Not allowed:
-        function V_reset,V_rest mV = V_m - 55mV
+        V_m 2/mV = ...
     """
-
-    __declarations = list()
+    __unitTypes = list()
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -42,27 +42,24 @@ class CoCoFunctionMaxOneLhs(CoCo):
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.FunctionsWithLhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__declarations = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectDeclarations)
-        for decl in cls.__declarations:
-            if decl.isFunction() and len(decl.getVariables())>1:
+            '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__unitTypes = list()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectUnitTypes)
+        for unit in cls.__unitTypes:
+            if unit.getLhs() != 1:
                 Logger.logMessage(
-                    '[' + _neuron.getName() +
-                    '.nestml] Function (aka. alias) at %s declared with several variables (%s)!'
-                    % (
-                        decl.getSourcePosition().printSourcePosition(),
-                        list((var.getName() for var in decl.getVariables()))),
+                    '[' + _neuron.getName() + '.nestml] Numeric numerator of unit "%s" at %s not 1!'
+                    % (unit.printAST(), unit.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
 
     @classmethod
-    def __collectDeclarations(cls, _ast=None):
+    def __collectUnitTypes(cls, _ast=None):
         """
-        For a given node, it collects all the declarations.
-        :param _ast: a single node
+        For a given node, it collects all the unit-types which have a numeric numerator.
+        :param _ast: a single ast node
         :type _ast: AST_
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
-        if isinstance(_ast, ASTDeclaration):
-            cls.__declarations.append(_ast)
+        from pynestml.src.main.python.org.nestml.ast.ASTUnitType import ASTUnitType
+        if isinstance(_ast, ASTUnitType) and _ast.isDiv() and isinstance(_ast.getLhs(), int):
+            cls.__unitTypes.append(_ast)
         return

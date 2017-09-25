@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableDefinedAfterUsage.nestml
+ *  CoCoVariableRedeclared.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,23 +20,21 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if usage before declaration is detected.
- *
+ * This test is used to test the functionality of the coco which ensures that redeclaration of symbols is detected
 */
-
-neuron CoCoVariableDefinedAfterUsage:
-    update:
-        test1 = test2 + test1
-    end
-
+neuron CoCoVariableRedeclared:
     state:
+        test1 mV = 20mV # should not be detected as redeclared, since in global scope
+    end
+    update:
         test1 mV = 10mV
-        test2 integer = test1
+        test1 boolean = True
     end
 
     input:
-
+        # required for construction of a correct ast
     end
 
     output: spike
+
 end

@@ -20,6 +20,7 @@
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
+from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 
 
 class CoCoFunctionUnique(CoCo):
@@ -34,6 +35,8 @@ class CoCoFunctionUnique(CoCo):
         :param _neuron: a single neuron
         :type _neuron: ASTNeuron
         """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.FunctionUnique) No or wrong type of neuron provided (%s)!' % type(_neuron)
         # check if no function has been redeclared
         for func in _neuron.getFunctions():
             symbols = _neuron.getScope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)

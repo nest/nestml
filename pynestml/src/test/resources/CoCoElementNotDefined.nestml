@@ -20,10 +20,22 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context.
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if
+ * definition with not defined references is detected.
 */
 neuron CoCoElementNotDefined:
     state:
         test1 integer = test2 # case 1: variable set to a not defined value
     end
+
+    update:
+        # required for creation of a correct ast
+    end
+
+    input:
+        # required for creation of a correct ast
+    end
+
+    output: spike
+
 end

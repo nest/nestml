@@ -20,11 +20,12 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to check if all cocos work correctly by detecting corresponding broken context.
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context. Here, if
+ * a function with several lhs is detected.
 */
 neuron CoCoFunctionWithSeveralLhs:
     state:
-        function V_rest,V_reset mV  = 10mV  # the missing rhs should be detected
+        function V_rest,V_reset mV  = 10mV  # several lhs's should be detected
     end
 
     update:

@@ -24,7 +24,7 @@ from antlr4 import *
 # import all ASTClasses
 from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.nestml.ast.ASTOutputBlock import SignalType
-from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 
 class ASTBuilderVisitor(ParseTreeVisitor):
@@ -41,8 +41,11 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                                    _endColumn=ctx.stop.column)
         for child in ctx.neuron():
             neurons.append(self.visit(child))
-        return ASTNESTMLCompilationUnit.ASTNESTMLCompilationUnit. \
+        compilationUnit = ASTNESTMLCompilationUnit.ASTNESTMLCompilationUnit. \
             makeASTNESTMLCompilationUnit(_listOfNeurons=neurons, _sourcePosition=sourcePosition)
+        # first ensure certain properties of the neuron
+        CoCosManager.checkNeuronNamesUnique(compilationUnit)
+        return compilationUnit
 
     # Visit a parse tree produced by PyNESTMLParser#datatype.
     def visitDatatype(self, ctx):

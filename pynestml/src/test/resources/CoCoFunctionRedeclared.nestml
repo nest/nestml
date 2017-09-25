@@ -21,6 +21,7 @@
  *
  *
  * This model is used to check if all cocos work correctly by detecting corresponding broken context.
+ * Here, if redeclaration of functions has been detected.
 */
 
 neuron CoCoFunctionRedeclared:
@@ -39,4 +40,14 @@ neuron CoCoFunctionRedeclared:
             return arg1
         end
     end
+
+    update:
+        # required for creation of a correct ast
+    end
+
+    input:
+        # required for creation of a correct ast
+    end
+
+    output: spike
 end

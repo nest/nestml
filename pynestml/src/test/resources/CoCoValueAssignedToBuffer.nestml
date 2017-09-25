@@ -20,7 +20,8 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if each block is defined at most once.
+ * This model is used to test if broken CoCos are identified correctly. Here, if assignment of values to buffers
+ * is detected.
  *
 */
 
