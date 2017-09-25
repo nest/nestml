@@ -1,5 +1,5 @@
 #
-# CoCoBufferNotAssigned.py
+# CoCoParametersAssignedOnlyInParameterBlock.py
 #
 # This file is part of NEST.
 #
@@ -23,18 +23,26 @@ from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import AS
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 
 
-class CoCoBufferNotAssigned(CoCo):
+class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
     """
-    This coco ensures that no values are assigned to buffers.
+    This coco checks that no parameters are assigned outside the parameters block.
     Allowed:
-        currentSum = current + 10mV # current being a buffer
+        parameters:
+            par mV = 10mV
+        end
     Not allowed:
-        current = currentSum + 10mV
-    
+        parameters:
+            par mV = 10mV
+        end
+        ...
+        update:
+           par = 20mV
+        end    
     """
-    __assignments = list()
+    __assignments = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -48,11 +56,11 @@ class CoCoBufferNotAssigned(CoCo):
         cls.__assignments = list()
         ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectAssignments)
         for assign in cls.__assignments:
-            symbol = assign.getScope().resolveToAllSymbols(assign.getVariable().getName(), SymbolKind.VARIABLE)
-            if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
-                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
+            symbol = assign.getScope().resolveToSymbol(assign.getVariable().getName(), SymbolKind.VARIABLE)
+            if symbol is not None and symbol.getBlockType() == BlockType.PARAMETERS and \
+                            assign.getScope().getScopeType() != ScopeType.GLOBAL:
                 Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] Value assigned to buffer "%s" at %s!'
+                    '[' + _neuron.getName() + '.nestml] Parameter "%s" assigned outside parameters block at %s!'
                     % (assign.getVariable().getCompleteName(), assign.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
 

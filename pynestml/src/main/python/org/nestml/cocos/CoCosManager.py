@@ -30,7 +30,10 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoCorrectOrderInEquation import
 from pynestml.src.main.python.org.nestml.cocos.CoCoCorrectNumeratorOfUnit import CoCoCorrectNumeratorOfUnit
 from pynestml.src.main.python.org.nestml.cocos.CoCoNeuronNameUnique import CoCoNeuronNameUnique
 from pynestml.src.main.python.org.nestml.cocos.CoCoNoNestNameSpaceCollision import CoCoNoNestNameSpaceCollision
-
+from pynestml.src.main.python.org.nestml.cocos.CoCoTypeOfBufferUnique import CoCoTypeOfBufferUnique
+from pynestml.src.main.python.org.nestml.cocos.CoCoParametersAssignedOnlyInParameterBlock import \
+    CoCoParametersAssignedOnlyInParameterBlock
+from pynestml.src.main.python.org.nestml.cocos.CoCoCurrentBuffersNotSpecified import CoCoCurrentBuffersNotSpecified
 
 class CoCosManager(object):
     """
@@ -48,6 +51,9 @@ class CoCosManager(object):
     __numeratorOfUnitIsOne = None
     __multipleNeuronsWithSameName = None
     __nestNameSpaceCollision = None
+    __bufferTypesDefinedUniquely = None
+    __parametersNotAssignedOutsideCorrespondingBlock = None
+    __currentBuffersNotSpecified = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -66,6 +72,9 @@ class CoCosManager(object):
         cls.__numeratorOfUnitIsOne = CoCoCorrectNumeratorOfUnit.checkCoCo
         cls.__multipleNeuronsWithSameName = CoCoNeuronNameUnique.checkCoCo
         cls.__nestNameSpaceCollision = CoCoNoNestNameSpaceCollision.checkCoCo
+        cls.__bufferTypesDefinedUniquely = CoCoTypeOfBufferUnique.checkCoCo
+        cls.__parametersNotAssignedOutsideCorrespondingBlock = CoCoParametersAssignedOnlyInParameterBlock.checkCoCo
+        cls.__currentBuffersNotSpecified = CoCoCurrentBuffersNotSpecified.checkCoCo
         return
 
     @classmethod
@@ -231,16 +240,58 @@ class CoCosManager(object):
         return
 
     @classmethod
+    def checkTypeOfBufferUnique(cls, _neuron=None):
+        """
+        Checks that all spike buffers have a unique type, i.e., no buffer is defined with redundant keywords.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__bufferTypesDefinedUniquely(_neuron)
+        return
+
+    @classmethod
+    def checkParametersNotAssignedOutsideParametersBlock(cls, _neuron=None):
+        """
+        Checks that parameters are not assigned outside the parameters block.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__parametersNotAssignedOutsideCorrespondingBlock(_neuron)
+        return
+
+    @classmethod
+    def checkCurrentBuffersNoKeywords(cls,_neuron=None):
+        """
+        Checks that input current buffers have not been specified with keywords, e.g., inhibitory.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__currentBuffersNotSpecified(_neuron)
+        return
+
+    @classmethod
     def postSymbolTableBuilderChecks(cls, _neuron=None):
         """
         Checks the following constraints:
-            CoCosManager.checkFunctionDefined(_neuron)
-            CoCosManager.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
-            CoCosManager.checkVariablesUniqueInScope(_neuron)
-            CoCosManager.checkVariablesDefinedBeforeUsage(_neuron)
-            CoCosManager.checkFunctionsHaveRhs(_neuron)
-            CoCosManager.checkFunctionHasMaxOneLhs(_neuron)
-            CoCosManager.checkNumeratorOfUnitIsOneIfNumeric(_neuron)
+            cls.checkFunctionDefined(_neuron)
+            cls.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
+            cls.checkVariablesUniqueInScope(_neuron)
+            cls.checkVariablesDefinedBeforeUsage(_neuron)
+            cls.checkFunctionsHaveRhs(_neuron)
+            cls.checkFunctionHasMaxOneLhs(_neuron)
+            cls.checkNoValuesAssignedToBuffers(_neuron)
+            cls.checkOrderOfEquationsCorrect(_neuron)
+            cls.checkNumeratorOfUnitIsOneIfNumeric(_neuron)
+            cls.checkNoNestNamespaceCollisions(_neuron)
+            cls.checkTypeOfBufferUnique(_neuron)
+            cls.checkParametersNotAssignedOutsideParametersBlock(_neuron)
+            cls.checkCurrentBuffersNoKeywords(_neuron)
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
@@ -254,4 +305,7 @@ class CoCosManager(object):
         cls.checkOrderOfEquationsCorrect(_neuron)
         cls.checkNumeratorOfUnitIsOneIfNumeric(_neuron)
         cls.checkNoNestNamespaceCollisions(_neuron)
+        cls.checkTypeOfBufferUnique(_neuron)
+        cls.checkParametersNotAssignedOutsideParametersBlock(_neuron)
+        cls.checkCurrentBuffersNoKeywords(_neuron)
         return

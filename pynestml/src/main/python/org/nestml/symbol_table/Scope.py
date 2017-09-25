@@ -248,7 +248,7 @@ class Scope(object):
                 ret.extend(temp)
         return ret
 
-    def resolveToSymbol(self, _name=None, _type=None):
+    def resolveToScope(self, _name=None, _type=None):
         """
         Returns the first scope (starting from this) in which the handed over symbol has been defined, i.e., starting
         from this, climbs recursively upwards unit the element has been located or no enclosing scope is left.
@@ -266,6 +266,29 @@ class Scope(object):
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
                 return self
+        if self.hasEnclosingScope():
+            return self.getEnclosingScope().resolveToSymbol(_name, _type)
+        else:
+            return None
+
+    def resolveToSymbol(self, _name=None, _type=None):
+        """
+        Returns the first symbol corresponding to the handed over parameters, starting from this scope. Starting
+        from this, climbs recursively upwards unit the element has been located or no enclosing scope is left.
+        :param _name: the name of the symbol. 
+        :type _name: str
+        :param _type: the type of the symbol, i.e., Variable,function or type.
+        :type _type: SymbolType
+        :return: the first matching symbol.
+        :rtype: Symbol
+        """
+        assert (isinstance(_name, str)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
+        assert (isinstance(_type, SymbolKind)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
+        for sim in self.getSymbolsInThisScope():
+            if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
+                return sim
         if self.hasEnclosingScope():
             return self.getEnclosingScope().resolveToSymbol(_name, _type)
         else:
