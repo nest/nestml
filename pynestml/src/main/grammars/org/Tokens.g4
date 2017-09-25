@@ -22,16 +22,15 @@
 
 lexer grammar Tokens;
 
-  SL_COMMENT : ('#' (~('\n' |'\r' ))*|
-               '/*' .*? '*/' | '"""' .*? '"""')
-               -> channel(HIDDEN)
-             ;
+  SL_COMMENT : ('#' (~('\n' |'\r' ))*) -> channel(HIDDEN);
+
+  ML_COMMENT : ('/*' .*? '*/' | '"""' .*? '"""') -> channel(HIDDEN);
 
   NEWLINE : ('\r' '\n' | '\r' | '\n' );
 
   WS : (' ' | '\t')->channel(HIDDEN);
 
-  // this token enables an expression that stretches over multiple lines. The first line end with a `\` character
+  // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
   LINE_ESCAPE : '\\' '\r'? '\n'->channel(HIDDEN);
 
   BLOCK_OPEN : ':';
@@ -44,6 +43,12 @@ lexer grammar Tokens;
   * the concept as currently used in NESTML with the lower case.
   */
   BOOLEAN_LITERAL : 'true' | 'True' | 'false' | 'False' ;
+
+  /**
+  * String literals are always enclosed in "...".
+  */
+
+  STRING_LITERAL : '"' ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )* '"';
 
   NAME : ( [a-zA-Z] | '_' | '$' )( [a-zA-Z] | '_' | [0-9] | '$' )*;
 
