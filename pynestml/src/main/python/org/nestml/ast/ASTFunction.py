@@ -32,15 +32,15 @@ class ASTFunction(ASTElement):
         y3 = v - E_L
       end
     @attribute name Functionname.
-    @attribute parameters List with function parameters.
+    @attribute parameter A single parameter.
     @attribute returnType Complex return type, e.g. String
     @attribute primitiveType Primitive return type, e.g. int
     @attribute block Implementation of the function.
     Grammar:
-    function: 'function' NAME '(' parameters? ')' (returnType=datatype)?
-                   BLOCK_OPEN
-                     block
-                   BLOCK_CLOSE;
+    function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
+           BLOCK_OPEN
+             block
+           BLOCK_CLOSE;
     """
     __name = None
     __parameters = None
@@ -55,7 +55,7 @@ class ASTFunction(ASTElement):
         :param _name: the name of the defined function.
         :type _name: str 
         :param _parameters: (Optional) Set of parameters.  
-        :type _parameters: ASTParameters
+        :type _parameters: list(ASTParameter)
         :param _returnType: (Optional) Return type. 
         :type _returnType: ASTDataType
         :param _block: a block of declarations.
@@ -63,13 +63,14 @@ class ASTFunction(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_name is not None and isinstance(_name, str)), '(PyNestML.AST.Function) No name or wrong type provided!'
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.AST.Function) No name or wrong type provided (%s)!' % type(_name)
         assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.Function) No block or wrong type provided!'
-        assert (_parameters is None or isinstance(_parameters, ASTParameters)), \
-            '(PyNestML.AST.Function) Wrong type of parameters provided!'
+            '(PyNestML.AST.Function) No block or wrong type provided (%s)!' % type(_block)
+        assert (_parameters is None or isinstance(_parameters, list)), \
+            '(PyNestML.AST.Function) Wrong type of parameters provided (%s)!' % type(_parameters)
         assert (_returnType is None or isinstance(_returnType, ASTDatatype)), \
-            '(PyNestML.AST.Function) Wrong type of return provided!'
+            '(PyNestML.AST.Function) Wrong type of return provided (%s)!' % type(_returnType)
         super(ASTFunction, self).__init__(_sourcePosition)
         self.__block = _block
         self.__returnType = _returnType
@@ -83,7 +84,7 @@ class ASTFunction(ASTElement):
         :param _name: the name of the defined function.
         :type _name: str 
         :param _parameters: (Optional) Set of parameters.  
-        :type _parameters: ASTParameters
+        :type _parameters: list(ASTParameter)
         :param _returnType: (Optional) Return type. 
         :type _returnType: ASTDataType
         :param _block: a block of declarations.
@@ -109,13 +110,13 @@ class ASTFunction(ASTElement):
         :return: True if parameters defined, otherwise False.
         :rtype: bool
         """
-        return (self.__parameters is not None) and (len(self.__parameters.getParametersList()) > 0)
+        return (self.__parameters is not None) and (len(self.__parameters) > 0)
 
     def getParameters(self):
         """
         Returns the list of parameters.
         :return: a parameters object containing the list.
-        :rtype: ASTParameters
+        :rtype: list(ASTParameter)
         """
         return self.__parameters
 

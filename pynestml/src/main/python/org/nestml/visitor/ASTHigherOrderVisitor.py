@@ -90,7 +90,10 @@ class ASTHigherOrderVisitor:
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
         for stmt in _ast.getStmts():
-            cls.visitStmt(stmt, _func)
+            if isinstance(stmt, ASTSmallStmt.ASTSmallStmt):
+                cls.visitSmallStmt(stmt, _func)
+            elif isinstance(stmt, ASTCompoundStmt.ASTCompoundStmt):
+                cls.visitCompoundStmt(stmt, _func)
         return
 
     @classmethod
@@ -229,7 +232,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTDerivative.ASTDerivative)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of derivative provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of derivative provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -245,7 +248,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTElifClause.ASTElifClause)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of elif-clause provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of elif-clause provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -263,7 +266,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTElseClause.ASTElseClause)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of else-clause provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of else-clause provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -280,7 +283,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTEquationsBlock.ASTEquationsBlock)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of equations block provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of equations block provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -304,7 +307,7 @@ class ASTHigherOrderVisitor:
         """
         assert (_ast is not None and (isinstance(_ast, ASTExpression.ASTExpression)
                                       or isinstance(_ast, ASTSimpleExpression.ASTSimpleExpression))), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of expression provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of expression provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -339,7 +342,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTForStmt.ASTForStmt)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of for-statement provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of for-statement provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -358,11 +361,11 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTFunction.ASTFunction)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of function block provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of function block provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
-        for arg in _ast.getParameters().getParametersList():
+        for arg in _ast.getParameters():
             cls.visitDatatype(arg.getDataType(), _func)
         if _ast.hasReturnType():
             cls.visitDatatype(_ast.getReturnType(), _func)
@@ -379,7 +382,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTFunctionCall.ASTFunctionCall)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of function call provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of function call provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -398,7 +401,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTIfClause.ASTIfClause)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of if-clause provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of if-clause provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -416,7 +419,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTIfStmt.ASTIfStmt)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of if-statement provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of if-statement provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -438,7 +441,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTInputBlock.ASTInputBlock)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of input-block provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of input-block provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -456,7 +459,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTInputLine.ASTInputLine)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of input-line provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of input-line provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -475,7 +478,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTInputType.ASTInputType)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of input-type provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of input-type provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -491,7 +494,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTLogicalOperator.ASTLogicalOperator)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of logical-operator provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of logical-operator provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -507,7 +510,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTNESTMLCompilationUnit.ASTNESTMLCompilationUnit)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of compilation unit provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of compilation unit provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -525,7 +528,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTNeuron.ASTNeuron)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of neuron provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of neuron provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -542,11 +545,11 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTOdeEquation.ASTOdeEquation)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of ode-equation provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of ode-equation provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
-        cls.visitDerivative(_ast.getLhs(), _func)
+        cls.visitVariable(_ast.getLhs(), _func)
         cls.visitExpression(_ast.getRhs(), _func)
         return
 
@@ -560,7 +563,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTOdeFunction.ASTOdeFunction)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of ode-function provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of ode-function provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -578,7 +581,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTOdeShape.ASTOdeShape)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of ode-shape provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of ode-shape provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -596,7 +599,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTOutputBlock.ASTOutputBlock)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of output-block provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of output-block provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -612,7 +615,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTParameter.ASTParameter)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of parameter provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of parameter provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -629,7 +632,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTParameters.ASTParameters)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of parameters provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of parameters provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -647,7 +650,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTReturnStmt.ASTReturnStmt)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of return statement provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of return statement provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -665,7 +668,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTSimpleExpression.ASTSimpleExpression)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of simple expression provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of simple expression provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -685,7 +688,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTSmallStmt.ASTSmallStmt)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of small statement provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of small statement provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -709,7 +712,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTStmt.ASTStmt)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of statement provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of statement provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -729,7 +732,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTUnaryOperator.ASTUnaryOperator)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of unary-operator provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of unary-operator provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -745,7 +748,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTUnitType.ASTUnitType)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of unit-type provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of unit-type provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -769,7 +772,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTUpdateBlock.ASTUpdateBlock)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of update-block provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of update-block provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -786,7 +789,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTVariable.ASTVariable)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of variable provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of variable provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)
@@ -802,7 +805,7 @@ class ASTHigherOrderVisitor:
         :type _func: fun
         """
         assert (_ast is not None and isinstance(_ast, ASTWhileStmt.ASTWhileStmt)), \
-            '(PyNestML.Visitor.HigherOrder) No or wrong type of while-statement provided (%s)!' %type(_ast)
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of while-statement provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
         _func(_ast)

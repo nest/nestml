@@ -49,8 +49,6 @@ class ASTSimpleExpression(ASTElement):
         Standard constructor.
         :param _functionCall: a function call.
         :type _functionCall: ASTFunctionCall
-        :param _name: a string, e.g., a certain index.
-        :type _name: str
         :param _booleanLiteral: a boolean value.
         :type _booleanLiteral: str
         :param _numericLiteral: a numeric value.
@@ -90,13 +88,11 @@ class ASTSimpleExpression(ASTElement):
 
     @classmethod
     def makeASTSimpleExpression(cls, _functionCall=None, _booleanLiteral=None, _numericLiteral=None,
-                                _isInf=False, _variable=None, _sourcePosition=None):
+                                _isInf=False, _variable=None, _string=None, _sourcePosition=None):
         """
         The factory method of the ASTSimpleExpression class.
         :param _functionCall: a function call.
         :type _functionCall: ASTFunctionCall
-        :param _name: a string, e.g., a certain index.
-        :type _name: str
         :param _booleanLiteral: a boolean value.
         :type _booleanLiteral: str
         :param _numericLiteral: a numeric value.
@@ -107,10 +103,12 @@ class ASTSimpleExpression(ASTElement):
         :type _variable: ASTVariable
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
+        :param _string: a single string literal
+        :type _string: str
         :return: a new ASTSimpleExpression object.
         :rtype: ASTSimpleExpression
         """
-        return cls(_functionCall, _booleanLiteral, _numericLiteral, _isInf, _variable, _sourcePosition)
+        return cls(_functionCall, _booleanLiteral, _numericLiteral, _isInf, _variable, _string, _sourcePosition)
 
     def isFunctionCall(self):
         """

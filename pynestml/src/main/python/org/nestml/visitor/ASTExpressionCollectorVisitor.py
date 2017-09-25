@@ -227,14 +227,16 @@ class ASTExpressionCollectorVisitor(object):
         if _block is None:
             return list()
         from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
+        from pynestml.src.main.python.org.nestml.ast.ASTSmallStmt import ASTSmallStmt
+        from pynestml.src.main.python.org.nestml.ast.ASTCompoundStmt import ASTCompoundStmt
         assert (_block is not None and isinstance(_block, ASTBlock)), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of block provided (%s)!' % type(_block)
         ret = list()
         for stmt in _block.getStmts():
-            if stmt.isSmallStmt():
-                ret.extend(cls.collectExpressionsInSmallStmt(stmt.getSmallStmt()))
-            else:
-                ret.extend(cls.collectExpressionsInCompoundStmt(stmt.getCompoundStmt()))
+            if isinstance(stmt, ASTSmallStmt):
+                ret.extend(cls.collectExpressionsInSmallStmt(stmt))
+            elif isinstance(stmt, ASTCompoundStmt):
+                ret.extend(cls.collectExpressionsInCompoundStmt(stmt))
         return ret
 
     @classmethod

@@ -20,7 +20,7 @@
 
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
-from pynestml.src.main.python.org.nestml.ast.ASTDerivative import ASTDerivative
+from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 
 
@@ -40,17 +40,17 @@ class ASTOdeEquation(ASTElement):
     def __init__(self, _lhs=None, _rhs=None, _sourcePosition=None):
         """
         Standard constructor.
-        :param _lhs: an object of type ASTDerivative
-        :type _lhs: ASTDerivative
+        :param _lhs: an object of type ASTVariable
+        :type _lhs: ASTVariable
         :param _rhs: an object of type ASTExpression.
         :type _rhs: ASTExpression
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_lhs is not None and isinstance(_lhs, ASTDerivative)), \
-            '(PyNestML.AST.OdeEquation) No or wrong type of left-hand side derivative handed over!'
+        assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
+            '(PyNestML.AST.OdeEquation) No or wrong type of left-hand variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
-            '(PyNestML.AST.OdeEquation) No or wrong type of right-hand side expression handed over! '
+            '(PyNestML.AST.OdeEquation) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
         super(ASTOdeEquation, self).__init__(_sourcePosition)
         self.__lhs = _lhs
         self.__rhs = _rhs
@@ -59,8 +59,8 @@ class ASTOdeEquation(ASTElement):
     def makeASTOdeEquation(cls, _lhs=None, _rhs=None, _sourcePosition=None):
         """
         A factory method used to generate new ASTOdeEquation.
-        :param _lhs: an object of type ASTDerivative
-        :type _lhs: ASTDerivative
+        :param _lhs: an object of type ASTVariable
+        :type _lhs: ASTVariable
         :param _rhs: an object of type ASTExpression
         :type _rhs: ASTExpression
         :param _sourcePosition: the position of this element in the source file.
@@ -73,8 +73,8 @@ class ASTOdeEquation(ASTElement):
     def getLhs(self):
         """
         Returns the left-hand side of the equation.
-        :return: an object of the ast-derivative class.
-        :rtype: ASTDerivative
+        :return: an object of the ast-variable class.
+        :rtype: ASTVariable
         """
         return self.__lhs
 

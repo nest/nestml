@@ -50,13 +50,13 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#functionCall.
-    def visitFunctionCall(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#differentialOrder.
+    def visitDifferentialOrder(self, ctx):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#arguments.
-    def visitArguments(self, ctx):
+    # Visit a parse tree produced by PyNESTMLParser#functionCall.
+    def visitFunctionCall(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -70,16 +70,6 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by PyNESTMLParser#derivative.
-    def visitDerivative(self, ctx):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNESTMLParser#differentialOrder.
-    def visitDifferentialOrder(self, ctx):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by PyNESTMLParser#odeShape.
     def visitOdeShape(self, ctx):
         return self.visitChildren(ctx)
@@ -87,11 +77,6 @@ class PyNESTMLVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#block.
     def visitBlock(self, ctx):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNESTMLParser#stmt.
-    def visitStmt(self, ctx):
         return self.visitChildren(ctx)
 
 
@@ -207,11 +192,6 @@ class PyNESTMLVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#function.
     def visitFunction(self, ctx):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by PyNESTMLParser#parameters.
-    def visitParameters(self, ctx):
         return self.visitChildren(ctx)
 
 

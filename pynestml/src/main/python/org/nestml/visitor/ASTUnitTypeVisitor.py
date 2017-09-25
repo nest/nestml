@@ -58,7 +58,7 @@ class ASTUnitTypeVisitor(object):
             _dataType.setTypeSymbol(symbol)
         else:
             symbol = None
-            Logger.logAndPrintMessage('Data type of %s in line %s not specified!'
+            Logger.logMessage('Data type of %s in line %s not specified!'
                                       % (_dataType.printAST(), _dataType.getSourcePosition().printSourcePosition()),
                                       LOGGING_LEVEL.ERROR)
         if symbol is not None:

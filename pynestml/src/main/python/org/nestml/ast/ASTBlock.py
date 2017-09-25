@@ -26,7 +26,7 @@ class ASTBlock(ASTElement):
     """
     This class is used to store a single block of declarations, i.e., statements.
     Grammar:
-        block : ( stmt | NEWLINE )*;
+        block : ( smallStmt | compoundStmt | NEWLINE )*;
     """
     __stmts = None
 
@@ -34,10 +34,12 @@ class ASTBlock(ASTElement):
         """
         Standard constructor.
         :param _stmts: a list of statements 
-        :type _stmts: list(ASTStmt)
+        :type _stmts: list(ASTSmallStmt/ASTCompoundStmt)
         :param _sourcePosition: the position of this element
         :type _sourcePosition: ASTSourcePosition
         """
+        assert (_stmts is not None and isinstance(_stmts, list)), \
+            '(PyNestML.AST.Bloc) No or wrong type of statements provided (%s)!' % type(_stmts)
         super(ASTBlock, self).__init__(_sourcePosition)
         self.__stmts = _stmts
 
@@ -46,7 +48,7 @@ class ASTBlock(ASTElement):
         """
         Factory method of ASTBlock.
         :param _stmts: a list of statements 
-        :type _stmts: list(ASTStmt)
+        :type _stmts: list(ASTSmallStmt/ASTCompoundStmt)
         :param _sourcePosition: the position of this element
         :type _sourcePosition: ASTSourcePosition
         :return a new block element
@@ -58,7 +60,7 @@ class ASTBlock(ASTElement):
         """
         Returns the list of statements.
         :return: list of stmts.
-        :rtype: list(ASTStmt)
+        :rtype: list(ASTSmallStmt/ASTCompoundStmt)
         """
         return self.__stmts
 
@@ -66,9 +68,7 @@ class ASTBlock(ASTElement):
         """
         Adds a single statement to the list of statements.
         :param _stmt: a statement
-        :type _stmt: ASTStmt
-        :return: no value returned
-        :rtype: None
+        :type _stmt: ASTSmallStmt,ASTCompoundStmt
         """
         self.__stmts.append(_stmt)
 

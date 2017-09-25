@@ -130,7 +130,7 @@ class SymbolTableASTVisitor(object):
         scope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
                       _sourcePosition=_block.getSourcePosition())
         _block.getScope().addScope(scope)
-        for arg in _block.getParameters().getParametersList():
+        for arg in _block.getParameters():
             # first visit the data type to ensure that variable symbol can receive a combined data type
             arg.getDataType().updateScope(scope)
             cls.visitDataType(arg.getDataType())
@@ -187,14 +187,12 @@ class SymbolTableASTVisitor(object):
         assert (_block is not None and isinstance(_block, ASTBlock.ASTBlock)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of block provided %s!' % type(_block)
         for stmt in _block.getStmts():
-            if stmt.isSmallStmt():
+            if isinstance(stmt, ASTSmallStmt.ASTSmallStmt):
                 stmt.updateScope(_block.getScope())
-                stmt.getSmallStmt().updateScope(_block.getScope())
-                cls.visitSmallStmt(stmt.getSmallStmt())
-            else:
+                cls.visitSmallStmt(stmt)
+            elif isinstance(stmt, ASTCompoundStmt.ASTCompoundStmt):
                 stmt.updateScope(_block.getScope())
-                stmt.getCompoundStmt().updateScope(_block.getScope())
-                cls.visitCompoundStmt(stmt.getCompoundStmt())
+                cls.visitCompoundStmt(stmt)
         return
 
     @classmethod
@@ -637,7 +635,7 @@ class SymbolTableASTVisitor(object):
         assert (_equation is not None and isinstance(_equation, ASTOdeEquation.ASTOdeEquation)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-equation handed over!'
         _equation.getLhs().updateScope(_equation.getScope())
-        cls.visitDerivative(_equation.getLhs())
+        cls.visitVariable(_equation.getLhs())
         _equation.getRhs().updateScope(_equation.getScope())
         cls.visitExpression(_equation.getRhs())
         return
@@ -740,17 +738,6 @@ class SymbolTableASTVisitor(object):
         return
 
     @classmethod
-    def visitDerivative(cls, _derivative=None):
-        """
-        Private method: Used to visit a single derivative and update its scope.
-        :param _derivative: a single derivative.
-        :type _derivative: ASTDerivative
-        """
-        assert (_derivative is not None and isinstance(_derivative, ASTDerivative.ASTDerivative)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of derivative provided!'
-        return
-
-    @classmethod
     def visitArithmeticOperator(cls, _arithmeticOp=None):
         """
         Private method: Used to visit a single arithmetic operator and update its scope.
@@ -818,6 +805,7 @@ class SymbolTableASTVisitor(object):
         # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
         diffOrder = _odeEquation.getLhs().getDifferentialOrder() - 1
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
+        name = _odeEquation.getLhs().getName() + '\'' * diffOrder
         existingSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName() + '\'' * diffOrder,
                                                                SymbolKind.VARIABLE)
         if existingSymbol is not None:

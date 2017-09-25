@@ -101,38 +101,32 @@ grammar PyNESTML;
     @attribute name: The name of the variable without the differential order, e.g. V_m
     @attribute differentialOrdeer: The corresponding differential order, e.g. 2
   */
-  variable : NAME (differentialOrder)*;
+  variable : name=NAME (differentialOrder)*;
+
+  differentialOrder : '\'';
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
     @attribute calleeName: The (qualified) name of the functions
     @attribute args: Comma separated list of expressions representing parameters.
   */
-  functionCall : calleeName=NAME '(' (args=arguments)? ')';
-
-  arguments : expression (',' expression)*;
+  functionCall : calleeName=NAME '(' (expression (',' expression)*)? ')';
 
   /*********************************************************************************************************************
   * Equations-Language
   *********************************************************************************************************************/
 
-  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression;
+  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression (';')?;
 
-  odeEquation : lhs=derivative '=' rhs=expression;
+  odeEquation : lhs=variable '=' rhs=expression (';')?;
 
-  derivative : name=NAME (differentialOrder)*;
-
-  differentialOrder: '\'';
-
-  odeShape : 'shape' lhs=variable '=' rhs=expression;
+  odeShape : 'shape' lhs=variable '=' rhs=expression (';')?;
 
   /*********************************************************************************************************************
   * Procedural-Language
   *********************************************************************************************************************/
 
-  block : ( stmt | NEWLINE )*;
-
-  stmt : smallStmt | compoundStmt;
+  block : ( smallStmt | compoundStmt | NEWLINE )*;
 
   compoundStmt : ifStmt
                 | forStmt
@@ -184,7 +178,10 @@ grammar PyNESTML;
 
   elseClause : 'else' BLOCK_OPEN block;
 
-  forStmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
+  forStmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral
+            BLOCK_OPEN
+             block
+            BLOCK_CLOSE;
 
   whileStmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
 
@@ -310,15 +307,10 @@ grammar PyNESTML;
     @attribute returnType: An arbitrary return type, e.g. String or mV.
     @attribute block: Implementation of the function.
   */
-  function: 'function' NAME '(' parameters? ')' (returnType=datatype)?
+  function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
            BLOCK_OPEN
              block
            BLOCK_CLOSE;
-
-  /** ASTParameters models parameter list in function declaration.
-    @attribute: parameter One or more parameters.
-  */
-  parameters : parameter (',' parameter)*;
 
   /** ASTParameter represents a single parameter consisting of a name and the corresponding
       data type, e.g. T_in ms
