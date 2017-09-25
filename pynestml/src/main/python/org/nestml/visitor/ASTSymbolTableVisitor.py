@@ -474,6 +474,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         if _expr.isSimpleExpression():
             _expr.getExpression().updateScope(_expr.getScope())
             cls.visitSimpleExpression(_expr.getExpression())
+        if _expr.isLogicalNot():
+            _expr.getExpression().updateScope(_expr.getScope())
+            cls.visitExpression(_expr.getExpression())
         if _expr.isUnaryOperator():
             _expr.getUnaryOperator().updateScope(_expr.getScope())
             cls.visitUnaryOperator(_expr.getUnaryOperator())
