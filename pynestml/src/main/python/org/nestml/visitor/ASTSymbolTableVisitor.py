@@ -815,14 +815,18 @@ class SymbolTableASTVisitor(object):
         else:  # create a new symbol, however, this should never happen since only exiting symbols shall be updated
             # if an existing symbol does not exists, we derive the base symbol, e.g. V_m
             baseSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName(), SymbolKind.VARIABLE)
-            newSymbol = VariableSymbol(_elementReference=_odeEquation, _scope=cls.__globalScope,
-                                       _name=_odeEquation.getLhs().getName() + '\'' * diffOrder,
-                                       _blockType=BlockType.EQUATION,
-                                       _declaringExpression=_odeEquation.getRhs(),
-                                       _isPredefined=False, _isFunction=False, _isRecordable=False,
-                                       _typeSymbol=PredefinedTypes.
-                                       getTypeIfExists(baseSymbol.getTypeSymbol().printSymbol()))  # todo
-            cls.__globalScope.addSymbol(newSymbol)
-            Logger.logMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
-                              LOGGING_LEVEL.ALL)
+            if baseSymbol is not None:
+                newSymbol = VariableSymbol(_elementReference=_odeEquation, _scope=cls.__globalScope,
+                                           _name=_odeEquation.getLhs().getName() + '\'' * diffOrder,
+                                           _blockType=BlockType.EQUATION,
+                                           _declaringExpression=_odeEquation.getRhs(),
+                                           _isPredefined=False, _isFunction=False, _isRecordable=False,
+                                           _typeSymbol=PredefinedTypes.
+                                           getTypeIfExists(baseSymbol.getTypeSymbol().printSymbol()))  # todo
+                cls.__globalScope.addSymbol(newSymbol)
+                Logger.logMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
+                                  LOGGING_LEVEL.ALL)
+            else:
+                Logger.logMessage('No corresponding variable of %s found.' % _odeEquation.getLhs().getName(),
+                                  LOGGING_LEVEL.ERROR)
         return
