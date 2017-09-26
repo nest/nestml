@@ -80,6 +80,11 @@ class PyNESTMLVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by PyNESTMLParser#stmt.
+    def visitStmt(self, ctx):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by PyNESTMLParser#compoundStmt.
     def visitCompoundStmt(self, ctx):
         return self.visitChildren(ctx)

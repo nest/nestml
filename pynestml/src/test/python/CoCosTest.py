@@ -187,5 +187,14 @@ class CurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
         return
 
 
+class SpikeBufferWithoutDatatype(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoSpikeBufferWithoutType.nestml'))
+        return
+
+
 if __name__ == '__main__':
     unittest.main()

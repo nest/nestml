@@ -326,19 +326,10 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#block.
     def visitBlock(self, ctx):
-        elements = list()
-        if ctx.smallStmt() is not None:
-            for stmt in ctx.smallStmt():
-                elements.append(stmt)
-        if ctx.compoundStmt() is not None:
-            for stmt in ctx.compoundStmt():
-                elements.append(stmt)
         stmts = list()
-        # this part ensures that the correct order is kept
-        while len(elements) > 0:
-            elem = self.getNext(elements)
-            stmts.append(self.visit(elem))
-            elements.remove(elem)
+        if ctx.stmt() is not None:
+            for stmt in ctx.stmt():
+                stmts.append(self.visit(stmt))
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
@@ -640,6 +631,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         if ctx.inputType() is not None:
             for Type in ctx.inputType():
                 inputTypes.append(self.visit(Type))
+        dataType = self.visit(ctx.datatype()) if ctx.datatype() is not None else None
         if ctx.isCurrent:
             signalType = SignalType.CURRENT
         elif ctx.isSpike:
@@ -650,7 +642,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
-        return ASTInputLine.ASTInputLine.makeASTInputLine(_name=name, _sizeParameter=sizeParameter,
+        return ASTInputLine.ASTInputLine.makeASTInputLine(_name=name, _sizeParameter=sizeParameter, _dataType=dataType,
                                                           _inputTypes=inputTypes, _signalType=signalType,
                                                           _sourcePosition=sourcePos)
 
@@ -707,6 +699,15 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
         return ASTParameter.ASTParameter.makeASTParameter(_name=name, _dataType=dataType, _sourcePosition=sourcePos)
+
+    # Visit a parse tree produced by PyNESTMLParser#stmt.
+    def visitStmt(self, ctx):
+        small = self.visit(ctx.smallStmt()) if ctx.smallStmt() is not None else None
+        compound = self.visit(ctx.compoundStmt()) if ctx.compoundStmt() is not None else None
+        if small is not None:
+            return small
+        else:
+            return compound
 
     def getNext(self, _elements=list()):
         """

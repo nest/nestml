@@ -34,6 +34,8 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoTypeOfBufferUnique import CoC
 from pynestml.src.main.python.org.nestml.cocos.CoCoParametersAssignedOnlyInParameterBlock import \
     CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.src.main.python.org.nestml.cocos.CoCoCurrentBuffersNotSpecified import CoCoCurrentBuffersNotSpecified
+from pynestml.src.main.python.org.nestml.cocos.CoCoOnlySpikeBufferDatatypes import CoCoOnlySpikeBufferDatatypes
+
 
 class CoCosManager(object):
     """
@@ -54,6 +56,7 @@ class CoCosManager(object):
     __bufferTypesDefinedUniquely = None
     __parametersNotAssignedOutsideCorrespondingBlock = None
     __currentBuffersNotSpecified = None
+    __buffersDatatypeCorrect = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -75,6 +78,7 @@ class CoCosManager(object):
         cls.__bufferTypesDefinedUniquely = CoCoTypeOfBufferUnique.checkCoCo
         cls.__parametersNotAssignedOutsideCorrespondingBlock = CoCoParametersAssignedOnlyInParameterBlock.checkCoCo
         cls.__currentBuffersNotSpecified = CoCoCurrentBuffersNotSpecified.checkCoCo
+        cls.__buffersDatatypeCorrect = CoCoOnlySpikeBufferDatatypes.checkCoCo
         return
 
     @classmethod
@@ -264,7 +268,7 @@ class CoCosManager(object):
         return
 
     @classmethod
-    def checkCurrentBuffersNoKeywords(cls,_neuron=None):
+    def checkCurrentBuffersNoKeywords(cls, _neuron=None):
         """
         Checks that input current buffers have not been specified with keywords, e.g., inhibitory.
         :param _neuron: a single neuron object.
@@ -273,6 +277,18 @@ class CoCosManager(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__currentBuffersNotSpecified(_neuron)
+        return
+
+    @classmethod
+    def checkBufferTypesAreCorrect(cls, _neuron=None):
+        """
+        Checks that input buffers have specified the data type if required an no data type if not allowed.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__buffersDatatypeCorrect(_neuron)
         return
 
     @classmethod
@@ -292,6 +308,7 @@ class CoCosManager(object):
             cls.checkTypeOfBufferUnique(_neuron)
             cls.checkParametersNotAssignedOutsideParametersBlock(_neuron)
             cls.checkCurrentBuffersNoKeywords(_neuron)
+            cls.checkBufferTypesAreCorrect(_neuron)
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
@@ -308,4 +325,5 @@ class CoCosManager(object):
         cls.checkTypeOfBufferUnique(_neuron)
         cls.checkParametersNotAssignedOutsideParametersBlock(_neuron)
         cls.checkCurrentBuffersNoKeywords(_neuron)
+        cls.checkBufferTypesAreCorrect(_neuron)
         return

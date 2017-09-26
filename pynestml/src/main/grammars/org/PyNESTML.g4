@@ -126,7 +126,9 @@ grammar PyNESTML;
   * Procedural-Language
   *********************************************************************************************************************/
 
-  block : ( smallStmt | compoundStmt | NEWLINE )*;
+  block : ( stmt | NEWLINE )*;
+
+  stmt : smallStmt | compoundStmt;
 
   compoundStmt : ifStmt
                 | forStmt
@@ -275,6 +277,7 @@ grammar PyNESTML;
       spikeBuffer   <- inhibitory excitatory spike
     @attribute name:   The name of the defined buffer, inSpike.
     @attribute sizeParameter: Optional parameter representing  multisynapse neuron.
+    @attribute datatype: Optional data type of the buffer.
     @attribute inputType: The type of the inputchannel: e.g. inhibitory or excitatory (or both).
     @attribute isSpike: True iff the neuron is a spike.
     @attribute isCurrent: True iff. the neuron is a current.
@@ -282,6 +285,7 @@ grammar PyNESTML;
   inputLine :
     name=NAME
     ('[' sizeParameter=NAME ']')?
+    (datatype)?
     '<-' inputType*
     (isCurrent = 'current' | isSpike = 'spike');
 

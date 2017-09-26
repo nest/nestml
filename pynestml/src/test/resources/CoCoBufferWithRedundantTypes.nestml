@@ -31,7 +31,7 @@ neuron CoCoBufferWithRedundantTypes:
     end
 
     input:
-        spikeInhX2 <- inhibitory inhibitory spike # spike redundant keywords used.
+        spikeInhX2 integer<- inhibitory inhibitory spike # spike redundant keywords used.
     end
 
     output: spike

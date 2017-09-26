@@ -1,6 +1,6 @@
 /**
  *
- *  BlockTest.nestml
+ *  CoCoSpikeBufferWithoutType.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,27 +20,19 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if all non-actively used types of blocks are readable, and if the corresponding AST
- * can be created. It is used to test the following part of the grammar:
- * forStmt : 'for' var=NAME 'in' vrom=expression '...'
- *           to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
- * whileStmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
+ * This model is used to test if broken CoCos are identified correctly. Here, if spike buffers without a data-type
+ * are detected.
+ *
 */
-neuron BlockTest:
+
+neuron CoCoSpikeBufferWithoutType:
     update:
-        while j < 3.14 and j>0 or False==true:
-            for i in 10-3.14 ... 10+3.14e0 step -1:
-                j += i
-            end
-        end
+        # required for creation of a correct ast
     end
 
     input:
-        # required for correct construction of the ast
+        spikeAll <- spike # spike buffer type not specified
     end
 
     output: spike
-
-
-
 end

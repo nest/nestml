@@ -95,14 +95,29 @@ class ASTExpression(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert ((_unaryOperator is None) or (isinstance(_unaryOperator, ASTUnaryOperator))), \
-            '(PyNestML.AST.Expression) Not an unary operator!'
+            '(PyNestML.AST.Expression) Wrong type of unary operator provided (%s)!' % type(_unaryOperator)
         assert ((_expression is None) or (isinstance(_expression, ASTExpression)) or (
-            isinstance(_expression, ASTSimpleExpression))), '(NESTML) Not an expression!'
+            isinstance(_expression, ASTSimpleExpression))), \
+            '(PyNestML.AST.Expression) Wrong type of expression provided (%s)!' % type(_expression)
         assert ((_binaryOperator is None) or (isinstance(_binaryOperator, ASTArithmeticOperator) or
                                               (isinstance(_binaryOperator, ASTBitOperator)) or
                                               (isinstance(_binaryOperator, ASTLogicalOperator)) or
                                               (isinstance(_binaryOperator, ASTComparisonOperator)))), \
-            '(PyNestML.AST.Expression) Not a binary operator!'
+            '(PyNestML.AST.Expression) Wrong type of binary operator provided (%s)!' % type(_binaryOperator)
+        assert (_hasRightParentheses is None or isinstance(_hasRightParentheses, bool)), \
+            '(PyNestML.AST.Expression) Wrong type of right-parenthesis parameter provided (%s)' \
+            % type(_hasRightParentheses)
+        assert (_hasLeftParentheses is None or isinstance(_hasLeftParentheses, bool)), \
+            '(PyNestML.AST.Expression) Wrong type of left-parenthesis parameter provided (%s)' \
+            % type(_hasLeftParentheses)
+        assert ((_hasLeftParentheses + _hasRightParentheses) % 2 == 0), \
+            '(PyNestML.AST.Expression) Incorrect parenthesis parameter!'
+        assert (_condition is None or isinstance(_condition, ASTExpression)), \
+            '(PyNestML.AST.Expression) Wrong type of condition provided (%s)!' % type(_condition)
+        assert (_ifTrue is None or isinstance(_ifTrue, ASTExpression)), \
+            '(PyNestML.AST.Expression) Wrong type of if-true consequence provided (%s)!' % type(_ifTrue)
+        assert (_ifNot is None or isinstance(_ifNot, ASTExpression)), \
+            '(PyNestML.AST.Expression) Wrong type of if-not consequence provided (%s)!' % type(_ifNot)
         super(ASTExpression, self).__init__(_sourcePosition)
         self.__hasLeftParentheses = _hasLeftParentheses
         self.__hasRightParentheses = _hasRightParentheses
@@ -248,7 +263,6 @@ class ASTExpression(ASTElement):
         :rtype: bool
         """
         return self.__isLogicalNot
-
 
     def isUnaryOperator(self):
         """
