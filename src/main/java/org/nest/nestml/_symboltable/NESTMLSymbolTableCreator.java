@@ -187,16 +187,16 @@ public class NESTMLSymbolTableCreator extends CommonSymbolTableCreator implement
   private void connectOdeToVariable(final ASTDerivative derivedVariable, final ASTExpr astExpr) {
     checkState(this.currentScope().isPresent());
     final Scope scope = currentScope().get();
-      final String variableName = derivedVariable.getNameOfDerivedVariable();
-      final Optional<VariableSymbol> variable = scope.resolve(variableName, VariableSymbol.KIND);
+    final String variableName = derivedVariable.getNameOfDerivedVariable();
+    final Optional<VariableSymbol> variable = scope.resolve(variableName, VariableSymbol.KIND);
 
-      if (variable.isPresent()) {
-        variable.get().setOdeDeclaration(astExpr);
-      }
-      else {
-        Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " +
-                 variableName, derivedVariable.get_SourcePositionStart());
-      }
+    if (variable.isPresent()) {
+      variable.get().setOdeDeclaration(astExpr);
+    }
+    else {
+      Log.warn("NESTMLSymbolTableCreator: The left side of the ode is undefined. Cannot assign its definition: " +
+               variableName, derivedVariable.get_SourcePositionStart());
+    }
 
   }
 

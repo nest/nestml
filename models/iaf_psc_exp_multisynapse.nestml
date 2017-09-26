@@ -21,12 +21,14 @@ SeeAlso: iaf_psc_alpha, iaf_psc_delta, iaf_psc_exp, iaf_cond_exp,
 iaf_psc_alpha_multisynapse
 */
 neuron iaf_psc_exp_multisynapse_neuron:
-
   state:
+    r integer                  # counts number of tick during the refractory period
+  end
+
+  initial_values:
     V_abs mV # membrane potential
     function V_m mV = V_abs + E_L # Relative membrane potential.
                                # I.e. the real threshold is (V_m-E_L).
-    r integer                  # counts number of tick during the refractory period
   end
 
   equations:

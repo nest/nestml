@@ -218,6 +218,9 @@ final public class TransformerBase {
         for (ASTVariable variable:astDeclaration.getVars()) {
           if (variable.toString().matches(shape + "(')*") || // handwritten models
               variable.toString().matches(shape + "__\\d+$")) { // generated models
+            if (!astDeclaration.getExpr().isPresent()) {
+              System.out.println();
+            }
             spikesUpdates.add(AstCreator.createAssignment(
                 variable.toString() + " += " + buffer + " * " + printer.print(astDeclaration.getExpr().get())));
           }

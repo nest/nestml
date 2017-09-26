@@ -532,7 +532,7 @@ void ${neuronName}::set_status(const DictionaryDatum &__d)
     ${tc.includeArgs("org.nest.nestml.neuron.function.AssignTmpDictionaryValue", [state])}
   </#list>
   <#list body.getParameterInvariants() as invariant>
-    if ( !(${printerWithGetters.print(invariant)}) ) {
+    if ( !(${expressionsPrinter.print(invariant)}) ) {
       throw nest::BadProperty("The constraint '${idemPrinter.print(invariant)}' is violated!");
     }
   </#list>

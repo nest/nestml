@@ -22,12 +22,15 @@ SeeAlso: iaf_cond_exp, iaf_cond_beta_mc, iaf_cond_alpha */
 
 neuron iaf_cond_beta_neuron:
   state:
+    r integer             ## counts number of tick during the refractory period
+  end
+
+  initial_values:
     V_m mV = E_L          ## membrane potential
     g_in nS = 0 nS        ## inputs from the inh conductance
     g_in' nS/ms = 0 nS/ms ## inputs from the inh conductance
     g_ex nS = 0 nS        ## inputs from the exc conductance
     g_ex' nS/ms = 0 nS/ms ## inputs from the exc conductance
-    r integer             ## counts number of tick during the refractory period
   end
 
   equations:

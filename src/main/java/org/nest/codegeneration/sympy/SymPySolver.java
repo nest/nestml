@@ -71,10 +71,11 @@ class SymPySolver {
           ODE_ANALYZER_SCRIPT,
           solverInput.toJSON()).directory(output.toFile()).command(commands);
 
+
       final Process res = processBuilder.start();
       res.waitFor();
       long end = System.nanoTime();
-
+      
       // reports standard output
       getStreamAsListOfStrings(res.getInputStream()).forEach(reporter::reportProgress);
       // reports errors
