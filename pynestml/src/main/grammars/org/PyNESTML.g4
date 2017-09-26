@@ -126,7 +126,9 @@ grammar PyNESTML;
   * Procedural-Language
   *********************************************************************************************************************/
 
-  block : ( smallStmt | compoundStmt | NEWLINE )*;
+  block : ( stmt | NEWLINE )*;
+
+  stmt : smallStmt | compoundStmt;
 
   compoundStmt : ifStmt
                 | forStmt
@@ -159,7 +161,7 @@ grammar PyNESTML;
     variable (',' variable)*
     datatype
     ('[' sizeParameter=NAME ']')?
-    ( '=' rhs = expression)? SL_COMMENT?
+    ( '=' rhs = expression)?
     ('[[' invariant=expression ']]')?;
 
   /** ATReturnStmt Models the return statement in a function.
@@ -225,7 +227,7 @@ grammar PyNESTML;
     @attribute declaration: A list of corresponding declarations.
   */
   blockWithVariables:
-    blockType=('state'|'parameters'|'internals')
+    blockType=('state'|'parameters'|'internals'|'initial_values')
     BLOCK_OPEN
       (declaration | NEWLINE)*
     BLOCK_CLOSE;
