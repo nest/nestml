@@ -20,10 +20,6 @@
  *
  */
 
-/**
-  Grammar representing the Simple Programming Language (SPL). It is easy to learn imperative
-  language which leans on the Python syntax.
-*/
 grammar PyNESTML;
 
   import Tokens;
@@ -59,9 +55,8 @@ grammar PyNESTML;
   *********************************************************************************************************************/
 
   /**
-   ASTExpr, i.e., several subexpressions combined by one or more
-   operators, e.g., 10mV + V_m - (V_reset * 2)/ms ....
-   or a simple expression, e.g. 10mV.
+   ASTExpression, i.e., several subexpressions combined by one or more operators,
+   e.g., 10mV + V_m - (V_reset * 2)/ms, or a simple expression, e.g. 10mV.
   */
   expression : leftParentheses='(' term=expression rightParentheses=')'
          | <assoc=right> left=expression powOp='**' right=expression
@@ -79,10 +74,17 @@ grammar PyNESTML;
   /**
     ASTSimpleExpression, consisting of a single element without combining operator, e.g.,
     10mV, inf, V_m.
+    @attribute functionCall: A simple function call, e.g., myFunc(a,b)
+    @attribute BOOLEAN_LITERAL: A single boolean literal, e.g., True.
+    @attribute INTEGER: A integer number, e.g., 10.
+    @attribute FLOAT: A float number, e.g., 10.01.
+    @attribute variable: A optional variable representing the unit, e.g., ms, OR a single variable representing a reference, e.g. V_m.
+    @attribute isInf: True iff, this expression shall represent the value infinity.
   */
   simpleExpression : functionCall
                    | BOOLEAN_LITERAL // true & false;
                    | (INTEGER|FLOAT) (variable)?
+                   | string=STRING_LITERAL
                    | isInf='inf'
                    | variable;
 
@@ -96,32 +98,29 @@ grammar PyNESTML;
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
-    @attribute name
+    @attribute name: The name of the variable without the differential order, e.g. V_m
+    @attribute differentialOrdeer: The corresponding differential order, e.g. 2
   */
-  variable : NAME (differentialOrder)*;
+  variable : name=NAME (differentialOrder)*;
+
+  differentialOrder : '\'';
 
   /**
     ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
-    @attribute name The (qualified) name of the functions
-    @attribute args Comma separated list of expressions representing parameters.
+    @attribute calleeName: The (qualified) name of the functions
+    @attribute args: Comma separated list of expressions representing parameters.
   */
-  functionCall : calleeName=NAME '(' (args=arguments)? ')';
-
-  arguments : expression (',' expression)*;
+  functionCall : calleeName=NAME '(' (expression (',' expression)*)? ')';
 
   /*********************************************************************************************************************
   * Equations-Language
   *********************************************************************************************************************/
 
-  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression;
+  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression (';')?;
 
-  odeEquation : lhs=derivative '=' rhs=expression;
+  odeEquation : lhs=variable '=' rhs=expression (';')?;
 
-  derivative : name=NAME (differentialOrder)*;
-
-  differentialOrder: '\'';
-
-  odeShape : 'shape' lhs=variable '=' rhs=expression;
+  odeShape : 'shape' lhs=variable '=' rhs=expression (';')?;
 
   /*********************************************************************************************************************
   * Procedural-Language
@@ -149,26 +148,24 @@ grammar PyNESTML;
 
   /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
    'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
-    @attribute hide is true iff. declaration is not trackable.
-    @attribute function is true iff. declaration is an function.
-    @attribute vars          List with variables
-    @attribute Datatype      Obligatory data type, e.g. 'real' or 'mV/s'
-    @attribute sizeParameter An optional array parameter. E.g. 'tau_syn ms[n_receptros]'
-    @attribute expr An optional initial expression, e.g. 'a real = 10+10'
-    @attribute invariants List with optional invariants.
+    @attribute isRecordable: Is true iff. declaration is track-able.
+    @attribute isFunction: Is true iff. declaration is a function.
+    @attribute variable: List with variables.
+    @attribute datatype: Obligatory data type, e.g., 'real' or 'mV/s'.
+    @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
+    @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
+    @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
   declaration :
     isRecordable='recordable'? isFunction='function'?
     variable (',' variable)*
     datatype
     ('[' sizeParameter=NAME ']')?
-    ( '=' rhs = expression)? SL_COMMENT?
+    ( '=' rhs = expression)?
     ('[[' invariant=expression ']]')?;
 
   /** ATReturnStmt Models the return statement in a function.
-
-    @attribute minus An optional sing
-    @attribute definingVariable Name of the variable
+    @expression An optional return expression, e.g., return tempVar
    */
   returnStmt : 'return' expression?;
 
@@ -183,7 +180,10 @@ grammar PyNESTML;
 
   elseClause : 'else' BLOCK_OPEN block;
 
-  forStmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
+  forStmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral
+            BLOCK_OPEN
+             block
+            BLOCK_CLOSE;
 
   whileStmt : 'while' expression BLOCK_OPEN block BLOCK_CLOSE;
 
@@ -194,39 +194,44 @@ grammar PyNESTML;
   *********************************************************************************************************************/
 
   /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
-    @attribute neuron_list a list of processed models.
+    @attribute neuron: A list of processed models.
   */
   nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
 
-  /** ASTNeuron represents neuron.
-    @attribute Name    The name of the neuron
-    @attribute Body    The body of the neuron, e.g. internal, state, parameter...
+  /** ASTNeuron Represents a single neuron.
+    @attribute Name:    The name of the neuron, e.g., ht_neuron.
+    @attribute body:    The body of the neuron consisting of several sub-blocks.
   */
   neuron : 'neuron' NAME body;
 
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
+    @attribute blockWithVariables: A single block of variables, e.g. the state block.
+    @attribute updateBlock: A single update block containing the dynamic behavior.
+    @attribute equationsBlock: A block of ode declarations.
+    @attribute inputBlock: A block of input buffer declarations.
+    @attribute outputBlock: A block of output declarations.
+    @attribute function: A block declaring a used-defined function.
   */
   body : BLOCK_OPEN
          (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
          BLOCK_CLOSE;
 
-  /** ASTBlockWithVariables represent a block with variables, e.g.:
+  /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
     state:
       y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
     end
-
-    @attribute state true if the varblock is a state.
-    @attribute parameter true if the varblock is a parameter.
-    @attribute internal true if the varblock is a state internal.
-    @attribute AliasDecl a list with variable declarations.
+    @attribute state: True iff the varblock is a state.
+    @attribute parameters:  True iff the varblock is a parameters block.
+    @attribute internals: True iff the varblock is a state internals block.
+    @attribute declaration: A list of corresponding declarations.
   */
   blockWithVariables:
-    blockType=('state'|'parameters'|'internals')
+    blockType=('state'|'parameters'|'internals'|'initial_values')
     BLOCK_OPEN
       (declaration | NEWLINE)*
     BLOCK_CLOSE;
 
-  /** ASTUpdateBlock a special function definition:
+  /** ASTUpdateBlock The definition of a block where the dynamical behavior of the neuron is stated:
       update:
         if r == 0: # not refractory
           integrate(V)
@@ -240,12 +245,14 @@ grammar PyNESTML;
       block
     BLOCK_CLOSE;
 
-  /** ASTEquationsBlock a special function definition:
+  /** ASTEquationsBlock A block declaring special functions:
        equations:
          G = (e/tau_syn) * t * exp(-1/tau_syn*t)
          V' = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
        end
-     @attribute odeDeclaration Block with equations and differential equations.
+     @attribute odeFunction: A single ode function statement, e.g., function V_m mV = ...
+     @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
+     @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
    */
   equationsBlock:
     'equations'
@@ -253,13 +260,12 @@ grammar PyNESTML;
       (odeFunction|odeEquation|odeShape|NEWLINE)+
     BLOCK_CLOSE;
 
-  /** ASTInputBlock represents the input block:
+  /** ASTInputBlock represents a single input block:
     input:
       spikeBuffer   <- inhibitory excitatory spike
       currentBuffer <- current
     end
-
-    @attribute inputLine set of input lines.
+    @attribute inputLine: A list of input lines.
   */
   inputBlock: 'input'
     BLOCK_OPEN
@@ -268,11 +274,11 @@ grammar PyNESTML;
 
   /** ASTInputLine represents a single line form the input, e.g.:
       spikeBuffer   <- inhibitory excitatory spike
-
-    @attribute sizeParameter Optional parameter representing  multisynapse neuron.
-    @attribute sizeParameter Type of the inputchannel: e.g. inhibitory or excitatory (or both).
-    @attribute spike true iff the neuron is a spike.
-    @attribute current true iff. the neuron is a current.
+    @attribute name:   The name of the defined buffer, inSpike.
+    @attribute sizeParameter: Optional parameter representing  multisynapse neuron.
+    @attribute inputType: The type of the inputchannel: e.g. inhibitory or excitatory (or both).
+    @attribute isSpike: True iff the neuron is a spike.
+    @attribute isCurrent: True iff. the neuron is a current.
   */
   inputLine :
     name=NAME
@@ -280,41 +286,36 @@ grammar PyNESTML;
     '<-' inputType*
     (isCurrent = 'current' | isSpike = 'spike');
 
-  /** ASTInputType represents the type of the inputline e.g.: inhibitory or excitatory:
-    @attribute inhibitory true iff the neuron is a inhibitory.
-    @attribute excitatory true iff. the neuron is a excitatory.
+  /** ASTInputType represents the type of the inputLine e.g.: inhibitory or excitatory:
+    @attribute isInhibitory: true iff the neuron is a inhibitory.
+    @attribute isExcitatory: true iff. the neuron is a excitatory.
   */
   inputType : (isInhibitory='inhibitory' | isExcitatory='excitatory');
 
-  /** ASTOutputBlock represents the output block of the neuron:
+  /** ASTOutputBlock Represents the output block of the neuron,i.e., declarations of output buffers:
         output: spike
-      @attribute spike true iff the neuron has a spike output.
-      @attribute current true iff. the neuron is a current output.
+      @attribute isSpike: true iff the neuron has a spike output.
+      @attribute isCurrent: true iff. the neuron is a current output.
     */
   outputBlock: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
 
-  /** ASTFunction a function definition:
+  /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):
         y3 = v - E_L
       end
-    @attribute name Functionname.
-    @attribute parameters List with function parameters.
-    @attribute returnType Complex return type, e.g. String
-    @attribute primitiveType Primitive return type, e.g. int
-    @attribute block Implementation of the function.
+    @attribute name: The name of the function.
+    @attribute parameters: List with function parameters.
+    @attribute returnType: An arbitrary return type, e.g. String or mV.
+    @attribute block: Implementation of the function.
   */
-  function: 'function' NAME '(' parameters? ')' (returnType=datatype)?
+  function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
            BLOCK_OPEN
              block
            BLOCK_CLOSE;
 
-  /** ASTParameters models parameter list in function declaration.
-    @attribute parameters List with parameters.
-  */
-  parameters : parameter (',' parameter)*;
-
-  /** ASTParameter represents singe:
-      output: spike
-    @attribute compartments Lists with compartments.
+  /** ASTParameter represents a single parameter consisting of a name and the corresponding
+      data type, e.g. T_in ms
+    @attribute name: The name of the parameter.
+    @attribute datatype: The corresponding data type.
   */
   parameter : NAME datatype;
