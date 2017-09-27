@@ -31,6 +31,11 @@ class CoCoAllVariablesDefined(CoCo):
     """
     This class represents a constraint condition which ensures that all elements as used in expressions have been
     previously defined.
+    Not allowed:
+        state:
+            V_m mV = V_m + 10mV # <- recursive definition
+            V_m mV = V_n # <- not defined reference
+        end
     """
 
     @classmethod

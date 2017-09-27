@@ -51,14 +51,14 @@ class ASTNESTMLCompilationUnit(ASTElement):
         :rtype: ASTNESTMLCompilationUnits
         """
         assert (_listOfNeurons is not None and isinstance(_listOfNeurons, list)), \
-            '(PyNestML.AST.NESTMLCompilationUnit) Handed over element not a list!'
+            '(PyNestML.AST.NESTMLCompilationUnit) No or wrong type of list of neurons provided (%s)!' % type(
+                _listOfNeurons)
+        for neuron in _listOfNeurons:
+            assert (neuron is not None and isinstance(neuron, ASTNeuron)), \
+                '(PyNestML.AST.NESTMLCompilationUnit) No or wrong type of neuron provided (%s)!' % type(neuron)
         instance = cls(_sourcePosition)
         for i in _listOfNeurons:
-            # ensure that only object of type Neuron are added
-            if isinstance(i, ASTNeuron):
-                instance.addNeuron(i)
-            else:
-                raise NotANeuronException('(PyNestML.AST.NESTMLCompilationUnit) Not a neuron handed over!')
+            instance.addNeuron(i)
         return instance
 
     def addNeuron(self, _neuron):
@@ -70,8 +70,9 @@ class ASTNESTMLCompilationUnit(ASTElement):
         :rtype: void
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.AST.CompilationUnit) None or wrong type of neuron handed over!'
+            '(PyNestML.AST.CompilationUnit) No or wrong type of neuron provided (%s)!' % type(_neuron)
         self.__neuron_list.append(_neuron)
+        return
 
     def deleteNeuron(self, _neuron=None):
         """
@@ -105,7 +106,3 @@ class ASTNESTMLCompilationUnit(ASTElement):
             for neuron in self.getNeuronList():
                 ret += neuron.printAST() + '\n'
         return ret
-
-
-class NotANeuronException(Exception):
-    pass

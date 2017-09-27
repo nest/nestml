@@ -42,11 +42,11 @@ class ASTLogicalOperator(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_isLogicalOr is None or isinstance(_isLogicalOr, bool)), \
-            '(PyNestML.AST.LogicalOperator) Wrong type of logical operator!'
+            '(PyNestML.AST.LogicalOperator) Wrong type of is-logical-and provided (%s)!' % type(_isLogicalAnd)
         assert (_isLogicalAnd is None or isinstance(_isLogicalAnd, bool)), \
-            '(PyNestML.AST.LogicalOperator) Wrong type of logical operator!'
+            '(PyNestML.AST.LogicalOperator) Wrong type of is-logical-or provided (%s)!' % type(_isLogicalOr)
         assert (_isLogicalAnd ^ _isLogicalOr), \
-            '(PyNestML.AST.LogicalOperator) Only one operator allowed!'
+            '(PyNestML.AST.LogicalOperator) Logical operator not correctly specified!'
         super(ASTLogicalOperator, self).__init__(_sourcePosition)
         self.__isLogicalAnd = _isLogicalAnd
         self.__isLogicalOr = _isLogicalOr

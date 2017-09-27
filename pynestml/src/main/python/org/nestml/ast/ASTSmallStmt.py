@@ -56,13 +56,13 @@ class ASTSmallStmt(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_assignment is None or isinstance(_assignment, ASTAssignment)), \
-            '(PyNestML.AST.SmallStmt) Not an assignment provided.'
+            '(PyNestML.AST.SmallStmt) Wrong type of assignment provided (%s)!' % type(_assignment)
         assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
-            '(PyNestTML.AST.SmallStmt) Not a function call provided.'
+            '(PyNestTML.AST.SmallStmt) Wrong type of function call provided (%s)!' % type(_functionCall)
         assert (_declaration is None or isinstance(_declaration, ASTDeclaration)), \
-            '(PyNestML.AST.SmallStmt) Not a declaration provided.'
+            '(PyNestML.AST.SmallStmt) Wrong type of declaration provided (%s)!' % type(_declaration)
         assert (_returnStmt is None or isinstance(_returnStmt, ASTReturnStmt)), \
-            '(PyNestML.AST.SmallStmt) Not a return statement provided.'
+            '(PyNestML.AST.SmallStmt) Wrong type of return statement provided (%s)!' % type(_returnStmt)
         super(ASTSmallStmt, self).__init__(_sourcePosition)
         self.__assignment = _assignment
         self.__functionCall = _functionCall

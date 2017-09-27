@@ -43,9 +43,9 @@ class ASTOdeShape(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
-            '(PyNestML.AST.OdeShape) No or wrong type of left-hand side variable provided!'
+            '(PyNestML.AST.OdeShape) No or wrong type of left-hand side variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
-            '(PyNestML.AST.OdeShape) No or wrong type of right-hand side expression provided!'
+            '(PyNestML.AST.OdeShape) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
         super(ASTOdeShape, self).__init__(_sourcePosition)
         self.__lhs = _lhs
         self.__rhs = _rhs

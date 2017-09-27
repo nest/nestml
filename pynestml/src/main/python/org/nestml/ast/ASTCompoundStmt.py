@@ -23,6 +23,7 @@ from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTIfStmt import ASTIfStmt
 from pynestml.src.main.python.org.nestml.ast.ASTWhileStmt import ASTWhileStmt
 from pynestml.src.main.python.org.nestml.ast.ASTForStmt import ASTForStmt
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTCompoundStmt(ASTElement):
@@ -49,13 +50,13 @@ class ASTCompoundStmt(ASTElement):
         :param _sourcePosition: The source position of the assignment
         :type _sourcePosition: ASTSourcePosition
         """
-        super(ASTCompoundStmt, self).__init__(_sourcePosition)
         assert (_ifStmt is None or isinstance(_ifStmt, ASTIfStmt)), \
-            '(PyNestML.AST.CompoundStmt) Wrong type of if-statement handed over!'
+            '(PyNestML.AST.CompoundStmt) Wrong type of if-statement provided (%s)!' % type(_ifStmt)
         assert (_whileStmt is None or isinstance(_whileStmt, ASTWhileStmt)), \
-            '(PyNestML.AST.CompoundStmt) Wrong type of while-statement handed over!'
+            '(PyNestML.AST.CompoundStmt) Wrong type of while-statement provided (%s)!' % type(_whileStmt)
         assert (_forStmt is None or isinstance(_forStmt, ASTForStmt)), \
-            '(PyNestML.AST.CompoundStmt) Wrong type of for-statement handed over!'
+            '(PyNestML.AST.CompoundStmt) Wrong type of for-statement provided (%s)!' % type(_forStmt)
+        super(ASTCompoundStmt, self).__init__(_sourcePosition)
         self.__ifStmt = _ifStmt
         self.__whileStmt = _whileStmt
         self.__forStmt = _forStmt
@@ -139,4 +140,4 @@ class ASTCompoundStmt(ASTElement):
         elif self.isWhileStmt():
             return self.getWhileStmt().printAST()
         else:
-            return '(NESTML.AST.CompoundStmt.Print) Unknown compound statement element.'
+            Logger.logMessage('Type of compound statement not specified!', LOGGING_LEVEL.WARNING)

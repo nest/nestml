@@ -34,7 +34,7 @@ class CoCoBufferNotAssigned(CoCo):
         current = currentSum + 10mV
     
     """
-    __assignments = list()
+    __neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -45,25 +45,23 @@ class CoCoBufferNotAssigned(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__assignments = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectAssignments)
-        for assign in cls.__assignments:
-            symbol = assign.getScope().resolveToAllSymbols(assign.getVariable().getName(), SymbolKind.VARIABLE)
-            if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
-                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
-                Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] Value assigned to buffer "%s" at %s!'
-                    % (assign.getVariable().getCompleteName(), assign.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkAssignments)
 
     @classmethod
-    def __collectAssignments(cls, _ast=None):
+    def __checkAssignments(cls, _ast=None):
         """
-        For a given node, it collects all the assignments.
+        For a given node node of type assignment, it checks if the coco applies.
         :param _ast: a single ast node.
         :type _ast: AST_
         """
         from pynestml.src.main.python.org.nestml.ast.ASTAssignment import ASTAssignment
         if isinstance(_ast, ASTAssignment):
-            cls.__assignments.append(_ast)
+            symbol = _ast.getScope().resolveToAllSymbols(_ast.getVariable().getName(), SymbolKind.VARIABLE)
+            if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
+                                               symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
+                Logger.logMessage(
+                    '[' + cls.__neuronName + '.nestml] Value assigned to buffer "%s" at %s!'
+                    % (_ast.getVariable().getCompleteName(), _ast.getSourcePosition().printSourcePosition()),
+                    LOGGING_LEVEL.ERROR)
         return

@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTBitOperator(ASTElement):
@@ -50,6 +51,16 @@ class ASTBitOperator(ASTElement):
         :param _isBitShiftRight: is bit shift right operator.
         :type _isBitShiftRight: bool
         """
+        assert (_isBitAnd is not None and isinstance(_isBitAnd, bool)), \
+            '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-and provided (%s)!' % type(_isBitAnd)
+        assert (_isBitOr is not None and isinstance(_isBitOr, bool)), \
+            '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-or provided (%s)!' % type(_isBitOr)
+        assert (_isBitXor is not None and isinstance(_isBitXor, bool)), \
+            '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-xor provided (%s)!' % type(_isBitXor)
+        assert (_isBitShiftLeft is not None and isinstance(_isBitShiftLeft, bool)), \
+            '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-left provided (%s)!' % type(_isBitShiftLeft)
+        assert (_isBitShiftRight is not None and isinstance(_isBitShiftRight, bool)), \
+            '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-right provided (%s)!' % type(_isBitShiftRight)
         super(ASTBitOperator, self).__init__(_sourcePosition)
         self.__isBitShiftRight = _isBitShiftRight
         self.__isBitShiftLeft = _isBitShiftLeft
@@ -136,4 +147,4 @@ class ASTBitOperator(ASTElement):
         elif self.__isBitShiftRight:
             return ' >> '
         else:
-            raise Exception("(NESTML) Bit operator not specified.")
+            Logger.logMessage('Type of bit operator not specified!', LOGGING_LEVEL.WARNING)

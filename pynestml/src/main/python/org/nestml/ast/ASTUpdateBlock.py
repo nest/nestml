@@ -52,8 +52,9 @@ class ASTUpdateBlock(ASTElement):
         """
         super(ASTUpdateBlock, self).__init__(_sourcePosition)
         assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.UpdateBlock) No or wrong type handed over!'
+            '(PyNestML.AST.UpdateBlock) No or wrong type of block provided (%s)!' % type(_block)
         self.__block = _block
+        return
 
     @classmethod
     def makeASTUpdateBlock(cls, _block=None, _sourcePosition=None):

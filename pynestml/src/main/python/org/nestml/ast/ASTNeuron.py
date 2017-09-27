@@ -45,8 +45,10 @@ class ASTNeuron(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_name is not None and isinstance(_name, str)), '(PyNestML.AST.Neuron) No neuron name provided.'
-        assert (_body is not None and isinstance(_body, ASTBody)), '(PyNestML.AST.Neuron) No neuron body provided.'
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.AST.Neuron) No  or wrong type of neuron name provided (%s)!' % type(_name)
+        assert (_body is not None and isinstance(_body, ASTBody)), \
+            '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(_body)
         super(ASTNeuron, self).__init__(_sourcePosition)
         self.__name = _name
         self.__body = _body

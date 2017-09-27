@@ -20,6 +20,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTOutputBlock import SignalType
 from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
+from pynestml.src.main.python.org.nestml.ast.ASTInputType import ASTInputType
 
 
 class ASTInputLine(ASTElement):
@@ -69,6 +70,9 @@ class ASTInputLine(ASTElement):
             '(PyNestML.AST.InputLine) No or wrong type of input signal type provided (%s)!' % type(_signalType)
         assert (_inputTypes is not None and isinstance(_inputTypes, list)), \
             '(PyNestML.AST.InputLine) No or wrong type of input types provided (%s)!' % type(_inputTypes)
+        for typ in _inputTypes:
+            assert (typ is not None and isinstance(typ, ASTInputType)), \
+                '(PyNestML.AST.InputLine) No or wrong type of input type provided (%s)!' % type(typ)
         assert (_sizeParameter is None or isinstance(_sizeParameter, str)), \
             '(PyNestML.AST.InputLine) Wrong type of index parameter provided (%s)!' % type(_sizeParameter)
         assert (_dataType is None or isinstance(_dataType, ASTDatatype)), \

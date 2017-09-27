@@ -22,6 +22,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
 from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTSimpleExpression(ASTElement):
@@ -263,4 +264,5 @@ class ASTSimpleExpression(ASTElement):
         elif self.isString():
             return self.getString()
         else:
-            raise Exception("(PyNESTML.AST.SimpleExpression.Print) Simple expression not specified.")
+            Logger.logMessage('Simple expression at %s not specified!' % self.getSourcePosition().printSourcePosition(),
+                              LOGGING_LEVEL.WARNING)

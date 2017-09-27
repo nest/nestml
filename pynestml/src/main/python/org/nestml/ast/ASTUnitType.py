@@ -78,17 +78,30 @@ class ASTUnitType(ASTElement):
         :type _unit: string
         """
         assert (isinstance(_base, ASTUnitType) or isinstance(_base, str) or _base is None), \
-            '(PyNestML.AST.UnitType) Wrong type of base expression provided.'
+            '(PyNestML.AST.UnitType) Wrong type of base expression provided (%s)!' % type(_base)
         assert (isinstance(_exponent, int) or _exponent is None), \
-            '(PyNestML.AST.UnitType) Wrong type of exponent provided, expected integer, provided %s' % type(_exponent)
+            '(PyNestML.AST.UnitType) Wrong type of exponent provided, expected integer, provided (%s)!' \
+            % type(_exponent)
         assert (isinstance(_lhs, ASTUnitType) or isinstance(_lhs, str) or isinstance(_lhs, int) or _lhs is None), \
-            '(PyNestML.AST.UnitType) Wrong type of left-hand side expression provided!'
-        assert (isinstance(_rhs, ASTUnitType) or isinstance(_rhs, str) or _lhs is None), \
-            '(PyNestML.AST.UnitType) Wrong type of right-hand side expression provided!'
+            '(PyNestML.AST.UnitType) Wrong type of left-hand side expression provided (%s)!' % type(_lhs)
+        assert (isinstance(_rhs, ASTUnitType) or isinstance(_rhs, str) or _rhs is None), \
+            '(PyNestML.AST.UnitType) Wrong type of right-hand side expression provided (%s)!' % type(_rhs)
         assert (isinstance(_compoundUnit, ASTUnitType) or isinstance(_compoundUnit, str) or _compoundUnit is None), \
-            '(PyNestML.AST.UnitType) Wrong type of encapsulated unit expression provided!'
-        assert (_lhs is None or isinstance(_lhs, ASTUnitType) or isinstance(_lhs, int)), \
-            '(PyNestML.AST.UnitType) Wrong type of left-hand side expression provided!'
+            '(PyNestML.AST.UnitType) Wrong type of encapsulated unit expression provided (%s)!' % type(_compoundUnit)
+        assert (_leftParentheses is not None and isinstance(_leftParentheses, bool)), \
+            '(PyNestML.AST.UnitType) Wrong type of left-bracket provided (%s)!' % type(_leftParentheses)
+        assert (_rightParentheses is not None and isinstance(_rightParentheses, bool)), \
+            '(PyNestML.AST.UnitType) Wrong type of right-bracket provided (%s)!' % type(_rightParentheses)
+        assert ((_rightParentheses + _leftParentheses) % 2 == 0), \
+            '(PyNestML.AST.UnitType) Brackets not consistent!'
+        assert (_isTimes is not None and isinstance(_isTimes, bool)), \
+            '(PyNestML.AST.UnitType) Wrong type of is-times provided (%s)!' % type(_isTimes)
+        assert (_isDiv is not None and isinstance(_isDiv, bool)), \
+            '(PyNestML.AST.UnitType) Wrong type of is-div provided (%s)!' % type(_isDiv)
+        assert (_isPow is not None and isinstance(_isPow, bool)), \
+            '(PyNestML.AST.UnitType) Wrong type of is-pow provided (%s)!' % type(_isPow)
+        assert (_unit is None or isinstance(_unit, str)), \
+            '(PyNestML.AST.UnitType) Wrong type of unit provided (%s)!' % type(_unit)
         super(ASTUnitType, self).__init__(_sourcePosition)
         self.__hasLeftParentheses = _leftParentheses
         self.__compoundUnit = _compoundUnit
@@ -243,7 +256,7 @@ class ASTUnitType(ASTElement):
         if self.isEncapsulated():
             return '(' + self.getCompoundUnit().printAST() + ')'
         elif self.isPowerExpression():
-            return self.getBase().printAST() + '**' + self.getExponent()
+            return self.getBase().printAST() + '**' + str(self.getExponent())
         elif self.isArithmeticExpression():
             tLhs = (self.getLhs().printAST() if isinstance(self.getLhs(), ASTUnitType) else self.getLhs())
             if self.isTimes():

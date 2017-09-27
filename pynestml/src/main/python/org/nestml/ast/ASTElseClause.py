@@ -20,6 +20,7 @@
 
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
 
 
 class ASTElseClause(ASTElement):
@@ -38,6 +39,8 @@ class ASTElseClause(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_block is not None and isinstance(_block, ASTBlock)), \
+            '(PyNestML.AST.ElseClause) No or wrong type of block provided (%s)!' % type(_block)
         super(ASTElseClause, self).__init__(_sourcePosition)
         self.__block = _block
 

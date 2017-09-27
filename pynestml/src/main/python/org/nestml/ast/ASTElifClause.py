@@ -20,7 +20,8 @@
 
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
-
+from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
 
 class ASTElifClause(ASTElement):
     """
@@ -41,6 +42,10 @@ class ASTElifClause(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_condition is not None and isinstance(_condition, ASTExpression)), \
+            '(PyNestML.AST.ElifClause) No or wrong type of condition provided (%s)!' % type(_condition)
+        assert (_block is not None and isinstance(_block, ASTBlock)), \
+            '(PyNestML.AST.ElifClause) No or wrong type of block provided (%s)!' % type(_block)
         super(ASTElifClause, self).__init__(_sourcePosition)
         self.__block = _block
         self.__condition = _condition

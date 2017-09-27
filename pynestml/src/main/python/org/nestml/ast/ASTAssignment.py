@@ -62,8 +62,29 @@ class ASTAssignment(ASTElement):
         :param _expression: an ast-expression object
         :type _expression: ASTExpression
         """
-        assert (_lhs is not None and isinstance(_lhs,ASTVariable)),\
-            '(PyNestML.AST.Assignment) No or wrong typ of variable provided (%s)!' %type(_lhs)
+        assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
+            '(PyNestML.AST.Assignment) No or wrong typ of variable provided (%s)!' % type(_lhs)
+        assert (_isDirectAssignment is not None and isinstance(_isDirectAssignment, bool)), \
+            '(PyNestML.AST.Assignment) No or wrong typ of is-direct-assignment provided (%s)!' % type(
+                _isDirectAssignment)
+        assert (_isCompoundSum is not None and isinstance(_isCompoundSum, bool)), \
+            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-sum provided (%s)!' % type(
+                _isCompoundSum)
+        assert (_isCompoundMinus is not None and isinstance(_isCompoundMinus, bool)), \
+            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-minus provided (%s)!' % type(
+                _isCompoundMinus)
+        assert (_isCompoundMinus is not None and isinstance(_isCompoundMinus, bool)), \
+            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-minus provided (%s)!' % type(
+                _isCompoundMinus)
+        assert (_isCompoundProduct is not None and isinstance(_isCompoundProduct, bool)), \
+            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-product provided (%s)!' % type(
+                _isCompoundProduct)
+        assert (_isCompoundQuotient is not None and isinstance(_isCompoundQuotient, bool)), \
+            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-quotient provided (%s)!' % type(
+                _isCompoundQuotient)
+        assert (_isCompoundQuotient is not None and isinstance(_isCompoundQuotient, bool)), \
+            '(PyNestML.AST.Assignment) No or wrong typ of is-compound-quotient provided (%s)!' % type(
+                _isCompoundQuotient)
         super(ASTAssignment, self).__init__(_sourcePosition)
         self.__lhsVariable = _lhs
         self.__isDirectAssignment = _isDirectAssignment

@@ -45,11 +45,11 @@ class ASTInputType(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_isInhibitory is None or isinstance(_isInhibitory, bool)), \
-            '(PyNestML.AST.InputType) Wrong type of specifier provided!'
+            '(PyNestML.AST.InputType) Wrong type of specifier provided (%s)!' % type(_isInhibitory)
         assert (_isExcitatory is None or isinstance(_isExcitatory, bool)), \
-            '(PyNestML.AST.InputType) Wrong type of specifier provided!'
+            '(PyNestML.AST.InputType) Wrong type of specifier provided (%s)!' % type(_isExcitatory)
         assert (_isExcitatory != _isInhibitory), \
-            '(PyNestML.AST.InputType) Buffer wrongly specified!'
+            '(PyNestML.AST.InputType) Buffer specification not correct!'
         super(ASTInputType, self).__init__(_sourcePosition)
         self.__isExcitatory = _isExcitatory
         self.__isInhibitory = _isInhibitory

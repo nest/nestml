@@ -20,6 +20,9 @@
 
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTOdeEquation import ASTOdeEquation
+from pynestml.src.main.python.org.nestml.ast.ASTOdeFunction import ASTOdeFunction
+from pynestml.src.main.python.org.nestml.ast.ASTOdeShape import ASTOdeShape
 
 
 class ASTEquationsBlock(ASTElement):
@@ -49,7 +52,12 @@ class ASTEquationsBlock(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_declarations is not None and isinstance(_declarations, list)), \
-            '(PyNestML.AST.EquationsBlock) No or wrong type of declarations handed over!'
+            '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(_declarations)
+        for decl in _declarations:
+            assert (decl is not None and (isinstance(decl, ASTOdeShape) or
+                                          isinstance(decl, ASTOdeEquation) or
+                                          isinstance(decl, ASTOdeFunction))), \
+                '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
         super(ASTEquationsBlock, self).__init__(_sourcePosition)
         self.__declarations = _declarations
 
@@ -70,7 +78,7 @@ class ASTEquationsBlock(ASTElement):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: ASTOdeFunction|ASTOdeEquation|ASTOdeShape
+        :rtype: list(ASTOdeFunction|ASTOdeEquation|ASTOdeShape)
         """
         return self.__declarations
 

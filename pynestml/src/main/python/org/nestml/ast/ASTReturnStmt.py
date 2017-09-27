@@ -44,7 +44,7 @@ class ASTReturnStmt(ASTElement):
         """
         assert (_expression is None or isinstance(_expression, ASTExpression)
                 or isinstance(_expression, ASTSimpleExpression)), \
-            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided!'
+            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided (%s)!' % type(_expression)
         super(ASTReturnStmt, self).__init__(_sourcePosition)
         self.__expression = _expression
 

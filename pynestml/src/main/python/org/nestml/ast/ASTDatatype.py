@@ -18,8 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
+from pynestml.src.main.python.org.nestml.ast.ASTUnitType import ASTUnitType
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTDatatype(ASTElement):
@@ -62,6 +63,18 @@ class ASTDatatype(ASTElement):
         :param _sourcePosition: The source position of the assignment
         :type _sourcePosition: ASTSourcePosition
         """
+        assert (_isInteger is not None and isinstance(_isInteger, bool)), \
+            '(PyNestML.AST.Datatype) Wrong type of is-integer parameter provided (%s)' % type(_isInteger)
+        assert (_isReal is not None and isinstance(_isReal, bool)), \
+            '(PyNestML.AST.Datatype) Wrong type of is-real parameter provided (%s)' % type(_isReal)
+        assert (_isString is not None and isinstance(_isString, bool)), \
+            '(PyNestML.AST.Datatype) Wrong type of is-string parameter provided (%s)' % type(_isString)
+        assert (_isBoolean is not None and isinstance(_isBoolean, bool)), \
+            '(PyNestML.AST.Datatype) Wrong type of is-boolean parameter provided (%s)' % type(_isBoolean)
+        assert (_isVoid is not None and isinstance(_isVoid, bool)), \
+            '(PyNestML.AST.Datatype) Wrong type of is-void parameter provided (%s)' % type(_isVoid)
+        assert (_isUnitType is None or isinstance(_isUnitType, ASTUnitType)), \
+            '(PyNestML.AST.Datatype) Wrong type of unit-type parameter provided (%s)' % type(_isUnitType)
         super(ASTDatatype, self).__init__(_sourcePosition)
         self.__isUnitType = _isUnitType
         self.__isVoid = _isVoid
@@ -190,3 +203,5 @@ class ASTDatatype(ASTElement):
             return 'real'
         elif self.isUnitType():
             return self.getUnitType().printAST()
+        else:
+            Logger.logMessage('Type of datatype not specified!', LOGGING_LEVEL.WARNING)
