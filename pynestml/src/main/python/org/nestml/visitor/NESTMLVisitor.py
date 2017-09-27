@@ -10,7 +10,7 @@
 # the Free Software Foundation, either version 2 of the License, or
 # (at your option) any later version.
 #
-# NEST is distributed in the hope that it will be useful,
+# NEST is distributed in the hope that it will be useful, 
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
@@ -25,550 +25,1119 @@ class NESTMLVisitor(object):
     This class represents a standard implementation of a visitor as used to create concrete instances.
                  
     """
-
-    @classmethod
-    def visitCompilationUnit(cls, _compilationUnit=None):
+    def visitCompilationUnit(self, _compilationUnit=None):
         """
         Visits a single compilation unit, thus all neurons.
         :param _compilationUnit: a single compilation unit.
         :type _compilationUnit: ASTNESTMLCompilationUnit
         """
-        assert (_compilationUnit is not None and isinstance(_compilationUnit, ASTNESTMLCompilationUnit)), \
-            '(PyNestML.Visitor) No or wrong type of compilation unit provided (%s)!' % type(_compilationUnit)
-        for neuron in _compilationUnit.getNeuronList():
-            cls.visitNeuron(neuron)
         return
 
-    @classmethod
-    def visitNeuron(cls, _neuron=None):
+    def visitNeuron(self, _neuron=None):
         """
         Used to visit a single neuron.
         :return: a single neuron.
         :rtype: ASTNeuron
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron.ASTNeuron)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.visitBody(_neuron.getBody())
         return
-
-    @classmethod
-    def visitBody(cls, _body=None):
+    
+    def visitBody(self, _body=None):
         """
         Used to visit a single neuron body.
         :param _body: a single body element.
         :type _body: ASTBody
         """
-        for bodyElement in _body.getBodyElements():
-            if isinstance(bodyElement, ASTBlockWithVariables.ASTBlockWithVariables):
-                cls.visitBlockWithVariable(bodyElement)
-            elif isinstance(bodyElement, ASTUpdateBlock.ASTUpdateBlock):
-                cls.visitUpdateBlock(bodyElement)
-            elif isinstance(bodyElement, ASTEquationsBlock.ASTEquationsBlock):
-                cls.visitEquationsBlock(bodyElement)
-            elif isinstance(bodyElement, ASTInputBlock.ASTInputBlock):
-                cls.visitInputBlock(bodyElement)
-            elif isinstance(bodyElement, ASTOutputBlock.ASTOutputBlock):
-                cls.visitOutputBlock(bodyElement)
-            elif isinstance(bodyElement, ASTFunction.ASTFunction):
-                cls.visitFunctionBlock(bodyElement)
         return
 
-    @classmethod
-    def visitFunctionBlock(cls, _block=None):
+    def visitFunction(self, _block=None):
         """
         Used to visit a single function block.
         :param _block: a function block object.
         :type _block: ASTFunction
         """
-        assert (_block is not None and isinstance(_block, ASTFunction.ASTFunction)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of function block provided (%s)!' % type(_block)
-        for arg in _block.getParameters():
-            cls.visitDataType(arg.getDataType())
-        if _block.hasReturnType():
-            cls.visitDataType(_block.getReturnType())
-        cls.visitBlock(_block.getBlock())
         return
 
-    @classmethod
-    def visitUpdateBlock(cls, _block=None):
+    def visitUpdateBlock(self, _block=None):
         """
         Used to visit a single update block.
         :param _block: an update block object. 
         :type _block: ASTDynamics
         """
-        assert (_block is not None and isinstance(_block, ASTUpdateBlock.ASTUpdateBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of update-block provided (%s)!' % type(_block)
-        cls.visitBlock(_block.getBlock())
         return
 
-    @classmethod
-    def visitBlock(cls, _block=None):
+    def visitBlock(self, _block=None):
         """
         Used to visit a single block of statements.
         :param _block: a block object.
         :type _block: ASTBlock
         """
-        assert (_block is not None and isinstance(_block, ASTBlock.ASTBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of block provided %s!' % type(_block)
-        for stmt in _block.getStmts():
-            if isinstance(stmt, ASTSmallStmt.ASTSmallStmt):
-                cls.visitSmallStmt(stmt)
-            elif isinstance(stmt, ASTCompoundStmt.ASTCompoundStmt):
-                cls.visitCompoundStmt(stmt)
         return
 
-    @classmethod
-    def visitSmallStmt(cls, _stmt=None):
+    def visitSmallStmt(self, _stmt=None):
         """
         Used to visit a single small statement.
         :param _stmt: a single small statement.
         :type _stmt: ASTSmallStatement
         """
-        assert (_stmt is not None and isinstance(_stmt, ASTSmallStmt.ASTSmallStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of small statement provided (%s)!' % type(_stmt)
-        if _stmt.isDeclaration():
-            cls.visitDeclaration(_stmt.getDeclaration())
-        elif _stmt.isAssignment():
-            cls.visitAssignment(_stmt.getAssignment())
-        elif _stmt.isFunctionCall():
-            cls.visitFunctionCall(_stmt.getFunctionCall())
-        elif _stmt.isReturnStmt():
-            cls.visitReturnStmt(_stmt.getReturnStmt())
         return
 
-    @classmethod
-    def visitCompoundStmt(cls, _stmt=None):
+    def visitCompoundStmt(self, _stmt=None):
         """
         Used to visit a single compound statement.
         :param _stmt: a single compound statement.
         :type _stmt: ASTCompoundStatement
         """
-        assert (_stmt is not None and isinstance(_stmt, ASTCompoundStmt.ASTCompoundStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of compound statement provided!'
-        if _stmt.isIfStmt():
-            cls.visitIfStmt(_stmt.getIfStmt())
-        elif _stmt.isWhileStmt():
-            cls.visitWhileStmt(_stmt.getWhileStmt())
-        else:
-            cls.visitForStmt(_stmt.getForStmt())
         return
 
-    @classmethod
-    def visitAssignment(cls, _assignment=None):
+    def visitAssignment(self, _assignment=None):
         """
         Used to visit a single assignment.
         :param _assignment: an assignment object.
         :type _assignment: ASTAssignment
         """
-        assert (_assignment is not None and isinstance(_assignment, ASTAssignment.ASTAssignment)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        cls.visitVariable(_assignment.getVariable())
-        cls.visitExpression(_assignment.getExpression())
         return
 
-    @classmethod
-    def visitFunctionCall(cls, _functionCall=None):
+    def visitFunctionCall(self, _functionCall=None):
         """
         Private method: Used to visit a single function call and update its corresponding scope.
         :param _functionCall: a function call object.
         :type _functionCall: ASTFunctionCall
         """
-        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall.ASTFunctionCall)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of function call provided (%s)!' % type(_functionCall)
-        for arg in _functionCall.getArgs():
-            cls.visitExpression(arg)
         return
 
-    @classmethod
-    def visitDeclaration(cls, _declaration=None):
+    def visitDeclaration(self, _declaration=None):
         """
         Used to visit a single declaration.
         :param _declaration: a declaration object.
         :type _declaration: ASTDeclaration
         """
-        assert (_declaration is not None and isinstance(_declaration, ASTDeclaration.ASTDeclaration)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided (%s)!' % type(_declaration)
-        for var in _declaration.getVariables():  # for all variables declared create a new symbol
-            cls.visitVariable(var)
-        cls.visitDataType(_declaration.getDataType())
-        if _declaration.hasExpression():
-            cls.visitExpression(_declaration.getExpr())
-        if _declaration.hasInvariant():
-            cls.visitExpression(_declaration.getInvariant())
         return
 
-    @classmethod
-    def visitReturnStmt(cls, _returnStmt=None):
+    def visitReturnStmt(self, _returnStmt=None):
         """
         Used to visit a single return statement.
         :param _returnStmt: a return statement object.
         :type _returnStmt: ASTReturnStmt
         """
-        assert (_returnStmt is not None and isinstance(_returnStmt, ASTReturnStmt.ASTReturnStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of return statement provided (%s)!' % type(_returnStmt)
-        if _returnStmt.hasExpr():
-            cls.visitExpression(_returnStmt.getExpr())
         return
 
-    @classmethod
-    def visitIfStmt(cls, _ifStmt=None):
+    def visitIfStmt(self, _ifStmt=None):
         """
         Used to visit a single if-statement.
         :param _ifStmt: an if-statement object.
         :type _ifStmt: ASTIfStmt
         """
-        assert (_ifStmt is not None and isinstance(_ifStmt, ASTIfStmt.ASTIfStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of if-statement provided (%s)!' % type(_ifStmt)
-        cls.visitIfClause(_ifStmt.getIfClause())
-        for elIf in _ifStmt.getElifClauses():
-            cls.visitElifClause(elIf)
-        if _ifStmt.hasElseClause():
-            cls.visitElseClause(_ifStmt.getElseClause())
         return
 
-    @classmethod
-    def visitIfClause(cls, _ifClause=None):
+    def visitIfClause(self, _ifClause=None):
         """
         Used to visit a single if-clause.
         :param _ifClause: an if clause.
         :type _ifClause: ASTIfClause
         """
-        assert (_ifClause is not None and isinstance(_ifClause, ASTIfClause.ASTIfClause)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of if-clause handed over (%s)!' % type(_ifClause)
-        cls.visitExpression(_ifClause.getCondition())
-        cls.visitBlock(_ifClause.getBlock())
         return
 
-    @classmethod
-    def visitElifClause(cls, _elifClause=None):
+    def visitElifClause(self, _elifClause=None):
         """
         Used to visit a single elif-clause.
         :param _elifClause: an elif clause.
         :type _elifClause: ASTElifClause
         """
-        assert (_elifClause is not None and isinstance(_elifClause, ASTElifClause.ASTElifClause)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of elif-clause handed over (%s)!' % type(_elifClause)
-        cls.visitExpression(_elifClause.getCondition())
-        cls.visitBlock(_elifClause.getBlock())
         return
 
-    @classmethod
-    def visitElseClause(cls, _elseClause=None):
+    def visitElseClause(self, _elseClause=None):
         """
         Used to visit a single else-clause.
         :param _elseClause: an else clause.
         :type _elseClause: ASTElseClause
         """
-        assert (_elseClause is not None and isinstance(_elseClause, ASTElseClause.ASTElseClause)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of else-clause handed over (%s)!' % type(_elseClause)
-        cls.visitBlock(_elseClause.getBlock())
         return
 
-    @classmethod
-    def visitForStmt(cls, _forStmt=None):
+    def visitForStmt(self, _forStmt=None):
         """
         Private method: Used to visit a single for-stmt.
         :param _forStmt: a for-statement. 
         :type _forStmt: ASTForStmt
         """
-        assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt.ASTForStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of for-statement provided (%s)!' % type(_forStmt)
-        cls.visitExpression(_forStmt.getFrom())
-        cls.visitExpression(_forStmt.getTo())
-        cls.visitBlock(_forStmt.getBlock())
         return
 
-    @classmethod
-    def visitWhileStmt(cls, _whileStmt=None):
+    def visitWhileStmt(self, _whileStmt=None):
         """
         Used to visit a single while-stmt.
         :param _whileStmt: a while-statement.
         :type _whileStmt: ASTWhileStmt
         """
-        assert (_whileStmt is not None and isinstance(_whileStmt, ASTWhileStmt.ASTWhileStmt)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of while-statement provided (%s)!' % type(_whileStmt)
-        cls.visitExpression(_whileStmt.getCondition())
-        cls.visitBlock(_whileStmt.getBlock())
         return
 
-    @classmethod
-    def visitDataType(cls, _dataType=None):
+    def visitDatatype(self, _dataType=None):
         """
         Used to visit a single data-type. 
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
-        assert (_dataType is not None and isinstance(_dataType, ASTDatatype.ASTDatatype)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of data-type provided (%s)!' % type(_dataType)
-        if _dataType.isUnitType():
-            return cls.visitUnitType(_dataType.getUnitType())
-        # besides updating the scope no operations are required, since no type symbols are added to the scope.
-        else:
-            return
+        return
 
-    @classmethod
-    def visitUnitType(cls, _unitType=None):
+    def visitUnitType(self, _unitType=None):
         """
         Used to visit a single unit-type.
         :param _unitType: a unit type.
         :type _unitType: ASTUnitType
         """
-        assert (_unitType is not None and isinstance(_unitType, ASTUnitType.ASTUnitType)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of unit-typ provided (%s)!' % type(_unitType)
-        if _unitType.isPowerExpression():
-            cls.visitUnitType(_unitType.getBase())
-        elif _unitType.isEncapsulated():
-            cls.visitUnitType(_unitType.getCompoundUnit())
-        elif _unitType.isDiv() or _unitType.isTimes():
-            if isinstance(_unitType.getLhs(), ASTUnitType.ASTUnitType):  # lhs can be a numeric Or a unit-type
-                cls.visitUnitType(_unitType.getLhs())
-            cls.visitUnitType(_unitType.getRhs())
         return
 
-    @classmethod
-    def visitExpression(cls, _expr=None):
+    def visitExpression(self, _expr=None):
         """
         Used to visit a single expression.
         :param _expr: an expression.
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and (isinstance(_expr, ASTExpression.ASTExpression)
-                                       or isinstance(_expr, ASTSimpleExpression.ASTSimpleExpression))), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of expression handed over(%s)!' % type(_expr)
-        if _expr.isSimpleExpression():
-            cls.visitSimpleExpression(_expr.getExpression())
-        if _expr.isLogicalNot():
-            cls.visitExpression(_expr.getExpression())
-        if _expr.isUnaryOperator():
-            cls.visitUnaryOperator(_expr.getUnaryOperator())
-            cls.visitExpression(_expr.getExpression())
-        if _expr.isCompoundExpression():
-            cls.visitExpression(_expr.getLhs())
-            if isinstance(_expr.getBinaryOperator(), ASTBitOperator.ASTBitOperator):
-                cls.visitBitOperator(_expr.getBinaryOperator())
-            elif isinstance(_expr.getBinaryOperator(), ASTComparisonOperator.ASTComparisonOperator):
-                cls.visitComparisonOperator(_expr.getBinaryOperator())
-            elif isinstance(_expr.getBinaryOperator(), ASTLogicalOperator.ASTLogicalOperator):
-                cls.visitLogicalOperator(_expr.getBinaryOperator())
-            else:
-                cls.visitArithmeticOperator(_expr.getBinaryOperator())
-            cls.visitExpression(_expr.getRhs())
-        if _expr.isTernaryOperator():
-            cls.visitExpression(_expr.getCondition())
-            cls.visitExpression(_expr.getIfTrue())
-            cls.visitExpression(_expr.getIfNot())
         return
 
-    @classmethod
-    def visitSimpleExpression(cls, _expr=None):
+    def visitSimpleExpression(self, _expr=None):
         """
         Used to visit a single simple expression.
         :param _expr: a simple expression. 
         :type _expr: ASTSimpleExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression.ASTSimpleExpression)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
-        if _expr.isFunctionCall():
-            cls.visitFunctionCall(_expr.getFunctionCall())
-        elif _expr.isVariable() or _expr.hasUnit():
-            cls.visitVariable(_expr.getVariable())
         return
 
-    @classmethod
-    def visitUnaryOperator(cls, _unaryOp=None):
+    def visitUnaryOperator(self, _unaryOp=None):
         """
         Used to visit a single unary operator.
         :param _unaryOp: a single unary operator. 
         :type _unaryOp: ASTUnaryOperator
         """
-        assert (_unaryOp is not None and isinstance(_unaryOp, ASTUnaryOperator.ASTUnaryOperator)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of unary operator provided (%s)!' % type(_unaryOp)
         return
 
-    @classmethod
-    def visitBitOperator(cls, _bitOp=None):
+    def visitBitOperator(self, _bitOp=None):
         """
         Used to visit a single unary operator.
         :param _bitOp: a single bit operator. 
         :type _bitOp: ASTBitOperator
         """
-        assert (_bitOp is not None and isinstance(_bitOp, ASTBitOperator.ASTBitOperator)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of bit operator provided (%s)!' % type(_bitOp)
         return
 
-    @classmethod
-    def visitComparisonOperator(cls, _comparisonOp=None):
+    def visitComparisonOperator(self, _comparisonOp=None):
         """
         Used to visit a single comparison operator.
         :param _comparisonOp: a single comparison operator.
         :type _comparisonOp: ASTComparisonOperator
         """
-        assert (_comparisonOp is not None and isinstance(_comparisonOp, ASTComparisonOperator.ASTComparisonOperator)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of comparison operator provided (%s)!' % type(
-                _comparisonOp)
         return
 
-    @classmethod
-    def visitLogicalOperator(cls, _logicalOp=None):
+    def visitLogicalOperator(self, _logicalOp=None):
         """
         Used to visit a single logical operator.
         :param _logicalOp: a single logical operator.
         :type _logicalOp: ASTLogicalOperator
         """
-        assert (_logicalOp is not None and isinstance(_logicalOp, ASTLogicalOperator.ASTLogicalOperator)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of logical operator provided (%s)!' % type(_logicalOp)
         return
 
-    @classmethod
-    def visitVariable(cls, _variable=None):
+    def visitVariable(self, _variable=None):
         """
         Used to visit a single variable.
         :param _variable: a single variable.
         :type _variable: ASTVariable
         """
-        assert (_variable is not None and isinstance(_variable, ASTVariable.ASTVariable)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of variable provided (%s)!' % type(_variable)
         return
 
-    @classmethod
-    def visitOdeFunction(cls, _odeFunction=None):
+    def visitOdeFunction(self, _odeFunction=None):
         """
         Used to visit a single ode-function.
         :param _odeFunction: a single ode-function.
         :type _odeFunction: ASTOdeFunction
         """
-        assert (_odeFunction is not None and isinstance(_odeFunction, ASTOdeFunction.ASTOdeFunction)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-function provided (%s)!' % type(_odeFunction)
-        cls.visitDataType(_odeFunction.getDataType())
-        cls.visitExpression(_odeFunction.getExpression())
         return
 
-    @classmethod
-    def visitOdeShape(cls, _odeShape=None):
+    def visitOdeShape(self, _odeShape=None):
         """
         Used to visit a single ode-shape.
         :param _odeShape: a single ode-shape.
         :type _odeShape: ASTOdeShape
         """
-        assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape.ASTOdeShape)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided (%s)!' % type(_odeShape)
-        cls.visitVariable(_odeShape.getVariable())
-        cls.visitExpression(_odeShape.getExpression())
         return
 
-    @classmethod
-    def visitOdeEquation(cls, _equation=None):
+    def visitOdeEquation(self, _equation=None):
         """
         Used to visit a single ode-equation.
         :param _equation: a single ode-equation.
         :type _equation: ASTOdeEquation
         """
-        assert (_equation is not None and isinstance(_equation, ASTOdeEquation.ASTOdeEquation)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-equation handed over (%s)!' % type(_equation)
-        cls.visitVariable(_equation.getLhs())
-        cls.visitExpression(_equation.getRhs())
         return
 
-    @classmethod
-    def visitBlockWithVariable(cls, _block=None):
+    def visitBlockWithVariables(self, _block=None):
         """
         Used to visit a single block of variables.
         :param _block: a block with declared variables.
         :type _block: ASTBlockWithVariables
         """
-        assert (_block is not None and isinstance(_block, ASTBlockWithVariables.ASTBlockWithVariables)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of block with variables provided!'
-        for decl in _block.getDeclarations():
-            cls.visitDeclaration(decl)
         return
 
-    @classmethod
-    def visitEquationsBlock(cls, _block=None):
+    def visitEquationsBlock(self, _block=None):
         """
         Used to visit a single equations block.
         :param _block: a single equations block.
         :type _block: ASTEquationsBlock
         """
-        assert (_block is not None and isinstance(_block, ASTEquationsBlock.ASTEquationsBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of equations block provided (%s)!' % type(_block)
-        for decl in _block.getDeclarations():
-            if isinstance(decl, ASTOdeFunction.ASTOdeFunction):
-                cls.visitOdeFunction(decl)
-            elif isinstance(decl, ASTOdeShape.ASTOdeShape):
-                cls.visitOdeShape(decl)
-            else:
-                cls.visitOdeEquation(decl)
         return
 
-    @classmethod
-    def visitInputBlock(cls, _block=None):
+    def visitInputBlock(self, _block=None):
         """
         Used to visit a single input block.
         :param _block: a single input block.
         :type _block: ASTInputBlock
         """
-        assert (_block is not None and isinstance(_block, ASTInputBlock.ASTInputBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of input-block provided (%s)!' % type(_block)
-        for line in _block.getInputLines():
-            cls.visitInputLine(line)
         return
 
-    @classmethod
-    def visitOutputBlock(cls, _block=None):
+    def visitOutputBlock(self, _block=None):
         """
         Used to visit a single output block.
         :param _block: a single output block. 
         :type _block: ASTOutputBlock
         """
-        assert (_block is not None and isinstance(_block, ASTOutputBlock.ASTOutputBlock)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of output-block provided (%s)!' % type(_block)
         return
 
-    @classmethod
-    def visitInputLine(cls, _line=None):
+    def visitInputLine(self, _line=None):
         """
         Used to visit a single input line.
         :param _line: a single input line.
         :type _line: ASTInputLine
         """
-        assert (_line is not None and isinstance(_line, ASTInputLine.ASTInputLine)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of input-line provided (%s)!' % type(_line)
-        for inputType in _line.getInputTypes():
-            cls.visitInputType(inputType)
         return
 
-    @classmethod
-    def visitInputType(cls, _type=None):
+    def visitInputType(self, _type=None):
         """
         Used to visit a single input type.
         :param _type: a single input-type.
         :type _type: ASTInputType
         """
-        assert (_type is not None and isinstance(_type, ASTInputType.ASTInputType)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of input-type provided (%s)!' % type(_type)
         return
 
-    @classmethod
-    def visitArithmeticOperator(cls, _arithmeticOp=None):
+    def visitArithmeticOperator(self, _arithmeticOp=None):
         """
         Used to visit a single arithmetic operator.
         :param _arithmeticOp: a single arithmetic operator.
         :type _arithmeticOp: ASTArithmeticOperator
         """
-        assert (_arithmeticOp is not None and isinstance(_arithmeticOp, ASTArithmeticOperator.ASTArithmeticOperator)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of arithmetic operator provided (%s)!' % type(
-                _arithmeticOp)
         return
 
-    @classmethod
-    def visitParameter(cls, _parameter=None):
+    def visitParameter(self, _parameter=None):
         """
         Used to visit a single parameter.
         :param _parameter: a single parameter.
         :type _parameter: ASTParameter
         """
-        assert (_parameter is not None and isinstance(_parameter, ASTParameter.ASTParameter)), \
-            '(PyNestML.SymbolTable.Visitor) No or wrong type of parameter provided (%s)!' % type(
-                _parameter)
-        cls.visitDataType(_parameter.getDataType())
+        return
+
+    def endvisitCompilationUnit(self, _compilationUnit=None):
+        """
+        Visits a single compilation unit, thus all neurons.
+        :param _compilationUnit: a single compilation unit.
+        :type _compilationUnit: ASTNESTMLCompilationUnit
+        """
+        return
+
+    def endvisitNeuron(self, _neuron=None):
+        """
+        Used to endvisit a single neuron.
+        :return: a single neuron.
+        :rtype: ASTNeuron
+        """
+        return
+
+    def endvisitBody(self, _body=None):
+        """
+        Used to endvisit a single neuron body.
+        :param _body: a single body element.
+        :type _body: ASTBody
+        """
+        return
+
+    def endvisitFunction(self, _block=None):
+        """
+        Used to endvisit a single function block.
+        :param _block: a function block object.
+        :type _block: ASTFunction
+        """
+        return
+
+    def endvisitUpdateBlock(self, _block=None):
+        """
+        Used to endvisit a single update block.
+        :param _block: an update block object. 
+        :type _block: ASTDynamics
+        """
+        return
+
+    def endvisitBlock(self, _block=None):
+        """
+        Used to endvisit a single block of statements.
+        :param _block: a block object.
+        :type _block: ASTBlock
+        """
+        return
+
+    def endvisitSmallStmt(self, _stmt=None):
+        """
+        Used to endvisit a single small statement.
+        :param _stmt: a single small statement.
+        :type _stmt: ASTSmallStatement
+        """
+        return
+
+    def endvisitCompoundStmt(self, _stmt=None):
+        """
+        Used to endvisit a single compound statement.
+        :param _stmt: a single compound statement.
+        :type _stmt: ASTCompoundStatement
+        """
+        return
+
+    def endvisitAssignment(self, _assignment=None):
+        """
+        Used to endvisit a single assignment.
+        :param _assignment: an assignment object.
+        :type _assignment: ASTAssignment
+        """
+        return
+
+    def endvisitFunctionCall(self, _functionCall=None):
+        """
+        Private method: Used to endvisit a single function call and update its corresponding scope.
+        :param _functionCall: a function call object.
+        :type _functionCall: ASTFunctionCall
+        """
+        return
+
+    def endvisitDeclaration(self, _declaration=None):
+        """
+        Used to endvisit a single declaration.
+        :param _declaration: a declaration object.
+        :type _declaration: ASTDeclaration
+        """
+        return
+
+    def endvisitReturnStmt(self, _returnStmt=None):
+        """
+        Used to endvisit a single return statement.
+        :param _returnStmt: a return statement object.
+        :type _returnStmt: ASTReturnStmt
+        """
+        return
+
+    def endvisitIfStmt(self, _ifStmt=None):
+        """
+        Used to endvisit a single if-statement.
+        :param _ifStmt: an if-statement object.
+        :type _ifStmt: ASTIfStmt
+        """
+        return
+
+    def endvisitIfClause(self, _ifClause=None):
+        """
+        Used to endvisit a single if-clause.
+        :param _ifClause: an if clause.
+        :type _ifClause: ASTIfClause
+        """
+        return
+
+    def endvisitElifClause(self, _elifClause=None):
+        """
+        Used to endvisit a single elif-clause.
+        :param _elifClause: an elif clause.
+        :type _elifClause: ASTElifClause
+        """
+        return
+
+    def endvisitElseClause(self, _elseClause=None):
+        """
+        Used to endvisit a single else-clause.
+        :param _elseClause: an else clause.
+        :type _elseClause: ASTElseClause
+        """
+        return
+
+    def endvisitForStmt(self, _forStmt=None):
+        """
+        Private method: Used to endvisit a single for-stmt.
+        :param _forStmt: a for-statement. 
+        :type _forStmt: ASTForStmt
+        """
+        return
+
+    def endvisitWhileStmt(self, _whileStmt=None):
+        """
+        Used to endvisit a single while-stmt.
+        :param _whileStmt: a while-statement.
+        :type _whileStmt: ASTWhileStmt
+        """
+        return
+
+    def endvisitDatatype(self, _dataType=None):
+        """
+        Used to endvisit a single data-type. 
+        :param _dataType: a data-type.
+        :type _dataType: ASTDataType
+        """
+        return
+
+    def endvisitUnitType(self, _unitType=None):
+        """
+        Used to endvisit a single unit-type.
+        :param _unitType: a unit type.
+        :type _unitType: ASTUnitType
+        """
+        return
+
+    def endvisitExpression(self, _expr=None):
+        """
+        Used to endvisit a single expression.
+        :param _expr: an expression.
+        :type _expr: ASTExpression
+        """
+        return
+
+    def endvisitSimpleExpression(self, _expr=None):
+        """
+        Used to endvisit a single simple expression.
+        :param _expr: a simple expression. 
+        :type _expr: ASTSimpleExpression
+        """
+        return
+
+    def endvisitUnaryOperator(self, _unaryOp=None):
+        """
+        Used to endvisit a single unary operator.
+        :param _unaryOp: a single unary operator. 
+        :type _unaryOp: ASTUnaryOperator
+        """
+        return
+
+    def endvisitBitOperator(self, _bitOp=None):
+        """
+        Used to endvisit a single unary operator.
+        :param _bitOp: a single bit operator. 
+        :type _bitOp: ASTBitOperator
+        """
+        return
+
+    def endvisitComparisonOperator(self, _comparisonOp=None):
+        """
+        Used to endvisit a single comparison operator.
+        :param _comparisonOp: a single comparison operator.
+        :type _comparisonOp: ASTComparisonOperator
+        """
+        return
+
+    def endvisitLogicalOperator(self, _logicalOp=None):
+        """
+        Used to endvisit a single logical operator.
+        :param _logicalOp: a single logical operator.
+        :type _logicalOp: ASTLogicalOperator
+        """
+        return
+
+    def endvisitVariable(self, _variable=None):
+        """
+        Used to endvisit a single variable.
+        :param _variable: a single variable.
+        :type _variable: ASTVariable
+        """
+        return
+
+    def endvisitOdeFunction(self, _odeFunction=None):
+        """
+        Used to endvisit a single ode-function.
+        :param _odeFunction: a single ode-function.
+        :type _odeFunction: ASTOdeFunction
+        """
+        return
+
+    def endvisitOdeShape(self, _odeShape=None):
+        """
+        Used to endvisit a single ode-shape.
+        :param _odeShape: a single ode-shape.
+        :type _odeShape: ASTOdeShape
+        """
+        return
+
+    def endvisitOdeEquation(self, _equation=None):
+        """
+        Used to endvisit a single ode-equation.
+        :param _equation: a single ode-equation.
+        :type _equation: ASTOdeEquation
+        """
+        return
+
+    def endvisitBlockWithVariables(self, _block=None):
+        """
+        Used to endvisit a single block of variables.
+        :param _block: a block with declared variables.
+        :type _block: ASTBlockWithVariables
+        """
+        return
+
+    def endvisitEquationsBlock(self, _block=None):
+        """
+        Used to endvisit a single equations block.
+        :param _block: a single equations block.
+        :type _block: ASTEquationsBlock
+        """
+        return
+
+    def endvisitInputBlock(self, _block=None):
+        """
+        Used to endvisit a single input block.
+        :param _block: a single input block.
+        :type _block: ASTInputBlock
+        """
+        return
+
+    def endvisitOutputBlock(self, _block=None):
+        """
+        Used to endvisit a single output block.
+        :param _block: a single output block. 
+        :type _block: ASTOutputBlock
+        """
+        return
+
+    def endvisitInputLine(self, _line=None):
+        """
+        Used to endvisit a single input line.
+        :param _line: a single input line.
+        :type _line: ASTInputLine
+        """
+        return
+
+    def endvisitInputType(self, _type=None):
+        """
+        Used to endvisit a single input type.
+        :param _type: a single input-type.
+        :type _type: ASTInputType
+        """
+        return
+
+    def endvisitArithmeticOperator(self, _arithmeticOp=None):
+        """
+        Used to endvisit a single arithmetic operator.
+        :param _arithmeticOp: a single arithmetic operator.
+        :type _arithmeticOp: ASTArithmeticOperator
+        """
+        return
+
+    def endvisitParameter(self, _parameter=None):
+        """
+        Used to endvisit a single parameter.
+        :param _parameter: a single parameter.
+        :type _parameter: ASTParameter
+        """
+        return
+
+    def getRealSelf(self):
+        return self
+    
+    def handle(self, _node):
+        self.visit(_node)
+        self.traverse(_node)
+        self.endvisit(_node)
+        return
+    
+    def visit(self, _node):
+        """
+        Dispatcher for visitor pattern.
+        :param _node: The ASTElement to visit
+        :type _node:  ASTElement or inherited
+        """
+        if isinstance(_node, ASTArithmeticOperator):
+            self.visitArithmeticOperator(_node)
+        if isinstance(_node, ASTAssignment):
+            self.visitAssignment(_node)
+        if isinstance(_node, ASTBitOperator):
+            self.visitBitOperator(_node)
+        if isinstance(_node, ASTBlock):
+            self.visitBlock(_node)
+        if isinstance(_node, ASTBlockWithVariables):
+            self.visitBlockWithVariables(_node)
+        if isinstance(_node, ASTBody):
+            self.visitBody(_node)
+        if isinstance(_node, ASTComparisonOperator):
+            self.visitComparisonOperator(_node)
+        if isinstance(_node, ASTCompoundStmt):
+            self.visitCompoundStmt(_node)
+        if isinstance(_node, ASTDatatype):
+            self.visitDatatype(_node)
+        if isinstance(_node, ASTDeclaration):
+            self.visitDeclaration(_node)
+        if isinstance(_node, ASTElifClause):
+            self.visitElifClause(_node)
+        if isinstance(_node, ASTElseClause):
+            self.visitElseClause(_node)
+        if isinstance(_node, ASTEquationsBlock):
+            self.visitEquationsBlock(_node)
+        if isinstance(_node, ASTExpression):
+            self.visitExpression(_node)
+        if isinstance(_node, ASTForStmt):
+            self.visitForStmt(_node)
+        if isinstance(_node, ASTFunction):
+            self.visitFunction(_node)
+        if isinstance(_node, ASTFunctionCall):
+            self.visitFunctionCall(_node)
+        if isinstance(_node, ASTIfClause):
+            self.visitIfClause(_node)
+        if isinstance(_node, ASTIfStmt):
+            self.visitIfStmt(_node)
+        if isinstance(_node, ASTInputBlock):
+            self.visitInputBlock(_node)
+        if isinstance(_node, ASTInputLine):
+            self.visitInputLine(_node)
+        if isinstance(_node, ASTInputType):
+            self.visitInputType(_node)
+        if isinstance(_node, ASTLogicalOperator):
+            self.visitLogicalOperator(_node)
+        if isinstance(_node, ASTNESTMLCompilationUnit):
+            self.visitCompilationUnit(_node)
+        if isinstance(_node, ASTNeuron):
+            self.visitNeuron(_node)
+        if isinstance(_node, ASTOdeEquation):
+            self.visitOdeEquation(_node)
+        if isinstance(_node, ASTOdeFunction):
+            self.visitOdeFunction(_node)
+        if isinstance(_node, ASTOdeShape):
+            self.visitOdeShape(_node)
+        if isinstance(_node, ASTOutputBlock):
+            self.visitOutputBlock(_node)
+        if isinstance(_node, ASTParameter):
+            self.visitParameter(_node)
+        if isinstance(_node, ASTReturnStmt):
+            self.visitReturnStmt(_node)
+        if isinstance(_node, ASTSimpleExpression):
+            self.visitSimpleExpression(_node)
+        if isinstance(_node, ASTSmallStmt):
+            self.visitSmallStmt(_node)
+        if isinstance(_node, ASTUnaryOperator):
+            self.visitUnaryOperator(_node)
+        if isinstance(_node, ASTUnitType):
+            self.visitUnitType(_node)
+        if isinstance(_node, ASTUpdateBlock):
+            self.visitUpdateBlock(_node)
+        if isinstance(_node, ASTVariable):
+            self.visitVariable(_node)
+        if isinstance(_node, ASTWhileStmt):
+            self.visitWhileStmt(_node)
+        return
+
+    def traverse(self, _node):
+        """
+        Dispatcher for traverse method.
+        :param _node: The ASTElement to visit
+        :type _node: Inherited from ASTElement
+        """
+        if isinstance(_node, ASTArithmeticOperator):
+            self.traverseArithmeticOperator(_node)
+        if isinstance(_node, ASTAssignment):
+            self.traverseAssignment(_node)
+        if isinstance(_node, ASTBitOperator):
+            self.traverseBitOperator(_node)
+        if isinstance(_node, ASTBlock):
+            self.traverseBlock(_node)
+        if isinstance(_node, ASTBlockWithVariables):
+            self.traverseBlockWithVariables(_node)
+        if isinstance(_node, ASTBody):
+            self.traverseBody(_node)
+        if isinstance(_node, ASTComparisonOperator):
+            self.traverseComparisonOperator(_node)
+        if isinstance(_node, ASTCompoundStmt):
+            self.traverseCompoundStmt(_node)
+        if isinstance(_node, ASTDatatype):
+            self.traverseDatatype(_node)
+        if isinstance(_node, ASTDeclaration):
+            self.traverseDeclaration(_node)
+        if isinstance(_node, ASTElifClause):
+            self.traverseElifClause(_node)
+        if isinstance(_node, ASTElseClause):
+            self.traverseElseClause(_node)
+        if isinstance(_node, ASTEquationsBlock):
+            self.traverseEquationsBlock(_node)
+        if isinstance(_node, ASTExpression):
+            self.traverseExpression(_node)
+        if isinstance(_node, ASTForStmt):
+            self.traverseForStmt(_node)
+        if isinstance(_node, ASTFunction):
+            self.traverseFunction(_node)
+        if isinstance(_node, ASTFunctionCall):
+            self.traverseFunctionCall(_node)
+        if isinstance(_node, ASTIfClause):
+            self.traverseIfClause(_node)
+        if isinstance(_node, ASTIfStmt):
+            self.traverseIfStmt(_node)
+        if isinstance(_node, ASTInputBlock):
+            self.traverseInputBlock(_node)
+        if isinstance(_node, ASTInputLine):
+            self.traverseInputLine(_node)
+        if isinstance(_node, ASTInputType):
+            self.traverseInputType(_node)
+        if isinstance(_node, ASTLogicalOperator):
+            self.traverseLogicalOperator(_node)
+        if isinstance(_node, ASTNESTMLCompilationUnit):
+            self.traverseCompilationUnit(_node)
+        if isinstance(_node, ASTNeuron):
+            self.traverseNeuron(_node)
+        if isinstance(_node, ASTOdeEquation):
+            self.traverseOdeEquation(_node)
+        if isinstance(_node, ASTOdeFunction):
+            self.traverseOdeFunction(_node)
+        if isinstance(_node, ASTOdeShape):
+            self.traverseOdeShape(_node)
+        if isinstance(_node, ASTOutputBlock):
+            self.traverseOutputBlock(_node)
+        if isinstance(_node, ASTParameter):
+            self.traverseParameter(_node)
+        if isinstance(_node, ASTReturnStmt):
+            self.traverseReturnStmt(_node)
+        if isinstance(_node, ASTSimpleExpression):
+            self.traverseSimpleExpression(_node)
+        if isinstance(_node, ASTSmallStmt):
+            self.traverseSmallStmt(_node)
+        if isinstance(_node, ASTUnaryOperator):
+            self.traverseUnaryOperator(_node)
+        if isinstance(_node, ASTUnitType):
+            self.traverseUnitType(_node)
+        if isinstance(_node, ASTUpdateBlock):
+            self.traverseUpdateBlock(_node)
+        if isinstance(_node, ASTVariable):
+            self.traverseVariable(_node)
+        if isinstance(_node, ASTWhileStmt):
+            self.traverseWhileStmt(_node)
+        return
+
+    def endvisit(self, _node):
+        """
+        Dispatcher for endvisit.
+        :param _node: The ASTElement to endvisit
+        :type _node:  ASTElement or inherited
+        """
+        if isinstance(_node, ASTArithmeticOperator):
+            self.endvisitArithmeticOperator(_node)
+        if isinstance(_node, ASTAssignment):
+            self.endvisitAssignment(_node)
+        if isinstance(_node, ASTBitOperator):
+            self.endvisitBitOperator(_node)
+        if isinstance(_node, ASTBlock):
+            self.endvisitBlock(_node)
+        if isinstance(_node, ASTBlockWithVariables):
+            self.endvisitBlockWithVariables(_node)
+        if isinstance(_node, ASTBody):
+            self.endvisitBody(_node)
+        if isinstance(_node, ASTComparisonOperator):
+            self.endvisitComparisonOperator()
+        if isinstance(_node, ASTCompoundStmt):
+            self.endvisitCompoundStmt(_node)
+        if isinstance(_node, ASTDatatype):
+            self.endvisitDatatype(_node)
+        if isinstance(_node, ASTDeclaration):
+            self.endvisitDeclaration(_node)
+        if isinstance(_node, ASTElifClause):
+            self.endvisitElifClause(_node)
+        if isinstance(_node, ASTElseClause):
+            self.endvisitElseClause(_node)
+        if isinstance(_node, ASTEquationsBlock):
+            self.endvisitEquationsBlock(_node)
+        if isinstance(_node, ASTExpression):
+            self.endvisitExpression(_node)
+        if isinstance(_node, ASTForStmt):
+            self.endvisitForStmt(_node)
+        if isinstance(_node, ASTFunction):
+            self.endvisitFunction(_node)
+        if isinstance(_node, ASTFunctionCall):
+            self.endvisitFunctionCall(_node)
+        if isinstance(_node, ASTIfClause):
+            self.endvisitIfClause(_node)
+        if isinstance(_node, ASTIfStmt):
+            self.endvisitIfStmt(_node)
+        if isinstance(_node, ASTInputBlock):
+            self.endvisitInputBlock(_node)
+        if isinstance(_node, ASTInputLine):
+            self.endvisitInputLine(_node)
+        if isinstance(_node, ASTInputType):
+            self.endvisitInputType(_node)
+        if isinstance(_node, ASTLogicalOperator):
+            self.endvisitLogicalOperator(_node)
+        if isinstance(_node, ASTNESTMLCompilationUnit):
+            self.endvisitCompilationUnit(_node)
+        if isinstance(_node, ASTNeuron):
+            self.endvisitNeuron(_node)
+        if isinstance(_node, ASTOdeEquation):
+            self.endvisitOdeEquation(_node)
+        if isinstance(_node, ASTOdeFunction):
+            self.endvisitOdeFunction(_node)
+        if isinstance(_node, ASTOdeShape):
+            self.endvisitOdeShape(_node)
+        if isinstance(_node, ASTOutputBlock):
+            self.endvisitOutputBlock(_node)
+        if isinstance(_node, ASTParameter):
+            self.endvisitParameter(_node)
+        if isinstance(_node, ASTReturnStmt):
+            self.endvisitReturnStmt(_node)
+        if isinstance(_node, ASTSimpleExpression):
+            self.endvisitSimpleExpression(_node)
+        if isinstance(_node, ASTSmallStmt):
+            self.endvisitSmallStmt(_node)
+        if isinstance(_node, ASTUnaryOperator):
+            self.endvisitUnaryOperator(_node)
+        if isinstance(_node, ASTUnitType):
+            self.endvisitUnitType(_node)
+        if isinstance(_node, ASTUpdateBlock):
+            self.endvisitUpdateBlock(_node)
+        if isinstance(_node, ASTVariable):
+            self.endvisitVariable(_node)
+        if isinstance(_node, ASTWhileStmt):
+            self.endvisitWhileStmt(_node)
+        return
+
+    def traverseArithmeticOperator(self, _node):
+        return
+
+    def traverseAssignment(self, _node):
+        if _node.getVariable() is not None:
+            _node.getVariable().accept(self.getRealSelf())
+        if _node.getExpression() is not None:
+            _node.getExpression().accept(self.getRealSelf())
+        return
+
+    def traverseBitOperator(self, _node):
+        return
+
+    def traverseBlock(self, _node):
+        if _node.getStmts() is not None:
+            for subnode in _node.getStmts():
+                subnode.accept(self.getRealSelf())
+        return
+
+    def traverseBlockWithVariables(self, _node):
+        if _node.getDeclarations() is not None:
+            for subnode in _node.getDeclarations():
+                subnode.accept(self.getRealSelf())
+        return
+
+    def traverseBody(self, _node):
+        if _node.getBodyElements() is not None:
+            for subnode in _node.getBodyElements():
+                subnode.accept(self.getRealSelf())
+        return
+
+    def traverseComparisonOperator(self, _node):
+        return
+
+    def traverseCompoundStmt(self, _node):
+        if _node.getIfStmt() is not None:
+            _node.getIfStmt().accept(self.getRealSelf())
+        if _node.getWhileStmt() is not None:
+            _node.getWhileStmt().accept(self.getRealSelf())
+        if _node.getForStmt() is not None:
+            _node.getForStmt().accept(self.getRealSelf())
+        return
+
+    def traverseDatatype(self, _node):
+        if _node.getUnitType() is not None:
+            _node.getUnitType().accept(self.getRealSelf())
+        return
+
+    def traverseDeclaration(self, _node):
+        if _node.getVariables() is not None:
+            for subnode in _node.getVariables:
+                subnode.accept(self.getRealSelf())
+        if _node.getDatatype() is not None:
+            _node.getDatatype().accept(self.getRealSelf())
+        if _node.getExpr() is not None:
+            _node.getExpr().accept(self.getRealSelf())
+        if _node.getInvariant() is not None:
+            _node.getInvariant().accept(self.getRealSelf())
+        return
+
+    def traverseElifClause(self, _node):
+        if _node.getCondition() is not None:
+            _node.getCondition().accept(self.getRealSelf())
+        if _node.getBlock() is not None:
+            _node.getBlock().accept(self.getRealSelf())
+        return
+
+    def traverseElseClause(self, _node):
+        if _node.getBlock() is not None:
+            _node.getBlock().accept(self.getRealSelf())
+        return
+
+    def traverseEquationsBlock(self, _node):
+        if _node.getDeclarations() is not None:
+            for subnode in _node.getDeclarations():
+                subnode.accept(self.getRealSelf())
+        return
+
+    def traverseExpression(self, _node):
+        if _node.getExpression() is not None:
+            _node.getExpression().accept(self.getRealSelf())
+        if _node.getUnaryOperator() is not None:
+            _node.getUnaryOperator().accept(self.getRealSelf())
+        if _node.getLhs() is not None:
+            _node.getLhs().accept(self.getRealSelf())
+        if _node.getRhs() is not None:
+            _node.getRhs().accept(self.getRealSelf())
+        if _node.getBinaryOperator() is not None:
+            _node.getBinaryOperator().accept(self.getRealSelf())
+        if _node.getCondition() is not None:
+            _node.getCondition().accept(self.getRealSelf())
+        if _node.getIfTrue() is not None:
+            _node.getIfTrue().accept(self.getRealSelf())
+        if _node.getIfNot() is not None:
+            _node.getIfNot().accept(self.getRealSelf())
+        return
+
+    def traverseForStmt(self, _node):
+        if _node.getFrom() is not None:
+            _node.getFrom().accept(self.getRealSelf())
+        if _node.getTo() is not None:
+            _node.getTo().accept(self.getRealSelf())
+        if _node.getBlock() is not None:
+            _node.getBlock().accept(self.getRealSelf())
+        return
+
+    def traverseFunction(self, _node):
+        if _node.getParameters() is not None:
+            for subnode in _node.getParameters():
+                subnode.accept(self.getRealSelf())
+        if _node.getReturnType() is not None:
+            _node.getReturnType().accept(self.getRealSelf())
+        if _node.getBlock() is not None:
+            _node.getBlock().accept(self.getRealSelf())
+        return
+
+    def traverseFunctionCall(self, _node):
+        if _node.getArgs() is not None:
+            for subnode in _node.getArgs():
+                subnode.accept(self.getRealSelf())
+        return
+
+    def traverseIfClause(self, _node):
+        if _node.getCondition() is not None:
+            _node.getCondition().accept(self.getRealSelf())
+        if _node.getBlock() is not None:
+            _node.getBlock().accept(self.getRealSelf())
+        return
+
+    def traverseIfStmt(self, _node):
+        if _node.getIfClause() is not None:
+            _node.getIfClause().accept(self.getRealSelf())
+        if _node.getElifClause() is not None:
+            _node.getElifClause().accept(self.getRealSelf())
+        if _node.getElseClause() is not None:
+            _node.getElseClause().accept(self.getRealSelf())
+        return
+
+    def traverseInputBlock(self, _node):
+        if _node.getInputLines() is not None:
+            for subnode in _node.getInputLines():
+                subnode.accept(self.getRealSelf())
+        return
+
+    def traverseInputLine(self, _node):
+        if _node.getInputTypes() is not None:
+            for subnode in _node.getInputTypes():
+                subnode.accept(self.getRealSelf())
+        return
+
+    def traverseInputType(self, _node):
+        return
+
+    def traverseLogicalOperator(self, _node):
+        return
+
+    def traverseCompilationUnit(self, _node):
+        if _node.getNeuronList() is not None:
+            for subnode in _node.getNeuronList():
+                subnode.accept(self.getRealSelf())
+        return
+
+    def traverseNeuron(self, _node):
+        if _node.getBody() is not None:
+            _node.getBody().accept(self.getRealSelf())
+        return
+
+    def traverseOdeEquation(self, _node):
+        if _node.getLhs() is not None:
+            _node.getLhs().accept(self.getRealSelf())
+        if _node.getRhs() is not None:
+            _node.getRhs().accept(self.getRealSelf())
+        return
+
+    def traverseOdeFunction(self, _node):
+        if _node.getDataType() is not None:
+            _node.getDataType().accept(self.getRealSelf())
+        if _node.getExpression() is not None:
+            _node.getExpression().accept(self.getRealSelf())
+        return
+
+    def traverseOdeShape(self, _node):
+        if _node.getVariable() is not None:
+            _node.getVariable().accept(self.getRealSelf())
+        if _node.getExpression() is not None:
+            _node.getExpression().accept(self.getRealSelf())
+        return
+    
+    def traverseOutputBlock(self, _node):
+        return
+    
+    def traverseParameter(self, _node):
+        if _node.getDataType() is not None:
+            _node.getDataType().accept(self.getRealSelf())
+        return
+    
+    def traverseReturnStmt(self, _node):
+        if _node.getExpr() is not None:
+            _node.getExpr().accept(self.getRealSelf())
+        return
+    
+    def traverseSimpleExpression(self, _node):
+        if _node.getFunctionCall() is not None:
+            _node.getFunctionCall().accept(self.getRealSelf())
+        if _node.getVariable() is not None:
+            _node.getVariable().accept(self.getRealSelf())
+        return
+
+    def traverseSmallStmt(self, _node):
+        if _node.getAssignment() is not None:
+            _node.getAssignment().accept(self.getRealSelf())
+        if _node.getFunctionCall() is not None:
+            _node.getFunctionCall().accept(self.getRealSelf())
+        if _node.getDeclaration() is not None:
+            _node.getDeclaration().accept(self.getRealSelf())
+        if _node.getReturnStmt() is not None:
+            _node.getReturnStmt().accept(self.getRealSelf())
+        return
+
+    def traverseUnaryOperator(self, _node):
+        return
+
+    def traverseUnitType(self, _node):
+        if _node.getBase() is not None:
+            _node.getBase().accept(self.getRealSelf())
+        if _node.getLhs() is not None:
+            _node.getLhs().accept(self.getRealSelf())
+        if _node.getRhs() is not None:
+            _node.getRhs().accept(self.getRealSelf())
+        if _node.getCompoundUnit() is not None:
+            _node.getCompoundUnit().accept(self.getRealSelf())
+        return
+
+    def traverseUpdateBlock(self, _node):
+        if _node.getBlock() is not None:
+            _node.getBlock().accept(self.getRealSelf())
+        return
+
+    def traverseVariable(self, node):
+        return
+
+    def traverseWhileStmt(self, _node):
+        if _node.getCondition() is not None:
+            _node.getCondition().accept(self.getRealSelf())
+        if _node.getBlock() is not None:
+            _node.getBlock().accept(self.getRealSelf())
         return
