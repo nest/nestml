@@ -41,14 +41,13 @@ SeeAlso: iaf_psc_delta, mat2_psc_exp
 */
 neuron izhikevich_neuron:
 
-  state:
+  initial_values:
     V_m mV = -65mV # Membrane potential in mV
     U_m real = 0   # Membrane potential recovery variable
-    I pA = 0. pA   # input current
   end
 
   equations:
-    V_m' = ( 0.04 * V_m * V_m / mV + 5.0 * V_m + ( 140 - U_m ) * mV + ( (I + I_e) * GOhm ) ) / ms
+    V_m' = ( 0.04 * V_m * V_m / mV + 5.0 * V_m + ( 140 - U_m ) * mV + ( (currents + I_e) * GOhm ) ) / ms
     U_m' = a*(b*V_m-U_m * mV) / (mV*ms)
   end
 
@@ -83,7 +82,6 @@ neuron izhikevich_neuron:
       emit_spike()
     end
 
-    I = currents
   end
 
 end

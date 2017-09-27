@@ -13,7 +13,7 @@ def test(referenceModel, testant, gsl_error_tol, tolerance = 0.000001):
   if not (gsl_error_tol is None):
     nest.SetStatus(neuron2, {"gsl_error_tol": gsl_error_tol})
 
-  spikegenerator=nest.Create('spike_generator',params={'spike_times':[100.0, 200.0], 'spike_weights':[1.0, -2.0]})
+  spikegenerator=nest.Create('spike_generator',params={'spike_times':[100.0, 200.0], 'spike_weights':[20.0, -20.0]})
 
   nest.Connect(spikegenerator, neuron1)
   nest.Connect(spikegenerator, neuron2)
@@ -60,7 +60,7 @@ if __name__ == "__main__":
   # test_multysinapse()
   models = list()
 
-  models.append( ("iaf_psc_exp", "iaf_psc_exp_neuron", None, 0.001))
+  models.append( ("mat2_psc_exp", "mat2_psc_exp_neuron", None, 0.001))
   # models.append( ("iaf_cond_exp_sfa_rr", "iaf_cond_exp_sfa_rr_implicit", None, 0.001))
 
   for reference, testant, gsl_error_tol, tollerance in models:

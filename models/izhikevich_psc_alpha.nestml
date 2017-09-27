@@ -31,9 +31,12 @@ SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
 neuron izhikevich_psc_alpha:
 
   state:
+    r integer # number of steps in the current refractory phase
+  end
+
+  initial_values:
     V_m mV = -65 mV # Membrane potential in mV
     U_m pA = 0 pA   # Membrane potential recovery variable
-    r integer # number of steps in the current refractory phase
   end
 
   equations:
@@ -135,13 +138,16 @@ SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
 neuron izhikevich_psc_alpha_implicit:
 
   state:
+    r integer # number of steps in the current refractory phase
+  end
+
+  initial_values:
     V_m mV = -65 mV # Membrane potential in mV
     U_m pA = 0 pA   # Membrane potential recovery variable
     I_syn_ex pA = 0. pA # inputs from the exc conductance
     I_syn_ex' pA/ms = 0. pA/ms # inputs from the exc conductance
     I_syn_in pA = 0. pA # inputs from the inh conductance
     I_syn_in' pA/ms = 0. pA/ms # inputs from the inh conductance
-    r integer # number of steps in the current refractory phase
   end
 
   equations:
