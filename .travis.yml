@@ -1,9 +1,24 @@
 language: python
 
-sudo: false
-
 python:
   - "2.7"
+  - "3.5"
+  - "3.5-dev"
   - "3.6"
+  - "3.6-dev"
+  - "3.7-dev"
 
-script: py.test
+before_install:
+  - export PYTHONPATH=$PYTHONPATH:$(pwd)
+  - sudo python setup.py install
+
+install:
+  - pip install --upgrade pip enum34
+  - pip install -r requirements.txt
+
+sudo: true
+
+script:
+  - python pynestml/src/test/python/ASTBuilderTest.py
+  - python pynestml/src/test/python/ExpressionParserTest.py
+  - python pynestml/src/test/python/LexerParserTest.py

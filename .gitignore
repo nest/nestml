@@ -2,6 +2,17 @@
 target/
 .idea/
 
+build/
+
+__*
+!__init__.py
+
+dist/
+
+PyNESTML.egg-info/
+
+*.pyc
+
 .DS_Store
 .project
 .classpath

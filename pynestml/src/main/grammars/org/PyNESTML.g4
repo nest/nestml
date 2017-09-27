@@ -220,7 +220,6 @@ grammar PyNESTML;
     state:
       y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
     end
-
     @attribute state: True iff the varblock is a state.
     @attribute parameters:  True iff the varblock is a parameters block.
     @attribute internals: True iff the varblock is a state internals block.
