@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
@@ -107,7 +106,7 @@ class PredefinedVariables:
         :rtype: None or VariableSymbol
         """
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.PredefinedVariables) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.PredefinedVariables) No or wrong type of name provided (%s)!' % type(_name)
         if _name in cls.__name2VariableSymbol.keys():
             return cls.__name2VariableSymbol[_name]
         else:

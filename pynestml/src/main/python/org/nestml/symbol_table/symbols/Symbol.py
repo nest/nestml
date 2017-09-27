@@ -40,19 +40,20 @@ class Symbol:
         :type _scope: Scope
         :param _name: the name of the corresponding element
         :type _name: str
-        :type _symbolKind: 
+        :type _symbolKind:
         """
         from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
         assert (_scope is None or isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Symbol) Wrong type of scope provided!'
+            '(PyNestML.SymbolTable.Symbol) Wrong type of scope provided (%s)!' % type(_scope)
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.Symbol) Wrong type of symbol-name provided!'
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of name provided (%s)!' % type(_name)
         assert (_symbolKind is not None and isinstance(_symbolKind, SymbolKind)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-type provided!'
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of symbol-type provided (%s)!' % type(_symbolKind)
         self.__elementReference = _elementReference
         self.__scope = _scope
         self.__name = _name
         self.__symbolKind = _symbolKind
+        return
 
     def getReferencedObject(self):
         """
@@ -97,7 +98,7 @@ class Symbol:
         """
         from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided!'
+            '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided (%s)!' % type(_sourcePosition)
         return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
 
     def printSymbol(self):

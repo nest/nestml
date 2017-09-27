@@ -101,6 +101,7 @@ class VariableSymbol(Symbol):
         self.__isFunction = _isFunction
         self.__isRecordable = _isRecordable
         self.__typeSymbol = _typeSymbol
+        return
 
     def hasVectorParameter(self):
         """

@@ -47,7 +47,7 @@ class Logger(object):
         :type _loggingLevel: LOGGING_LEVEL
         """
         assert (_loggingLevel is not None and isinstance(_loggingLevel, LOGGING_LEVEL)), \
-            '(PyNestML.Logger) No or wrong type of logging-level provided!'
+            '(PyNestML.Logger) No or wrong type of logging-level provided (%s)!' % type(_loggingLevel)
         cls.__loggingLevel = _loggingLevel
         cls.__currMessage = 0
         cls.__log = {}
@@ -72,9 +72,9 @@ class Logger(object):
         :type _logLevel: LOGGING_LEVEL
         """
         assert (_message is not None and isinstance(_message, str)), \
-            '(PyNestML.Logger) No or wrong type of message provided!'
+            '(PyNestML.Logger) No or wrong type of message provided (%s)!' % type(_message)
         assert (_logLevel is not None and isinstance(_logLevel, LOGGING_LEVEL)), \
-            '(PyNestML.Logger) No or wrong type of logging-level provided!'
+            '(PyNestML.Logger) No or wrong type of logging-level provided (%s)!' % type(_logLevel)
         cls.__log[cls.__currMessage] = (_message, _logLevel)
         cls.__currMessage += 1
         if cls.__loggingLevel.value <= _logLevel.value:

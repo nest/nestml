@@ -115,6 +115,8 @@ class PredefinedUnits(object):
         :param _unit: a single unit type.
         :type _unit: UnitType
         """
+        assert (_unit is not None and isinstance(_unit, UnitType)), \
+            '(PyNestML.SymbolTable.PredefinedUnits) No or wrong type of unit provided (%s)!' % type(_unit)
         if _unit.getName() is not cls.__name2unit.keys():
             cls.__name2unit[_unit.getName()] = _unit
         return

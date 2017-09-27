@@ -19,7 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-
 class InvalidPathException(Exception):
     """
     This exception is thrown whenever neither a file nor a dir has been handed over. This should not happen.

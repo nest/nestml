@@ -48,9 +48,12 @@ class FunctionSymbol(Symbol):
         """
         for arg in _paramTypes:
             assert (arg is not None and isinstance(arg, TypeSymbol)), \
-                '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of argument provided!'
+                '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of argument provided (%s)!' % type(arg)
         assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
-            'PyNestML.SymbolTable.FunctionSymbol) No or wrong type of predefined-specification provided!'
+            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of predefined-specification provided (%s)!' % type(
+                _isPredefined)
+        assert (_returnType is None or isinstance(_returnType, TypeSymbol)), \
+            '(PyNestML.SymbolTable.FunctionSymbol) Wrong type of return statement provided (%s)!' % type(_returnType)
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
         super(FunctionSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
                                              _name=_name, _symbolKind=SymbolKind.FUNCTION)
@@ -88,8 +91,9 @@ class FunctionSymbol(Symbol):
         :type _newType: TypeSymbol
         """
         assert (_newType is not None and isinstance(_newType, TypeSymbol)), \
-            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided!'
+            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided (%s)!' % type(_newType)
         self.__returnType = _newType
+        return
 
     def getParameterTypes(self):
         """
@@ -106,7 +110,7 @@ class FunctionSymbol(Symbol):
         :type _newType: TypeSymbol
         """
         assert (_newType is not None and isinstance(_newType, TypeSymbol)), \
-            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided!'
+            '(PyNestML.SymbolTable.FunctionSymbol) No or wrong type of type symbol provided (%s)!' % type(_newType)
         self.__paramTypes.append(_newType)
 
     def isPredefined(self):
