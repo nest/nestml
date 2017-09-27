@@ -29,7 +29,7 @@ class NESTMLVisitor(object):
     __realSelf = None
 
     def __init__(self):
-        __realSelf = self
+        self.__realSelf = self
         return
 
     def visitCompilationUnit(self, _compilationUnit=None):
