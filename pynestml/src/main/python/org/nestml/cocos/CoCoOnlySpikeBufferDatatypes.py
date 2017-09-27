@@ -36,7 +36,7 @@ class CoCoOnlySpikeBufferDatatypes(CoCo):
             current integer <- current
         end
     """
-    __inputBuffers = list()
+    __neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -47,30 +47,29 @@ class CoCoOnlySpikeBufferDatatypes(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__currentInputBuffers = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectInputBuffers)
-        for buffer in cls.__inputBuffers:
-            if buffer.isSpike() and not buffer.hasDatatype():
-                Logger.logMessage(
-                    '[' + _neuron.getName() +
-                    '.nestml] Data type of spike buffer "%s" at %s not specified!'
-                    % (buffer.getName(), buffer.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
-            if buffer.isCurrent() and buffer.hasDatatype():
-                Logger.logMessage(
-                    '[' + _neuron.getName() +
-                    '.nestml] No datatype allowed for current buffer "%s" at %s!'
-                    % (buffer.getName(), buffer.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        return
 
     @classmethod
-    def __collectInputBuffers(cls, _ast=None):
+    def __checkCoco(cls, _ast=None):
         """
-        For a given node, it collects all buffers declarations.
+        For a given node of type input line, it checks if the coco applies.
         :param _ast: a single ast.
         :type _ast: AST_
         """
         from pynestml.src.main.python.org.nestml.ast.ASTInputLine import ASTInputLine
         if isinstance(_ast, ASTInputLine):
-            cls.__inputBuffers.append(_ast)
+            if _ast.isSpike() and not _ast.hasDatatype():
+                Logger.logMessage(
+                    '[' + cls.__neuronName +
+                    '.nestml] Data type of spike buffer "%s" at %s not specified!'
+                    % (_ast.getName(), _ast.getSourcePosition().printSourcePosition()),
+                    LOGGING_LEVEL.ERROR)
+            if _ast.isCurrent() and _ast.hasDatatype():
+                Logger.logMessage(
+                    '[' + cls.__neuronName +
+                    '.nestml] No datatype allowed for current buffer "%s" at %s!'
+                    % (_ast.getName(), _ast.getSourcePosition().printSourcePosition()),
+                    LOGGING_LEVEL.ERROR)
         return

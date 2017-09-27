@@ -22,13 +22,17 @@ from pynestml.src.main.python.org.nestml.visitor.ASTExpressionCollectorVisitor i
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
+from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 
 
 class CoCoFunctionCallsConsistent(CoCo):
     """
     This coco ensures that for all function calls in the handed over neuron, the corresponding function is 
     defined and the types of arguments in the function call correspond to the one in the function symbol.
+    Not allowed:
+        maximum integer = max(1,2,3)
     """
+    __neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -39,31 +43,42 @@ class CoCoFunctionCallsConsistent(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        # now, for all expressions, check for all function calls, the corresponding function is declared.
-        # TODO: here we have to consider the type of the arguments
-        expressions = ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron)
-        for expr in expressions:
-            for func in expr.getFunctions():
-                symbols = func.getScope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
-                # first check if the function has been declared
-                if symbols is None:
-                    Logger.logMessage('[' + _neuron.getName() + '.nestml] Function %s at %s is not declared!'
-                                      % (func.getName(), func.getSourcePosition().printSourcePosition()),
-                                      LOGGING_LEVEL.ERROR)
-                # now check if the number of arguments is the same as in the symbol
-                if len(func.getArgs()) != len(symbols.getParameterTypes()):
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        return
+
+    @classmethod
+    def __checkCoco(cls, _ast=None):
+        """
+        For a given node of type function call it checks the coco.
+        :param _ast: a single ast.
+        :type _ast: AST_
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
+        if isinstance(_ast, ASTFunctionCall):
+            # now, for all expressions, check for all function calls, the corresponding function is declared.
+            # TODO: here we have to consider the type of the arguments
+            symbols = _ast.getScope().resolveToSymbol(_ast.getName(), SymbolKind.FUNCTION)
+            # first check if the function has been declared
+            if symbols is None:
+                Logger.logMessage('[' + cls.__neuronName + '.nestml] Function %s at %s is not declared!'
+                                  % (_ast.getName(), _ast.getSourcePosition().printSourcePosition()),
+                                  LOGGING_LEVEL.ERROR)
+            # now check if the number of arguments is the same as in the symbol
+            if len(_ast.getArgs()) != len(symbols.getParameterTypes()):
+                Logger.logMessage(
+                    '[' + cls.__neuronName + '.nestml] Wrong number of arguments in function-call %s at %s! '
+                                             'Expected %s, found %s.'
+                    % (_ast.getName(), _ast.getSourcePosition().printSourcePosition(),
+                       len(symbols.getParameterTypes()), len(_ast.getArgs())), LOGGING_LEVEL.ERROR)
+            # Todo: here we have to ensure correct typing of elements.
+            # TODO: @philip treader
+            # finally check if the call is correctly typed
+            for arg in _ast.getArgs():
+                if None is not None:
                     Logger.logMessage(
-                        '[' + _neuron.getName() + '.nestml] Wrong number of arguments in function-call %s at %s! '
-                                                  'Expected %s, found %s.'
-                        % (func.getName(), func.getSourcePosition().printSourcePosition(),
-                           len(symbols.getParameterTypes()), len(func.getArgs())), LOGGING_LEVEL.ERROR)
-                # Todo: here we have to ensure correct typing of elements.
-                # TODO: @philip treader
-                # finally check if the call is correctly typed
-                for arg in func.getArgs():
-                    if None is not None:
-                        Logger.logMessage(
-                            '[' + _neuron.getName() + '.nestml] Argument of function-call %s at %s is wrongly typed! '
-                                                      'Expected %s, found %s.'
-                            % (func.getName(), func.getSourcePosition().printSourcePosition(), 'TODO', 'TODO'),
-                            LOGGING_LEVEL.ERROR)
+                        '[' + cls.__neuronName + '.nestml] Argument of function-call %s at %s is wrongly typed! '
+                                                 'Expected %s, found %s!'
+                        % (_ast.getName(), _ast.getSourcePosition().printSourcePosition(), 'TODO', 'TODO'),
+                        LOGGING_LEVEL.ERROR)
+        return

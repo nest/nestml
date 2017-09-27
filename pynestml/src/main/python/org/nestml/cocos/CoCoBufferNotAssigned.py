@@ -47,6 +47,7 @@ class CoCoBufferNotAssigned(CoCo):
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__neuronName = _neuron.getName()
         ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkAssignments)
+        return
 
     @classmethod
     def __checkAssignments(cls, _ast=None):

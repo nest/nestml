@@ -41,7 +41,7 @@ class CoCoFunctionUnique(CoCo):
         for func in _neuron.getFunctions():
             symbols = _neuron.getScope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
             if isinstance(symbols, list) and len(symbols) > 1:
-                Logger.logMessage('[' + _neuron.getName() + '.nestml] Predefined function "%s" redeclared at %s.'
+                Logger.logMessage('[' + _neuron.getName() + '.nestml] Predefined function "%s" redeclared at %s!'
                                   % (func.getName(), func.getSourcePosition().printSourcePosition()),
                                   LOGGING_LEVEL.ERROR)
         return

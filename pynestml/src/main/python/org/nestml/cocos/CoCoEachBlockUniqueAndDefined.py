@@ -25,6 +25,14 @@ from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 class CoCoEachBlockUniqueAndDefined(CoCo):
     """
     This context  condition ensures that each block is defined at most once.
+    Not allowed:
+        state:
+            ...
+        end
+        ...
+        state:
+            ...
+        end
     """
 
     @classmethod

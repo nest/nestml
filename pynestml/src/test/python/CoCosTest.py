@@ -196,5 +196,14 @@ class SpikeBufferWithoutDatatype(unittest.TestCase):
         return
 
 
+class FunctionWithWrongArgNumberDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
+        return
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableRedeclared.nestml
+ *  CoCoFunctionCallNotConsistentWrongArgNumber.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,23 +20,23 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This test is used to test the functionality of the coco which ensures that redeclaration of symbols is detected
+ * This model is used to test if broken CoCos are identified correctly. Here, if current buffers are not specified by
+ * keywords.
+ *
 */
-neuron CoCoVariableRedeclared:
+
+neuron CoCoFunctionCallNotConsistentWrongArgNumber:
     state:
-        test1 mV = 20mV # should not be detected as redeclared, since in global scope
-        e mV = 10mV
+        test integer = max(1,2,3)
     end
-    
+
     update:
-        test1 mV = 10mV
-        test1 boolean = True
+        # required for creation of a correct ast
     end
 
     input:
-        # required for construction of a correct ast
+        # required for creation of a correct ast
     end
 
     output: spike
-
 end

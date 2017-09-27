@@ -33,6 +33,7 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         V_m 2/mV = ...
     """
     __unitTypes = list()
+    __neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -44,22 +45,21 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__unitTypes = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectUnitTypes)
-        for unit in cls.__unitTypes:
-            if unit.getLhs() != 1:
-                Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] Numeric numerator of unit "%s" at %s not 1!'
-                    % (unit.printAST(), unit.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        return
 
     @classmethod
-    def __collectUnitTypes(cls, _ast=None):
+    def __checkCoco(cls, _ast=None):
         """
-        For a given node, it collects all the unit-types which have a numeric numerator.
+        For a given node of type unit-type it checks, if the coco applies.
         :param _ast: a single ast node
         :type _ast: AST_
         """
         from pynestml.src.main.python.org.nestml.ast.ASTUnitType import ASTUnitType
-        if isinstance(_ast, ASTUnitType) and _ast.isDiv() and isinstance(_ast.getLhs(), int):
-            cls.__unitTypes.append(_ast)
+        if isinstance(_ast, ASTUnitType) and _ast.isDiv() and isinstance(_ast.getLhs(), int) and _ast.getLhs() != 1:
+            Logger.logMessage(
+                '[' + cls.__neuronName + '.nestml] Numeric numerator of unit "%s" at %s not 1!'
+                % (_ast.printAST(), _ast.getSourcePosition().printSourcePosition()),
+                LOGGING_LEVEL.ERROR)
         return

@@ -28,6 +28,7 @@ class CoCoFunctionHaveRhs(CoCo):
     This coco ensures that all function declarations, e.g., function V_rest mV = V_m - 55mV, have a rhs.
     """
     __declarations = list()
+    __neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -38,25 +39,21 @@ class CoCoFunctionHaveRhs(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionWithRhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__declarations = list()
+        cls.__neuronName = _neuron.getName()
         ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectDeclarations)
-        for decl in cls.__declarations:
-            if decl.isFunction() and not decl.hasExpression():
-                Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] Function variable %s at %s has no right-hand side!'
-                    % (decl.getVariables()[0].getName(),
-                       decl.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
+        return
 
     @classmethod
     def __collectDeclarations(cls, _ast=None):
         """
-        For a given node, it collects all the declarations.
-        :param _ast: 
-        :type _ast: 
-        :return: 
-        :rtype: 
+        For a given node of type function declaration it checks if the coco applies.
+        :param _ast: a single ast
+        :type _ast: AST_
         """
         from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
-        if isinstance(_ast, ASTDeclaration):
-            cls.__declarations.append(_ast)
+        if isinstance(_ast, ASTDeclaration) and _ast.isFunction() and not _ast.hasExpression():
+            Logger.logMessage(
+                '[' + cls.__neuronName + '.nestml] Function variable %s at %s has no right-hand side!'
+                % (_ast.getVariables()[0].getName(),
+                   _ast.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
         return

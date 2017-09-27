@@ -32,7 +32,7 @@ class CoCoFunctionMaxOneLhs(CoCo):
         function V_reset,V_rest mV = V_m - 55mV
     """
 
-    __declarations = list()
+    __neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -43,26 +43,24 @@ class CoCoFunctionMaxOneLhs(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionsWithLhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__declarations = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectDeclarations)
-        for decl in cls.__declarations:
-            if decl.isFunction() and len(decl.getVariables())>1:
-                Logger.logMessage(
-                    '[' + _neuron.getName() +
-                    '.nestml] Function (aka. alias) at %s declared with several variables (%s)!'
-                    % (
-                        decl.getSourcePosition().printSourcePosition(),
-                        list((var.getName() for var in decl.getVariables()))),
-                    LOGGING_LEVEL.ERROR)
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        return
 
     @classmethod
-    def __collectDeclarations(cls, _ast=None):
+    def __checkCoco(cls, _ast=None):
         """
-        For a given node, it collects all the declarations.
+        For a given node of type declaration, it checks if the coco applies.
         :param _ast: a single node
         :type _ast: AST_
         """
         from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
-        if isinstance(_ast, ASTDeclaration):
-            cls.__declarations.append(_ast)
+        if isinstance(_ast, ASTDeclaration) and _ast.isFunction() and len(_ast.getVariables()) > 1:
+            Logger.logMessage(
+                '[' + cls.__neuronName +
+                '.nestml] Function (aka. alias) at %s declared with several variables (%s)!'
+                % (
+                    _ast.getSourcePosition().printSourcePosition(),
+                    list((var.getName() for var in _ast.getVariables()))),
+                LOGGING_LEVEL.ERROR)
         return

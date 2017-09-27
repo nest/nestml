@@ -31,7 +31,7 @@ class CoCoTypeOfBufferUnique(CoCo):
     Not allowed:
         spike <- inhibitory inhibitory spike
     """
-    __spikeInputBuffers = list()
+    __neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -42,32 +42,12 @@ class CoCoTypeOfBufferUnique(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__spikeInputBuffers = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectSpikeInputBuffers)
-        for buffer in cls.__spikeInputBuffers:
-            if buffer.hasInputTypes() and len(buffer.getInputTypes()) > 1:
-                inh = 0
-                ext = 0
-                for typ in buffer.getInputTypes():
-                    if typ.isExcitatory():
-                        ext += 1
-                    if typ.isInhibitory():
-                        inh += 1
-                if inh > 1:
-                    Logger.logMessage(
-                        '[' + _neuron.getName() +
-                        '.nestml] Spike buffer "%s" at %s defined with multiple inhibitory keywords!'
-                        % (buffer.getName(), buffer.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
-                if ext > 1:
-                    Logger.logMessage(
-                        '[' + _neuron.getName() +
-                        '.nestml] Spike buffer "%s" at %s defined with multiple excitatory keywords!'
-                        % (buffer.getName().getCompleteName(), buffer.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        return
 
     @classmethod
-    def __collectSpikeInputBuffers(cls, _ast=None):
+    def __checkCoco(cls, _ast=None):
         """
         For a given node, it collects all the spike buffers declarations.
         :param _ast: a single ast.
@@ -75,5 +55,24 @@ class CoCoTypeOfBufferUnique(CoCo):
         """
         from pynestml.src.main.python.org.nestml.ast.ASTInputLine import ASTInputLine
         if isinstance(_ast, ASTInputLine) and _ast.isSpike():
-            cls.__spikeInputBuffers.append(_ast)
+            if _ast.hasInputTypes() and len(_ast.getInputTypes()) > 1:
+                inh = 0
+                ext = 0
+                for typ in _ast.getInputTypes():
+                    if typ.isExcitatory():
+                        ext += 1
+                    if typ.isInhibitory():
+                        inh += 1
+                if inh > 1:
+                    Logger.logMessage(
+                        '[' + cls.__neuronName +
+                        '.nestml] Spike buffer "%s" at %s defined with multiple inhibitory keywords!'
+                        % (_ast.getName(), _ast.getSourcePosition().printSourcePosition()),
+                        LOGGING_LEVEL.ERROR)
+                if ext > 1:
+                    Logger.logMessage(
+                        '[' + cls.__neuronName +
+                        '.nestml] Spike buffer "%s" at %s defined with multiple excitatory keywords!'
+                        % (_ast.getName(), _ast.getSourcePosition().printSourcePosition()),
+                        LOGGING_LEVEL.ERROR)
         return

@@ -35,6 +35,7 @@ class CoCoCurrentBuffersNotSpecified(CoCo):
             current <- inhibitory current
         end     
     """
+    __neuronName = None
     __currentInputBuffers = list()
 
     @classmethod
@@ -45,26 +46,25 @@ class CoCoCurrentBuffersNotSpecified(CoCo):
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__currentInputBuffers = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectCurrentInputBuffers)
-        for buffer in cls.__currentInputBuffers:
-            if buffer.hasInputTypes() and len(buffer.getInputTypes()) > 0:
-                Logger.logMessage(
-                    '[' + _neuron.getName() +
-                    '.nestml] Current buffer "%s" at %s specified with type keywords (%s)!'
-                    % (buffer.getName(), buffer.getSourcePosition().printSourcePosition(),
-                       list((buf.printAST() for buf in buffer.getInputTypes()))),
-                    LOGGING_LEVEL.ERROR)
+            '(PyNestML.CoCo.CurrentBuffersNotSpecified) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        return
 
     @classmethod
-    def __collectCurrentInputBuffers(cls, _ast=None):
+    def __checkCoco(cls, _ast=None):
         """
-        For a given node, it collects all the spike buffers declarations.
+        For a given node of type current input buffer it checks the coco.
         :param _ast: a single ast.
         :type _ast: AST_
         """
         from pynestml.src.main.python.org.nestml.ast.ASTInputLine import ASTInputLine
-        if isinstance(_ast, ASTInputLine) and _ast.isCurrent():
-            cls.__currentInputBuffers.append(_ast)
+        if isinstance(_ast, ASTInputLine) and _ast.isCurrent() and _ast.hasInputTypes() and \
+                        len(_ast.getInputTypes()) > 0:
+            Logger.logMessage(
+                '[' + cls.__neuronName +
+                '.nestml] Current buffer "%s" at %s specified with type keywords (%s)!'
+                % (_ast.getName(), _ast.getSourcePosition().printSourcePosition(),
+                   list((buf.printAST() for buf in _ast.getInputTypes()))),
+                LOGGING_LEVEL.ERROR)
         return

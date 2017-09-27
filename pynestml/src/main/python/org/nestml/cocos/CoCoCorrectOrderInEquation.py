@@ -36,7 +36,7 @@ class CoCoCorrectOrderInEquation(CoCo):
             V_m = ...
         end  
     """
-
+    __neuronName = None
     __odeEquations = list()
 
     @classmethod
@@ -48,25 +48,21 @@ class CoCoCorrectOrderInEquation(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.OrderInEquation) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__odeEquations = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectOdeEquations)
-        for eq in cls.__odeEquations:
-            if eq.getLhs().getDifferentialOrder() == 0:
-                Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] Order of differential equation for %s at %s is not declared!'
-                    % (eq.getLhs().getName(), eq.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        return
 
     @classmethod
-    def __collectOdeEquations(cls, _ast=None):
+    def __checkCoco(cls, _ast=None):
         """
-        For a given node, it collects all the declarations.
-        :param _ast: 
-        :type _ast: 
-        :return: 
-        :rtype: 
+        For a given node of type ode-equation it checks if the coco applies.
+        :param _ast: a single ast node.
+        :type _ast: AST_
         """
         from pynestml.src.main.python.org.nestml.ast.ASTOdeEquation import ASTOdeEquation
-        if isinstance(_ast, ASTOdeEquation):
-            cls.__odeEquations.append(_ast)
+        if isinstance(_ast, ASTOdeEquation) and _ast.getLhs().getDifferentialOrder() == 0:
+            Logger.logMessage(
+                '[' + cls.__neuronName + '.nestml] Order of differential equation for %s at %s is not declared!'
+                % (_ast.getLhs().getName(), _ast.getSourcePosition().printSourcePosition()),
+                LOGGING_LEVEL.ERROR)
         return
