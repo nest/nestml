@@ -646,12 +646,12 @@ class NESTMLVisitor(object):
         return
 
     def getRealSelf(self):
-        return __realSelf
+        return self.__realSelf
     
     def handle(self, _node):
-        self.visit(_node)
-        self.traverse(_node)
-        self.endvisit(_node)
+        self.getRealSelf().visit(_node)
+        self.getRealSelf().traverse(_node)
+        self.getRealSelf().endvisit(_node)
         return
     
     def visit(self, _node):
