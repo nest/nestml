@@ -25,6 +25,13 @@ class NESTMLVisitor(object):
     This class represents a standard implementation of a visitor as used to create concrete instances.
                  
     """
+
+    __realSelf = None
+
+    def __init__(self):
+        __realSelf = self
+        return
+
     def visitCompilationUnit(self, _compilationUnit=None):
         """
         Visits a single compilation unit, thus all neurons.
@@ -633,8 +640,13 @@ class NESTMLVisitor(object):
         """
         return
 
+    def setRealSelf(self,_visitor):
+        assert(_visitor is not None and isinstance(_visitor,NESTMLVisitor))
+        self.__realSelf = _visitor
+        return
+
     def getRealSelf(self):
-        return self
+        return __realSelf
     
     def handle(self, _node):
         self.visit(_node)
