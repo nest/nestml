@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 
 
 class ASTAssignment(ASTElement):
@@ -61,6 +62,8 @@ class ASTAssignment(ASTElement):
         :param _expression: an ast-expression object
         :type _expression: ASTExpression
         """
+        assert (_lhs is not None and isinstance(_lhs,ASTVariable)),\
+            '(PyNestML.AST.Assignment) No or wrong typ of variable provided (%s)!' %type(_lhs)
         super(ASTAssignment, self).__init__(_sourcePosition)
         self.__lhsVariable = _lhs
         self.__isDirectAssignment = _isDirectAssignment
