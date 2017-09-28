@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
@@ -32,7 +32,7 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
     Not allowed:
         V_m 2/mV = ...
     """
-    __neuronName = None
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -43,21 +43,25 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.getName()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        cls.neuronName = _neuron.getName()
+        _neuron.accept(NumericNumeratorVisitor())
         return
 
-    @classmethod
-    def __checkCoco(cls, _ast=None):
+
+class NumericNumeratorVisitor(NESTMLVisitor):
+    """
+    Visits a numeric numerator and checks if the value is 1.
+    """
+
+    def visitUnitType(self, _unitType=None):
         """
-        For a given node of type unit-type it checks, if the coco applies.
-        :param _ast: a single ast node
-        :type _ast: AST_
+        Check if the coco applies,
+        :param _unitType: a single unit type object.
+        :type _unitType: ASTUnitType
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTUnitType import ASTUnitType
-        if isinstance(_ast, ASTUnitType) and _ast.isDiv() and isinstance(_ast.getLhs(), int) and _ast.getLhs() != 1:
+        if _unitType.isDiv() and isinstance(_unitType.getLhs(), int) and _unitType.getLhs() != 1:
             Logger.logMessage(
-                '[' + cls.__neuronName + '.nestml] Numeric numerator of unit "%s" at %s not 1!'
-                % (_ast.printAST(), _ast.getSourcePosition().printSourcePosition()),
+                '[' + CoCoCorrectNumeratorOfUnit.neuronName + '.nestml] Numeric numerator of unit "%s" at %s not 1!'
+                % (_unitType.printAST(), _unitType.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

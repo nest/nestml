@@ -1120,7 +1120,8 @@ class NESTMLVisitor(object):
         if _node.getBase() is not None:
             _node.getBase().accept(self.getRealSelf())
         if _node.getLhs() is not None:
-            _node.getLhs().accept(self.getRealSelf())
+            if isinstance(_node.getLhs,ASTUnitType.ASTUnitType):
+                _node.getLhs().accept(self.getRealSelf())
         if _node.getRhs() is not None:
             _node.getRhs().accept(self.getRealSelf())
         if _node.getCompoundUnit() is not None:

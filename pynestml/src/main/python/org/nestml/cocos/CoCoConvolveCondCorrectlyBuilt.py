@@ -20,8 +20,8 @@
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 
 
 class CoCoConvolveCondCorrectlyBuilt(CoCo):
@@ -34,7 +34,7 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
         function I_syn_exc pA =   convolve(g_ex, g_ex) * ( V_bounded - E_ex )
 
     """
-    __neuronName = None
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -45,32 +45,34 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.getName()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        cls.neuronName = _neuron.getName()
+        _neuron.accept(ConvolveCheckerVisitor())
         return
 
-    @classmethod
-    def __checkCoco(cls, _ast=None):
-        """
-        For a given node it checks if the coco applies.
-        :param _ast: a single ast node
-        :type _ast: AST_
-        """
-        from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
 
-        if isinstance(_ast, ASTFunctionCall) and (_ast.getName() == 'convolve' or _ast.getName() == 'cond_sum'
-                                                  or _ast.getName() == 'curr_sum'):
-            funcName = _ast.getName()
-            symbolVar = _ast.getScope().resolveToSymbol(_ast.getArgs()[0].printAST(), SymbolKind.VARIABLE)
-            symbolBuffer = _ast.getScope().resolveToSymbol(_ast.getArgs()[1].printAST(), SymbolKind.VARIABLE)
+class ConvolveCheckerVisitor(NESTMLVisitor):
+    """
+    Visits a function call and checks that if the function call is a cond_sum,cur_sum or convolve, the parameters
+    are correct.
+    """
+
+    def visitFunctionCall(self, _functionCall=None):
+        funcName = _functionCall.getName()
+        if funcName == 'convolve' or funcName == 'cond_sum' or funcName == 'curr_sum':
+            symbolVar = _functionCall.getScope().resolveToSymbol(_functionCall.getArgs()[0].printAST(),
+                                                                 SymbolKind.VARIABLE)
+            symbolBuffer = _functionCall.getScope().resolveToSymbol(_functionCall.getArgs()[1].printAST(),
+                                                                    SymbolKind.VARIABLE)
             if symbolVar is not None and not symbolVar.isShape() and not symbolVar.isInitValues():
                 Logger.logMessage(
-                    '[' + cls.__neuronName + '.nestml] First argument of %s at %s not a shape or equation!'
-                    % (funcName, _ast.getSourcePosition().printSourcePosition()),
+                    '[' + CoCoConvolveCondCorrectlyBuilt.neuronName +
+                    '.nestml] First argument of %s at %s not a shape or equation!'
+                    % (funcName, _functionCall.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
             if symbolBuffer is not None and not symbolBuffer.isInputBufferSpike():
                 Logger.logMessage(
-                    '[' + cls.__neuronName + '.nestml] Second argument of %s at %s not a buffer!'
-                    % (funcName, _ast.getSourcePosition().printSourcePosition()),
+                    '[' + CoCoConvolveCondCorrectlyBuilt.neuronName +
+                    '.nestml] Second argument of %s at %s not a buffer!'
+                    % (funcName, _functionCall.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
         return

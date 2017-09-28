@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
@@ -36,8 +36,7 @@ class CoCoCorrectOrderInEquation(CoCo):
             V_m = ...
         end  
     """
-    __neuronName = None
-    __odeEquations = list()
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -48,21 +47,26 @@ class CoCoCorrectOrderInEquation(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.OrderInEquation) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.getName()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        cls.neuronName = _neuron.getName()
+        _neuron.accept(OrderOfEquationVisitor())
         return
 
-    @classmethod
-    def __checkCoco(cls, _ast=None):
+
+class OrderOfEquationVisitor(NESTMLVisitor):
+    """
+    This visitor checks that all differential equations have a differential order.
+    """
+
+    def visitOdeEquation(self, _equation=None):
         """
-        For a given node of type ode-equation it checks if the coco applies.
-        :param _ast: a single ast node.
-        :type _ast: AST_
+        Checks the coco.
+        :param _equation: A single ode equation.
+        :type _equation: ASTOdeEquation
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTOdeEquation import ASTOdeEquation
-        if isinstance(_ast, ASTOdeEquation) and _ast.getLhs().getDifferentialOrder() == 0:
+        if _equation.getLhs().getDifferentialOrder() == 0:
             Logger.logMessage(
-                '[' + cls.__neuronName + '.nestml] Order of differential equation for %s at %s is not declared!'
-                % (_ast.getLhs().getName(), _ast.getSourcePosition().printSourcePosition()),
+                '[' + CoCoCorrectOrderInEquation.neuronName +
+                '.nestml] Order of differential equation for %s at %s is not declared!'
+                % (_equation.getLhs().getName(), _equation.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

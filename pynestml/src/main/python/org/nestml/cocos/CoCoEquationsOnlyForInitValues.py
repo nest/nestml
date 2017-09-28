@@ -21,7 +21,7 @@ from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 
 
 class CoCoEquationsOnlyForInitValues(CoCo):
@@ -43,7 +43,7 @@ class CoCoEquationsOnlyForInitValues(CoCo):
             V_m' = ....
         end
     """
-    __neuronName = None
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -54,24 +54,27 @@ class CoCoEquationsOnlyForInitValues(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.getName()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        cls.neuronName = _neuron.getName()
+        _neuron.accept(EquationsOnlyForInitValues())
         return
 
-    @classmethod
-    def __checkCoco(cls, _ast=None):
+
+class EquationsOnlyForInitValues(NESTMLVisitor):
+    """
+    This visitor ensures that for all ode equations exists an initial value.
+    """
+
+    def visitOdeEquation(self, _equation=None):
         """
-        For a given node of type unit-type it checks, if the coco applies.
-        :param _ast: a single ast node
-        :type _ast: AST_
+        Ensures the coco.
+        :param _equation: a single equation object.
+        :type _equation: ASTOdeEquation
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTOdeEquation import ASTOdeEquation
-        if isinstance(_ast, ASTOdeEquation):
-            symbol = _ast.getScope().resolveToSymbol(_ast.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
-            if symbol is not None and not symbol.isInitValues():
-                Logger.logMessage(
-                    '[' + cls.__neuronName + '.nestml] Ode equation lhs-variable "%s" at %s not '
-                                             'defined in initial-values block!'
-                    % (_ast.getLhs().getNameOfLhs(), _ast.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+        symbol = _equation.getScope().resolveToSymbol(_equation.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
+        if symbol is not None and not symbol.isInitValues():
+            Logger.logMessage(
+                '[' + CoCoEquationsOnlyForInitValues.neuronName + '.nestml] Ode equation lhs-variable "%s" at %s not '
+                                                                  'defined in initial-values block!'
+                % (_equation.getLhs().getNameOfLhs(), _equation.getSourcePosition().printSourcePosition()),
+                LOGGING_LEVEL.ERROR)
         return

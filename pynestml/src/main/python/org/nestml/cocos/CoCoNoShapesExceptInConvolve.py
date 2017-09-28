@@ -20,7 +20,6 @@
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
-from pynestml.src.main.python.org.nestml.visitor.NESTMLParentAwareVisitor import NESTMLParentAwareVisitor
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.nestml.ast.ASTOdeShape import ASTOdeShape
 from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
@@ -50,10 +49,12 @@ class CoCoNoShapesExceptInConvolve(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__shapes = list()
         shapeCollectorVisitor = ShapeCollectingVisitor()
         shapeNames = shapeCollectorVisitor.collectShapes(_neuron=_neuron)
         shapeUsageVisitor = ShapeUsageVisitor(_shapes=shapeNames)
         shapeUsageVisitor.workOn(_neuron)
+        cls.__shapes = list()
         return
 
 
@@ -97,10 +98,11 @@ class ShapeUsageVisitor(NESTMLVisitor):
                     '[' + self.__neuronNode.getName() + '.nestml] Shape "%s" used outside convolve at %s!'
                     % (shapeName, _variable.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
+        return
 
 
 class ShapeCollectingVisitor(NESTMLVisitor):
-    __shapeNames = list()
+    __shapeNames = None
 
     def collectShapes(self, _neuron=None):
         """
@@ -110,6 +112,7 @@ class ShapeCollectingVisitor(NESTMLVisitor):
         :return: a list of shapes.
         :rtype: list(str)
         """
+        self.__shapeNames = list()
         _neuron.accept(self)
         return self.__shapeNames
 

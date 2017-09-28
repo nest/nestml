@@ -23,6 +23,7 @@ from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import AS
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 
 
 class CoCoBufferNotAssigned(CoCo):
@@ -34,7 +35,7 @@ class CoCoBufferNotAssigned(CoCo):
         current = currentSum + 10mV
     
     """
-    __neuronName = None
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -45,8 +46,11 @@ class CoCoBufferNotAssigned(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.getName()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        cls.neuronName = _neuron.getName()
+        visitor = NoBufferAssignedVisitor()
+        _neuron.accept(visitor)
+
+        #ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
         return
 
     @classmethod
@@ -65,4 +69,17 @@ class CoCoBufferNotAssigned(CoCo):
                     '[' + cls.__neuronName + '.nestml] Value assigned to buffer "%s" at %s!'
                     % (_ast.getVariable().getCompleteName(), _ast.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
+        return
+
+
+class NoBufferAssignedVisitor(NESTMLVisitor):
+
+    def visitAssignment(self, _assignment=None):
+        symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
+        if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
+                                           symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
+            Logger.logMessage(
+                '[' + CoCoBufferNotAssigned.neuronName + '.nestml] Value assigned to buffer "%s" at %s!'
+                % (_assignment.getVariable().getCompleteName(), _assignment.getSourcePosition().printSourcePosition()),
+                LOGGING_LEVEL.ERROR)
         return

@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
@@ -32,7 +32,7 @@ class CoCoFunctionMaxOneLhs(CoCo):
         function V_reset,V_rest mV = V_m - 55mV
     """
 
-    __neuronName = None
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -43,24 +43,28 @@ class CoCoFunctionMaxOneLhs(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionsWithLhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__neuronName = _neuron.getName()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
+        cls.neuronName = _neuron.getName()
+        _neuron.accept(FunctionMaxOneLhs())
         return
 
-    @classmethod
-    def __checkCoco(cls, _ast=None):
+
+class FunctionMaxOneLhs(NESTMLVisitor):
+    """
+    This visitor ensures that every function has exactly one lhs.
+    """
+
+    def visitDeclaration(self, _declaration=None):
         """
-        For a given node of type declaration, it checks if the coco applies.
-        :param _ast: a single node
-        :type _ast: AST_
+        Checks the coco.
+        :param _declaration: a single declaration.
+        :type _declaration: ASTDeclaration
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
-        if isinstance(_ast, ASTDeclaration) and _ast.isFunction() and len(_ast.getVariables()) > 1:
+        if _declaration.isFunction() and len(_declaration.getVariables()) > 1:
             Logger.logMessage(
-                '[' + cls.__neuronName +
+                '[' + CoCoFunctionMaxOneLhs.neuronName +
                 '.nestml] Function (aka. alias) at %s declared with several variables (%s)!'
                 % (
-                    _ast.getSourcePosition().printSourcePosition(),
-                    list((var.getName() for var in _ast.getVariables()))),
+                    _declaration.getSourcePosition().printSourcePosition(),
+                    list((var.getName() for var in _declaration.getVariables()))),
                 LOGGING_LEVEL.ERROR)
         return
