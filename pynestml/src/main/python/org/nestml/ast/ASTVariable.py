@@ -95,6 +95,17 @@ class ASTVariable(ASTElement):
         """
         return self.getName() + '\'' * self.getDifferentialOrder()
 
+    def getNameOfLhs(self):
+        """
+        Returns the complete name but with differential order reduced by one.
+        :return: the name.
+        :rtype: str
+        """
+        if self.getDifferentialOrder() > 0:
+            return self.getName() + '\'' * (self.getDifferentialOrder() - 1)
+        else:
+            return self.getName()
+
     def getTypeSymbol(self):
         """
         Returns the type symbol of this expression.

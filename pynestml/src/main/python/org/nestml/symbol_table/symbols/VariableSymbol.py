@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symbol
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from enum import Enum
 
 
@@ -36,6 +37,7 @@ class VariableSymbol(Symbol):
         __typeSymbol          The concrete type of this variable.
         __odeDeclaration      Used to store the corresponding ode declaration. 
         __isConductanceBased  Indicates whether this buffer is used in a cond_sum expression.
+        __initialValue        Indicates the initial value if such is declared.
     """
     __blockType = None
     __vectorParameter = None
@@ -46,10 +48,11 @@ class VariableSymbol(Symbol):
     __typeSymbol = None
     __odeDeclaration = None
     __isConductanceBased = False
+    __initialValue = None
 
     def __init__(self, _elementReference=None, _scope=None, _name=None, _blockType=None, _vectorParameter=None,
                  _declaringExpression=None, _isPredefined=False, _isFunction=False, _isRecordable=False,
-                 _typeSymbol=None):
+                 _typeSymbol=None, _initialValue=None):
         """
         Standard constructor.
         :param _elementReference: a reference to the first element where this type has been used/defined
@@ -72,6 +75,8 @@ class VariableSymbol(Symbol):
         :type _isRecordable: bool
         :param _typeSymbol: a type symbol representing the concrete type of this variable
         :type _typeSymbol: TypeSymbol
+        :param _initialValue: the initial value if such an exists
+        :type _initialValue: ASTExpression
         """
         assert (_blockType is not None and isinstance(_blockType, BlockType)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided (%s)!' % type(_blockType)
@@ -92,6 +97,9 @@ class VariableSymbol(Symbol):
         assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong of type-symbol provided (%s)!' % type(_typeSymbol)
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
+        assert (_initialValue is None or isinstance(_initialValue, ASTExpression) or
+                isinstance(_initialValue, ASTSimpleExpression)), \
+            '(PyNestML.SymbolTable.VariableSymbol) Wrong type of initial value provided (%s)!' % type(_initialValue)
         super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
                                              _name=_name, _symbolKind=SymbolKind.VARIABLE)
         self.__blockType = _blockType
@@ -101,6 +109,7 @@ class VariableSymbol(Symbol):
         self.__isFunction = _isFunction
         self.__isRecordable = _isRecordable
         self.__typeSymbol = _typeSymbol
+        self.__initialValue = _initialValue
         return
 
     def hasVectorParameter(self):
@@ -277,6 +286,14 @@ class VariableSymbol(Symbol):
         """
         return self.getBlockType() == BlockType.SHAPE
 
+    def isInitValues(self):
+        """
+        Returns whether this variable belongs to the definition of a initial value.
+        :return: True if part of a initial value, otherwise False.
+        :rtype: bool
+        """
+        return self.getBlockType() == BlockType.INITIAL_VALUES
+
     def printSymbol(self):
         if self.getReferencedObject() is not None:
             sourcePosition = self.getReferencedObject().getSourcePosition().printSourcePosition()
@@ -357,6 +374,34 @@ class VariableSymbol(Symbol):
         self.__isConductanceBased = _isConductanceBase
         return
 
+    def hasInitialValue(self):
+        """
+        Returns whether this variable symbol has an initial value or not.
+        :return: True if has initial value, otherwise False.
+        :rtype: bool
+        """
+        return self.__initialValue is not None and (isinstance(self.__initialValue, ASTSimpleExpression) or
+                                                    isinstance(self.__initialValue, ASTExpression))
+
+    def getInitialValue(self):
+        """
+        Returns the initial value of this variable symbol if one exists.
+        :return: the initial value expression.
+        :rtype: ASTSimpleExpression or ASTExpression
+        """
+        return self.__initialValue
+
+    def setInitialValue(self, _value=None):
+        """
+        Updates the initial value of this variable.
+        :param _value: a new initial value.
+        :type _value: ASTExpression or ASTSimpleExpression
+        """
+        assert (_value is not None and (isinstance(_value, ASTExpression) or isinstance(_value, ASTSimpleExpression))), \
+            '(PyNestML.SymbolTable.VariableSymbol) Wrong type of initial value provided (%s)!' % type(_value)
+        self.__initialValue = _value
+        return
+
     def equals(self, _other=None):
         """
         Compares the handed over object to this value-wise.
@@ -388,3 +433,4 @@ class BlockType(Enum):
     INPUT_BUFFER_SPIKE = 7
     OUTPUT = 8
     SHAPE = 9
+    INITIAL_VALUES = 10

@@ -27,7 +27,8 @@
 
 neuron CoCoFunctionNotUnique:
     function delta(Tau_a ms,Tau_b ms) real:
-        test ms = 1ms
+        test real = 1
+        return test
     end
 
     input:

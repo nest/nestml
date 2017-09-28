@@ -1,5 +1,5 @@
 #
-# CoCoCorrectNumeratorOfUnit.py
+# CoCoEquationsOnlyForInitValues.py
 #
 # This file is part of NEST.
 #
@@ -18,19 +18,30 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
+from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
-from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
-class CoCoCorrectNumeratorOfUnit(CoCo):
+class CoCoEquationsOnlyForInitValues(CoCo):
     """
-    This coco ensures that all units which consist of a dividend and divisor, where the numerator is a numeric
-    value, have 1 as the numerator. 
+    This coco ensures that ode equations are only provided for variables which have been defined in the
+    initial_values block.
     Allowed:
-        V_m 1/mV = ...
+        initial_values:
+            V_m mV = 10mV
+        end
+        equations:
+            V_m' = ....
+        end
     Not allowed:
-        V_m 2/mV = ...
+        state:
+            V_m mV = 10mV
+        end
+        equations:
+            V_m' = ....
+        end
     """
     __neuronName = None
 
@@ -54,10 +65,13 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         :param _ast: a single ast node
         :type _ast: AST_
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTUnitType import ASTUnitType
-        if isinstance(_ast, ASTUnitType) and _ast.isDiv() and isinstance(_ast.getLhs(), int) and _ast.getLhs() != 1:
-            Logger.logMessage(
-                '[' + cls.__neuronName + '.nestml] Numeric numerator of unit "%s" at %s not 1!'
-                % (_ast.printAST(), _ast.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+        from pynestml.src.main.python.org.nestml.ast.ASTOdeEquation import ASTOdeEquation
+        if isinstance(_ast, ASTOdeEquation):
+            symbol = _ast.getScope().resolveToSymbol(_ast.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
+            if symbol is not None and not symbol.isInitValues():
+                Logger.logMessage(
+                    '[' + cls.__neuronName + '.nestml] Ode equation lhs-variable "%s" at %s not '
+                                             'defined in initial-values block!'
+                    % (_ast.getLhs().getNameOfLhs(), _ast.getSourcePosition().printSourcePosition()),
+                    LOGGING_LEVEL.ERROR)
         return

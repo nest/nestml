@@ -89,6 +89,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         if _neuron.getEquationsBlocks() is not None:
             equationBlock = _neuron.getEquationsBlocks()
             cls.assignOdeToVariables(equationBlock)
+        CoCosManager.postOdeSpecificationChecks(_neuron)
         return
 
     @classmethod
@@ -654,7 +655,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         assert (_block is not None and isinstance(_block, ASTBlockWithVariables.ASTBlockWithVariables)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of block with variables provided (%s)!' % type(_block)
         cls.__currentBlockType = BlockType.STATE if _block.isState() else \
-            BlockType.INTERNALS if _block.isInternals() else BlockType.PARAMETERS
+            BlockType.INTERNALS if _block.isInternals() else BlockType.PARAMETERS if _block.isParameters() else \
+                BlockType.INITIAL_VALUES
         for decl in _block.getDeclarations():
             decl.updateScope(_block.getScope())
             cls.visitDeclaration(decl)
@@ -795,6 +797,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         for decl in _odeBlock.getDeclarations():
             if isinstance(decl, ASTOdeEquation.ASTOdeEquation):
                 cls.addOdeToVariable(decl)
+        return
 
     @classmethod
     def addOdeToVariable(cls, _odeEquation=None):
@@ -810,13 +813,14 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         diffOrder = _odeEquation.getLhs().getDifferentialOrder() - 1
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
         name = _odeEquation.getLhs().getName() + '\'' * diffOrder
-        existingSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName() + '\'' * diffOrder,
+        existingSymbol = cls.__globalScope.resolveToSymbol(_odeEquation.getLhs().getName() + '\'' * diffOrder,
                                                                SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
             Logger.logMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),
                               LOGGING_LEVEL.ALL)
-        else:  # create a new symbol, however, this should never happen since only exiting symbols shall be updated
+        else:
+            # create a new symbol, however, this should never happen since only exiting symbols shall be updated
             # if an existing symbol does not exists, we derive the base symbol, e.g. V_m
             baseSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName(), SymbolKind.VARIABLE)
             if baseSymbol is not None:

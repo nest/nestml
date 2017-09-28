@@ -205,5 +205,41 @@ class FunctionWithWrongArgNumberDetected(unittest.TestCase):
         return
 
 
+class InitValuesHaveRhsAndOde(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoInitValuesWithoutOde.nestml'))
+        return
+
+
+class IncorrectReturnStmtDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoIncorrectReturnStatement.nestml'))
+        return
+
+
+class OdeVarsOutsideInitBlockDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoOdeVarNotInInitialValues.nestml'))
+        return
+
+
+class ConvolveCorrectlyDefined(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoConvolveNotCorrectlyProvided.nestml'))
+        return
+
+
 if __name__ == '__main__':
     unittest.main()

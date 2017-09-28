@@ -279,7 +279,7 @@ class Scope(object):
         :param _type: the type of the symbol, i.e., Variable,function or type.
         :type _type: SymbolType
         :return: the first matching symbol.
-        :rtype: Symbol
+        :rtype: VariableSymbol or FunctionSymbol
         """
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)

@@ -52,7 +52,7 @@ class CoCoAllVariablesDefined(CoCo):
         expressions = ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron)
         for expr in expressions:
             for var in expr.getVariables():
-                symbol = var.getScope().resolveToAllSymbols(var.getCompleteName(), SymbolKind.VARIABLE)
+                symbol = var.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
                 # first test if the symbol has been defined at least
                 if symbol is None:
                     Logger.logMessage(

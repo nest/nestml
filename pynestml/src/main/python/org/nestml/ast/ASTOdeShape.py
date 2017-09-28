@@ -49,6 +49,7 @@ class ASTOdeShape(ASTElement):
         super(ASTOdeShape, self).__init__(_sourcePosition)
         self.__lhs = _lhs
         self.__rhs = _rhs
+        return
 
     @classmethod
     def makeASTOdeShape(cls, _lhs=None, _rhs=None, _sourcePosition=None):

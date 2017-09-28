@@ -20,7 +20,7 @@
 
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTExpressionCollectorVisitor import ASTExpressionCollectorVisitor
+from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
@@ -47,6 +47,7 @@ class CoCoInitVarsWithOdesProvided(CoCo):
             # no ode declaration given
         end
     """
+    __neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -57,6 +58,40 @@ class CoCoInitVarsWithOdesProvided(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.VariablesDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        # TODO
+        cls.__neuronName = _neuron.getName()
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
         return
 
+    @classmethod
+    def __checkCoco(cls, _ast=None):
+        """
+        For a given node of type current input buffer it checks the coco.
+        :param _ast: a single ast.
+        :type _ast: AST_
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
+        # for all declaration check if it is a initial_values one
+        if isinstance(_ast, ASTDeclaration):
+            for var in _ast.getVariables():
+                symbol = _ast.getScope().resolveToSymbol(var.getNameOfLhs(), SymbolKind.VARIABLE)
+                # first check that all initial value variables have a lhs
+                if symbol is not None and symbol.isInitValues() and not _ast.hasExpression():
+                    Logger.logMessage(
+                        '[' + cls.__neuronName +
+                        '.nestml] No rhs of initial value of variable "%s" at %s!'
+                        % (var.getName(), var.getSourcePosition().printSourcePosition()),
+                        LOGGING_LEVEL.ERROR)
+                # now check that they have been provided with an ODE
+                if symbol is not None and symbol.isInitValues() and not symbol.isOdeDefined():
+                    Logger.logMessage(
+                        '[' + cls.__neuronName +
+                        '.nestml] Variable "%s" at %s not provided with an ODE!'
+                        % (var.getName(), var.getSourcePosition().printSourcePosition()),
+                        LOGGING_LEVEL.ERROR)
+                if symbol is not None and symbol.isInitValues() and not symbol.hasInitialValue():
+                    Logger.logMessage(
+                        '[' + cls.__neuronName +
+                        '.nestml] Initial value of ode variable "%s" at %s not provided!'
+                        % (var.getName(), var.getSourcePosition().printSourcePosition()),
+                        LOGGING_LEVEL.ERROR)
+        return

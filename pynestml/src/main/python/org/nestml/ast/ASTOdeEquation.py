@@ -32,7 +32,7 @@ class ASTOdeEquation(ASTElement):
     @attribute lhs      Left hand side, e.g. a Variable.
     @attribute rhs      Expression defining the right hand side.
     Grammar:
-        odeEquation : lhs=derivative '=' rhs=expression;
+        odeEquation : lhs=variable '=' rhs=expression;
     """
     __lhs = None
     __rhs = None

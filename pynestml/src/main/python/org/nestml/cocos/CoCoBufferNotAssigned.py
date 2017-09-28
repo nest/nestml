@@ -58,7 +58,7 @@ class CoCoBufferNotAssigned(CoCo):
         """
         from pynestml.src.main.python.org.nestml.ast.ASTAssignment import ASTAssignment
         if isinstance(_ast, ASTAssignment):
-            symbol = _ast.getScope().resolveToAllSymbols(_ast.getVariable().getName(), SymbolKind.VARIABLE)
+            symbol = _ast.getScope().resolveToSymbol(_ast.getVariable().getName(), SymbolKind.VARIABLE)
             if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
                                                symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
                 Logger.logMessage(
