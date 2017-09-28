@@ -36,7 +36,8 @@ neuron CoCoConvolveNotCorrectlyProvided:
     end
 
     equations:
-        function test pA = convolve(g_ex, g_ex)
+        shape test = 10
+        function test pA = convolve(g_ex, g_ex) + test
     end
 
     update:

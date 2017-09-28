@@ -140,6 +140,21 @@ class ASTBlockWithVariables(ASTElement):
         """
         return self.__declarations
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for stmt in self.getDeclarations():
+            if stmt is _ast:
+                return self
+            if stmt.getParent(_ast) is not None:
+                return stmt.getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns a string representation of the variable block.

@@ -120,6 +120,30 @@ class ASTIfStmt(ASTElement):
         """
         return self.__elseClause
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getIfClause() is _ast:
+            return self
+        elif self.getIfClause().getParent(_ast) is not None:
+            return self.getIfClause().getParent(_ast)
+        for elifClause in self.getElifClauses():
+            if elifClause is _ast:
+                return self
+            elif elifClause.getParent(_ast) is not None:
+                return elifClause.getParent(_ast)
+        if self.hasElseClause():
+            if self.getElseClause() is _ast:
+                return self
+            elif self.getElseClause().getParent(_ast) is not None:
+                return self.getElseClause().getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns a string representation of the if-statement.

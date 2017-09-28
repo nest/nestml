@@ -98,6 +98,21 @@ class ASTFunctionCall(ASTElement):
         """
         return self.__args
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for param in self.getArgs():
+            if param is _ast:
+                return self
+            elif param.getParent(_ast) is not None:
+                return param.getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns the string representation of the function call.

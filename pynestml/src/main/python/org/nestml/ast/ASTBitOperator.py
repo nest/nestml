@@ -130,6 +130,17 @@ class ASTBitOperator(ASTElement):
         """
         return self.__isBitShiftRight
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        return None
+
+
     def printAST(self):
         """
         Returns the string representation of the operator.

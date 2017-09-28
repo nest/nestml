@@ -427,6 +427,52 @@ class ASTExpression(ASTElement):
             '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
         self.__typeSymbol = _typeSymbol
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.isExpression():
+            if self.getExpression() is _ast:
+                return self
+            elif self.getExpression().getParent(_ast) is not None:
+                return self.getExpression().getParent(_ast)
+        if self.isUnaryOperator():
+            if self.getUnaryOperator() is _ast:
+                return self
+            elif self.getUnaryOperator().getParent(_ast) is not None:
+                return self.getUnaryOperator().getParent(_ast)
+        if self.isCompoundExpression():
+            if self.getLhs() is _ast:
+                return self
+            elif self.getLhs().getParent(_ast) is not None:
+                return self.getLhs().getParent(_ast)
+            if self.getBinaryOperator() is _ast:
+                return self
+            elif self.getBinaryOperator().getParent(_ast) is not None:
+                return self.getBinaryOperator().getParent(_ast)
+            if self.getRhs() is _ast:
+                return self
+            elif self.getRhs().getParent(_ast) is not None:
+                return self.getRhs().getParent(_ast)
+        if self.isTernaryOperator():
+            if self.getCondition() is _ast:
+                return self
+            elif self.getCondition().getParent(_ast) is not None:
+                return self.getCondition().getParent(_ast)
+            if self.getIfTrue() is _ast:
+                return self
+            elif self.getIfTrue().getParent(_ast) is not None:
+                return self.getIfTrue().getParent(_ast)
+            if self.getIfNot() is _ast:
+                return self
+            elif self.getIfNot().getParent(_ast) is not None:
+                return self.getIfNot().getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns the string representation of the expression.

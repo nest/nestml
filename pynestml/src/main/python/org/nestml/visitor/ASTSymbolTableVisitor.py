@@ -102,7 +102,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         for bodyElement in _body.getBodyElements():
             bodyElement.updateScope(_body.getScope())
             if isinstance(bodyElement, ASTBlockWithVariables.ASTBlockWithVariables):
-                cls.visitBlockWithVariable(bodyElement)
+                cls.visitBlockWithVariables(bodyElement)
             elif isinstance(bodyElement, ASTUpdateBlock.ASTUpdateBlock):
                 cls.visitUpdateBlock(bodyElement)
             elif isinstance(bodyElement, ASTEquationsBlock.ASTEquationsBlock):
@@ -291,7 +291,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         expression = _declaration.getExpr() if _declaration.hasExpression() else None
         typeName = ASTUnitTypeVisitor.visitDatatype(_declaration.getDataType())
         # all declarations in the state block are recordable
-        isRecordable = _declaration.isRecordable() or cls.__currentBlockType == BlockType.STATE
+        isRecordable = _declaration.isRecordable() or \
+                       cls.__currentBlockType == BlockType.STATE or cls.__currentBlockType == BlockType.INITIAL_VALUES
         initValue = _declaration.getExpr() if cls.__currentBlockType == BlockType.INITIAL_VALUES else None
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
@@ -647,7 +648,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         return
 
     @classmethod
-    def visitBlockWithVariable(cls, _block=None):
+    def visitBlockWithVariables(cls, _block=None):
         """
         Private method: Used to visit a single block of variables and update its scope.
         :param _block: a block with declared variables.
@@ -815,7 +816,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         diffOrder = _odeEquation.getLhs().getDifferentialOrder() - 1
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
         existingSymbol = cls.__globalScope.resolveToSymbol(_odeEquation.getLhs().getName() + '\'' * diffOrder,
-                                                               SymbolKind.VARIABLE)
+                                                           SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
             Logger.logMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),

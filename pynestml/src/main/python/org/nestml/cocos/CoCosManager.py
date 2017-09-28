@@ -40,6 +40,7 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoUserDefinedFunctionCorrectlyD
     CoCoUserDefinedFunctionCorrectlyDefined
 from pynestml.src.main.python.org.nestml.cocos.CoCoEquationsOnlyForInitValues import CoCoEquationsOnlyForInitValues
 from pynestml.src.main.python.org.nestml.cocos.CoCoConvolveCondCorrectlyBuilt import CoCoConvolveCondCorrectlyBuilt
+from pynestml.src.main.python.org.nestml.cocos.CoCoNoShapesExceptInConvolve import CoCoNoShapesExceptInConvolve
 
 
 class CoCosManager(object):
@@ -66,6 +67,7 @@ class CoCosManager(object):
     __returnStmtCorrect = None
     __equationsOnlyForInits = None
     __convolveCorrectlyBuilt = None
+    __noShapesExceptInConvolve = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -92,6 +94,7 @@ class CoCosManager(object):
         cls.__returnStmtCorrect = CoCoUserDefinedFunctionCorrectlyDefined.checkCoCo
         cls.__equationsOnlyForInits = CoCoEquationsOnlyForInitValues.checkCoCo
         cls.__convolveCorrectlyBuilt = CoCoConvolveCondCorrectlyBuilt.checkCoCo
+        cls.__noShapesExceptInConvolve = CoCoNoShapesExceptInConvolve.checkCoCo
         return
 
     @classmethod
@@ -344,13 +347,25 @@ class CoCosManager(object):
     @classmethod
     def checkConvolveCondCurrIsCorrect(cls, _neuron=None):
         """
-        Checks if all convle/curr_sum/cond_sum expression are correctly provided with arguments.
+        Checks if all convolve/curr_sum/cond_sum expression are correctly provided with arguments.
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__convolveCorrectlyBuilt(_neuron)
+        return
+
+    @classmethod
+    def checkCorrectUsageOfShapes(cls, _neuron=None):
+        """
+        Checks if all shapes are only used in cond_sum, cur_sum, convolve.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__noShapesExceptInConvolve(_neuron)
         return
 
     @classmethod
@@ -393,6 +408,7 @@ class CoCosManager(object):
         cls.checkUserDefinedFunctionCorrectlyBuilt(_neuron)
         cls.checkInitialOdeInitialValues(_neuron)
         cls.checkConvolveCondCurrIsCorrect(_neuron)
+        cls.checkCorrectUsageOfShapes(_neuron)
         return
 
     @classmethod

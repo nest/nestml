@@ -207,6 +207,26 @@ class ASTInputLine(ASTElement):
         """
         return self.__dataType
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.hasDatatype():
+            if self.getDatatype() is _ast:
+                return self
+            elif self.getDatatype().getParent(_ast) is not None:
+                return self.getDatatype().getParent(_ast)
+        for line in self.getInputTypes():
+            if line is _ast:
+                return self
+            elif line.getParent(_ast) is not None:
+                return line.getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns a string representation of the input line.

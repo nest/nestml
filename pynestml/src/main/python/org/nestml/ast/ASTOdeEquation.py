@@ -54,6 +54,7 @@ class ASTOdeEquation(ASTElement):
         super(ASTOdeEquation, self).__init__(_sourcePosition)
         self.__lhs = _lhs
         self.__rhs = _rhs
+        return
 
     @classmethod
     def makeASTOdeEquation(cls, _lhs=None, _rhs=None, _sourcePosition=None):
@@ -85,6 +86,24 @@ class ASTOdeEquation(ASTElement):
         :rtype: ASTExpression
         """
         return self.__rhs
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getLhs() is _ast:
+            return self
+        elif self.getLhs().getParent(_ast) is not None:
+            return self.getLhs().getParent(_ast)
+        if self.getRhs() is _ast:
+            return self
+        elif self.getRhs().getParent(_ast) is not None:
+            return self.getRhs().getParent(_ast)
+        return None
 
     def printAST(self):
         """

@@ -127,6 +127,31 @@ class ASTCompoundStmt(ASTElement):
         """
         return self.__forStmt
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.isIfStmt():
+            if self.getIfStmt() is _ast:
+                return self
+            elif self.getIfStmt().getParent(_ast) is not None:
+                return self.getIfStmt().getParent(_ast)
+        if self.isWhileStmt():
+            if self.getWhileStmt() is _ast:
+                return self
+            elif self.getWhileStmt().getParent(_ast) is not None:
+                return self.getWhileStmt().getParent(_ast)
+        if self.isForStmt():
+            if self.isForStmt() is _ast:
+                return self
+            elif self.isForStmt().getParent(_ast) is not None:
+                return self.isForStmt().getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns a string representation of the compound statement.

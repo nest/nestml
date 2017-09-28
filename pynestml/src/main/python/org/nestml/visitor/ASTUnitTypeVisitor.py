@@ -126,7 +126,6 @@ class ASTUnitTypeVisitor(object):
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
-        from pynestml.src.main.python.org.nestml.ast.ASTUnitType import ASTUnitType
         # first ensure that it does not already exists, if not create it and register it in the set of predefined units
         assert (_unitType is not None), \
             '(PyNestML.Visitor.UnitTypeVisitor) No unit-type provided (%s)!' % type(_unitType)

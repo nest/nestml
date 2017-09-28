@@ -114,6 +114,7 @@ class ASTUnitType(ASTElement):
         self.__isDiv = _isDiv
         self.__rhs = _rhs
         self.__unit = _unit
+        return
 
     @classmethod
     def makeASTUnitType(cls, _leftParentheses=False, _compoundUnit=None, _rightParentheses=False, _base=None,
@@ -246,6 +247,37 @@ class ASTUnitType(ASTElement):
         :rtype: ASTUnitType
         """
         return self.__compoundUnit
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.isEncapsulated():
+            if self.getCompoundUnit() is _ast:
+                return self
+            elif self.getCompoundUnit().getParent(_ast) is not None:
+                return self.getCompoundUnit().getParent(_ast)
+
+        if self.isPowerExpression():
+            if self.getBase() is _ast:
+                return self
+            elif self.getBase().getParent(_ast) is not None:
+                return self.getBase().getParent(_ast)
+        if self.isArithmeticExpression():
+            if isinstance(self.getLhs(), ASTUnitType):
+                if self.getLhs() is _ast:
+                    return self
+                elif self.getLhs().getParent(_ast) is not None:
+                    return self.getLhs().getParent(_ast)
+            if self.getRhs() is _ast:
+                return self
+            elif self.getRhs().getParent(_ast) is not None:
+                return self.getRhs().getParent(_ast)
+        return None
 
     def printAST(self):
         """

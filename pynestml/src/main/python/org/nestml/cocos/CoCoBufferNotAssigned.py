@@ -46,11 +46,11 @@ class CoCoBufferNotAssigned(CoCo):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__neuronName = _neuron.getName()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkAssignments)
+        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
         return
 
     @classmethod
-    def __checkAssignments(cls, _ast=None):
+    def __checkCoco(cls, _ast=None):
         """
         For a given node node of type assignment, it checks if the coco applies.
         :param _ast: a single ast node.

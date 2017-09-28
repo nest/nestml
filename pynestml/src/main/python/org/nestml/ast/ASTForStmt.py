@@ -27,7 +27,7 @@ class ASTForStmt(ASTElement):
     """
     This class is used to store a for-block.
     Grammar:
-        forStmt : 'for' var=NAME 'in' vrom=expression 
+        forStmt : 'for' var=NAME 'in' vrom=expression
                     '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
     """
     __variable = None
@@ -129,6 +129,28 @@ class ASTForStmt(ASTElement):
         :rtype: ASTBlock
         """
         return self.__block
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getFrom() is _ast:
+            return self
+        elif self.getFrom().getParent(_ast) is not None:
+            return self.getFrom().getParent(_ast)
+        if self.getTo() is _ast:
+            return self
+        elif self.getTo().getParent(_ast) is not None:
+            return self.getTo().getParent(_ast)
+        if self.getBlock() is _ast:
+            return self
+        elif self.getBlock().getParent(_ast) is not None:
+            return self.getBlock().getParent(_ast)
+        return None
 
     def printAST(self):
         """

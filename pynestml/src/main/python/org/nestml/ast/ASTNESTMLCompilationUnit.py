@@ -95,6 +95,21 @@ class ASTNESTMLCompilationUnit(ASTElement):
         """
         return self.__neuron_list
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for neuron in self.getNeuronList():
+            if neuron is _ast:
+                return self
+            elif neuron.getParent(_ast) is not None:
+                return neuron.getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns a string representation of the compilation unit.
