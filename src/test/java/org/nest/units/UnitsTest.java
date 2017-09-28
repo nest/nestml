@@ -141,13 +141,6 @@ public class UnitsTest extends ModelbasedTest {
 
     assertEquals(0, errorsFound);
 
-    //long warningsFound = Log.getFindings()
-    //    .stream()
-    //    .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
-    //    .count();
-
-    // TODO fails assertEquals(0, warningsFound);
-
     final Optional<ASTNESTMLCompilationUnit> invalidRoot = getAstRoot(
         "src/test/resources/org/nest/nestml/_cocos/invalid/unitsInODEs.nestml");
 
@@ -167,7 +160,7 @@ public class UnitsTest extends ModelbasedTest {
         .filter(finding -> finding.getType().equals(Finding.Type.WARNING))
         .count();
 
-    // TODO fails assertEquals(0, warningsFound);
+    // TODO: check me
   }
 
   @Test

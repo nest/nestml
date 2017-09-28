@@ -23,6 +23,7 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTEquation;
+import org.nest.nestml._ast.ASTShape;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import java.util.Optional;
@@ -34,7 +35,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  *
  * @author plotnikov
  */
-public class EquationsOnlyForStateVariables implements NESTMLASTEquationCoCo {
+public class EquationsOnlyForInitialValues implements NESTMLASTEquationCoCo, NESTMLASTShapeCoCo {
 
   @Override
   public void check(final ASTEquation astEq) {
@@ -62,4 +63,29 @@ public class EquationsOnlyForStateVariables implements NESTMLASTEquationCoCo {
 
   }
 
+  @Override
+  public void check(final ASTShape astShape) {
+    checkArgument(astShape.getEnclosingScope().isPresent(), "No scope was assigned. Please, run symboltable creator.");
+    final Scope scope = astShape.getEnclosingScope().get();
+
+    if (astShape.getLhs().getDifferentialOrder().size() > 0) {
+      final Optional<VariableSymbol> variableSymbol = scope.resolve(astShape.getLhs().getSimpleName(), VariableSymbol.KIND);
+      if (variableSymbol.isPresent()) {
+        if (!variableSymbol.get().isInInitialValues()) {
+          final String msg = NestmlErrorStrings.message(this,variableSymbol.get().getName());
+
+          Log.error(msg, astShape.get_SourcePositionStart());
+        }
+      }
+      else {
+        final String msg = NestmlErrorStrings.getErrorMsgVariableNotDefined(this, astShape.getLhs().getSimpleName());
+        Log.error(msg, astShape.get_SourcePositionStart());
+      }
+
+    }
+    else {
+      Log.trace("The lefthandside of an equation must be a derivative, e.g. " + astShape.getLhs().toString() + "'", this.getClass().getSimpleName());
+    }
+
+  }
 }

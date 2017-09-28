@@ -305,7 +305,7 @@ public class ASTNeuron extends ASTNeuronTOP {
   }
 
   public void addToStateBlock(final ASTDeclaration astDeclaration) {
-    if (!this.getInternalBlock().isPresent()) {
+    if (!this.getStateBlock().isPresent()) {
       final ASTBlockWithVariables stateBlock = AstCreator.createStateBlock();
       getBlockWithVariabless().add(stateBlock);
     }

@@ -160,8 +160,9 @@ public class NestmlCoCosManager {
     final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
     nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);
 
-    final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
-    nestmlCoCoChecker.addCoCo(equationsOnlyForStateVariables);
+    final EquationsOnlyForInitialValues equationsOnlyForInitialValues = new EquationsOnlyForInitialValues();
+    nestmlCoCoChecker.addCoCo((NESTMLASTEquationCoCo) equationsOnlyForInitialValues);
+    nestmlCoCoChecker.addCoCo((NESTMLASTShapeCoCo) equationsOnlyForInitialValues);
 
     final DerivativeOrderAtLeastOne derivativeOrderAtLeastOne = new DerivativeOrderAtLeastOne();
     nestmlCoCoChecker.addCoCo(derivativeOrderAtLeastOne);

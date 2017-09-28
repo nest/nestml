@@ -1,7 +1,7 @@
 neuron iaf_psc_alpha_neuron:
 
-  state:
-    V_abs mV
+  initial_values:
+    V_abs mV = 0mV
     function V_m mV = V_abs + E_L # Membrane potential.
   end
 

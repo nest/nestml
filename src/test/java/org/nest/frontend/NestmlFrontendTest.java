@@ -127,7 +127,7 @@ public class NestmlFrontendTest {
   @Test
   public void manually() {
     final String[] args = new String[] {
-        "models/mat2_psc_exp.nestml",
+        "models/terub_neuron_stn.nestml",
         "--json_log", "model_issues",
         "--enable_tracing",
         "--target", outputPath.toString()};

@@ -55,11 +55,6 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     assertTrue(pscInitialValue.isPresent());
     assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
 
-
-    final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("iv__I_shape_in__0");
-    assertTrue(y2.isPresent());
-    assertTrue(y2.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
-
   }
 
   @Test

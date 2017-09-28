@@ -2,16 +2,16 @@ neuron iaf_neuron_ode:
 
   state:
     V_m mV
+    G real
   end
 
   equations:
-      G' = e * t
+      shape G' = e * t
       Tau' = -1/Tau * V_m + 1/C_m
   end
 
   parameters:
     C_m     pF = 250pF # Capacity of the membrane
     Tau     ms = 10 # Membrane time constant.
-    G ms
   end
 end

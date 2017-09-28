@@ -39,14 +39,16 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author: Martin Ebert
 */
 neuron terub_neuron_stn:
-
   state:
-    V_m mV = E_L #  Membrane potential
-    gate_h     real # gating variable h
-    gate_n     real # gating variable n
-    gate_r     real # gating variable r
-    Ca_con     real # gating variable r
     r integer # counts number of tick during the refractory period
+  end
+
+  initial_values:
+    V_m mV = E_L #  Membrane potential
+    gate_h real = 0 # gating variable h
+    gate_n real = 0 # gating variable n
+    gate_r real = 0 # gating variable r
+    Ca_con real = 0 # gating variable r
   end
 
   equations:
@@ -155,8 +157,6 @@ neuron terub_neuron_stn:
   end
 
   internals:
-    PSCurrInit_E real = ms * e / tau_syn_ex
-    PSCurrInit_I real = ms * e / tau_syn_in
     refractory_counts integer = steps(t_ref)
   end
 
@@ -225,20 +225,22 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author: Martin Ebert
 */
 neuron terub_neuron_stn_implicit:
-
   state:
+    r integer # counts number of tick during the refractory period
+  end
+
+  initial_values:
     V_m mV = E_L #  Membrane potential
 
     g_in pA = 0pA # Inhibitory synaptic conductance
-    g_in' pA/ms = 0pA/ms # Inhibitory synaptic conductance
+    g_in' pA/ms = pA * e / tau_syn_in # Inhibitory synaptic conductance
     g_ex pA = 0pA # Excitatory synaptic conductance
-    g_ex' pA/ms = 0pA/ms # Excitatory synaptic conductance
+    g_ex' pA/ms = pA * e / tau_syn_ex # Excitatory synaptic conductance
 
     gate_h     real # gating variable h
     gate_n     real # gating variable n
     gate_r     real # gating variable r
     Ca_con     real # gating variable r
-    r integer # counts number of tick during the refractory period
   end
 
   equations:
@@ -350,8 +352,6 @@ neuron terub_neuron_stn_implicit:
   end
 
   internals:
-    PSCurrInit_E real = ms * e / tau_syn_ex
-    PSCurrInit_I real = ms * e / tau_syn_in
     refractory_counts integer = steps(t_ref)
   end
 
@@ -375,8 +375,6 @@ neuron terub_neuron_stn_implicit:
       emit_spike()
     end
 
-    g_ex' += spikeExc * PSCurrInit_E * pA/ms
-    g_in' += spikeInh * PSCurrInit_I * pA/ms
   end
 
 end

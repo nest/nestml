@@ -43,8 +43,7 @@ class ExactSolutionTransformer {
         computeShapeStateVariablesWithInitialValues(solverOutput);
 
     // copy initial block variables to the state block, since they are not backed through an ODE.
-    astNeuron.getInitialValuesDeclarations()
-        .forEach(astNeuron::addToStateBlock);
+    astNeuron.getInitialValuesDeclarations().forEach(astNeuron::addToStateBlock);
 
     workingVersion = addVariablesToInitialValues(workingVersion, stateShapeVariablesWithInitialValues);
     addStateUpdates(solverOutput, workingVersion);

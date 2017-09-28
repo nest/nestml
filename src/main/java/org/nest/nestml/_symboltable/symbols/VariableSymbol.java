@@ -176,6 +176,10 @@ public class VariableSymbol extends CommonSymbol {
     this.arraySizeParameter = arraySizeParameter;
   }
 
+  public boolean isFunctionalShape() {
+    return variableType == VariableType.SHAPE && !getName().contains("'");
+  }
+
   public boolean isState() {
     return blockType == BlockType.STATE;
   }
