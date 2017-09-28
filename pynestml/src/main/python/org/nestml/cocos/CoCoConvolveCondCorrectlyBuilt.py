@@ -63,9 +63,9 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
             funcName = _ast.getName()
             symbolVar = _ast.getScope().resolveToSymbol(_ast.getArgs()[0].printAST(), SymbolKind.VARIABLE)
             symbolBuffer = _ast.getScope().resolveToSymbol(_ast.getArgs()[1].printAST(), SymbolKind.VARIABLE)
-            if symbolVar is not None and not symbolVar.isShape():
+            if symbolVar is not None and not symbolVar.isShape() and not symbolVar.isInitValues():
                 Logger.logMessage(
-                    '[' + cls.__neuronName + '.nestml] First argument of %s at %s not a shape!'
+                    '[' + cls.__neuronName + '.nestml] First argument of %s at %s not a shape or equation!'
                     % (funcName, _ast.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
             if symbolBuffer is not None and not symbolBuffer.isInputBufferSpike():

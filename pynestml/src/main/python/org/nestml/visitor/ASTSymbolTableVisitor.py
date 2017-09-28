@@ -292,6 +292,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         typeName = ASTUnitTypeVisitor.visitDatatype(_declaration.getDataType())
         # all declarations in the state block are recordable
         isRecordable = _declaration.isRecordable() or cls.__currentBlockType == BlockType.STATE
+        initValue = _declaration.getExpr() if cls.__currentBlockType == BlockType.INITIAL_VALUES else None
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
             typeSymbol = PredefinedTypes.getTypeIfExists(typeName)
@@ -302,7 +303,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                              _declaringExpression=expression, _isPredefined=False,
                                                              _isFunction=_declaration.isFunction(),
                                                              _isRecordable=isRecordable,
-                                                             _typeSymbol=typeSymbol
+                                                             _typeSymbol=typeSymbol,
+                                                             _initialValue=initValue
                                                              ))
             var.setTypeSymbol(typeSymbol)
             cls.visitVariable(var)
@@ -812,7 +814,6 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
         diffOrder = _odeEquation.getLhs().getDifferentialOrder() - 1
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-        name = _odeEquation.getLhs().getName() + '\'' * diffOrder
         existingSymbol = cls.__globalScope.resolveToSymbol(_odeEquation.getLhs().getName() + '\'' * diffOrder,
                                                                SymbolKind.VARIABLE)
         if existingSymbol is not None:
