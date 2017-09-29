@@ -4,7 +4,7 @@
 */
 neuron rc_fire:
 
-  state:
+  initial_values:
     V_m mV = E_L
   end
 

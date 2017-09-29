@@ -5,8 +5,11 @@
 neuron rc_input:
 
   state:
-    V_m mV = E_L
     refractory_counts integer = 0
+  end
+
+  initial_values:
+    V_m mV = E_L
   end
 
   equations:

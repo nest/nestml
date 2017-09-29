@@ -3,7 +3,9 @@
 */
 neuron rc_neuron_rel:
 
-
+  initial_values:
+    V_m mV = E_L
+  end
 
   equations:
     V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
@@ -16,9 +18,6 @@ neuron rc_neuron_rel:
     I_syn pA = 10pA
   end
 
-  state:
-    V_m mV = E_L
-  end
 
   input:
     spikes   <- spike

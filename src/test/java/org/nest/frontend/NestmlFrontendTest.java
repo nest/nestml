@@ -107,7 +107,7 @@ public class NestmlFrontendTest {
   @Test
   public void testModelsFolder() {
     final String[] args = new String[] {
-        "models/",
+        "models",
         "--json_log", "model_issues",
         "--target", outputPath.toString()};
 
@@ -124,14 +124,4 @@ public class NestmlFrontendTest {
     new NestmlFrontend().start(args);
   }
 
-  @Test
-  public void manually() {
-    final String[] args = new String[] {
-        "models/terub_neuron_stn.nestml",
-        "--json_log", "model_issues",
-        "--enable_tracing",
-        "--target", outputPath.toString()};
-
-    new NestmlFrontend().start(args);
-  }
 }
