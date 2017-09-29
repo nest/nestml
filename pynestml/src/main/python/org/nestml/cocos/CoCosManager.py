@@ -43,7 +43,8 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoConvolveCondCorrectlyBuilt im
 from pynestml.src.main.python.org.nestml.cocos.CoCoNoShapesExceptInConvolve import CoCoNoShapesExceptInConvolve
 from pynestml.src.main.python.org.nestml.cocos.CoCoNoTwoNeuronsInSetOfCompilationUnits import \
     CoCoNoTwoNeuronsInSetOfCompilationUnits
-from pynestml.src.main.python.org.nestml.ast.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.src.main.python.org.nestml.cocos.CoCoInvariantIsBoolean import CoCoInvariantIsBoolean
+
 
 class CoCosManager(object):
     """
@@ -71,6 +72,7 @@ class CoCosManager(object):
     __convolveCorrectlyBuilt = None
     __noShapesExceptInConvolve = None
     __noCollisionAcrossUnits = None
+    __invariantCorrectlyTyped = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -99,6 +101,7 @@ class CoCosManager(object):
         cls.__convolveCorrectlyBuilt = CoCoConvolveCondCorrectlyBuilt.checkCoCo
         cls.__noShapesExceptInConvolve = CoCoNoShapesExceptInConvolve.checkCoCo
         cls.__noCollisionAcrossUnits = CoCoNoTwoNeuronsInSetOfCompilationUnits.checkCoCo
+        cls.__invariantCorrectlyTyped = CoCoInvariantIsBoolean.checkCoCo
         return
 
     @classmethod
@@ -385,6 +388,18 @@ class CoCosManager(object):
         return
 
     @classmethod
+    def checkInvariantTypeCorrect(cls, _neuron=None):
+        """
+        Checks if all invariants are of type boolean
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__invariantCorrectlyTyped(_neuron)
+        return
+
+    @classmethod
     def postSymbolTableBuilderChecks(cls, _neuron=None):
         """
         Checks the following constraints:
@@ -404,6 +419,7 @@ class CoCosManager(object):
             cls.checkBufferTypesAreCorrect(_neuron)
             cls.checkUsedDefinedFunctionCorrectlyBuilt(_neuron)
             cls.checkInitialOdeInitialValues(_neuron)
+            cls.checkInvariantTypeCorrect(_neuron)
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
@@ -425,6 +441,7 @@ class CoCosManager(object):
         cls.checkInitialOdeInitialValues(_neuron)
         cls.checkConvolveCondCurrIsCorrect(_neuron)
         cls.checkCorrectUsageOfShapes(_neuron)
+        cls.checkInvariantTypeCorrect(_neuron)
         return
 
     @classmethod

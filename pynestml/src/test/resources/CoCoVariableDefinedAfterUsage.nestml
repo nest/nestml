@@ -30,7 +30,7 @@ neuron CoCoVariableDefinedAfterUsage:
     end
 
     state:
-        test1 mV = 10mV
+        test1 mV = 10mV [[test1 < 10mV]]
         test2 integer = test1
     end
 
