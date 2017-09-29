@@ -1,6 +1,44 @@
+#
+# ExpressionTypeVisitor.py
+#
+# This file is part of NEST.
+#
+# Copyright (C) 2004 The NEST Initiative
+#
+# NEST is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# NEST is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
+
 from pynestml.src.main.python.org.nestml.ast import ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, \
     ASTLogicalOperator
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.BinaryLogicVisitor import BinaryLogicVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.BooleanLiteralVisitor import BooleanLiteralVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.ComparisonOperatorVisitor import \
+    ComparisonOperatorVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.ConditionVisitor import ConditionVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.DotOperatorVisitor import DotOperatorVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.FunctionCallVisitor import FunctionCallVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.InfVisitor import InfVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.LineOperationVisitor import LineOperatorVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.LogicalNotVisitor import LogicalNotVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.NoSemantics import NoSemantics
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.NumericLiteralVisitor import NumericLiteralVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.ParenthesesVisitor import ParenthesesVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.PowVisitor import PowVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.StringLiteralVisitor import StringLiteralVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.UnaryVisitor import UnaryVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.VariableVisitor import VariableVisitor
 
 
 class ExpressionTypeVisitor(NESTMLVisitor):
@@ -18,7 +56,7 @@ class ExpressionTypeVisitor(NESTMLVisitor):
     __booleanLiteralVisitor = BooleanLiteralVisitor()
     __numericLiteralVisitor = NumericLiteralVisitor()
     __stringLiteralVisitor = StringLiteralVisitor()
-    __variableVisitor = new VariableVisitor()
+    __variableVisitor = VariableVisitor()
     __infVisitor = InfVisitor()
 
     def handle(self,_node):
@@ -30,9 +68,9 @@ class ExpressionTypeVisitor(NESTMLVisitor):
 
     def traverseExpression(self, _node):
         #Expr = unaryOperator term=expression
-        if _node.getTerm() is not None and _node.getUnaryOperator() is not None:
-            _node.getTerm().accept(self)
-            self.setRealThis(self.__unaryVisitor)
+        if _node.getExpression() is not None and _node.getUnaryOperator() is not None:
+            _node.getExpression().accept(self)
+            self.setRealSelf(self.__unaryVisitor)
             return
 
         #Parentheses and logicalNot
@@ -100,6 +138,11 @@ class ExpressionTypeVisitor(NESTMLVisitor):
             if simpEx.getFunctionCall() is not None:
                 self.setRealSelf(self.__functionCallVisitor)
                 return
+            # simpleExpression =  (INTEGER|FLOAT) (variable)?
+            if simpEx.getNumericLiteral() is not None or \
+                    (simpEx.getNumericLiteral() is not None and simpEx.getVariable() is not None):
+                self.setRealSelf(self.__numericLiteralVisitor)
+                return
             #simpleExpression =  variable
             if simpEx.getVariable() is not None:
                 self.setRealSelf(self.__variableVisitor)
@@ -115,9 +158,4 @@ class ExpressionTypeVisitor(NESTMLVisitor):
             #simpleExpression = string=STRING_LITERAL
             if simpEx.isString():
                 self.setRealSelf(self.__stringLiteralVisitor)
-                return
-            #simpleExpression =  (INTEGER|FLOAT) (variable)?
-            if simpEx.getNumericLiteral() is not None or \
-                    (simpEx.getNumericLiteral() is not None and simpEx.getVariable() is not None):
-                self.setRealSelf(self.__numericLiteralVisitor)
                 return

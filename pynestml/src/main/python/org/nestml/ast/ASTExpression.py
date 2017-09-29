@@ -26,6 +26,7 @@ from pynestml.src.main.python.org.nestml.ast.ASTBitOperator import ASTBitOperato
 from pynestml.src.main.python.org.nestml.ast.ASTLogicalOperator import ASTLogicalOperator
 from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.Either import Either
 
 
 class ASTExpression(ASTElement):
@@ -61,7 +62,7 @@ class ASTExpression(ASTElement):
     __ifTrue = None
     __ifNot = None
     # the corresponding type symbol.
-    __typeSymbol = None
+    __typeEither = None
 
     def __init__(self, _hasLeftParentheses=False, _hasRightParentheses=False, _unaryOperator=None, _isLogicalNot=False,
                  _expression=None, _lhs=None, _binaryOperator=None, _rhs=None, _condition=None, _ifTrue=None,
@@ -404,24 +405,30 @@ class ASTExpression(ASTElement):
             ret.extend(self.getIfNot().getFunctions())
         return ret
 
-    def getTypeSymbol(self):
+    def getTypeEither(self):
         """
-        Returns the type symbol of this expression.
-        :return: a single type symbol.
-        :rtype: TypeSymbol
+        Returns an Either object holding either the type symbol of
+        this expression or the corresponding error message
+        If it does not exist, run the ExpressionTypeVisitor on it to calculate it
+        :return: Either a valid type or an error message
+        :rtype: Either
         """
-        return self.__typeSymbol
+        if self.__typeEither is None:
+            from pynestml.src.main.python.org.nestml.visitor.expression_visitor.ExpressionTypeVisitor import \
+                ExpressionTypeVisitor
+            self.accept(ExpressionTypeVisitor())
+        return self.__typeEither
 
-    def setTypeSymbol(self, _typeSymbol=None):
+    def setTypeEither(self, _typeEither=None):
         """
         Updates the current type symbol to the handed over one.
-        :param _typeSymbol: a single type symbol object.
-        :type _typeSymbol: TypeSymbol
+        :param _typeEither: a single type symbol object.
+        :type _typeEither: TypeSymbol
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
-        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
-            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
-        self.__typeSymbol = _typeSymbol
+        assert (_typeEither is not None and isinstance(_typeEither, Either)), \
+            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
+        self.__typeEither = _typeEither
 
     def printAST(self):
         """
