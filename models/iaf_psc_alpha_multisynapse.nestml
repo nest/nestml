@@ -38,7 +38,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
 
   equations:
       shape I_shape = pA * (e/tau_syn) * t * exp(-1/tau_syn*t)
-      V_abs' = -1/tau_m * V_abs + 1/C_m * (curr_sum(I_shape, spikes) + I_e + currents)
+      V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(I_shape, spikes) + I_e + currents)
   end
 
   parameters:
@@ -58,7 +58,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
   end
 
   input:
-    spikes[receptors]   <- spike
+    spikes[receptors] pA <- spike
     currents <- current
   end
 

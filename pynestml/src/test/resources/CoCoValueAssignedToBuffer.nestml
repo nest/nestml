@@ -27,7 +27,7 @@
 
 neuron CoCoValueAssignedToBuffer:
     input:
-        spikeInh   <- inhibitory spike
+        spikeInh integer <- inhibitory spike
     end
 
     output: spike

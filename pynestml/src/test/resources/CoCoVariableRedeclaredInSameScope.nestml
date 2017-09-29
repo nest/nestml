@@ -31,4 +31,11 @@ neuron CoCoVariableRedeclaredInSameScope:
     parameters:
         test1 void = 11
     end
+
+    input:
+        # required for correct construction of the ast
+    end
+
+    output: spike
+
 end

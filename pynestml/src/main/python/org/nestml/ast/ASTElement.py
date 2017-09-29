@@ -20,7 +20,6 @@
 from abc import ABCMeta
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
-from pynestml.src.main.python.org.nestml.visitor import NESTMLVisitor
 
 
 class ASTElement(object):
@@ -41,9 +40,9 @@ class ASTElement(object):
         :type _scope: Scope
         """
         assert (_sourcePosition is None or isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.AST.Element) No source position handed over!'
+            '(PyNestML.AST.Element) No source position provided (%s)!' % type(_sourcePosition)
         assert (_scope is None or isinstance(_scope, Scope)), \
-            '(PyNestML.AST.Element) Wrong type of scope handed over!'
+            '(PyNestML.AST.Element) Wrong type of scope provided (%s)!' % type(_scope)
         self.__sourcePosition = _sourcePosition
         self.__scope = _scope
 
@@ -77,12 +76,14 @@ class ASTElement(object):
         self.__scope = _scope
         return
 
-    def accept(self, _visitor):
+    def accept(self, _visitor=None):
         """
         Double dispatch for visitor pattern.
         :param _visitor: A visitor.
-        :type _visitor: Inherited from NESTMLVisitor
+        :type _visitor: Inherited from NESTMLVisitor.
         """
-        assert isinstance(_visitor, NESTMLVisitor)
+        from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
+        assert (_visitor is not None and isinstance(_visitor, NESTMLVisitor)), \
+            '(PyNestML.AST.Element) No or wrong type of visitor provided (%s)!' % type(_visitor)
         _visitor.handle(self)
         return

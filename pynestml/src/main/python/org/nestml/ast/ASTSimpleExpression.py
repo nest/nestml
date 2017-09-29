@@ -22,6 +22,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
 from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.Either import Either
 
 
 class ASTSimpleExpression(ASTElement):
@@ -42,6 +43,7 @@ class ASTSimpleExpression(ASTElement):
     __isBooleanFalse = False
     __isInf = False
     __string = None
+    __typeEither = None
 
     def __init__(self, _functionCall=None, _booleanLiteral=None, _numericLiteral=None, _isInf=False,
                  _variable=None, _string=None, _sourcePosition=None):
@@ -117,6 +119,33 @@ class ASTSimpleExpression(ASTElement):
         :rtype: bool
         """
         return self.__functionCall is not None
+
+    #TODO: this should really be in a common base class to ASTExpression and ASTSimpleExpression
+    def getTypeEither(self):
+        """
+        Returns an Either object holding either the type symbol of
+        this expression or the corresponding error message
+        If it does not exist, run the ExpressionTypeVisitor on it to calculate it
+        :return: Either a valid type or an error message
+        :rtype: Either
+        """
+        if self.__typeEither is None:
+            from pynestml.src.main.python.org.nestml.visitor.expression_visitor.ExpressionTypeVisitor import \
+                ExpressionTypeVisitor
+            self.accept(ExpressionTypeVisitor())
+        return self.__typeEither
+
+    #TODO: this should really be in a common base class to ASTExpression and ASTSimpleExpression
+    def setTypeEither(self, _typeEither=None):
+        """
+        Updates the current type symbol to the handed over one.
+        :param _typeEither: a single type symbol object.
+        :type _typeEither: TypeSymbol
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+        assert (_typeEither is not None and isinstance(_typeEither, Either)), \
+            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
+        self.__typeEither = _typeEither
 
     def getFunctionCall(self):
         """

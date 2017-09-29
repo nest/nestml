@@ -37,7 +37,7 @@ class CoCoAllVariablesDefined(CoCo):
     def checkCoCo(cls, _neuron=None):
         """
         Checks if this coco applies for the handed over neuron. Models which use not defined elements are not 
-        correct, thus an exception is generated. Caution: This 
+        correct.
         :param _neuron: a single neuron instance.
         :type _neuron: ASTNeuron
         """

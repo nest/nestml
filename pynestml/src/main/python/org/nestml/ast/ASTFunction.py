@@ -164,13 +164,14 @@ class ASTFunction(ASTElement):
 
     def printAST(self):
         """
-        Returns a string representation of the function defintion.
+        Returns a string representation of the function definition.
         :return: a string representation.
         :rtype: str
         """
         ret = 'function ' + self.getName() + '('
         if self.hasParameters():
-            ret += self.getParameters().printAST()
+            for par in self.getParameters():
+                ret += par.printAST()
         ret += ')'
         if self.hasReturnType():
             ret += self.getReturnType().printAST()

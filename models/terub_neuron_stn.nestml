@@ -95,15 +95,15 @@ neuron terub_neuron_stn:
     function k_Ca real = 22.5
     function k1 real = 15.0
 
-    function I_ex_mod pA = -curr_sum(g_ex,spikeExc)*V_m
-    function I_in_mod pA = curr_sum(g_in, spikeInh) * (V_m-E_gs)
+    function I_ex_mod pA = -convolve(g_ex,spikeExc)*V_m
+    function I_in_mod pA = convolve(g_in, spikeInh) * (V_m-E_gs)
 
     function tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
     function tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
     function tau_r mV = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
 
     function a_inf real = 1. / (1. +exp(-(V_m-theta_a)/sigma_a))
-    function h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h))
+    function h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h));
     function m_inf real = 1. / (1. + exp(-(V_m-theta_m)/sigma_m))
     function n_inf real = 1. / (1. + exp(-(V_m-theta_n)/sigma_n))
     function r_inf real = 1. / (1. + exp(-(V_m-theta_r)/sigma_r))
@@ -161,8 +161,8 @@ neuron terub_neuron_stn:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh pA <- inhibitory spike
+      spikeExc pA <- excitatory spike
       currents <- current
   end
 
@@ -287,15 +287,15 @@ neuron terub_neuron_stn_implicit:
     function k_Ca real = 22.5
     function k1 real = 15.0
 
-    function I_ex_mod pA = -curr_sum(g_ex,spikeExc)*V_m
-    function I_in_mod pA = curr_sum(g_in, spikeInh) * (V_m-E_gs)
+    function I_ex_mod pA = -convolve(g_ex,spikeExc)*V_m
+    function I_in_mod pA = convolve(g_in, spikeInh) * (V_m-E_gs)
 
     function tau_n mV = tau_n_0 + tau_n_1 / (1. + exp(-(V_m-theta_n_tau)/sigma_n_tau))
     function tau_h mV = tau_h_0 + tau_h_1 / (1. + exp(-(V_m-theta_h_tau)/sigma_h_tau))
     function tau_r mV = tau_r_0 + tau_r_1 / (1. + exp(-(V_m-theta_r_tau)/sigma_r_tau))
 
     function a_inf real = 1. / (1. +exp(-(V_m-theta_a)/sigma_a))
-    function h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h))
+    function h_inf real = 1. / (1. + exp(-(V_m-theta_h)/sigma_h));
     function m_inf real = 1. / (1. + exp(-(V_m-theta_m)/sigma_m))
     function n_inf real = 1. / (1. + exp(-(V_m-theta_n)/sigma_n))
     function r_inf real = 1. / (1. + exp(-(V_m-theta_r)/sigma_r))
@@ -350,14 +350,14 @@ neuron terub_neuron_stn_implicit:
   end
 
   internals:
-    PSCurrInit_E real = ms * e / tau_syn_ex
-    PSCurrInit_I real = ms * e / tau_syn_in
+    PSCurrInit_E 1/ms = e / tau_syn_ex
+    PSCurrInit_I 1/ms = e / tau_syn_in
     refractory_counts integer = steps(t_ref)
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh pA <- inhibitory spike
+      spikeExc pA <- excitatory spike
       currents <- current
   end
 
@@ -375,8 +375,8 @@ neuron terub_neuron_stn_implicit:
       emit_spike()
     end
 
-    g_ex' += spikeExc * PSCurrInit_E * pA/ms
-    g_in' += spikeInh * PSCurrInit_I * pA/ms
+    g_ex' += spikeExc * PSCurrInit_E
+    g_in' += spikeInh * PSCurrInit_I
   end
 
 end

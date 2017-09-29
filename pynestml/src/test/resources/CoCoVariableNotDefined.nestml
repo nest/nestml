@@ -30,7 +30,7 @@ neuron CoCoVariableNotDefined:
     end
 
     input:
-
+        # required for correct construction of the ast
     end
 
     output: spike

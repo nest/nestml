@@ -21,6 +21,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.Scope import Scope
 from pynestml.src.main.python.org.nestml.symbol_table.Scope import ScopeType
 from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.Either import Either
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.FunctionSymbol import FunctionSymbol
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
@@ -303,7 +304,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                              _isRecordable=isRecordable,
                                                              _typeSymbol=typeSymbol
                                                              ))
-            var.setTypeSymbol(typeSymbol)
+            var.setTypeEither(Either.value(typeSymbol))
             cls.visitVariable(var)
         _declaration.getDataType().updateScope(_declaration.getScope())
         cls.visitDataType(_declaration.getDataType())
@@ -474,6 +475,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         if _expr.isSimpleExpression():
             _expr.getExpression().updateScope(_expr.getScope())
             cls.visitSimpleExpression(_expr.getExpression())
+        if _expr.isLogicalNot():
+            _expr.getExpression().updateScope(_expr.getScope())
+            cls.visitExpression(_expr.getExpression())
         if _expr.isUnaryOperator():
             _expr.getUnaryOperator().updateScope(_expr.getScope())
             cls.visitUnaryOperator(_expr.getUnaryOperator())
@@ -821,7 +825,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                            _declaringExpression=_odeEquation.getRhs(),
                                            _isPredefined=False, _isFunction=False, _isRecordable=False,
                                            _typeSymbol=PredefinedTypes.
-                                           getTypeIfExists(baseSymbol.getTypeSymbol().printSymbol()))  # todo
+                                           getTypeIfExists(baseSymbol.getType().getValue().printSymbol()))  # todo
                 cls.__globalScope.addSymbol(newSymbol)
                 Logger.logMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
                                   LOGGING_LEVEL.ALL)

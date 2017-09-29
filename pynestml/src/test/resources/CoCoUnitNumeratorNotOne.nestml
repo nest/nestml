@@ -25,7 +25,7 @@
 */
 neuron CoCoUnitNumeratorNotOne:
     state:
-        test1 2/s = 10 / s # case 1: variable set to value as currently declared
+        test1 2/s = 10 / s
     end
 
     update:
