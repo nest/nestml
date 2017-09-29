@@ -31,10 +31,17 @@ class VariableVisitor(NESTMLVisitor):
     def visitSimpleExpression(self, _expr=None):
         assert _expr.getScope() is not None, "Run symboltable creator."
 
-        scope = _expr.getScope
+        scope = _expr.getScope()
 
-        varName = _expr.getVariable().getName
+        varName = _expr.getVariable().getName()
         varResolve = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
 
         _expr.setTypeEither(Either.value(varResolve.getTypeSymbol()))
+        return
+
+    def visitExpression(self, _expr=None):
+        if _expr.isSimpleExpression():
+            simpEx = _expr.getExpression()
+            self.visitSimpleExpression(simpEx)
+            _expr.setTypeEither(simpEx.getTypeEither())
         return

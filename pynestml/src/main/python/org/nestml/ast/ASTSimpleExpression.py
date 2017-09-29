@@ -148,6 +148,7 @@ class ASTSimpleExpression(ASTElement):
         assert (_typeEither is not None and isinstance(_typeEither, Either)), \
             '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
         self.__typeEither = _typeEither
+        return
 
     def getFunctionCall(self):
         """

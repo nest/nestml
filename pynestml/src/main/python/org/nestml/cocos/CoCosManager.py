@@ -41,6 +41,8 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoUserDefinedFunctionCorrectlyD
 from pynestml.src.main.python.org.nestml.cocos.CoCoEquationsOnlyForInitValues import CoCoEquationsOnlyForInitValues
 from pynestml.src.main.python.org.nestml.cocos.CoCoConvolveCondCorrectlyBuilt import CoCoConvolveCondCorrectlyBuilt
 from pynestml.src.main.python.org.nestml.cocos.CoCoNoShapesExceptInConvolve import CoCoNoShapesExceptInConvolve
+from pynestml.src.main.python.org.nestml.cocos.CoCoNoTwoNeuronsInSetOfCompilationUnits import \
+    CoCoNoTwoNeuronsInSetOfCompilationUnits
 
 
 class CoCosManager(object):
@@ -68,6 +70,7 @@ class CoCosManager(object):
     __equationsOnlyForInits = None
     __convolveCorrectlyBuilt = None
     __noShapesExceptInConvolve = None
+    __noCollisionAcrossUnits = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -95,6 +98,7 @@ class CoCosManager(object):
         cls.__equationsOnlyForInits = CoCoEquationsOnlyForInitValues.checkCoCo
         cls.__convolveCorrectlyBuilt = CoCoConvolveCondCorrectlyBuilt.checkCoCo
         cls.__noShapesExceptInConvolve = CoCoNoShapesExceptInConvolve.checkCoCo
+        cls.__noCollisionAcrossUnits = CoCoNoTwoNeuronsInSetOfCompilationUnits.checkCoCo
         return
 
     @classmethod
@@ -366,6 +370,18 @@ class CoCosManager(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__noShapesExceptInConvolve(_neuron)
+        return
+
+    @classmethod
+    def checkNotTwoNeuronsAcrossUnits(cls, _neuron=None):
+        """
+        Checks if in a set of compilation units, two neurons have the same name.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__noCollisionAcrossUnits(_neuron)
         return
 
     @classmethod

@@ -84,7 +84,8 @@ class VariableSymbol(Symbol):
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of vector parameter provided (%s)!' % type(
                 _vectorParameter)
         from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
-        assert (_declaringExpression is None or isinstance(_declaringExpression, ASTExpression)), \
+        assert (_declaringExpression is None or isinstance(_declaringExpression, ASTExpression)
+                or isinstance(_declaringExpression, ASTSimpleExpression)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of declaring expression provided (%s)!' % type(
                 _declaringExpression)
         assert (_isPredefined is not None and isinstance(_isPredefined, bool)), \
@@ -349,8 +350,10 @@ class VariableSymbol(Symbol):
         :param _expression: a single expression object.
         :type _expression: ASTExpression
         """
-        assert (_expression is not None and isinstance(_expression, ASTExpression)), \
-            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of expression provided (%s)!' % type(_expression)
+        assert (_expression is not None and (isinstance(_expression, ASTExpression) or
+                                             isinstance(_expression, ASTSimpleExpression))), \
+                '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of expression provided (%s)!' % type(
+                    _expression)
         self.__odeDeclaration = _expression
         return
 

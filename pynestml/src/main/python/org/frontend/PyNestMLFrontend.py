@@ -29,12 +29,13 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunct
     PredefinedFunctions
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import \
     PredefinedVariables
+from pynestml.src.main.python.org.codegeneration.NestCodeGenerator import NestCodeGenerator
 
 
 def main(args):
     configuration = None
     try:
-        configuration = FrontendConfiguration.config(args)
+        FrontendConfiguration.config(args)
     except InvalidPathException:
         print('Invalid path provided (%s)!' % configuration.getPath())
     # The handed over parameters seem to be correct, proceed with the main routine
@@ -44,8 +45,18 @@ def main(args):
     PredefinedFunctions.registerPredefinedFunctions()
     PredefinedVariables.registerPredefinedVariables()
     # now proceed to parse all models
+    compilationUnits = list()
     for file in FrontendConfiguration.getFiles():
-        NESTMLParser.parseModel(file)
+        parsedUnit = NESTMLParser.parseModel(file)
+        if parsedUnit is not None:
+            compilationUnits.append(parsedUnit)
+    # and generate them
+    if not FrontendConfiguration.isDryRun():
+        nestGenerator = NestCodeGenerator()
+        for ast in compilationUnits:
+            for neuron in ast.getNeuronList():
+                # nestGenerator.generateHeader(neuron)
+                pass
 
 
 if __name__ == '__main__':

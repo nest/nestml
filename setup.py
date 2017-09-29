@@ -34,6 +34,7 @@ setup(
     install_requires=['numpy >= 1.8.2',
                       'sympy >= 1.1.1',
                       ('antlr4-python2-runtime' if sys.version_info.major == 2 else
-                       'antlr4-python3-runtime')],
+                       'antlr4-python3-runtime'),
+                      'Jinja2'],
     test_suite='pynestml.src.test.python',
 )

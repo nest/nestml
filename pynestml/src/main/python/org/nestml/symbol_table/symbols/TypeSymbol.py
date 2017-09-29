@@ -219,7 +219,7 @@ class TypeSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return type(self) != type(_other) and \
+        return type(self) == type(_other) and \
                self.isInteger() == _other.isInteger() and \
                self.isReal() == _other.isReal() and \
                self.isVoid() == _other.isVoid() and \

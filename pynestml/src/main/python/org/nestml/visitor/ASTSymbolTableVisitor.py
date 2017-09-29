@@ -473,21 +473,22 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         :param _expr: an expression.
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and (isinstance(_expr, ASTExpression.ASTExpression)
-                                       or isinstance(_expr, ASTSimpleExpression.ASTSimpleExpression))), \
+        if isinstance(_expr,ASTSimpleExpression.ASTSimpleExpression):
+            return cls.visitSimpleExpression(_expr)
+        assert (_expr is not None and isinstance(_expr, ASTExpression.ASTExpression)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        if _expr.isSimpleExpression():
-            _expr.getExpression().updateScope(_expr.getScope())
-            cls.visitSimpleExpression(_expr.getExpression())
         if _expr.isLogicalNot():
             _expr.getExpression().updateScope(_expr.getScope())
             cls.visitExpression(_expr.getExpression())
-        if _expr.isUnaryOperator():
+        elif _expr.isEncapsulated():
+            _expr.getExpression().updateScope(_expr.getScope())
+            cls.visitExpression(_expr.getExpression())
+        elif _expr.isUnaryOperator():
             _expr.getUnaryOperator().updateScope(_expr.getScope())
             cls.visitUnaryOperator(_expr.getUnaryOperator())
             _expr.getExpression().updateScope(_expr.getScope())
             cls.visitExpression(_expr.getExpression())
-        if _expr.isCompoundExpression():
+        elif _expr.isCompoundExpression():
             _expr.getLhs().updateScope(_expr.getScope())
             cls.visitExpression(_expr.getLhs())
             _expr.getBinaryOperator().updateScope(_expr.getScope())

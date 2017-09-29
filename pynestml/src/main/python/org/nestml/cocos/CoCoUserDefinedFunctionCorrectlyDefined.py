@@ -115,6 +115,8 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                            stmt.getSourcePosition().printSourcePosition(),_typeSymbol.printSymbol()),
                         LOGGING_LEVEL.ERROR)
                 if stmt.getReturnStmt().hasExpr():
+                    """
+                    Todo
                     typeOfReturn = stmt.getReturnStmt().getExpr().getTypeEither()
                     if typeOfReturn.isError():
                         Logger.logMessage(
@@ -122,13 +124,14 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                             % (cls.__processedFunction.getName(),
                                stmt.getSourcePosition().printSourcePosition()),
                             LOGGING_LEVEL.ERROR)
-                    elif typeOfReturn.getValue() is not _typeSymbol:
+                    elif not typeOfReturn.getValue().equals(_typeSymbol):
                         Logger.logMessage(
                             '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s does not correspond'
-                                                     'to declaration!'
+                                                     ' to declaration!'
                             % (cls.__processedFunction.getName(),
                                stmt.getSourcePosition().printSourcePosition()),
                             LOGGING_LEVEL.ERROR)
+                    """
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
                 if stmt.isIfStmt():

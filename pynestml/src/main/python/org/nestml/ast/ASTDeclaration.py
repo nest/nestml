@@ -21,6 +21,7 @@
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
 
 
@@ -89,10 +90,12 @@ class ASTDeclaration(ASTElement):
         assert (_sizeParameter is None or isinstance(_sizeParameter, str)), \
             '(PyNestML.AST.Declaration) No or wrong type of index provided (%s)!' \
             % type(_sizeParameter)
-        assert (_expression is None or isinstance(_expression, ASTExpression)), \
+        assert (_expression is None or (isinstance(_expression, ASTExpression)
+                                        or isinstance(_expression, ASTSimpleExpression))), \
             '(PyNestML.AST.Declaration) No or wrong type of expression provided (%s)!' \
-            % type(_sizeParameter)
-        assert (_invariant is None or isinstance(_invariant, ASTExpression)), \
+            % type(_expression)
+        assert (_invariant is None or isinstance(_invariant, ASTExpression)
+                or isinstance(_expression, ASTSimpleExpression)), \
             '(PyNestML.AST.Declaration) No or wrong type of expression provided (%s)!' \
             % type(_expression)
         super(ASTDeclaration, self).__init__(_sourcePosition)
@@ -103,6 +106,7 @@ class ASTDeclaration(ASTElement):
         self.__sizeParameter = _sizeParameter
         self.__expression = _expression
         self.__invariant = _invariant
+        return
 
     @classmethod
     def makeASTDeclaration(cls, _isRecordable=False, _isFunction=False, _variables=list(), _dataType=None,

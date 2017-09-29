@@ -55,8 +55,7 @@ class NESTMLTest(unittest.TestCase):
                 NESTMLParser.parseModel(os.path.join(os.path.dirname(__file__),
                                                      os.path.join(os.path.join('..', '..', '..', '..',
                                                                                'models'), filename)))
-                # print('done')
-                return
+        return
 
 
 if __name__ == '__main__':

@@ -92,16 +92,17 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#expression.
     def visitExpression(self, ctx):
-        hasLeftParentheses = (True if ctx.leftParentheses is not None else False)
-        hasRightParentheses = (True if ctx.rightParentheses is not None else False)
+        # first check if it is a simple expression
+        if ctx.simpleExpression() is not None:
+            return self.visitSimpleExpression(ctx.simpleExpression())
+        # now it is not directly a simple expression
+        # check if it is an encapsulated expression
+        isEncapsulated = (True if ctx.leftParentheses is not None and ctx.rightParentheses else False)
+        # or a term or negated
         unaryOperator = (self.visit(ctx.unaryOperator()) if ctx.unaryOperator() is not None else None)
         isLogicalNot = (True if ctx.logicalNot is not None else False)
-        if ctx.simpleExpression() is not None:
-            expression = self.visit(ctx.simpleExpression())
-        elif ctx.term is not None:
-            expression = self.visit(ctx.term)
-        else:
-            expression = None
+        expression = self.visit(ctx.term) if ctx.term is not None else None
+        # otherwise it is a combined one, check first lhs, then the operator and finally rhs
         lhs = (self.visit(ctx.left) if ctx.left is not None else None)
         if ctx.powOp is not None:
             sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.powOp.line,
@@ -154,6 +155,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         else:
             binaryOperator = None
         rhs = (self.visit(ctx.right) if ctx.right is not None else None)
+        # not it was not an operator, thus the ternary one ?
         condition = (self.visit(ctx.condition) if ctx.condition is not None else None)
         ifTrue = (self.visit(ctx.ifTrue) if ctx.ifTrue is not None else None)
         ifNot = (self.visit(ctx.ifNot) if ctx.ifNot is not None else None)
@@ -161,9 +163,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                                               _startColumn=ctx.start.column,
                                                                               _endLine=ctx.stop.line,
                                                                               _endColumn=ctx.stop.column)
+        # finally construct the corresponding expression
         if expression is not None:
-            return ASTExpression.ASTExpression.makeExpression(_hasLeftParentheses=hasLeftParentheses,
-                                                              _hasRightParentheses=hasRightParentheses,
+            return ASTExpression.ASTExpression.makeExpression(_isEncapsulated= isEncapsulated,
                                                               _isLogicalNot=isLogicalNot,
                                                               _unaryOperator=unaryOperator,
                                                               _expression=expression, _sourcePosition=sourcePos)

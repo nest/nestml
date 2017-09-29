@@ -64,7 +64,6 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 for neuron in ast.getNeuronList():
                     SymbolTableASTVisitor.updateSymbolTable(neuron)
                     SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.getScope())
-                    # print(SymbolTable.printSymbolTable())
         return
 
 

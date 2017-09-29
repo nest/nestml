@@ -22,6 +22,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 
 
 class ASTOdeFunction(ASTElement):
@@ -54,7 +55,8 @@ class ASTOdeFunction(ASTElement):
             '(PyNestML.AST.OdeFunction) No or wrong type of variable name provided (%s)!' % type(_variableName)
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
             '(PyNestML.AST.OdeFunction) No or wrong type of variable datatype provided (%s)!' % type(_dataType)
-        assert (_expression is not None and isinstance(_expression, ASTExpression)), \
+        assert (_expression is not None and (isinstance(_expression, ASTExpression) or
+                                             isinstance(_expression, ASTSimpleExpression))), \
             '(PyNestML.AST.OdeFunction) No or wrong type of computation expression provided (%s)!' % type(_expression)
         assert (_isRecordable is None or isinstance(_isRecordable, bool)), \
             '(PyNestML.AST.OdeFunction) No or wrong type of is-recordable parameter specified (%s)!' % type(

@@ -29,17 +29,16 @@ class PyNestMLFrontendTest(unittest.TestCase):
 
     def test(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join('..', '..', '..', '..', 'models',
-                                                              'aeif_cond_alpha.nestml'))))
+                                                 os.path.join('..', '..', '..', '..', 'models'))))
         params = list()
         params.append('-path')
         params.append(path)
-        params.append('-dry')
+        #params.append('-dry')
         params.append('-logging_level')
-        params.append('ERROR')
+        params.append('ALL')
+        params.append('-target')
+        params.append('buildNest')
         main(params)
-        from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
-        # print(SymbolTable.printSymbolTable())
 
 
 if __name__ == '__main__':

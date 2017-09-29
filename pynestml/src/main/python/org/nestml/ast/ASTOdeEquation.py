@@ -22,6 +22,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 
 
 class ASTOdeEquation(ASTElement):
@@ -49,7 +50,7 @@ class ASTOdeEquation(ASTElement):
         """
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
             '(PyNestML.AST.OdeEquation) No or wrong type of left-hand variable provided (%s)!' % type(_lhs)
-        assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
+        assert (_rhs is not None and (isinstance(_rhs, ASTExpression) or isinstance(_rhs, ASTSimpleExpression))), \
             '(PyNestML.AST.OdeEquation) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
         super(ASTOdeEquation, self).__init__(_sourcePosition)
         self.__lhs = _lhs

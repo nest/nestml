@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
@@ -42,9 +43,9 @@ class ASTOdeShape(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
+        assert (_lhs is not None and (isinstance(_lhs, ASTVariable) or isinstance(_lhs, ASTSimpleExpression))), \
             '(PyNestML.AST.OdeShape) No or wrong type of left-hand side variable provided (%s)!' % type(_lhs)
-        assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
+        assert (_rhs is not None and (isinstance(_rhs, ASTExpression) or isinstance(_rhs, ASTSimpleExpression))), \
             '(PyNestML.AST.OdeShape) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
         super(ASTOdeShape, self).__init__(_sourcePosition)
         self.__lhs = _lhs

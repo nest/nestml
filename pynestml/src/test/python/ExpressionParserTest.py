@@ -32,6 +32,8 @@ from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
+from pynestml.src.main.python.org.nestml.visitor.ASTBuilderVisitor import ASTBuilderVisitor
+from pynestml.src.main.python.org.nestml.ast.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
 
 # setups the infrastructure
 PredefinedUnits.registerUnits()
@@ -58,9 +60,13 @@ class ExpressionParsingTest(unittest.TestCase):
         stream = CommonTokenStream(lexer)
         # parse the file
         parser = PyNESTMLParser(stream)
-        parser.nestmlCompilationUnit()
+        #parser.nestmlCompilationUnit()
         # print('done')
-        return
+        astBuilderVisitor = ASTBuilderVisitor()
+        ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
+        # print('done')
+        print(ast.printAST())
+        return isinstance(ast, ASTNESTMLCompilationUnit)
 
 
 if __name__ == '__main__':

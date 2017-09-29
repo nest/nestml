@@ -32,6 +32,7 @@ class FrontendConfiguration(object):
     __providedPath = None
     __loggingLevel = None
     __dryRun = None
+    __targetPath = None
 
     @classmethod
     def config(cls, _args=None):
@@ -67,7 +68,7 @@ class FrontendConfiguration(object):
         elif os.path.isdir(parsed_args.path[0]):
             for filename in os.listdir(parsed_args.path[0]):
                 if filename.endswith(".nestml"):
-                    cls.__pathsToCompilationUnits.append(parsed_args.path[0] + filename)
+                    cls.__pathsToCompilationUnits.append(os.path.join(parsed_args.path[0],filename))
         else:
             raise InvalidPathException()
         # initialize the logger
@@ -75,6 +76,7 @@ class FrontendConfiguration(object):
         Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level))
         # check if a dry run shall be preformed, i.e. without generating a target model
         cls.__dryRun = parsed_args.dry
+        cls.__targetPath = str(os.path.realpath(os.path.join( '..', '..', '..','..',parsed_args.target)))
         return
 
     @classmethod
@@ -112,3 +114,12 @@ class FrontendConfiguration(object):
         :rtype: LOGGING_LEVEL
         """
         return cls.__loggingLevel
+
+    @classmethod
+    def getTargetPath(cls):
+        """
+        Returns the path to which models shall be generated to.
+        :return: the target path.
+        :rtype: str
+        """
+        return cls.__targetPath
