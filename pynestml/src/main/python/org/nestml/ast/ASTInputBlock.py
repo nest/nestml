@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTInputLine import ASTInputLine
 
 
 class ASTInputBlock(ASTElement):
@@ -48,7 +49,10 @@ class ASTInputBlock(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_inputDefinitions is not None and isinstance(_inputDefinitions, list)), \
-            '(PyNestML.AST.Input) No or wrong type of input definitions provided!'
+            '(PyNestML.AST.Input) No or wrong type of input definitions provided (%s)!' % type(_inputDefinitions)
+        for definition in _inputDefinitions:
+            assert (definition is not None and isinstance(definition, ASTInputLine)), \
+                '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
         super(ASTInputBlock, self).__init__(_sourcePosition)
         self.__inputDefinitions = _inputDefinitions
 
@@ -72,6 +76,21 @@ class ASTInputBlock(ASTElement):
         :rtype: list(ASTInputLine)
         """
         return self.__inputDefinitions
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for line in self.getInputLines():
+            if line is _ast:
+                return self
+            elif line.getParent(_ast) is not None:
+                return line.getParent(_ast)
+        return None
 
     def printAST(self):
         """

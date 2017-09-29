@@ -71,19 +71,19 @@ class TypeSymbol(Symbol):
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.UnitType import UnitType
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
         assert (_unit is None or isinstance(_unit, UnitType)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of unit provided!'
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of unit provided (%s)!' % type(_unit)
         assert (isinstance(_isInteger, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-integer provided!'
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-integer provided (%s)!' % type(_isInteger)
         assert (isinstance(_isReal, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-real provided!'
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-real provided (%s)!' % type(_isReal)
         assert (isinstance(_isVoid, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-void provided'
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-void provided (%s)!' % type(_isVoid)
         assert (isinstance(_isBoolean, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-boolean provided!'
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-boolean provided (%s)!' % type(_isBoolean)
         assert (isinstance(_isString, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-string provided!'
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-string provided (%s)!' % type(_isString)
         assert (isinstance(_isBuffer, bool)), \
-            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-buffer provided!'
+            '(PyNestML.SymbolTable.TypeSymbol) Wrong type of is-buffer provided (%s)!' % type(_isBuffer)
         assert (_unit is not None or _isInteger or _isReal or _isVoid or _isBoolean or _isString), \
             '(PyNestML.SymbolTable.TypeSymbol) Type of symbol not specified!'
         assert (_isInteger + _isReal + _isVoid + _isBoolean + _isString + (_unit is not None) == 1), \
@@ -97,6 +97,7 @@ class TypeSymbol(Symbol):
         self.__isBoolean = _isBoolean
         self.__isString = _isString
         self.__isBuffer = _isBuffer
+        return
 
     def printSymbol(self):
         """

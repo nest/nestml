@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoNoOrderOfEquations.nestml
+ *  CoCoConvolveNotCorrectlyProvided.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,27 +20,33 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if the order of equations is correct.
+ * This model is used to test if broken CoCos are identified correctly. Here, if convolve has been correctly
+ * provided with a initial_block variable and a spike buffer.
  *
 */
 
-neuron CoCoNoOrderOfEquations:
+neuron CoCoConvolveNotCorrectlyProvided:
+
+    state:
+        g_ex mV = 10mV
+    end
+
     initial_values:
         V_m mV = 10mV
     end
 
     equations:
-        V_m = 10mV # here, we did not specified the order of equation
+        shape test = 10
+        function test pA = convolve(g_ex, g_ex) + test
+    end
+
+    update:
+        # required for creation of a correct ast
     end
 
     input:
-        # in order to generate an ast
+        spikeExc integer  <- excitatory spike
     end
 
     output: spike
-
-    update:
-        # in order to generate an ast
-    end
-
 end

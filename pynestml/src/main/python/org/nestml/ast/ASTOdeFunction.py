@@ -51,13 +51,14 @@ class ASTOdeFunction(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_variableName is not None and isinstance(_variableName, str)), \
-            '(PyNestML.AST.OdeFunction) No variable name provided.'
+            '(PyNestML.AST.OdeFunction) No or wrong type of variable name provided (%s)!' % type(_variableName)
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
-            '(PyNestML.AST.OdeFunction) No variable datatype provided.'
+            '(PyNestML.AST.OdeFunction) No or wrong type of variable datatype provided (%s)!' % type(_dataType)
         assert (_expression is not None and isinstance(_expression, ASTExpression)), \
-            '(PyNestML.AST.OdeFunction) No computation expression provided.'
+            '(PyNestML.AST.OdeFunction) No or wrong type of computation expression provided (%s)!' % type(_expression)
         assert (_isRecordable is None or isinstance(_isRecordable, bool)), \
-            '(PyNestML.AST.OdeFunction) Is-recordable wrongly specified!'
+            '(PyNestML.AST.OdeFunction) No or wrong type of is-recordable parameter specified (%s)!' % type(
+                _isRecordable)
         super(ASTOdeFunction, self).__init__(_sourcePosition)
         self.__isRecordable = _isRecordable
         self.__variableName = _variableName
@@ -116,6 +117,24 @@ class ASTOdeFunction(ASTElement):
         :rtype: ASTExpression
         """
         return self.__expression
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getDataType() is _ast:
+            return self
+        elif self.getDataType().getParent(_ast) is not None:
+            return self.getDataType().getParent(_ast)
+        if self.getExpression() is _ast:
+            return self
+        elif self.getExpression().getParent(_ast) is not None:
+            return self.getExpression().getParent(_ast)
+        return None
 
     def printAST(self):
         """

@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
@@ -32,7 +32,7 @@ class CoCoFunctionMaxOneLhs(CoCo):
         function V_reset,V_rest mV = V_m - 55mV
     """
 
-    __declarations = list()
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -43,26 +43,28 @@ class CoCoFunctionMaxOneLhs(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionsWithLhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__declarations = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectDeclarations)
-        for decl in cls.__declarations:
-            if decl.isFunction() and len(decl.getVariables())>1:
-                Logger.logMessage(
-                    '[' + _neuron.getName() +
-                    '.nestml] Function (aka. alias) at %s declared with several variables (%s)!'
-                    % (
-                        decl.getSourcePosition().printSourcePosition(),
-                        list((var.getName() for var in decl.getVariables()))),
-                    LOGGING_LEVEL.ERROR)
+        cls.neuronName = _neuron.getName()
+        _neuron.accept(FunctionMaxOneLhs())
+        return
 
-    @classmethod
-    def __collectDeclarations(cls, _ast=None):
+
+class FunctionMaxOneLhs(NESTMLVisitor):
+    """
+    This visitor ensures that every function has exactly one lhs.
+    """
+
+    def visitDeclaration(self, _declaration=None):
         """
-        For a given node, it collects all the declarations.
-        :param _ast: a single node
-        :type _ast: AST_
+        Checks the coco.
+        :param _declaration: a single declaration.
+        :type _declaration: ASTDeclaration
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
-        if isinstance(_ast, ASTDeclaration):
-            cls.__declarations.append(_ast)
+        if _declaration.isFunction() and len(_declaration.getVariables()) > 1:
+            Logger.logMessage(
+                '[' + CoCoFunctionMaxOneLhs.neuronName +
+                '.nestml] Function (aka. alias) at %s declared with several variables (%s)!'
+                % (
+                    _declaration.getSourcePosition().printSourcePosition(),
+                    list((var.getName() for var in _declaration.getVariables()))),
+                LOGGING_LEVEL.ERROR)
         return

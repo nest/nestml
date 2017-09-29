@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class ASTUnaryOperator(ASTElement):
@@ -43,7 +44,14 @@ class ASTUnaryOperator(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_isUnaryTilde or _isUnaryMinus or _isUnaryPlus), '(PyNESTML.AST) Type of unary operator not specified.'
+        assert (_isUnaryMinus is None or isinstance(_isUnaryMinus, bool)), \
+            '(PyNestML.AST.UnaryOperator) Wrong type of unary minus provided (%s)!' % type(_isUnaryMinus)
+        assert (_isUnaryMinus is None or isinstance(_isUnaryMinus, bool)), \
+            '(PyNestML.AST.UnaryOperator) Wrong type of unary plus provided (%s)!' % type(_isUnaryPlus)
+        assert (_isUnaryMinus is None or isinstance(_isUnaryMinus, bool)), \
+            '(PyNestML.AST.UnaryOperator) Wrong type of unary tilde provided (%s)!' % type(_isUnaryTilde)
+        assert ((_isUnaryTilde + _isUnaryMinus + _isUnaryPlus) == 1), \
+            '(PyNestML.AST.UnaryOperator) Type of unary operator not correctly specified!'
         super(ASTUnaryOperator, self).__init__(_sourcePosition)
         self.__isUnaryPlus = _isUnaryPlus
         self.__isUnaryMinus = _isUnaryMinus
@@ -90,6 +98,16 @@ class ASTUnaryOperator(ASTElement):
         """
         return self.__isUnaryTilde
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        return None
+
     def printAST(self):
         """
         Returns the string representation of the operator.
@@ -103,11 +121,4 @@ class ASTUnaryOperator(ASTElement):
         elif self.__isUnaryTilde:
             return '~'
         else:
-            raise InvalidUnaryOperator('(PyNestML.AST.UnaryOperator.Print) Unary operator not specified!')
-
-
-class InvalidUnaryOperator(Exception):
-    """
-    This exception is thrown whenever the unary operator has not been specified.
-    """
-    pass
+            Logger.logMessage('(PyNestML.AST.UnaryOperator.Print) Unary operator not specified!', LOGGING_LEVEL.WARNING)

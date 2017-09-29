@@ -44,25 +44,26 @@ class Scope(object):
         :param _sourcePosition: the start and end of the scope in the source file
         :type _sourcePosition: SourcePosition
         """
+        assert (_scopeType is not None and isinstance(_scopeType, ScopeType)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of scope type provided (%s)!' % type(_scopeType)
         assert (_enclosingScope is None or isinstance(_enclosingScope, Scope)), \
-            '(PyNestML.SymbolTable.Scope) Not a scope object handed over!'
+            '(PyNestML.SymbolTable.Scope) No or wrong type of scope provided (%s)!' % type(_enclosingScope)
         assert (isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.SymbolTable.Scope) No source position handed over!'
+            '(PyNestML.SymbolTable.Scope) No or wrong type of source position (%s)!' % type(_sourcePosition)
         self.__declaredElements = list()
         self.__scopeType = _scopeType
         self.__enclosingScope = _enclosingScope
         self.__sourcePosition = _sourcePosition
+        return
 
     def addSymbol(self, _symbol=None):
         """
         Adds the handed over symbol to the current scope.
         :param _symbol: a single symbol object.
         :type _symbol: Symbol
-        :return: no value returned
-        :rtype: void
         """
-        assert (isinstance(_symbol, Symbol)), \
-            '(PyNestML.SymbolTable.Scope) Non-symbol object can not be added to the scope!'
+        assert (_symbol is not None and isinstance(_symbol, Symbol)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol provided (%s)!' % type(_symbol)
         self.__declaredElements.append(_symbol)
         return
 
@@ -71,11 +72,9 @@ class Scope(object):
         Adds the handed over scope as a sub-scope to the current one.
         :param _scope: a single scope object.
         :type _scope: Scope
-        :return: 
-        :rtype: 
         """
-        assert (isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Scope) Non-scope object can not be added to the scope!'
+        assert (_scope is not None and isinstance(_scope, Scope)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of scope provided (%s)!' % type(_scope)
         self.__declaredElements.append(_scope)
         return
 
@@ -87,8 +86,8 @@ class Scope(object):
         :return: True, if the element has been deleted, otherwise False.
         :rtype: bool
         """
-        assert (isinstance(_symbol, Symbol)), \
-            '(PyNestML.SymbolTable.Scope) Non-symbol object can not be deleted from the scope!'
+        assert (_symbol is not None and isinstance(_symbol, Symbol)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of symbol provided (%s)!' % type(_symbol)
         if _symbol in self.__declaredElements:
             self.__declaredElements.remove(_symbol)
             return True
@@ -103,8 +102,8 @@ class Scope(object):
         :return: True, if the element has been deleted, otherwise False.
         :rtype: bool
         """
-        assert (isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.Scope) Non-scope object can not be deleted from the scope.'
+        assert (_scope is not None and isinstance(_scope, Scope)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of scope provided (%s)!' % type(_scope)
         if _scope in self.__declaredElements:
             self.__declaredElements.remove(_scope)
             return True
@@ -158,9 +157,9 @@ class Scope(object):
         :return: the scope in which the element has been defined in
         :rtype: Scope
         """
-        assert (isinstance(_name, str)), \
+        assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolKind)), \
+        assert (_type is not None and isinstance(_type, SymbolKind)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         gScope = self.getGlobalScope()
         scopes = gScope.__resolveToScopeInSpannedScope(_name, _type)
@@ -182,9 +181,9 @@ class Scope(object):
         :return: the corresponding scope object.
         :rtype: Scope
         """
-        assert (isinstance(_name, str)), \
+        assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolKind)), \
+        assert (_name is not None and isinstance(_type, SymbolKind)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         ret = list()
         for sim in self.getSymbolsInThisScope():
@@ -208,9 +207,9 @@ class Scope(object):
         :return: a single symbol element.
         :rtype: Symbol/list(Symbols)
         """
-        assert (isinstance(_name, str)), \
+        assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolKind)), \
+        assert (_name is not None and isinstance(_type, SymbolKind)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         gScope = self.getGlobalScope()
         symbols = gScope.__resolveToSymbolInSpannedScope(_name, _type)
@@ -234,9 +233,9 @@ class Scope(object):
         :return: the corresponding symbol object.
         :rtype: list(Symbol)
         """
-        assert (isinstance(_name, str)), \
+        assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolKind)), \
+        assert (_type is not None and isinstance(_type, SymbolKind)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         ret = list()
         for sim in self.getSymbolsInThisScope():
@@ -259,9 +258,9 @@ class Scope(object):
         :return: the first matching scope.
         :rtype: Scope.
         """
-        assert (isinstance(_name, str)), \
+        assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolKind)), \
+        assert (_type is not None and isinstance(_type, SymbolKind)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
@@ -280,11 +279,11 @@ class Scope(object):
         :param _type: the type of the symbol, i.e., Variable,function or type.
         :type _type: SymbolType
         :return: the first matching symbol.
-        :rtype: Symbol
+        :rtype: VariableSymbol or FunctionSymbol
         """
-        assert (isinstance(_name, str)), \
+        assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of name provided (%s)!' % type(_name)
-        assert (isinstance(_type, SymbolKind)), \
+        assert (_type is not None and isinstance(_type, SymbolKind)), \
             '(PyNestML.SymbolTable.Scope) No or wrong type of symbol-kind provided (%s)!' % type(_type)
         for sim in self.getSymbolsInThisScope():
             if sim.getSymbolName() == _name and sim.getSymbolKind() == _type:
@@ -350,6 +349,8 @@ class Scope(object):
         :return: True, if this scope is directly or indirectly enclosed in the handed over one, otherwise False.
         :rtype: bool
         """
+        assert (_scope is not None and isinstance(_scope, Scope)), \
+            '(PyNestML.SymbolTable.Scope) No or wrong type of scope provided (%s)!' % type(_scope)
         if self.hasEnclosingScope() and self.getEnclosingScope() is _scope:
             return True
         elif self.hasEnclosingScope():

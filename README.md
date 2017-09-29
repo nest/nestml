@@ -35,7 +35,7 @@ python setup.py test
 
 In order to ensure correct installation and resolving of dependencies, Python's package manager [_pip_](https://pip.pypa.io/en/stable/installing/), the distribution tool [_setuptools_](https://packaging.python.org/tutorials/installing-packages/) as well as the python-dev package are required and should be installed in advance. The setup file additionally installs the following components:
 
-* [SymPy in the version >= 1.0](http://www.sympy.org/en/index.html)
+* [SymPy in the version >= 1.1.1](http://www.sympy.org/en/index.html)
 
 * [NumPy in the version >=1.8.2](http://www.numpy.org/)
 

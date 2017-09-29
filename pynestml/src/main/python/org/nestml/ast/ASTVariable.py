@@ -45,13 +45,16 @@ class ASTVariable(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
+        assert (_differentialOrder is not None and isinstance(_differentialOrder, int)), \
+            '(PyNestML.AST.Variable) No or wrong type of differential order provided (%s)!' % type(_differentialOrder)
         assert (_differentialOrder >= 0), \
-            '(PyNestML.AST.Variable) Differential order must be at least 0, is %d' % _differentialOrder
-        assert (_name is not None), \
-            '(PyNestML.AST.Variable) Name of variable must not be None'
+            '(PyNestML.AST.Variable) Differential order must be at least 0, is %d!' % _differentialOrder
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.AST.Variable) No or wrong type of name provided (%s)!' % type(_name)
         super(ASTVariable, self).__init__(_sourcePosition)
         self.__name = _name
         self.__differentialOrder = _differentialOrder
+        return
 
     @classmethod
     def makeASTVariable(cls, _name=None, _differentialOrder=0, _sourcePosition=None):
@@ -92,6 +95,17 @@ class ASTVariable(ASTElement):
         """
         return self.getName() + '\'' * self.getDifferentialOrder()
 
+    def getNameOfLhs(self):
+        """
+        Returns the complete name but with differential order reduced by one.
+        :return: the name.
+        :rtype: str
+        """
+        if self.getDifferentialOrder() > 0:
+            return self.getName() + '\'' * (self.getDifferentialOrder() - 1)
+        else:
+            return self.getName()
+
     def getTypeSymbol(self):
         """
         Returns the type symbol of this expression.
@@ -108,8 +122,19 @@ class ASTVariable(ASTElement):
         """
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
-            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
+            '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
         self.__typeSymbol = _typeSymbol
+        return
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        return None
 
     def printAST(self):
         """

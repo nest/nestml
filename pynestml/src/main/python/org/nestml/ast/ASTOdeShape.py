@@ -43,12 +43,13 @@ class ASTOdeShape(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
-            '(PyNestML.AST.OdeShape) No or wrong type of left-hand side variable provided!'
+            '(PyNestML.AST.OdeShape) No or wrong type of left-hand side variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
-            '(PyNestML.AST.OdeShape) No or wrong type of right-hand side expression provided!'
+            '(PyNestML.AST.OdeShape) No or wrong type of right-hand side expression provided (%s)!' % type(_rhs)
         super(ASTOdeShape, self).__init__(_sourcePosition)
         self.__lhs = _lhs
         self.__rhs = _rhs
+        return
 
     @classmethod
     def makeASTOdeShape(cls, _lhs=None, _rhs=None, _sourcePosition=None):
@@ -80,6 +81,24 @@ class ASTOdeShape(ASTElement):
         :rtype: ASTExpression
         """
         return self.__rhs
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getVariable() is _ast:
+            return self
+        elif self.getVariable().getParent(_ast) is not None:
+            return self.getVariable().getParent(_ast)
+        if self.getExpression() is _ast:
+            return self
+        elif self.getExpression().getParent(_ast) is not None:
+            return self.getExpression().getParent(_ast)
+        return None
 
     def printAST(self):
         """

@@ -51,7 +51,7 @@ class CoCoVariableOncePerScope(CoCo):
         :type _scope: Scope
         """
         checked = list()
-        for sym1 in _scope.getSymbolsInThisScope():  # TODO: in o(n^2), maybe a better solution is possible
+        for sym1 in _scope.getSymbolsInThisScope():  # TODO: in o(n*log(n)), maybe a better solution is possible
             for sym2 in _scope.getSymbolsInThisScope():
                 if sym1 is not sym2 and sym1.getSymbolName() == sym2.getSymbolName() and \
                                 sym1.getSymbolKind() == sym2.getSymbolKind() and \
@@ -59,14 +59,14 @@ class CoCoVariableOncePerScope(CoCo):
                                 sym2 not in checked:
                     if sym1.isPredefined():
                         Logger.logMessage(
-                            '[' + _neuron.getName() + '.nestml] Predefined variable %s redeclared at %s !'
+                            '[' + _neuron.getName() + '.nestml] Predefined variable %s redeclared at %s!'
                             % (
                                 sym1.getSymbolName(),
                                 sym2.getReferencedObject().getSourcePosition().printSourcePosition()),
                             LOGGING_LEVEL.ERROR)
                     elif sym2.isPredefined():
                         Logger.logMessage(
-                            '[' + _neuron.getName() + '.nestml] Predefined variable %s redeclared at %s !'
+                            '[' + _neuron.getName() + '.nestml] Predefined variable %s redeclared at %s!'
                             % (
                                 sym1.getSymbolName(),
                                 sym1.getReferencedObject().getSourcePosition().printSourcePosition()),

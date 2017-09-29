@@ -1,5 +1,5 @@
 #
-# CoCoCorrectNumeratorOfUnit.py
+# CoCoEquationsOnlyForInitValues.py
 #
 # This file is part of NEST.
 #
@@ -18,19 +18,30 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
+from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
-from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
-class CoCoCorrectNumeratorOfUnit(CoCo):
+class CoCoEquationsOnlyForInitValues(CoCo):
     """
-    This coco ensures that all units which consist of a dividend and divisor, where the numerator is a numeric
-    value, have 1 as the numerator. 
+    This coco ensures that ode equations are only provided for variables which have been defined in the
+    initial_values block.
     Allowed:
-        V_m 1/mV = ...
+        initial_values:
+            V_m mV = 10mV
+        end
+        equations:
+            V_m' = ....
+        end
     Not allowed:
-        V_m 2/mV = ...
+        state:
+            V_m mV = 10mV
+        end
+        equations:
+            V_m' = ....
+        end
     """
     neuronName = None
 
@@ -44,24 +55,26 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.neuronName = _neuron.getName()
-        _neuron.accept(NumericNumeratorVisitor())
+        _neuron.accept(EquationsOnlyForInitValues())
         return
 
 
-class NumericNumeratorVisitor(NESTMLVisitor):
+class EquationsOnlyForInitValues(NESTMLVisitor):
     """
-    Visits a numeric numerator and checks if the value is 1.
+    This visitor ensures that for all ode equations exists an initial value.
     """
 
-    def visitUnitType(self, _unitType=None):
+    def visitOdeEquation(self, _equation=None):
         """
-        Check if the coco applies,
-        :param _unitType: a single unit type object.
-        :type _unitType: ASTUnitType
+        Ensures the coco.
+        :param _equation: a single equation object.
+        :type _equation: ASTOdeEquation
         """
-        if _unitType.isDiv() and isinstance(_unitType.getLhs(), int) and _unitType.getLhs() != 1:
+        symbol = _equation.getScope().resolveToSymbol(_equation.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
+        if symbol is not None and not symbol.isInitValues():
             Logger.logMessage(
-                '[' + CoCoCorrectNumeratorOfUnit.neuronName + '.nestml] Numeric numerator of unit "%s" at %s not 1!'
-                % (_unitType.printAST(), _unitType.getSourcePosition().printSourcePosition()),
+                '[' + CoCoEquationsOnlyForInitValues.neuronName + '.nestml] Ode equation lhs-variable "%s" at %s not '
+                                                                  'defined in initial-values block!'
+                % (_equation.getLhs().getNameOfLhs(), _equation.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

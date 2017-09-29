@@ -46,7 +46,7 @@ CoCosManager.initializeCoCosManager()
 class ElementDefinedAfterUsage(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoVariableDefinedAfterUsage.nestml'))
         return
@@ -55,7 +55,7 @@ class ElementDefinedAfterUsage(unittest.TestCase):
 class ElementInSameLine(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoElementInSameLine.nestml'))
         return
@@ -64,7 +64,7 @@ class ElementInSameLine(unittest.TestCase):
 class ElementNotDefinedInScope(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoVariableNotDefined.nestml'))
         return
@@ -73,7 +73,7 @@ class ElementNotDefinedInScope(unittest.TestCase):
 class VariableRedeclaration(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoVariableRedeclared.nestml'))
         return
@@ -82,7 +82,7 @@ class VariableRedeclaration(unittest.TestCase):
 class EachBlockUnique(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoEachBlockUnique.nestml'))
         return
@@ -91,7 +91,7 @@ class EachBlockUnique(unittest.TestCase):
 class FunctionUniqueAndDefined(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoFunctionNotUnique.nestml'))
         return
@@ -100,7 +100,7 @@ class FunctionUniqueAndDefined(unittest.TestCase):
 class FunctionsHaveRhs(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoFunctionHasNoRhs.nestml'))
         return
@@ -109,7 +109,7 @@ class FunctionsHaveRhs(unittest.TestCase):
 class FunctionHasSeveralLhs(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoFunctionWithSeveralLhs.nestml'))
         return
@@ -118,7 +118,7 @@ class FunctionHasSeveralLhs(unittest.TestCase):
 class NoValuesAssignedToBuffers(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoValueAssignedToBuffer.nestml'))
         return
@@ -127,7 +127,7 @@ class NoValuesAssignedToBuffers(unittest.TestCase):
 class OrderOfEquationsCorrect(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoNoOrderOfEquations.nestml'))
         return
@@ -136,7 +136,7 @@ class OrderOfEquationsCorrect(unittest.TestCase):
 class NumeratorOfUnitOne(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoUnitNumeratorNotOne.nestml'))
         return
@@ -145,7 +145,7 @@ class NumeratorOfUnitOne(unittest.TestCase):
 class NamesOfNeuronsUnique(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoMultipleNeuronsWithEqualName.nestml'))
         return
@@ -154,7 +154,7 @@ class NamesOfNeuronsUnique(unittest.TestCase):
 class NoNestCollision(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoNestNamespaceCollision.nestml'))
         return
@@ -163,7 +163,7 @@ class NoNestCollision(unittest.TestCase):
 class RedundantBufferKeywordsDetected(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoBufferWithRedundantTypes.nestml'))
         return
@@ -172,7 +172,7 @@ class RedundantBufferKeywordsDetected(unittest.TestCase):
 class ParametersAssignedOnlyInParametersBlock(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoParameterAssignedOutsideBlock.nestml'))
         return
@@ -181,7 +181,7 @@ class ParametersAssignedOnlyInParametersBlock(unittest.TestCase):
 class CurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoCurrentBufferTypeSpecified.nestml'))
         return
@@ -190,9 +190,54 @@ class CurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
 class SpikeBufferWithoutDatatype(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
-        model = NESTMLParser.parseModel(
+        NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
                          'CoCoSpikeBufferWithoutType.nestml'))
+        return
+
+
+class FunctionWithWrongArgNumberDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
+        return
+
+
+class InitValuesHaveRhsAndOde(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoInitValuesWithoutOde.nestml'))
+        return
+
+
+class IncorrectReturnStmtDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoIncorrectReturnStatement.nestml'))
+        return
+
+
+class OdeVarsOutsideInitBlockDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoOdeVarNotInInitialValues.nestml'))
+        return
+
+
+class ConvolveCorrectlyDefined(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoConvolveNotCorrectlyProvided.nestml'))
         return
 
 

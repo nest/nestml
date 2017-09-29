@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
@@ -27,7 +27,7 @@ class CoCoFunctionHaveRhs(CoCo):
     """
     This coco ensures that all function declarations, e.g., function V_rest mV = V_m - 55mV, have a rhs.
     """
-    __declarations = list()
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -38,25 +38,25 @@ class CoCoFunctionHaveRhs(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionWithRhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__declarations = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectDeclarations)
-        for decl in cls.__declarations:
-            if decl.isFunction() and not decl.hasExpression():
-                Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] Function variable %s at %s has no right-hand side!'
-                    % (decl.getVariables()[0].getName(),
-                       decl.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
+        cls.neuronName = _neuron.getName()
+        _neuron.accept(FunctionRhsVisitor())
+        return
 
-    @classmethod
-    def __collectDeclarations(cls, _ast=None):
+
+class FunctionRhsVisitor(NESTMLVisitor):
+    """
+    This visitor ensures that everything declared as function has a rhs.
+    """
+
+    def visitDeclaration(self, _declaration=None):
         """
-        For a given node, it collects all the declarations.
-        :param _ast: 
-        :type _ast: 
-        :return: 
-        :rtype: 
+        Checks if the coco applies.
+        :param _declaration: a single declaration.
+        :type _declaration: ASTDeclaration.
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
-        if isinstance(_ast, ASTDeclaration):
-            cls.__declarations.append(_ast)
+        if _declaration.isFunction() and not _declaration.hasExpression():
+            Logger.logMessage(
+                '[' + CoCoFunctionHaveRhs.neuronName + '.nestml] Function variable %s at %s has no right-hand side!'
+                % (_declaration.getVariables()[0].getName(),
+                   _declaration.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
         return

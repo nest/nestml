@@ -43,8 +43,8 @@ class ASTOutputBlock(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_type is SignalType.SPIKE or _type is _type is SignalType.CURRENT), \
-            '(PyNestML.AST.OutputBlock) Wrong type of buffer provided (%s)!' % _type
+        assert (_type is SignalType.SPIKE or _type is SignalType.CURRENT), \
+            '(PyNestML.AST.OutputBlock) No or wrong type specification buffer provided (%s)!' % type(_type)
         super(ASTOutputBlock, self).__init__(_sourcePosition)
         self.__type = _type
 
@@ -76,6 +76,17 @@ class ASTOutputBlock(ASTElement):
         :rtype: bool
         """
         return self.__type is SignalType.CURRENT
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        return None
+
 
     def printAST(self):
         """

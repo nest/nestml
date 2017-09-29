@@ -407,7 +407,7 @@ class PredefinedFunctions:
         :rtype: None or FunctionSymbol
         """
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.PredefinedFunctions) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.PredefinedFunctions) No or wrong type of name provided (%s)!' % type(_name)
         if _name in cls.__name2FunctionSymbol.keys():
             return cls.__name2FunctionSymbol[_name]
         else:

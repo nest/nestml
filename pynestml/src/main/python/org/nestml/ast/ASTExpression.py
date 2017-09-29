@@ -187,11 +187,14 @@ class ASTExpression(ASTElement):
         :rtype: ASTExpression
         """
         assert (_lhs is not None and isinstance(_lhs, ASTExpression)), \
-            '(PyNestML.AST.Expression) The left-hand side is empty or not an expression!'
+            '(PyNestML.AST.Expression) The left-hand side is empty or not an expression (%s)!' % type(_lhs)
         assert (_rhs is not None and isinstance(_rhs, ASTExpression)), \
-            '(PyNestML.AST.Expression) The right-hand side is empty or not an expression!'
-        assert (_binaryOperator is not None), \
-            '(PyNestML.AST.Expression) The binary operator is empty!'
+            '(PyNestML.AST.Expression) The right-hand side is empty or not an expression (%s)!' % type(_rhs)
+        assert (_binaryOperator is not None and (isinstance(_binaryOperator, ASTBitOperator) or
+                                                 isinstance(_binaryOperator, ASTComparisonOperator) or
+                                                 isinstance(_binaryOperator, ASTLogicalOperator) or
+                                                 isinstance(_binaryOperator, ASTArithmeticOperator))), \
+            '(PyNestML.AST.Expression) No or wrong type of binary operator provided (%s)!' % type(_binaryOperator)
         return cls(_lhs=_lhs, _binaryOperator=_binaryOperator, _rhs=_rhs, _sourcePosition=_sourcePosition)
 
     @classmethod
@@ -210,11 +213,11 @@ class ASTExpression(ASTElement):
         :rtype: ASTExpression
         """
         assert (_condition is not None and isinstance(_condition, ASTExpression)), \
-            '(PyNestML.AST.Expression) Condition of ternary operator is empty or not an expression!'
+            '(PyNestML.AST.Expression) No or wrong type of condition provided (%s)!' % type(_condition)
         assert (_ifTrue is not None and isinstance(_ifTrue, ASTExpression)), \
-            '(PyNestML.AST.Expression) The if-true case of ternary operator is empty or not an expression!'
+            '(PyNestML.AST.Expression) No or wrong type of if-true case provided (%s)!' % type(_ifTrue)
         assert (_ifNot is not None and isinstance(_ifNot, ASTExpression)), \
-            '(PyNestML.AST.Expression) The if-not case of ternary operator is empty or not an expression!'
+            '(PyNestML.AST.Expression) No or wrong type of if-not case provided (%s)!' % type(_ifNot)
         return cls(_condition=_condition, _ifTrue=_ifTrue, _ifNot=_ifNot, _sourcePosition=_sourcePosition)
 
     def isSimpleExpression(self):
@@ -392,7 +395,8 @@ class ASTExpression(ASTElement):
         :rtype: list(ASTFunctionCall)
         """
         ret = list()
-        if self.isSimpleExpression() and self.getExpression().getFunctionCall():
+        if self.isSimpleExpression() and isinstance(self.getExpression(), ASTSimpleExpression) \
+                and self.getExpression().getFunctionCall():
             ret.append(self.getExpression().getFunctionCall())
         elif self.isUnaryOperator():
             ret.extend(self.getExpression().getFunctions())
@@ -429,6 +433,52 @@ class ASTExpression(ASTElement):
         assert (_typeEither is not None and isinstance(_typeEither, Either)), \
             '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
         self.__typeEither = _typeEither
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.isExpression():
+            if self.getExpression() is _ast:
+                return self
+            elif self.getExpression().getParent(_ast) is not None:
+                return self.getExpression().getParent(_ast)
+        if self.isUnaryOperator():
+            if self.getUnaryOperator() is _ast:
+                return self
+            elif self.getUnaryOperator().getParent(_ast) is not None:
+                return self.getUnaryOperator().getParent(_ast)
+        if self.isCompoundExpression():
+            if self.getLhs() is _ast:
+                return self
+            elif self.getLhs().getParent(_ast) is not None:
+                return self.getLhs().getParent(_ast)
+            if self.getBinaryOperator() is _ast:
+                return self
+            elif self.getBinaryOperator().getParent(_ast) is not None:
+                return self.getBinaryOperator().getParent(_ast)
+            if self.getRhs() is _ast:
+                return self
+            elif self.getRhs().getParent(_ast) is not None:
+                return self.getRhs().getParent(_ast)
+        if self.isTernaryOperator():
+            if self.getCondition() is _ast:
+                return self
+            elif self.getCondition().getParent(_ast) is not None:
+                return self.getCondition().getParent(_ast)
+            if self.getIfTrue() is _ast:
+                return self
+            elif self.getIfTrue().getParent(_ast) is not None:
+                return self.getIfTrue().getParent(_ast)
+            if self.getIfNot() is _ast:
+                return self
+            elif self.getIfNot().getParent(_ast) is not None:
+                return self.getIfNot().getParent(_ast)
+        return None
 
     def printAST(self):
         """

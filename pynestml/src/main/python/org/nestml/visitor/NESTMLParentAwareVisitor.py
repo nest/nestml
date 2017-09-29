@@ -1,5 +1,5 @@
 #
-# NESTMLParserExceptions.py
+# NESTMLParentAwareVisitor.py
 #
 # This file is part of NEST.
 #
@@ -17,17 +17,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
+from pynestml.src.main.python.org.utils.Stack import Stack
 
 
-class InvalidPathException(Exception):
+class NESTMLParentAwareVisitor(NESTMLVisitor):
     """
-    This exception is thrown whenever neither a file nor a dir has been handed over. This should not happen.
+    The parent aware visitor storing a trace.
     """
-    pass
+    __parents = Stack()
 
-
-class InvalidTargetException(Exception):
-    """
-    This exception is thrown whenever a not correct target path has been handed over, e.g. a path to a file.
-    """
-    pass
+    def handle(self, _node):
+        self.visit(_node)
+        self.traverse(_node)
+        self.endvisit(_node)
+        return

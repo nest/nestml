@@ -20,6 +20,7 @@
 
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTComparisonOperator(ASTElement):
@@ -57,6 +58,24 @@ class ASTComparisonOperator(ASTElement):
         :param _sourcePosition: the position of the element in the source
         :type _sourcePosition: ASTSourcePosition
         """
+        assert (_isLt is not None and isinstance(_isLt, bool)), \
+            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-less-than operator provided (%s)!' % type(_isLt)
+        assert (_isLe is not None and isinstance(_isLe, bool)), \
+            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-less-equal operator provided (%s)!' % type(_isLe)
+        assert (_isEq is not None and isinstance(_isEq, bool)), \
+            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-equal operator provided (%s)!' % type(_isEq)
+        assert (_isNe is not None and isinstance(_isNe, bool)), \
+            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-not-equal operator provided (%s)!' % type(_isNe)
+        assert (_isNe2 is not None and isinstance(_isNe2, bool)), \
+            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-not-equal2 operator provided (%s)!' % type(_isNe2)
+        assert (_isGe is not None and isinstance(_isGe, bool)), \
+            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-greater-equal operator provided (%s)!' % type(
+                _isGe)
+        assert (_isGt is not None and isinstance(_isGt, bool)), \
+            '(PyNestML.AST.ComparisonOperator) No or wrong type of is-greater-than operator provided (%s)!' % type(
+                _isGt)
+        assert ((_isLt + _isLe + _isEq + _isNe + _isNe2 + _isGe + _isGt) == 1), \
+            '(PyNestML.AST.ComparisonOperator) Comparison operator not correctly specified!'
         super(ASTComparisonOperator, self).__init__(_sourcePosition)
         self.__isGt = _isGt
         self.__isGe = _isGe
@@ -148,6 +167,16 @@ class ASTComparisonOperator(ASTElement):
         """
         return self.__isGt
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        return None
+
     def printAST(self):
         """
         Returns the string representation of the operator.
@@ -169,4 +198,4 @@ class ASTComparisonOperator(ASTElement):
         elif self.__isGt:
             return ' > '
         else:
-            raise Exception('(PyNestML.AST.ComparisonOperator.Print) Comparison operator not specified!')
+            Logger.logMessage('Type of comparison operator not specified!', LOGGING_LEVEL.WARNING)

@@ -31,6 +31,7 @@ class ASTUnitTypeVisitor(object):
     def visitDatatype(cls, _dataType=None):
         """
         Visits a single data type ast node and updates, checks correctness and updates its type symbol.
+        This visitor can also be used to derive the original name of the unit.
         :param _dataType: a single datatype node.
         :type _dataType: ASTDatatype
         """
@@ -59,8 +60,8 @@ class ASTUnitTypeVisitor(object):
         else:
             symbol = None
             Logger.logMessage('Data type of %s in line %s not specified!'
-                                      % (_dataType.printAST(), _dataType.getSourcePosition().printSourcePosition()),
-                                      LOGGING_LEVEL.ERROR)
+                              % (_dataType.printAST(), _dataType.getSourcePosition().printSourcePosition()),
+                              LOGGING_LEVEL.ERROR)
         if symbol is not None:
             return symbol.getSymbolName()
         else:
@@ -126,6 +127,8 @@ class ASTUnitTypeVisitor(object):
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         # first ensure that it does not already exists, if not create it and register it in the set of predefined units
+        assert (_unitType is not None), \
+            '(PyNestML.Visitor.UnitTypeVisitor) No unit-type provided (%s)!' % type(_unitType)
         if _unitType not in PredefinedUnits.getUnits().keys():
             unitType = UnitType(_name=str(_unitType), _unit=_unitType)
             PredefinedUnits.registerUnit(unitType)

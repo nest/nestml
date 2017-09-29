@@ -29,7 +29,7 @@ class ASTFunctionCall(ASTElement):
     @attribute name The (qualified) name of the function
     @attribute args Comma separated list of expressions representing parameters.
     Grammar:
-        functionCall : calleeName=NAME '(' (args=arguments)? ')';
+        functionCall : calleeName=NAME '(' (expression (',' expression)*)? ')';
     """
     __calleeName = None
     __args = None
@@ -44,10 +44,17 @@ class ASTFunctionCall(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
+        from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+        from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
         assert (_calleeName is not None and isinstance(_calleeName, str)), \
-            '(PyNestML.AST.FunctionCall) Name of called function not provided!'
+            '(PyNestML.AST.FunctionCall) No or wrong type of name of the called function provided (%s)!' % type(
+                _calleeName)
         assert (_args is None or isinstance(_args, list)), \
-            '(PyNestML.AST.FunctionCall) Arguments must be list of expressions!'
+            '(PyNestML.AST.FunctionCall) No or wrong type of arguments provided (%s)!' % type(_args)
+        for arg in _args:
+            assert (arg is not None and (isinstance(arg, ASTExpression) or
+                                         isinstance(arg, ASTSimpleExpression))), \
+                '(PyNestML.AST.FunctionCall) No or wrong type of argument provided (%s)' % type(arg)
         super(ASTFunctionCall, self).__init__(_sourcePosition)
         self.__calleeName = _calleeName
         self.__args = _args
@@ -90,6 +97,21 @@ class ASTFunctionCall(ASTElement):
         :rtype: list(ASTExpression)
         """
         return self.__args
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for param in self.getArgs():
+            if param is _ast:
+                return self
+            elif param.getParent(_ast) is not None:
+                return param.getParent(_ast)
+        return None
 
     def printAST(self):
         """

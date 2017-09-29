@@ -162,6 +162,30 @@ class ASTFunction(ASTElement):
             '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
         self.__typeSymbol = _typeSymbol
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for param in self.getParameters():
+            if param is _ast:
+                return self
+            elif param.getParent(_ast) is not None:
+                return param.getParent(_ast)
+        if self.hasReturnType():
+            if self.getReturnType() is _ast:
+                return self
+            elif self.getReturnType().getParent(_ast) is not None:
+                return self.getReturnType().getParent(_ast)
+        if self.getBlock() is _ast:
+            return self
+        elif self.getBlock().getParent(_ast) is not None:
+            return self.getBlock().getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns a string representation of the function definition.

@@ -41,6 +41,22 @@ class ASTBody(ASTElement):
         :param _sourcePosition: the position of the element in the source model
         :rtype _sourcePosition: ASTSourcePosition
         """
+        from pynestml.src.main.python.org.nestml.ast.ASTBlockWithVariables import ASTBlockWithVariables
+        from pynestml.src.main.python.org.nestml.ast.ASTUpdateBlock import ASTUpdateBlock
+        from pynestml.src.main.python.org.nestml.ast.ASTInputBlock import ASTInputBlock
+        from pynestml.src.main.python.org.nestml.ast.ASTOutputBlock import ASTOutputBlock
+        from pynestml.src.main.python.org.nestml.ast.ASTFunction import ASTFunction
+        from pynestml.src.main.python.org.nestml.ast.ASTEquationsBlock import ASTEquationsBlock
+        assert (_bodyElements is not None and isinstance(_bodyElements, list)), \
+            '(PyNestML.AST.Body) No or wrong type of body elements provided (%s)' % type(_bodyElements)
+        for elem in _bodyElements:
+            assert (elem is not None and (isinstance(elem, ASTBlockWithVariables) or
+                                          isinstance(elem, ASTUpdateBlock) or
+                                          isinstance(elem, ASTInputBlock) or
+                                          isinstance(elem, ASTOutputBlock) or
+                                          isinstance(elem, ASTFunction) or
+                                          isinstance(elem, ASTEquationsBlock))), \
+                '(PyNestML.AST.Body) No or wrong type of body element provided (%s)!' % type(elem)
         super(ASTBody, self).__init__(_sourcePosition)
         self.__bodyElements = _bodyElements
 
@@ -168,6 +184,21 @@ class ASTBody(ASTElement):
             if isinstance(elem, ASTOutputBlock):
                 ret.append(elem)
         return ret
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for stmt in self.getBodyElements():
+            if stmt is _ast:
+                return self
+            if stmt.getParent(_ast) is not None:
+                return stmt.getParent(_ast)
+        return None
 
     def printAST(self):
         """

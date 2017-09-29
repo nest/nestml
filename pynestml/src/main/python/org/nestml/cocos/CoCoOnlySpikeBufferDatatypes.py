@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
@@ -36,7 +36,7 @@ class CoCoOnlySpikeBufferDatatypes(CoCo):
             current integer <- current
         end
     """
-    __inputBuffers = list()
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -47,30 +47,32 @@ class CoCoOnlySpikeBufferDatatypes(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__currentInputBuffers = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectInputBuffers)
-        for buffer in cls.__inputBuffers:
-            if buffer.isSpike() and not buffer.hasDatatype():
-                Logger.logMessage(
-                    '[' + _neuron.getName() +
-                    '.nestml] Data type of spike buffer "%s" at %s not specified!'
-                    % (buffer.getName(), buffer.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
-            if buffer.isCurrent() and buffer.hasDatatype():
-                Logger.logMessage(
-                    '[' + _neuron.getName() +
-                    '.nestml] No datatype allowed for current buffer "%s" at %s!'
-                    % (buffer.getName(), buffer.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+        cls.neuronName = _neuron.getName()
+        _neuron.accept(BufferDatatypeVisitor())
+        return
 
-    @classmethod
-    def __collectInputBuffers(cls, _ast=None):
+
+class BufferDatatypeVisitor(NESTMLVisitor):
+    """
+    This visitor checks if each buffer has a datatype selected according to the coco.
+    """
+
+    def visitInputLine(self, _line=None):
         """
-        For a given node, it collects all buffers declarations.
-        :param _ast: a single ast.
-        :type _ast: AST_
+        Checks the coco on the current node.
+        :param _line: a single input line node.
+        :type _line: ASTInputLine
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTInputLine import ASTInputLine
-        if isinstance(_ast, ASTInputLine):
-            cls.__inputBuffers.append(_ast)
+        if _line.isSpike() and not _line.hasDatatype():
+            Logger.logMessage(
+                '[' + CoCoOnlySpikeBufferDatatypes.neuronName +
+                '.nestml] Data type of spike buffer "%s" at %s not specified!'
+                % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
+                LOGGING_LEVEL.ERROR)
+        if _line.isCurrent() and _line.hasDatatype():
+            Logger.logMessage(
+                '[' + CoCoOnlySpikeBufferDatatypes.neuronName +
+                '.nestml] No datatype allowed for current buffer "%s" at %s!'
+                % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
+                LOGGING_LEVEL.ERROR)
         return

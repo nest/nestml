@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 
 
 class CoCoBufferNotAssigned(CoCo):
@@ -34,7 +34,7 @@ class CoCoBufferNotAssigned(CoCo):
         current = currentSum + 10mV
     
     """
-    __assignments = list()
+    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -45,25 +45,19 @@ class CoCoBufferNotAssigned(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__assignments = list()
-        ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__collectAssignments)
-        for assign in cls.__assignments:
-            symbol = assign.getScope().resolveToAllSymbols(assign.getVariable().getName(), SymbolKind.VARIABLE)
-            if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
-                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
-                Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] Value assigned to buffer "%s" at %s!'
-                    % (assign.getVariable().getCompleteName(), assign.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+        cls.neuronName = _neuron.getName()
+        visitor = NoBufferAssignedVisitor()
+        _neuron.accept(visitor)
+        return
 
-    @classmethod
-    def __collectAssignments(cls, _ast=None):
-        """
-        For a given node, it collects all the assignments.
-        :param _ast: a single ast node.
-        :type _ast: AST_
-        """
-        from pynestml.src.main.python.org.nestml.ast.ASTAssignment import ASTAssignment
-        if isinstance(_ast, ASTAssignment):
-            cls.__assignments.append(_ast)
+
+class NoBufferAssignedVisitor(NESTMLVisitor):
+    def visitAssignment(self, _assignment=None):
+        symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
+        if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
+                                           symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
+            Logger.logMessage(
+                '[' + CoCoBufferNotAssigned.neuronName + '.nestml] Value assigned to buffer "%s" at %s!'
+                % (_assignment.getVariable().getCompleteName(), _assignment.getSourcePosition().printSourcePosition()),
+                LOGGING_LEVEL.ERROR)
         return

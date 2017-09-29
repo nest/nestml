@@ -56,18 +56,19 @@ class ASTSmallStmt(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_assignment is None or isinstance(_assignment, ASTAssignment)), \
-            '(PyNestML.AST.SmallStmt) Not an assignment provided.'
+            '(PyNestML.AST.SmallStmt) Wrong type of assignment provided (%s)!' % type(_assignment)
         assert (_functionCall is None or isinstance(_functionCall, ASTFunctionCall)), \
-            '(PyNestTML.AST.SmallStmt) Not a function call provided.'
+            '(PyNestTML.AST.SmallStmt) Wrong type of function call provided (%s)!' % type(_functionCall)
         assert (_declaration is None or isinstance(_declaration, ASTDeclaration)), \
-            '(PyNestML.AST.SmallStmt) Not a declaration provided.'
+            '(PyNestML.AST.SmallStmt) Wrong type of declaration provided (%s)!' % type(_declaration)
         assert (_returnStmt is None or isinstance(_returnStmt, ASTReturnStmt)), \
-            '(PyNestML.AST.SmallStmt) Not a return statement provided.'
+            '(PyNestML.AST.SmallStmt) Wrong type of return statement provided (%s)!' % type(_returnStmt)
         super(ASTSmallStmt, self).__init__(_sourcePosition)
         self.__assignment = _assignment
         self.__functionCall = _functionCall
         self.__declaration = _declaration
         self.__returnStmt = _returnStmt
+        return
 
     @classmethod
     def makeASTSmallStmt(cls, _assignment=None, _functionCall=None, _declaration=None,
@@ -152,6 +153,36 @@ class ASTSmallStmt(ASTElement):
         :rtype: ASTReturn_Stmt
         """
         return self.__returnStmt
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.isAssignment():
+            if self.getAssignment() is _ast:
+                return self
+            elif self.getAssignment().getParent(_ast) is not None:
+                return self.getAssignment().getParent(_ast)
+        if self.isFunctionCall():
+            if self.getFunctionCall() is _ast:
+                return self
+            elif self.getFunctionCall().getParent(_ast) is not None:
+                return self.getFunctionCall().getParent(_ast)
+        if self.isDeclaration():
+            if self.getDeclaration() is _ast:
+                return self
+            elif self.getDeclaration().getParent(_ast) is not None:
+                return self.getDeclaration().getParent(_ast)
+        if self.isReturnStmt():
+            if self.getReturnStmt() is _ast:
+                return self
+            elif self.getReturnStmt().getParent(_ast) is not None:
+                return self.getReturnStmt().getParent(_ast)
+        return None
 
     def printAST(self):
         """

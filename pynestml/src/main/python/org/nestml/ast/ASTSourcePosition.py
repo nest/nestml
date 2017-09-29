@@ -41,13 +41,13 @@ class ASTSourcePosition(object):
         :type _endColumn: int
         """
         assert (_startColumn is not None and isinstance(_startColumn, int)), \
-            '(PyNestML.AST.SourcePosition) Handed over element not an integer!'
+            '(PyNestML.AST.SourcePosition) No or wrong type of start-column provided (%s)!' % type(_startColumn)
         assert (_startLine is not None and isinstance(_startLine, int)), \
-            '(PyNestML.AST.SourcePosition) Handed over element not an integer!'
+            '(PyNestML.AST.SourcePosition) No or wrong type of start-line provided (%s)!' % type(_startLine)
         assert (_endColumn is not None and isinstance(_endColumn, int)), \
-            '(PyNestML.AST.SourcePosition) Handed over element not an integer!'
+            '(PyNestML.AST.SourcePosition) No or wrong type of end-column provided (%s)!' % type(_endColumn)
         assert (_endLine is not None and isinstance(_endLine, int)), \
-            '(PyNestML.AST.SourcePosition) Handed over element not an integer!'
+            '(PyNestML.AST.SourcePosition) No or wrong type of end-line provided (%s)!' % type(_endLine)
         self.__startLine = _startLine
         self.__startColumn = _startColumn
         self.__endLine = _endLine

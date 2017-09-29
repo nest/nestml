@@ -31,6 +31,11 @@ class CoCoAllVariablesDefined(CoCo):
     """
     This class represents a constraint condition which ensures that all elements as used in expressions have been
     previously defined.
+    Not allowed:
+        state:
+            V_m mV = V_m + 10mV # <- recursive definition
+            V_m mV = V_n # <- not defined reference
+        end
     """
 
     @classmethod
@@ -47,7 +52,7 @@ class CoCoAllVariablesDefined(CoCo):
         expressions = ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron)
         for expr in expressions:
             for var in expr.getVariables():
-                symbol = var.getScope().resolveToAllSymbols(var.getCompleteName(), SymbolKind.VARIABLE)
+                symbol = var.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
                 # first test if the symbol has been defined at least
                 if symbol is None:
                     Logger.logMessage(

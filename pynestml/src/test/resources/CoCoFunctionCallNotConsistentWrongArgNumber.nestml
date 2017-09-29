@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoNoOrderOfEquations.nestml
+ *  CoCoFunctionCallNotConsistentWrongArgNumber.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,27 +20,23 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if the order of equations is correct.
+ * This model is used to test if broken CoCos are identified correctly. Here, if current buffers are not specified by
+ * keywords.
  *
 */
 
-neuron CoCoNoOrderOfEquations:
-    initial_values:
-        V_m mV = 10mV
+neuron CoCoFunctionCallNotConsistentWrongArgNumber:
+    state:
+        test integer = max(1,2,3)
     end
 
-    equations:
-        V_m = 10mV # here, we did not specified the order of equation
+    update:
+        # required for creation of a correct ast
     end
 
     input:
-        # in order to generate an ast
+        # required for creation of a correct ast
     end
 
     output: spike
-
-    update:
-        # in order to generate an ast
-    end
-
 end

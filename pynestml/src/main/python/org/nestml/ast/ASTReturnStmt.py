@@ -44,7 +44,7 @@ class ASTReturnStmt(ASTElement):
         """
         assert (_expression is None or isinstance(_expression, ASTExpression)
                 or isinstance(_expression, ASTSimpleExpression)), \
-            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided!'
+            '(PyNestML.AST.ReturnStmt) Wrong type of return statement provided (%s)!' % type(_expression)
         super(ASTReturnStmt, self).__init__(_sourcePosition)
         self.__expression = _expression
 
@@ -76,6 +76,21 @@ class ASTReturnStmt(ASTElement):
         :rtype: ASTExpression
         """
         return self.__expression
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.hasExpr():
+            if self.getExpr() is _ast:
+                return self
+            elif self.getExpr().getParent(_ast) is not None:
+                return self.getExpr().getParent(_ast)
+        return None
 
     def printAST(self):
         """

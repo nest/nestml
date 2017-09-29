@@ -211,6 +211,35 @@ class ASTDeclaration(ASTElement):
         """
         return self.__invariant
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for var in self.getVariables():
+            if var is _ast:
+                return self
+            elif var.getParent(_ast) is not None:
+                return var.getParent(_ast)
+        if self.getDataType() is _ast:
+            return self
+        elif self.getDataType().getParent(_ast) is not None:
+            return self.getDataType().getParent(_ast)
+        if self.hasExpression():
+            if self.getExpr() is _ast:
+                return self
+            elif self.getExpr().getParent(_ast) is not None:
+                return self.getExpr().getParent(_ast)
+        if self.hasInvariant():
+            if self.getInvariant() is _ast:
+                return self
+            elif self.getInvariant().getParent(_ast) is not None:
+                return self.getInvariant().getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns a string representation of the declaration.

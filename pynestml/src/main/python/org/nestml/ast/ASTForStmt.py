@@ -27,7 +27,7 @@ class ASTForStmt(ASTElement):
     """
     This class is used to store a for-block.
     Grammar:
-        forStmt : 'for' var=NAME 'in' vrom=expression 
+        forStmt : 'for' var=NAME 'in' vrom=expression
                     '...' to=expression 'step' step=signedNumericLiteral BLOCK_OPEN block BLOCK_CLOSE;
     """
     __variable = None
@@ -53,15 +53,15 @@ class ASTForStmt(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_variable is not None and isinstance(_variable, str)), \
-            '(PyNestML.AST.ForStmt) No iteration variable or wrong type provided!'
+            '(PyNestML.AST.ForStmt) No or wrong type of iteration variable provided (%s)!' % type(_variable)
         assert (_from is not None and isinstance(_from, ASTExpression)), \
-            '(PyNestML.AST.ForStmt) No from-statement or wrong type provided!'
+            '(PyNestML.AST.ForStmt) No or wrong type of from-statement provided (%s)!' % type(_from)
         assert (_to is not None and isinstance(_from, ASTExpression)), \
-            '(PyNestML.AST.ForStmt) No to-statement or wrong type provided!'
+            '(PyNestML.AST.ForStmt) No or wrong type of to-statement provided (%s)!' % type(_to)
         assert (_step is not None and (isinstance(_step, int) or isinstance(_step, float))), \
-            '(PyNestML.AST.ForStmt) No step size or wrong type provided %s!'
+            '(PyNestML.AST.ForStmt) No step size or wrong type provided (%s)!' % type(_step)
         assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.ForStmt) No block or wrong type provided!'
+            '(PyNestML.AST.ForStmt) No or wrong type of block provided (%s)!' % type(_block)
         super(ASTForStmt, self).__init__(_sourcePosition)
         self.__block = _block
         self.__step = _step
@@ -129,6 +129,28 @@ class ASTForStmt(ASTElement):
         :rtype: ASTBlock
         """
         return self.__block
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getFrom() is _ast:
+            return self
+        elif self.getFrom().getParent(_ast) is not None:
+            return self.getFrom().getParent(_ast)
+        if self.getTo() is _ast:
+            return self
+        elif self.getTo().getParent(_ast) is not None:
+            return self.getTo().getParent(_ast)
+        if self.getBlock() is _ast:
+            return self
+        elif self.getBlock().getParent(_ast) is not None:
+            return self.getBlock().getParent(_ast)
+        return None
 
     def printAST(self):
         """

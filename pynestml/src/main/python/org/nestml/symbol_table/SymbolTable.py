@@ -38,7 +38,8 @@ class SymbolTable:
         """
         from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of source position provided!'
+            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of source position provided (%s)!' % type(
+                _sourcePosition)
         cls.__sourcePosition = _sourcePosition
         cls.__name2neuronScope = {}
         return
@@ -51,11 +52,11 @@ class SymbolTable:
         :rtype: Scope
         """
         assert (_scope is not None and isinstance(_scope, Scope)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided!'
+            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of scope provided (%s)!' % type(_scope)
         assert (_scope.getScopeType() == ScopeType.GLOBAL), \
             '(PyNestML.SymbolTable.SymbolTable) Only global scopes can be added!'
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(_name)
         if _name not in cls.__name2neuronScope.keys():
             cls.__name2neuronScope[_name] = _scope
         return
@@ -68,7 +69,7 @@ class SymbolTable:
         :rtype: Scope
         """
         assert (_name is not None and isinstance(_name, Scope)), \
-            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided!'
+            '(PyNestML.SymbolTable.SymbolTable) No or wrong type of name provided (%s)!' % type(_name)
         if _name in cls.__name2neuronScope.keys():
             del cls.__name2neuronScope[_name]
         return

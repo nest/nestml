@@ -46,9 +46,9 @@ class ASTParameter(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_name is not None and isinstance(_name, str)), \
-            '(PyNestML.AST.Parameter) No or wrong type of name provided!'
+            '(PyNestML.AST.Parameter) No or wrong type of name provided (%s)!' % type(_name)
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
-            '(PyNestML.AST.Parameter) No or wrong type of datatype provided!'
+            '(PyNestML.AST.Parameter) No or wrong type of datatype provided (%s)!' % type(_dataType)
         super(ASTParameter, self).__init__(_sourcePosition)
         self.__dataType = _dataType
         self.__name = _name
@@ -83,6 +83,20 @@ class ASTParameter(ASTElement):
         :rtype: ASTDataType
         """
         return self.__dataType
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getDataType() is _ast:
+            return self
+        elif self.getDataType().getParent(_ast) is not None:
+            return self.getDataType().getParent(_ast)
+        return None
 
     def printAST(self):
         """

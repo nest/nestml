@@ -43,9 +43,9 @@ class ASTIfClause(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_condition is not None and isinstance(_condition, ASTExpression)), \
-            '(PyNestML.AST.IfClause) No or wrong type of condition provided!'
+            '(PyNestML.AST.IfClause) No or wrong type of condition provided (%s)!' % type(_condition)
         assert (_block is not None and isinstance(_block, ASTBlock)), \
-            '(PyNestML.AST.IfClause) No or wrong type of block provided!'
+            '(PyNestML.AST.IfClause) No or wrong type of block provided (%s)!' % type(_block)
         super(ASTIfClause, self).__init__(_sourcePosition)
         self.__block = _block
         self.__condition = _condition
@@ -80,6 +80,24 @@ class ASTIfClause(ASTElement):
         :rtype: ASTBlock
         """
         return self.__block
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getCondition() is _ast:
+            return self
+        elif self.getCondition().getParent(_ast) is not None:
+            return self.getCondition().getParent(_ast)
+        if self.getBlock() is _ast:
+            return self
+        elif self.getBlock().getParent(_ast) is not None:
+            return self.getBlock().getParent(_ast)
+        return None
 
     def printAST(self):
         """

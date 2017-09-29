@@ -35,6 +35,12 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoParametersAssignedOnlyInParam
     CoCoParametersAssignedOnlyInParameterBlock
 from pynestml.src.main.python.org.nestml.cocos.CoCoCurrentBuffersNotSpecified import CoCoCurrentBuffersNotSpecified
 from pynestml.src.main.python.org.nestml.cocos.CoCoOnlySpikeBufferDatatypes import CoCoOnlySpikeBufferDatatypes
+from pynestml.src.main.python.org.nestml.cocos.CoCoInitVarsWithOdesProvided import CoCoInitVarsWithOdesProvided
+from pynestml.src.main.python.org.nestml.cocos.CoCoUserDefinedFunctionCorrectlyDefined import \
+    CoCoUserDefinedFunctionCorrectlyDefined
+from pynestml.src.main.python.org.nestml.cocos.CoCoEquationsOnlyForInitValues import CoCoEquationsOnlyForInitValues
+from pynestml.src.main.python.org.nestml.cocos.CoCoConvolveCondCorrectlyBuilt import CoCoConvolveCondCorrectlyBuilt
+from pynestml.src.main.python.org.nestml.cocos.CoCoNoShapesExceptInConvolve import CoCoNoShapesExceptInConvolve
 
 
 class CoCosManager(object):
@@ -57,6 +63,11 @@ class CoCosManager(object):
     __parametersNotAssignedOutsideCorrespondingBlock = None
     __currentBuffersNotSpecified = None
     __buffersDatatypeCorrect = None
+    __initialValuesCorrect = None
+    __returnStmtCorrect = None
+    __equationsOnlyForInits = None
+    __convolveCorrectlyBuilt = None
+    __noShapesExceptInConvolve = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -79,6 +90,11 @@ class CoCosManager(object):
         cls.__parametersNotAssignedOutsideCorrespondingBlock = CoCoParametersAssignedOnlyInParameterBlock.checkCoCo
         cls.__currentBuffersNotSpecified = CoCoCurrentBuffersNotSpecified.checkCoCo
         cls.__buffersDatatypeCorrect = CoCoOnlySpikeBufferDatatypes.checkCoCo
+        cls.__initialValuesCorrect = CoCoInitVarsWithOdesProvided.checkCoCo
+        cls.__returnStmtCorrect = CoCoUserDefinedFunctionCorrectlyDefined.checkCoCo
+        cls.__equationsOnlyForInits = CoCoEquationsOnlyForInitValues.checkCoCo
+        cls.__convolveCorrectlyBuilt = CoCoConvolveCondCorrectlyBuilt.checkCoCo
+        cls.__noShapesExceptInConvolve = CoCoNoShapesExceptInConvolve.checkCoCo
         return
 
     @classmethod
@@ -292,6 +308,67 @@ class CoCosManager(object):
         return
 
     @classmethod
+    def checkInitVarsWithOdesProvided(cls, _neuron=None):
+        """
+        Checks that all initial variables have a rhs and are provided with the corresponding ode declaration.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__initialValuesCorrect(_neuron)
+        return
+
+    @classmethod
+    def checkUserDefinedFunctionCorrectlyBuilt(cls, _neuron=None):
+        """
+        Checks that all user defined functions are correctly constructed, i.e., have a return statement if declared
+        and that the type corresponds to the declared one.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__returnStmtCorrect(_neuron)
+        return
+
+    @classmethod
+    def checkInitialOdeInitialValues(cls, _neuron=None):
+        """
+        Checks if variables of odes are declared in the initial_values block.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__equationsOnlyForInits(_neuron)
+        return
+
+    @classmethod
+    def checkConvolveCondCurrIsCorrect(cls, _neuron=None):
+        """
+        Checks if all convolve/curr_sum/cond_sum expression are correctly provided with arguments.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__convolveCorrectlyBuilt(_neuron)
+        return
+
+    @classmethod
+    def checkCorrectUsageOfShapes(cls, _neuron=None):
+        """
+        Checks if all shapes are only used in cond_sum, cur_sum, convolve.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__noShapesExceptInConvolve(_neuron)
+        return
+
+    @classmethod
     def postSymbolTableBuilderChecks(cls, _neuron=None):
         """
         Checks the following constraints:
@@ -309,6 +386,8 @@ class CoCosManager(object):
             cls.checkParametersNotAssignedOutsideParametersBlock(_neuron)
             cls.checkCurrentBuffersNoKeywords(_neuron)
             cls.checkBufferTypesAreCorrect(_neuron)
+            cls.checkUsedDefinedFunctionCorrectlyBuilt(_neuron)
+            cls.checkInitialOdeInitialValues(_neuron)
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
@@ -326,4 +405,19 @@ class CoCosManager(object):
         cls.checkParametersNotAssignedOutsideParametersBlock(_neuron)
         cls.checkCurrentBuffersNoKeywords(_neuron)
         cls.checkBufferTypesAreCorrect(_neuron)
+        cls.checkUserDefinedFunctionCorrectlyBuilt(_neuron)
+        cls.checkInitialOdeInitialValues(_neuron)
+        cls.checkConvolveCondCurrIsCorrect(_neuron)
+        cls.checkCorrectUsageOfShapes(_neuron)
+        return
+
+    @classmethod
+    def postOdeSpecificationChecks(cls, _neuron=None):
+        """
+        Checks the following constraints:
+            cls.checkInitVarsWithOdesProvided
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        cls.checkInitVarsWithOdesProvided(_neuron)
         return

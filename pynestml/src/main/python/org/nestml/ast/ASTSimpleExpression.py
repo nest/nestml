@@ -23,6 +23,7 @@ from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionC
 from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.visitor.expression_visitor.Either import Either
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTSimpleExpression(ASTElement):
@@ -34,6 +35,7 @@ class ASTSimpleExpression(ASTElement):
                    | BOOLEAN_LITERAL // true & false;
                    | (INTEGER|FLOAT) (variable)?
                    | isInf='inf'
+                   | STRING_LITERAL
                    | variable;
     """
     __functionCall = None
@@ -268,6 +270,26 @@ class ASTSimpleExpression(ASTElement):
         """
         return self.__string
 
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.isFunctionCall():
+            if self.getFunctionCall() is _ast:
+                return self
+            elif self.getFunctionCall().getParent(_ast) is not None:
+                return self.getFunctionCall().getParent(_ast)
+        if self.__variable is not None:
+            if self.__variable is _ast:
+                return self
+            elif self.__variable.getParent(_ast) is not None:
+                return self.__variable.getParent(_ast)
+        return None
+
     def printAST(self):
         """
         Returns the string representation of the simple expression.
@@ -283,7 +305,7 @@ class ASTSimpleExpression(ASTElement):
         elif self.isInfLiteral():
             return 'inf'
         elif self.isNumericLiteral():
-            if self.isVariable():
+            if self.__variable is not None:
                 return str(self.__numericLiteral) + self.__variable.printAST()
             else:
                 return str(self.__numericLiteral)
@@ -292,4 +314,5 @@ class ASTSimpleExpression(ASTElement):
         elif self.isString():
             return self.getString()
         else:
-            raise Exception("(PyNESTML.AST.SimpleExpression.Print) Simple expression not specified.")
+            Logger.logMessage('Simple expression at %s not specified!' % self.getSourcePosition().printSourcePosition(),
+                              LOGGING_LEVEL.WARNING)

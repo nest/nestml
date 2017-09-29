@@ -21,6 +21,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTIfClause import ASTIfClause
 from pynestml.src.main.python.org.nestml.ast.ASTElseClause import ASTElseClause
+from pynestml.src.main.python.org.nestml.ast.ASTElifClause import ASTElifClause
 
 
 class ASTIfStmt(ASTElement):
@@ -49,11 +50,14 @@ class ASTIfStmt(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_ifClause is not None and isinstance(_ifClause, ASTIfClause)), \
-            '(PyNestML.AST.IfStmt) No or wrong type of if-clause provided!'
+            '(PyNestML.AST.IfStmt) No or wrong type of if-clause provided (%s)!' % type(_ifClause)
         assert (_elifClauses is None or isinstance(_elifClauses, list)), \
-            '(PyNestML.AST.IfStmt) Wrong type of elif-clauses provided!'
+            '(PyNestML.AST.IfStmt) Wrong type of elif-clauses provided (%s)!' % type(_elifClauses)
+        for elifClause in _elifClauses:
+            assert (elifClause is not None and isinstance(elifClause, ASTElifClause)), \
+                '(PyNestML.AST.IfStmt) Wrong type of elif-clause provided (%s)!' % type(elifClause)
         assert (_elseClause is None or isinstance(_elseClause, ASTElseClause)), \
-            '(PyNestML.AST.IfStmt) Wrong type of else-clauses provided!'
+            '(PyNestML.AST.IfStmt) Wrong type of else-clauses provided (%s)!' % type(_elseClause)
         super(ASTIfStmt, self).__init__(_sourcePosition)
         self.__elseClause = _elseClause
         self.__ifClause = _ifClause
@@ -115,6 +119,30 @@ class ASTIfStmt(ASTElement):
         :rtype: ASTElseClause
         """
         return self.__elseClause
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getIfClause() is _ast:
+            return self
+        elif self.getIfClause().getParent(_ast) is not None:
+            return self.getIfClause().getParent(_ast)
+        for elifClause in self.getElifClauses():
+            if elifClause is _ast:
+                return self
+            elif elifClause.getParent(_ast) is not None:
+                return elifClause.getParent(_ast)
+        if self.hasElseClause():
+            if self.getElseClause() is _ast:
+                return self
+            elif self.getElseClause().getParent(_ast) is not None:
+                return self.getElseClause().getParent(_ast)
+        return None
 
     def printAST(self):
         """

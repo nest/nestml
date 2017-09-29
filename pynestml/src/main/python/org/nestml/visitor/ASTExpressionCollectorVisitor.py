@@ -71,7 +71,7 @@ class ASTExpressionCollectorVisitor(object):
         assert (_block is not None and (isinstance(_block, ASTBlockWithVariables) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of state block provided (%s)!' % type(_block)
         assert (isinstance(_block, list) or _block.isState()), \
-            '(PyNestML.Visitor.ExpressionCollector) Not a state block provided!'
+            '(PyNestML.Visitor.ExpressionCollector) Not a state block provided (%s)!' % type(_block)
         ret = list()
         if isinstance(_block, list):
             for block in _block:
@@ -97,7 +97,7 @@ class ASTExpressionCollectorVisitor(object):
         assert (_block is not None and (isinstance(_block, ASTBlockWithVariables) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of parameters block provided (%s)!' % type(_block)
         assert (isinstance(_block, list) or _block.isParameters()), \
-            '(PyNestML.Visitor.ExpressionCollector) Not a parameters block provided!'
+            '(PyNestML.Visitor.ExpressionCollector) Not a parameters block provided (%s)!' % type(_block)
         ret = list()
         if isinstance(_block, list):
             for block in _block:
@@ -123,7 +123,7 @@ class ASTExpressionCollectorVisitor(object):
         assert (_block is not None and (isinstance(_block, ASTBlockWithVariables) or isinstance(_block, list))), \
             '(PyNestML.Visitor.ExpressionCollector) No or wrong type of internals block provided (%s)!' % type(_block)
         assert (isinstance(_block, list) or _block.isInternals()), \
-            '(PyNestML.Visitor.ExpressionCollector) Not a internals block provided!'
+            '(PyNestML.Visitor.ExpressionCollector) Not a internals block provided (%s)!' % type(_block)
         ret = list()
         if isinstance(_block, list):
             for block in _block:

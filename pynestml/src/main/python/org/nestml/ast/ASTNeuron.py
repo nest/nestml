@@ -45,8 +45,10 @@ class ASTNeuron(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_name is not None and isinstance(_name, str)), '(PyNestML.AST.Neuron) No neuron name provided.'
-        assert (_body is not None and isinstance(_body, ASTBody)), '(PyNestML.AST.Neuron) No neuron body provided.'
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.AST.Neuron) No  or wrong type of neuron name provided (%s)!' % type(_name)
+        assert (_body is not None and isinstance(_body, ASTBody)), \
+            '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(_body)
         super(ASTNeuron, self).__init__(_sourcePosition)
         self.__name = _name
         self.__body = _body
@@ -220,6 +222,20 @@ class ASTNeuron(ASTElement):
             return None
         else:
             return ret
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getBody() is _ast:
+            return self
+        elif self.getBody().getParent(_ast) is not None:
+            return self.getBody().getParent(_ast)
+        return None
 
     def printAST(self):
         """

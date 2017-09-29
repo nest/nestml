@@ -68,11 +68,11 @@ class PredefinedUnits(object):
         cls.__prefixlessUnits.append(henry)
         cls.__prefixlessUnits.append(lux)
         # the sympy system misses the following units:lumen, becquerel,gray,sievert,katal
-        lumen = Quantity('lumen', luminous_intensity, candela, 'lm')
-        becquerel = Quantity('becquerel', 1 / time, 1 / second, 'Bq')
-        gray = Quantity('gray', (length ** 2) / (time ** 2), meter * meter / (second * second), 'Gy')
-        sievert = Quantity('sievert', (length ** 2) / (time ** 2), meter * meter / (second * second), 'Sv')
-        katal = Quantity('katal', amount_of_substance / time, mole / second, 'kat')
+        lumen = Quantity('Lumen', luminous_intensity, candela, 'lm')
+        becquerel = Quantity('Becquerel', 1 / time, 1 / second, 'Bq')
+        gray = Quantity('Gray', (length ** 2) / (time ** 2), meter * meter / (second * second), 'Gy')
+        sievert = Quantity('Sievert', (length ** 2) / (time ** 2), meter * meter / (second * second), 'Sv')
+        katal = Quantity('Katal', amount_of_substance / time, mole / second, 'kat')
         cls.__prefixlessUnits.append(lumen)
         cls.__prefixlessUnits.append(becquerel)
         cls.__prefixlessUnits.append(gray)
@@ -115,6 +115,8 @@ class PredefinedUnits(object):
         :param _unit: a single unit type.
         :type _unit: UnitType
         """
+        assert (_unit is not None and isinstance(_unit, UnitType)), \
+            '(PyNestML.SymbolTable.PredefinedUnits) No or wrong type of unit provided (%s)!' % type(_unit)
         if _unit.getName() is not cls.__name2unit.keys():
             cls.__name2unit[_unit.getName()] = _unit
         return

@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
- 
+
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 
@@ -54,6 +54,20 @@ class ASTArithmeticOperator(ASTElement):
         :param _sourcePosition: the position of this element in the source file
         :type _sourcePosition: ASTSourcePosition
         """
+        assert (_isTimesOp is not None and isinstance(_isTimesOp, bool)), \
+            '(PyNESTML.AST.ArithmeticOperator) wrong type of is-times parameter provided (%s)!' % type(_isTimesOp)
+        assert (_isDivOp is not None and isinstance(_isDivOp, bool)), \
+            '(PyNESTML.AST.ArithmeticOperator) wrong type of is-div parameter provided (%s)!' % type(_isDivOp)
+        assert (_isModuloOp is not None and isinstance(_isModuloOp, bool)), \
+            '(PyNESTML.AST.ArithmeticOperator) wrong type of is-mod parameter provided (%s)!' % type(_isModuloOp)
+        assert (_isPlusOp is not None and isinstance(_isPlusOp, bool)), \
+            '(PyNESTML.AST.ArithmeticOperator) wrong type of is-plus parameter provided (%s)!' % type(_isPlusOp)
+        assert (_isMinusOp is not None and isinstance(_isMinusOp, bool)), \
+            '(PyNESTML.AST.ArithmeticOperator) wrong type of is-minus parameter provided (%s)!' % type(_isMinusOp)
+        assert (_isPowOp is not None and isinstance(_isPowOp, bool)), \
+            '(PyNESTML.AST.ArithmeticOperator) wrong type of is-pow parameter provided (%s)!' % type(_isPowOp)
+        assert (_isTimesOp or _isDivOp or _isModuloOp or _isPlusOp or _isMinusOp or _isPowOp), \
+            '(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified.'
         super(ASTArithmeticOperator, self).__init__(_sourcePosition)
         self.__isTimesOp = _isTimesOp
         self.__isDivOp = _isDivOp
@@ -61,6 +75,7 @@ class ASTArithmeticOperator(ASTElement):
         self.__isPlusOp = _isPlusOp
         self.__isMinusOp = _isMinusOp
         self.__isPowOp = _isPowOp
+        return
 
     @classmethod
     def makeASTArithmeticOperator(cls, _isTimesOp=False, _isDivOp=False, _isModuloOp=False,
@@ -86,8 +101,6 @@ class ASTArithmeticOperator(ASTElement):
         :return: a new ASTArithmeticOperator object.
         :rtype: ASTArithmeticOperator
         """
-        assert (_isTimesOp or _isDivOp or _isModuloOp or _isPlusOp or _isMinusOp or _isPowOp), \
-            '(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified.'
         return cls(_isTimesOp, _isDivOp, _isModuloOp, _isPlusOp, _isMinusOp, _isPowOp, _sourcePosition)
 
     def isTimesOp(self):
@@ -158,6 +171,16 @@ class ASTArithmeticOperator(ASTElement):
             return ' ** '
         else:
             raise InvalidArithmeticOperator('(PyNestML.ArithmeticOperator.Print) Arithmetic operator not specified.')
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        return None
 
 
 class InvalidArithmeticOperator(Exception):

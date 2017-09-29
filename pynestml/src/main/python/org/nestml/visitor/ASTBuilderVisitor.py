@@ -17,14 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 import re
 from antlr4 import *
 # import all ASTClasses
 from pynestml.src.main.python.org.nestml.ast import *
 from pynestml.src.main.python.org.nestml.ast.ASTOutputBlock import SignalType
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTBuilderVisitor(ParseTreeVisitor):
@@ -175,7 +174,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             return ASTExpression.ASTExpression.makeTernaryExpression(_condition=condition, _ifTrue=ifTrue,
                                                                      _ifNot=ifNot, _sourcePosition=sourcePos)
         else:
-            raise PyNESTMLUnknownExpressionTypeException('(NESTML.ASTBuilder) Type of expression not recognized.')
+            Logger.logMessage('Type of expression @%s,%s not recognized!' % (ctx.start.line, ctx.start.column),
+                              LOGGING_LEVEL.ERROR)
+            return
 
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):
@@ -513,8 +514,10 @@ class ASTBuilderVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by PyNESTMLParser#body.
     def visitBody(self, ctx):
-        "Here, in order to ensure that the correct order of elements is kept, we use a method which inspects \
-        a list of elements and returns the one with the smallest source line."
+        """
+        Here, in order to ensure that the correct order of elements is kept, we use a method which inspects
+        a list of elements and returns the one with the smallest source line.
+        """
         body_elements = list()
         # visit all var_block children
         if ctx.blockWithVariables() is not None:
@@ -537,7 +540,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                 body_elements.append(child)
         elements = list()
         while len(body_elements) > 0:
-            elem = self.getNext(body_elements)
+            elem = getNext(body_elements)
             elements.append(self.visit(elem))
             body_elements.remove(elem)
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
@@ -575,8 +578,10 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                 _declarations=declarations, _sourcePosition=sourcePos)
 
         else:
-            raise PyNESTMLUnknownBodyTypeException(
-                '(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType))
+            Logger.logMessage('(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
+                              LOGGING_LEVEL.ERROR)
+            return
+
             # Visit a parse tree produced by PyNESTMLParser#dynamics.
 
     def visitUpdateBlock(self, ctx):
@@ -601,7 +606,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                 elems.append(fun)
         ordered = list()
         while len(elems) > 0:
-            elem = self.getNext(elems)
+            elem = getNext(elems)
             ordered.append(self.visit(elem))
             elems.remove(elem)
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
@@ -709,18 +714,19 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         else:
             return compound
 
-    def getNext(self, _elements=list()):
-        """
-        This method is used to get the next element according to its source position.
-        :type _elements: a list of elements
-        :return: the next element
-        :rtype: object
-        """
-        currentFirst = None
-        for elem in _elements:
-            if currentFirst is None or currentFirst.start.line > elem.start.line:
-                currentFirst = elem
-        return currentFirst
+
+def getNext(_elements=list()):
+    """
+    This method is used to get the next element according to its source position.
+    :type _elements: a list of elements
+    :return: the next element
+    :rtype: object
+    """
+    currentFirst = None
+    for elem in _elements:
+        if currentFirst is None or currentFirst.start.line > elem.start.line:
+            currentFirst = elem
+    return currentFirst
 
 
 class PyNESTMLUnknownBodyTypeException(Exception):

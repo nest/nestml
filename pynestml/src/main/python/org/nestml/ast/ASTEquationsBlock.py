@@ -20,6 +20,9 @@
 
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTOdeEquation import ASTOdeEquation
+from pynestml.src.main.python.org.nestml.ast.ASTOdeFunction import ASTOdeFunction
+from pynestml.src.main.python.org.nestml.ast.ASTOdeShape import ASTOdeShape
 
 
 class ASTEquationsBlock(ASTElement):
@@ -49,7 +52,12 @@ class ASTEquationsBlock(ASTElement):
         :type _sourcePosition: ASTSourcePosition.
         """
         assert (_declarations is not None and isinstance(_declarations, list)), \
-            '(PyNestML.AST.EquationsBlock) No or wrong type of declarations handed over!'
+            '(PyNestML.AST.EquationsBlock) No or wrong type of declarations provided (%s)!' % type(_declarations)
+        for decl in _declarations:
+            assert (decl is not None and (isinstance(decl, ASTOdeShape) or
+                                          isinstance(decl, ASTOdeEquation) or
+                                          isinstance(decl, ASTOdeFunction))), \
+                '(PyNestML.AST.EquationsBlock) No or wrong type of ode-element provided (%s)' % type(decl)
         super(ASTEquationsBlock, self).__init__(_sourcePosition)
         self.__declarations = _declarations
 
@@ -70,9 +78,24 @@ class ASTEquationsBlock(ASTElement):
         """
         Returns the block of definitions.
         :return: the block
-        :rtype: ASTOdeFunction|ASTOdeEquation|ASTOdeShape
+        :rtype: list(ASTOdeFunction|ASTOdeEquation|ASTOdeShape)
         """
         return self.__declarations
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        for decl in self.getDeclarations():
+            if decl is _ast:
+                return self
+            elif decl.getParent(_ast) is not None:
+                return decl.getParent(_ast)
+        return None
 
     def printAST(self):
         """
