@@ -99,7 +99,7 @@ grammar PyNESTML;
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
     @attribute name: The name of the variable without the differential order, e.g. V_m
-    @attribute differentialOrdeer: The corresponding differential order, e.g. 2
+    @attribute differentialOrder: The corresponding differential order, e.g. 2
   */
   variable : name=NAME (differentialOrder)*;
 
@@ -157,7 +157,7 @@ grammar PyNESTML;
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
   declaration :
-    isRecordable='recordable'? isFunction='function'?
+    (isRecordable='recordable')? (isFunction='function')?
     variable (',' variable)*
     datatype
     ('[' sizeParameter=NAME ']')?

@@ -19,10 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from sympy.physics.units.prefixes import PREFIXES
 from sympy.physics.units.quantities import Quantity
-from sympy.physics.units.definitions import meter, kilogram, second, ampere, kelvin, mole, candela  # base units
-from sympy.physics.units.definitions import radian, steradian, hertz, newton, pascal, joule, watt, coulomb, volt, farad
-from sympy.physics.units.definitions import ohm, siemens, weber, tesla, henry, lux
-from sympy.physics.units.definitions import length, luminous_intensity, time, amount_of_substance
+from sympy.physics.units.definitions import force, frequency, pressure, energy, power, charge, voltage, capacitance
+from sympy.physics.units.definitions import impedance, conductance, magnetic_flux, magnetic_density
+from sympy.physics.units.definitions import inductance, current, temperature
+from sympy.physics.units.definitions import length, luminous_intensity, time, amount_of_substance, mass, kilo
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.UnitType import UnitType
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 
@@ -44,6 +44,30 @@ class PredefinedUnits(object):
         # first store all base units and the derived units without the prefix in a list
         cls.__name2unit = {}
         cls.__prefixlessUnits = list()
+        # rename name thus they can be used with upper case names
+        meter = Quantity('Meter', length, 1, abbrev='m')
+        kilogram = Quantity('Kilogram', mass, kilo, abbrev='g')
+        second = Quantity('Second', time, 1, abbrev='s')
+        ampere = Quantity('Ampere', current, 1, abbrev='A')
+        kelvin = Quantity('Kelvin', temperature, 1, 'K')
+        mole = Quantity('Mole', amount_of_substance, 1, 'mol')
+        candela = Quantity('Candela', luminous_intensity, 1, 'cd')
+        radian = Quantity('Radian', 1, 1)
+        steradian = Quantity('Steradian', 1, 1, 'sr')
+        hertz = Quantity('Hertz', frequency, 1, 'Hz')
+        newton = Quantity('Newton', force, kilogram * meter / second ** 2, 'N')
+        pascal = Quantity('Pascal', pressure, newton / meter ** 2, 'Pa')
+        joule = Quantity('Joule', energy, newton * meter, 'J')
+        watt = Quantity('Watt', power, joule / second, 'W')
+        coulomb = Quantity('Coulomb', charge, 1, abbrev='C')
+        volt = Quantity('Volt', voltage, joule / coulomb, abbrev='V')
+        farad = Quantity('Farad', capacitance, coulomb / volt, abbrev='F')
+        ohm = Quantity('Ohm', impedance, volt / ampere, abbrev='Ohm')
+        siemens = Quantity('Siemens', conductance, ampere / volt, abbrev='S')
+        weber = Quantity('Weber', magnetic_flux, joule / ampere, abbrev='Wb')
+        tesla = Quantity('Tesla', magnetic_density, volt * second / meter ** 2, abbrev='T')
+        henry =  Quantity('Henry', inductance, volt * second / ampere, abbrev='H')
+        lux = Quantity('Lux', luminous_intensity / length ** 2, steradian * candela / meter ** 2,abbrev='lx')
         cls.__prefixlessUnits.append(meter)
         cls.__prefixlessUnits.append(kilogram)
         cls.__prefixlessUnits.append(second)

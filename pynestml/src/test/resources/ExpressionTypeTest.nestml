@@ -38,7 +38,7 @@ neuron expressionType_test:
     state:
        time s
        resist Ohm
-       current A
+       currEnt A
        charge C
     end
 
@@ -47,7 +47,7 @@ neuron expressionType_test:
     end
 
     update:
-        time = (charge/current)
+        #time = (charge/current)
     end
 
     input:

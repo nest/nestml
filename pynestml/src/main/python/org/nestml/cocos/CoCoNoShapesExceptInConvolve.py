@@ -68,6 +68,7 @@ class ShapeUsageVisitor(NESTMLVisitor):
         :param _shapes: a list of shapes.
         :type _shapes: list(ASTOdeShape)
         """
+        super(ShapeUsageVisitor, self).__init__()
         self.__shapes = _shapes
         return
 

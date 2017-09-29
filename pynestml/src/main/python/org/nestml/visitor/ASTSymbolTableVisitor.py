@@ -308,7 +308,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                              _typeSymbol=typeSymbol,
                                                              _initialValue=initValue
                                                              ))
-            var.setTypeEither(Either.value(typeSymbol))
+            var.setTypeSymbol(Either.value(typeSymbol))
             cls.visitVariable(var)
         _declaration.getDataType().updateScope(_declaration.getScope())
         cls.visitDataType(_declaration.getDataType())

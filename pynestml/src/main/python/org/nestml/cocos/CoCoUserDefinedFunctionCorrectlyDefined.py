@@ -22,6 +22,7 @@ from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
 
 
 class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
@@ -100,6 +101,34 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                         LOGGING_LEVEL.ERROR)
                     # now check that it corresponds to the declared type
                     # TODO: as soon as type checking is ready
+                if stmt.getReturnStmt().hasExpr() and _typeSymbol is PredefinedTypes.getVoidType():
+                    Logger.logMessage(
+                        '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s not void!'
+                        % (cls.__processedFunction.getName(),
+                           stmt.getSourcePosition().printSourcePosition()),
+                        LOGGING_LEVEL.ERROR)
+                # if it is not void check if the type corresponds to the one stated
+                if not stmt.getReturnStmt().hasExpr() and _typeSymbol is not PredefinedTypes.getVoidType():
+                    Logger.logMessage(
+                        '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s void, expected %s!'
+                        % (cls.__processedFunction.getName(),
+                           stmt.getSourcePosition().printSourcePosition(),_typeSymbol.printSymbol()),
+                        LOGGING_LEVEL.ERROR)
+                if stmt.getReturnStmt().hasExpr():
+                    typeOfReturn = stmt.getReturnStmt().getExpr().getTypeEither()
+                    if typeOfReturn.isError():
+                        Logger.logMessage(
+                            '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s not derivable!'
+                            % (cls.__processedFunction.getName(),
+                               stmt.getSourcePosition().printSourcePosition()),
+                            LOGGING_LEVEL.ERROR)
+                    elif typeOfReturn.getValue() is not _typeSymbol:
+                        Logger.logMessage(
+                            '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s does not correspond'
+                                                     'to declaration!'
+                            % (cls.__processedFunction.getName(),
+                               stmt.getSourcePosition().printSourcePosition()),
+                            LOGGING_LEVEL.ERROR)
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
                 if stmt.isIfStmt():

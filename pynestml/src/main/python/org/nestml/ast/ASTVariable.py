@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
-
+from pynestml.src.main.python.org.nestml.visitor.expression_visitor.Either import Either
 
 class ASTVariable(ASTElement):
     """
@@ -120,8 +120,7 @@ class ASTVariable(ASTElement):
         :param _typeSymbol: a single type symbol object.
         :type _typeSymbol: TypeSymbol
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
-        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
+        assert (_typeSymbol is not None and isinstance(_typeSymbol, Either)), \
             '(PyNestML.AST.Variable) No or wrong type of type symbol provided (%s)!' % type(_typeSymbol)
         self.__typeSymbol = _typeSymbol
         return

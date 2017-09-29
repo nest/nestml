@@ -62,7 +62,7 @@ class ExpressionTypeVisitor(NESTMLVisitor):
     def handle(self,_node):
         self.traverse(_node)
         self.getRealSelf().visit(_node)
-        self.getRealSelf().endVisit(_node)
+        self.getRealSelf().endvisit(_node)
         return
 
 
