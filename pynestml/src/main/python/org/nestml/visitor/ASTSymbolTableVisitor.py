@@ -165,7 +165,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     def visitUpdateBlock(cls, _block=None):
         """
         Private method: Used to visit a single update block and create the corresponding scope.
-        :param _block: an update block object. 
+        :param _block: an update block object.
         :type _block: ASTDynamics
         """
         cls.__currentBlockType = BlockType.LOCAL
@@ -223,7 +223,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     @classmethod
     def visitCompoundStmt(cls, _stmt=None):
         """
-        Private method: Used to visit a single compound statement and create the corresponding sub-scope. 
+        Private method: Used to visit a single compound statement and create the corresponding sub-scope.
         :param _stmt: a single compound statement.
         :type _stmt: ASTCompoundStatement
         """
@@ -399,7 +399,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     def visitForStmt(cls, _forStmt=None):
         """
         Private method: Used to visit a single for-stmt, update its scope and create the corresponding sub-scope.
-        :param _forStmt: a for-statement. 
+        :param _forStmt: a for-statement.
         :type _forStmt: ASTForStmt
         """
         assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt.ASTForStmt)), \
@@ -430,7 +430,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     @classmethod
     def visitDataType(cls, _dataType=None):
         """
-        Private method: Used to visit a single data-type and update its scope. 
+        Private method: Used to visit a single data-type and update its scope.
         :param _dataType: a data-type.
         :type _dataType: ASTDataType
         """
@@ -513,7 +513,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     def visitSimpleExpression(cls, _expr=None):
         """
         Private method: Used to visit a single simple expression and update its scope.
-        :param _expr: a simple expression. 
+        :param _expr: a simple expression.
         :type _expr: ASTSimpleExpression
         """
         assert (_expr is not None and isinstance(_expr, ASTSimpleExpression.ASTSimpleExpression)), \
@@ -530,7 +530,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     def visitUnaryOperator(cls, _unaryOp=None):
         """
         Private method: Used to visit a single unary operator and update its scope.
-        :param _unaryOp: a single unary operator. 
+        :param _unaryOp: a single unary operator.
         :type _unaryOp: ASTUnaryOperator
         """
         assert (_unaryOp is not None and isinstance(_unaryOp, ASTUnaryOperator.ASTUnaryOperator)), \
@@ -541,7 +541,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     def visitBitOperator(cls, _bitOp=None):
         """
         Private method: Used to visit a single unary operator and update its scope.
-        :param _bitOp: a single bit operator. 
+        :param _bitOp: a single bit operator.
         :type _bitOp: ASTBitOperator
         """
         assert (_bitOp is not None and isinstance(_bitOp, ASTBitOperator.ASTBitOperator)), \
@@ -703,7 +703,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     def visitOutputBlock(cls, _block=None):
         """
         Private method: Used to visit a single output block and visit its scope.
-        :param _block: a single output block. 
+        :param _block: a single output block.
         :type _block: ASTOutputBlock
         """
         assert (_block is not None and isinstance(_block, ASTOutputBlock.ASTOutputBlock)), \
@@ -805,7 +805,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     @classmethod
     def addOdeToVariable(cls, _odeEquation=None):
         """
-        Resolves to the corresponding symbol and updates the corresponding ode-declaration. In the case that 
+        Resolves to the corresponding symbol and updates the corresponding ode-declaration. In the case that
         :param _odeEquation: a single ode-equation
         :type _odeEquation: ASTOdeEquation
         """

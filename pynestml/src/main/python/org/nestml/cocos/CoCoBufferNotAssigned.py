@@ -19,7 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
@@ -49,31 +48,10 @@ class CoCoBufferNotAssigned(CoCo):
         cls.neuronName = _neuron.getName()
         visitor = NoBufferAssignedVisitor()
         _neuron.accept(visitor)
-
-        #ASTHigherOrderVisitor.visitNeuron(_neuron, cls.__checkCoco)
-        return
-
-    @classmethod
-    def __checkCoco(cls, _ast=None):
-        """
-        For a given node node of type assignment, it checks if the coco applies.
-        :param _ast: a single ast node.
-        :type _ast: AST_
-        """
-        from pynestml.src.main.python.org.nestml.ast.ASTAssignment import ASTAssignment
-        if isinstance(_ast, ASTAssignment):
-            symbol = _ast.getScope().resolveToSymbol(_ast.getVariable().getName(), SymbolKind.VARIABLE)
-            if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
-                                               symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
-                Logger.logMessage(
-                    '[' + cls.__neuronName + '.nestml] Value assigned to buffer "%s" at %s!'
-                    % (_ast.getVariable().getCompleteName(), _ast.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
         return
 
 
 class NoBufferAssignedVisitor(NESTMLVisitor):
-
     def visitAssignment(self, _assignment=None):
         symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
         if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
