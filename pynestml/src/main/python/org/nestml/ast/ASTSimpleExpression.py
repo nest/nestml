@@ -144,7 +144,6 @@ class ASTSimpleExpression(ASTElement):
         :param _typeEither: a single type symbol object.
         :type _typeEither: TypeSymbol
         """
-        from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
         assert (_typeEither is not None and isinstance(_typeEither, Either)), \
             '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
         self.__typeEither = _typeEither

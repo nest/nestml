@@ -27,7 +27,8 @@
 
 neuron CoCoFunctionCallNotConsistentWrongArgNumber:
     state:
-        test integer = max(1,2,3)
+        test integer = max(1,2,3) # wrong number of args
+        tes2 integer = max(10mV,2) # wrong type of args
     end
 
     update:

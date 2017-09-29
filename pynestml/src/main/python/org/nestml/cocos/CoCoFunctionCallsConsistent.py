@@ -74,16 +74,29 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
                 'Expected %s, found %s.'
                 % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
                    len(symbol.getParameterTypes()), len(_functionCall.getArgs())), LOGGING_LEVEL.ERROR)
-        # Todo: here we have to ensure correct typing of elements.
-        # TODO: @philip treader,Consistency
         # finally check if the call is correctly typed
-        for arg in _functionCall.getArgs():
-            if None is not None:
-                Logger.logMessage(
-                    '[' + CoCoFunctionCallsConsistent.neuronName +
-                    '.nestml] Argument of function-call %s at %s is wrongly typed! '
-                    'Expected %s, found %s!'
-                    % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(), 'TODO',
-                       'TODO'),
-                    LOGGING_LEVEL.ERROR)
+        elif symbol is not None:
+            expectedTypes = symbol.getParameterTypes()
+            actualTypes = _functionCall.getArgs()
+            for i in range(0,len(actualTypes)):
+                expectedType = expectedTypes[i]
+                actualType = actualTypes[i].getTypeEither()
+                """
+                if actualType.isError():
+                    Logger.logMessage(
+                        '[' + CoCoFunctionCallsConsistent.neuronName +
+                        '.nestml] Type of argument %s of function-call %s at %s not recognized! '
+                        % (actualTypes[i].printAST(),
+                           _functionCall.getName(),
+                           _functionCall.getSourcePosition().printSourcePosition()),
+                        LOGGING_LEVEL.ERROR)
+                if arg.getTypeEither() is not None:
+                    Logger.logMessage(
+                        '[' + CoCoFunctionCallsConsistent.neuronName +
+                        '.nestml] Argument of function-call %s at %s is wrongly typed! '
+                        'Expected %s, found %s!'
+                        % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(), 'TODO',
+                           'TODO'),
+                        LOGGING_LEVEL.ERROR)
+                """
         return
