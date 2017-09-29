@@ -825,7 +825,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                            _declaringExpression=_odeEquation.getRhs(),
                                            _isPredefined=False, _isFunction=False, _isRecordable=False,
                                            _typeSymbol=PredefinedTypes.
-                                           getTypeIfExists(baseSymbol.getTypeEither().getValue().printSymbol()))  # todo
+                                           getTypeIfExists(baseSymbol.getType().getValue().printSymbol()))  # todo
                 cls.__globalScope.addSymbol(newSymbol)
                 Logger.logMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
                                   LOGGING_LEVEL.ALL)
