@@ -30,7 +30,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunct
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVariables import \
     PredefinedVariables
 from pynestml.src.main.python.org.codegeneration.NestCodeGenerator import NestCodeGenerator
-
+from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 def main(args):
     configuration = None
@@ -50,6 +50,8 @@ def main(args):
         parsedUnit = NESTMLParser.parseModel(file)
         if parsedUnit is not None:
             compilationUnits.append(parsedUnit)
+    # check if across two files two neurons with same name have been defined
+    CoCosManager.checkNotTwoNeuronsAcrossUnits(compilationUnits)
     # and generate them
     if not FrontendConfiguration.isDryRun():
         nestGenerator = NestCodeGenerator()

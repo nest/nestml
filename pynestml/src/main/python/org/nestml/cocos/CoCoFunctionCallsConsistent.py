@@ -80,7 +80,7 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
             actualTypes = _functionCall.getArgs()
             for i in range(0,len(actualTypes)):
                 expectedType = expectedTypes[i]
-                actualType = actualTypes[i].getTypeEither()
+                #actualType = actualTypes[i].getTypeEither()
                 """
                 if actualType.isError():
                     Logger.logMessage(

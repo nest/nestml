@@ -35,7 +35,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append(path)
         #params.append('-dry')
         params.append('-logging_level')
-        params.append('ALL')
+        params.append('ERROR')
         params.append('-target')
         params.append('buildNest')
         main(params)

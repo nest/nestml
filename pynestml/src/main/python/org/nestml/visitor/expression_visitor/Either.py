@@ -91,7 +91,7 @@ class Either:
         """
         return self.__error is not None
 
-    def print(self):
+    def printSelf(self):
         """
         Constructs string representation of the Either object
         :return: string representation of the object

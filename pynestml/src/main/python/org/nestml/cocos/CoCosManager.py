@@ -43,7 +43,7 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoConvolveCondCorrectlyBuilt im
 from pynestml.src.main.python.org.nestml.cocos.CoCoNoShapesExceptInConvolve import CoCoNoShapesExceptInConvolve
 from pynestml.src.main.python.org.nestml.cocos.CoCoNoTwoNeuronsInSetOfCompilationUnits import \
     CoCoNoTwoNeuronsInSetOfCompilationUnits
-
+from pynestml.src.main.python.org.nestml.ast.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
 
 class CoCosManager(object):
     """
@@ -373,15 +373,15 @@ class CoCosManager(object):
         return
 
     @classmethod
-    def checkNotTwoNeuronsAcrossUnits(cls, _neuron=None):
+    def checkNotTwoNeuronsAcrossUnits(cls, _compilationUnits=list()):
         """
         Checks if in a set of compilation units, two neurons have the same name.
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
+        :param _compilationUnits: a  list of compilation units
+        :type _compilationUnits: list(ASTNESTMLCompilationUnit)
         """
-        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__noCollisionAcrossUnits(_neuron)
+        assert (_compilationUnits is not None and isinstance(_compilationUnits, list)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of compilation unit provided (%s)!' % type(list)
+        cls.__noCollisionAcrossUnits(_compilationUnits)
         return
 
     @classmethod

@@ -89,10 +89,10 @@ class ExpressionTypeVisitor(NESTMLVisitor):
         if _node.getBinaryOperator() is not None:
             binOp = _node.getBinaryOperator()
             # All these rules employ left and right side expressions.
-            if _node.getLeft() is not None:
-                _node.getLeft().accept(self)
-            if _node.getRight() is not None:
-                _node.getRight().accept(self)
+            if _node.getLhs() is not None:
+                _node.getLhs().accept(self)
+            if _node.getRhs() is not None:
+                _node.getRhs().accept(self)
             #Handle all Arithmetic Operators:
             if isinstance(binOp,ASTArithmeticOperator.ASTArithmeticOperator):
                 #Expr = <assoc=right> left=expression powOp='**' right=expression
