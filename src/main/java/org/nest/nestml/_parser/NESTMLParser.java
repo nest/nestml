@@ -5,22 +5,30 @@
  */
 package org.nest.nestml._parser;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
+import javafx.util.Pair;
 import org.antlr.v4.runtime.RecognitionException;
-import org.nest.nestml._ast.ASTDeclaration;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTNeuron;
+import org.nest.codegeneration.sympy.AstCreator;
+import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.UnitsSIVisitor;
 import org.nest.utils.AstUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
+import static org.nest.codegeneration.sympy.AstCreator.createEquation;
+import static org.nest.codegeneration.sympy.AstCreator.createShape;
 
 /**
  * HW parser that also is able
@@ -57,6 +65,65 @@ public class NESTMLParser extends NESTMLParserTOP {
         int line = astDeclaration.get_SourcePositionStart().getLine();
         final List<String> variableComments = extractComments(sourceText, line - 1);
         variableComments.forEach(astDeclaration::addDocString);
+      }
+
+      // here additional shape odes are added
+      for (final ASTNeuron astNeuron:res.get().getNeurons()) {
+        for (final ASTEquationsBlock astEquationsBlock:astNeuron.getEquationsBlocks()) {
+          // partition shapes by simple names name:
+          Map<String, List<ASTEquation>> equations = astEquationsBlock.getEquations()
+              .stream()
+              .collect(groupingBy(astEquation -> astEquation.getLhs().getSimpleName()));
+
+          for (final Map.Entry<String, List<ASTEquation>> odeSystem:equations.entrySet()) {
+            odeSystem.getValue().sort(Comparator.comparingInt(a -> a.getLhs().getDifferentialOrder().size()));
+            // go from the 1st order to the last order
+            int highesOrderOde = odeSystem.getValue().get(odeSystem.getValue().size() - 1).getLhs().getDifferentialOrder().size();
+
+
+            for (int i = highesOrderOde; i > 0; --i) {
+              final int currentOrder = i;
+              boolean isCorrespondingOdePresent = odeSystem.getValue()
+                  .stream()
+                  .anyMatch(astEquation -> astEquation.getLhs().getDifferentialOrder().size() == currentOrder);
+              if (!isCorrespondingOdePresent) {
+                String equationString = odeSystem.getKey() + Strings.repeat("'", currentOrder) + " = " +
+                                        odeSystem.getKey() + Strings.repeat("'", currentOrder);
+                astEquationsBlock.getEquations().add(createEquation(equationString));
+              }
+
+            }
+
+            Map<String, List<ASTShape>> shapes = astEquationsBlock.getShapes()
+                .stream()
+                .collect(groupingBy(astEquation -> astEquation.getLhs().getSimpleName()));
+
+            for (final Map.Entry<String, List<ASTShape>> shapeOdeSystem:shapes.entrySet()) {
+              shapeOdeSystem.getValue().sort(Comparator.comparingInt(a -> a.getLhs().getDifferentialOrder().size()));
+              // go from the 1st order to the last order
+              int highestOrderShape = shapeOdeSystem.getValue().get(shapeOdeSystem.getValue().size() - 1).getLhs().getDifferentialOrder().size();
+
+
+              for (int i = highestOrderShape; i > 0; --i) {
+                final int currentOrder = i;
+                boolean isCorrespondingOdePresent = shapeOdeSystem.getValue()
+                    .stream()
+                    .anyMatch(astEquation -> astEquation.getLhs().getDifferentialOrder().size() == currentOrder);
+                if (!isCorrespondingOdePresent) {
+                  String equationString = "shape " +
+                                          shapeOdeSystem.getKey() + Strings.repeat("'", currentOrder) + " = " +
+                                          shapeOdeSystem.getKey() + Strings.repeat("'", currentOrder);
+                  astEquationsBlock.getShapes().add(createShape(equationString));
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
       }
 
     }

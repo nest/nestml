@@ -25,7 +25,7 @@ public class AstCreator {
     PARSER.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
-  static ASTEquation createEquation(final String equation) {
+  public static ASTEquation createEquation(final String equation) {
     try {
 
       return PARSER.parseEquation(new StringReader(equation)).get();
@@ -105,4 +105,5 @@ public class AstCreator {
       throw new RuntimeException(msg, e);
     }
   }
+
 }

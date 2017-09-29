@@ -21,6 +21,7 @@
 package org.nest.nestml._ast;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import de.monticore.types.types._ast.ASTQualifiedName;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class ASTVariable extends ASTVariableTOP {
 
   @Override
   public String toString() {
-    return name + Joiner.on("'").join(getDifferentialOrder());
+    return name + Strings.repeat("'", differentialOrder.size());
   }
 
 }

@@ -115,6 +115,17 @@ public class NestmlFrontendTest {
   }
 
   @Test
+  public void test() {
+    final String[] args = new String[] {
+        "models/iaf_cond_alpha.nestml",
+        "--json_log", "model_issues",
+        "--enable_tracing",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
   public void testTutorialModels() {
     final String[] args = new String[] {
         "src/test/resources/tutorial",
