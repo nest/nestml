@@ -71,7 +71,7 @@ class DotOperatorVisitor(NESTMLVisitor):
                         _expr.setTypeEither(Either.value(returnType))
                         return
                     elif arithOp.isDivOp():
-                        returnType = PredefinedTypes.getTypeIfExists(leftUnit/rightUnit)
+                        returnType = PredefinedTypes.getTypeIfExists(str(leftUnit/rightUnit))
                         _expr.setTypeEither(Either.value(returnType))
                         return
                 #if lhs is Unit, and rhs real or integer, return same Unit
