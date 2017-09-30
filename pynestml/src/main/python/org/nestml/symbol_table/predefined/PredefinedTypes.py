@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.src.main.python.org.nestml.symbol_table.predefined.UnitType import UnitType
 from copy import copy
 
 
@@ -157,7 +158,7 @@ class PredefinedTypes:
         if _name in cls.__name2type:
             return copy(cls.__name2type[_name])
         else:
-            return None
+            return
 
     @classmethod
     def getRealType(cls):
@@ -217,6 +218,20 @@ class PredefinedTypes:
         if not _symbol.isPrimitive() and _symbol.getUnit().getName() not in cls.__name2type.keys():
             cls.__name2type[_symbol.getUnit().getName()] = _symbol
             Logger.logMessage('New type registered %s.' % _symbol.getUnit().getName(), LOGGING_LEVEL.ALL)
+        return
+
+    @classmethod
+    def registerUnit(cls, _unit=None):
+        """
+        Registers a new sympy unit into the system
+        :param _unit: a sympy unit.
+        :type _unit: SympyUnit
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
+        unitType = UnitType(str(_unit), _unit)
+        PredefinedUnits.registerUnit(unitType)
+        typeSymbol = TypeSymbol(_name=unitType.getName(), _unit=unitType.getUnit())
+        PredefinedTypes.registerType(typeSymbol)
         return
 
 

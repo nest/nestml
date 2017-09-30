@@ -7,18 +7,18 @@
 #}
 {% if ast.isAssignment() %}
 {% with ast = ast.getAssignment() %}
-{% include "Assignment" %}
+{% include "Assignment.html" %}
 {% endwith %}
 {% elif ast.isFunctionCall() %}
 {% with ast = ast.getFunctionCall() %}
-{% include "FunctionCall" %}
+{% include "FunctionCall.html" %}
 {% endwith %}
 {% elif ast.isDeclaration() %}
 {% with ast = ast.getDeclaration() %}
-{% include "Declaration" %}
+{% include "Declaration.html" %}
 {% endwith %}
 {% elif ast.isReturnStmt() %}
 {% with ast = ast.getReturnStmt() %}
-{% include "ReturnStatement" %}
+{% include "ReturnStatement.html" %}
 {% endwith %}
 {% endif %}

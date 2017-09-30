@@ -4,13 +4,13 @@
 #}
 {% ast.isIfStmt() %}
 {% with ast = ast.getIfStmt() %}
-{% include "IfStatement" %}
+{% include "IfStatement.html" %}
 {% endwith %}
 {% elif ast.isForStmt() %}
 {% with ast = ast.getForStmt() %}}
-{% include "ForStatement" %}
+{% include "ForStatement.html" %}
 {% endwith %}
 {% elif ast.isWhileStmt() %}
 {% with ast = ast.getWhileStmt() %}}
-{% include "WhileStatement" %}
+{% include "WhileStatement.html" %}
 {% endif %}

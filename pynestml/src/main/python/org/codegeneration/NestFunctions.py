@@ -1,5 +1,5 @@
 #
-# NestExpressionPrinter.py
+# NestFunctions.py
 #
 # This file is part of NEST.
 #
@@ -17,30 +17,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
 
-class NestExpressionPrinter(object):
+
+class NestFunctions(object):
     """
-    This class contains all methods as required to transform
+    This class contains several methods as used during the generation of nest code.
     """
 
     @classmethod
-    def printExpression(cls, _ast):
+    def isIntegration(cls, _ast):
         """
-        Prints the handed over expression to a nest readable format.
-        :param _ast: a single ast node.
-        :type _ast: ASTExpression or ASTSimpleExpression
-        :return: the corresponding string representation
-        :rtype: str
-        """
-        return "TODO expr"
-
-    @classmethod
-    def printMethodCall(cls,_ast):
-        """
-        Prints a single handed over function call.
-        :param _ast: a single function call.
+        Indicates whether the handed over ast represents a ode integration function call.
+        :param _ast: a single ast function call.
         :type _ast: ASTFunctionCall
-        :return: the corresponding string representation.
-        :rtype: str
+        :return: True if integration, otherwise False.
+        :rtype: bool
         """
-        return "TODO function"
+        # TODO
+        return isinstance(_ast, ASTFunctionCall) and _ast.getName() == 'integrate_odes'

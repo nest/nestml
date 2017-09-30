@@ -1,28 +1,29 @@
 {#
   Generates C++ declaration
   @grammar:
-  Declaration =
-    vars:Name ("," vars:Name)*
-    (type:QualifiedName | primitiveType:PrimitiveType)
-    ("<" sizeParameter:Name ">")?
-    ( "=" Expr )? ;
+  declaration :
+                (isRecordable='recordable')? (isFunction='function')?
+                variable (',' variable)*
+                datatype
+                ('[' sizeParameter=NAME ']')?
+                ( '=' rhs = expression)?
+                ('[[' invariant=expression ']]')?;
   @param ast ASTDeclaration
 #}
 
 {% for variable in declarations.getVariables(ast) %}
-
-  {% if declarations.isVector(ast) %}
-    {{declarations.printVariableType(variable)}} {{variable.getName()}}(P_.{{declarations.printSizeParameter(ast)}});
+  {% if ast.hasSizeParameter() %}
+    {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}}(P_.{{declarations.printSizeParameter(ast)}});
     {% if ast.getExpr().isPresent() %}
       for (long i=0; i < get_{{declarations.printSizeParameter(ast)}}(); i++) {
-        {{variable.getName()}}[i] = {{expressionsPrinter.print(ast.getExpr().get())}};
+        {{variable.getSymbolName()}}[i] = {{expressionsPrinter.printExpression(ast.getExpr())}};
       }
     {% endif %}
   {% else %}
-    {% if ast.getExpr().isPresent() %}
-      {{declarations.printVariableType(variable)}} {{variable.getName()}} = {{expressionsPrinter.print(ast.getExpr().get())}};
+    {% if ast.hasExpression() %}
+      {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}} = {{expressionsPrinter.printExpression(ast.getExpr())}};
     {% else %}
-      {{declarations.printVariableType(variable)}} {{variable.getName()}};
+      {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}};
     {% endif %}
   {% endif %}
 {% endfor %}

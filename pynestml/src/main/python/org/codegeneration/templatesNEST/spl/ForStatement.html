@@ -1,16 +1,18 @@
 {%
   Generates C++ statements that implement for loop
-  @param ast ASTFOR_Stmt
-  @param tc templatecontroller
-  @param expressionsPrinter ExpressionsPrinter that prints expressions
-  @result For-Loop
+  @grammar: forStmt : 'for' var=NAME 'in' vrom=expression '...' to=expression 'step' step=signedNumericLiteral
+            BLOCK_OPEN
+             block
+            BLOCK_CLOSE;
+  @param ast ASTForStmt
+
 %}
-for( {{ast.getVar()}} =  {{expressionsPrinter.print(ast.getFrom())}} ;
-     {{ast.getVar()}} {{forDeclarationHelper.printComparisonOperator(ast)} {{expressionsPrinter.print(ast.getTo())}};
-     {{ast.getVar()}} += {{forDeclarationHelper.printStep(ast)}} )
+for( {{ast.getVariable()}} =  {{expressionsPrinter.printExpression(ast.getFrom())}} ;
+     {{ast.getVariable()}} {{expressionsPrinter.printComparisonOperator(ast)} {{expressionsPrinter.printExpression(ast.getTo())}};
+     {{ast.getVariable()}} += {{ast.getStep()}} )
 {
   {% with ast = ast.getBlock() %}
-  {% include "Block" %}
+  {% include "Block.html" %}
   {% endwith %}
 } /* for end */
 
