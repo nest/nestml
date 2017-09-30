@@ -42,6 +42,8 @@ class ASTExpressionCollectorVisitor(object):
         ret = list()
         if _neuron.getStateBlocks() is not None:
             ret.extend(cls.collectExpressionsInStateBlock(_neuron.getStateBlocks()))
+        if _neuron.getInitialBlocks() is not None:
+            ret.extend(cls.collectExpressionsInInitialBlock(_neuron.getInitialBlocks()))
         if _neuron.getInputBlocks() is not None:
             ret.extend(cls.collectExpressionsInInternalsBlock(_neuron.getInternalsBlocks()))
         if _neuron.getParameterBlocks():
@@ -81,6 +83,33 @@ class ASTExpressionCollectorVisitor(object):
             for decl in _block.getDeclarations():
                 ret.append(decl.getExpr())
         return ret
+
+    @classmethod
+    def collectExpressionsInInitialBlock(cls, _block=None):
+        """
+        Collects all expressions in the state block.
+        :param _block: a single state block.
+        :type _block: ASTBlockWithVariables
+        :return: a list of all expression in the block
+        :rtype: list(ASTExpression)
+        """
+        if _block is None:
+            return list()
+        from pynestml.src.main.python.org.nestml.ast.ASTBlockWithVariables import ASTBlockWithVariables
+        assert (_block is not None and (isinstance(_block, ASTBlockWithVariables) or isinstance(_block, list))), \
+            '(PyNestML.Visitor.ExpressionCollector) No or wrong type of state block provided (%s)!' % type(_block)
+        assert (isinstance(_block, list) or _block.isInitialValues()), \
+            '(PyNestML.Visitor.ExpressionCollector) Not a initial block provided (%s)!' % type(_block)
+        ret = list()
+        if isinstance(_block, list):
+            for block in _block:
+                for decl in block.getDeclarations():
+                    ret.append(decl.getExpr())
+        else:
+            for decl in _block.getDeclarations():
+                ret.append(decl.getExpr())
+        return ret
+
 
     @classmethod
     def collectExpressionsInParametersBlock(cls, _block=None):
@@ -151,7 +180,7 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             ret = list()
             for block in _block:
-                ret.extend(cls.collectExpressionInBlock(block))
+                ret.extend(cls.collectExpressionInBlock(block.getBlock()))
             return ret
         else:
             return cls.collectExpressionInBlock(_block.getBlock())

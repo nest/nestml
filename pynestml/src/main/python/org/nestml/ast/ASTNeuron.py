@@ -133,6 +133,24 @@ class ASTNeuron(ASTElement):
         else:
             return ret
 
+    def getInitialBlocks(self):
+        """
+        Returns a list of all initial blocks defined in this body.
+        :return: a list of initial-blocks.
+        :rtype: list(ASTBlockWithVariables)
+        """
+        ret = list()
+        from pynestml.src.main.python.org.nestml.ast.ASTBlockWithVariables import ASTBlockWithVariables
+        for elem in self.getBody().getBodyElements():
+            if isinstance(elem, ASTBlockWithVariables) and elem.isInitialValues():
+                ret.append(elem)
+        if isinstance(ret, list) and len(ret) == 1:
+            return ret[0]
+        elif isinstance(ret, list) and len(ret) == 0:
+            return None
+        else:
+            return ret
+
     def getParameterBlocks(self):
         """
         Returns a list of all parameter blocks defined in this body.

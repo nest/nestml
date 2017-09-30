@@ -241,5 +241,22 @@ class ConvolveCorrectlyDefined(unittest.TestCase):
         return
 
 
+class VectorInNonVectorDeclarationDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoVectorInNonVectorDeclaration.nestml'))
+        return
+
+class SumCorrectlyParameterized(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+                         'CoCoSumNotCorrectlyParametrized.nestml'))
+        return
+
+
 if __name__ == '__main__':
     unittest.main()

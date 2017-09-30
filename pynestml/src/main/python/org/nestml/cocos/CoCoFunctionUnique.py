@@ -21,7 +21,6 @@ from pynestml.src.main.python.org.nestml.cocos.CoCo import CoCo
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 
 
 class CoCoFunctionUnique(CoCo):
@@ -40,24 +39,35 @@ class CoCoFunctionUnique(CoCo):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionUnique) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.neuronName = _neuron.getName()
-        _neuron.accept(PredefinedRedeclaredVisitor())
-        return
-
-
-class PredefinedRedeclaredVisitor(NESTMLVisitor):
-    """
-    This visitor checks if a predefined function has been redeclared.
-    """
-    def visitFunction(self, _block=None):
-        """
-        Checks the coco.
-        :param _block: a single function block.
-        :type _block:  ASTFunction
-        """
-        symbols = _block.getScope().resolveToAllSymbols(_block.getName(), SymbolKind.FUNCTION)
-        if isinstance(symbols, list) and len(symbols) > 1:
-            Logger.logMessage(
-                '[' + CoCoFunctionUnique.neuronName + '.nestml] Predefined function "%s" redeclared at %s!'
-                % (_block.getName(), _block.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+        checkedFuncsNames = list()
+        for func in _neuron.getFunctions():
+            if func.getName() not in checkedFuncsNames:
+                symbols = func.getScope().resolveToAllSymbols(func.getName(), SymbolKind.FUNCTION)
+                if isinstance(symbols, list) and len(symbols) > 1:
+                    checked = list()
+                    for funcA in symbols:
+                        for funcB in symbols:
+                            if funcA is not funcB and funcB not in checked:
+                                if funcA.isPredefined():
+                                    Logger.logMessage(
+                                        '[' + CoCoFunctionUnique.neuronName +
+                                        '.nestml] Predefined function "%s" redeclared at %s!'
+                                        % (funcA.getSymbolName(), func.getSourcePosition().printSourcePosition()),
+                                        LOGGING_LEVEL.ERROR)
+                                elif funcB.isPredefined():
+                                    Logger.logMessage(
+                                        '[' + CoCoFunctionUnique.neuronName +
+                                        '.nestml] Predefined function "%s" redeclared at %s!'
+                                        % (funcB.getSymbolName(), func.getSourcePosition().printSourcePosition()),
+                                        LOGGING_LEVEL.ERROR)
+                                else:
+                                    Logger.logMessage(
+                                        '[' + CoCoFunctionUnique.neuronName +
+                                        '.nestml] Function "%s" redeclared at %s! First declared at %s.'
+                                        % (funcA.getSymbolName(),
+                                           funcB.getReferencedObject().getSourcePosition().printSourcePosition(),
+                                           funcA.getReferencedObject().getSourcePosition().printSourcePosition()),
+                                        LOGGING_LEVEL.ERROR)
+                        checked.append(funcA)
+            checkedFuncsNames.append(func.getName())
         return

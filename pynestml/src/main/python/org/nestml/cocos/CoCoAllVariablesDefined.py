@@ -49,7 +49,7 @@ class CoCoAllVariablesDefined(CoCo):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.VariablesDefined) No or wrong type of neuron provided (%s)!' % type(_neuron)
         # for each variable in all expressions, check if the variable has been defined previously
-        expressions = ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron)
+        expressions = list(ASTExpressionCollectorVisitor.collectExpressionsInNeuron(_neuron))
         for expr in expressions:
             for var in expr.getVariables():
                 symbol = var.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)

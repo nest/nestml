@@ -59,11 +59,13 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 # now check that the last statement is a return
                 cls.__checkReturnRecursively(symbol.getReturnType(), userDefinedFunction.getBlock().getStmts(), False)
             # now if it does not have a statement, but uses a return type, it is an error
-            elif symbol is not None and userDefinedFunction.hasReturnType():
+            elif symbol is not None and userDefinedFunction.hasReturnType() and \
+                            not symbol.getReturnType().equals(PredefinedTypes.getVoidType()):
                 Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] User defined function "%s" at %s has a return type but no'
+                    '[' + _neuron.getName() + '.nestml] User defined function "%s" at %s has the return type %s but no'
                                               ' return statement! '
-                    % (userDefinedFunction.getName(), userDefinedFunction.getSourcePosition().printSourcePosition()),
+                    % (userDefinedFunction.getName(), userDefinedFunction.getSourcePosition().printSourcePosition(),
+                       symbol.getReturnType().printSymbol()),
                     LOGGING_LEVEL.ERROR)
         return
 
@@ -98,7 +100,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                         '[' + cls.__neuronName + '.nestml] Return statement of "%s" at %s not the last statement!'
                         % (cls.__processedFunction.getName(),
                            stmt.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
+                        LOGGING_LEVEL.WARNING)
                     # now check that it corresponds to the declared type
                     # TODO: as soon as type checking is ready
                 if stmt.getReturnStmt().hasExpr() and _typeSymbol is PredefinedTypes.getVoidType():
@@ -112,7 +114,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                     Logger.logMessage(
                         '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s void, expected %s!'
                         % (cls.__processedFunction.getName(),
-                           stmt.getSourcePosition().printSourcePosition(),_typeSymbol.printSymbol()),
+                           stmt.getSourcePosition().printSourcePosition(), _typeSymbol.printSymbol()),
                         LOGGING_LEVEL.ERROR)
                 if stmt.getReturnStmt().hasExpr():
                     """

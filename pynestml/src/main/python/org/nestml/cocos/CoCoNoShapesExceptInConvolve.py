@@ -23,6 +23,7 @@ from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.nestml.ast.ASTOdeShape import ASTOdeShape
 from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 
 
 class CoCoNoShapesExceptInConvolve(CoCo):
@@ -84,6 +85,11 @@ class ShapeUsageVisitor(NESTMLVisitor):
         :type _variable: AST_
         """
         for shapeName in self.__shapes:
+            # in order to allow shadowing by local scopes, we first check if the element has been declared locally
+            symbol = _variable.getScope().resolveToSymbol(shapeName,SymbolKind.VARIABLE)
+            # if it is not a shape just continue
+            if not symbol.isShape():
+                continue
             if _variable.getCompleteName() == shapeName:
                 parent = self.__neuronNode.getParent(_variable)
                 if parent is not None:

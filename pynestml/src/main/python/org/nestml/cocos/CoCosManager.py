@@ -44,7 +44,9 @@ from pynestml.src.main.python.org.nestml.cocos.CoCoNoShapesExceptInConvolve impo
 from pynestml.src.main.python.org.nestml.cocos.CoCoNoTwoNeuronsInSetOfCompilationUnits import \
     CoCoNoTwoNeuronsInSetOfCompilationUnits
 from pynestml.src.main.python.org.nestml.cocos.CoCoInvariantIsBoolean import CoCoInvariantIsBoolean
-
+from pynestml.src.main.python.org.nestml.cocos.CoCoVectorVariableInNonVectorDeclaration import \
+    CoCoVectorVariableInNonVectorDeclaration
+from pynestml.src.main.python.org.nestml.cocos.CoCoSumHasCorrectParameter import CoCoSumHasCorrectParameter
 
 class CoCosManager(object):
     """
@@ -73,6 +75,8 @@ class CoCosManager(object):
     __noShapesExceptInConvolve = None
     __noCollisionAcrossUnits = None
     __invariantCorrectlyTyped = None
+    __vectorInNonVectorDetected = None
+    __sumIsCorrect = None
 
     @classmethod
     def initializeCoCosManager(cls):
@@ -102,6 +106,8 @@ class CoCosManager(object):
         cls.__noShapesExceptInConvolve = CoCoNoShapesExceptInConvolve.checkCoCo
         cls.__noCollisionAcrossUnits = CoCoNoTwoNeuronsInSetOfCompilationUnits.checkCoCo
         cls.__invariantCorrectlyTyped = CoCoInvariantIsBoolean.checkCoCo
+        cls.__vectorInNonVectorDetected = CoCoVectorVariableInNonVectorDeclaration.checkCoCo
+        cls.__sumIsCorrect = CoCoSumHasCorrectParameter.checkCoCo
         return
 
     @classmethod
@@ -390,13 +396,37 @@ class CoCosManager(object):
     @classmethod
     def checkInvariantTypeCorrect(cls, _neuron=None):
         """
-        Checks if all invariants are of type boolean
+        Checks if all invariants are of type boolean.
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__invariantCorrectlyTyped(_neuron)
+        return
+
+    @classmethod
+    def checkVectorInNonVectorDeclarationDetected(cls, _neuron=None):
+        """
+        Checks if no declaration a vector value is added to a non vector one.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__vectorInNonVectorDetected(_neuron)
+        return
+
+    @classmethod
+    def checkSumHasCorrectParameter(cls,_neuron=None):
+        """
+        Checks that all cond_sum,cur_sum and convolve have variables as arguments.
+        :param _neuron: a single neuron object.
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        cls.__sumIsCorrect(_neuron)
         return
 
     @classmethod
@@ -420,6 +450,8 @@ class CoCosManager(object):
             cls.checkUsedDefinedFunctionCorrectlyBuilt(_neuron)
             cls.checkInitialOdeInitialValues(_neuron)
             cls.checkInvariantTypeCorrect(_neuron)
+            cls.checkVectorInNonVectorDeclarationDetected(_neuron)
+            cls.checkSumHasCorrectParameter(_neuron)
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
@@ -442,6 +474,8 @@ class CoCosManager(object):
         cls.checkConvolveCondCurrIsCorrect(_neuron)
         cls.checkCorrectUsageOfShapes(_neuron)
         cls.checkInvariantTypeCorrect(_neuron)
+        cls.checkVectorInNonVectorDeclarationDetected(_neuron)
+        cls.checkSumHasCorrectParameter(_neuron)
         return
 
     @classmethod

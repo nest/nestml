@@ -393,7 +393,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         for var in ctx.variable():
             variables.append(self.visit(var))
         dataType = self.visit(ctx.datatype()) if ctx.datatype() is not None else None
-        sizeParam = str(ctx.NAME()) if ctx.NAME() is not None else None
+        sizeParam = str(ctx.sizeParameter) if ctx.sizeParameter is not None else None
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
         sourcePos = ASTSourcePosition.ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,

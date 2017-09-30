@@ -82,7 +82,11 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         CoCosManager.postSymbolTableBuilderChecks(_neuron)
         # the following part is done in order to mark conductance based buffers as such.
         if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None:
-            buffers = (buffer for buffer in _neuron.getInputBlocks().getInputLines())
+            # this case should be prevented, since several input blocks result in  a incorrect model
+            if isinstance(_neuron.getInputBlocks(), list):
+                buffers = (buffer for bufferA in _neuron.getInputBlocks() for buffer in bufferA.getInputLines())
+            else:
+                buffers = (buffer for buffer in _neuron.getInputBlocks().getInputLines())
             odeDeclarations = (decl for decl in _neuron.getEquationsBlocks().getDeclarations() if
                                not isinstance(decl, ASTOdeShape.ASTOdeShape))
             cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
@@ -295,6 +299,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         isRecordable = _declaration.isRecordable() or \
                        cls.__currentBlockType == BlockType.STATE or cls.__currentBlockType == BlockType.INITIAL_VALUES
         initValue = _declaration.getExpr() if cls.__currentBlockType == BlockType.INITIAL_VALUES else None
+        vectorParameter = _declaration.getSizeParameter()
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
             typeSymbol = PredefinedTypes.getTypeIfExists(typeName)
@@ -306,7 +311,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                              _isFunction=_declaration.isFunction(),
                                                              _isRecordable=isRecordable,
                                                              _typeSymbol=typeSymbol,
-                                                             _initialValue=initValue
+                                                             _initialValue=initValue,
+                                                             _vectorParameter=vectorParameter
                                                              ))
             var.setTypeSymbol(Either.value(typeSymbol))
             cls.visitVariable(var)
@@ -473,7 +479,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         :param _expr: an expression.
         :type _expr: ASTExpression
         """
-        if isinstance(_expr,ASTSimpleExpression.ASTSimpleExpression):
+        if isinstance(_expr, ASTSimpleExpression.ASTSimpleExpression):
             return cls.visitSimpleExpression(_expr)
         assert (_expr is not None and isinstance(_expr, ASTExpression.ASTExpression)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of expression provided (%s)!' % type(_expr)
@@ -523,7 +529,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         if _expr.isFunctionCall():
             _expr.getFunctionCall().updateScope(_expr.getScope())
             cls.visitFunctionCall(_expr.getFunctionCall())
-        elif _expr.isVariable():
+        elif _expr.isVariable() or _expr.hasUnit():
             _expr.getVariable().updateScope(_expr.getScope())
             cls.visitVariable(_expr.getVariable())
         return

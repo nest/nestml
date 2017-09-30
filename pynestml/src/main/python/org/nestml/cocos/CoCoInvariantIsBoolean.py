@@ -69,7 +69,7 @@ class InvariantTypeVisitor(NESTMLVisitor):
                         _declaration.getInvariant().printAST(),
                         _declaration.getInvariant().getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
-            elif invariantType.getValue().equals(PredefinedTypes.getBooleanType()):
+            elif not invariantType.getValue().equals(PredefinedTypes.getBooleanType()):
                 Logger.logMessage(
                     '[' + CoCoInvariantIsBoolean.neuronName + '.nestml] Type of invariant "%s" at %s wrong! '
                                                               'Expected boolean, got %s'
