@@ -40,8 +40,10 @@ PredefinedFunctions.registerPredefinedFunctions()
 CoCosManager.initializeCoCosManager()
 
 class expressionTestVisitor(NESTMLVisitor):
-    def visitExpression(self, _expr=None):
-        print("line " + _expr.getSourcePosition().printSourcePosition() + " : " + str(_expr.getTypeEither()))
+
+    def endvisitAssignment(self, _assignment=None):
+        _expr = _assignment.getExpression()
+        Logger.logMessage("line " + _expr.getSourcePosition().printSourcePosition() + " : " + str(_expr.getTypeEither()),LOGGING_LEVEL.ALL)
         return
 
 class ExpressionTypeCalculationTest(unittest.TestCase):
@@ -52,7 +54,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..',
                                                        'resources', 'ExpressionTypeTest.nestml'))))
-        expressionTestVisitor().visit(model)
+        expressionTestVisitor().handle(model)
         return
 
 
