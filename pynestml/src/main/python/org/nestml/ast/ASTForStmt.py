@@ -68,6 +68,7 @@ class ASTForStmt(ASTElement):
         self.__to = _to
         self.__from = _from
         self.__variable = _variable
+        return
 
     @classmethod
     def makeASTForStmt(cls, _variable=None, _from=None, _to=None, _step=0, _block=None, _sourcePosition=None):

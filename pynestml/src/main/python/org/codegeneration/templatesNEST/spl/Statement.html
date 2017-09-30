@@ -4,7 +4,7 @@
 #}
 // {{astUtils.printComments(ast)}}
 {% if astUtils.isSmallStmt(ast) %}
-{% include "SmallStatement" %}
+{% include "SmallStatement.html" %}
 {% elif astUtils.isCompoundStmt(ast) %}
-{% include "CompoundStatement" %}
+{% include "CompoundStatement.html" %}
 {% endif %}

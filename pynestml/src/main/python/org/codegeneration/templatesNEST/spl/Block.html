@@ -5,6 +5,6 @@
 #}
 {% for statement in ast.getStmts() %}
   {% with ast = statement %}
-  {% include "Statement" %}
+  {% include "Statement.html" %}
   {% endwith %}
 {% endfor %}

@@ -72,4 +72,19 @@ class ASTUtils(object):
         :return: all comments in the node
         :rtype: str
         """
-        return "TODO"
+        return "TODO comments"
+
+    @classmethod
+    def isIntegrate(cls,_functionCall=None):
+        """
+        Checks if the handed over function call is a ode integration function call.
+        :param _functionCall: a single function call
+        :type _functionCall: ASTFunctionCall
+        :return: True if ode integration call, otherwise False.
+        :rtype: bool
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
+        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
+        assert (_functionCall is not None and isinstance(_functionCall,ASTFunctionCall)),\
+            '(PyNestML.CodeGeneration.Utils) No or wrong type of function-call provided (%s)!' %type(_functionCall)
+        return _functionCall.getName() == PredefinedFunctions.INTEGRATE_ODES

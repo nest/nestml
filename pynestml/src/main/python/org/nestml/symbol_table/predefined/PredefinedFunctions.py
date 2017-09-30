@@ -50,28 +50,28 @@ class PredefinedFunctions:
         __CONVOLVE              The callee name of the convolve function. 
         __name2FunctionSymbol   A dict of function symbols as currently defined.
     """
-    __TIME_RESOLUTION = 'resolution'
-    __TIME_STEPS = 'steps'
-    __EMIT_SPIKE = 'emit_spike'
-    __PRINT = 'print'
-    __PRINTLN = 'println'
-    __POW = 'pow'
-    __EXP = 'exp'
-    __LOG = 'log'
-    __LOGGER_INFO = 'info'
-    __LOGGER_WARNING = 'warning'
-    __RANDOM = 'random'
-    __RANDOM_INT = 'randomInt'
-    __EXPM1 = 'expm1'
-    __DELTA = 'delta'
-    __MAX = 'max'
-    __BOUNDED_MAX = 'bounded_max'
-    __MIN = 'min'
-    __BOUNDED_MIN = 'bounded_min'
-    __INTEGRATE_ODES = 'integrate_odes'
-    __CURR_SUM = 'curr_sum'
-    __COND_SUM = 'cond_sum'
-    __CONVOLVE = 'convolve'
+    TIME_RESOLUTION = 'resolution'
+    TIME_STEPS = 'steps'
+    EMIT_SPIKE = 'emit_spike'
+    PRINT = 'print'
+    PRINTLN = 'println'
+    POW = 'pow'
+    EXP = 'exp'
+    LOG = 'log'
+    LOGGER_INFO = 'info'
+    LOGGER_WARNING = 'warning'
+    RANDOM = 'random'
+    RANDOM_INT = 'randomInt'
+    EXPM1 = 'expm1'
+    DELTA = 'delta'
+    MAX = 'max'
+    BOUNDED_MAX = 'bounded_max'
+    MIN = 'min'
+    BOUNDED_MIN = 'bounded_min'
+    INTEGRATE_ODES = 'integrate_odes'
+    CURR_SUM = 'curr_sum'
+    COND_SUM = 'cond_sum'
+    CONVOLVE = 'convolve'
     __name2FunctionSymbol = {}  # a map dict from function-names to symbols
 
     @classmethod
@@ -111,10 +111,10 @@ class PredefinedFunctions:
         """
         params = list()
         params.append(PredefinedTypes.getTypeIfExists('ms'))
-        symbol = FunctionSymbol(_name=cls.__TIME_STEPS, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.TIME_STEPS, _paramTypes=params,
                                 _returnType=PredefinedTypes.getIntegerType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__TIME_STEPS] = symbol
+        cls.__name2FunctionSymbol[cls.TIME_STEPS] = symbol
         return
 
     @classmethod
@@ -122,10 +122,10 @@ class PredefinedFunctions:
         """
         Registers the emit-spike function.
         """
-        symbol = FunctionSymbol(_name=cls.__EMIT_SPIKE, _paramTypes=list(),
+        symbol = FunctionSymbol(_name=cls.EMIT_SPIKE, _paramTypes=list(),
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__EMIT_SPIKE] = symbol
+        cls.__name2FunctionSymbol[cls.EMIT_SPIKE] = symbol
         return
 
     @classmethod
@@ -135,10 +135,10 @@ class PredefinedFunctions:
         """
         params = list()
         params.append(PredefinedTypes.getStringType())
-        symbol = FunctionSymbol(_name=cls.__PRINT, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.PRINT, _paramTypes=params,
                                 _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__PRINT] = symbol
+        cls.__name2FunctionSymbol[cls.PRINT] = symbol
         return
 
     @classmethod
@@ -146,10 +146,10 @@ class PredefinedFunctions:
         """
         Registers the print-line function.
         """
-        symbol = FunctionSymbol(_name=cls.__PRINTLN, _paramTypes=list(),
+        symbol = FunctionSymbol(_name=cls.PRINTLN, _paramTypes=list(),
                                 _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__PRINTLN] = symbol
+        cls.__name2FunctionSymbol[cls.PRINTLN] = symbol
         return
 
     @classmethod
@@ -160,10 +160,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getRealType())  # the base type
         params.append(PredefinedTypes.getRealType())  # the exponent type
-        symbol = FunctionSymbol(_name=cls.__POW, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.POW, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__POW] = symbol
+        cls.__name2FunctionSymbol[cls.POW] = symbol
         return
 
     @classmethod
@@ -173,10 +173,10 @@ class PredefinedFunctions:
         """
         params = list()
         params.append(PredefinedTypes.getRealType())  # the argument
-        symbol = FunctionSymbol(_name=cls.__EXP, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.EXP, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__EXP] = symbol
+        cls.__name2FunctionSymbol[cls.EXP] = symbol
         return
 
     @classmethod
@@ -186,10 +186,10 @@ class PredefinedFunctions:
         """
         params = list()
         params.append(PredefinedTypes.getRealType())  # the argument
-        symbol = FunctionSymbol(_name=cls.__LOG, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.LOG, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__LOG] = symbol
+        cls.__name2FunctionSymbol[cls.LOG] = symbol
         return
 
     @classmethod
@@ -199,10 +199,10 @@ class PredefinedFunctions:
         """
         params = list()
         params.append(PredefinedTypes.getStringType())  # the argument
-        symbol = FunctionSymbol(_name=cls.__LOGGER_INFO, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.LOGGER_INFO, _paramTypes=params,
                                 _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__LOGGER_INFO] = symbol
+        cls.__name2FunctionSymbol[cls.LOGGER_INFO] = symbol
         return
 
     @classmethod
@@ -212,10 +212,10 @@ class PredefinedFunctions:
         """
         params = list()
         params.append(PredefinedTypes.getStringType())  # the argument
-        symbol = FunctionSymbol(_name=cls.__LOGGER_WARNING, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.LOGGER_WARNING, _paramTypes=params,
                                 _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__LOGGER_WARNING] = symbol
+        cls.__name2FunctionSymbol[cls.LOGGER_WARNING] = symbol
         return
 
     @classmethod
@@ -223,10 +223,10 @@ class PredefinedFunctions:
         """
         Registers the random method as used to generate a random real-typed value.
         """
-        symbol = FunctionSymbol(_name=cls.__RANDOM, _paramTypes=list(),
+        symbol = FunctionSymbol(_name=cls.RANDOM, _paramTypes=list(),
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__RANDOM] = symbol
+        cls.__name2FunctionSymbol[cls.RANDOM] = symbol
         return
 
     @classmethod
@@ -234,10 +234,10 @@ class PredefinedFunctions:
         """
         Registers the random method as used to generate a random integer-typed value.
         """
-        symbol = FunctionSymbol(_name=cls.__RANDOM_INT, _paramTypes=list(),
+        symbol = FunctionSymbol(_name=cls.RANDOM_INT, _paramTypes=list(),
                                 _returnType=PredefinedTypes.getIntegerType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__RANDOM_INT] = symbol
+        cls.__name2FunctionSymbol[cls.RANDOM_INT] = symbol
         return
 
     @classmethod
@@ -245,10 +245,10 @@ class PredefinedFunctions:
         """
         Registers the time resolution function.
         """
-        symbol = FunctionSymbol(_name=cls.__TIME_RESOLUTION, _paramTypes=list(),
+        symbol = FunctionSymbol(_name=cls.TIME_RESOLUTION, _paramTypes=list(),
                                 _returnType=PredefinedTypes.getTypeIfExists('ms'),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__TIME_RESOLUTION] = symbol
+        cls.__name2FunctionSymbol[cls.TIME_RESOLUTION] = symbol
         return
 
     @classmethod
@@ -258,10 +258,10 @@ class PredefinedFunctions:
         """
         params = list()
         params.append(PredefinedTypes.getRealType())  # the argument
-        symbol = FunctionSymbol(_name=cls.__EXPM1, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.EXPM1, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__EXPM1] = symbol
+        cls.__name2FunctionSymbol[cls.EXPM1] = symbol
         return
 
     @classmethod
@@ -272,10 +272,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getTypeIfExists('ms'))
         params.append(PredefinedTypes.getTypeIfExists('ms'))
-        symbol = FunctionSymbol(_name=cls.__DELTA, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.DELTA, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__DELTA] = symbol
+        cls.__name2FunctionSymbol[cls.DELTA] = symbol
         return
 
     @classmethod
@@ -286,10 +286,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getRealType())
         params.append(PredefinedTypes.getRealType())
-        symbol = FunctionSymbol(_name=cls.__MAX, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.MAX, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__MAX] = symbol
+        cls.__name2FunctionSymbol[cls.MAX] = symbol
         return
 
     @classmethod
@@ -300,10 +300,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getRealType())
         params.append(PredefinedTypes.getRealType())
-        symbol = FunctionSymbol(_name=cls.__BOUNDED_MAX, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.BOUNDED_MAX, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__BOUNDED_MAX] = symbol
+        cls.__name2FunctionSymbol[cls.BOUNDED_MAX] = symbol
         return
 
     @classmethod
@@ -314,10 +314,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getRealType())
         params.append(PredefinedTypes.getRealType())
-        symbol = FunctionSymbol(_name=cls.__MIN, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.MIN, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__MIN] = symbol
+        cls.__name2FunctionSymbol[cls.MIN] = symbol
         return
 
     @classmethod
@@ -328,10 +328,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getRealType())
         params.append(PredefinedTypes.getRealType())
-        symbol = FunctionSymbol(_name=cls.__BOUNDED_MIN, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.BOUNDED_MIN, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__BOUNDED_MIN] = symbol
+        cls.__name2FunctionSymbol[cls.BOUNDED_MIN] = symbol
         return
 
     @classmethod
@@ -340,10 +340,10 @@ class PredefinedFunctions:
         Registers the integrate-odes function.
         """
         params = list()
-        symbol = FunctionSymbol(_name=cls.__INTEGRATE_ODES, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.INTEGRATE_ODES, _paramTypes=params,
                                 _returnType=PredefinedTypes.getVoidType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__INTEGRATE_ODES] = symbol
+        cls.__name2FunctionSymbol[cls.INTEGRATE_ODES] = symbol
         return
 
     @classmethod
@@ -354,10 +354,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getTypeIfExists('pA'))
         params.append(PredefinedTypes.getRealType())
-        symbol = FunctionSymbol(_name=cls.__CURR_SUM, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.CURR_SUM, _paramTypes=params,
                                 _returnType=PredefinedTypes.getTypeIfExists('pA'),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__CURR_SUM] = symbol
+        cls.__name2FunctionSymbol[cls.CURR_SUM] = symbol
         return
 
     @classmethod
@@ -368,10 +368,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getTypeIfExists('nS'))
         params.append(PredefinedTypes.getRealType())
-        symbol = FunctionSymbol(_name=cls.__COND_SUM, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.COND_SUM, _paramTypes=params,
                                 _returnType=PredefinedTypes.getTypeIfExists('nS'),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__COND_SUM] = symbol
+        cls.__name2FunctionSymbol[cls.COND_SUM] = symbol
         return
 
     @classmethod
@@ -382,10 +382,10 @@ class PredefinedFunctions:
         params = list()
         params.append(PredefinedTypes.getRealType())
         params.append(PredefinedTypes.getRealType())
-        symbol = FunctionSymbol(_name=cls.__CONVOLVE, _paramTypes=params,
+        symbol = FunctionSymbol(_name=cls.CONVOLVE, _paramTypes=params,
                                 _returnType=PredefinedTypes.getRealType(),
                                 _elementReference=None, _isPredefined=True)
-        cls.__name2FunctionSymbol[cls.__CONVOLVE] = symbol
+        cls.__name2FunctionSymbol[cls.CONVOLVE] = symbol
         return
 
     @classmethod
