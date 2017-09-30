@@ -1,0 +1,9 @@
+{%
+  @grammar: returnStmt = "return" Expr?;
+  @param: ast A single ast-return stmt object. ASTReturnStmt
+%}
+{% if ast.hasExpr() %}
+return {{expressionsPrinter.printExpression(ast.getExpr())}};
+{% else %}
+return ;
+{% endif %}

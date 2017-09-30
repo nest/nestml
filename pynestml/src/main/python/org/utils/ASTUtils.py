@@ -38,3 +38,38 @@ class ASTUtils(object):
         for compiunit in _listOfCompilationUnits:
             ret.extend(compiunit.getNeuronList())
         return ret
+
+    @classmethod
+    def isSmallStmt(cls, _ast=None):
+        """
+        Indicates whether the handed over ast is a small statement. Used in the template.
+        :param _ast: a single ast object.
+        :type _ast: AST_
+        :return: True if small stmt, otherwise False.
+        :rtype: bool
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTSmallStmt import ASTSmallStmt
+        return isinstance(_ast, ASTSmallStmt)
+
+    @classmethod
+    def isCompoundStmt(cls, _ast=None):
+        """
+        Indicates whether the handed over ast is a compound statement. Used in the template.
+        :param _ast: a single ast object.
+        :type _ast: AST_
+        :return: True if compound stmt, otherwise False.
+        :rtype: bool
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTCompoundStmt import ASTCompoundStmt
+        return isinstance(_ast, ASTCompoundStmt)
+
+    @classmethod
+    def printComments(cls,_ast=None):
+        """
+        Prints all comments belonging to this node.
+        :param _ast: a single ast node.
+        :type _ast: AST_
+        :return: all comments in the node
+        :rtype: str
+        """
+        return "TODO"

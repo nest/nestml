@@ -1,0 +1,10 @@
+{#
+  @grammar: Stmt = Simple_Stmt ((SL_COMMENT | NEWLINE)* | EOF) | Compound_Stmt;
+  @param ast ASTSmallStmt or ASTCompoundStmt
+#}
+// {{astUtils.printComments(ast)}}
+{% if astUtils.isSmallStmt(ast) %}
+{% include "SmallStatement" %}
+{% elif astUtils.isCompoundStmt(ast) %}
+{% include "CompoundStatement" %}
+{% endif %}

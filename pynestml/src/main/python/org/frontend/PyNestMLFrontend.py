@@ -57,8 +57,8 @@ def main(args):
         nestGenerator = NestCodeGenerator()
         for ast in compilationUnits:
             for neuron in ast.getNeuronList():
-                # nestGenerator.generateHeader(neuron)
-                pass
+                nestGenerator.generateNestCode(neuron)
+
 
 
 if __name__ == '__main__':

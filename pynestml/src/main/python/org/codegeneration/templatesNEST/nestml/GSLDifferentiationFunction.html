@@ -1,0 +1,40 @@
+{#
+  Creates GSL implementation of the differentiation step for the system of ODEs.
+
+  @param ast ASTBody The body of the neuron containing ODE
+  @result C++ Function
+#}
+extern "C" inline int
+{{neuronName}}_dynamics( double, const double y[], double f[], void* pnode )
+{
+  typedef {{neuronName}}::State_ State_;
+  // get access to node so we can almost work as in a member function
+  assert( pnode );
+  const {{neuronName}}& node = *( reinterpret_cast< {{neuronName}}* >( pnode ) );
+
+  // y[] here is---and must be---the state vector supplied by the integrator,
+  // not the state vector in the node, node.S_.y[].
+
+  {% for ode in body.getOdeBlock().get().getODEs() %}
+    {% set simpleOde = odeTransformer.replaceSumCalls(ode) %}
+    {% for function astUtils.getAliasSymbols(ode) %}
+      {% if not function.isInEquation() %}
+        {% set declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression().get()) %}
+        double {{names.name(function)}} = {{expressionsPrinterForGSL.print(declaringExpression)}};
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+
+  {% for function in body.getODEAliases() %}
+    {% set declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression().get()) %}
+    double {{names.name(function)}} = {{expressionsPrinterForGSL.print(declaringExpression)}};
+  {% endfor %}
+
+  {% for odeVariable in ast.variablesDefinedByODE() %}
+    {% set simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDeclaration().get()) %}
+    f[ {{names.arrayIndex(odeVariable)}} ] = {{expressionsPrinterForGSL.print(simpleOde)}};
+  {% endfor %}
+
+  return GSL_SUCCESS;
+}
+

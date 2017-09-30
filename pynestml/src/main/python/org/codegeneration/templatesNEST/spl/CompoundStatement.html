@@ -1,0 +1,16 @@
+{#
+  Handles the compound statement.
+  @grammar: Compound_Stmt = IF_Stmt | FOR_Stmt | WHILE_Stmt;
+#}
+{% ast.isIfStmt() %}
+{% with ast = ast.getIfStmt() %}
+{% include "IfStatement" %}
+{% endwith %}
+{% elif ast.isForStmt() %}
+{% with ast = ast.getForStmt() %}}
+{% include "ForStatement" %}
+{% endwith %}
+{% elif ast.isWhileStmt() %}
+{% with ast = ast.getWhileStmt() %}}
+{% include "WhileStatement" %}
+{% endif %}

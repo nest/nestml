@@ -1,0 +1,24 @@
+{#
+  @grammar: Small_Stmt = Assignment
+                         | FunctionCall
+                         | Declaration
+                         | ReturnStmt;
+  @param ast ASTSmallStmt
+#}
+{% if ast.isAssignment() %}
+{% with ast = ast.getAssignment() %}
+{% include "Assignment" %}
+{% endwith %}
+{% elif ast.isFunctionCall() %}
+{% with ast = ast.getFunctionCall() %}
+{% include "FunctionCall" %}
+{% endwith %}
+{% elif ast.isDeclaration() %}
+{% with ast = ast.getDeclaration() %}
+{% include "Declaration" %}
+{% endwith %}
+{% elif ast.isReturnStmt() %}
+{% with ast = ast.getReturnStmt() %}
+{% include "ReturnStatement" %}
+{% endwith %}
+{% endif %}

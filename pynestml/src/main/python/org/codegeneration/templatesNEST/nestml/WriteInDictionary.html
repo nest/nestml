@@ -1,0 +1,8 @@
+{#
+  Generates code that
+
+  @param variable VariableSymbol
+#}
+{% if not variable.isInternal() %}
+  def< {{declarations.printVariableType(variable)}} >(__d, "{{variable.getName()}}", {{names.getter(variable)}}());
+{% endif %}

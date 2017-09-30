@@ -1,0 +1,30 @@
+{%
+  Generates C++ declaration
+  @grammar:   IF_Stmt = IF_Clause
+                        ELIF_Clause*
+                        (ELSE_Clause)?
+                        BLOCK_CLOSE;
+                        IF_Clause = "if" Expr BLOCK_OPEN Block;
+                        ELIF_Clause = "elif" Expr BLOCK_OPEN Block;
+
+  @param ast ASTIfStmt
+%}
+if ({{expressionsPrinter.printExpression(ast.getIfClause().getCondition())}}) {
+{% with ast = ast.getIfClause().getBlock() %}
+{% include "Block" %}
+{% endwith %}
+{% for elif in ast.getElifClauses() %}
+} else if({{expressionsPrinter.printExpression(elif.getCondition())}}) {
+{% with ast = elif.getBlock() %}
+{% include "Block" %}
+{% endwith %}
+{% endfor %}
+{% if ast.hasElseClause() %}
+}
+else {
+{% with ast = ast.getElseClause().getBlock() %}
+{% include "Block" }
+{% endwith %}
+{% endif %}
+} /* if end */
+

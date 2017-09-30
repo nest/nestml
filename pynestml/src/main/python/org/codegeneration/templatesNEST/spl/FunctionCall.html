@@ -1,0 +1,11 @@
+{#
+  Generates C++ declaration
+  @grammar:   FunctionCall = QualifiedName "(" ArgList ")";
+              ArgList = (args:Expr ("," args:Expr)*)?;
+  @param ast ASTFunctionCall
+#}
+{% if functions.isIntegrate(ast) %}
+{% include "org.nest.spl.small_statement.GSLIntegrator" %}
+{% else %}
+{{expressionsPrinter.printMethodCall(ast)}};
+{% endif %}
