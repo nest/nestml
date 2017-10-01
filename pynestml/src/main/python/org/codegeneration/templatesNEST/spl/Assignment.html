@@ -3,19 +3,19 @@
   @grammar: Assignment = variableName:QualifiedName "=" Expr;
   @param ast ASTAssignment
 #}
-{% set lhsVariable = assignments.lhsVariable(ast) %}
-{% if assignments.isVectorizedAssignment(ast) %}
-for (long i=0; i < P_.{{assignments.printSizeParameter(ast)}}; i++) {
-  {% if lhsVariable.isVector() %}
-    {{variableHelper.printOrigin(lhsVariable)}} {{names.name(lhsVariable)}}[i]
+{% set lhsVariable = assignmentsHelper.lhsVariable(ast) %}
+{% if assignmentsHelper.isVectorizedAssignment(ast) %}
+for (long i=0; i < P_.{{assignmentsHelper.printSizeParameter(ast)}}; i++) {
+  {% if lhsVariable.hasVectorParameter() %}
+    {{expressionsPrinter.printOrigin(lhsVariable)}} {{namesConverter.name(lhsVariable)}}[i]
   {% else %}
-    {{variableHelper.printOrigin(lhsVariable)}} {{names.name(lhsVariable)}}
+    {{expressionsPrinter.printOrigin(lhsVariable)}} {{namesConverter.name(lhsVariable)}}
   {% endif %}
-  {{assignments.printAssignmentsOperation(ast)}}
-  {{expressionsPrinter.print(ast.getExpr())}};
+  {{assignmentsHelper.printAssignmentsOperation(ast)}}
+  {{expressionsPrinter.printExpression(ast.getExpression())}};
 }
 {% else %}
-  {{variableHelper.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}}
-  {{assignments.printAssignmentsOperation(ast)}}
-  {{expressionsPrinter.print(ast.getExpr())}};
+  {{expressionsPrinter.printOrigin(lhsVariable)}}{{namesConverter.name(lhsVariable)}}
+  {{assignmentsHelper.printAssignmentsOperation(ast)}}
+  {{expressionsPrinter.printExpression(ast.getExpression())}};
 {% endif %}

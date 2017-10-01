@@ -4,9 +4,9 @@
   @param variable VariableSymbol
   @result C++ Block
 #}
-{% if variable.hasSetter() or not variable.isFunction() %}
-  {{declarations.printVariableType(variable)}} tmp_{{statusNames.name(variable)}} = {{names.getter(variable)}}();
-  updateValue<{{declarations.printVariableType(variable)}}>(__d, "{{statusNames.name(variable)}}", tmp_{{statusNames.name(variable)}});
+{% if not variable.isFunction() %}
+  {{declarationsHelper.printVariableType(variable)}} tmp_{{namesConverter.name(variable)}} = {{namesConverter.getter(variable)}}();
+  updateValue<{{declarationsHelper.printVariableType(variable)}}>(__d, "{{namesConverter.name(variable)}}", tmp_{{namesConverter.name(variable)}});
 {% else %}
-  // ignores '{{statusNames.name(variable)}}' {{declarations.printVariableType(variable)}}' since it is an function and setter isn't defined
+  // ignores '{{namesConverter.name(variable)}}' {{declarationsHelper.printVariableType(variable)}}' since it is an function and setter isn't defined
 {% endif %}

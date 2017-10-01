@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+
 
 class NestPrinter(object):
     """
@@ -68,8 +70,7 @@ class NestPrinter(object):
         elif step > 0:
             return '<'
         else:
-            return '!=' # todo, this should not happen actually
-
+            return '!='  # todo, this should not happen actually
 
     def printVariable(self, _ast=None):
         """
@@ -93,3 +94,56 @@ class NestPrinter(object):
         assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt)), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(_forStmt)
         return _forStmt.getStep()
+
+    def printOrigin(self, _variableSymbol=None):
+        """
+        Returns a prefix corresponding to the origin of the variable symbol.
+        :param _variableSymbol: a single variable symbol.
+        :type _variableSymbol: VariableSymbol
+        :return: the corresponding prefix
+        :rtype: str
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol, BlockType
+        assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
+            '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
+                _variableSymbol)
+        if _variableSymbol.getBlockType() == BlockType.STATE:
+            return 'S_.'
+        elif _variableSymbol.getBlockType() == BlockType.INITIAL_VALUES:  # todo
+            return 'S_.'
+        elif _variableSymbol.getBlockType() == BlockType.EQUATION:
+            return 'S_.'
+        elif _variableSymbol.getBlockType() == BlockType.PARAMETERS:
+            return 'P_.'
+        elif _variableSymbol.getBlockType() == BlockType.INTERNALS:
+            return 'V_.'
+        elif _variableSymbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT:
+            return 'B_.'
+        elif _variableSymbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE:
+            return 'B_.'
+        else:
+            return ''
+
+    def printOutputEvent(self, _astBody=None):
+        """
+        For the handed over neuron, this operations checks of output event shall be preformed.
+        :param _astBody: a single neuron body
+        :type _astBody: ASTBody
+        :return: the corresponding representation of the event
+        :rtype: str
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTBody import ASTBody
+        assert (_astBody is not None and isinstance(_astBody, ASTBody)), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of body provided (%s)!' % type(_astBody)
+        outputs = _astBody.getOutputBlocks()
+        if len(outputs) > 0:
+            output = outputs[0]
+            if outputs.isSpike():
+                return 'nest::SpikeEvent'
+            elif outputs.isCurrent():
+                return 'nest::CurrentEvent'
+            else:
+                Logger.logMessage('Unexpected output type. Must be current or spike.', LOGGING_LEVEL.ERROR)
+                return 'none'
+        else:
+            return 'none'

@@ -11,19 +11,19 @@
   @param ast ASTDeclaration
 #}
 
-{% for variable in declarations.getVariables(ast) %}
+{% for variable in declarationsHelper.getVariables(ast) %}
   {% if ast.hasSizeParameter() %}
-    {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}}(P_.{{declarations.printSizeParameter(ast)}});
-    {% if ast.getExpr().isPresent() %}
-      for (long i=0; i < get_{{declarations.printSizeParameter(ast)}}(); i++) {
+    {{declarationsHelper.printVariableType(variable)}} {{variable.getSymbolName()}}(P_.{{declarationsHelper.printSizeParameter(ast)}});
+    {% if ast.hasExpression() %}
+      for (long i=0; i < get_{{declarationsHelper.printSizeParameter(ast)}}(); i++) {
         {{variable.getSymbolName()}}[i] = {{expressionsPrinter.printExpression(ast.getExpr())}};
       }
     {% endif %}
   {% else %}
     {% if ast.hasExpression() %}
-      {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}} = {{expressionsPrinter.printExpression(ast.getExpr())}};
+      {{declarationsHelper.printVariableType(variable)}} {{variable.getSymbolName()}} = {{expressionsPrinter.printExpression(ast.getExpr())}};
     {% else %}
-      {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}};
+      {{declarationsHelper.printVariableType(variable)}} {{variable.getSymbolName()}};
     {% endif %}
   {% endif %}
 {% endfor %}

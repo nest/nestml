@@ -166,7 +166,7 @@ class NestCodeGenerator(object):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CodeGenerator.NEST) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        inputNeuronHeader = {'moduleName': 'TODO', 'neuron': _neuron}
+        inputNeuronHeader = self.setupStandardNamespace(_neuron)
         outputNeuronHeader = self.__templateNeuronHeader.render(inputNeuronHeader)
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(), _neuron.getName())) + '.h', 'w+') as f:
             f.write(str(outputNeuronHeader))
@@ -180,7 +180,7 @@ class NestCodeGenerator(object):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CodeGenerator.NEST) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        inputNeuronImplementation = {'moduleName': 'TODO', 'neuron': _neuron}
+        inputNeuronImplementation = self.setupStandardNamespace(_neuron)
         outputNeuronImplementation = self.__templateNeuronImplementation.render(inputNeuronImplementation)
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(), _neuron.getName())) + '.cpp', 'w+') as f:
             f.write(str(outputNeuronImplementation))
@@ -200,3 +200,42 @@ class NestCodeGenerator(object):
         Logger.logMessage('Start generating implementation for %s...' % _neuron.getName(), LOGGING_LEVEL.ALL)
         self.generateClassImplementation(_neuron)
         return
+
+    def setupStandardNamespace(self, _neuron=None):
+        """
+        Returns a standard namespace with often required functionality.
+        :param _neuron: a single neuron instance
+        :type _neuron: ASTNeuron
+        :return: a map from name to functionality.
+        :rtype: dict
+        """
+        from pynestml.src.main.python.org.codegeneration.NestDeclarationsHelper import NestDeclarationsHelper
+        from pynestml.src.main.python.org.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
+        from pynestml.src.main.python.org.codegeneration.NestNamesConverter import NestNamesConverter
+        from pynestml.src.main.python.org.codegeneration.NestPrinter import NestPrinter
+        from pynestml.src.main.python.org.utils.ASTUtils import ASTUtils
+        namespace = {}
+        namespace['neuronName'] = _neuron.getName()
+        namespace['moduleName'] = 'TODO module name'
+        namespace['expressionsPrinter'] = NestPrinter()
+        namespace['outputEvent'] = namespace['expressionsPrinter'].printOutputEvent(_neuron.getBody())
+        namespace['isSpikeInput'] = ASTUtils.isSpikeInput(_neuron.getBody())
+        namespace['isCurrentInput'] = ASTUtils.isCurrentInput(_neuron.getBody())
+        namespace['body'] = _neuron.getBody()
+        namespace['assignmentsHelper'] = NestAssignmentsHelper()
+        namespace['namesConverter'] = NestNamesConverter()
+        namespace['declarationsHelper'] = NestDeclarationsHelper()
+        namespace['astUtils'] = ASTUtils
+        namespace['useGSL'] = False
+        # todo more
+        return namespace
+
+    def test(self,_neuron):
+        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST','spl', 'ModuleClass.html'),
+                  'r') as templateModuleClass:
+            data = templateModuleClass.read()
+            templateModuleClass = Template(data)
+            inputModuleClass = self.setupStandardNamespace(_neuron)
+            outputModuleClass = templateModuleClass.render(inputModuleClass)
+            with open(str(os.path.join(FrontendConfiguration.getTargetPath(), 'teeest')) + '.cpp', 'w+') as f:
+                f.write(str(outputModuleClass))

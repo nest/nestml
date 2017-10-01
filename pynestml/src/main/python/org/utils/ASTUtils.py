@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTUtils(object):
@@ -64,7 +65,7 @@ class ASTUtils(object):
         return isinstance(_ast, ASTCompoundStmt)
 
     @classmethod
-    def printComments(cls,_ast=None):
+    def printComments(cls, _ast=None):
         """
         Prints all comments belonging to this node.
         :param _ast: a single ast node.
@@ -75,7 +76,7 @@ class ASTUtils(object):
         return "TODO comments"
 
     @classmethod
-    def isIntegrate(cls,_functionCall=None):
+    def isIntegrate(cls, _functionCall=None):
         """
         Checks if the handed over function call is a ode integration function call.
         :param _functionCall: a single function call
@@ -85,6 +86,71 @@ class ASTUtils(object):
         """
         from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
-        assert (_functionCall is not None and isinstance(_functionCall,ASTFunctionCall)),\
-            '(PyNestML.CodeGeneration.Utils) No or wrong type of function-call provided (%s)!' %type(_functionCall)
+        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
+            '(PyNestML.CodeGeneration.Utils) No or wrong type of function-call provided (%s)!' % type(_functionCall)
         return _functionCall.getName() == PredefinedFunctions.INTEGRATE_ODES
+
+    @classmethod
+    def isSpikeInput(cls, _body=None):
+        """
+        Checks if the handed over neuron contains a spike input buffer.
+        :param _body: a single body element.
+        :type _body: ASTBody
+        :return: True if spike buffer is contained, otherwise false.
+        :rtype: bool
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTBody import ASTBody
+        assert (_body is not None and isinstance(_body, ASTBody)), \
+            '(PyNestML.CodeGeneration.Utils) No or wrong type of body provided (%s)!' % type(_body)
+        inputs = (inputL for block in _body.getInputBlocks() for inputL in block.getInputLines())
+        for inputL in inputs:
+            if inputL.isSpike():
+                return True
+        return False
+
+    @classmethod
+    def isCurrentInput(cls, _body=None):
+        """
+        Checks if the handed over neuron contains a current input buffer.
+        :param _body: a single body element.
+        :type _body: ASTBody
+        :return: True if current buffer is contained, otherwise false.
+        :rtype: bool
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTBody import ASTBody
+        assert (_body is not None and isinstance(_body, ASTBody)), \
+            '(PyNestML.CodeGeneration.Utils) No or wrong type of body provided (%s)!' % type(_body)
+        inputs = (inputL for block in _body.getInputBlocks() for inputL in block.getInputLines())
+        for inputL in inputs:
+            if inputL.isCurrent():
+                return True
+        return False
+
+    @classmethod
+    def computeTypeName(cls, _dataType=None):
+        """
+        Computes the representation of the data type.
+        :param _dataType: a single data type.
+        :type _dataType: ASTDataType
+        :return: the corresponding representation.
+        :rtype: str
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
+        assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
+            '(PyNestML.CodeGeneration.Utils) No or wrong type of data type provided (%s)!' % type(_dataType)
+        if _dataType.isBoolean():
+            return 'boolean'
+        elif _dataType.isInteger():
+            return 'integer'
+        elif _dataType.isReal():
+            return 'real'
+        elif _dataType.isString():
+            return 'string'
+        elif _dataType.isVoid():
+            return 'void'
+        elif _dataType.isUnitType():
+            # TODO
+            return 'TODO'
+        else:
+            Logger.logMessage('Type could not be derived!', LOGGING_LEVEL.ERROR)
+            return ''

@@ -1,5 +1,5 @@
 #
-# DeclarationsHelper.py
+# NestDeclarationsHelper.py
 #
 # This file is part of NEST.
 #
@@ -19,9 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.src.main.python.org.codegeneration.NESTML2NESTTypeConverter import NESTML2NESTTypeConverter
 
 
-class DeclarationsHelper(object):
+class NestDeclarationsHelper(object):
     """
     This class contains several methods as used during generation of code.
     """
@@ -31,7 +32,7 @@ class DeclarationsHelper(object):
         """
         Initialized the declaration helper.
         """
-        self.nestml2NESTTypeConverter = None  # todo
+        self.nestml2NESTTypeConverter = NESTML2NESTTypeConverter()
         return
 
     def getVariables(self, _astDeclaration=None):
@@ -76,3 +77,13 @@ class DeclarationsHelper(object):
         :rtype: str
         """
         return _astDeclaration.getSizeParameter()
+
+    def getDomainFromType(self, _typeSymbol=None):
+        """
+        Returns the domain for the handed over type symbol
+        :param _typeSymbol: a single type symbol
+        :type _typeSymbol: TypeSymbol
+        :return: the corresponding domain
+        :rtype: str
+        """
+        return self.nestml2NESTTypeConverter.convert(_typeSymbol)

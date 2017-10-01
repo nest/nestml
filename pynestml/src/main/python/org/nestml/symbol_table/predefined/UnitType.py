@@ -71,3 +71,13 @@ class UnitType(object):
         :rtype: str
         """
         return 'Unit ' + self.getName() + ' (' + str(self.getUnit()) + ')'
+
+    def equals(self, _obj=None):
+        """
+        Compares this to the handed object and checks if their semantically equal.
+        :param _obj: a single object
+        :type _obj: object
+        :return: True if equal, otherwise false.
+        :rtype: book
+        """
+        return type(self) == type(_obj) and self.getName() == _obj.getName() and self.getUnit() is _obj.getUnit()
