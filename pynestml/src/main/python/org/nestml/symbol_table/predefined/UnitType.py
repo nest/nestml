@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from sympy.physics.units.quantities import Quantity, Mul, Pow
+from astropy.units.core import PrefixUnit, Unit, IrreducibleUnit
 
 
 class UnitType(object):
@@ -37,13 +37,13 @@ class UnitType(object):
         Standard constructor.
         :param _name: the name of this unit.
         :type _name: str
-        :param _unit: a single unit object from sympy.physics.unit
+        :param _unit: a single unit object from astropy.unit
         :type _unit: Unit
         """
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.UnitType) No or wrong type of name provided (%s)!' % type(_name)
-        assert (_unit is not None and (isinstance(_unit, Quantity)
-                                       or isinstance(_unit, Mul) or isinstance(_unit, Pow))), \
+        assert (_unit is not None and (isinstance(_unit, Unit) or isinstance(_unit, PrefixUnit)) or
+                isinstance(_unit,IrreducibleUnit)), \
             '(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided (%s)!' % type(_unit)
         self.__name = _name
         self.__unit = _unit
@@ -60,7 +60,7 @@ class UnitType(object):
         """
         Returns the sympy unit of this unit.
         :return: a single unit quantity
-        :rtype: sympy.physics.unit.quantities.Quantity
+        :rtype: astropy.unit
         """
         return self.__unit
 

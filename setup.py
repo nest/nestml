@@ -35,6 +35,7 @@ setup(
                       'sympy >= 1.1.1',
                       ('antlr4-python2-runtime' if sys.version_info.major == 2 else
                        'antlr4-python3-runtime'),
-                      'Jinja2'],
+                      'Jinja2',
+                      'astropy'],
     test_suite='pynestml.src.test.python',
 )

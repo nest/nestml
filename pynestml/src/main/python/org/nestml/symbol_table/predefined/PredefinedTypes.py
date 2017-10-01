@@ -162,8 +162,6 @@ class PredefinedTypes:
         if isinstance(_name,Mul) or isinstance(_name,Pow) or isinstance(_name,Quantity):
             cls.registerUnit(_name)
             return cls.getTypeIfExists(str(_name))
-
-
         if _name in cls.__name2type:
             return copy(cls.__name2type[_name])
         else:
