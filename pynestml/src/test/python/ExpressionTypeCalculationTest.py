@@ -32,7 +32,7 @@ from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourceP
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 # minor setup steps required
-Logger.initLogger(LOGGING_LEVEL.ALL)
+Logger.initLogger(LOGGING_LEVEL.NO)
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
 PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
@@ -67,7 +67,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..',
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         expressionTestVisitor().handle(model)
-        if len(Logger.getAllMessagesOfLevel(LOGGING_LEVEL.ERROR)) > 0 :
+        if len(Logger.getAllMessagesOfLevel(LOGGING_LEVEL.ERROR)) != 1 :
             return 1
         return
 

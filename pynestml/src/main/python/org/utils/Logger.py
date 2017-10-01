@@ -126,7 +126,7 @@ class Logger(object):
         """
         ret = list()
         for (message, level) in cls.__log.values():
-            if level.value == _level:
+            if level == _level:
                 ret.append((message, level))
         return ret
 
