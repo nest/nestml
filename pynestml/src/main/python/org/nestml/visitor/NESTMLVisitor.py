@@ -661,81 +661,119 @@ class NESTMLVisitor(object):
         :type _node:  ASTElement or inherited
         """
         if isinstance(_node, ASTArithmeticOperator.ASTArithmeticOperator):
-            self.getRealSelf().visitArithmeticOperator(_node)
+            self.visitArithmeticOperator(_node)
+            return
         if isinstance(_node, ASTAssignment.ASTAssignment):
-            self.getRealSelf().visitAssignment(_node)
+            self.visitAssignment(_node)
+            return
         if isinstance(_node, ASTBitOperator.ASTBitOperator):
-            self.getRealSelf().visitBitOperator(_node)
+            self.visitBitOperator(_node)
+            return
         if isinstance(_node, ASTBlock.ASTBlock):
-            self.getRealSelf().visitBlock(_node)
+            self.visitBlock(_node)
+            return
         if isinstance(_node, ASTBlockWithVariables.ASTBlockWithVariables):
-            self.getRealSelf().visitBlockWithVariables(_node)
+            self.visitBlockWithVariables(_node)
+            return
         if isinstance(_node, ASTBody.ASTBody):
-            self.getRealSelf().visitBody(_node)
+            self.visitBody(_node)
+            return
         if isinstance(_node, ASTComparisonOperator.ASTComparisonOperator):
-            self.getRealSelf().visitComparisonOperator(_node)
+            self.visitComparisonOperator(_node)
+            return
         if isinstance(_node, ASTCompoundStmt.ASTCompoundStmt):
-            self.getRealSelf().visitCompoundStmt(_node)
+            self.visitCompoundStmt(_node)
+            return
         if isinstance(_node, ASTDatatype.ASTDatatype):
-            self.getRealSelf().visitDatatype(_node)
+            self.visitDatatype(_node)
+            return
         if isinstance(_node, ASTDeclaration.ASTDeclaration):
-            self.getRealSelf().visitDeclaration(_node)
+            self.visitDeclaration(_node)
+            return
         if isinstance(_node, ASTElifClause.ASTElifClause):
-            self.getRealSelf().visitElifClause(_node)
+            self.visitElifClause(_node)
+            return
         if isinstance(_node, ASTElseClause.ASTElseClause):
-            self.getRealSelf().visitElseClause(_node)
+            self.visitElseClause(_node)
+            return
         if isinstance(_node, ASTEquationsBlock.ASTEquationsBlock):
-            self.getRealSelf().visitEquationsBlock(_node)
+            self.visitEquationsBlock(_node)
+            return
         if isinstance(_node, ASTExpression.ASTExpression):
-            self.getRealSelf().visitExpression(_node)
+            self.visitExpression(_node)
+            return
         if isinstance(_node, ASTForStmt.ASTForStmt):
-            self.getRealSelf().visitForStmt(_node)
+            self.visitForStmt(_node)
+            return
         if isinstance(_node, ASTFunction.ASTFunction):
-            self.getRealSelf().visitFunction(_node)
+            self.visitFunction(_node)
+            return
         if isinstance(_node, ASTFunctionCall.ASTFunctionCall):
-            self.getRealSelf().visitFunctionCall(_node)
+            self.visitFunctionCall(_node)
+            return
         if isinstance(_node, ASTIfClause.ASTIfClause):
-            self.getRealSelf().visitIfClause(_node)
+            self.visitIfClause(_node)
+            return
         if isinstance(_node, ASTIfStmt.ASTIfStmt):
-            self.getRealSelf().visitIfStmt(_node)
+            self.visitIfStmt(_node)
+            return
         if isinstance(_node, ASTInputBlock.ASTInputBlock):
-            self.getRealSelf().visitInputBlock(_node)
+            self.visitInputBlock(_node)
+            return
         if isinstance(_node, ASTInputLine.ASTInputLine):
-            self.getRealSelf().visitInputLine(_node)
+            self.visitInputLine(_node)
+            return
         if isinstance(_node, ASTInputType.ASTInputType):
-            self.getRealSelf().visitInputType(_node)
+            self.visitInputType(_node)
+            return
         if isinstance(_node, ASTLogicalOperator.ASTLogicalOperator):
-            self.getRealSelf().visitLogicalOperator(_node)
+            self.visitLogicalOperator(_node)
+            return
         if isinstance(_node, ASTNESTMLCompilationUnit.ASTNESTMLCompilationUnit):
-            self.getRealSelf().visitCompilationUnit(_node)
+            self.visitCompilationUnit(_node)
+            return
         if isinstance(_node, ASTNeuron.ASTNeuron):
-            self.getRealSelf().visitNeuron(_node)
+            self.visitNeuron(_node)
+            return
         if isinstance(_node, ASTOdeEquation.ASTOdeEquation):
-            self.getRealSelf().visitOdeEquation(_node)
+            self.visitOdeEquation(_node)
+            return
         if isinstance(_node, ASTOdeFunction.ASTOdeFunction):
-            self.getRealSelf().visitOdeFunction(_node)
+            self.visitOdeFunction(_node)
+            return
         if isinstance(_node, ASTOdeShape.ASTOdeShape):
-            self.getRealSelf().visitOdeShape(_node)
+            self.visitOdeShape(_node)
+            return
         if isinstance(_node, ASTOutputBlock.ASTOutputBlock):
-            self.getRealSelf().visitOutputBlock(_node)
+            self.visitOutputBlock(_node)
+            return
         if isinstance(_node, ASTParameter.ASTParameter):
-            self.getRealSelf().visitParameter(_node)
+            self.visitParameter(_node)
+            return
         if isinstance(_node, ASTReturnStmt.ASTReturnStmt):
-            self.getRealSelf().visitReturnStmt(_node)
+            self.visitReturnStmt(_node)
+            return
         if isinstance(_node, ASTSimpleExpression.ASTSimpleExpression):
-            self.getRealSelf().visitSimpleExpression(_node)
+            self.visitSimpleExpression(_node)
+            return
         if isinstance(_node, ASTSmallStmt.ASTSmallStmt):
-            self.getRealSelf().visitSmallStmt(_node)
+            self.visitSmallStmt(_node)
+            return
         if isinstance(_node, ASTUnaryOperator.ASTUnaryOperator):
-            self.getRealSelf().visitUnaryOperator(_node)
+            self.visitUnaryOperator(_node)
+            return
         if isinstance(_node, ASTUnitType.ASTUnitType):
-            self.getRealSelf().visitUnitType(_node)
+            self.visitUnitType(_node)
+            return
         if isinstance(_node, ASTUpdateBlock.ASTUpdateBlock):
-            self.getRealSelf().visitUpdateBlock(_node)
+            self.visitUpdateBlock(_node)
+            return
         if isinstance(_node, ASTVariable.ASTVariable):
-            self.getRealSelf().visitVariable(_node)
+            self.visitVariable(_node)
+            return
         if isinstance(_node, ASTWhileStmt.ASTWhileStmt):
-            self.getRealSelf().visitWhileStmt(_node)
+            self.visitWhileStmt(_node)
+            return
         return
 
     def traverse(self, _node):
@@ -745,81 +783,119 @@ class NESTMLVisitor(object):
         :type _node: Inherited from ASTElement
         """
         if isinstance(_node, ASTArithmeticOperator.ASTArithmeticOperator):
-            self.getRealSelf().traverseArithmeticOperator(_node)
+            self.traverseArithmeticOperator(_node)
+            return
         if isinstance(_node, ASTAssignment.ASTAssignment):
-            self.getRealSelf().traverseAssignment(_node)
+            self.traverseAssignment(_node)
+            return
         if isinstance(_node, ASTBitOperator.ASTBitOperator):
-            self.getRealSelf().traverseBitOperator(_node)
+            self.traverseBitOperator(_node)
+            return
         if isinstance(_node, ASTBlock.ASTBlock):
-            self.getRealSelf().traverseBlock(_node)
+            self.traverseBlock(_node)
+            return
         if isinstance(_node, ASTBlockWithVariables.ASTBlockWithVariables):
-            self.getRealSelf().traverseBlockWithVariables(_node)
+            self.traverseBlockWithVariables(_node)
+            return
         if isinstance(_node, ASTBody.ASTBody):
-            self.getRealSelf().traverseBody(_node)
+            self.traverseBody(_node)
+            return
         if isinstance(_node, ASTComparisonOperator.ASTComparisonOperator):
-            self.getRealSelf().traverseComparisonOperator(_node)
+            self.traverseComparisonOperator(_node)
+            return
         if isinstance(_node, ASTCompoundStmt.ASTCompoundStmt):
-            self.getRealSelf().traverseCompoundStmt(_node)
+            self.traverseCompoundStmt(_node)
+            return
         if isinstance(_node, ASTDatatype.ASTDatatype):
-            self.getRealSelf().traverseDatatype(_node)
+            self.traverseDatatype(_node)
+            return
         if isinstance(_node, ASTDeclaration.ASTDeclaration):
-            self.getRealSelf().traverseDeclaration(_node)
+            self.traverseDeclaration(_node)
+            return
         if isinstance(_node, ASTElifClause.ASTElifClause):
-            self.getRealSelf().traverseElifClause(_node)
+            self.traverseElifClause(_node)
+            return
         if isinstance(_node, ASTElseClause.ASTElseClause):
-            self.getRealSelf().traverseElseClause(_node)
+            self.traverseElseClause(_node)
+            return
         if isinstance(_node, ASTEquationsBlock.ASTEquationsBlock):
-            self.getRealSelf().traverseEquationsBlock(_node)
+            self.traverseEquationsBlock(_node)
+            return
         if isinstance(_node, ASTExpression.ASTExpression):
-            self.getRealSelf().traverseExpression(_node)
+            self.traverseExpression(_node)
+            return
         if isinstance(_node, ASTForStmt.ASTForStmt):
-            self.getRealSelf().traverseForStmt(_node)
+            self.traverseForStmt(_node)
+            return
         if isinstance(_node, ASTFunction.ASTFunction):
-            self.getRealSelf().traverseFunction(_node)
+            self.traverseFunction(_node)
+            return
         if isinstance(_node, ASTFunctionCall.ASTFunctionCall):
-            self.getRealSelf().traverseFunctionCall(_node)
+            self.traverseFunctionCall(_node)
+            return
         if isinstance(_node, ASTIfClause.ASTIfClause):
-            self.getRealSelf().traverseIfClause(_node)
+            self.traverseIfClause(_node)
+            return
         if isinstance(_node, ASTIfStmt.ASTIfStmt):
-            self.getRealSelf().traverseIfStmt(_node)
+            self.traverseIfStmt(_node)
+            return
         if isinstance(_node, ASTInputBlock.ASTInputBlock):
-            self.getRealSelf().traverseInputBlock(_node)
+            self.traverseInputBlock(_node)
+            return
         if isinstance(_node, ASTInputLine.ASTInputLine):
-            self.getRealSelf().traverseInputLine(_node)
+            self.traverseInputLine(_node)
+            return
         if isinstance(_node, ASTInputType.ASTInputType):
-            self.getRealSelf().traverseInputType(_node)
+            self.traverseInputType(_node)
+            return
         if isinstance(_node, ASTLogicalOperator.ASTLogicalOperator):
-            self.getRealSelf().traverseLogicalOperator(_node)
+            self.traverseLogicalOperator(_node)
+            return
         if isinstance(_node, ASTNESTMLCompilationUnit.ASTNESTMLCompilationUnit):
-            self.getRealSelf().traverseCompilationUnit(_node)
+            self.traverseCompilationUnit(_node)
+            return
         if isinstance(_node, ASTNeuron.ASTNeuron):
-            self.getRealSelf().traverseNeuron(_node)
+            self.traverseNeuron(_node)
+            return
         if isinstance(_node, ASTOdeEquation.ASTOdeEquation):
-            self.getRealSelf().traverseOdeEquation(_node)
+            self.traverseOdeEquation(_node)
+            return
         if isinstance(_node, ASTOdeFunction.ASTOdeFunction):
-            self.getRealSelf().traverseOdeFunction(_node)
+            self.traverseOdeFunction(_node)
+            return
         if isinstance(_node, ASTOdeShape.ASTOdeShape):
-            self.getRealSelf().traverseOdeShape(_node)
+            self.traverseOdeShape(_node)
+            return
         if isinstance(_node, ASTOutputBlock.ASTOutputBlock):
-            self.getRealSelf().traverseOutputBlock(_node)
+            self.traverseOutputBlock(_node)
+            return
         if isinstance(_node, ASTParameter.ASTParameter):
-            self.getRealSelf().traverseParameter(_node)
+            self.traverseParameter(_node)
+            return
         if isinstance(_node, ASTReturnStmt.ASTReturnStmt):
-            self.getRealSelf().traverseReturnStmt(_node)
+            self.traverseReturnStmt(_node)
+            return
         if isinstance(_node, ASTSimpleExpression.ASTSimpleExpression):
-            self.getRealSelf().traverseSimpleExpression(_node)
+            self.traverseSimpleExpression(_node)
+            return
         if isinstance(_node, ASTSmallStmt.ASTSmallStmt):
-            self.getRealSelf().traverseSmallStmt(_node)
+            self.traverseSmallStmt(_node)
+            return
         if isinstance(_node, ASTUnaryOperator.ASTUnaryOperator):
-            self.getRealSelf().traverseUnaryOperator(_node)
+            self.traverseUnaryOperator(_node)
+            return
         if isinstance(_node, ASTUnitType.ASTUnitType):
-            self.getRealSelf().traverseUnitType(_node)
+            self.traverseUnitType(_node)
+            return
         if isinstance(_node, ASTUpdateBlock.ASTUpdateBlock):
-            self.getRealSelf().traverseUpdateBlock(_node)
+            self.traverseUpdateBlock(_node)
+            return
         if isinstance(_node, ASTVariable.ASTVariable):
-            self.getRealSelf().traverseVariable(_node)
+            self.traverseVariable(_node)
+            return
         if isinstance(_node, ASTWhileStmt.ASTWhileStmt):
-            self.getRealSelf().traverseWhileStmt(_node)
+            self.traverseWhileStmt(_node)
+            return
         return
 
     def endvisit(self, _node):
@@ -829,81 +905,119 @@ class NESTMLVisitor(object):
         :type _node:  ASTElement or inherited
         """
         if isinstance(_node, ASTArithmeticOperator.ASTArithmeticOperator):
-            self.getRealSelf().endvisitArithmeticOperator(_node)
+            self.endvisitArithmeticOperator(_node)
+            return
         if isinstance(_node, ASTAssignment.ASTAssignment):
-            self.getRealSelf().endvisitAssignment(_node)
+            self.endvisitAssignment(_node)
+            return
         if isinstance(_node, ASTBitOperator.ASTBitOperator):
-            self.getRealSelf().endvisitBitOperator(_node)
+            self.endvisitBitOperator(_node)
+            return
         if isinstance(_node, ASTBlock.ASTBlock):
-            self.getRealSelf().endvisitBlock(_node)
+            self.endvisitBlock(_node)
+            return
         if isinstance(_node, ASTBlockWithVariables.ASTBlockWithVariables):
-            self.getRealSelf().endvisitBlockWithVariables(_node)
+            self.endvisitBlockWithVariables(_node)
+            return
         if isinstance(_node, ASTBody.ASTBody):
-            self.getRealSelf().endvisitBody(_node)
+            self.endvisitBody(_node)
+            return
         if isinstance(_node, ASTComparisonOperator.ASTComparisonOperator):
-            self.getRealSelf().endvisitComparisonOperator()
+            self.endvisitComparisonOperator()
+            return
         if isinstance(_node, ASTCompoundStmt.ASTCompoundStmt):
-            self.getRealSelf().endvisitCompoundStmt(_node)
+            self.endvisitCompoundStmt(_node)
+            return
         if isinstance(_node, ASTDatatype.ASTDatatype):
-            self.getRealSelf().endvisitDatatype(_node)
+            self.endvisitDatatype(_node)
+            return
         if isinstance(_node, ASTDeclaration.ASTDeclaration):
-            self.getRealSelf().endvisitDeclaration(_node)
+            self.endvisitDeclaration(_node)
+            return
         if isinstance(_node, ASTElifClause.ASTElifClause):
-            self.getRealSelf().endvisitElifClause(_node)
+            self.endvisitElifClause(_node)
+            return
         if isinstance(_node, ASTElseClause.ASTElseClause):
-            self.getRealSelf().endvisitElseClause(_node)
+            self.endvisitElseClause(_node)
+            return
         if isinstance(_node, ASTEquationsBlock.ASTEquationsBlock):
-            self.getRealSelf().endvisitEquationsBlock(_node)
+            self.endvisitEquationsBlock(_node)
+            return
         if isinstance(_node, ASTExpression.ASTExpression):
-            self.getRealSelf().endvisitExpression(_node)
+            self.endvisitExpression(_node)
+            return
         if isinstance(_node, ASTForStmt.ASTForStmt):
-            self.getRealSelf().endvisitForStmt(_node)
+            self.endvisitForStmt(_node)
+            return
         if isinstance(_node, ASTFunction.ASTFunction):
-            self.getRealSelf().endvisitFunction(_node)
+            self.endvisitFunction(_node)
+            return
         if isinstance(_node, ASTFunctionCall.ASTFunctionCall):
-            self.getRealSelf().endvisitFunctionCall(_node)
+            self.endvisitFunctionCall(_node)
+            return
         if isinstance(_node, ASTIfClause.ASTIfClause):
-            self.getRealSelf().endvisitIfClause(_node)
+            self.endvisitIfClause(_node)
+            return
         if isinstance(_node, ASTIfStmt.ASTIfStmt):
-            self.getRealSelf().endvisitIfStmt(_node)
+            self.endvisitIfStmt(_node)
+            return
         if isinstance(_node, ASTInputBlock.ASTInputBlock):
-            self.getRealSelf().endvisitInputBlock(_node)
+            self.endvisitInputBlock(_node)
+            return
         if isinstance(_node, ASTInputLine.ASTInputLine):
-            self.getRealSelf().endvisitInputLine(_node)
+            self.endvisitInputLine(_node)
+            return
         if isinstance(_node, ASTInputType.ASTInputType):
-            self.getRealSelf().endvisitInputType(_node)
+            self.endvisitInputType(_node)
+            return
         if isinstance(_node, ASTLogicalOperator.ASTLogicalOperator):
-            self.getRealSelf().endvisitLogicalOperator(_node)
+            self.endvisitLogicalOperator(_node)
+            return
         if isinstance(_node, ASTNESTMLCompilationUnit.ASTNESTMLCompilationUnit):
-            self.getRealSelf().endvisitCompilationUnit(_node)
+            self.endvisitCompilationUnit(_node)
+            return
         if isinstance(_node, ASTNeuron.ASTNeuron):
-            self.getRealSelf().endvisitNeuron(_node)
+            self.endvisitNeuron(_node)
+            return
         if isinstance(_node, ASTOdeEquation.ASTOdeEquation):
-            self.getRealSelf().endvisitOdeEquation(_node)
+            self.endvisitOdeEquation(_node)
+            return
         if isinstance(_node, ASTOdeFunction.ASTOdeFunction):
-            self.getRealSelf().endvisitOdeFunction(_node)
+            self.endvisitOdeFunction(_node)
+            return
         if isinstance(_node, ASTOdeShape.ASTOdeShape):
-            self.getRealSelf().endvisitOdeShape(_node)
+            self.endvisitOdeShape(_node)
+            return
         if isinstance(_node, ASTOutputBlock.ASTOutputBlock):
-            self.getRealSelf().endvisitOutputBlock(_node)
+            self.endvisitOutputBlock(_node)
+            return
         if isinstance(_node, ASTParameter.ASTParameter):
-            self.getRealSelf().endvisitParameter(_node)
+            self.endvisitParameter(_node)
+            return
         if isinstance(_node, ASTReturnStmt.ASTReturnStmt):
-            self.getRealSelf().endvisitReturnStmt(_node)
+            self.endvisitReturnStmt(_node)
+            return
         if isinstance(_node, ASTSimpleExpression.ASTSimpleExpression):
-            self.getRealSelf().endvisitSimpleExpression(_node)
+            self.endvisitSimpleExpression(_node)
+            return
         if isinstance(_node, ASTSmallStmt.ASTSmallStmt):
-            self.getRealSelf().endvisitSmallStmt(_node)
+            self.endvisitSmallStmt(_node)
+            return
         if isinstance(_node, ASTUnaryOperator.ASTUnaryOperator):
-            self.getRealSelf().endvisitUnaryOperator(_node)
+            self.endvisitUnaryOperator(_node)
+            return
         if isinstance(_node, ASTUnitType.ASTUnitType):
-            self.getRealSelf().endvisitUnitType(_node)
+            self.endvisitUnitType(_node)
+            return
         if isinstance(_node, ASTUpdateBlock.ASTUpdateBlock):
-            self.getRealSelf().endvisitUpdateBlock(_node)
+            self.endvisitUpdateBlock(_node)
+            return
         if isinstance(_node, ASTVariable.ASTVariable):
-            self.getRealSelf().endvisitVariable(_node)
+            self.endvisitVariable(_node)
+            return
         if isinstance(_node, ASTWhileStmt.ASTWhileStmt):
-            self.getRealSelf().endvisitWhileStmt(_node)
+            self.endvisitWhileStmt(_node)
+            return
         return
 
     def traverseArithmeticOperator(self, _node):

@@ -33,8 +33,8 @@ from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 class LineOperatorVisitor(NESTMLVisitor):
 
     def visitExpression(self, _expr=None):
-        lhsTypeE = _expr.getLeft().getTypeEither()
-        rhsTypeE = _expr.getRight().getTypeEither()
+        lhsTypeE = _expr.getLhs().getTypeEither()
+        rhsTypeE = _expr.getRhs().getTypeEither()
 
         if lhsTypeE.isError():
             _expr.setTypeEither(lhsTypeE)

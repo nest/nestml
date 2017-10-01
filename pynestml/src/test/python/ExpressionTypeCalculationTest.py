@@ -20,6 +20,7 @@
 import unittest
 import os
 from pynestml.src.main.python.org.nestml.parser.NESTMLParser import NESTMLParser
+from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
@@ -31,7 +32,7 @@ from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourceP
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 # minor setup steps required
-Logger.initLogger(LOGGING_LEVEL.ERROR)
+Logger.initLogger(LOGGING_LEVEL.ALL)
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
 PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
@@ -40,8 +41,16 @@ PredefinedFunctions.registerPredefinedFunctions()
 CoCosManager.initializeCoCosManager()
 
 class expressionTestVisitor(NESTMLVisitor):
-    def visitExpression(self, _expr=None):
-        print("line " + _expr.getSourcePosition().printSourcePosition() + " : " + str(_expr.getTypeEither()))
+
+    def endvisitAssignment(self, _assignment=None):
+        scope = _assignment.getScope()
+        varName = _assignment.getVariable().getName()
+
+        _expr = _assignment.getExpression()
+
+        varSymbol = scope.resolveToSymbol(varName,SymbolKind.VARIABLE)
+
+        Logger.logMessage("line " + _expr.getSourcePosition().printSourcePosition() + " : LHS = " + varSymbol.getTypeSymbol().getSymbolName() + " RHS = " + _expr.getTypeEither().getValue().getSymbolName(),LOGGING_LEVEL.ALL)
         return
 
 class ExpressionTypeCalculationTest(unittest.TestCase):
@@ -52,7 +61,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..',
                                                        'resources', 'ExpressionTypeTest.nestml'))))
-        expressionTestVisitor().visit(model)
+        expressionTestVisitor().handle(model)
         return
 
 

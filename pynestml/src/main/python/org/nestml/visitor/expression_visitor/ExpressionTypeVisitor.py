@@ -21,6 +21,7 @@
 
 from pynestml.src.main.python.org.nestml.ast import ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, \
     ASTLogicalOperator
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.nestml.visitor.expression_visitor.BinaryLogicVisitor import BinaryLogicVisitor
 from pynestml.src.main.python.org.nestml.visitor.expression_visitor.BooleanLiteralVisitor import BooleanLiteralVisitor
@@ -66,6 +67,38 @@ class ExpressionTypeVisitor(NESTMLVisitor):
         return
 
 
+    def traverseSimpleExpression(self, _node):
+        # handle all simpleexpressions
+        if isinstance(_node,ASTSimpleExpression):
+            # simpleExpression = functionCall
+            if _node.getFunctionCall() is not None:
+                self.setRealSelf(self.__functionCallVisitor)
+                return
+            # simpleExpression =  (INTEGER|FLOAT) (variable)?
+            if _node.getNumericLiteral() is not None or \
+                    (_node.getNumericLiteral() is not None and _node.getVariable() is not None):
+                self.setRealSelf(self.__numericLiteralVisitor)
+                return
+            # simpleExpression =  variable
+            if _node.getVariable() is not None:
+                self.setRealSelf(self.__variableVisitor)
+                return
+            # simpleExpression = BOOLEAN_LITERAL
+            if _node.isBooleanTrue() or _node.isBooleanFalse():
+                self.setRealSelf(self.__booleanLiteralVisitor)
+                return
+            # simpleExpression = isInf='inf'
+            if _node.isInfLiteral():
+                self.setRealSelf(self.__infVisitor)
+                return
+            # simpleExpression = string=STRING_LITERAL
+            if _node.isString():
+                self.setRealSelf(self.__stringLiteralVisitor)
+                return
+
+        return
+
+
     def traverseExpression(self, _node):
         #Expr = unaryOperator term=expression
         if _node.getExpression() is not None and _node.getUnaryOperator() is not None:
@@ -74,10 +107,10 @@ class ExpressionTypeVisitor(NESTMLVisitor):
             return
 
         #Parentheses and logicalNot
-        if _node.getExpression() is not None and not _node.isSimpleExpression():
+        if _node.getExpression() is not None:
             _node.getExpression().accept(self)
             #Expr = leftParentheses='(' term=expression rightParentheses=')'
-            if _node.hasLeftParentheses() and _node.hasRightParentheses():
+            if _node.isEncapsulated():
                 self.setRealSelf(self.__parenthesesVisitor)
                 return
             #Expr = logicalNot='not' term=expression
@@ -131,31 +164,4 @@ class ExpressionTypeVisitor(NESTMLVisitor):
             self.setRealSelf(self.__conditionVisitor)
             return
 
-        # handle all simpleexpressions
-        if _node.isSimpleExpression():
-            #simpleExpression = functionCall
-            simpEx = _node.getExpression()
-            if simpEx.getFunctionCall() is not None:
-                self.setRealSelf(self.__functionCallVisitor)
-                return
-            # simpleExpression =  (INTEGER|FLOAT) (variable)?
-            if simpEx.getNumericLiteral() is not None or \
-                    (simpEx.getNumericLiteral() is not None and simpEx.getVariable() is not None):
-                self.setRealSelf(self.__numericLiteralVisitor)
-                return
-            #simpleExpression =  variable
-            if simpEx.getVariable() is not None:
-                self.setRealSelf(self.__variableVisitor)
-                return
-            #simpleExpression = BOOLEAN_LITERAL
-            if simpEx.isBooleanTrue() or simpEx.isBooleanFalse():
-                self.setRealSelf(self.__booleanLiteralVisitor)
-                return
-            #simpleExpression = isInf='inf'
-            if simpEx.isInfLiteral():
-                self.setRealSelf(self.__infVisitor)
-                return
-            #simpleExpression = string=STRING_LITERAL
-            if simpEx.isString():
-                self.setRealSelf(self.__stringLiteralVisitor)
-                return
+

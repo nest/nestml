@@ -67,7 +67,7 @@ class DotOperatorVisitor(NESTMLVisitor):
                     leftUnit = lhsType.getSympyUnit()
                     rightUnit = rhsType.getSympyUnit()
                     if arithOp.isTimesOp():
-                        returnType = PredefinedTypes.getTypeIfExists(str(leftUnit*rightUnit))
+                        returnType = PredefinedTypes.getTypeIfExists(leftUnit*rightUnit)
                         _expr.setTypeEither(Either.value(returnType))
                         return
                     elif arithOp.isDivOp():
@@ -85,7 +85,7 @@ class DotOperatorVisitor(NESTMLVisitor):
                         return
                     elif arithOp.isDivOp():
                         rightUnit = rhsType.getSympyUnit
-                        returnType = PredefinedTypes.getTypeIfExists(str(1/rightUnit))
+                        returnType = PredefinedTypes.getTypeIfExists(1/rightUnit)
                         _expr.setTypeEither(Either.value(returnType))
                         return
                 #if no Units are involved, Real takes priority

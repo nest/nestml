@@ -219,6 +219,12 @@ class TypeSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
+        #deferr comparison of units to sympy library
+        if type(self) == type(_other) and self.hasUnit() and _other.hasUnit():
+            selfUnit = self.getSympyUnit()
+            otherUnit = _other.getSympyUnit()
+            return selfUnit == otherUnit
+
         return type(self) == type(_other) and \
                self.isInteger() == _other.isInteger() and \
                self.isReal() == _other.isReal() and \

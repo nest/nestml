@@ -21,6 +21,8 @@
 """
 expression : <assoc=right> left=expression powOp='**' right=expression
 """
+from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
 from pynestml.src.main.python.org.nestml.symbol_table.typechecker.TypeChecker import TypeChecker
 from pynestml.src.main.python.org.nestml.visitor.ErrorStrings import ErrorStrings
@@ -62,7 +64,7 @@ class PowVisitor(NESTMLVisitor):
                 baseUnit = baseType.getSympyUnit()
                 exponentValue = self.calculateNumericValue(_expr.getRhs()) #calculate exponent value if exponent composed of literals
                 if exponentValue.isValue():
-                    _expr.setTypeEither(Either.value(PredefinedTypes.getTypeIfExists(str(baseUnit**exponentValue))))
+                    _expr.setTypeEither(Either.value(PredefinedTypes.getTypeIfExists(baseUnit**exponentValue.getValue())))
                     return
                 else:
                     errorMsg = exponentValue.getError()
@@ -79,9 +81,9 @@ class PowVisitor(NESTMLVisitor):
 
     def calculateNumericValue(self, _expr = None):
         #TODO write tests for this
-        if _expr.hasLeftParentheses():
+        if isinstance(_expr,ASTExpression) and _expr.isEncapsulated():
             return self.calculateNumericValue(_expr.getExpr())
-        elif _expr.getNumericLiteral() is not None:
+        elif isinstance(_expr,ASTSimpleExpression) and _expr.getNumericLiteral() is not None:
             if isinstance(_expr.getNumericLiteral(),int):
                 literal = _expr.getNumericLiteral()
                 return Either.value(literal)
