@@ -17,7 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from astropy.units.core import PrefixUnit, Unit, IrreducibleUnit
+from astropy.units.core import PrefixUnit, Unit, IrreducibleUnit, CompositeUnit
+from astropy.units.quantity import Quantity
 
 
 class UnitType(object):
@@ -43,10 +44,11 @@ class UnitType(object):
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.SymbolTable.UnitType) No or wrong type of name provided (%s)!' % type(_name)
         assert (_unit is not None and (isinstance(_unit, Unit) or isinstance(_unit, PrefixUnit)) or
-                isinstance(_unit,IrreducibleUnit)), \
+                isinstance(_unit, IrreducibleUnit) or isinstance(_unit, CompositeUnit) or isinstance(_unit, Quantity)), \
             '(PyNestML.SymbolTable.UnitType) No or wrong type of unit provided (%s)!' % type(_unit)
         self.__name = _name
         self.__unit = _unit
+        return
 
     def getName(self):
         """

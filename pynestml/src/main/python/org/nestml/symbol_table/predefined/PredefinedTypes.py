@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from sympy import Expr, Mul, Pow
-from sympy.physics.units import Quantity
+from astropy.units.core import CompositeUnit
 
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
@@ -156,10 +156,10 @@ class PredefinedTypes:
         :return: a single symbol copy or none
         :rtype: TypeSymbol or None
         """
-        assert (_name is not None and ( isinstance(_name, str) or isinstance(_name,Mul)) or isinstance(_name,Pow)), \
+        assert (_name is not None and (isinstance(_name,str) or isinstance(_name, CompositeUnit))), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
 
-        if isinstance(_name,Mul) or isinstance(_name,Pow) or isinstance(_name,Quantity):
+        if isinstance(_name, CompositeUnit):
             cls.registerUnit(_name)
             return cls.getTypeIfExists(str(_name))
         if _name in cls.__name2type:
