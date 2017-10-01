@@ -41,7 +41,7 @@ neuron expressionType_test:
        amps A
        volts V
        charge C
-       mass g
+       mass kg
        distance m
        force N
        testint integer
@@ -69,8 +69,9 @@ neuron expressionType_test:
         force = mass*distance/(time**2)
         volts = volts > resist*amps ? volts : resist* amps
         force = foo(mass,distance,time)
-        force = 1 g * distance/(time**2)
-        force = g*m/(s**2)
+        force = 1 kg * distance/(time**2)
+        force = kg*m/(s**2)
+        force = volts*amps
     end
 
     input:

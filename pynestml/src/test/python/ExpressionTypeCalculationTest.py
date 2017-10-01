@@ -50,7 +50,12 @@ class expressionTestVisitor(NESTMLVisitor):
 
         varSymbol = scope.resolveToSymbol(varName,SymbolKind.VARIABLE)
 
-        Logger.logMessage("line " + _expr.getSourcePosition().printSourcePosition() + " : LHS = " + varSymbol.getTypeSymbol().getSymbolName() + " RHS = " + _expr.getTypeEither().getValue().getSymbolName(),LOGGING_LEVEL.ALL)
+        _equals = varSymbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
+
+        Logger.logMessage("line " + _expr.getSourcePosition().printSourcePosition() + " : LHS = " + varSymbol.getTypeSymbol().getSymbolName() + " RHS = " + _expr.getTypeEither().getValue().getSymbolName()+" Equal?= " +str(_equals),LOGGING_LEVEL.ALL)
+
+        if _equals is False:
+            Logger.logMessage("Type mismatch in test!",LOGGING_LEVEL.ERROR)
         return
 
 class ExpressionTypeCalculationTest(unittest.TestCase):
@@ -62,6 +67,8 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..',
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         expressionTestVisitor().handle(model)
+        if len(Logger.getAllMessagesOfLevel(LOGGING_LEVEL.ERROR)) > 0 :
+            return 1
         return
 
 
