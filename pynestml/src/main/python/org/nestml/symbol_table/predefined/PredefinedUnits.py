@@ -128,5 +128,3 @@ class PredefinedUnits(object):
         :rtype: list(UnitType)
         """
         return cls.__name2unit
-
-PredefinedUnits.registerUnits()

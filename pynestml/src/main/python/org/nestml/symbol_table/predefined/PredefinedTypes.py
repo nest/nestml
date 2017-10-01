@@ -156,9 +156,8 @@ class PredefinedTypes:
         :return: a single symbol copy or none
         :rtype: TypeSymbol or None
         """
-        assert (_name is not None and (isinstance(_name,str) or isinstance(_name, CompositeUnit))), \
+        assert (_name is not None and (isinstance(_name, str) or isinstance(_name, CompositeUnit))), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
-
         if isinstance(_name, CompositeUnit):
             cls.registerUnit(_name)
             return cls.getTypeIfExists(str(_name))

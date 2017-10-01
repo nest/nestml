@@ -46,7 +46,7 @@ neuron CoCoIncorrectReturnStatement:
             test = 20mV
         end
 
-        return # here, it should be detected, that the type is wrong
+        return True# here, it should be detected, that the type is wrong
     end
 
     function bar() mV:
