@@ -39,10 +39,10 @@ class NumericLiteralVisitor(NESTMLVisitor):
             _expr.setTypeEither(Either.value(variableSymbolResolve.getTypeSymbol()))
             return
 
-        if _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral,float):
+        if _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral(),float):
             _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
             return
 
-        elif _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral,int):
+        elif _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral(),int):
             _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
             return

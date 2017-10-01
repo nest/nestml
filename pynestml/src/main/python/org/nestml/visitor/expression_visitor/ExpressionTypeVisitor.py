@@ -76,7 +76,7 @@ class ExpressionTypeVisitor(NESTMLVisitor):
                 return
             # simpleExpression =  (INTEGER|FLOAT) (variable)?
             if _node.getNumericLiteral() is not None or \
-                    (_node.getNumericLiteral() is not None and simpEx.getVariable() is not None):
+                    (_node.getNumericLiteral() is not None and _node.getVariable() is not None):
                 self.setRealSelf(self.__numericLiteralVisitor)
                 return
             # simpleExpression =  variable

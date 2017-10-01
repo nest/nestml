@@ -17,6 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from sympy import Expr, Mul, Pow
+from sympy.physics.units import Quantity
+
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.symbol_table.predefined.UnitType import UnitType
@@ -153,8 +156,14 @@ class PredefinedTypes:
         :return: a single symbol copy or none
         :rtype: TypeSymbol or None
         """
-        assert (_name is not None and isinstance(_name, str)), \
+        assert (_name is not None and ( isinstance(_name, str) or isinstance(_name,Mul)) or isinstance(_name,Pow)), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
+
+        if isinstance(_name,Mul) or isinstance(_name,Pow) or isinstance(_name,Quantity):
+            cls.registerUnit(_name)
+            return cls.getTypeIfExists(str(_name))
+
+
         if _name in cls.__name2type:
             return copy(cls.__name2type[_name])
         else:
@@ -230,7 +239,7 @@ class PredefinedTypes:
         from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedUnits import PredefinedUnits
         unitType = UnitType(str(_unit), _unit)
         PredefinedUnits.registerUnit(unitType)
-        typeSymbol = TypeSymbol(_name=unitType.getName(), _unit=unitType.getUnit())
+        typeSymbol = TypeSymbol(_name=unitType.getName(), _unit=unitType)
         PredefinedTypes.registerType(typeSymbol)
         return
 

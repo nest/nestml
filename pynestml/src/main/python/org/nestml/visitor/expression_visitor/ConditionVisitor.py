@@ -62,7 +62,7 @@ class ConditionVisitor(NESTMLVisitor):
 
         #Both are units but not matching-> real WARN
         if TypeChecker.isUnit(ifTrue) and TypeChecker.isUnit(ifNot):
-            errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.printAST(), ifNot.printAST(), _expr.getSourcePosition())
+            errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.printSymbol(), ifNot.printSymbol(), _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
             Logger.logMessage(errorMsg, LOGGING_LEVEL.WARNING)
             return

@@ -39,7 +39,19 @@ neuron expressionType_test:
        time s
        resist Ohm
        amps A
+       volts V
        charge C
+       mass g
+       distance m
+       force N
+       testint integer
+       timesquared s**2
+       velocity m/s 
+        
+    end
+
+    function foo(_mass g, _dist m, _time s) N :
+      return _mass*_dist/(_time**2)
     end
 
     parameters:
@@ -47,7 +59,18 @@ neuron expressionType_test:
     end
 
     update:
-        time = (charge/amps)
+        #time = (charge/amps)
+        testint = 2
+        timesquared = time**2
+        velocity = distance/time 
+        volts = resist*amps
+        volts = volts + volts
+        volts = volts - volts
+        force = mass*distance/(time**2)
+        volts = volts > resist*amps ? volts : resist* amps
+        force = foo(mass,distance,time)
+        force = 1 g * distance/(time**2)
+        force = g*m/(s**2)
     end
 
     input:
