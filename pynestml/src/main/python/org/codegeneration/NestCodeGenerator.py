@@ -216,6 +216,7 @@ class NestCodeGenerator(object):
         from pynestml.src.main.python.org.utils.ASTUtils import ASTUtils
         namespace = {}
         namespace['neuronName'] = _neuron.getName()
+        namespace['neuron'] = _neuron
         namespace['moduleName'] = 'TODO module name'
         namespace['expressionsPrinter'] = NestPrinter()
         namespace['outputEvent'] = namespace['expressionsPrinter'].printOutputEvent(_neuron.getBody())
@@ -226,7 +227,8 @@ class NestCodeGenerator(object):
         namespace['namesConverter'] = NestNamesConverter()
         namespace['declarationsHelper'] = NestDeclarationsHelper()
         namespace['astUtils'] = ASTUtils
-        namespace['useGSL'] = False
+        namespace['useGSL'] = False #Todo
+
         # todo more
         return namespace
 

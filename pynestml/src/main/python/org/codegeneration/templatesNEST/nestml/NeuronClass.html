@@ -77,17 +77,17 @@ namespace nest
   void RecordablesMap<{{neuronName}}>::create()
   {
     // use standard names whereever you can for consistency!
-    {% for state in body.getStateSymbols() %}
-      {% include "org.nest.nestml.neuron.function.RecordCallback" %}
+    {% for variable in neuron.getStateSymbols() %}
+      {% include "RecordCallback.html" %}
     {% endfor %}
-    {% for internal in body.getInternalSymbols() %}
-      {% include "org.nest.nestml.neuron.function.RecordCallback" %}
+    {% for variable in neuron.getInternalSymbols() %}
+      {% include "RecordCallback.html" %}
     {% endfor %}
-    {% for parameter in body.getParameterSymbols() %}
-      {% include "org.nest.nestml.neuron.function.RecordCallback" %}
+    {% for variable in neuron.getParameterSymbols() %}
+      {% include "RecordCallback.html" %}
     {% endfor %}
-    {% for odeAlias in body.getODEAliases() %}
-      {% include "org.nest.nestml.neuron.function.RecordCallback" %}
+    {% for odeAlias in neuron.getODEAliases() %}
+      {% include "RecordCallback.html" %}
     {% endfor %}
   }
 
@@ -110,10 +110,10 @@ namespace nest
 * Parameter and state extractions and manipulation functions
 * ---------------------------------------------------------------- */
 
-{{neuronName}}::Buffers_::Buffers_({{ast.getName()}} &n): logger_(n)
-{% if len(body.getMultipleReceptors()) > 1) %}
+{{neuronName}}::Buffers_::Buffers_({{neuronName}} &n): logger_(n)
+{% if len(neuron.getMultipleReceptors()) > 1) %}
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
-{% endfor %}
+{% endif %}
 {% if useGSL %}
   , __s( 0 )
   , __c( 0 )
@@ -124,7 +124,7 @@ namespace nest
   // init_buffers_().
 }
 
-{{neuronName}}::Buffers_::Buffers_(const Buffers_ &, {{ast.getName()}} &n): logger_(n)
+{{neuronName}}::Buffers_::Buffers_(const Buffers_ &, {{neuronName}} &n): logger_(n)
 {% if len(body.getMultipleReceptors()) > 1 %}
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {% endif %}
@@ -163,15 +163,15 @@ namespace nest
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n): Archiving_Node(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this)
 {
   {% for parameter in body.getParameterNonAliasSymbols() %}
-    P_.{{names.name(parameter)} = __n.P_.{{names.name(parameter)}};
+    P_.{{namesConverter.name(parameter)} = __n.P_.{{namesConverter.name(parameter)}};
   {% endfor %}
 
   {% for state in body.getStateNonAliasSymbols() %}
-    S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
+    S_.{{namesConverter.name(state)}} = __n.S_.{{namesConverter.name(state)}};
   {% endfor %}
 
   {% for internal in body.getInternalNonAliasSymbols() %}
-    V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
+    V_.{{namesConverter.name(internal)}} = __n.V_.{{namesConverter.name(internal)}};
   {% endfor %}
 }
 
@@ -195,19 +195,19 @@ namespace nest
 void
 {{neuronName}}::init_state_(const Node& proto)
 {
-  const {{ast.getName()}}& pr = downcast<{{ast.getName()}}>(proto);
+  const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
   S_ = pr.S_;
 }
 
 {% if useGSL %}
-{% include "org.nest.nestml.neuron.function.GSLDifferentiationFunction" %}
+{% include "GSLDifferentiationFunction.html" %}
 {% endif %}
 
 void
 {{neuronName}}::init_buffers_()
 {
-  {% for buffer in body.getInputBuffers() %}
-  {{ bufferHelper.printBufferInitialization(buffer) }}
+  {% for buffer in neuron.getInputBuffers() %}
+  {{ expressionsPrinter.printBufferInitialization(buffer) }}
   {% endfor %}
   B_.logger_.reset(); // includes resize
   Archiving_Node::clear_history();
@@ -254,20 +254,20 @@ void
 {
   B_.logger_.init();
 
-  {% for variable in body.getInternalNonAliasSymbols() %}
-    {% includeArgs "org.nest.nestml.neuron.function.Calibrate" %}
+  {% for variable in neuron.getInternalNonAliasSymbols() %}
+    {% includeArgs "Calibrate.html" %}
   {% endfor %}
 
-  {% for variable in body.getStateNonAliasSymbols() %}
-    {% if variable.isVector() %}
-      {% include "org.nest.nestml.neuron.function.Calibrate" %}
+  {% for variable in neuron.getStateNonAliasSymbols() %}
+    {% if variable.hasVectorParameter() %}
+      {% include "Calibrate.html" %}
     {% endif %}
   {% endfor %}
 
   {% for buffer in body.getInputBuffers() %}
-    {% if buffer.isVector() %}
-        B_.{{buffer.getName()}.resize(P_.{{buffer.getVectorParameter().get()}});
-        B_.{{buffer.getName()}_grid_sum_.resize(P_.{{buffer.getVectorParameter().get()}});
+    {% if buffer.hasVectorParameter() %}
+        B_.{{buffer.getSymbolName()}.resize(P_.{{buffer.getVectorParameter().get()}});
+        B_.{{buffer.getSymbolName()}_grid_sum_.resize(P_.{{buffer.getVectorParameter().get()}});
     {% endif %}
   {% endfor %}
 }
@@ -277,7 +277,7 @@ void
 * ---------------------------------------------------------------- */
 
 /*
- {{body.printDynamicsComment()}}
+ {#{neuron.printDynamicsComment()}#}
  */
 void
 {{neuronName}}::update(

@@ -85,20 +85,20 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
   Name: {{neuronName}}.
 
   Description:
-  {{neuronSymbol.printComment()}}
+  {{neuron.printComment()}}
 
   Parameters:
   The following parameters can be set in the status dictionary.
-  {% for parameter in body.getParameterSymbols() %}
+  {% for parameter in neuron.getParameterSymbols() %}
   {% if parameter.hasComment() %}
-    {{parameter.getName()}} {{parameter.printComment("")}}
+    {{parameter.getSymbolName()}} {{parameter.printComment()}}
   {% endif %}
   {% endfor %}
 
   Dynamic state variables:
-  {% for parameter in body.getParameterSymbols() %}
+  {% for state in neuron.getStateSymbols() %}
   {% if parameter.hasComment() %}
-    {{parameter.getName()} {{parameter.printComment("")}}
+    {{state.getSymbolName()} {{state.printComment()}}
   {% endif %}
   {% endfor %}
 
@@ -171,7 +171,7 @@ public:
 
 private:
 
-  {% if len(body.getMultipleReceptors()) > 1 %}
+  {% if len(neuron.getMultipleReceptors()) > 1 %}
     /**
      * Synapse types to connect to
      * @note Excluded upper and lower bounds are defined as INF_, SUP_.
@@ -180,8 +180,8 @@ private:
     enum SynapseTypes
     {
       INF_SPIKE_RECEPTOR = 0,
-      {% for buffer in body.getMultipleReceptors() %}
-        {{buffer.getName().upper()} ,
+      {% for buffer in neuron.getMultipleReceptors() %}
+        {{buffer.getSymbolName().upper()} ,
       {% endfor %}
       SUP_SPIKE_RECEPTOR
     };
@@ -207,7 +207,7 @@ private:
   /**
   * Free parameters of the neuron.
   *
-  * {{body.printParameterComment()}}
+  * {# {body.printParameterComment()} #}
   *
   * These are the parameters that can be set by the user through @c SetStatus.
   * They are initialized from the model prototype when the node is created.
@@ -226,8 +226,8 @@ private:
   */
   struct Parameters_
   {
-    {% for variable in body.getParameterNonAliasSymbols() %}
-      {% include 'org.nest.nestml.neuron.function.MemberDeclaration' %}
+    {% for variable in neuron.getParameterNonAliasSymbols() %}
+      {% include 'MemberDeclaration.html' %}
     {% endfor %}
 
     {% if useGSL %}
@@ -320,11 +320,11 @@ private:
 
     /** Logger for all analog data */
     nest::UniversalDataLogger<{{neuronName}}> logger_;
-    {% if len(body.getMultipleReceptors()) > 1) or body.isArrayBuffer() %}
+    {% if len(neuron.getMultipleReceptors()) > 1) or body.isArrayBuffer() %}
       std::vector<long> receptor_types_;
     {% endif %}
 
-    {% if len(body.getMultipleReceptors()) > 1) %}
+    {% if len(neuron.getMultipleReceptors()) > 1) %}
       /** buffers and sums up incoming spikes/currents */
       std::vector< nest::RingBuffer > spike_inputs_;
 
@@ -428,15 +428,15 @@ nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rport recep
 inline
 nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
 {
-  {% if neuronSymbol.isMultisynapseSpikes() %}
-    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuronSymbol.getSpikeBuffers()[0].getVectorParameter().get()}}()) ) {
+  {% if neuron.isMultisynapseSpikes() %}
+    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.getSpikeBuffers()[0].hasIndexParameter()}}()) ) {
         // TODO refactor me. The code assumes that there is only one. Check by coco.
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
     }
 
     return receptor_type;
-  {% elif len(body.getMultipleReceptors()) > 1 %}
-    assert( B_.spike_inputs_.size() == {{len(body.getMultipleReceptors())}} );
+  {% elif len(neuron.getMultipleReceptors()) > 1 %}
+    assert( B_.spike_inputs_.size() == {{len(neuron.getMultipleReceptors())}} );
 
     if ( !( INF_SPIKE_RECEPTOR < receptor_type && receptor_type < SUP_SPIKE_RECEPTOR ) )
     {
@@ -491,8 +491,8 @@ nest::port receptor_type)
 inline
 void {{neuronName}}::get_status(DictionaryDatum &__d) const
 {
-  {% for parameter in body.getParameterSymbols() %}
-    {% include "org.nest.nestml.neuron.function.WriteInDictionary" %}
+  {% for parameter in neuron.getParameterSymbols() %}
+    {% include "WriteInDictionary.html" %}
   {% endfor %}
   {% for state in body.getStateSymbols() %}
     {% include "org.nest.nestml.neuron.function.WriteInDictionary" %}

@@ -200,6 +200,24 @@ class ASTBody(ASTElement):
                 return stmt.getParent(_ast)
         return None
 
+    def getSpikeBuffers(self):
+        """
+        Returns a list of all spike input buffers defined in the model.
+        :return: a list of all spike input buffers
+        :rtype: list(ASTInputLine)
+        """
+        ret = list()
+        blocks = self.getInputBlocks()
+        if isinstance(blocks, list):
+            for block in blocks:
+                for line in block.getInputLines():
+                    if line.isSpike():
+                        ret.append(line)
+            return ret
+        else:
+            return ret
+
+
     def printAST(self):
         """
         Returns a string representation of the body.

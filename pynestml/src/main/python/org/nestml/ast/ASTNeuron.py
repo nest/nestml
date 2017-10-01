@@ -21,6 +21,7 @@
 
 from pynestml.src.main.python.org.nestml.ast.ASTBody import ASTBody
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTNeuron(ASTElement):
@@ -223,6 +224,89 @@ class ASTNeuron(ASTElement):
         else:
             return ret
 
+    def getInputBuffers(self):
+        """
+        Returns a list of all defined input buffers.
+        :return: a list of all input buffers.
+        :rtype: list(ASTInputLine)
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInThisScope()
+        ret = list()
+        for symbol in symbols:
+            if symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
+                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT:
+                ret.append(symbol)
+        return ret
+
+    def getSpikeBuffers(self):
+        """
+        Returns a list of all spike input buffers defined in the model.
+        :return: a list of all spike input buffers
+        :rtype: list(ASTInputLine)
+        """
+        ret = list()
+        for buffer in self.getInputBuffers():
+            if buffer.isSpikeBuffer():
+                ret.append(buffer)
+        return ret
+
+    def getParameterSymbols(self):
+        """
+        Returns a list of all parameter symbol defined in the model.
+        :return: a list of parameter symbols.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInThisScope()
+        ret = list()
+        for symbol in symbols:
+            if symbol.getBlockType() == BlockType.PARAMETERS:
+                ret.append(symbol)
+        return ret
+
+    def getStateSymbols(self):
+        """
+        Returns a list of all state symbol defined in the model.
+        :return: a list of state symbols.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInThisScope()
+        ret = list()
+        for symbol in symbols:
+            if symbol.getBlockType() == BlockType.STATE:
+                ret.append(symbol)
+        return ret
+
+    def getInternalSymbols(self):
+        """
+        Returns a list of all internals symbol defined in the model.
+        :return: a list of internals symbols.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInThisScope()
+        ret = list()
+        for symbol in symbols:
+            if symbol.getBlockType() == BlockType.INTERNALS:
+                ret.append(symbol)
+        return ret
+
+    def getODEAliases(self):
+        """
+        Returns a list of all equation function symbols defined in the model.
+        :return: a list of equation function  symbols.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInThisScope()
+        ret = list()
+        for symbol in symbols:
+            if symbol.getBlockType() == BlockType.EQUATION and symbol.isFunction():
+                ret.append(symbol)
+        return ret
+
     def getOutputBlocks(self):
         """
         Returns a list of all output-blocks defined.
@@ -262,3 +346,76 @@ class ASTNeuron(ASTElement):
         :rtype: str
         """
         return 'neuron ' + self.getName() + ':\n' + self.getBody().printAST() + '\nend'
+
+    def isMultisynapseSpikes(self):
+        """
+        Returns whether this neuron uses multi-synapse spikes.
+        :return: True if multi-synaptic, otherwise False.
+        :rtype: bool
+        """
+        buffers = self.getSpikeBuffers()
+        for buffer in buffers:
+            if buffer.hasIndexParameter():
+                return True
+        return False
+
+    def getMultipleReceptors(self):
+        """
+        Returns a list of all spike buffers which are defined as inhibitory and excitatory.
+        :return: a list of spike buffers variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
+        ret = list()
+        for buffer in self.getSpikeBuffers():
+            if buffer.isExcitatory() and buffer.isInhibitory():
+                symbol = buffer.getScope().resolveToSymbol(buffer.getName(), SymbolKind.VARIABLE)
+                if symbol is not None:
+                    ret.append(symbol)
+                else:
+                    Logger.logMessage('Could not resolve symbol!', LOGGING_LEVEL.ERROR)
+        return ret
+
+    def getParameterNonAliasSymbols(self):
+        """
+        Returns a list of all variable symbols representing non-function parameter variables.
+        :return: a list of variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        ret = list()
+        for param in self.getParameterSymbols():
+            if not param.isFunction():
+                ret.append(param)
+        return
+
+    def getStateNonAliasSymbols(self):
+        """
+        Returns a list of all variable symbols representing non-function state variables.
+        :return: a list of variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        ret = list()
+        for param in self.getStateSymbols():
+            if not param.isFunction():
+                ret.append(param)
+        return
+
+    def getInternalNonAliasSymbols(self):
+        """
+        Returns a list of all variable symbols representing non-function internal variables.
+        :return: a list of variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        ret = list()
+        for param in self.getInternalSymbols():
+            if not param.isFunction():
+                ret.append(param)
+        return
+
+    def printComment(self):
+        """
+        Prints the header information of this neuron.
+        :return: the comment.
+        :rtype: str
+        """
+        return 'TODO neuron comment'

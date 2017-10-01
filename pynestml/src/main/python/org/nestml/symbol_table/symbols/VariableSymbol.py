@@ -425,6 +425,21 @@ class VariableSymbol(Symbol):
                self.isConductanceBased() == _other.isConductanceBased() and \
                self.isRecordable() == _other.isRecordable()
 
+    def hasComment(self):
+        """
+        Indicates whether this symbol stores a comment.
+        :return: True if comment is stored, otherwise False.
+        :rtype: bool
+        """
+        return False # todo
+
+    def printComment(self):
+        """
+        Prints the stored comment.
+        :return: the corresponding comment.
+        :rtype: str
+        """
+        return 'TODO comment in variable symbol'
 
 class BlockType(Enum):
     STATE = 1

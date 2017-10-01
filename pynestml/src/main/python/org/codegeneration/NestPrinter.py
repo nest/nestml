@@ -147,3 +147,13 @@ class NestPrinter(object):
                 return 'none'
         else:
             return 'none'
+
+    def printBufferInitialization(self, _variableSymbol=None):
+        """
+        Prints the buffer initialization.
+        :param _variableSymbol: a single variable symbol.
+        :type _variableSymbol: VariableSymbol
+        :return: a buffer initialization
+        :rtype: str
+        """
+        return 'get_' + _variableSymbol.getName() + '().clear(); //includes resize'
