@@ -18,9 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from jinja2 import Template, Environment, FileSystemLoader
-from pynestml.src.main.python.org.nestml.ast.ASTNeuron import ASTNeuron
-from pynestml.src.main.python.org.frontend.FrontendConfiguration import FrontendConfiguration
-from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.nestml.ASTNeuron import ASTNeuron
+from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 import os
 
 
@@ -209,11 +209,11 @@ class NestCodeGenerator(object):
         :return: a map from name to functionality.
         :rtype: dict
         """
-        from pynestml.src.main.python.org.codegeneration.NestDeclarationsHelper import NestDeclarationsHelper
-        from pynestml.src.main.python.org.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
-        from pynestml.src.main.python.org.codegeneration.NestNamesConverter import NestNamesConverter
-        from pynestml.src.main.python.org.codegeneration.NestPrinter import NestPrinter
-        from pynestml.src.main.python.org.utils.ASTUtils import ASTUtils
+        from pynestml.codegeneration.NestDeclarationsHelper import NestDeclarationsHelper
+        from pynestml.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
+        from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
+        from pynestml.codegeneration.NestPrinter import NestPrinter
+        from pynestml.utils.ASTUtils import ASTUtils
         namespace = {}
         namespace['neuronName'] = _neuron.getName()
         namespace['neuron'] = _neuron
@@ -227,13 +227,13 @@ class NestCodeGenerator(object):
         namespace['namesConverter'] = NestNamesConverter()
         namespace['declarationsHelper'] = NestDeclarationsHelper()
         namespace['astUtils'] = ASTUtils
-        namespace['useGSL'] = False #Todo
+        namespace['useGSL'] = False  # Todo
 
         # todo more
         return namespace
 
-    def test(self,_neuron):
-        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST','spl', 'ModuleClass.html'),
+    def test(self, _neuron):
+        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'spl', 'ModuleClass.html'),
                   'r') as templateModuleClass:
             data = templateModuleClass.read()
             templateModuleClass = Template(data)

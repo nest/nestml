@@ -36,8 +36,8 @@ class ASTUtils(object):
         :rtype: list(ASTNeuron)
         """
         ret = list()
-        for compiunit in _listOfCompilationUnits:
-            ret.extend(compiunit.getNeuronList())
+        for compilationUnit in _listOfCompilationUnits:
+            ret.extend(compilationUnit.getNeuronList())
         return ret
 
     @classmethod
@@ -49,7 +49,7 @@ class ASTUtils(object):
         :return: True if small stmt, otherwise False.
         :rtype: bool
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTSmallStmt import ASTSmallStmt
+        from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
         return isinstance(_ast, ASTSmallStmt)
 
     @classmethod
@@ -61,7 +61,7 @@ class ASTUtils(object):
         :return: True if compound stmt, otherwise False.
         :rtype: bool
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTCompoundStmt import ASTCompoundStmt
+        from pynestml.nestml.ASTCompoundStmt import ASTCompoundStmt
         return isinstance(_ast, ASTCompoundStmt)
 
     @classmethod
@@ -84,8 +84,8 @@ class ASTUtils(object):
         :return: True if ode integration call, otherwise False.
         :rtype: bool
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTFunctionCall import ASTFunctionCall
-        from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedFunctions import PredefinedFunctions
+        from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+        from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
         assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of function-call provided (%s)!' % type(_functionCall)
         return _functionCall.getName() == PredefinedFunctions.INTEGRATE_ODES
@@ -99,7 +99,7 @@ class ASTUtils(object):
         :return: True if spike buffer is contained, otherwise false.
         :rtype: bool
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTBody import ASTBody
+        from pynestml.nestml.ASTBody import ASTBody
         assert (_body is not None and isinstance(_body, ASTBody)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of body provided (%s)!' % type(_body)
         inputs = (inputL for block in _body.getInputBlocks() for inputL in block.getInputLines())
@@ -117,7 +117,7 @@ class ASTUtils(object):
         :return: True if current buffer is contained, otherwise false.
         :rtype: bool
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTBody import ASTBody
+        from pynestml.nestml.ASTBody import ASTBody
         assert (_body is not None and isinstance(_body, ASTBody)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of body provided (%s)!' % type(_body)
         inputs = (inputL for block in _body.getInputBlocks() for inputL in block.getInputLines())
@@ -135,7 +135,7 @@ class ASTUtils(object):
         :return: the corresponding representation.
         :rtype: str
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTDatatype import ASTDatatype
+        from pynestml.nestml.ASTDatatype import ASTDatatype
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of data type provided (%s)!' % type(_dataType)
         if _dataType.isBoolean():
@@ -176,11 +176,11 @@ class ASTUtils(object):
         :return: a new direct assignment expression.
         :rtype: ASTExpression
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
-        from pynestml.src.main.python.org.nestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
-        from pynestml.src.main.python.org.nestml.visitor.ASTSymbolTableVisitor import SymbolTableASTVisitor
+        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.nestml.ASTExpression import ASTExpression
+        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.nestml.ASTVariable import ASTVariable
+        from pynestml.nestml.ASTSymbolTableVisitor import SymbolTableASTVisitor
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of lhs variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and (isinstance(_rhs, ASTSimpleExpression) or isinstance(_rhs, ASTExpression))), \

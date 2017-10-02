@@ -33,12 +33,10 @@ class LexerParserTest(unittest.TestCase):
 
     def test(self):
         for filename in os.listdir(
-                os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', '..', '..', '..',
-                                                                                      'models')))):
+                os.path.realpath(os.path.join(os.path.dirname(__file__), os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
                 inputFile = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
-                                                                                      'models'), filename)))
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
                 # print('Start parsing ' + filename),
                 lexer = PyNESTMLLexer(inputFile)
                 # create a token stream

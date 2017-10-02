@@ -53,7 +53,7 @@ class SpecialBlockParserBuilderTest(unittest.TestCase):
     def test(self):
         # print('Start special block parsing and AST-building test...'),
         inputFile = FileStream(
-            os.path.join(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'resources')),
+            os.path.join(os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                                       'BlockTest.nestml')))
         lexer = PyNESTMLLexer(inputFile)
         # create a token stream

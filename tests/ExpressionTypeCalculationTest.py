@@ -69,7 +69,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     def test(self):
         Logger.initLogger(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..',
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         expressionTestVisitor().handle(model)
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(None, LOGGING_LEVEL.ERROR)) == 2)

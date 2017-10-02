@@ -47,11 +47,10 @@ CoCosManager.initializeCoCosManager()
 class SymbolTableBuilderTest(unittest.TestCase):
     def test(self):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                 os.path.join('..', '..', '..', '..', 'models')))):
+                                                                 os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
                 inputFile = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', '..', '..', '..',
-                                                                                      'models'), filename)))
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
                 lexer = PyNESTMLLexer(inputFile)
                 # create a token stream
                 stream = CommonTokenStream(lexer)

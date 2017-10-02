@@ -50,12 +50,11 @@ class NESTMLTest(unittest.TestCase):
 
     def test(self):
         for filename in os.listdir(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                                 os.path.join('..', '..', '..', '..', 'models')))):
+                                                                 os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
                 # print('Start creating AST for ' + filename + ' ...'),
                 model = NESTMLParser.parseModel(os.path.join(os.path.dirname(__file__),
-                                                             os.path.join(os.path.join('..', '..', '..', '..',
-                                                                                       'models'), filename)))
+                                                             os.path.join(os.path.join('..', 'models'), filename)))
                 if not isinstance(model, ASTNESTMLCompilationUnit):
                     return 1
         return

@@ -168,11 +168,11 @@ class ASTExpression(ASTElement):
         """
         The factory method used to create compound expressions, e.g. 10mV + V_m.
         :param _lhs: the left-hand side expression.
-        :type _lhs: ASTExpression
+        :type _lhs: ASTExpression or ASTSimpleExpression
         :param _binaryOperator: a binary operator, e.g., a comparison operator or a logical operator.
         :type _binaryOperator: one of ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
         :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpression
+        :type _rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTExpression object.

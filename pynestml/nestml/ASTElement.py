@@ -92,7 +92,7 @@ class ASTElement(object):
         :param _visitor: A visitor.
         :type _visitor: Inherited from NESTMLVisitor.
         """
-        from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
+        from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
         assert (_visitor is not None and isinstance(_visitor, NESTMLVisitor)), \
             '(PyNestML.AST.Element) No or wrong type of visitor provided (%s)!' % type(_visitor)
         _visitor.handle(self)
