@@ -32,7 +32,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import Symb
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 # minor setup steps required
-Logger.initLogger(LOGGING_LEVEL.ERROR)
+Logger.initLogger(LOGGING_LEVEL.NO)
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
 PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
