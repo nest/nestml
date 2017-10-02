@@ -22,4 +22,4 @@
  */
  @author kperun
  '
-antlr4 -Dlanguage=Python2 -visitor -no-listener pynestml/src/main/grammars/org/*.g4
+antlr4 -Dlanguage=Python2 -visitor -no-listener pynestml/grammars/*.g4

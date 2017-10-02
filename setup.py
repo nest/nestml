@@ -37,5 +37,5 @@ setup(
                        'antlr4-python3-runtime'),
                       'Jinja2',
                       'astropy'],
-    test_suite='pynestml.src.test.python',
+    test_suite='tests',
 )
