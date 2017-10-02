@@ -28,7 +28,7 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
     """
 
     @classmethod
-    def checkCoCo(self, _listOfCompilationUnits=None):
+    def checkCoCo(cls, _listOfCompilationUnits=None):
         """
         Checks the coco.
         :param _listOfCompilationUnits: a list of compilation units.
@@ -44,7 +44,7 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
             for neuronB in listOfNeurons:
                 if neuronA is not neuronB and neuronA.getName() == neuronB.getName():
                     Logger.logMessage(
-                        '[Global Error] Two neurons defined with the same name "%s"!'
+                        'Two neurons defined with the same name "%s"!'
                         % (neuronA.getName()),
                         LOGGING_LEVEL.ERROR)
                 conflictingNeurons.append(neuronB)

@@ -32,7 +32,6 @@ from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourceP
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 
 # minor setup steps required
-Logger.initLogger(LOGGING_LEVEL.NO)
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
 PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
@@ -40,36 +39,40 @@ PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
 CoCosManager.initializeCoCosManager()
 
-class expressionTestVisitor(NESTMLVisitor):
 
+class expressionTestVisitor(NESTMLVisitor):
     def endvisitAssignment(self, _assignment=None):
         scope = _assignment.getScope()
         varName = _assignment.getVariable().getName()
 
         _expr = _assignment.getExpression()
 
-        varSymbol = scope.resolveToSymbol(varName,SymbolKind.VARIABLE)
+        varSymbol = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
 
         _equals = varSymbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
 
-        Logger.logMessage("line " + _expr.getSourcePosition().printSourcePosition() + " : LHS = " + varSymbol.getTypeSymbol().getSymbolName() + " RHS = " + _expr.getTypeEither().getValue().getSymbolName()+" Equal?= " +str(_equals),LOGGING_LEVEL.ALL)
+        Logger.logMessage('line ' + _expr.getSourcePosition().printSourcePosition() + ' : LHS = ' +
+                          varSymbol.getTypeSymbol().getSymbolName() + ' RHS = ' +
+                          _expr.getTypeEither().getValue().getSymbolName() +
+                          ' Equal ? ' + str(_equals), LOGGING_LEVEL.INFO)
 
         if _equals is False:
-            Logger.logMessage("Type mismatch in test!",LOGGING_LEVEL.ERROR)
+            Logger.logMessage("Type mismatch in test!", LOGGING_LEVEL.ERROR)
         return
+
 
 class ExpressionTypeCalculationTest(unittest.TestCase):
     """
     A simple test that prints all top-level expression types in a file
     """
+
     def test(self):
+        Logger.initLogger(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..',
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         expressionTestVisitor().handle(model)
-        if len(Logger.getAllMessagesOfLevel(LOGGING_LEVEL.ERROR)) != 1 :
-            return 1
-        return
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(None, LOGGING_LEVEL.ERROR)) == 1)
 
 
 if __name__ == '__main__':

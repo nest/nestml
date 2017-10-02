@@ -36,7 +36,6 @@ class CoCoCorrectOrderInEquation(CoCo):
             V_m = ...
         end  
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -47,7 +46,6 @@ class CoCoCorrectOrderInEquation(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.OrderInEquation) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(OrderOfEquationVisitor())
         return
 
@@ -65,8 +63,7 @@ class OrderOfEquationVisitor(NESTMLVisitor):
         """
         if _equation.getLhs().getDifferentialOrder() == 0:
             Logger.logMessage(
-                '[' + CoCoCorrectOrderInEquation.neuronName +
-                '.nestml] Order of differential equation for %s at %s is not declared!'
+                'Order of differential equation for %s at %s is not declared!'
                 % (_equation.getLhs().getName(), _equation.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

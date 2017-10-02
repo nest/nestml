@@ -32,8 +32,6 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
         threePlusFour integer = three + 4 <- error: threePlusFour is not a vector
     """
 
-    neuronName = None
-
     @classmethod
     def checkCoCo(cls, _neuron=None):
         """
@@ -43,7 +41,6 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(VectorInDeclarationVisitor())
         return
 
@@ -66,9 +63,9 @@ class VectorInDeclarationVisitor(NESTMLVisitor):
                     symbol = _declaration.getScope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
                     if symbol is not None and symbol.hasVectorParameter() and not _declaration.hasSizeParameter():
                         Logger.logMessage(
-                            '[' + CoCoVectorVariableInNonVectorDeclaration.neuronName +
-                            '.nestml] Vector value used in a non-vector declaration of variables "%s" at %s!'
-                            % (list(var.getCompleteName() for var in _declaration.getVariables()),
+                            'Vector value "%s" used in a non-vector declaration of variables "%s" at %s!'
+                            % (symbol.getSymbolName(),
+                                list(var.getCompleteName() for var in _declaration.getVariables()),
                                _declaration.getSourcePosition().printSourcePosition()),
                             LOGGING_LEVEL.ERROR)
         return

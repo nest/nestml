@@ -46,7 +46,7 @@ class NESTMLParser(object):
         except IOError:
             print('(PyNestML.Parser) File ' + str(file_path) + ' not found. Processing is stopped!')
             return
-        Logger.logMessage('Start processing ' + file_path, LOGGING_LEVEL.ALL)
+        Logger.logMessage('Start processing ' + file_path + '...', LOGGING_LEVEL.INFO)
         # create a lexer and hand over the input
         lexer = PyNESTMLLexer(inputFile)
         # create a token stream

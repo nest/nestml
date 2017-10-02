@@ -54,7 +54,7 @@ class CoCoNoNestNameSpaceCollision(CoCo):
         for func in _neuron.getFunctions():
             if func.getName() in cls.__nestNameSpace:
                 Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] Function "%s" at %s collides with NEST namespace!'
+                    'Function "%s" at %s collides with NEST namespace!'
                     % (func.getName(), func.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
         return

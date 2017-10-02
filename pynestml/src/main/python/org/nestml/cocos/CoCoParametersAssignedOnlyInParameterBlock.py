@@ -42,7 +42,6 @@ class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
            par = 20mV
         end    
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -53,7 +52,6 @@ class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(ParametersAssignmentVisitor())
         return
 
@@ -73,8 +71,7 @@ class ParametersAssignmentVisitor(NESTMLVisitor):
         if symbol is not None and symbol.getBlockType() == BlockType.PARAMETERS and \
                         _assignment.getScope().getScopeType() != ScopeType.GLOBAL:
             Logger.logMessage(
-                '[' + CoCoParametersAssignedOnlyInParameterBlock.neuronName +
-                '.nestml] Parameter "%s" assigned outside parameters block at %s!'
+                'Parameter "%s" assigned outside parameters block at %s!'
                 % (_assignment.getVariable().getCompleteName(), _assignment.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

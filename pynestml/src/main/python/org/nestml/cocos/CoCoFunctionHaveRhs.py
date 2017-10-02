@@ -27,7 +27,6 @@ class CoCoFunctionHaveRhs(CoCo):
     """
     This coco ensures that all function declarations, e.g., function V_rest mV = V_m - 55mV, have a rhs.
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -38,7 +37,6 @@ class CoCoFunctionHaveRhs(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionWithRhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(FunctionRhsVisitor())
         return
 
@@ -56,7 +54,7 @@ class FunctionRhsVisitor(NESTMLVisitor):
         """
         if _declaration.isFunction() and not _declaration.hasExpression():
             Logger.logMessage(
-                '[' + CoCoFunctionHaveRhs.neuronName + '.nestml] Function variable %s at %s has no right-hand side!'
+                'Function variable %s at %s has no right-hand side!'
                 % (_declaration.getVariables()[0].getName(),
                    _declaration.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
         return

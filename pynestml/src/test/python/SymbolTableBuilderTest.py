@@ -32,6 +32,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVaria
 from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
+from pynestml.src.main.python.org.nestml.ast.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
 
 # setups the infrastructure
 PredefinedUnits.registerUnits()
@@ -39,7 +40,7 @@ PredefinedTypes.registerTypes()
 PredefinedFunctions.registerPredefinedFunctions()
 PredefinedVariables.registerPredefinedVariables()
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
-Logger.initLogger(LOGGING_LEVEL.ERROR)
+Logger.initLogger(LOGGING_LEVEL.NO)
 CoCosManager.initializeCoCosManager()
 
 
@@ -64,6 +65,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 for neuron in ast.getNeuronList():
                     SymbolTableASTVisitor.updateSymbolTable(neuron)
                     SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.getScope())
+                assert isinstance(ast, ASTNESTMLCompilationUnit)
         return
 
 

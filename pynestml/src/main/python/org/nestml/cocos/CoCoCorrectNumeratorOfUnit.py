@@ -32,7 +32,6 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
     Not allowed:
         V_m 2/mV = ...
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -43,7 +42,6 @@ class CoCoCorrectNumeratorOfUnit(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(NumericNumeratorVisitor())
         return
 
@@ -61,7 +59,7 @@ class NumericNumeratorVisitor(NESTMLVisitor):
         """
         if _unitType.isDiv() and isinstance(_unitType.getLhs(), int) and _unitType.getLhs() != 1:
             Logger.logMessage(
-                '[' + CoCoCorrectNumeratorOfUnit.neuronName + '.nestml] Numeric numerator of unit "%s" at %s not 1!'
+                'Numeric numerator of unit "%s" at %s not 1!'
                 % (_unitType.printAST(), _unitType.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

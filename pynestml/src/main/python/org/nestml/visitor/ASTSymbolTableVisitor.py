@@ -53,7 +53,11 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         :return: a new symbol table
         :rtype: SymbolTable
         """
-        return SymbolTableASTVisitor.visitNeuron(_astNeuron)
+        Logger.setCurrentNeuron(_astNeuron)
+        Logger.logMessage('Start building symbol table...', LOGGING_LEVEL.INFO)
+        SymbolTableASTVisitor.visitNeuron(_astNeuron)
+        Logger.setCurrentNeuron(None)
+        return
 
     @classmethod
     def visitNeuron(cls, _neuron=None):
@@ -792,7 +796,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                             symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolKind.VARIABLE)
                             symbol.setConductanceBased(True)
                             Logger.logMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
-                                              LOGGING_LEVEL.ALL)
+                                              LOGGING_LEVEL.INFO)
 
         return
 
@@ -828,7 +832,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
             Logger.logMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),
-                              LOGGING_LEVEL.ALL)
+                              LOGGING_LEVEL.INFO)
         else:
             # create a new symbol, however, this should never happen since only exiting symbols shall be updated
             # if an existing symbol does not exists, we derive the base symbol, e.g. V_m
@@ -843,7 +847,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                            getTypeIfExists(baseSymbol.getType().getValue().printSymbol()))  # todo
                 cls.__globalScope.addSymbol(newSymbol)
                 Logger.logMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
-                                  LOGGING_LEVEL.ALL)
+                                  LOGGING_LEVEL.INFO)
             else:
                 Logger.logMessage('No corresponding variable of %s found.' % _odeEquation.getLhs().getName(),
                                   LOGGING_LEVEL.ERROR)

@@ -58,7 +58,7 @@ class CoCoNeuronNameUnique(CoCo):
         for neuronA in _compilationUnit.getNeuronList():
             for neuronB in _compilationUnit.getNeuronList():
                 if neuronA is not neuronB and neuronA.getName() == neuronB.getName() and neuronB not in checked:
-                    Logger.logMessage('[Compilation Unit] Neuron with the name "%s" declared at %s and %s!'
+                    Logger.logMessage('Neuron with the name "%s" declared at %s and %s!'
                                       % (neuronA.getName(), neuronA.getSourcePosition().printSourcePosition(),
                                          neuronB.getSourcePosition().printSourcePosition()),
                                       LOGGING_LEVEL.ERROR)

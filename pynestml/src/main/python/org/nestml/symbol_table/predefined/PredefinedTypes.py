@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from sympy import Expr, Mul, Pow
 from astropy.units.core import CompositeUnit
+from astropy.units.quantity import Quantity
 
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
@@ -156,9 +157,10 @@ class PredefinedTypes:
         :return: a single symbol copy or none
         :rtype: TypeSymbol or None
         """
-        assert (_name is not None and (isinstance(_name, str) or isinstance(_name, CompositeUnit))), \
+        assert (_name is not None and (isinstance(_name, str) or isinstance(_name, CompositeUnit))
+                or isinstance(_name,Quantity)), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
-        if isinstance(_name, CompositeUnit):
+        if isinstance(_name, CompositeUnit) or isinstance(_name,Quantity):
             cls.registerUnit(_name)
             return cls.getTypeIfExists(str(_name))
         if _name in cls.__name2type:
@@ -223,7 +225,7 @@ class PredefinedTypes:
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of symbol provided (%s)!' % (type(_symbol))
         if not _symbol.isPrimitive() and _symbol.getUnit().getName() not in cls.__name2type.keys():
             cls.__name2type[_symbol.getUnit().getName()] = _symbol
-            Logger.logMessage('New type registered %s.' % _symbol.getUnit().getName(), LOGGING_LEVEL.ALL)
+            Logger.logMessage('New type registered %s.' % _symbol.getUnit().getName(), LOGGING_LEVEL.INFO)
         return
 
     @classmethod

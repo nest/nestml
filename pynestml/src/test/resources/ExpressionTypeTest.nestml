@@ -50,7 +50,7 @@ neuron expressionType_test:
         
     end
 
-    function foo(_mass g, _dist m, _time s) N :
+    function foo(_mass kg, _dist m, _time s) N :
       return _mass*_dist/(_time**2)
     end
 

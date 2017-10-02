@@ -33,6 +33,10 @@ neuron CoCoEachBlockUnique:
         test2 void = 0
     end
 
+    input:
+
+    end
+
     update:
         # required for creation of a correct ast
     end

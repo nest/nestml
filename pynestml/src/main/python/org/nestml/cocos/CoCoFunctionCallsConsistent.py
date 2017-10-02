@@ -31,7 +31,6 @@ class CoCoFunctionCallsConsistent(CoCo):
     Not allowed:
         maximum integer = max(1,2,3)
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -42,7 +41,6 @@ class CoCoFunctionCallsConsistent(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionCallsConsistent) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(FunctionCallConsistencyVisitor())
         return
 
@@ -58,45 +56,44 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
         :param _functionCall: a single function call.
         :type _functionCall: ASTFunctionCall
         """
+        funcName = _functionCall.getName()
+        if funcName == 'convolve' or funcName == 'cond_sum' or funcName == 'curr_sum':
+            return
         # now, for all expressions, check for all function calls, the corresponding function is declared.
         symbol = _functionCall.getScope().resolveToSymbol(_functionCall.getName(), SymbolKind.FUNCTION)
         # first check if the function has been declared
         if symbol is None:
             Logger.logMessage(
-                '[' + CoCoFunctionCallsConsistent.neuronName + '.nestml] Function %s at %s is not declared!'
+                'Function %s at %s is not declared!'
                 % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         # now check if the number of arguments is the same as in the symbol
         if symbol is not None and len(_functionCall.getArgs()) != len(symbol.getParameterTypes()):
             Logger.logMessage(
-                '[' + CoCoFunctionCallsConsistent.neuronName +
-                '.nestml] Wrong number of arguments in function-call %s at %s! '
-                'Expected %s, found %s.'
+                'Wrong number of arguments in function-call %s at %s! Expected %s, found %s.'
                 % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
                    len(symbol.getParameterTypes()), len(_functionCall.getArgs())), LOGGING_LEVEL.ERROR)
         # finally check if the call is correctly typed
         elif symbol is not None:
             expectedTypes = symbol.getParameterTypes()
             actualTypes = _functionCall.getArgs()
-            for i in range(0,len(actualTypes)):
+            for i in range(0, len(actualTypes)):
                 expectedType = expectedTypes[i]
-                #actualType = actualTypes[i].getTypeEither()
-                """
+                actualType = actualTypes[i].getTypeEither()
                 if actualType.isError():
                     Logger.logMessage(
-                        '[' + CoCoFunctionCallsConsistent.neuronName +
-                        '.nestml] Type of argument %s of function-call %s at %s not recognized! '
+                        'Type of argument %s of function-call %s at %s not recognized! '
                         % (actualTypes[i].printAST(),
                            _functionCall.getName(),
                            _functionCall.getSourcePosition().printSourcePosition()),
                         LOGGING_LEVEL.ERROR)
-                if arg.getTypeEither() is not None:
+                elif not actualType.getValue().equals(expectedType):
                     Logger.logMessage(
-                        '[' + CoCoFunctionCallsConsistent.neuronName +
-                        '.nestml] Argument of function-call %s at %s is wrongly typed! '
-                        'Expected %s, found %s!'
-                        % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(), 'TODO',
-                           'TODO'),
+                        str(i + 1) + '. argument of function-call %s at %s is wrongly typed! '
+                                     'Expected %s, found %s!'
+                        % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
+                           expectedType.printSymbol(),
+                           actualType.getValue().printSymbol()),
                         LOGGING_LEVEL.ERROR)
-                """
+
         return

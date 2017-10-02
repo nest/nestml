@@ -36,7 +36,6 @@ class CoCoOnlySpikeBufferDatatypes(CoCo):
             current integer <- current
         end
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -47,7 +46,6 @@ class CoCoOnlySpikeBufferDatatypes(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(BufferDatatypeVisitor())
         return
 
@@ -65,14 +63,12 @@ class BufferDatatypeVisitor(NESTMLVisitor):
         """
         if _line.isSpike() and not _line.hasDatatype():
             Logger.logMessage(
-                '[' + CoCoOnlySpikeBufferDatatypes.neuronName +
-                '.nestml] Data type of spike buffer "%s" at %s not specified!'
+                'Data type of spike buffer "%s" at %s not specified!'
                 % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         if _line.isCurrent() and _line.hasDatatype():
             Logger.logMessage(
-                '[' + CoCoOnlySpikeBufferDatatypes.neuronName +
-                '.nestml] No datatype allowed for current buffer "%s" at %s!'
+                'No datatype allowed for current buffer "%s" at %s!'
                 % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

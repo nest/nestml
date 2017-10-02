@@ -31,7 +31,6 @@ class CoCoTypeOfBufferUnique(CoCo):
     Not allowed:
         spike <- inhibitory inhibitory spike
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -69,14 +68,12 @@ class TypeOfBufferUniqueVisitor(NESTMLVisitor):
                         inh += 1
                 if inh > 1:
                     Logger.logMessage(
-                        '[' + CoCoTypeOfBufferUnique.neuronName +
-                        '.nestml] Spike buffer "%s" at %s defined with multiple inhibitory keywords!'
+                        'Spike buffer "%s" at %s defined with multiple inhibitory keywords!'
                         % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
                         LOGGING_LEVEL.ERROR)
                 if ext > 1:
                     Logger.logMessage(
-                        '[' + CoCoTypeOfBufferUnique.neuronName +
-                        '.nestml] Spike buffer "%s" at %s defined with multiple excitatory keywords!'
+                        'Spike buffer "%s" at %s defined with multiple excitatory keywords!'
                         % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
                         LOGGING_LEVEL.ERROR)
         return

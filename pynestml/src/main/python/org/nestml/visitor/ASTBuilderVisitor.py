@@ -510,7 +510,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         from pynestml.src.main.python.org.nestml.cocos.CoCoEachBlockUniqueAndDefined import \
             CoCoEachBlockUniqueAndDefined
         neuron = ASTNeuron.ASTNeuron.makeASTNeuron(_name=name, _body=body, _sourcePosition=sourcePos)
+        Logger.setCurrentNeuron(neuron)
         CoCoEachBlockUniqueAndDefined.checkCoCo(_neuron=neuron)
+        Logger.setCurrentNeuron(neuron)
         # now the ast seems to be correct, return it
         return neuron
 

@@ -84,7 +84,7 @@ class LineOperatorVisitor(NESTMLVisitor):
                 else:
                     unitType = rhsType
                 errorMsg = ErrorStrings.messageAddSubTypeMismatch\
-                    (self, lhsType.printSymbol, rhsType.printSymbol(), unitType.printSymbol(), _expr.getSourcePosition())
+                    (self, lhsType.printSymbol(), rhsType.printSymbol(), unitType.printSymbol(), _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(unitType))
                 Logger.logMessage(errorMsg, LOGGING_LEVEL.WARNING)
                 return

@@ -38,7 +38,6 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             return
         end
     """
-    __neuronName = None
     __processedFunction = None
 
     @classmethod
@@ -60,10 +59,9 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 cls.__checkReturnRecursively(symbol.getReturnType(), userDefinedFunction.getBlock().getStmts(), False)
             # now if it does not have a statement, but uses a return type, it is an error
             elif symbol is not None and userDefinedFunction.hasReturnType() and \
-                            not symbol.getReturnType().equals(PredefinedTypes.getVoidType()):
+                    not symbol.getReturnType().equals(PredefinedTypes.getVoidType()):
                 Logger.logMessage(
-                    '[' + _neuron.getName() + '.nestml] User defined function "%s" at %s has the return type %s but no'
-                                              ' return statement! '
+                    'User defined function "%s" at %s has the return type %s but no return statement!'
                     % (userDefinedFunction.getName(), userDefinedFunction.getSourcePosition().printSourcePosition(),
                        symbol.getReturnType().printSymbol()),
                     LOGGING_LEVEL.ERROR)
@@ -97,22 +95,21 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 # first check if the return is the last one in this block of statements
                 if _stmts.index(stmt) != (len(_stmts) - 1):
                     Logger.logMessage(
-                        '[' + cls.__neuronName + '.nestml] Return statement of "%s" at %s not the last statement!'
+                        'Return statement of "%s" at %s not the last statement!'
                         % (cls.__processedFunction.getName(),
                            stmt.getSourcePosition().printSourcePosition()),
                         LOGGING_LEVEL.WARNING)
-                    # now check that it corresponds to the declared type
-                    # TODO: as soon as type checking is ready
+                # now check that it corresponds to the declared type
                 if stmt.getReturnStmt().hasExpr() and _typeSymbol is PredefinedTypes.getVoidType():
                     Logger.logMessage(
-                        '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s not void!'
+                        'Type of return statement of "%s" at %s not void!'
                         % (cls.__processedFunction.getName(),
                            stmt.getSourcePosition().printSourcePosition()),
                         LOGGING_LEVEL.ERROR)
                 # if it is not void check if the type corresponds to the one stated
-                if not stmt.getReturnStmt().hasExpr() and _typeSymbol is not PredefinedTypes.getVoidType():
+                if not stmt.getReturnStmt().hasExpr() and not _typeSymbol.equals(PredefinedTypes.getVoidType()):
                     Logger.logMessage(
-                        '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s void, expected %s!'
+                        'Type of return statement of "%s" at %s void, expected %s!'
                         % (cls.__processedFunction.getName(),
                            stmt.getSourcePosition().printSourcePosition(), _typeSymbol.printSymbol()),
                         LOGGING_LEVEL.ERROR)
@@ -120,17 +117,17 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                     typeOfReturn = stmt.getReturnStmt().getExpr().getTypeEither()
                     if typeOfReturn.isError():
                         Logger.logMessage(
-                            '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s not derivable!'
+                            'Type of return statement of "%s" at %s not derivable!'
                             % (cls.__processedFunction.getName(),
                                stmt.getSourcePosition().printSourcePosition()),
                             LOGGING_LEVEL.ERROR)
                     elif not typeOfReturn.getValue().equals(_typeSymbol):
                         Logger.logMessage(
-                            '[' + cls.__neuronName + '.nestml] Type of return statement of "%s" at %s does not correspond'
-                                                     ' to declaration! Expected %s, got %s!'
+                            'Type of return statement of "%s" at %s does not correspond to declaration!'
+                            ' Expected %s, got %s!'
                             % (cls.__processedFunction.getName(),
                                stmt.getSourcePosition().printSourcePosition(),
-                               typeOfReturn.getValue().printSymbol(),_typeSymbol.printSymbol()),
+                               _typeSymbol.printSymbol(),typeOfReturn.getValue().printSymbol()),
                             LOGGING_LEVEL.ERROR)
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
@@ -151,7 +148,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             elif not _retDefined and _stmts.index(stmt) == (len(_stmts) - 1):
                 if not (isinstance(stmt, ASTSmallStmt) and stmt.isReturnStmt()):
                     Logger.logMessage(
-                        '[' + cls.__neuronName + '.nestml] No return statement of "%s" at %s defined!'
+                        'No return statement of "%s" at %s defined!'
                         % (cls.__processedFunction.getName(),
                            stmt.getSourcePosition().printSourcePosition()),
                         LOGGING_LEVEL.ERROR)

@@ -35,7 +35,6 @@ class CoCoCurrentBuffersNotSpecified(CoCo):
             current <- inhibitory current
         end     
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -46,7 +45,6 @@ class CoCoCurrentBuffersNotSpecified(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CurrentBuffersNotSpecified) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(CurrentTypeSpecifiedVisitor())
         return
 
@@ -59,8 +57,7 @@ class CurrentTypeSpecifiedVisitor(NESTMLVisitor):
     def visitInputLine(self, _line=None):
         if _line.isCurrent() and _line.hasInputTypes() and len(_line.getInputTypes()) > 0:
             Logger.logMessage(
-                '[' + CoCoCurrentBuffersNotSpecified.neuronName +
-                '.nestml] Current buffer "%s" at %s specified with type keywords (%s)!'
+                'Current buffer "%s" at %s specified with type keywords (%s)!'
                 % (_line.getName(), _line.getSourcePosition().printSourcePosition(),
                    list((buf.printAST() for buf in _line.getInputTypes()))),
                 LOGGING_LEVEL.ERROR)

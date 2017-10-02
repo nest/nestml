@@ -27,7 +27,6 @@ class CoCoFunctionUnique(CoCo):
     """
     This Coco ensures that each function is defined exactly once (thus no redeclaration occurs).
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -38,7 +37,6 @@ class CoCoFunctionUnique(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionUnique) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         checkedFuncsNames = list()
         for func in _neuron.getFunctions():
             if func.getName() not in checkedFuncsNames:
@@ -50,20 +48,17 @@ class CoCoFunctionUnique(CoCo):
                             if funcA is not funcB and funcB not in checked:
                                 if funcA.isPredefined():
                                     Logger.logMessage(
-                                        '[' + CoCoFunctionUnique.neuronName +
-                                        '.nestml] Predefined function "%s" redeclared at %s!'
+                                        'Predefined function "%s" redeclared at %s!'
                                         % (funcA.getSymbolName(), func.getSourcePosition().printSourcePosition()),
                                         LOGGING_LEVEL.ERROR)
                                 elif funcB.isPredefined():
                                     Logger.logMessage(
-                                        '[' + CoCoFunctionUnique.neuronName +
-                                        '.nestml] Predefined function "%s" redeclared at %s!'
+                                        'Predefined function "%s" redeclared at %s!'
                                         % (funcB.getSymbolName(), func.getSourcePosition().printSourcePosition()),
                                         LOGGING_LEVEL.ERROR)
                                 else:
                                     Logger.logMessage(
-                                        '[' + CoCoFunctionUnique.neuronName +
-                                        '.nestml] Function "%s" redeclared at %s! First declared at %s.'
+                                        'Function "%s" redeclared at %s! First declared at %s!'
                                         % (funcA.getSymbolName(),
                                            funcB.getReferencedObject().getSourcePosition().printSourcePosition(),
                                            funcA.getReferencedObject().getSourcePosition().printSourcePosition()),

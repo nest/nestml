@@ -43,7 +43,6 @@ class CoCoEquationsOnlyForInitValues(CoCo):
             V_m' = ....
         end
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -54,7 +53,6 @@ class CoCoEquationsOnlyForInitValues(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(EquationsOnlyForInitValues())
         return
 
@@ -73,8 +71,7 @@ class EquationsOnlyForInitValues(NESTMLVisitor):
         symbol = _equation.getScope().resolveToSymbol(_equation.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
         if symbol is not None and not symbol.isInitValues():
             Logger.logMessage(
-                '[' + CoCoEquationsOnlyForInitValues.neuronName + '.nestml] Ode equation lhs-variable "%s" at %s not '
-                                                                  'defined in initial-values block!'
+                'Ode equation lhs-variable "%s" at %s not defined in initial-values block!'
                 % (_equation.getLhs().getNameOfLhs(), _equation.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

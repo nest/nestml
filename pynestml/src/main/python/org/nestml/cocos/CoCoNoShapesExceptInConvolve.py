@@ -39,7 +39,6 @@ class CoCoNoShapesExceptInConvolve(CoCo):
         function I_syn_exc pA = g_ex * ( V_m - E_ex )
 
     """
-    __shapes = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -50,12 +49,10 @@ class CoCoNoShapesExceptInConvolve(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.__shapes = list()
         shapeCollectorVisitor = ShapeCollectingVisitor()
         shapeNames = shapeCollectorVisitor.collectShapes(_neuron=_neuron)
         shapeUsageVisitor = ShapeUsageVisitor(_shapes=shapeNames)
         shapeUsageVisitor.workOn(_neuron)
-        cls.__shapes = list()
         return
 
 
@@ -86,7 +83,7 @@ class ShapeUsageVisitor(NESTMLVisitor):
         """
         for shapeName in self.__shapes:
             # in order to allow shadowing by local scopes, we first check if the element has been declared locally
-            symbol = _variable.getScope().resolveToSymbol(shapeName,SymbolKind.VARIABLE)
+            symbol = _variable.getScope().resolveToSymbol(shapeName, SymbolKind.VARIABLE)
             # if it is not a shape just continue
             if not symbol.isShape():
                 continue
@@ -102,7 +99,7 @@ class ShapeUsageVisitor(NESTMLVisitor):
                                         grandparentFuncName == 'convolve':
                             continue
                 Logger.logMessage(
-                    '[' + self.__neuronNode.getName() + '.nestml] Shape "%s" used outside convolve at %s!'
+                    'Shape "%s" used outside convolve at %s!'
                     % (shapeName, _variable.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
         return

@@ -56,7 +56,7 @@ class CoCoAllVariablesDefined(CoCo):
                 # first test if the symbol has been defined at least
                 if symbol is None:
                     Logger.logMessage(
-                        '[' + _neuron.getName() + '.nestml] Variable %s at %s not declared before usage!'
+                        'Variable %s at %s not declared!'
                         % (var.getName(), var.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
                 # now check if it has been defined before usage, except for buffers, those are special cases
                 elif not symbol.isPredefined() and symbol.getBlockType() != BlockType.INPUT_BUFFER_CURRENT and \
@@ -65,12 +65,12 @@ class CoCoAllVariablesDefined(CoCo):
                     if not symbol.getReferencedObject().getSourcePosition().before(var.getSourcePosition()) and \
                                     symbol.getBlockType() != BlockType.PARAMETERS:
                         Logger.logMessage(
-                            '[' + _neuron.getName() + '.nestml] Variable %s at %s used before declaration!'
+                            'Variable %s at %s used before declaration!'
                             % (var.getName(), var.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
                     if symbol.getReferencedObject().getSourcePosition().encloses(var.getSourcePosition()):
                         Logger.logMessage(
-                            '[' + _neuron.getName() + '.nestml] Variable %s at %s defined recursively!'
+                            'Variable %s at %s defined recursively!'
                             % (var.getName(), symbol.getReferencedObject().
                                getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
         return

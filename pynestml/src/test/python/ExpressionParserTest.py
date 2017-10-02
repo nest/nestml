@@ -65,7 +65,7 @@ class ExpressionParsingTest(unittest.TestCase):
         astBuilderVisitor = ASTBuilderVisitor()
         ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
         # print('done')
-        return isinstance(ast, ASTNESTMLCompilationUnit)
+        assert isinstance(ast, ASTNESTMLCompilationUnit)
 
 
 if __name__ == '__main__':

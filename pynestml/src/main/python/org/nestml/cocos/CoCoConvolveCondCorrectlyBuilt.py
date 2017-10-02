@@ -34,7 +34,6 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
         function I_syn_exc pA =   convolve(g_ex, g_ex) * ( V_bounded - E_ex )
 
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -45,7 +44,6 @@ class CoCoConvolveCondCorrectlyBuilt(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(ConvolveCheckerVisitor())
         return
 
@@ -65,14 +63,12 @@ class ConvolveCheckerVisitor(NESTMLVisitor):
                                                                     SymbolKind.VARIABLE)
             if symbolVar is not None and not symbolVar.isShape() and not symbolVar.isInitValues():
                 Logger.logMessage(
-                    '[' + CoCoConvolveCondCorrectlyBuilt.neuronName +
-                    '.nestml] First argument of %s at %s not a shape or equation!'
+                    'First argument of %s at %s not a shape or equation!'
                     % (funcName, _functionCall.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
             if symbolBuffer is not None and not symbolBuffer.isInputBufferSpike():
                 Logger.logMessage(
-                    '[' + CoCoConvolveCondCorrectlyBuilt.neuronName +
-                    '.nestml] Second argument of %s at %s not a buffer!'
+                    'Second argument of %s at %s not a buffer!'
                     % (funcName, _functionCall.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
         return

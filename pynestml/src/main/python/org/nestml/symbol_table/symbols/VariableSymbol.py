@@ -334,7 +334,8 @@ class VariableSymbol(Symbol):
         :return: True if ode defined, otherwise False.
         :rtype: bool
         """
-        return self.__odeDeclaration is not None and isinstance(self.__odeDeclaration, ASTExpression)
+        return self.__odeDeclaration is not None and (isinstance(self.__odeDeclaration, ASTExpression) or
+                                                      isinstance(self.__odeDeclaration, ASTSimpleExpression))
 
     def getOdeDefinition(self):
         """
@@ -352,8 +353,8 @@ class VariableSymbol(Symbol):
         """
         assert (_expression is not None and (isinstance(_expression, ASTExpression) or
                                              isinstance(_expression, ASTSimpleExpression))), \
-                '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of expression provided (%s)!' % type(
-                    _expression)
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of expression provided (%s)!' % type(
+                _expression)
         self.__odeDeclaration = _expression
         return
 
@@ -431,7 +432,7 @@ class VariableSymbol(Symbol):
         :return: True if comment is stored, otherwise False.
         :rtype: bool
         """
-        return False # todo
+        return False  # todo
 
     def printComment(self):
         """
@@ -440,6 +441,7 @@ class VariableSymbol(Symbol):
         :rtype: str
         """
         return 'TODO comment in variable symbol'
+
 
 class BlockType(Enum):
     STATE = 1

@@ -30,7 +30,6 @@ class CoCoInvariantIsBoolean(CoCo):
     This coco checks that all invariants are of type boolean
 
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -41,7 +40,6 @@ class CoCoInvariantIsBoolean(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         visitor = InvariantTypeVisitor()
         _neuron.accept(visitor)
         return
@@ -59,20 +57,17 @@ class InvariantTypeVisitor(NESTMLVisitor):
         :type _declaration: ASTDeclaration
         """
         if _declaration.hasInvariant():
-            #todo
-            return
             invariantType = _declaration.getInvariant().getTypeEither()
             if invariantType is None or invariantType.isError():
                 Logger.logMessage(
-                    '[' + CoCoInvariantIsBoolean.neuronName + '.nestml] Type of invariant "%s" at %s not derivable!'
+                    'Type of invariant "%s" at %s not derivable!'
                     % (
                         _declaration.getInvariant().printAST(),
                         _declaration.getInvariant().getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
             elif not invariantType.getValue().equals(PredefinedTypes.getBooleanType()):
                 Logger.logMessage(
-                    '[' + CoCoInvariantIsBoolean.neuronName + '.nestml] Type of invariant "%s" at %s wrong! '
-                                                              'Expected boolean, got %s'
+                    'Type of invariant "%s" at %s wrong! Expected boolean, got %s!'
                     % (
                         _declaration.getInvariant().printAST(),
                         _declaration.getInvariant().getSourcePosition().printSourcePosition(),

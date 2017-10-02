@@ -34,7 +34,6 @@ class CoCoBufferNotAssigned(CoCo):
         current = currentSum + 10mV
     
     """
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -45,9 +44,7 @@ class CoCoBufferNotAssigned(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.BufferNotAssigned) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
-        visitor = NoBufferAssignedVisitor()
-        _neuron.accept(visitor)
+        _neuron.accept(NoBufferAssignedVisitor())
         return
 
 
@@ -57,7 +54,7 @@ class NoBufferAssignedVisitor(NESTMLVisitor):
         if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
                                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
             Logger.logMessage(
-                '[' + CoCoBufferNotAssigned.neuronName + '.nestml] Value assigned to buffer "%s" at %s!'
+                'Value assigned to buffer "%s" at %s!'
                 % (_assignment.getVariable().getCompleteName(), _assignment.getSourcePosition().printSourcePosition()),
                 LOGGING_LEVEL.ERROR)
         return

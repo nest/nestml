@@ -32,8 +32,6 @@ class CoCoFunctionMaxOneLhs(CoCo):
         function V_reset,V_rest mV = V_m - 55mV
     """
 
-    neuronName = None
-
     @classmethod
     def checkCoCo(cls, _neuron=None):
         """
@@ -43,7 +41,6 @@ class CoCoFunctionMaxOneLhs(CoCo):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CoCo.FunctionsWithLhs) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        cls.neuronName = _neuron.getName()
         _neuron.accept(FunctionMaxOneLhs())
         return
 
@@ -61,8 +58,7 @@ class FunctionMaxOneLhs(NESTMLVisitor):
         """
         if _declaration.isFunction() and len(_declaration.getVariables()) > 1:
             Logger.logMessage(
-                '[' + CoCoFunctionMaxOneLhs.neuronName +
-                '.nestml] Function (aka. alias) at %s declared with several variables (%s)!'
+                'Function (aka. alias) at %s declared with several variables (%s)!'
                 % (
                     _declaration.getSourcePosition().printSourcePosition(),
                     list((var.getName() for var in _declaration.getVariables()))),

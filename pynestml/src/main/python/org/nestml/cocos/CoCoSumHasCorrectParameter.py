@@ -25,14 +25,13 @@ from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol imp
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 
+
 class CoCoSumHasCorrectParameter(CoCo):
     """
     This coco ensures that cur_sum,cond_sum and convolve get only simple variable references as inputs.
     Not allowed:
      V mV = convolve(g_in+g_ex,Buffer)
     """
-
-    neuronName = None
 
     @classmethod
     def checkCoCo(cls, _neuron=None):
@@ -53,21 +52,19 @@ class SumIsCorrectVisitor(NESTMLVisitor):
     """
     This visitor ensures that sums/convolve are provided with a correct expression.
     """
+
     def visitFunctionCall(self, _functionCall=None):
         """
         Checks the coco on the current function call.
         :param _functionCall: a single function call.
         :type _functionCall: ASTFunctionCall
         """
-        fName =  _functionCall.getName()
+        fName = _functionCall.getName()
         if fName == 'cur_sum' or fName == 'cond_sum' or fName == 'convolve':
             for arg in _functionCall.getArgs():
-                if not isinstance(arg,ASTSimpleExpression) or not arg.isVariable():
-                    Logger.logMessage(
-                        '[' + CoCoSumHasCorrectParameter.neuronName + '.nestml] Argument %s of "%s"  at %s not a variable!'
-                        % (arg.printAST(),fName,
-                           _functionCall.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
+                if not isinstance(arg, ASTSimpleExpression) or not arg.isVariable():
+                    Logger.logMessage('Argument %s of "%s"  at %s not a variable!'
+                                      % (arg.printAST(), fName,
+                                         _functionCall.getSourcePosition().printSourcePosition()),
+                                      LOGGING_LEVEL.ERROR)
         return
-
-

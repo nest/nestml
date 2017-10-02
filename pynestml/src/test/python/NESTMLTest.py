@@ -30,6 +30,7 @@ from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedVaria
 from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.src.main.python.org.nestml.cocos.CoCosManager import CoCosManager
 from pynestml.src.main.python.org.nestml.ast.ASTSourcePosition import ASTSourcePosition
+from pynestml.src.main.python.org.nestml.ast.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
 from pynestml.src.main.python.org.nestml.symbol_table.SymbolTable import SymbolTable
 
 # setups the infrastructure
@@ -52,9 +53,11 @@ class NESTMLTest(unittest.TestCase):
                                                                  os.path.join('..', '..', '..', '..', 'models')))):
             if filename.endswith(".nestml"):
                 # print('Start creating AST for ' + filename + ' ...'),
-                NESTMLParser.parseModel(os.path.join(os.path.dirname(__file__),
+                model = NESTMLParser.parseModel(os.path.join(os.path.dirname(__file__),
                                                      os.path.join(os.path.join('..', '..', '..', '..',
                                                                                'models'), filename)))
+                if not isinstance(model,ASTNESTMLCompilationUnit):
+                    return 1
         return
 
 
