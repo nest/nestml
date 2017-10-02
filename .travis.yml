@@ -18,13 +18,13 @@ install:
 sudo: true
 
 script:
-  - python pynestml/src/test/python/LexerParserTest.py
-  - python pynestml/src/test/python/SpecialBlockParserBuilderTest.py
-  - python pynestml/src/test/python/ExpressionParserTest.py
-  - python pynestml/src/test/python/ASTBuilderTest.py
-  - python pynestml/src/test/python/SymbolTableBuilderTest.py
-  - python pynestml/src/test/python/SymbolTableResolutionTest.py
-  - python pynestml/src/test/python/CoCosTest.py
-  - python pynestml/src/test/python/PyNestMLFrontendTest.py
-  - python pynestml/src/test/python/NESTMLTest.py
-  - python pynestml/src/test/python/ExpressionTypeCalculationTest.py
+  - python tests/LexerParserTest.py
+  - python tests/SpecialBlockParserBuilderTest.py
+  - python tests/ExpressionParserTest.py
+  - python tests/ASTBuilderTest.py
+  - python tests/SymbolTableBuilderTest.py
+  - python tests/SymbolTableResolutionTest.py
+  - python tests/CoCosTest.py
+  - python tests/PyNestMLFrontendTest.py
+  - python tests/NESTMLTest.py
+  - python tests/ExpressionTypeCalculationTest.py
