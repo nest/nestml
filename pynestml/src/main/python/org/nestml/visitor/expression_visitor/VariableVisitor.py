@@ -24,6 +24,7 @@ simpleexpression : variable
 from pynestml.src.main.python.org.nestml.symbol_table.symbols.Symbol import SymbolKind
 from pynestml.src.main.python.org.nestml.visitor.NESTMLVisitor import NESTMLVisitor
 from pynestml.src.main.python.org.nestml.visitor.expression_visitor.Either import Either
+from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL,Logger
 
 
 class VariableVisitor(NESTMLVisitor):
@@ -35,8 +36,11 @@ class VariableVisitor(NESTMLVisitor):
 
         varName = _expr.getVariable().getName()
         varResolve = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
-
-        _expr.setTypeEither(Either.value(varResolve.getTypeSymbol()))
+        if varResolve is not None:
+            _expr.setTypeEither(Either.value(varResolve.getTypeSymbol()))
+        else:
+            Logger.logMessage('Variable '+_expr.printAST() + ' could not be resolved!',LOGGING_LEVEL.ERROR)
+            _expr.setTypeEither(Either.error('Variable could not be resolved!'))
         return
 
     def visitExpression(self, _expr=None):

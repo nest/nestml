@@ -32,7 +32,7 @@ from pynestml.src.main.python.org.utils.Logger import Logger, LOGGING_LEVEL
 class LogicalNotVisitor(NESTMLVisitor):
 
     def visitExpression(self, _expr = None):
-        exprTypeE = _expr.getExpression().getTypeEither
+        exprTypeE = _expr.getExpression().getTypeEither()
 
         if exprTypeE.isError():
             _expr.setTypeEither(exprTypeE)

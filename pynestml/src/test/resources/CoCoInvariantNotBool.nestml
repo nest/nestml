@@ -1,6 +1,6 @@
 /**
  *
- *  CoCoVariableDefinedAfterUsage.nestml
+ *  CoCoInvariantNotBool.nestml
  *
  *  This file is part of NEST.
  *
@@ -20,22 +20,24 @@
  *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
  *
  *
- * This model is used to test if broken CoCos are identified correctly. Here, if usage before declaration is detected.
+ * This model is used to test if broken CoCos are identified correctly. Here, if the correct type of invariants
+ * is detected and invariants are correctly constructed.
  *
 */
 
-neuron CoCoVariableDefinedAfterUsage:
-    update:
-        test1 = test2 + test1
-    end
+neuron CoCoInvariantNotBool:
 
     state:
-        test1 integer = 10 [[test1 < 10]]
-        test2 integer = test1
+        V_notBool mV = 10mV [[V_notBool + V_notBool]] # here a non boolean invariant should be detected
+        V_correct mV =  10mV # should not be detected
+    end
+
+    update:
+        # required for creation of a correct ast
     end
 
     input:
-        # required for correct construction of the ast
+        # required for creation of a correct ast
     end
 
     output: spike

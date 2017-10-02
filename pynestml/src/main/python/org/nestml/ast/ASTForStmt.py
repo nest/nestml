@@ -21,6 +21,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 
 
 class ASTForStmt(ASTElement):
@@ -54,9 +55,10 @@ class ASTForStmt(ASTElement):
         """
         assert (_variable is not None and isinstance(_variable, str)), \
             '(PyNestML.AST.ForStmt) No or wrong type of iteration variable provided (%s)!' % type(_variable)
-        assert (_from is not None and isinstance(_from, ASTExpression)), \
+        assert (_from is not None and (isinstance(_from, ASTExpression) or
+                                       isinstance(_from, ASTSimpleExpression))), \
             '(PyNestML.AST.ForStmt) No or wrong type of from-statement provided (%s)!' % type(_from)
-        assert (_to is not None and isinstance(_from, ASTExpression)), \
+        assert (_to is not None and (isinstance(_to, ASTExpression) or isinstance(_to, ASTSimpleExpression))), \
             '(PyNestML.AST.ForStmt) No or wrong type of to-statement provided (%s)!' % type(_to)
         assert (_step is not None and (isinstance(_step, int) or isinstance(_step, float))), \
             '(PyNestML.AST.ForStmt) No step size or wrong type provided (%s)!' % type(_step)

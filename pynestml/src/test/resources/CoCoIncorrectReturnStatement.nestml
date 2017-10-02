@@ -49,6 +49,10 @@ neuron CoCoIncorrectReturnStatement:
         return True# here, it should be detected, that the type is wrong
     end
 
+    function noReturn():
+        return True # here it should be detected that no return has been specified but a return with a wrong type defined
+    end
+
     function bar() mV:
         # here it should be detected, that the function has been defined with a type, but no return stmt is present
     end

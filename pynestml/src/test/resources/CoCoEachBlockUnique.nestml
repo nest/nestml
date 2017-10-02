@@ -26,11 +26,11 @@
 
 neuron CoCoEachBlockUnique:
     state:
-        test1 void = 0
+        test1 integer = 0
     end
 
     state:
-        test2 void = 0
+        test2 integer = 0
     end
 
     input:

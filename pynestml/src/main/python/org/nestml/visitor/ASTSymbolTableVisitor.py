@@ -734,7 +734,15 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             '(PyNestML.SymbolTable.Visitor) No or wrong type of input-line provided (%s)!' % type(_line)
         from pynestml.src.main.python.org.nestml.symbol_table.symbols.VariableSymbol import VariableSymbol
         bufferType = BlockType.INPUT_BUFFER_SPIKE if _line.isSpike() else BlockType.INPUT_BUFFER_CURRENT
-        typeSymbol = PredefinedTypes.getTypeIfExists('nS') if _line.isSpike() else PredefinedTypes.getTypeIfExists('pA')
+        if _line.isSpike() and _line.hasDatatype():
+            _line.getDatatype().updateScope(_line.getScope())
+            cls.visitDataType(_line.getDatatype())
+            typeSymbol = _line.getDatatype().getTypeSymbol()
+        elif _line.isSpike():
+            Logger.logMessage('No spike buffer type declared, nS as unit assumed!', LOGGING_LEVEL.WARNING)
+            typeSymbol = PredefinedTypes.getTypeIfExists('nS')
+        else:
+            typeSymbol = PredefinedTypes.getTypeIfExists('pA')
         typeSymbol.setBuffer(True)  # set it as a buffer
         symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName(),
                                 _blockType=bufferType, _vectorParameter=_line.getIndexParameter(),

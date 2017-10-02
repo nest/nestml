@@ -43,7 +43,7 @@ class BinaryLogicVisitor(NESTMLVisitor):
             _expr.setTypeEither(rhsType)
             return
 
-        if TypeChecker.isBoolean(lhsType) and TypeChecker.isBoolean(rhsType):
+        if TypeChecker.isBoolean(lhsType.getValue()) and TypeChecker.isBoolean(rhsType.getValue()):
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         else:
             errorMsg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.getSourcePosition)

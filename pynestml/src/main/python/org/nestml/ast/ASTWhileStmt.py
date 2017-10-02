@@ -21,6 +21,7 @@
 from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
 from pynestml.src.main.python.org.nestml.ast.ASTBlock import ASTBlock
 from pynestml.src.main.python.org.nestml.ast.ASTElement import ASTElement
+from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
 
 
 class ASTWhileStmt(ASTElement):
@@ -42,7 +43,8 @@ class ASTWhileStmt(ASTElement):
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
-        assert (_condition is not None and isinstance(_condition, ASTExpression)), \
+        assert (_condition is not None and (isinstance(_condition, ASTExpression) or
+                                            isinstance(_condition, ASTSimpleExpression))), \
             '(PyNestML.AST.WhileStmt) No or wrong type of condition provided (%s)!' % type(_condition)
         assert (_block is not None and isinstance(_block, ASTBlock)), \
             '(PyNestML.AST.WhileStmt) No or wrong type of block provided (%s)!' % type(_block)

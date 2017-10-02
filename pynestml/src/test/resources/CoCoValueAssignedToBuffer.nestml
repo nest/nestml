@@ -33,7 +33,7 @@ neuron CoCoValueAssignedToBuffer:
     output: spike
 
     update:
-        spikeInh = 10mV
+        spikeInh = 10
     end
 
 end

@@ -154,3 +154,55 @@ class ASTUtils(object):
         else:
             Logger.logMessage('Type could not be derived!', LOGGING_LEVEL.ERROR)
             return ''
+
+    @classmethod
+    def deconstructAssignment(cls, _lhs=None, _isPlus=False, _isMinus=False, _isTimes=False, _isDivide=False,
+                              _rhs=None):
+        """
+        From lhs and rhs it constructs a new expression which corresponds to direct assignment.
+        E.g.: a += b*c -> a = a + b*c
+        :param _lhs: a lhs expression
+        :type _lhs: ASTExpression or ASTSimpleExpression
+        :param _isPlus: is plus assignment
+        :type _isPlus: bool
+        :param _isMinus: is minus assignment
+        :type _isMinus: bool
+        :param _isTimes: is times assignment
+        :type _isTimes: bool
+        :param _isDivide: is divide assignment
+        :type _isDivide: bool
+        :param _rhs: a rhs expression
+        :type _rhs: ASTExpression or ASTSimpleExpression
+        :return: a new direct assignment expression.
+        :rtype: ASTExpression
+        """
+        from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
+        from pynestml.src.main.python.org.nestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.src.main.python.org.nestml.ast.ASTVariable import ASTVariable
+        from pynestml.src.main.python.org.nestml.visitor.ASTSymbolTableVisitor import SymbolTableASTVisitor
+        assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
+            '(PyNestML.CodeGeneration.Utils) No or wrong type of lhs variable provided (%s)!' % type(_lhs)
+        assert (_rhs is not None and (isinstance(_rhs, ASTSimpleExpression) or isinstance(_rhs, ASTExpression))), \
+            '(PyNestML.CodeGeneration.Utils) No or wrong type of rhs expression provided (%s)!' % type(_rhs)
+        assert ((_isPlus + _isMinus + _isTimes + _isDivide) == 1), \
+            '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
+        if _isPlus:
+            op = ASTArithmeticOperator(_isPlusOp=True)
+        elif _isMinus:
+            op = ASTArithmeticOperator(_isMinusOp=True)
+        elif _isTimes:
+            op = ASTArithmeticOperator(_isTimesOp=True)
+        else:
+            op = ASTArithmeticOperator(_isDivOp=True)
+
+        varExpr = ASTSimpleExpression.makeASTSimpleExpression(_variable=_lhs)
+        varExpr.updateScope(_lhs.getScope())
+        op.updateScope(_lhs.getScope())
+        rhsInBrackets = ASTExpression.makeExpression(_isEncapsulated=True, _expression=_rhs)
+        rhsInBrackets.updateScope(_rhs.getScope())
+        expr = ASTExpression.makeCompoundExpression(_lhs=varExpr, _binaryOperator=op, _rhs=rhsInBrackets)
+        expr.updateScope(_lhs.getScope())
+        # update the symbols
+        SymbolTableASTVisitor.visitExpression(expr)
+        return expr

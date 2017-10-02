@@ -72,7 +72,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), '..',
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         expressionTestVisitor().handle(model)
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(None, LOGGING_LEVEL.ERROR)) == 1)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(None, LOGGING_LEVEL.ERROR)) == 2)
 
 
 if __name__ == '__main__':

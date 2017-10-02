@@ -98,6 +98,6 @@ class DotOperatorVisitor(NESTMLVisitor):
                     return
         #Catch-all if no case has matched
         typeMissmatch = lhsType.printSymbol() + " / " if arithOp.isDivOp() else " * " + rhsType.printSymbol()
-        errorMsg = ErrorStrings.messageTypeMismatch(self, typeMissmatch, _expr.get_SourcePositionStart())
+        errorMsg = ErrorStrings.messageTypeMismatch(self, typeMissmatch, _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
         Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)

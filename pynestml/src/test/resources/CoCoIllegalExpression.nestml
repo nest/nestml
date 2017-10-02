@@ -1,0 +1,66 @@
+/**
+ *
+ *  CoCoIllegalExpression.nestml
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * This model is used to test if broken CoCos are identified correctly. Here, illegal expressions, e.g.
+ * type(lhs)!= type(rhs) are detected.
+ *
+*/
+
+neuron CoCoIllegalExpression:
+    state:
+        test boolean = True
+        test2 mV = 10mV
+        test3 integer = 20
+        # here type(rhs) != type(lhs) should be detected as well as incorrect type of expression
+        test4 pA = 10mV
+    end
+
+    update:
+        # here type(rhs) != type(lhs) should be detected as well as incorrect type of expression
+        test2 = test2 + test3
+        # here it should be detected that the condition is not bool
+        if test2:
+            # not boolean condition
+        elif test2+test3:
+            # not boolean condition
+        end
+
+        while test2:
+            # not boolean condition
+        end
+
+        mlVolt mV = 10mV
+
+        # here it should detect that from and to are not primitive numbers
+        for i in mlVolt...mlVolt+10mV step 10:
+        end
+
+
+    end
+
+    input:
+        # required for creation of a correct ast
+    end
+
+    output: spike
+
+end
