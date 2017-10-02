@@ -6,7 +6,6 @@ python:
   - "3.5-dev"
   - "3.6"
   - "3.6-dev"
-  - "3.7-dev"
 
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
@@ -28,3 +27,4 @@ script:
   - python pynestml/src/test/python/CoCosTest.py
   - python pynestml/src/test/python/PyNestMLFrontendTest.py
   - python pynestml/src/test/python/NESTMLTest.py
+  - python pynestml/src/test/python/ExpressionTypeCalculationTest.py
