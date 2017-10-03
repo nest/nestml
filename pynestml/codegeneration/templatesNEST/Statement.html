@@ -2,9 +2,9 @@
   @grammar: Stmt = Simple_Stmt ((SL_COMMENT | NEWLINE)* | EOF) | Compound_Stmt;
   @param ast ASTSmallStmt or ASTCompoundStmt
 #}
-// {{astUtils.printComments(ast)}}
-{% if astUtils.isSmallStmt(ast) %}
+// {{utils.printComments(ast)}}
+{% if utils.isSmallStmt(ast) %}
 {% include "SmallStatement.html" %}
-{% elif astUtils.isCompoundStmt(ast) %}
+{% elif utils.isCompoundStmt(ast) %}
 {% include "CompoundStatement.html" %}
 {% endif %}

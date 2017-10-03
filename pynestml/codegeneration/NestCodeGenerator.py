@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Template, Environment, FileSystemLoader, PackageLoader
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
@@ -39,6 +39,8 @@ class NestCodeGenerator(object):
         """
         Standard constructor to init the generator.
         """
+        # setup the environment
+        env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templatesNEST')))
         # setup the cmake template
         """
         with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'CMakeLists.html'),
@@ -47,25 +49,28 @@ class NestCodeGenerator(object):
             self.__templateCMakeLists = Template(data)
         """
         # setup the module class template
+        """
         with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'ModuleClass.html'),
                   'r') as templateModuleClass:
             data = templateModuleClass.read()
             self.__templateModuleClass = Template(data)
+        """
         # setup the module header
+        """
         with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'ModuleHeader.html'),
                   'r') as templateModuleHeader:
             data = templateModuleHeader.read()
             self.__templateModuleHeader = Template(data)
+        """
         # setup the neuron header template
-        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'ModuleHeader.html'),
-                  'r') as templateNeuronHeader:
-            data = templateNeuronHeader.read()
-            self.__templateNeuronHeader = Template(data)
+        self.__templateNeuronHeader = env.get_template('NeuronHeader.html')
         # setup the neuron implementation template
-        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'ModuleHeader.html'),
+        """
+        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'NeuronClass.html'),
                   'r') as templateNeuronImplementation:
             data = templateNeuronImplementation.read()
             self.__templateNeuronImplementation = Template(data)
+        """
         return
 
     def generateModels(self, _modelRoots=None):
@@ -195,10 +200,10 @@ class NestCodeGenerator(object):
         return
         if not os.path.isdir(FrontendConfiguration.getTargetPath()):
             os.makedirs(FrontendConfiguration.getTargetPath())
-        Logger.logMessage('Start generating header for %s...' % _neuron.getName(), LOGGING_LEVEL.ALL)
+        Logger.logMessage('Start generating header for %s...' % _neuron.getName(), LOGGING_LEVEL.INFO)
         self.generateHeader(_neuron)
-        Logger.logMessage('Start generating implementation for %s...' % _neuron.getName(), LOGGING_LEVEL.ALL)
-        self.generateClassImplementation(_neuron)
+        Logger.logMessage('Start generating implementation for %s...' % _neuron.getName(), LOGGING_LEVEL.INFO)
+        # self.generateClassImplementation(_neuron)
         return
 
     def setupStandardNamespace(self, _neuron=None):
@@ -213,22 +218,25 @@ class NestCodeGenerator(object):
         from pynestml.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
         from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
         from pynestml.codegeneration.NestPrinter import NestPrinter
+        from pynestml.utils.OdeTransformer import OdeTransformer
         from pynestml.utils.ASTUtils import ASTUtils
         namespace = {}
         namespace['neuronName'] = _neuron.getName()
         namespace['neuron'] = _neuron
         namespace['moduleName'] = 'TODO module name'
-        namespace['expressionsPrinter'] = NestPrinter()
-        namespace['outputEvent'] = namespace['expressionsPrinter'].printOutputEvent(_neuron.getBody())
+        # helper classes and objects
+        namespace['printer'] = NestPrinter()
+        namespace['assignments'] = NestAssignmentsHelper()
+        namespace['names'] = NestNamesConverter()
+        namespace['declarations'] = NestDeclarationsHelper()
+        namespace['utils'] = ASTUtils
+        # information regarding the neuron
+        namespace['outputEvent'] = namespace['printer'].printOutputEvent(_neuron.getBody())
         namespace['isSpikeInput'] = ASTUtils.isSpikeInput(_neuron.getBody())
         namespace['isCurrentInput'] = ASTUtils.isCurrentInput(_neuron.getBody())
-        namespace['body'] = _neuron.getBody()
-        namespace['assignmentsHelper'] = NestAssignmentsHelper()
-        namespace['namesConverter'] = NestNamesConverter()
-        namespace['declarationsHelper'] = NestDeclarationsHelper()
-        namespace['astUtils'] = ASTUtils
+        # some additional information
         namespace['useGSL'] = False  # Todo
-
+        namespace['odeTransformer'] = OdeTransformer()
         # todo more
         return namespace
 

@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.src.main.python.org.nestml.ast.ASTDeclaration import ASTDeclaration
-from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.src.main.python.org.codegeneration.NESTML2NESTTypeConverter import NESTML2NESTTypeConverter
+from pynestml.nestml.ASTDeclaration import ASTDeclaration
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.codegeneration.NESTML2NESTTypeConverter import NESTML2NESTTypeConverter
 
 
 class NestDeclarationsHelper(object):
@@ -64,9 +64,9 @@ class NestDeclarationsHelper(object):
         :rtype: str
         """
         if _variableSymbol.hasVectorParameter():
-            return 'std::vector< ' + self.nestml2NESTTypeConverter.convert(_variableSymbol.getType()) + ' > '
+            return 'std::vector< ' + self.nestml2NESTTypeConverter.convert(_variableSymbol.getTypeSymbol()) + ' > '
         else:
-            return self.nestml2NESTTypeConverter.convert(_variableSymbol.getType())
+            return self.nestml2NESTTypeConverter.convert(_variableSymbol.getTypeSymbol())
 
     def printSizeParameter(self, _astDeclaration=None):
         """

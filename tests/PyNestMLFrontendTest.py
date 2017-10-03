@@ -33,11 +33,11 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params = list()
         params.append('-path')
         params.append(path)
-        params.append('-dry')
+        #params.append('-dry')
         params.append('-logging_level')
-        params.append('NO')
+        params.append('ALL')
         params.append('-target')
-        params.append('buildNest')
+        #params.append('buildNest')
         main(params)
 
 

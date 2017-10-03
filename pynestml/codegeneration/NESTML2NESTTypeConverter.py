@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.src.main.python.org.nestml.symbol_table.predefined.PredefinedTypes import PredefinedTypes
-from pynestml.src.main.python.org.nestml.symbol_table.symbols.TypeSymbol import TypeSymbol
+from pynestml.nestml.PredefinedTypes import PredefinedTypes
+from pynestml.nestml.TypeSymbol import TypeSymbol
 
 
 class NESTML2NESTTypeConverter(object):
@@ -26,7 +26,8 @@ class NESTML2NESTTypeConverter(object):
     This class contains a single operation as used to convert nestml types to nest centerpieces.
     """
 
-    def convert(self, _typeSymbol=None):
+    @classmethod
+    def convert(cls, _typeSymbol=None):
         """
         Converts the name of the type symbol to a corresponding nest representation.
         :param _typeSymbol: a single type symbol
@@ -49,5 +50,5 @@ class NESTML2NESTTypeConverter(object):
             return 'double'
         if _typeSymbol.equals(PredefinedTypes.getIntegerType()):
             return 'long'
-        # todo Time
-        # todo rest
+            # todo Time
+            # todo rest

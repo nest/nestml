@@ -25,7 +25,7 @@ class Logger(object):
     This class represents a logger which can be used to print messages to the screen depending on the logging 
     level.
         LEVELS:
-            ALL         Print all received messages.
+            INFO         Print all received messages.
             WARNING     Print all received warning.
             ERROR       Print all received errors.
             NO          Print no messages
@@ -99,8 +99,8 @@ class Logger(object):
         """
         if type(_string) != str:
             return LOGGING_LEVEL.ERROR
-        elif _string == 'ALL':
-            return LOGGING_LEVEL.ALL
+        elif _string == 'INFO':
+            return LOGGING_LEVEL.INFO
         elif _string == 'WARNING' or _string == 'WARNINGS':
             return LOGGING_LEVEL.WARNING
         elif _string == 'ERROR' or _string == 'ERRORS':

@@ -22,7 +22,7 @@
 */
 #}
 /*
-*  {{ast.getName()}}.cpp
+*  {{neuronName}}.cpp
 *
 *  This file is part of NEST.
 *
@@ -63,7 +63,7 @@
 
 #include "{{neuronName}}.h"
 
-{% set stateSize = len(body.getEquations()) %}
+{% set stateSize = len(neuron.getEquations()) %}
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
@@ -151,11 +151,11 @@ namespace nest
   {% endif %}
 
   {% for parameter in body.getParameterNonAliasSymbols() %}
-    {% include "org.nest.nestml.neuron.function.MemberInitialization" %}
+    {% include "MemberInitialization.html" %}
   {% endfor %}
 
   {% for state in body.getStateNonAliasSymbols() %}
-    {% include "org.nest.nestml.neuron.function.MemberInitialization" %}
+    {% include "MemberInitialization.html" %}
   {% endfor %}
 
 }
@@ -163,15 +163,15 @@ namespace nest
 {{neuronName}}::{{neuronName}}(const {{neuronName}}& __n): Archiving_Node(), P_(__n.P_), S_(__n.S_), B_(__n.B_, *this)
 {
   {% for parameter in body.getParameterNonAliasSymbols() %}
-    P_.{{namesConverter.name(parameter)} = __n.P_.{{namesConverter.name(parameter)}};
+    P_.{{names.name(parameter)} = __n.P_.{{names.name(parameter)}};
   {% endfor %}
 
   {% for state in body.getStateNonAliasSymbols() %}
-    S_.{{namesConverter.name(state)}} = __n.S_.{{namesConverter.name(state)}};
+    S_.{{names.name(state)}} = __n.S_.{{names.name(state)}};
   {% endfor %}
 
   {% for internal in body.getInternalNonAliasSymbols() %}
-    V_.{{namesConverter.name(internal)}} = __n.V_.{{namesConverter.name(internal)}};
+    V_.{{names.name(internal)}} = __n.V_.{{names.name(internal)}};
   {% endfor %}
 }
 
@@ -207,7 +207,7 @@ void
 {{neuronName}}::init_buffers_()
 {
   {% for buffer in neuron.getInputBuffers() %}
-  {{ expressionsPrinter.printBufferInitialization(buffer) }}
+  {{ printer.printBufferInitialization(buffer) }}
   {% endfor %}
   B_.logger_.reset(); // includes resize
   Archiving_Node::clear_history();
@@ -264,11 +264,11 @@ void
     {% endif %}
   {% endfor %}
 
-  {% for buffer in body.getInputBuffers() %}
+  {% for buffer in neuron.getInputBuffers() %}
     {% if buffer.hasVectorParameter() %}
-        B_.{{buffer.getSymbolName()}.resize(P_.{{buffer.getVectorParameter().get()}});
-        B_.{{buffer.getSymbolName()}_grid_sum_.resize(P_.{{buffer.getVectorParameter().get()}});
-    {% endif %}
+        B_.{{buffer.getSymbolName()}.resize(P_.{{buffer.getVectorParameter()}});
+        B_.{{buffer.getSymbolName()}_grid_sum_.resize(P_.{{buffer.getVectorParameter()}});
+    {% endif %
   {% endfor %}
 }
 
@@ -277,7 +277,7 @@ void
 * ---------------------------------------------------------------- */
 
 /*
- {#{neuron.printDynamicsComment()}#}
+ {{neuron.printDynamicsComment()}}
  */
 void
 {{neuronName}}::update(
@@ -289,9 +289,9 @@ void
   {% endif %}
 
   for ( long lag = from ; lag < to ; ++lag ) {
-    {% for inputLine in body.getInputBuffers() %}
-       {% if inputLine.isVector() %}
-       for (long i=0; i < P_.{{inputLine.getVectorParameter().get()}}; i++)
+    {% for inputLine in neuron.getInputBuffers() %}
+       {% if inputLine.hasVectorParameter() %}
+       for (long i=0; i < P_.{{inputLine.getVectorParameter()}}; i++)
        {
          B_.{{names.bufferValue(inputLine)}}[i] = get_{{names.name(inputLine)}}()[i].get_value( lag );
        }
@@ -300,8 +300,8 @@ void
        {% endif %}
     {% endfor %}
 
-    {% set dynamics = body.getDynamicsBlock().get() %}
-    {% include "org.nest.spl.Block" %}
+    {% set dynamics = neuron.getUpdateBlocks() %}
+    {% include "Block.html" %}
 
     // voltage logging
     B_.logger_.record_data(origin.get_steps()+lag);
@@ -318,9 +318,9 @@ void
 }
 
 {% for function in body.getFunctions() %}
-{{functionPrinter.printFunctionDefinition(function, neuronName)}}
+{{printer.printFunctionDefinition(function, neuronName)}}
 {
-  {% include "org.nest.spl.Block" %}
+  {% include "Block.html" %}
 }
 {% endfor %}
 
@@ -330,13 +330,13 @@ void
 {
   assert(e.get_delay() > 0);
 
-  {% if neuronSymbol.isMultisynapseSpikes() %}
-    {% set spikeBuffer = neuronSymbol.getSpikeBuffers()[0] %}
+  {% if neuron.isMultisynapseSpikes() %}
+    {% set spikeBuffer = neuron.getSpikeBuffers()[0] %}
 
-    B_.{{spikeBuffer.getName()}}[e.get_rport() - 1].add_value(
+    B_.{{spikeBuffer.getSymbolName()}}[e.get_rport() - 1].add_value(
       e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin() ),
       e.get_weight() * e.get_multiplicity() );
-  {% elif len(body.getMultipleReceptors()) > 1 %}
+  {% elif len(neuron.getMultipleReceptors()) > 1 %}
     assert( e.get_rport() < static_cast< int >( B_.spike_inputs_.size() ) );
 
     B_.spike_inputs_[ e.get_rport() ].add_value(
@@ -345,18 +345,18 @@ void
   {% else %}
       const double weight = e.get_weight();
       const double multiplicity = e.get_multiplicity();
-      {% for buffer in body.getSpikeBuffers() %}
+      {% for buffer in neuron.getSpikeBuffers() %}
         {% if buffer.isExcitatory() %}
         if ( weight >= 0.0 ) // excitatory
         {
-          get_{{buffer.getName()}}().add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+          get_{{buffer.getSymbolName()}}().add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                        weight * multiplicity );
         }
         {% endif %}
         {% if buffer.isInhibitory() %}
         if ( weight < 0.0 ) // inhibitory
         {
-          get_{{buffer.getName()}}().add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
+          get_{{buffer.getSymbolName()}}().add_value(e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                       {% if buffer.isConductanceBased() %} // ensure conductance is positive {% endif %}
                       {% if buffer.isConductanceBased() %} -1 * {% endif %} weight * multiplicity );
         }
@@ -378,7 +378,7 @@ void
 
   // add weighted current; HEP 2002-10-04
   {% for buffer in body.getCurrentBuffers() %}
-    get_{{buffer.getName()}}().add_value(
+    get_{{buffer.getSymbolName()}}().add_value(
                e.get_rel_delivery_steps( nest::kernel().simulation_manager.get_slice_origin()),
                weight * current );
   {% endfor %}

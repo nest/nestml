@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.src.main.python.org.nestml.ast.ASTExpression import ASTExpression
-from pynestml.src.main.python.org.nestml.ast.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.src.main.python.org.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.nestml.ASTExpression import ASTExpression
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class NestExpressionPrettyPrinter(object):
@@ -72,7 +72,7 @@ class NestExpressionPrettyPrinter(object):
         :return: the corresponding representation
         :rtype: str
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
         assert (_op is not None and isinstance(_op, ASTArithmeticOperator)), \
             '(PyNestML.CodeGeneration.PrettyPrinter) No or wrong type of arithmetic operator provided (%s)!' % type(_op)
         if _op.isTimesOp():
@@ -96,7 +96,7 @@ class NestExpressionPrettyPrinter(object):
         :return: the corresponding representation
         :rtype: str
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTBitOperator import ASTBitOperator
+        from pynestml.nestml.ASTBitOperator import ASTBitOperator
         assert (_op is not None and isinstance(_op, ASTBitOperator)), \
             '(PyNestML.CodeGeneration.PrettyPrinter) No or wrong type of bit operator provided (%s)!' % type(_op)
         if _op.isBitAnd():
@@ -121,7 +121,7 @@ class NestExpressionPrettyPrinter(object):
         :return: the corresponding representation
         :rtype: str
         """
-        from pynestml.src.main.python.org.nestml.ast.ASTComparisonOperator import ASTComparisonOperator
+        from pynestml.nestml.ASTComparisonOperator import ASTComparisonOperator
         assert (_op is not None and isinstance(_op, ASTComparisonOperator)), \
             '(PyNestML.CodeGeneration.PrettyPrinter) No or wrong type of comparison operator provided (%s)!' % type(_op)
         if _op.isLt():

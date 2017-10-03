@@ -1,0 +1,29 @@
+{#
+  Generates C++ declaration
+  @grammar:
+  declaration :
+                (isRecordable='recordable')? (isFunction='function')?
+                variable (',' variable)*
+                datatype
+                ('[' sizeParameter=NAME ']')?
+                ( '=' rhs = expression)?
+                ('[[' invariant=expression ']]')?;
+  @param ast ASTDeclaration
+#}
+
+{% for variable in declarations.getVariables(ast) %}
+  {% if ast.hasSizeParameter() %}
+    {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}}(P_.{{declarations.printSizeParameter(ast)}});
+    {% if ast.hasExpression() %}
+      for (long i=0; i < get_{{declarations.printSizeParameter(ast)}}(); i++) {
+        {{variable.getSymbolName()}}[i] = {{printer.printExpression(ast.getExpr())}};
+      }
+    {% endif %}
+  {% else %}
+    {% if ast.hasExpression() %}
+      {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}} = {{printer.printExpression(ast.getExpr())}};
+    {% else %}
+      {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}};
+    {% endif %}
+  {% endif %}
+{% endfor %}

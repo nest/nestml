@@ -15,7 +15,7 @@ extern "C" inline int
   // y[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.y[].
 
-  {% for ode in body.getOdeBlock().get().getODEs() %}
+  {% for ode in body.getEquationsBlocks().getDeclarations() %}
     {% set simpleOde = odeTransformer.replaceSumCalls(ode) %}
     {% for function astUtils.getAliasSymbols(ode) %}
       {% if not function.isInEquation() %}

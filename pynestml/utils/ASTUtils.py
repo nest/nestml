@@ -73,7 +73,7 @@ class ASTUtils(object):
         :return: all comments in the node
         :rtype: str
         """
-        return "TODO comments"
+        return "TODO comments of ast node"
 
     @classmethod
     def isIntegrate(cls, _functionCall=None):
@@ -206,3 +206,12 @@ class ASTUtils(object):
         # update the symbols
         SymbolTableASTVisitor.visitExpression(expr)
         return expr
+
+    def getAliasSymbolsFromOdes(self,_list=list()):
+        """
+        For a handed over list this
+        :param _list:
+        :type _list:
+        :return:
+        :rtype:
+        """

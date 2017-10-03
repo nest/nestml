@@ -7,8 +7,8 @@
   @param ast ASTForStmt
 
 %}
-for( {{ast.getVariable()}} =  {{expressionsPrinter.printExpression(ast.getFrom())}} ;
-     {{ast.getVariable()}} {{expressionsPrinter.printComparisonOperator(ast)} {{expressionsPrinter.printExpression(ast.getTo())}};
+for( {{ast.getVariable()}} =  {{printer.printExpression(ast.getFrom())}} ;
+                 {{ast.getVariable()}} {{printer.printComparisonOperator(ast)} {{printer.printExpression(ast.getTo())}};
      {{ast.getVariable()}} += {{ast.getStep()}} )
 {
   {% with ast = ast.getBlock() %}

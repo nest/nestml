@@ -53,11 +53,11 @@ def main(args):
     CoCosManager.checkNotTwoNeuronsAcrossUnits(compilationUnits)
     # and generate them
     if not FrontendConfiguration.isDryRun():
-        # nestGenerator = NestCodeGenerator()
+        nestGenerator = NestCodeGenerator()
         for ast in compilationUnits:
             for neuron in ast.getNeuronList():
-                # nestGenerator.generateNestCode(neuron)
-                pass
+                nestGenerator.generateNestCode(neuron)
+
 
 
 if __name__ == '__main__':

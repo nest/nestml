@@ -97,6 +97,42 @@ class ASTEquationsBlock(ASTElement):
                 return decl.getParent(_ast)
         return None
 
+    def getOdeEquations(self):
+        """
+        Returns a list of all ode equations in this block.
+        :return: a list of all ode equations.
+        :rtype: list(ASTOdeEquations)
+        """
+        ret = list()
+        for decl in self.getDeclarations():
+            if isinstance(decl, ASTOdeEquation):
+                ret.append(decl)
+        return ret
+
+    def getOdeShapes(self):
+        """
+        Returns a list of all ode shapes in this block.
+        :return: a list of all ode shapes.
+        :rtype: list(ASTOdeShape)
+        """
+        ret = list()
+        for decl in self.getDeclarations():
+            if isinstance(decl, ASTOdeShape):
+                ret.append(decl)
+        return ret
+
+    def getOdeFunctions(self):
+        """
+        Returns a list of all ode functions in this block.
+        :return: a list of all ode shapes.
+        :rtype: list(ASTOdeShape)
+        """
+        ret = list()
+        for decl in self.getDeclarations():
+            if isinstance(decl, ASTOdeFunction):
+                ret.append(decl)
+        return ret
+
     def printAST(self):
         """
         Returns a string representation of the equations block.

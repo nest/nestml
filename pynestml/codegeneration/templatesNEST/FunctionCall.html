@@ -3,8 +3,8 @@
   @grammar:   functionCall : calleeName=NAME '(' (expression (',' expression)*)? ')';
   @param ast ASTFunctionCall
 #}
-{% if astUtils.isIntegrate(ast) %}
+{% if utils.isIntegrate(ast) %}
 {% include "GSLIntegrator.html" %}
 {% else %}
-{{expressionsPrinter.printMethodCall(ast)}};
+{{printer.printMethodCall(ast)}};
 {% endif %}

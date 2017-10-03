@@ -7,15 +7,15 @@
 
 {% if variable.isFunction() and not variable.containsSumCall() %}
   inline {{declarations.printVariableType(variable)}} {{names.getter(variable)}}() const {
-    {% set simpleExpression = odeTransformer.replaceSumCalls(variable.getDeclaringExpression().get()) %}
-    return {{expressionsPrinter.print(simpleExpression)}};
+    {% set simpleExpression = odeTransformer.replaceSumCalls(variable.getDeclaringExpression()) %}
+    return {{printer.printExpression(simpleExpression)}};
   }
 {% else %}
   inline {{declarations.printVariableType(variable)}} {{names.getter(variable)}}() const {
-    return {{variableHelper.printOrigin(variable)}} {{names.name(variable)}};
+    return {{printer.printOrigin(variable)}} {{names.name(variable)}};
   }
 
   inline void {{names.setter(variable)}}(const {{declarations.printVariableType(variable)}} __v) {
-    {{variableHelper.printOrigin(variable)}} {{names.name(variable)}} = __v;
+    {{printer.printOrigin(variable)}} {{names.name(variable)}} = __v;
   }
 {% endif %}

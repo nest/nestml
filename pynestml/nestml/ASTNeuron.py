@@ -20,6 +20,7 @@
 
 
 from pynestml.nestml.ASTBody import ASTBody
+from pynestml.nestml.VariableSymbol import VariableSymbol
 from pynestml.nestml.ASTElement import ASTElement
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
@@ -190,7 +191,7 @@ class ASTNeuron(ASTElement):
 
     def getEquationsBlocks(self):
         """
-        Returns a list of all equations blocks defined in this body.
+        Returns a list of all equations BLOCKS defined in this body.
         :return: a list of equations-blocks.
         :rtype: list(ASTEquationsBlock)
         """
@@ -203,6 +204,24 @@ class ASTNeuron(ASTElement):
             return ret[0]
         elif isinstance(ret, list) and len(ret) == 0:
             return None
+        else:
+            return ret
+
+    def getEquations(self):
+        """
+        Returns all ode equations as defined in this neuron.
+        :return list of ode-equations
+        :rtype list(ASTOdeEquation)
+        """
+        from pynestml.nestml.ASTEquationsBlock import ASTEquationsBlock
+        ret = list()
+        blocks = self.getEquationsBlocks()
+        # the get equations block is not deterministic method, it can return a list or a single object.
+        if isinstance(blocks, list):
+            for block in blocks:
+                ret.extend(block.getOdeEquations())
+        elif isinstance(blocks, ASTEquationsBlock):
+            return blocks.getOdeEquations()
         else:
             return ret
 
@@ -228,27 +247,39 @@ class ASTNeuron(ASTElement):
         """
         Returns a list of all defined input buffers.
         :return: a list of all input buffers.
-        :rtype: list(ASTInputLine)
+        :rtype: list(VariableSymbol)
         """
         from pynestml.nestml.VariableSymbol import BlockType
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
-                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT:
+            if isinstance(symbol, VariableSymbol) and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
+                                                                   symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
 
     def getSpikeBuffers(self):
         """
         Returns a list of all spike input buffers defined in the model.
-        :return: a list of all spike input buffers
-        :rtype: list(ASTInputLine)
+        :return: a list of all spike input buffers.
+        :rtype: list(VariableSymbol)
         """
         ret = list()
-        for buffer in self.getInputBuffers():
-            if buffer.isSpikeBuffer():
-                ret.append(buffer)
+        for BUFFER in self.getInputBuffers():
+            if BUFFER.isSpikeBuffer():
+                ret.append(BUFFER)
+        return ret
+
+    def getCurrentBuffers(self):
+        """
+        Returns a list of all current buffers defined in the model.
+        :return: a list of all current input buffers.
+        :rtype: list(VariableSymbol)
+        """
+        ret = list()
+        for BUFFER in self.getInputBuffers():
+            if BUFFER.isCurrentBuffer():
+                ret.append(BUFFER)
         return ret
 
     def getParameterSymbols(self):
@@ -261,7 +292,7 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.PARAMETERS:
+            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.PARAMETERS:
                 ret.append(symbol)
         return ret
 
@@ -275,7 +306,7 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.STATE:
+            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.STATE:
                 ret.append(symbol)
         return ret
 
@@ -289,7 +320,7 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.INTERNALS:
+            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.INTERNALS:
                 ret.append(symbol)
         return ret
 
@@ -303,7 +334,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.EQUATION and symbol.isFunction():
+            if isinstance(symbol,
+                          VariableSymbol) and symbol.getBlockType() == BlockType.EQUATION and symbol.isFunction():
                 ret.append(symbol)
         return ret
 
@@ -355,7 +387,7 @@ class ASTNeuron(ASTElement):
         """
         buffers = self.getSpikeBuffers()
         for buffer in buffers:
-            if buffer.hasIndexParameter():
+            if buffer.hasVectorParameter():
                 return True
         return False
 
@@ -386,7 +418,7 @@ class ASTNeuron(ASTElement):
         for param in self.getParameterSymbols():
             if not param.isFunction():
                 ret.append(param)
-        return
+        return ret
 
     def getStateNonAliasSymbols(self):
         """
@@ -398,7 +430,7 @@ class ASTNeuron(ASTElement):
         for param in self.getStateSymbols():
             if not param.isFunction():
                 ret.append(param)
-        return
+        return ret
 
     def getInternalNonAliasSymbols(self):
         """
@@ -410,7 +442,101 @@ class ASTNeuron(ASTElement):
         for param in self.getInternalSymbols():
             if not param.isFunction():
                 ret.append(param)
-        return
+        return ret
+
+    def getOdeDefinedSymbols(self):
+        """
+        Returns a list of all variable symbols which have been defined in th intial_values blocks
+        and are provided with an ode.
+        :return: a list of initial value variables with odes
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.nestml.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInThisScope()
+        ret = list()
+        for symbol in symbols:
+            if symbol.getBlockType() == BlockType.INITIAL_VALUES and symbol.isOdeDefined():
+                ret.append(symbol)
+        return ret
+
+    def getStateSymbolsWithoutOde(self):
+        """
+        Returns a list of all elements which have been defined in the state block.
+        :return: a list of of state variable symbols.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.nestml.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInThisScope()
+        ret = list()
+        for symbol in symbols:
+            if symbol.getBlockType() == BlockType.STATE and not symbol.isOdeDefined():
+                ret.append(symbol)
+        return ret
+
+    def isArrayBuffer(self):
+        """
+        This method indicates whether this neuron uses buffers defined vector-wise.
+        :return: True if vector buffers defined, otherwise False.
+        :rtype: bool
+        """
+        buffers = self.getInputBuffers()
+        for BUFFER in buffers:
+            if BUFFER.hasVectorParameter():
+                return True
+        return False
+
+    def getParameterInvariants(self):
+        """
+        Returns a list of all invariants of all parameters.
+        :return: a list of expression representing invariants
+        :rtype: list(ASTExpression)
+        """
+        from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+        ret = list()
+        blocks = self.getParameterBlocks()
+        # the get parameters block is not deterministic method, it can return a list or a single object.
+        if isinstance(blocks, list):
+            for block in blocks:
+                for decl in block.getDeclarations():
+                    if decl.hasInvariant():
+                        ret.append(decl.getInvariant())
+        elif isinstance(blocks, ASTBlockWithVariables):
+            for decl in blocks.getDeclarations():
+                if decl.hasInvariant():
+                    ret.append(decl.getInvariant())
+        return ret
+
+    def printDynamicsComment(self):
+        """
+        Prints the dynamic block comment.
+        :return: the corresponding comment.
+        :rtype: str
+        """
+        return 'TODO comment dynamics block'
+
+    def printParameterComment(self):
+        """
+        Prints the update block comment.
+        :return: the corresponding comment.
+        :rtype: str
+        """
+        return 'TODO comment parameter block'
+
+    def printStateComment(self):
+        """
+        Prints the state block comment.
+        :return: the corresponding comment.
+        :rtype: str
+        """
+        return 'TODO comment state block'
+
+    def printInternalComment(self):
+        """
+        Prints the internal block comment.
+        :return: the corresponding comment.
+        :rtype: str
+        """
+        return 'TODO comment internal block'
 
     def printComment(self):
         """

@@ -33,6 +33,7 @@ class FrontendConfiguration(object):
     __loggingLevel = None
     __dryRun = None
     __targetPath = None
+    __moduleName = None
 
     @classmethod
     def config(cls, _args=None):
@@ -50,13 +51,17 @@ class FrontendConfiguration(object):
         cls.__argumentParser.add_argument('-path', type=str, nargs='+',
                                           help='Path to a single file or a directory containing the source models.')
         cls.__argumentParser.add_argument('-target', metavar='Target', type=str, nargs='?',
-                                          help='Path to a target directory where models should be generated to.')
+                                          help='Path to a target directory where models should be generated to. '
+                                               'Standard is "buildNest".')
         cls.__argumentParser.add_argument('-dry', action='store_true',
                                           help='Indicates that a dry run shall be performed, i.e.,'
                                                ' without generating a target model.')
         cls.__argumentParser.add_argument('-logging_level', type=str, nargs='?',
                                           help='Indicates which messages shall be logged and printed to the'
-                                               'screen. Available ={ALL,WARNING/S,ERROR/S,NO}, Standard is ERRORS.')
+                                               'screen. Available ={INFO,WARNING/S,ERROR/S,NO}, Standard is ERRORS.')
+        cls.__argumentParser.add_argument('-module_name', type=str, nargs='?',
+                                          help='Indicates the name of the module. Optional. If not indicated,'
+                                               'the name of the directory containing the models is used!')
         parsed_args = cls.__argumentParser.parse_args(_args)
         cls.__providedPath = parsed_args.path
         if cls.__providedPath is None:
@@ -76,7 +81,22 @@ class FrontendConfiguration(object):
         Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level))
         # check if a dry run shall be preformed, i.e. without generating a target model
         cls.__dryRun = parsed_args.dry
-        cls.__targetPath = str(os.path.realpath(os.path.join('..', '..', '..', '..', parsed_args.target)))
+        # check if a target has been selected, otherwise set the buildNest as target
+        if parsed_args.target is not None:
+            cls.__targetPath = str(os.path.realpath(os.path.join('..', parsed_args.target)))
+        else:
+            if not os.path.isdir(os.path.realpath(os.path.join('..', 'buildNest'))):
+                os.makedirs(os.path.realpath(os.path.join('..', 'buildNest')))
+            cls.__targetPath = str(os.path.realpath(os.path.join('..', 'buildNest')))
+        # now adjust the name of the module, if it is a single file, then it is called just module
+        if parsed_args.module_name is not None:
+            cls.__moduleName = parsed_args.module_name[0]
+        elif os.path.isfile(parsed_args.path[0]):
+            cls.__moduleName = 'module'
+        elif os.path.isdir(parsed_args.path[0]):
+            cls.__moduleName = os.path.basename(os.path.normpath(parsed_args.path[0]))
+        else:
+            cls.__moduleName = 'module'
         return
 
     @classmethod

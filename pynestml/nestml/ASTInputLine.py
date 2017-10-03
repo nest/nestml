@@ -227,6 +227,13 @@ class ASTInputLine(ASTElement):
                 return line.getParent(_ast)
         return None
 
+    def getMultipleReceptors(self):
+        """
+
+        :return:
+        :rtype:
+        """
+
     def printAST(self):
         """
         Returns a string representation of the input line.

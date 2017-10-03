@@ -3,7 +3,7 @@
   @grammar: WHILE_Stmt = "while" Expr BLOCK_OPEN Block BLOCK_CLOSE;
   @param ast ASTWhileStmt
 #}
-while( {{expressionsPrinter.printExpression(ast.getCondition())}}) {
+while( {{printer.printExpression(ast.getCondition())}}) {
 {% with ast = ast.getBlock()) %}
 {% include "Block.html" %}
 {% endwith %}

@@ -155,6 +155,15 @@ class VariableSymbol(Symbol):
         """
         return self.__declaringExpression
 
+    def hasDeclaringExpression(self):
+        """
+        Indicates whether a declaring expression is present.
+        :return: True if present, otherwise False.
+        :rtype: bool
+        """
+        return self.__declaringExpression is not None and (isinstance(self.__declaringExpression, ASTSimpleExpression)
+                                                           or isinstance(self.__declaringExpression, ASTExpression))
+
     def isPredefined(self):
         """
         Returns whether this symbol is a predefined one or not.
@@ -434,13 +443,28 @@ class VariableSymbol(Symbol):
         """
         return False  # todo
 
-    def printComment(self):
+    def printComment(self, _prefix=None):
         """
         Prints the stored comment.
         :return: the corresponding comment.
         :rtype: str
         """
+        # TODO
         return 'TODO comment in variable symbol'
+
+    def containsSumCall(self):
+        """
+        Indicates whether the declaring expression of this variable symbol has a x_sum or convolve in it.
+        :return: True if contained, otherwise False.
+        :rtype: bool
+        """
+        if not self.isOdeDefined():
+            return False
+        else:
+            for func in self.getOdeDefinition().getFunctions():
+                if func.getName() == 'convolve' or func.getName() == 'cond_sum' or func.getName() == 'curr_sum':
+                    return True
+        return False
 
 
 class BlockType(Enum):

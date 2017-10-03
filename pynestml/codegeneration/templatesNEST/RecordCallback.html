@@ -7,8 +7,8 @@
   @result C++ statement
 #}
 
-{% set varDomain = declarationsHelper.getDomainFromType(variable.getTypeSymbol()) %}
+{% set varDomain = declarations.getDomainFromType(variable.getTypeSymbol()) %}
 
 {% if varDomain == "double" and variable.isRecordable() %}
-insert_("{{variable.getSymbolName()}}", &{{neuronName}}::{{namesConverter.getter(variable)}});
+insert_("{{variable.getSymbolName()}}", &{{neuronName}}::{{names.getter(variable)}});
 {% endif %}

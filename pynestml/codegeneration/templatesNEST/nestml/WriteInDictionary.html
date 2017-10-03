@@ -1,8 +1,0 @@
-{#
-  Generates code that
-
-  @param variable VariableSymbol
-#}
-{% if not variable.isInternals() %}
-  def< {{declarationsHelper.printVariableType(variable)}} >(__d, "{{variable.getSymbolName()}}", {{namesConverter.getter(variable)}}());
-{% endif %}

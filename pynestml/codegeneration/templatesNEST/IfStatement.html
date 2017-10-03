@@ -1,4 +1,4 @@
-{%
+{#
   Generates C++ declaration
   @grammar:   IF_Stmt = IF_Clause
                         ELIF_Clause*
@@ -8,13 +8,13 @@
                         ELIF_Clause = "elif" Expr BLOCK_OPEN Block;
 
   @param ast ASTIfStmt
-%}
-if ({{expressionsPrinter.printExpression(ast.getIfClause().getCondition())}}) {
+#}
+if ({{printer.printExpression(ast.getIfClause().getCondition())}}) {
 {% with ast = ast.getIfClause().getBlock() %}
 {% include "Block.html" %}
 {% endwith %}
 {% for elif in ast.getElifClauses() %}
-} else if({{expressionsPrinter.printExpression(elif.getCondition())}}) {
+} else if({{printer.printExpression(elif.getCondition())}}) {
 {% with ast = elif.getBlock() %}
 {% include "Block.html" %}
 {% endwith %}

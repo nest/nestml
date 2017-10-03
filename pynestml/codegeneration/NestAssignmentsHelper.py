@@ -62,7 +62,7 @@ class NestAssignmentsHelper(object):
         elif _assignment.isCompoundQuotient():
             return '/='
         else:
-            return '=a'
+            return '='
 
     def isVectorizedAssignment(self, _assignment=None):
         """
