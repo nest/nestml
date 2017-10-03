@@ -20,7 +20,7 @@
 *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 *
 */
-#}
+-#}
 /*
 *  {{neuronName}}.h
 *
@@ -89,11 +89,11 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 
   Parameters:
   The following parameters can be set in the status dictionary.
-  {% for parameter in neuron.getParameterSymbols() %}
-  {% if parameter.hasComment() %}
+  {% for parameter in neuron.getParameterSymbols() -%}
+  {% if parameter.hasComment() -%}
     {{parameter.getSymbolName()}} {{parameter.printComment()}}
-  {% endif %}
-  {% endfor %}
+  {% endif -%}
+  {% endfor -%}
 
   Dynamic state variables:
   {% for state in neuron.getStateSymbols() %}
@@ -122,7 +122,7 @@ public:
   *       Initialization of buffers and interal variables is deferred to
   *       @c init_buffers_() and @c calibrate().
   */
-  {{neuronName}}(const {{neuronName}}&);
+  {{neuronName}}(const {{neuronName}} &);
 
   /**
   * Releases resources.
@@ -148,20 +148,20 @@ public:
   * defining @c handle() and @c connect_sender() for the given event.
   * @{
   */
-  {% if isSpikeInput %}
+  {% if isSpikeInput -%}
   void handle(nest::SpikeEvent &);        //! accept spikes
-  {% endif %}
-  {% if isCurrentInput %}
+  {% endif -%}
+  {% if isCurrentInput -%}
   void handle(nest::CurrentEvent &);      //! accept input current
-  {% endif %}
+  {% endif -%}
   void handle(nest::DataLoggingRequest &);//! allow recording with multimeter
 
-  {% if isSpikeInput %}
+  {% if isSpikeInput -%}
   nest::port handles_test_event(nest::SpikeEvent&, nest::port);
-  {% endif %}
-  {% if isCurrentInput %}
+  {% endif -%}
+  {% if isCurrentInput -%}
   nest::port handles_test_event(nest::CurrentEvent&, nest::port);
-  {% endif %}
+  {% endif -%}
   nest::port handles_test_event(nest::DataLoggingRequest&, nest::port);
   /** @} */
 
@@ -170,8 +170,7 @@ public:
   void set_status(const DictionaryDatum &);
 
 private:
-
-  {% if (neuron.getMultipleReceptors())|length > 1 %}
+  {% if (neuron.getMultipleReceptors())|length > 1 -%}
     /**
      * Synapse types to connect to
      * @note Excluded upper and lower bounds are defined as INF_, SUP_.
@@ -180,12 +179,12 @@ private:
     enum SynapseTypes
     {
       INF_SPIKE_RECEPTOR = 0,
-      {% for buffer in neuron.getMultipleReceptors() %}
+      {% for buffer in neuron.getMultipleReceptors() -%}
         {{buffer.getSymbolName().upper()}} ,
-      {% endfor %}
+      {% endfor -%}
       SUP_SPIKE_RECEPTOR
     };
-  {% endif %}
+  {% endif -%}
   //! Reset parameters and state of neuron.
 
   //! Reset state of neuron.
@@ -207,7 +206,7 @@ private:
   /**
   * Free parameters of the neuron.
   *
-  * {# {neuron.printParameterComment()} #}
+  * {{ neuron.printParameterComment() }}
   *
   * These are the parameters that can be set by the user through @c SetStatus.
   * They are initialized from the model prototype when the node is created.
@@ -225,14 +224,14 @@ private:
   *         assignment operator to copy those members.
   */
   struct Parameters_
-  {
-    {% for variable in neuron.getParameterNonAliasSymbols() %}
-      {% include 'MemberDeclaration.html' %}
-    {% endfor %}
+  { {% filter indent(4,True) %}
+    {% for variable in neuron.getParameterNonAliasSymbols() -%}
+      {% include 'MemberDeclaration.html' -%}
+    {% endfor -%}{% endfilter %}
 
-    {% if useGSL %}
+    {% if useGSL -%}
     double __gsl_error_tol;
-    {% endif %}
+    {% endif -%}
 
     /** Initialize parameters to their default values. */
     Parameters_();
@@ -260,30 +259,30 @@ private:
   */
   struct State_
   {
-    {% if not useGSL %}
-      {% for variable in neuron.getStateNonAliasSymbols() %}
-        {% include "MemberDeclaration.html" %}
-      {% endfor %}
-    {% else %}
+    {% if not useGSL %}{% filter indent(4,True) -%}
+      {% for variable in neuron.getStateNonAliasSymbols() -%}
+        {% include "MemberDeclaration.html" -%}
+      {% endfor -%}{% endfilter -%}
+    {% else -%}
       //! Symbolic indices to the elements of the state vector y
       enum StateVecElems
       {
-        {% for variable in neuron.getOdeDefinedSymbols() %}
+        {% for variable in neuron.getOdeDefinedSymbols() -%}
           {{names.convertToCPPName(variable.getSymbolName())}}, {{variable.printComment("// ")}}
-        {% endfor %}
+        {% endfor -%}
         STATE_VEC_SIZE
       };
       //! state vector, must be C-array for GSL solver
-      double y[ STATE_VEC_SIZE ];
-      {% for variable in neuron.getStateSymbolsWithoutOde() %}
-        {% include "MemberDeclaration.html" %}
-      {% endfor %}
-    {% endif %}
+      double y[ STATE_VEC_SIZE ];{% filter indent(4,True) -%}
+      {% for variable in neuron.getStateSymbolsWithoutOde() -%}
+        {% include "MemberDeclaration.html" -%}
+      {% endfor -%}{% endfilter -%}
+    {% endif -%}
 
-    {% for odeAlias in neuron.getODEAliases() %}
-      {% with variable = odeAlias %}
-      {% include "MemberDeclaration.html" %}
-      {% endwith %}
+    {% for odeAlias in neuron.getODEAliases() -%}{% filter indent(4,True) -%}
+      {% with variable = odeAlias -%}
+      {% include "MemberDeclaration.html" -%}
+      {% endwith -%}{% endfilter -%}
     {% endfor %}
 
     State_();
@@ -301,8 +300,8 @@ private:
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
   struct Variables_ {
-    {% for variable in neuron.getInternalNonAliasSymbols() %}
-      {% include "MemberDeclaration.html" %}
+    {% for variable in neuron.getInternalNonAliasSymbols() -%}
+      {% filter indent(4,True) %}{% include "MemberDeclaration.html" -%}{% endfilter %}
     {% endfor %}
   };
 
@@ -317,53 +316,51 @@ private:
     *       cannot destroy themselves, Buffers_ will need a destructor.
     */
   struct Buffers_ {
-    Buffers_({{neuronName}}&);
-    Buffers_(const Buffers_ &, {{neuronName}}&);
+    Buffers_({{neuronName}} &);
+    Buffers_(const Buffers_ &, {{neuronName}} &);
 
     /** Logger for all analog data */
     nest::UniversalDataLogger<{{neuronName}}> logger_;
     {% if ((neuron.getMultipleReceptors())|length > 1) or neuron.isArrayBuffer() %}
-      std::vector<long> receptor_types_;
+    std::vector<long> receptor_types_;
     {% endif %}
 
-    {% if ((neuron.getMultipleReceptors())|length > 1) %}
-      /** buffers and sums up incoming spikes/currents */
-      std::vector< nest::RingBuffer > spike_inputs_;
+    {%- if ((neuron.getMultipleReceptors())|length > 1) -%}
+    /** buffers and sums up incoming spikes/currents */
+    std::vector< nest::RingBuffer > spike_inputs_;
 
-      {% for inputLine in neuron.getSpikeBuffers() %}
-        {{printer.printBufferArrayGetter(inputLine)}}
-        {{printer.printBufferDeclarationValue(inputLine)}};
-      {% endfor %}
+    {% for inputLine in neuron.getSpikeBuffers() %}
+    {{printer.printBufferArrayGetter(inputLine)}}
+    {{printer.printBufferDeclarationValue(inputLine)}};
+    {% endfor %}
+    {% else -%}
+    {% for inputLine in neuron.getSpikeBuffers() %}
+    {{printer.printBufferGetter(inputLine, true)}}
+    {{printer.printBufferDeclaration(inputLine)}};
+    {{printer.printBufferDeclarationValue(inputLine)}};
+    {% endfor %}
+    {% endif -%}
 
-    {% else %}
-      {% for inputLine in neuron.getSpikeBuffers() %}
-        {{printer.printBufferGetter(inputLine, true)}}
-        {{printer.printBufferDeclaration(inputLine)}};
-        {{printer.printBufferDeclarationValue(inputLine)}};
-      {% endfor %}
-
-    {% endif %}
-
-    {% for inputLine in neuron.getCurrentBuffers() %}
-      {{printer.printBufferDeclaration(inputLine)}};
-      {{printer.printBufferGetter(inputLine, true)}}
-      {{printer.printBufferDeclarationValue(inputLine)}};
+    {% for inputLine in neuron.getCurrentBuffers() -%}
+    {{printer.printBufferDeclaration(inputLine)}};
+    {{printer.printBufferGetter(inputLine, true)}}
+    {{printer.printBufferDeclarationValue(inputLine)}};
     {% endfor %}
 
-    {% if useGSL %}
-      /** GSL ODE stuff */
-      gsl_odeiv_step* __s;    //!< stepping function
-      gsl_odeiv_control* __c; //!< adaptive stepsize control function
-      gsl_odeiv_evolve* __e;  //!< evolution function
-      gsl_odeiv_system __sys; //!< struct describing system
+    {%- if useGSL -%}
+    /** GSL ODE stuff */
+    gsl_odeiv_step* __s;    //!< stepping function
+    gsl_odeiv_control* __c; //!< adaptive stepsize control function
+    gsl_odeiv_evolve* __e;  //!< evolution function
+    gsl_odeiv_system __sys; //!< struct describing system
 
-      // IntergrationStep_ should be reset with the neuron on ResetNetwork,
-      // but remain unchanged during calibration. Since it is initialized with
-      // step_, and the resolution cannot change after nodes have been created,
-      // it is safe to place both here.
-      double __step;             //!< step size in ms
-      double __integration_step; //!< current integration time step, updated by GSL
-    {% endif %}
+    // IntergrationStep_ should be reset with the neuron on ResetNetwork,
+    // but remain unchanged during calibration. Since it is initialized with
+    // step_, and the resolution cannot change after nodes have been created,
+    // it is safe to place both here.
+    double __step;             //!< step size in ms
+    double __integration_step; //!< current integration time step, updated by GSL
+    {%- endif -%}
   };
 
   {% for state in neuron.getStateSymbols() %}

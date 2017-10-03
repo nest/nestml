@@ -52,7 +52,7 @@ class PredefinedVariables:
         Registers all predefined type variables, e.g., mV and integer.
         """
         for name in PredefinedTypes.getTypes().keys():
-            symbol = VariableSymbol(_name=name, _blockType=BlockType.STATE,
+            symbol = VariableSymbol(_name=name, _blockType=BlockType.UNIT,
                                     _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists(name))
             cls.__name2VariableSymbol[name] = symbol
         return

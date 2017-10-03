@@ -1,0 +1,125 @@
+/*
+Name: aeif_cond_alpha -  Conductance based exponential integrate-and-fire neuron
+                         model according to Brette and Gerstner (2005).
+
+Description:
+aeif_cond_alpha is the adaptive exponential integrate and fire neuron according
+to Brette and Gerstner (2005).
+Synaptic conductances are modelled as alpha-functions.
+
+This implementation uses the embedded 4th order Runge-Kutta-Fehlberg solver with
+adaptive step size to integrate the differential equation.
+
+The membrane potential is given by the following differential equation:
+C dV/dt= -g_L(V-E_L)+g_L*Delta_T*exp((V-V_T)/Delta_T)-g_e(t)(V-E_e)
+                                                     -g_i(t)(V-E_i)-w +I_e
+
+and
+
+tau_w * dw/dt= a(V-E_L) -W
+
+Author: Marc-Oliver Gewaltig
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
+
+References: Brette R and Gerstner W (2005) Adaptive Exponential
+            Integrate-and-Fire Model as an Effective Description of Neuronal
+            Activity. J Neurophysiol 94:3637-3642
+
+SeeAlso: iaf_cond_alpha, aeif_cond_exp
+*/
+neuron aeif_cond_alpha_implicit:
+  state:
+    # counts number of tick during the refractory period
+    r integer
+  end
+  initial_values:
+    V_m mV = E_L
+    #  Membrane potential
+    w pA = 0*pA
+    #  Membrane potential
+    g_in 1 / GOhm = 0*nS
+    g_in' A / MA = nS*e/tau_syn_in
+    g_ex 1 / GOhm = 0*nS
+    g_ex' A / MA = nS*e/tau_syn_ex
+  end
+  parameters:
+    C_m pF = 281.0*pF
+    t_ref ms = 0.0*ms
+    V_reset mV = ((-60.0)*mV)
+    g_L 1 / GOhm = 30.0*nS
+    E_L mV = ((-70.6)*mV)
+    # Threshold Potential in mV
+    I_e pA = 0*pA
+    # Threshold Potential in mV
+    # K Conductance
+    a 1 / GOhm = 4*nS
+    # K Conductance
+    b pA = 80.5*pA
+    # K Conductance
+    # Leak Conductance
+    Delta_T mV = 2.0*mV
+    # Leak Conductance
+    tau_w ms = 144.0*ms
+    # Leak Conductance
+    # Membrane Capacitance in pF
+    V_th mV = ((-50.4)*mV)
+    # Membrane Capacitance in pF
+    V_peak mV = 0*mV
+    # Membrane Capacitance in pF
+    # Reversal potentials
+    E_ex mV = 0*mV
+    # Reversal potentials
+    tau_syn_ex ms = 0.2*ms
+    # Reversal potentials
+    # Potassium reversal potential
+    E_in mV = ((-85.0)*mV)
+    # Potassium reversal potential
+    tau_syn_in ms = 2.0*ms
+  end
+  internals:
+    # Voltage offset that controls dynamics. For default
+    # parameters, V_T = -63mV results in a threshold around -50mV.
+    RefractoryCounts integer = steps(t_ref)
+  end
+  update:
+    integrate_odes()
+    if r>0:
+      r -= 1
+      V_m = V_reset
+    elif V_m>=V_peak:
+      r = RefractoryCounts
+      V_m = V_reset
+      w += b
+      emit_spike()
+    end
+    g_ex += spikesExc*0*nS
+    g_ex' += spikesExc*nS*e/tau_syn_ex
+    g_in += spikesInh*0*nS
+    g_in' += spikesInh*nS*e/tau_syn_in
+  end
+  equations:
+    # alpha function for the g_in
+    shape g_in'' = (((-2))/tau_syn_in)*g_in'-(1/((tau_syn_in))**((2)))*g_in
+    shape g_in' = g_in'
+    # alpha function for the g_ex
+    shape g_ex'' = (((-2))/tau_syn_ex)*g_ex'-(1/((tau_syn_ex))**((2)))*g_ex
+    shape g_ex' = g_ex'
+    function V_bounded mV = min(V_m, V_peak)
+    # Add aliases to simplify the equation definition of V_m
+    function exp_arg real = (V_bounded-V_th)/Delta_T
+    function I_spike pA = g_L*Delta_T*exp(exp_arg)
+    function I_syn_exc pA = cond_sum(g_ex, spikesExc)*(V_bounded-E_ex)
+    function I_syn_inh pA = cond_sum(g_in, spikesInh)*(V_bounded-E_in)
+    V_m' = (((-g_L))*(V_bounded-E_L)+I_spike-I_syn_exc-I_syn_inh-w+I_e+currents)/C_m
+    w' = (a*(V_bounded-E_L)-w)/tau_w
+  end
+  input:
+    spikesInh <- inhibitory spike
+    spikesExc <- excitatory spike
+    currents <- current
+  end
+  output: spike
+end

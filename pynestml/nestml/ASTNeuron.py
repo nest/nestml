@@ -292,7 +292,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.PARAMETERS:
+            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.PARAMETERS and \
+                    not symbol.isPredefined():
                 ret.append(symbol)
         return ret
 
@@ -306,7 +307,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.STATE:
+            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.STATE and \
+                    not symbol.isPredefined():
                 ret.append(symbol)
         return ret
 
@@ -320,7 +322,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.INTERNALS:
+            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.INTERNALS and \
+                    not symbol.isPredefined():
                 ret.append(symbol)
         return ret
 
@@ -399,6 +402,7 @@ class ASTNeuron(ASTElement):
         """
         from pynestml.nestml.Symbol import SymbolKind
         ret = list()
+        temp = self.getSpikeBuffers()
         for buffer in self.getSpikeBuffers():
             if buffer.isExcitatory() and buffer.isInhibitory():
                 symbol = buffer.getScope().resolveToSymbol(buffer.getName(), SymbolKind.VARIABLE)
@@ -416,7 +420,7 @@ class ASTNeuron(ASTElement):
         """
         ret = list()
         for param in self.getParameterSymbols():
-            if not param.isFunction():
+            if not param.isFunction() and not param.isPredefined():
                 ret.append(param)
         return ret
 
@@ -428,7 +432,7 @@ class ASTNeuron(ASTElement):
         """
         ret = list()
         for param in self.getStateSymbols():
-            if not param.isFunction():
+            if not param.isFunction() and not param.isPredefined():
                 ret.append(param)
         return ret
 
@@ -440,7 +444,7 @@ class ASTNeuron(ASTElement):
         """
         ret = list()
         for param in self.getInternalSymbols():
-            if not param.isFunction():
+            if not param.isFunction() and not param.isPredefined():
                 ret.append(param)
         return ret
 
@@ -455,7 +459,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.INITIAL_VALUES and symbol.isOdeDefined():
+            if symbol.getBlockType() == BlockType.INITIAL_VALUES and symbol.isOdeDefined() \
+                    and not symbol.isPredefined() and not symbol.isPredefined():
                 ret.append(symbol)
         return ret
 
@@ -469,7 +474,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.STATE and not symbol.isOdeDefined():
+            if symbol.getBlockType() == BlockType.STATE and not symbol.isOdeDefined() \
+                    and not symbol.isPredefined() and not symbol.isPredefined():
                 ret.append(symbol)
         return ret
 

@@ -126,5 +126,5 @@ class ShapeCollectingVisitor(NESTMLVisitor):
         :param _odeShape: a single shape node.
         :type _odeShape: ASTOdeShape
         """
-        self.__shapeNames.append(_odeShape.getVariable().getCompleteName())
+        self.__shapeNames.append(_odeShape.getVariable().getNameOfLhs())
         return

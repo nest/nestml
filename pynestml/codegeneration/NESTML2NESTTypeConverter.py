@@ -41,7 +41,8 @@ class NESTML2NESTTypeConverter(object):
             return 'std::string'
         if _typeSymbol.equals(PredefinedTypes.getVoidType()):
             return 'void'
-        # todo: we now have type symbols of type buffer, consider it and buffers in general
+        if _typeSymbol.isBuffer():
+            return 'nest::RingBuffer'
         if _typeSymbol.equals(PredefinedTypes.getBooleanType()):
             return 'bool'
         if _typeSymbol.equals(PredefinedTypes.getRealType()):

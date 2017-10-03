@@ -441,7 +441,7 @@ class VariableSymbol(Symbol):
         :return: True if comment is stored, otherwise False.
         :rtype: bool
         """
-        return False  # todo
+        return True  # todo
 
     def printComment(self, _prefix=None):
         """
@@ -449,8 +449,12 @@ class VariableSymbol(Symbol):
         :return: the corresponding comment.
         :rtype: str
         """
-        # TODO
-        return 'TODO comment in variable symbol'
+        assert (_prefix is None or isinstance(_prefix,str)),\
+            '(PyNestML.SymbolTable.VariableSymbol) Wrong type of prefix provided (%s)!' %type(_prefix)
+        if _prefix is not None:
+            return _prefix +'TODO comment in variable symbol'
+        else:
+            return 'TODO comment in variable symbol'
 
     def containsSumCall(self):
         """
@@ -478,3 +482,4 @@ class BlockType(Enum):
     OUTPUT = 8
     SHAPE = 9
     INITIAL_VALUES = 10
+    UNIT = 11

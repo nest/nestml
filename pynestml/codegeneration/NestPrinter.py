@@ -258,16 +258,16 @@ class NestPrinter(object):
             '(PyNestMl.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
         assert (_isInStruct is not None and isinstance(_isInStruct, bool)), \
             '(PyNestMl.CodeGeneration.Printer) No or wrong type of is-in-struct provided (%s)!' % type(_isInStruct)
-        declaration = 'inline'
+        declaration = 'inline '
         if _buffer.hasVectorParameter():
-            declaration += 'std::vector< '
+            declaration += 'std::vector<'
             declaration += NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol())
-            declaration += ' > &'
+            declaration += '> &'
         else:
             declaration += NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol()) + '&'
         declaration += ' get_' + _buffer.getSymbolName() + '() {'
         if _isInStruct:
-            declaration += 'return' + _buffer.getSymbolName() + ';'
+            declaration += 'return ' + _buffer.getSymbolName() + ';'
         else:
             declaration += 'return B_.get_' + _buffer.getSymbolName() + '();'
         declaration += '}'
@@ -287,7 +287,7 @@ class NestPrinter(object):
         if _buffer.hasVectorParameter():
             return 'std::vector< double > ' + NestNamesConverter.bufferValue(_buffer)
         else:
-            return "double " + NestNamesConverter.bufferValue(_buffer)
+            return 'double ' + NestNamesConverter.bufferValue(_buffer)
 
     @classmethod
     def printBufferDeclaration(cls, _buffer=None):
@@ -306,7 +306,7 @@ class NestPrinter(object):
         bufferType.replace(".", "::")
 
         return "//!< Buffer incoming " + _buffer.getTypeSymbol().getSymbolName() + "s through delay, as sum\n" + \
-               bufferType + " " + _buffer.getSymbolName();
+               bufferType + " " + _buffer.getSymbolName()
 
 
 class RuntimeException(Exception):

@@ -197,7 +197,6 @@ class NestCodeGenerator(object):
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
-        return
         if not os.path.isdir(FrontendConfiguration.getTargetPath()):
             os.makedirs(FrontendConfiguration.getTargetPath())
         Logger.logMessage('Start generating header for %s...' % _neuron.getName(), LOGGING_LEVEL.INFO)
