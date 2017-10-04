@@ -13,7 +13,6 @@ import org.nest.nestml._visitor.NESTMLInheritanceVisitor;
 import org.nest.utils.AstUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.deserializeUnitIfNotPrimitive;
 
@@ -302,7 +301,9 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
   }
 
   public void handle(final ASTDeclaration astDeclaration) {
-    astDeclaration.getDocStrings().forEach(printer::println);
+    if (astDeclaration.getDocString().length() > 0) {
+      printer.println("# " + astDeclaration.getDocString());
+    }
 
     printAliasPrefix(astDeclaration);
     printDeclarationVariables(astDeclaration);

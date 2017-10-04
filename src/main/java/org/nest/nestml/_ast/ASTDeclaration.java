@@ -31,7 +31,7 @@ import java.util.List;
  * @author plotnikov
  */
 public class ASTDeclaration extends ASTDeclarationTOP {
-  private final List<String> docStrings = Lists.newArrayList();
+  private final StringBuilder docStrings = new StringBuilder();
 
   protected ASTDeclaration(){
 
@@ -48,12 +48,12 @@ public class ASTDeclaration extends ASTDeclarationTOP {
 
   }
 
-  public void addDocString(final String docString) {
-    docStrings.add(docString);
+  public void extendDocString(final String docString) {
+    docStrings.append(" ").append(docString.trim());
   }
 
-  public List<String> getDocStrings() {
-    return docStrings;
+  public String getDocString() {
+    return docStrings.toString();
   }
 
 }

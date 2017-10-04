@@ -119,7 +119,6 @@ public class NestmlFrontendTest {
     final String[] args = new String[] {
         "models/iaf_neuron.nestml",
         "--json_log", "model_issues",
-        "--enable_tracing",
         "--target", outputPath.toString()};
 
     new NestmlFrontend().start(args);

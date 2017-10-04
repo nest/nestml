@@ -5,14 +5,11 @@
  */
 package org.nest.nestml._parser;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import javafx.util.Pair;
 import org.antlr.v4.runtime.RecognitionException;
-import org.nest.codegeneration.sympy.AstCreator;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.UnitsSIVisitor;
 import org.nest.utils.AstUtils;
@@ -20,15 +17,10 @@ import org.nest.utils.AstUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
-import static org.nest.codegeneration.sympy.AstCreator.createEquation;
-import static org.nest.codegeneration.sympy.AstCreator.createShape;
 import static org.nest.utils.AstUtils.addTrivialOdes;
 
 /**
@@ -65,7 +57,7 @@ public class NESTMLParser extends NESTMLParserTOP {
       for (final ASTDeclaration astDeclaration:declarations) {
         int line = astDeclaration.get_SourcePositionStart().getLine();
         final List<String> variableComments = extractComments(sourceText, line - 1);
-        variableComments.forEach(astDeclaration::addDocString);
+        variableComments.forEach(astDeclaration::extendDocString);
       }
 
       // here additional shape odes are added
@@ -88,14 +80,14 @@ public class NESTMLParser extends NESTMLParserTOP {
     final List<String> result = Lists.newArrayList();
     String DOC_STRING_START = "#";
     if (sourceText.get(lineIndex).contains(DOC_STRING_START)) {
-      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf(DOC_STRING_START)).trim());
+      result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf(DOC_STRING_START) + 1).trim());
     }
 
     int searchBackIndex = lineIndex - 1;
     while (searchBackIndex > 0) {
       final String currentLine = sourceText.get(searchBackIndex);
       if (currentLine.trim().startsWith(DOC_STRING_START)) {
-        result.add(0, currentLine.substring(currentLine.indexOf(DOC_STRING_START)).trim());
+        result.add(0, currentLine.substring(currentLine.indexOf(DOC_STRING_START) + 1).trim());
       }
       else {
         break;
@@ -107,7 +99,7 @@ public class NESTMLParser extends NESTMLParserTOP {
     while (searchForwardIndex < sourceText.size()) {
       final String currentLine = sourceText.get(searchForwardIndex);
       if (currentLine.trim().startsWith(DOC_STRING_START)) {
-        result.add(currentLine.substring(currentLine.indexOf(DOC_STRING_START) ).trim());
+        result.add(currentLine.substring(currentLine.indexOf(DOC_STRING_START) + 1).trim());
       }
       else {
         break;
