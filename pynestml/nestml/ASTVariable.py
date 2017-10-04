@@ -136,6 +136,19 @@ class ASTVariable(ASTElement):
         """
         return None
 
+    def isUnitVariable(self):
+        """
+        Provided on-the-fly information whether this variable represents a unit-variable, e.g., nS.
+        Caution: It assumes that the symbol table has already been constructed.
+        :return: True if unit-variable, otherwise False.
+        :rtype: bool
+        """
+        from pynestml.nestml.PredefinedTypes import PredefinedTypes
+        if self.getName() in PredefinedTypes.getTypes():
+            return True
+        else:
+            return False
+
     def printAST(self):
         """
         Returns the string representation of the variable.

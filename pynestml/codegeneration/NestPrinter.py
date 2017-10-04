@@ -20,27 +20,46 @@
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.codegeneration.NESTML2NESTTypeConverter import NESTML2NESTTypeConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
+from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
+
 from pynestml.nestml.VariableSymbol import VariableSymbol
+from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
 
 
 class NestPrinter(object):
     """
     This class contains all methods as required to transform
     """
+    __expressionPrettyPrinter = None
 
-    @classmethod
-    def printExpression(cls, _ast=None):
+    def __init__(self, _expressionPrettyPrinter, _referenceConvert=None):
         """
+        The standard constructor.
+        :param _referenceConvert: a single reference converter
+        :type _referenceConvert:  IReferenceConverter
+        """
+        if _expressionPrettyPrinter is not None:
+            self.__expressionPrettyPrinter = _expressionPrettyPrinter
+        else:
+            self.__expressionPrettyPrinter = ExpressionsPrettyPrinter(_referenceConvert)
+        return
+
+    def printExpression(self, _ast=None):
+        """
+        Pretty
         Prints the handed over expression to a nest readable format.
         :param _ast: a single ast node.
         :type _ast: ASTExpression or ASTSimpleExpression
         :return: the corresponding string representation
         :rtype: str
         """
-        return "TODO expr"
+        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.nestml.ASTExpression import ASTExpression
+        # assert (_ast is not None and (isinstance(_ast, ASTSimpleExpression) or isinstance(_ast, ASTExpression))), \
+        #    '(PyNestML.CodeGeneration.Printer) No or wrong type of expression provided (%s)!' % type(_ast)
+        return self.__expressionPrettyPrinter.printExpression(_ast)
 
-    @classmethod
-    def printMethodCall(cls, _ast=None):
+    def printMethodCall(self, _ast=None):
         """
         Prints a single handed over function call.
         :param _ast: a single function call.
@@ -48,14 +67,22 @@ class NestPrinter(object):
         :return: the corresponding string representation.
         :rtype: str
         """
-        return "TODO function"
+        assert (_ast is not None and isinstance(_ast, ASTFunctionCall)), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of function call provided (%s)!' % type(_ast)
+        functionCall = _ast.getName() + '('
+        if _ast.hasArgs():
+            for arg in _ast.getArgs():
+                functionCall += self.printExpression(arg)
+                if _ast.getArgs().index(arg) < len(_ast.getArgs()) - 1:
+                    functionCall += ', '
+        functionCall += ')'
+        return functionCall
 
-    @classmethod
-    def printComparisonOperator(cls, _forStmt=None):
+    def printComparisonOperator(self, _forStmt=None):
         """
-        Prints a single handed over comparison operator to a Nest processable format.
-        :param _ast: a single comparison operator object.
-        :type _ast: ASTComparisonOperator
+        Prints a single handed over comparison operator for a for stmt to a Nest processable format.
+        :param _forStmt: a single for stmt
+        :type _forStmt: ASTForStmt
         :return: a string representation
         :rtype: str
         """
@@ -70,8 +97,7 @@ class NestPrinter(object):
         else:
             return '!='  # todo, this should not happen actually
 
-    @classmethod
-    def printVariable(cls, _ast=None):
+    def printVariable(self, _ast=None):
         """
         Prints a single handed over variable.
         :param _ast: a single variable
@@ -81,8 +107,7 @@ class NestPrinter(object):
         """
         return "TODO variable"
 
-    @classmethod
-    def printStep(cls, _forStmt=None):
+    def printStep(self, _forStmt=None):
         """
         Prints the step length to a nest processable format.
         :param _forStmt: a single for stmt
@@ -95,8 +120,7 @@ class NestPrinter(object):
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(_forStmt)
         return _forStmt.getStep()
 
-    @classmethod
-    def printOrigin(cls, _variableSymbol=None):
+    def printOrigin(self, _variableSymbol=None):
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param _variableSymbol: a single variable symbol.
@@ -125,8 +149,7 @@ class NestPrinter(object):
         else:
             return ''
 
-    @classmethod
-    def printOutputEvent(cls, _astBody=None):
+    def printOutputEvent(self, _astBody=None):
         """
         For the handed over neuron, this operations checks of output event shall be preformed.
         :param _astBody: a single neuron body
@@ -150,8 +173,7 @@ class NestPrinter(object):
         else:
             return 'none'
 
-    @classmethod
-    def printBufferInitialization(cls, _variableSymbol=None):
+    def printBufferInitialization(self, _variableSymbol=None):
         """
         Prints the buffer initialization.
         :param _variableSymbol: a single variable symbol.
@@ -161,8 +183,7 @@ class NestPrinter(object):
         """
         return 'get_' + _variableSymbol.getSymbolName() + '().clear(); //includes resize'
 
-    @classmethod
-    def printFunctionDeclaration(cls, _function=None):
+    def printFunctionDeclaration(self, _function=None):
         """
         Returns a nest processable function declaration head, i.e. the part which appears in the .h file.
         :param _function: a single function.
@@ -189,8 +210,7 @@ class NestPrinter(object):
         else:
             raise RuntimeException('Cannot resolve the method ' + _function.getName())
 
-    @classmethod
-    def printFunctionDefinition(cls, _function=None):
+    def printFunctionDefinition(self, _function=None):
         """
         Returns a nest processable function definition, i.e. the part which appears in the .c file.
         :param _function: a single function.
@@ -225,8 +245,7 @@ class NestPrinter(object):
         else:
             raise RuntimeException('Cannot resolve the method ' + _function.getName())
 
-    @classmethod
-    def printBufferArrayGetter(cls, _buffer=None):
+    def printBufferArrayGetter(self, _buffer=None):
         """
         Returns a string containing the nest declaration for a multi-receptor spike buffer.
         :param _buffer: a single buffer Variable Symbol
@@ -241,10 +260,9 @@ class NestPrinter(object):
                    + _buffer.getSymbolName() + '() {' + \
                    '  return spike_inputs_[' + _buffer.getSymbolName().upper() + ' - 1]; }'
         else:
-            return cls.printBufferGetter(_buffer, True)
+            return self.printBufferGetter(_buffer, True)
 
-    @classmethod
-    def printBufferGetter(cls, _buffer=None, _isInStruct=False):
+    def printBufferGetter(self, _buffer=None, _isInStruct=False):
         """
         Returns a string representation declaring a buffer getter as required in nest.
         :param _buffer: a single variable symbol representing a buffer.
@@ -273,8 +291,7 @@ class NestPrinter(object):
         declaration += '}'
         return declaration
 
-    @classmethod
-    def printBufferDeclarationValue(cls, _buffer=None):
+    def printBufferDeclarationValue(self, _buffer=None):
         """
         Returns a string representation for the declaration of a buffer's value.
         :param _buffer: a single buffer variable symbol
@@ -289,8 +306,7 @@ class NestPrinter(object):
         else:
             return 'double ' + NestNamesConverter.bufferValue(_buffer)
 
-    @classmethod
-    def printBufferDeclaration(cls, _buffer=None):
+    def printBufferDeclaration(self, _buffer=None):
         """
         Returns a string representation for the declaration of a buffer.
         :param _buffer: a single buffer variable symbol
@@ -307,8 +323,7 @@ class NestPrinter(object):
         bufferType.replace(".", "::")
         return bufferType + " " + _buffer.getSymbolName()
 
-    @classmethod
-    def printBufferDeclarationHeader(cls, _buffer=None):
+    def printBufferDeclarationHeader(self, _buffer=None):
         """
         Prints the comment as stated over the buffer declaration.
         :param _buffer: a single buffer variable symbol.

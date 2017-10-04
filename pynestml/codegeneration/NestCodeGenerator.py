@@ -212,6 +212,7 @@ class NestCodeGenerator(object):
         from pynestml.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
         from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
         from pynestml.codegeneration.NestPrinter import NestPrinter
+        from pynestml.codegeneration.LegacyExpressionPrinter import LegacyExpressionPrinter
         from pynestml.utils.OdeTransformer import OdeTransformer
         from pynestml.utils.ASTUtils import ASTUtils
         namespace = {}
@@ -219,7 +220,8 @@ class NestCodeGenerator(object):
         namespace['neuron'] = _neuron
         namespace['moduleName'] = 'TODO module name'
         # helper classes and objects
-        namespace['printer'] = NestPrinter()
+        legacyPrettyPrinter = LegacyExpressionPrinter()
+        namespace['printer'] = NestPrinter(_expressionPrettyPrinter=legacyPrettyPrinter)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()

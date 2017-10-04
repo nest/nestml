@@ -35,6 +35,8 @@ class OdeTransformer(object):
         :return: a new expression which does not contain those sums
         :rtype: ASTExpression/ASTSimpleExpression
         """
+        # todo
+        return _expression
         from pynestml.nestml.ASTExpression import ASTExpression
         from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
         if isinstance(_expression, ASTSimpleExpression) and _expression.isFunctionCall():
