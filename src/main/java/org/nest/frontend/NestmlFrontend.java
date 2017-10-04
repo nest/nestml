@@ -9,7 +9,6 @@ import com.google.common.base.Joiner;
 import de.se_rwth.commons.logging.Log;
 import org.apache.commons.cli.*;
 import org.nest.codegeneration.NestCodeGenerator;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.reporting.Reporter;
 import org.nest.utils.FilesHelper;
 
@@ -20,6 +19,8 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.nest.utils.FilesHelper.copyResource;
 
 /**
  * Handles available options set at the tool invocation. Makes minimal checks of the infrastructure:
@@ -231,7 +232,7 @@ public class NestmlFrontend {
   }
 
 
-  public static boolean checkEnvironment(final CliConfiguration cliConfiguration) {
+  private static boolean checkEnvironment(final CliConfiguration cliConfiguration) {
     try {
       FilesHelper.createFolders(cliConfiguration.getTargetPath());
     }
@@ -321,7 +322,7 @@ public class NestmlFrontend {
       final String copiedScriptName,
       final Path outputFolder) {
     try {
-      copyScript(checkScript, copiedScriptName, outputFolder);
+      copyResource(NestmlFrontend.class.getClassLoader(), checkScript, copiedScriptName, outputFolder);
 
       long start = System.nanoTime();
       final Process res;
@@ -344,22 +345,6 @@ public class NestmlFrontend {
       throw new RuntimeException(e);
     }
 
-  }
-
-  private static void copyScript(
-      final String checkerScript,
-      final String copiedScriptName,
-      final Path outputFolder) throws IOException {
-    final ClassLoader classloader = NestmlFrontend.class.getClassLoader();
-    final InputStream is = classloader.getResourceAsStream(checkerScript);
-    byte[] buffer = new byte[is.available()];
-    if (is.read(buffer) < 0) {
-      Log.error("Cannot copy the script " + checkerScript);
-    }
-
-    final OutputStream outStream = new FileOutputStream(
-        Paths.get(outputFolder.toString(), copiedScriptName).toString());
-    outStream.write(buffer);
   }
 
   private static List<String> getListFromStream(final InputStream inputStream) throws IOException {
