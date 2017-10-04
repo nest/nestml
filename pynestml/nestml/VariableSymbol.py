@@ -462,10 +462,10 @@ class VariableSymbol(Symbol):
         :return: True if contained, otherwise False.
         :rtype: bool
         """
-        if not self.isOdeDefined():
+        if not self.getDeclaringExpression():
             return False
         else:
-            for func in self.getOdeDefinition().getFunctions():
+            for func in self.getDeclaringExpression().getFunctions():
                 if func.getName() == 'convolve' or func.getName() == 'cond_sum' or func.getName() == 'curr_sum':
                     return True
         return False

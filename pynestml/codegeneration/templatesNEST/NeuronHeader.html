@@ -336,12 +336,14 @@ private:
     {% else -%}
     {% for inputLine in neuron.getSpikeBuffers() %}
     {{printer.printBufferGetter(inputLine, true)}}
+    {{printer.printBufferDeclarationHeader(inputLine)}}
     {{printer.printBufferDeclaration(inputLine)}};
     {{printer.printBufferDeclarationValue(inputLine)}};
     {% endfor %}
     {% endif -%}
 
     {% for inputLine in neuron.getCurrentBuffers() -%}
+    {{printer.printBufferDeclarationHeader(inputLine)}}
     {{printer.printBufferDeclaration(inputLine)}};
     {{printer.printBufferGetter(inputLine, true)}}
     {{printer.printBufferDeclarationValue(inputLine)}};
@@ -362,33 +364,38 @@ private:
     double __integration_step; //!< current integration time step, updated by GSL
     {%- endif -%}
   };
+  {%- for state in neuron.getStateSymbols() -%}
+  {%- with variable = state -%}
+  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- endwith -%}
+  {%- endfor -%}
 
-  {% for state in neuron.getStateSymbols() %}
-    {% with variable = state %}
-    {% include "MemberVariableGetterSetter.html" %}
-    {% endwith %}
-  {% endfor %}
+  {%- for init in neuron.getInitialValuesSymbols() -%}
+  {%- with variable = init -%}
+  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- endwith -%}
+  {%- endfor -%}
 
-  {% for parameter in neuron.getParameterSymbols() %}
-    {% with variable = parameter %}
-    {% include "MemberVariableGetterSetter.html" %}
-    {% endwith %}
-  {% endfor %}
+  {%- for parameter in neuron.getParameterSymbols() -%}
+  {%- with variable = parameter -%}
+  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- endwith -%}
+  {%- endfor -%}
 
-  {% for internal in neuron.getInternalSymbols() %}
-    {% with variable = internal %}
-    {% include "MemberVariableGetterSetter.html" %}
-    {% endwith %}
-  {% endfor %}
+  {%- for internal in neuron.getInternalSymbols() -%}
+  {%- with variable = internal -%}
+  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- endwith -%}
+  {%- endfor -%}
 
-  {% for odeAlias in neuron.getODEAliases() %}
-    {% with variable = odeAlias %}
-    {% include "MemberVariableGetterSetter.html" %}
-    {% endwith %}
-  {% endfor %}
+  {%- for odeAlias in neuron.getODEAliases() -%}
+  {%- with variable = odeAlias -%}
+  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- endwith -%}
+  {%- endfor %}
 
-  {% for buffer in neuron.getInputBuffers() %}
-    {{printer.printBufferGetter(buffer, false)}};
+  {% for buffer in neuron.getInputBuffers() -%}
+  {{printer.printBufferGetter(buffer, false)}};
   {% endfor %}
 
   // Generate function header
@@ -419,30 +426,23 @@ private:
 /** @} */
 }; /* neuron {{neuronName}} */
 
-inline
-nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool)
-{
+inline nest::port {{neuronName}}::send_test_event(nest::Node& target, nest::rport receptor_type, nest::synindex, bool){
   // You should usually not change the code in this function.
   // It confirms that the target of connection @c c accepts @c {{outputEvent}} on
   // the given @c receptor_type.
   {{outputEvent}} e;
   e.set_sender(*this);
-
   return target.handles_test_event(e, receptor_type);
 }
-
 {% if isSpikeInput %}
-inline
-nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type)
-{
-  {% if neuron.isMultisynapseSpikes() %}
+inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type){
+  {% if neuron.isMultisynapseSpikes() -%}
     if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.getSpikeBuffers()[0].hasVectorParameter()}}()) ) {
         // TODO refactor me. The code assumes that there is only one. Check by coco.
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
     }
-
     return receptor_type;
-  {% elif neuron.getMultipleReceptors()|length > 1 %}
+  {% elif neuron.getMultipleReceptors()|length > 1 -%}
     assert( B_.spike_inputs_.size() == {{(neuron.getMultipleReceptors())|length}} );
 
     if ( !( INF_SPIKE_RECEPTOR < receptor_type && receptor_type < SUP_SPIKE_RECEPTOR ) )
@@ -452,8 +452,7 @@ nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port rece
     }
     else {
       return receptor_type - 1;
-    }
-  {% else %}
+    }{%- else %}
     // You should usually not change the code in this function.
     // It confirms to the connection management system that we are able
     // to handle @c SpikeEvent on port 0. You need to extend the function
@@ -461,15 +460,12 @@ nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port rece
     if (receptor_type != 0)
       throw nest::UnknownReceptorType(receptor_type, get_name());
     return 0;
-  {% endif %}
-
+  {%- endif %}
 }
 {% endif %}
 
 {% if isCurrentInput %}
-inline
-nest::port {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest::port receptor_type)
-{
+inline nest::port {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest::port receptor_type){
   // You should usually not change the code in this function.
   // It confirms to the connection management system that we are able
   // to handle @c CurrentEvent on port 0. You need to extend the function
@@ -479,10 +475,7 @@ nest::port {{neuronName}}::handles_test_event(nest::CurrentEvent&, nest::port re
   return 0;
 }
 {% endif %}
-inline
-nest::port {{neuronName}}::handles_test_event(nest::DataLoggingRequest& dlr,
-nest::port receptor_type)
-{
+inline nest::port {{neuronName}}::handles_test_event(nest::DataLoggingRequest& dlr, nest::port receptor_type){
   // You should usually not change the code in this function.
   // It confirms to the connection management system that we are able
   // to handle @c DataLoggingRequest on port 0.
@@ -495,24 +488,21 @@ nest::port receptor_type)
 }
 
 // TODO call get_status on used or internal components
-inline
-void {{neuronName}}::get_status(DictionaryDatum &__d) const
-{
-  {% for parameter in neuron.getParameterSymbols() %}
-    {% with variable = parameter %}
-    {% include "WriteInDictionary.html" %}
-    {% endwith %}
-  {% endfor %}
-  {% for state in neuron.getStateSymbols() %}
-    {% with variable = state %}
-    {% include "WriteInDictionary.html" %}
-    {% endwith %}
-  {% endfor %}
+inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
+  {%- for parameter in neuron.getParameterSymbols() -%}
+  {%- with variable = parameter -%}{%- filter indent(2,True) -%}
+  {% include "WriteInDictionary.html" %}
+  {% endfilter -%}{% endwith -%}
+  {%- endfor -%}
+  {%- for state in neuron.getStateSymbols() -%}
+  {%- with variable = state -%}{%- filter indent(2,True) -%}
+  {% include "WriteInDictionary.html" %}
+  {% endfilter -%}{% endwith -%}
+  {%- endfor -%}
 
-  {% if (neuron.getMultipleReceptors())|length > 1 %}
-
+  {% if (neuron.getMultipleReceptors())|length > 1 -%}
     DictionaryDatum __receptor_type = new Dictionary();
-    {% for spikeBuffer in neuron.getMultipleReceptors() %}
+    {% for spikeBuffer in neuron.getMultipleReceptors() -%}
     ( *__receptor_type )[ "{{spikeBuffer.getName().upper()}}" ] = {{spikeBuffer.getSymbolName().upper()}};
     {% endfor %}
     ( *__d )[ "receptor_types" ] = __receptor_type;
@@ -529,20 +519,17 @@ void {{neuronName}}::get_status(DictionaryDatum &__d) const
 
 }
 
-inline
-void {{neuronName}}::set_status(const DictionaryDatum &__d)
-{
-  {% for parameter in neuron.getParameterSymbols() %}
-  {% with variable = parameter %}
-  {% include "ReadFromDictionaryToTmp.html" %}
-  {% endwith %}
-  {% endfor %}
-
-  {% for state in neuron.getStateSymbols() %}
-  {% with variable = state %}
-  {% include "ReadFromDictionaryToTmp.html" %}
-  {% endwith %}
-  {% endfor %}
+inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
+  {%- for parameter in neuron.getParameterSymbols() -%}
+  {%- with variable = parameter -%}
+  {%- include "ReadFromDictionaryToTmp.html" %}
+  {%- endwith -%}
+  {%- endfor -%}
+  {%- for state in neuron.getStateSymbols() %}
+  {%- with variable = state %}
+  {%- include "ReadFromDictionaryToTmp.html" %}
+  {% endwith -%}
+  {% endfor -%}
 
   // We now know that (ptmp, stmp) are consistent. We do not
   // write them back to (P_, S_) before we are also sure that
@@ -551,30 +538,30 @@ void {{neuronName}}::set_status(const DictionaryDatum &__d)
   Archiving_Node::set_status(__d);
 
   // if we get here, temporaries contain consistent set of properties
-  {% for parameter in neuron.getParameterSymbols() -%}
-    {% with variable = parameter %}
-    {% include "AssignTmpDictionaryValue.html" %}
-    {% endwith %}
-  {% endfor %}
+  {%- for parameter in neuron.getParameterSymbols() -%}
+  {%- with variable = parameter -%}
+  {%- include "AssignTmpDictionaryValue.html" -%}
+  {%- endwith -%}
+  {%- endfor -%}
 
-  {% for state in neuron.getStateSymbols() -%}
-    {% with variable = state %}
-    {% include "AssignTmpDictionaryValue.html" %}
-    {% endwith %}
-  {% endfor %}
-  {% for invariant in neuron.getParameterInvariants() %}
+  {%- for state in neuron.getStateSymbols() -%}
+  {%- with variable = state %}
+  {%- include "AssignTmpDictionaryValue.html" %}
+  {%- endwith %}
+  {%- endfor %}
+  {%- for invariant in neuron.getParameterInvariants() %}
     if ( !({{printerWithGetters.printExpression(invariant)}}) ) {
       throw nest::BadProperty("The constraint '{{idemPrinter.print(invariant)}}' is violated!");
     }
-  {% endfor %}
+  {%- endfor %}
 
-  {% if useGSL %}
+  {%- if useGSL %}
   updateValue< double >(__d, nest::names::gsl_error_tol, P_.__gsl_error_tol);
   if ( P_.__gsl_error_tol <= 0. )
   {
     throw nest::BadProperty( "The gsl_error_tol must be strictly positive." );
   }
-  {% endif %}
+  {%- endif %}
 };
 
 #endif /* #ifndef {{neuronName.upper()}} */

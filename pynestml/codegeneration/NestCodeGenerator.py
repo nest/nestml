@@ -65,12 +65,7 @@ class NestCodeGenerator(object):
         # setup the neuron header template
         self.__templateNeuronHeader = env.get_template('NeuronHeader.html')
         # setup the neuron implementation template
-        """
-        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'NeuronClass.html'),
-                  'r') as templateNeuronImplementation:
-            data = templateNeuronImplementation.read()
-            self.__templateNeuronImplementation = Template(data)
-        """
+        self.__templateNeuronImplementation = env.get_template('NeuronClass.html')
         return
 
     def generateModels(self, _modelRoots=None):
@@ -161,7 +156,7 @@ class NestCodeGenerator(object):
             '(PyNestML.CodeGenerator.NEST) No or wrong type of module name provided (%s)!' % type(_moduleName)
 
         self.generateModuleHeader(_moduleName)
-        # self.generateModuleClass(_)
+        #self.generateModuleClass(_)
 
     def generateHeader(self, _neuron=None):
         """
@@ -202,7 +197,7 @@ class NestCodeGenerator(object):
         Logger.logMessage('Start generating header for %s...' % _neuron.getName(), LOGGING_LEVEL.INFO)
         self.generateHeader(_neuron)
         Logger.logMessage('Start generating implementation for %s...' % _neuron.getName(), LOGGING_LEVEL.INFO)
-        # self.generateClassImplementation(_neuron)
+        self.generateClassImplementation(_neuron)
         return
 
     def setupStandardNamespace(self, _neuron=None):

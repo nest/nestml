@@ -4,8 +4,8 @@
   @param variable VariableSymbol
   @result C++ Block
 #}
-{% if not variable.isFunction() %}
+{%- if not variable.isFunction() %}
   {{names.setter(variable)}}(tmp_{{names.name(variable)}});
-{% else %}
+{%- else %}
   // ignores '{{names.name(variable)}}' {{declarations.printVariableType(variable)}}' since it is an function and setter isn't defined
-{% endif %}
+{%- endif %}

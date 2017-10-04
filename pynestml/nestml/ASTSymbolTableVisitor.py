@@ -325,7 +325,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             typeSymbol = PredefinedTypes.getTypeIfExists(typeName)
             _declaration.getScope().addSymbol(VariableSymbol(_elementReference=_declaration,
                                                              _scope=_declaration.getScope(),
-                                                             _name=var.getName() + '\'' * var.getDifferentialOrder(),
+                                                             _name=var.getCompleteName(),
                                                              _blockType=cls.__currentBlockType,
                                                              _declaringExpression=expression, _isPredefined=False,
                                                              _isFunction=_declaration.isFunction(),
@@ -334,6 +334,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                              _initialValue=initValue,
                                                              _vectorParameter=vectorParameter
                                                              ))
+
             var.setTypeSymbol(Either.value(typeSymbol))
             cls.visitVariable(var)
         _declaration.getDataType().updateScope(_declaration.getScope())

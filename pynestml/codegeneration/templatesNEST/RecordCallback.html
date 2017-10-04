@@ -1,14 +1,11 @@
-{#
+{#-
   Registers recordables for recording
   @param variable VariableSymbol
   @param names Helper class that maps symbols to C++ names
   @param declarations ASTDeclarations helper class
-
   @result C++ statement
-#}
-
-{% set varDomain = declarations.getDomainFromType(variable.getTypeSymbol()) %}
-
-{% if varDomain == "double" and variable.isRecordable() %}
+-#}
+{%- set varDomain = declarations.getDomainFromType(variable.getTypeSymbol()) %}
+{%- if varDomain == "double" and variable.isRecordable() %}
 insert_("{{variable.getSymbolName()}}", &{{neuronName}}::{{names.getter(variable)}});
-{% endif %}
+{%- endif %}

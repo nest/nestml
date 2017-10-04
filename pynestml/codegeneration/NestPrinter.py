@@ -298,15 +298,27 @@ class NestPrinter(object):
         :return: the corresponding string representation
         :rtype: str
         """
-
+        assert (_buffer is not None and isinstance(_buffer, VariableSymbol)), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
         if _buffer.hasVectorParameter():
             bufferType = 'std::vector< ' + NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol()) + ' >'
         else:
             bufferType = NESTML2NESTTypeConverter.convert(_buffer.getTypeSymbol())
         bufferType.replace(".", "::")
+        return bufferType + " " + _buffer.getSymbolName()
 
-        return "//!< Buffer incoming " + _buffer.getTypeSymbol().getSymbolName() + "s through delay, as sum\n" + \
-               bufferType + " " + _buffer.getSymbolName()
+    @classmethod
+    def printBufferDeclarationHeader(cls, _buffer=None):
+        """
+        Prints the comment as stated over the buffer declaration.
+        :param _buffer: a single buffer variable symbol.
+        :type _buffer: VariableSymbol
+        :return: the corresponding string representation
+        :rtype: str
+        """
+        assert (_buffer is not None and isinstance(_buffer, VariableSymbol)), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
+        return '//!< Buffer incoming ' + _buffer.getTypeSymbol().getSymbolName() + 's through delay, as sum'
 
 
 class RuntimeException(Exception):

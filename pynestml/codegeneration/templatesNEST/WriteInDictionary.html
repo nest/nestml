@@ -3,4 +3,4 @@
 #}
 {% if not variable.isInternals() -%}
   def< {{declarations.printVariableType(variable)}} >(__d, "{{variable.getSymbolName()}}", {{names.getter(variable)}}());
-{% endif %}
+{%- endif -%}

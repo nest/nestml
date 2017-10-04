@@ -253,8 +253,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if isinstance(symbol, VariableSymbol) and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or \
-                                                                   symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
+            if isinstance(symbol, VariableSymbol) and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
+                                                               symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
                 ret.append(symbol)
         return ret
 
@@ -402,7 +402,6 @@ class ASTNeuron(ASTElement):
         """
         from pynestml.nestml.Symbol import SymbolKind
         ret = list()
-        temp = self.getSpikeBuffers()
         for buffer in self.getSpikeBuffers():
             if buffer.isExcitatory() and buffer.isInhibitory():
                 symbol = buffer.getScope().resolveToSymbol(buffer.getName(), SymbolKind.VARIABLE)
@@ -448,6 +447,21 @@ class ASTNeuron(ASTElement):
                 ret.append(param)
         return ret
 
+    def getInitialValuesSymbols(self):
+        """
+        Returns a list of all initial values symbol defined in the model.
+        :return: a list of initial values symbols.
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.nestml.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInThisScope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.INITIAL_VALUES and \
+                    not symbol.isPredefined():
+                ret.append(symbol)
+        return ret
+
     def getOdeDefinedSymbols(self):
         """
         Returns a list of all variable symbols which have been defined in th intial_values blocks
@@ -459,7 +473,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.INITIAL_VALUES and symbol.isOdeDefined() \
+            if isinstance(symbol, VariableSymbol) and \
+                            symbol.getBlockType() == BlockType.INITIAL_VALUES and symbol.isOdeDefined() \
                     and not symbol.isPredefined() and not symbol.isPredefined():
                 ret.append(symbol)
         return ret
@@ -474,7 +489,8 @@ class ASTNeuron(ASTElement):
         symbols = self.getScope().getSymbolsInThisScope()
         ret = list()
         for symbol in symbols:
-            if symbol.getBlockType() == BlockType.STATE and not symbol.isOdeDefined() \
+            if isinstance(symbol, VariableSymbol) and \
+                            symbol.getBlockType() == BlockType.STATE and not symbol.isOdeDefined() \
                     and not symbol.isPredefined() and not symbol.isPredefined():
                 ret.append(symbol)
         return ret

@@ -3,14 +3,14 @@
   @grammar: Compound_Stmt = IF_Stmt | FOR_Stmt | WHILE_Stmt;
 #}
 {% ast.isIfStmt() %}
-{% with ast = ast.getIfStmt() %}
+{% with stmt = ast.getIfStmt() %}
 {% include "IfStatement.html" %}
 {% endwith %}
 {% elif ast.isForStmt() %}
-{% with ast = ast.getForStmt() %}}
+{% with stmt = ast.getForStmt() %}}
 {% include "ForStatement.html" %}
 {% endwith %}
 {% elif ast.isWhileStmt() %}
-{% with ast = ast.getWhileStmt() %}}
+{% with stmt = ast.getWhileStmt() %}}
 {% include "WhileStatement.html" %}
 {% endif %}

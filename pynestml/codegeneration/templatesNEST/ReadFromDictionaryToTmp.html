@@ -6,6 +6,6 @@
 {% if not variable.isFunction() %}
   {{declarations.printVariableType(variable)}} tmp_{{names.name(variable)}} = {{names.getter(variable)}}();
   updateValue<{{declarations.printVariableType(variable)}}>(__d, "{{names.name(variable)}}", tmp_{{names.name(variable)}});
-{% else %}
+{% else -%}
   // ignores '{{names.name(variable)}}' {{declarations.printVariableType(variable)}}' since it is an function and setter isn't defined
-{% endif %}
+{% endif -%}
