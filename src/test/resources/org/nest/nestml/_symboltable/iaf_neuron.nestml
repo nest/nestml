@@ -1,12 +1,15 @@
 neuron iaf_neuron:
 
   state:
-    y0 mV
-    y0' mV
     y1 mV
     y2 mV
-    y3 mV
     # Membrane potential.
+  end
+
+  initial_values:
+    y0 mV = 0mV
+    y0' mV = 0mV/ms
+    y3 mV
     function V_m mV = y3 + E_L
   end
 

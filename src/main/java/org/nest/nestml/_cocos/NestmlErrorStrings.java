@@ -143,22 +143,22 @@ public class NestmlErrorStrings {
     return "NESTML_CURRENT_PORT_IS_INH_OR_EXC";
   }
 
-  static public String getErrorMsgAssignToNonState(
-      final EquationsOnlyForStateVariables coco,
+  static public String message(
+      final EquationsOnlyForInitialValues coco,
       final String variableName) {
-    final String ERROR_MSG_FORMAT = "The variable '" + variableName + "' is not a state"
-                                    + " variable and, therefore, cannot be used on the left side of an equation.";
+    final String ERROR_MSG_FORMAT = "The variable " + variableName + " must defined in the 'initial_values' block"
+                                    + " for being used on the left side of an ODE.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
-  static public String getErrorMsgVariableNotDefined(EquationsOnlyForStateVariables coco, final String variableName) {
+  static public String getErrorMsgVariableNotDefined(EquationsOnlyForInitialValues coco, final String variableName) {
     final String ERROR_MSG_FORMAT = "The variable " + variableName + " used as left-hand side " +
                                     "of the ode is not defined.";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
-  static String code(final EquationsOnlyForStateVariables coco) {
+  static String code(final EquationsOnlyForInitialValues coco) {
     return "NESTML_EQUATIONS_ONLY_FOR_STATE_VARIABLES";
   }
 

@@ -6,11 +6,9 @@
 package org.nest.codegeneration.sympy;
 
 import org.nest.nestml._ast.ASTAssignment;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
-import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.reporting.Reporter;
 
 import java.util.List;
@@ -21,6 +19,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
+import static org.nest.codegeneration.sympy.TransformerBase.*;
 
 /**
  * Takes SymPy result with the linear solution of the ODE and the source AST.
@@ -28,40 +27,49 @@ import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
  *
  * @author plotnikov
  */
-class ExactSolutionTransformer extends TransformerBase {
-
+class ExactSolutionTransformer {
 
   ASTNeuron addExactSolution(
       final ASTNeuron astNeuron,
       final SolverOutput solverOutput) {
     ASTNeuron workingVersion = astNeuron;
-    workingVersion.getBody().addToInternalBlock(createDeclaration("__h ms = resolution()"));
+    workingVersion.addToInternalBlock(createDeclaration("__h ms = resolution()"));
 
     workingVersion = addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
     workingVersion = addVariableToInternals(workingVersion, solverOutput.const_input);
-    workingVersion = addVariablesToInternals(workingVersion, solverOutput.initial_values);
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
-    workingVersion = addVariablesToState(workingVersion, solverOutput.shape_state_variables);
-    workingVersion = addShapeStateUpdatesToUpdateBlock(workingVersion, solverOutput);
-    workingVersion.getBody().removeOdeBlock();
 
-    // oder is important, otherwise addShapeStateUpdatesToUpdateBlock will try to resolve state variables,
-    // for which nor symbol are added. TODO filter them
-    workingVersion = replaceIntegrateCallThroughPropagation(workingVersion, solverOutput.ode_var_update_instructions);
+    final List<Map.Entry<String, String>> stateShapeVariablesWithInitialValues =
+        computeShapeStateVariablesWithInitialValues(solverOutput);
 
+    // copy initial block variables to the state block, since they are not backed through an ODE.
+    astNeuron.getInitialValuesDeclarations().forEach(astNeuron::addToStateBlock);
+
+    workingVersion = addVariablesToInitialValues(workingVersion, stateShapeVariablesWithInitialValues);
+    addStateUpdates(solverOutput, workingVersion);
+
+    workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(
+        workingVersion,
+        solverOutput.ode_var_update_instructions);
+
+    applyIncomingSpikes(workingVersion);
+
+    // get rid of the ODE stuff since the model is solved exactly and all ODEs are removed.
+    workingVersion.removeEquationsBlock();
+
+    stateShapeVariablesWithInitialValues
+        .stream()
+        .map(Map.Entry::getKey)
+        .map(shapeStateVariable -> createDeclaration(shapeStateVariable + " real"))
+        .forEach(astNeuron::addToStateBlock);
+
+    workingVersion.getInitialValuesBlock().ifPresent(block -> block.getDeclarations().clear());
+
+    // since there is no
     return workingVersion;
   }
 
-  private ASTNeuron addShapeStateUpdatesToUpdateBlock(final ASTNeuron astNeuron, final SolverOutput solverOutput) {
-    final ASTBody body = astNeuron.getBody();
-
-    addStateUpdates(solverOutput, body);
-    addUpdatesWithPSCInitialValues(solverOutput, body, variableNameExtracter, shapeNameExtracter);
-
-    return astNeuron;
-  }
-
-  private void addStateUpdates(final SolverOutput solverOutput, final ASTBody astBody)  {
+  private void addStateUpdates(final SolverOutput solverOutput, final ASTNeuron astNeuron)  {
     final Set<String> tempVariables = solverOutput.updates_to_shape_state_variables
         .stream()
         .map(Map.Entry::getKey)
@@ -72,17 +80,17 @@ class ExactSolutionTransformer extends TransformerBase {
         .stream()
         .map(update -> update + " real")
         .map(AstCreator::createDeclaration)
-        .forEach(astAssignment -> addDeclrationToUpdateBlock(astAssignment, astBody));
+        .forEach(astAssignment -> TransformerBase.addDeclarationToUpdateBlock(astAssignment, astNeuron));
 
     solverOutput.updates_to_shape_state_variables
         .stream()
         .map(update -> update.getKey() + " = " + update.getValue())
         .map(AstCreator::createAssignment)
-        .forEach(astAssignment -> addAssignmentToUpdateBlock(astAssignment, astBody));
+        .forEach(astAssignment -> TransformerBase.addAssignmentToUpdateBlock(astAssignment, astNeuron));
   }
 
   // TODO: enable the optimization
-  private List<ASTAssignment> computeShapeUpdates(final SolverOutput solverOutput, final ASTBody astBody) {
+  private List<ASTAssignment> computeShapeUpdates(final SolverOutput solverOutput, final ASTNeuron astNeuron) {
 
     final List<ASTAssignment> stateUpdatesASTs = solverOutput.updates_to_shape_state_variables
         .stream()
@@ -96,7 +104,7 @@ class ExactSolutionTransformer extends TransformerBase {
         .collect(toList());
 
     final List<String> stateVariableNames = newArrayList();
-    stateVariableNames.addAll(astBody.getStateSymbols()
+    stateVariableNames.addAll(astNeuron.getStateSymbols()
         .stream()
         .map(VariableSymbol::getName)
         .collect(toList()));
@@ -117,7 +125,7 @@ class ExactSolutionTransformer extends TransformerBase {
       for (int j = 0; j < nodesToReplace.size(); ++j) {
         final Optional<VariableSymbol> vectorizedVariable = getVectorizedVariable(nodesToReplace.get(j), scope);
         final ASTDeclaration aliasAst = createDeclaration(tmpInternalVariables.get(j) + " real " + printVectorParameter(vectorizedVariable) + " = " + printer.print(nodesToReplace.get(j)));
-        astBody.addToInternalBlock(aliasAst);
+        astNeuron.addToInternalBlock(aliasAst);
       }
 
     }*/

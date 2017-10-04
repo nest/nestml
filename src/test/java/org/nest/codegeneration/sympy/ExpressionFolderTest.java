@@ -69,7 +69,7 @@ public class ExpressionFolderTest extends ModelbasedTest {
     final SolverOutput solverOutput = SolverOutput.fromJSON(SolverJsonData.IAF_PSC_ALPHA);
 
     final List<String> stateVariableNames = newArrayList();
-    stateVariableNames.addAll(neuron.getBody().getStateSymbols()
+    stateVariableNames.addAll(neuron.getStateSymbols()
         .stream()
         .map(VariableSymbol::getName)
         .collect(toList()));

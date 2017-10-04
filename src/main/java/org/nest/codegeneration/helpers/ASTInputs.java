@@ -5,10 +5,8 @@
  */
 package org.nest.codegeneration.helpers;
 
-import de.monticore.ast.ASTNode;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTInputLine;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.ASTInputLine;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,9 +17,9 @@ import java.util.Optional;
  * @author plotnikov
  */
 public class ASTInputs {
-  public static boolean isSpikeInput(final ASTNode node) {
-    final ASTBody bodyDecorator = (getBodyNode(node));
-    final List<ASTInputLine> neuronInputLines = bodyDecorator.getInputLines();
+
+  public static boolean isSpikeInput(final ASTNeuron node) {
+    final List<ASTInputLine> neuronInputLines = node.getInputLines();
     Optional<ASTInputLine> inputSpikeCandidate = neuronInputLines
         .stream()
         .filter(ASTInputLine::isSpike)
@@ -29,9 +27,8 @@ public class ASTInputs {
     return inputSpikeCandidate.isPresent();
   }
 
-  public static boolean isCurrentInput(final ASTNode node) {
-    final ASTBody bodyDecorator = (getBodyNode(node));
-    final List<ASTInputLine> neuronInputLines = bodyDecorator.getInputLines();
+  public static boolean isCurrentInput(final ASTNeuron node) {
+    final List<ASTInputLine> neuronInputLines = node.getInputLines();
     Optional<ASTInputLine> inputSpikeCandidate = neuronInputLines
         .stream()
         .filter(ASTInputLine::isCurrent)
@@ -39,15 +36,5 @@ public class ASTInputs {
     return inputSpikeCandidate.isPresent();
   }
 
-  private static ASTBody getBodyNode(ASTNode node) {
-    ASTBody bodyElement;// TODO probably introduce a grammar rule for this
-    if (node instanceof ASTNeuron) {
-      bodyElement = ((ASTNeuron) node).getBody();
-    }
-    else {
-      throw new RuntimeException("Unexpected instance of the neuron element");
-    }
-    return bodyElement;
-  }
 
 }

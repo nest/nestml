@@ -22,7 +22,7 @@
 package org.nest.nestml._visitor;
 
 import de.monticore.symboltable.Scope;
-import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._ast.ASTEquation;
 import org.nest.nestml._ast.ASTOdeFunction;
 import org.nest.nestml._ast.ASTShape;
@@ -118,7 +118,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
   }
 
   @Override
-  public void traverse(ASTOdeDeclaration node) {
+  public void traverse(ASTEquationsBlock node) {
     //TODO: Find a sensible hierarchy for shapes,equations and aliases.
     for (ASTShape astShape : node.getShapes()) {
       astShape.accept(getRealThis());

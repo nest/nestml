@@ -25,7 +25,7 @@ public class AstCreator {
     PARSER.setParserTarget(MCConcreteParser.ParserExecution.EOF);
   }
 
-  static ASTEquation createEquation(final String equation) {
+  public static ASTEquation createEquation(final String equation) {
     try {
 
       return PARSER.parseEquation(new StringReader(equation)).get();
@@ -73,10 +73,37 @@ public class AstCreator {
 
   }
 
-  static public ASTVar_Block createInternalBlock() {
-    final ASTVar_Block astVar_block =  NESTMLNodeFactory.createASTVar_Block();
+  static public ASTBlockWithVariables createInternalBlock() {
+    final ASTBlockWithVariables astVar_block =  NESTMLNodeFactory.createASTBlockWithVariables();
     astVar_block.setInternals(true);
 
     return astVar_block;
   }
+
+  static public ASTBlockWithVariables createStateBlock() {
+    final ASTBlockWithVariables astVar_block =  NESTMLNodeFactory.createASTBlockWithVariables();
+    astVar_block.setState(true);
+
+    return astVar_block;
+  }
+
+  static public ASTBlockWithVariables createInitialValuesBlock() {
+    final ASTBlockWithVariables astVar_block =  NESTMLNodeFactory.createASTBlockWithVariables();
+    astVar_block.setInitial_values(true);
+
+    return astVar_block;
+  }
+
+  public static ASTShape createShape(final String shapeAsString) {
+
+    try {
+      // it is ok to call get, since otherwise it is an error in the file structure
+      return PARSER.parseShape(new StringReader(shapeAsString)).get();
+    }
+    catch (IOException e) {
+      final String msg = "Cannot parse assignment statement.";
+      throw new RuntimeException(msg, e);
+    }
+  }
+
 }

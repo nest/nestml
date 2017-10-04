@@ -85,16 +85,16 @@ public class Reporter {
         .filter(message -> message.severity.equals(Level.ERROR))
         .findAny();
 
-    info.println("----------------------------------------------------------");
-    info.println("-----------------Execution summary------------------------");
+    info.println("------------------------------------------------");
+
     if (error.isPresent()) {
       err.println(printFindingsAsJsonString());
-      err.println("ERROR: Code generation was canceled.");
+      err.println("------------------FAILURE------------------------");
     }
     else {
-      info.println("The model analysis and code generation were successfully executed.");
+      info.println("-----------------SUCCESS------------------------");
     }
-
+    info.println("------------------------------------------------");
   }
 
   public void addNeuronReports(

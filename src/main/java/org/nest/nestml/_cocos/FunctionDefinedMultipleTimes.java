@@ -8,9 +8,8 @@ package org.nest.nestml._cocos;
 import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.ASTFunction;
 import org.nest.nestml._symboltable.symbols.MethodSymbol;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 
@@ -27,10 +26,10 @@ import static de.se_rwth.commons.logging.Log.error;
 public class FunctionDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
 
   @Override public void check(final ASTNeuron astNeuron) {
-    final ASTBody astBodyDecorator = (astNeuron.getBody());
+    final ASTNeuron astNeuronDecorator = (astNeuron);
     final Optional<NeuronSymbol> neuronSymbol = (Optional<NeuronSymbol>) astNeuron.getSymbol();
     if (neuronSymbol.isPresent()) {
-      astBodyDecorator.getFunctions().forEach(this::checkFunctionName);
+      astNeuronDecorator.getFunctions().forEach(this::checkFunctionName);
     }
     else {
       final String msg = NestmlErrorStrings.getErrorMsgNeuronHasNoSymbol(this,astNeuron.getName());

@@ -25,7 +25,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.nest.nestml._ast.ASTEquation;
-import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._ast.ASTOdeFunction;
 import org.nest.nestml._ast.ASTShape;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
@@ -43,11 +43,11 @@ class SolverInput {
   public final String ode;
   private final ExpressionsPrettyPrinter printer = new ExpressionsPrettyPrinter();
 
-  SolverInput(final ASTOdeDeclaration odeBlock) {
-    ASTOdeDeclaration tmp = odeBlock.deepClone();
+  SolverInput(final ASTEquationsBlock odeBlock) {
+    ASTEquationsBlock tmp = odeBlock.deepClone();
     tmp = OdeTransformer.replaceSumCalls(tmp);
 
-    ode = printEquation(tmp.getODEs().get(0));
+    ode = printEquation(tmp.getEquations().get(0));
 
     functions = tmp.getOdeFunctions()
         .stream()

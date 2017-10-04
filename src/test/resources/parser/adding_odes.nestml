@@ -1,0 +1,13 @@
+neuron alpha_implicit:
+
+  equations:
+    shape g_in'' = (-1)/(tau_syn_in)**(2)*g_in+(-2)/tau_syn_in*g_in'
+    shape g_ex'''' = (-1)/(tau_syn_ex)**(2)*g_ex+(-2)/tau_syn_ex*g_ex'
+    shape g_ex'' = (-1)/(tau_syn_ex)**(2)*g_ex+(-2)/tau_syn_ex*g_ex'
+
+    V_m'''''' = 6
+    V_m'''' = 4
+    V_m'' = 2
+  end
+
+end

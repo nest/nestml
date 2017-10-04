@@ -8,9 +8,8 @@ package org.nest.nestml._cocos;
 import com.google.common.collect.Maps;
 import de.monticore.ast.ASTNode;
 import de.se_rwth.commons.SourcePosition;
-import org.nest.nestml._ast.ASTBody;
-import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTVariable;
 import org.nest.utils.AstUtils;
 
@@ -33,18 +32,14 @@ import static de.se_rwth.commons.logging.Log.error;
 public class MemberVariableDefinedMultipleTimes implements NESTMLASTNeuronCoCo {
 
   @Override
-  public void check(ASTNeuron neuron) {
-    check(neuron.getBody());
-  }
-
-  private void check(ASTBody body) {
+  public void check(ASTNeuron body) {
     Map<String, SourcePosition> varNames = Maps.newHashMap();
     body.getStateDeclarations().forEach(declaration -> addNames(varNames, declaration));
     body.getParameterDeclarations().forEach(declaration -> addNames(varNames, declaration));
     body.getInternalDeclarations().forEach(declaration -> addNames(varNames, declaration));
     body.getODEAliases().forEach(odeAlias -> addName(varNames, odeAlias.getName(), odeAlias.getAstNode().get()));
     body.getInputLines().forEach(inputLine -> addVariable(inputLine.getName(), varNames, inputLine) );
-    body.getShapes().forEach(astShape -> addVariable(AstUtils.getNameOfLHS(astShape), varNames, astShape));
+    body.getShapes().forEach(astShape -> addVariable(AstUtils.getNameOfDerivedVariable(astShape), varNames, astShape));
   }
 
   private void addNames(final Map<String, SourcePosition> names, final ASTDeclaration decl) {

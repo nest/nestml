@@ -40,32 +40,30 @@ public class InvalidTypesInDeclaration implements NESTMLASTDeclarationCoCo, NEST
   public void check(final ASTFunction astFunction) {
     String typeName;
     // check parameter types
-    if (astFunction.getParameters().isPresent()) {
-      for (ASTParameter par : astFunction.getParameters().get().getParameters()) {
-        typeName = computeTypeName(par.getDatatype());
+    for (ASTParameter par : astFunction.getParameters()) {
+      typeName = computeTypeName(par.getDatatype());
 
-        Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
-        Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
-        Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
+      Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
+      Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
+      Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
 
-        checkIfValidType(astFunction, typeName, type);
+      checkIfValidType(astFunction, typeName, type);
 
-      }
-
-      // check return type
-      if (astFunction.getReturnType().isPresent()) {
-        typeName = computeTypeName(astFunction.getReturnType().get());
-
-        final Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
-        Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
-        final Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
-        checkIfValidType(astFunction, typeName, type);
-
-        //doCheck(type.get(), fun.getReturnType().get(), true);
-      }
     }
 
+    // check return type
+    if (astFunction.getReturnType().isPresent()) {
+      typeName = computeTypeName(astFunction.getReturnType().get());
+
+      final Optional<? extends Scope> enclosingScope = astFunction.getEnclosingScope();
+      Preconditions.checkState(enclosingScope.isPresent(), "There is no scope assigned to the AST node: " + astFunction);
+      final Optional<TypeSymbol> type = enclosingScope.get().resolve(typeName, TypeSymbol.KIND);
+      checkIfValidType(astFunction, typeName, type);
+
+      //doCheck(type.get(), fun.getReturnType().get(), true);
+    }
   }
+
 
   private void checkIfValidType(ASTNode astNode, String typeName, Optional<TypeSymbol> type) {
     if (!type.isPresent() || type.isPresent() && type.get().getName().endsWith("Logger")) {

@@ -1,6 +1,6 @@
 neuron invalidShapes:
   state:
-  StateVar real
+    StateVar real
   end
 
   input:
@@ -15,7 +15,7 @@ neuron invalidShapes:
   output: spike
 
   equations:
-    shape testShape = 1.5
+    shape testShape = 1.5 *t
     testShape' = 10 /s           #Error
   end
 
@@ -27,5 +27,8 @@ neuron invalidShapes:
     testShape = 3                   #Error
     foo(testShape)                  #Error
     testShape += 3                  #Error
+  end
+
+  function foo(tt real):
   end
 end

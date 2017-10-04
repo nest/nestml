@@ -294,9 +294,9 @@ class ShapeFunction(object):
         result = []
         for idx, initial_value in enumerate(self.initial_values):
             if idx > 0:
-                p = {"iv__" + str(self.name) + "__" + str(idx): str(initial_value)}
+                p = {str(self.name) + "__" + str(idx): str(initial_value)}
             else:
-                p = {"iv__" + str(self.name): str(initial_value)}
+                p = {str(self.name): str(initial_value)}
             result = [p] + result
         return result
 

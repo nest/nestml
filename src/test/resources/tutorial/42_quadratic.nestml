@@ -3,7 +3,7 @@
 */
 neuron quadratic_IaF:
 
-  state:
+  initial_values:
     V_m mV = 0mV
   end
 

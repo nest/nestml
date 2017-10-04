@@ -6,7 +6,7 @@
                  variable is declared (inside a struct or in another method)
 -->
 ${signature("variable", "printer")}
-<#if variable.getDeclaringExpression().isPresent()>
+<#if variable.getDeclaringExpression().isPresent() && !variable.isShape()>
   <#if variable.isVector()>
     ${variableHelper.printOrigin(variable)}${names.name(variable)}.resize(P_.${variable.getVectorParameter().get()}, ${printer.print(variable.getDeclaringExpression().get())});
   <#else>

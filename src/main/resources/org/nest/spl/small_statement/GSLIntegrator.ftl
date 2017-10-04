@@ -25,7 +25,7 @@ while ( __t < B_.__step )
                                             &__t,                   // from t
                                             B_.__step,              // to t <= step
                                             &B_.__integration_step, // integration step size
-                                            S_.y);                 // neuronal state
+                                            S_.ode_state);          // neuronal state
 
   if ( status != GSL_SUCCESS ) {
     throw nest::GSLSolverFailure( get_name(), status );

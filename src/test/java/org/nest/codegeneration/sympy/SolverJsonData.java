@@ -29,16 +29,16 @@ public class SolverJsonData {
                                "\"status\": \"success\", \n" +
                                "  \"initial_values\": [\n" +
                                "    {\n" +
-                               "      \"iv__I_shape_in__0\": \"0\"\n" +
+                               "      \"I_shape_in__0\": \"0\"\n" +
                                "    }, \n" +
                                "    {\n" +
-                               "      \"iv__I_shape_in__1\": \"e*pA/tau_syn_in\"\n" +
+                               "      \"I_shape_in__1\": \"e*pA/tau_syn_in\"\n" +
                                "    }, \n" +
                                "    {\n" +
-                               "      \"iv__I_shape_ex__0\": \"0\"\n" +
+                               "      \"I_shape_ex__0\": \"0\"\n" +
                                "    }, \n" +
                                "    {\n" +
-                               "      \"iv__I_shape_ex__1\": \"e*pA/tau_syn_ex\"\n" +
+                               "      \"I_shape_ex__1\": \"e*pA/tau_syn_ex\"\n" +
                                "    }\n" +
                                "  ], \n" +
                                "  \"solver\": \"exact\", \n" +

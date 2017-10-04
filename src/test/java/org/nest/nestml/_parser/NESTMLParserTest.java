@@ -7,8 +7,10 @@ import org.antlr.v4.runtime.RecognitionException;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTEquation;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
 import org.nest.utils.AstUtils;
 import org.nest.utils.LogHelper;
 
@@ -30,11 +32,11 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
  * @author plonikov
  */
 public class NESTMLParserTest extends ModelbasedTest {
-  private static final String TEST_MODEL_COMMENTS = "src/test/resources/comments/iaf_neuron.nestml";
+  private static final String PARSER_INPUT = "src/test/resources/parser/";
 
   @Test
   public void testAllModels() {
-    // ignore all models, in an folder with an 'unparsable' infix
+    // ignore all models, in an folder with an 'parser.unparsable' infix
     final List<Path> testModels = collectNESTMLModelFilenames(Paths.get("src/test/resources/"))
         .stream()
         .filter( path -> !path.toString().contains("unparsable"))
@@ -48,7 +50,7 @@ public class NESTMLParserTest extends ModelbasedTest {
 
   @Test
   public void testNonExistentType() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/unparsable/wrongTypes.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/parser/unparsable/wrongTypes.nestml");
     assertFalse(ast.isPresent());
     List<Finding> findings = LogHelper.getModelErrors(Log.getFindings());
     assertEquals(2, findings.size());
@@ -56,7 +58,7 @@ public class NESTMLParserTest extends ModelbasedTest {
 
   @Test
   public void testMultipleVariablesWithSameName() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/unparsable/multipleVariablesWithSameName.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("src/test/resources/parser/unparsable/multipleVariablesWithSameName.nestml");
     assertTrue(ast.isPresent());
     scopeCreator.runSymbolTableCreator(ast.get());
     assertTrue(LogHelper.getModelErrors(Log.getFindings()).size() > 0);
@@ -64,13 +66,23 @@ public class NESTMLParserTest extends ModelbasedTest {
 
   @Test
   public void testCommentsExtraction() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse(TEST_MODEL_COMMENTS);
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse(PARSER_INPUT + "comments.nestml");
     assertTrue(ast.isPresent());
     final List<ASTDeclaration> declarations = AstUtils.getAll(ast.get(), ASTDeclaration.class);
     for (final ASTDeclaration declaration:declarations) {
-      assertEquals(3, declaration.getComments().size());
-      declaration.getComments().forEach(System.out::println);
+      declaration.getDocStrings().forEach(System.out::println);
+      assertEquals(4, declaration.getDocStrings().size());
     }
+
+  }
+
+  @Test
+  public void testAddingTrivialEquations() throws IOException {
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse(PARSER_INPUT + "adding_odes.nestml");
+    assertTrue(ast.isPresent());
+    final List<ASTEquation> equations = AstUtils.getAll(ast.get(), ASTEquation.class);
+    System.out.println(NESTMLPrettyPrinter.print(ast.get()));
+    assertEquals(6, equations.size());
 
   }
 

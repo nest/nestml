@@ -1,13 +1,12 @@
 package org.nest.nestml._cocos;
 
 import de.monticore.ast.ASTNode;
-import org.nest.nestml._ast.ASTFunctionCall;
-import org.nest.nestml._ast.ASTVariable;
-import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._visitor.NESTMLVisitor;
-import org.nest.nestml._ast.ASTDerivative;
-import org.nest.nestml._ast.ASTShape;
+import de.monticore.symboltable.Scope;
+import de.monticore.symboltable.Symbol;
+import org.nest.nestml._ast.*;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
+import org.nest.nestml._visitor.NESTMLVisitor;
 import org.nest.utils.AstUtils;
 
 import java.util.ArrayList;
@@ -17,78 +16,13 @@ import java.util.Optional;
 import static de.se_rwth.commons.logging.Log.error;
 
 /**
- * @author  traeder
+ * Forbids the usage of the functional shapes everywhere but in the convolve-call.
+ * @author traeder, plotnikov
  */
 public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
 
-  public class ShapeCollectingVisitor implements NESTMLVisitor {
-
-    private List<String> shapeNames = new ArrayList<>();
-
-    List<String> collectShapes(ASTNeuron node){
-      node.accept(this);
-      return shapeNames;
-    }
-
-    @Override public void visit(ASTShape node) {
-      ASTVariable shapeVar = node.getLhs();
-      shapeNames.add(shapeVar.getName().toString());
-    }
-  }
-
-  class ShapeUsageVisitor implements NESTMLVisitor{
-
-    private List<String> shapes;
-    private ASTNeuron neuronNode;
-
-    ShapeUsageVisitor(List<String> shapes){
-      this.shapes = shapes;
-    }
-
-    void workOn(ASTNeuron node){
-      neuronNode = node;
-      node.accept(this);
-    }
-
-    public void visit(ASTVariable node){
-      for(String shapeName: shapes){
-        if(node.getName().toString().equals(shapeName)){
-          Optional<ASTNode> parent = AstUtils.getParent(node,neuronNode);
-          if(parent.isPresent()){
-            //Dont mind its own declaration
-            if(parent.get() instanceof ASTShape){
-              continue;
-            }
-            //We have to dig deeper for funcitonCalls:
-            Optional<ASTNode> grandparent = AstUtils.getParent(parent.get(),neuronNode);
-            if(grandparent.isPresent() &&
-                grandparent.get() instanceof ASTFunctionCall){
-              ASTFunctionCall grandparentCall = (ASTFunctionCall) grandparent.get();
-              if(grandparentCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM) ||
-                 grandparentCall.getCalleeName().equals(PredefinedFunctions.COND_SUM)){
-                continue;
-              }
-            }
-          }
-          final String errorMsg = NestmlErrorStrings.message(RestrictUseOfShapes.this);
-
-          error(errorMsg,node.get_SourcePositionStart());
-        }
-      }
-    }
-
-    public void visit(ASTDerivative node){
-      for(String shapeName: shapes){
-        if(node.getName().toString().equals(shapeName)){
-          final String errorMsg = NestmlErrorStrings.message(RestrictUseOfShapes.this);
-          error(errorMsg,node.get_SourcePositionStart());
-        }
-      }
-    }
-  }
-
   @Override
-  public void check(ASTNeuron node) {
+  public void check(final ASTNeuron node) {
 
     ShapeCollectingVisitor shapeCollectingVisitor = new ShapeCollectingVisitor();
     List<String> shapeNames = shapeCollectingVisitor.collectShapes(node);
@@ -97,4 +31,94 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
     shapeUsageVisitor.workOn(node);
 
   }
+
+  public class ShapeCollectingVisitor implements NESTMLVisitor {
+
+    private List<String> shapeNames = new ArrayList<>();
+
+    List<String> collectShapes(ASTNeuron node) {
+      node.accept(this);
+      return shapeNames;
+    }
+
+    @Override
+    public void visit(ASTShape node) {
+      ASTDerivative shapeVar = node.getLhs();
+      shapeNames.add(shapeVar.getName());
+    }
+
+  }
+
+  class ShapeUsageVisitor implements NESTMLVisitor {
+
+    private List<String> shapes;
+    private ASTNeuron neuronNode;
+
+    ShapeUsageVisitor(List<String> shapes) {
+      this.shapes = shapes;
+    }
+
+    void workOn(ASTNeuron node) {
+      neuronNode = node;
+      node.accept(this);
+    }
+
+    @Override
+    public void visit(final ASTVariable astVariable) {
+      final Scope scope = astVariable.getEnclosingScope().get();
+
+      for (String shapeName : shapes) {
+        final Optional<VariableSymbol> shapeVariable = scope.resolve(shapeName, VariableSymbol.KIND);
+
+        // shapes as ODEs can be still used as normal variables. only functions must be checked.
+        if (shapeVariable.isPresent() && shapeVariable.get().isFunctionalShape()) {
+          if (astVariable.getName().equals(shapeName)) {
+            final Optional<ASTNode> parent = AstUtils.getParent(astVariable, neuronNode);
+            if (parent.isPresent()) {
+              // Don't mind its own declaration
+              if (parent.get() instanceof ASTShape) {
+                continue;
+              }
+              // We have to dig deeper for funcitonCalls:
+              final Optional<ASTNode> grandparent = AstUtils.getParent(parent.get(), neuronNode);
+              if (grandparent.isPresent() &&
+                  grandparent.get() instanceof ASTFunctionCall) {
+                ASTFunctionCall grandparentCall = (ASTFunctionCall) grandparent.get();
+                if (grandparentCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM) ||
+                    grandparentCall.getCalleeName().equals(PredefinedFunctions.COND_SUM)) {
+                  continue;
+                }
+
+              }
+
+            }
+            final String errorMsg = NestmlErrorStrings.message(RestrictUseOfShapes.this);
+
+            error(errorMsg, astVariable.get_SourcePositionStart());
+          }
+
+        }
+
+      }
+
+    }
+
+    @Override
+    public void visit(final ASTEquation astEquation) {
+      final Scope scope = astEquation.getEnclosingScope().get();
+
+      final Optional<VariableSymbol> shapeVariable = scope.resolve(
+          astEquation.getLhs().getNameOfDerivedVariable(),
+          VariableSymbol.KIND);
+      if (shapeVariable.isPresent() &&
+          shapeVariable.get().isFunctionalShape() &&
+          shapes.contains(shapeVariable.get().getName())) {
+        final String errorMsg = NestmlErrorStrings.message(RestrictUseOfShapes.this);
+        error(errorMsg, astEquation.get_SourcePositionStart());
+      }
+
+    }
+
+  }
+
 }

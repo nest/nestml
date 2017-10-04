@@ -241,18 +241,25 @@ private:
       <#list body.getStateNonAliasSymbols() as variable>
         ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
       </#list>
+      <#list body.getInitialValuesSymbols() as variable>
+        ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
+      </#list>
+
     <#else>
       //! Symbolic indices to the elements of the state vector y
       enum StateVecElems
       {
-        <#list body.getOdeDefinedSymbols() as variable>
+        <#list body.getNonFunctionInitialValuesSymbols() as variable>
           ${names.convertToCPPName(variable.getName())}, ${variable.printComment("// ")}
         </#list>
         STATE_VEC_SIZE
       };
       //! state vector, must be C-array for GSL solver
-      double y[ STATE_VEC_SIZE ];
-      <#list body.getStateSymbolsWithoutOde() as variable>
+      double ode_state[ STATE_VEC_SIZE ];
+      <#list body.getStateSymbols() as variable>
+        ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
+      </#list>
+      <#list body.getFunctionInitialValuesSymbols() as variable>
         ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
       </#list>
     </#if>
@@ -343,6 +350,10 @@ private:
 
   <#list body.getStateSymbols() as state>
     ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [state])}
+  </#list>
+
+  <#list body.getInitialValuesSymbols() as initial_value>
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberVariableGetterSetter", [initial_value])}
   </#list>
 
   <#list body.getParameterSymbols() as parameter>
@@ -521,7 +532,7 @@ void ${neuronName}::set_status(const DictionaryDatum &__d)
     ${tc.includeArgs("org.nest.nestml.neuron.function.AssignTmpDictionaryValue", [state])}
   </#list>
   <#list body.getParameterInvariants() as invariant>
-    if ( !(${printerWithGetters.print(invariant)}) ) {
+    if ( !(${expressionsPrinter.print(invariant)}) ) {
       throw nest::BadProperty("The constraint '${idemPrinter.print(invariant)}' is violated!");
     }
   </#list>

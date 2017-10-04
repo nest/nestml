@@ -39,15 +39,17 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author: Martin Ebert
 */
 neuron terub_neuron_gpe:
-
   state:
+    r integer # counts number of tick during the refractory period
+  end
+
+  initial_values:
     V_m mV = E_L #  Membrane potential
 
-    gate_h     real # gating variable h
-    gate_n     real # gating variable n
-    gate_r     real # gating variable r
-    Ca_con     real # gating variable r
-    r integer # counts number of tick during the refractory period
+    gate_h     real = 0 # gating variable h
+    gate_n     real = 0 # gating variable n
+    gate_r     real = 0 # gating variable r
+    Ca_con     real = 0 # gating variable r
   end
 
   equations:
@@ -146,8 +148,6 @@ neuron terub_neuron_gpe:
   end
 
   internals:
-    PSCurrInit_E pA/ms = pA * e / tau_syn_ex
-    PSCurrInit_I pA/ms = pA * e / tau_syn_in
     refractory_counts integer = steps(t_ref)
   end
 
@@ -216,20 +216,22 @@ Receives: SpikeEvent, CurrentEvent, DataLoggingRequest
 Author: Martin Ebert
 */
 neuron terub_neuron_gpe_implicit:
-
   state:
+    r integer # counts number of tick during the refractory period
+  end
+
+  initial_values:
     V_m mV = E_L #  Membrane potential
 
-    g_in pA = 0pA # Inhibitory synaptic conductance
-    g_in' pA/ms = 0pA/ms # Inhibitory synaptic conductance
-    g_ex pA = 0pA # Excitatory synaptic conductance
-    g_ex' pA/ms = 0pA/ms # Excitatory synaptic conductance
+    gate_h     real = 0 # gating variable h
+    gate_n     real = 0 # gating variable n
+    gate_r     real = 0 # gating variable r
+    Ca_con     real = 0 # gating variable r
 
-    gate_h     real # gating variable h
-    gate_n     real # gating variable n
-    gate_r     real # gating variable r
-    Ca_con     real # gating variable r
-    r integer # counts number of tick during the refractory period
+    g_in pA = 0 nS                     # Excitatory synaptic conductance
+    g_in' pA/mS = nS * e / tau_syn_in  # Excitatory synaptic conductance
+    g_ex pA = 0 nS                     # Inhibitory synaptic conductance in nS
+    g_ex' pA/mS = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
   end
 
   equations:
@@ -291,13 +293,11 @@ neuron terub_neuron_gpe_implicit:
     function I_ahp real =  g_ahp * (Ca_con / (Ca_con + g_k1))        * (V_m - E_K )
 
     # synapses: alpha functions
-    ## alpha function for the g_in
-    g_in'' = (-2/tau_syn_in) * g_in'-(1/tau_syn_in**2) * g_in
-    g_in' = g_in'
+    # alpha function for the g_in
+    shape g_in'' = (-2/tau_syn_in) * g_in'-(1/tau_syn_in**2) * g_in
 
-    ## alpha function for the g_ex
-    g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
-    g_ex' = g_ex'
+    # alpha function for the g_ex
+    shape g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
 
     # V dot -- synaptic input are currents, inhib current is negative
     V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + currents + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m
@@ -331,8 +331,6 @@ neuron terub_neuron_gpe_implicit:
   end
 
   internals:
-    PSCurrInit_E pA/ms = pA * e / tau_syn_ex
-    PSCurrInit_I pA/ms = pA * e / tau_syn_in
     refractory_counts integer = steps(t_ref)
   end
 
@@ -356,8 +354,6 @@ neuron terub_neuron_gpe_implicit:
       emit_spike()
     end
 
-    g_ex' += spikeExc * PSCurrInit_E
-    g_in' += spikeInh * PSCurrInit_I
   end
 
 end

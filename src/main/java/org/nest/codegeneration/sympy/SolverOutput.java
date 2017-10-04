@@ -63,7 +63,7 @@ public class SolverOutput {
       return fromJSON(Joiner.on("\n").join(tmp));
     }
     catch (IOException e) {
-      throw new RuntimeException("Cannot read the solver's evaluation result", e);
+      return ERROR_RESULT;
     }
   }
 

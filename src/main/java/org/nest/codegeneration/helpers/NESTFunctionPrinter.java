@@ -37,17 +37,15 @@ public class NESTFunctionPrinter {
     // TODO names and concept is misleading
     List<String> parameterNestmlTypes = Lists.newArrayList();
     List<String> parameterNestTypes = Lists.newArrayList();
-    if (astFunction.getParameters().isPresent()) {
-      for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
-        String parameterTypeFqn = AstUtils.computeTypeName(astFunction.getParameters().get().getParameters().get(i).getDatatype());
+    for (int i = 0; i < astFunction.getParameters().size(); ++i) {
+      String parameterTypeFqn = AstUtils.computeTypeName(astFunction.getParameters().get(i).getDatatype());
 
-        Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
-        checkState(parameterType.isPresent(),
-            "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
-                .getName());
-        parameterNestmlTypes.add(parameterTypeFqn);
-        parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()));
-      }
+      Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
+      checkState(parameterType.isPresent(),
+          "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
+              .getName());
+      parameterNestmlTypes.add(parameterTypeFqn);
+      parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()));
     }
 
     final Optional<MethodSymbol> method = NestmlSymbols.resolveMethod(
@@ -79,17 +77,15 @@ public class NESTFunctionPrinter {
     // TODO names and concept is misleading
     List<String> parameterNestmlTypes = Lists.newArrayList();
     List<String> parameterNestTypes = Lists.newArrayList();
-    if (astFunction.getParameters().isPresent()) {
-      for (int i = 0; i < astFunction.getParameters().get().getParameters().size(); ++i) {
-        final ASTParameter functionParameter = astFunction.getParameters().get().getParameters().get(i);
-        String parameterTypeFqn = AstUtils.computeTypeName(functionParameter.getDatatype());
-        Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
-        checkState(parameterType.isPresent(),
-            "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
-                .getName());
-        parameterNestmlTypes.add(parameterTypeFqn);
-        parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()) + " " + functionParameter.getName()); // TODO misleading name
-      }
+    for (int i = 0; i < astFunction.getParameters().size(); ++i) {
+      final ASTParameter functionParameter = astFunction.getParameters().get(i);
+      String parameterTypeFqn = AstUtils.computeTypeName(functionParameter.getDatatype());
+      Optional<TypeSymbol> parameterType = scope.resolve(parameterTypeFqn, TypeSymbol.KIND);
+      checkState(parameterType.isPresent(),
+          "Cannot resolve the parameter type: " + parameterTypeFqn + ". In function: " + astFunction
+              .getName());
+      parameterNestmlTypes.add(parameterTypeFqn);
+      parameterNestTypes.add(new NESTML2NESTTypeConverter().convert(parameterType.get()) + " " + functionParameter.getName()); // TODO misleading name
     }
 
     final Optional<MethodSymbol> method = NestmlSymbols.resolveMethod(

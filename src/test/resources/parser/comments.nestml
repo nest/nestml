@@ -1,0 +1,32 @@
+/*
+Multiline comment on neuron
+*/
+neuron iaf_neuron_nestml:
+
+  # comment on block
+  state:
+    # me 1
+    # comment before variable V_abs
+    V_abs mV # comment in the same line as V_abs
+             # comment in the next line as V_abs
+
+    # ignore me
+
+    # me2
+    # comment before variable V_m
+    V_m mV # comment in the same line as V_m
+           # comment in the next line as V_m
+
+    # ignore me
+  end
+
+  update:
+    # me 3
+    # comment before local1
+    local1 real # comment in the same line local1
+                # comment in the next line as local1
+
+    # ignore me
+  end
+
+end

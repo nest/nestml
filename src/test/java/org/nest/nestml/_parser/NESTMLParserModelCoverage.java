@@ -35,7 +35,7 @@ public class NESTMLParserModelCoverage extends ModelbasedTest {
 
     filenames.addAll(collectFiles(
         Paths.get("src/test/resources"),
-        model -> model.getFileName().toString().endsWith(NESTMLLanguage.FILE_ENDING) && !model.toString().contains("unparsable")));
+        model -> model.getFileName().toString().endsWith(NESTMLLanguage.FILE_ENDING) && !model.toString().contains("parser/unparsable")));
 
     filenames.forEach(this::parseAndCheck);
   }

@@ -36,11 +36,9 @@ public class PredefinedVariables {
     }
   }
 
-  private static void registerVariable(
-      final String variableName, final TypeSymbol type) {
-    final VariableSymbol variableSymbol = new VariableSymbol(variableName);
+  private static void registerVariable(final String variableName, final TypeSymbol type) {
+    final VariableSymbol variableSymbol = new VariableSymbol(variableName, VariableSymbol.BlockType.PREDEFINED, VariableSymbol.VariableType.VARIABLE);
     variableSymbol.setType(type);
-    variableSymbol.setPredefined(true);
     name2VariableSymbol.put(variableName, variableSymbol);
   }
 
