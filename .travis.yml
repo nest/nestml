@@ -6,10 +6,6 @@ os:
 jdk:
   - oraclejdk8
 
-branches:
-  only:
-    - master
-
 install:
   - pip install --user -r requirements.txt
   - mvn clean
