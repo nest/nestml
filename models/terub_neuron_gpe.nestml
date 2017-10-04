@@ -295,11 +295,9 @@ neuron terub_neuron_gpe_implicit:
     # synapses: alpha functions
     # alpha function for the g_in
     shape g_in'' = (-2/tau_syn_in) * g_in'-(1/tau_syn_in**2) * g_in
-    shape g_in' = g_in'
 
     # alpha function for the g_ex
     shape g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
-    shape g_ex' = g_ex'
 
     # V dot -- synaptic input are currents, inhib current is negative
     V_m' = ( -(I_Na + I_K + I_L + I_T + I_Ca + I_ahp)* pA + currents + I_e + I_ex_mod * pA + I_in_mod * pA) / C_m

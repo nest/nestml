@@ -68,7 +68,7 @@ neuron mat2_psc_exp_neuron:
   end
 
   initial_values:
-    V_abs mV  = 0mV# Membrane potential
+    V_abs mV  = 0mV # Membrane potential
     function V_m mV = V_abs + E_L    # Relative membrane potential.
                                       # I.e. the real threshold is (V_m-E_L).
   end

@@ -207,11 +207,9 @@ neuron hh_psc_alpha_implicit:
 
   equations:
     # synapses: alpha functions
-    shape I_syn_in' = I_syn_in'
     shape I_syn_in'' = (-2/tau_syn_in) * I_syn_in'-(1/tau_syn_in**2) * I_syn_in
 
     ## alpha function for the g_ex
-    shape I_syn_ex' = I_syn_ex'
     shape I_syn_ex'' = (-2/tau_syn_ex) * I_syn_ex'-(1/tau_syn_ex**2) * I_syn_ex
 
     function I_syn_exc pA = curr_sum(I_syn_ex, spikeExc)

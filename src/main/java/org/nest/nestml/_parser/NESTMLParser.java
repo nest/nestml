@@ -10,9 +10,7 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
-import javafx.util.Pair;
 import org.antlr.v4.runtime.RecognitionException;
-import org.nest.codegeneration.sympy.AstCreator;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.UnitsSIVisitor;
 import org.nest.utils.AstUtils;
@@ -24,7 +22,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.groupingBy;
 import static org.nest.codegeneration.sympy.AstCreator.createEquation;
