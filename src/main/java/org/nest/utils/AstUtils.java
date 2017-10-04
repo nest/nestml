@@ -31,15 +31,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Deque;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.*;
 import static java.lang.Math.pow;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static org.nest.codegeneration.sympy.AstCreator.createEquation;
+import static org.nest.codegeneration.sympy.AstCreator.createShape;
 import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
 
@@ -437,6 +437,61 @@ public final class AstUtils {
       }
     }
     return Optional.empty();
+  }
+
+  public static void addTrivialOdes(ASTEquationsBlock astEquationsBlock) {
+    // partition shapes by simple names name:
+    Map<String, List<ASTEquation>> equations = astEquationsBlock.getEquations()
+        .stream()
+        .collect(groupingBy(astEquation -> astEquation.getLhs().getSimpleName()));
+
+    for (final Map.Entry<String, List<ASTEquation>> odeSystem:equations.entrySet()) {
+      odeSystem.getValue().sort(Comparator.comparingInt(a -> a.getLhs().getDifferentialOrder().size()));
+      // go from the 1st order to the last order
+      int highesOrderOde = odeSystem.getValue().get(odeSystem.getValue().size() - 1).getLhs().getDifferentialOrder().size();
+
+
+      for (int i = highesOrderOde; i > 0; --i) {
+        final int currentOrder = i;
+        boolean isCorrespondingOdePresent = odeSystem.getValue()
+            .stream()
+            .anyMatch(astEquation -> astEquation.getLhs().getDifferentialOrder().size() == currentOrder);
+        if (!isCorrespondingOdePresent) {
+          String equationString = odeSystem.getKey() + Strings.repeat("'", currentOrder) + " = " +
+                                  odeSystem.getKey() + Strings.repeat("'", currentOrder);
+          astEquationsBlock.getEquations().add(createEquation(equationString));
+        }
+
+      }
+
+      Map<String, List<ASTShape>> shapes = astEquationsBlock.getShapes()
+          .stream()
+          .collect(groupingBy(astEquation -> astEquation.getLhs().getSimpleName()));
+
+      for (final Map.Entry<String, List<ASTShape>> shapeOdeSystem:shapes.entrySet()) {
+        shapeOdeSystem.getValue().sort(Comparator.comparingInt(a -> a.getLhs().getDifferentialOrder().size()));
+        // go from the 1st order to the last order
+        int highestOrderShape = shapeOdeSystem.getValue().get(shapeOdeSystem.getValue().size() - 1).getLhs().getDifferentialOrder().size();
+
+
+        for (int i = highestOrderShape; i > 0; --i) {
+          final int currentOrder = i;
+          boolean isCorrespondingOdePresent = shapeOdeSystem.getValue()
+              .stream()
+              .anyMatch(astEquation -> astEquation.getLhs().getDifferentialOrder().size() == currentOrder);
+          if (!isCorrespondingOdePresent) {
+            String equationString = "shape " +
+                                    shapeOdeSystem.getKey() + Strings.repeat("'", currentOrder) + " = " +
+                                    shapeOdeSystem.getKey() + Strings.repeat("'", currentOrder);
+            astEquationsBlock.getShapes().add(createShape(equationString));
+          }
+
+        }
+
+      }
+
+    }
+
   }
 
 }
