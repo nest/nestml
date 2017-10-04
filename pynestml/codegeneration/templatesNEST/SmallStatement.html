@@ -3,22 +3,22 @@
                          | FunctionCall
                          | Declaration
                          | ReturnStmt;
-  @param ast ASTSmallStmt
+  @param stmt ASTSmallStmt
 #}
-{% if ast.isAssignment() %}
-{% with ast = ast.getAssignment() %}
-{% include "Assignment.html" %}
-{% endwith %}
-{% elif ast.isFunctionCall() %}
-{% with ast = ast.getFunctionCall() %}
-{% include "FunctionCall.html" %}
-{% endwith %}
-{% elif ast.isDeclaration() %}
-{% with ast = ast.getDeclaration() %}
-{% include "Declaration.html" %}
-{% endwith %}
-{% elif ast.isReturnStmt() %}
-{% with ast = ast.getReturnStmt() %}
-{% include "ReturnStatement.html" %}
-{% endwith %}
-{% endif %}
+{%- if stmt.isAssignment() -%}
+{%- with ast = stmt.getAssignment() -%}
+{%- include "Assignment.html" -%}
+{%- endwith -%}
+{%- elif stmt.isFunctionCall() -%}
+{%- with ast = stmt.getFunctionCall() -%}
+{%- include "FunctionCall.html" -%}
+{%- endwith -%}
+{%- elif stmt.isDeclaration() -%}
+{%- with ast = stmt.getDeclaration() -%}
+{%- include "Declaration.html" -%}
+{%- endwith -%}
+{%- elif stmt.isReturnStmt() -%}
+{%- with ast = stmt.getReturnStmt() -%}
+{%- include "ReturnStatement.html" -%}
+{%- endwith -%}
+{%- endif -%}

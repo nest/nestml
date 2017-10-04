@@ -16,8 +16,7 @@ __t = 0;
 // enforce setting IntegrationStep to step-t; this is of advantage
 // for a consistent and efficient integration across subsequent
 // simulation intervals
-while ( __t < B_.__step )
-{
+while ( __t < B_.__step ){
   const int status = gsl_odeiv_evolve_apply(B_.__e,
                                             B_.__c,
                                             B_.__s,

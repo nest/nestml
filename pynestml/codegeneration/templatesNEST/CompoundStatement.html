@@ -2,15 +2,16 @@
   Handles the compound statement.
   @grammar: Compound_Stmt = IF_Stmt | FOR_Stmt | WHILE_Stmt;
 #}
-{% ast.isIfStmt() %}
-{% with stmt = ast.getIfStmt() %}
-{% include "IfStatement.html" %}
-{% endwith %}
-{% elif ast.isForStmt() %}
-{% with stmt = ast.getForStmt() %}}
-{% include "ForStatement.html" %}
-{% endwith %}
-{% elif ast.isWhileStmt() %}
-{% with stmt = ast.getWhileStmt() %}}
-{% include "WhileStatement.html" %}
-{% endif %}
+{%- if stmt.isIfStmt() -%}
+{%- with ast = stmt.getIfStmt() -%}
+{%- include "IfStatement.html" -%}
+{%- endwith -%}
+{%- elif stmt.isForStmt() -%}
+{%- with ast = stmt.getForStmt() -%}}
+{%- include "ForStatement.html" -%}
+{%- endwith -%}
+{%- elif stmt.isWhileStmt() -%}
+{%- with ast = stmt.getWhileStmt() -%}}
+{%- include "WhileStatement.html" -%}
+{%- endwith -%}
+{%- endif -%}

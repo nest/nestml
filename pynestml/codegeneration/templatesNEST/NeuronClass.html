@@ -292,9 +292,9 @@ void
 void
 {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
-  {% if useGSL %}
+  {%- if useGSL -%}
     double __t = 0;
-  {% endif -%}
+  {%- endif -%}
 
   for ( long lag = from ; lag < to ; ++lag ) {
     {% for inputLine in neuron.getInputBuffers() -%}
@@ -306,10 +306,10 @@ void
     {% else -%}
     B_.{{names.bufferValue(inputLine)}} = get_{{names.name(inputLine)}}().get_value( lag );
     {% endif -%}
-    {% endfor -%}
+    {%- endfor -%}
     {%- set dynamics = neuron.getUpdateBlocks() -%}
-    {%- with ast = dynamics.getBlock() -%}{% filter indent(4,True) %}
-    {%- include "Block.html" -%}{% endfilter %}
+    {%- with ast = dynamics.getBlock() -%}{%- filter indent(2,True) -%}
+    {%- include "Block.html" -%}{%- endfilter -%}
     {%- endwith -%}
     // voltage logging
     B_.logger_.record_data(origin.get_steps()+lag);

@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.ASTAssignment import ASTAssignment
+from pynestml.nestml.Symbol import SymbolKind
 
 
 class NestAssignmentsHelper(object):
@@ -36,7 +37,7 @@ class NestAssignmentsHelper(object):
         """
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName())
+        symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),SymbolKind.VARIABLE)
         if symbol is not None:
             return symbol
         else:
@@ -53,9 +54,9 @@ class NestAssignmentsHelper(object):
         """
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
-        if _assignment.isCompoundMinus():
+        if _assignment.isCompoundSum():
             return '+='
-        elif _assignment.isCompoundSum():
+        elif _assignment.isCompoundMinus():
             return '-='
         elif _assignment.isCompoundProduct():
             return '*='

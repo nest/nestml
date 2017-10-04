@@ -3,8 +3,10 @@
   @grammar: Block = ( Stmt | NEWLINE )*;
   @param ast ASTBlock
 #}
-{% for statement in ast.getStmts() -%}
-  {% with ast = statement %}
-  {% include "Statement.html" -%}
-  {% endwith -%}
+{% for statement in ast.getStmts() %}
+{% filter indent(2,True) %}
+{% with stmt = statement -%}
+{% include "Statement.html" -%}
+{% endwith -%}
+{% endfilter %}
 {% endfor -%}
