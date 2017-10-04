@@ -120,7 +120,8 @@ class NestPrinter(object):
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(_forStmt)
         return _forStmt.getStep()
 
-    def printOrigin(self, _variableSymbol=None):
+    @classmethod
+    def printOrigin(cls, _variableSymbol=None):
         """
         Returns a prefix corresponding to the origin of the variable symbol.
         :param _variableSymbol: a single variable symbol.

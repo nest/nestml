@@ -32,8 +32,8 @@ class PredefinedVariables:
     
     """
     __name2VariableSymbol = {}  # a map from names to symbols
-    __E_CONSTANT = 'e'
-    __TIME_CONSTANT = 't'
+    E_CONSTANT = 'e'
+    TIME_CONSTANT = 't'
 
     @classmethod
     def registerPredefinedVariables(cls):
@@ -64,7 +64,7 @@ class PredefinedVariables:
         """
         symbol = VariableSymbol(_name='e', _blockType=BlockType.STATE,
                                 _isPredefined=True, _typeSymbol=PredefinedTypes.getRealType())
-        cls.__name2VariableSymbol[cls.__E_CONSTANT] = symbol
+        cls.__name2VariableSymbol[cls.E_CONSTANT] = symbol
         return
 
     @classmethod
@@ -74,7 +74,7 @@ class PredefinedVariables:
         """
         symbol = VariableSymbol(_name='t', _blockType=BlockType.STATE,
                                 _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists('ms'))
-        cls.__name2VariableSymbol[cls.__TIME_CONSTANT] = symbol
+        cls.__name2VariableSymbol[cls.TIME_CONSTANT] = symbol
         return
 
     @classmethod
@@ -84,7 +84,7 @@ class PredefinedVariables:
         :return: a variable symbol.
         :rtype: VariableSymbol
         """
-        return cls.__name2VariableSymbol[cls.__TIME_CONSTANT]
+        return cls.__name2VariableSymbol[cls.TIME_CONSTANT]
 
     @classmethod
     def getEulerConstant(cls):
@@ -93,7 +93,7 @@ class PredefinedVariables:
         :return: a variable symbol.
         :rtype: VariableSymbol
         """
-        return cls.__name2VariableSymbol[cls.__E_CONSTANT]
+        return cls.__name2VariableSymbol[cls.E_CONSTANT]
 
     @classmethod
     def getVariableIfExists(cls, _name=None):

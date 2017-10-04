@@ -156,7 +156,7 @@ class NestCodeGenerator(object):
             '(PyNestML.CodeGenerator.NEST) No or wrong type of module name provided (%s)!' % type(_moduleName)
 
         self.generateModuleHeader(_moduleName)
-        #self.generateModuleClass(_)
+        # self.generateModuleClass(_)
 
     def generateHeader(self, _neuron=None):
         """
@@ -213,6 +213,7 @@ class NestCodeGenerator(object):
         from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
         from pynestml.codegeneration.NestPrinter import NestPrinter
         from pynestml.codegeneration.LegacyExpressionPrinter import LegacyExpressionPrinter
+        from pynestml.codegeneration.NESTReferenceConverter import NESTReferenceConverter
         from pynestml.utils.OdeTransformer import OdeTransformer
         from pynestml.utils.ASTUtils import ASTUtils
         namespace = {}
@@ -220,7 +221,8 @@ class NestCodeGenerator(object):
         namespace['neuron'] = _neuron
         namespace['moduleName'] = 'TODO module name'
         # helper classes and objects
-        legacyPrettyPrinter = LegacyExpressionPrinter()
+        converter = NESTReferenceConverter(_usesGSL=False)
+        legacyPrettyPrinter = LegacyExpressionPrinter(_referenceConverter=converter)
         namespace['printer'] = NestPrinter(_expressionPrettyPrinter=legacyPrettyPrinter)
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()

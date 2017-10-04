@@ -280,6 +280,14 @@ class VariableSymbol(Symbol):
         """
         return self.getBlockType() == BlockType.INPUT_BUFFER_SPIKE
 
+    def isBuffer(self):
+        """
+        Returns whether this variable symbol represents a buffer or not.
+        :return: True if buffer, otherwise False.
+        :rtype: bool
+        """
+        return self.isSpikeBuffer() or self.isInputBufferCurrent()
+
     def isOutput(self):
         """
         Returns whether this variable symbol has been declared as a output-buffer element.
@@ -449,10 +457,10 @@ class VariableSymbol(Symbol):
         :return: the corresponding comment.
         :rtype: str
         """
-        assert (_prefix is None or isinstance(_prefix,str)),\
-            '(PyNestML.SymbolTable.VariableSymbol) Wrong type of prefix provided (%s)!' %type(_prefix)
+        assert (_prefix is None or isinstance(_prefix, str)), \
+            '(PyNestML.SymbolTable.VariableSymbol) Wrong type of prefix provided (%s)!' % type(_prefix)
         if _prefix is not None:
-            return _prefix +'TODO comment in variable symbol'
+            return _prefix + 'TODO comment in variable symbol'
         else:
             return 'TODO comment in variable symbol'
 

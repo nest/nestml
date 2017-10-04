@@ -310,7 +310,7 @@ void
     {%- set dynamics = neuron.getUpdateBlocks() -%}
     {%- with ast = dynamics.getBlock() -%}{%- filter indent(2,True) -%}
     {%- include "Block.html" -%}{%- endfilter -%}
-    {%- endwith -%}
+    {%- endwith %}
     // voltage logging
     B_.logger_.record_data(origin.get_steps()+lag);
   }
