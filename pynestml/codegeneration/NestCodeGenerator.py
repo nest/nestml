@@ -17,10 +17,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from jinja2 import Template, Environment, FileSystemLoader, PackageLoader
+from jinja2 import Environment, FileSystemLoader
+from pynestml.codegeneration.NestDeclarationsHelper import NestDeclarationsHelper
+from pynestml.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
+from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
+from pynestml.codegeneration.NestPrinter import NestPrinter
+from pynestml.codegeneration.LegacyExpressionPrinter import LegacyExpressionPrinter
+from pynestml.codegeneration.NESTReferenceConverter import NESTReferenceConverter
+from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
+from pynestml.utils.OdeTransformer import OdeTransformer
+from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 import os
 
 
@@ -208,14 +217,6 @@ class NestCodeGenerator(object):
         :return: a map from name to functionality.
         :rtype: dict
         """
-        from pynestml.codegeneration.NestDeclarationsHelper import NestDeclarationsHelper
-        from pynestml.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
-        from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
-        from pynestml.codegeneration.NestPrinter import NestPrinter
-        from pynestml.codegeneration.LegacyExpressionPrinter import LegacyExpressionPrinter
-        from pynestml.codegeneration.NESTReferenceConverter import NESTReferenceConverter
-        from pynestml.utils.OdeTransformer import OdeTransformer
-        from pynestml.utils.ASTUtils import ASTUtils
         namespace = {}
         namespace['neuronName'] = _neuron.getName()
         namespace['neuron'] = _neuron
@@ -232,18 +233,43 @@ class NestCodeGenerator(object):
         namespace['outputEvent'] = namespace['printer'].printOutputEvent(_neuron.getBody())
         namespace['isSpikeInput'] = ASTUtils.isSpikeInput(_neuron.getBody())
         namespace['isCurrentInput'] = ASTUtils.isCurrentInput(_neuron.getBody())
-        # some additional information
-        namespace['useGSL'] = False  # Todo
         namespace['odeTransformer'] = OdeTransformer()
-        # todo more
+        # some additional information
+        #self.defineSolverType(namespace, _neuron) <---- TODO changed
         return namespace
 
-    def test(self, _neuron):
-        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'spl', 'ModuleClass.html'),
-                  'r') as templateModuleClass:
-            data = templateModuleClass.read()
-            templateModuleClass = Template(data)
-            inputModuleClass = self.setupStandardNamespace(_neuron)
-            outputModuleClass = templateModuleClass.render(inputModuleClass)
-            with open(str(os.path.join(FrontendConfiguration.getTargetPath(), 'teeest')) + '.cpp', 'w+') as f:
-                f.write(str(outputModuleClass))
+    def defineSolverType(self, _namespace=dict, _neuron=None):
+        """
+        For a handed over neuron this method enriches the namespace by methods which are used to solve
+        odes.
+        :param _namespace: a single namespace dict.
+        :type _namespace:  dict
+        :param _neuron: a single neuron
+        :type _neuron: ASTNeuron
+        """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CodeGeneration.CodeGenerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        _namespace['useGSL'] = False
+        if _neuron.getEquationsBlocks() is not None:
+            if not self.functionShapeExists(_neuron.getEquationsBlocks().getOdeShapes()) or \
+                            len(_neuron.getEquationsBlocks().getOdeEquations()) > 1:
+                _namespace['names'] = GSLNamesConverter()
+                _namespace['useGSL'] = True
+                converter = NESTReferenceConverter(_usesGSL=True)
+                legacyPrettyPrinter = LegacyExpressionPrinter(_referenceConverter=converter)
+                _namespace['printer'] = NestPrinter(_expressionPrettyPrinter=legacyPrettyPrinter)
+        return
+
+    def functionShapeExists(self, _shapes=list()):
+        """
+        For a handed over list of shapes this method checks if a single shape exits with differential order of 0.
+        :param _shapes: a list of shapes
+        :type _shapes: list(ASTOdeShape)
+        :return: True if at leas one shape with diff. order of 0 exits, otherwise False.
+        :rtype: bool
+        """
+        from pynestml.nestml.ASTOdeShape import ASTOdeShape
+        for shape in _shapes:
+            if isinstance(shape, ASTOdeShape) and shape.getVariable().getDifferentialOrder() == 0:
+                return True
+        return False

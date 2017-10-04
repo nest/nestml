@@ -290,6 +290,28 @@ class ASTSimpleExpression(ASTElement):
                 return self.__variable.getParent(_ast)
         return None
 
+    def setVariable(self, _variable=None):
+        """
+        Updates the variable of this node.
+        :param _variable: a single variable
+        :type _variable: ASTVariable
+        """
+        assert (_variable is None or isinstance(_variable, ASTVariable)), \
+            '(PyNestML.AST.SimpleExpression) No or wrong type of variable provided (%s)!' % type(_variable)
+        self.__variable = _variable
+        return
+
+    def setFunctionCall(self, _functionCall):
+        """
+        Updates the function call of this node.
+        :param _functionCall: a single function call
+        :type _functionCall: ASTFunctionCall
+        """
+        assert (_functionCall is None or isinstance(_functionCall, ASTVariable)), \
+            '(PyNestML.AST.SimpleExpression) No or wrong type of function call provided (%s)!' % type(_functionCall)
+        self.__functionCall = _functionCall
+        return
+
     def printAST(self):
         """
         Returns the string representation of the simple expression.

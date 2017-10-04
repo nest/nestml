@@ -215,3 +215,17 @@ class ASTUtils(object):
         :return:
         :rtype:
         """
+        pass
+
+    def getAliasSymbols(self,_ast=None):
+        """
+        For the handed over ast, this method collects all functions aka. aliases in it.
+        :param _ast: a single ast node
+        :type _ast: AST_
+        :return: a list of all alias variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        pass
+
+
+
