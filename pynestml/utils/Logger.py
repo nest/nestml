@@ -162,6 +162,31 @@ class Logger(object):
                 ret.append((neuron, level, message))
         return ret
 
+    @classmethod
+    def hasErrors(cls, _neuron=None):
+        """
+        Indicates whether the handed over neuron, thus the corresponding model, has errors.
+        :param _neuron: a single neuron instance.
+        :type _neuron: ASTNeuron
+        :return: True if errors detected, otherwise False
+        :rtype: bool
+        """
+        return cls.getAllMessagesOfLevelAndOrNeuron(_neuron, LOGGING_LEVEL.ERROR) > 0
+
+    @classmethod
+    def getPrintableFormat(cls):
+        """
+        Returns the log in a format which can be used to be stored to a file.
+        :return: a str containing the log
+        :rtype: str
+        """
+        ret = ''
+        for messageNr in cls.__log.keys():
+            (currentNeuron, logLevel, message) = cls.__log[messageNr]
+            ret += '[' + str(messageNr) + ',' + \
+                   (currentNeuron.getName() + ',' if cls.__currentNeuron is not None else '') + \
+                   str(logLevel.name) + ']:' + str(message) + '\n'
+        return ret
 
 class LOGGING_LEVEL(Enum):
     """

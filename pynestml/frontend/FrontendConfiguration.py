@@ -34,6 +34,7 @@ class FrontendConfiguration(object):
     __dryRun = None
     __targetPath = None
     __moduleName = None
+    __storeLog = False
 
     @classmethod
     def config(cls, _args=None):
@@ -52,7 +53,7 @@ class FrontendConfiguration(object):
                                           help='Path to a single file or a directory containing the source models.')
         cls.__argumentParser.add_argument('-target', metavar='Target', type=str, nargs='?',
                                           help='Path to a target directory where models should be generated to. '
-                                               'Standard is "buildNest".')
+                                               'Standard is "target".')
         cls.__argumentParser.add_argument('-dry', action='store_true',
                                           help='Indicates that a dry run shall be performed, i.e.,'
                                                ' without generating a target model.')
@@ -62,6 +63,10 @@ class FrontendConfiguration(object):
         cls.__argumentParser.add_argument('-module_name', type=str, nargs='+',
                                           help='Indicates the name of the module. Optional. If not indicated,'
                                                'the name of the directory containing the models is used!')
+        cls.__argumentParser.add_argument('-store_log', action='store_true',
+                                          help='Indicates whether a log file containing all messages shall'
+                                               'be stored. Standard is NO.')
+
         parsed_args = cls.__argumentParser.parse_args(_args)
         cls.__providedPath = parsed_args.path
         if cls.__providedPath is None:
@@ -85,9 +90,9 @@ class FrontendConfiguration(object):
         if parsed_args.target is not None:
             cls.__targetPath = str(os.path.realpath(os.path.join('..', parsed_args.target)))
         else:
-            if not os.path.isdir(os.path.realpath(os.path.join('..', 'buildNest'))):
-                os.makedirs(os.path.realpath(os.path.join('..', 'buildNest')))
-            cls.__targetPath = str(os.path.realpath(os.path.join('..', 'buildNest')))
+            if not os.path.isdir(os.path.realpath(os.path.join('..', 'target'))):
+                os.makedirs(os.path.realpath(os.path.join('..', 'target')))
+            cls.__targetPath = str(os.path.realpath(os.path.join('..', 'target')))
         # now adjust the name of the module, if it is a single file, then it is called just module
         if parsed_args.module_name is not None:
             cls.__moduleName = parsed_args.module_name[0]
@@ -97,6 +102,7 @@ class FrontendConfiguration(object):
             cls.__moduleName = os.path.basename(os.path.normpath(parsed_args.path[0]))
         else:
             cls.__moduleName = 'module'
+        cls.__storeLog = parsed_args.store_log
         return
 
     @classmethod
@@ -152,3 +158,12 @@ class FrontendConfiguration(object):
         :rtype: str
         """
         return cls.__moduleName
+
+    @classmethod
+    def storeLog(cls):
+        """
+        Returns whether the log shall be stored.
+        :return: True if shall be stored, otherwise False.
+        :rtype: bool
+        """
+        return cls.__storeLog

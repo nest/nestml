@@ -40,6 +40,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('buildNest')
         params.append('-module_name')
         params.append('test_module')
+        params.append('-store_log')
         main(params)
 
 

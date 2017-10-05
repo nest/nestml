@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import sys
+import sys, os
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.nestml.NESTMLParser import NESTMLParser
 from pynestml.nestml.NESTMLParserExceptions import InvalidPathException
@@ -62,7 +62,11 @@ def main(args):
         nestGenerator.analyseAndGenerateNeurons(neurons)
         nestGenerator.generateNESTModuleCode(neurons)
     else:
-        Logger.logMessage('Dry mode selected with -dry parameter, no models generated!',LOGGING_LEVEL.INFO)
+        Logger.logMessage('Dry mode selected with -dry parameter, no models generated!', LOGGING_LEVEL.INFO)
+    if FrontendConfiguration.storeLog():
+        with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
+                                   'log')) + '.txt', 'w+') as f:
+            f.write(str(Logger.getPrintableFormat()))
     return
 
 
