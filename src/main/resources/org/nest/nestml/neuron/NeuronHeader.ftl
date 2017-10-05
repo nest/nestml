@@ -78,6 +78,7 @@ extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f
       ${state.getName()?right_pad(10)} [${state.getType().prettyPrint()?right_pad(5)}] ${state.getComment().get()}
     </#if>
   </#list>
+
   <#list body.getInitialValuesSymbols() as initialValue>
     <#if initialValue.getComment().isPresent()>
       ${initialValue.getName()?right_pad(10)} [${initialValue.getType().prettyPrint()?right_pad(5)}] ${initialValue.getComment().get()}
@@ -169,8 +170,6 @@ private:
     };
   </#if>
   //! Reset parameters and state of neuron.
-
-  //! Reset state of neuron.
   void init_state_(const Node& proto);
 
   //! Reset internal buffers of neuron.
@@ -295,7 +294,7 @@ private:
 
   /**
     * Buffers of the neuron.
-    * Ususally buffers for incoming spikes and data logged for analog recorders.
+    * Usually buffers for incoming spikes and data logged for analog recorders.
     * Buffers must be initialized by @c init_buffers_(), which is called before
     * @c calibrate() on the first call to @c Simulate after the start of NEST,
     * ResetKernel or ResetNetwork.

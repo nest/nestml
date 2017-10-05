@@ -10,7 +10,6 @@
 -->
 
 <#list declarations.getVariables(ast) as variable>
-
   <#if declarations.isVector(ast)>
     ${declarations.printVariableType(variable)} ${variable.getName()}(P_.${declarations.printSizeParameter(ast)});
     <#if ast.getExpr().isPresent()>

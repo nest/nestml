@@ -29,12 +29,14 @@ import static org.nest.utils.AstUtils.addTrivialOdes;
  * @author plotnikov
  */
 public class NESTMLParser extends NESTMLParserTOP {
-  private final List<String> sourceText = Lists.newArrayList();
+
 
   @Override
   public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(final String filename)
       throws IOException, RecognitionException {
 
+    final List<String> sourceText = Lists.newArrayList();
+    sourceText.addAll(Files.readLines(new File(filename), Charset.defaultCharset()));
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
 
     if (res.isPresent()) {
@@ -46,17 +48,16 @@ public class NESTMLParser extends NESTMLParserTOP {
       final List<Finding> typeFindings = UnitsSIVisitor.convertSiUnitsToSignature(res.get());
       if (!typeFindings.isEmpty()) {
         Log.error("The modelfile contains semantic errors with respect to SI units.");
-        Log.error(String.format("There are %d errors", typeFindings.size()));
         return Optional.empty();
       }
 
       // store model text as list of strings
-      sourceText.addAll(Files.readLines(new File(filename), Charset.defaultCharset()));
+
       final List<ASTDeclaration> declarations = AstUtils.getAll(res.get(), ASTDeclaration.class);
 
       for (final ASTDeclaration astDeclaration:declarations) {
-        int line = astDeclaration.get_SourcePositionStart().getLine();
-        final List<String> variableComments = extractComments(sourceText, line - 1);
+        int arrayIndex = astDeclaration.get_SourcePositionStart().getLine() - 1;
+        final List<String> variableComments = extractComments(sourceText, arrayIndex);
         variableComments.forEach(astDeclaration::extendDocString);
       }
 

@@ -245,7 +245,13 @@ public class VariableSymbol extends CommonSymbol {
   public Optional<String> getComment() {
     if(getAstNode().isPresent() && getAstNode().get() instanceof ASTDeclaration) {
       final ASTDeclaration astDeclaration = (ASTDeclaration) getAstNode().get();
-      return Optional.of(astDeclaration.getDocString());
+      if (astDeclaration.getDocString().length() > 0) {
+
+        return Optional.of(astDeclaration.getDocString());
+      }
+      else {
+        return Optional.empty();
+      }
     }
     else {
       return Optional.empty();

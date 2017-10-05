@@ -66,11 +66,12 @@ public class NESTMLParserTest extends ModelbasedTest {
 
   @Test
   public void testCommentsExtraction() throws IOException {
-    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse(PARSER_INPUT + "comments.nestml");
+    final Optional<ASTNESTMLCompilationUnit> ast = parser.parse("/home/nestml/repositories/nestml/target/integration/iaf_neuron_nestml.tmp");
+    //final Optional<ASTNESTMLCompilationUnit> ast = parser.parse(PARSER_INPUT + "comments.nestml");
     assertTrue(ast.isPresent());
     final List<ASTDeclaration> declarations = AstUtils.getAll(ast.get(), ASTDeclaration.class);
     for (final ASTDeclaration declaration:declarations) {
-      System.out.println(declaration.getDocString());
+      System.out.println(declaration.getVars().get(0).toString() + ":  " + declaration.getDocString());
 
     }
 
