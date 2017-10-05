@@ -1,8 +1,4 @@
 /*
-Name: iaf_neuron_nestml - Leaky integrate-and-fire neuron model.
-
-Description:
-
 iaf_neuron is an implementation of a leaky integrate-and-fire model
 with alpha-function shaped synaptic currents. Thus, synaptic currents
 and the resulting post-synaptic potentials have a finite rise time.

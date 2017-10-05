@@ -61,35 +61,38 @@ extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f
 /* BeginDocumentation
   Name: ${neuronName}.
 
-  Description:
-  ${neuronSymbol.printComment()}
+Description:
+  <#list neuronSymbol.getDocStrings() as docString>
+  ${docString}
+  </#list>
 
-  Parameters:
+Parameters:
   The following parameters can be set in the status dictionary.
   <#list body.getParameterSymbols() as parameter>
     <#if parameter.getComment().isPresent()>
-      ${parameter.getName()?right_pad(10)} [${parameter.getType().prettyPrint()?right_pad(5)}] ${parameter.getComment().get()}
+  ${parameter.getName()?right_pad(10)} [${parameter.getType().prettyPrint()?right_pad(5)}] ${parameter.getComment().get()}
     </#if>
   </#list>
 
-  State variables:
+State variables:
+  These variables can be also set in the status dictionary.
   <#list body.getStateSymbols() as state>
     <#if state.getComment().isPresent()>
-      ${state.getName()?right_pad(10)} [${state.getType().prettyPrint()?right_pad(5)}] ${state.getComment().get()}
+  ${state.getName()?right_pad(10)} [${state.getType().prettyPrint()?right_pad(5)}] ${state.getComment().get()}
     </#if>
   </#list>
 
   <#list body.getInitialValuesSymbols() as initialValue>
     <#if initialValue.getComment().isPresent()>
-      ${initialValue.getName()?right_pad(10)} [${initialValue.getType().prettyPrint()?right_pad(5)}] ${initialValue.getComment().get()}
+  ${initialValue.getName()?right_pad(10)} [${initialValue.getType().prettyPrint()?right_pad(5)}] ${initialValue.getComment().get()}
     </#if>
   </#list>
 
-  References: Empty
+References: Empty
 
-  Sends: ${outputEvent}
+Sends: ${outputEvent}
 
-  Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
+Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
 */
 class ${neuronName} : public nest::Archiving_Node
 {
@@ -248,7 +251,6 @@ private:
       <#list body.getInitialValuesSymbols() as variable>
         ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
       </#list>
-
     <#else>
       /** Symbolic indices to the elements of the state vector y */
       enum StateVecElems
