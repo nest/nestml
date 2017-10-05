@@ -9,5 +9,5 @@
 <#if functions.isIntegrate(ast)>
 ${tc.include("org.nest.spl.small_statement.GSLIntegrator", body)}
 <#else>
-${expressionsPrinter.printMethodCall(ast)};
+${expressionsPrinter.printFunctionCall(ast)};
 </#if>

@@ -77,7 +77,7 @@ public class ExpressionsPrettyPrinter {
     }
     else if (expr.getFunctionCall().isPresent()) { // function
       final ASTFunctionCall astFunctionCall = expr.getFunctionCall().get();
-      return printMethodCall(astFunctionCall);
+      return printFunctionCall(astFunctionCall);
 
     }
     else if (expr.isUnaryPlus()) {
@@ -168,7 +168,7 @@ public class ExpressionsPrettyPrinter {
   /**
    * This method must be public, since it is used in Freemarker template
    */
-  public String printMethodCall(final ASTFunctionCall astFunctionCall) {
+  public String printFunctionCall(final ASTFunctionCall astFunctionCall) {
     final String nestFunctionName = referenceConverter.convertFunctionCall(astFunctionCall);
 
     if (referenceConverter.needsArguments(astFunctionCall)) {
