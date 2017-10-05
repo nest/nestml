@@ -18,7 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-
 import sys, os
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.nestml.NESTMLParser import NESTMLParser
@@ -50,13 +49,17 @@ def main(args):
         parsedUnit = NESTMLParser.parseModel(file)
         if parsedUnit is not None:
             compilationUnits.append(parsedUnit)
-    # check if across two files two neurons with same name have been defined
-    CoCosManager.checkNotTwoNeuronsAcrossUnits(compilationUnits)
-    # and generate them
+    # generate a list of all neurons
     neurons = list()
     for compilationUnit in compilationUnits:
         neurons.extend(compilationUnit.getNeuronList())
-
+    # check if across two files two neurons with same name have been defined
+    CoCosManager.checkNotTwoNeuronsAcrossUnits(compilationUnits)
+    # now exclude those which are broken, i.e. have errors.
+    for neuron in neurons:
+        if Logger.hasErrors(neuron):
+            Logger.logMessage('Neuron '+ neuron.getName() + ' contains errors. No code generated!',LOGGING_LEVEL.INFO)
+            #neurons.remove(neuron) Todo since type errors are currently in there
     if not FrontendConfiguration.isDryRun():
         nestGenerator = NestCodeGenerator()
         nestGenerator.analyseAndGenerateNeurons(neurons)

@@ -83,7 +83,7 @@ class FrontendConfiguration(object):
             raise InvalidPathException()
         # initialize the logger
         cls.__loggingLevel = parsed_args.logging_level
-        Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level))
+        Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level[0]))
         # check if a dry run shall be preformed, i.e. without generating a target model
         cls.__dryRun = parsed_args.dry
         # check if a target has been selected, otherwise set the buildNest as target

@@ -171,7 +171,7 @@ class Logger(object):
         :return: True if errors detected, otherwise False
         :rtype: bool
         """
-        return cls.getAllMessagesOfLevelAndOrNeuron(_neuron, LOGGING_LEVEL.ERROR) > 0
+        return len(cls.getAllMessagesOfLevelAndOrNeuron(_neuron, LOGGING_LEVEL.ERROR)) > 0
 
     @classmethod
     def getPrintableFormat(cls):
