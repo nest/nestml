@@ -17,11 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.stream.Collectors.toList;
-import static org.nest.codegeneration.sympy.AstCreator.createAssignment;
 import static org.nest.codegeneration.sympy.AstCreator.createDeclaration;
 
 /**
@@ -139,7 +137,10 @@ final public class TransformerBase {
 
   }
 
-  static ASTNeuron replaceIntegrateCallThroughPropagation(final ASTNeuron astNeuron, List<String> propagatorSteps) {
+  static ASTNeuron replaceIntegrateCallThroughPropagation(
+      final ASTNeuron astNeuron,
+      final Map.Entry<String, String> constInput,
+      final List<String> propagatorSteps) {
     // It must work for multiple integrate calls!
     final Optional<ASTFunctionCall> integrateCall = AstUtils.getFunctionCall(
         PredefinedFunctions.INTEGRATE_ODES,
@@ -162,7 +163,14 @@ final public class TransformerBase {
       for (int i = 0; i < astBlock.getStmts().size(); ++i) {
         if (astBlock.getStmts().get(i).equals(statement.get())) {
           astBlock.getStmts().remove(i);
-          astBlock.getStmts().addAll(i, propagatorSteps.stream().map(AstCreator::createStatement).collect(toList()));
+
+          final List<ASTStmt> updateStatements = propagatorSteps
+              .stream()
+              .map(AstCreator::createStatement)
+              .collect(toList());
+          updateStatements.add(0, AstCreator.createStatement(constInput.getKey() + " real = " + constInput.getValue()));
+
+          astBlock.getStmts().addAll(i, updateStatements);
           break;
         }
       }

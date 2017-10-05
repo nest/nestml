@@ -61,29 +61,38 @@ extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f
 /* BeginDocumentation
   Name: ${neuronName}.
 
-  Description:
-  ${neuronSymbol.printComment()}
+Description:
+  <#list neuronSymbol.getDocStrings() as docString>
+  ${docString}
+  </#list>
 
-  Parameters:
+Parameters:
   The following parameters can be set in the status dictionary.
   <#list body.getParameterSymbols() as parameter>
-  <#if parameter.hasComment()>
-    ${parameter.getName()} ${parameter.printComment("")}
-  </#if>
+    <#if parameter.getComment().isPresent()>
+  ${parameter.getName()?right_pad(10)} [${parameter.getType().prettyPrint()?right_pad(5)}] ${parameter.getComment().get()}
+    </#if>
   </#list>
 
-  Dynamic state variables:
-  <#list body.getParameterSymbols() as parameter>
-  <#if parameter.hasComment()>
-    ${parameter.getName()} ${parameter.printComment("")}
-  </#if>
+State variables:
+  These variables can be also set in the status dictionary.
+  <#list body.getStateSymbols() as state>
+    <#if state.getComment().isPresent()>
+  ${state.getName()?right_pad(10)} [${state.getType().prettyPrint()?right_pad(5)}] ${state.getComment().get()}
+    </#if>
   </#list>
 
-  References: Empty
+  <#list body.getInitialValuesSymbols() as initialValue>
+    <#if initialValue.getComment().isPresent()>
+  ${initialValue.getName()?right_pad(10)} [${initialValue.getType().prettyPrint()?right_pad(5)}] ${initialValue.getComment().get()}
+    </#if>
+  </#list>
 
-  Sends: ${outputEvent}
+References: Empty
 
-  Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
+Sends: ${outputEvent}
+
+Receives: <#if isSpikeInput>Spike, </#if><#if isCurrentInput>Current, </#if> DataLoggingRequest
 */
 class ${neuronName} : public nest::Archiving_Node
 {
@@ -126,12 +135,12 @@ public:
   * @{
   */
   <#if isSpikeInput>
-  void handle(nest::SpikeEvent &);        //! accept spikes
+  void handle(nest::SpikeEvent &);        /** accept spikes */
   </#if>
   <#if isCurrentInput>
-  void handle(nest::CurrentEvent &);      //! accept input current
+  void handle(nest::CurrentEvent &);      /** accept input current */
   </#if>
-  void handle(nest::DataLoggingRequest &);//! allow recording with multimeter
+  void handle(nest::DataLoggingRequest &);/** allow recording with multimeter */
 
   <#if isSpikeInput>
   nest::port handles_test_event(nest::SpikeEvent&, nest::port);
@@ -163,18 +172,16 @@ private:
       SUP_SPIKE_RECEPTOR
     };
   </#if>
-  //! Reset parameters and state of neuron.
-
-  //! Reset state of neuron.
+  /** Reset parameters and state of neuron. */
   void init_state_(const Node& proto);
 
-  //! Reset internal buffers of neuron.
+  /** Reset internal buffers of neuron. */
   void init_buffers_();
 
-  //! Initialize auxiliary quantities, leave parameters and state untouched.
+  /** Initialize auxiliary quantities, leave parameters and state untouched. */
   void calibrate();
 
-  //! Take neuron through given time interval
+  /** Take neuron through given time interval */
   void update(nest::Time const &, const long, const long);
 
   // The next two classes need to be friends to access the State_ class/member
@@ -244,17 +251,17 @@ private:
       <#list body.getInitialValuesSymbols() as variable>
         ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
       </#list>
-
     <#else>
-      //! Symbolic indices to the elements of the state vector y
+      /** Symbolic indices to the elements of the state vector y */
       enum StateVecElems
       {
         <#list body.getNonFunctionInitialValuesSymbols() as variable>
-          ${names.convertToCPPName(variable.getName())}, ${variable.printComment("// ")}
+          <#if variable.getComment().isPresent()>/** ${variable.getComment().get()} */</#if>
+          ${names.convertToCPPName(variable.getName())},
         </#list>
         STATE_VEC_SIZE
       };
-      //! state vector, must be C-array for GSL solver
+      /** state vector, must be C-array for GSL solver */
       double ode_state[ STATE_VEC_SIZE ];
       <#list body.getStateSymbols() as variable>
         ${tc.includeArgs("org.nest.nestml.neuron.function.MemberDeclaration", [variable])}
@@ -290,7 +297,7 @@ private:
 
   /**
     * Buffers of the neuron.
-    * Ususally buffers for incoming spikes and data logged for analog recorders.
+    * Usually buffers for incoming spikes and data logged for analog recorders.
     * Buffers must be initialized by @c init_buffers_(), which is called before
     * @c calibrate() on the first call to @c Simulate after the start of NEST,
     * ResetKernel or ResetNetwork.
@@ -333,18 +340,25 @@ private:
     </#list>
 
     <#if useGSL>
-      /** GSL ODE stuff */
-      gsl_odeiv_step* __s;    //!< stepping function
-      gsl_odeiv_control* __c; //!< adaptive stepsize control function
-      gsl_odeiv_evolve* __e;  //!< evolution function
-      gsl_odeiv_system __sys; //!< struct describing system
+      // GSL ODE stuff
+
+      /** stepping function */
+      gsl_odeiv_step* __s;
+      /** adaptive stepsize control function */
+      gsl_odeiv_control* __c;
+      /** evolution function */
+      gsl_odeiv_evolve* __e;
+      /** struct describing system */
+      gsl_odeiv_system __sys;
 
       // IntergrationStep_ should be reset with the neuron on ResetNetwork,
       // but remain unchanged during calibration. Since it is initialized with
       // step_, and the resolution cannot change after nodes have been created,
       // it is safe to place both here.
-      double __step;             //!< step size in ms
-      double __integration_step; //!< current integration time step, updated by GSL
+      /** step size in ms */
+      double __step;
+      /** current integration time step, updated by GSL */
+      double __integration_step;
     </#if>
   };
 
@@ -377,19 +391,17 @@ private:
   ${functionPrinter.printFunctionDeclaration(function)} ;
   </#list>
   /**
-  * @defgroup pif_members Member variables of neuron model.
-  * Each model neuron should have precisely the following four data members,
-  * which are one instance each of the parameters, state, buffers and variables
-  * structures. Experience indicates that the state and variables member should
-  * be next to each other to achieve good efficiency (caching).
-  * @note Devices require one additional data member, an instance of the @c Device
-  *       child class they belong to.
-  * @{
-  */
-  Parameters_ P_;  //!< Free parameters.
-  State_      S_;  //!< Dynamic state.
-  Variables_  V_;  //!< Internal Variables
-  Buffers_    B_;  //!< Buffers.
+   * @defgroup iaf_psc_alpha_data
+   * Instances of private data structures for the different types
+   * of data pertaining to the model.
+   * @note The order of definitions is important for speed.
+   * @{
+   */
+  Parameters_ P_;  // Free parameters.
+  State_      S_;  // Dynamic state.
+  Variables_  V_;  // Internal Variables
+  Buffers_    B_;  // Buffers.
+  /** @} */
 
   //! Mapping of recordables names to access functions
   static nest::RecordablesMap<${neuronName}> recordablesMap_;
@@ -397,7 +409,6 @@ private:
   <#if useGSL>
     friend int ${neuronName}_dynamics( double, const double y[], double f[], void* pnode );
   </#if>
-/** @} */
 }; /* neuron ${neuronName} */
 
 inline

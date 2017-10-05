@@ -5,10 +5,12 @@
  */
 package org.nest.nestml._symboltable.symbols;
 
+import com.google.common.collect.Lists;
 import de.monticore.ast.Comment;
 import de.monticore.symboltable.CommonScopeSpanningSymbol;
 import de.monticore.symboltable.SymbolKind;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -84,26 +86,26 @@ public class NeuronSymbol extends CommonScopeSpanningSymbol {
   }
 
   @SuppressWarnings("unused") // it is used in the NeuronHeader.ftl generator template
-  public String printComment() {
-    final StringBuilder result = new StringBuilder();
+  public List<String> getDocStrings() {
+    final List<String> result = Lists.newArrayList();
 
     if(getAstNode().isPresent()) {
-      escapeAndPrintComment(getAstNode().get().get_PreComments(), result);
-      escapeAndPrintComment(getAstNode().get().get_PostComments(), result);
-    }
+      result.addAll(escapeAndPrintComment(getAstNode().get().get_PreComments()));
+      result.addAll(escapeAndPrintComment(getAstNode().get().get_PostComments()));
 
-    return result.toString();
+    }
+    return result;
   }
 
   /**
-   * Replaces the multiline comment characters and prints it as string to output.
-   * @param output Adds comments to this output
+   * Replaces the multiline comment characters and returns it as a string of strings.
    */
-  private void escapeAndPrintComment(final List<Comment> comments, final StringBuilder output) {
-    comments.stream()
+  private List<String> escapeAndPrintComment(final List<Comment> comments) {
+    return comments.stream()
         .map(comment -> comment.getText().replace("/*", "").replace("*/", ""))
+        .flatMap(comment -> Arrays.stream(comment.split("\\n")))
         .map(String::trim)
-        .forEach(output::append);
+        .collect(toList());
   }
 
   /**
