@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
+from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType, VariableType
 
 
 class PredefinedVariables:
@@ -52,8 +52,10 @@ class PredefinedVariables:
         Registers all predefined type variables, e.g., mV and integer.
         """
         for name in PredefinedTypes.getTypes().keys():
-            symbol = VariableSymbol(_name=name, _blockType=BlockType.UNIT,
-                                    _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists(name))
+            symbol = VariableSymbol(_name=name, _blockType=BlockType.PREDEFINED,
+                                    _isPredefined=True,
+                                    _typeSymbol=PredefinedTypes.getTypeIfExists(name),
+                                    _variableType=VariableType.VARIABLE)
             cls.__name2VariableSymbol[name] = symbol
         return
 
@@ -63,7 +65,8 @@ class PredefinedVariables:
         Adds the euler constant e.
         """
         symbol = VariableSymbol(_name='e', _blockType=BlockType.STATE,
-                                _isPredefined=True, _typeSymbol=PredefinedTypes.getRealType())
+                                _isPredefined=True, _typeSymbol=PredefinedTypes.getRealType(),
+                                _variableType=VariableType.VARIABLE)
         cls.__name2VariableSymbol[cls.E_CONSTANT] = symbol
         return
 
@@ -73,7 +76,8 @@ class PredefinedVariables:
         Adds the time constant t.
         """
         symbol = VariableSymbol(_name='t', _blockType=BlockType.STATE,
-                                _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists('ms'))
+                                _isPredefined=True, _typeSymbol=PredefinedTypes.getTypeIfExists('ms'),
+                                _variableType=VariableType.VARIABLE)
         cls.__name2VariableSymbol[cls.TIME_CONSTANT] = symbol
         return
 

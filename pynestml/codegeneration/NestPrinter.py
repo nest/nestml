@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.codegeneration.NESTML2NESTTypeConverter import NESTML2NESTTypeConverter
+from pynestml.codegeneration.NestML2NESTTypeConverter import NESTML2NESTTypeConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 
@@ -55,8 +55,8 @@ class NestPrinter(object):
         """
         from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
         from pynestml.nestml.ASTExpression import ASTExpression
-        # assert (_ast is not None and (isinstance(_ast, ASTSimpleExpression) or isinstance(_ast, ASTExpression))), \
-        #    '(PyNestML.CodeGeneration.Printer) No or wrong type of expression provided (%s)!' % type(_ast)
+        assert (_ast is not None and (isinstance(_ast, ASTSimpleExpression) or isinstance(_ast, ASTExpression))), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of expression provided (%s)!' % type(_ast)
         return self.__expressionPrettyPrinter.printExpression(_ast)
 
     def printMethodCall(self, _ast=None):
@@ -69,14 +69,7 @@ class NestPrinter(object):
         """
         assert (_ast is not None and isinstance(_ast, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function call provided (%s)!' % type(_ast)
-        functionCall = _ast.getName() + '('
-        if _ast.hasArgs():
-            for arg in _ast.getArgs():
-                functionCall += self.printExpression(arg)
-                if _ast.getArgs().index(arg) < len(_ast.getArgs()) - 1:
-                    functionCall += ', '
-        functionCall += ')'
-        return functionCall
+        return self.__expressionPrettyPrinter.printFunctionCall(_ast)
 
     def printComparisonOperator(self, _forStmt=None):
         """
@@ -96,16 +89,6 @@ class NestPrinter(object):
             return '<'
         else:
             return '!='  # todo, this should not happen actually
-
-    def printVariable(self, _ast=None):
-        """
-        Prints a single handed over variable.
-        :param _ast: a single variable
-        :type _ast: ASTVariable
-        :return: a string representation
-        :rtype: str
-        """
-        return "TODO variable"
 
     def printStep(self, _forStmt=None):
         """

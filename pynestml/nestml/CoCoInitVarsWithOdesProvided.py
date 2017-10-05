@@ -72,22 +72,22 @@ class InitVarsVisitor(NESTMLVisitor):
         :type _declaration: ASTDeclaration
         """
         for var in _declaration.getVariables():
-            symbol = _declaration.getScope().resolveToSymbol(var.getNameOfLhs(), SymbolKind.VARIABLE)
+            symbol = _declaration.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
             # first check that all initial value variables have a lhs
             if symbol is not None and symbol.isInitValues() and not _declaration.hasExpression():
                 Logger.logMessage(
                     'No rhs of initial value of variable "%s" at %s!'
-                    % (var.getName(), var.getSourcePosition().printSourcePosition()),
+                    % (symbol.getSymbolName(), var.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
             # now check that they have been provided with an ODE
             if symbol is not None and symbol.isInitValues() and not symbol.isOdeDefined():
                 Logger.logMessage(
                     'Variable "%s" at %s not provided with an ODE!'
-                    % (var.getName(), var.getSourcePosition().printSourcePosition()),
+                    % (symbol.getSymbolName(), var.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
             if symbol is not None and symbol.isInitValues() and not symbol.hasInitialValue():
                 Logger.logMessage(
                     'Initial value of ode variable "%s" at %s not provided!'
-                    % (var.getName(), var.getSourcePosition().printSourcePosition()),
+                    % (symbol.getSymbolName(), var.getSourcePosition().printSourcePosition()),
                     LOGGING_LEVEL.ERROR)
         return

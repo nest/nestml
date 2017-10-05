@@ -23,14 +23,16 @@ from pynestml.codegeneration.NestAssignmentsHelper import NestAssignmentsHelper
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.NestPrinter import NestPrinter
 from pynestml.codegeneration.LegacyExpressionPrinter import LegacyExpressionPrinter
-from pynestml.codegeneration.NESTReferenceConverter import NESTReferenceConverter
+from pynestml.codegeneration.NestReferenceConverter import NESTReferenceConverter
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.GSLReferenceConverter import GSLReferenceConverter
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.ASTNeuron import ASTNeuron
+from pynestml.nestml.ASTSymbolTableVisitor import SymbolTableASTVisitor
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
+from copy import deepcopy
 import os
 
 
@@ -42,6 +44,7 @@ class NestCodeGenerator(object):
     __templateCMakeLists = None
     __templateModuleClass = None
     __templateModuleHeader = None
+    __SLI_Init = None
     __templateNeuronHeader = None
     __templateNeuronImplementation = None
 
@@ -52,121 +55,72 @@ class NestCodeGenerator(object):
         # setup the environment
         env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templatesNEST')))
         # setup the cmake template
-        """
-        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'CMakeLists.html'),
-                  'r') as templateCMakeLists:
-            data = templateCMakeLists.read()
-            self.__templateCMakeLists = Template(data)
-        """
+        self.__templateCMakeLists = env.get_template('CMakeLists.html')
         # setup the module class template
-        """
-        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'ModuleClass.html'),
-                  'r') as templateModuleClass:
-            data = templateModuleClass.read()
-            self.__templateModuleClass = Template(data)
-        """
+        self.__templateModuleClass = env.get_template('ModuleClass.html')
         # setup the module header
-        """
-        with open(os.path.join(os.path.dirname(__file__), 'templatesNEST', 'ModuleHeader.html'),
-                  'r') as templateModuleHeader:
-            data = templateModuleHeader.read()
-            self.__templateModuleHeader = Template(data)
-        """
+        self.__templateModuleHeader = env.get_template('ModuleHeader.html')
+        # setup the SLI_Init file
+        self.__SLI_Init = env.get_template('SLI_Init.html')
         # setup the neuron header template
         self.__templateNeuronHeader = env.get_template('NeuronHeader.html')
         # setup the neuron implementation template
         self.__templateNeuronImplementation = env.get_template('NeuronClass.html')
         return
 
-    def generateModels(self, _modelRoots=None):
+    def generateNESTModuleCode(self, _neurons=None):
         """
-        Generates the corresponding model for the handed over neuron
-        :param _neuron: a single neuron object.
-        :type _neuron: ASTNeuron
-        """
-        assert (_modelRoots is not None and isinstance(_modelRoots, list)), \
-            '(PyNestML.Backend.NEST) No or wrong type of roots list provided (%s)!' % type(_modelRoots)
-        # first generate the cmake file
-        """
-        inputMakeLists = {}
-        outputMakeLists = self.__templateCMakeLists.render(inputMakeLists)
-        
-        # now the class
-        inputModuleClass = {'moduleName': 'TODO', 'neurons': list()}
-        outputModuleClass = self.__templateModuleClass.render(inputModuleClass)
-        # now the header
-        
-        inputModuleHeader = {}
-        outputModuleHeader = self.__templateModuleHeader.render(inputModuleHeader)
-        """
-        # finally print everthing
-        # first the cmake file
-        """
-        if not os.path.isdir(FrontendConfiguration.getTargetPath()):
-            os.makedirs(FrontendConfiguration.getTargetPath())
-        with open(str(os.path.join(FrontendConfiguration.getTargetPath(), CMakeLists)) + '.cpp', 'w+') as f:
-            f.write(str(outputMakeLists))
-        """
-        # now the class
-        """
-        with open(str(os.path.join(FrontendConfiguration.getTargetPath(), 'TODO2')) + '.cpp', 'w+') as f:
-            f.write(str(outputModuleClass))
-        # now the header
-        
-        with open(str(os.path.join(FrontendConfiguration.getTargetPath(), 'TODO3')) + '.h', 'w+') as f:
-            f.write(str(outputModuleHeader))
-        """
-        return
-
-    def generateModuleHeader(self, _moduleName=None):
-        """
-        Generates the header of the handed over module.
-        :param _moduleName: the name of the module
-        :type _moduleName: str
-        """
-        assert (_moduleName is not None and isinstance(_moduleName, str)), \
-            '(PyNestML.CodeGenerator.NEST) No or wrong type of module name provided (%s)!' % type(_moduleName)
-        if not os.path.isdir(FrontendConfiguration.getTargetPath()):
-            os.makedirs(FrontendConfiguration.getTargetPath())
-        inputModuleHeader = {'moduleName': 'TODO'}
-        outputModuleHeader = self.__templateModuleHeader.render(inputModuleHeader)
-        with open(str(os.path.join(FrontendConfiguration.getTargetPath(), _moduleName)) + '.h', 'w+') as f:
-            f.write(str(outputModuleHeader))
-        return
-
-    def generateModuleClass(self, _neurons=list(), _moduleName=None):
-        """
-        Generates the class of the handed over module.
+        Generates code that is necessary to integrate neuron models into the NEST infrastructure.
         :param _neurons: a list of neurons
         :type _neurons: list(ASTNeuron)
-        :param _moduleName: the name of the module
-        :type _moduleName: str
         """
-        assert (_moduleName is not None and isinstance(_moduleName, str)), \
-            '(PyNestML.CodeGenerator.NEST) No or wrong type of module name provided (%s)!' % type(_moduleName)
-        if not os.path.isdir(FrontendConfiguration.getTargetPath()):
-            os.makedirs(FrontendConfiguration.getTargetPath())
-        inputModuleClass = {'moduleName': 'TODO', 'neurons': _neurons}
-        outputModuleClass = self.__templateModuleClass.render(inputModuleClass)
-        with open(str(os.path.join(FrontendConfiguration.getTargetPath(), _moduleName)) + '.cpp', 'w+') as f:
-            f.write(str(outputModuleClass))
+        namespace = {'neurons': _neurons, 'moduleName': FrontendConfiguration.getModuleName()}
+        with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
+                                   FrontendConfiguration.getModuleName())) + '.h', 'w+') as f:
+            f.write(str(self.__templateModuleHeader.render(namespace)))
+        with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
+                                   FrontendConfiguration.getModuleName())) + '.c', 'w+') as f:
+            f.write(str(self.__templateModuleClass.render(namespace)))
+        with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
+                                   'CMakeLists')) + '.txt', 'w+') as f:
+            f.write(str(self.__templateCMakeLists.render(namespace)))
+        with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
+                                   FrontendConfiguration.getModuleName() + "-init")) + '.sli', 'w+') as f:
+            f.write(str(self.__SLI_Init.render(namespace)))
+        Logger.logMessage('Successfully generated NEST module code in ' +
+                          FrontendConfiguration.getTargetPath(), LOGGING_LEVEL.INFO)
         return
 
-    def generateNESTModuleCode(self, _modelRoots=list(), _moduleName=None):
+    def analyseAndGenerateNeuron(self, _neuron=None):
         """
-        Generates the complete nest module code.
-        :param _modelRoots: a list of NESTMLCompilationUnits
-        :type _modelRoots: list(ASTNestmlCompilationUnit)
-        :param _moduleName: the name of the module
-        :type _moduleName: str
+        Analysis a single neuron, solves it and generates the corresponding code.
+        :param _neuron: a single neuron.
+        :type _neuron: ASTNeuron
         """
-        assert (_modelRoots is not None and isinstance(_modelRoots, list)), \
-            '(PyNestML.CodeGenerator.NEST) No or wrong type of model roots provided (%s)!' % type(_modelRoots)
-        assert (_moduleName is not None and isinstance(_moduleName, str)), \
-            '(PyNestML.CodeGenerator.NEST) No or wrong type of module name provided (%s)!' % type(_moduleName)
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CodeGenerator.NEST) No or wrong type of module neuron provided (%s)!' % type(_neuron)
+        Logger.logMessage('Starts processing of the neuron ' + _neuron.getName(), LOGGING_LEVEL.INFO)
+        workingVersion = deepcopy(_neuron)
+        # solve all equations
+        workingVersion = self.solveOdesAndShapes(workingVersion)
+        # update the symbol table
+        SymbolTableASTVisitor.updateSymbolTable(workingVersion)
+        self.generateNestCode(workingVersion)
+        Logger.logMessage('Successfully generated NEST code for the neuron: "' + _neuron.getName() +
+                          '" in: "' + FrontendConfiguration.getTargetPath() + '"', LOGGING_LEVEL.INFO)
+        return
 
-        self.generateModuleHeader(_moduleName)
-        # self.generateModuleClass(_)
+    def analyseAndGenerateNeurons(self, _neurons=None):
+        """
+        Analysis a list of neurons, solves them and generates the corresponding code.
+        :param _neurons: a list of neurons.
+        :type _neurons: list(ASTNeuron)
+        """
+        # TODO print artifact message
+        for neuron in _neurons:
+            self.analyseAndGenerateNeuron(neuron)
+        # TOD print finish
+        return
 
     def generateHeader(self, _neuron=None):
         """
@@ -204,9 +158,9 @@ class NestCodeGenerator(object):
         """
         if not os.path.isdir(FrontendConfiguration.getTargetPath()):
             os.makedirs(FrontendConfiguration.getTargetPath())
-        Logger.logMessage('Start generating header for %s...' % _neuron.getName(), LOGGING_LEVEL.INFO)
+        Logger.logMessage('Start generating header for: %s' % _neuron.getName(), LOGGING_LEVEL.INFO)
         self.generateHeader(_neuron)
-        Logger.logMessage('Start generating implementation for %s...' % _neuron.getName(), LOGGING_LEVEL.INFO)
+        Logger.logMessage('Start generating implementation for: %s' % _neuron.getName(), LOGGING_LEVEL.INFO)
         self.generateClassImplementation(_neuron)
         return
 
@@ -278,3 +232,13 @@ class NestCodeGenerator(object):
             if isinstance(shape, ASTOdeShape) and shape.getVariable().getDifferentialOrder() == 0:
                 return True
         return False
+
+    def solveOdesAndShapes(self, _neuron=None):
+        """
+        Solves all odes and equations in the handed over neuron.
+        :param _neuron: a single neuron instance.
+        :type _neuron: ASTNeuron
+        :return: a solved instance.
+        :rtype: ASTNeuron
+        """
+        return _neuron

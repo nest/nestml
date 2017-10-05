@@ -11,8 +11,8 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
   assert( pnode );
   const {{neuronName}}& node = *( reinterpret_cast< {{neuronName}}* >( pnode ) );
 
-  // y[] here is---and must be---the state vector supplied by the integrator,
-  // not the state vector in the node, node.S_.y[].
+  // ode_state[] here is---and must be---the state vector supplied by the integrator,
+  // not the state vector in the node, node.S_.ode_state[].
 
   {%- for ode in neuron.getEquationsBlocks().getDeclarations() -%}
     {%- set simpleOde = odeTransformer.replaceSumCalls(ode) %}
@@ -30,8 +30,8 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
   {% endfor -%}
 
   {% for odeVariable in neuron.variablesDefinedByODE() -%}
-    {% set simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDeclaration()) -%}
-    f[ {{names.arrayIndex(odeVariable)}} ] = {{printerGSL.print(simpleOde)}};
+    {% set simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDefinition()) -%}
+    f[ {{names.arrayIndex(odeVariable)}} ] = {{printerGSL.printExpression(simpleOde)}};
   {% endfor %}
   return GSL_SUCCESS;
 }

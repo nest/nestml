@@ -95,10 +95,10 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'std::log(%s)'
         elif functionName == 'expm1':
             return 'numerics::expm1(%s)'
-        elif PredefinedFunctions.EMIT_SPIKE in functionName:
+        elif functionName == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
-                   ' nest::SpikeEvent se;\n' \
-                   ' nest::kernel().event_delivery_manager.send(*this, se, lag);'
+                   'nest::SpikeEvent se;\n' \
+                   'nest::kernel().event_delivery_manager.send(*this, se, lag);'
         elif self.needsArguments(_astFunctionCall):
             return functionName + '(%s)'
         else:

@@ -348,7 +348,6 @@ class ASTNeuron(ASTElement):
         :return: a list of variable symbols
         :rtype: list(VariableSymbol)
         """
-        from pynestml.nestml.VariableSymbol import BlockType
         symbols = self.getScope().getSymbolsInCompleteScope()
         ret = list()
         for symbol in symbols:

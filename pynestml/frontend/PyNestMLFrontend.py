@@ -20,15 +20,16 @@
 
 
 import sys
+from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.nestml.NESTMLParser import NESTMLParser
 from pynestml.nestml.NESTMLParserExceptions import InvalidPathException
-from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.nestml.PredefinedUnits import PredefinedUnits
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
 from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 def main(args):
@@ -52,12 +53,17 @@ def main(args):
     # check if across two files two neurons with same name have been defined
     CoCosManager.checkNotTwoNeuronsAcrossUnits(compilationUnits)
     # and generate them
+    neurons = list()
+    for compilationUnit in compilationUnits:
+        neurons.extend(compilationUnit.getNeuronList())
+
     if not FrontendConfiguration.isDryRun():
         nestGenerator = NestCodeGenerator()
-        for ast in compilationUnits:
-            for neuron in ast.getNeuronList():
-                nestGenerator.generateNestCode(neuron)
-
+        nestGenerator.analyseAndGenerateNeurons(neurons)
+        nestGenerator.generateNESTModuleCode(neurons)
+    else:
+        Logger.logMessage('Dry mode selected with -dry parameter, no models generated!',LOGGING_LEVEL.INFO)
+    return
 
 
 if __name__ == '__main__':

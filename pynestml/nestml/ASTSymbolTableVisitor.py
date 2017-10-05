@@ -308,7 +308,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         :rtype: void
         """
         from pynestml.nestml.ASTDeclaration import ASTDeclaration
-        from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
+        from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType, VariableType
         from pynestml.nestml.ASTUnitTypeVisitor import ASTUnitTypeVisitor
         assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided (%s)!' % type(_declaration)
@@ -332,7 +332,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                              _isRecordable=isRecordable,
                                                              _typeSymbol=typeSymbol,
                                                              _initialValue=initValue,
-                                                             _vectorParameter=vectorParameter
+                                                             _vectorParameter=vectorParameter,
+                                                             _variableType=VariableType.VARIABLE
                                                              ))
 
             var.setTypeSymbol(Either.value(typeSymbol))
@@ -640,7 +641,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         """
         from pynestml.nestml.ASTOdeFunction import ASTOdeFunction
         from pynestml.nestml.ASTUnitTypeVisitor import ASTUnitTypeVisitor
-        from pynestml.nestml.VariableSymbol import BlockType
+        from pynestml.nestml.VariableSymbol import BlockType, VariableType
         assert (_odeFunction is not None and isinstance(_odeFunction, ASTOdeFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-function provided (%s)!' % type(_odeFunction)
         typeSymbol = PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_odeFunction.getDataType()))
@@ -650,7 +651,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                 _declaringExpression=_odeFunction.getExpression(),
                                 _isPredefined=False, _isFunction=True,
                                 _isRecordable=_odeFunction.isRecordable(),
-                                _typeSymbol=typeSymbol)
+                                _typeSymbol=typeSymbol,
+                                _variableType=VariableType.VARIABLE)
         _odeFunction.getScope().addSymbol(symbol)
         _odeFunction.getDataType().updateScope(_odeFunction.getScope())
         cls.visitDataType(_odeFunction.getDataType())
@@ -669,6 +671,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
         assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided (%s)!' % type(_odeShape)
+        """
+        This part should not be here!
         symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
                                 _name=_odeShape.getVariable().getName(),
                                 _blockType=BlockType.SHAPE,
@@ -677,6 +681,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                 _isRecordable=True,
                                 _typeSymbol=PredefinedTypes.getRealType())
         _odeShape.getScope().addSymbol(symbol)
+        """
         _odeShape.getVariable().updateScope(_odeShape.getScope())
         cls.visitVariable(_odeShape.getVariable())
         _odeShape.getExpression().updateScope(_odeShape.getScope())
@@ -776,7 +781,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         :type _line: ASTInputLine
         """
         from pynestml.nestml.ASTInputLine import ASTInputLine
-        from pynestml.nestml.VariableSymbol import BlockType
+        from pynestml.nestml.VariableSymbol import BlockType, VariableType
         assert (_line is not None and isinstance(_line, ASTInputLine)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of input-line provided (%s)!' % type(_line)
         from pynestml.nestml.VariableSymbol import VariableSymbol
@@ -794,7 +799,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName(),
                                 _blockType=bufferType, _vectorParameter=_line.getIndexParameter(),
                                 _isPredefined=False, _isFunction=False, _isRecordable=False,
-                                _typeSymbol=typeSymbol)
+                                _typeSymbol=typeSymbol, _variableType=VariableType.BUFFER)
         _line.getScope().addSymbol(symbol)
         for inputType in _line.getInputTypes():
             cls.visitInputType(inputType)
@@ -867,11 +872,14 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         """
         from pynestml.nestml.ASTEquationsBlock import ASTEquationsBlock
         from pynestml.nestml.ASTOdeEquation import ASTOdeEquation
+        from pynestml.nestml.ASTOdeShape import ASTOdeShape
         assert (_odeBlock is not None and isinstance(_odeBlock, ASTEquationsBlock)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of equations block provided (%s)!' % type(_odeBlock)
         for decl in _odeBlock.getDeclarations():
             if isinstance(decl, ASTOdeEquation):
                 cls.addOdeToVariable(decl)
+            if isinstance(decl, ASTOdeShape):
+                cls.addOdeShapeToVariable(decl)
         return
 
     @classmethod
@@ -895,21 +903,34 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             Logger.logMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),
                               LOGGING_LEVEL.INFO)
         else:
-            # create a new symbol, however, this should never happen since only exiting symbols shall be updated
-            # if an existing symbol does not exists, we derive the base symbol, e.g. V_m
-            baseSymbol = cls.__globalScope.resolveToAllSymbols(_odeEquation.getLhs().getName(), SymbolKind.VARIABLE)
-            if baseSymbol is not None:
-                newSymbol = VariableSymbol(_elementReference=_odeEquation, _scope=cls.__globalScope,
-                                           _name=_odeEquation.getLhs().getName() + '\'' * diffOrder,
-                                           _blockType=BlockType.EQUATION,
-                                           _declaringExpression=_odeEquation.getRhs(),
-                                           _isPredefined=False, _isFunction=False, _isRecordable=False,
-                                           _typeSymbol=PredefinedTypes.
-                                           getTypeIfExists(baseSymbol.getType().getValue().printSymbol()))  # todo
-                cls.__globalScope.addSymbol(newSymbol)
-                Logger.logMessage('Ode declaration added to %s.' % _odeEquation.getLhs().getName(),
-                                  LOGGING_LEVEL.INFO)
-            else:
-                Logger.logMessage('No corresponding variable of %s found.' % _odeEquation.getLhs().getName(),
-                                  LOGGING_LEVEL.ERROR)
+            Logger.logMessage('No corresponding variable of %s found.' % _odeEquation.getLhs().getName(),
+                              LOGGING_LEVEL.ERROR)
+        return
+
+    @classmethod
+    def addOdeShapeToVariable(cls, _odeShape=None):
+        """
+        Adds the shape as the defining equation.
+        :param _odeShape: a single shape object.
+        :type _odeShape: ASTOdeShape
+        """
+        from pynestml.nestml.ASTOdeShape import ASTOdeShape
+        from pynestml.nestml.Symbol import SymbolKind
+        from pynestml.nestml.VariableSymbol import VariableType
+        assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape)), \
+            '(PyNestML.SymbolTable.Visitor) No or wrong type of shape provided (%s)!' % type(_odeShape)
+        if _odeShape.getVariable().getDifferentialOrder() == 0:
+            # we only update those which define an ode
+            return
+        # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
+        existingSymbol = cls.__globalScope.resolveToSymbol(_odeShape.getVariable().getNameOfLhs(),
+                                                           SymbolKind.VARIABLE)
+        if existingSymbol is not None:
+            existingSymbol.setOdeDefinition(_odeShape.getExpression())
+            existingSymbol.setVariableType(VariableType.SHAPE)
+            Logger.logMessage('Ode of %s updated.' % _odeShape.getVariable().getNameOfLhs(),
+                              LOGGING_LEVEL.INFO)
+        else:
+            Logger.logMessage('No corresponding variable of %s found.' % _odeShape.getVariable().getNameOfLhs(),
+                              LOGGING_LEVEL.ERROR)
         return

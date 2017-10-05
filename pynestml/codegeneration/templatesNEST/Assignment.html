@@ -15,5 +15,5 @@ for (long i=0; i < P_.{{assignments.printSizeParameter(ast)}}; i++) {
   {{printer.printExpression(ast.getExpression())}};
 }
 {%- else -%}
-  {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}}{{assignments.printAssignmentsOperation(ast)}}{{printer.printExpression(ast.getExpression())}};
+  {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}} {{assignments.printAssignmentsOperation(ast)}} {{printer.printExpression(ast.getExpression())}};
 {%- endif -%}

@@ -104,10 +104,10 @@ class GSLReferenceConverter(IReferenceConverter):
             return 'std::max(%s)'
         if functionName == PredefinedFunctions.MIN:
             return 'std::min(%s)'
-        if PredefinedFunctions.EMIT_SPIKE in functionName:
+        if functionName == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
-                   ' nest::SpikeEvent se;\n' \
-                   ' nest::kernel().event_delivery_manager.send(*this, se, lag);'
+                   'nest::SpikeEvent se;\n' \
+                   'nest::kernel().event_delivery_manager.send(*this, se, lag);'
         raise UnsupportedOperationException('Cannot map the function: "' + functionName + '".')
 
     def convertConstant(self, _constantName):

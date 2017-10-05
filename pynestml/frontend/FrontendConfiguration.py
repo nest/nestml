@@ -56,10 +56,10 @@ class FrontendConfiguration(object):
         cls.__argumentParser.add_argument('-dry', action='store_true',
                                           help='Indicates that a dry run shall be performed, i.e.,'
                                                ' without generating a target model.')
-        cls.__argumentParser.add_argument('-logging_level', type=str, nargs='?',
+        cls.__argumentParser.add_argument('-logging_level', type=str, nargs='+',
                                           help='Indicates which messages shall be logged and printed to the'
                                                'screen. Available ={INFO,WARNING/S,ERROR/S,NO}, Standard is ERRORS.')
-        cls.__argumentParser.add_argument('-module_name', type=str, nargs='?',
+        cls.__argumentParser.add_argument('-module_name', type=str, nargs='+',
                                           help='Indicates the name of the module. Optional. If not indicated,'
                                                'the name of the directory containing the models is used!')
         parsed_args = cls.__argumentParser.parse_args(_args)
@@ -143,3 +143,12 @@ class FrontendConfiguration(object):
         :rtype: str
         """
         return cls.__targetPath
+
+    @classmethod
+    def getModuleName(cls):
+        """
+        Returns the name of the module.
+        :return: the name of the module.
+        :rtype: str
+        """
+        return cls.__moduleName

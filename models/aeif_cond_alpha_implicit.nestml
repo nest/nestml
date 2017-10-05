@@ -117,8 +117,8 @@ neuron aeif_cond_alpha_implicit:
     w' = (a*(V_bounded-E_L)-w)/tau_w
   end
   input:
-    spikesInh <- inhibitory spike
-    spikesExc <- excitatory spike
+    spikesInh nS <- inhibitory spike
+    spikesExc nS <- excitatory spike
     currents <- current
   end
   output: spike

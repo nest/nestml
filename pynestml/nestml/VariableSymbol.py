@@ -49,10 +49,11 @@ class VariableSymbol(Symbol):
     __odeDeclaration = None
     __isConductanceBased = False
     __initialValue = None
+    __variableType = None
 
     def __init__(self, _elementReference=None, _scope=None, _name=None, _blockType=None, _vectorParameter=None,
                  _declaringExpression=None, _isPredefined=False, _isFunction=False, _isRecordable=False,
-                 _typeSymbol=None, _initialValue=None):
+                 _typeSymbol=None, _initialValue=None, _variableType=None):
         """
         Standard constructor.
         :param _elementReference: a reference to the first element where this type has been used/defined
@@ -77,6 +78,8 @@ class VariableSymbol(Symbol):
         :type _typeSymbol: TypeSymbol
         :param _initialValue: the initial value if such an exists
         :type _initialValue: ASTExpression
+        :param _variableType: the type of the variable
+        :type _variableType: VariableType
         """
         assert (_blockType is not None and isinstance(_blockType, BlockType)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of block-type provided (%s)!' % type(_blockType)
@@ -101,6 +104,9 @@ class VariableSymbol(Symbol):
         assert (_initialValue is None or isinstance(_initialValue, ASTExpression) or
                 isinstance(_initialValue, ASTSimpleExpression)), \
             '(PyNestML.SymbolTable.VariableSymbol) Wrong type of initial value provided (%s)!' % type(_initialValue)
+        assert (_variableType is not None and isinstance(_variableType, VariableType)), \
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of variable-type provided (%s)!' % type(
+                _variableType)
         super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
                                              _name=_name, _symbolKind=SymbolKind.VARIABLE)
         self.__blockType = _blockType
@@ -111,6 +117,7 @@ class VariableSymbol(Symbol):
         self.__isRecordable = _isRecordable
         self.__typeSymbol = _typeSymbol
         self.__initialValue = _initialValue
+        self.__variableType = _variableType
         return
 
     def hasVectorParameter(self):
@@ -286,7 +293,7 @@ class VariableSymbol(Symbol):
         :return: True if buffer, otherwise False.
         :rtype: bool
         """
-        return self.isSpikeBuffer() or self.isInputBufferCurrent()
+        return self.__variableType == VariableType.BUFFER
 
     def isOutput(self):
         """
@@ -302,7 +309,7 @@ class VariableSymbol(Symbol):
         :return: True if part of a shape definition, otherwise False.
         :rtype: bool
         """
-        return self.getBlockType() == BlockType.SHAPE
+        return self.__variableType == VariableType.SHAPE
 
     def isInitValues(self):
         """
@@ -395,6 +402,25 @@ class VariableSymbol(Symbol):
         self.__isConductanceBased = _isConductanceBase
         return
 
+    def getVariableType(self):
+        """
+        Returns the type of this variable.
+        :return:  the type of the variable
+        :rtype: VariableType
+        """
+        return self.__variableType
+
+    def setVariableType(self, _type=None):
+        """
+        Updates the type of this variable symbol.
+        :return: a single variable type
+        :rtype: VariableType
+        """
+        assert (_type is not None and isinstance(_type, VariableType)), \
+            '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of type provided (%s)!' % type(_type)
+        self.__variableType = _type
+        return
+
     def hasInitialValue(self):
         """
         Returns whether this variable symbol has an initial value or not.
@@ -449,7 +475,7 @@ class VariableSymbol(Symbol):
         :return: True if comment is stored, otherwise False.
         :rtype: bool
         """
-        return True  # todo
+        return False  # todo
 
     def printComment(self, _prefix=None):
         """
@@ -470,24 +496,39 @@ class VariableSymbol(Symbol):
         :return: True if contained, otherwise False.
         :rtype: bool
         """
+        from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
         if not self.getDeclaringExpression():
             return False
         else:
             for func in self.getDeclaringExpression().getFunctions():
-                if func.getName() == 'convolve' or func.getName() == 'cond_sum' or func.getName() == 'curr_sum':
+                if func.getName() == PredefinedFunctions.CONVOLVE or \
+                                func.getName() == PredefinedFunctions.CURR_SUM or \
+                                func.getName() == PredefinedFunctions.COND_SUM:
                     return True
         return False
 
 
+class VariableType(Enum):
+    """
+    Indicates to which type of variable this is.
+    """
+    SHAPE = 0
+    VARIABLE = 1
+    BUFFER = 2
+    EQUATION = 3
+
+
 class BlockType(Enum):
+    """
+    Indicates in which type of block this variable has been declared.
+    """
     STATE = 1
     PARAMETERS = 2
     INTERNALS = 3
-    EQUATION = 4
-    LOCAL = 5
-    INPUT_BUFFER_CURRENT = 6
-    INPUT_BUFFER_SPIKE = 7
-    OUTPUT = 8
-    SHAPE = 9
-    INITIAL_VALUES = 10
-    UNIT = 11
+    INITIAL_VALUES = 4
+    EQUATION = 5
+    LOCAL = 6
+    INPUT_BUFFER_CURRENT = 7
+    INPUT_BUFFER_SPIKE = 8
+    OUTPUT = 9
+    PREDEFINED = 10

@@ -130,8 +130,8 @@ class Scope(object):
         """
         symbols = list()
         if self.__enclosingScope is not None:
-            symbols.append(self.__enclosingScope.getSymbolsInThisScope())
-        symbols.append(self.getSymbolsInThisScope())
+            symbols.extend(self.__enclosingScope.getSymbolsInThisScope())
+        symbols.extend(self.getSymbolsInThisScope())
         return symbols
 
     def getScopes(self):

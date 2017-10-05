@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.ASTDeclaration import ASTDeclaration
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.codegeneration.NESTML2NESTTypeConverter import NESTML2NESTTypeConverter
+from pynestml.codegeneration.NestML2NESTTypeConverter import NESTML2NESTTypeConverter
 
 
 class NestDeclarationsHelper(object):
