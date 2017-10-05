@@ -672,17 +672,15 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
         assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided (%s)!' % type(_odeShape)
-        """
-        This part should not be here!
-        symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
-                                _name=_odeShape.getVariable().getName(),
-                                _blockType=BlockType.SHAPE,
-                                _declaringExpression=_odeShape.getExpression(),
-                                _isPredefined=False, _isFunction=False,
-                                _isRecordable=True,
-                                _typeSymbol=PredefinedTypes.getRealType())
-        _odeShape.getScope().addSymbol(symbol)
-        """
+        if _odeShape.getVariable().getDifferentialOrder() == 0:
+            symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
+                                    _name=_odeShape.getVariable().getName(),
+                                    _blockType=BlockType.EQUATION,
+                                    _declaringExpression=_odeShape.getExpression(),
+                                    _isPredefined=False, _isFunction=False,
+                                    _isRecordable=True,
+                                    _typeSymbol=PredefinedTypes.getRealType(),_variableType=VariableType.SHAPE)
+            _odeShape.getScope().addSymbol(symbol)
         _odeShape.getVariable().updateScope(_odeShape.getScope())
         cls.visitVariable(_odeShape.getVariable())
         _odeShape.getExpression().updateScope(_odeShape.getScope())
