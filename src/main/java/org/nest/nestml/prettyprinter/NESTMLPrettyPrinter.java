@@ -301,16 +301,16 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
   }
 
   public void handle(final ASTDeclaration astDeclaration) {
-    if (astDeclaration.getDocString().length() > 0) {
-      printer.println("# " + astDeclaration.getDocString());
-    }
-
     printAliasPrefix(astDeclaration);
     printDeclarationVariables(astDeclaration);
     printDeclarationType(astDeclaration);
     printOptionalInitializationExpression(astDeclaration);
     printInvariants(astDeclaration);
-    CommentPrettyPrinter.printPostComments(astDeclaration, printer);
+    // print comments after the variable declarations
+    if (astDeclaration.getDocString().length() > 0) {
+      printer.print(" # " + astDeclaration.getDocString());
+    }
+
     printer.println();
   }
 

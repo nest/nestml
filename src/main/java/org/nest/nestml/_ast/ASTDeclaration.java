@@ -53,7 +53,7 @@ public class ASTDeclaration extends ASTDeclarationTOP {
   }
 
   public String getDocString() {
-    return docStrings.toString();
+    return docStrings.toString().trim();
   }
 
 }

@@ -67,16 +67,21 @@ extern "C" inline int ${neuronName}_dynamics( double, const double y[], double f
   Parameters:
   The following parameters can be set in the status dictionary.
   <#list body.getParameterSymbols() as parameter>
-  <#if parameter.hasComment()>
-    ${parameter.getName()} ${parameter.printComment("")}
-  </#if>
+    <#if parameter.getComment().isPresent()>
+      ${parameter.getName()?right_pad(10)} [${parameter.getType().prettyPrint()?right_pad(5)}] ${parameter.getComment().get()}
+    </#if>
   </#list>
 
-  Dynamic state variables:
-  <#list body.getParameterSymbols() as parameter>
-  <#if parameter.hasComment()>
-    ${parameter.getName()} ${parameter.printComment("")}
-  </#if>
+  State variables:
+  <#list body.getStateSymbols() as state>
+    <#if state.getComment().isPresent()>
+      ${state.getName()?right_pad(10)} [${state.getType().prettyPrint()?right_pad(5)}] ${state.getComment().get()}
+    </#if>
+  </#list>
+  <#list body.getInitialValuesSymbols() as initialValue>
+    <#if initialValue.getComment().isPresent()>
+      ${initialValue.getName()?right_pad(10)} [${initialValue.getType().prettyPrint()?right_pad(5)}] ${initialValue.getComment().get()}
+    </#if>
   </#list>
 
   References: Empty
