@@ -485,7 +485,6 @@ class CoCosManager(object):
         cls.checkUserDefinedFunctionCorrectlyBuilt(_neuron)
         cls.checkInitialOdeInitialValues(_neuron)
         cls.checkConvolveCondCurrIsCorrect(_neuron)
-        cls.checkCorrectUsageOfShapes(_neuron)
         cls.checkInvariantTypeCorrect(_neuron)
         cls.checkVectorInNonVectorDeclarationDetected(_neuron)
         cls.checkSumHasCorrectParameter(_neuron)
@@ -501,4 +500,5 @@ class CoCosManager(object):
         :type _neuron: ASTNeuron
         """
         cls.checkInitVarsWithOdesProvided(_neuron)
+        cls.checkCorrectUsageOfShapes(_neuron)
         return
