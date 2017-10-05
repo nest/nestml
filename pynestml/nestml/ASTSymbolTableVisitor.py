@@ -23,7 +23,7 @@ from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.nestml.FunctionSymbol import FunctionSymbol
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
+from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType, VariableType
 from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
 from pynestml.nestml.CoCosManager import CoCosManager
@@ -163,7 +163,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             varSymbol = VariableSymbol(_elementReference=arg, _scope=scope, _name=arg.getName(),
                                        _blockType=BlockType.LOCAL, _isPredefined=False, _isFunction=False,
                                        _isRecordable=False,
-                                       _typeSymbol=PredefinedTypes.getTypeIfExists(typeName))
+                                       _typeSymbol=PredefinedTypes.getTypeIfExists(typeName),
+                                       _variableType=VariableType.VARIABLE)
             scope.addSymbol(varSymbol)
         if _block.hasReturnType():
             _block.getReturnType().updateScope(scope)
