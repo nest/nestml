@@ -208,6 +208,7 @@ class ASTUtils(object):
         SymbolTableASTVisitor.visitExpression(expr)
         return expr
 
+    @classmethod
     def getAliasSymbolsFromOdes(self, _list=list()):
         """"
         For a handed over list this
@@ -218,6 +219,7 @@ class ASTUtils(object):
         """
         pass
 
+    @classmethod
     def getAliasSymbols(self, _ast=None):
         """
         For the handed over ast, this method collects all functions aka. aliases in it.
@@ -226,7 +228,7 @@ class ASTUtils(object):
         :return: a list of all alias variable symbols
         :rtype: list(VariableSymbol)
         """
-        assert (_ast is not None),'(PyNestML.Utils) No AST provided!'
+        assert (_ast is not None), '(PyNestML.Utils) No AST provided!'
         variableCollector = VariableCollector()
         _ast.accept(variableCollector)
         ret = list()
@@ -236,6 +238,35 @@ class ASTUtils(object):
                 if symbol.isFunction():
                     ret.append(symbol)
         return ret
+
+    @classmethod
+    def isCastableTo(cls, _typeA=None, _typeB=None):
+        """
+        Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
+        a unit where unit is expected is allowed.
+        :param _typeA: a single TypeSymbol
+        :type _typeA: TypeSymbol
+        :param _typeB: a single TypeSymbol
+        :type _typeB: TypeSymbol
+        :return: True if castable, otherwise False
+        :rtype: bool
+        """
+        from pynestml.nestml.TypeSymbol import TypeSymbol
+        assert (_typeA is not None and isinstance(_typeA, TypeSymbol)), \
+            '(PyNestML.Utils) No or wrong type of source type provided (%s)!' % type(_typeA)
+        assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
+            '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_typeB)
+        # we can always cast from unit to real
+        if _typeA.hasUnit() and _typeB.isReal():
+            return True
+        elif _typeA.isBoolean() and _typeB.isReal():
+            return True
+        elif _typeA.isReal() and _typeB.isBoolean():
+            return True
+        elif _typeA.isInteger() and _typeB.isReal():
+            return True
+        else:
+            return False
 
 
 class VariableCollector(NESTMLVisitor):

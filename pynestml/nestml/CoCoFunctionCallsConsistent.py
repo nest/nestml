@@ -17,8 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.CoCo import CoCo
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
@@ -88,12 +89,21 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
                            _functionCall.getSourcePosition().printSourcePosition()),
                         LOGGING_LEVEL.ERROR)
                 elif not actualType.getValue().equals(expectedType):
-                    Logger.logMessage(
-                        str(i + 1) + '. argument of function-call %s at %s is wrongly typed! '
-                                     'Expected %s, found %s!'
-                        % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
-                           expectedType.printSymbol(),
-                           actualType.getValue().printSymbol()),
-                        LOGGING_LEVEL.ERROR)
+                    if ASTUtils.isCastableTo(actualType.getValue(), expectedType):
+                        Logger.logMessage(
+                            str(i + 1) + '. argument of function-call %s at %s is wrongly typed! '
+                                         'Implicit cast from %s to %s!'
+                            % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
+                               actualType.getValue().printSymbol(),
+                               expectedType.printSymbol()),
+                            LOGGING_LEVEL.WARNING)
+                    else:
+                        Logger.logMessage(
+                            str(i + 1) + '. argument of function-call %s at %s is wrongly typed! '
+                                         'Expected %s, found %s!'
+                            % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
+                               expectedType.printSymbol(),
+                               actualType.getValue().printSymbol()),
+                            LOGGING_LEVEL.ERROR)
 
         return
