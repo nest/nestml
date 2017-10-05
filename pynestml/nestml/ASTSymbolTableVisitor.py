@@ -23,7 +23,7 @@ from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.nestml.FunctionSymbol import FunctionSymbol
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType, VariableType
+from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
 from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
 from pynestml.nestml.CoCosManager import CoCosManager
@@ -163,8 +163,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             varSymbol = VariableSymbol(_elementReference=arg, _scope=scope, _name=arg.getName(),
                                        _blockType=BlockType.LOCAL, _isPredefined=False, _isFunction=False,
                                        _isRecordable=False,
-                                       _typeSymbol=PredefinedTypes.getTypeIfExists(typeName),
-                                       _variableType=VariableType.VARIABLE)
+                                       _typeSymbol=PredefinedTypes.getTypeIfExists(typeName))
             scope.addSymbol(varSymbol)
         if _block.hasReturnType():
             _block.getReturnType().updateScope(scope)
@@ -672,16 +671,17 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
         assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided (%s)!' % type(_odeShape)
-        if _odeShape.getVariable().getDifferentialOrder() == 0:
-            symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
-                                    _name=_odeShape.getVariable().getName(),
-                                    _blockType=BlockType.EQUATION,
-                                    _declaringExpression=_odeShape.getExpression(),
-                                    _isPredefined=False, _isFunction=False,
-                                    _isRecordable=True,
-                                    _typeSymbol=PredefinedTypes.getRealType(),
-                                    _variableType=VariableType.SHAPE)
-            _odeShape.getScope().addSymbol(symbol)
+        """
+        This part should not be here!
+        symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
+                                _name=_odeShape.getVariable().getName(),
+                                _blockType=BlockType.SHAPE,
+                                _declaringExpression=_odeShape.getExpression(),
+                                _isPredefined=False, _isFunction=False,
+                                _isRecordable=True,
+                                _typeSymbol=PredefinedTypes.getRealType())
+        _odeShape.getScope().addSymbol(symbol)
+        """
         _odeShape.getVariable().updateScope(_odeShape.getScope())
         cls.visitVariable(_odeShape.getVariable())
         _odeShape.getExpression().updateScope(_odeShape.getScope())
@@ -900,7 +900,6 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                            SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
-            existingSymbol.setVariableType(VariableType.SHAPE)
             Logger.logMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),
                               LOGGING_LEVEL.INFO)
         else:

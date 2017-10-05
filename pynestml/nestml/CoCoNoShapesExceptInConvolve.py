@@ -98,8 +98,6 @@ class ShapeUsageVisitor(NESTMLVisitor):
                         if grandparentFuncName == 'curr_sum' or grandparentFuncName == 'cond_sum' or \
                                         grandparentFuncName == 'convolve':
                             continue
-                    if symbol.getReferencedObject() is parent:
-                        continue
                 Logger.logMessage(
                     'Shape "%s" used outside convolve at %s!'
                     % (shapeName, _variable.getSourcePosition().printSourcePosition()),

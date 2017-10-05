@@ -22,7 +22,7 @@ import sys
 
 setup(
     name='PyNESTML',
-    version='0.0.4',
+    version='0.0.3',
     description='NESTML is a domain specific language that supports the specification of neuron models in a'
                 ' precise and concise syntax, based on the syntax of Python. Model equations can either be given'
                 ' as a simple string of mathematical notation or as an algorithm written in the built-in procedural'

@@ -33,11 +33,10 @@ neuron CoCoConvolveNotCorrectlyProvided:
 
     initial_values:
         V_m mV = 10mV
-        test integer = 10
     end
 
     equations:
-        shape test' = 20
+        shape test = 10
         function testB pA = convolve(g_ex, g_ex) + test
         V_m' = 20mV
     end

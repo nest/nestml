@@ -270,7 +270,7 @@ private:
       STATE_VEC_SIZE
     };
     //! state vector, must be C-array for GSL solver
-    double ode_state[STATE_VEC_SIZE];{% filter indent(4,True) -%}
+    double ode_state[ STATE_VEC_SIZE ];{% filter indent(4,True) -%}
     {% for variable in neuron.getStateSymbolsWithoutOde() -%}
       {% include "MemberDeclaration.html" -%}
     {% endfor -%}{% endfilter -%}
