@@ -71,7 +71,7 @@ class CliConfigurationExecutor {
       processNestmlModels(modelRoots, config, scopeCreator, generator);
 
       reporter.reportProgress("Format generated code...");
-      //formatGeneratedCode(config.getTargetPath());
+      formatGeneratedCode(config.getTargetPath());
 
     }
 

@@ -37,7 +37,7 @@ KeepEmptyLinesAtTheStartOfBlocks: true # not in 3.4
 
 Language: Cpp # not in 3.4
 
-MaxEmptyLinesToKeep: 2
+MaxEmptyLinesToKeep: 1
 
 NamespaceIndentation: None
 

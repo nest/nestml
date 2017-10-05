@@ -5,5 +5,4 @@
   @result C++ declaration
 -->
 ${signature("variable")}
-<#if variable.getComment().isPresent()>/** ${variable.getComment().get()} */</#if>
-${declarations.printVariableType(variable)} ${names.name(variable)};
+${declarations.printVariableType(variable)} ${names.name(variable)}; <#if variable.getComment().isPresent()>//! ${variable.getComment().get()}</#if>

@@ -7,11 +7,13 @@
 ${signature("variable")}
 
 <#if variable.isFunction() && !variable.containsSumCall()>
+  /** <#if variable.getComment().isPresent()>returns ${variable.getComment().get()} in ${variable.getType().prettyPrint()}</#if> */
   inline ${declarations.printVariableType(variable)} ${names.getter(variable)}() const {
     <#assign simpleExpression = odeTransformer.replaceSumCalls(variable.getDeclaringExpression().get())>
     return ${expressionsPrinter.print(simpleExpression)};
   }
 <#else>
+  /** <#if variable.getComment().isPresent()>returns ${variable.getComment().get()} in ${variable.getType().prettyPrint()}</#if> */
   inline ${declarations.printVariableType(variable)} ${names.getter(variable)}() const {
     return ${variableHelper.printOrigin(variable)} ${names.name(variable)};
   }

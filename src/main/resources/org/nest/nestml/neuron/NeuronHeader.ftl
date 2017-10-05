@@ -397,10 +397,10 @@ private:
    * @note The order of definitions is important for speed.
    * @{
    */
-  Parameters_ P_;  //!< Free parameters.
-  State_      S_;  //!< Dynamic state.
-  Variables_  V_;  //!< Internal Variables
-  Buffers_    B_;  //!< Buffers.
+  Parameters_ P_;  // Free parameters.
+  State_      S_;  // Dynamic state.
+  Variables_  V_;  // Internal Variables
+  Buffers_    B_;  // Buffers.
   /** @} */
 
   //! Mapping of recordables names to access functions

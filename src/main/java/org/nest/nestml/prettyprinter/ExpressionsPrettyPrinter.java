@@ -39,7 +39,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ExpressionsPrettyPrinter {
 
-  protected final IReferenceConverter referenceConverter;
+  final IReferenceConverter referenceConverter;
 
   public ExpressionsPrettyPrinter() {
     this.referenceConverter = new IdempotentReferenceConverter();
@@ -81,13 +81,13 @@ public class ExpressionsPrettyPrinter {
 
     }
     else if (expr.isUnaryPlus()) {
-      return "(" + "+" + print(expr.getTerm().get()) + ")";
+      return "+" + print(expr.getTerm().get());
     }
     else if (expr.isUnaryMinus()) {
-      return "(" + "-" + print(expr.getTerm().get()) + ")";
+      return "-" + print(expr.getTerm().get());
     }
     else if (expr.isUnaryTilde()) {
-      return "(" + "~" + print(expr.getTerm().get()) + ")";
+      return "~" + print(expr.getTerm().get());
     }
     else if (expr.isLeftParentheses() && expr.isRightParentheses()) {
       return "(" +  print(expr.getExpr().get()) + ")";
@@ -202,15 +202,15 @@ public class ExpressionsPrettyPrinter {
     return argsListAsString;
   }
 
-  protected String convertConstant(final String constantName) {
+  String convertConstant(final String constantName) {
     return referenceConverter.convertConstant(constantName);
   }
 
-  protected String convertVariableName(final ASTVariable astVariableName) {
+  String convertVariableName(final ASTVariable astVariableName) {
     return referenceConverter.convertNameReference(astVariableName);
   }
 
-  protected String printComparisonOperator(final ASTExpr expr) {
+   String printComparisonOperator(final ASTExpr expr) {
     if (expr.isLt()) {
       return "<";
     }
@@ -232,7 +232,7 @@ public class ExpressionsPrettyPrinter {
     throw new RuntimeException("Cannot determine comparison operator");
   }
 
-  protected String printBitOperator(final ASTExpr expr) {
+  String printBitOperator(final ASTExpr expr) {
     if (expr.isShiftLeft()) {
       return "<<";
     }
@@ -255,7 +255,7 @@ public class ExpressionsPrettyPrinter {
     throw new RuntimeException("Cannot determine mathematical operator");
   }
 
-  protected String getArithmeticOperator(final ASTExpr expr) {
+  String getArithmeticOperator(final ASTExpr expr) {
     if (expr.isPlusOp()) {
       return "+";
     }
@@ -271,7 +271,7 @@ public class ExpressionsPrettyPrinter {
     throw new RuntimeException("Cannot determine mathematical operator");
   }
 
-  protected TypesPrettyPrinterConcreteVisitor typesPrinter() {
+  TypesPrettyPrinterConcreteVisitor typesPrinter() {
     final IndentPrinter printer = new IndentPrinter();
     return new TypesPrettyPrinterConcreteVisitor(printer);
   }
