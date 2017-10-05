@@ -25,6 +25,7 @@ from pynestml.codegeneration.NestPrinter import NestPrinter
 from pynestml.codegeneration.LegacyExpressionPrinter import LegacyExpressionPrinter
 from pynestml.codegeneration.NESTReferenceConverter import NESTReferenceConverter
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
+from pynestml.codegeneration.GSLReferenceConverter import GSLReferenceConverter
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
@@ -228,14 +229,18 @@ class NestCodeGenerator(object):
         namespace['assignments'] = NestAssignmentsHelper()
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
-        namespace['utils'] = ASTUtils
+        namespace['utils'] = ASTUtils()
         # information regarding the neuron
         namespace['outputEvent'] = namespace['printer'].printOutputEvent(_neuron.getBody())
         namespace['isSpikeInput'] = ASTUtils.isSpikeInput(_neuron.getBody())
         namespace['isCurrentInput'] = ASTUtils.isCurrentInput(_neuron.getBody())
         namespace['odeTransformer'] = OdeTransformer()
         # some additional information
-        #self.defineSolverType(namespace, _neuron) <---- TODO changed
+        self.defineSolverType(namespace, _neuron)
+        # GSL stuff
+        gslConverter = GSLReferenceConverter()
+        gslPrinter = LegacyExpressionPrinter(_referenceConverter=gslConverter)
+        namespace['printerGSL'] = gslPrinter
         return namespace
 
     def defineSolverType(self, _namespace=dict, _neuron=None):

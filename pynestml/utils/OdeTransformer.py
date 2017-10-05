@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
-
+from copy import copy
 
 class OdeTransformer(object):
     """
@@ -35,10 +35,11 @@ class OdeTransformer(object):
         :param _ast: a single ast node.
         :type _ast: AST_
         """
-        functionCalls = self.getFunctionCalls(_ast, self.__functions)
+        workingCopy = copy(_ast)
+        functionCalls = self.getFunctionCalls(workingCopy, self.__functions)
         for call in functionCalls:
-            self.replaceFunctionCallThroughFirstArgument(_ast, call)
-        return _ast
+            self.replaceFunctionCallThroughFirstArgument(workingCopy, call)
+        return workingCopy
 
     def replaceSumCalls(self, _ast):
         """
@@ -46,9 +47,11 @@ class OdeTransformer(object):
         :param _ast: a single node
         :type _ast: AST_
         """
-        functionCalls = self.get_sumFunctionCalls(_ast)
+        assert (_ast is not None),'(PyNestML.Utils) No ast provided!'
+        workingCopy = copy(_ast)
+        functionCalls = self.get_sumFunctionCalls(workingCopy)
         for call in functionCalls:
-            self.replaceFunctionCallThroughFirstArgument(_ast, call)
+            self.replaceFunctionCallThroughFirstArgument(workingCopy, call)
         return _ast
 
     def replaceFunctionCallThroughFirstArgument(self, _ast=None, _toReplace=None):
@@ -66,7 +69,7 @@ class OdeTransformer(object):
 
     def get_sumFunctionCalls(self, _ast=None):
         """
-        Returns all sum function calls in the handed over ast node or one of its childs
+        Returns all sum function calls in the handed over ast node or one of its childred.
         :param _ast: a single ast node.
         :type _ast: AST_
         """
@@ -165,7 +168,7 @@ class replaceFunctionCallThroughFirstArgumentVisitor(NESTMLVisitor):
         :type _expr: ASTSimpleExpression
         """
         if _expr.isFunctionCall() and _expr.getFunctionCall() == self.__toReplace:
-            firstArg = _expr.getFunctionCall().getArgs()[0]
+            firstArg = _expr.getFunctionCall().getArgs()[0].getVariable()
             _expr.setFunctionCall(None)
             _expr.setVariable(firstArg)
-            return
+        return

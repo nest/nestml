@@ -18,6 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
+from pynestml.nestml.Symbol import SymbolKind
 
 
 class ASTUtils(object):
@@ -195,7 +197,6 @@ class ASTUtils(object):
             op = ASTArithmeticOperator(_isTimesOp=True)
         else:
             op = ASTArithmeticOperator(_isDivOp=True)
-
         varExpr = ASTSimpleExpression.makeASTSimpleExpression(_variable=_lhs)
         varExpr.updateScope(_lhs.getScope())
         op.updateScope(_lhs.getScope())
@@ -207,8 +208,8 @@ class ASTUtils(object):
         SymbolTableASTVisitor.visitExpression(expr)
         return expr
 
-    def getAliasSymbolsFromOdes(self,_list=list()):
-        """
+    def getAliasSymbolsFromOdes(self, _list=list()):
+        """"
         For a handed over list this
         :param _list:
         :type _list:
@@ -217,7 +218,7 @@ class ASTUtils(object):
         """
         pass
 
-    def getAliasSymbols(self,_ast=None):
+    def getAliasSymbols(self, _ast=None):
         """
         For the handed over ast, this method collects all functions aka. aliases in it.
         :param _ast: a single ast node
@@ -225,7 +226,39 @@ class ASTUtils(object):
         :return: a list of all alias variable symbols
         :rtype: list(VariableSymbol)
         """
-        pass
+        assert (_ast is not None),'(PyNestML.Utils) No AST provided!'
+        variableCollector = VariableCollector()
+        _ast.accept(variableCollector)
+        ret = list()
+        for var in variableCollector.result():
+            if '\'' not in var.getCompleteName():
+                symbol = _ast.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
+                if symbol.isFunction():
+                    ret.append(symbol)
+        return ret
 
 
+class VariableCollector(NESTMLVisitor):
+    """
+    Collects all variables contained in the node or one of its sub-nodes.
+    """
+    __result = list()
 
+    def result(self):
+        """
+        Returns all collected variables.
+        :return: a list of variables.
+        :rtype: list(ASTVariable)
+        """
+        return self.__result
+
+    def visitVariable(self, _variable=None):
+        """
+        Visits a single node and ads it to results.
+        :param _variable:
+        :type _variable:
+        :return:
+        :rtype:
+        """
+        self.__result.append(_variable)
+        return

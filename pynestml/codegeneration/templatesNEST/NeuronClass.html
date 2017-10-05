@@ -73,29 +73,26 @@ namespace nest
 {
   // Override the create() method with one call to RecordablesMap::insert_()
   // for each quantity to be recorded.
-  template <>
-  void RecordablesMap<{{neuronName}}>::create()
-  {
-    // use standard names whereever you can for consistency!
-    {%- for variable in neuron.getStateSymbols() %}
+  template <> void RecordablesMap<{{neuronName}}>::create(){
+  // use standard names whereever you can for consistency!{% filter indent(2,True) %}
+  {%- for variable in neuron.getStateSymbols() %}
     {%- include "RecordCallback.html" %}
-    {%- endfor %}
-    {%- for variable in neuron.getInitialValuesSymbols() %}
+  {%- endfor %}
+  {%- for variable in neuron.getInitialValuesSymbols() %}
     {%- include "RecordCallback.html" %}
-    {%- endfor %}
-    {%- for variable in neuron.getInternalSymbols() %}
+  {%- endfor %}
+  {%- for variable in neuron.getInternalSymbols() %}
     {%- include "RecordCallback.html" %}
-    {%- endfor %}
-    {%- for variable in neuron.getParameterSymbols() %}
+  {%- endfor %}
+  {%- for variable in neuron.getParameterSymbols() %}
     {%- include "RecordCallback.html" %}
-    {%- endfor %}
-    {%- for odeAlias in neuron.getODEAliases() %}
+  {%- endfor %}
+  {%- for odeAlias in neuron.getODEAliases() %}
     {%- with variable = odeAlias %}
-    {%- include "RecordCallback.html" %}
+      {%- include "RecordCallback.html" %}
     {%- endwith %}
-    {%- endfor %}
+  {%- endfor %}{% endfilter %}
   }
-
 }
 
 /* ----------------------------------------------------------------
@@ -117,9 +114,7 @@ namespace nest
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif -%}
 {%- if useGSL -%}
-  , __s( 0 )
-  , __c( 0 )
-  , __e( 0 )
+  , __s( 0 ), __c( 0 ), __e( 0 )
 {%- endif -%}
 {
   // Initialization of the remaining members is deferred to
@@ -132,9 +127,7 @@ namespace nest
   , spike_inputs_( std::vector< nest::RingBuffer >( SUP_SPIKE_RECEPTOR - 1 ) )
 {%- endif -%}
 {%- if useGSL -%}
-  , __s( 0 )
-  , __c( 0 )
-  , __e( 0 )
+  , __s( 0 ), __c( 0 ), __e( 0 )
 {%- endif -%}
 {
   // Initialization of the remaining members is deferred to
@@ -148,9 +141,9 @@ namespace nest
 {
   recordablesMap_.create();
   {%- if useGSL %}
-     // use a default `good` enough value for the absolute error.
-     // it cab be adjusted via `SetStatus`
-     P_.__gsl_error_tol = 1e-3;
+  // use a default `good` enough value for the absolute error.
+  // it cab be adjusted via `SetStatus`
+  P_.__gsl_error_tol = 1e-3;
   {%- endif %}
 
   {%- for parameter in neuron.getParameterNonAliasSymbols() -%}
@@ -185,26 +178,21 @@ namespace nest
   {% endfor %}
 }
 
-{{neuronName}}::~{{neuronName}}()
-{
-  {% if useGSL %}
-    // GSL structs may not have been allocated, so we need to protect destruction
-    if ( B_.__s )
-      gsl_odeiv_step_free( B_.__s );
-    if ( B_.__c )
-      gsl_odeiv_control_free( B_.__c );
-    if ( B_.__e )
-      gsl_odeiv_evolve_free( B_.__e );
-  {% endif %}
+{{neuronName}}::~{{neuronName}}(){ {% if useGSL %}
+  // GSL structs may not have been allocated, so we need to protect destruction
+  if ( B_.__s )
+    gsl_odeiv_step_free( B_.__s );
+  if ( B_.__c )
+    gsl_odeiv_control_free( B_.__c );
+  if ( B_.__e )
+    gsl_odeiv_evolve_free( B_.__e );{% endif %}
 }
 
 /* ----------------------------------------------------------------
 * Node initialization functions
 * ---------------------------------------------------------------- */
 
-void
-{{neuronName}}::init_state_(const Node& proto)
-{
+void {{neuronName}}::init_state_(const Node& proto){
   const {{neuronName}}& pr = downcast<{{neuronName}}>(proto);
   S_ = pr.S_;
 }
@@ -213,55 +201,40 @@ void
 {% include "GSLDifferentiationFunction.html" %}
 {% endif %}
 
-void
-{{neuronName}}::init_buffers_()
-{
-  {% for buffer in neuron.getInputBuffers() %}
+void {{neuronName}}::init_buffers_(){
+  {% for buffer in neuron.getInputBuffers() -%}
   {{ printer.printBufferInitialization(buffer) }}
   {% endfor %}
   B_.logger_.reset(); // includes resize
   Archiving_Node::clear_history();
   {% if useGSL %}
-    if ( B_.__s == 0 )
-    {
-      B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, {{stateSize}} );
-    }
-    else
-    {
-      gsl_odeiv_step_reset( B_.__s );
-    }
+  if ( B_.__s == 0 ){
+    B_.__s = gsl_odeiv_step_alloc( gsl_odeiv_step_rkf45, {{stateSize}} );
+  } else {
+    gsl_odeiv_step_reset( B_.__s );
+  }
 
-    if ( B_.__c == 0 )
-    {
-      B_.__c = gsl_odeiv_control_y_new( P_.__gsl_error_tol, 0.0 );
-    }
-    else
-    {
-      gsl_odeiv_control_init( B_.__c, P_.__gsl_error_tol, 0.0, 1.0, 0.0 );
-    }
+  if ( B_.__c == 0 ){
+    B_.__c = gsl_odeiv_control_y_new( P_.__gsl_error_tol, 0.0 );
+  } else {
+    gsl_odeiv_control_init( B_.__c, P_.__gsl_error_tol, 0.0, 1.0, 0.0 );
+  }
 
-    if ( B_.__e == 0 )
-    {
-      B_.__e = gsl_odeiv_evolve_alloc( {{stateSize}} );
-    }
-    else
-    {
-      gsl_odeiv_evolve_reset( B_.__e );
-    }
+  if ( B_.__e == 0 ){
+    B_.__e = gsl_odeiv_evolve_alloc( {{stateSize}} );
+  } else {
+    gsl_odeiv_evolve_reset( B_.__e );
+  }
 
-    B_.__sys.function = {{neuronName}}_dynamics;
-    B_.__sys.jacobian = NULL;
-    B_.__sys.dimension = {{stateSize}};
-    B_.__sys.params = reinterpret_cast< void* >( this );
-    B_.__step = nest::Time::get_resolution().get_ms();
-    B_.__integration_step = nest::Time::get_resolution().get_ms();
-  {% endif %}
-
+  B_.__sys.function = {{neuronName}}_dynamics;
+  B_.__sys.jacobian = NULL;
+  B_.__sys.dimension = {{stateSize}};
+  B_.__sys.params = reinterpret_cast< void* >( this );
+  B_.__step = nest::Time::get_resolution().get_ms();
+  B_.__integration_step = nest::Time::get_resolution().get_ms();{% endif %}
 }
 
-void
-{{neuronName}}::calibrate()
-{
+void {{neuronName}}::calibrate(){
   B_.logger_.init();
 
   {%- for variable in neuron.getInternalNonAliasSymbols() %}
@@ -289,12 +262,11 @@ void
 /*
  {{neuron.printDynamicsComment()}}
  */
-void
-{{neuronName}}::update(nest::Time const & origin,const long from, const long to)
+void {{neuronName}}::update(nest::Time const & origin,const long from, const long to)
 {
-  {%- if useGSL -%}
-    double __t = 0;
-  {%- endif -%}
+  {% if useGSL -%}
+  double __t = 0;
+  {%- endif %}
 
   for ( long lag = from ; lag < to ; ++lag ) {
     {% for inputLine in neuron.getInputBuffers() -%}
@@ -319,8 +291,7 @@ void
 
 // Do not move this function as inline to h-file. It depends on
 // universal_data_logger_impl.h being included here.
-void {{neuronName}}::handle(nest::DataLoggingRequest& e)
-{
+void {{neuronName}}::handle(nest::DataLoggingRequest& e){
   B_.logger_.handle(e);
 }
 

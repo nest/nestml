@@ -342,6 +342,20 @@ class ASTNeuron(ASTElement):
                 ret.append(symbol)
         return ret
 
+    def variablesDefinedByODE(self):
+        """
+        Returns a list of all variables which are defined by an ode.
+        :return: a list of variable symbols
+        :rtype: list(VariableSymbol)
+        """
+        from pynestml.nestml.VariableSymbol import BlockType
+        symbols = self.getScope().getSymbolsInCompleteScope()
+        ret = list()
+        for symbol in symbols:
+            if isinstance(symbol, VariableSymbol) and symbol.isOdeDefined():
+                ret.append(symbol)
+        return ret
+
     def getOutputBlocks(self):
         """
         Returns a list of all output-blocks defined.
