@@ -133,20 +133,22 @@ neuron izhikevich_psc_alpha_implicit:
   end
 
   initial_values:
-    V_m mV = -65 mV # Membrane potential in mV
-    U_m pA = 0 pA   # Membrane potential recovery variable
-    I_syn_ex pA = 0. pA # inputs from the exc conductance
+    V_m mV = -65 mV                        # Membrane potential in mV
+    U_m pA = 0 pA                          # Membrane potential recovery variable
+    I_syn_ex pA = 0. pA                    # inputs from the exc conductance
     I_syn_ex' pA/ms = pA * e / tau_syn_in  # inputs from the exc conductance
-    I_syn_in pA = pA * e / tau_syn_in # inputs from the inh conductance
-    I_syn_in' pA/ms = 0. pA/ms # inputs from the inh conductance
+    I_syn_in pA = 0pA                      # inputs from the inh conductance
+    I_syn_in' pA/ms = pA * e / tau_syn_in  # inputs from the inh conductance
   end
 
   equations:
     # synapses: alpha functions
-    I_syn_ex'' = -I_syn_ex' / tau_syn_ex 
-    I_syn_ex' = I_syn_ex' - ( I_syn_ex / tau_syn_ex )
-    I_syn_in'' = -I_syn_in' / tau_syn_in 
-    I_syn_in' = I_syn_in' - ( I_syn_in / tau_syn_in )
+
+    # alpha function for the g_in
+    shape I_syn_in'' = (-2/tau_syn_in) * I_syn_in'-(1/tau_syn_in**2) * I_syn_in
+
+    # alpha function for the g_ex
+    shape I_syn_ex'' = (-2/tau_syn_ex) * I_syn_ex'-(1/tau_syn_ex**2) * I_syn_ex
     
     function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
     function I_syn_inh pA = convolve(I_syn_in, spikesInh)
@@ -165,7 +167,7 @@ neuron izhikevich_psc_alpha_implicit:
     c mV = -65 mV              # after-spike reset value of V_m
     d pA = 60. pA              # after-spike reset value of U_m
     I_e pA = 0. pA             # Constant input current in pA. (R=1)
-    V_peak mV = 0. mV          # Spike detection threashold (reset condition)
+    V_peak mV = 0. mV          # Spike detection threshold (reset condition)
     tau_syn_ex ms = 0.2 ms     # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_in ms = 2.0 ms     # Synaptic Time Constant for Inhibitory Synapse in ms
     t_ref ms = 2.0 ms      # Refractory period
