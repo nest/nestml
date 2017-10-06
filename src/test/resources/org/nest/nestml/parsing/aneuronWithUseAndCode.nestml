@@ -8,7 +8,7 @@ neuron Neuron1234:
   end
 
   input:
-    spikeBuffer   <- inhibitory excitatory spike
+    spikeBuffer nS <- inhibitory excitatory spike
     currentBuffer <- current
   end
 

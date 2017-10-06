@@ -6,7 +6,7 @@
 package org.nest.nestml._cocos;
 
 import org.nest.nestml._ast.ASTInputLine;
-import org.nest.nestml._ast.ASTInputType;
+import org.nest.nestml._ast.ASTSpikeType;
 
 import static de.se_rwth.commons.logging.Log.error;
 
@@ -21,7 +21,7 @@ public class MultipleInhExcModifiers implements NESTMLASTInputLineCoCo {
     if (inputLine.isSpike()) {
       // get number of inh, exc keywords
       int inh = 0, exc = 0;
-      for (ASTInputType inputType : inputLine.getInputTypes()) {
+      for (ASTSpikeType inputType : inputLine.getSpikeTypes()) {
         if (inputType.isInhibitory()) {
           ++inh;
         } else if (inputType.isExcitatory()) {

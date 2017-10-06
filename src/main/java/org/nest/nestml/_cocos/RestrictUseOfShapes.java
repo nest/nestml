@@ -2,7 +2,6 @@ package org.nest.nestml._cocos;
 
 import de.monticore.ast.ASTNode;
 import de.monticore.symboltable.Scope;
-import de.monticore.symboltable.Symbol;
 import org.nest.nestml._ast.*;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
@@ -63,32 +62,22 @@ public class RestrictUseOfShapes implements NESTMLASTNeuronCoCo {
       node.accept(this);
     }
 
-    @Override
-    public void visit(final ASTVariable astVariable) {
-      final Scope scope = astVariable.getEnclosingScope().get();
-
-      for (String shapeName : shapes) {
-        final Optional<VariableSymbol> shapeVariable = scope.resolve(shapeName, VariableSymbol.KIND);
-
-        // shapes as ODEs can be still used as normal variables. only functions must be checked.
-        if (shapeVariable.isPresent() && shapeVariable.get().isFunctionalShape()) {
-          if (astVariable.getName().equals(shapeName)) {
-            final Optional<ASTNode> parent = AstUtils.getParent(astVariable, neuronNode);
-            if (parent.isPresent()) {
-              // Don't mind its own declaration
-              if (parent.get() instanceof ASTShape) {
+    public void visit(ASTVariable astVariable){
+      for(String shapeName: shapes){
+        if(astVariable.getName().equals(shapeName)){
+          Optional<ASTNode> parent = AstUtils.getParent(astVariable,neuronNode);
+          if(parent.isPresent()){
+            //Dont mind its own declaration
+            if(parent.get() instanceof ASTShape){
+              continue;
+            }
+            //We have to dig deeper for funcitonCalls:
+            Optional<ASTNode> grandparent = AstUtils.getParent(parent.get(),neuronNode);
+            if(grandparent.isPresent() &&
+                grandparent.get() instanceof ASTFunctionCall){
+              ASTFunctionCall grandparentCall = (ASTFunctionCall) grandparent.get();
+              if(grandparentCall.getCalleeName().equals(PredefinedFunctions.CONVOLVE)){
                 continue;
-              }
-              // We have to dig deeper for funcitonCalls:
-              final Optional<ASTNode> grandparent = AstUtils.getParent(parent.get(), neuronNode);
-              if (grandparent.isPresent() &&
-                  grandparent.get() instanceof ASTFunctionCall) {
-                ASTFunctionCall grandparentCall = (ASTFunctionCall) grandparent.get();
-                if (grandparentCall.getCalleeName().equals(PredefinedFunctions.CURR_SUM) ||
-                    grandparentCall.getCalleeName().equals(PredefinedFunctions.COND_SUM)) {
-                  continue;
-                }
-
               }
 
             }

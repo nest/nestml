@@ -366,7 +366,7 @@ public final class AstUtils {
 
   public static boolean isInhExc(final ASTInputLine astInputLine ) {
     boolean isInh =false, isExc = false;
-    for (final ASTInputType astInputType:astInputLine.getInputTypes()) {
+    for (final ASTSpikeType astInputType:astInputLine.getSpikeTypes()) {
       if (astInputType.isInhibitory()) {
         isInh = true;
       }

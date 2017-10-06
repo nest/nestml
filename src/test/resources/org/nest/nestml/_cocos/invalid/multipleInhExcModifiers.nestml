@@ -1,8 +1,8 @@
 neuron MultipleInhExc:
   input:
-    inhBuffer   <- inhibitory inhibitory spike
-    excBuffer   <- excitatory excitatory excitatory spike
-    inhExcBuffer   <- inhibitory excitatory inhibitory excitatory spike
+    inhBuffer nS <- inhibitory inhibitory spike
+    excBuffer nS <- excitatory excitatory excitatory spike
+    inhExcBuffer nS <- inhibitory excitatory inhibitory excitatory spike
   end
 
   update:

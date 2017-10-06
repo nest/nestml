@@ -29,22 +29,20 @@ import org.nest.utils.AstUtils;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
-import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.COND_SUM;
-import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.CURR_SUM;
+import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.CONVOLVE;
 
 /**
  * This class ensures that curr_sum(I,Buffer) gets only simple expression
  *
  * @author plotnikov
  */
-public class SumHasCorrectParameter implements NESTMLASTEquationsBlockCoCo {
+public class ConvolveHasCorrectParameter implements NESTMLASTEquationsBlockCoCo {
 
   @Override
   public void check(final ASTEquationsBlock astEquationsBlock) {
     final List<ASTFunctionCall> functions = AstUtils.getAll(astEquationsBlock, ASTFunctionCall.class)
         .stream()
-        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(CURR_SUM) ||
-                                   astFunctionCall.getCalleeName().equals(COND_SUM))
+        .filter(astFunctionCall -> astFunctionCall.getCalleeName().equals(CONVOLVE))
         .collect(toList());
 
     for (final ASTFunctionCall functionCall:functions) {

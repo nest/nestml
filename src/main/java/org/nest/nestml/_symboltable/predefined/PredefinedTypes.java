@@ -26,7 +26,6 @@ public class PredefinedTypes {
 
   static {
     registerPrimitiveTypes();
-    registerBufferType();
   }
 
   /**
@@ -61,10 +60,6 @@ public class PredefinedTypes {
     return implicitTypes.get("integer");
   }
 
-  public static TypeSymbol getBufferType() {
-    return implicitTypes.get("Buffer");
-  }
-
   public static TypeSymbol getUnitType() {
     return implicitTypes.get("unit");
   }
@@ -82,11 +77,6 @@ public class PredefinedTypes {
     typeSymbol.setPackageName("");
     implicitTypes.put(modelName, typeSymbol);
     return typeSymbol;
-  }
-
-  private static void registerBufferType() {
-    final TypeSymbol bufferType = new TypeSymbol("Buffer", TypeSymbol.Type.BUFFER);
-    implicitTypes.put("Buffer", bufferType);
   }
 
   public static Collection<TypeSymbol> getTypes() {
@@ -114,13 +104,13 @@ public class PredefinedTypes {
         In Case of UNITS always return a TS with serialization as name*/
   public static Optional<TypeSymbol> getTypeIfExists(final String typeName) {
     if (implicitTypes.containsKey(typeName)) {
-      return Optional.of(implicitTypes.get(typeName));
+      return Optional.of(new TypeSymbol(implicitTypes.get(typeName)));
     }
     else if (SIData.getCorrectSIUnits().contains(typeName)) {
       Optional<UnitRepresentation> unitRepresentation = UnitRepresentation.lookupName(typeName);
       if (unitRepresentation.isPresent()) {
         registerType(unitRepresentation.get().serialize(), TypeSymbol.Type.UNIT);
-        return Optional.of(implicitTypes.get(unitRepresentation.get().serialize()));
+        return Optional.of(new TypeSymbol(implicitTypes.get(unitRepresentation.get().serialize())));
       }
       return Optional.empty();
     }
@@ -133,7 +123,7 @@ public class PredefinedTypes {
       catch (IllegalStateException e){
         return Optional.empty();
       }
-      return Optional.of(implicitTypes.get(typeName));
+      return Optional.of(new TypeSymbol(implicitTypes.get(typeName)));
     }
 
   }

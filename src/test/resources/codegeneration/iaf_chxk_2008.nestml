@@ -36,8 +36,8 @@ neuron iaf_chxk_2008_neuron:
 
     shape g_in = (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape g_ex = (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
-    function I_syn_exc pA = cond_sum(g_ex, spikesInh) * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikesExc) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikesInh) * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikesExc) * ( V_m - E_in )
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
@@ -75,8 +75,8 @@ neuron iaf_chxk_2008_neuron:
   end
 
   input:
-      spikesInh   <- inhibitory spike
-      spikesExc   <- excitatory spike
+      spikesInh nS <- inhibitory spike
+      spikesExc nS <- excitatory spike
       currents <- current
   end
 

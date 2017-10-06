@@ -45,8 +45,8 @@ neuron iaf_cond_alpha_neuron:
     shape g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
-    function I_syn_exc pA = cond_sum(g_ex, spikeExc)  * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikeInh)  * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikeExc)  * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
@@ -71,8 +71,8 @@ neuron iaf_cond_alpha_neuron:
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
       currents <- current
   end
 
@@ -143,8 +143,8 @@ neuron iaf_cond_alpha_implicit:
     shape g_in'' = (-1)/(tau_syn_in)**(2)*g_in+(-2)/tau_syn_in*g_in'
     shape g_ex'' = (-1)/(tau_syn_ex)**(2)*g_ex+(-2)/tau_syn_ex*g_ex'
 
-    function I_syn_exc pA = cond_sum(g_ex, spikeExc) * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikeInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
@@ -169,8 +169,8 @@ neuron iaf_cond_alpha_implicit:
   end
 
   input:
-    spikeInh   <- inhibitory spike
-    spikeExc   <- excitatory spike
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
     currents <- current
   end
 

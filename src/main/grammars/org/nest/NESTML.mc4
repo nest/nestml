@@ -252,13 +252,13 @@ grammar NESTML extends org.nest.Literals {
     @attribute spike true iff the neuron is a spike.
     @attribute current true iff. the neuron is a current.
   */
-  InputLine = Name ("[" sizeParameter:Name "]")? "<-" InputType* (["spike"] | ["current"]);
+  InputLine = Name Datatype? ("[" sizeParameter:Name "]")?  "<-" (["current"] | (SpikeType* ["spike"]));
 
-  /** ASTInputType represents the type of the inputline e.g.: inhibitory or excitatory:
+  /** ASTSpikeType represents the type of the inputline e.g.: inhibitory or excitatory:
     @attribute inhibitory true iff the neuron is a inhibitory.
     @attribute excitatory true iff. the neuron is a excitatory.
   */
-  InputType = (["inhibitory"] | ["excitatory"]);
+  SpikeType = (["inhibitory"] | ["excitatory"]);
 
   /** ASTOutput represents the output block of the neuron:
         output: spike
