@@ -326,7 +326,7 @@ private:
 
     </#if>
 
-    <#list body.getBuffersDeclaredAsCurrent() as inputLine>
+    <#list body.getCurrentBuffers() as inputLine>
       ${bufferHelper.printBufferDeclaration(inputLine)};
       ${bufferHelper.printBufferGetter(inputLine, true)}
       ${bufferHelper.printBufferDeclarationValue(inputLine)};
