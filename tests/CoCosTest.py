@@ -200,7 +200,7 @@ class FunctionWithWrongArgNumberDetected(unittest.TestCase):
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
                          'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 5)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
 
 
 class InitValuesHaveRhsAndOde(unittest.TestCase):

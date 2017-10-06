@@ -17,9 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.CoCo import CoCo
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.nestml.Symbol import SymbolKind
+from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
@@ -63,11 +63,19 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                      _declaration.getSourcePosition().printSourcePosition()),
                                   LOGGING_LEVEL.ERROR)
             elif not lhsType.equals(rhsType.getValue()):
-                Logger.logMessage('Type of lhs does not correspond to expression type at %s! LHS: %s,RHS: %s.'
-                                  % (_declaration.getSourcePosition().printSourcePosition(),
-                                     lhsType.printSymbol(),
-                                     rhsType.getValue().printSymbol()),
-                                  LOGGING_LEVEL.ERROR)
+                if ASTUtils.isCastableTo(rhsType.getValue(), lhsType):
+                    Logger.logMessage('Type of lhs does not correspond to expression type at %s!'
+                                      ' Implicit cast from %s to %s.'
+                                      % (_declaration.getSourcePosition().printSourcePosition(),
+                                         rhsType.getValue().printSymbol(),
+                                         lhsType.printSymbol()),
+                                      LOGGING_LEVEL.WARNING)
+                else:
+                    Logger.logMessage('Type of lhs does not correspond to expression type at %s! LHS: %s,RHS: %s.'
+                                      % (_declaration.getSourcePosition().printSourcePosition(),
+                                         lhsType.printSymbol(),
+                                         rhsType.getValue().printSymbol()),
+                                      LOGGING_LEVEL.ERROR)
         # todo we have to consider that different magnitudes can still be combined
         return
 
