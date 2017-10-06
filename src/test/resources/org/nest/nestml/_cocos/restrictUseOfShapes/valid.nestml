@@ -1,6 +1,5 @@
-neuron validODETest:
-  initial_values:
-    Distance km
+neuron validShapes:
+  state:
   end
 
   input:
@@ -9,19 +8,21 @@ neuron validODETest:
       currents <- current
   end
 
-  parameters:
+  parameters:    
   end
 
   output: spike
 
   equations:
-    Distance' = Distance / DeltaTime
+    shape testShape = 1.5
   end
 
   internals:
-    DeltaTime s
   end
 
   update:
+    convolve(testShape,spikeInh)
+    convolve(testShape,spikeExc)
+    convolve(testShape,currents)
   end
 end

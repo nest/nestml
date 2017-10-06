@@ -132,7 +132,7 @@ if __name__ == "__main__":
   models.append( ("iaf_psc_exp", "iaf_psc_exp_neuron", None, 0.01))    
   models.append( ("iaf_tum_2000", "iaf_tum_2000_neuron", None, 0.01))
   models.append( ("izhikevich", "izhikevich_neuron", 1.e-3, 0.5))
-  models.append( ("izhikevich_psc_alpha", "izhikevich_psc_alpha_implicit", 1.e-3, 0.001))
+  models.append( ("izhikevich_psc_alpha", "izhikevich_psc_alpha_implicit", 1.e-3, 0.01))
   models.append( ("mat2_psc_exp", "mat2_psc_exp_neuron", None, 0.1))
   models.append( ("terub_neuron_gpe", "terub_neuron_gpe_implicit", 1.e-3, 0.001))
   models.append( ("terub_neuron_stn", "terub_neuron_stn_implicit", 1.e-3, 0.001))

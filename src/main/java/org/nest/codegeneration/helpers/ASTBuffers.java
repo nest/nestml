@@ -8,7 +8,7 @@ package org.nest.codegeneration.helpers;
 import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTInputLine;
-import org.nest.nestml._ast.ASTInputType;
+import org.nest.nestml._ast.ASTSpikeType;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -38,7 +38,7 @@ public class ASTBuffers {
 
   public static boolean isInhibitory(final ASTInputLine buffer) {
     boolean isInhibitory = false, isExcitatory = false;
-    for (final ASTInputType inputType : buffer.getInputTypes()) {
+    for (final ASTSpikeType inputType : buffer.getSpikeTypes()) {
       if (inputType.isInhibitory()) {
         isInhibitory = true;
       }
@@ -53,7 +53,7 @@ public class ASTBuffers {
 
   public static boolean isExcitatory(final ASTInputLine buffer) {
     boolean isInhibitory = false, isExcitatory = false;
-    for (final ASTInputType inputType : buffer.getInputTypes()) {
+    for (final ASTSpikeType inputType : buffer.getSpikeTypes()) {
       if (inputType.isInhibitory()) {
         isInhibitory = true;
       }
@@ -65,6 +65,9 @@ public class ASTBuffers {
     return !isInhibitory && !isExcitatory || isExcitatory;
   }
 
+  /**
+   * This method is used in freemaker template. Therefore, it must remain public.
+   */
   public String printBufferGetter(VariableSymbol buffer, boolean isInStruct) {
     final StringBuilder functionDeclaration = new StringBuilder();
     functionDeclaration.append("inline ");
@@ -112,6 +115,9 @@ public class ASTBuffers {
     return printBufferDeclaration(buffer);
   }
 
+  /**
+   * This method is used in freemaker template. Therefore, it must remain public.
+   */
   public String printBufferDeclaration(VariableSymbol buffer) {
     String bufferType;
     if (buffer.getVectorParameter().isPresent()) {

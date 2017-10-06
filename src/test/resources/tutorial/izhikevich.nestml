@@ -29,7 +29,7 @@ neuron izhikevich_neuron:
     # TODO add current buffer named I
     # NESTML Syntax for current buffers: buffer_name <- current
     I <- current
-    spikes <- spike
+    spikes nS <- spike
   end
 
   output: spike

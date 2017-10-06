@@ -13,6 +13,7 @@ import org.nest.codegeneration.sympy.OdeTransformer;
 import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import java.util.Objects;
@@ -106,9 +107,12 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isCurrentBuffer() {
+    //either it is defined as current
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
-      return astInputLine.isCurrent();
+      if (astInputLine.isCurrent()){
+        return true; //we want to continue if it is not true
+      }
     }
     return false;
   }

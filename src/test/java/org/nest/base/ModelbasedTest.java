@@ -27,7 +27,7 @@ import static org.junit.Assert.assertTrue;
  * @author plotnikov
  */
 public class ModelbasedTest {
-  protected static final Path OUTPUT_FOLDER = Paths.get("target");
+  protected static final Path OUTPUT_FOLDER = Paths.get("target/integration");
   protected static final Path TEST_MODEL_PATH = Paths.get("models");
   protected final NESTMLParser parser = new NESTMLParser();
   protected final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();

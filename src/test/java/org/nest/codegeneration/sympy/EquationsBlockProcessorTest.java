@@ -96,10 +96,9 @@ public class EquationsBlockProcessorTest extends ModelbasedTest {
   private Scope solveOdesAndShapes(final String pathToModel) {
     final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(pathToModel);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(pathToModel));
-    FilesHelper.deleteFilesInFolder(outputBase);
+    FilesHelper.deleteFilesInFolder(OUTPUT_FOLDER);
 
-    final ASTNeuron solvedNeuron = testant.solveOdeWithShapes(modelRoot.getNeurons().get(0), outputBase);
+    final ASTNeuron solvedNeuron = testant.solveOdeWithShapes(modelRoot.getNeurons().get(0), OUTPUT_FOLDER);
 
     return AstUtils.deepCloneNeuronAndBuildSymbolTable(solvedNeuron, OUTPUT_FOLDER).getSpannedScope().get();
 

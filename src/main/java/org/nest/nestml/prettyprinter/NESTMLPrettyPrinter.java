@@ -122,11 +122,22 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
     printer.indent();
 
     for (final ASTInputLine astInputLine:astInput.getInputLines()) {
+
       printer.print(astInputLine.getName());
       printArrayParameter(astInputLine);
-      printer.print(" <- ");
-      printInputTypes(astInputLine.getInputTypes());
-      printOutputType(astInputLine);
+
+      if (astInputLine.isSpike()) {
+        astInputLine.getDatatype().ifPresent(astDatatype -> printer.print(
+            " " + deserializeUnitIfNotPrimitive(AstUtils.computeTypeName(astDatatype))));
+
+        printer.print(" <- ");
+        printSpikeTypes(astInputLine.getSpikeTypes());
+        printer.print(" spike");
+      }
+      else { // current buffer
+        printer.print(" <- current");
+      }
+
       printer.println();
     }
 
@@ -136,8 +147,8 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
 
   }
 
-  private void printInputTypes(final List<ASTInputType> inputTypes) {
-    for (final ASTInputType inputType:inputTypes) {
+  private void printSpikeTypes(final List<ASTSpikeType> inputTypes) {
+    for (final ASTSpikeType inputType:inputTypes) {
       if (inputType.isInhibitory()) {
         printer.print("inhibitory ");
       }
@@ -153,15 +164,7 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
     astInputLine.getSizeParameter().ifPresent(parameter -> printer.print("[" + parameter + "]"));
   }
 
-  private void printOutputType(final ASTInputLine astInputLine) {
-    if (astInputLine.isSpike()) {
-      printer.print("spike");
-    }
-    else {
-      printer.print("current");
-    }
 
-  }
   @Override
   public void handle(final ASTFunction astFunction) {
     CommentPrettyPrinter.printPreComments(astFunction, printer);
@@ -334,7 +337,6 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
     }
   }
 
-
   private void printDeclarationVariables(final ASTDeclaration astDeclaration) {
     final List<ASTVariable> variableNames = astDeclaration.getVars();
     for (int variableIndex = 0; variableIndex < variableNames.size(); ++ variableIndex) {
@@ -346,7 +348,6 @@ public class NESTMLPrettyPrinter implements NESTMLInheritanceVisitor {
       }
 
     }
-
     printer.print(" ");
   }
 

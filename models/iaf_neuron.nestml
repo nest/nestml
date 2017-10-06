@@ -81,7 +81,7 @@ neuron iaf_neuron_nestml:
   # Declarative description of the updates rules
   equations:
     shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-    V_abs' = -1/Tau * (V_abs) + (curr_sum(G, spikes) + I_e + currents) / C_m
+    V_abs' = -1/Tau * (V_abs) + (convolve(G, spikes) + I_e + currents) / C_m
   end
 
   # these parameter are adjusted from outside
@@ -104,7 +104,7 @@ neuron iaf_neuron_nestml:
 
   # input sources
   input:
-    spikes   <- spike
+    spikes pA <- spike
     currents <- current
   end
 

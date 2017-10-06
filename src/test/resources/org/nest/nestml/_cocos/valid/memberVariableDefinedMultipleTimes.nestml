@@ -14,7 +14,7 @@ neuron NeuronInTest:
   end
 
   input:
-    z <- spike
+    z nS <- spike
   end
 
 end

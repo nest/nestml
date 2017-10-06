@@ -88,7 +88,7 @@ neuron iaf_psc_exp_neuron:
   equations:
     shape I_shape_in = exp(-1/tau_syn_in*t)
     shape I_shape_ex = exp(-1/tau_syn_ex*t)
-    function  I_syn mV = (curr_sum(I_shape_in, in_spikes) + curr_sum(I_shape_ex, ex_spikes) + I_e + currents)
+    function  I_syn mV = (convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + currents)
     V_abs' = -V_abs/tau_m + (I_syn/C_m) *nS
   end
 
@@ -110,8 +110,8 @@ neuron iaf_psc_exp_neuron:
   end
 
   input:
-    ex_spikes   <- excitatory spike
-    in_spikes   <- inhibitory spike
+    ex_spikes nS <- excitatory spike
+    in_spikes nS <- inhibitory spike
     currents    <- current
   end
 

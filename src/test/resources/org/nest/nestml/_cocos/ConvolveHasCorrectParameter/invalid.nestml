@@ -1,0 +1,17 @@
+neuron invalid_curr_sum:
+  state:
+    Cond nS
+    G pA
+  end
+
+  equations:
+    Cond' = (Cond+convolve(G*2, spikes)) /ms # error1: G*2 is false
+    Cond' = (Cond+convolve(G, spikes*2)) /ms # error2: spikes*2 is false
+    Cond' = (Cond+convolve(G+G, spikes)) /ms # error3: G+G is false
+  end
+
+  input:
+    spikes nS <- spike
+    currents <- current
+  end
+end

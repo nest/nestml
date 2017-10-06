@@ -6,7 +6,6 @@
 package org.nest.nestml._cocos;
 
 import de.se_rwth.commons.SourcePosition;
-import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.nestml._visitor.DotOperatorVisitor;
 import org.nest.nestml._visitor.FunctionCallVisitor;
@@ -192,15 +191,15 @@ public class NestmlErrorStrings {
     return "NESTML_GETTER_SETTER_FUNCTION_NAMES";
   }
 
-  public static String message(final SumHasCorrectParameter coco, final String expression) {
+  public static String message(final ConvolveHasCorrectParameter coco, final String expression) {
     final String ERROR_MSG_FORMAT = "The arguments of the I_sum must be atomic expressions: "
                                     + "e.g. V_m and not : " + expression;
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
   @SuppressWarnings({"unused"}) // used for the routing
-  static String code(final SumHasCorrectParameter coco) {
-    return "NESTML_SUM_HAS_INCORRECT_PARAMETER";
+  static String code(final ConvolveHasCorrectParameter coco) {
+    return "NESTML_CONVOLVE_HAS_INCORRECT_PARAMETER";
   }
 
   static String message(final InvalidTypesInDeclaration coco, String typeName) {
@@ -385,8 +384,8 @@ public class NestmlErrorStrings {
   }
 
   static public String message(final RestrictUseOfShapes coco) {
-    final String ERROR_MSG_FORMAT = "Shapes may only be used as parameters to either " + PredefinedFunctions.CURR_SUM +
-                                    " or " + PredefinedFunctions.COND_SUM;
+    //TODO: adapt for removal of curr_sum and cond_sum
+    final String ERROR_MSG_FORMAT = "Shapes may not be used in this fashion";
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
@@ -494,4 +493,24 @@ public class NestmlErrorStrings {
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }
 
+  public static String errorConvolveParameterNotAVariable(FunctionCallVisitor coco) {
+    final String ERROR_MSG_FORMAT = "convolve() function needs a buffer parameter";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  public static String errorConvolveParameterNotResolvable(FunctionCallVisitor coco, String bufferName) {
+    final String ERROR_MSG_FORMAT = "Cannot resolve the variable: "+bufferName;
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  public static String errorConvolveParameterMustBeBuffer(FunctionCallVisitor coco) {
+    final String ERROR_MSG_FORMAT = "Parameter to the convolve() function is not a buffer.";
+    return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
+  }
+
+  public static String errorCannotCalculateConvolveResult(FunctionCallVisitor coco) {
+    final String ERROR_MSG_FORMAT = "Cannot calculate return type of convolve(). See other error messages.";
+    return code(coco)  + SEPARATOR + ERROR_MSG_FORMAT;
+  }
 }
+
