@@ -42,237 +42,472 @@ PredefinedFunctions.registerPredefinedFunctions()
 CoCosManager.initializeCoCosManager()
 
 
-class ElementDefinedAfterUsage(unittest.TestCase):
+class InvalidElementDefinedAfterUsage(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableDefinedAfterUsage.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
-class ElementInSameLine(unittest.TestCase):
+class ValidElementDefinedAfterUsage(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoVariableDefinedAfterUsage.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidElementInSameLine(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoElementInSameLine.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class ElementNotDefinedInScope(unittest.TestCase):
+class ValidElementInSameLine(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoElementInSameLine.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidElementNotDefinedInScope(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableNotDefined.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
 
 
-class VariableRedeclaration(unittest.TestCase):
+class ValidElementNotDefinedInScope(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoVariableNotDefined.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidVariableRedeclaration(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVariableRedeclared.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
-class EachBlockUnique(unittest.TestCase):
+class ValidVariableRedeclaration(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoVariableRedeclared.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidEachBlockUnique(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoEachBlockUnique.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
-class FunctionUniqueAndDefined(unittest.TestCase):
+class ValidEachBlockUnique(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoEachBlockUnique.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidFunctionUniqueAndDefined(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionNotUnique.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 4)
 
 
-class FunctionsHaveRhs(unittest.TestCase):
+class ValidFunctionUniqueAndDefined(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoFunctionNotUnique.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidFunctionsHaveRhs(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionHasNoRhs.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class FunctionHasSeveralLhs(unittest.TestCase):
+class ValidFunctionsHaveRhs(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoFunctionHasNoRhs.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidFunctionHasSeveralLhs(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionWithSeveralLhs.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class NoValuesAssignedToBuffers(unittest.TestCase):
+class ValidFunctionHasSeveralLhs(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoFunctionWithSeveralLhs.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidNoValuesAssignedToBuffers(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoValueAssignedToBuffer.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
-class OrderOfEquationsCorrect(unittest.TestCase):
+class ValidNoValuesAssignedToBuffers(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoValueAssignedToBuffer.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidOrderOfEquationsCorrect(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoNoOrderOfEquations.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class NumeratorOfUnitOne(unittest.TestCase):
+class ValidOrderOfEquationsCorrect(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoNoOrderOfEquations.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidNumeratorOfUnitOne(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoUnitNumeratorNotOne.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
-class NamesOfNeuronsUnique(unittest.TestCase):
+class ValidNumeratorOfUnitOne(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoUnitNumeratorNotOne.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidNamesOfNeuronsUnique(unittest.TestCase):
     def test(self):
         Logger.initLogger(LOGGING_LEVEL.NO)
         NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoMultipleNeuronsWithEqualName.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(None, LOGGING_LEVEL.ERROR)) == 1)
 
 
-class NoNestCollision(unittest.TestCase):
+class ValidNamesOfNeuronsUnique(unittest.TestCase):
+    def test(self):
+        Logger.initLogger(LOGGING_LEVEL.NO)
+        NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoMultipleNeuronsWithEqualName.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(None, LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidNoNestCollision(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoNestNamespaceCollision.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class RedundantBufferKeywordsDetected(unittest.TestCase):
+class ValidNoNestCollision(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoNestNamespaceCollision.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidRedundantBufferKeywordsDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoBufferWithRedundantTypes.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class ParametersAssignedOnlyInParametersBlock(unittest.TestCase):
+class ValidRedundantBufferKeywordsDetected(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoBufferWithRedundantTypes.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoParameterAssignedOutsideBlock.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class CurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
+class ValidParametersAssignedOnlyInParametersBlock(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoParameterAssignedOutsideBlock.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoCurrentBufferTypeSpecified.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class SpikeBufferWithoutDatatype(unittest.TestCase):
+class ValidCurrentBuffersNotSpecifiedWithKeywords(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoCurrentBufferTypeSpecified.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidSpikeBufferWithoutDatatype(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoSpikeBufferWithoutType.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class FunctionWithWrongArgNumberDetected(unittest.TestCase):
+class ValidSpikeBufferWithoutDatatype(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoSpikeBufferWithoutType.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidFunctionWithWrongArgNumberDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class InitValuesHaveRhsAndOde(unittest.TestCase):
+class ValidFunctionWithWrongArgNumberDetected(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoFunctionCallNotConsistentWrongArgNumber.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidInitValuesHaveRhsAndOde(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoInitValuesWithoutOde.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
 
 
-class IncorrectReturnStmtDetected(unittest.TestCase):
+class ValidInitValuesHaveRhsAndOde(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoInitValuesWithoutOde.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidIncorrectReturnStmtDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoIncorrectReturnStatement.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 4)
 
 
-class OdeVarsOutsideInitBlockDetected(unittest.TestCase):
+class ValidIncorrectReturnStmtDetected(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoIncorrectReturnStatement.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoOdeVarNotInInitialValues.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class ConvolveCorrectlyDefined(unittest.TestCase):
+class ValidOdeVarsOutsideInitBlockDetected(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoOdeVarNotInInitialValues.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidConvolveCorrectlyDefined(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoConvolveNotCorrectlyProvided.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
 
 
-class VectorInNonVectorDeclarationDetected(unittest.TestCase):
+class ValidConvolveCorrectlyDefined(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoConvolveNotCorrectlyProvided.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidVectorInNonVectorDeclarationDetected(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoVectorInNonVectorDeclaration.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class SumCorrectlyParametrized(unittest.TestCase):
+class ValidVectorInNonVectorDeclarationDetected(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoVectorInNonVectorDeclaration.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidSumCorrectlyParametrized(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoSumNotCorrectlyParametrized.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
-class InvariantCorrectlyTyped(unittest.TestCase):
+class ValidSumCorrectlyParametrized(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoSumNotCorrectlyParametrized.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidInvariantCorrectlyTyped(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoInvariantNotBool.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 1)
 
 
-class ExpressionCorrectlyTyped(unittest.TestCase):
+class ValidInvariantCorrectlyTyped(unittest.TestCase):
     def test(self):
         Logger.setLoggingLevel(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(
-            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources')),
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoInvariantNotBool.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+
+
+class InvalidExpressionCorrectlyTyped(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoIllegalExpression.nestml'))
         assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 6)
+
+
+class ValidExpressionCorrectlyTyped(unittest.TestCase):
+    def test(self):
+        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        model = NESTMLParser.parseModel(
+            os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
+                         'CoCoIllegalExpression.nestml'))
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
 
 
 if __name__ == '__main__':

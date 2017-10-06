@@ -1,0 +1,54 @@
+/**
+ *
+ *  CoCoFunctionRedeclared.nestml
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * This model is used to check if all cocos work correctly by detecting corresponding broken context.
+ * Here, if redeclaration of functions has been detected.
+ * Negative case.
+*/
+
+neuron CoCoFunctionRedeclared:
+    function max(arg1 integer,arg2 integer) integer:
+        if arg1>arg2:
+            return arg1
+        else:
+            return arg2
+        end
+    end
+
+    function max(arg1 integer,arg2 integer) integer: # redeclared function should be detected
+        if arg1<=arg2:
+            return arg2
+        else:
+            return arg1
+        end
+    end
+
+    update:
+        # required for creation of a correct ast
+    end
+
+    input:
+        # required for creation of a correct ast
+    end
+
+    output: spike
+end

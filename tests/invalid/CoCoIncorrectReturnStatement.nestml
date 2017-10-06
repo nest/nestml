@@ -1,0 +1,66 @@
+/**
+ *
+ *  CoCoIncorrectReturnStatement.nestml
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * This model is used to test if broken CoCos are identified correctly. Here, if user defined functions without
+ * a proper return statement and wrong type are detected.
+ * Negative case.
+*/
+
+neuron CoCoIncorrectReturnStatement:
+    update:
+        # required for creation of a correct ast
+    end
+
+    input:
+        # required for creation of a correct ast
+    end
+
+    output: spike
+
+    function foo() mV:
+        test mV = 10mV
+
+        if test == 10mV:
+            return test
+        else:
+            return 20mV # here, it should be detected, that it is not the last statement
+            test = 20mV
+        end
+
+        return True# here, it should be detected, that the type is wrong
+    end
+
+    function noReturn():
+        return True # here it should be detected that no return has been specified but a return with a wrong type defined
+    end
+
+    function bar() mV:
+        # here it should be detected, that the function has been defined with a type, but no return stmt is present
+    end
+
+    function foobar() mV:
+        # here, it should be detected that no return statement has been provided
+        test mV = 10mV
+        test = test*2
+    end
+
+end

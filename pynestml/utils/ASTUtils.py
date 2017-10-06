@@ -265,6 +265,8 @@ class ASTUtils(object):
             return True
         elif _typeA.isInteger() and _typeB.isReal():
             return True
+        elif _typeA.isReal() and _typeB.isInteger():
+            return True
         else:
             return False
 
