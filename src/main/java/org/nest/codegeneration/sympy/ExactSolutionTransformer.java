@@ -36,7 +36,6 @@ class ExactSolutionTransformer {
     workingVersion.addToInternalBlock(createDeclaration("__h ms = resolution()"));
 
     workingVersion = addVariableToInternals(workingVersion, solverOutput.ode_var_factor);
-    workingVersion = addVariableToInternals(workingVersion, solverOutput.const_input);
     workingVersion = addVariablesToInternals(workingVersion, solverOutput.propagator_elements);
 
     final List<Map.Entry<String, String>> stateShapeVariablesWithInitialValues =
@@ -50,6 +49,7 @@ class ExactSolutionTransformer {
 
     workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(
         workingVersion,
+        solverOutput.const_input,
         solverOutput.ode_var_update_instructions);
 
     applyIncomingSpikes(workingVersion);

@@ -246,24 +246,21 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   @SuppressWarnings({"unused"}) // used in templates
-  public String printComment(final String prefix) {
-    final StringBuffer output = new StringBuffer();
+  public Optional<String> getComment() {
     if(getAstNode().isPresent() && getAstNode().get() instanceof ASTDeclaration) {
       final ASTDeclaration astDeclaration = (ASTDeclaration) getAstNode().get();
-      astDeclaration.getDocStrings().forEach(comment -> output.append(prefix).append(" ").append(comment).append("\n"));
+      if (astDeclaration.getDocString().length() > 0) {
+
+        return Optional.of(astDeclaration.getDocString());
+      }
+      else {
+        return Optional.empty();
+      }
+    }
+    else {
+      return Optional.empty();
     }
 
-    return output.toString();
-  }
-
-  @SuppressWarnings({"unused"}) // used in templates
-  public Boolean hasComment() {
-    if(getAstNode().isPresent() && getAstNode().get() instanceof ASTDeclaration) {
-      final ASTDeclaration astDeclaration = (ASTDeclaration) getAstNode().get();
-      return !astDeclaration.getDocStrings().isEmpty();
-    }
-
-    return false;
   }
 
 

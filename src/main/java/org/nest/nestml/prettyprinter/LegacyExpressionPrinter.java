@@ -58,20 +58,20 @@ public class LegacyExpressionPrinter extends ExpressionsPrettyPrinter{
     }
     else if (expr.getFunctionCall().isPresent()) { // function
       final ASTFunctionCall astFunctionCall = expr.getFunctionCall().get();
-      return printMethodCall(astFunctionCall);
+      return printFunctionCall(astFunctionCall);
 
     }
     else if (expr.isUnaryPlus()) {
-      return "(" + "+" + print(expr.getTerm().get()) + ")";
+      return "+" + print(expr.getTerm().get());
     }
     else if (expr.isUnaryMinus()) {
-      return "(" + "-" + print(expr.getTerm().get()) + ")";
+      return "-" + print(expr.getTerm().get());
     }
     else if (expr.isUnaryTilde()) {
-      return "(" + "~" + print(expr.getTerm().get()) + ")";
+      return "~" + print(expr.getTerm().get());
     }
     else if (expr.isLeftParentheses() && expr.isRightParentheses()) {
-      return "(" +  print(expr.getExpr().get()) + ")";
+      return "(" + print(expr.getExpr().get()) + ")";
     }
     else if (expr.isPlusOp() || expr.isMinusOp() || expr.isTimesOp() || expr.isDivOp()) {
       final StringBuilder expression = new StringBuilder();

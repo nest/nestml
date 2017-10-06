@@ -62,7 +62,7 @@ class DeltaSolutionTransformer {
 
     workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(
         workingVersion,
-        solverOutput.ode_var_update_instructions);
+        solverOutput.const_input, solverOutput.ode_var_update_instructions);
     return workingVersion;
   }
 
