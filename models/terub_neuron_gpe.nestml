@@ -335,8 +335,8 @@ neuron terub_neuron_gpe_implicit:
   end
 
   input:
-    spikeInh pA <- inhibitory spike
-    spikeExc pA <- excitatory spike
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
     currents <- current
   end
 

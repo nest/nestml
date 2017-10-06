@@ -319,6 +319,7 @@ private:
 
     <#else>
       <#list body.getSpikeBuffers() as inputLine>
+        // spike buffers
         ${bufferHelper.printBufferGetter(inputLine, true)}
         ${bufferHelper.printBufferDeclaration(inputLine)};
         ${bufferHelper.printBufferDeclarationValue(inputLine)};
@@ -327,6 +328,7 @@ private:
     </#if>
 
     <#list body.getCurrentBuffers() as inputLine>
+      // current buffers
       ${bufferHelper.printBufferDeclaration(inputLine)};
       ${bufferHelper.printBufferGetter(inputLine, true)}
       ${bufferHelper.printBufferDeclarationValue(inputLine)};

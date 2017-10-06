@@ -114,23 +114,6 @@ public class VariableSymbol extends CommonSymbol {
         return true; //we want to continue if it is not true
       }
     }
-    //or it is a spike buffer with type pA
-    if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
-      final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
-      if(astInputLine.datatypeIsPresent()){
-        String spikeDataTypeName = AstUtils.computeTypeName(astInputLine.getDatatype().get());
-        try{
-          String spikeUnitName = UnitRepresentation.getBuilder().serialization(spikeDataTypeName).build().prettyPrint();
-          if(spikeUnitName.equals("pA")){
-            return true;
-          }
-        }
-        catch(IllegalStateException e)
-        {
-          return false;
-        }
-      }
-    }
     return false;
   }
 

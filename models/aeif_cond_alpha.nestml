@@ -50,7 +50,6 @@ neuron aeif_cond_alpha_neuron:
 
     V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
-
   end
 
   parameters:
