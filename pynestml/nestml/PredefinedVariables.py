@@ -21,7 +21,7 @@ from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType, VariableType
 
 
-class PredefinedVariables:
+class PredefinedVariables(object):
     """
     This class is used to store all predefined variables as generally available. 
     
@@ -29,7 +29,6 @@ class PredefinedVariables:
         __E_CONSTANT     The euler constant symbol, i.e. e. Type: str
         __TIME_CONSTANT  The time variable stating the current time since start of simulation. Type: str
         __name2VariableSymbol A list of all currently defined variables. Type: list(VariableSymbol)
-    
     """
     __name2VariableSymbol = {}  # a map from names to symbols
     E_CONSTANT = 'e'

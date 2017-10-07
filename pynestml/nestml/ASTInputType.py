@@ -53,6 +53,7 @@ class ASTInputType(ASTElement):
         super(ASTInputType, self).__init__(_sourcePosition)
         self.__isExcitatory = _isExcitatory
         self.__isInhibitory = _isInhibitory
+        return
 
     @classmethod
     def makeASTInputType(cls, _isInhibitory=False, _isExcitatory=False, _sourcePosition=None):

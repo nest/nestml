@@ -29,6 +29,10 @@ from pynestml.utils.Messages import MessageCode
 
 
 class VariableVisitor(NESTMLVisitor):
+    """
+    This visitor visits a single variable and updates its type.
+    """
+
     def visitSimpleExpression(self, _expr=None):
         assert _expr.getScope() is not None, "Run symboltable creator."
 
@@ -36,6 +40,7 @@ class VariableVisitor(NESTMLVisitor):
 
         varName = _expr.getVariable().getName()
         varResolve = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
+        # update the type of the variable according to its symbol type.
         if varResolve is not None:
             _expr.setTypeEither(Either.value(varResolve.getTypeSymbol()))
         else:

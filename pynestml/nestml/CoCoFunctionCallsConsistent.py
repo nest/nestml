@@ -65,10 +65,9 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
         symbol = _functionCall.getScope().resolveToSymbol(_functionCall.getName(), SymbolKind.FUNCTION)
         # first check if the function has been declared
         if symbol is None:
-            Logger.logMessage(
-                'Function %s at %s is not declared!'
-                % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getFunctionNotDeclared(_functionCall.getName())
+            Logger.logMessage(_errorPosition=_functionCall.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,
+                              _code=code, _message=message)
         # now check if the number of arguments is the same as in the symbol
         if symbol is not None and len(_functionCall.getArgs()) != len(symbol.getParameterTypes()):
             code, message = Messages.getWrongNumberOfArgs(_functionCall.printAST(), len(symbol.getParameterTypes()),

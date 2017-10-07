@@ -60,6 +60,7 @@ class FunctionSymbol(Symbol):
         self.__paramTypes = _paramTypes
         self.__returnType = _returnType
         self.__isPredefined = _isPredefined
+        return
 
     def printSymbol(self):
         """

@@ -23,6 +23,8 @@ class ASTExpressionCollectorVisitor(object):
     """
     Traverses through the complete neuron and collects all expression as used. This visitor is used to ensure 
     certain properties, e.g., that all variables are declared and no functions redeclared.
+    This visitor can not be directly implemented by the NESTML visitor given the fact, that only the most top
+    level expression, but not its subexpression shall be visited.
     """
 
     @classmethod

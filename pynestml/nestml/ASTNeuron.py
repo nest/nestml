@@ -23,6 +23,7 @@ from pynestml.nestml.ASTBody import ASTBody
 from pynestml.nestml.VariableSymbol import VariableSymbol
 from pynestml.nestml.ASTElement import ASTElement
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class ASTNeuron(ASTElement):
@@ -437,7 +438,12 @@ class ASTNeuron(ASTElement):
                 if symbol is not None:
                     ret.append(symbol)
                 else:
-                    Logger.logMessage('Could not resolve symbol!', LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getCouldNotResolve(buffer.getName())
+                    Logger.logMessage(
+                        _message=message,
+                        _code=code,
+                        _errorPosition=buffer.getSourcePosition(),
+                        _logLevel=LOGGING_LEVEL.ERROR)
         return ret
 
     def getParameterNonAliasSymbols(self):

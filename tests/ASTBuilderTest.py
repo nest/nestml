@@ -17,21 +17,22 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import unittest
 import os
+import unittest
+
 from antlr4 import *
-from pynestml.grammars.PyNESTMLLexer import PyNESTMLLexer
-from pynestml.grammars.PyNESTMLParser import PyNESTMLParser
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.nestml.CoCosManager import CoCosManager
-from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
-from pynestml.nestml.SymbolTable import SymbolTable
+from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
+from pynestml.generated.PyNESTMLParser import PyNESTMLParser
 from pynestml.nestml.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.nestml.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
+from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
+from pynestml.nestml.PredefinedTypes import PredefinedTypes
+from pynestml.nestml.PredefinedUnits import PredefinedUnits
+from pynestml.nestml.PredefinedVariables import PredefinedVariables
+from pynestml.nestml.SymbolTable import SymbolTable
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 # setups the infrastructure
 PredefinedUnits.registerUnits()

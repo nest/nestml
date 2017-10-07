@@ -83,6 +83,7 @@ class ASTInputLine(ASTElement):
         self.__sizeParameter = _sizeParameter
         self.__name = _name
         self.__dataType = _dataType
+        return
 
     @classmethod
     def makeASTInputLine(cls, _name=None, _sizeParameter=None, _dataType=None, _inputTypes=list(), _signalType=None,

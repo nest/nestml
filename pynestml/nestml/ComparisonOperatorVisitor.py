@@ -31,6 +31,10 @@ from pynestml.utils.Messages import MessageCode
 
 
 class ComparisonOperatorVisitor(NESTMLVisitor):
+    """
+    Visits a single expression consisting of a binary comparison operator.
+    """
+
     def visitExpression(self, _expr=None):
         lhsTypeE = _expr.getLhs().getTypeEither()
         rhsTypeE = _expr.getRhs().getTypeEither()

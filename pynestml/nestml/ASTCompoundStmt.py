@@ -23,7 +23,6 @@ from pynestml.nestml.ASTElement import ASTElement
 from pynestml.nestml.ASTIfStmt import ASTIfStmt
 from pynestml.nestml.ASTWhileStmt import ASTWhileStmt
 from pynestml.nestml.ASTForStmt import ASTForStmt
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTCompoundStmt(ASTElement):
@@ -148,8 +147,8 @@ class ASTCompoundStmt(ASTElement):
         if self.isForStmt():
             if self.isForStmt() is _ast:
                 return self
-            elif self.isForStmt().getParent(_ast) is not None:
-                return self.isForStmt().getParent(_ast)
+            elif self.getForStmt().getParent(_ast) is not None:
+                return self.getForStmt().getParent(_ast)
         return None
 
     def printAST(self):
@@ -165,4 +164,4 @@ class ASTCompoundStmt(ASTElement):
         elif self.isWhileStmt():
             return self.getWhileStmt().printAST()
         else:
-            Logger.logMessage('Type of compound statement not specified!', LOGGING_LEVEL.WARNING)
+            raise RuntimeError('Type of compound statement not specified!')

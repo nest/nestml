@@ -434,9 +434,9 @@ class Messages(object):
     @classmethod
     def getVariableRedeclared(cls, _name, _predefined=False):
         if _predefined:
-            message = 'Predefined variable "%s" redeclared!' % _name
+            message = 'Predefined variable \'%s\' redeclared!' % _name
         else:
-            message = 'Variable "%s" redeclared !' % _name
+            message = 'Variable \'%s\' redeclared !' % _name
         return MessageCode.VARIABLE_REDECLARED, message
 
     @classmethod
@@ -446,8 +446,18 @@ class Messages(object):
 
     @classmethod
     def getNotLastStatement(cls, _name):
-        message = '%s not the last statement!' % _name
+        message = '\'%s\' not the last statement!' % _name
         return MessageCode.NOT_LAST_STATEMENT, message
+
+    @classmethod
+    def getFunctionNotDeclared(cls, _name):
+        message = 'Function \'%s\' is not declared!' % _name
+        return MessageCode.FUNCTION_NOT_DECLARED, message
+
+    @classmethod
+    def getCouldNotResolve(cls, _name):
+        message = 'Could not resolve symbol \'%s\'!' % _name
+        return MessageCode.SYMBOL_NOT_RESOLVED, message
 
 
 class MessageCode(Enum):
@@ -486,6 +496,7 @@ class MessageCode(Enum):
     NO_RHS = 29
     SEVERAL_LHS = 30
     FUNCTION_REDECLARED = 31
+    FUNCTION_NOT_DECLARED = 52
     NO_ODE = 32
     NO_INIT_VALUE = 33
     NEURON_REDECLARED = 34
@@ -505,3 +516,4 @@ class MessageCode(Enum):
     NOT_LAST_STATEMENT = 48
     SYMBOL_NOT_RESOLVED = 49
     TYPE_MISMATCH = 50
+    NO_SEMANTICS = 51

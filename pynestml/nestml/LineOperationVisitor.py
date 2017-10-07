@@ -32,6 +32,10 @@ from pynestml.utils.Messages import MessageCode
 
 
 class LineOperatorVisitor(NESTMLVisitor):
+    """
+    Visits a single binary operation consisting of + or - and updates the type accordingly.
+    """
+
     def visitExpression(self, _expr=None):
         lhsTypeE = _expr.getLhs().getTypeEither()
         rhsTypeE = _expr.getRhs().getTypeEither()

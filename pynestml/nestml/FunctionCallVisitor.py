@@ -28,6 +28,10 @@ from pynestml.nestml.Either import Either
 
 
 class FunctionCallVisitor(NESTMLVisitor):
+    """
+    Visits a single function call and updates its type.
+    """
+
     def visitSimpleExpression(self, _expr=None):
         assert _expr.getScope() is not None, "Run symboltable creator."
         scope = _expr.getScope()

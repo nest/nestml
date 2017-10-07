@@ -17,11 +17,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 from enum import Enum
 
 
-class Symbol:
+class Symbol(object):
     """
     This abstract class represents a super-class for all concrete symbols as stored in a symbol table.
     """
@@ -101,11 +101,12 @@ class Symbol:
             '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided (%s)!' % type(_sourcePosition)
         return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
 
+    @abstractmethod
     def printSymbol(self):
         """
         Returns a string representation of this symbol.
         """
-        return ''
+        pass
 
 
 class SymbolKind(Enum):

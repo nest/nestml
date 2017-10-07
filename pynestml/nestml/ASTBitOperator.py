@@ -140,7 +140,6 @@ class ASTBitOperator(ASTElement):
         """
         return None
 
-
     def printAST(self):
         """
         Returns the string representation of the operator.
@@ -158,4 +157,4 @@ class ASTBitOperator(ASTElement):
         elif self.__isBitShiftRight:
             return ' >> '
         else:
-            Logger.logMessage('Type of bit operator not specified!', LOGGING_LEVEL.WARNING)
+            raise RuntimeError('Type of bit operator not specified!')

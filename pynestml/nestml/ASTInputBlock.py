@@ -55,6 +55,7 @@ class ASTInputBlock(ASTElement):
                 '(PyNestML.AST.Input) No or wrong type of input definition provided (%s)!' % type(definition)
         super(ASTInputBlock, self).__init__(_sourcePosition)
         self.__inputDefinitions = _inputDefinitions
+        return
 
     @classmethod
     def makeASTInputBlock(cls, _inputDefinitions=list(), _sourcePosition=None):

@@ -32,6 +32,10 @@ from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class PowVisitor(NESTMLVisitor):
+    """
+    Visits a single power expression and updates its types accordingly.
+    """
+
     def visitExpression(self, _expr=None):
         assert _expr is not None
         baseTypeE = _expr.getLhs().getTypeEither()

@@ -56,6 +56,7 @@ class ASTUnaryOperator(ASTElement):
         self.__isUnaryPlus = _isUnaryPlus
         self.__isUnaryMinus = _isUnaryMinus
         self.__isUnaryTilde = _isUnaryTilde
+        return
 
     @classmethod
     def makeASTUnaryOperator(cls, _isUnaryPlus=False, _isUnaryMinus=False, _isUnaryTilde=False, _sourcePosition=None):
@@ -121,4 +122,4 @@ class ASTUnaryOperator(ASTElement):
         elif self.__isUnaryTilde:
             return '~'
         else:
-            Logger.logMessage('(PyNestML.AST.UnaryOperator.Print) Unary operator not specified!', LOGGING_LEVEL.WARNING)
+            raise RuntimeError('Type of unary operator not specified!')

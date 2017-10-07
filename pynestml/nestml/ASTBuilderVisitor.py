@@ -179,9 +179,7 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             return ASTExpression.makeTernaryExpression(_condition=condition, _ifTrue=ifTrue,
                                                        _ifNot=ifNot, _sourcePosition=sourcePos)
         else:
-            Logger.logMessage('Type of expression @%s,%s not recognized!' % (ctx.start.line, ctx.start.column),
-                              LOGGING_LEVEL.ERROR)
-            return
+            raise RuntimeError('Type of expression @%s,%s not recognized!' % (ctx.start.line, ctx.start.column))
 
     # Visit a parse tree produced by PyNESTMLParser#simpleExpression.
     def visitSimpleExpression(self, ctx):

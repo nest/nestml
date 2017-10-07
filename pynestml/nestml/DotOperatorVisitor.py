@@ -28,9 +28,14 @@ from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import MessageCode
 
 
 class DotOperatorVisitor(NESTMLVisitor):
+    """
+    This visitor is used to derive the correct type of expressions which use a binary dot operator.
+    """
+
     def visitExpression(self, _expr=None):
         lhsTypeE = _expr.getLhs().getTypeEither()
         rhsTypeE = _expr.getRhs().getTypeEither()
@@ -57,7 +62,10 @@ class DotOperatorVisitor(NESTMLVisitor):
             else:
                 errorMsg = ErrorStrings.messageExpectedInt(self, _expr.getSourcePosition())
                 _expr.setTypeEither(Either.error(errorMsg))
-                Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+                Logger.logMessage(_code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                                  _message=errorMsg,
+                                  _errorPosition=_expr.getSourcePosition(),
+                                  _logLevel=LOGGING_LEVEL.ERROR)
                 return
         if arithOp.isDivOp() or arithOp.isTimesOp():
             if TypeChecker.isNumeric(lhsType) and TypeChecker.isNumeric(rhsType):
@@ -99,4 +107,7 @@ class DotOperatorVisitor(NESTMLVisitor):
         typeMissmatch = lhsType.printSymbol() + " / " if arithOp.isDivOp() else " * " + rhsType.printSymbol()
         errorMsg = ErrorStrings.messageTypeMismatch(self, typeMissmatch, _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
-        Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+        Logger.logMessage(_message=errorMsg,
+                          _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                          _errorPosition=_expr.getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.ERROR)

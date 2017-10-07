@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleexpression : BOOLEAN_LITERAL // true & false;
+simpleExpression : BOOLEAN_LITERAL // true & false;
 """
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
@@ -27,6 +27,10 @@ from pynestml.nestml.Either import Either
 
 
 class BooleanLiteralVisitor(NESTMLVisitor):
+    """
+    Visitis a single boolean literal and updates its type.
+    """
+
     def visitSimpleExpression(self, _expr=None):
         _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         return

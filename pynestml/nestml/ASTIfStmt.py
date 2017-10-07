@@ -62,6 +62,7 @@ class ASTIfStmt(ASTElement):
         self.__elseClause = _elseClause
         self.__ifClause = _ifClause
         self.__elifClauses = _elifClauses
+        return
 
     @classmethod
     def makeASTIfStmt(cls, _ifClause=None, _elifClauses=list(), _elseClause=None, _sourcePosition=None):

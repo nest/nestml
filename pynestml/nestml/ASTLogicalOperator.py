@@ -48,6 +48,7 @@ class ASTLogicalOperator(ASTElement):
         super(ASTLogicalOperator, self).__init__(_sourcePosition)
         self.__isLogicalAnd = _isLogicalAnd
         self.__isLogicalOr = _isLogicalOr
+        return
 
     @classmethod
     def makeASTLogicalOperator(cls, _isLogicalAnd=False, _isLogicalOr=False, _sourcePosition=None):

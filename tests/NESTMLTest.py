@@ -55,8 +55,7 @@ class NESTMLTest(unittest.TestCase):
                 # print('Start creating AST for ' + filename + ' ...'),
                 model = NESTMLParser.parseModel(os.path.join(os.path.dirname(__file__),
                                                              os.path.join(os.path.join('..', 'models'), filename)))
-                if not isinstance(model, ASTNESTMLCompilationUnit):
-                    return 1
+                assert (isinstance(model, ASTNESTMLCompilationUnit))
         return
 
 

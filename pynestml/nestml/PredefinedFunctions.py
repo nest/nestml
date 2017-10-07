@@ -21,7 +21,7 @@ from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.FunctionSymbol import FunctionSymbol
 
 
-class PredefinedFunctions:
+class PredefinedFunctions(object):
     """
     This class is used to represent all predefined functions of NESTML.
     

@@ -30,6 +30,10 @@ from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class BinaryLogicVisitor(NESTMLVisitor):
+    """
+    Visits a single binary logical operator expression and updates its types.
+    """
+
     def visitExpression(self, _expr=None):
 
         lhsType = _expr.getLhs().getTypeEither()

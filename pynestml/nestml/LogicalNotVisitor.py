@@ -27,9 +27,14 @@ from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import MessageCode
 
 
 class LogicalNotVisitor(NESTMLVisitor):
+    """
+    Visits a single expression and updates the type of the sub-expression.
+    """
+
     def visitExpression(self, _expr=None):
         exprTypeE = _expr.getExpression().getTypeEither()
 
@@ -44,4 +49,6 @@ class LogicalNotVisitor(NESTMLVisitor):
         else:
             errorMsg = ErrorStrings.messageExpectedBool(self, _expr.getSourcePosition)
             _expr.setTypeEither(Either.error(errorMsg))
-            Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+            Logger.logMessage(_errorPosition=_expr.getSourcePosition(),
+                              _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                              _message=errorMsg, _logLevel=LOGGING_LEVEL.ERROR)

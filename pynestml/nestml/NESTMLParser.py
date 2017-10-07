@@ -17,15 +17,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.grammars.PyNESTMLParser import PyNESTMLParser
-from pynestml.grammars.PyNESTMLLexer import PyNESTMLLexer
-from pynestml.nestml.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.nestml.SymbolTable import SymbolTable
-from pynestml.nestml import ASTSymbolTableVisitor
-from pynestml.nestml.CoCosManager import CoCosManager
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
-from pynestml.utils.Messages import MessageCode, Messages
 from antlr4 import *
+from pynestml.generated.PyNESTMLParser import PyNESTMLParser
+from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
+from pynestml.nestml import ASTSymbolTableVisitor
+from pynestml.nestml.ASTBuilderVisitor import ASTBuilderVisitor
+from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.nestml.SymbolTable import SymbolTable
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class NESTMLParser(object):

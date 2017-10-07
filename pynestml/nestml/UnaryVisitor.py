@@ -31,6 +31,11 @@ from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class UnaryVisitor(NESTMLVisitor):
+    """
+    Visits an expression consisting of a unary operator, e.g., -, and a sub-expression.
+    """
+
+
     def visitExpression(self, _expr=None):
         termTypeE = _expr.getExpression().getTypeEither()
 

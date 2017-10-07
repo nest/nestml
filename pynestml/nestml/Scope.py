@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import Enum
-from pynestml.nestml.Symbol import Symbol, SymbolKind
+from pynestml.nestml.Symbol import Symbol
 from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 from pynestml.nestml.Symbol import SymbolKind
 
@@ -28,6 +28,11 @@ class Scope(object):
     """
     This class is used to store a single scope, i.e., a set of elements as declared in this scope directly and 
     a set of sub-scopes with additional elements.
+    Attributes:
+        __enclosingScope The scope this scope is enclosed in. Type: Scope
+        __declaredElements Elements declared in this scope, i.e., scopes and symbols. Type: list(Scope,Symbol)
+        __scopeType The type of this scope. Type: ScopeType
+        __sourcePosition The position in the source file this scope spans over.
     """
     __enclosingScope = None
     __declaredElements = None

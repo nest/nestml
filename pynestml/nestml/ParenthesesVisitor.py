@@ -25,6 +25,10 @@ from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 
 
 class ParenthesesVisitor(NESTMLVisitor):
+    """
+    Visits a single expression encapsulated in brackets and updates its type.
+    """
+
     def visitExpression(self, _expr=None):
         exprTypeE = _expr.getExpression().getTypeEither()
         _expr.setTypeEither(exprTypeE)

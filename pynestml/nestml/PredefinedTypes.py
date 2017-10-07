@@ -25,13 +25,17 @@ from pynestml.nestml.UnitType import UnitType
 from copy import copy
 
 
-class PredefinedTypes:
+class PredefinedTypes(object):
     """
     This class represents all types which are predefined in the system.
     
     Attributes:
-        __name2type     A dict from names of variables to the corresponding type symbols.
-    
+        __name2type     A dict from names of variables to the corresponding type symbols. Type: dict(str->TypeSymbol)
+        __REAL_TYPE     The identifier of the type 'real'. Type: str
+        __VOID_TYPE     The identifier of the type 'void'. Type: str
+        __BOOLEAN_TYPE  The identifier of the type 'boolean'. Type: str
+        __STRING_TYPE   The identifier of the type 'string'. Type: str
+        __INTEGER_TYPE  The identifier of the type 'integer'. Type: str
     """
     __name2type = {}
     __REAL_TYPE = 'real'
@@ -224,8 +228,8 @@ class PredefinedTypes:
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of symbol provided (%s)!' % (type(_symbol))
         if not _symbol.isPrimitive() and _symbol.getUnit().getName() not in cls.__name2type.keys():
             cls.__name2type[_symbol.getUnit().getName()] = _symbol
-            code,message = Messages.getNewTypeRegistered(_symbol.getUnit().getName())
-            Logger.logMessage(_code=code,_message=message,_logLevel= LOGGING_LEVEL.INFO)
+            code, message = Messages.getNewTypeRegistered(_symbol.getUnit().getName())
+            Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
         return
 
     @classmethod

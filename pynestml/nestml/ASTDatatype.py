@@ -219,4 +219,4 @@ class ASTDatatype(ASTElement):
         elif self.isUnitType():
             return self.getUnitType().printAST()
         else:
-            Logger.logMessage('Type of datatype not specified!', LOGGING_LEVEL.WARNING)
+            raise RuntimeError('Type of datatype not specified!')

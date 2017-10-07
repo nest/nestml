@@ -41,6 +41,11 @@ from pynestml.nestml.VariableVisitor import VariableVisitor
 
 
 class ExpressionTypeVisitor(NESTMLVisitor):
+    """
+    This is the main visitor as used to derive the type of an expression. By using different sub-visitors and
+    real-self it is possible to adapt to different types of sub-expressios.
+    """
+
     __unaryVisitor = UnaryVisitor()
     __powVisitor = PowVisitor()
     __parenthesesVisitor = ParenthesesVisitor()

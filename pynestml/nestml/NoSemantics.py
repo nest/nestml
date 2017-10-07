@@ -25,6 +25,7 @@ from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import MessageCode
 
 
 class NoSemantics(NESTMLVisitor):
@@ -32,5 +33,8 @@ class NoSemantics(NESTMLVisitor):
         errorMsg = ErrorStrings.messageNoSemantics(self, _expr.printAST, _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
         # just warn though
-        Logger.logMessage(errorMsg, LOGGING_LEVEL.WARNING)
+        Logger.logMessage(_message=errorMsg,
+                          _code=MessageCode.NO_SEMANTICS,
+                          _errorPosition=_expr.getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.WARNING)
         return

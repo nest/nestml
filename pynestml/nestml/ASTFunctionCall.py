@@ -58,6 +58,7 @@ class ASTFunctionCall(ASTElement):
         super(ASTFunctionCall, self).__init__(_sourcePosition)
         self.__calleeName = _calleeName
         self.__args = _args
+        return
 
     @classmethod
     def makeASTFunctionCall(cls, _calleeName=None, _args=None, _sourcePosition=None):

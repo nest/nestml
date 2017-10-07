@@ -75,6 +75,7 @@ class ASTFunction(ASTElement):
         self.__returnType = _returnType
         self.__parameters = _parameters
         self.__name = _name
+        return
 
     @classmethod
     def makeASTFunction(cls, _name=None, _parameters=None, _returnType=None, _block=None, _sourcePosition=None):

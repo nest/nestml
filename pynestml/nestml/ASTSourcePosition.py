@@ -108,8 +108,8 @@ class ASTSourcePosition(object):
         :return: a string representation
         :rtype: str
         """
-        return '{' + str(self.getStartLine()) + ':' + str(self.getStartColumn()) + ';' + \
-               str(self.getEndLine()) + ':' + str(self.getEndColumn()) + '}'
+        return '[' + str(self.getStartLine()) + ':' + str(self.getStartColumn()) + ';' + \
+               str(self.getEndLine()) + ':' + str(self.getEndColumn()) + ']'
 
     def equals(self, _sourcePosition=None):
         """

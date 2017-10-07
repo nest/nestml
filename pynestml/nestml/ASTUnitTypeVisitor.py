@@ -17,7 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTUnitTypeVisitor(object):
@@ -59,13 +58,10 @@ class ASTUnitTypeVisitor(object):
             _dataType.setTypeSymbol(symbol)
         else:
             symbol = None
-            Logger.logMessage('Data type of %s in line %s not specified!'
-                              % (_dataType.printAST(), _dataType.getSourcePosition().printSourcePosition()),
-                              LOGGING_LEVEL.ERROR)
         if symbol is not None:
             return symbol.getSymbolName()
         else:
-            return 'UNKNOWN'  # todo
+            return 'UNKNOWN'  # this case can actually never happen
 
     @classmethod
     def visitUnitType(cls, _unitType=None):

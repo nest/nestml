@@ -71,7 +71,6 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     """
     A simple test that prints all top-level expression types in a file
     """
-
     def test(self):
         Logger.initLogger(LOGGING_LEVEL.NO)
         model = NESTMLParser.parseModel(

@@ -20,7 +20,7 @@
 from pynestml.nestml.Scope import Scope, ScopeType
 
 
-class SymbolTable:
+class SymbolTable(object):
     """
     This class is used to store a single symbol table, consisting of scope and symbols.
     

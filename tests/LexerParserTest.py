@@ -19,11 +19,11 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 
-import unittest
 import os
+import unittest
 from antlr4 import *
-from pynestml.grammars.PyNESTMLLexer import PyNESTMLLexer
-from pynestml.grammars.PyNESTMLParser import PyNESTMLParser
+from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
+from pynestml.generated.PyNESTMLParser import PyNESTMLParser
 
 
 class LexerParserTest(unittest.TestCase):

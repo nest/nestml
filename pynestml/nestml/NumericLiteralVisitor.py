@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleexpression : (INTEGER|FLOAT) (variable)?
+simpleExpression : (INTEGER|FLOAT) (variable)?
 """
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.Symbol import SymbolKind
@@ -28,6 +28,10 @@ from pynestml.nestml.Either import Either
 
 
 class NumericLiteralVisitor(NESTMLVisitor):
+    """
+    Visits a single numeric literal and updates its type.
+    """
+
     def visitSimpleExpression(self, _expr=None):
         assert _expr.getScope() is not None, "Run symboltable creator."
         # if variable is also set in this expression, the var type overrides the literal

@@ -1,5 +1,5 @@
 #
-# StringLiteralVisitor.py
+# __init__.py.py
 #
 # This file is part of NEST.
 #
@@ -17,20 +17,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-"""
-simpleExpression : string=STRING_LITERAL
-"""
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
-from pynestml.nestml.Either import Either
-
-
-class StringLiteralVisitor(NESTMLVisitor):
-    """
-    Visits a string literal and updates its type.
-    """
-
-    def visitSimpleExpression(self, _expr=None):
-        _expr.setTypeEither(Either.value(PredefinedTypes.getStringType()))
-        return

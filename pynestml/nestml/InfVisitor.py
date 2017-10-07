@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleexpression : isInf='inf'
+simpleExpression : isInf='inf'
 """
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
@@ -27,6 +27,10 @@ from pynestml.nestml.Either import Either
 
 
 class InfVisitor(NESTMLVisitor):
+    """
+    Visits a inf expression and updates the type accordingly.
+    """
+
     def visitSimpleExpression(self, _expr=None):
         _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
         return

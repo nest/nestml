@@ -27,9 +27,14 @@ from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import MessageCode
 
 
 class ConditionVisitor(NESTMLVisitor):
+    """
+    This visitor is used to derive the correct type of a ternary operator, i.e., of all its subexpressions.
+    """
+
     def visitExpression(self, _expr=None):
         conditionE = _expr.getCondition().getTypeEither()
         ifTrueE = _expr.getIfTrue().getTypeEither()
@@ -52,7 +57,9 @@ class ConditionVisitor(NESTMLVisitor):
         if not conditionE.getValue().equals(PredefinedTypes.getBooleanType()):
             errorMsg = ErrorStrings.messageTernary(self, _expr.getSourcePosition)
             _expr.setTypeEither(Either.error(errorMsg))
-            Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+            Logger.logMessage(_message=errorMsg, _errorPosition=_expr.getSourcePosition(),
+                              _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                              _logLevel=LOGGING_LEVEL.ERROR)
             return
 
         # Alternatives match exactly -> any is valid
@@ -65,7 +72,10 @@ class ConditionVisitor(NESTMLVisitor):
             errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.printSymbol(), ifNot.printSymbol(),
                                                            _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
-            Logger.logMessage(errorMsg, LOGGING_LEVEL.WARNING)
+            Logger.logMessage(_message=errorMsg,
+                              _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                              _errorPosition=ifTrue.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.WARNING)
             return
 
         # one Unit and one numeric primitive and vice versa -> assume unit, WARN
@@ -79,7 +89,10 @@ class ConditionVisitor(NESTMLVisitor):
             errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.printAST(), ifNot.printAST(),
                                                            _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(unitType))
-            Logger.logMessage(errorMsg, LOGGING_LEVEL.WARNING)
+            Logger.logMessage(_message=errorMsg,
+                              _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                              _errorPosition=ifTrue.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.WARNING)
             return
 
         # both are numeric primitives (and not equal) ergo one is real and one is integer -> real
@@ -91,4 +104,7 @@ class ConditionVisitor(NESTMLVisitor):
         errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.printAST(), ifNot.printAST(),
                                                        _expr.getSourcePosition)
         _expr.setTypeEither(Either.error(errorMsg))
-        Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+        Logger.logMessage(_message=errorMsg,
+                          _errorPosition=_expr.getSourcePosition(),
+                          _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
+                          _logLevel=LOGGING_LEVEL.ERROR)

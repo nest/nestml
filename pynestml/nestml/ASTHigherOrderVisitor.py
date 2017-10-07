@@ -319,12 +319,15 @@ class ASTHigherOrderVisitor:
             '(PyNestML.Visitor.HigherOrder) No or wrong type of expression provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
+        if isinstance(_ast, ASTSimpleExpression):
+            cls.visitSimpleExpression(_ast, _func)
+            return
         _func(_ast)
-        #todo -> this part is not correct currently, but also not used
-        if _ast.isSimpleExpression():
-            cls.visitSimpleExpression(_ast.getExpression(), _func)
+        if _ast.isEncapsulated():
+            cls.visitExpression(_ast.getExpression(), _func)
         if _ast.isUnaryOperator():
             cls.visitUnaryOperator(_ast.getUnaryOperator(), _func)
+            cls.visitExpression(_ast.getExpression(), _func)
         if _ast.isCompoundExpression():
             cls.visitExpression(_ast.getLhs(), _func)
             if isinstance(_ast.getBinaryOperator(), ASTBitOperator):
