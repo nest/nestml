@@ -21,6 +21,7 @@ from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoTypeOfBufferUnique(CoCo):
@@ -67,13 +68,11 @@ class TypeOfBufferUniqueVisitor(NESTMLVisitor):
                     if typ.isInhibitory():
                         inh += 1
                 if inh > 1:
-                    Logger.logMessage(
-                        'Spike buffer "%s" at %s defined with multiple inhibitory keywords!'
-                        % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getMultipleKeywords('inhibitory')
+                    Logger.logMessage(_errorPosition=_line.getSourcePosition(), _code=code, _message=message,
+                                      _logLevel=LOGGING_LEVEL.ERROR)
                 if ext > 1:
-                    Logger.logMessage(
-                        'Spike buffer "%s" at %s defined with multiple excitatory keywords!'
-                        % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getMultipleKeywords('excitatory')
+                    Logger.logMessage(_errorPosition=_line.getSourcePosition(), _code=code, _message=message,
+                                      _logLevel=LOGGING_LEVEL.ERROR)
         return

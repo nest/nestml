@@ -17,9 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 
@@ -62,13 +63,12 @@ class ConvolveCheckerVisitor(NESTMLVisitor):
             symbolBuffer = _functionCall.getScope().resolveToSymbol(_functionCall.getArgs()[1].printAST(),
                                                                     SymbolKind.VARIABLE)
             if symbolVar is not None and not symbolVar.isShape() and not symbolVar.isInitValues():
-                Logger.logMessage(
-                    'First argument of %s at %s not a shape or equation!'
-                    % (funcName, _functionCall.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+                code, message = Messages.getFirstArgNotShapeOrEquation(funcName)
+                Logger.logMessage(_code=code, _message=message,
+                                  _errorPosition=_functionCall.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
             if symbolBuffer is not None and not symbolBuffer.isInputBufferSpike():
-                Logger.logMessage(
-                    'Second argument of %s at %s not a buffer!'
-                    % (funcName, _functionCall.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
-        return
+                code, message = Messages.getSecondArgNotABuffer(funcName)
+                Logger.logMessage(_errorPosition=_functionCall.getSourcePosition(),
+                                  _code=code, _message=message,
+                                  _logLevel=LOGGING_LEVEL.ERROR)
+            return

@@ -18,8 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.CoCo import CoCo
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.Symbol import SymbolKind
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoVariableOncePerScope(CoCo):
@@ -58,28 +59,18 @@ class CoCoVariableOncePerScope(CoCo):
                                 sym1.getSymbolKind() == SymbolKind.VARIABLE and \
                                 sym2 not in checked:
                     if sym1.isPredefined():
-                        Logger.logMessage(
-                            'Predefined variable "%s" redeclared at %s!'
-                            % (
-                                sym1.getSymbolName(),
-                                sym2.getReferencedObject().getSourcePosition().printSourcePosition()),
-                            LOGGING_LEVEL.ERROR)
+                        code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), True)
+                        Logger.logMessage(_errorPosition=sym2.getReferencedObject().getSourcePosition(),
+                                          _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
                     elif sym2.isPredefined():
-                        Logger.logMessage(
-                            'Predefined variable "%s" redeclared at %s!'
-                            % (
-                                sym1.getSymbolName(),
-                                sym1.getReferencedObject().getSourcePosition().printSourcePosition()),
-                            LOGGING_LEVEL.ERROR)
+                        code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), True)
+                        Logger.logMessage(_errorPosition=sym1.getReferencedObject().getSourcePosition(),
+                                          _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
                     elif sym1.getReferencedObject().getSourcePosition().before(
                             sym2.getReferencedObject().getSourcePosition()):
-                        Logger.logMessage(
-                            'Variable "%s" redeclared at %s ! First declared at %s.'
-                            % (
-                                sym1.getSymbolName(),
-                                sym2.getReferencedObject().getSourcePosition().printSourcePosition(),
-                                sym1.getReferencedObject().getSourcePosition().printSourcePosition()),
-                            LOGGING_LEVEL.ERROR)
+                        code, message = Messages.getVariableRedeclared(sym1.getSymbolName(), False)
+                        Logger.logMessage(_errorPosition=sym2.getReferencedObject().getSourcePosition(),
+                                          _neuron=_neuron, _logLevel=LOGGING_LEVEL.ERROR, _code=code, _message=message)
             checked.append(sym1)
         for scope in _scope.getScopes():
             cls.__checkScope(_neuron, scope)

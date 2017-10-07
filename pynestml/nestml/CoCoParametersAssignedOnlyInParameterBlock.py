@@ -20,10 +20,11 @@
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.VariableSymbol import BlockType
 from pynestml.nestml.Scope import ScopeType
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoParametersAssignedOnlyInParameterBlock(CoCo):
@@ -70,8 +71,8 @@ class ParametersAssignmentVisitor(NESTMLVisitor):
         symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
         if symbol is not None and symbol.getBlockType() == BlockType.PARAMETERS and \
                         _assignment.getScope().getScopeType() != ScopeType.GLOBAL:
-            Logger.logMessage(
-                'Parameter "%s" assigned outside parameters block at %s!'
-                % (_assignment.getVariable().getCompleteName(), _assignment.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getAssignmentNotAllowed(_assignment.getVariable().getCompleteName())
+            Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
+                              _code=code, _message=message,
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return

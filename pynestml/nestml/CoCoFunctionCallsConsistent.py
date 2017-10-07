@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.Messages import Messages
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.ASTNeuron import ASTNeuron
@@ -70,10 +71,10 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
                 LOGGING_LEVEL.ERROR)
         # now check if the number of arguments is the same as in the symbol
         if symbol is not None and len(_functionCall.getArgs()) != len(symbol.getParameterTypes()):
-            Logger.logMessage(
-                'Wrong number of arguments in function-call %s at %s! Expected %s, found %s.'
-                % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
-                   len(symbol.getParameterTypes()), len(_functionCall.getArgs())), LOGGING_LEVEL.ERROR)
+            code, message = Messages.getWrongNumberOfArgs(_functionCall.printAST(), len(symbol.getParameterTypes()),
+                                                          len(_functionCall.getArgs()))
+            Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
+                              _errorPosition=_functionCall.getSourcePosition())
         # finally check if the call is correctly typed
         elif symbol is not None:
             expectedTypes = symbol.getParameterTypes()
@@ -82,28 +83,22 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
                 expectedType = expectedTypes[i]
                 actualType = actualTypes[i].getTypeEither()
                 if actualType.isError():
-                    Logger.logMessage(
-                        'Type of argument %s of function-call %s at %s not recognized! '
-                        % (actualTypes[i].printAST(),
-                           _functionCall.getName(),
-                           _functionCall.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getTypeCouldNotBeDerived(actualTypes[i].printAST())
+                    Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
+                                      _errorPosition=actualTypes[i].getSourcePosition())
                 elif not actualType.getValue().equals(expectedType):
                     if ASTUtils.isCastableTo(actualType.getValue(), expectedType):
-                        Logger.logMessage(
-                            str(i + 1) + '. argument of function-call %s at %s is wrongly typed! '
-                                         'Implicit cast from %s to %s!'
-                            % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
-                               actualType.getValue().printSymbol(),
-                               expectedType.printSymbol()),
-                            LOGGING_LEVEL.WARNING)
-                    else:
-                        Logger.logMessage(
-                            str(i + 1) + '. argument of function-call %s at %s is wrongly typed! '
-                                         'Expected %s, found %s!'
-                            % (_functionCall.getName(), _functionCall.getSourcePosition().printSourcePosition(),
-                               expectedType.printSymbol(),
-                               actualType.getValue().printSymbol()),
-                            LOGGING_LEVEL.ERROR)
+                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
+                                                                             _expectedType=expectedType,
+                                                                             _gotType=actualType, _castable=True)
 
+                        Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
+                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                    else:
+                        code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
+                                                                             _expectedType=expectedType,
+                                                                             _gotType=actualType, _castable=False)
+
+                        Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
+                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
         return

@@ -36,8 +36,9 @@ class ASTNeuron(ASTElement):
     """
     __name = None
     __body = None
+    __artifactName = None
 
-    def __init__(self, _name=None, _body=None, _sourcePosition=None):
+    def __init__(self, _name=None, _body=None, _sourcePosition=None, _artifactName=None):
         """
         Standard constructor.
         :param _name: the name of the neuron.
@@ -46,17 +47,22 @@ class ASTNeuron(ASTElement):
         :type _body: ASTBody
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
+        :param _artifactName: the name of the file this neuron is contained in
+        :type _artifactName: str
         """
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.AST.Neuron) No  or wrong type of neuron name provided (%s)!' % type(_name)
         assert (_body is not None and isinstance(_body, ASTBody)), \
             '(PyNestML.AST.Neuron) No or wrong type of neuron body provided (%s)!' % type(_body)
+        assert (_artifactName is not None and isinstance(_artifactName, str)), \
+            '(PyNestML.AST.Neuron) No or wrong type of artifact name provided (%s)!' % type(_artifactName)
         super(ASTNeuron, self).__init__(_sourcePosition)
         self.__name = _name
         self.__body = _body
+        self.__artifactName = _artifactName
 
     @classmethod
-    def makeASTNeuron(cls, _name=None, _body=None, _sourcePosition=None):
+    def makeASTNeuron(cls, _name=None, _body=None, _sourcePosition=None, _artifactName=None):
         """
         Factory method of the ASTNeuron class.
         :param _name: the name of the neuron
@@ -65,10 +71,12 @@ class ASTNeuron(ASTElement):
         :type _body: ASTBody
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
+        :param _artifactName: the name of the file this neuron is contained in
+        :type _artifactName: str
         :return: a new ASTNeuron object.
         :rtype: ASTNeuron
         """
-        return cls(_name, _body, _sourcePosition)
+        return cls(_name, _body, _sourcePosition, _artifactName)
 
     def getName(self):
         """
@@ -85,6 +93,14 @@ class ASTNeuron(ASTElement):
         :rtype: ASTBody
         """
         return self.__body
+
+    def getArtifactName(self):
+        """
+        Returns the name of the artifact this neuron has been stored in.
+        :return: the name of the file
+        :rtype: str
+        """
+        return self.__artifactName
 
     def getFunctions(self):
         """

@@ -20,9 +20,10 @@
 
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
@@ -60,11 +61,9 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             # now if it does not have a statement, but uses a return type, it is an error
             elif symbol is not None and userDefinedFunction.hasReturnType() and \
                     not symbol.getReturnType().equals(PredefinedTypes.getVoidType()):
-                Logger.logMessage(
-                    'User defined function "%s" at %s has the return type %s but no return statement!'
-                    % (userDefinedFunction.getName(), userDefinedFunction.getSourcePosition().printSourcePosition(),
-                       symbol.getReturnType().printSymbol()),
-                    LOGGING_LEVEL.ERROR)
+                code, message = Messages.getNoReturn()
+                Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
+                                  _errorPosition=userDefinedFunction.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
         return
 
     @classmethod
@@ -94,41 +93,34 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             if isinstance(stmt, ASTSmallStmt) and stmt.isReturnStmt():
                 # first check if the return is the last one in this block of statements
                 if _stmts.index(stmt) != (len(_stmts) - 1):
-                    Logger.logMessage(
-                        'Return statement of "%s" at %s not the last statement!'
-                        % (cls.__processedFunction.getName(),
-                           stmt.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.WARNING)
+                    code, message = Messages.getNotLastStatement('Return')
+                    Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                                      _code=code, _message=message,
+                                      _logLevel=LOGGING_LEVEL.WARNING)
                 # now check that it corresponds to the declared type
                 if stmt.getReturnStmt().hasExpr() and _typeSymbol is PredefinedTypes.getVoidType():
-                    Logger.logMessage(
-                        'Type of return statement of "%s" at %s not void!'
-                        % (cls.__processedFunction.getName(),
-                           stmt.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
+                                                                          stmt.getReturnStmt().getTypeEither().
+                                                                          getValue())
+                    Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                                      _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 # if it is not void check if the type corresponds to the one stated
                 if not stmt.getReturnStmt().hasExpr() and not _typeSymbol.equals(PredefinedTypes.getVoidType()):
-                    Logger.logMessage(
-                        'Type of return statement of "%s" at %s void, expected %s!'
-                        % (cls.__processedFunction.getName(),
-                           stmt.getSourcePosition().printSourcePosition(), _typeSymbol.printSymbol()),
-                        LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
+                                                                          _typeSymbol)
+                    Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                                      _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 if stmt.getReturnStmt().hasExpr():
                     typeOfReturn = stmt.getReturnStmt().getExpr().getTypeEither()
                     if typeOfReturn.isError():
-                        Logger.logMessage(
-                            'Type of return statement of "%s" at %s not derivable!'
-                            % (cls.__processedFunction.getName(),
-                               stmt.getSourcePosition().printSourcePosition()),
-                            LOGGING_LEVEL.ERROR)
+                        code, message = Messages.getTypeCouldNotBeDerived(cls.__processedFunction.getName())
+                        Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
                     elif not typeOfReturn.getValue().equals(_typeSymbol):
-                        Logger.logMessage(
-                            'Type of return statement of "%s" at %s does not correspond to declaration!'
-                            ' Expected %s, got %s!'
-                            % (cls.__processedFunction.getName(),
-                               stmt.getSourcePosition().printSourcePosition(),
-                               _typeSymbol.printSymbol(), typeOfReturn.getValue().printSymbol()),
-                            LOGGING_LEVEL.ERROR)
+                        code, message = Messages.getTypeDifferentFromExpected(typeOfReturn.getValue(),
+                                                                              _typeSymbol)
+                        Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
+                                          _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
             elif isinstance(stmt, ASTCompoundStmt):
                 # otherwise it is a compound stmt, thus check recursively
                 if stmt.isIfStmt():
@@ -147,9 +139,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
             # to ensure that it is defined here
             elif not _retDefined and _stmts.index(stmt) == (len(_stmts) - 1):
                 if not (isinstance(stmt, ASTSmallStmt) and stmt.isReturnStmt()):
-                    Logger.logMessage(
-                        'No return statement of "%s" at %s defined!'
-                        % (cls.__processedFunction.getName(),
-                           stmt.getSourcePosition().printSourcePosition()),
-                        LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getNoReturn()
+                    Logger.logMessage(_errorPosition=stmt.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,
+                                      _code=code, _message=message)
         return

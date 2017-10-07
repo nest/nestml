@@ -19,9 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoSumHasCorrectParameter(CoCo):
@@ -61,8 +62,7 @@ class SumIsCorrectVisitor(NESTMLVisitor):
         if fName == 'cur_sum' or fName == 'cond_sum' or fName == 'convolve':
             for arg in _functionCall.getArgs():
                 if not isinstance(arg, ASTSimpleExpression) or not arg.isVariable():
-                    Logger.logMessage('Argument %s of "%s"  at %s not a variable!'
-                                      % (arg.printAST(), fName,
-                                         _functionCall.getSourcePosition().printSourcePosition()),
-                                      LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getNotAVariable(arg.printAST())
+                    Logger.logMessage(_code=code, _message=message,
+                                      _errorPosition=arg.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
         return

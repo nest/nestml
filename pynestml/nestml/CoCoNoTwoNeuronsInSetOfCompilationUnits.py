@@ -20,6 +20,7 @@
 from pynestml.nestml.CoCo import CoCo
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.Messages import Messages
 
 
 class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
@@ -43,10 +44,9 @@ class CoCoNoTwoNeuronsInSetOfCompilationUnits(CoCo):
         for neuronA in listOfNeurons:
             for neuronB in listOfNeurons:
                 if neuronA is not neuronB and neuronA.getName() == neuronB.getName():
-                    Logger.logMessage(
-                        'Two neurons defined with the same name "%s"!'
-                        % (neuronA.getName()),
-                        LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getCompilationUnitNameCollision(neuronA.getName(), neuronA.getArtifact(),
+                                                                             neuronB.getArtifact())
+                    Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
                 conflictingNeurons.append(neuronB)
             checked.append(neuronA)
         return conflictingNeurons

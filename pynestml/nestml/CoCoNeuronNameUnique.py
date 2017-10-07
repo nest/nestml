@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.CoCo import CoCo
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoNeuronNameUnique(CoCo):
@@ -58,9 +59,9 @@ class CoCoNeuronNameUnique(CoCo):
         for neuronA in _compilationUnit.getNeuronList():
             for neuronB in _compilationUnit.getNeuronList():
                 if neuronA is not neuronB and neuronA.getName() == neuronB.getName() and neuronB not in checked:
-                    Logger.logMessage('Neuron with the name "%s" declared at %s and %s!'
-                                      % (neuronA.getName(), neuronA.getSourcePosition().printSourcePosition(),
-                                         neuronB.getSourcePosition().printSourcePosition()),
-                                      LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getNeuronRedeclared(neuronB.getName())
+                    Logger.logMessage(_errorPosition=neuronB.getSourcePosition(),
+                                      _code=code, _message=message,
+                                      _logLevel=LOGGING_LEVEL.ERROR)
             checked.append(neuronA)
         return

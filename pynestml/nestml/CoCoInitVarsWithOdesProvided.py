@@ -21,8 +21,9 @@
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.nestml.Symbol import SymbolKind
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class CoCoInitVarsWithOdesProvided(CoCo):
@@ -75,19 +76,16 @@ class InitVarsVisitor(NESTMLVisitor):
             symbol = _declaration.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
             # first check that all initial value variables have a lhs
             if symbol is not None and symbol.isInitValues() and not _declaration.hasExpression():
-                Logger.logMessage(
-                    'No rhs of initial value of variable "%s" at %s!'
-                    % (symbol.getSymbolName(), var.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+                code, message = Messages.getNoRhs(symbol.getSymbolName())
+                Logger.logMessage(_errorPosition=var.getSourcePosition(), _code=code,
+                                  _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             # now check that they have been provided with an ODE
             if symbol is not None and symbol.isInitValues() and not symbol.isOdeDefined():
-                Logger.logMessage(
-                    'Variable "%s" at %s not provided with an ODE!'
-                    % (symbol.getSymbolName(), var.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+                code, message = Messages.getNoOde(symbol.getSymbolName())
+                Logger.logMessage(_errorPosition=var.getSourcePosition(), _code=code,
+                                  _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             if symbol is not None and symbol.isInitValues() and not symbol.hasInitialValue():
-                Logger.logMessage(
-                    'Initial value of ode variable "%s" at %s not provided!'
-                    % (symbol.getSymbolName(), var.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+                code, message = Messages.getNoInitValue(symbol.getSymbolName())
+                Logger.logMessage(_errorPosition=var.getSourcePosition(), _code=code,
+                                  _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

@@ -19,9 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Symbol import SymbolKind
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class CoCoVectorVariableInNonVectorDeclaration(CoCo):
@@ -62,10 +63,12 @@ class VectorInDeclarationVisitor(NESTMLVisitor):
                 if variable is not None:
                     symbol = _declaration.getScope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
                     if symbol is not None and symbol.hasVectorParameter() and not _declaration.hasSizeParameter():
-                        Logger.logMessage(
-                            'Vector value "%s" used in a non-vector declaration of variables "%s" at %s!'
-                            % (symbol.getSymbolName(),
-                               list(var.getCompleteName() for var in _declaration.getVariables()),
-                               _declaration.getSourcePosition().printSourcePosition()),
-                            LOGGING_LEVEL.ERROR)
+                        code, message = Messages.getVectorInNonVector(_vector=symbol.getSymbolName(),
+                                                                      _nonVector=list(var.getCompleteName() for
+                                                                                      var in
+                                                                                      _declaration.getVariables()))
+
+                        Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
+                                          _code=code, _message=message,
+                                          _logLevel=LOGGING_LEVEL.ERROR)
         return

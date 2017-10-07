@@ -27,6 +27,7 @@ from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import MessageCode
 
 
 class ComparisonOperatorVisitor(NESTMLVisitor):
@@ -57,11 +58,15 @@ class ComparisonOperatorVisitor(NESTMLVisitor):
             # if the incompatibility exists between a unit and a numeric, the c++ will still be fine, just WARN
             errorMsg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
-            Logger.logMessage(errorMsg, LOGGING_LEVEL.WARNING)
+            Logger.logMessage(_message=errorMsg, _code=MessageCode.SOFT_INCOMPATIBILITY,
+                              _errorPosition=_expr.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.WARNING)
             return
         else:
             # hard incombatibility, cannot recover in c++, ERROR
             errorMsg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
             _expr.setTypeEither(Either.error(errorMsg))
-            Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+            Logger.logMessage(_code=MessageCode.HARD_INCOMPATIBILITY,
+                              _errorPosition=_expr.getSourcePosition(),
+                              _message=errorMsg, _logLevel=LOGGING_LEVEL.ERROR)
             return

@@ -20,9 +20,10 @@
 
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoInvariantIsBoolean(CoCo):
@@ -59,19 +60,12 @@ class InvariantTypeVisitor(NESTMLVisitor):
         if _declaration.hasInvariant():
             invariantType = _declaration.getInvariant().getTypeEither()
             if invariantType is None or invariantType.isError():
-                Logger.logMessage(
-                    'Type of invariant "%s" at %s not derivable!'
-                    % (
-                        _declaration.getInvariant().printAST(),
-                        _declaration.getInvariant().getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+                code, message = Messages.getTypeCouldNotBeDerived(_declaration.getInvariant().printAST())
+                Logger.logMessage(_errorPosition=_declaration.getInvariant().getSourcePosition(), _code=code,
+                                  _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             elif not invariantType.getValue().equals(PredefinedTypes.getBooleanType()):
-                Logger.logMessage(
-                    'Type of invariant "%s" at %s wrong! Expected boolean, got %s!'
-                    % (
-                        _declaration.getInvariant().printAST(),
-                        _declaration.getInvariant().getSourcePosition().printSourcePosition(),
-                        invariantType.getValue().printSymbol()),
-                    LOGGING_LEVEL.ERROR)
-
+                code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
+                                                                      invariantType.getValue())
+                Logger.logMessage(_errorPosition=_declaration.getInvariant().getSourcePosition(), _code=code,
+                                  _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

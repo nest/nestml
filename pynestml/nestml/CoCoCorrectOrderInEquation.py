@@ -21,6 +21,7 @@ from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoCorrectOrderInEquation(CoCo):
@@ -62,8 +63,7 @@ class OrderOfEquationVisitor(NESTMLVisitor):
         :type _equation: ASTOdeEquation
         """
         if _equation.getLhs().getDifferentialOrder() == 0:
-            Logger.logMessage(
-                'Order of differential equation for %s at %s is not declared!'
-                % (_equation.getLhs().getName(), _equation.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getOrderNotDeclared(_equation.getLhs().getName())
+            Logger.logMessage(_errorPosition=_equation.getSourcePosition(), _code=code,
+                              _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

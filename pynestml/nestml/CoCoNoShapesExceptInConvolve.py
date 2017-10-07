@@ -19,11 +19,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.ASTOdeShape import ASTOdeShape
 from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
 from pynestml.nestml.Symbol import SymbolKind
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class CoCoNoShapesExceptInConvolve(CoCo):
@@ -98,10 +99,10 @@ class ShapeUsageVisitor(NESTMLVisitor):
                         if grandparentFuncName == 'curr_sum' or grandparentFuncName == 'cond_sum' or \
                                         grandparentFuncName == 'convolve':
                             continue
-                Logger.logMessage(
-                    'Shape "%s" used outside convolve at %s!'
-                    % (shapeName, _variable.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+                code, message = Messages.getShapeOutsideConvolve(shapeName)
+                Logger.logMessage(_errorPosition=_variable.getSourcePosition(),
+                                  _code=code, _message=message,
+                                  _logLevel=LOGGING_LEVEL.ERROR)
         return
 
 

@@ -118,7 +118,7 @@ class TypeSymbol(Symbol):
             elemType = self.getUnit().printUnit()
         if self.isBuffer():
             elemType += ' buffer'
-        return 'TypeSymbol[' + elemType + ']'
+        return elemType
 
     def getUnit(self):
         """

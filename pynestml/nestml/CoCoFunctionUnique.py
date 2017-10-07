@@ -18,9 +18,10 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.CoCo import CoCo
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.ASTNeuron import ASTNeuron
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoFunctionUnique(CoCo):
@@ -47,22 +48,20 @@ class CoCoFunctionUnique(CoCo):
                         for funcB in symbols:
                             if funcA is not funcB and funcB not in checked:
                                 if funcA.isPredefined():
-                                    Logger.logMessage(
-                                        'Predefined function "%s" redeclared at %s!'
-                                        % (funcA.getSymbolName(), func.getSourcePosition().printSourcePosition()),
-                                        LOGGING_LEVEL.ERROR)
+                                    code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), True)
+                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().getSourcePosition(),
+                                                      _logLevel=LOGGING_LEVEL.ERROR,
+                                                      _message=message, _code=code)
                                 elif funcB.isPredefined():
-                                    Logger.logMessage(
-                                        'Predefined function "%s" redeclared at %s!'
-                                        % (funcB.getSymbolName(), func.getSourcePosition().printSourcePosition()),
-                                        LOGGING_LEVEL.ERROR)
+                                    code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), True)
+                                    Logger.logMessage(_errorPosition=funcA.getReferencedObject().getSourcePosition(),
+                                                      _logLevel=LOGGING_LEVEL.ERROR,
+                                                      _message=message, _code=code)
                                 else:
-                                    Logger.logMessage(
-                                        'Function "%s" redeclared at %s! First declared at %s!'
-                                        % (funcA.getSymbolName(),
-                                           funcB.getReferencedObject().getSourcePosition().printSourcePosition(),
-                                           funcA.getReferencedObject().getSourcePosition().printSourcePosition()),
-                                        LOGGING_LEVEL.ERROR)
+                                    code, message = Messages.getFunctionRedeclared(funcA.getSymbolName(), False)
+                                    Logger.logMessage(_errorPosition=funcB.getReferencedObject().getSourcePosition(),
+                                                      _logLevel=LOGGING_LEVEL.ERROR,
+                                                      _message=message, _code=code)
                         checked.append(funcA)
             checkedFuncsNames.append(func.getName())
         return

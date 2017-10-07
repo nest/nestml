@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.ASTUtils import ASTUtils
+from pynestml.utils.Messages import Messages
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
@@ -58,24 +59,24 @@ class CorrectExpressionVisitor(NESTMLVisitor):
             lhsType = _declaration.getDataType().getTypeSymbol()
             rhsType = _declaration.getExpr().getTypeEither()
             if rhsType.isError():
-                Logger.logMessage('Type of rhs-expression "%s" at %s could not be derived!'
-                                  % (_declaration.getExpr().printAST(),
-                                     _declaration.getSourcePosition().printSourcePosition()),
-                                  LOGGING_LEVEL.ERROR)
+                code, message = Messages.getTypeCouldNotBeDerived(_declaration.getExpr())
+                Logger.logMessage(_neuron=None, _code=code, _message=message,
+                                  _errorPosition=_declaration.getExpr().getSourcePosition(),
+                                  _logLevel=LOGGING_LEVEL.ERROR)
             elif not lhsType.equals(rhsType.getValue()):
                 if ASTUtils.isCastableTo(rhsType.getValue(), lhsType):
-                    Logger.logMessage('Type of lhs does not correspond to expression type at %s!'
-                                      ' Implicit cast from %s to %s.'
-                                      % (_declaration.getSourcePosition().printSourcePosition(),
-                                         rhsType.getValue().printSymbol(),
-                                         lhsType.printSymbol()),
-                                      LOGGING_LEVEL.WARNING)
+                    code, message = Messages.getImplicitCastRhsToLhs(_declaration.getExpr(),
+                                                                     _declaration.getVariables()[0],
+                                                                     rhsType.getValue(), lhsType)
+                    Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
+                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
                 else:
-                    Logger.logMessage('Type of lhs does not correspond to expression type at %s! LHS: %s,RHS: %s.'
-                                      % (_declaration.getSourcePosition().printSourcePosition(),
-                                         lhsType.printSymbol(),
-                                         rhsType.getValue().printSymbol()),
-                                      LOGGING_LEVEL.ERROR)
+                    code, message = Messages.getDifferentTypeRhsLhs(_rhsExpression=_declaration.getExpr(),
+                                                                    _lhsExpression=_declaration.getVariables()[0],
+                                                                    _rhsType=rhsType.getValue(),
+                                                                    _lhsType=lhsType)
+                    Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
+                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
         # todo we have to consider that different magnitudes can still be combined
         return
 
@@ -86,23 +87,32 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         :type _assignment: ASTAssignment
         """
         from pynestml.nestml.Symbol import SymbolKind
+        from pynestml.utils.ASTUtils import ASTUtils
         if _assignment.isDirectAssignment():  # case a = b is simple
             lhsSymbolType = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
                                                                    SymbolKind.VARIABLE)
             rhsSymbolType = _assignment.getExpression().getTypeEither()
             if rhsSymbolType.isError():
-                Logger.logMessage('Type of rhs-expression "%s" at %s could not be derived!'
-                                  % (_assignment.getExpression().printAST(),
-                                     _assignment.getSourcePosition().printSourcePosition()),
-                                  LOGGING_LEVEL.ERROR)
+                code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
+                Logger.logMessage(_neuron=None, _code=code, _message=message,
+                                  _errorPosition=_assignment.getExpression().getSourcePosition(),
+                                  _logLevel=LOGGING_LEVEL.ERROR)
             elif lhsSymbolType is not None and not lhsSymbolType.getTypeSymbol().equals(rhsSymbolType.getValue()):
-                Logger.logMessage('Type of lhs does not correspond to expression type at %s! LHS: %s,RHS: %s.'
-                                  % (_assignment.getSourcePosition().printSourcePosition(),
-                                     lhsSymbolType.getTypeSymbol().printSymbol(),
-                                     rhsSymbolType.getValue().printSymbol()),
-                                  LOGGING_LEVEL.ERROR)
+                if ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
+                    code, message = Messages.getImplicitCastRhsToLhs(_assignment.getExpr(),
+                                                                     _assignment.getVariable(),
+                                                                     rhsSymbolType.getValue(),
+                                                                     lhsSymbolType.getTypeSymbol())
+                    Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
+                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                else:
+                    code, message = Messages.getDifferentTypeRhsLhs(_assignment.getExpression(),
+                                                                    _assignment.getVariable(),
+                                                                    rhsSymbolType.getValue(),
+                                                                    lhsSymbolType.getTypeSymbol())
+                    Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
+                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         else:
-            from pynestml.utils.ASTUtils import ASTUtils
             expr = ASTUtils.deconstructAssignment(_lhs=_assignment.getVariable(),
                                                   _isPlus=_assignment.isCompoundSum(),
                                                   _isMinus=_assignment.isCompoundMinus(),
@@ -113,16 +123,25 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                                                    SymbolKind.VARIABLE)
             rhsSymbolType = expr.getTypeEither()
             if rhsSymbolType.isError():
-                Logger.logMessage('Type of rhs-expression "%s" at %s could not be derived!'
-                                  % (_assignment.getExpression().printAST(),
-                                     _assignment.getSourcePosition().printSourcePosition()),
-                                  LOGGING_LEVEL.ERROR)
+                code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
+                Logger.logMessage(_neuron=None, _code=code, _message=message,
+                                  _errorPosition=_assignment.getExpr().getSourcePosition(),
+                                  _logLevel=LOGGING_LEVEL.ERROR)
             elif lhsSymbolType is not None and not lhsSymbolType.getTypeSymbol().equals(rhsSymbolType.getValue()):
-                Logger.logMessage('Type of lhs does not correspond to expression type at %s! LHS: %s,RHS: %s.'
-                                  % (_assignment.getSourcePosition().printSourcePosition(),
-                                     lhsSymbolType.getTypeSymbol().printSymbol(),
-                                     rhsSymbolType.getValue().printSymbol()),
-                                  LOGGING_LEVEL.ERROR)
+                if ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
+                    code, message = Messages.getImplicitCastRhsToLhs(expr,
+                                                                     _assignment.getVariable(),
+                                                                     rhsSymbolType.getValue(),
+                                                                     lhsSymbolType.getTypeSymbol())
+                    Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
+                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                else:
+                    code, message = Messages.getDifferentTypeRhsLhs(expr,
+                                                                    _assignment.getVariable(),
+                                                                    rhsSymbolType.getValue(),
+                                                                    lhsSymbolType)
+                    Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
+                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return
 
     def visitIfClause(self, _ifClause=None):
@@ -133,16 +152,15 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         """
         condType = _ifClause.getCondition().getTypeEither()
         if condType.isError():
-            Logger.logMessage('Type of condition-expression of if clause "%s" at %s could not be derived!'
-                              % (_ifClause.getCondition().printAST(),
-                                 _ifClause.getSourcePosition().printSourcePosition()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeCouldNotBeDerived(_ifClause.getCondition())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_ifClause.getCondition().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         elif not condType.getValue().equals(PredefinedTypes.getBooleanType()):
-            Logger.logMessage('Type of condition-expression of if clause "%s" at %s wrong! Expected bool, got %s!'
-                              % (_ifClause.getCondition().printAST(),
-                                 _ifClause.getSourcePosition().printSourcePosition(),
-                                 condType.getValue().printSymbol()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(), condType.getValue())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_ifClause.getCondition().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return
 
     def visitElifClause(self, _elifClause=None):
@@ -153,16 +171,15 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         """
         condType = _elifClause.getCondition().getTypeEither()
         if condType.isError():
-            Logger.logMessage('Type of condition-expression of elif clause "%s" at %s could not be derived!'
-                              % (_elifClause.getCondition().printAST(),
-                                 _elifClause.getSourcePosition().printSourcePosition()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeCouldNotBeDerived(_elifClause.getCondition())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_elifClause.getCondition().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         elif not condType.getValue().equals(PredefinedTypes.getBooleanType()):
-            Logger.logMessage('Type of condition-expression of elif clause "%s" at %s wrong! Expected bool, got %s!'
-                              % (_elifClause.getCondition().printAST(),
-                                 _elifClause.getSourcePosition().printSourcePosition(),
-                                 condType.getValue().printSymbol()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(), condType.getValue())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_elifClause.getCondition().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return
 
     def visitWhileStmt(self, _whileStmt=None):
@@ -173,16 +190,15 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         """
         condType = _whileStmt.getCondition().getTypeEither()
         if condType.isError():
-            Logger.logMessage('Type of condition-expression of while statement "%s" at %s could not be derived!'
-                              % (_whileStmt.getCondition().printAST(),
-                                 _whileStmt.getSourcePosition().printSourcePosition()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeCouldNotBeDerived(_whileStmt.getCondition())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_whileStmt.getCondition().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         elif not condType.getValue().equals(PredefinedTypes.getBooleanType()):
-            Logger.logMessage('Type of condition-expression of while statement "%s" at %s wrong! Expected bool, got %s!'
-                              % (_whileStmt.getCondition().printAST(),
-                                 _whileStmt.getSourcePosition().printSourcePosition(),
-                                 condType.getValue().printSymbol()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(), condType.getValue())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_whileStmt.getCondition().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return
 
     def visitForStmt(self, _forStmt=None):
@@ -194,29 +210,27 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         # check that the from stmt is an integer or real
         fromType = _forStmt.getFrom().getTypeEither()
         if fromType.isError():
-            Logger.logMessage('Type of from-expression of for statement "%s" at %s could not be derived!'
-                              % (_forStmt.getFrom().printAST(),
-                                 _forStmt.getFrom().getSourcePosition().printSourcePosition()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeCouldNotBeDerived(_forStmt.getFrom())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_forStmt.getFrom().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         elif not (fromType.getValue().equals(PredefinedTypes.getIntegerType()) or
                       fromType.getValue().equals(PredefinedTypes.getRealType())):
-            Logger.logMessage('Type of to-expression of for statement "%s" at %s wrong! Expected number, got %s!'
-                              % (_forStmt.getFrom().printAST(),
-                                 _forStmt.getFrom().getSourcePosition().printSourcePosition(),
-                                 fromType.getValue().printSymbol()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), fromType.getValue())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_forStmt.getFrom().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         # check that the to stmt is an integer or real
         toType = _forStmt.getTo().getTypeEither()
         if toType.isError():
-            Logger.logMessage('Type of to-expression of for statement "%s" at %s could not be derived!'
-                              % (_forStmt.getTo().printAST(),
-                                 _forStmt.getTo().getSourcePosition().printSourcePosition()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeCouldNotBeDerived(_forStmt.getTo())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_forStmt.getTo().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         elif not (toType.getValue().equals(PredefinedTypes.getIntegerType()) or
                       toType.getValue().equals(PredefinedTypes.getRealType())):
-            Logger.logMessage('Type of to-expression of for statement "%s" at %s wrong! Expected number, got %s!'
-                              % (_forStmt.getTo().printAST(),
-                                 _forStmt.getTo().getSourcePosition().printSourcePosition(),
-                                 toType.getValue().printSymbol()),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), toType.getValue())
+            Logger.logMessage(_neuron=None, _code=code, _message=message,
+                              _errorPosition=_forStmt.getTo().getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return

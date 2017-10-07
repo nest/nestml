@@ -21,6 +21,7 @@ from pynestml.nestml.Scope import Scope, ScopeType
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 from pynestml.nestml.FunctionSymbol import FunctionSymbol
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType, VariableType
@@ -52,7 +53,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         :rtype: SymbolTable
         """
         Logger.setCurrentNeuron(_astNeuron)
-        Logger.logMessage('Start building symbol table...', LOGGING_LEVEL.INFO)
+        code, message = Messages.getStartBuildingSymbolTable()
+        Logger.logMessage(_neuron=_astNeuron, _code=code, _errorPosition=_astNeuron.getSourcePosition(),
+                          _message=message, _logLevel=LOGGING_LEVEL.INFO)
         SymbolTableASTVisitor.visitNeuron(_astNeuron)
         Logger.setCurrentNeuron(None)
         return
@@ -679,7 +682,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                     _declaringExpression=_odeShape.getExpression(),
                                     _isPredefined=False, _isFunction=False,
                                     _isRecordable=True,
-                                    _typeSymbol=PredefinedTypes.getRealType(),_variableType=VariableType.SHAPE)
+                                    _typeSymbol=PredefinedTypes.getRealType(), _variableType=VariableType.SHAPE)
             _odeShape.getScope().addSymbol(symbol)
         _odeShape.getVariable().updateScope(_odeShape.getScope())
         cls.visitVariable(_odeShape.getVariable())
@@ -790,7 +793,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             cls.visitDataType(_line.getDatatype())
             typeSymbol = _line.getDatatype().getTypeSymbol()
         elif _line.isSpike():
-            Logger.logMessage('No spike buffer type declared, nS as unit assumed!', LOGGING_LEVEL.WARNING)
+            code, message = Messages.getBufferTypeNotDefined(_line.getName())
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_line.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.WARNING)
             typeSymbol = PredefinedTypes.getTypeIfExists('nS')
         else:
             typeSymbol = PredefinedTypes.getTypeIfExists('pA')
@@ -857,8 +862,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                             1].printAST() == buffer.getName():
                             symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolKind.VARIABLE)
                             symbol.setConductanceBased(True)
-                            Logger.logMessage('Buffer ' + buffer.getName() + ' set to conductance based!',
-                                              LOGGING_LEVEL.INFO)
+                            code, message = Messages.getBufferSetToConductanceBased(buffer.getName())
+                            Logger.logMessage(_code=code, _message=message, _errorPosition=buffer.getSourcePosition(),
+                                              _logLevel=LOGGING_LEVEL.INFO)
 
         return
 
@@ -899,11 +905,13 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                            SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
-            Logger.logMessage('Ode of %s updated.' % _odeEquation.getLhs().getName(),
-                              LOGGING_LEVEL.INFO)
+            code, message = Messages.getOdeUpdated(_odeEquation.getLhs().getNameOfLhs())
+            Logger.logMessage(_errorPosition=existingSymbol.getReferencedObject().getSourcePosition(),
+                              _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
         else:
-            Logger.logMessage('No corresponding variable of %s found.' % _odeEquation.getLhs().getName(),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getNoVariableFound(_odeEquation.getLhs().getNameOfLhs())
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_odeEquation.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return
 
     @classmethod
@@ -927,9 +935,11 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeShape.getExpression())
             existingSymbol.setVariableType(VariableType.SHAPE)
-            Logger.logMessage('Ode of %s updated.' % _odeShape.getVariable().getNameOfLhs(),
-                              LOGGING_LEVEL.INFO)
+            code, message = Messages.getOdeUpdated(_odeShape.getVariable().getNameOfLhs())
+            Logger.logMessage(_errorPosition=existingSymbol.getReferencedObject().getSourcePosition(),
+                              _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
         else:
-            Logger.logMessage('No corresponding variable of %s found.' % _odeShape.getVariable().getNameOfLhs(),
-                              LOGGING_LEVEL.ERROR)
+            code, message = Messages.getNoVariableFound(_odeShape.getVariable().getNameOfLhs())
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_odeShape.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return

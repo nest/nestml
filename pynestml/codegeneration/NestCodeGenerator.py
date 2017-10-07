@@ -29,6 +29,7 @@ from pynestml.codegeneration.GSLReferenceConverter import GSLReferenceConverter
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.ASTSymbolTableVisitor import SymbolTableASTVisitor
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
@@ -87,8 +88,8 @@ class NestCodeGenerator(object):
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
                                    FrontendConfiguration.getModuleName() + "-init")) + '.sli', 'w+') as f:
             f.write(str(self.__SLI_Init.render(namespace)))
-        Logger.logMessage('Successfully generated NEST module code in ' +
-                          FrontendConfiguration.getTargetPath(), LOGGING_LEVEL.INFO)
+        code, message = Messages.getModuleGenerated(FrontendConfiguration.getTargetPath())
+        Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
         return
 
     def analyseAndGenerateNeuron(self, _neuron=None):
@@ -99,15 +100,18 @@ class NestCodeGenerator(object):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CodeGenerator.NEST) No or wrong type of module neuron provided (%s)!' % type(_neuron)
-        Logger.logMessage('Starts processing of the neuron ' + _neuron.getName(), LOGGING_LEVEL.INFO)
+        code, message = Messages.getStartProcessingNeuron(_neuron.getName())
+        Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.getSourcePosition(), _code=code, _message=message,
+                          _logLevel=LOGGING_LEVEL.INFO)
         workingVersion = deepcopy(_neuron)
         # solve all equations
         workingVersion = self.solveOdesAndShapes(workingVersion)
         # update the symbol table
         SymbolTableASTVisitor.updateSymbolTable(workingVersion)
         self.generateNestCode(workingVersion)
-        Logger.logMessage('Successfully generated NEST code for the neuron: "' + _neuron.getName() +
-                          '" in: "' + FrontendConfiguration.getTargetPath() + '"', LOGGING_LEVEL.INFO)
+        code, message = Messages.getCodeGenerated(_neuron.getName(), FrontendConfiguration.getTargetPath())
+        Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.getSourcePosition(), _code=code, _message=message,
+                          _logLevel=LOGGING_LEVEL.INFO)
         return
 
     def analyseAndGenerateNeurons(self, _neurons=None):
@@ -158,9 +162,7 @@ class NestCodeGenerator(object):
         """
         if not os.path.isdir(FrontendConfiguration.getTargetPath()):
             os.makedirs(FrontendConfiguration.getTargetPath())
-        Logger.logMessage('Start generating header for: %s' % _neuron.getName(), LOGGING_LEVEL.INFO)
         self.generateHeader(_neuron)
-        Logger.logMessage('Start generating implementation for: %s' % _neuron.getName(), LOGGING_LEVEL.INFO)
         self.generateClassImplementation(_neuron)
         return
 

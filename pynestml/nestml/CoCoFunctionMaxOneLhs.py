@@ -21,6 +21,7 @@ from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoFunctionMaxOneLhs(CoCo):
@@ -57,10 +58,8 @@ class FunctionMaxOneLhs(NESTMLVisitor):
         :type _declaration: ASTDeclaration
         """
         if _declaration.isFunction() and len(_declaration.getVariables()) > 1:
-            Logger.logMessage(
-                'Function (aka. alias) at %s declared with several variables (%s)!'
-                % (
-                    _declaration.getSourcePosition().printSourcePosition(),
-                    list((var.getName() for var in _declaration.getVariables()))),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getSeveralLhs(list((var.getName() for var in _declaration.getVariables())))
+            Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR,
+                              _code=code, _message=message)
         return

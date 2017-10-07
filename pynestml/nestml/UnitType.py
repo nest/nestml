@@ -72,7 +72,7 @@ class UnitType(object):
         :return: a string representation.
         :rtype: str
         """
-        return 'Unit ' + self.getName() + ' (' + str(self.getUnit()) + ')'
+        return str(self.getUnit())
 
     def equals(self, _obj=None):
         """

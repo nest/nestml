@@ -17,9 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.VariableSymbol import BlockType
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
@@ -53,8 +54,8 @@ class NoBufferAssignedVisitor(NESTMLVisitor):
         symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
         if symbol is not None and (symbol.getBlockType() == BlockType.INPUT_BUFFER_SPIKE or
                                            symbol.getBlockType() == BlockType.INPUT_BUFFER_CURRENT):
-            Logger.logMessage(
-                'Value assigned to buffer "%s" at %s!'
-                % (_assignment.getVariable().getCompleteName(), _assignment.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getValueAssignedToBuffer(_assignment.getVariable().getCompleteName())
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=_assignment.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return

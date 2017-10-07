@@ -21,6 +21,7 @@ from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoFunctionHaveRhs(CoCo):
@@ -53,8 +54,7 @@ class FunctionRhsVisitor(NESTMLVisitor):
         :type _declaration: ASTDeclaration.
         """
         if _declaration.isFunction() and not _declaration.hasExpression():
-            Logger.logMessage(
-                'Function variable %s at %s has no right-hand side!'
-                % (_declaration.getVariables()[0].getName(),
-                   _declaration.getSourcePosition().printSourcePosition()), LOGGING_LEVEL.ERROR)
+            code, message = Messages.getNoRhs(_declaration.getVariables()[0].getName())
+            Logger.logMessage(_errorPosition=_declaration.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,
+                              _code=code, _message=message)
         return

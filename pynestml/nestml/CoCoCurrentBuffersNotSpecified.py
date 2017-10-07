@@ -21,6 +21,7 @@ from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoCurrentBuffersNotSpecified(CoCo):
@@ -56,9 +57,8 @@ class CurrentTypeSpecifiedVisitor(NESTMLVisitor):
 
     def visitInputLine(self, _line=None):
         if _line.isCurrent() and _line.hasInputTypes() and len(_line.getInputTypes()) > 0:
-            Logger.logMessage(
-                'Current buffer "%s" at %s specified with type keywords (%s)!'
-                % (_line.getName(), _line.getSourcePosition().printSourcePosition(),
-                   list((buf.printAST() for buf in _line.getInputTypes()))),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getCurrentBufferSpecified(_line.getName(),
+                                                               list((buf.printAST() for buf in _line.getInputTypes())))
+            Logger.logMessage(_errorPosition=_line.getSourcePosition(),
+                              _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

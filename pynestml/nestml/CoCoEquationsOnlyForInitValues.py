@@ -18,10 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.CoCo import CoCo
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class CoCoEquationsOnlyForInitValues(CoCo):
@@ -70,8 +71,8 @@ class EquationsOnlyForInitValues(NESTMLVisitor):
         """
         symbol = _equation.getScope().resolveToSymbol(_equation.getLhs().getNameOfLhs(), SymbolKind.VARIABLE)
         if symbol is not None and not symbol.isInitValues():
-            Logger.logMessage(
-                'Ode equation lhs-variable "%s" at %s not defined in initial-values block!'
-                % (_equation.getLhs().getNameOfLhs(), _equation.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
-        return
+            code, message = Messages.getEquationVarNotInInitValuesBlock(_equation.getLhs().getNameOfLhs())
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=_equation.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
+            return

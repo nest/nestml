@@ -17,7 +17,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.utils.Messages import MessageCode
 from enum import Enum
+from collections import OrderedDict
+import json
 
 
 class Logger(object):
@@ -67,25 +70,45 @@ class Logger(object):
         return cls.__log
 
     @classmethod
-    def logMessage(cls, _message=None, _logLevel=None):
+    def logMessage(cls, _neuron=None, _code=None, _message=None, _errorPosition=None, _logLevel=None):
         """
         Logs the handed over message on the handed over. If the current logging is appropriate, the 
         message is also printed.
-        :param _message: a message. 
+        :param _neuron: the neuron in which the error occurred
+        :type _neuron: ASTNeuron
+        :param _code: a single error code
+        :type _code: ErrorCode
+        :param _errorPosition: the position on which the error occured.
+        :type _errorPosition: SourcePosition
+        :param _message: a message.
         :type _message: str
         :param _logLevel: the corresponding log level.
         :type _logLevel: LOGGING_LEVEL
         """
+        from pynestml.nestml.ASTNeuron import ASTNeuron
+        from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
         assert (_message is not None and isinstance(_message, str)), \
             '(PyNestML.Logger) No or wrong type of message provided (%s)!' % type(_message)
         assert (_logLevel is not None and isinstance(_logLevel, LOGGING_LEVEL)), \
             '(PyNestML.Logger) No or wrong type of logging-level provided (%s)!' % type(_logLevel)
-        cls.__log[cls.__currMessage] = (cls.__currentNeuron, _logLevel, _message)
+        assert (_neuron is None or isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.Logger) Wrong type of neuron provided (%s)!' % type(_neuron)
+        assert (_errorPosition is None or isinstance(_errorPosition, ASTSourcePosition)), \
+            '(PyNestML.Logger) Wrong type of error position provided (%s)!' % type(_errorPosition)
+        assert (_code is not None and isinstance(_code, MessageCode)), \
+            '(PyNestML.Logger) Wrong type of code provided (%s)!' % type(_code)
+        if isinstance(_neuron, ASTNeuron):
+            cls.__log[cls.__currMessage] = (
+                _neuron.getArtifactName(), _neuron, _logLevel, _code, _errorPosition, _message)
+        elif cls.__currentNeuron is not None:
+            cls.__log[cls.__currMessage] = (cls.__currentNeuron.getArtifactName(), cls.__currentNeuron,
+                                            _logLevel, _code, _errorPosition, _message)
         cls.__currMessage += 1
         if cls.__loggingLevel.value <= _logLevel.value:
             print('[' + str(cls.__currMessage) + ','
-                  + (cls.__currentNeuron.getName() + ',' if cls.__currentNeuron is not None else '')
-                  + str(_logLevel.name) + ']:' + str(_message))
+                  + (_neuron.getName() + ',' if _neuron is not None else 'GLOBAL, ')
+                  + str(_logLevel.name) + ',' + str(_code.name) + ']:'
+                  + str(_message))
         return
 
     @classmethod
@@ -156,10 +179,11 @@ class Logger(object):
         if _level is None and _neuron is None:
             return cls.getLog()
         ret = list()
-        for (neuron, level, message) in cls.__log.values():
-            if (_level == level if _level is not None else True) and (
-                        _neuron is neuron if _neuron is not None else True):
-                ret.append((neuron, level, message))
+        for (artifactName, neuron, logLevel, code, errorPosition, message) in cls.__log.values():
+            if (_level == logLevel if _level is not None else True) and (
+                    _neuron if _neuron is not None else True) and (_neuron.getArtifactName() == artifactName
+                                                                   if _neuron is not None else True):
+                ret.append((neuron, logLevel, message))
         return ret
 
     @classmethod
@@ -180,13 +204,33 @@ class Logger(object):
         :return: a str containing the log
         :rtype: str
         """
-        ret = ''
+        ret = '['
         for messageNr in cls.__log.keys():
-            (currentNeuron, logLevel, message) = cls.__log[messageNr]
-            ret += '[' + str(messageNr) + ',' + \
-                   (currentNeuron.getName() + ',' if cls.__currentNeuron is not None else '') + \
-                   str(logLevel.name) + ']:' + str(message) + '\n'
-        return ret
+            (artifactName, neuron, logLevel, code, errorPosition, message) = cls.__log[messageNr]
+            ret += '{' + \
+                   '"filename":"' + \
+                   artifactName + \
+                   '", ' + \
+                   '"neuronName":"' + \
+                   (neuron.getName() if neuron is not None else 'GLOBAL') + '", ' + \
+                   '"severity":"' \
+                   + str(logLevel.name) + '", ' \
+                   + '"code":"' \
+                   + code.name + \
+                   '", ' + \
+                   '"row":"' + \
+                   (str(errorPosition.getStartLine()) if errorPosition is not None else '') + \
+                   '", ' + \
+                   '"col":"' \
+                   + (str(errorPosition.getStartColumn()) if errorPosition is not None else '') + \
+                   '", ' + \
+                   '"message":"' + str(message).replace('"', "'") + '"}'
+            ret += ','
+        ret = ret[:-1]  # delete the last ","
+        ret += ']'
+        parsed = json.loads(ret, object_pairs_hook=OrderedDict)
+        return json.dumps(parsed, indent=2, sort_keys=False)
+
 
 class LOGGING_LEVEL(Enum):
     """

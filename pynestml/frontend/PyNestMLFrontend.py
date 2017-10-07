@@ -29,6 +29,7 @@ from pynestml.nestml.PredefinedVariables import PredefinedVariables
 from pynestml.nestml.CoCosManager import CoCosManager
 from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 def main(args):
@@ -58,14 +59,17 @@ def main(args):
     # now exclude those which are broken, i.e. have errors.
     for neuron in neurons:
         if Logger.hasErrors(neuron):
-            Logger.logMessage('Neuron '+ neuron.getName() + ' contains errors. No code generated!',LOGGING_LEVEL.INFO)
-            #neurons.remove(neuron) Todo since type errors are currently in there
+            code, message = Messages.getNeuronContainsErrors(neuron.getName())
+            Logger.logMessage(_neuron=neuron, _code=code, _message=message, _errorPosition=neuron.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.INFO)
+            # neurons.remove(neuron) Todo since type errors are currently in there
     if not FrontendConfiguration.isDryRun():
         nestGenerator = NestCodeGenerator()
         nestGenerator.analyseAndGenerateNeurons(neurons)
         nestGenerator.generateNESTModuleCode(neurons)
     else:
-        Logger.logMessage('Dry mode selected with -dry parameter, no models generated!', LOGGING_LEVEL.INFO)
+        code, message = Messages.getDryRun()
+        Logger.logMessage(_neuron=None,_code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
     if FrontendConfiguration.storeLog():
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
                                    'log')) + '.txt', 'w+') as f:

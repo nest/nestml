@@ -21,6 +21,7 @@ from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoCorrectNumeratorOfUnit(CoCo):
@@ -58,8 +59,7 @@ class NumericNumeratorVisitor(NESTMLVisitor):
         :type _unitType: ASTUnitType
         """
         if _unitType.isDiv() and isinstance(_unitType.getLhs(), int) and _unitType.getLhs() != 1:
-            Logger.logMessage(
-                'Numeric numerator of unit "%s" at %s not 1!'
-                % (_unitType.printAST(), _unitType.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getWrongNumerator(_unitType.printAST())
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_unitType.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return

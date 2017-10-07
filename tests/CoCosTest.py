@@ -224,7 +224,7 @@ class ValidOrderOfEquationsCorrect(unittest.TestCase):
 
 class InvalidNumeratorOfUnitOne(unittest.TestCase):
     def test(self):
-        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        Logger.setLoggingLevel(LOGGING_LEVEL.INFO)
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoUnitNumeratorNotOne.nestml'))

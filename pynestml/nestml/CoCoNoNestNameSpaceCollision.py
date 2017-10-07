@@ -20,6 +20,7 @@
 from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoNoNestNameSpaceCollision(CoCo):
@@ -53,8 +54,8 @@ class CoCoNoNestNameSpaceCollision(CoCo):
             '(PyNestML.CoCo.CorrectNumerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
         for func in _neuron.getFunctions():
             if func.getName() in cls.__nestNameSpace:
-                Logger.logMessage(
-                    'Function "%s" at %s collides with NEST namespace!'
-                    % (func.getName(), func.getSourcePosition().printSourcePosition()),
-                    LOGGING_LEVEL.ERROR)
+                code, message = Messages.getNestCollision(func.getName())
+                Logger.logMessage(_errorPosition=func.getSourcePosition(),
+                                  _code=code, _message=message,
+                                  _logLevel=LOGGING_LEVEL.ERROR)
         return

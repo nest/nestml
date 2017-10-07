@@ -25,6 +25,7 @@ from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import MessageCode
 
 
 class VariableVisitor(NESTMLVisitor):
@@ -38,7 +39,10 @@ class VariableVisitor(NESTMLVisitor):
         if varResolve is not None:
             _expr.setTypeEither(Either.value(varResolve.getTypeSymbol()))
         else:
-            Logger.logMessage('Variable ' + _expr.printAST() + ' could not be resolved!', LOGGING_LEVEL.ERROR)
+            message = 'Variable ' + _expr.printAST() + ' could not be resolved!'
+            Logger.logMessage(_code=MessageCode.SYMBOL_NOT_RESOLVED,
+                              _errorPosition=_expr.getSourcePosition(),
+                              _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             _expr.setTypeEither(Either.error('Variable could not be resolved!'))
         return
 

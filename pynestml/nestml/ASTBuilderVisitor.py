@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import re
+import ntpath
 from antlr4 import *
 from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 from pynestml.nestml.ASTOutputBlock import SignalType
@@ -34,14 +35,17 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     def visitNestmlCompilationUnit(self, ctx):
         neurons = list()
         sourcePosition = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                                   _startColumn=ctx.start.column,
-                                                                                   _endLine=ctx.stop.line,
-                                                                                   _endColumn=ctx.stop.column)
+                                                                 _startColumn=ctx.start.column,
+                                                                 _endLine=ctx.stop.line,
+                                                                 _endColumn=ctx.stop.column)
         for child in ctx.neuron():
             neurons.append(self.visit(child))
         from pynestml.nestml.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+        # extract the name of the artifact from the context
+        artifactName = ntpath.basename(ctx.start.source[1].fileName)
         compilationUnit = ASTNESTMLCompilationUnit. \
-            makeASTNESTMLCompilationUnit(_listOfNeurons=neurons, _sourcePosition=sourcePosition)
+            makeASTNESTMLCompilationUnit(_listOfNeurons=neurons, _sourcePosition=sourcePosition,
+                                         _artifactName=artifactName)
         # first ensure certain properties of the neuron
         CoCosManager.checkNeuronNamesUnique(compilationUnit)
         return compilationUnit
@@ -55,9 +59,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isVoid = (True if ctx.isVoid is not None else False)
         unit = self.visit(ctx.unitType()) if ctx.unitType() is not None else None
         sourcePosition = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                                   _startColumn=ctx.start.column,
-                                                                                   _endLine=ctx.stop.line,
-                                                                                   _endColumn=ctx.stop.column)
+                                                                 _startColumn=ctx.start.column,
+                                                                 _endLine=ctx.stop.line,
+                                                                 _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTDatatype import ASTDatatype
         ret = ASTDatatype.makeASTDatatype(_isInteger=isInt, _isBoolean=isBool,
                                           _isReal=isReal, _isString=isString, _isVoid=isVoid,
@@ -83,9 +87,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         rhs = self.visit(ctx.right) if ctx.right is not None else None
         unit = str(ctx.unit.text) if ctx.unit is not None else None
         sourcePosition = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                                   _startColumn=ctx.start.column,
-                                                                                   _endLine=ctx.stop.line,
-                                                                                   _endColumn=ctx.stop.column)
+                                                                 _startColumn=ctx.start.column,
+                                                                 _endLine=ctx.stop.line,
+                                                                 _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTUnitType import ASTUnitType
         return ASTUnitType.makeASTUnitType(_leftParentheses=leftParenthesis, _compoundUnit=compoundUnit,
                                            _rightParentheses=rightParenthesis, _base=base, _isPow=isPow,
@@ -109,40 +113,40 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
         if ctx.powOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.powOp.line,
-                                                                                  _startColumn=ctx.powOp.column,
-                                                                                  _endLine=ctx.powOp.line,
-                                                                                  _endColumn=ctx.powOp.column)
+                                                                _startColumn=ctx.powOp.column,
+                                                                _endLine=ctx.powOp.line,
+                                                                _endColumn=ctx.powOp.column)
             binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isPowOp=True, _sourcePosition=sourcePos)
         elif ctx.timesOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.timesOp.line,
-                                                                                  _startColumn=ctx.timesOp.column,
-                                                                                  _endLine=ctx.timesOp.line,
-                                                                                  _endColumn=ctx.timesOp.column)
+                                                                _startColumn=ctx.timesOp.column,
+                                                                _endLine=ctx.timesOp.line,
+                                                                _endColumn=ctx.timesOp.column)
             binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isTimesOp=True, _sourcePosition=sourcePos)
         elif ctx.divOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.divOp.line,
-                                                                                  _startColumn=ctx.divOp.column,
-                                                                                  _endLine=ctx.divOp.line,
-                                                                                  _endColumn=ctx.divOp.column)
+                                                                _startColumn=ctx.divOp.column,
+                                                                _endLine=ctx.divOp.line,
+                                                                _endColumn=ctx.divOp.column)
             binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isDivOp=True, _sourcePosition=sourcePos)
         elif ctx.moduloOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.moduloOp.line,
-                                                                                  _startColumn=ctx.moduloOp.column,
-                                                                                  _endLine=ctx.moduloOp.line,
-                                                                                  _endColumn=ctx.moduloOp.column)
+                                                                _startColumn=ctx.moduloOp.column,
+                                                                _endLine=ctx.moduloOp.line,
+                                                                _endColumn=ctx.moduloOp.column)
             binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isModuloOp=True,
                                                                              _sourcePosition=sourcePos)
         elif ctx.plusOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.plusOp.line,
-                                                                                  _startColumn=ctx.plusOp.column,
-                                                                                  _endLine=ctx.plusOp.line,
-                                                                                  _endColumn=ctx.plusOp.column)
+                                                                _startColumn=ctx.plusOp.column,
+                                                                _endLine=ctx.plusOp.line,
+                                                                _endColumn=ctx.plusOp.column)
             binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isPlusOp=True, _sourcePosition=sourcePos)
         elif ctx.minusOp is not None:
             sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.minusOp.line,
-                                                                                  _startColumn=ctx.minusOp.column,
-                                                                                  _endLine=ctx.minusOp.line,
-                                                                                  _endColumn=ctx.minusOp.column)
+                                                                _startColumn=ctx.minusOp.column,
+                                                                _endLine=ctx.minusOp.line,
+                                                                _endColumn=ctx.minusOp.column)
             binaryOperator = ASTArithmeticOperator.makeASTArithmeticOperator(_isMinusOp=True, _sourcePosition=sourcePos)
         elif ctx.bitOperator() is not None:
             binaryOperator = self.visit(ctx.bitOperator())
@@ -158,9 +162,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         ifTrue = (self.visit(ctx.ifTrue) if ctx.ifTrue is not None else None)
         ifNot = (self.visit(ctx.ifNot) if ctx.ifNot is not None else None)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         # finally construct the corresponding expression
         from pynestml.nestml.ASTExpression import ASTExpression
         if expression is not None:
@@ -194,9 +198,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         variable = (self.visit(ctx.variable()) if ctx.variable() is not None else None)
         string = (str(ctx.string.text) if ctx.string is not None else None)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
         return ASTSimpleExpression.makeASTSimpleExpression(_functionCall=functionCall,
                                                            _booleanLiteral=booleanLiteral,
@@ -211,9 +215,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isUnaryMinus = (True if ctx.unaryMinus is not None else False)
         isUnaryTilde = (True if ctx.unaryTilde is not None else False)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTUnaryOperator import ASTUnaryOperator
         return ASTUnaryOperator.makeASTUnaryOperator(_isUnaryPlus=isUnaryPlus,
                                                      _isUnaryMinus=isUnaryMinus,
@@ -228,9 +232,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isBitShiftLeft = (True if ctx.bitShiftLeft is not None else False)
         isBitShiftRight = (True if ctx.bitShiftRight is not None else False)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTBitOperator import ASTBitOperator
         return ASTBitOperator.makeASTBitOperator(_isBitAnd=isBitAnd, _isBitXor=isBitXor,
                                                  _isBitOr=isBitOr,
@@ -248,9 +252,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isGe = (True if ctx.ge is not None else False)
         isGt = (True if ctx.gt is not None else False)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTComparisonOperator import ASTComparisonOperator
         return ASTComparisonOperator.makeASTComparisonOperator(_isLt=isLt, _isLe=isLe,
                                                                _isEq=isEq, _isNe=isNe,
@@ -263,9 +267,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isLogicalAnd = (True if ctx.logicalAnd is not None else False)
         isLogicalOr = (True if ctx.logicalOr is not None else False)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTLogicalOperator import ASTLogicalOperator
         return ASTLogicalOperator.makeASTLogicalOperator(_isLogicalAnd=isLogicalAnd,
                                                          _isLogicalOr=isLogicalOr,
@@ -275,9 +279,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     def visitVariable(self, ctx):
         differentialOrder = (len(ctx.differentialOrder()) if ctx.differentialOrder() is not None else 0)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTVariable import ASTVariable
         return ASTVariable.makeASTVariable(_name=str(ctx.NAME()),
                                            _differentialOrder=differentialOrder, _sourcePosition=sourcePos)
@@ -292,9 +296,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         elif ctx.expression() is not None:
             args.append(self.visit(ctx.expression()))
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
         return ASTFunctionCall.makeASTFunctionCall(_calleeName=name, _args=args,
                                                    _sourcePosition=sourcePos)
@@ -306,9 +310,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         dataType = (self.visit(ctx.datatype()) if ctx.datatype() is not None else None)
         expression = (self.visit(ctx.expression()) if ctx.expression() is not None else None)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTOdeFunction import ASTOdeFunction
         return ASTOdeFunction.makeASTOdeFunction(_isRecordable=isRecordable, _variableName=variableName,
                                                  _dataType=dataType,
@@ -319,9 +323,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTOdeEquation import ASTOdeEquation
         return ASTOdeEquation.makeASTOdeEquation(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
 
@@ -330,9 +334,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         lhs = self.visit(ctx.lhs) if ctx.lhs is not None else None
         rhs = self.visit(ctx.rhs) if ctx.rhs is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTOdeShape import ASTOdeShape
         return ASTOdeShape.makeASTOdeShape(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
 
@@ -343,9 +347,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             for stmt in ctx.stmt():
                 stmts.append(self.visit(stmt))
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTBlock import ASTBlock
         return ASTBlock.makeASTBlock(_stmts=stmts, _sourcePosition=sourcePos)
 
@@ -355,9 +359,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         whileStmt = self.visit(ctx.whileStmt()) if ctx.whileStmt() is not None else None
         forStmt = self.visit(ctx.forStmt()) if ctx.forStmt() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTCompoundStmt import ASTCompoundStmt
         return ASTCompoundStmt.makeASTCompoundStmt(_ifStmt=ifStmt, _whileStmt=whileStmt,
                                                    _forStmt=forStmt, _sourcePosition=sourcePos)
@@ -369,9 +373,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         declaration = self.visit(ctx.declaration()) if ctx.declaration() is not None else None
         returnStmt = self.visit(ctx.returnStmt()) if ctx.returnStmt() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
         return ASTSmallStmt.makeASTSmallStmt(_assignment=assignment, _functionCall=functionCall,
                                              _declaration=declaration, _returnStmt=returnStmt,
@@ -387,9 +391,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isCompoundQuotient = True if ctx.compoundQuotient is not None else False
         expression = self.visit(ctx.expression()) if ctx.expression() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTAssignment import ASTAssignment
         return ASTAssignment.makeASTAssignment(_lhs=lhs, _isDirectAssignment=isDirectAssignment,
                                                _isCompoundSum=isCompoundSum,
@@ -410,9 +414,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         expression = self.visit(ctx.rhs) if ctx.rhs is not None else None
         invariant = self.visit(ctx.invariant) if ctx.invariant is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTDeclaration import ASTDeclaration
         return ASTDeclaration.makeASTDeclaration(_isRecordable=isRecordable, _isFunction=isFunction,
                                                  _variables=variables, _dataType=dataType,
@@ -424,9 +428,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     def visitReturnStmt(self, ctx):
         retExpression = self.visit(ctx.expression()) if ctx.expression() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTReturnStmt import ASTReturnStmt
         return ASTReturnStmt.makeASTReturnStmt(_expression=retExpression, _sourcePosition=sourcePos)
 
@@ -439,9 +443,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                 elifClauses.append(self.visit(clause))
         elseClause = self.visit(ctx.elseClause()) if ctx.elseClause() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTIfStmt import ASTIfStmt
         return ASTIfStmt.makeASTIfStmt(_ifClause=ifClause, _elifClauses=elifClauses,
                                        _elseClause=elseClause, _sourcePosition=sourcePos)
@@ -451,9 +455,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTIfClause import ASTIfClause
         return ASTIfClause.makeASTIfClause(_condition=condition, _block=block, _sourcePosition=sourcePos)
 
@@ -462,9 +466,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         condition = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTElifClause import ASTElifClause
         return ASTElifClause.makeASTElifClause(_condition=condition, _block=block,
                                                _sourcePosition=sourcePos)
@@ -473,9 +477,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     def visitElseClause(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTElseClause import ASTElseClause
         return ASTElseClause.makeASTElseClause(_block=block, _sourcePosition=sourcePos)
 
@@ -487,9 +491,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         step = self.visit(ctx.step) if ctx.step is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTForStmt import ASTForStmt
         return ASTForStmt.makeASTForStmt(_variable=variable, _from=From, _to=to, _step=step,
                                          _block=block, _sourcePosition=sourcePos)
@@ -499,9 +503,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         cond = self.visit(ctx.expression()) if ctx.expression() is not None else None
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTWhileStmt import ASTWhileStmt
         return ASTWhileStmt.makeASTWhileStmt(_condition=cond, _block=block, _sourcePosition=sourcePos)
 
@@ -522,15 +526,17 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         body = self.visit(ctx.body()) if ctx.body() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         # after we have constructed the ast of the neuron, we can ensure some basic properties which should always hold
         # we have to check if each type of block is defined at most once (except for function), and that input,output
         # and update are defined once
         from pynestml.nestml.CoCoEachBlockUniqueAndDefined import CoCoEachBlockUniqueAndDefined
         from pynestml.nestml.ASTNeuron import ASTNeuron
-        neuron = ASTNeuron.makeASTNeuron(_name=name, _body=body, _sourcePosition=sourcePos)
+        artifactName = ntpath.basename(ctx.start.source[1].fileName)
+        neuron = ASTNeuron.makeASTNeuron(_name=name, _body=body, _sourcePosition=sourcePos, _artifactName=artifactName)
+        # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.setCurrentNeuron(neuron)
         CoCoEachBlockUniqueAndDefined.checkCoCo(_neuron=neuron)
         Logger.setCurrentNeuron(neuron)
@@ -569,9 +575,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             elements.append(self.visit(elem))
             body_elements.remove(elem)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTBody import ASTBody
         return ASTBody.makeASTBody(_bodyElements=elements, _sourcePosition=sourcePos)
 
@@ -583,9 +589,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                 declarations.append(self.visit(child))
         blockType = ctx.blockType.text  # the text field stores the exact name of the token, e.g., state
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
         if blockType == 'state':
             return ASTBlockWithVariables.makeASTBlockWithVariables(
@@ -614,9 +620,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     def visitUpdateBlock(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTUpdateBlock import ASTUpdateBlock
         return ASTUpdateBlock.makeASTUpdateBlock(_block=block, _sourcePosition=sourcePos)
 
@@ -638,9 +644,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             ordered.append(self.visit(elem))
             elems.remove(elem)
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTEquationsBlock import ASTEquationsBlock
         return ASTEquationsBlock.makeASTEquationsBlock(_declarations=ordered,
                                                        _sourcePosition=sourcePos)
@@ -652,9 +658,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
             for line in ctx.inputLine():
                 inputLines.append(self.visit(line))
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTInputBlock import ASTInputBlock
         return ASTInputBlock.makeASTInputBlock(_inputDefinitions=inputLines, _sourcePosition=sourcePos)
 
@@ -674,9 +680,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         else:
             signalType = None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTInputLine import ASTInputLine
         return ASTInputLine.makeASTInputLine(_name=name, _sizeParameter=sizeParameter, _dataType=dataType,
                                              _inputTypes=inputTypes, _signalType=signalType,
@@ -687,9 +693,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         isInhibitory = True if ctx.isInhibitory is not None else False
         isExcitatory = True if ctx.isExcitatory is not None else False
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTInputType import ASTInputType
         return ASTInputType.makeASTInputType(_isInhibitory=isInhibitory, _isExcitatory=isExcitatory,
                                              _sourcePosition=sourcePos)
@@ -697,9 +703,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
     # Visit a parse tree produced by PyNESTMLParser#outputBuffer.
     def visitOutputBlock(self, ctx):
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTOutputBlock import ASTOutputBlock, SignalType
         if ctx.isSpike is not None:
             return ASTOutputBlock.makeASTOutputBlock(_type=SignalType.SPIKE,
@@ -722,9 +728,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         block = self.visit(ctx.block()) if ctx.block() is not None else None
         returnType = self.visit(ctx.returnType) if ctx.returnType is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTFunction import ASTFunction
         return ASTFunction.makeASTFunction(_name=name, _parameters=parameters, _block=block,
                                            _returnType=returnType, _sourcePosition=sourcePos)
@@ -734,9 +740,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         name = str(ctx.NAME()) if ctx.NAME() is not None else None
         dataType = self.visit(ctx.datatype()) if ctx.datatype() is not None else None
         sourcePos = ASTSourcePosition.makeASTSourcePosition(_startLine=ctx.start.line,
-                                                                              _startColumn=ctx.start.column,
-                                                                              _endLine=ctx.stop.line,
-                                                                              _endColumn=ctx.stop.column)
+                                                            _startColumn=ctx.start.column,
+                                                            _endLine=ctx.stop.line,
+                                                            _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTParameter import ASTParameter
         return ASTParameter.makeASTParameter(_name=name, _dataType=dataType, _sourcePosition=sourcePos)
 

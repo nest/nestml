@@ -28,6 +28,7 @@ from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import MessageCode
 
 
 class LineOperatorVisitor(NESTMLVisitor):
@@ -72,7 +73,9 @@ class LineOperatorVisitor(NESTMLVisitor):
                 errorMsg = ErrorStrings.messageAddSubTypeMismatch \
                     (self, lhsType.printSymbol(), rhsType.printSymbol(), "real", _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
-                Logger.logMessage(errorMsg, LOGGING_LEVEL.WARNING)
+                Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH,
+                                  _errorPosition=_expr.getSourcePosition(),
+                                  _message=errorMsg, _logLevel=LOGGING_LEVEL.WARNING)
                 return
             # one is unit and one numeric primitive and vice versa -> assume unit, WARN
             if (TypeChecker.isUnit(lhsType) and TypeChecker.isNumericPrimitive(rhsType)) \
@@ -86,11 +89,13 @@ class LineOperatorVisitor(NESTMLVisitor):
                     (self, lhsType.printSymbol(), rhsType.printSymbol(), unitType.printSymbol(),
                      _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(unitType))
-                Logger.logMessage(errorMsg, LOGGING_LEVEL.WARNING)
+                Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=errorMsg,
+                                  _errorPosition=_expr.getSourcePosition(), _logLevel=LOGGING_LEVEL.WARNING)
                 return
 
         # if we get here, we are in a general error state
         errorMsg = ErrorStrings.messageAddSubTypeMismatch \
             (self, lhsType.printSymbol(), rhsType.printSymbol(), "ERROR", _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
-        Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+        Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=errorMsg,
+                          _errorPosition=_expr.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)

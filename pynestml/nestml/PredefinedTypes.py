@@ -218,12 +218,14 @@ class PredefinedTypes:
         :param: a single type symbol.
         :type: TypeSymbol
         """
+        from pynestml.utils.Messages import Messages
         from pynestml.nestml.TypeSymbol import TypeSymbol
         assert (_symbol is not None and isinstance(_symbol, TypeSymbol)), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of symbol provided (%s)!' % (type(_symbol))
         if not _symbol.isPrimitive() and _symbol.getUnit().getName() not in cls.__name2type.keys():
             cls.__name2type[_symbol.getUnit().getName()] = _symbol
-            Logger.logMessage('New type registered %s.' % _symbol.getUnit().getName(), LOGGING_LEVEL.INFO)
+            code,message = Messages.getNewTypeRegistered(_symbol.getUnit().getName())
+            Logger.logMessage(_code=code,_message=message,_logLevel= LOGGING_LEVEL.INFO)
         return
 
     @classmethod

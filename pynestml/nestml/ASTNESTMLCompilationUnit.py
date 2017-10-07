@@ -28,25 +28,35 @@ class ASTNESTMLCompilationUnit(ASTElement):
     The ASTNESTMLCompilationUnit class as used to store a collection of processed ASTNeurons.
     """
     # a list of all processed neurons
-    __neuron_list = None
+    __neuronList = None
+    __artifactName = None
 
-    def __init__(self, _sourcePosition=None):
+    def __init__(self, _sourcePosition=None, _artifactName=None):
         """
         Standard constructor of ASTNESTMLCompilationUnit.
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
+        :param _artifactName: the name of the file where ths model is contained in
+        :type _artifactName: str
         """
+        assert (_artifactName is not None and isinstance(_artifactName, str)), \
+            '(PyNestML.AST.NESTMLCompilationUnit) No or wrong type of artifact name provided (%s)!' % type(
+                _artifactName)
         super(ASTNESTMLCompilationUnit, self).__init__(_sourcePosition)
-        self.__neuron_list = list()
+        self.__neuronList = list()
+        self.__artifactName = _artifactName
+        return
 
     @classmethod
-    def makeASTNESTMLCompilationUnit(cls, _listOfNeurons=list(), _sourcePosition=None):
+    def makeASTNESTMLCompilationUnit(cls, _listOfNeurons=list(), _sourcePosition=None, _artifactName=None):
         """
         A factory method used to generate new ASTNESTMLCompilationUnits.
         :param _listOfNeurons: a list of ASTNeurons
         :type _listOfNeurons: list
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
+        :param _artifactName: the name of the file this model is contained in
+        :type _artifactName: str
         :return: a new object of type ASTNESTMLCompilationUnits.
         :rtype: ASTNESTMLCompilationUnits
         """
@@ -56,7 +66,7 @@ class ASTNESTMLCompilationUnit(ASTElement):
         for neuron in _listOfNeurons:
             assert (neuron is not None and isinstance(neuron, ASTNeuron)), \
                 '(PyNestML.AST.NESTMLCompilationUnit) No or wrong type of neuron provided (%s)!' % type(neuron)
-        instance = cls(_sourcePosition)
+        instance = cls(_sourcePosition, _artifactName)
         for i in _listOfNeurons:
             instance.addNeuron(i)
         return instance
@@ -71,7 +81,7 @@ class ASTNESTMLCompilationUnit(ASTElement):
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.AST.CompilationUnit) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        self.__neuron_list.append(_neuron)
+        self.__neuronList.append(_neuron)
         return
 
     def deleteNeuron(self, _neuron=None):
@@ -82,8 +92,8 @@ class ASTNESTMLCompilationUnit(ASTElement):
         :return: True if element deleted from list, False else.
         :rtype: bool
         """
-        if self.__neuron_list.__contains__(_neuron):
-            self.__neuron_list.remove(_neuron)
+        if self.__neuronList.__contains__(_neuron):
+            self.__neuronList.remove(_neuron)
             return True
         else:
             return False
@@ -93,7 +103,7 @@ class ASTNESTMLCompilationUnit(ASTElement):
         :return: a list of neuron elements as stored in the unit
         :rtype: list(ASTNeuron)
         """
-        return self.__neuron_list
+        return self.__neuronList
 
     def getParent(self, _ast=None):
         """

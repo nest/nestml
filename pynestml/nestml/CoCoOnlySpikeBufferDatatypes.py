@@ -21,6 +21,7 @@ from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 
 
 class CoCoOnlySpikeBufferDatatypes(CoCo):
@@ -62,13 +63,12 @@ class BufferDatatypeVisitor(NESTMLVisitor):
         :type _line: ASTInputLine
         """
         if _line.isSpike() and not _line.hasDatatype():
-            Logger.logMessage(
-                'Data type of spike buffer "%s" at %s not specified!'
-                % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getDataTypeNotSpecified(_line.getName())
+            Logger.logMessage(_errorPosition=_line.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,
+                              _code=code, _message=message)
         if _line.isCurrent() and _line.hasDatatype():
-            Logger.logMessage(
-                'No datatype allowed for current buffer "%s" at %s!'
-                % (_line.getName(), _line.getSourcePosition().printSourcePosition()),
-                LOGGING_LEVEL.ERROR)
+            code, message = Messages.getNotTypeAllowed(_line.getName())
+            Logger.logMessage(_errorPosition=_line.getSourcePosition().printSourcePosition(),
+                              _code=code, _message=message,
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return
