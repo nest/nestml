@@ -504,3 +504,4 @@ class MessageCode(Enum):
     NO_RETURN = 47
     NOT_LAST_STATEMENT = 48
     SYMBOL_NOT_RESOLVED = 49
+    TYPE_MISMATCH = 50

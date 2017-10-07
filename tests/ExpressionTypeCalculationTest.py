@@ -30,6 +30,7 @@ from pynestml.nestml.SymbolTable import SymbolTable
 from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 from pynestml.nestml.CoCosManager import CoCosManager
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import MessageCode
 
 # minor setup steps required
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
@@ -51,13 +52,18 @@ class expressionTestVisitor(NESTMLVisitor):
 
         _equals = varSymbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
 
-        Logger.logMessage('line ' + _expr.getSourcePosition().printSourcePosition() + ' : LHS = ' +
-                          varSymbol.getTypeSymbol().getSymbolName() + ' RHS = ' +
-                          _expr.getTypeEither().getValue().getSymbolName() +
-                          ' Equal ? ' + str(_equals), LOGGING_LEVEL.INFO)
+        message = 'line ' + _expr.getSourcePosition().printSourcePosition() + ' : LHS = ' + \
+                  varSymbol.getTypeSymbol().getSymbolName() + \
+                  ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
+                  ' Equal ? ' + str(_equals)
+        Logger.logMessage(_errorPosition=_assignment.getSourcePosition(), _code=MessageCode.TYPE_MISMATCH,
+                          _message=message, _logLevel=LOGGING_LEVEL.INFO)
 
         if _equals is False:
-            Logger.logMessage("Type mismatch in test!", LOGGING_LEVEL.ERROR)
+            Logger.logMessage(_message="Type mismatch in test!",
+                              _code=MessageCode.TYPE_MISMATCH,
+                              _errorPosition=_assignment.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return
 
 
@@ -71,8 +77,10 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         model = NESTMLParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
+        Logger.setCurrentNeuron(model.getNeuronList()[0])
         expressionTestVisitor().handle(model)
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(None, LOGGING_LEVEL.ERROR)) == 2)
+        Logger.setCurrentNeuron(None)
+        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 if __name__ == '__main__':

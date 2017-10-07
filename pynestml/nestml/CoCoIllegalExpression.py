@@ -76,7 +76,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                                                     _rhsType=rhsType.getValue(),
                                                                     _lhsType=lhsType)
                     Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
-                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                                      _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         # todo we have to consider that different magnitudes can still be combined
         return
 

@@ -106,8 +106,10 @@ class Logger(object):
         cls.__currMessage += 1
         if cls.__loggingLevel.value <= _logLevel.value:
             print('[' + str(cls.__currMessage) + ','
-                  + (_neuron.getName() + ',' if _neuron is not None else 'GLOBAL, ')
-                  + str(_logLevel.name) + ',' + str(_code.name) + ']:'
+                  + (_neuron.getName() + ', ' if _neuron is not None else
+                     cls.__currentNeuron.getName() + ', ' if cls.__currentNeuron is not None else 'GLOBAL, ')
+                  + str(_logLevel.name) + ', ' + str(_code.name) +
+                  (', ' + _errorPosition.printSourcePosition() if _errorPosition is not None else '') + ']:'
                   + str(_message))
         return
 
