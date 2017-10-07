@@ -120,10 +120,8 @@ class NestCodeGenerator(object):
         :param _neurons: a list of neurons.
         :type _neurons: list(ASTNeuron)
         """
-        # TODO print artifact message
         for neuron in _neurons:
             self.analyseAndGenerateNeuron(neuron)
-        # TOD print finish
         return
 
     def generateHeader(self, _neuron=None):
@@ -243,4 +241,20 @@ class NestCodeGenerator(object):
         :return: a solved instance.
         :rtype: ASTNeuron
         """
-        return _neuron
+        # it should be ensured that most one equations block is present
+        equationsBlock = _neuron.getEquationsBlocks()
+        if equationsBlock is None:
+            return _neuron
+        else:
+            if len(equationsBlock.getOdeEquations()) > 1 and len(equationsBlock.getOdeShapes()) == 0:
+                code, message = Messages.getNeuronSolvedBySolve(_neuron.getName())
+                Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
+                                  _errorPosition=_neuron.getSourcePosition(), _logLevel=LOGGING_LEVEL.INFO)
+                return _neuron
+            else:
+                code, message = Messages.getNeuronAnalyzed(_neuron.getName())
+                Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
+                                  _errorPosition=_neuron.getSourcePosition(),
+                                  _logLevel=LOGGING_LEVEL.INFO)
+
+                return _neuron

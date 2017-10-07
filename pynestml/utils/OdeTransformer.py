@@ -41,6 +41,7 @@ class OdeTransformer(object):
             self.replaceFunctionCallThroughFirstArgument(workingCopy, call)
         return workingCopy
 
+    @classmethod
     def replaceSumCalls(self, _ast):
         """
         Replaces all sum calls in the handed over node.

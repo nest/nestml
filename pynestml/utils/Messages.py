@@ -172,6 +172,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_buffer is not None and isinstance(_buffer, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _buffer
         message = 'Buffer \'%s\' set to conductance based!' % _buffer
         return MessageCode.BUFFER_SET_TO_CONDUCTANCE_BASED, message
 
@@ -184,6 +186,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_variableName is not None and isinstance(_variableName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _variableName
         message = 'Ode of \'%s\' updated!' % _variableName
         return MessageCode.ODE_UPDATED, message
 
@@ -196,6 +200,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_variableName is not None and isinstance(_variableName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _variableName
         message = 'No variable \'%s\' found!' % _variableName
         return MessageCode.NO_VARIABLE_FOUND, message
 
@@ -208,6 +214,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_bufferName is not None and isinstance(_bufferName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _bufferName
         from pynestml.nestml.PredefinedTypes import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
                   % (_bufferName, PredefinedTypes.getTypeIfExists('nS').printSymbol())
@@ -222,6 +230,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_neuronName is not None and isinstance(_neuronName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _neuronName
         message = 'Neuron \'' + _neuronName + '\' contains errors. No code generated!'
         return MessageCode.NEURON_CONTAINS_ERRORS, message
 
@@ -234,6 +244,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_neuronName is not None and isinstance(_neuronName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _neuronName
         message = 'Starts processing of the neuron \'' + _neuronName + '\''
         return MessageCode.START_PROCESSING_NEURON, message
 
@@ -248,6 +260,10 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_neuronName is not None and isinstance(_neuronName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _neuronName
+        assert (_path is not None and isinstance(_path, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _path
         message = 'Successfully generated NEST code for the neuron: \'' + _neuronName + '\' in: \'' + _path + '\''
         return MessageCode.CODE_SUCCESSFULLY_GENERATED, message
 
@@ -260,6 +276,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_path is not None and isinstance(_path, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _path
         message = 'Successfully generated NEST module code in \'' + _path + '\''
         return MessageCode.MODULE_SUCCESSFULLY_GENERATED, message
 
@@ -282,6 +300,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_variableName is not None and isinstance(_variableName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _variableName
         message = 'Variable \'%s\' used before declaration!' % _variableName
         return MessageCode.VARIABLE_USED_BEFORE_DECLARATION, message
 
@@ -294,6 +314,8 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_variableName is not None and isinstance(_variableName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _variableName
         message = 'Variable \'%s\' defined recursively!' % _variableName
         return MessageCode.VARIABLE_DEFINED_RECURSIVELY, message
 
@@ -306,31 +328,43 @@ class Messages(object):
         :return: a message
         :rtype: str
         """
+        assert (_bufferName is not None and isinstance(_bufferName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _bufferName
         message = 'Value assigned to buffer \'%s\'!' % _bufferName
         return MessageCode.VALUE_ASSIGNED_TO_BUFFER, message
 
     @classmethod
     def getFirstArgNotShapeOrEquation(cls, _funcName=None):
+        assert (_funcName is not None and isinstance(_funcName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _funcName
         message = 'First argument of \'%s\' not a shape or equation!' % _funcName
         return MessageCode.ARG_NOT_SHAPE_OR_EQUATION, message
 
     @classmethod
     def getSecondArgNotABuffer(cls, _funcName=None):
+        assert (_funcName is not None and isinstance(_funcName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _funcName
         message = 'Second argument of \'%s\' not a buffer!' % _funcName
         return MessageCode.ARG_NOT_BUFFER, message
 
     @classmethod
     def getWrongNumerator(cls, _unit=None):
+        assert (_unit is not None and isinstance(_unit, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _unit
         message = 'Numeric numerator of unit \'%s\' not 1!' % _unit
         return MessageCode.NUMERATOR_NOT_ONE, message
 
     @classmethod
-    def getOrderNotDeclared(cls, _lhs):
+    def getOrderNotDeclared(cls, _lhs=None):
+        assert (_lhs is not None and isinstance(_lhs, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _lhs
         message = 'Order of differential equation for %s is not declared!' % _lhs
         return MessageCode.ORDER_NOT_DECLARED, message
 
     @classmethod
     def getCurrentBufferSpecified(cls, _name=None, _keyword=None):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Current buffer \'%s\' specified with type keywords (%s)' % (_name, _keyword)
         return MessageCode.CURRENT_BUFFER_SPECIFIED, message
 
@@ -344,6 +378,8 @@ class Messages(object):
 
     @classmethod
     def getEquationVarNotInInitValuesBlock(cls, _variableName=None):
+        assert (_variableName is not None and isinstance(_variableName, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _variableName
         message = 'Ode equation lhs-variable \'%s\' not defined in initial-values block!' % _variableName
         return MessageCode.VARIABLE_NOT_IN_INIT, message
 
@@ -355,6 +391,8 @@ class Messages(object):
 
     @classmethod
     def getNoRhs(cls, _name=None):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Function variable \'%s\' has no right-hand side!' % _name
         return MessageCode.NO_RHS, message
 
@@ -365,6 +403,8 @@ class Messages(object):
 
     @classmethod
     def getFunctionRedeclared(cls, _name, _predefined=None):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         if _predefined:
             message = 'Predefined function \'%s\' redeclared!' % _name
         else:
@@ -373,51 +413,77 @@ class Messages(object):
 
     @classmethod
     def getNoOde(cls, _name=None):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Variable \'%s\' not provided with an ODE!' % _name
         return MessageCode.NO_ODE, message
 
     @classmethod
     def getNoInitValue(cls, _name=None):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Initial value of ode variable \'%s\' not provided!'
         return MessageCode.NO_INIT_VALUE, message
 
     @classmethod
     def getNeuronRedeclared(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Neuron \'%s\' redeclared!' % _name
         return MessageCode.NEURON_REDECLARED, message
 
     @classmethod
     def getNestCollision(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Function \'%s\' collides with NEST namespace!' % _name
         return MessageCode.NEST_COLLISION, message
 
     @classmethod
     def getShapeOutsideConvolve(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Shape \'%s\' used outside convolve!' % _name
         return MessageCode.SHAPE_OUTSIDE_CONVOLVE, message
 
     @classmethod
     def getCompilationUnitNameCollision(cls, _name, _art1, _art2):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
+        assert (_art1 is not None and isinstance(_art1, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _art1
+        assert (_art2 is not None and isinstance(_art2, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _art2
         message = 'Name collision of \'%s\' in \'%s\' and \'%s\'!' % (_name, _art1, _art2)
         return MessageCode.NAME_COLLISION, message
 
     @classmethod
     def getDataTypeNotSpecified(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Data type of \'%s\' at not specified!' % _name
         return MessageCode.TYPE_NOT_SPECIFIED, message
 
     @classmethod
     def getNotTypeAllowed(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'No data type allowed for \'%s\'!' % _name
         return MessageCode.NO_TYPE_ALLOWED, message
 
     @classmethod
     def getAssignmentNotAllowed(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Assignment to \'%s\' not allowed!' % _name
         return MessageCode.NO_ASSIGNMENT_ALLOWED, message
 
     @classmethod
     def getNotAVariable(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = '\'%s\' not a variable!' % _name
         return MessageCode.NOT_A_VARIABLE, message
 
@@ -433,6 +499,10 @@ class Messages(object):
 
     @classmethod
     def getVariableRedeclared(cls, _name, _predefined=False):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
+        assert (_predefined is not None and isinstance(_predefined, bool)), \
+            '(PyNestML.Utils.Message) Not a bool provided (%s)!' % _predefined
         if _predefined:
             message = 'Predefined variable \'%s\' redeclared!' % _name
         else:
@@ -446,18 +516,38 @@ class Messages(object):
 
     @classmethod
     def getNotLastStatement(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = '\'%s\' not the last statement!' % _name
         return MessageCode.NOT_LAST_STATEMENT, message
 
     @classmethod
     def getFunctionNotDeclared(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Function \'%s\' is not declared!' % _name
         return MessageCode.FUNCTION_NOT_DECLARED, message
 
     @classmethod
     def getCouldNotResolve(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
         message = 'Could not resolve symbol \'%s\'!' % _name
         return MessageCode.SYMBOL_NOT_RESOLVED, message
+
+    @classmethod
+    def getNeuronSolvedBySolve(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
+        message = 'The neuron \'%s\' will be solved numerically with GSL solver without modification!' % _name
+        return MessageCode.NEURON_SOLVED_BY_GSL, message
+
+    @classmethod
+    def getNeuronAnalyzed(cls, _name):
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
+        message = 'The neuron \'%s\' will be analysed!' % _name
+        return MessageCode.NEURON_ANALYZED, message
 
 
 class MessageCode(Enum):
@@ -517,3 +607,5 @@ class MessageCode(Enum):
     SYMBOL_NOT_RESOLVED = 49
     TYPE_MISMATCH = 50
     NO_SEMANTICS = 51
+    NEURON_SOLVED_BY_GSL = 52
+    NEURON_ANALYZED = 53
