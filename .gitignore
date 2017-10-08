@@ -12,8 +12,6 @@ dist/
 PyNESTML.egg-info/
 
 *.pyc
-buildNest/
-
 antlr-4.7-complete.jar
 
 .DS_Store

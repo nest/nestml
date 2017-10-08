@@ -118,6 +118,7 @@ neuron iaf_cond_exp_implicit:
   equations:
     g_in' = -g_in/tau_synI
     g_ex' = -g_ex/tau_synE
+
     function I_syn_exc pA = convolve(g_ex, spikeExc)  * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh)  * ( V_m - E_in )
     function I_leak pA = g_L * ( V_m - E_L )
@@ -145,6 +146,7 @@ neuron iaf_cond_exp_implicit:
   input:
       spikeInh nS <- inhibitory spike
       spikeExc nS <- excitatory spike
+
       currents <- current
   end
 
@@ -164,6 +166,7 @@ neuron iaf_cond_exp_implicit:
     # add incoming spikes
     g_ex += spikeExc
     g_in += spikeInh
+
   end
 
 end

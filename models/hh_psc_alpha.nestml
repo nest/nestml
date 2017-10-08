@@ -69,6 +69,7 @@ neuron hh_psc_alpha_neuron:
 
     function I_syn_exc pA = convolve(I_syn_ex, spikeExc)
     function I_syn_inh pA = convolve(I_syn_in, spikeInh)
+
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
@@ -111,6 +112,7 @@ neuron hh_psc_alpha_neuron:
   input:
       spikeInh pA <- inhibitory spike
       spikeExc pA <- excitatory spike
+
       currents <- current
   end
 
@@ -211,6 +213,7 @@ neuron hh_psc_alpha_implicit:
 
     function I_syn_exc pA = convolve(I_syn_ex, spikeExc)
     function I_syn_inh pA = convolve(I_syn_in, spikeInh)
+
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
@@ -256,12 +259,14 @@ neuron hh_psc_alpha_implicit:
     PSConInit_I 1/ms = e / tau_syn_in
 
 
+
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
   input:
       spikeInh pA <- inhibitory spike
       spikeExc pA <- excitatory spike
+
       currents <- current
   end
 

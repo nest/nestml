@@ -39,6 +39,7 @@ neuron iaf_cond_beta_neuron:
 
       function I_syn_exc pA = (F_E + convolve(g_ex, spikeExc)) * ( V_m - E_ex )
       function I_syn_inh pA = (F_I + convolve(g_in, spikeInh)) * ( V_m - E_in )
+
       function I_leak pA = g_L * ( V_m - E_L ) # pa = nS * mV
       V_m' =  (-I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
   end
@@ -70,12 +71,14 @@ neuron iaf_cond_beta_neuron:
     # conductance excursion.
     PSConInit_I 1/ms = e / tau_syn_rise_I
 
+
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
   input:
       spikeInh nS  <- inhibitory spike
       spikeExc nS  <- excitatory spike
+
       currents <- current
   end
 

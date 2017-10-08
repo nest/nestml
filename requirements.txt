@@ -3,5 +3,9 @@ sympy >= 1.1.1
 antlr4-python3-runtime >= 4.7; python_version >= '3.0'
 antlr4-python2-runtime >= 4.7; python_version < '3.0'
 setuptools
+<<<<<<< HEAD
 Jinja2
 astropy
+=======
+
+>>>>>>> a312f726d2d1b6013602c1e48d5a6a558860a03f
