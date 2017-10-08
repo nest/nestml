@@ -51,6 +51,8 @@ class ExpressionsPrettyPrinter(object):
             self.__referenceConverter = _referenceConverter
         else:
             self.__referenceConverter = IdempotentReferenceConverter()
+        self.__typesPrinter = TypesPrinter()
+
 
     def printExpression(self, _expr=None):
         """
@@ -276,5 +278,20 @@ class ExpressionsPrettyPrinter(object):
         elif _op.isOr():
             return self.__referenceConverter.convertBinaryOp('or')
         else:
-            Logger.logMessage('Cannot determine logical operator!', LOGGING_LEVEL.ERROR)
             return ''
+
+
+class TypesPrinter(object):
+    """
+    Returns a processable format of the handed over element.
+    """
+
+    def prettyPrint(self, _element=None):
+        assert (_element is not None), \
+            '(PyNestML.CodeGeneration.PrettyPrinter) No element provided (%s)!' % _element
+        if isinstance(_element, bool) and _element:
+            return 'true'
+        elif isinstance(_element, bool) and not _element:
+            return 'false'
+        elif isinstance(_element, int) or isinstance(_element, float):
+            return str(_element)

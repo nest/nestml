@@ -33,6 +33,7 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
     An adjusted version of the pretty printer which does not print units with literals.
     """
     __referenceConverter = None
+    __typesPrinter =  None
 
     def __init__(self, _referenceConverter=None):
         """
@@ -40,11 +41,14 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
         :param _referenceConverter: a single reference converter object.
         :type _referenceConverter: IReferenceConverter
         """
+        from pynestml.codegeneration.ExpressionsPrettyPrinter import TypesPrinter
         super(LegacyExpressionPrinter, self).__init__(_referenceConverter)
         if _referenceConverter is not None:
             self.__referenceConverter = _referenceConverter
         else:
             self.__referenceConverter = IdempotentReferenceConverter()
+        self.__typesPrinter = TypesPrinter()
+
 
     def doPrint(self, _expr=None):
         """
@@ -89,7 +93,8 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
                 return '(' + self.printExpression(_expr.getExpression()) + ')'
             # logical not
             elif _expr.isLogicalNot():
-                return self.__referenceConverter.convertUnaryOp('not') + ' ' + self.printExpression(_expr.getExpression)
+                return self.__referenceConverter.convertUnaryOp('not') + ' ' +\
+                       self.printExpression(_expr.getExpression())
             # compound expression with lhs + rhs
             elif _expr.isCompoundExpression():
                 # arithmetic op, i.e. +,-,*,/

@@ -21,41 +21,44 @@ from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from copy import copy
 
+
 class OdeTransformer(object):
     """
     This class contains several methods as used to transform ODEs.
     """
     __functions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM, PredefinedFunctions.CONVOLVE,
                    PredefinedFunctions.BOUNDED_MAX, PredefinedFunctions.BOUNDED_MIN)
-    __sumFunctions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM)
+    __sumFunctions = (PredefinedFunctions.CURR_SUM, PredefinedFunctions.COND_SUM, PredefinedFunctions.CONVOLVE)
 
-    def replaceFunctions(self, _ast):
+    @classmethod
+    def replaceFunctions(cls, _ast):
         """
         Replaces all self.function in the handed over node.
         :param _ast: a single ast node.
         :type _ast: AST_
         """
         workingCopy = copy(_ast)
-        functionCalls = self.getFunctionCalls(workingCopy, self.__functions)
+        functionCalls = cls.getFunctionCalls(workingCopy, self.__functions)
         for call in functionCalls:
-            self.replaceFunctionCallThroughFirstArgument(workingCopy, call)
+            cls.replaceFunctionCallThroughFirstArgument(workingCopy, call)
         return workingCopy
 
     @classmethod
-    def replaceSumCalls(self, _ast):
+    def replaceSumCalls(cls, _ast):
         """
         Replaces all sum calls in the handed over node.
         :param _ast: a single node
         :type _ast: AST_
         """
-        assert (_ast is not None),'(PyNestML.Utils) No ast provided!'
+        assert (_ast is not None), '(PyNestML.Utils) No ast provided!'
         workingCopy = copy(_ast)
-        functionCalls = self.get_sumFunctionCalls(workingCopy)
+        functionCalls = cls.get_sumFunctionCalls(workingCopy)
         for call in functionCalls:
-            self.replaceFunctionCallThroughFirstArgument(workingCopy, call)
+            cls.replaceFunctionCallThroughFirstArgument(workingCopy, call)
         return _ast
 
-    def replaceFunctionCallThroughFirstArgument(self, _ast=None, _toReplace=None):
+    @classmethod
+    def replaceFunctionCallThroughFirstArgument(cls, _ast=None, _toReplace=None):
         """
         Replaces all occurrences of the handed over function call by the first argument.
         :param _ast: a single ast node
@@ -68,15 +71,17 @@ class OdeTransformer(object):
         _ast.accept(visitor)
         return
 
-    def get_sumFunctionCalls(self, _ast=None):
+    @classmethod
+    def get_sumFunctionCalls(cls, _ast=None):
         """
-        Returns all sum function calls in the handed over ast node or one of its childred.
+        Returns all sum function calls in the handed over ast node or one of its children.
         :param _ast: a single ast node.
         :type _ast: AST_
         """
-        return self.getFunctionCalls(_ast, self.__sumFunctions)
+        return cls.getFunctionCalls(_ast, cls.__sumFunctions)
 
-    def containsSumFunctionCall(self, _ast):
+    @classmethod
+    def containsSumFunctionCall(cls, _ast):
         """
         Indicates whether _ast or one of its child nodes contains a sum call.
         :param _ast: a single ast
@@ -84,9 +89,10 @@ class OdeTransformer(object):
         :return: True if sum is contained, otherwise False.
         :rtype: bool
         """
-        return len(self.getFunctionCalls(_ast, self.__sumFunctions)) > 0
+        return len(cls.getFunctionCalls(_ast, cls.__sumFunctions)) > 0
 
-    def getFunctionCalls(self, _astNode=None, _functionList=list()):
+    @classmethod
+    def getFunctionCalls(cls, _astNode=None, _functionList=list()):
         """
         For a handed over list of function names, this method retrieves all functions in the ast.
         :param _astNode: a single ast node
@@ -101,7 +107,8 @@ class OdeTransformer(object):
         _astNode.accept(collector)
         return collector.result()
 
-    def getCondSumFunctionCall(self, _astNode=None):
+    @classmethod
+    def getCondSumFunctionCall(cls, _astNode=None):
         """
         Collects all cond_sum function calls in the ast.
         :param _astNode: a single ast node

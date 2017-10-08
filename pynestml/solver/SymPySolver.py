@@ -20,6 +20,7 @@
 from pynestml.nestml.ASTEquationsBlock import ASTEquationsBlock
 from pynestml.solver.SolverInput import SolverInput
 from pynestml.solver.OdeAnalyzer import OdeAnalyzer
+from pynestml.solver.SolverOutput import SolverOutput
 
 
 class SymPySolver(object):
@@ -27,6 +28,7 @@ class SymPySolver(object):
     This class represents a collection of concepts as used to solve equations.
     """
 
+    @classmethod
     def solveOdeWithShapes(self, _odeDeclaration=None):
         """
         Solves the odes for the handed over declarations block.
@@ -37,4 +39,6 @@ class SymPySolver(object):
         """
         inputProcessor = SolverInput()
         inputJSON = inputProcessor.SolverInputComplete(_odeDeclaration)
-        output = OdeAnalyzer.compute_solution(inputJSON)
+        output = OdeAnalyzer.compute_solution(inputJSON.toJSON())
+        toOutput = SolverOutput()
+        return toOutput.fromJSON(output)

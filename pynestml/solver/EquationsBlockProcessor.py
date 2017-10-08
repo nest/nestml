@@ -26,16 +26,9 @@ class EquationsBlockProcessor(object):
     """
     This class contains several methods as used to solve shapes to sets of equations.
     """
-    __solver = None
 
-    def __init__(self):
-        """
-        Standard construcotr.
-        """
-        self.__solver = SymPySolver()
-        return
-
-    def solveOdeWithShapes(self, _neuron=None):
+    @classmethod
+    def solveOdeWithShapes(cls, _neuron=None):
         """
         Solves the odes and shapes in the handed over neuron.
         :param _neuron: a neuron instance
@@ -44,7 +37,7 @@ class EquationsBlockProcessor(object):
         :rtype: ASTNeuron
         """
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
-            '(PyNestML.Solver.EquationsBlockProcesor) No or wrong type of neuron provided (%s)!' % _neuron
+            '(PyNestML.Solver.EquationsBlockProcessor) No or wrong type of neuron provided (%s)!' % _neuron
         # if no equations block is present, just return it
         if _neuron.getEquationsBlocks() is None:
             return _neuron
@@ -52,4 +45,7 @@ class EquationsBlockProcessor(object):
             workingCopy = deepcopy(_neuron)
             if len(workingCopy.getEquationsBlocks().getOdeShapes()) > 0 and \
                             len(workingCopy.getEquationsBlocks().getOdeEquations()) == 1:
-                output = self.__solver.solveOdeWithShapes(_neuron.getEquationsBlocks())
+                output = SymPySolver.solveOdeWithShapes(_neuron.getEquationsBlocks())
+
+
+            return _neuron

@@ -857,7 +857,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                         expression = decl.getRhs()
                     else:
                         expression = decl.getExpression()
-                    for func in expression.getFunctions():
+                    for func in expression.getFunctionCalls():
                         if func.getName() == 'cond_sum' and func.hasArgs() and func.getArgs()[
                             1].printAST() == buffer.getName():
                             symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolKind.VARIABLE)

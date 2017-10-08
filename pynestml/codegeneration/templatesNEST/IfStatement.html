@@ -20,12 +20,9 @@ if ({{printer.printExpression(ast.getIfClause().getCondition())}}) {
 {%- endwith -%}
 {%- endfor -%}
 {%- if ast.hasElseClause() %}
-} else {
-{% filter indent(2,True) %}
-{% with ast = ast.getElseClause().getBlock() -%}
-{% include "Block.html" -%}
-{% endwith -%}
-{% endfilter %}
-{% endif -%}
+} else { {%- with ast = ast.getElseClause().getBlock() -%}
+{%- include "Block.html" -%}
+{%- endwith -%}
+{%- endif -%}
 } /* if end */
 

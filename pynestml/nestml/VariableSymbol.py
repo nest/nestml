@@ -500,7 +500,7 @@ class VariableSymbol(Symbol):
         if not self.getDeclaringExpression():
             return False
         else:
-            for func in self.getDeclaringExpression().getFunctions():
+            for func in self.getDeclaringExpression().getFunctionCalls():
                 if func.getName() == PredefinedFunctions.CONVOLVE or \
                                 func.getName() == PredefinedFunctions.CURR_SUM or \
                                 func.getName() == PredefinedFunctions.COND_SUM:

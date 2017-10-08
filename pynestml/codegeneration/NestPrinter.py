@@ -194,11 +194,13 @@ class NestPrinter(object):
         else:
             raise RuntimeException('Cannot resolve the method ' + _function.getName())
 
-    def printFunctionDefinition(self, _function=None):
+    def printFunctionDefinition(self, _function=None, _namespace=None):
         """
         Returns a nest processable function definition, i.e. the part which appears in the .c file.
         :param _function: a single function.
         :type _function: ASTFunction
+        :param _namespace: the namespace in which this function is defined in
+        :type _namespace: str
         :return: the corresponding string representation.
         :rtype: str
         """
@@ -207,6 +209,8 @@ class NestPrinter(object):
         from pynestml.nestml.Symbol import SymbolKind
         assert (_function is not None and isinstance(_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
+        assert (_namespace is not None and isinstance(_namespace, str)), \
+            '(PyNestML.CodeGeneration.Printer) No or wrong type of namespace provided (%s)!' % type(_namespace)
         functionSymbol = _function.getScope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
         parameters = _function.getParameters()
         if functionSymbol is not None:
@@ -216,6 +220,8 @@ class NestPrinter(object):
                 params.append(param.getName())
             declaration = NESTML2NESTTypeConverter.convert(functionSymbol.getReturnType()).replace('.', '::')
             declaration += ' '
+            if _namespace is not None:
+                declaration += _namespace + '::'
             declaration += _function.getName() + '('
             for typeSym in functionSymbol.getParameterTypes():
                 # create the type name combination, e.g. double Tau

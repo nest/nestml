@@ -52,16 +52,16 @@ class SolverInput(object):
             '(PyNestML.Solver.Input) No or wrong type of equations block provided (%s)!' % _equationsBlock
         self.__init__()
         workingCopy = OdeTransformer.replaceSumCalls(deepcopy(_equationsBlock))
-        self.__ode = workingCopy.getOdeEquations()[0]
+        self.__ode = self.printEquation(workingCopy.getOdeEquations()[0])
 
         self.__functions = list()
-        for func in workingCopy.getODeFunctions():
-            self.__functions.append(func.printAST())
+        for func in workingCopy.getOdeFunctions():
+            self.__functions.append(self.printFunction(func))
 
         self.__shapes = list()
         for shape in workingCopy.getOdeShapes():
-            self.__shapes.append(shape.printAST())
-        return
+            self.__shapes.append(self.printShape(shape))
+        return self
 
     def SolverInputShapes(self, _shapes=None):
         """
@@ -120,7 +120,7 @@ class SolverInput(object):
         :return: a string representation.
         :rtype: str
         """
-        temp = '['
+        temp = '{'
         if self.__ode is not None:
             temp += '"ode":"' + self.__ode + '",'
         else:
@@ -132,7 +132,7 @@ class SolverInput(object):
             temp = temp[:-1]
         temp += '], "functions":['
         for func in self.__functions:
-            temp += "'" + func + "',"
+            temp += '"' + func + '",'
         if len(self.__functions) > 0:
             temp = temp[:-1]
-        return temp + ']'
+        return temp + ']}'

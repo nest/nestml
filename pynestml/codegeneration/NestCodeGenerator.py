@@ -33,6 +33,7 @@ from pynestml.utils.Messages import Messages
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.ASTSymbolTableVisitor import SymbolTableASTVisitor
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
+from pynestml.solver.EquationsBlockProcessor import EquationsBlockProcessor
 from copy import deepcopy
 import os
 
@@ -184,6 +185,7 @@ class NestCodeGenerator(object):
         namespace['names'] = NestNamesConverter()
         namespace['declarations'] = NestDeclarationsHelper()
         namespace['utils'] = ASTUtils()
+        namespace['idemPrinter'] = LegacyExpressionPrinter()
         # information regarding the neuron
         namespace['outputEvent'] = namespace['printer'].printOutputEvent(_neuron.getBody())
         namespace['isSpikeInput'] = ASTUtils.isSpikeInput(_neuron.getBody())
@@ -256,5 +258,5 @@ class NestCodeGenerator(object):
                 Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
                                   _errorPosition=_neuron.getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.INFO)
-
-                return _neuron
+                workingCopy = EquationsBlockProcessor.solveOdeWithShapes(_neuron)
+                return workingCopy

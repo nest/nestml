@@ -275,7 +275,11 @@ class VariableCollector(NESTMLVisitor):
     """
     Collects all variables contained in the node or one of its sub-nodes.
     """
-    __result = list()
+    __result = None
+
+    def __init__(self):
+        super(VariableCollector, self).__init__()
+        self.__result = list()
 
     def result(self):
         """

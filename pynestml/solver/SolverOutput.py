@@ -32,9 +32,25 @@ class SolverOutput(object):
     ode_var_factor = ''
     const_input = ''
     propagator_elements = ''
-    shape_state_variables = list()
-    updates_to_shape_state_variables = list()
-    shape_state_odes = list()
+    shape_state_variables = None
+    updates_to_shape_state_variables = None
+    shape_state_odes = None
+
+    def __init__(self):
+        """
+        Standard constructor.
+        """
+        self.status = ''
+        self.initial_values = list()
+        self.ode_var_update_instructions = list()
+        self.solver = ''
+        self.ode_var_factor = ''
+        self.const_input = ''
+        self.propagator_elements = ''
+        self.shape_state_variables = list()
+        self.updates_to_shape_state_variables = list()
+        self.shape_state_odes = list()
+        return
 
     @classmethod
     def getErrorResult(cls):
@@ -53,11 +69,15 @@ class SolverOutput(object):
         :param _solverResult: the solver result
         :type _solverResult:  str
         """
-        result = json.load(_solverResult)
-        for instruction in result['ode_var_update_instructions']:
-            self.ode_var_update_instructions.append(instruction)
-        for element in result['propagator_elements']:
-            self.propagator_elements.append(element)
-        for state in result['shape_state_odes']:
-            self.shape_state_odes.append(state)
-        for initValue in result['initial_values']:
+        result = json.loads(_solverResult)
+        self.status = result['status']
+        self.initial_values = result['initial_values']
+        self.ode_var_update_instructions = result['ode_var_update_instructions']
+        self.solver = result['solver']
+        self.ode_var_factor = result['ode_var_factor']
+        self.const_input = result['const_input']
+        self.propagator_elements = result['propagator_elements']
+        self.shape_state_variables = result['shape_state_variables']
+        self.updates_to_shape_state_variables = result['updates_to_shape_state_variables']
+        self.shape_state_odes = result['shape_state_odes']
+        return self

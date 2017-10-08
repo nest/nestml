@@ -156,7 +156,7 @@ class ASTSimpleExpression(ASTElement):
         """
         return self.__functionCall
 
-    def getFunctions(self):
+    def getFunctionCalls(self):
         """
         This function is used for better interactions with the general expression ast class.
         :return: returns a single list with this function call if such an exists, otherwise an empty list

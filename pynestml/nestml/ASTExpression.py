@@ -363,7 +363,7 @@ class ASTExpression(ASTElement):
             ret.extend(self.getIfNot().getUnits())
         return ret
 
-    def getFunctions(self):
+    def getFunctionCalls(self):
         """
         Returns a list of all function calls as used in this expression
         :return: a list of all function calls in this expression.
@@ -371,14 +371,14 @@ class ASTExpression(ASTElement):
         """
         ret = list()
         if self.isExpression():
-            ret.extend(self.getExpression().getFunctions())
+            ret.extend(self.getExpression().getFunctionCalls())
         elif self.isCompoundExpression():
-            ret.extend(self.getLhs().getFunctions())
-            ret.extend(self.getRhs().getFunctions())
+            ret.extend(self.getLhs().getFunctionCalls())
+            ret.extend(self.getRhs().getFunctionCalls())
         elif self.isTernaryOperator():
-            ret.extend(self.getCondition().getFunctions())
-            ret.extend(self.getIfTrue().getFunctions())
-            ret.extend(self.getIfNot().getFunctions())
+            ret.extend(self.getCondition().getFunctionCalls())
+            ret.extend(self.getIfTrue().getFunctionCalls())
+            ret.extend(self.getIfNot().getFunctionCalls())
         return ret
 
     def getTypeEither(self):

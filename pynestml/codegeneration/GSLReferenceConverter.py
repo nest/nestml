@@ -100,14 +100,14 @@ class GSLReferenceConverter(IReferenceConverter):
                 return 'std::exp(std::min(%s,' + str(self.__maximalExponent) + '))'
             else:
                 return 'std::exp(%s)'
-        if functionName == PredefinedFunctions.MAX:
+        if functionName == PredefinedFunctions.MAX or functionName == PredefinedFunctions.BOUNDED_MAX:
             return 'std::max(%s)'
-        if functionName == PredefinedFunctions.MIN:
+        if functionName == PredefinedFunctions.MIN or functionName == PredefinedFunctions.BOUNDED_MIN:
             return 'std::min(%s)'
         if functionName == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
-                   'nest::kernel().event_delivery_manager.send(*this, se, lag);'
+                   'nest::kernel().event_delivery_manager.send(*this, se, lag)'
         raise UnsupportedOperationException('Cannot map the function: "' + functionName + '".')
 
     def convertConstant(self, _constantName):

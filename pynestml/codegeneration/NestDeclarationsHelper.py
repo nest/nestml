@@ -18,7 +18,9 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.ASTDeclaration import ASTDeclaration
+from pynestml.nestml.Symbol import SymbolKind
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.Messages import Messages
 from pynestml.codegeneration.NestML2NESTTypeConverter import NESTML2NESTTypeConverter
 
 
@@ -43,17 +45,20 @@ class NestDeclarationsHelper(object):
         :return: a list of all corresponding variable symbols.
         :rtype: list(VariableSymbol)
         """
+
         assert (_astDeclaration is not None and isinstance(_astDeclaration, ASTDeclaration)), \
             '(PyNestML.CodeGeneration.DeclarationsHelper) No or wrong type of declaration provided (%s)!' % type(
                 _astDeclaration)
         ret = list()
         for var in _astDeclaration.getVariables():
-            symbol = _astDeclaration.getScope().resolveToSymbol(var.getCompleteName())
+            symbol = _astDeclaration.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
             if symbol is not None:
                 ret.append(symbol)
             else:
-                Logger.logMessage('Symbol could not be resolve!', LOGGING_LEVEL.ERROR)
-        return ret
+                code, message = Messages.getCouldNotResolve(var.getCompleteName())
+                Logger.logMessage(_code=code, _message=message,
+                                  _errorPosition=_astDeclaration.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
+            return ret
 
     def printVariableType(self, _variableSymbol=None):
         """

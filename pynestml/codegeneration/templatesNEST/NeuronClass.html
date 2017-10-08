@@ -296,7 +296,9 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e){
 {% for function in neuron.getFunctions() -%}
 {{printer.printFunctionDefinition(function, neuronName)}}
 {
-  {% include "Block.html" %}
+  {%- with ast = function.getBlock() -%}
+  {%- include "Block.html" -%}
+  {%- endwith -%}
 }
 {% endfor -%}
 

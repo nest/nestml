@@ -85,9 +85,9 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'nest::Time(nest::Time::ms((double) %s)).get_steps()'
         elif functionName == PredefinedFunctions.POW:
             return 'std::pow(%s)'
-        elif functionName == PredefinedFunctions.MAX:
+        elif functionName == PredefinedFunctions.MAX or functionName == PredefinedFunctions.BOUNDED_MAX:
             return 'std::max(%s)'
-        elif functionName == PredefinedFunctions.MIN:
+        elif functionName == PredefinedFunctions.MIN or functionName == PredefinedFunctions.BOUNDED_MIN:
             return 'std::min(%s)'
         elif functionName == PredefinedFunctions.EXP:
             return 'std::exp(%s)'
@@ -98,7 +98,7 @@ class NESTReferenceConverter(IReferenceConverter):
         elif functionName == PredefinedFunctions.EMIT_SPIKE:
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
-                   'nest::kernel().event_delivery_manager.send(*this, se, lag);'
+                   'nest::kernel().event_delivery_manager.send(*this, se, lag)'
         elif self.needsArguments(_astFunctionCall):
             return functionName + '(%s)'
         else:

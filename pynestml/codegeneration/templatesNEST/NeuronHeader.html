@@ -504,7 +504,7 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {% if (neuron.getMultipleReceptors())|length > 1 -%}
   DictionaryDatum __receptor_type = new Dictionary();
   {% for spikeBuffer in neuron.getMultipleReceptors() -%}
-  ( *__receptor_type )[ "{{spikeBuffer.getName().upper()}}" ] = {{spikeBuffer.getSymbolName().upper()}};
+  ( *__receptor_type )[ "{{spikeBuffer.getSymbolName().upper()}}" ] = {{spikeBuffer.getSymbolName().upper()}};
   {% endfor %}
   ( *__d )[ "receptor_types" ] = __receptor_type;
   {% endif %}
@@ -550,8 +550,8 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- endwith %}
   {%- endfor %}
   {%- for invariant in neuron.getParameterInvariants() %}
-  if ( !({{printerWithGetters.printExpression(invariant)}}) ) {
-    throw nest::BadProperty("The constraint '{{idemPrinter.print(invariant)}}' is violated!");
+  if ( !({{printer.printExpression(invariant)}}) ) {
+    throw nest::BadProperty("The constraint '{{idemPrinter.printExpression(invariant)}}' is violated!");
   }
   {%- endfor -%}
 

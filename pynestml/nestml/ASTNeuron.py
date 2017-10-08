@@ -434,11 +434,10 @@ class ASTNeuron(ASTElement):
         ret = list()
         for buffer in self.getSpikeBuffers():
             if buffer.isExcitatory() and buffer.isInhibitory():
-                symbol = buffer.getScope().resolveToSymbol(buffer.getName(), SymbolKind.VARIABLE)
-                if symbol is not None:
-                    ret.append(symbol)
+                if buffer is not None:
+                    ret.append(buffer)
                 else:
-                    code, message = Messages.getCouldNotResolve(buffer.getName())
+                    code, message = Messages.getCouldNotResolve(buffer.getSymbolName())
                     Logger.logMessage(
                         _message=message,
                         _code=code,
