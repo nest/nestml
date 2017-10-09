@@ -90,7 +90,7 @@ case $mode in
 		    print_usage=true
 		    ;;
 		--dev)
-		    container="nestml_development"
+		    container="--no-cache nestml_development"
 		    ;;
 		*)
 		    # If the argument is a valid directory, we safe
