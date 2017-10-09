@@ -47,7 +47,7 @@ cd <nestml_clone>/docker
 ./nestml_docker.sh provision
 ```
 
-This will download all required packages and libraries and create a container that uses the pre-built version of the [latest release of NESTML](https://github.com/nest/nestml/releases). If you are interested in using the bleeding edge version of NESTML (a.k.a. Git master), you can add the argument `--dev` to the invocation of the `./nestml_docker.sh` script.
+This will download all required packages and libraries and create a container that uses the pre-built version of the [latest release of NESTML](https://github.com/nest/nestml/releases). If you are interested in using the bleeding edge version of NESTML (a.k.a. Git master), you can add the argument `--from_sources` to the invocation of the `./nestml_docker.sh` script.
 
 If everything goes well, the list printed by the command 'docker images' should now contain the 'nestml_release' container. If you experience an error, please [open an issue](https://github.com/nest/nestml/issues) so we can look into and fix it.
 
