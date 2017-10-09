@@ -46,6 +46,7 @@ case $mode in
 	#          release version
 	container="nestml_release"
 	dockerfile="DockerfileRelease"
+	caching_strategy=""
 	while test $# -gt 0; do
 	    case "$1" in
 		--help)
@@ -53,7 +54,8 @@ case $mode in
 		    ;;
 		--dev)
 		    container="nestml_development"
-		    dockerfile="--no-cache DockerfileDevelopment"
+		    dockerfile="DockerfileDevelopment"
+		    caching_strategy="--no-cache"
 		    ;;
 		*)
 		    echo "Error: Unrecognized option '$1'"
@@ -72,7 +74,7 @@ case $mode in
 	fi
 
 	# Provision the docker container
-	cmd="docker build -t $container -f $dockerfile ."
+	cmd="docker build $caching_strategy -t $container -f $dockerfile ."
 	echo
 	echo "Creating docker image '$container'"
 	$cmd
