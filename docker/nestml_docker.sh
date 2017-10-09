@@ -53,7 +53,7 @@ case $mode in
 		    ;;
 		--dev)
 		    container="nestml_development"
-		    dockerfile="DockerfileDevelopment"
+		    dockerfile="--no-cache DockerfileDevelopment"
 		    ;;
 		*)
 		    echo "Error: Unrecognized option '$1'"
@@ -90,7 +90,7 @@ case $mode in
 		    print_usage=true
 		    ;;
 		--dev)
-		    container="--no-cache nestml_development"
+		    container="nestml_development"
 		    ;;
 		*)
 		    # If the argument is a valid directory, we safe
