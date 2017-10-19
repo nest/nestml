@@ -41,7 +41,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('-module_name')
         params.append('test_module')
         #params.append('-store_log')
-        main(params)
+        #main(params)
 
 
 if __name__ == '__main__':

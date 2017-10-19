@@ -72,10 +72,10 @@ class SolverInput(object):
         self.__init__()
         self.__shapes = list()
         for shape in _shapes:
-            self.__shapes.append(shape.printAST())
+            self.__shapes.append(self.printShape(shape))
         self.__ode = None
         self.__functions = list()
-        return
+        return self
 
     def printEquation(self, _equation=None):
         """

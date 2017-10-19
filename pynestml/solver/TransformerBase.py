@@ -199,7 +199,33 @@ class TransformerBase(object):
         :rtype: ASTNeuron
         """
         from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
+        from pynestml.nestml.ASTAssignment import ASTAssignment
+        assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
+            '(PyNestML.Solver.TransformerBase) No or wrong type of assignment provided (%s)!' % type(_assignment)
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
         smallStmt = ASTSmallStmt(_assignment=_assignment)
+        _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
+        return _neuron
+
+    @classmethod
+    def addDeclarationToUpdateBlock(cls, _declaration=None, _neuron=None):
+        """
+        Adds a single declaration to the end of the update block of the handed over neuron.
+        :param _declaration:
+        :type _declaration: ASTDeclaration
+        :param _neuron: a single neuron instance
+        :type _neuron: ASTNeuron
+        :return: a modified neuron
+        :rtype: ASTNeuron
+        """
+        from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
+        from pynestml.nestml.ASTDeclaration import ASTDeclaration
+        assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
+            '(PyNestML.Solver.TransformerBase) No or wrong type of declaration provided (%s)!' % type(_declaration)
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        smallStmt = ASTSmallStmt(_declaration=_declaration)
         _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
         return _neuron
 

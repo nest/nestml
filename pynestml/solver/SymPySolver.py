@@ -42,3 +42,18 @@ class SymPySolver(object):
         output = OdeAnalyzer.compute_solution(inputJSON.toJSON())
         toOutput = SolverOutput()
         return toOutput.fromJSON(output)
+
+    @classmethod
+    def solveShapes(cls, _shapes=None):
+        """
+        Solves a set of shapes to a corresponding set of ode declarations.
+        :param _shapes: a list of shapes
+        :type _shapes: list(ASTOdeShapes)
+        :return: a solver output object
+        :rtype: SolverOutput
+        """
+        inputProcessor = SolverInput()
+        inputJSON = inputProcessor.SolverInputShapes(_shapes)
+        output = OdeAnalyzer.compute_solution(inputJSON.toJSON())
+        toOutput = SolverOutput()
+        return toOutput.fromJSON(output)
