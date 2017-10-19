@@ -209,7 +209,7 @@ class ASTUtils(object):
         return expr
 
     @classmethod
-    def getAliasSymbolsFromOdes(self, _list=list()):
+    def getAliasSymbolsFromOdes(cls, _list=list()):
         """"
         For a handed over list this
         :param _list:
@@ -220,7 +220,7 @@ class ASTUtils(object):
         pass
 
     @classmethod
-    def getAliasSymbols(self, _ast=None):
+    def getAliasSymbols(cls, _ast=None):
         """
         For the handed over ast, this method collects all functions aka. aliases in it.
         :param _ast: a single ast node
@@ -270,6 +270,60 @@ class ASTUtils(object):
         else:
             return False
 
+    @classmethod
+    def getAll(cls, _ast=None, _type=None):
+        """
+        Finds all ast which are part of the tree as spanned by the handed over ast. The type has to be specified.
+        :param _ast: a single ast node
+        :type _ast: AST_
+        :param _type: the type
+        :type _type: AST_
+        :return: a list of all ast of the specified type
+        :rtype: list(AST_)
+        """
+        from pynestml.nestml.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        ret = list()
+        ASTHigherOrderVisitor.visit(_ast, lambda x: ret.append(x) if isinstance(x, _type) else True)
+        return ret
+
+    @classmethod
+    def getVectorizedVariable(cls, _ast=None, _scope=None):
+        """
+        Returns all variable symbols which are contained in the scope and have a size parameter.
+        :param _ast: a single ast
+        :type _ast: AST_
+        :param _scope: a scope object
+        :type _scope: Scope
+        :return: the first element with the size parameter
+        :rtype: VariableSymbol
+        """
+        from pynestml.nestml.ASTVariable import ASTVariable
+        from pynestml.nestml.Symbol import SymbolKind
+        variables = (var for var in cls.getAll(_ast, ASTVariable) if
+                     _scope.resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE))
+        for var in variables:
+            symbol = _scope.resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
+            if symbol is not None and symbol.hasVectorParameter():
+                return symbol
+        return None
+
+    @classmethod
+    def getFunctionCall(cls, _ast=None, _functionName=None):
+        """
+        Collects for a given name all function calls in a given ast node.
+        :param _ast: a single node
+        :type _ast: AST_
+        :param _functionName:
+        :type _functionName:
+        :return: a list of all function calls contained in _ast
+        :rtype: list(ASTFunctionCall)
+        """
+        from pynestml.nestml.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+        ret = list()
+        ASTHigherOrderVisitor.visit(_ast, lambda x: ret.append(x) \
+            if isinstance(x, ASTFunctionCall) and x.getName() == _functionName else True)
+        return ret
 
 class VariableCollector(NESTMLVisitor):
     """

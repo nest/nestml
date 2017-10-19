@@ -140,6 +140,13 @@ class ASTBlockWithVariables(ASTElement):
         """
         return self.__declarations
 
+    def clear(self):
+        """
+        Clears the list of declarations in this block.
+        """
+        del self.__declarations
+        return
+
     def getParent(self, _ast=None):
         """
         Indicates whether a this node contains the handed over node.

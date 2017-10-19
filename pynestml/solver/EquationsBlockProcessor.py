@@ -19,6 +19,10 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.solver.SymPySolver import SymPySolver
+from pynestml.solver.DeltaSolutionTransformer import DeltaSolutionTransformer
+from pynestml.solver.ShapesToOdesTransformer import ShapesToOdesTransformer
+from pynestml.utils.Messages import Messages
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from copy import deepcopy
 
 
@@ -46,6 +50,35 @@ class EquationsBlockProcessor(object):
             if len(workingCopy.getEquationsBlocks().getOdeShapes()) > 0 and \
                             len(workingCopy.getEquationsBlocks().getOdeEquations()) == 1:
                 output = SymPySolver.solveOdeWithShapes(_neuron.getEquationsBlocks())
+                if not output.status == 'success':
+                    code, message = Messages.getCouldNotBeSolved()
+                    Logger.logMessage(_neuron=_neuron,
+                                      _message=message, _code=code,
+                                      _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                      _logLevel=LOGGING_LEVEL.INFO)
+                    return _neuron
+                if output.solver == 'exact':
+                    code, message = Messages.getEquationsSolvedExactly()
+                    Logger.logMessage(_neuron=_neuron,
+                                      _message=message, _code=code,
+                                      _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                      _logLevel=LOGGING_LEVEL.INFO)
 
+                elif output.solver == 'numeric':
+                    code, message = Messages.getEquationsSolvedByGLS()
+                    Logger.logMessage(_neuron=_neuron,
+                                      _message=message, _code=code,
+                                      _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                      _logLevel=LOGGING_LEVEL.INFO)
+                    _neuron = ShapesToOdesTransformer.transformShapesToOdeForm(_neuron=_neuron, _solverOutput=output)
+                elif output.solver == 'delta':
+                    return DeltaSolutionTransformer.addExactSolution(_solverOutput=output, _neuron=_neuron)
+                else:
+                    code, message = Messages.getCouldNotBeSolved()
+                    Logger.logMessage(_neuron=_neuron,
+                                      _message=message, _code=code,
+                                      _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
+                                      _logLevel=LOGGING_LEVEL.INFO)
+                    return _neuron
 
             return _neuron

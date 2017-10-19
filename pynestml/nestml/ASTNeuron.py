@@ -224,6 +224,19 @@ class ASTNeuron(ASTElement):
         else:
             return ret
 
+    def getInitialValuesDeclarations(self):
+        """
+        Returns a list of initial values declarations made in this neuron.
+        :return: a list of initial values declarations
+        :rtype: list(ASTDeclaration)
+        """
+        initialValuesBlock = self.getInitialBlocks()
+        initialValuesDeclarations = list()
+        if initialValuesBlock is not None:
+            for decl in initialValuesBlock.getDeclarations():
+                initialValuesDeclarations.append(decl)
+        return initialValuesDeclarations
+
     def getEquations(self):
         """
         Returns all ode equations as defined in this neuron.
@@ -561,6 +574,48 @@ class ASTNeuron(ASTElement):
                 if decl.hasInvariant():
                     ret.append(decl.getInvariant())
         return ret
+
+    def addToStateBlock(self, _declaration=None):
+        """
+        Adds the handed over declaration the state block
+        :param _declaration: a single declaration
+        :type _declaration: ASTDeclaration
+        """
+        from pynestml.utils.ASTCreator import ASTCreator
+        if self.getStateBlocks() is None:
+            ASTCreator.createStateBlock(self)
+        self.getStateBlocks().getDeclarations().append(_declaration)
+        return
+
+    def addToInternalBlock(self, _declaration=None):
+        """
+        Adds the handed over declaration the internal block
+        :param _declaration: a single declaration
+        :type _declaration: ASTDeclaration
+        """
+        from pynestml.utils.ASTCreator import ASTCreator
+        if self.getInternalsBlocks() is None:
+            ASTCreator.createInternalBlock(self)
+        self.getInternalsBlocks().getDeclarations().append(_declaration)
+        return
+
+    def addToInitialValuesBlock(self,_declaration=None):
+        """
+        Adds the handed over declaration to the initial values block.
+        :param _declaration: a single declaration.
+        :type _declaration: ASTDeclaration
+        """
+        from pynestml.utils.ASTCreator import ASTCreator
+        if self.getInitialBlocks() is None:
+            ASTCreator.createInitialValuesBlock(self)
+        self.getInitialBlocks().getDeclarations().append(_declaration)
+        return
+
+
+    """
+    The following print methods are used by the backend and represent the comments as stored at the corresponding 
+    parts of the neuron definition.
+    """
 
     def printDynamicsComment(self):
         """

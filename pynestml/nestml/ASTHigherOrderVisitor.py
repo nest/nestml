@@ -17,12 +17,190 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
+from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.nestml.ASTAssignment import ASTAssignment
+from pynestml.nestml.ASTBitOperator import ASTBitOperator
+from pynestml.nestml.ASTBlock import ASTBlock
+from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+from pynestml.nestml.ASTBody import ASTBody
+from pynestml.nestml.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.nestml.ASTCompoundStmt import ASTCompoundStmt
+from pynestml.nestml.ASTDatatype import ASTDatatype
+from pynestml.nestml.ASTDeclaration import ASTDeclaration
+from pynestml.nestml.ASTElifClause import ASTElifClause
+from pynestml.nestml.ASTElseClause import ASTElseClause
+from pynestml.nestml.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.nestml.ASTExpression import ASTExpression
+from pynestml.nestml.ASTForStmt import ASTForStmt
+from pynestml.nestml.ASTFunction import ASTFunction
+from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+from pynestml.nestml.ASTIfClause import ASTIfClause
+from pynestml.nestml.ASTIfStmt import ASTIfStmt
+from pynestml.nestml.ASTInputBlock import ASTInputBlock
+from pynestml.nestml.ASTInputLine import ASTInputLine
+from pynestml.nestml.ASTInputType import ASTInputType
+from pynestml.nestml.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.nestml.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.nestml.ASTNeuron import ASTNeuron
+from pynestml.nestml.ASTOdeEquation import ASTOdeEquation
+from pynestml.nestml.ASTOdeFunction import ASTOdeFunction
+from pynestml.nestml.ASTOdeShape import ASTOdeShape
+from pynestml.nestml.ASTOutputBlock import ASTOutputBlock
+from pynestml.nestml.ASTParameter import ASTParameter
+from pynestml.nestml.ASTReturnStmt import ASTReturnStmt
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
+from pynestml.nestml.ASTUnaryOperator import ASTUnaryOperator
+from pynestml.nestml.ASTUnitType import ASTUnitType
+from pynestml.nestml.ASTUpdateBlock import ASTUpdateBlock
+from pynestml.nestml.ASTVariable import ASTVariable
+from pynestml.nestml.ASTWhileStmt import ASTWhileStmt
 
 class ASTHigherOrderVisitor:
     """
     This visitor is used to visit each node of the ast and and preform an arbitrary on it..
     """
+
+    def visit(self, _node):
+        """
+        Dispatcher for visitor pattern.
+        :param _node: The ASTElement to visit
+        :type _node:  ASTElement or inherited
+        """
+        if isinstance(_node, ASTArithmeticOperator):
+            self.visitArithmeticOperator(_node)
+            return
+        if isinstance(_node, ASTAssignment):
+            self.visitAssignment(_node)
+            return
+        if isinstance(_node, ASTBitOperator):
+            self.visitBitOperator(_node)
+            return
+        if isinstance(_node, ASTBlock):
+            self.visitBlock(_node)
+            return
+        if isinstance(_node, ASTBlockWithVariables):
+            self.visitBlockWithVariables(_node)
+            return
+        if isinstance(_node, ASTBody):
+            self.visitBody(_node)
+            return
+        if isinstance(_node, ASTComparisonOperator):
+            self.visitComparisonOperator(_node)
+            return
+        if isinstance(_node, ASTCompoundStmt):
+            self.visitCompoundStmt(_node)
+            return
+        if isinstance(_node, ASTDatatype):
+            self.visitDatatype(_node)
+            return
+        if isinstance(_node, ASTDeclaration):
+            self.visitDeclaration(_node)
+            return
+        if isinstance(_node, ASTElifClause):
+            self.visitElifClause(_node)
+            return
+        if isinstance(_node, ASTElseClause):
+            self.visitElseClause(_node)
+            return
+        if isinstance(_node, ASTEquationsBlock):
+            self.visitEquationsBlock(_node)
+            return
+        if isinstance(_node, ASTExpression):
+            self.visitExpression(_node)
+            return
+        if isinstance(_node, ASTForStmt):
+            self.visitForStmt(_node)
+            return
+        if isinstance(_node, ASTFunction):
+            self.visitFunction(_node)
+            return
+        if isinstance(_node, ASTFunctionCall):
+            self.visitFunctionCall(_node)
+            return
+        if isinstance(_node, ASTIfClause):
+            self.visitIfClause(_node)
+            return
+        if isinstance(_node, ASTIfStmt):
+            self.visitIfStmt(_node)
+            return
+        if isinstance(_node, ASTInputBlock):
+            self.visitInputBlock(_node)
+            return
+        if isinstance(_node, ASTInputLine):
+            self.visitInputLine(_node)
+            return
+        if isinstance(_node, ASTInputType):
+            self.visitInputType(_node)
+            return
+        if isinstance(_node, ASTLogicalOperator):
+            self.visitLogicalOperator(_node)
+            return
+        if isinstance(_node, ASTNESTMLCompilationUnit):
+            self.visitCompilationUnit(_node)
+            return
+        if isinstance(_node, ASTNeuron):
+            self.visitNeuron(_node)
+            return
+        if isinstance(_node, ASTOdeEquation):
+            self.visitOdeEquation(_node)
+            return
+        if isinstance(_node, ASTOdeFunction):
+            self.visitOdeFunction(_node)
+            return
+        if isinstance(_node, ASTOdeShape):
+            self.visitOdeShape(_node)
+            return
+        if isinstance(_node, ASTOutputBlock):
+            self.visitOutputBlock(_node)
+            return
+        if isinstance(_node, ASTParameter):
+            self.visitParameter(_node)
+            return
+        if isinstance(_node, ASTReturnStmt):
+            self.visitReturnStmt(_node)
+            return
+        if isinstance(_node, ASTSimpleExpression):
+            self.visitSimpleExpression(_node)
+            return
+        if isinstance(_node, ASTSmallStmt):
+            self.visitSmallStmt(_node)
+            return
+        if isinstance(_node, ASTUnaryOperator):
+            self.visitUnaryOperator(_node)
+            return
+        if isinstance(_node, ASTUnitType):
+            self.visitUnitType(_node)
+            return
+        if isinstance(_node, ASTUpdateBlock):
+            self.visitUpdateBlock(_node)
+            return
+        if isinstance(_node, ASTVariable):
+            self.visitVariable(_node)
+            return
+        if isinstance(_node, ASTWhileStmt):
+            self.visitWhileStmt(_node)
+            return
+        return
+
+
+    @classmethod
+    def visitCompilationUnit(cls,_ast=None,_func=None):
+        """
+        Visits a single compilation unit and executes the operation on this node.
+        :param _ast: a single node
+        :type _ast: ASTNESTMLCompilationUnit
+        :param _func: a single function
+        :type _func: fun
+        """
+        assert (_ast is not None and isinstance(_ast, ASTNESTMLCompilationUnit)), \
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of compilation unit provided (%s)!' % type(_ast)
+        assert (_func is not None and callable(_func)), \
+            '(PyNestML.Visitor.HigherOrder) No or wrong type of function provided (%s)!' % type(_func)
+        _func(_ast)
+        for neuron in _ast.getNeuronList():
+            cls.visit(neuron)
+        return
 
     @classmethod
     def visitArithmeticOperator(cls, _ast=None, _func=None):
@@ -33,7 +211,6 @@ class ASTHigherOrderVisitor:
         :param _func: a single single function.
         :type _func: fun
         """
-        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
         assert (_ast is not None and isinstance(_ast, ASTArithmeticOperator)), \
             '(PyNestML.Visitor.HigherOrder) No or wrong type of arithmetic operator provided (%s)!' % type(_ast)
         assert (_func is not None and callable(_func)), \
@@ -328,6 +505,8 @@ class ASTHigherOrderVisitor:
         if _ast.isUnaryOperator():
             cls.visitUnaryOperator(_ast.getUnaryOperator(), _func)
             cls.visitExpression(_ast.getExpression(), _func)
+        if _ast.isLogicalNot():
+            cls.visitExpression(_ast.getExpression(),_func)
         if _ast.isCompoundExpression():
             cls.visitExpression(_ast.getLhs(), _func)
             if isinstance(_ast.getBinaryOperator(), ASTBitOperator):

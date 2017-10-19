@@ -183,6 +183,17 @@ class ASTDeclaration(ASTElement):
         """
         return self.__sizeParameter
 
+    def setSizeParameter(self, _parameter):
+        """
+        Updates the current size parameter to a new value.
+        :param _parameter: the size parameter
+        :type _parameter: str
+        """
+        assert (_parameter is not None and isinstance(_parameter, str)), \
+            '(PyNestML.AST.Declaration) No or wrong type of size parameter provided (%s)!' % type(_parameter)
+        self.__sizeParameter = _parameter
+        return
+
     def hasExpression(self):
         """
         Returns whether the declaration has a right-hand side expression or not.

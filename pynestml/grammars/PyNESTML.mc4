@@ -1,0 +1,398 @@
+/*
+ *  PyNESTML.g4
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+package de.monticore;
+
+
+grammar PyNESTML{
+
+    token SL_COMMENT = ('#' (~('\n' |'\r' ))*) :{_channel=HIDDEN;};
+
+    token ML_COMMENT = "/*" (NEWLINE |
+                             ~('*' |
+                              '\n' |
+                              '\r' )
+                            )*
+                            "*/" :{_channel=HIDDEN;};
+
+    token NEWLINE = ('\r' '\n' | '\r' | '\n' );
+
+    token WS =  (' ' | '\t') :{_channel = HIDDEN;};
+
+    // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
+    token LINE_ESCAPE = '\\' '\r'? '\n':{_channel = HIDDEN;};
+
+    token BLOCK_OPEN = ':';
+
+    token BLOCK_CLOSE = "end";
+
+    /**
+    * Boolean values, i.e., true and false, should be handled as tokens in order to enable handling of lower
+    * and upper case definitions. Here, we allow both concepts, the python like syntax starting with upper case and
+    * the concept as currently used in NESTML with the lower case.
+    */
+    BOOLEAN_LITERAL = "true" | "True" | "false" | "False";
+
+    /**
+    * String literals are always enclosed in "...".
+    */
+
+    token STRING_LITERAL = '"' ( 'a'..'z'| 'A'..'Z' | '_' | '$' )( 'a'..'z'| 'A'..'Z' | '_' | '0'..'9' | '$' )* '"';
+
+    token NAME = ( 'a'..'z'|'A'..'Z' | '_' | '$' )( 'a'..'z'|'A'..'Z' | '_' | '0'..'9' | '$' )*;
+
+    /**
+    * Numeric literals. We allow integers as well as floats. Moreover, we ensure that values are either == 0 or
+    * do not start with 0, e.g., 01221.012, where the leading 0 does not make sense.
+    * Examples:
+    *  (1) 1 -> integer
+    *  (2) 3.14 -> float
+    *  (3) 10E10 -> float with exponent
+    */
+    token INTEGER = NON_ZERO_INTEGER
+            | '0';
+
+    fragment token NON_ZERO_INTEGER = '1'..'9' ('0'..'9')*;
+
+    /**
+    * The following declaration originates from Antrl4 Python Grammar definition as distributed under the MIT license.
+    * link: https://github.com/antlr/grammars-v4/blob/master/python3/Python3.g4
+    */
+
+    /*
+    * A float can be a point float, e.g., 10.05 or 0.1, or an exponent float, e.g. 10E10.
+    */
+    FLOAT = POINT_FLOAT | EXPONENT_FLOAT;
+
+    fragment token POINT_FLOAT = (NON_ZERO_INTEGER |'0')? FRACTION
+                         | (NON_ZERO_INTEGER |'0') '.'
+                         ;
+
+    fragment token EXPONENT_FLOAT = ( NON_ZERO_INTEGER | POINT_FLOAT ) EXPONENT ;
+
+    /**
+    * The exponent is introduced by e or E, the signum and an integer.
+    */
+    fragment token EXPONENT = ('e'|'E') ('+'|'-')? (NON_ZERO_INTEGER |'0');
+
+    fragment token FRACTION = '.' ('0'..'9')+;
+
+  /*********************************************************************************************************************
+  * Units-Language
+  *********************************************************************************************************************/
+
+  /**
+    ASTDatatype. Represents predefined data types and gives a possibility to use an unit
+    data type.
+    @attribute boolean getters for integer, real, ...
+    @attribute unitType a SI data type
+  */
+  Datatype = isInt:"integer"
+           | isReal:"real"
+           | isString:"string"
+           | isBool:"boolean"
+           | isVoid:"void"
+           | unit:UnitType;
+  /**
+    ASTUnitType. Represents an unit data type. It can be a plain data type as 'mV' or a
+    complex data type as 'mV/s'
+  */
+  UnitType = leftParentheses:"(" compoundUnit:UnitType rightParentheses:")"
+           | base:UnitType powOp:"**" exponent:INTEGER
+           | left:UnitType (timesOp:"*" | divOp:"/") right:UnitType
+           | unitlessLiteral:INTEGER divOp:"/" right:UnitType
+           | unit:NAME;
+
+  /*********************************************************************************************************************
+  * Expressions-Language
+  *********************************************************************************************************************/
+
+  /**
+   ASTExpression, i.e., several subexpressions combined by one or more operators,
+   e.g., 10mV + V_m - (V_reset * 2)/ms, or a simple expression, e.g. 10mV.
+  */
+  Expression = leftParentheses:"(" term:Expression rightParentheses:")"
+         | <rightassoc> left:Expression powOp:["**"] right:Expression
+         | UnaryOperator term:Expression
+         | left:Expression (timesOp:"*" | divOp:"/" | moduloOp:"%") right:Expression
+         | left:Expression (plusOp:"+"  | minusOp:"-") right:Expression
+         | left:Expression BitOperator right:Expression
+         | left:Expression ComparisonOperator right:Expression
+         | logicalNot:"not" term:Expression
+         | left:Expression LogicalOperator right:Expression
+         | condition:Expression "?" ifTrue:Expression ":" ifNot:Expression
+         | SimpleExpression
+         ;
+
+  /**
+    ASTSimpleExpression, consisting of a single element without combining operator, e.g.,
+    10mV, inf, V_m.
+    @attribute functionCall: A simple function call, e.g., myFunc(a,b)
+    @attribute BOOLEAN_LITERAL: A single boolean literal, e.g., True.
+    @attribute INTEGER: A integer number, e.g., 10.
+    @attribute FLOAT: A float number, e.g., 10.01.
+    @attribute variable: A optional variable representing the unit, e.g., ms, OR a single variable representing a reference, e.g. V_m.
+    @attribute isInf: True iff, this expression shall represent the value infinity.
+  */
+  SimpleExpression = FunctionCall
+                   | BOOLEAN_LITERAL // true & false;
+                   | (INTEGER|FLOAT) (Variable)?
+                   | string:STRING_LITERAL
+                   | isInf:"inf"
+                   | Variable;
+
+  UnaryOperator = (unaryPlus:"+" | unaryMinus:"-" | unaryTilde:"~");
+
+  BitOperator = (bitAnd:"&"| bitXor:"^" | bitOr:"|" | bitShiftLeft:"<<" | bitShiftRight:">>");
+
+  ComparisonOperator = (lt:"<" | le:"<=" | eq:"==" | ne:"!=" | ne2:"<>" | ge:">=" | gt:">");
+
+  LogicalOperator = (logicalAnd:"and" | logicalOr:"or" );
+
+  /**
+    ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
+    @attribute name: The name of the variable without the differential order, e.g. V_m
+    @attribute differentialOrder: The corresponding differential order, e.g. 2
+  */
+  Variable = name:NAME (DifferentialOrder)*;
+
+  DifferentialOrder = "\'";
+
+  /**
+    ASTFunctionCall Represents a function call, e.g. myFun("a", "b").
+    @attribute calleeName: The (qualified) name of the functions
+    @attribute args: Comma separated list of expressions representing parameters.
+  */
+  FunctionCall = calleeName:NAME "(" (Expression ("," Expression)*)? ")";
+
+  /*********************************************************************************************************************
+  * Equations-Language
+  *********************************************************************************************************************/
+
+  OdeFunction = (recordable:"recordable")? "function" variableName:NAME Datatype "=" Expression (";")?;
+
+  OdeEquation = lhs:Variable "=" rhs:Expression (";")?;
+
+  OdeShape = "shape" lhs:Variable "=" rhs:Expression (";")?;
+
+  /*********************************************************************************************************************
+  * Procedural-Language
+  *********************************************************************************************************************/
+
+  Block = ( Stmt | NEWLINE )*;
+
+  Stmt = SmallStmt | CompoundStmt;
+
+  CompoundStmt = IfStmt
+                | ForStmt
+                | WhileStmt;
+
+  SmallStmt = Assignment
+             | FunctionCall
+             | Declaration
+             | ReturnStmt;
+
+  Assignment = lhsVariable:Variable
+    (directAssignment:"="       |
+     compoundSum:"+="     |
+     compoundMinus:"-="   |
+     compoundProduct:"*=" |
+     compoundQuotient:"/=") Expression;
+
+  /** ASTDeclaration A variable declaration. It can be a simple declaration defining one or multiple variables:
+   'a,b,c real = 0'. Or an function declaration 'function a = b + c'.
+    @attribute isRecordable: Is true iff. declaration is track-able.
+    @attribute isFunction: Is true iff. declaration is a function.
+    @attribute variable: List with variables.
+    @attribute datatype: Obligatory data type, e.g., 'real' or 'mV/s'.
+    @attribute sizeParameter: An optional array parameter, e.g., 'tau_syn ms[n_receptros]'.
+    @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
+    @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
+   */
+  Declaration =
+    (isRecordable:"recordable")? (isFunction:"function")?
+    Variable ("," Variable)*
+    Datatype
+    ("[" sizeParameter:NAME "]")?
+    ( "=" rhs:Expression)?
+    ("[[" invariant:Expression "]]")?;
+
+  /** ATReturnStmt Models the return statement in a function.
+    @expression An optional return expression, e.g., return tempVar
+   */
+  ReturnStmt = "return" Expression?;
+
+  IfStmt = IfClause
+            ElifClause*
+            (ElseClause)?
+            BLOCK_CLOSE;
+
+  IfClause = "if" Expression BLOCK_OPEN  Block;
+
+  ElifClause = "elif" Expression BLOCK_OPEN Block;
+
+  ElseClause = "else" BLOCK_OPEN Block;
+
+  ForStmt = "for" var:NAME "in" vrom:Expression "..." to:Expression "step" step:SignedNumericLiteral
+            BLOCK_OPEN
+             Block
+            BLOCK_CLOSE;
+
+  WhileStmt = "while" Expression BLOCK_OPEN Block BLOCK_CLOSE;
+
+  SignedNumericLiteral = (negative:"-"?) (INTEGER|FLOAT);
+
+  /*********************************************************************************************************************
+  * NestML-Language
+  *********************************************************************************************************************/
+
+  /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
+    @attribute neuron: A list of processed models.
+  */
+  NestmlCompilationUnit = (Neuron | NEWLINE )* EOF;
+
+  /** ASTNeuron Represents a single neuron.
+    @attribute Name:    The name of the neuron, e.g., ht_neuron.
+    @attribute body:    The body of the neuron consisting of several sub-blocks.
+  */
+  Neuron = "neuron" NAME Body;
+
+  /** ASTBody The body of the neuron, e.g. internal, state, parameter...
+    @attribute blockWithVariables: A single block of variables, e.g. the state block.
+    @attribute updateBlock: A single update block containing the dynamic behavior.
+    @attribute equationsBlock: A block of ode declarations.
+    @attribute inputBlock: A block of input buffer declarations.
+    @attribute outputBlock: A block of output declarations.
+    @attribute function: A block declaring a used-defined function.
+  */
+  Body = BLOCK_OPEN
+         (NEWLINE | BlockWithVariables | UpdateBlock | EquationsBlock | InputBlock | OutputBlock | Function)*
+         BLOCK_CLOSE;
+
+  /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
+    state:
+      y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
+    end
+
+    @attribute state: True iff the varblock is a state.
+    @attribute parameters:  True iff the varblock is a parameters block.
+    @attribute internals: True iff the varblock is a state internals block.
+    @attribute declaration: A list of corresponding declarations.
+  */
+  BlockWithVariables =
+    (isState:"state"|isParameters:"parameters"|isInternals:"internals"|isInits:"initial_values")?
+    BLOCK_OPEN
+      (Declaration | NEWLINE)*
+    BLOCK_CLOSE;
+
+  /** ASTUpdateBlock The definition of a block where the dynamical behavior of the neuron is stated:
+      update:
+        if r == 0: # not refractory
+          integrate(V)
+        end
+      end
+     @attribute block Implementation of the dynamics.
+   */
+  UpdateBlock =
+    "update"
+    BLOCK_OPEN
+      Block
+    BLOCK_CLOSE;
+
+  /** ASTEquationsBlock A block declaring special functions:
+       equations:
+         G = (e/tau_syn) * t * exp(-1/tau_syn*t)
+         V" = -1/Tau * V + 1/C_m * (I_sum(G, spikes) + I_e + currents)
+       end
+     @attribute odeFunction: A single ode function statement, e.g., function V_m mV = ...
+     @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
+     @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
+   */
+  EquationsBlock =
+    "equations"
+    BLOCK_OPEN
+      (OdeFunction|OdeEquation|OdeShape|NEWLINE)+
+    BLOCK_CLOSE;
+
+  /** ASTInputBlock represents a single input block:
+    input:
+      spikeBuffer   <- inhibitory excitatory spike
+      currentBuffer <- current
+    end
+    @attribute inputLine: A list of input lines.
+  */
+  InputBlock = "input"
+    BLOCK_OPEN
+      (InputLine | NEWLINE)*
+    BLOCK_CLOSE;
+
+  /** ASTInputLine represents a single line form the input, e.g.:
+      spikeBuffer   <- inhibitory excitatory spike
+    @attribute name:   The name of the defined buffer, inSpike.
+    @attribute sizeParameter: Optional parameter representing  multisynapse neuron.
+    @attribute datatype: Optional data type of the buffer.
+    @attribute inputType: The type of the inputchannel: e.g. inhibitory or excitatory (or both).
+    @attribute isSpike: True iff the neuron is a spike.
+    @attribute isCurrent: True iff. the neuron is a current.
+  */
+  InputLine =
+    name:NAME
+    ("[" sizeParameter:NAME "]")?
+    (Datatype)?
+    "<-" InputType*
+    (isCurrent:"current" | isSpike:"spike");
+
+  /** ASTInputType represents the type of the inputLine e.g.: inhibitory or excitatory:
+    @attribute isInhibitory: true iff the neuron is a inhibitory.
+    @attribute isExcitatory: true iff. the neuron is a excitatory.
+  */
+  InputType = (isInhibitory:"inhibitory" | isExcitatory:"excitatory");
+
+  /** ASTOutputBlock Represents the output block of the neuron,i.e., declarations of output buffers:
+        output: spike
+      @attribute isSpike: true iff the neuron has a spike output.
+      @attribute isCurrent: true iff. the neuron is a current output.
+    */
+  OutputBlock = "output" BLOCK_OPEN (isSpike:"spike" | isCurrent:"current") ;
+
+  /** ASTFunction A single declaration of a user-defined function definition:
+      function set_V_m(v mV):
+        y3 = v - E_L
+      end
+    @attribute name: The name of the function.
+    @attribute parameters: List with function parameters.
+    @attribute returnType: An arbitrary return type, e.g. String or mV.
+    @attribute block: Implementation of the function.
+  */
+  Function = "function" NAME "(" (Parameter ("," Parameter)*)? ")" (returnType:Datatype)?
+           BLOCK_OPEN
+             Block
+           BLOCK_CLOSE;
+
+  /** ASTParameter represents a single parameter consisting of a name and the corresponding
+      data type, e.g. T_in ms
+    @attribute name: The name of the parameter.
+    @attribute datatype: The corresponding data type.
+  */
+  Parameter = NAME Datatype;
+
+  }

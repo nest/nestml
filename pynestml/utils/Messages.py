@@ -549,6 +549,25 @@ class Messages(object):
         message = 'The neuron \'%s\' will be analysed!' % _name
         return MessageCode.NEURON_ANALYZED, message
 
+    @classmethod
+    def getCouldNotBeSolved(cls):
+        message = 'Equations or shapes could not be solved. The model remains unchanged!'
+        return MessageCode.NEURON_ANALYZED, message
+
+    @classmethod
+    def getEquationsSolvedExactly(cls):
+        message = 'Equations are solved exactly!'
+        return MessageCode.NEURON_ANALYZED, message
+
+    @classmethod
+    def getEquationsSolvedByGLS(cls):
+        message = 'Shapes will be solved with GLS!'
+        return MessageCode.NEURON_ANALYZED, message
+
+    @classmethod
+    def getOdeSolutionNotUsed(cls):
+        message = 'The model has defined an ODE. But its solution is not used in the update state.'
+        return MessageCode.NEURON_ANALYZED, message
 
 class MessageCode(Enum):
     """
