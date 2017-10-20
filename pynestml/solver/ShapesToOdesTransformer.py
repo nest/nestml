@@ -66,13 +66,14 @@ class ShapesToOdesTransformer(object):
         :param _astOdeDeclaration: a single equations block
         :type _astOdeDeclaration: ASTEquationsBlock
         """
-        assert (_equationsFile is not None and isinstance(_equationsFile, tuple)), \
+        assert (_equationsFile is not None and isinstance(_equationsFile, list)), \
             '(PyNestML.Solver.DeltaSolution) No or wrong type of equations file provided (%s)!' % type(_equationsFile)
         assert (_astOdeDeclaration is not None and isinstance(_astOdeDeclaration, ASTEquationsBlock)), \
             '(PyNestML.Solver.DeltaSolution) No or wrong type of declarations block provided (%s)!' % type(
                 _astOdeDeclaration)
         astShapes = list()
-        for (name, value) in _equationsFile:
-            astShapes.append(ASTCreator.createShape('shape ' + name + '\' = ' + value))
+        for singleDict in _equationsFile:
+            for key in singleDict.keys():
+                astShapes.append(ASTCreator.createShape('shape ' + key + '\' = ' + singleDict[key]))
         _astOdeDeclaration.getDeclarations().extend(astShapes)
         return

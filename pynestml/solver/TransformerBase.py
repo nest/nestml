@@ -60,17 +60,17 @@ class TransformerBase(object):
         :param _neuron: a single neuron instance
         :type _neuron: ASTNeuron
         :param _declaration: a single declaration
-        :type _declaration: (str,str)
+        :type _declaration: dict
         :return: the neuron extended by the variable
         :rtype: ASTNeuron
         """
         try:
-            tmp = NESTMLParser.parseExpression(_declaration[1])
+            (var,value) = ASTUtils.getTupleFromSingleDictEntry(_declaration)
+            tmp = NESTMLParser.parseExpression(value)
             vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
-            declarationString = _declaration[0] + ' real' + (
+            declarationString = var + ' real' + (
                 '[' + vectorVariable.getVectorParameter() + ']'
-                if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + \
-                                _declaration[1]
+                if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + value
             astDeclaration = NESTMLParser.parseDeclaration(declarationString)
             if vectorVariable is not None:
                 astDeclaration.setSizeParameter(vectorVariable.getVectorParameter())
@@ -98,7 +98,10 @@ class TransformerBase(object):
         assert (_propagatorSteps is not None and isinstance(_propagatorSteps, list)), \
             '(PyNestML.Solver.BaseTransformer) No or wrong type of propagator steps provided (%s)!' % type(
                 _propagatorSteps)
-        integrateCall = ASTUtils.getFunctionCall(PredefinedFunctions.INTEGRATE_ODES, _neuron.getUpdateBlocks())
+        integrateCall = ASTUtils.getFunctionCall(_neuron.getUpdateBlocks(),PredefinedFunctions.INTEGRATE_ODES)
+        # by construction of a valid neuron, only a single integrate call should be there
+        if isinstance(integrateCall,list):
+            integrateCall = integrateCall[0]
         if integrateCall is not None:
             smallStatement = _neuron.getParent(integrateCall)
             assert (smallStatement is not None and isinstance(smallStatement, ASTSmallStmt))
@@ -114,7 +117,7 @@ class TransformerBase(object):
             code, message = Messages.getOdeSolutionNotUsed()
             Logger.logMessage(_neuron=_neuron, _code=code, _message=message, _errorPosition=_neuron.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.INFO)
-            return _neuron
+        return _neuron
 
     @classmethod
     def addVariablesToInitialValues(cls, _neuron=None, _declarationsFile=None):
@@ -172,8 +175,8 @@ class TransformerBase(object):
         printer = ExpressionsPrettyPrinter()
         spikesUpdates = list()
         for convCall in convCalls:
-            shape = convCall.getArgs()[0].getCompleteName()
-            buffer = convCall.getArgs()[1].getCompleteName()
+            shape = convCall.getArgs()[0].getVariable().getCompleteName()
+            buffer = convCall.getArgs()[1].getVariable().getCompleteName()
             initialValues = (_neuron.getInitialBlocks().getDeclarations()
                              if _neuron.getInitialBlocks() is not None else list())
             for astDeclaration in initialValues:
@@ -182,7 +185,7 @@ class TransformerBase(object):
                                                                                         variable.getCompleteName()):
                         spikesUpdates.append(ASTCreator.createAssignment(
                             variable.getCompleteName() + " += " + buffer + " * " + printer.printExpression(
-                                astDeclaration.getExpression())))
+                                astDeclaration.getExpr())))
         for update in spikesUpdates:
             cls.addAssignmentToUpdateBlock(update, _neuron)
         return _neuron
@@ -243,7 +246,8 @@ class TransformerBase(object):
             '(PyNestML.Solver.TransformerBase) No or wrong type of solver output provided (%s)!' % tuple(_solverOutput)
         stateShapeVariablesWithInitialValues = list()
         for shapeStateVariable in _solverOutput.shape_state_variables:
-            for initialValue in _solverOutput.initial_values:
-                if initialValue[0].endswith(shapeStateVariable):
-                    stateShapeVariablesWithInitialValues.append((shapeStateVariable, initialValue[1]))
+            for initialValueAsDict in _solverOutput.initial_values:
+                for var in initialValueAsDict.keys():
+                    if var.endswith(shapeStateVariable):
+                        stateShapeVariablesWithInitialValues.append((shapeStateVariable, initialValueAsDict[var]))
         return stateShapeVariablesWithInitialValues

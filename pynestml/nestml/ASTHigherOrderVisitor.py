@@ -56,136 +56,139 @@ from pynestml.nestml.ASTUpdateBlock import ASTUpdateBlock
 from pynestml.nestml.ASTVariable import ASTVariable
 from pynestml.nestml.ASTWhileStmt import ASTWhileStmt
 
+
 class ASTHigherOrderVisitor:
     """
     This visitor is used to visit each node of the ast and and preform an arbitrary on it..
     """
 
-    def visit(self, _node):
+    @classmethod
+    def visit(cls, _node=None, _func=None):
         """
         Dispatcher for visitor pattern.
         :param _node: The ASTElement to visit
         :type _node:  ASTElement or inherited
+        :param _func: a single callable object
+        :type _func: callable
         """
         if isinstance(_node, ASTArithmeticOperator):
-            self.visitArithmeticOperator(_node)
+            cls.visitArithmeticOperator(_node, _func)
             return
         if isinstance(_node, ASTAssignment):
-            self.visitAssignment(_node)
+            cls.visitAssignment(_node, _func)
             return
         if isinstance(_node, ASTBitOperator):
-            self.visitBitOperator(_node)
+            cls.visitBitOperator(_node, _func)
             return
         if isinstance(_node, ASTBlock):
-            self.visitBlock(_node)
+            cls.visitBlock(_node, _func)
             return
         if isinstance(_node, ASTBlockWithVariables):
-            self.visitBlockWithVariables(_node)
+            cls.visitBlockWithVariables(_node, _func)
             return
         if isinstance(_node, ASTBody):
-            self.visitBody(_node)
+            cls.visitBody(_node, _func)
             return
         if isinstance(_node, ASTComparisonOperator):
-            self.visitComparisonOperator(_node)
+            cls.visitComparisonOperator(_node, _func)
             return
         if isinstance(_node, ASTCompoundStmt):
-            self.visitCompoundStmt(_node)
+            cls.visitCompoundStmt(_node, _func)
             return
         if isinstance(_node, ASTDatatype):
-            self.visitDatatype(_node)
+            cls.visitDatatype(_node, _func)
             return
         if isinstance(_node, ASTDeclaration):
-            self.visitDeclaration(_node)
+            cls.visitDeclaration(_node, _func)
             return
         if isinstance(_node, ASTElifClause):
-            self.visitElifClause(_node)
+            cls.visitElifClause(_node, _func)
             return
         if isinstance(_node, ASTElseClause):
-            self.visitElseClause(_node)
+            cls.visitElseClause(_node, _func)
             return
         if isinstance(_node, ASTEquationsBlock):
-            self.visitEquationsBlock(_node)
+            cls.visitEquationsBlock(_node, _func)
             return
         if isinstance(_node, ASTExpression):
-            self.visitExpression(_node)
+            cls.visitExpression(_node, _func)
             return
         if isinstance(_node, ASTForStmt):
-            self.visitForStmt(_node)
+            cls.visitForStmt(_node, _func)
             return
         if isinstance(_node, ASTFunction):
-            self.visitFunction(_node)
+            cls.visitFunction(_node, _func)
             return
         if isinstance(_node, ASTFunctionCall):
-            self.visitFunctionCall(_node)
+            cls.visitFunctionCall(_node, _func)
             return
         if isinstance(_node, ASTIfClause):
-            self.visitIfClause(_node)
+            cls.visitIfClause(_node, _func)
             return
         if isinstance(_node, ASTIfStmt):
-            self.visitIfStmt(_node)
+            cls.visitIfStmt(_node, _func)
             return
         if isinstance(_node, ASTInputBlock):
-            self.visitInputBlock(_node)
+            cls.visitInputBlock(_node, _func)
             return
         if isinstance(_node, ASTInputLine):
-            self.visitInputLine(_node)
+            cls.visitInputLine(_node, _func)
             return
         if isinstance(_node, ASTInputType):
-            self.visitInputType(_node)
+            cls.visitInputType(_node, _func)
             return
         if isinstance(_node, ASTLogicalOperator):
-            self.visitLogicalOperator(_node)
+            cls.visitLogicalOperator(_node, _func)
             return
         if isinstance(_node, ASTNESTMLCompilationUnit):
-            self.visitCompilationUnit(_node)
+            cls.visitCompilationUnit(_node, _func)
             return
         if isinstance(_node, ASTNeuron):
-            self.visitNeuron(_node)
+            cls.visitNeuron(_node, _func)
             return
         if isinstance(_node, ASTOdeEquation):
-            self.visitOdeEquation(_node)
+            cls.visitOdeEquation(_node, _func)
             return
         if isinstance(_node, ASTOdeFunction):
-            self.visitOdeFunction(_node)
+            cls.visitOdeFunction(_node, _func)
             return
         if isinstance(_node, ASTOdeShape):
-            self.visitOdeShape(_node)
+            cls.visitOdeShape(_node, _func)
             return
         if isinstance(_node, ASTOutputBlock):
-            self.visitOutputBlock(_node)
+            cls.visitOutputBlock(_node, _func)
             return
         if isinstance(_node, ASTParameter):
-            self.visitParameter(_node)
+            cls.visitParameter(_node, _func)
             return
         if isinstance(_node, ASTReturnStmt):
-            self.visitReturnStmt(_node)
+            cls.visitReturnStmt(_node, _func)
             return
         if isinstance(_node, ASTSimpleExpression):
-            self.visitSimpleExpression(_node)
+            cls.visitSimpleExpression(_node, _func)
             return
         if isinstance(_node, ASTSmallStmt):
-            self.visitSmallStmt(_node)
+            cls.visitSmallStmt(_node, _func)
             return
         if isinstance(_node, ASTUnaryOperator):
-            self.visitUnaryOperator(_node)
+            cls.visitUnaryOperator(_node, _func)
             return
         if isinstance(_node, ASTUnitType):
-            self.visitUnitType(_node)
+            cls.visitUnitType(_node, _func)
             return
         if isinstance(_node, ASTUpdateBlock):
-            self.visitUpdateBlock(_node)
+            cls.visitUpdateBlock(_node, _func)
             return
         if isinstance(_node, ASTVariable):
-            self.visitVariable(_node)
+            cls.visitVariable(_node, _func)
             return
         if isinstance(_node, ASTWhileStmt):
-            self.visitWhileStmt(_node)
+            cls.visitWhileStmt(_node, _func)
             return
         return
 
-
     @classmethod
-    def visitCompilationUnit(cls,_ast=None,_func=None):
+    def visitCompilationUnit(cls, _ast=None, _func=None):
         """
         Visits a single compilation unit and executes the operation on this node.
         :param _ast: a single node
@@ -506,7 +509,7 @@ class ASTHigherOrderVisitor:
             cls.visitUnaryOperator(_ast.getUnaryOperator(), _func)
             cls.visitExpression(_ast.getExpression(), _func)
         if _ast.isLogicalNot():
-            cls.visitExpression(_ast.getExpression(),_func)
+            cls.visitExpression(_ast.getExpression(), _func)
         if _ast.isCompoundExpression():
             cls.visitExpression(_ast.getLhs(), _func)
             if isinstance(_ast.getBinaryOperator(), ASTBitOperator):
@@ -571,7 +574,7 @@ class ASTHigherOrderVisitor:
         """
         Visits a single function and executes the operation this node.
         :param _ast: a single  function.
-        :type _ast: ASTFunction
+        :type _ast: ASTFunctionCall
         :param _func: a single single function.
         :type _func: fun
         """
@@ -781,7 +784,7 @@ class ASTHigherOrderVisitor:
         """
         Visits a single ode shape and executes the operation this node.
         :param _ast: a singe ode shape.
-        :type _ast: ASTOdeFunction
+        :type _ast: ASTOdeShape
         :param _func: a single single function.
         :type _func: fun
         """

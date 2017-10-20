@@ -124,7 +124,7 @@ class SolverInput(object):
         if self.__ode is not None:
             temp += '"ode":"' + self.__ode + '",'
         else:
-            temp += '"ode":"null",'
+            temp += '"ode": null,'
         temp += '"shapes":['
         for shape in self.__shapes:
             temp += '"' + shape + '",'

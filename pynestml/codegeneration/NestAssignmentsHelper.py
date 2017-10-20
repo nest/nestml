@@ -104,7 +104,7 @@ class NestAssignmentsHelper(object):
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
         vectorVariable = None
-        for variable in _assignment.getExpression().getVaraibles():
+        for variable in _assignment.getExpression().getVariables():
             symbol = variable.getScope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)
             if symbol is not None and symbol.hasVectorParameter():
                 vectorVariable = symbol

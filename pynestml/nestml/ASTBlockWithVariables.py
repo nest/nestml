@@ -145,6 +145,7 @@ class ASTBlockWithVariables(ASTElement):
         Clears the list of declarations in this block.
         """
         del self.__declarations
+        self.__declarations = list()
         return
 
     def getParent(self, _ast=None):

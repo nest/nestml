@@ -26,6 +26,7 @@ from pynestml.nestml.ASTVariable import ASTVariable
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class NESTReferenceConverter(IReferenceConverter):
@@ -124,7 +125,9 @@ class NESTReferenceConverter(IReferenceConverter):
             symbol = _astVariable.getScope().resolveToSymbol(variableName, SymbolKind.VARIABLE)
             if symbol is None:
                 # this actually not happen, but an error message is better that exception
-                Logger.logMessage('Symbol could not be resolved!', LOGGING_LEVEL.ERROR)
+                code,message = Messages.getCouldNotResolve(variableName)
+                Logger.logMessage(_logLevel=LOGGING_LEVEL.ERROR,_code=code,_message=message,
+                                  _errorPosition=_astVariable.getSourcePosition())
                 return ''
             else:
                 if symbol.isLocal():

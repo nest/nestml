@@ -184,6 +184,19 @@ class ASTSmallStmt(ASTElement):
                 return self.getReturnStmt().getParent(_ast)
         return None
 
+    def equals(self,_other=None):
+        """
+        The equals method.
+        :param _other: a different object
+        :type _other: object
+        :return: True if equals, otherwise False.
+        :rtype: bool
+        """
+        print("Implement me in ASTSmallStmt")
+        return False
+        #return type(self) == type(_other) and  \
+        #       (self.getAssignment().equals(_other.getAssignment) if self.isAssignment() else True) and (self.get)
+
     def printAST(self):
         """
         Returns a string representation of the small statement.

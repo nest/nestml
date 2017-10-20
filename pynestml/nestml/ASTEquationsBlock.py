@@ -133,6 +133,14 @@ class ASTEquationsBlock(ASTElement):
                 ret.append(decl)
         return ret
 
+    def clear(self):
+        """
+        Deletes all declarations as stored in this block.
+        """
+        del self.__declarations
+        self.__declarations = list()
+        return
+
     def printAST(self):
         """
         Returns a string representation of the equations block.

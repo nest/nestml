@@ -21,6 +21,7 @@ from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.utils.ASTCreator import ASTCreator
+from pynestml.utils.ASTUtils import ASTUtils
 
 
 class ExactSolutionTransformer(object):
@@ -91,12 +92,14 @@ class ExactSolutionTransformer(object):
                 _solverOutput)
         tempVariables = list()
         for tup in _solverOutput.updates_to_shape_state_variables:
-            if tup[0].startswith('__tmp'):
-                tempVariables.append(tup[0])
+            key, value = ASTUtils.getTupleFromSingleDictEntry(tup)
+            if key.startswith('__tmp'):
+                tempVariables.append(key)
         for var in tempVariables:
             TransformerBase.addDeclarationToUpdateBlock(ASTCreator.createDeclaration(var + ' real'), _neuron)
         for out in _solverOutput.updates_to_shape_state_variables:
-            TransformerBase.addAssignmentToUpdateBlock(ASTCreator.createAssignment(out[0] + ' = ' + out[1]), _neuron)
+            key, value = ASTUtils.getTupleFromSingleDictEntry(out)
+            TransformerBase.addAssignmentToUpdateBlock(ASTCreator.createAssignment(key + ' = ' + value), _neuron)
         return
 
 

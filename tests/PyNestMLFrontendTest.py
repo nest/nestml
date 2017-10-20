@@ -28,8 +28,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
     """
 
     def test(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),
-                                                 os.path.join('..', 'models'))))
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),os.path.join('..', 'models'))))
         params = list()
         params.append('-path')
         params.append(path)
@@ -41,7 +40,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('-module_name')
         params.append('test_module')
         #params.append('-store_log')
-        #main(params)
+        main(params)
 
 
 if __name__ == '__main__':

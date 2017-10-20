@@ -325,6 +325,25 @@ class ASTUtils(object):
             if isinstance(x, ASTFunctionCall) and x.getName() == _functionName else True)
         return ret
 
+    @classmethod
+    def getTupleFromSingleDictEntry(cls, _dictEntry=None):
+        """
+        For a given dict of length 1, this method returns a tuple consisting of (key,value)
+        :param _dictEntry: a dict of length 1
+        :type _dictEntry:  dict
+        :return: a single tuple
+        :rtype: tuple
+        """
+        if len(_dictEntry.keys()) == 1:
+            # key() is not an actual list, thus indexing is not possible.
+            for keyIter in _dictEntry.keys():
+                key = keyIter
+                value = _dictEntry[key]
+                return key, value
+        else:
+            return None, None
+
+
 class VariableCollector(NESTMLVisitor):
     """
     Collects all variables contained in the node or one of its sub-nodes.

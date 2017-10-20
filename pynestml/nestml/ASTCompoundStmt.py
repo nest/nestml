@@ -151,6 +151,17 @@ class ASTCompoundStmt(ASTElement):
                 return self.getForStmt().getParent(_ast)
         return None
 
+    def equals(self,_other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        print("Implement me in ASTCompoundStmt")
+        return False
+
     def printAST(self):
         """
         Returns a string representation of the compound statement.

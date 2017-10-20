@@ -125,7 +125,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
             if rhsSymbolType.isError():
                 code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
                 Logger.logMessage(_neuron=None, _code=code, _message=message,
-                                  _errorPosition=_assignment.getExpr().getSourcePosition(),
+                                  _errorPosition=_assignment.getExpression().getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
             elif lhsSymbolType is not None and not lhsSymbolType.getTypeSymbol().equals(rhsSymbolType.getValue()):
                 if ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
