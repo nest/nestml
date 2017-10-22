@@ -1,6 +1,6 @@
 {#
 /*
-*  NeuronHeader.html
+*  NeuronHeader.jinja2
 *
 *  This file is part of NEST.
 *
@@ -225,7 +225,7 @@ private:
   struct Parameters_
   { {% filter indent(4,True) %}
     {% for variable in neuron.getParameterNonAliasSymbols() -%}
-      {% include 'MemberDeclaration.html' -%}
+      {% include 'MemberDeclaration.jinja2' -%}
     {% endfor -%}{% endfilter %}
 
     {% if useGSL -%}
@@ -259,7 +259,7 @@ private:
   struct State_ {
     {% if not useGSL %}{% filter indent(4,True) -%}
     {% for variable in neuron.getStateNonAliasSymbols() -%}
-    {% include "MemberDeclaration.html" -%}
+    {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% else -%}
     //! Symbolic indices to the elements of the state vector y
@@ -272,13 +272,13 @@ private:
     //! state vector, must be C-array for GSL solver
     double ode_state[ STATE_VEC_SIZE ];{% filter indent(4,True) -%}
     {% for variable in neuron.getStateSymbolsWithoutOde() -%}
-      {% include "MemberDeclaration.html" -%}
+      {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% endif -%}
 
     {% for odeAlias in neuron.getODEAliases() -%}{% filter indent(4,True) -%}
       {% with variable = odeAlias -%}
-      {% include "MemberDeclaration.html" -%}
+      {% include "MemberDeclaration.jinja2" -%}
       {% endwith -%}{% endfilter -%}
     {% endfor %}
 
@@ -298,7 +298,7 @@ private:
   */
   struct Variables_ {
     {% for variable in neuron.getInternalNonAliasSymbols() -%}
-      {% filter indent(4,True) %}{% include "MemberDeclaration.html" -%}{% endfilter %}
+      {% filter indent(4,True) %}{% include "MemberDeclaration.jinja2" -%}{% endfilter %}
     {% endfor %}
   };
 
@@ -363,31 +363,31 @@ private:
   };
   {%- for state in neuron.getStateSymbols() -%}
   {%- with variable = state -%}
-  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- include "MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
   {%- endfor -%}
 
   {%- for init in neuron.getInitialValuesSymbols() -%}
   {%- with variable = init -%}
-  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- include "MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
   {%- endfor -%}
 
   {%- for parameter in neuron.getParameterSymbols() -%}
   {%- with variable = parameter -%}
-  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- include "MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
   {%- endfor -%}
 
   {%- for internal in neuron.getInternalSymbols() -%}
   {%- with variable = internal -%}
-  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- include "MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
   {%- endfor -%}
 
   {%- for odeAlias in neuron.getODEAliases() %}
   {%- with variable = odeAlias %}
-  {%- include "MemberVariableGetterSetter.html" -%}
+  {%- include "MemberVariableGetterSetter.jinja2" -%}
   {%- endwith -%}
   {%- endfor %}
 
@@ -492,12 +492,12 @@ inline nest::port {{neuronName}}::handles_test_event(
 inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
   {%- for parameter in neuron.getParameterSymbols() -%}
   {%- with variable = parameter -%}{%- filter indent(2,True) -%}
-  {% include "WriteInDictionary.html" %}
+  {% include "WriteInDictionary.jinja2" %}
   {% endfilter -%}{% endwith -%}
   {%- endfor -%}
   {%- for state in neuron.getStateSymbols() -%}
   {%- with variable = state -%}{%- filter indent(2,True) -%}
-  {% include "WriteInDictionary.html" %}
+  {% include "WriteInDictionary.jinja2" %}
   {% endfilter -%}{% endwith -%}
   {%- endfor -%}
 
@@ -522,12 +522,12 @@ inline void {{neuronName}}::get_status(DictionaryDatum &__d) const{
 inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   {%- for parameter in neuron.getParameterSymbols() -%}
   {%- with variable = parameter -%}
-  {%- include "ReadFromDictionaryToTmp.html" %}
+  {%- include "ReadFromDictionaryToTmp.jinja2" %}
   {%- endwith -%}
   {%- endfor -%}
   {%- for state in neuron.getStateSymbols() %}
   {%- with variable = state %}
-  {%- include "ReadFromDictionaryToTmp.html" %}
+  {%- include "ReadFromDictionaryToTmp.jinja2" %}
   {% endwith -%}
   {% endfor -%}
 
@@ -540,13 +540,13 @@ inline void {{neuronName}}::set_status(const DictionaryDatum &__d){
   // if we get here, temporaries contain consistent set of properties
   {%- for parameter in neuron.getParameterSymbols() -%}
   {%- with variable = parameter -%}
-  {%- include "AssignTmpDictionaryValue.html" -%}
+  {%- include "AssignTmpDictionaryValue.jinja2" -%}
   {%- endwith -%}
   {%- endfor -%}
 
   {%- for state in neuron.getStateSymbols() -%}
   {%- with variable = state %}
-  {%- include "AssignTmpDictionaryValue.html" %}
+  {%- include "AssignTmpDictionaryValue.jinja2" %}
   {%- endwith %}
   {%- endfor %}
   {%- for invariant in neuron.getParameterInvariants() %}

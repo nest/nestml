@@ -7,18 +7,18 @@
 #}
 {%- if stmt.isAssignment() -%}
 {%- with ast = stmt.getAssignment() -%}
-{%- include "Assignment.html" -%}
+{%- include "Assignment.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.isFunctionCall() -%}
 {%- with ast = stmt.getFunctionCall() -%}
-{%- include "FunctionCall.html" -%}
+{%- include "FunctionCall.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.isDeclaration() -%}
 {%- with ast = stmt.getDeclaration() -%}
-{%- include "Declaration.html" -%}
+{%- include "Declaration.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.isReturnStmt() -%}
 {%- with ast = stmt.getReturnStmt() -%}
-{%- include "ReturnStatement.html" -%}
+{%- include "ReturnStatement.jinja2" -%}
 {%- endwith -%}
 {%- endif -%}

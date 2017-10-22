@@ -4,14 +4,14 @@
 #}
 {%- if stmt.isIfStmt() -%}
 {%- with ast = stmt.getIfStmt() -%}
-{%- include "IfStatement.html" -%}
+{%- include "IfStatement.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.isForStmt() -%}
 {%- with ast = stmt.getForStmt() -%}}
-{%- include "ForStatement.html" -%}
+{%- include "ForStatement.jinja2" -%}
 {%- endwith -%}
 {%- elif stmt.isWhileStmt() -%}
 {%- with ast = stmt.getWhileStmt() -%}}
-{%- include "WhileStatement.html" -%}
+{%- include "WhileStatement.jinja2" -%}
 {%- endwith -%}
 {%- endif -%}

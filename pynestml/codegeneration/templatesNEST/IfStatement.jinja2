@@ -11,17 +11,17 @@
 #}
 if ({{printer.printExpression(ast.getIfClause().getCondition())}}) {
 {%- with ast = ast.getIfClause().getBlock() -%}
-{%- include "Block.html" -%}
+{%- include "Block.jinja2" -%}
 {%- endwith -%}
 {%- for elif in ast.getElifClauses() -%}
 }else if({{printer.printExpression(elif.getCondition())}}) {
 {%- with ast = elif.getBlock() -%}
-{%- include "Block.html" -%}
+{%- include "Block.jinja2" -%}
 {%- endwith -%}
 {%- endfor -%}
 {%- if ast.hasElseClause() %}
 } else { {%- with ast = ast.getElseClause().getBlock() -%}
-{%- include "Block.html" -%}
+{%- include "Block.jinja2" -%}
 {%- endwith -%}
 {%- endif -%}
 } /* if end */

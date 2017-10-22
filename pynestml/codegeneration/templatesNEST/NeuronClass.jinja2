@@ -1,6 +1,6 @@
 {#
 /*
-*  NeuronClass.html
+*  NeuronClass.jinja2
 *
 *  This file is part of NEST.
 *
@@ -76,20 +76,20 @@ namespace nest
   template <> void RecordablesMap<{{neuronName}}>::create(){
   // use standard names whereever you can for consistency!{% filter indent(2,True) %}
   {%- for variable in neuron.getStateSymbols() %}
-    {%- include "RecordCallback.html" %}
+    {%- include "RecordCallback.jinja2" %}
   {%- endfor %}
   {%- for variable in neuron.getInitialValuesSymbols() %}
-    {%- include "RecordCallback.html" %}
+    {%- include "RecordCallback.jinja2" %}
   {%- endfor %}
   {%- for variable in neuron.getInternalSymbols() %}
-    {%- include "RecordCallback.html" %}
+    {%- include "RecordCallback.jinja2" %}
   {%- endfor %}
   {%- for variable in neuron.getParameterSymbols() %}
-    {%- include "RecordCallback.html" %}
+    {%- include "RecordCallback.jinja2" %}
   {%- endfor %}
   {%- for odeAlias in neuron.getODEAliases() %}
     {%- with variable = odeAlias %}
-      {%- include "RecordCallback.html" %}
+      {%- include "RecordCallback.jinja2" %}
     {%- endwith %}
   {%- endfor %}{% endfilter %}
   }
@@ -148,19 +148,19 @@ namespace nest
 
   {%- for parameter in neuron.getParameterNonAliasSymbols() -%}
   {%- with variable = parameter %}
-  {%- include "MemberInitialization.html" %}
+  {%- include "MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
   {%- for state in neuron.getStateNonAliasSymbols() -%}
   {%- with variable = state %}
-  {%- include "MemberInitialization.html" %}
+  {%- include "MemberInitialization.jinja2" %}
   {%- endwith %}
   {%- endfor %}
 
   {%- for init in neuron.getInitialValuesSymbols() -%}
   {%- with variable = init -%}
-  {%- include "MemberInitialization.html" %}
+  {%- include "MemberInitialization.jinja2" %}
   {%- endwith %}{% endfor %}
 }
 
@@ -197,7 +197,7 @@ void {{neuronName}}::init_state_(const Node& proto){
 }
 
 {% if useGSL %}
-{% include "GSLDifferentiationFunction.html" %}
+{% include "GSLDifferentiationFunction.jinja2" %}
 {% endif %}
 
 void {{neuronName}}::init_buffers_(){
@@ -237,12 +237,12 @@ void {{neuronName}}::calibrate(){
   B_.logger_.init();
 
   {%- for variable in neuron.getInternalNonAliasSymbols() %}
-  {% include "Calibrate.html" %}
+  {% include "Calibrate.jinja2" %}
   {%- endfor %}
 
   {%- for variable in neuron.getStateNonAliasSymbols() -%}
   {%- if variable.hasVectorParameter() %}{% filter indent(2,True) %}
-  {%- include "Calibrate.html" -%}{% endfilter -%}
+  {%- include "Calibrate.jinja2" -%}{% endfilter -%}
   {%- endif -%}
   {%- endfor -%}
 
@@ -279,7 +279,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
     {%- endfor -%}
     {%- set dynamics = neuron.getUpdateBlocks() -%}
     {%- with ast = dynamics.getBlock() -%}{%- filter indent(2,True) -%}
-    {%- include "Block.html" -%}{%- endfilter -%}
+    {%- include "Block.jinja2" -%}{%- endfilter -%}
     {%- endwith %}
     // voltage logging
     B_.logger_.record_data(origin.get_steps()+lag);
@@ -297,7 +297,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e){
 {{printer.printFunctionDefinition(function, neuronName)}}
 {
   {%- with ast = function.getBlock() -%}
-  {%- include "Block.html" -%}
+  {%- include "Block.jinja2" -%}
   {%- endwith -%}
 }
 {% endfor -%}

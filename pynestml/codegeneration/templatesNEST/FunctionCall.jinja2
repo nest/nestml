@@ -4,7 +4,7 @@
   @param ast ASTFunctionCall
 #}
 {%- if utils.isIntegrate(ast) -%}
-{%- include "GSLIntegrator.html" -%}
+{%- include "GSLIntegrator.jinja2" -%}
 {%- else -%}
 {{printer.printMethodCall(ast)}};
 {%- endif -%}

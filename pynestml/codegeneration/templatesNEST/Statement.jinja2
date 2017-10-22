@@ -4,7 +4,7 @@
 #}
 //{{utils.printComments(stmt)}}
 {%- if utils.isSmallStmt(stmt) %}
-{% include "SmallStatement.html" -%}
+{% include "SmallStatement.jinja2" -%}
 {% elif utils.isCompoundStmt(stmt) -%}
-{% include "CompoundStatement.html" -%}
+{% include "CompoundStatement.jinja2" -%}
 {%- endif -%}

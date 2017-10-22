@@ -6,7 +6,7 @@
 {% for statement in ast.getStmts() -%}
 {% filter indent(2,True) -%}
 {% with stmt = statement -%}
-{% include "Statement.html" -%}
+{% include "Statement.jinja2" -%}
 {% endwith -%}
 {% endfilter %}
 {% endfor -%}

@@ -57,17 +57,17 @@ class NestCodeGenerator(object):
         # setup the environment
         env = Environment(loader=FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templatesNEST')))
         # setup the cmake template
-        self.__templateCMakeLists = env.get_template('CMakeLists.html')
+        self.__templateCMakeLists = env.get_template('CMakeLists.jinja2')
         # setup the module class template
-        self.__templateModuleClass = env.get_template('ModuleClass.html')
+        self.__templateModuleClass = env.get_template('ModuleClass.jinja2')
         # setup the module header
-        self.__templateModuleHeader = env.get_template('ModuleHeader.html')
+        self.__templateModuleHeader = env.get_template('ModuleHeader.jinja2')
         # setup the SLI_Init file
-        self.__SLI_Init = env.get_template('SLI_Init.html')
+        self.__SLI_Init = env.get_template('SLI_Init.jinja2')
         # setup the neuron header template
-        self.__templateNeuronHeader = env.get_template('NeuronHeader.html')
+        self.__templateNeuronHeader = env.get_template('NeuronHeader.jinja2')
         # setup the neuron implementation template
-        self.__templateNeuronImplementation = env.get_template('NeuronClass.html')
+        self.__templateNeuronImplementation = env.get_template('NeuronClass.jinja2')
         return
 
     def generateNESTModuleCode(self, _neurons=None):
