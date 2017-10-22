@@ -76,7 +76,7 @@ class NESTMLParser(object):
         :return: a single expression
         :rtype: ASTExpression
         """
-        assert (_expression is not None and isinstance(_expression, str)), \
+        assert (_expression is not None and (isinstance(_expression, str) or isinstance(_expression, unicode))), \
             '(PyNestML.Parser) No or wrong type of expression provided (%s)!' % type(_expression)
         # raw = 'neuron raw: state: ' + _expression + ' end end'
         lexer = PyNESTMLLexer(InputStream(_expression))
@@ -96,7 +96,7 @@ class NESTMLParser(object):
         :return: a single declaration
         :rtype: ASTDeclaration
         """
-        assert (_declaration is not None and isinstance(_declaration, str)), \
+        assert (_declaration is not None and (isinstance(_declaration, str) or isinstance(_declaration, unicode))), \
             '(PyNestML.Parser) No or wrong type of declaration provided (%s)!' % type(_declaration)
         lexer = PyNESTMLLexer(InputStream(_declaration))
         # create a token stream
@@ -115,7 +115,7 @@ class NESTMLParser(object):
         :return: a single statement object
         :rtype: ASTSmallStmt or ASTCompoundStmt
         """
-        assert (_statement is not None and isinstance(_statement, str)), \
+        assert (_statement is not None and (isinstance(_statement, str) or isinstance(_statement, unicode))), \
             '(PyNestML.Parser) No or wrong type of statement provided (%s)!' % type(_statement)
         lexer = PyNESTMLLexer(InputStream(_statement))
         # create a token stream
@@ -134,7 +134,7 @@ class NESTMLParser(object):
         :return: a single object
         :rtype: ASTOdeShape
         """
-        assert (_shape is not None and isinstance(_shape, str)), \
+        assert (_shape is not None and (isinstance(_shape, str) or isinstance(_shape, unicode))), \
             '(PyNestML.Parser) No or wrong type of shape provided (%s)!' % type(_shape)
         lexer = PyNESTMLLexer(InputStream(_shape))
         # create a token stream
@@ -145,7 +145,7 @@ class NESTMLParser(object):
         return builder.visit(parser.odeShape())
 
     @classmethod
-    def parseAssignment(cls,_assignment=None):
+    def parseAssignment(cls, _assignment=None):
         """
         Parses a single assignment and returns the corresponding ast.
         :param _assignment: a singe assignment as a string
@@ -153,7 +153,7 @@ class NESTMLParser(object):
         :return: a single object.
         :rtype: ASTAssignment
         """
-        assert (_assignment is not None and isinstance(_assignment, str)), \
+        assert (_assignment is not None and (isinstance(_assignment, str) or isinstance(_assignment, unicode))), \
             '(PyNestML.Parser) No or wrong type of assignment provided (%s)!' % type(_assignment)
         lexer = PyNESTMLLexer(InputStream(_assignment))
         # create a token stream

@@ -65,7 +65,7 @@ class TransformerBase(object):
         :rtype: ASTNeuron
         """
         try:
-            (var,value) = ASTUtils.getTupleFromSingleDictEntry(_declaration)
+            (var, value) = ASTUtils.getTupleFromSingleDictEntry(_declaration)
             tmp = NESTMLParser.parseExpression(value)
             vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
             declarationString = var + ' real' + (
@@ -98,9 +98,9 @@ class TransformerBase(object):
         assert (_propagatorSteps is not None and isinstance(_propagatorSteps, list)), \
             '(PyNestML.Solver.BaseTransformer) No or wrong type of propagator steps provided (%s)!' % type(
                 _propagatorSteps)
-        integrateCall = ASTUtils.getFunctionCall(_neuron.getUpdateBlocks(),PredefinedFunctions.INTEGRATE_ODES)
+        integrateCall = ASTUtils.getFunctionCall(_neuron.getUpdateBlocks(), PredefinedFunctions.INTEGRATE_ODES)
         # by construction of a valid neuron, only a single integrate call should be there
-        if isinstance(integrateCall,list):
+        if isinstance(integrateCall, list):
             integrateCall = integrateCall[0]
         if integrateCall is not None:
             smallStatement = _neuron.getParent(integrateCall)
@@ -146,12 +146,13 @@ class TransformerBase(object):
         :rtype: ASTNeuron
         """
         try:
-            tmp = NESTMLParser.parseExpression(_declaration[1])
+            (var, value) = _declaration
+            tmp = NESTMLParser.parseExpression(value)
             vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
-            declarationString = _declaration[0] + ' real' + (
+            declarationString = var + ' real' + (
                 '[' + vectorVariable.getVectorParameter() + ']'
                 if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + \
-                                _declaration[1]
+                                value
             astDeclaration = NESTMLParser.parseDeclaration(declarationString)
             if vectorVariable is not None:
                 astDeclaration.setSizeParameter(vectorVariable.getVectorParameter())
