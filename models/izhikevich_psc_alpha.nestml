@@ -44,6 +44,7 @@ neuron izhikevich_psc_alpha:
     function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
     function I_syn_inh pA = convolve(I_syn_in, spikesInh)
 
+
     V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
   end
@@ -80,6 +81,7 @@ neuron izhikevich_psc_alpha:
   input:
     spikesInh nS <- inhibitory spike
     spikesExc nS <- excitatory spike
+
     currents  <- current
   end
 
@@ -153,6 +155,7 @@ neuron izhikevich_psc_alpha_implicit:
     
     function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
     function I_syn_inh pA = convolve(I_syn_in, spikesInh)
+
     
     V_m' = ( k * (V_m - V_r) * (V_m - V_t) - U_m + I_e + I_syn_inh + I_syn_exc ) / C_m
     U_m' = a * ( b*(V_m - V_r) - U_m )
@@ -184,12 +187,14 @@ neuron izhikevich_psc_alpha_implicit:
     PSConInit_I 1/ms = e / tau_syn_in
 
 
+
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
   input:
     spikesInh pA <- inhibitory spike
     spikesExc pA <- excitatory spike
+
     currents  <- current
   end
 
