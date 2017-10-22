@@ -3,9 +3,9 @@ target/
 .idea/
 
 build/
+buildNest/
 
 __*
-!__init__.py
 
 dist/
 
