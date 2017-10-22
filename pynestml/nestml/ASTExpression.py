@@ -67,7 +67,7 @@ class ASTExpression(ASTElement):
 
     def __init__(self, _isEncapsulated=False, _unaryOperator=None, _isLogicalNot=False,
                  _expression=None, _lhs=None, _binaryOperator=None, _rhs=None, _condition=None, _ifTrue=None,
-                 _ifNot=None, _simpleExpression=None, _sourcePosition=None):
+                 _ifNot=None, _sourcePosition=None):
         """
         Standard constructor.
         :param _isEncapsulated: is encapsulated in brackets.
@@ -93,8 +93,6 @@ class ASTExpression(ASTElement):
         :type _ifNot: ASTExpression
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
-        :param _simpleExpression: a single simple expression
-        :type _simpleExpression: ASTSimpleExpression
         """
         assert ((_unaryOperator is None) or (isinstance(_unaryOperator, ASTUnaryOperator))), \
             '(PyNestML.AST.Expression) Wrong type of unary operator provided (%s)!' % type(_unaryOperator)
@@ -237,7 +235,7 @@ class ASTExpression(ASTElement):
         :return: True if encapsulated, otherwise False.
         :rtype: bool
         """
-        return self.__isEncapsulated
+        return isinstance(self.__isEncapsulated, bool) and self.__isEncapsulated
 
     def isLogicalNot(self):
         """
@@ -245,7 +243,7 @@ class ASTExpression(ASTElement):
         :return: True if negated, otherwise False.  
         :rtype: bool
         """
-        return self.__isLogicalNot
+        return isinstance(self.__isLogicalNot, bool) and self.__isLogicalNot
 
     def isUnaryOperator(self):
         """
@@ -475,3 +473,41 @@ class ASTExpression(ASTElement):
         elif self.isTernaryOperator():
             ret += self.getCondition().printAST() + '?' + self.getIfTrue().printAST() + ':' + self.getIfNot().printAST()
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTExpression):
+            return False
+        # we have to ensure that both either are encapsulated or not
+        if self.isEncapsulated() + _other.isEncapsulated() == 1:
+            return False
+        if self.isLogicalNot() + _other.isLogicalNot() == 1:
+            return False
+        if self.isUnaryOperator() + _other.isUnaryOperator() == 1:
+            return False
+        if self.isUnaryOperator() and _other.isUnaryOperator() and \
+                not self.getUnaryOperator().equals(_other.getUnaryOperator()):
+            return False
+        if self.isExpression() + _other.isExpression() == 1:
+            return False
+        if self.isExpression() and _other.isExpression() and not self.getExpression().equals(_other.getExpression()):
+            return False
+        if self.isCompoundExpression() + _other.isCompoundExpression() == 1:
+            return False
+        if self.isCompoundExpression() and _other.isCompoundExpression() and \
+                not (self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs()) and
+                         self.getBinaryOperator().equals(_other.getBinaryOperator())):
+            return False
+        if self.isTernaryOperator() + _other.isTernaryOperator() == 1:
+            return False
+        if self.isTernaryOperator() and _other.isTernaryOperator() and \
+                not (self.getCondition().equals(_other.getCondition()) and
+                         self.getIfTrue().equals(_other.getIfTrue()) and self.getIfNot().equals(_other.getIfNot())):
+            return False
+        return True

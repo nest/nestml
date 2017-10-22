@@ -150,7 +150,7 @@ class ASTSmallStmt(ASTElement):
         """
         Returns the return statement.
         :return: the return statement.
-        :rtype: ASTReturn_Stmt
+        :rtype: ASTReturnStmt
         """
         return self.__returnStmt
 
@@ -184,19 +184,6 @@ class ASTSmallStmt(ASTElement):
                 return self.getReturnStmt().getParent(_ast)
         return None
 
-    def equals(self,_other=None):
-        """
-        The equals method.
-        :param _other: a different object
-        :type _other: object
-        :return: True if equals, otherwise False.
-        :rtype: bool
-        """
-        print("Implement me in ASTSmallStmt")
-        return False
-        #return type(self) == type(_other) and  \
-        #       (self.getAssignment().equals(_other.getAssignment) if self.isAssignment() else True) and (self.get)
-
     def printAST(self):
         """
         Returns a string representation of the small statement.
@@ -211,3 +198,33 @@ class ASTSmallStmt(ASTElement):
             return self.getDeclaration().printAST()
         else:
             return self.getReturnStmt().printAST()
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object
+        :type _other: object
+        :return: True if equals, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTSmallStmt):
+            return False
+        if self.isFunctionCall() + _other.isFunctionCall() == 1:
+            return False
+        if self.isFunctionCall() and _other.isFunctionCall() and \
+                not self.getFunctionCall().equals(_other.getFunctionCall()):
+            return False
+        if self.isAssignment() + _other.isAssignment() == 1:
+            return False
+        if self.isAssignment() and _other.isAssignment() and not self.getAssignment().equals(_other.getAssignment()):
+            return False
+        if self.isDeclaration() + _other.isDeclaration() == 1:
+            return False
+        if self.isDeclaration() and _other.isDeclaration() and not self.getDeclaration().equals(
+                _other.getDeclaration()):
+            return False
+        if self.isReturnStmt() + _other.isReturnStmt() == 1:
+            return False
+        if self.isReturnStmt() and _other.isReturnStmt() and not self.getReturnStmt().equals(_other.getReturnStmt()):
+            return False
+        return True

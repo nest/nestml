@@ -119,6 +119,8 @@ class ASTSourcePosition(object):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
+        if not isinstance(_sourcePosition, ASTSourcePosition):
+            return False
         return self.getStartLine() == _sourcePosition.getStartLine() and \
                self.getStartColumn() == _sourcePosition.getStartColumn() and \
                self.getEndLine() == _sourcePosition.getEndLine() and \

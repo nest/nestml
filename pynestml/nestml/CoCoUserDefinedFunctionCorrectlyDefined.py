@@ -98,20 +98,20 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                                       _code=code, _message=message,
                                       _logLevel=LOGGING_LEVEL.WARNING)
                 # now check that it corresponds to the declared type
-                if stmt.getReturnStmt().hasExpr() and _typeSymbol is PredefinedTypes.getVoidType():
+                if stmt.getReturnStmt().hasExpression() and _typeSymbol is PredefinedTypes.getVoidType():
                     code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
                                                                           stmt.getReturnStmt().getTypeEither().
                                                                           getValue())
                     Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 # if it is not void check if the type corresponds to the one stated
-                if not stmt.getReturnStmt().hasExpr() and not _typeSymbol.equals(PredefinedTypes.getVoidType()):
+                if not stmt.getReturnStmt().hasExpression() and not _typeSymbol.equals(PredefinedTypes.getVoidType()):
                     code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
                                                                           _typeSymbol)
                     Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
-                if stmt.getReturnStmt().hasExpr():
-                    typeOfReturn = stmt.getReturnStmt().getExpr().getTypeEither()
+                if stmt.getReturnStmt().hasExpression():
+                    typeOfReturn = stmt.getReturnStmt().getExpression().getTypeEither()
                     if typeOfReturn.isError():
                         code, message = Messages.getTypeCouldNotBeDerived(cls.__processedFunction.getName())
                         Logger.logMessage(_errorPosition=stmt.getSourcePosition(),

@@ -202,3 +202,28 @@ class ASTFunction(ASTElement):
             ret += self.getReturnType().printAST()
         ret += ':\n' + self.getBlock().printAST() + '\nend'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTFunction):
+            return False
+        if self.getName() != _other.getName():
+            return False
+        if len(self.getParameters()) != len(_other.getParameters()):
+            return False
+        myParameters = self.getParameters()
+        yourParameters = _other.getParameters()
+        for i in range(0, len(myParameters)):
+            if not myParameters[i].equals(yourParameters[i]):
+                return False
+        if self.hasReturnType() + _other.hasReturnType() == 1:
+            return False
+        if self.hasReturnType() and _other.hasReturnType() and not self.getReturnType().equals(_other.getReturnType()):
+            return False
+        return self.getBlock().equals(_other.getBlock())

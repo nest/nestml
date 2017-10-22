@@ -113,3 +113,15 @@ class ASTOdeEquation(ASTElement):
         :rtype: str
         """
         return self.getLhs().printAST() + '=' + self.getRhs().printAST()
+
+    def equals(self,_other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other,ASTOdeEquation):
+            return False
+        return self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs())

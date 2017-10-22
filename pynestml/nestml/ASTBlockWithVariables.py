@@ -30,10 +30,10 @@ class ASTBlockWithVariables(ASTElement):
           y0, y1, y2, y3 mV [y1 > 0; y2 > 0]
         end
 
-    @attribute state true if the varblock is a state.
-    @attribute parameter true if the varblock is a parameter.
-    @attribute internal true if the varblock is a state internal.
-    @attribute AliasDecl a list with variable declarations
+    attribute state true: if the varblock is a state.
+    attribute parameter: true if the varblock is a parameter.
+    attribute internal: true if the varblock is a state internal.
+    attribute AliasDecl: a list with variable declarations
     Grammar:
          blockWithVariables:
             blockType=('state'|'parameters'|'internals'|'initial_values')
@@ -76,6 +76,7 @@ class ASTBlockWithVariables(ASTElement):
         self.__isParameters = _isParameters
         self.__isInitValues = _isInitialValues
         self.__isState = _isState
+        return
 
     @classmethod
     def makeASTBlockWithVariables(cls, _isState=False, _isParameters=False, _isInternals=False, _isInitialValues=False,
@@ -184,3 +185,25 @@ class ASTBlockWithVariables(ASTElement):
                 ret += decl.printAST() + '\n'
         ret += 'end'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTBlockWithVariables):
+            return False
+        if not (self.isInitialValues() == _other.isInitialValues() and self.isInternals() == _other.isInternals() and
+                        self.isParameters() == _other.isParameters() and self.isState() == _other.isState()):
+            return False
+        if len(self.getDeclarations()) != len(_other.getDeclarations()):
+            return False
+        myDeclarations = self.getDeclarations()
+        yourDeclarations = _other.getDeclarations()
+        for i in range(0, len(myDeclarations)):
+            if not myDeclarations[i].equals(yourDeclarations[i]):
+                return False
+        return True

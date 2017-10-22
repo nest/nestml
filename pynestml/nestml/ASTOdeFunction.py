@@ -150,3 +150,21 @@ class ASTOdeFunction(ASTElement):
         ret += 'function ' + self.getVariableName() + ' ' + self.getDataType().printAST() + \
                ' = ' + self.getExpression().printAST()
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTOdeFunction):
+            return False
+        if self.isRecordable() != _other.isRecordable():
+            return False
+        if self.getVariableName() != _other.getVariableName():
+            return False
+        if not self.getDataType().equals(_other.getDataType()):
+            return False
+        return self.getExpression().equals(_other.getExpression())

@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from pynestml.nestml.ASTElement import ASTElement
 from pynestml.nestml.ASTOdeEquation import ASTOdeEquation
 from pynestml.nestml.ASTOdeFunction import ASTOdeFunction
@@ -151,3 +149,22 @@ class ASTEquationsBlock(ASTElement):
         for decl in self.getDeclarations():
             ret += decl.printAST() + '\n'
         return ret + 'end'
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTEquationsBlock):
+            return False
+        if len(self.getDeclarations()) != len(_other.getDeclarations()):
+            return False
+        myDeclarations = self.getDeclarations()
+        yourDeclarations = _other.getDeclarations()
+        for i in range(0, len(myDeclarations)):
+            if not myDeclarations[i].equals(yourDeclarations[i]):
+                return False
+        return True

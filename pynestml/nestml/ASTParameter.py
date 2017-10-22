@@ -80,7 +80,7 @@ class ASTParameter(ASTElement):
         """
         Returns the data type of the parameter.
         :return: the data type of the parameter.
-        :rtype: ASTDataType
+        :rtype: ASTDatatype
         """
         return self.__dataType
 
@@ -105,3 +105,15 @@ class ASTParameter(ASTElement):
         :rtype: str
         """
         return self.getName() + ' ' + self.getDataType().printAST()
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTParameter):
+            return False
+        return self.getName() == _other.getName() and self.getDataType().equals(_other.getDataType())

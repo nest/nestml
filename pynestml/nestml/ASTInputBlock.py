@@ -105,3 +105,22 @@ class ASTInputBlock(ASTElement):
                 ret += inputDef.printAST() + '\n'
         ret += 'end\n'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other:  object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTInputBlock):
+            return False
+        if len(self.getInputLines()) != len(_other.getInputLines()):
+            return False
+        myInputLines = self.getInputLines()
+        yourInputLines = _other.getInputLines()
+        for i in range(0, len(myInputLines)):
+            if not myInputLines[i].equals(yourInputLines[i]):
+                return False
+        return True

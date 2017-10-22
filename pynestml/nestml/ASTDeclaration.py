@@ -141,7 +141,7 @@ class ASTDeclaration(ASTElement):
         :return: True if recordable, else False.
         :rtype: bool
         """
-        return self.__isRecordable
+        return isinstance(self.__isRecordable, bool) and self.__isRecordable
 
     def isFunction(self):
         """
@@ -149,7 +149,7 @@ class ASTDeclaration(ASTElement):
         :return: True if function, else False.
         :rtype: bool
         """
-        return self.__isFunction
+        return isinstance(self.__isFunction, bool) and self.__isFunction
 
     def getVariables(self):
         """
@@ -202,7 +202,7 @@ class ASTDeclaration(ASTElement):
         """
         return self.__expression is not None
 
-    def getExpr(self):
+    def getExpression(self):
         """
         Returns the right-hand side expression.
         :return: the right-hand side expression.
@@ -244,10 +244,10 @@ class ASTDeclaration(ASTElement):
         elif self.getDataType().getParent(_ast) is not None:
             return self.getDataType().getParent(_ast)
         if self.hasExpression():
-            if self.getExpr() is _ast:
+            if self.getExpression() is _ast:
                 return self
-            elif self.getExpr().getParent(_ast) is not None:
-                return self.getExpr().getParent(_ast)
+            elif self.getExpression().getParent(_ast) is not None:
+                return self.getExpression().getParent(_ast)
         if self.hasInvariant():
             if self.getInvariant() is _ast:
                 return self
@@ -274,7 +274,35 @@ class ASTDeclaration(ASTElement):
         if self.hasSizeParameter():
             ret += '[' + self.getSizeParameter() + ']'
         if self.hasExpression():
-            ret += ' = ' + self.getExpr().printAST() + ' '
+            ret += ' = ' + self.getExpression().printAST() + ' '
         if self.hasInvariant():
             ret += ' [[' + self.getInvariant().printAST() + ']]'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTDeclaration):
+            return False
+        if not (self.isFunction() == _other.isFunction() and self.isRecordable() == _other.isRecordable()):
+            return False
+        if self.getSizeParameter() != _other.getSizeParameter():
+            return False
+        if len(self.getVariables()) != len(_other.getVariables()):
+            return False
+        myVars = self.getVariables()
+        yourVars = _other.getVariables()
+        for i in range(0, len(myVars)):
+            # caution, here the order is also checked
+            if not myVars[i].equals(yourVars[i]):
+                return False
+        if self.hasInvariant() + _other.hasInvariant() == 1:
+            return False
+        if self.hasInvariant() and _other.hasInvariant() and not self.getInvariant().equals(_other.getInvariant()):
+            return False
+        return self.getDataType().equals(_other.getDataType()) and self.getExpression().equals(_other.getExpression())

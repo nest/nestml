@@ -57,21 +57,21 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         """
         if _declaration.hasExpression():
             lhsType = _declaration.getDataType().getTypeSymbol()
-            rhsType = _declaration.getExpr().getTypeEither()
+            rhsType = _declaration.getExpression().getTypeEither()
             if rhsType.isError():
-                code, message = Messages.getTypeCouldNotBeDerived(_declaration.getExpr())
+                code, message = Messages.getTypeCouldNotBeDerived(_declaration.getExpression())
                 Logger.logMessage(_neuron=None, _code=code, _message=message,
-                                  _errorPosition=_declaration.getExpr().getSourcePosition(),
+                                  _errorPosition=_declaration.getExpression().getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
             elif not lhsType.equals(rhsType.getValue()):
                 if ASTUtils.isCastableTo(rhsType.getValue(), lhsType):
-                    code, message = Messages.getImplicitCastRhsToLhs(_declaration.getExpr(),
+                    code, message = Messages.getImplicitCastRhsToLhs(_declaration.getExpression(),
                                                                      _declaration.getVariables()[0],
                                                                      rhsType.getValue(), lhsType)
                     Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
                 else:
-                    code, message = Messages.getDifferentTypeRhsLhs(_rhsExpression=_declaration.getExpr(),
+                    code, message = Messages.getDifferentTypeRhsLhs(_rhsExpression=_declaration.getExpression(),
                                                                     _lhsExpression=_declaration.getVariables()[0],
                                                                     _rhsType=rhsType.getValue(),
                                                                     _lhsType=lhsType)

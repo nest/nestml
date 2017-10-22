@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from abc import ABCMeta
+from abc import ABCMeta,abstractmethod
 from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 from pynestml.nestml.Scope import Scope
 
@@ -45,6 +45,7 @@ class ASTElement(object):
             '(PyNestML.AST.Element) Wrong type of scope provided (%s)!' % type(_scope)
         self.__sourcePosition = _sourcePosition
         self.__scope = _scope
+        return
 
     def getSourcePosition(self):
         """
@@ -76,6 +77,7 @@ class ASTElement(object):
         self.__scope = _scope
         return
 
+    @abstractmethod
     def getParent(self, _ast=None):
         """
         Indicates whether a this node contains the handed over node.
@@ -84,7 +86,7 @@ class ASTElement(object):
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        return None
+        pass
 
     def accept(self, _visitor=None):
         """
@@ -97,3 +99,23 @@ class ASTElement(object):
             '(PyNestML.AST.Element) No or wrong type of visitor provided (%s)!' % type(_visitor)
         _visitor.handle(self)
         return
+
+    @abstractmethod
+    def printAST(self):
+        """
+        Prints the node to a readable format.
+        :return: a string representation of the node.
+        :rtype: str
+        """
+        pass
+
+    @abstractmethod
+    def equals(self,_other=None):
+        """
+        The equals operation.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        pass

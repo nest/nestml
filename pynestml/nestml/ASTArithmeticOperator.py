@@ -27,6 +27,13 @@ class ASTArithmeticOperator(ASTElement):
     This class is used to store a single arithmetic operator, e.g. +.
     No grammar. This part is defined outside the grammar to make processing and storing of models easier and 
     comprehensible.
+    Attributes:
+        __isTimesOp: (Private, bool) Is this a times operator.
+        __isDivOp: (Private, bool) Is this a division operator.
+        __isModuloOp: (Private, bool) Is this a modulo operator.
+        __isPlusOp: (Private, bool) Is this a plus operator.
+        __isMinusOp: (Private, bool) Is this a minus operator.
+        __isPowOp: (Private, bool) Is this a power operator.
     """
     __isTimesOp = False
     __isDivOp = False
@@ -66,8 +73,8 @@ class ASTArithmeticOperator(ASTElement):
             '(PyNESTML.AST.ArithmeticOperator) wrong type of is-minus parameter provided (%s)!' % type(_isMinusOp)
         assert (_isPowOp is not None and isinstance(_isPowOp, bool)), \
             '(PyNESTML.AST.ArithmeticOperator) wrong type of is-pow parameter provided (%s)!' % type(_isPowOp)
-        assert (_isTimesOp or _isDivOp or _isModuloOp or _isPlusOp or _isMinusOp or _isPowOp), \
-            '(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified.'
+        assert ((_isTimesOp + _isDivOp + _isModuloOp + _isPlusOp + _isMinusOp + _isPowOp) == 1), \
+            '(PyNESTML.AST.ArithmeticOperator) Type of arithmetic operator not specified!'
         super(ASTArithmeticOperator, self).__init__(_sourcePosition)
         self.__isTimesOp = _isTimesOp
         self.__isDivOp = _isDivOp
@@ -181,6 +188,19 @@ class ASTArithmeticOperator(ASTElement):
         :rtype: AST_ or None
         """
         return None
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        return type(self) == type(_other) and self.isTimesOp() == _other.isTimesOp() and \
+               self.isDivOp() == _other.isDivOp() and self.isModuloOp() == _other.isModuloOp() and \
+               self.isPlusOp() == _other.isPlusOp() and self.isMinusOp() == _other.isMinusOp() and \
+               self.isPowOp() == _other.isPowOp()
 
 
 class InvalidArithmeticOperator(Exception):

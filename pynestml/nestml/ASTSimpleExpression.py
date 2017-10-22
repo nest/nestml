@@ -337,3 +337,42 @@ class ASTSimpleExpression(ASTElement):
         else:
             raise RuntimeError('Simple expression at %s not specified!'
                                % self.getSourcePosition().printSourcePosition())
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return:True if equal, otherwise False.
+        :rtype: bool
+        """
+        __functionCall = None
+        __numericLiteral = None
+        __variable = None
+        __isBooleanTrue = False
+        __isBooleanFalse = False
+        __isInf = False
+        __string = None
+        __typeEither = None
+        if not isinstance(_other, ASTSimpleExpression):
+            return False
+        if self.isFunctionCall() + _other.isFunctionCall() == 1:
+            return False
+        if self.isFunctionCall() and _other.isFunctionCall() and not self.getFunctionCall().equals(
+                _other.getFunctionCall()):
+            return False
+        if self.getNumericLiteral() != _other.getNumericLiteral():
+            return False
+        if self.isBooleanFalse() != _other.isBooleanFalse() or self.isBooleanTrue() != _other.isBooleanTrue():
+            return False
+        if self.isVariable() + _other.isVariable() == 1:
+            return False
+        if self.isVariable() and _other.isVariable() and not self.getVariable().equals(_other.getVariable()):
+            return False
+        if self.isInfLiteral() != _other.isInfLiteral():
+            return False
+        if self.isString() + _other.isString() == 1:
+            return False
+        if self.getString() != _other.getString():
+            return False
+        return True

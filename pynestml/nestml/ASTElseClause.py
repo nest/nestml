@@ -84,3 +84,15 @@ class ASTElseClause(ASTElement):
         :rtype: str
         """
         return 'else:\n' + self.getBlock().printAST()
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTElseClause):
+            return False
+        return self.getBlock().equals(_other.getBlock())

@@ -95,6 +95,18 @@ class ASTOutputBlock(ASTElement):
         """
         return 'output: ' + ('spike' if self.isSpike() else 'current') + '\n'
 
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equals, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTOutputBlock):
+            return False
+        return self.isSpike() == _other.isSpike() and self.isCurrent() == _other.isCurrent()
+
 
 class SignalType(Enum):
     """

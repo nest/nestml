@@ -106,3 +106,15 @@ class ASTInputType(ASTElement):
             return 'inhibitory'
         else:
             return 'excitatory'
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTInputType):
+            return False
+        return self.isExcitatory() == _other.isExcitatory() and self.isInhibitory() == _other.isInhibitory()

@@ -123,3 +123,16 @@ class ASTUnaryOperator(ASTElement):
             return '~'
         else:
             raise RuntimeError('Type of unary operator not specified!')
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTUnaryOperator):
+            return False
+        return self.isUnaryMinus() == _other.isUnaryMinus() and self.isUnaryPlus() == _other.isUnaryPlus() and \
+               self.isUnaryTilde() == _other.isUnaryTilde()

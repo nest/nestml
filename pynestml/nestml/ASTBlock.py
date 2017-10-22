@@ -114,3 +114,22 @@ class ASTBlock(ASTElement):
             ret += stmt.printAST()
             ret += '\n'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTBlock):
+            return False
+        if len(self.getStmts()) != len(_other.getStmts()):
+            return False
+        myStmt = self.getStmts()
+        yourStmts = _other.getStmts()
+        for i in range(0, len(self.getStmts())):
+            if not myStmt[i].equals(yourStmts[i]):
+                return False
+        return True

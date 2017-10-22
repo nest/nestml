@@ -403,28 +403,6 @@ class ASTNeuron(ASTElement):
         else:
             return ret
 
-    def getParent(self, _ast=None):
-        """
-        Indicates whether a this node contains the handed over node.
-        :param _ast: an arbitrary ast node.
-        :type _ast: AST_
-        :return: AST if this or one of the child nodes contains the handed over element.
-        :rtype: AST_ or None
-        """
-        if self.getBody() is _ast:
-            return self
-        elif self.getBody().getParent(_ast) is not None:
-            return self.getBody().getParent(_ast)
-        return None
-
-    def printAST(self):
-        """
-        Returns a string representation of the neuron.
-        :return: a string representation.
-        :rtype: str
-        """
-        return 'neuron ' + self.getName() + ':\n' + self.getBody().printAST() + '\nend'
-
     def isMultisynapseSpikes(self):
         """
         Returns whether this neuron uses multi-synapse spikes.
@@ -599,7 +577,7 @@ class ASTNeuron(ASTElement):
         self.getInternalsBlocks().getDeclarations().append(_declaration)
         return
 
-    def addToInitialValuesBlock(self,_declaration=None):
+    def addToInitialValuesBlock(self, _declaration=None):
         """
         Adds the handed over declaration to the initial values block.
         :param _declaration: a single declaration.
@@ -610,7 +588,6 @@ class ASTNeuron(ASTElement):
             ASTCreator.createInitialValuesBlock(self)
         self.getInitialBlocks().getDeclarations().append(_declaration)
         return
-
 
     """
     The following print methods are used by the backend and represent the comments as stored at the corresponding 
@@ -656,3 +633,37 @@ class ASTNeuron(ASTElement):
         :rtype: str
         """
         return 'TODO neuron comment'
+
+    def getParent(self, _ast=None):
+        """
+        Indicates whether a this node contains the handed over node.
+        :param _ast: an arbitrary ast node.
+        :type _ast: AST_
+        :return: AST if this or one of the child nodes contains the handed over element.
+        :rtype: AST_ or None
+        """
+        if self.getBody() is _ast:
+            return self
+        elif self.getBody().getParent(_ast) is not None:
+            return self.getBody().getParent(_ast)
+        return None
+
+    def printAST(self):
+        """
+        Returns a string representation of the neuron.
+        :return: a string representation.
+        :rtype: str
+        """
+        return 'neuron ' + self.getName() + ':\n' + self.getBody().printAST() + '\nend'
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTNeuron):
+            return False
+        return self.getName() == _other.getName() and self.getBody().equals(_other.getBody())

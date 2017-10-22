@@ -21,7 +21,7 @@
     {% endif %}
   {% else %}
     {% if ast.hasExpression() %}
-      {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}} = {{printer.printExpression(ast.getExpr())}};
+      {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}} = {{printer.printExpression(ast.getExpression())}};
     {% else %}
       {{declarations.printVariableType(variable)}} {{variable.getSymbolName()}};
     {% endif %}

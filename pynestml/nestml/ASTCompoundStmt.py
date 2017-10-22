@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from pynestml.nestml.ASTElement import ASTElement
 from pynestml.nestml.ASTIfStmt import ASTIfStmt
 from pynestml.nestml.ASTWhileStmt import ASTWhileStmt
@@ -59,6 +57,7 @@ class ASTCompoundStmt(ASTElement):
         self.__ifStmt = _ifStmt
         self.__whileStmt = _whileStmt
         self.__forStmt = _forStmt
+        return
 
     @classmethod
     def makeASTCompoundStmt(cls, _ifStmt=None, _whileStmt=None,
@@ -84,7 +83,7 @@ class ASTCompoundStmt(ASTElement):
         :return: True if if stmt, False else.
         :rtype: bool
         """
-        return self.__ifStmt is not None
+        return self.__ifStmt is not None and isinstance(self.__ifStmt, ASTIfStmt)
 
     def getIfStmt(self):
         """
@@ -100,7 +99,7 @@ class ASTCompoundStmt(ASTElement):
         :return: True if "while" stmt, False else.
         :rtype: bool
         """
-        return self.__whileStmt is not None
+        return self.__whileStmt is not None and isinstance(self.__whileStmt, ASTWhileStmt)
 
     def getWhileStmt(self):
         """
@@ -116,7 +115,7 @@ class ASTCompoundStmt(ASTElement):
         :return: True if "for" stmt, False else.
         :rtype: bool
         """
-        return self.__forStmt is not None
+        return self.__forStmt is not None and isinstance(self.__forStmt, ASTForStmt)
 
     def getForStmt(self):
         """
@@ -151,7 +150,7 @@ class ASTCompoundStmt(ASTElement):
                 return self.getForStmt().getParent(_ast)
         return None
 
-    def equals(self,_other=None):
+    def equals(self, _other=None):
         """
         The equals method.
         :param _other: a different object.
@@ -159,8 +158,18 @@ class ASTCompoundStmt(ASTElement):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        print("Implement me in ASTCompoundStmt")
-        return False
+        if not isinstance(_other, ASTCompoundStmt):
+            return False
+        if self.getForStmt() is not None and _other.getForStmt() is not None and \
+                not self.getForStmt().equals(_other.getForStmt()):
+            return False
+        if self.getWhileStmt() is not None and _other.getWhileStmt() is not None and \
+                not self.getWhileStmt().equals(_other.getWhileStmt()):
+            return False
+        if self.getIfStmt() is not None and _other.getIfStmt() is not None and \
+                not self.getIfStmt().equals(_other.getIfStmt()):
+            return False
+        return True
 
     def printAST(self):
         """

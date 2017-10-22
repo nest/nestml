@@ -61,7 +61,7 @@ class ASTReturnStmt(ASTElement):
         """
         return cls(_expression, _sourcePosition)
 
-    def hasExpr(self):
+    def hasExpression(self):
         """
         Returns whether the return statement has an expression or not.
         :return: True if has expression, otherwise False.
@@ -69,7 +69,7 @@ class ASTReturnStmt(ASTElement):
         """
         return self.__expression is not None
 
-    def getExpr(self):
+    def getExpression(self):
         """
         Returns the expression.
         :return: an expression.
@@ -85,11 +85,11 @@ class ASTReturnStmt(ASTElement):
         :return: AST if this or one of the child nodes contains the handed over element.
         :rtype: AST_ or None
         """
-        if self.hasExpr():
-            if self.getExpr() is _ast:
+        if self.hasExpression():
+            if self.getExpression() is _ast:
                 return self
-            elif self.getExpr().getParent(_ast) is not None:
-                return self.getExpr().getParent(_ast)
+            elif self.getExpression().getParent(_ast) is not None:
+                return self.getExpression().getParent(_ast)
         return None
 
     def printAST(self):
@@ -98,4 +98,16 @@ class ASTReturnStmt(ASTElement):
         :return: a string representation
         :rtype: str
         """
-        return 'return ' + (self.getExpr().printAST() if self.getExpr() is not None else '')
+        return 'return ' + (self.getExpression().printAST() if self.getExpression() is not None else '')
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTReturnStmt):
+            return False
+        return self.getExpression().equals(_other.getExpression())

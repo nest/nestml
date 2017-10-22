@@ -109,3 +109,15 @@ class ASTIfClause(ASTElement):
         :rtype: str
         """
         return 'if ' + self.getCondition().printAST() + ':\n' + self.getBlock().printAST()
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equals, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTIfClause):
+            return False
+        return self.getCondition().equals(_other.getCondition()) and self.getBlock().equals(_other.getBlock())

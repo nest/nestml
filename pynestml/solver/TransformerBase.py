@@ -185,7 +185,7 @@ class TransformerBase(object):
                                                                                         variable.getCompleteName()):
                         spikesUpdates.append(ASTCreator.createAssignment(
                             variable.getCompleteName() + " += " + buffer + " * " + printer.printExpression(
-                                astDeclaration.getExpr())))
+                                astDeclaration.getExpression())))
         for update in spikesUpdates:
             cls.addAssignmentToUpdateBlock(update, _neuron)
         return _neuron

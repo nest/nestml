@@ -127,3 +127,24 @@ class ASTFunctionCall(ASTElement):
                 ret += ','
         ret += ')'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTFunctionCall):
+            return False
+        if self.getName() != _other.getName():
+            return False
+        if len(self.getArgs()) != len(_other.getArgs()):
+            return False
+        myArgs = self.getArgs()
+        yourArgs = _other.getArgs()
+        for i in range(0, len(myArgs)):
+            if not myArgs[i].equals(yourArgs[i]):
+                return False
+        return True

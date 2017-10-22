@@ -82,6 +82,7 @@ class ASTDatatype(ASTElement):
         self.__isString = _isString
         self.__isReal = _isReal
         self.__isInteger = _isInteger
+        return
 
     @classmethod
     def makeASTDatatype(cls, _isInteger=False, _isReal=False, _isString=False, _isBoolean=False,
@@ -113,7 +114,7 @@ class ASTDatatype(ASTElement):
         :return: True if integer typed, otherwise False.
         :rtype: bool
         """
-        return self.__isInteger
+        return isinstance(self.__isInteger, bool) and self.__isInteger
 
     def isReal(self):
         """
@@ -123,7 +124,7 @@ class ASTDatatype(ASTElement):
         :return: 
         :rtype: 
         """
-        return self.__isReal
+        return isinstance(self.__isReal, bool) and self.__isReal
 
     def isString(self):
         """
@@ -131,7 +132,7 @@ class ASTDatatype(ASTElement):
         :return: True if string typed, otherwise False.
         :rtype: bool
         """
-        return self.__isString
+        return isinstance(self.__isString, bool) and self.__isString
 
     def isBoolean(self):
         """
@@ -139,7 +140,7 @@ class ASTDatatype(ASTElement):
         :return: True if boolean typed, otherwise False.
         :rtype: bool
         """
-        return self.__isBoolean
+        return isinstance(self.__isBoolean, bool) and self.__isBoolean
 
     def isVoid(self):
         """
@@ -147,7 +148,7 @@ class ASTDatatype(ASTElement):
         :return: True if void typed, otherwise False.
         :rtype: bool
         """
-        return self.__isVoid
+        return isinstance(self.__isVoid, bool) and self.__isVoid
 
     def isUnitType(self):
         """
@@ -220,3 +221,24 @@ class ASTDatatype(ASTElement):
             return self.getUnitType().printAST()
         else:
             raise RuntimeError('Type of datatype not specified!')
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTDatatype):
+            return False
+        if not (self.isInteger() == _other.isInteger() and self.isReal() == _other.isReal() and
+                        self.isString() == _other.isString() and self.isBoolean() == _other.isBoolean() and
+                        self.isVoid() == _other.isVoid()):
+            return False
+        # only one of them uses a unit, thus false
+        if self.isUnitType() + _other.isUnitType() == 1:
+            return False
+        if self.isUnitType() and _other.isUnitType() and not self.getUnitType().equals(_other.getUnitType()):
+            return False
+        return True

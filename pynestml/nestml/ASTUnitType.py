@@ -222,7 +222,7 @@ class ASTUnitType(ASTElement):
         :return: True if combined by the division operator, otherwise False.
         :rtype: bool
         """
-        return self.__isDiv
+        return isinstance(self.__isDiv, bool) and self.__isDiv
 
     def isTimes(self):
         """
@@ -230,7 +230,7 @@ class ASTUnitType(ASTElement):
         :return: True if combined by the division operator, otherwise False.
         :rtype: bool
         """
-        return self.__isTimes
+        return isinstance(self.__isTimes, bool) and self.__isTimes
 
     def getSimpleUnit(self):
         """
@@ -297,3 +297,35 @@ class ASTUnitType(ASTElement):
                 return str(tLhs) + '/' + self.getRhs().printAST()
         else:
             return self.getSimpleUnit()
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTUnitType):
+            return False
+        if self.isEncapsulated() + _other.isEncapsulated() == 1:
+            return False
+        if self.isEncapsulated() and _other.isEncapsulated() and not self.getCompoundUnit().equals(
+                _other.getCompoundUnit()):
+            return False
+        if self.isPowerExpression() + _other.isPowerExpression() == 1:
+            return False
+        if self.isPowerExpression() and _other.isPowerExpression() and \
+                not (self.getBase().equals(_other.getBase()) and self.getExponent() == _other.getExponent()):
+            return False
+        if self.isArithmeticExpression() + _other.isArithmeticExpression() == 1:
+            return False
+        if self.isArithmeticExpression() and _other.isArithmeticExpression() and \
+                not (self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs()) and
+                             self.isTimes() == _other.isTimes() and self.isDiv() == _other.isDiv()):
+            return False
+        if self.isSimpleUnit() + _other.isSimpleUnit() == 1:
+            return False
+        if self.isSimpleUnit() and _other.isSimpleUnit() and not self.getSimpleUnit() == _other.getSimpleUnit():
+            return False
+        return True

@@ -159,3 +159,28 @@ class ASTIfStmt(ASTElement):
             ret += self.getElseClause().printAST()
         ret += 'end'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equals, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTIfStmt):
+            return False
+        if not self.getIfClause().equals(_other.getIfClause()):
+            return False
+        if len(self.getElifClauses()) != len(_other.getElifClauses()):
+            return False
+        myElifClauses = self.getElifClauses()
+        yourElifClauses = _other.getElifClauses()
+        for i in range(0, len(myElifClauses)):
+            if not myElifClauses[i].equals(yourElifClauses[i]):
+                return False
+        if self.hasElseClause() + _other.hasElseClause() == 1:
+            return False
+        if self.hasElseClause() and _other.hasElseClause() and not self.getElseClause().equals(_other.getElseClause()):
+            return False
+        return True

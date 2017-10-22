@@ -58,7 +58,7 @@ class VectorInDeclarationVisitor(NESTMLVisitor):
         :type _declaration: ASTDeclaration
         """
         if _declaration.hasExpression():
-            variables = _declaration.getExpr().getVariables()
+            variables = _declaration.getExpression().getVariables()
             for variable in variables:
                 if variable is not None:
                     symbol = _declaration.getScope().resolveToSymbol(variable.getCompleteName(), SymbolKind.VARIABLE)

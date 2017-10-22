@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from pynestml.nestml.ASTElement import ASTElement
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
@@ -84,6 +82,7 @@ class ASTComparisonOperator(ASTElement):
         self.__isEq = _isEq
         self.__isLe = _isLe
         self.__isLt = _isLt
+        return
 
     @classmethod
     def makeASTComparisonOperator(cls, _isLt=False, _isLe=False, _isEq=False, _isNe=False, _isNe2=False,
@@ -117,7 +116,7 @@ class ASTComparisonOperator(ASTElement):
         :return: True if less than operator, otherwise False
         :rtype: bool
         """
-        return self.__isLt
+        return isinstance(self.__isLt, bool) and self.__isLt
 
     def isLe(self):
         """
@@ -125,7 +124,7 @@ class ASTComparisonOperator(ASTElement):
         :return: True if less equal operator, otherwise False
         :rtype: bool
         """
-        return self.__isLe
+        return isinstance(self.__isLe, bool) and self.__isLe
 
     def isEq(self):
         """
@@ -133,7 +132,7 @@ class ASTComparisonOperator(ASTElement):
         :return: True if less equality operator, otherwise False
         :rtype: bool
         """
-        return self.__isEq
+        return isinstance(self.__isEq, bool) and self.__isEq
 
     def isNe(self):
         """
@@ -141,7 +140,7 @@ class ASTComparisonOperator(ASTElement):
         :return: True if not equal operator, otherwise False
         :rtype: bool
         """
-        return self.__isNe
+        return isinstance(self.__isNe, bool) and self.__isNe
 
     def isNe2(self):
         """
@@ -149,7 +148,7 @@ class ASTComparisonOperator(ASTElement):
         :return: True if not equal operator, otherwise False
         :rtype: bool
         """
-        return self.__isNe2
+        return isinstance(self.__isNe2, bool) and self.__isNe2
 
     def isGe(self):
         """
@@ -157,7 +156,7 @@ class ASTComparisonOperator(ASTElement):
         :return: True if less greater operator, otherwise False
         :rtype: bool
         """
-        return self.__isGe
+        return isinstance(self.__isGe, bool) and self.__isGe
 
     def isGt(self):
         """
@@ -165,7 +164,7 @@ class ASTComparisonOperator(ASTElement):
         :return: True if less greater than, otherwise False
         :rtype: bool
         """
-        return self.__isGt
+        return isinstance(self.__isGt, bool) and self.__isGt
 
     def getParent(self, _ast=None):
         """
@@ -199,3 +198,17 @@ class ASTComparisonOperator(ASTElement):
             return ' > '
         else:
             Logger.logMessage('Type of comparison operator not specified!', LOGGING_LEVEL.WARNING)
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTComparisonOperator):
+            return False
+        return self.isLt() == _other.isLt() and self.isLe() == _other.isLe() and \
+               self.isEq() == _other.isEq() and self.isNe() == _other.isNe() and \
+               self.isNe2() == _other.isNe2() and self.isGe() == _other.isGe() and self.isGt() == _other.isGt()

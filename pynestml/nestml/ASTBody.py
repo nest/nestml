@@ -59,6 +59,7 @@ class ASTBody(ASTElement):
                 '(PyNestML.AST.Body) No or wrong type of body element provided (%s)!' % type(elem)
         super(ASTBody, self).__init__(_sourcePosition)
         self.__bodyElements = _bodyElements
+        return
 
     @classmethod
     def makeASTBody(cls, _bodyElements=list(), _sourcePosition=None):
@@ -217,7 +218,6 @@ class ASTBody(ASTElement):
         else:
             return ret
 
-
     def printAST(self):
         """
         Returns a string representation of the body.
@@ -229,3 +229,22 @@ class ASTBody(ASTElement):
             ret += elem.printAST()
             ret += '\n'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTBody):
+            return False
+        if len(self.getBodyElements()) != len(_other.getBodyElements()):
+            return False
+        myBodyElements = self.getBodyElements()
+        yourBodyElements = _other.getBodyElements()
+        for i in range(0, len(myBodyElements)):
+            if not myBodyElements[i].equals(yourBodyElements[i]):
+                return False
+        return True

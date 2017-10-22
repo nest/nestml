@@ -413,7 +413,7 @@ class ASTHigherOrderVisitor:
             cls.visitVariable(var, _func)
         cls.visitDatatype(_ast.getDataType(), _func)
         if _ast.hasExpression():
-            cls.visitExpression(_ast.getExpr(), _func)
+            cls.visitExpression(_ast.getExpression(), _func)
         if _ast.hasInvariant():
             cls.visitExpression(_ast.getInvariant(), _func)
         return

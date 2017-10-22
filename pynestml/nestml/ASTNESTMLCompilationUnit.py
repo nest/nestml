@@ -131,3 +131,22 @@ class ASTNESTMLCompilationUnit(ASTElement):
             for neuron in self.getNeuronList():
                 ret += neuron.printAST() + '\n'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTNESTMLCompilationUnit):
+            return False
+        if len(self.getNeuronList()) != len(_other.getNeuronList()):
+            return False
+        myNeurons = self.getNeuronList()
+        yourNeurons = _other.getNeuronList()
+        for i in range(0, len(myNeurons)):
+            if not myNeurons[i].equals(yourNeurons[i]):
+                return False
+        return True

@@ -93,6 +93,7 @@ class ASTAssignment(ASTElement):
         self.__isCompoundProduct = _isCompoundProduct
         self.__isCompoundQuotient = _isCompoundQuotient
         self.__expression = _expression
+        return
 
     @classmethod
     def makeASTAssignment(cls, _lhs=None, _isDirectAssignment=False, _isCompoundSum=False, _isCompoundMinus=False,
@@ -135,7 +136,7 @@ class ASTAssignment(ASTElement):
         :return: True if direct assignment, else False.
         :rtype: bool
         """
-        return self.__isDirectAssignment
+        return isinstance(self.__isDirectAssignment, bool) and self.__isDirectAssignment
 
     def isCompoundSum(self):
         """
@@ -143,7 +144,7 @@ class ASTAssignment(ASTElement):
         :return: True if compound sum, else False.
         :rtype: bool
         """
-        return self.__isCompoundSum
+        return isinstance(self.__isCompoundSum, bool) and self.__isCompoundSum
 
     def isCompoundMinus(self):
         """
@@ -151,7 +152,7 @@ class ASTAssignment(ASTElement):
         :return: True if compound sum, else False.
         :rtype: bool
         """
-        return self.__isCompoundMinus
+        return isinstance(self.__isCompoundMinus, bool) and self.__isCompoundMinus
 
     def isCompoundProduct(self):
         """
@@ -159,7 +160,7 @@ class ASTAssignment(ASTElement):
         :return: True if compound sum, else False.
         :rtype: bool
         """
-        return self.__isCompoundProduct
+        return isinstance(self.__isCompoundProduct, bool) and self.__isCompoundProduct
 
     def isCompoundQuotient(self):
         """
@@ -167,7 +168,7 @@ class ASTAssignment(ASTElement):
         :return: True if compound sum, else False.
         :rtype: bool
         """
-        return self.__isCompoundQuotient
+        return isinstance(self.__isCompoundQuotient, bool) and self.__isCompoundQuotient
 
     def getExpression(self):
         """
@@ -214,3 +215,22 @@ class ASTAssignment(ASTElement):
             ret += '='
         ret += self.__expression.printAST()
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals operation.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTAssignment):
+            return False
+
+        return self.getVariable().equals(_other.getVariable()) and \
+               self.isCompoundQuotient() == _other.isCompoundQuotient() and \
+               self.isCompoundProduct() == _other.isCompoundProduct() and \
+               self.isCompoundMinus() == _other.isCompoundMinus() and \
+               self.isCompoundSum() == _other.isCompoundSum() and \
+               self.isDirectAssignment() == _other.isDirectAssignment() and \
+               self.getExpression().equals(_other.getExpression())

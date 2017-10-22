@@ -108,3 +108,15 @@ class ASTOdeShape(ASTElement):
         :rtype: str
         """
         return 'shape ' + self.getVariable().printAST() + ' = ' + self.getExpression().printAST()
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTOdeShape):
+            return False
+        return self.getVariable().equals(_other.getVariable()) and self.getExpression().equals(_other.getExpression())

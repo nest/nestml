@@ -80,10 +80,10 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             for block in _block:
                 for decl in block.getDeclarations():
-                    ret.append(decl.getExpr())
+                    ret.append(decl.getExpression())
         else:
             for decl in _block.getDeclarations():
-                ret.append(decl.getExpr())
+                ret.append(decl.getExpression())
         return ret
 
     @classmethod
@@ -106,10 +106,10 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             for block in _block:
                 for decl in block.getDeclarations():
-                    ret.append(decl.getExpr())
+                    ret.append(decl.getExpression())
         else:
             for decl in _block.getDeclarations():
-                ret.append(decl.getExpr())
+                ret.append(decl.getExpression())
         return ret
 
     @classmethod
@@ -132,10 +132,10 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             for block in _block:
                 for decl in block.getDeclarations():
-                    ret.append(decl.getExpr())
+                    ret.append(decl.getExpression())
         else:
             for decl in _block.getDeclarations():
-                ret.append(decl.getExpr())
+                ret.append(decl.getExpression())
         return ret
 
     @classmethod
@@ -158,10 +158,10 @@ class ASTExpressionCollectorVisitor(object):
         if isinstance(_block, list):
             for block in _block:
                 for decl in block.getDeclarations():
-                    ret.append(decl.getExpr())
+                    ret.append(decl.getExpression())
         else:
             for decl in _block.getDeclarations():
-                ret.append(decl.getExpr())
+                ret.append(decl.getExpression())
         return ret
 
     @classmethod
@@ -311,12 +311,12 @@ class ASTExpressionCollectorVisitor(object):
             ret.append(_stmt.getAssignment().getExpression())
         elif _stmt.isDeclaration():
             if _stmt.getDeclaration().hasExpression():
-                ret.append(_stmt.getDeclaration().getExpr())
+                ret.append(_stmt.getDeclaration().getExpression())
             if _stmt.getDeclaration().hasInvariant():
                 ret.append((_stmt.getDeclaration().getInvariant()))
         elif _stmt.isReturnStmt():
-            if _stmt.getReturnStmt().hasExpr():
-                ret.append(_stmt.getReturnStmt().getExpr())
+            if _stmt.getReturnStmt().hasExpression():
+                ret.append(_stmt.getReturnStmt().getExpression())
         elif _stmt.isFunctionCall():
             if _stmt.getFunctionCall().hasArgs():
                 ret.extend(_stmt.getFunctionCall().getArgs())

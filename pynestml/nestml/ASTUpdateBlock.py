@@ -98,3 +98,15 @@ class ASTUpdateBlock(ASTElement):
         :rtype: str
         """
         return 'update:\n' + self.getBlock().printAST() + 'end'
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTUpdateBlock):
+            return False
+        return self.getBlock().equals(_other.getBlock())

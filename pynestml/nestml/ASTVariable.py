@@ -159,3 +159,15 @@ class ASTVariable(ASTElement):
         for i in range(1, self.__differentialOrder + 1):
             ret += "'"
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equals, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTVariable):
+            return False
+        return self.getName() == _other.getName() and self.getDifferentialOrder() == _other.getDifferentialOrder()

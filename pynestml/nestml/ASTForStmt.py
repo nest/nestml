@@ -163,3 +163,28 @@ class ASTForStmt(ASTElement):
         """
         return 'for ' + self.getVariable() + ' in ' + self.getFrom().printAST() + '...' \
                + self.getTo().printAST() + ' step ' + str(self.getStep()) + ':\n' + self.getBlock().printAST() + '\nend'
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        __variable = None
+        __from = None
+        __to = None
+        __step = None
+        __block = None
+        if not isinstance(_other, ASTForStmt):
+            return False
+        if self.getVariable() != _other.getVariable():
+            return False
+        if not self.getFrom().equals(_other.getFrom()):
+            return False
+        if not self.getTo().equals(_other.getTo()):
+            return False
+        if self.getStep() != _other.getStep():
+            return False
+        return self.getBlock().equals(_other.getBlock())

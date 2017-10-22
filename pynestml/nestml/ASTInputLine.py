@@ -228,13 +228,6 @@ class ASTInputLine(ASTElement):
                 return line.getParent(_ast)
         return None
 
-    def getMultipleReceptors(self):
-        """
-
-        :return:
-        :rtype:
-        """
-
     def printAST(self):
         """
         Returns a string representation of the input line.
@@ -253,3 +246,33 @@ class ASTInputLine(ASTElement):
         else:
             ret += 'current'
         return ret
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal,otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTInputLine):
+            return False
+        if self.getName() != _other.getName():
+            return False
+        if self.hasIndexParameter() + _other.hasIndexParameter() == 1:
+            return False
+        if self.hasIndexParameter() and _other.hasIndexParameter() and \
+                        self.getInputTypes() != _other.getIndexParameter():
+            return False
+        if self.hasDatatype() + _other.hasDatatype() == 1:
+            return False
+        if self.hasDatatype() and _other.hasDatatype() and not self.getDatatype().equals(_other.getDatatype()):
+            return False
+        if len(self.getInputTypes()) != len(_other.getInputTypes()):
+            return False
+        myInputTypes = self.getInputTypes()
+        yourInputTypes = _other.getInputTypes()
+        for i in range(0, len(myInputTypes)):
+            if not myInputTypes[i].equals(yourInputTypes[i]):
+                return False
+        return self.isSpike() == _other.isSpike() and self.isCurrent() == _other.isCurrent()

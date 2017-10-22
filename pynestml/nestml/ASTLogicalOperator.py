@@ -101,3 +101,15 @@ class ASTLogicalOperator(ASTElement):
             return ' and '
         else:
             return ' or '
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTLogicalOperator):
+            return False
+        return self.isAnd() == _other.isAnd() and self.isOr() == _other.isOr()

@@ -317,12 +317,12 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong typ of declaration provided (%s)!' % type(_declaration)
 
-        expression = _declaration.getExpr() if _declaration.hasExpression() else None
+        expression = _declaration.getExpression() if _declaration.hasExpression() else None
         typeName = ASTUnitTypeVisitor.visitDatatype(_declaration.getDataType())
         # all declarations in the state block are recordable
         isRecordable = _declaration.isRecordable() or \
                        cls.__currentBlockType == BlockType.STATE or cls.__currentBlockType == BlockType.INITIAL_VALUES
-        initValue = _declaration.getExpr() if cls.__currentBlockType == BlockType.INITIAL_VALUES else None
+        initValue = _declaration.getExpression() if cls.__currentBlockType == BlockType.INITIAL_VALUES else None
         vectorParameter = _declaration.getSizeParameter()
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
@@ -345,8 +345,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         _declaration.getDataType().updateScope(_declaration.getScope())
         cls.visitDataType(_declaration.getDataType())
         if _declaration.hasExpression():
-            _declaration.getExpr().updateScope(_declaration.getScope())
-            cls.visitExpression(_declaration.getExpr())
+            _declaration.getExpression().updateScope(_declaration.getScope())
+            cls.visitExpression(_declaration.getExpression())
         if _declaration.hasInvariant():
             _declaration.getInvariant().updateScope(_declaration.getScope())
             cls.visitExpression(_declaration.getInvariant())
@@ -362,9 +362,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         from pynestml.nestml.ASTReturnStmt import ASTReturnStmt
         assert (_returnStmt is not None and isinstance(_returnStmt, ASTReturnStmt)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of return statement provided (%s)!' % type(_returnStmt)
-        if _returnStmt.hasExpr():
-            _returnStmt.getExpr().updateScope(_returnStmt.getScope())
-            cls.visitExpression(_returnStmt.getExpr())
+        if _returnStmt.hasExpression():
+            _returnStmt.getExpression().updateScope(_returnStmt.getScope())
+            cls.visitExpression(_returnStmt.getExpression())
         return
 
     @classmethod

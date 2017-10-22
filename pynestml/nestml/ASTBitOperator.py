@@ -61,12 +61,15 @@ class ASTBitOperator(ASTElement):
             '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-left provided (%s)!' % type(_isBitShiftLeft)
         assert (_isBitShiftRight is not None and isinstance(_isBitShiftRight, bool)), \
             '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-right provided (%s)!' % type(_isBitShiftRight)
+        assert ((_isBitAnd + _isBitOr + _isBitXor + _isBitShiftLeft + _isBitShiftRight ) == 1),\
+            '(PyNestML.AST.BitOperator) Bit operator not correctly specified!'
         super(ASTBitOperator, self).__init__(_sourcePosition)
         self.__isBitShiftRight = _isBitShiftRight
         self.__isBitShiftLeft = _isBitShiftLeft
         self.__isBitOr = _isBitOr
         self.__isBitXor = _isBitXor
         self.__isBitAnd = _isBitAnd
+        return
 
     @classmethod
     def makeASTBitOperator(cls, _isBitAnd=False, _isBitXor=False, _isBitOr=False, _isBitShiftLeft=False,
@@ -96,7 +99,7 @@ class ASTBitOperator(ASTElement):
         :return: True if bit and operator, otherwise False.
         :rtype: bool
         """
-        return self.__isBitAnd
+        return isinstance(self.__isBitAnd, bool) and self.__isBitAnd
 
     def isBitOr(self):
         """
@@ -104,7 +107,7 @@ class ASTBitOperator(ASTElement):
         :return: True if bit or operator, otherwise False.
         :rtype: bool
         """
-        return self.__isBitOr
+        return isinstance(self.__isBitOr, bool) and self.__isBitOr
 
     def isBitXor(self):
         """
@@ -112,7 +115,7 @@ class ASTBitOperator(ASTElement):
         :return: True if bit xor operator, otherwise False.
         :rtype: bool
         """
-        return self.__isBitXor
+        return isinstance(self.__isBitXor, bool) and self.__isBitXor
 
     def isBitShiftLeft(self):
         """
@@ -120,7 +123,7 @@ class ASTBitOperator(ASTElement):
         :return: True if bit shift left operator, otherwise False.
         :rtype: bool
         """
-        return self.__isBitShiftLeft
+        return isinstance(self.__isBitShiftLeft, bool) and self.__isBitShiftLeft
 
     def isBitShiftRight(self):
         """
@@ -128,7 +131,7 @@ class ASTBitOperator(ASTElement):
         :return: True if bit shift right operator, otherwise False.
         :rtype: bool
         """
-        return self.__isBitShiftRight
+        return isinstance(self.__isBitShiftRight, bool) and self.__isBitShiftRight
 
     def getParent(self, _ast=None):
         """
@@ -158,3 +161,17 @@ class ASTBitOperator(ASTElement):
             return ' >> '
         else:
             raise RuntimeError('Type of bit operator not specified!')
+
+    def equals(self, _other=None):
+        """
+        The equals method.
+        :param _other: a different object.
+        :type _other: object
+        :return: True if equal, otherwise False.
+        :rtype: bool
+        """
+        if not isinstance(_other, ASTBitOperator):
+            return False
+        return self.isBitAnd() == _other.isBitAnd() and self.isBitOr() == _other.isBitOr() and \
+               self.isBitXor() == _other.isBitXor() and self.isBitShiftLeft() == self.isBitShiftLeft() and \
+               self.isBitShiftRight() == _other.isBitShiftRight()

@@ -1112,8 +1112,8 @@ class NESTMLVisitor(object):
                 subnode.accept(self.getRealSelf())
         if _node.getDataType() is not None:
             _node.getDataType().accept(self.getRealSelf())
-        if _node.getExpr() is not None:
-            _node.getExpr().accept(self.getRealSelf())
+        if _node.getExpression() is not None:
+            _node.getExpression().accept(self.getRealSelf())
         if _node.getInvariant() is not None:
             _node.getInvariant().accept(self.getRealSelf())
         return
@@ -1255,8 +1255,8 @@ class NESTMLVisitor(object):
         return
 
     def traverseReturnStmt(self, _node):
-        if _node.getExpr() is not None:
-            _node.getExpr().accept(self.getRealSelf())
+        if _node.getExpression() is not None:
+            _node.getExpression().accept(self.getRealSelf())
         return
 
     def traverseSimpleExpression(self, _node):
