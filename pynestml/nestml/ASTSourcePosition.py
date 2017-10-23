@@ -142,6 +142,24 @@ class ASTSourcePosition(object):
         else:
             return False
 
+    @classmethod
+    def getPredefinedSourcePosition(cls):
+        """
+        Returns a source position which symbolizes that the corresponding element is predefined.
+        :return: a source position
+        :rtype: ASTSourcePosition
+        """
+        return cls(-1, -1, -1, -1)
+
+    @classmethod
+    def getAddedSourcePosition(cls):
+        """
+        Returns a source position which symbolize that the corresponding element has been added by the solver.
+        :return: a source position.
+        :rtype: ASTSourcePosition
+        """
+        return cls(-2, -2, -2, -2)
+
     def encloses(self, _sourcePosition=None):
         """
         Checks if the handed over position is enclosed in this source position, e.g.,

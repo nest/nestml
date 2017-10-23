@@ -31,9 +31,12 @@ SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
 neuron izhikevich_psc_alpha:
 
   state:
+    r integer # number of steps in the current refractory phase
+  end
+
+  initial_values:
     V_m mV = -65 mV # Membrane potential in mV
     U_m pA = 0 pA   # Membrane potential recovery variable
-    r integer # number of steps in the current refractory phase
   end
 
   equations:
@@ -65,21 +68,12 @@ neuron izhikevich_psc_alpha:
   end
 
   internals:
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
-    PSConInit_E pA/ms = pA * e / tau_syn_ex
-
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
-    PSConInit_I pA/ms = pA * e / tau_syn_in
-
-
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
   input:
-    spikesInh nS <- inhibitory spike
-    spikesExc nS <- excitatory spike
+    spikesInh pA <- inhibitory spike
+    spikesExc pA <- excitatory spike
     currents  <- current
   end
 
@@ -135,21 +129,26 @@ SeeAlso: izhikevitch, iaf_psc_alpha, mat2_psc_alpha
 neuron izhikevich_psc_alpha_implicit:
 
   state:
-    V_m mV = -65 mV # Membrane potential in mV
-    U_m pA = 0 pA   # Membrane potential recovery variable
-    I_syn_ex pA = 0. pA # inputs from the exc conductance
-    I_syn_ex' pA/ms = 0. pA/ms # inputs from the exc conductance
-    I_syn_in pA = 0. pA # inputs from the inh conductance
-    I_syn_in' pA/ms = 0. pA/ms # inputs from the inh conductance
     r integer # number of steps in the current refractory phase
+  end
+
+  initial_values:
+    V_m mV = -65 mV                        # Membrane potential in mV
+    U_m pA = 0 pA                          # Membrane potential recovery variable
+    I_syn_ex pA = 0. pA                    # inputs from the exc conductance
+    I_syn_ex' pA/ms = pA * e / tau_syn_in  # inputs from the exc conductance
+    I_syn_in pA = 0pA                      # inputs from the inh conductance
+    I_syn_in' pA/ms = pA * e / tau_syn_in  # inputs from the inh conductance
   end
 
   equations:
     # synapses: alpha functions
-    I_syn_ex'' = -I_syn_ex' / tau_syn_ex 
-    I_syn_ex' = I_syn_ex' - ( I_syn_ex / tau_syn_ex )
-    I_syn_in'' = -I_syn_in' / tau_syn_in 
-    I_syn_in' = I_syn_in' - ( I_syn_in / tau_syn_in )
+
+    # alpha function for the g_in
+    shape I_syn_in'' = (-2/tau_syn_in) * I_syn_in'-(1/tau_syn_in**2) * I_syn_in
+
+    # alpha function for the g_ex
+    shape I_syn_ex'' = (-2/tau_syn_ex) * I_syn_ex'-(1/tau_syn_ex**2) * I_syn_ex
     
     function I_syn_exc pA = convolve(I_syn_ex, spikesExc)
     function I_syn_inh pA = convolve(I_syn_in, spikesInh)
@@ -168,22 +167,13 @@ neuron izhikevich_psc_alpha_implicit:
     c mV = -65 mV              # after-spike reset value of V_m
     d pA = 60. pA              # after-spike reset value of U_m
     I_e pA = 0. pA             # Constant input current in pA. (R=1)
-    V_peak mV = 0. mV          # Spike detection threashold (reset condition)
+    V_peak mV = 0. mV          # Spike detection threshold (reset condition)
     tau_syn_ex ms = 0.2 ms     # Synaptic Time Constant Excitatory Synapse in ms
     tau_syn_in ms = 2.0 ms     # Synaptic Time Constant for Inhibitory Synapse in ms
     t_ref ms = 2.0 ms      # Refractory period
   end
 
   internals:
-    # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
-    # conductance excursion.
-    PSConInit_E 1/ms = e / tau_syn_ex
-
-    # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
-    # conductance excursion.
-    PSConInit_I 1/ms = e / tau_syn_in
-
-
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
@@ -208,8 +198,6 @@ neuron izhikevich_psc_alpha_implicit:
       r = RefractoryCounts
     end
 
-    I_syn_ex' += spikesExc * PSConInit_E
-    I_syn_in' += spikesInh * PSConInit_I
   end
 
 end

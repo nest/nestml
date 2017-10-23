@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.NESTMLParser import NESTMLParser
-
+from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 
 class ASTCreator(object):
     """
@@ -39,7 +39,7 @@ class ASTCreator(object):
             internal = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=False, _isParameters=False,
                                                                        _isInternals=True, _isInitialValues=False,
                                                                        _declarations=list(), _sourcePosition=
-                                                                       _neuron.getSourcePosition())
+                                                                       ASTSourcePosition.getAddedSourcePosition())
             _neuron.getBody().getBodyElements().append(internal)
         return _neuron
 
@@ -57,7 +57,7 @@ class ASTCreator(object):
             state = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=True, _isParameters=False,
                                                                     _isInternals=False, _isInitialValues=False,
                                                                     _declarations=list(), _sourcePosition=
-                                                                    _neuron.getSourcePosition())
+                                                                    ASTSourcePosition.getAddedSourcePosition())
             _neuron.getBody().getBodyElements().append(state)
         return _neuron
 
@@ -75,7 +75,7 @@ class ASTCreator(object):
             state = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=False, _isParameters=False,
                                                                     _isInternals=False, _isInitialValues=True,
                                                                     _declarations=list(), _sourcePosition=
-                                                                    _neuron.getSourcePosition())
+                                                                    ASTSourcePosition.getAddedSourcePosition())
             _neuron.getBody().getBodyElements().append(state)
         return _neuron
 

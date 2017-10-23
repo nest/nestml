@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from abc import ABCMeta,abstractmethod
+from abc import ABCMeta, abstractmethod
 from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 from pynestml.nestml.Scope import Scope
 
@@ -50,13 +50,26 @@ class ASTElement(object):
     def getSourcePosition(self):
         """
         Returns the source position of the element.
-        :return: an source position object.
+        :return: a source position object.
         :rtype: ASTSourcePosition
         """
         if self.__sourcePosition is not None:
             return self.__sourcePosition
         else:
-            return ASTSourcePosition(_startColumn=-1, _startLine=-1, _endColumn=-1, _endLine=-1)
+            return ASTSourcePosition.getPredefinedSourcePosition()
+
+    def setSourcePosition(self, _newPosition=None):
+        """
+        Updates the source position of the element.
+        :param _newPosition: a new source position
+        :type _newPosition: ASTSourcePosition
+        :return: a source position object.
+        :rtype: ASTSourcePosition
+        """
+        assert (_newPosition is not None and isinstance(_newPosition, ASTSourcePosition)), \
+            '(PyNestML.AST.Element) No or wrong type of source position provided (%s)!' % type(_newPosition)
+        self.__sourcePosition = _newPosition
+        return
 
     def getScope(self):
         """
@@ -110,7 +123,7 @@ class ASTElement(object):
         pass
 
     @abstractmethod
-    def equals(self,_other=None):
+    def equals(self, _other=None):
         """
         The equals operation.
         :param _other: a different object.

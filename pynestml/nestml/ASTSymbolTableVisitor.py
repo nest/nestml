@@ -673,9 +673,12 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         """
         from pynestml.nestml.ASTOdeShape import ASTOdeShape
         from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
+        from pynestml.nestml.Symbol import SymbolKind
         assert (_odeShape is not None and isinstance(_odeShape, ASTOdeShape)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-shape provided (%s)!' % type(_odeShape)
-        if _odeShape.getVariable().getDifferentialOrder() == 0:
+        if _odeShape.getVariable().getDifferentialOrder() == 0 and \
+                        _odeShape.getScope().resolveToSymbol(_odeShape.getVariable().getCompleteName(),
+                                                             SymbolKind.VARIABLE) is None:
             symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
                                     _name=_odeShape.getVariable().getName(),
                                     _blockType=BlockType.EQUATION,

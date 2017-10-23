@@ -139,7 +139,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                     code, message = Messages.getDifferentTypeRhsLhs(expr,
                                                                     _assignment.getVariable(),
                                                                     rhsSymbolType.getValue(),
-                                                                    lhsSymbolType)
+                                                                    lhsSymbolType.getTypeSymbol())
                     Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

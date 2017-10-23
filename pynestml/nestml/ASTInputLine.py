@@ -235,6 +235,8 @@ class ASTInputLine(ASTElement):
         :rtype: str
         """
         ret = self.getName()
+        if self.hasDatatype():
+            ret += ' ' + self.getDatatype().printAST() + ' '
         if self.hasIndexParameter():
             ret += '[' + self.getIndexParameter() + ']'
         ret += '<-'

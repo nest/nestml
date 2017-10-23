@@ -24,6 +24,7 @@ from pynestml.nestml import ASTSymbolTableVisitor
 from pynestml.nestml.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.nestml.CoCosManager import CoCosManager
 from pynestml.nestml.SymbolTable import SymbolTable
+from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
@@ -85,7 +86,9 @@ class NESTMLParser(object):
         # parse the file
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor()
-        return builder.visit(parser.expression())
+        ret = builder.visit(parser.expression())
+        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        return ret
 
     @classmethod
     def parseDeclaration(cls, _declaration=None):
@@ -104,7 +107,9 @@ class NESTMLParser(object):
         # parse the file
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor()
-        return builder.visit(parser.declaration())
+        ret = builder.visit(parser.declaration())
+        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        return ret
 
     @classmethod
     def parseStmt(cls, _statement=None):
@@ -123,7 +128,9 @@ class NESTMLParser(object):
         # parse the file
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor()
-        return builder.visit(parser.stmt())
+        ret = builder.visit(parser.stmt())
+        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        return ret
 
     @classmethod
     def parseShape(cls, _shape=None):
@@ -142,7 +149,9 @@ class NESTMLParser(object):
         # parse the file
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor()
-        return builder.visit(parser.odeShape())
+        ret = builder.visit(parser.odeShape())
+        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        return ret
 
     @classmethod
     def parseAssignment(cls, _assignment=None):
@@ -161,4 +170,6 @@ class NESTMLParser(object):
         # parse the file
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor()
-        return builder.visit(parser.assignment())
+        ret = builder.visit(parser.assignment())
+        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        return ret

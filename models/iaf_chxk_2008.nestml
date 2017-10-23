@@ -24,17 +24,16 @@ SeeAlso: iaf_cond_alpha
 */
 neuron iaf_chxk_2008_neuron:
 
-  state:
-    V_m mV = E_L   ## membrane potential
-    G_ahp  nS      ## AHP conductance
-    G_ahp' nS/ms   ## AHP conductance
+  initial_values:
+    V_m mV = E_L   # membrane potential
+    G_ahp  nS      # AHP conductance
+    G_ahp' nS/ms   # AHP conductance
   end
 
   equations:
     shape g_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     shape g_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
     G_ahp'' = (-2/tau_ahp) * G_ahp'-(1/tau_ahp**2) * G_ahp
-    G_ahp' = G_ahp'
 
     function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
@@ -139,24 +138,21 @@ SeeAlso: iaf_cond_alpha
 */
 neuron iaf_chxk_2008_implicit:
 
-  state:
-
-    V_m mV = E_L   ## membrane potential
-    g_in   nS      ## inputs from the inh conductance
-    g_in'  nS/ms   ## inputs from the inh conductance
-    g_ex   nS      ## inputs from the exc conductance
-    g_ex'  nS/ms   ## inputs from the exc conductance
-    G_ahp  nS      ## AHP conductance
-    G_ahp' nS/ms   ## AHP conductance
+  initial_values:
+    V_m mV = E_L   # membrane potential
+    g_in   nS      # inputs from the inh conductance
+    g_in'  nS/ms   # inputs from the inh conductance
+    g_ex   nS      # inputs from the exc conductance
+    g_ex'  nS/ms   # inputs from the exc conductance
+    G_ahp  nS      # AHP conductance
+    G_ahp' nS/ms   # AHP conductance
   end
 
   equations:
     g_in'' = (-2/tau_syn_in) * g_in'-(1/tau_syn_in**2) * g_in
-    g_in' = g_in'
 
-    ## alpha function for the g_ex
+    # alpha function for the g_ex
     g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
-    g_ex' = g_ex'
 
     G_ahp'' = -G_ahp' / tau_ahp
     G_ahp' = G_ahp' -  G_ahp / tau_ahp

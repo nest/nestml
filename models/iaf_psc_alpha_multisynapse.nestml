@@ -31,9 +31,12 @@ iaf_psc_exp_multisynapse
 neuron iaf_psc_alpha_multisynapse_neuron:
 
   state:
-    V_abs mV
-    function V_m mV = V_abs + E_L # Membrane potential.
     r integer                               # counts number of tick during the refractory period
+  end
+
+  initial_values:
+    V_abs mV = 0mV
+    function V_m mV = V_abs + E_L # Membrane potential.
   end
 
   equations:

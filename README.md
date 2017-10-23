@@ -67,7 +67,7 @@ where arguments are:
 | -path         | Path to the source file or directory containing the model.|
 | -target       | (Optional) Path to target directory where models will be generated to. | 
 
-
+(TODO: preliminary version of the readme, fix and extend me!)
 
 
 
