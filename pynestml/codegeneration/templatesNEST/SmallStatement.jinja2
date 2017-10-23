@@ -1,0 +1,24 @@
+{#
+  @grammar: Small_Stmt = Assignment
+                         | FunctionCall
+                         | Declaration
+                         | ReturnStmt;
+  @param stmt ASTSmallStmt
+#}
+{%- if stmt.isAssignment() -%}
+{%- with ast = stmt.getAssignment() -%}
+{%- include "Assignment.jinja2" -%}
+{%- endwith -%}
+{%- elif stmt.isFunctionCall() -%}
+{%- with ast = stmt.getFunctionCall() -%}
+{%- include "FunctionCall.jinja2" -%}
+{%- endwith -%}
+{%- elif stmt.isDeclaration() -%}
+{%- with ast = stmt.getDeclaration() -%}
+{%- include "Declaration.jinja2" -%}
+{%- endwith -%}
+{%- elif stmt.isReturnStmt() -%}
+{%- with ast = stmt.getReturnStmt() -%}
+{%- include "ReturnStatement.jinja2" -%}
+{%- endwith -%}
+{%- endif -%}

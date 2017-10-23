@@ -29,16 +29,23 @@ python3 setup.py install
 Correct installation can be tested by 
 
 ```
-python3 setup.py test
+python setup.py test
+\# respectively python3 setup.py test 
 ```
 
-For a correct installation, Python's SetupTools or Distutils are required. In the case, that SetupTools are provided, all remaining requirements are automatically installed, otherwise, the following dependencies have to be installed:
+In order to ensure correct installation and resolving of dependencies, Python's package manager [_pip_](https://pip.pypa.io/en/stable/installing/), the distribution tool [_setuptools_](https://packaging.python.org/tutorials/installing-packages/) as well as the python-dev package are required and should be installed in advance. The setup file additionally installs the following components:
 
-* [SymPy in the version >= 1.0] (http://www.sympy.org/en/index.html)
+* [SymPy in the version >= 1.1.1](http://www.sympy.org/en/index.html)
 
-* [NumPy in the version >=1.8.2] (http://www.numpy.org/)
+* [NumPy in the version >=1.8.2](http://www.numpy.org/)
 
-* [Antlr4 runtime environment in the version >= 4.7] (https://github.com/antlr/antlr4/blob/master/doc/python-target.md)
+* [Antlr4 runtime environment in the version >= 4.7](https://github.com/antlr/antlr4/blob/master/doc/python-target.md)
+
+In the case that no 'enum' package is found, additionally, enum34 has to be updated by
+
+```
+pip install --upgrade pip enum34
+```
 
 After the installation, change the current directory to:
 
@@ -54,10 +61,12 @@ python PyNestMLFrontend.py -ARGUMENTS
 
 where arguments are:
 
-| Command | Description |
-| -h or --help | Print help message.|
-| -path | Path to the source file or directory containing the model.|
-| -target | (Optional) Path to target directory where models will be generated to. | 
+| Command       | Description |
+|---|---|
+| -h or --help  | Print help message.|
+| -path         | Path to the source file or directory containing the model.|
+| -target       | (Optional) Path to target directory where models will be generated to. | 
+
 
 
 

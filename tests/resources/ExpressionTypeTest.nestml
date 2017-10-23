@@ -1,0 +1,83 @@
+/**
+ *
+ *  ExpressionTypeTest.nestml
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  This test is used to test the resolution of symbols.
+    expression : leftParentheses='(' term=expression rightParentheses=')'
+         | <assoc=right> left=expression powOp='**' right=expression
+         | unaryOperator term=expression
+         | left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
+         | left=expression (plusOp='+'  | minusOp='-') right=expression
+         | left=expression bitOperator right=expression
+         | left=expression comparisonOperator right=expression
+         | logicalNot='not' term=expression
+         | left=expression logicalOperator right=expression
+         | condition=expression '?' ifTrue=expression ':' ifNot=expression
+         | simpleExpression
+*/
+
+
+neuron expressionType_test:
+    state:
+       time s
+       resist Ohm
+       amps A
+       volts V
+       charge C
+       mass kg
+       distance m
+       force N
+       testint integer
+       timesquared s**2
+       velocity m/s 
+        
+    end
+
+    function foo(_mass kg, _dist m, _time s) N :
+      return _mass*_dist/(_time**2)
+    end
+
+    parameters:
+       
+    end
+
+    update:
+        #time = (charge/amps)
+        testint = 2
+        timesquared = time**2
+        velocity = distance/time 
+        volts = resist*amps
+        volts = volts + volts
+        volts = volts - volts
+        force = mass*distance/(time**2)
+        volts = volts > resist*amps ? volts : resist* amps
+        force = foo(mass,distance,time)
+        force = 1 kg * distance/(time**2)
+        force = kg*m/(s**2)
+        force = volts*amps
+    end
+
+    input:
+        # required for construction of a correct ast
+    end
+
+    output: spike
+
+end

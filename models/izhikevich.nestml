@@ -62,7 +62,7 @@ neuron izhikevich_neuron:
   end
 
   input:
-    spikes   <- spike
+    spikes mV <- spike
     currents <- current
   end
 
@@ -71,7 +71,7 @@ neuron izhikevich_neuron:
   update:
     integrate_odes()
     # Add synaptic current
-    V_m += spikes * 1 mV
+    V_m += spikes
 
     # lower bound of membrane potential
     V_m = (V_m < V_min)? V_min : V_m

@@ -3,15 +3,16 @@ target/
 .idea/
 
 build/
+buildNest/
 
 __*
-!__init__.py
 
 dist/
 
 PyNESTML.egg-info/
 
 *.pyc
+antlr-4.7-complete.jar
 
 .DS_Store
 .project

@@ -36,8 +36,9 @@ neuron iaf_chxk_2008_neuron:
     G_ahp'' = (-2/tau_ahp) * G_ahp'-(1/tau_ahp**2) * G_ahp
     G_ahp' = G_ahp'
 
-    function I_syn_exc pA = cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikesInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
+
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
@@ -74,8 +75,9 @@ neuron iaf_chxk_2008_neuron:
   end
 
   input:
-      spikesInh   <- inhibitory spike
-      spikesExc   <- excitatory spike
+      spikesInh nS <- inhibitory spike
+      spikesExc nS <- excitatory spike
+
       currents <- current
   end
 
@@ -161,8 +163,9 @@ neuron iaf_chxk_2008_implicit:
     G_ahp'' = -G_ahp' / tau_ahp
     G_ahp' = G_ahp' -  G_ahp / tau_ahp
 
-    function I_syn_inh pA = cond_sum(g_in, spikesInh) * (V_m - E_in)
-    function I_syn_exc pA = cond_sum(g_ex, spikesExc) * (V_m - E_ex)
+    function I_syn_inh pA = convolve(g_in, spikesInh) * (V_m - E_in)
+    function I_syn_exc pA = convolve(g_ex, spikesExc) * (V_m - E_ex)
+
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
@@ -189,18 +192,20 @@ neuron iaf_chxk_2008_implicit:
   internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E nS/ms = nS * e / tau_syn_ex
+    PSConInit_E 1/ms = e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I nS/ms = nS * e / tau_syn_in
+    PSConInit_I 1/ms = e / tau_syn_in
+
 
     PSConInit_AHP real = g_ahp * e / tau_ahp * (ms/nS)
   end
 
   input:
-      spikesInh   <- inhibitory spike
-      spikesExc   <- excitatory spike
+      spikesInh nS <- inhibitory spike
+      spikesExc nS <- excitatory spike
+
       currents <- current
   end
 

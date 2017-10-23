@@ -1,0 +1,19 @@
+{#
+  Generates C++ declaration
+  @grammar: Assignment = variableName:QualifiedName "=" Expr;
+  @param ast ASTAssignment
+#}
+{%- set lhsVariable = assignments.lhsVariable(ast) -%}
+{%- if assignments.isVectorizedAssignment(ast) -%}
+for (long i=0; i < P_.{{assignments.printSizeParameter(ast)}}; i++) {
+  {%- if lhsVariable.hasVectorParameter() -%}
+    {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}}[i]
+  {%- else -%}
+    {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}}
+  {%- endif -%}
+  {{assignments.printAssignmentsOperation(ast)}}
+  {{printer.printExpression(ast.getExpression())}};
+}
+{%- else -%}
+  {{printer.printOrigin(lhsVariable)}}{{names.name(lhsVariable)}} {{assignments.printAssignmentsOperation(ast)}} {{printer.printExpression(ast.getExpression())}};
+{%- endif -%}

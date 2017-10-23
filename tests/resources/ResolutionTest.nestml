@@ -1,0 +1,54 @@
+/**
+ *
+ *  BlockTest.nestml
+ *
+ *  This file is part of NEST.
+ *
+ *  Copyright (C) 2004 The NEST Initiative
+ *
+ *  NEST is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  NEST is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *  This test is used to test the resolution of symbols.
+*/
+
+neuron resolution_test:
+    state:
+       test1 integer = 10
+    end
+
+    parameters:
+        test4 mS = 20mV
+        test10 string = "test10"
+    end
+
+    update:
+        test6 boolean = true
+    end
+
+    input:
+        # required for construction of a correct ast
+    end
+
+    output: spike
+
+    function test1(arg1 mV,arg2 integer):
+        test2 integer = arg1 + arg2
+        test3 mV = test2 + arg2
+        if not test2 == test3:
+            return test2
+        else:
+            return test3
+        end
+    end
+end

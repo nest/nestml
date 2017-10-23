@@ -52,8 +52,8 @@ neuron iaf_cond_exp_sfa_rr_neuron:
     g_sfa' = -g_sfa / tau_sfa
     g_rr' = g_rr / tau_rr
 
-    function I_syn_exc pA = cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikesInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
     function I_L pA = g_L * ( V_m - E_L )
     function I_sfa pA = g_sfa * ( V_m - E_sfa )
     function I_rr pA = g_rr * ( V_m - E_rr )
@@ -86,8 +86,8 @@ neuron iaf_cond_exp_sfa_rr_neuron:
   end
 
   input:
-      spikesInh <- inhibitory spike
-      spikesExc <- excitatory spike
+      spikesInh nS <- inhibitory spike
+      spikesExc nS <- excitatory spike
       currents <- current
   end
 
@@ -167,8 +167,8 @@ neuron iaf_cond_exp_sfa_rr_implicit:
     g_sfa' = -g_sfa / tau_sfa
     g_rr' = g_rr / tau_rr
 
-    function I_syn_exc pA = cond_sum(g_ex, spikesExc) * ( V_m - E_ex )
-    function I_syn_inh pA = cond_sum(g_in, spikesInh) * ( V_m - E_in )
+    function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
+    function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
     function I_L pA = g_L * ( V_m - E_L )
     function I_sfa pA = g_sfa * ( V_m - E_sfa )
     function I_rr pA = g_rr * ( V_m - E_rr )
@@ -201,8 +201,8 @@ neuron iaf_cond_exp_sfa_rr_implicit:
   end
 
   input:
-      spikesInh <- inhibitory spike
-      spikesExc <- excitatory spike
+      spikesInh nS <- inhibitory spike
+      spikesExc nS <- excitatory spike
       currents <- current
   end
 
@@ -221,8 +221,8 @@ neuron iaf_cond_exp_sfa_rr_implicit:
       emit_spike()
     end
 
-    g_ex += spikesExc * nS
-    g_in += spikesInh * nS
+    g_ex += spikesExc
+    g_in += spikesInh
   end
 
 end

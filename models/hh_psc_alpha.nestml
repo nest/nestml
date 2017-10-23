@@ -67,8 +67,9 @@ neuron hh_psc_alpha_neuron:
     shape I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
     shape I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
 
-    function I_syn_exc pA = curr_sum(I_syn_ex, spikeExc)
-    function I_syn_inh pA = curr_sum(I_syn_in, spikeInh)
+    function I_syn_exc pA = convolve(I_syn_ex, spikeExc)
+    function I_syn_inh pA = convolve(I_syn_in, spikeInh)
+
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
@@ -109,8 +110,9 @@ neuron hh_psc_alpha_neuron:
   end
 
   input:
-      spikeInh <- inhibitory spike
-      spikeExc <- excitatory spike
+      spikeInh pA <- inhibitory spike
+      spikeExc pA <- excitatory spike
+
       currents <- current
   end
 
@@ -209,8 +211,9 @@ neuron hh_psc_alpha_implicit:
     I_syn_ex' = I_syn_ex'
     I_syn_ex'' = (-2/tau_syn_ex) * I_syn_ex'-(1/tau_syn_ex**2) * I_syn_ex
 
-    function I_syn_exc pA = curr_sum(I_syn_ex, spikeExc)
-    function I_syn_inh pA = curr_sum(I_syn_in, spikeInh)
+    function I_syn_exc pA = convolve(I_syn_ex, spikeExc)
+    function I_syn_inh pA = convolve(I_syn_in, spikeInh)
+
     function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
     function I_K   pA  = g_K * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
     function I_L   pA = g_L * ( V_m - E_L )
@@ -249,19 +252,21 @@ neuron hh_psc_alpha_implicit:
   internals:
     # Impulse to add to DG_EXC on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_E pA/ms = pA * e / tau_syn_ex
+    PSConInit_E 1/ms = e / tau_syn_ex
 
     # Impulse to add to DG_INH on spike arrival to evoke unit-amplitude
     # conductance excursion.
-    PSConInit_I pA/ms = pA * e / tau_syn_in
+    PSConInit_I 1/ms = e / tau_syn_in
+
 
 
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
   end
 
   input:
-      spikeInh <- inhibitory spike
-      spikeExc <- excitatory spike
+      spikeInh pA <- inhibitory spike
+      spikeExc pA <- excitatory spike
+
       currents <- current
   end
 

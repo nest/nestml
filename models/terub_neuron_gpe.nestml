@@ -87,8 +87,9 @@ neuron terub_neuron_gpe:
     function g_k_Ca real = 15.0 #Report:15,  Terman Rubin 2002: 20.0
     function g_k1 real = 30.0
 
-    function I_ex_mod real = -curr_sum(g_ex, spikeExc) * V_m
-    function I_in_mod real = curr_sum(g_in, spikeInh) * (V_m-E_gg)
+    function I_ex_mod real = -convolve(g_ex, spikeExc) * V_m
+    function I_in_mod real = convolve(g_in, spikeInh) * (V_m-E_gg)
+
 
     function tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m-g_theta_n_tau)/g_sigma_n_tau))
     function tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m-g_theta_h_tau)/g_sigma_h_tau))
@@ -152,8 +153,9 @@ neuron terub_neuron_gpe:
   end
 
   input:
-    spikeInh   <- inhibitory spike
-    spikeExc   <- excitatory spike
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
+
     currents <- current
   end
 
@@ -269,8 +271,9 @@ neuron terub_neuron_gpe_implicit:
     function g_k_Ca real = 15.0 #Report:15,  Terman Rubin 2002: 20.0
     function g_k1 real = 30.0
 
-    function I_ex_mod real = -curr_sum(g_ex, spikeExc) * V_m
-    function I_in_mod real = curr_sum(g_in, spikeInh) * (V_m-E_gg)
+    function I_ex_mod real = -convolve(g_ex, spikeExc) * V_m
+    function I_in_mod real = convolve(g_in, spikeInh) * (V_m-E_gg)
+
 
     function tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m-g_theta_n_tau)/g_sigma_n_tau))
     function tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m-g_theta_h_tau)/g_sigma_h_tau))
@@ -331,14 +334,16 @@ neuron terub_neuron_gpe_implicit:
   end
 
   internals:
-    PSCurrInit_E pA/ms = pA * e / tau_syn_ex
-    PSCurrInit_I pA/ms = pA * e / tau_syn_in
+    PSCurrInit_E 1/ms =  e / tau_syn_ex
+    PSCurrInit_I 1/ms =  e / tau_syn_in
+
     refractory_counts integer = steps(t_ref)
   end
 
   input:
-    spikeInh   <- inhibitory spike
-    spikeExc   <- excitatory spike
+    spikeInh pA <- inhibitory spike
+    spikeExc pA <- excitatory spike
+
     currents <- current
   end
 
@@ -361,3 +366,4 @@ neuron terub_neuron_gpe_implicit:
   end
 
 end
+
