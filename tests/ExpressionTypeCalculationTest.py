@@ -19,6 +19,8 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import unittest
 import os
+
+from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.nestml.NESTMLParser import NESTMLParser
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
@@ -56,6 +58,11 @@ class expressionTestVisitor(NESTMLVisitor):
                   varSymbol.getTypeSymbol().getSymbolName() + \
                   ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
                   ' Equal ? ' + str(_equals)
+
+        if _expr.getTypeEither().getValue().hasUnit():
+            message += " Neuroscience Factor: " + \
+            str(UnitConverter().getFactor(_expr.getTypeEither().getValue().getUnit().getUnit()))
+
         Logger.logMessage(_errorPosition=_assignment.getSourcePosition(), _code=MessageCode.TYPE_MISMATCH,
                           _message=message, _logLevel=LOGGING_LEVEL.INFO)
 
