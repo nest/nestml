@@ -20,11 +20,13 @@
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
+from pynestml.nestml.PredefinedUnits import PredefinedUnits
 from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
 from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
 from pynestml.nestml.ASTVariable import ASTVariable
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
+from pynestml.codegeneration.UnitConverter import UnitConverter
 
 
 class GSLReferenceConverter(IReferenceConverter):
@@ -59,7 +61,9 @@ class GSLReferenceConverter(IReferenceConverter):
                 _astVariable)
         variableName = NestNamesConverter.convertToCPPName(_astVariable.getName())
         symbol = _astVariable.getScope().resolveToSymbol(_astVariable.getCompleteName(), SymbolKind.VARIABLE)
-        # todo SI stuff
+
+        if PredefinedUnits.isUnit(_astVariable.getCompleteName()):
+            return str(UnitConverter.getFactor(_astVariable.getTypeSymbol().getUnit().getUnit()))
         if symbol.isInitValues():
             return GSLNamesConverter.name(symbol)
         elif symbol.isBuffer():

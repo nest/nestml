@@ -77,7 +77,8 @@ class ExpressionsPrettyPrinter(object):
         """
         if isinstance(_expr, ASTSimpleExpression):
             if _expr.hasUnit():
-                return str(_expr.getNumericLiteral()) + '*' + str(_expr.getVariable().getCompleteName())
+                return self.__typesPrinter.prettyPrint(_expr.getNumericLiteral()) + '*' +\
+                       self.__referenceConverter.convertNameReference(_expr.getVariable())
             elif _expr.isNumericLiteral():
                 return str(_expr.getNumericLiteral())
             elif _expr.isInfLiteral():

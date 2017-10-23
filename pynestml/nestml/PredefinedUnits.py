@@ -107,6 +107,18 @@ class PredefinedUnits(object):
             Logger.logMessage('Unit does not exist (%s)' % _name, LOGGING_LEVEL.ERROR)
             return None
 
+
+    @classmethod
+    def isUnit(cls,_name=None):
+        """
+        Indicates whether the handed over name represents a stored unit.
+        :param _name: a single name
+        :type _name: str
+        :return: True if unit name, otherwise False.
+        :rtype: bool
+        """
+        return _name in cls.__name2unit.keys()
+
     @classmethod
     def registerUnit(cls, _unit=None):
         """

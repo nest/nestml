@@ -176,7 +176,7 @@ class NestCodeGenerator(object):
         namespace = {}
         namespace['neuronName'] = _neuron.getName()
         namespace['neuron'] = _neuron
-        namespace['moduleName'] = 'TODO module name'
+        namespace['moduleName'] = FrontendConfiguration.getModuleName()
         # helper classes and objects
         converter = NESTReferenceConverter(_usesGSL=False)
         legacyPrettyPrinter = LegacyExpressionPrinter(_referenceConverter=converter)

@@ -20,7 +20,6 @@
 from astropy import units as u
 
 
-
 class UnitConverter(object):
     """
     Calculates the factor needed to convert a given unit to its
@@ -28,7 +27,8 @@ class UnitConverter(object):
     conductances as nS etc.
     """
 
-    def getFactor(self,_unit):
+    @classmethod
+    def getFactor(cls, _unit):
         """
         Gives a factor for a given unit that transforms it to a "neuroscience" scale
         If the given unit is not listed as a neuroscience unit, the factor is 1
@@ -36,11 +36,11 @@ class UnitConverter(object):
         :return: a factor to that unit, converting it to "neuroscience" scales.
         """
 
-        assert isinstance(_unit,u.IrreducibleUnit) or isinstance(_unit, u.CompositeUnit) or isinstance(_unit,u.Unit)\
-        , "UnitConverter: given parameter is not a unit"
+        assert isinstance(_unit, u.IrreducibleUnit) or isinstance(_unit, u.CompositeUnit) or isinstance(_unit, u.Unit) \
+            , "UnitConverter: given parameter is not a unit (%s)!" %type(_unit)
 
         targetUnit = None
-        if(_unit.physical_type == "electrical conductance"):
+        if (_unit.physical_type == "electrical conductance"):
             targetUnit = u.nS
         if (_unit.physical_type == "electrical resistance"):
             targetUnit = u.Gohm

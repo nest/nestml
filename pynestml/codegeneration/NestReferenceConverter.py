@@ -25,6 +25,8 @@ from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
 from pynestml.nestml.ASTVariable import ASTVariable
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
 from pynestml.nestml.Symbol import SymbolKind
+from pynestml.nestml.PredefinedUnits import PredefinedUnits
+from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
@@ -118,7 +120,9 @@ class NESTReferenceConverter(IReferenceConverter):
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of uses-gsl provided (%s)!' % type(
                 _astVariable)
         variableName = NestNamesConverter.convertToCPPName(_astVariable.getCompleteName())
-        # todo stesp
+
+        if PredefinedUnits.isUnit(_astVariable.getCompleteName()):
+            return str(UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.getCompleteName()).getUnit()))
         if variableName == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         else:
