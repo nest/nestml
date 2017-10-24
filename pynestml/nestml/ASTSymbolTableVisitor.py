@@ -860,9 +860,12 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                         expression = decl.getRhs()
                     else:
                         expression = decl.getExpression()
+                    from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
                     for func in expression.getFunctionCalls():
-                        if func.getName() == 'cond_sum' and func.hasArgs() and func.getArgs()[
-                            1].printAST() == buffer.getName():
+                        if (
+                                func.getName() == PredefinedFunctions.COND_SUM or
+                                        func.getName() == PredefinedFunctions.CONVOLVE) and func.hasArgs() and \
+                                        func.getArgs()[1].printAST() == buffer.getName():
                             symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolKind.VARIABLE)
                             symbol.setConductanceBased(True)
                             code, message = Messages.getBufferSetToConductanceBased(buffer.getName())

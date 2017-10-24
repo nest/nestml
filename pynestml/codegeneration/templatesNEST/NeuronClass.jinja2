@@ -303,8 +303,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e){
 {% endfor -%}
 
 {% if isSpikeInput %}
-void {{neuronName}}::handle(nest::SpikeEvent &e)
-{
+void {{neuronName}}::handle(nest::SpikeEvent &e){
   assert(e.get_delay() > 0);
   {% if neuron.isMultisynapseSpikes() -%}
   {%- set spikeBuffer = neuron.getSpikeBuffers()[0] -%}
@@ -341,8 +340,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 }
 {% endif -%}
 {% if isCurrentInput %}
-void {{neuronName}}::handle(nest::CurrentEvent& e)
-{
+void {{neuronName}}::handle(nest::CurrentEvent& e){
   assert(e.get_delay() > 0);
 
   const double current=e.get_current();

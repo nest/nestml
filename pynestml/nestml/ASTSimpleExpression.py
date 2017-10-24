@@ -80,7 +80,7 @@ class ASTSimpleExpression(ASTElement):
         super(ASTSimpleExpression, self).__init__(_sourcePosition)
         self.__functionCall = _functionCall
         if _booleanLiteral is not None:
-            if _booleanLiteral is 'True' or _booleanLiteral is 'true':
+            if _booleanLiteral:
                 self.__isBooleanTrue = True
             else:
                 self.__isBooleanFalse = True
