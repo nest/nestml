@@ -421,7 +421,6 @@ class ASTNeuron(ASTElement):
         :return: a list of spike buffers variable symbols
         :rtype: list(VariableSymbol)
         """
-        from pynestml.nestml.Symbol import SymbolKind
         ret = list()
         for buffer in self.getSpikeBuffers():
             if buffer.isExcitatory() and buffer.isInhibitory():
@@ -484,6 +483,18 @@ class ASTNeuron(ASTElement):
         for symbol in symbols:
             if isinstance(symbol, VariableSymbol) and symbol.getBlockType() == BlockType.INITIAL_VALUES and \
                     not symbol.isPredefined():
+                ret.append(symbol)
+        return ret
+
+    def getNonFunctionInitialValuesSymbols(self):
+        """
+        Returns a list of all initial values symbols as defined in the model which are not marked as functions.
+        :return:
+        :rtype:
+        """
+        ret = list()
+        for symbol in self.getInitialValuesSymbols():
+            if not symbol.isFunction():
                 ret.append(symbol)
         return ret
 

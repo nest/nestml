@@ -63,7 +63,7 @@
 
 #include "{{neuronName}}.h"
 
-{% set stateSize = neuron.getEquations()|length %}
+{% set stateSize = neuron.getNonFunctionInitialValuesSymbols()|length %}
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
