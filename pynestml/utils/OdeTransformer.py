@@ -129,6 +129,14 @@ class FunctionCollector(NESTMLVisitor):
     __functionsCollected = list()
     __functionsToCollect = list()
 
+    def __init__(self):
+        """
+        Standard constructor.
+        """
+        super(FunctionCollector, self).__init__()
+        self.__functionsCollected = list()
+        self.__functionsToCollect = list()
+
     def setTarget(self, _functions=list()):
         """
         Sets the list of function which shall be collected.

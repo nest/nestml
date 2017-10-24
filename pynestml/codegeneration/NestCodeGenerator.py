@@ -161,7 +161,6 @@ class NestCodeGenerator(object):
         """
         if not os.path.isdir(FrontendConfiguration.getTargetPath()):
             os.makedirs(FrontendConfiguration.getTargetPath())
-        print(_neuron.printAST())
         self.generateHeader(_neuron)
         self.generateClassImplementation(_neuron)
         return

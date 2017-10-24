@@ -182,7 +182,8 @@ class TransformerBase(object):
                              if _neuron.getInitialBlocks() is not None else list())
             for astDeclaration in initialValues:
                 for variable in astDeclaration.getVariables():
-                    if re.match(shape + "(')*", variable.getCompleteName()) or re.match(shape + "__\\d+$",
+
+                    if re.match(shape + "[\']*", variable.getCompleteName()) or re.match(shape + '__[\\d]+$',
                                                                                         variable.getCompleteName()):
                         spikesUpdates.append(ASTCreator.createAssignment(
                             variable.getCompleteName() + " += " + buffer + " * " + printer.printExpression(
