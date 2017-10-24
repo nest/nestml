@@ -29,7 +29,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
 
     def test(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),os.path.join('..', 'models',
-                                                                                        'aeif_cond_implicit.nestml'))))
+                                                                                        'hh_cond_exp_traub.nestml'))))
         params = list()
         params.append('-path')
         params.append(path)
@@ -41,6 +41,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('-module_name')
         params.append('test_module')
         #params.append('-store_log')
+        params.append('-dev')
         main(params)
 
 

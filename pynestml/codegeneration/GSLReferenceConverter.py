@@ -63,7 +63,7 @@ class GSLReferenceConverter(IReferenceConverter):
         symbol = _astVariable.getScope().resolveToSymbol(_astVariable.getCompleteName(), SymbolKind.VARIABLE)
 
         if PredefinedUnits.isUnit(_astVariable.getCompleteName()):
-            return str(UnitConverter.getFactor(_astVariable.getTypeSymbol().getUnit().getUnit()))
+            return str(UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.getCompleteName()).getUnit()))
         if symbol.isInitValues():
             return GSLNamesConverter.name(symbol)
         elif symbol.isBuffer():

@@ -33,7 +33,6 @@ from pynestml.utils.Messages import Messages
 
 
 def main(args):
-    configuration = None
     try:
         FrontendConfiguration.config(args)
     except InvalidPathException:
@@ -63,7 +62,8 @@ def main(args):
             code, message = Messages.getNeuronContainsErrors(neuron.getName())
             Logger.logMessage(_neuron=neuron, _code=code, _message=message, _errorPosition=neuron.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.INFO)
-            # neurons.remove(neuron) Todo since type errors are currently in there
+            if not FrontendConfiguration.isDev():
+                neurons.remove(neuron)
     if not FrontendConfiguration.isDryRun():
         nestGenerator = NestCodeGenerator()
         nestGenerator.analyseAndGenerateNeurons(neurons)

@@ -35,6 +35,7 @@ class FrontendConfiguration(object):
     __targetPath = None
     __moduleName = None
     __storeLog = False
+    __isDebug = False
 
     @classmethod
     def config(cls, _args=None):
@@ -66,7 +67,10 @@ class FrontendConfiguration(object):
         cls.__argumentParser.add_argument('-store_log', action='store_true',
                                           help='Indicates whether a log file containing all messages shall'
                                                'be stored. Standard is NO.')
-
+        cls.__argumentParser.add_argument('-dev',action='store_true',
+                                          help='Indicates whether the dev mode should be active, i.e., the whole '
+                                               'toolchain executed even though errors in models are present.'
+                                               'This option is designed for debug purpose only!')
         parsed_args = cls.__argumentParser.parse_args(_args)
         cls.__providedPath = parsed_args.path
         if cls.__providedPath is None:
@@ -104,6 +108,7 @@ class FrontendConfiguration(object):
         else:
             cls.__moduleName = 'module'
         cls.__storeLog = parsed_args.store_log
+        cls.__isDebug = parsed_args.dev
         return
 
     @classmethod
@@ -168,3 +173,12 @@ class FrontendConfiguration(object):
         :rtype: bool
         """
         return cls.__storeLog
+
+    @classmethod
+    def isDev(cls):
+        """
+        Returns whether the dev mode have benn set as active.
+        :return: True if dev mode is active, otherwise False.
+        :rtype: bool
+        """
+        return cls.__isDebug
