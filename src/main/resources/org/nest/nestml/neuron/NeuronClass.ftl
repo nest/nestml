@@ -40,7 +40,7 @@
 
 #include "${neuronName}.h"
 
-<#assign stateSize = body.getEquations()?size>
+<#assign stateSize = body.getNonFunctionInitialValuesSymbols()?size>
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
@@ -62,6 +62,9 @@ namespace nest
     </#list>
     <#list body.getParameterSymbols() as parameter>
       ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [parameter])}
+    </#list>
+    <#list body.getInitialValuesSymbols() as initial_value>
+      ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [initial_value])}
     </#list>
     <#list body.getODEAliases() as odeAlias>
       ${tc.includeArgs("org.nest.nestml.neuron.function.RecordCallback", [odeAlias])}
@@ -128,12 +131,17 @@ ${neuronName}::${neuronName}():Archiving_Node(), P_(), S_(), B_(*this)
   </#if>
 
   <#list body.getParameterNonAliasSymbols() as parameter>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, printerWithGetters])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [parameter, expressionsPrinter])}
   </#list>
 
   <#list body.getStateNonAliasSymbols() as state>
-    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, printerWithGetters])}
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [state, expressionsPrinter])}
   </#list>
+
+  <#list body.getInitialValuesSymbols() as initial_value>
+    ${tc.includeArgs("org.nest.nestml.neuron.function.MemberInitialization", [initial_value, expressionsPrinter])}
+  </#list>
+
 
 }
 
@@ -278,7 +286,7 @@ ${neuronName}::update(
        </#if>
     </#list>
 
-    <#assign dynamics = body.getDynamicsBlock().get()>
+    <#assign dynamics = body.getUpdateBlock().get()>
     ${tc.include("org.nest.spl.Block", dynamics.getBlock())}
 
     // voltage logging

@@ -33,9 +33,9 @@ public class CommonsErrorStrings {
   private static final String SEPARATOR = " : ";
 
   public static String messageType(final DotOperatorVisitor coco,
-                                   final String tyoeMissmatch,
+                                   final String typeMissmatch,
                                    final SourcePosition sourcePosition) {
-    final String ERROR_MSG_FORMAT = tyoeMissmatch + "(" + AstUtils.print(sourcePosition) + ")";
+    final String ERROR_MSG_FORMAT = typeMissmatch + "(" + AstUtils.print(sourcePosition) + ")";
 
     return code(coco) + SEPARATOR + ERROR_MSG_FORMAT;
   }

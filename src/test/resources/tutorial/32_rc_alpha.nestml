@@ -3,17 +3,19 @@
   Adds alpha shapes for synaptic currents.
 */
 neuron rc_alpha:
-
   state:
-    V_m mV =  E_L
-    g_ex pA = 0pA
-    g_ex' pA/ms = 0pA/ms
     refractory_counts integer = 0
   end
 
+  initial_values:
+    V_m mV =  E_L
+    g_ex pA = 0pA
+    g_ex' pA/ms = pA * e / tau_syn
+  end
+
   equations:
-    g_ex'' = -g_ex' / tau_syn
-    g_ex' = g_ex' - ( g_ex / tau_syn )
+    shape g_ex'' = -g_ex' / tau_syn
+    shape g_ex' = g_ex' - ( g_ex / tau_syn )
     function I_syn pA = g_ex + currents + I_e
     V_m' = -(V_m - E_L)/tau_m  + I_syn/C_m
   end
@@ -30,12 +32,8 @@ neuron rc_alpha:
     I_e pA = 0pA
   end
 
-  internals:
-    PSConInit_E pA/ms = 1.0 pA * e / tau_syn
-  end
-
   input:
-    spikes   <- spike
+    spikes pA <- spike
     currents <- current
   end
 
@@ -53,7 +51,6 @@ neuron rc_alpha:
       refractory_counts -= 1
     end
 
-    g_ex' += PSConInit_E * spikes
   end
 
 end

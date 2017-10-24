@@ -4,12 +4,12 @@ end
 
 neuron neuronWithMultipleInputs:
   input:
-    spikes1 <- spike
+    spikes1 nS <- spike
 
   end
 
   input:
-    spikes2 <- spike
+    spikes2 nS <- spike
   end
 
 end

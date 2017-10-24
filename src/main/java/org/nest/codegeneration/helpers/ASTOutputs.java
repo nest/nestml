@@ -6,9 +6,8 @@
 package org.nest.codegeneration.helpers;
 
 import de.monticore.ast.ASTNode;
-import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._ast.ASTOutput;
+import org.nest.nestml._ast.ASTOutputBlock;
 
 import java.util.List;
 
@@ -18,14 +17,14 @@ import java.util.List;
  * @author plotnikov
  */
 public class ASTOutputs {
-  public static boolean isOutputEventPresent(final ASTBody astBody) {
-    return !astBody.getOutputs().isEmpty();
+  public static boolean isOutputEventPresent(final ASTNeuron astNeuron) {
+    return !astNeuron.getOutputBlocks().isEmpty();
   }
 
-  public static String printOutputEvent(final ASTBody astBody) {
-    final List<ASTOutput> neuronOutputs = astBody.getOutputs();
+  public static String printOutputEvent(final ASTNeuron astNeuron) {
+    final List<ASTOutputBlock> neuronOutputs = astNeuron.getOutputBlocks();
     if (!neuronOutputs.isEmpty()) {
-      ASTOutput output = neuronOutputs.get(0);
+      ASTOutputBlock output = neuronOutputs.get(0);
 
       if (output.isSpike()) {
         return "nest::SpikeEvent";
@@ -42,11 +41,11 @@ public class ASTOutputs {
     }
   }
 
-  private static ASTBody getBodyNode(ASTNode node) {
-    ASTBody bodyElement;// TODO probably introduce a grammar rule for this
+  private static ASTNeuron getBodyNode(ASTNode node) {
+    ASTNeuron bodyElement;// TODO probably introduce a grammar rule for this
 
     if (node instanceof ASTNeuron) {
-      bodyElement = ((ASTNeuron) node).getBody();
+      bodyElement = ((ASTNeuron) node);
     }
     else {
       throw new RuntimeException("Unexpected instance of the neuron element");

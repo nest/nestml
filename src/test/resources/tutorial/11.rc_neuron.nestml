@@ -3,7 +3,7 @@
 */
 neuron rc_neuron:
 
-  state:
+  initial_values:
     V_m mV = 0mV
   end
 
@@ -19,7 +19,7 @@ neuron rc_neuron:
   end
 
   input:
-    spikes   <- spike
+    spikes nS <- spike
   end
 
   output: spike

@@ -22,7 +22,7 @@
 package org.nest.nestml._visitor;
 
 import de.monticore.symboltable.Scope;
-import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._ast.ASTEquation;
 import org.nest.nestml._ast.ASTOdeFunction;
 import org.nest.nestml._ast.ASTShape;
@@ -82,7 +82,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     varType = varSymbol.get().getType();
 
     if (varType.getType() != TypeSymbol.Type.UNIT &&
-        varType != getRealType()) {
+        !varType.equals(getRealType()) ) {
       error(NestmlErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
       return;
     }
@@ -94,7 +94,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
     TypeSymbol typeFromExpression = astEquation.getRhs().getType().getValue();
 
     if (typeFromExpression.getType() != TypeSymbol.Type.UNIT &&
-        typeFromExpression != getRealType()) {
+        !typeFromExpression.equals(getRealType()) ) {
       error(NestmlErrorStrings.expressionNonNumeric(this), astEquation.get_SourcePositionStart());
       return;
     }
@@ -118,7 +118,7 @@ public class ODEPostProcessingVisitor implements NESTMLVisitor {
   }
 
   @Override
-  public void traverse(ASTOdeDeclaration node) {
+  public void traverse(ASTEquationsBlock node) {
     //TODO: Find a sensible hierarchy for shapes,equations and aliases.
     for (ASTShape astShape : node.getShapes()) {
       astShape.accept(getRealThis());

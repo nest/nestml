@@ -20,15 +20,8 @@ public class VariableVisitor implements NESTMLVisitor {
     final String varName = expr.getVariable().get().toString();
     VariableSymbol var = VariableSymbol.resolve(varName, expr.getEnclosingScope().get());
 
-    if (var.isCurrentBuffer()) {
-      expr.setType(Either.value(getType("pA")));
-    }
-    else if (var.isSpikeBuffer()) {
-      expr.setType(Either.value(getRealType()));
-    }
-    else {
-      expr.setType(Either.value(var.getType()));
-    }
+    expr.setType(Either.value(var.getType()));
+
   }
 
 }

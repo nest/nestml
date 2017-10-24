@@ -14,6 +14,7 @@ import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import static org.junit.Assert.assertTrue;
@@ -55,21 +56,15 @@ public class ExactSolutionTransformerTest extends ModelbasedTest {
     assertTrue(pscInitialValue.isPresent());
     assertTrue(pscInitialValue.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
 
-
-    final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("iv__I_shape_in__0");
-    assertTrue(y2.isPresent());
-    assertTrue(y2.get().getBlockType().equals(VariableSymbol.BlockType.INTERNALS));
-
   }
 
   @Test
   public void testReplaceODEThroughMatrixMultiplication() {
-    final ExactSolutionTransformer exactSolutionTransformer = new ExactSolutionTransformer();
     // false abstraction level
     ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(MODEL_FILE_PATH);
-    exactSolutionTransformer.replaceIntegrateCallThroughPropagation(
+    TransformerBase.replaceIntegrateCallThroughPropagation(
         modelRoot.getNeurons().get(0),
-        Lists.newArrayList());
+        new HashMap.SimpleEntry<>("__const_input", "2"), Lists.newArrayList());
     printModelToFile(modelRoot, TARGET_TMP_MODEL_PATH);
 
     parseNestmlModel(TARGET_TMP_MODEL_PATH);

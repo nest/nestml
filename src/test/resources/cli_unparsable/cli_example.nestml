@@ -39,7 +39,7 @@ neuron iaf_neuron_ode:
   end
 
   input:
-    spikes   <- inhibitory excitatory spike
+    spikes nS  <- inhibitory excitatory spike
     currents <- current
   end
 

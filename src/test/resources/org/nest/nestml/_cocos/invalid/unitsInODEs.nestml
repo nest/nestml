@@ -1,16 +1,16 @@
 neuron validODETest:
-  state:
+  initial_values:
     Distance km
-    DeltaTime s
   end
 
   input:
-      spikeInh   <- inhibitory spike
-      spikeExc   <- excitatory spike
+      spikeInh nS <- inhibitory spike
+      spikeExc nS <- excitatory spike
       currents <- current
   end
 
-  parameters:    
+  parameters:
+    DeltaTime s
   end
 
   output: spike

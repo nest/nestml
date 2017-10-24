@@ -54,6 +54,7 @@
                 <version>${monticore.version}</version>
                 <configuration>
                     <skip>false</skip>
+                    <script>de/monticore/monticore_noemf.groovy</script>
                 </configuration>
                 <executions>
                     <execution>

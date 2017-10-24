@@ -42,18 +42,20 @@ case $mode in
     provision)
 	# For the 'provision' command, we allow the following arguments:
 	#  --help  print usage information for the 'run' command
-	#  --dev   use the development container instead of the
+	#  --from_sources   use the development container instead of the
 	#          release version
 	container="nestml_release"
 	dockerfile="DockerfileRelease"
+	caching_strategy=""
 	while test $# -gt 0; do
 	    case "$1" in
 		--help)
 		    print_usage=true
 		    ;;
-		--dev)
+		--from_sources)
 		    container="nestml_development"
 		    dockerfile="DockerfileDevelopment"
+		    caching_strategy="--no-cache"
 		    ;;
 		*)
 		    echo "Error: Unrecognized option '$1'"
@@ -66,13 +68,13 @@ case $mode in
 	# Print usage information
 	if test x$print_usage = xtrue; then
 	    echo "Usage: nestml_docker.sh provision [<args>]"
-	    echo "  --dev  Use the development version"
+	    echo "  --from_sources  Use the development version"
 	    echo "  --help  Print this usage information"
 	    exit 1
 	fi
 
 	# Provision the docker container
-	cmd="docker build -t $container -f $dockerfile ."
+	cmd="docker build $caching_strategy -t $container -f $dockerfile ."
 	echo
 	echo "Creating docker image '$container'"
 	$cmd
@@ -80,7 +82,7 @@ case $mode in
     run)
 	# For the 'run' command, we allow the following arguments:
 	#  --help  print usage information for the 'run' command
-	#  --dev   use the development container instead of the
+	#  --from_sources   use the development container instead of the
 	#          release version
 	#  dir(s)  one or more directories with .nestml files
 	container="nestml_release"
@@ -89,7 +91,7 @@ case $mode in
 		--help)
 		    print_usage=true
 		    ;;
-		--dev)
+		--from_sources)
 		    container="nestml_development"
 		    ;;
 		*)
@@ -115,7 +117,7 @@ case $mode in
 	# Print usage information
 	if test x$print_usage = xtrue; then
 	    echo "Usage: nestml_docker.sh run [<args>] <dir1> [<dir2> ...]"
-	    echo "  --dev   Use the development version"
+	    echo "  --from_sources   Use the development version"
 	    echo "  --help  Print this usage information"
 	    echo "  <dir1>, <dir2>, ...  Source directories"
 	    exit 1

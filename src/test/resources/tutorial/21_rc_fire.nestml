@@ -4,7 +4,7 @@
 */
 neuron rc_fire:
 
-  state:
+  initial_values:
     V_m mV = E_L
   end
 
@@ -22,7 +22,7 @@ neuron rc_fire:
   end
 
   input:
-    spikes   <- spike
+    spikes nS <- spike
   end
 
   output: spike

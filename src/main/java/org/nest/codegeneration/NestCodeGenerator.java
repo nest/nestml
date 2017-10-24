@@ -8,18 +8,18 @@ package org.nest.codegeneration;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import org.nest.codegeneration.converters.*;
+import org.nest.codegeneration.converters.GslReferenceConverter;
+import org.nest.codegeneration.converters.NESTReferenceConverter;
 import org.nest.codegeneration.helpers.*;
 import org.nest.codegeneration.sympy.EquationsBlockProcessor;
 import org.nest.codegeneration.sympy.OdeTransformer;
-import org.nest.nestml._ast.ASTBody;
+import org.nest.nestml._ast.ASTEquationsBlock;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._ast.ASTShape;
 import org.nest.nestml._symboltable.NESTMLLanguage;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
-import org.nest.nestml.prettyprinter.IReferenceConverter;
 import org.nest.nestml.prettyprinter.LegacyExpressionPrinter;
 import org.nest.reporting.Reporter;
 import org.nest.utils.AstUtils;
@@ -69,10 +69,13 @@ public class NestCodeGenerator {
     ASTNeuron workingVersion = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
 
     workingVersion = solveOdesAndShapes(workingVersion, outputBase);
+    // this is the only way to get fresh symbol table now!
+    // TODO add functionality to refresh symboltable based on the commonvisitor
     workingVersion = AstUtils.deepCloneNeuronAndBuildSymbolTable(workingVersion, outputBase);
+
     generateNestCode(workingVersion, outputBase);
 
-    final String msg = "Successfully generated NEST code for: '" + astNeuron.getName() + "' in: '"
+    final String msg = "Successfully generated NEST code for the neuron: '" + astNeuron.getName() + "' in: '"
         + outputBase.toAbsolutePath().toString() + "'";
     reporter.reportProgress(msg);
   }
@@ -81,10 +84,9 @@ public class NestCodeGenerator {
       final ASTNeuron astNeuron,
       final Path outputBase) {
 
-    final ASTBody astBody = astNeuron.getBody();
-    final Optional<ASTOdeDeclaration> odesBlock = astBody.getOdeBlock();
+    final Optional<ASTEquationsBlock> odesBlock = astNeuron.findEquationsBlock();
     if (odesBlock.isPresent()) {
-      if (odesBlock.get().getShapes().size() == 0 && odesBlock.get().getODEs().size() > 1) {
+      if (odesBlock.get().getShapes().size() == 0 && odesBlock.get().getEquations().size() > 1) {
         final String msg = String.format(
             "The neuron %s will be solved numerically with GSL solver without modification.",
             astNeuron.getName());
@@ -186,27 +188,19 @@ public class NestCodeGenerator {
         initSLI,
         neurons.get(0)); // an arbitrary AST to match the signature
 
-    reporter.reportProgress("Successfully generated NEST module code in " + outputDirectory);
+    reporter.reportProgress("Successfully generated NEST module code in " + outputDirectory.toAbsolutePath());
   }
 
   private GlobalExtensionManagement getGlexConfiguration() {
     final GlobalExtensionManagement glex = new GlobalExtensionManagement();
-    final NESTReferenceConverter converter = new NESTReferenceConverter();
+    final NESTReferenceConverter converter = new NESTReferenceConverter(false);
     final ExpressionsPrettyPrinter expressionsPrinter  = new LegacyExpressionPrinter(converter);
-
-    final IReferenceConverter parameterBlockConverter = new NESTParameterBlockReferenceConverter();
-    final ExpressionsPrettyPrinter parameterBlockPrinter = new LegacyExpressionPrinter(parameterBlockConverter);
-
-    final IReferenceConverter stateBlockReferenceConverter = new NESTStateBlockReferenceConverter();
-    final ExpressionsPrettyPrinter stateBlockPrettyPrinter = new LegacyExpressionPrinter(stateBlockReferenceConverter);
 
     glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
     glex.setGlobalValue("functionCallConverter", converter);
     glex.setGlobalValue("idemPrinter", new LegacyExpressionPrinter());
     // this printer is used in one of the variable blocks. there, S_, V_, B_ structs are not defined and getters
     // setters must be used instead.
-    glex.setGlobalValue("printerWithGetters", parameterBlockPrinter);
-    glex.setGlobalValue("stateBlockPrettyPrinter", stateBlockPrettyPrinter);
     return glex;
   }
 
@@ -233,10 +227,10 @@ public class NestCodeGenerator {
     glex.setGlobalValue("variableHelper", new VariableHelper());
     glex.setGlobalValue("odeTransformer", new OdeTransformer());
 
-    glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron.getBody()));
+    glex.setGlobalValue("outputEvent", ASTOutputs.printOutputEvent(neuron));
     glex.setGlobalValue("isSpikeInput", ASTInputs.isSpikeInput(neuron));
     glex.setGlobalValue("isCurrentInput", ASTInputs.isCurrentInput(neuron));
-    glex.setGlobalValue("body", neuron.getBody());
+    glex.setGlobalValue("body", neuron);
 
     final GslReferenceConverter converter = new GslReferenceConverter();
     final ExpressionsPrettyPrinter expressionsPrinter = new LegacyExpressionPrinter(converter);
@@ -247,15 +241,15 @@ public class NestCodeGenerator {
 
 
   private void defineSolverType(final GlobalExtensionManagement glex, final ASTNeuron neuron) {
-    final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
 
-    if (astBody.getOdeBlock().isPresent()) {
-      if (astBody.getOdeBlock().get().getShapes().size() == 0 || astBody.getOdeBlock().get().getODEs().size() > 1) {
+    if (neuron.findEquationsBlock().isPresent()) {
+      if (!functionShapeExists(neuron.findEquationsBlock().get().getShapes()) ||
+          neuron.findEquationsBlock().get().getEquations().size() > 1) {
         glex.setGlobalValue("names", new GslNames());
         glex.setGlobalValue("useGSL", true);
 
-        final IReferenceConverter converter = new NESTArrayStateReferenceConverter();
+        final NESTReferenceConverter converter = new NESTReferenceConverter(true);
         final ExpressionsPrettyPrinter expressionsPrinter = new LegacyExpressionPrinter(converter);
         glex.setGlobalValue("expressionsPrinter", expressionsPrinter);
       }
@@ -264,4 +258,7 @@ public class NestCodeGenerator {
 
   }
 
+  private boolean functionShapeExists(final List<ASTShape> shapes) {
+    return shapes.stream().anyMatch(shape -> shape.getLhs().getDifferentialOrder().size() == 0);
+  }
 }

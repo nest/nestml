@@ -32,15 +32,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Deque;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.*;
 import static java.lang.Math.pow;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
+import static org.nest.codegeneration.sympy.AstCreator.createEquation;
+import static org.nest.codegeneration.sympy.AstCreator.createShape;
 import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getType;
 import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
 
@@ -339,7 +339,7 @@ public final class AstUtils {
    * If the variable is ues as a RHS of an equation, e.g. g_in'' = exp(t) then a variable g_in' should be added.
    *
    */
-  public static String getNameOfLHS(final ASTDerivative astVariable) {
+  public static String getNameOfDerivedVariable(final ASTDerivative astVariable) {
     checkArgument(astVariable.getDifferentialOrder().size() > 0);
     return astVariable.getName() + Strings.repeat("'", astVariable.getDifferentialOrder().size() - 1);
   }
@@ -348,7 +348,7 @@ public final class AstUtils {
    * Returns the name of the shape, 'shape g_in = t' -> g_n
    *
    */
-  public static String getNameOfLHS(ASTShape astShape) {
+  public static String getNameOfDerivedVariable(ASTShape astShape) {
     return astShape.getLhs().toString();
   }
 
@@ -367,7 +367,7 @@ public final class AstUtils {
 
   public static boolean isInhExc(final ASTInputLine astInputLine ) {
     boolean isInh =false, isExc = false;
-    for (final ASTInputType astInputType:astInputLine.getInputTypes()) {
+    for (final ASTSpikeType astInputType:astInputLine.getSpikeTypes()) {
       if (astInputType.isInhibitory()) {
         isInh = true;
       }
@@ -383,12 +383,10 @@ public final class AstUtils {
   private static void printModelToFile(
       final ASTNeuron astNeuron,
       final Path outputFile) {
-    final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
-    astNeuron.accept(prettyPrinter);
 
     final File prettyPrintedModelFile = outputFile.toFile();
     try {
-      FileUtils.write(prettyPrintedModelFile, prettyPrinter.result());
+      FileUtils.write(prettyPrintedModelFile, NESTMLPrettyPrinter.print(astNeuron));
     }
     catch (IOException e) {
       final String msg = "Cannot write the prettyprinted model to the file: " + outputFile;
@@ -485,4 +483,60 @@ public final class AstUtils {
     }
     return Optional.empty();
   }
+
+  public static void addTrivialOdes(ASTEquationsBlock astEquationsBlock) {
+    // partition shapes by simple names name:
+    Map<String, List<ASTEquation>> equations = astEquationsBlock.getEquations()
+        .stream()
+        .collect(groupingBy(astEquation -> astEquation.getLhs().getSimpleName()));
+
+    for (final Map.Entry<String, List<ASTEquation>> odeSystem:equations.entrySet()) {
+      odeSystem.getValue().sort(Comparator.comparingInt(a -> a.getLhs().getDifferentialOrder().size()));
+      // go from the 1st order to the last order
+      int highesOrderOde = odeSystem.getValue().get(odeSystem.getValue().size() - 1).getLhs().getDifferentialOrder().size();
+
+
+      for (int i = highesOrderOde; i > 0; --i) {
+        final int currentOrder = i;
+        boolean isCorrespondingOdePresent = odeSystem.getValue()
+            .stream()
+            .anyMatch(astEquation -> astEquation.getLhs().getDifferentialOrder().size() == currentOrder);
+        if (!isCorrespondingOdePresent) {
+          String equationString = odeSystem.getKey() + Strings.repeat("'", currentOrder) + " = " +
+                                  odeSystem.getKey() + Strings.repeat("'", currentOrder);
+          astEquationsBlock.getEquations().add(createEquation(equationString));
+        }
+
+      }
+
+      Map<String, List<ASTShape>> shapes = astEquationsBlock.getShapes()
+          .stream()
+          .collect(groupingBy(astEquation -> astEquation.getLhs().getSimpleName()));
+
+      for (final Map.Entry<String, List<ASTShape>> shapeOdeSystem:shapes.entrySet()) {
+        shapeOdeSystem.getValue().sort(Comparator.comparingInt(a -> a.getLhs().getDifferentialOrder().size()));
+        // go from the 1st order to the last order
+        int highestOrderShape = shapeOdeSystem.getValue().get(shapeOdeSystem.getValue().size() - 1).getLhs().getDifferentialOrder().size();
+
+
+        for (int i = highestOrderShape; i > 0; --i) {
+          final int currentOrder = i;
+          boolean isCorrespondingOdePresent = shapeOdeSystem.getValue()
+              .stream()
+              .anyMatch(astEquation -> astEquation.getLhs().getDifferentialOrder().size() == currentOrder);
+          if (!isCorrespondingOdePresent) {
+            String equationString = "shape " +
+                                    shapeOdeSystem.getKey() + Strings.repeat("'", currentOrder) + " = " +
+                                    shapeOdeSystem.getKey() + Strings.repeat("'", currentOrder);
+            astEquationsBlock.getShapes().add(createShape(equationString));
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
 }

@@ -1,0 +1,28 @@
+neuron validShapes:
+  state:
+  end
+
+  input:
+      spikeInh <- inhibitory spike
+      spikeExc <- excitatory spike
+      currents <- current
+  end
+
+  parameters:    
+  end
+
+  output: spike
+
+  equations:
+    shape testShape = 1.5 * t
+    function AA pA = curr_sum(spikeInh, testShape)
+    function BB nS = cond_sum(spikeExc, testShape)
+  end
+
+  internals:
+  end
+
+  update:
+
+  end
+end

@@ -5,18 +5,21 @@
  */
 package org.nest.codegeneration.sympy;
 
-import org.nest.nestml._ast.ASTBody;
+import com.google.common.collect.Lists;
+import org.nest.nestml._ast.ASTAssignment;
 import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.ASTShape;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
+import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.reporting.Reporter;
 
 import java.nio.file.Path;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkState;
-import static org.nest.nestml._symboltable.predefined.PredefinedFunctions.DELTA;
+import static org.nest.codegeneration.sympy.TransformerBase.applyIncomingSpikes;
 import static org.nest.utils.AstUtils.deepCloneNeuronAndBuildSymbolTable;
-import static org.nest.utils.AstUtils.getFunctionCall;
 
 /**
  * Analyzes a neuron for defined ODE. If an ode is defined, it produces a temporary NESTML model
@@ -39,53 +42,66 @@ public class EquationsBlockProcessor {
    * @return Transformed neuron with either: exact solution or transformed shapes to its ODE notation
    */
   public ASTNeuron solveOdeWithShapes(final ASTNeuron astNeuron, final Path outputBase) {
-    final ASTBody astBody = astNeuron.getBody();
-    if (astBody.getOdeBlock().isPresent()) {
-
+    ASTNeuron workingVersion = astNeuron;
+    if (workingVersion.findEquationsBlock().isPresent()) {
       reporter.reportProgress(String.format("The neuron %s contains an ODE block. It will be analysed.", astNeuron.getName()));
-      final Optional<ASTFunctionCall> deltaShape = getFunctionCall(DELTA, astBody.getOdeBlock().get());
 
-      final ASTNeuron deepCopy = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
+      final ASTNeuron deepCopy = deepCloneNeuronAndBuildSymbolTable(workingVersion, outputBase);
       // this function is called only for neurons with an ode block. thus, retrieving it is safe.
-      if (deepCopy.getBody().getOdeBlock().get().getShapes().size() > 0 &&
-          deepCopy.getBody().getOdeBlock().get().getODEs().size() == 1) {
+      if (workingVersion.findEquationsBlock().get().getShapes().size() > 0 &&
+          !odeShapeExists(workingVersion.findEquationsBlock().get().getShapes()) &&
+          workingVersion.findEquationsBlock().get().getEquations().size() == 1) {
 
-        final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.getBody().getOdeBlock().get(), outputBase);
+        // this uses the copy of the AST since the python generator changes the AST during the generation
+        final SolverOutput solverOutput = evaluator.solveOdeWithShapes(deepCopy.findEquationsBlock().get(), outputBase);
         reporter.reportProgress("The model ODE with shapes will be analyzed.");
         reporter.reportProgress("The solver script is evaluated. Results are stored under " + outputBase.toString());
 
         if (!solverOutput.status.equals("success")) {
           reporter.reportProgress(astNeuron.getName() +
-                                  ": Equations or shapes could not be solved. The model remains unchanged.");
+                                  ": Equations or shapes could not be solved. The model remains unchanged.",
+                                  Reporter.Level.ERROR);
           return astNeuron;
         }
 
         switch (solverOutput.solver) {
           case "exact":
             reporter.reportProgress("Equations are solved exactly.");
-            return exactSolutionTransformer.addExactSolution(astNeuron, solverOutput);
+            workingVersion = exactSolutionTransformer.addExactSolution(workingVersion, solverOutput);
+            break;
 
           case "numeric":
             reporter.reportProgress("Shapes will be solved with GLS.");
-            return shapesToOdesTransformer.transformShapesToOdeForm(astNeuron, solverOutput);
+            workingVersion =  shapesToOdesTransformer.transformShapesToOdeForm(astNeuron, solverOutput);
+            break;
+
           case "delta":
             return deltaSolutionTransformer.addExactSolution(solverOutput, astNeuron);
+
           default:
             reporter.reportProgress(astNeuron.getName() +
                                     ": Equations or shapes could not be solved. The model remains unchanged.");
-            return astNeuron;
+            return workingVersion;
         }
       }
-      else if (deepCopy.getBody().getOdeBlock().get().getShapes().size() > 0) {
+      else if (workingVersion.findEquationsBlock().get().getShapes().size() > 0 &&
+               !odeShapeExists(workingVersion.findEquationsBlock().get().getShapes())) {
         reporter.reportProgress("Shapes will be solved with GLS.");
-        final SolverOutput solverOutput = evaluator.solveShapes(deepCopy.getBody().getOdeBlock().get().getShapes(), outputBase);
-        return shapesToOdesTransformer.transformShapesToOdeForm(astNeuron, solverOutput);
+        final SolverOutput solverOutput = evaluator.solveShapes(deepCopy.findEquationsBlock().get().getShapes(), outputBase);
+        workingVersion =  shapesToOdesTransformer.transformShapesToOdeForm(astNeuron, solverOutput);
 
+      }
+      else {
+        applyIncomingSpikes(workingVersion);
       }
 
     }
-    reporter.reportProgress(String.format("The %s remains unchanged", astNeuron.getName()));
-    return astNeuron;
+
+    return workingVersion;
+  }
+
+  private boolean odeShapeExists(final List<ASTShape> shapes) {
+    return shapes.stream().anyMatch(shape -> shape.getLhs().getDifferentialOrder().size() > 0);
   }
 
 }

@@ -39,9 +39,9 @@ public class LineOperatorVisitor implements NESTMLVisitor {
     if (expr.isPlusOp()) {
       // String concatenation has a prio. If one of the operands is a string, the remaining sub-expression becomes a string
 
-      if ((lhsType == (getStringType()) ||
-           rhsType == (getStringType())) &&
-          (rhsType != (getVoidType()) && lhsType != (getVoidType()))) {
+      if ((lhsType.equals(getStringType()) ||
+           rhsType.equals(getStringType())) &&
+          (!rhsType.equals(getVoidType()) && !lhsType.equals(getVoidType()))) {
         expr.setType(Either.value(getStringType()));
         return;
       }
@@ -131,16 +131,6 @@ public class LineOperatorVisitor implements NESTMLVisitor {
         warn(errorMsg, expr.get_SourcePositionStart());
         return;
       }
-    }
-
-    //If a buffer is involved, the other unit takes precedent TODO: is this the intended semantic?
-    if (lhsType == getBufferType()) {
-      expr.setType(Either.value(rhsType));
-      return;
-    }
-    if (rhsType == getBufferType()) {
-      expr.setType(Either.value(lhsType));
-      return;
     }
 
     //if we get here, we are in a general error state

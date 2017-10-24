@@ -18,14 +18,14 @@ import static org.junit.Assert.assertEquals;
  *
  * @author plotnikov
  */
-public class ASTBodyTest extends ModelbasedTest {
+public class ASTNeuronTest extends ModelbasedTest {
   private static final String PSC_MODEL_THREE_BUFFERS = "src/test/resources/codegeneration/iaf_psc_alpha_three_buffers.nestml";
 
   @Test
   public void getSameTypeBuffer() throws Exception {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(PSC_MODEL_THREE_BUFFERS);
-    final ASTBody astBody = root.getNeurons().get(0).getBody();
-    final List<VariableSymbol> buffers = astBody.getMultipleReceptors();
+    final ASTNeuron astNeuron = root.getNeurons().get(0);
+    final List<VariableSymbol> buffers = astNeuron.getMultipleReceptors();
     assertEquals(3, buffers.size());
 
   }
@@ -33,8 +33,8 @@ public class ASTBodyTest extends ModelbasedTest {
   @Test
   public void getCurrentBuffer() {
     ASTNESTMLCompilationUnit root = parseAndBuildSymboltable(PSC_MODEL_THREE_BUFFERS);
-    final ASTBody astBody = root.getNeurons().get(0).getBody();
-    final List<VariableSymbol> buffers = astBody.getCurrentBuffers();
+    final ASTNeuron astNeuron = root.getNeurons().get(0);
+    final List<VariableSymbol> buffers = astNeuron.getCurrentBuffers();
     assertEquals(1, buffers.size());
   }
 

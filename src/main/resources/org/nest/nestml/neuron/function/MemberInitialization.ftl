@@ -6,16 +6,16 @@
                  variable is declared (inside a struct or in another method)
 -->
 ${signature("variable", "printer")}
-<#if variable.getDeclaringExpression().isPresent()>
+<#if variable.getDeclaringExpression().isPresent() && !variable.isShape()>
   <#if variable.isVector()>
-    ${variableHelper.printOrigin(variable)}${names.name(variable)}.resize(P_.${variable.getVectorParameter().get()}, ${printer.print(variable.getDeclaringExpression().get())});
+    ${variableHelper.printOrigin(variable)}${names.name(variable)}.resize(P_.${variable.getVectorParameter().get()}, ${printer.print(variable.getDeclaringExpression().get())}); // as ${variable.getType().prettyPrint()}
   <#else>
-    ${variableHelper.printOrigin(variable)}${names.name(variable)} = ${printer.print(variable.getDeclaringExpression().get())};
+    ${variableHelper.printOrigin(variable)}${names.name(variable)} = ${printer.print(variable.getDeclaringExpression().get())}; // as ${variable.getType().prettyPrint()}
   </#if>
 <#else>
   <#if variable.isVector()>
-    ${variableHelper.printOrigin(variable)}${names.name(variable)}.resize(0);
+    ${variableHelper.printOrigin(variable)}${names.name(variable)}.resize(0); // as ${variable.getType().prettyPrint()}
   <#else>
-    ${variableHelper.printOrigin(variable)}${names.name(variable)} = 0;
+    ${variableHelper.printOrigin(variable)}${names.name(variable)} = 0; // as ${variable.getType().prettyPrint()}
   </#if>
 </#if>

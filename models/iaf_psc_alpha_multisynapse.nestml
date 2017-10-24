@@ -31,14 +31,17 @@ iaf_psc_exp_multisynapse
 neuron iaf_psc_alpha_multisynapse_neuron:
 
   state:
-    V_abs mV
-    function V_m mV = V_abs + E_L # Membrane potential.
     r integer                               # counts number of tick during the refractory period
+  end
+
+  initial_values:
+    V_abs mV = 0mV
+    function V_m mV = V_abs + E_L # Membrane potential.
   end
 
   equations:
       shape I_shape = pA * (e/tau_syn) * t * exp(-1/tau_syn*t)
-      V_abs' = -1/tau_m * V_abs + 1/C_m * (curr_sum(I_shape, spikes) + I_e + currents)
+      V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(I_shape, spikes) + I_e + currents)
   end
 
   parameters:
@@ -58,7 +61,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
   end
 
   input:
-    spikes[receptors]   <- spike
+    spikes[receptors] pA <- spike
     currents <- current
   end
 

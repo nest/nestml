@@ -5,7 +5,6 @@
  */
 package org.nest.nestml._cocos;
 
-import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNeuron;
 
 import static de.se_rwth.commons.logging.Log.error;
@@ -18,15 +17,14 @@ import static de.se_rwth.commons.logging.Log.error;
 public class NeuronWithMultipleOrNoUpdate implements NESTMLASTNeuronCoCo {
 
   public void check(final ASTNeuron neuron) {
-    final ASTBody bodyDecorator = neuron.getBody();
 
-    if (bodyDecorator.getDynamics().isEmpty()) {
+    if (neuron.getUpdateBlocks().isEmpty()) {
       final String msg = NestmlErrorStrings.getErrorMsgDynamicsNotPresent(this);
 
      error(msg, neuron.get_SourcePositionStart());
     }
 
-    if (bodyDecorator.getDynamics().size() > 1) {
+    if (neuron.getUpdateBlocks().size() > 1) {
       final String msg = NestmlErrorStrings.getErrorMsgMultipleDynamics(this);
      error( msg, neuron.get_SourcePositionStart());
     }

@@ -7,5 +7,5 @@
 <#if ast.getExpr().isPresent()>
 return ${expressionsPrinter.print(ast.getExpr().get())};
 <#elseif ast.getCompound_Stmt().isPresent()>
-return ;
+return;
 </#if>

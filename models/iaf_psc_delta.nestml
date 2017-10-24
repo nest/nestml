@@ -69,15 +69,18 @@ SeeAlso: iaf_psc_alpha, iaf_psc_exp, iaf_neuron, iaf_psc_delta_canon
 neuron iaf_psc_delta_neuron:
 
   state:
-    V_abs mV = 0 mV
     refr_spikes_buffer mV = 0 mV
+    r integer # counts number of tick during the refractory period
+  end
+
+  initial_values:
+    V_abs mV = 0 mV
     function V_m mV = V_abs + E_L # Membrane potential.
-    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
     shape G = delta(t, tau_m)
-    V_abs' = -1/tau_m * V_abs + 1/C_m * (curr_sum(G, spikes) + I_e + currents)
+    V_abs' = -1/tau_m * V_abs + 1/C_m * (convolve(G, spikes) + I_e + currents)
   end
 
   parameters:
@@ -99,7 +102,7 @@ neuron iaf_psc_delta_neuron:
   end
 
   input:
-    spikes   <- spike
+    spikes pA <- spike
     currents <- current
   end
 
@@ -124,7 +127,7 @@ neuron iaf_psc_delta_neuron:
       # for decay until end of refractory period
       # the buffer is clear automatically
       if with_refr_input:
-        refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV
+        refr_spikes_buffer += spikes * exp(-r * h / tau_m) * mV/pA
       end
       r -= 1
     end

@@ -16,16 +16,18 @@ public class NESTML2NESTTypeConverter {
   }
 
   private String doConvert(final TypeSymbol nestmlType) {
+
+    //check for buffer property early!
+    if (nestmlType.isBufferType()) {
+      return "nest::RingBuffer";
+    }
+
     if (PredefinedTypes.getStringType().equals(nestmlType)) {
       return "std::string";
     }
 
     if (PredefinedTypes.getVoidType().equals(nestmlType)) {
       return "void";
-    }
-
-    if (PredefinedTypes.getBufferType().equals(nestmlType)) {
-      return "nest::RingBuffer";
     }
 
     if (PredefinedTypes.getBooleanType().equals(nestmlType)) {
@@ -44,7 +46,6 @@ public class NESTML2NESTTypeConverter {
       return "nest::Time";
     }
     final String name = nestmlType.getName();
-    PredefinedTypes.getRealType().equals(nestmlType);
     return name.replaceAll("\\.", "::");
   }
 }

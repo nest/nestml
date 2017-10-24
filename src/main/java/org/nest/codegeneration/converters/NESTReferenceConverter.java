@@ -6,13 +6,13 @@
 package org.nest.codegeneration.converters;
 
 import de.monticore.symboltable.Scope;
+import org.nest.codegeneration.helpers.GslNames;
+import org.nest.codegeneration.helpers.Names;
 import org.nest.nestml._ast.ASTFunctionCall;
 import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml.prettyprinter.IReferenceConverter;
-import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml._symboltable.predefined.PredefinedFunctions;
 import org.nest.nestml._symboltable.predefined.PredefinedVariables;
-import org.nest.nestml._symboltable.symbols.MethodSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
@@ -30,6 +30,11 @@ import static org.nest.utils.AstUtils.convertSiName;
  * @author plotnikov
  */
 public class NESTReferenceConverter implements IReferenceConverter {
+  private final boolean usesGSL;
+
+  public NESTReferenceConverter(boolean usesGSL) {
+    this.usesGSL = usesGSL;
+  }
 
   @Override
   public String convertBinaryOperator(final String binaryOperator) {
@@ -50,7 +55,6 @@ public class NESTReferenceConverter implements IReferenceConverter {
   public String convertFunctionCall(final ASTFunctionCall astFunctionCall) {
     checkState(astFunctionCall.getEnclosingScope().isPresent(), "No scope assigned. Run SymbolTable creator.");
 
-    final Scope scope = astFunctionCall.getEnclosingScope().get();
     final String functionName = astFunctionCall.getCalleeName();
 
     if ("and".equals(functionName)) {
@@ -126,15 +130,21 @@ public class NESTReferenceConverter implements IReferenceConverter {
         return variableName + (variableSymbol.isVector()?"[i]":"");
       }
       else if(variableSymbol.isBuffer()) {
-        return printOrigin(variableSymbol) + org.nest.codegeneration.helpers.Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
+        return printOrigin(variableSymbol) + Names.bufferValue(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
       }
       else {
         if (variableSymbol.isFunction()) {
           return "get_" + variableName + "()" +  (variableSymbol.isVector()?"[i]":"") ;
         }
         else {
+          if (variableSymbol.isInInitialValues()) {
+            return printOrigin(variableSymbol) +
+                   (usesGSL? GslNames.name(variableSymbol): Names.name(variableSymbol)) +
+                   (variableSymbol.isVector()?"[i]":"");
+          } else {
+            return printOrigin(variableSymbol) + Names.name(variableSymbol) + (variableSymbol.isVector()?"[i]":"");
+          }
 
-          return printOrigin(variableSymbol) + variableName +  (variableSymbol.isVector()?"[i]":"");
         }
 
       }

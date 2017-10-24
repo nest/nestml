@@ -84,8 +84,8 @@ neuron aeif_cond_exp_neuron:
     shape GE = exp(-1/tau_syn_ex*t)
     function exp_arg real = (V_m-V_th)/delta_T
     function I_spike real = delta_T*exp(exp_arg)
-    function I_syn_exc real =   cond_sum(GE, spikeExc) * ( V_m - E_ex )
-    function I_syn_inh real =   cond_sum(GI, spikeInh) * ( V_m - E_in )
+    function I_syn_exc real =   convolve(GE, spikeExc) * ( V_m - E_ex )
+    function I_syn_inh real =   convolve(GI, spikeInh) * ( V_m - E_in )
 
     V_m' = ( -g_L * ( ( V_m - E_L ) - I_spike ) - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_m - E_L) - w)/tau_w
@@ -126,8 +126,8 @@ neuron aeif_cond_exp_neuron:
   end
 
   input:
-    spikeInh   <- inhibitory spike
-    spikeExc   <- excitatory spike
+    spikeInh nS <- inhibitory spike
+    spikeExc nS <- excitatory spike
     currents <- current
   end
 

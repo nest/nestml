@@ -10,9 +10,10 @@ import de.monticore.symboltable.Scope;
 import de.monticore.symboltable.SymbolKind;
 import org.nest.codegeneration.helpers.ASTBuffers;
 import org.nest.codegeneration.sympy.OdeTransformer;
+import org.nest.nestml._ast.ASTDeclaration;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._ast.ASTInputLine;
-import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
 import java.util.Objects;
@@ -30,20 +31,25 @@ import static org.nest.utils.AstUtils.getVectorizedVariable;
  */
 public class VariableSymbol extends CommonSymbol {
   public static final VariableSymbolKind KIND = new VariableSymbolKind();
+  private VariableType variableType;
+  private BlockType blockType;
+
   private ASTExpr declaringExpression = null;
-
   private ASTExpr odeDeclaration = null;
-
   private TypeSymbol type;
-  private boolean isPredefined;
   private boolean isFunction;
   private boolean isRecordable;
-  private BlockType blockType;
   private String arraySizeParameter = null;
   private boolean conductanceBased = false;
 
+  public VariableSymbol(final String name, final BlockType blockType, final VariableType variableType) {
+    super(name, KIND);
+    this.blockType = blockType;
+    this.variableType = variableType;
+  }
+
   public boolean isBuffer() {
-    return blockType == BlockType.INPUT_BUFFER_CURRENT || blockType == BlockType.INPUT_BUFFER_SPIKE;
+    return blockType == BlockType.INPUT;
   }
 
   @SuppressWarnings({"unused"}) // used in templates
@@ -52,16 +58,14 @@ public class VariableSymbol extends CommonSymbol {
     // generator.
     return isRecordable && !isVector();
   }
+
+  @SuppressWarnings({"unused"}) // used in templates
   public Optional<ASTExpr> getOdeDeclaration() {
     return Optional.ofNullable(odeDeclaration);
   }
 
   public void setOdeDeclaration(final ASTExpr odeDeclaration) {
     this.odeDeclaration = odeDeclaration;
-  }
-
-  public boolean definedByODE() {
-    return odeDeclaration != null;
   }
 
   public void setRecordable(boolean loggable) {
@@ -74,13 +78,8 @@ public class VariableSymbol extends CommonSymbol {
     this.declaringExpression = declaringExpression;
   }
 
-  public VariableSymbol(String name) {
-    super(name, KIND);
-    setBlockType(BlockType.LOCAL);
-  }
-
+  @SuppressWarnings({"unused"}) // used in templates. must be public.
   public Optional<ASTExpr> getDeclaringExpression() {
-
     return Optional.ofNullable(declaringExpression);
   }
 
@@ -108,9 +107,12 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isCurrentBuffer() {
+    //either it is defined as current
     if (getAstNode().isPresent() && getAstNode().get() instanceof ASTInputLine) {
       final ASTInputLine astInputLine = (ASTInputLine) getAstNode().get();
-      return astInputLine.isCurrent();
+      if (astInputLine.isCurrent()){
+        return true; //we want to continue if it is not true
+      }
     }
     return false;
   }
@@ -140,7 +142,7 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isVector() {
-    if (blockType == BlockType.SHAPE) {
+    if (blockType == BlockType.EQUATIONS) {
 
       // declaring expression exists by construction from symbol table creator
       // there no shape without declaring expression
@@ -153,15 +155,12 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isPredefined() {
-    return isPredefined;
+    return this.blockType == BlockType.PREDEFINED;
   }
 
-  public void setPredefined(boolean predefined) {
-    isPredefined = predefined;
-  }
 
   public Optional<String> getVectorParameter() {
-    if (blockType != BlockType.SHAPE) {
+    if (blockType != BlockType.EQUATIONS) {
       return Optional.ofNullable(arraySizeParameter);
     }
     else {
@@ -181,8 +180,24 @@ public class VariableSymbol extends CommonSymbol {
     this.arraySizeParameter = arraySizeParameter;
   }
 
+  public boolean isFunctionalShape() {
+    return variableType == VariableType.SHAPE && !getName().contains("'");
+  }
+
   public boolean isState() {
     return blockType == BlockType.STATE;
+  }
+
+  public boolean isInInitialValues() {
+    return blockType == BlockType.INITIAL_VALUES;
+  }
+
+  public void markShape() {
+    this.variableType = VariableType.SHAPE;
+  }
+
+  public boolean isShape() {
+    return variableType == VariableType.SHAPE;
   }
 
   public boolean isInternal() {
@@ -190,9 +205,10 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   public boolean isInEquation() {
-    return blockType == BlockType.EQUATION;
+    return blockType == BlockType.EQUATIONS;
   }
 
+  @SuppressWarnings({"unused"}) // used in templates
   public boolean containsSumCall() {
     return declaringExpression != null && OdeTransformer.containsSumFunctionCall(declaringExpression);
   }
@@ -213,10 +229,6 @@ public class VariableSymbol extends CommonSymbol {
     return blockType;
   }
 
-  public void setBlockType(BlockType blockType) {
-    this.blockType = blockType;
-  }
-
   @SuppressWarnings({"unused"}) // used in templates
   public boolean hasSetter() {
     checkState(getAstNode().isPresent(), "Symbol table must set the AST node.");
@@ -234,23 +246,21 @@ public class VariableSymbol extends CommonSymbol {
   }
 
   @SuppressWarnings({"unused"}) // used in templates
-  public String printComment(final String prefix) {
-    final StringBuffer output = new StringBuffer();
+  public Optional<String> getComment() {
     if(getAstNode().isPresent() && getAstNode().get() instanceof ASTDeclaration) {
       final ASTDeclaration astDeclaration = (ASTDeclaration) getAstNode().get();
-      astDeclaration.getComments().forEach(comment -> output.append(prefix + " " + comment));
+      if (astDeclaration.getDocString().length() > 0) {
+
+        return Optional.of(astDeclaration.getDocString());
+      }
+      else {
+        return Optional.empty();
+      }
+    }
+    else {
+      return Optional.empty();
     }
 
-    return output.toString();
-  }
-
-  public Boolean hasComment() {
-    if(getAstNode().isPresent() && getAstNode().get() instanceof ASTDeclaration) {
-      final ASTDeclaration astDeclaration = (ASTDeclaration) getAstNode().get();
-      return !astDeclaration.getComments().isEmpty();
-    }
-
-    return false;
   }
 
 
@@ -282,16 +292,23 @@ public class VariableSymbol extends CommonSymbol {
 
   }
 
+  public enum VariableType {
+    SHAPE,
+    VARIABLE,
+    BUFFER,
+    EQUATION
+  }
+
   public enum BlockType {
     STATE,
     PARAMETERS,
     INTERNALS,
-    EQUATION,
+    INITIAL_VALUES,
+    EQUATIONS,
     LOCAL,
-    INPUT_BUFFER_CURRENT,
-    INPUT_BUFFER_SPIKE,
     OUTPUT,
-    SHAPE
+    INPUT,
+    PREDEFINED
   }
 
 }

@@ -3,7 +3,7 @@
 */
 neuron quadratic_IaF:
 
-  state:
+  initial_values:
     V_m mV = 0mV
   end
 
@@ -20,7 +20,7 @@ neuron quadratic_IaF:
   end
 
   input:
-    spikes   <- spike
+    spikes nS <- spike
   end
 
   output: spike

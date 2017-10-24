@@ -14,8 +14,6 @@ import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static de.se_rwth.commons.logging.Log.error;
-import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_CURRENT;
-import static org.nest.nestml._symboltable.symbols.VariableSymbol.BlockType.INPUT_BUFFER_SPIKE;
 
 /**
  * Checks that buffers cannot be assigned a value.
@@ -34,10 +32,8 @@ public class BufferNotAssignable implements NESTMLASTAssignmentCoCo {
     if (!var.isPresent()) {
       Log.trace("Cannot resolve the variable: " + varName + " . Thereofore, the coco is skipped.", BufferNotAssignable.class.getSimpleName());
     }
-    else if (var.get().getBlockType() == INPUT_BUFFER_CURRENT ||
-        var.get().getBlockType() == INPUT_BUFFER_SPIKE) {
-      NestmlErrorStrings errorStrings = NestmlErrorStrings.getInstance();
-      String msg = errorStrings.message(this,var.get().getName());
+    else if (var.get().getBlockType() == VariableSymbol.BlockType.INPUT) {
+      String msg = NestmlErrorStrings.message(this,var.get().getName());
 
       error(msg, astAssignment.get_SourcePositionStart());
 

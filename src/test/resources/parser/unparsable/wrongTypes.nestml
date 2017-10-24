@@ -81,14 +81,13 @@ neuron iaf_neuron_neuron:
   # Declarative description of the updates rules
   equations:
       shape G = (e/tau_syn) * t * exp(-1/tau_syn*t)
-      V_abs' = -1/Tau * V_abs + 1/C_m * (curr_sum(G, spikes) + I_e + currents)
+      V_abs' = -1/Tau * V_abs + 1/C_m * (convolve(G, spikes) + I_e + currents)
   end
 
   # these parameter are adjusted from outside
   parameters:
-    C_m     pF = 250 pF [[C_m > 0 pF]]   # ERROR: pf is wrong
-    Tau     ms = 10 ms    #
-    Tau     ms = 10 ms    #
+    Tau     ms = 10 NS    # ERROR: NS is wrong
+    C_m     pf = 250 pF [[C_m > 0 pF]]   # ERROR: pf is wrong
     tau_syn ms = 2 ms     # Time constant of synaptic current.
     t_ref   ms = 2 ms    # Refractory period.
     E_L     mV = -70 mV  # Resting potential.
@@ -105,7 +104,7 @@ neuron iaf_neuron_neuron:
 
   # input sources
   input:
-    spikes   <- spike
+    spikes nS <- spike
     currents <- current
   end
 
@@ -115,7 +114,7 @@ neuron iaf_neuron_neuron:
   # Describes how the state evolves in the time
   update:
     if r == 0: # not refractory
-        integrate_odes()
+        integrate(V_abs)
         if V_abs >= Theta: # threshold crossing
           r = RefractoryCounts
           V_abs = V_reset

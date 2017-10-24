@@ -31,7 +31,7 @@ import java.util.List;
  * @author plotnikov
  */
 public class ASTDeclaration extends ASTDeclarationTOP {
-  private final List<String> commentLines = Lists.newArrayList();
+  private final StringBuilder docStrings = new StringBuilder();
 
   protected ASTDeclaration(){
 
@@ -41,20 +41,19 @@ public class ASTDeclaration extends ASTDeclarationTOP {
                         ASTDatatype datatype,
                         String sizeParameter,
                         ASTExpr expr,
-                        String sL_comment,
                         ASTExpr invariant,
                         boolean recordable,
                         boolean function) {
-    super(vars, datatype, sizeParameter, expr, sL_comment, invariant, recordable, function);
+    super(vars, datatype, sizeParameter, expr, invariant, recordable, function);
 
   }
 
-  public void addComment(final String comment) {
-    commentLines.add(comment);
+  public void extendDocString(final String docString) {
+    docStrings.append(" ").append(docString.trim());
   }
 
-  public List<String> getComments() {
-    return commentLines;
+  public String getDocString() {
+    return docStrings.toString().trim();
   }
 
 }

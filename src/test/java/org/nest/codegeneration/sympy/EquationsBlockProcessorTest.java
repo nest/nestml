@@ -27,9 +27,11 @@ import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.sympy.EquationsBlockProcessor;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
+import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._symboltable.symbols.NeuronSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.nestml.prettyprinter.NESTMLPrettyPrinter;
+import org.nest.utils.AstUtils;
 import org.nest.utils.FilesHelper;
 
 import java.nio.file.Path;
@@ -72,10 +74,10 @@ public class EquationsBlockProcessorTest extends ModelbasedTest {
     final Optional<VariableSymbol> y1 = neuronSymbol.get().getVariableByName("g_in");
     final Optional<VariableSymbol> y2 = neuronSymbol.get().getVariableByName("g_ex");
     assertTrue(y1.isPresent());
-    assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
+    assertTrue(y1.get().getBlockType().equals(VariableSymbol.BlockType.INITIAL_VALUES));
 
     assertTrue(y2.isPresent());
-    assertTrue(y2.get().getBlockType().equals(VariableSymbol.BlockType.STATE));
+    assertTrue(y2.get().getBlockType().equals(VariableSymbol.BlockType.INITIAL_VALUES));
   }
 
   @Test
@@ -94,12 +96,12 @@ public class EquationsBlockProcessorTest extends ModelbasedTest {
   private Scope solveOdesAndShapes(final String pathToModel) {
     final ASTNESTMLCompilationUnit modelRoot = parseNestmlModel(pathToModel);
     scopeCreator.runSymbolTableCreator(modelRoot);
-    final Path outputBase = Paths.get(OUTPUT_FOLDER.toString(), Names.getPathFromQualifiedName(pathToModel));
-    FilesHelper.deleteFilesInFolder(outputBase);
+    FilesHelper.deleteFilesInFolder(OUTPUT_FOLDER);
 
-    testant.solveOdeWithShapes(modelRoot.getNeurons().get(0), outputBase);
-    System.out.println(NESTMLPrettyPrinter.Builder.build().print(modelRoot.getNeurons().get(0)));
-    return scopeCreator.runSymbolTableCreator(modelRoot);
+    final ASTNeuron solvedNeuron = testant.solveOdeWithShapes(modelRoot.getNeurons().get(0), OUTPUT_FOLDER);
+
+    return AstUtils.deepCloneNeuronAndBuildSymbolTable(solvedNeuron, OUTPUT_FOLDER).getSpannedScope().get();
+
   }
 
 }

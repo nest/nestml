@@ -1,12 +1,15 @@
 neuron iaf_neuron:
 
   state:
-    y0 mV
-    y0' mV
     y1 mV
     y2 mV
-    y3 mV
     # Membrane potential.
+  end
+
+  initial_values:
+    y0 mV = 0mV
+    y0' mV = 0mV/ms
+    y3 mV
     function V_m mV = y3 + E_L
   end
 
@@ -14,7 +17,7 @@ neuron iaf_neuron:
     y0' = y0 + 1
     y0'' = y0' + 1
     shape G = t
-    recordable function y3_tmp real = cond_sum(G, spikeBuffer)
+    recordable function y3_tmp real = convolve(G, spikeBuffer)
     y3' = y3_tmp
   end
 
@@ -61,7 +64,7 @@ neuron iaf_neuron:
   end
 
   input:
-    spikeBuffer   <- inhibitory excitatory spike
+    spikeBuffer nS <- inhibitory excitatory spike
     currentBuffer <- current
   end
 

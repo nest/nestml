@@ -7,9 +7,13 @@ package org.nest.utils;
 
 import com.google.common.collect.Lists;
 import de.se_rwth.commons.logging.Log;
+import org.nest.frontend.NestmlFrontend;
 import org.nest.nestml._symboltable.NESTMLLanguage;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.List;
@@ -84,4 +88,21 @@ public class FilesHelper {
     }
     return filenames;
   }
+
+  public static void copyResource(
+      final ClassLoader classLoader,
+      final String checkerScript,
+      final String copiedScriptName,
+      final Path outputFolder) throws IOException {
+    final InputStream is = classLoader.getResourceAsStream(checkerScript);
+    byte[] buffer = new byte[is.available()];
+    if (is.read(buffer) < 0) {
+      Log.error("Cannot copy the script " + checkerScript);
+    }
+
+    final OutputStream outStream = new FileOutputStream(
+        Paths.get(outputFolder.toString(), copiedScriptName).toString());
+    outStream.write(buffer);
+  }
+
 }

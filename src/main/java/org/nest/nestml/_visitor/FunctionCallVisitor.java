@@ -6,10 +6,14 @@
 package org.nest.nestml._visitor;
 
 import de.se_rwth.commons.logging.Log;
+import de.monticore.symboltable.Scope;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._cocos.SplErrorStrings;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._cocos.NestmlErrorStrings;
+import org.nest.nestml._symboltable.NESTMLSymbolTableCreator;
+import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.nestml._symboltable.typechecking.TypeChecker;
 import org.nest.nestml._symboltable.NestmlSymbols;
@@ -20,6 +24,7 @@ import org.nest.utils.AstUtils;
 import java.util.List;
 import java.util.Optional;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.isCompatible;
 import static org.nest.nestml._symboltable.typechecking.TypeChecker.isUnit;
@@ -34,6 +39,8 @@ public class FunctionCallVisitor implements NESTMLVisitor {
 
   @Override
   public void visit(final ASTExpr expr) { // visits only function calls
+    checkArgument(expr.getEnclosingScope().isPresent(), "Run symboltable creator.");
+    final Scope scope = expr.getEnclosingScope().get();
     checkState(expr.getFunctionCall().isPresent());
     final String functionName = expr.getFunctionCall().get().getCalleeName();
 
@@ -76,6 +83,25 @@ public class FunctionCallVisitor implements NESTMLVisitor {
 
     //set modified parameter list
     expr.getFunctionCall().get().setArgs(fullParamList);
+    //convolve symbol does not have a return type set.
+    //returns whatever type the second parameter is.
+    if(functionName.equals("convolve")){
+      //Deviations from the assumptions made here are handled in the convolveCoco
+      ASTExpr bufferParameter = expr.getFunctionCall().get().getArgs().get(1);
+      if(bufferParameter.getVariable().isPresent()){
+        String bufferName = bufferParameter.getVariable().get().toString();
+        Optional<VariableSymbol> bufferSymbolOpt = VariableSymbol.resolveIfExists(bufferName,scope);
+        if(bufferSymbolOpt.isPresent()){
+          expr.setType(Either.value(bufferSymbolOpt.get().getType()));
+          return;
+        }
+      }
+
+      //getting here means there is an error with the parameters to convolve
+      final String errorMsg = NestmlErrorStrings.errorCannotCalculateConvolveResult(this);
+      expr.setType(Either.error(errorMsg));
+      return;
+    }
 
     //revisit current sub-tree with substitution if a change happened
     if(needUpdate) {
@@ -87,6 +113,8 @@ public class FunctionCallVisitor implements NESTMLVisitor {
       expr.setType(Either.error(errorMsg));
       return;
     }
+
+
     expr.setType(Either.value(methodSymbol.get().getReturnType()));
   }
 

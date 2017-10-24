@@ -111,7 +111,7 @@ public class GslReferenceConverter implements IReferenceConverter {
       return siUnitAsLiteral.get();
     }
 
-    if (variableSymbol.definedByODE()) {
+    if (variableSymbol.isInInitialValues()) {
       return GslNames.name(variableSymbol);
     }
     else if (variableSymbol.isBuffer()) {

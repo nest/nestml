@@ -10,9 +10,7 @@ import com.google.common.io.Files;
 import de.se_rwth.commons.logging.Finding;
 import de.se_rwth.commons.logging.Log;
 import org.antlr.v4.runtime.RecognitionException;
-import org.nest.nestml._ast.ASTDeclaration;
-import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
-import org.nest.nestml._ast.ASTNeuron;
+import org.nest.nestml._ast.*;
 import org.nest.nestml._visitor.UnitsSIVisitor;
 import org.nest.utils.AstUtils;
 
@@ -22,18 +20,23 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.groupingBy;
+import static org.nest.utils.AstUtils.addTrivialOdes;
+
 /**
  * HW parser that also is able
  *
  * @author plotnikov
  */
 public class NESTMLParser extends NESTMLParserTOP {
-  private final List<String> sourceText = Lists.newArrayList();
+
 
   @Override
   public Optional<ASTNESTMLCompilationUnit> parseNESTMLCompilationUnit(final String filename)
       throws IOException, RecognitionException {
 
+    final List<String> sourceText = Lists.newArrayList();
+    sourceText.addAll(Files.readLines(new File(filename), Charset.defaultCharset()));
     final Optional<ASTNESTMLCompilationUnit> res = super.parseNESTMLCompilationUnit(filename);
 
     if (res.isPresent()) {
@@ -45,18 +48,25 @@ public class NESTMLParser extends NESTMLParserTOP {
       final List<Finding> typeFindings = UnitsSIVisitor.convertSiUnitsToSignature(res.get());
       if (!typeFindings.isEmpty()) {
         Log.error("The modelfile contains semantic errors with respect to SI units.");
-        Log.error(String.format("There are %d errors", typeFindings.size()));
         return Optional.empty();
       }
 
       // store model text as list of strings
-      sourceText.addAll(Files.readLines(new File(filename), Charset.defaultCharset()));
+
       final List<ASTDeclaration> declarations = AstUtils.getAll(res.get(), ASTDeclaration.class);
 
       for (final ASTDeclaration astDeclaration:declarations) {
-        int line = astDeclaration.get_SourcePositionStart().getLine();
-        final List<String> variableComments = extractComments(sourceText, line - 1);
-        variableComments.forEach(astDeclaration::addComment);
+        int arrayIndex = astDeclaration.get_SourcePositionStart().getLine() - 1;
+        final List<String> variableComments = extractComments(sourceText, arrayIndex);
+        variableComments.forEach(astDeclaration::extendDocString);
+      }
+
+      // here additional shape odes are added
+      for (final ASTNeuron astNeuron:res.get().getNeurons()) {
+        for (final ASTEquationsBlock astEquationsBlock:astNeuron.getEquationsBlocks()) {
+          addTrivialOdes(astEquationsBlock);
+        }
+
       }
 
     }
@@ -69,7 +79,7 @@ public class NESTMLParser extends NESTMLParserTOP {
    */
   private List<String> extractComments(final List<String> sourceText, int lineIndex) {
     final List<String> result = Lists.newArrayList();
-    String DOC_STRING_START = "##";
+    String DOC_STRING_START = "#";
     if (sourceText.get(lineIndex).contains(DOC_STRING_START)) {
       result.add(sourceText.get(lineIndex).substring(sourceText.get(lineIndex).indexOf(DOC_STRING_START) + 1).trim());
     }

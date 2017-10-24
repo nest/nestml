@@ -53,10 +53,10 @@ class CliConfigurationExecutor {
     final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputPath());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
 
+    reporter.reportProgress("Finished parsing nestml mdoels...");
+
     if (!modelRoots.isEmpty()) {
       final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
-      reporter.reportProgress("Finished parsing nestml mdoels...");
-      reporter.reportProgress("Remove temporary files...");
       if (!Files.exists(config.getTargetPath())) {
         try {
           Files.createDirectories(config.getTargetPath());
@@ -65,6 +65,7 @@ class CliConfigurationExecutor {
           Log.error("Cannot create the output foder: " + config.getTargetPath().toString(), e);
         }
       }
+
       cleanUpWorkingFolder(config.getTargetPath());
 
       processNestmlModels(modelRoots, config, scopeCreator, generator);
@@ -145,7 +146,7 @@ class CliConfigurationExecutor {
   }
 
   private void cleanUpWorkingFolder(final Path targetPath) {
-    FilesHelper.deleteFilesInFolder(targetPath, file -> file.endsWith(".tmp") || file.endsWith(".nestml"));
+    FilesHelper.deleteFilesInFolder(targetPath, file -> file.toString().endsWith(".tmp"));
   }
 
   private void processNestmlModels(
@@ -254,9 +255,21 @@ class CliConfigurationExecutor {
   }
 
   private void formatGeneratedCode(final Path targetPath) {
+    try {
+      FilesHelper.copyResource(this.getClass().getClassLoader(), ".clang-format", ".clang-format", targetPath);
+    }
+    catch (IOException e) {
+      reporter.reportProgress("Cannot copy clang-format configuration file into: " + targetPath.toString());
+      e.printStackTrace();
+      return;
+    }
+
     // "/bin/sh", "-c" is necessary because of the wild cards in the clang-format command.
     // otherwise, the command is not evaluated correctly
-    final List<String> formatCommand = Lists.newArrayList("/bin/sh", "-c", "clang-format -style=\"{Standard: Cpp03}\"  -i *.cpp *.h");
+    final List<String> formatCommand = Lists.newArrayList(
+        "/bin/sh",
+        "-c",
+        "clang-format -style=file  -i *.cpp *.h");
 
     try {
 

@@ -46,7 +46,7 @@ public class NestmlCoCosManager {
     variableExistenceChecker.addCoCo((NESTMLASTAssignmentCoCo) usageOfAmbiguousName);
     variableExistenceChecker.addCoCo((NESTMLASTCompound_StmtCoCo) usageOfAmbiguousName);
     variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) usageOfAmbiguousName);
-    variableExistenceChecker.addCoCo((NESTMLASTOdeDeclarationCoCo) usageOfAmbiguousName);
+    variableExistenceChecker.addCoCo((NESTMLASTEquationsBlockCoCo) usageOfAmbiguousName);
     variableExistenceChecker.addCoCo((NESTMLASTDeclarationCoCo) usageOfAmbiguousName);
 
   }
@@ -145,7 +145,7 @@ public class NestmlCoCosManager {
     nestmlCoCoChecker.addCoCo(neuronWithMultipleOrNoInput);
 
     final RestrictUseOfShapes restrictUseOfShapes = new RestrictUseOfShapes();
-    nestmlCoCoChecker.addCoCo(restrictUseOfShapes);
+    // TODO nestmlCoCoChecker.addCoCo(restrictUseOfShapes);
 
     final FunctionReturnsIncorrectValue functionReturnsIncorrectValue = new FunctionReturnsIncorrectValue();
     nestmlCoCoChecker.addCoCo(functionReturnsIncorrectValue);
@@ -157,11 +157,12 @@ public class NestmlCoCosManager {
     final BufferNotAssignable bufferNotAssignable = new BufferNotAssignable();
     nestmlCoCoChecker.addCoCo(bufferNotAssignable);
 
-    final SumHasCorrectParameter _sumHasCorrectParameter = new SumHasCorrectParameter();
-    nestmlCoCoChecker.addCoCo(_sumHasCorrectParameter);
+    final ConvolveHasCorrectParameter _convolveHasCorrectParameter = new ConvolveHasCorrectParameter();
+    nestmlCoCoChecker.addCoCo(_convolveHasCorrectParameter);
 
-    final EquationsOnlyForStateVariables equationsOnlyForStateVariables = new EquationsOnlyForStateVariables();
-    nestmlCoCoChecker.addCoCo(equationsOnlyForStateVariables);
+    final EquationsOnlyForInitialValues equationsOnlyForInitialValues = new EquationsOnlyForInitialValues();
+    nestmlCoCoChecker.addCoCo((NESTMLASTEquationCoCo) equationsOnlyForInitialValues);
+    nestmlCoCoChecker.addCoCo((NESTMLASTShapeCoCo) equationsOnlyForInitialValues);
 
     final DerivativeOrderAtLeastOne derivativeOrderAtLeastOne = new DerivativeOrderAtLeastOne();
     nestmlCoCoChecker.addCoCo(derivativeOrderAtLeastOne);
