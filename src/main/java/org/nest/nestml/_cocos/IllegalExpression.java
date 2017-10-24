@@ -74,15 +74,19 @@ public class IllegalExpression implements
 
       ASTExpr.Builder exprBuilder = ASTExpr.getBuilder();
       if(node.isCompoundProduct()){
+        node.setCompoundProduct(false);
         exprBuilder.timesOp(true);
       }
       if(node.isCompoundSum()){
+        node.setCompoundSum(false);
         exprBuilder.plusOp(true);
       }
       if(node.isCompoundQuotient()){
+        node.setCompoundQuotient(false);
         exprBuilder.divOp(true);
       }
       if(node.isCompoundMinus()){
+        node.setCompoundMinus(false);
         exprBuilder.minusOp(true);
       }
       ASTExpr dummyExpression = exprBuilder.left(dummyVariableExpr).right(node.getExpr()).build();
@@ -103,6 +107,8 @@ public class IllegalExpression implements
       handleAssignment(dummyAssignment);
 
       //replace assignment in parameter node
+      node.setAssignment(true);
+
       node.setExpr(dummyExpression);
 
     }
