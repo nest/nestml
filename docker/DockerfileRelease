@@ -28,7 +28,7 @@ RUN python setup.py install
 # Define working directory.doc
 RUN mkdir -p /data/nestml/target/
 WORKDIR /data/nestml/target/
-RUN wget https://github.com/nest/nestml/releases/download/1.4.4/nestml.jar
+COPY nestml.jar /data/nestml/target/nestml.jar
 
 # Define default command.
 # Entry point is constructed in the invoking script

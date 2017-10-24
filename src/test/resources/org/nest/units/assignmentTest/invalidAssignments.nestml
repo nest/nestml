@@ -1,11 +1,14 @@
 neuron invalidAssignmentTest:
   parameters:
-    Resist Ohm = 3 Ohm
-    RealValue real
-    Current A 
-    Potential V
-    Int integer
-    OutOfBounds ks**20
+  end
+
+  state:
+      Resist Ohm = 3 Ohm
+      RealValue real
+      Current A
+      Potential V
+      Int integer
+      OutOfBounds ks**20
   end
 
   input:

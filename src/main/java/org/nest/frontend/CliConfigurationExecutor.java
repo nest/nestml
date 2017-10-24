@@ -16,6 +16,7 @@ import org.nest.nestml._ast.ASTNeuron;
 import org.nest.nestml._parser.NESTMLParser;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._symboltable.NestmlCoCosManager;
+import org.nest.reporting.Reporter;
 import org.nest.utils.FilesHelper;
 import org.nest.utils.LogHelper;
 
@@ -37,7 +38,7 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
  *
  * @author plotnikov
  */
-public class CliConfigurationExecutor {
+class CliConfigurationExecutor {
 
   private static final String LOG_NAME = CliConfigurationExecutor.class.getName();
   private final NestmlCoCosManager checker = new NestmlCoCosManager();
@@ -49,11 +50,11 @@ public class CliConfigurationExecutor {
 
   void execute(final NestCodeGenerator generator, final CliConfiguration config) {
     final NESTMLParser parser =  new NESTMLParser();
-    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getModelPath());
+    final List<Path> modelFilenames = collectNESTMLModelFilenames(config.getInputPath());
     final List<ASTNESTMLCompilationUnit> modelRoots = parseModels(modelFilenames, parser);
 
     if (!modelRoots.isEmpty()) {
-      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(config.getModelPath());
+      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
       reporter.reportProgress("Finished parsing nestml mdoels...");
       reporter.reportProgress("Remove temporary files...");
       if (!Files.exists(config.getTargetPath())) {
@@ -159,21 +160,18 @@ public class CliConfigurationExecutor {
       final Collection<Finding> symbolTableFindings = LogHelper.getErrorsByPrefix("NESTML_", Log.getFindings());
       symbolTableFindings.addAll(LogHelper.getErrorsByPrefix("SPL_", Log.getFindings()));
 
+      symbolTableFindings.forEach(warning -> reporter.addNeuronReport(
+          modelRoot.getFilename(),
+          modelRoot.getNeuronNameAtLine(warning.getSourcePosition()),
+          warning));
+
       if (symbolTableFindings.isEmpty()) {
         reporter.reportProgress(modelRoot.getArtifactName() + ": Successfully built the symboltable.");
       } else {
-        reporter.reportProgress(modelRoot.getArtifactName() + ": Cannot built the symboltable.");
+        reporter.reportProgress(modelRoot.getArtifactName() + ": Cannot built the symboltable.", Reporter.Level.ERROR);
       }
       final Collection<Finding> symbolTableWarnings = LogHelper.getWarningsByPrefix("NESTML_", Log.getFindings());
 
-      symbolTableWarnings.addAll(LogHelper.getWarningsByPrefix("SPL_", Log.getFindings()));
-
-      for (Finding warning:symbolTableWarnings) {
-        if (!warning.getSourcePosition().isPresent()) {
-          System.out.printf("");
-        }
-
-      }
       symbolTableWarnings.forEach(warning -> reporter.addNeuronReport(
           modelRoot.getFilename(),
           modelRoot.getNeuronNameAtLine(warning.getSourcePosition().get().getLine()),
@@ -204,9 +202,10 @@ public class CliConfigurationExecutor {
   private void generateModuleCode(List<ASTNESTMLCompilationUnit> modelRoots, CliConfiguration config, NestCodeGenerator generator) {
     if (modelRoots.size() > 0) {
       generator.generateNESTModuleCode(modelRoots, config.getModuleName(), config.getTargetPath());
+      reporter.reportProgress(String.format("Generated NEST module: %s", config.getModuleName()));
     }
     else {
-      reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getModelPath());
+      reporter.reportProgress("Cannot generate module code, since there is no parsable neuron in " + config.getInputPath());
     }
 
   }
@@ -215,26 +214,6 @@ public class CliConfigurationExecutor {
     for (final ASTNESTMLCompilationUnit root:modelRoots) {
       reporter.reportProgress("Generate NEST code from the artifact: " + root.getArtifactName());
       generator.analyseAndGenerate(root, config.getTargetPath());
-      checkGeneratedCode(root, config.getTargetPath());
-    }
-
-  }
-
-  private void checkGeneratedCode(final ASTNESTMLCompilationUnit root, final Path targetPath) {
-    for (final ASTNeuron astNeuron:root.getNeurons()) {
-      if (Files.exists(Paths.get(targetPath.toString(), astNeuron.getName() + "." + TransformerBase.SOLVER_TYPE))) {
-
-        final String msg = "NEST code for the neuron: " + astNeuron.getName() + " from file: " + root.getArtifactName() +
-                           " was generated.";
-        reporter.reportProgress(root.getArtifactName() + ": " + msg);
-
-      } else {
-        final String msg = "NEST code for the neuron: " + astNeuron.getName() + " in " + root.getArtifactName() +
-                           " wasn't generated.";
-        reporter.reportProgress(root.getArtifactName() + ":" + msg);
-
-      }
-
     }
 
   }

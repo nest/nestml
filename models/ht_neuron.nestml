@@ -49,7 +49,7 @@ neuron ht_neuron_nestml:
     V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
     Theta mV = Theta_eq # Threshold
     g_AMPA, g_NMDA, g_GABAA, g_GABAB, IKNa_D, IT_m, IT_h, Ih_m nS
-
+    g_AMPA', g_NMDA', g_GABAA', g_GABAB' nS/ms
     r_potassium integer
     g_spike boolean = false
   end
@@ -82,7 +82,7 @@ neuron ht_neuron_nestml:
     recordable function I_h pA = -h_g_peak * Ih_m  * ( V_m - h_E_rev )
     # The spike current is only activate immediately after a spike.
     function I_spike mV = (g_spike) ? -( V_m - E_K ) / Tau_spike : 0
-    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + I_stim ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF                    
+    V_m'  = ( ( I_Na + I_K + I_syn + I_NaP + I_KNa + I_T + I_h + currents ) / Tau_m + I_spike * pA/(ms * mV) ) * s/nF
     #############
     # Intrinsic currents
     #############
@@ -179,10 +179,6 @@ neuron ht_neuron_nestml:
     GABA_AInitialValue real = compute_synapse_constant( GABA_A_Tau_1, GABA_A_Tau_2, GABA_A_g_peak )
     GABA_BInitialValue real = compute_synapse_constant( GABA_B_Tau_1, GABA_B_Tau_2, GABA_B_g_peak )
     PotassiumRefractoryCounts integer = steps(t_spike)
-    # Input current injected by CurrentEvent.
-    # This variable is used to transport the current applied into the
-    # _dynamics function computing the derivative of the state vector.
-    I_stim pA = 0pA
   end
 
   input:
@@ -227,8 +223,6 @@ neuron ht_neuron_nestml:
 
       emit_spike()
     end
-
-    I_stim = currents
   end
 
   function compute_synapse_constant(Tau_1 ms, Tau_2 ms, g_peak real) real:

@@ -75,14 +75,6 @@ public class SplErrorStrings {
     return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable, AstUtils.print(previousDefinition));
   }
 
-  static String messageDefinedBeforeUse(
-      final VariableNotDefinedBeforeUse coco,
-      final String variable) {
-    final String ERROR_MSG_FORMAT = "Cannot use variable '%s' before its definition.";
-
-    return code(coco) + SEPARATOR + String.format(ERROR_MSG_FORMAT, variable);
-  }
-
   static String messageOwnAssignment(
       final VariableNotDefinedBeforeUse coco,
       final String variable) {
@@ -207,7 +199,7 @@ public class SplErrorStrings {
   }
 
   static String message(
-      final FunctionDoesNotExist coco,
+      final FunctionWithSignatureDoesNotExist coco,
       final String functionName,
       final String signature) {
 
@@ -217,7 +209,7 @@ public class SplErrorStrings {
 
 
   @SuppressWarnings({"unused"}) // used for the routing
-  public static String code(final FunctionDoesNotExist coco) {
+  public static String code(final FunctionWithSignatureDoesNotExist coco) {
     return "SPL_FUNCTION_DOES_NOT_EXIST";
   }
 

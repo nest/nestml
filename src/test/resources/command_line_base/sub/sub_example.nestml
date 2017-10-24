@@ -15,7 +15,7 @@ neuron iaf_cond_alpha_implicit:
     GI' = DGI + GI *-1/tau_synI
     DGE' = DGE*-1/tau_synE
     GE' = DGE + GE *-1/tau_synE
-    V_m' = -1/((1 / g_L) * C_m) * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
+    V_m' = -1/((1 / g_L) * C_m) * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) - 1/C_m * GE * (V_m-V_reversalE) + (I_e + currents)/C_m
   end
 
   parameters:
@@ -35,7 +35,6 @@ neuron iaf_cond_alpha_implicit:
    # Input current injected by CurrentEvent.
    # This variable is used to transport the current applied into the
    # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0
   end
 
   function set_Tau(v ms):
@@ -82,7 +81,6 @@ neuron iaf_cond_alpha_implicit:
 
     DGE = DGE + spikeExc * PSConInit_E
     DGI = DGI + spikeInh * PSConInit_I
-    I_stim = currents
   end
 
 end
@@ -106,7 +104,7 @@ neuron iaf_cond_alpha_implicit2:
     DGE' = DGE*-1/tau_synE
     GE' = DGE + GE *-1/tau_synE
     V_m' = -1/((1 / g_L) * C_m) * (V_m - E_L)  - 1/C_m * GI * (V_m-V_reversalI) \
-          - 1/C_m * GE * (V_m-V_reversalE) + (I_e + I_stim)/C_m
+          - 1/C_m * GE * (V_m-V_reversalE) + (I_e + currents)/C_m
   end
 
   parameters:
@@ -126,7 +124,6 @@ neuron iaf_cond_alpha_implicit2:
    # Input current injected by CurrentEvent.
    # This variable is used to transport the current applied into the
    # _dynamics function computing the derivative of the state vector.
-   I_stim pA = 0
   end
 
   function set_Tau(v ms):
@@ -173,7 +170,6 @@ neuron iaf_cond_alpha_implicit2:
 
     DGE = DGE + spikeExc * PSConInit_E
     DGI = DGI + spikeInh * PSConInit_I
-    I_stim = currents
   end
 
 end

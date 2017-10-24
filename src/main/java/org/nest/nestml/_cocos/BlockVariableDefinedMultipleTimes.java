@@ -26,6 +26,7 @@ import de.monticore.symboltable.Symbol;
 import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTBlock;
 import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 import org.nest.utils.AstUtils;
 
@@ -51,8 +52,8 @@ public class BlockVariableDefinedMultipleTimes implements NESTMLASTBlockCoCo {
   private void checkDeclaration(final ASTDeclaration astDeclaration) {
     if (astDeclaration.getEnclosingScope().isPresent()) {
       final Scope scope = astDeclaration.getEnclosingScope().get();
-      for (String var : astDeclaration.getVars()) {
-        checkIfVariableDefinedMultipleTimes(var, scope, astDeclaration);
+      for (final ASTVariable var:astDeclaration.getVars()) {
+        checkIfVariableDefinedMultipleTimes(var.toString(), scope, astDeclaration);
       }
 
     }

@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.nest.base.ModelbasedTest;
 import org.nest.codegeneration.NestCodeGenerator;
-import org.nest.mocks.PSCMock;
 import org.nest.nestml._symboltable.NESTMLScopeCreator;
 
 import java.nio.file.Path;
@@ -26,10 +25,9 @@ import static org.nest.utils.FilesHelper.collectNESTMLModelFilenames;
 public class CliConfigurationExecutorTest extends ModelbasedTest {
   private static final Path TEST_INPUT_PATH = Paths.get("src/test/resources/command_line_base/");
   private static final Path TARGET_FOLDER = Paths.get("target/build");
-  private final PSCMock pscMock = new PSCMock();
   private final CliConfiguration testConfig;
   private final CliConfigurationExecutor executor = new CliConfigurationExecutor();
-  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_INPUT_PATH);
+  private final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
 
   public CliConfigurationExecutorTest() {
     testConfig = new CliConfiguration.Builder()
@@ -40,7 +38,7 @@ public class CliConfigurationExecutorTest extends ModelbasedTest {
 
   @Test
   public void testExecutionTestConfiguration() {
-    final NestCodeGenerator generator = new NestCodeGenerator(scopeCreator, pscMock, true);
+    final NestCodeGenerator generator = new NestCodeGenerator(true);
     executor.execute(generator, testConfig);
   }
 

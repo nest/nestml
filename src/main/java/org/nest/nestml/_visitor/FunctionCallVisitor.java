@@ -9,11 +9,11 @@ import de.se_rwth.commons.logging.Log;
 import org.nest.nestml._ast.ASTExpr;
 import org.nest.nestml._cocos.SplErrorStrings;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
+import org.nest.nestml._cocos.NestmlErrorStrings;
 import org.nest.nestml._symboltable.typechecking.Either;
 import org.nest.nestml._symboltable.typechecking.TypeChecker;
 import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml._symboltable.symbols.MethodSymbol;
-import org.nest.nestml._cocos.UnitsErrorStrings;
 import org.nest.nestml._symboltable.unitrepresentation.UnitRepresentation;
 import org.nest.utils.AstUtils;
 
@@ -83,7 +83,7 @@ public class FunctionCallVisitor implements NESTMLVisitor {
       expr.accept(expressionTypeVisitor);
     }
     if (TypeChecker.isVoid(methodSymbol.get().getReturnType())) {
-      final String errorMsg = UnitsErrorStrings.message(this, functionName);
+      final String errorMsg = NestmlErrorStrings.message(this, functionName);
       expr.setType(Either.error(errorMsg));
       return;
     }

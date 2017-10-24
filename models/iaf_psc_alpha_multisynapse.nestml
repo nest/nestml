@@ -33,6 +33,7 @@ neuron iaf_psc_alpha_multisynapse_neuron:
   state:
     V_abs mV
     function V_m mV = V_abs + E_L # Membrane potential.
+    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
@@ -54,7 +55,6 @@ neuron iaf_psc_alpha_multisynapse_neuron:
 
   internals:
     RefractoryCounts integer = steps(t_ref) # refractory time in steps
-    r integer                               # counts number of tick during the refractory period
   end
 
   input:

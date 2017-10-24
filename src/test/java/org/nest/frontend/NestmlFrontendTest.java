@@ -39,7 +39,7 @@ public class NestmlFrontendTest {
     assertTrue(testantLong.isPresent());
     assertTrue(testantLong.get().isTracing());
     assertFalse(testantLong.get().isCodegeneration());
-    assertEquals(testInputModelsPath, testantLong.get().getModelPath());
+    assertEquals(testInputModelsPath, testantLong.get().getInputPath());
     assertEquals(targetPath, testantLong.get().getTargetPath());
     assertEquals("integration", testantLong.get().getModuleName());
 
@@ -54,7 +54,7 @@ public class NestmlFrontendTest {
     assertTrue(testantShort.isPresent());
     assertTrue(testantShort.get().isTracing());
     assertFalse(testantShort.get().isCodegeneration());
-    assertEquals(testInputModelsPath, testantShort.get().getModelPath());
+    assertEquals(testInputModelsPath, testantShort.get().getInputPath());
     assertEquals(targetPath, testantShort.get().getTargetPath());
     assertEquals("integration", testantShort.get().getModuleName());
   }
@@ -79,5 +79,58 @@ public class NestmlFrontendTest {
   @Test
   public void testHelp() {
     nestmlFrontend.start(new String[] {});
+  }
+
+  private static final Path outputPath = Paths.get("target", "integration");
+
+  @Test
+  public void testDryRun() {
+    final String[] args = new String[] {
+        "models/",
+        "--target", outputPath.toString(),
+        "--dry-run"};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
+  public void testJsonOutput() {
+    final String[] args = new String[] {
+        "models/",
+        "--target", outputPath.toString(),
+        "--target", outputPath.toString(),
+        "--dry-run"};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
+  public void testModelsFolder() {
+    final String[] args = new String[] {
+        "models/",
+        "--json_log", "model_issues",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
+  public void testTutorialModels() {
+    final String[] args = new String[] {
+        "src/test/resources/tutorial",
+        "--json_log", "model_issues",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
+  }
+
+  @Test
+  public void manually() {
+    final String[] args = new String[] {
+        "models/terub_neuron_stn.nestml",
+        "--json_log", "model_issues",
+        "--target", outputPath.toString()};
+
+    new NestmlFrontend().start(args);
   }
 }

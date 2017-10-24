@@ -5,38 +5,33 @@
  */
 package org.nest.codegeneration;
 
-import com.google.common.io.Files;
 import de.monticore.generating.GeneratorEngine;
 import de.monticore.generating.GeneratorSetup;
 import de.monticore.generating.templateengine.GlobalExtensionManagement;
-import de.se_rwth.commons.logging.Log;
 import org.nest.codegeneration.converters.*;
 import org.nest.codegeneration.helpers.*;
-import org.nest.codegeneration.sympy.OdeProcessor;
+import org.nest.codegeneration.sympy.EquationsBlockProcessor;
 import org.nest.codegeneration.sympy.OdeTransformer;
-import org.nest.codegeneration.sympy.TransformerBase;
 import org.nest.nestml._ast.ASTBody;
 import org.nest.nestml._ast.ASTNESTMLCompilationUnit;
 import org.nest.nestml._ast.ASTNeuron;
-import org.nest.nestml._symboltable.NESTMLScopeCreator;
 import org.nest.nestml._ast.ASTOdeDeclaration;
+import org.nest.nestml._symboltable.NESTMLLanguage;
+import org.nest.nestml._symboltable.NestmlSymbols;
 import org.nest.nestml.prettyprinter.ExpressionsPrettyPrinter;
 import org.nest.nestml.prettyprinter.IReferenceConverter;
 import org.nest.nestml.prettyprinter.LegacyExpressionPrinter;
-import org.nest.nestml._symboltable.NestmlSymbols;
+import org.nest.reporting.Reporter;
 import org.nest.utils.AstUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static de.se_rwth.commons.logging.Log.info;
-import static org.nest.utils.AstUtils.deepClone;
+import static org.nest.utils.AstUtils.deepCloneNeuronAndBuildSymbolTable;
 import static org.nest.utils.AstUtils.getAllNeurons;
 
 /**
@@ -45,62 +40,61 @@ import static org.nest.utils.AstUtils.getAllNeurons;
  * @author plotnikov
  */
 public class NestCodeGenerator {
-  private final String LOG_NAME = NestCodeGenerator.class.getName();
-  private final OdeProcessor odeProcessor;
-  private final NESTMLScopeCreator scopeCreator;
+  private final static Reporter reporter = Reporter.get();
+  private final EquationsBlockProcessor equationsBlockProcessor;
   private final Boolean enableTracing ;
 
-  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
-                           final OdeProcessor odeProcessor,
-                           boolean enableTracing) {
-    this.scopeCreator = scopeCreator;
-    this.odeProcessor= odeProcessor;
+  public NestCodeGenerator(boolean enableTracing) {
+    this.equationsBlockProcessor = new EquationsBlockProcessor();
     this.enableTracing = enableTracing;
   }
 
-  public NestCodeGenerator(final NESTMLScopeCreator scopeCreator,
-                           boolean enableTracing) {
-    this.scopeCreator = scopeCreator;
-    this.odeProcessor= new OdeProcessor();
-    this.enableTracing = enableTracing;
-  }
-
+  /**
+   * Extracts neruons from the compilation unit and generates code individually for every neuron.
+   */
   public void analyseAndGenerate(
       final ASTNESTMLCompilationUnit root,
       final Path outputBase) {
-    info("Starts processing of the model: " + root.getArtifactName(), LOG_NAME);
 
-    ASTNESTMLCompilationUnit workingVersion = root;
-    for (int i = 0; i < root.getNeurons().size(); ++i) {
-      final ASTNeuron solvedNeuron = solveODESInNeuron(root.getNeurons().get(i), root, outputBase);
-      root.getNeurons().set(i, solvedNeuron);
-    }
-
-    workingVersion = deepClone(workingVersion, scopeCreator, outputBase);
-    workingVersion
-        .getNeurons()
-        .forEach(astNeuron -> generateNestCode(astNeuron, outputBase));
-
-    final String msg = "Successfully generated NEST code for: '" + root.getArtifactName() + "' in: '"
-        + outputBase.toAbsolutePath().toString() + "'";
-    info(msg, LOG_NAME);
+    reporter.reportProgress("Starts generating code for the file: " + root.getArtifactName());
+    root.getNeurons().forEach(astNeuron -> analyseAndGenerate(astNeuron, outputBase));
+    reporter.reportProgress("Finishes generating code for the file: "
+                            + root.getArtifactName() + "." + NESTMLLanguage.FILE_ENDING);
   }
 
-  private ASTNeuron solveODESInNeuron(
+  private void analyseAndGenerate(
       final ASTNeuron astNeuron,
-      final ASTNESTMLCompilationUnit artifactRoot,
       final Path outputBase) {
+    reporter.reportProgress("Starts processing of the neuron: " + astNeuron.getName());
+    ASTNeuron workingVersion = deepCloneNeuronAndBuildSymbolTable(astNeuron, outputBase);
+
+    workingVersion = solveOdesAndShapes(workingVersion, outputBase);
+    workingVersion = AstUtils.deepCloneNeuronAndBuildSymbolTable(workingVersion, outputBase);
+    generateNestCode(workingVersion, outputBase);
+
+    final String msg = "Successfully generated NEST code for: '" + astNeuron.getName() + "' in: '"
+        + outputBase.toAbsolutePath().toString() + "'";
+    reporter.reportProgress(msg);
+  }
+
+  private ASTNeuron solveOdesAndShapes(
+      final ASTNeuron astNeuron,
+      final Path outputBase) {
+
     final ASTBody astBody = astNeuron.getBody();
-    final Optional<ASTOdeDeclaration> odesBlock = astBody.getODEBlock();
+    final Optional<ASTOdeDeclaration> odesBlock = astBody.getOdeBlock();
     if (odesBlock.isPresent()) {
-      if (odesBlock.get().getShapes().size() == 0 || odesBlock.get().getODEs().size() > 1) {
-        info("The model will be solved numerically with GSL solver.", LOG_NAME);
-        markNumericSolver(astNeuron.getName(), outputBase);
+      if (odesBlock.get().getShapes().size() == 0 && odesBlock.get().getODEs().size() > 1) {
+        final String msg = String.format(
+            "The neuron %s will be solved numerically with GSL solver without modification.",
+            astNeuron.getName());
+        reporter.reportProgress(msg);
         return astNeuron;
       }
       else {
-        info("The model will be analysed.", LOG_NAME);
-        return odeProcessor.solveODE(astNeuron, artifactRoot, outputBase);
+        final String msg = String.format("The neuron %s will be analysed.", astNeuron.getName());
+        reporter.reportProgress(msg);
+        return equationsBlockProcessor.solveOdeWithShapes(astNeuron, outputBase);
       }
 
     }
@@ -110,21 +104,7 @@ public class NestCodeGenerator {
 
   }
 
-  private void markNumericSolver(final String neuronName, final Path outputBase) {
-    try {
-      Files.write("numeric",
-                  Paths.get(outputBase.toString(), neuronName + "." + TransformerBase.SOLVER_TYPE).toFile(),
-                  Charset.defaultCharset());
-    }
-    catch (IOException e) {
-      Log.error("Cannot write status file. Check you permissions.", e);
-    }
-  }
-
-  private void generateNestCode(
-      final ASTNeuron astNeuron,
-      final Path outputBase) {
-
+  private void generateNestCode(final ASTNeuron astNeuron, final Path outputBase) {
     final GlobalExtensionManagement glex = getGlexConfiguration();
     setNeuronGenerationParameter(glex, astNeuron);
     generateHeader(astNeuron, outputBase, glex);
@@ -206,7 +186,7 @@ public class NestCodeGenerator {
         initSLI,
         neurons.get(0)); // an arbitrary AST to match the signature
 
-    info("Successfully generated NEST module code in " + outputDirectory, LOG_NAME);
+    reporter.reportProgress("Successfully generated NEST module code in " + outputDirectory);
   }
 
   private GlobalExtensionManagement getGlexConfiguration() {
@@ -270,8 +250,8 @@ public class NestCodeGenerator {
     final ASTBody astBody = neuron.getBody();
     glex.setGlobalValue("useGSL", false);
 
-    if (astBody.getODEBlock().isPresent()) {
-      if (astBody.getODEBlock().get().getShapes().size() == 0 || astBody.getODEBlock().get().getODEs().size() > 1) {
+    if (astBody.getOdeBlock().isPresent()) {
+      if (astBody.getOdeBlock().get().getShapes().size() == 0 || astBody.getOdeBlock().get().getODEs().size() > 1) {
         glex.setGlobalValue("names", new GslNames());
         glex.setGlobalValue("useGSL", true);
 

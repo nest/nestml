@@ -2,6 +2,7 @@ neuron iaf_neuron:
 
   state:
     y0 mV
+    y0' mV
     y1 mV
     y2 mV
     y3 mV
@@ -90,7 +91,7 @@ neuron iaf_neuron:
         emit_spike()
     end
 
-    # set new input current
+
     y0 = currentBuffer
     newVarInMethod real = 1.0
   end

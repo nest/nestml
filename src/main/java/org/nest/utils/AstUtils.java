@@ -11,8 +11,6 @@ import com.google.common.collect.Queues;
 import com.google.common.collect.Sets;
 import de.monticore.ast.ASTNode;
 import de.monticore.literals.literals._ast.ASTFloatLiteral;
-import de.monticore.literals.literals._ast.ASTNumericLiteral;
-import de.monticore.symboltable.EnclosingScopeOfNodesInitializer;
 import de.monticore.symboltable.Scope;
 import de.se_rwth.commons.SourcePosition;
 import de.se_rwth.commons.Util;
@@ -41,7 +39,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.*;
-import static de.se_rwth.commons.logging.Log.info;
 import static java.lang.Math.pow;
 import static java.util.stream.Collectors.toList;
 import static org.nest.nestml._symboltable.predefined.PredefinedTypes.getType;
@@ -53,9 +50,7 @@ import static org.nest.nestml._symboltable.symbols.VariableSymbol.resolve;
  * @author plotnikov, oberhoff
  */
 public final class AstUtils {
-
-  private static final String LOG_NAME = AstUtils.class.getName();
-
+  private final static NESTMLParser parser = new NESTMLParser();
   /**
    * Returns the unambiguous parent of the {@code queryNode}. Uses an breadthfirst traverse approach to collect nodes in the error order
    * @param queryNode The node direct parent of the given node
@@ -144,6 +139,7 @@ public final class AstUtils {
 
   /**
    * Returns all aliases which are used in the tree beginning at astNode
+   * This method must remain public. It is used in Freemarker-templates.
    */
   public static List<VariableSymbol> getAliasSymbols(final ASTNESTMLNode astNode) {
     checkState(astNode.getEnclosingScope().isPresent(), "Run symbol table creator");
@@ -356,20 +352,6 @@ public final class AstUtils {
     return astShape.getLhs().toString();
   }
 
-  /**
-   * Computes the variable which is derived in the equation, e.g.: g_in'' = exp(t) means the derivation of the g_in'
-   * variable
-   *
-   */
-  public static String getNameOfLHS(final ASTEquation astEquation) {
-    if (astEquation.getLhs().getDifferentialOrder().size() == 0) {
-      return astEquation.getLhs().getName(); // it is sometimes used in context conditions
-    }
-    else {
-      return astEquation.getLhs().getName() + Strings.repeat("'", astEquation.getLhs().getDifferentialOrder().size() - 1);
-    }
-  }
-
   public static String convertDevrivativeNameToSimpleName(final ASTVariable astVariable) {
     if (astVariable.getDifferentialOrder().size() > 0) {
       return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName();
@@ -398,11 +380,11 @@ public final class AstUtils {
     return (!isInh && !isExc) || (isInh && isExc);
   }
 
-  public static void printModelToFile(
-      final ASTNESTMLCompilationUnit root,
+  private static void printModelToFile(
+      final ASTNeuron astNeuron,
       final Path outputFile) {
     final NESTMLPrettyPrinter prettyPrinter = NESTMLPrettyPrinter.Builder.build();
-    root.accept(prettyPrinter);
+    astNeuron.accept(prettyPrinter);
 
     final File prettyPrintedModelFile = outputFile.toFile();
     try {
@@ -415,32 +397,23 @@ public final class AstUtils {
 
   }
 
-  public static void setEnclosingScopeOfNodes(final ASTNode root) {
-    EnclosingScopeOfNodesInitializer v = new EnclosingScopeOfNodesInitializer();
-    v.handle(root);
-  }
-
   /**
    * Model is printed and read again due 2 reasons:
    * a) Technically it is necessary to build a new symbol table
    * b) The model developer can view how the solution was computed.
    * @return New root node of the altered model with an initialized symbol table
    */
-  public static ASTNESTMLCompilationUnit deepClone(
-      final ASTNESTMLCompilationUnit nestmlModel,
-      final NESTMLScopeCreator scopeCreator,
-      final Path temporaryFolder) {
+  public static ASTNeuron deepCloneNeuronAndBuildSymbolTable(final ASTNeuron astNeuron, final Path temporaryFolder) {
     try {
-      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), nestmlModel.getArtifactName() + ".tmp");
-      printModelToFile(nestmlModel, outputTmpPath);
-      info("Transformed model in printed into: " + outputTmpPath, LOG_NAME);
-      final NESTMLParser parser = new NESTMLParser();
+      final Path outputTmpPath = Paths.get(temporaryFolder.toString(), astNeuron.getName() + ".tmp");
+
+      printModelToFile(astNeuron, outputTmpPath);
 
       final ASTNESTMLCompilationUnit withSolvedOde = parser.parseNESTMLCompilationUnit(outputTmpPath.toString()).get();
-      withSolvedOde.setArtifactName(nestmlModel.getArtifactName());
-
+      withSolvedOde.setArtifactName(astNeuron.getName());
+      final NESTMLScopeCreator scopeCreator =  new NESTMLScopeCreator();
       scopeCreator.runSymbolTableCreator(withSolvedOde);
-      return withSolvedOde;
+      return withSolvedOde.getNeurons().get(0);
     }
     catch (IOException e) {
       throw  new RuntimeException(e);

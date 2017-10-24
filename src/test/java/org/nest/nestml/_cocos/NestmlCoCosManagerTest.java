@@ -77,7 +77,7 @@ public class NestmlCoCosManagerTest extends ModelbasedTest {
       }
       Assert.assertTrue(root.isPresent());
 
-      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator(TEST_MODEL_PATH);
+      final NESTMLScopeCreator scopeCreator = new NESTMLScopeCreator();
       scopeCreator.runSymbolTableCreator(root.get());
 
       System.out.println("NestmlCoCosManagerTest.testGoodModels: " + file.toString());

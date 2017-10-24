@@ -123,8 +123,8 @@ neuron hh_cond_exp_traub_implicit:
       emit_spike()
     end
 
-    # set new input current
-    I_stim = currents
+
+
 
     g_ex += spikeExc
     g_in += spikeInh

@@ -34,7 +34,7 @@ public class MemberVariablesInitialisedInCorrectOrder implements NESTMLASTDeclar
 
     if (declaration.getExpr().isPresent()) {
       // has at least one declaration. it is ensured by the grammar
-      final String lhsVariableName = declaration.getVars().get(0);
+      final String lhsVariableName = declaration.getVars().get(0).toString();
 
       final Optional<VariableSymbol> lhsVariable = enclosingScope.get().resolve(
           lhsVariableName,

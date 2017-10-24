@@ -5,7 +5,8 @@
  */
 package org.nest.nestml._symboltable.unitrepresentation;
 
-import org.nest.nestml._cocos.UnitsErrorStrings;
+import org.nest.nestml._cocos.NestmlErrorStrings;
+import org.nest.nestml._cocos.NestmlErrorStrings;
 
 import java.util.*;
 import java.util.regex.Matcher;
@@ -508,13 +509,13 @@ public class UnitRepresentation implements Comparable<UnitRepresentation>{
     //factorize
     List<Factor> factors = new ArrayList<>();
     if(!factorize(factors,workingCopy)){
-      error(UnitsErrorStrings.code(this) + ": Cannot factorize the Unit "+workingCopy.serialize());
+      error(NestmlErrorStrings.code(this) + ": Cannot factorize the Unit " + workingCopy.serialize());
       return "unprintable";
     }
 
     //dump magnitude back into the results
     if(abs(this.magnitude)>factors.size()*24){
-      trace(UnitsErrorStrings.code(this) + "Cannot express magnitude " + magnitude + " with only " + (factors.size()) +
+      trace(NestmlErrorStrings.code(this) + "Cannot express magnitude " + magnitude + " with only " + (factors.size()) +
             " factors. (Absolute value of) cumulative magnitude must be <=24.", this.getClass().getSimpleName());
       return "unprintable";
     }

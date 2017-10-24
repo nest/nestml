@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import de.monticore.symboltable.Scope;
 import org.nest.codegeneration.converters.NESTML2NESTTypeConverter;
 import org.nest.nestml._ast.ASTDeclaration;
+import org.nest.nestml._ast.ASTVariable;
 import org.nest.nestml._symboltable.symbols.TypeSymbol;
 import org.nest.nestml._symboltable.symbols.VariableSymbol;
 
@@ -72,8 +73,8 @@ public class ASTDeclarations {
     if (type.isPresent()) {
 
 
-      for (String variableName : astDeclaration.getVars()) {
-        final VariableSymbol currVar = VariableSymbol.resolve(variableName, scope);
+      for (final ASTVariable variableName : astDeclaration.getVars()) {
+        final VariableSymbol currVar = VariableSymbol.resolve(variableName.toString(), scope);
         variables.add(currVar);
       }
 
