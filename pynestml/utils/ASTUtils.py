@@ -190,19 +190,21 @@ class ASTUtils(object):
         assert ((_isPlus + _isMinus + _isTimes + _isDivide) == 1), \
             '(PyNestML.CodeGeneration.Utils) Type of assignment not correctly specified!'
         if _isPlus:
-            op = ASTArithmeticOperator(_isPlusOp=True)
+            op = ASTArithmeticOperator(_isPlusOp=True, _sourcePosition=_rhs.getSourcePosition())
         elif _isMinus:
-            op = ASTArithmeticOperator(_isMinusOp=True)
+            op = ASTArithmeticOperator(_isMinusOp=True, _sourcePosition=_rhs.getSourcePosition())
         elif _isTimes:
-            op = ASTArithmeticOperator(_isTimesOp=True)
+            op = ASTArithmeticOperator(_isTimesOp=True, _sourcePosition=_rhs.getSourcePosition())
         else:
-            op = ASTArithmeticOperator(_isDivOp=True)
-        varExpr = ASTSimpleExpression.makeASTSimpleExpression(_variable=_lhs)
+            op = ASTArithmeticOperator(_isDivOp=True, _sourcePosition=_rhs.getSourcePosition())
+        varExpr = ASTSimpleExpression.makeASTSimpleExpression(_variable=_lhs, _sourcePosition=_lhs.getSourcePosition())
         varExpr.updateScope(_lhs.getScope())
         op.updateScope(_lhs.getScope())
-        rhsInBrackets = ASTExpression.makeExpression(_isEncapsulated=True, _expression=_rhs)
+        rhsInBrackets = ASTExpression.makeExpression(_isEncapsulated=True, _expression=_rhs,
+                                                     _sourcePosition=_rhs.getSourcePosition())
         rhsInBrackets.updateScope(_rhs.getScope())
-        expr = ASTExpression.makeCompoundExpression(_lhs=varExpr, _binaryOperator=op, _rhs=rhsInBrackets)
+        expr = ASTExpression.makeCompoundExpression(_lhs=varExpr, _binaryOperator=op, _rhs=rhsInBrackets,
+                                                    _sourcePosition=_rhs.getSourcePosition())
         expr.updateScope(_lhs.getScope())
         # update the symbols
         SymbolTableASTVisitor.visitExpression(expr)

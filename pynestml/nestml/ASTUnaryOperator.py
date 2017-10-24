@@ -73,7 +73,7 @@ class ASTUnaryOperator(ASTElement):
         :return: a new ASTUnaryOperator object.
         :rtype: ASTUnaryOperator
         """
-        return cls(_isUnaryPlus, _isUnaryMinus, _isUnaryTilde)
+        return cls(_isUnaryPlus, _isUnaryMinus, _isUnaryTilde,_sourcePosition)
 
     def isUnaryPlus(self):
         """

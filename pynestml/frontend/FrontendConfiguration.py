@@ -80,6 +80,7 @@ class FrontendConfiguration(object):
                 if filename.endswith(".nestml"):
                     cls.__pathsToCompilationUnits.append(os.path.join(parsed_args.path[0], filename))
         else:
+            cls.__pathsToCompilationUnits = parsed_args.path[0]
             raise InvalidPathException()
         # initialize the logger
         cls.__loggingLevel = parsed_args.logging_level

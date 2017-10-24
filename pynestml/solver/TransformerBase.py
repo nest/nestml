@@ -205,11 +205,12 @@ class TransformerBase(object):
         """
         from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
         from pynestml.nestml.ASTAssignment import ASTAssignment
+        from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of assignment provided (%s)!' % type(_assignment)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        smallStmt = ASTSmallStmt(_assignment=_assignment)
+        smallStmt = ASTSmallStmt(_assignment=_assignment,_sourcePosition=ASTSourcePosition.getAddedSourcePosition())
         _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
         return _neuron
 
@@ -230,7 +231,7 @@ class TransformerBase(object):
             '(PyNestML.Solver.TransformerBase) No or wrong type of declaration provided (%s)!' % type(_declaration)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        smallStmt = ASTSmallStmt(_declaration=_declaration)
+        smallStmt = ASTSmallStmt(_declaration=_declaration,_sourcePosition=ASTSourcePosition.getAddedSourcePosition())
         _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
         return _neuron
 

@@ -52,7 +52,7 @@ class ASTVariable(ASTElement):
             '(PyNestML.AST.Variable) Differential order must be at least 0, is %d!' % _differentialOrder
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.AST.Variable) No or wrong type of name provided (%s)!' % type(_name)
-        super(ASTVariable, self).__init__(_sourcePosition)
+        super(ASTVariable, self).__init__(_sourcePosition=_sourcePosition)
         self.__name = _name
         self.__differentialOrder = _differentialOrder
         return

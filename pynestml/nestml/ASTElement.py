@@ -41,6 +41,8 @@ class ASTElement(object):
         """
         assert (_sourcePosition is None or isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.AST.Element) No source position provided (%s)!' % type(_sourcePosition)
+        if _sourcePosition is None:
+            print("test")
         assert (_scope is None or isinstance(_scope, Scope)), \
             '(PyNestML.AST.Element) Wrong type of scope provided (%s)!' % type(_scope)
         self.__sourcePosition = _sourcePosition

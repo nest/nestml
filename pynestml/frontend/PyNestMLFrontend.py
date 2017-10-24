@@ -37,7 +37,8 @@ def main(args):
     try:
         FrontendConfiguration.config(args)
     except InvalidPathException:
-        print('Invalid path provided (%s)!' % configuration.getPath())
+        print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.getPath())
+        return
     # The handed over parameters seem to be correct, proceed with the main routine
     # initialize the predefined elements
     PredefinedUnits.registerUnits()
@@ -69,7 +70,7 @@ def main(args):
         nestGenerator.generateNESTModuleCode(neurons)
     else:
         code, message = Messages.getDryRun()
-        Logger.logMessage(_neuron=None,_code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
     if FrontendConfiguration.storeLog():
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
                                    'log')) + '.txt', 'w+') as f:

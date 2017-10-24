@@ -29,13 +29,13 @@ class PyNestMLFrontendTest(unittest.TestCase):
 
     def test(self):
         path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),os.path.join('..', 'models',
-                                                                                        'aeif_cond_alpha.nestml'))))
+                                                                                        'aeif_cond_implicit.nestml'))))
         params = list()
         params.append('-path')
         params.append(path)
         #params.append('-dry')
         params.append('-logging_level')
-        params.append('ERROR')
+        params.append('WARNING')
         params.append('-target')
         params.append('buildNest')
         params.append('-module_name')
