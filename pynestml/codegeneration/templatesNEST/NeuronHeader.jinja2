@@ -84,8 +84,8 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 /* BeginDocumentation
   Name: {{neuronName}}.
 
-  Description:
-  {{neuron.printComment()}}
+  Description:{% filter indent(2,True) %}
+  {{neuron.printComment()}}{% endfilter %}
 
   Parameters:
   The following parameters can be set in the status dictionary.

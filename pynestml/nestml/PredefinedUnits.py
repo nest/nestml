@@ -104,12 +104,13 @@ class PredefinedUnits(object):
         if _name in cls.__name2unit.keys():
             return cls.__name2unit[_name]
         else:
-            Logger.logMessage('Unit does not exist (%s)' % _name, LOGGING_LEVEL.ERROR)
+            from pynestml.utils.Messages import Messages
+            code, message = Messages.getUnitDoesNotExist(_name)
+            Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             return None
 
-
     @classmethod
-    def isUnit(cls,_name=None):
+    def isUnit(cls, _name=None):
         """
         Indicates whether the handed over name represents a stored unit.
         :param _name: a single name

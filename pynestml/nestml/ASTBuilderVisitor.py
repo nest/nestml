@@ -312,9 +312,11 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTOdeFunction import ASTOdeFunction
-        return ASTOdeFunction.makeASTOdeFunction(_isRecordable=isRecordable, _variableName=variableName,
+        odeFunction = ASTOdeFunction.makeASTOdeFunction(_isRecordable=isRecordable, _variableName=variableName,
                                                  _dataType=dataType,
                                                  _expression=expression, _sourcePosition=sourcePos)
+        odeFunction.setComment(ctx.comment)
+        return odeFunction
 
     # Visit a parse tree produced by PyNESTMLParser#equation.
     def visitOdeEquation(self, ctx):
@@ -325,7 +327,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTOdeEquation import ASTOdeEquation
-        return ASTOdeEquation.makeASTOdeEquation(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
+        odeEquation = ASTOdeEquation.makeASTOdeEquation(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
+        odeEquation.setComment(ctx.comment)
+        return odeEquation
 
     # Visit a parse tree produced by PyNESTMLParser#shape.
     def visitOdeShape(self, ctx):
@@ -336,7 +340,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTOdeShape import ASTOdeShape
-        return ASTOdeShape.makeASTOdeShape(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
+        shape = ASTOdeShape.makeASTOdeShape(_lhs=lhs, _rhs=rhs, _sourcePosition=sourcePos)
+        shape.setComment(ctx.comment)
+        return shape
 
     # Visit a parse tree produced by PyNESTMLParser#block.
     def visitBlock(self, ctx):
@@ -349,7 +355,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTBlock import ASTBlock
-        return ASTBlock.makeASTBlock(_stmts=stmts, _sourcePosition=sourcePos)
+        block =  ASTBlock.makeASTBlock(_stmts=stmts, _sourcePosition=sourcePos)
+        block.setComment(ctx.comment)
+        return block
 
     # Visit a parse tree produced by PyNESTMLParser#compound_Stmt.
     def visitCompoundStmt(self, ctx):
@@ -534,6 +542,8 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         from pynestml.nestml.ASTNeuron import ASTNeuron
         artifactName = ntpath.basename(ctx.start.source[1].fileName)
         neuron = ASTNeuron.makeASTNeuron(_name=name, _body=body, _sourcePosition=sourcePos, _artifactName=artifactName)
+        # update the comments
+        neuron.setComment(ctx.comment)
         # in order to enable the logger to print correct messages set as the source the corresponding neuron
         Logger.setCurrentNeuron(neuron)
         CoCoEachBlockUniqueAndDefined.checkCoCo(_neuron=neuron)
@@ -577,7 +587,9 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTBody import ASTBody
-        return ASTBody.makeASTBody(_bodyElements=elements, _sourcePosition=sourcePos)
+        body = ASTBody.makeASTBody(_bodyElements=elements, _sourcePosition=sourcePos)
+        body.setComment(ctx.comment)
+        return body
 
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
     def visitBlockWithVariables(self, ctx):
@@ -749,8 +761,10 @@ class ASTBuilderVisitor(ParseTreeVisitor):
         small = self.visit(ctx.smallStmt()) if ctx.smallStmt() is not None else None
         compound = self.visit(ctx.compoundStmt()) if ctx.compoundStmt() is not None else None
         if small is not None:
+            small.setComment(ctx.comment)
             return small
         else:
+            compound.setComment(ctx.comment)
             return compound
 
 

@@ -33,6 +33,7 @@ from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.PredefinedUnits import PredefinedUnits
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
 from pynestml.nestml.SymbolTable import SymbolTable
+from pynestml.nestml.CommentsInsertionListener import CommentsInsertionListener
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 # setups the infrastructure
@@ -57,9 +58,14 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 stream = CommonTokenStream(lexer)
                 # parse the file
                 parser = PyNESTMLParser(stream)
+                # process the comments
+                compilationUnit = parser.nestmlCompilationUnit()
+                commentsInsertionListener = CommentsInsertionListener(stream.tokens)
+                parseTreeWalker = ParseTreeWalker()
+                parseTreeWalker.walk(commentsInsertionListener, compilationUnit)
                 # create a new visitor and return the new AST
                 astBuilderVisitor = ASTBuilderVisitor()
-                ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
+                ast = astBuilderVisitor.visit(compilationUnit)
                 # update the corresponding symbol tables
                 SymbolTable.initializeSymbolTable(ast.getSourcePosition())
                 for neuron in ast.getNeuronList():

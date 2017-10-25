@@ -30,6 +30,7 @@ class Symbol(object):
     __scope = None
     __name = None
     __symbolKind = None
+    __comment = None
 
     def __init__(self, _elementReference=None, _scope=None, _name=None, _symbolKind=None):
         """
@@ -100,6 +101,15 @@ class Symbol(object):
         assert (_sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)), \
             '(PyNestML.SymbolTable.Symbol) No or wrong type of position object provided (%s)!' % type(_sourcePosition)
         return self.getReferencedObject().getSourcePosition().before(_sourcePosition)
+
+    def hasComment(self):
+        return self.__comment is not None
+
+    def getComment(self):
+        return self.__comment
+
+    def setComment(self, _comment=None):
+        self.__comment = _comment
 
     @abstractmethod
     def printSymbol(self):

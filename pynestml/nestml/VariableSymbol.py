@@ -485,10 +485,12 @@ class VariableSymbol(Symbol):
         """
         assert (_prefix is None or isinstance(_prefix, str)), \
             '(PyNestML.SymbolTable.VariableSymbol) Wrong type of prefix provided (%s)!' % type(_prefix)
-        if _prefix is not None:
-            return _prefix + 'TODO comment in variable symbol'
-        else:
-            return 'TODO comment in variable symbol'
+        ret = ''
+        if not self.hasComment():
+            return ''
+        for comment in self.getComment():
+            ret += (_prefix if _prefix is not None else '') + comment + '\n'
+        return ret
 
     def containsSumCall(self):
         """

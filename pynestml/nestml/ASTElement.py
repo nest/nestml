@@ -30,6 +30,7 @@ class ASTElement(object):
     __metaclass__ = ABCMeta
     __sourcePosition = None
     __scope = None
+    __comment = None
 
     def __init__(self, _sourcePosition=None, _scope=None):
         """
@@ -91,6 +92,22 @@ class ASTElement(object):
             '(PyNestML.AST.Element) No or wrong type of scope provided (%s)!' % (type(_scope))
         self.__scope = _scope
         return
+
+    def getComment(self):
+        """
+        Returns the comment of this element.
+        :return: a comment.
+        :rtype: str
+        """
+        return self.__comment
+
+    def setComment(self, _comment=None):
+        """
+        Updates the comment
+        :param _comment: a comment
+        :type _comment: str
+        """
+        self.__comment = _comment
 
     @abstractmethod
     def getParent(self, _ast=None):

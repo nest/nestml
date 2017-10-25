@@ -75,7 +75,13 @@ class ASTUtils(object):
         :return: all comments in the node
         :rtype: str
         """
-        return "TODO comments of ast node"
+        return 'test'
+        if _ast.getComment() is not None:
+            ret = ''
+            for comment in _ast.getComment():
+                ret += comment + '\n'
+            return ret
+        return ''
 
     @classmethod
     def isIntegrate(cls, _functionCall=None):

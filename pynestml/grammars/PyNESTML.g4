@@ -116,19 +116,19 @@ grammar PyNESTML;
   * Equations-Language
   *********************************************************************************************************************/
 
-  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression (';')?;
+  odeFunction locals [comment]: (recordable='recordable')? 'function' variableName=NAME datatype '=' expression (';')?;
 
-  odeEquation : lhs=variable '=' rhs=expression (';')?;
+  odeEquation locals [comment]: lhs=variable '=' rhs=expression (';')?;
 
-  odeShape : 'shape' lhs=variable '=' rhs=expression (';')?;
+  odeShape locals [comment]: 'shape' lhs=variable '=' rhs=expression (';')?;
 
   /*********************************************************************************************************************
   * Procedural-Language
   *********************************************************************************************************************/
 
-  block : ( stmt | NEWLINE )*;
+  block locals [comment]: ( stmt | NEWLINE )*;
 
-  stmt : smallStmt | compoundStmt;
+  stmt locals [comment]: smallStmt | compoundStmt;
 
   compoundStmt : ifStmt
                 | forStmt
@@ -156,7 +156,7 @@ grammar PyNESTML;
     @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
-  declaration :
+  declaration:
     (isRecordable='recordable')? (isFunction='function')?
     variable (',' variable)*
     datatype
@@ -196,13 +196,13 @@ grammar PyNESTML;
   /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
+  nestmlCompilationUnit: (neuron | NEWLINE )* EOF;
 
   /** ASTNeuron Represents a single neuron.
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
     @attribute body:    The body of the neuron consisting of several sub-blocks.
   */
-  neuron : 'neuron' NAME body;
+  neuron locals [comment]: 'neuron' NAME body;
 
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
@@ -212,7 +212,7 @@ grammar PyNESTML;
     @attribute outputBlock: A block of output declarations.
     @attribute function: A block declaring a used-defined function.
   */
-  body : BLOCK_OPEN
+  body locals[comment]: BLOCK_OPEN
          (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
          BLOCK_CLOSE;
 

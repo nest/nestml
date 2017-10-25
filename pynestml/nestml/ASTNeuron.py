@@ -611,7 +611,11 @@ class ASTNeuron(ASTElement):
         :return: the corresponding comment.
         :rtype: str
         """
-        return 'TODO comment dynamics block'
+        block = self.getUpdateBlocks()
+        if block is None:
+            return ''
+        return block.getComment() if block.getComment() is not None else ''
+
 
     def printParameterComment(self):
         """
@@ -619,7 +623,10 @@ class ASTNeuron(ASTElement):
         :return: the corresponding comment.
         :rtype: str
         """
-        return 'TODO comment parameter block'
+        block = self.getParameterBlocks()
+        if block is None:
+            return ''
+        return block.getComment() if block.getComment() is not None else ''
 
     def printStateComment(self):
         """
@@ -627,7 +634,10 @@ class ASTNeuron(ASTElement):
         :return: the corresponding comment.
         :rtype: str
         """
-        return 'TODO comment state block'
+        block = self.getStateBlocks()
+        if block is None:
+            return ''
+        return block.getComment() if block.getComment() is not None else ''
 
     def printInternalComment(self):
         """
@@ -635,7 +645,10 @@ class ASTNeuron(ASTElement):
         :return: the corresponding comment.
         :rtype: str
         """
-        return 'TODO comment internal block'
+        block = self.getInternalsBlocks()
+        if block is None:
+            return ''
+        return block.getComment() if block.getComment() is not None else ''
 
     def printComment(self):
         """
@@ -643,7 +656,10 @@ class ASTNeuron(ASTElement):
         :return: the comment.
         :rtype: str
         """
-        return 'TODO neuron comment'
+        ret = ''
+        for comment in self.getComment():
+            ret += comment + '\n'
+        return ret
 
     def getParent(self, _ast=None):
         """

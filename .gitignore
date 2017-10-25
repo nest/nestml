@@ -14,7 +14,7 @@ PyNESTML.egg-info/
 *.pyc
 buildNest/
 
-antlr-4.7-complete.jar
+pynestml/grammars/antlr-4.7-complete.jar
 
 .DS_Store
 .project

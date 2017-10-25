@@ -147,6 +147,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         cls.__currentBlockType = BlockType.LOCAL  # before entering, update the current block type
         symbol = FunctionSymbol(_scope=_block.getScope(), _elementReference=_block, _paramTypes=list(),
                                 _name=_block.getName(), _isPredefined=False)
+        symbol.setComment(_block.getComment())
         _block.getScope().addSymbol(symbol)
         scope = Scope(_scopeType=ScopeType.FUNCTION, _enclosingScope=_block.getScope(),
                       _sourcePosition=_block.getSourcePosition())
@@ -327,7 +328,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
             typeSymbol = PredefinedTypes.getTypeIfExists(typeName)
-            _declaration.getScope().addSymbol(VariableSymbol(_elementReference=_declaration,
+            symbol = VariableSymbol(_elementReference=_declaration,
                                                              _scope=_declaration.getScope(),
                                                              _name=var.getCompleteName(),
                                                              _blockType=cls.__currentBlockType,
@@ -338,8 +339,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                              _initialValue=initValue,
                                                              _vectorParameter=vectorParameter,
                                                              _variableType=VariableType.VARIABLE
-                                                             ))
-
+                                                             )
+            symbol.setComment(_declaration.getComment())
+            _declaration.getScope().addSymbol(symbol)
             var.setTypeSymbol(Either.value(typeSymbol))
             cls.visitVariable(var)
         _declaration.getDataType().updateScope(_declaration.getScope())
@@ -657,6 +659,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                 _isRecordable=_odeFunction.isRecordable(),
                                 _typeSymbol=typeSymbol,
                                 _variableType=VariableType.VARIABLE)
+        symbol.setComment(_odeFunction.getComment())
         _odeFunction.getScope().addSymbol(symbol)
         _odeFunction.getDataType().updateScope(_odeFunction.getScope())
         cls.visitDataType(_odeFunction.getDataType())
@@ -686,6 +689,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                     _isPredefined=False, _isFunction=False,
                                     _isRecordable=True,
                                     _typeSymbol=PredefinedTypes.getRealType(), _variableType=VariableType.SHAPE)
+            symbol.setComment(_odeShape.getComment())
             _odeShape.getScope().addSymbol(symbol)
         _odeShape.getVariable().updateScope(_odeShape.getScope())
         cls.visitVariable(_odeShape.getVariable())
@@ -807,6 +811,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                 _blockType=bufferType, _vectorParameter=_line.getIndexParameter(),
                                 _isPredefined=False, _isFunction=False, _isRecordable=False,
                                 _typeSymbol=typeSymbol, _variableType=VariableType.BUFFER)
+        symbol.setComment(_line.getComment())
         _line.getScope().addSymbol(symbol)
         for inputType in _line.getInputTypes():
             cls.visitInputType(inputType)

@@ -422,7 +422,7 @@ class Messages(object):
     def getNoInitValue(cls, _name=None):
         assert (_name is not None and isinstance(_name, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % _name
-        message = 'Initial value of ode variable \'%s\' not provided!' %_name
+        message = 'Initial value of ode variable \'%s\' not provided!' % _name
         return MessageCode.NO_INIT_VALUE, message
 
     @classmethod
@@ -569,6 +569,12 @@ class Messages(object):
         message = 'The model has defined an ODE. But its solution is not used in the update state.'
         return MessageCode.NEURON_ANALYZED, message
 
+    @classmethod
+    def getUnitDoesNotExist(cls, _name=None):
+        message = 'Unit does not exist (%s).' % _name
+        return MessageCode.NO_UNIT, message
+
+
 class MessageCode(Enum):
     """
     A mapping between codes and the corresponding messages.
@@ -628,3 +634,4 @@ class MessageCode(Enum):
     NO_SEMANTICS = 51
     NEURON_SOLVED_BY_GSL = 52
     NEURON_ANALYZED = 53
+    NO_UNIT = 54

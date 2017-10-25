@@ -32,7 +32,9 @@ from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.PredefinedUnits import PredefinedUnits
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
 from pynestml.nestml.SymbolTable import SymbolTable
+from pynestml.nestml.CommentsInsertionListener import CommentsInsertionListener
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+
 
 # setups the infrastructure
 PredefinedUnits.registerUnits()
@@ -40,7 +42,7 @@ PredefinedTypes.registerTypes()
 PredefinedFunctions.registerPredefinedFunctions()
 PredefinedVariables.registerPredefinedVariables()
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
-Logger.initLogger(LOGGING_LEVEL.NO)
+Logger.initLogger(LOGGING_LEVEL.ERROR)
 CoCosManager.initializeCoCosManager()
 
 
@@ -51,14 +53,20 @@ class ASTBuildingTest(unittest.TestCase):
             if filename.endswith(".nestml"):
                 # print('Start creating AST for ' + filename + ' ...'),
                 inputFile = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), 'izhikevich_psc_alpha.nestml')))
                 lexer = PyNESTMLLexer(inputFile)
                 # create a token stream
                 stream = CommonTokenStream(lexer)
                 # parse the file
                 parser = PyNESTMLParser(stream)
+                # process the comments
+                compilationUnit = parser.nestmlCompilationUnit()
+                commentsInsertionListener = CommentsInsertionListener(stream.tokens)
+                parseTreeWalker = ParseTreeWalker()
+                parseTreeWalker.walk(commentsInsertionListener, compilationUnit )
+                # now build the ast
                 astBuilderVisitor = ASTBuilderVisitor()
-                ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
+                ast = astBuilderVisitor.visit(compilationUnit )
                 assert isinstance(ast, ASTNESTMLCompilationUnit)
 
 

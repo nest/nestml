@@ -25,6 +25,7 @@ from pynestml.nestml.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.nestml.CoCosManager import CoCosManager
 from pynestml.nestml.SymbolTable import SymbolTable
 from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
+from pynestml.nestml.CommentsInsertionListener import CommentsInsertionListener
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
@@ -56,11 +57,16 @@ class NESTMLParser(object):
         stream = CommonTokenStream(lexer)
         # parse the file
         parser = PyNESTMLParser(stream)
+        # process the comments
+        compilationUnit = parser.nestmlCompilationUnit()
+        commentsInsertionListener = CommentsInsertionListener(stream.tokens)
+        parseTreeWalker = ParseTreeWalker()
+        parseTreeWalker.walk(commentsInsertionListener, compilationUnit)
         # initialize the coco manager since several cocos are check during creation of ast
         CoCosManager.initializeCoCosManager()
         # create a new visitor and return the new AST
         astBuilderVisitor = ASTBuilderVisitor()
-        ast = astBuilderVisitor.visit(parser.nestmlCompilationUnit())
+        ast = astBuilderVisitor.visit(compilationUnit)
         # create and update the corresponding symbol tables
         SymbolTable.initializeSymbolTable(ast.getSourcePosition())
         for neuron in ast.getNeuronList():

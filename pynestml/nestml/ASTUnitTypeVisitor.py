@@ -125,7 +125,7 @@ class ASTUnitTypeVisitor(object):
         # first ensure that it does not already exists, if not create it and register it in the set of predefined units
         assert (_unitType is not None), \
             '(PyNestML.Visitor.UnitTypeVisitor) No unit-type provided (%s)!' % type(_unitType)
-        if _unitType not in PredefinedUnits.getUnits().keys():
+        if str(_unitType) not in PredefinedUnits.getUnits().keys():
             unitType = UnitType(_name=str(_unitType), _unit=_unitType)
             PredefinedUnits.registerUnit(unitType)
         # now create the corresponding type symbol if it does not exists
