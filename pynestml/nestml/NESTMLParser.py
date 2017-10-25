@@ -91,8 +91,14 @@ class NESTMLParser(object):
         stream = CommonTokenStream(lexer)
         # parse the file
         parser = PyNESTMLParser(stream)
+        # process the comments
+        expression = parser.expression()
+        commentsInsertionListener = CommentsInsertionListener(stream.tokens)
+        parseTreeWalker = ParseTreeWalker()
+        parseTreeWalker.walk(commentsInsertionListener, expression)
+
         builder = ASTBuilderVisitor()
-        ret = builder.visit(parser.expression())
+        ret = builder.visit(expression)
         ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
         return ret
 
@@ -113,7 +119,13 @@ class NESTMLParser(object):
         # parse the file
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor()
-        ret = builder.visit(parser.declaration())
+        # process the comments
+        declaration = parser.declaration()
+        commentsInsertionListener = CommentsInsertionListener(stream.tokens)
+        parseTreeWalker = ParseTreeWalker()
+        parseTreeWalker.walk(commentsInsertionListener, declaration)
+
+        ret = builder.visit(declaration)
         ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
         return ret
 
@@ -133,8 +145,14 @@ class NESTMLParser(object):
         stream = CommonTokenStream(lexer)
         # parse the file
         parser = PyNESTMLParser(stream)
+        # process the comments
+        statement = parser.stmt()
+        commentsInsertionListener = CommentsInsertionListener(stream.tokens)
+        parseTreeWalker = ParseTreeWalker()
+        parseTreeWalker.walk(commentsInsertionListener, statement)
+
         builder = ASTBuilderVisitor()
-        ret = builder.visit(parser.stmt())
+        ret = builder.visit(statement)
         ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
         return ret
 
@@ -154,8 +172,14 @@ class NESTMLParser(object):
         stream = CommonTokenStream(lexer)
         # parse the file
         parser = PyNESTMLParser(stream)
+        # process the comments
+        shape = parser.odeShape()
+        commentsInsertionListener = CommentsInsertionListener(stream.tokens)
+        parseTreeWalker = ParseTreeWalker()
+        parseTreeWalker.walk(commentsInsertionListener, shape)
+
         builder = ASTBuilderVisitor()
-        ret = builder.visit(parser.odeShape())
+        ret = builder.visit(shape)
         ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
         return ret
 
@@ -175,7 +199,13 @@ class NESTMLParser(object):
         stream = CommonTokenStream(lexer)
         # parse the file
         parser = PyNESTMLParser(stream)
+        # process the comments
+        assignment = parser.assignment()
+        commentsInsertionListener = CommentsInsertionListener(stream.tokens)
+        parseTreeWalker = ParseTreeWalker()
+        parseTreeWalker.walk(commentsInsertionListener, assignment )
+
         builder = ASTBuilderVisitor()
-        ret = builder.visit(parser.assignment())
+        ret = builder.visit(assignment )
         ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
         return ret

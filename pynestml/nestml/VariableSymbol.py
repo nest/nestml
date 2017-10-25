@@ -475,7 +475,7 @@ class VariableSymbol(Symbol):
         :return: True if comment is stored, otherwise False.
         :rtype: bool
         """
-        return False  # todo
+        return self.getComment() is not None and self.getComment() != ''
 
     def printComment(self, _prefix=None):
         """
@@ -488,8 +488,11 @@ class VariableSymbol(Symbol):
         ret = ''
         if not self.hasComment():
             return ''
+        # in the last part, delete the new line if it is the last comment, otherwise there is an ungly gap
+        # between the comment and the element
         for comment in self.getComment():
-            ret += (_prefix if _prefix is not None else '') + comment + '\n'
+            ret += (_prefix if _prefix is not None else '') + comment +\
+                   ('\n' if self.getComment().index(comment) < len(self.getComment())-1 else '')
         return ret
 
     def containsSumCall(self):

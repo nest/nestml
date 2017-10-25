@@ -469,6 +469,7 @@ class ASTNeuron(ASTElement):
         for param in self.getInternalSymbols():
             if not param.isFunction() and not param.isPredefined():
                 ret.append(param)
+
         return ret
 
     def getInitialValuesSymbols(self):
@@ -657,6 +658,8 @@ class ASTNeuron(ASTElement):
         :rtype: str
         """
         ret = ''
+        if self.getComment() is None:
+            return ret
         for comment in self.getComment():
             ret += comment + '\n'
         return ret

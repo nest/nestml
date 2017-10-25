@@ -156,7 +156,7 @@ grammar PyNESTML;
     @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
-  declaration:
+  declaration locals [comment]:
     (isRecordable='recordable')? (isFunction='function')?
     variable (',' variable)*
     datatype
@@ -212,7 +212,7 @@ grammar PyNESTML;
     @attribute outputBlock: A block of output declarations.
     @attribute function: A block declaring a used-defined function.
   */
-  body locals[comment]: BLOCK_OPEN
+  body: BLOCK_OPEN
          (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
          BLOCK_CLOSE;
 
@@ -226,7 +226,7 @@ grammar PyNESTML;
     @attribute internals: True iff the varblock is a state internals block.
     @attribute declaration: A list of corresponding declarations.
   */
-  blockWithVariables:
+  blockWithVariables locals[comment]:
     blockType=('state'|'parameters'|'internals'|'initial_values')
     BLOCK_OPEN
       (declaration | NEWLINE)*
@@ -240,7 +240,7 @@ grammar PyNESTML;
       end
      @attribute block Implementation of the dynamics.
    */
-  updateBlock:
+  updateBlock locals[comment]:
     'update'
     BLOCK_OPEN
       block
@@ -255,20 +255,20 @@ grammar PyNESTML;
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
      @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
    */
-  equationsBlock:
+  equationsBlock locals[comment]:
     'equations'
     BLOCK_OPEN
-      (odeFunction|odeEquation|odeShape|NEWLINE)+
+      (odeFunction|odeEquation|odeShape|NEWLINE)*
     BLOCK_CLOSE;
 
   /** ASTInputBlock represents a single input block:
-    input:
+    input locals[comment]:
       spikeBuffer   <- inhibitory excitatory spike
       currentBuffer <- current
     end
     @attribute inputLine: A list of input lines.
   */
-  inputBlock: 'input'
+  inputBlock locals[comment]: 'input'
     BLOCK_OPEN
       (inputLine | NEWLINE)*
     BLOCK_CLOSE;
@@ -282,7 +282,7 @@ grammar PyNESTML;
     @attribute isSpike: True iff the neuron is a spike.
     @attribute isCurrent: True iff. the neuron is a current.
   */
-  inputLine :
+  inputLine locals[comment]:
     name=NAME
     ('[' sizeParameter=NAME ']')?
     (datatype)?
@@ -300,7 +300,7 @@ grammar PyNESTML;
       @attribute isSpike: true iff the neuron has a spike output.
       @attribute isCurrent: true iff. the neuron is a current output.
     */
-  outputBlock: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
+  outputBlock locals[comment]: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
 
   /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):
@@ -311,7 +311,7 @@ grammar PyNESTML;
     @attribute returnType: An arbitrary return type, e.g. String or mV.
     @attribute block: Implementation of the function.
   */
-  function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
+  function locals[comment]: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
            BLOCK_OPEN
              block
            BLOCK_CLOSE;

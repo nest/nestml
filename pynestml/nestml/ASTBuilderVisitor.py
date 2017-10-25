@@ -424,11 +424,14 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTDeclaration import ASTDeclaration
-        return ASTDeclaration.makeASTDeclaration(_isRecordable=isRecordable, _isFunction=isFunction,
+        declaration = ASTDeclaration.makeASTDeclaration(_isRecordable=isRecordable, _isFunction=isFunction,
                                                  _variables=variables, _dataType=dataType,
                                                  _sizeParameter=sizeParam,
                                                  _expression=expression,
                                                  _invariant=invariant, _sourcePosition=sourcePos)
+        declaration.setComment(ctx.comment)
+        return declaration
+
 
     # Visit a parse tree produced by PyNESTMLParser#returnStmt.
     def visitReturnStmt(self, ctx):
@@ -588,7 +591,6 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTBody import ASTBody
         body = ASTBody.makeASTBody(_bodyElements=elements, _sourcePosition=sourcePos)
-        body.setComment(ctx.comment)
         return body
 
     # Visit a parse tree produced by PyNESTMLParser#blockWithVariables.
@@ -603,29 +605,30 @@ class ASTBuilderVisitor(ParseTreeVisitor):
                                                             _endLine=ctx.stop.line,
                                                             _endColumn=ctx.stop.column)
         from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+        ret = None
         if blockType == 'state':
-            return ASTBlockWithVariables.makeASTBlockWithVariables(
+            ret = ASTBlockWithVariables.makeASTBlockWithVariables(
                 _isInternals=False, _isParameters=False, _isState=True, _isInitialValues=False,
                 _declarations=declarations, _sourcePosition=sourcePos)
         elif blockType == 'parameters':
-            return ASTBlockWithVariables.makeASTBlockWithVariables(
+            ret = ASTBlockWithVariables.makeASTBlockWithVariables(
                 _isInternals=False, _isParameters=True, _isState=False, _isInitialValues=False,
                 _declarations=declarations, _sourcePosition=sourcePos)
         elif blockType == 'internals':
-            return ASTBlockWithVariables.makeASTBlockWithVariables(
+            ret = ASTBlockWithVariables.makeASTBlockWithVariables(
                 _isInternals=True, _isParameters=False, _isState=False, _isInitialValues=False,
                 _declarations=declarations, _sourcePosition=sourcePos)
         elif blockType == 'initial_values':
-            return ASTBlockWithVariables.makeASTBlockWithVariables(
+            ret = ASTBlockWithVariables.makeASTBlockWithVariables(
                 _isInternals=False, _isParameters=False, _isState=False, _isInitialValues=True,
                 _declarations=declarations, _sourcePosition=sourcePos)
-
         else:
             Logger.logMessage('(NESTML.ASTBuilder) Unspecified type (=%s) of var-block.' % str(ctx.blockType),
                               LOGGING_LEVEL.ERROR)
             return
+        ret.setComment(ctx.comment)
+        return ret
 
-            # Visit a parse tree produced by PyNESTMLParser#dynamics.
 
     def visitUpdateBlock(self, ctx):
         block = self.visit(ctx.block()) if ctx.block() is not None else None

@@ -35,7 +35,6 @@ from pynestml.nestml.SymbolTable import SymbolTable
 from pynestml.nestml.CommentsInsertionListener import CommentsInsertionListener
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
-
 # setups the infrastructure
 PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
@@ -53,7 +52,7 @@ class ASTBuildingTest(unittest.TestCase):
             if filename.endswith(".nestml"):
                 # print('Start creating AST for ' + filename + ' ...'),
                 inputFile = FileStream(
-                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), 'izhikevich_psc_alpha.nestml')))
+                    os.path.join(os.path.dirname(__file__), os.path.join(os.path.join('..', 'models'), filename)))
                 lexer = PyNESTMLLexer(inputFile)
                 # create a token stream
                 stream = CommonTokenStream(lexer)
@@ -63,10 +62,10 @@ class ASTBuildingTest(unittest.TestCase):
                 compilationUnit = parser.nestmlCompilationUnit()
                 commentsInsertionListener = CommentsInsertionListener(stream.tokens)
                 parseTreeWalker = ParseTreeWalker()
-                parseTreeWalker.walk(commentsInsertionListener, compilationUnit )
+                parseTreeWalker.walk(commentsInsertionListener, compilationUnit)
                 # now build the ast
                 astBuilderVisitor = ASTBuilderVisitor()
-                ast = astBuilderVisitor.visit(compilationUnit )
+                ast = astBuilderVisitor.visit(compilationUnit)
                 assert isinstance(ast, ASTNESTMLCompilationUnit)
 
 

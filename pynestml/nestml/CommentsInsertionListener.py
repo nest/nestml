@@ -26,6 +26,9 @@ class CommentsInsertionListener(PyNESTMLListener):
     def __init__(self, tokens):
         self.tokens = tokens
 
+    def enterBlockWithVariables(self, ctx):
+        ctx.comment = self.getComments(ctx)
+
     def enterBlock(self, ctx):
         ctx.comment = self.getComments(ctx)
 
@@ -39,9 +42,6 @@ class CommentsInsertionListener(PyNESTMLListener):
         ctx.comment = self.getComments(ctx)
 
     def enterOdeShape(self, ctx):
-        ctx.comment = self.getComments(ctx)
-
-    def enterBody(self, ctx):
         ctx.comment = self.getComments(ctx)
 
     def enterStmt(self, ctx):
@@ -87,15 +87,33 @@ class CommentsInsertionListener(PyNESTMLListener):
         # first find the position of this token in the stream
         comments = list()
         emptyBefore = self.__noDefinitionsBefore(ctx)
+        eol = False
+        temp = None
         for possibleCommentToken in reversed(self.tokens[0:self.tokens.index(ctx.start)]):
+            # if we hit a normal token (i.e. not whitespace, not newline and not token) then stop, since we reached
+            # the next previous element, thus the next comments belong to this element
+            if possibleCommentToken.channel == 0:
+                break
+            # if we have found a comment, put it on the "stack". we now have to check if there is an element defined
+            # in the same line, since in this case, the comments does not belong to us
             if possibleCommentToken.channel == 2:
                 # if it is something on the comment channel -> get it
-                comments.append(self.replaceTags(possibleCommentToken.text))
-            # otherwise we found a token which is not a whitespace nor a comment, thus something like
-            # a "block" which encapsulates the current element, thus no comment is there.
-            # or if we encounter a white line as used to separate comments
-            if possibleCommentToken.channel == 0 or (not emptyBefore and possibleCommentToken.channel == 3):
+                temp = self.replaceTags(possibleCommentToken.text)
+                eol = False
+            # skip whitespaces
+            if possibleCommentToken.channel == 1:
+                continue
+            # if the previous token was an EOL and and this token is neither a white space nor a comment, thus
+            # it is yet another newline,stop (two lines separate a two elements)
+            elif eol and not emptyBefore:
                 break
+            # we have found a new line token. thus if we have stored a comment on the stack, its ok to store it in
+            # our element, since it does not belong to a declaration in its line
+            if possibleCommentToken.channel == 3:
+                if temp is not None:
+                    comments.append(temp)
+                eol = True
+                continue
         # we reverse it in order to get the right order of comments
         return reversed(comments) if len(comments) > 0 else None
 
@@ -137,12 +155,30 @@ class CommentsInsertionListener(PyNESTMLListener):
         :rtype: str
         """
         comments = list()
-        for possibleCommentToken in self.tokens[self.tokens.index(ctx.stop):]:
+        nextLineStartIndex = -1
+        # first find out where the next line start, since we want to avoid to see comments, which have
+        # been stated in the same line, as comments which are stated after the element
+        for possibleToken in self.tokens[self.tokens.index(ctx.stop) + 1:]:
+            if possibleToken.channel == 3:
+                nextLineStartIndex = self.tokens.index(possibleToken)
+                break
+        firstLine = False
+        for possibleCommentToken in self.tokens[nextLineStartIndex:]:
             if possibleCommentToken.channel == 2:
                 # if it is a comment on the comment channel -> get it
                 comments.append(self.replaceTags(possibleCommentToken.text))
-            if possibleCommentToken.channel == 0 or possibleCommentToken.channel == 3:
+                firstLine = False
+
+            # we found a white line, thus a comment separator
+            if possibleCommentToken.channel == 3 and firstLine:
                 break
+            elif possibleCommentToken.channel == 3:
+                firstLine = True
+
+            # if we see a different element, i.e. that we have reached the next declaration and should stop
+            if possibleCommentToken.channel == 0:
+                break
+
         return comments if len(comments) > 0 else None
 
     def replaceTags(self, _comment=None):
