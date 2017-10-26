@@ -116,19 +116,19 @@ grammar PyNESTML;
   * Equations-Language
   *********************************************************************************************************************/
 
-  odeFunction locals [comment]: (recordable='recordable')? 'function' variableName=NAME datatype '=' expression (';')?;
+  odeFunction : (recordable='recordable')? 'function' variableName=NAME datatype '=' expression (';')?;
 
-  odeEquation locals [comment]: lhs=variable '=' rhs=expression (';')?;
+  odeEquation : lhs=variable '=' rhs=expression (';')?;
 
-  odeShape locals [comment]: 'shape' lhs=variable '=' rhs=expression (';')?;
+  odeShape : 'shape' lhs=variable '=' rhs=expression (';')?;
 
   /*********************************************************************************************************************
   * Procedural-Language
   *********************************************************************************************************************/
 
-  block locals [comment]: ( stmt | NEWLINE )*;
+  block : ( stmt | NEWLINE )*;
 
-  stmt locals [comment]: smallStmt | compoundStmt;
+  stmt : smallStmt | compoundStmt;
 
   compoundStmt : ifStmt
                 | forStmt
@@ -156,7 +156,7 @@ grammar PyNESTML;
     @attribute rhs: An optional initial expression, e.g., 'a real = 10+10'
     @attribute invariant: A single, optional invariant expression, e.g., '[a < 21]'
    */
-  declaration locals [comment]:
+  declaration :
     (isRecordable='recordable')? (isFunction='function')?
     variable (',' variable)*
     datatype
@@ -202,7 +202,7 @@ grammar PyNESTML;
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
     @attribute body:    The body of the neuron consisting of several sub-blocks.
   */
-  neuron locals [comment]: 'neuron' NAME body;
+  neuron : 'neuron' NAME body;
 
   /** ASTBody The body of the neuron, e.g. internal, state, parameter...
     @attribute blockWithVariables: A single block of variables, e.g. the state block.
@@ -226,7 +226,7 @@ grammar PyNESTML;
     @attribute internals: True iff the varblock is a state internals block.
     @attribute declaration: A list of corresponding declarations.
   */
-  blockWithVariables locals[comment]:
+  blockWithVariables:
     blockType=('state'|'parameters'|'internals'|'initial_values')
     BLOCK_OPEN
       (declaration | NEWLINE)*
@@ -240,7 +240,7 @@ grammar PyNESTML;
       end
      @attribute block Implementation of the dynamics.
    */
-  updateBlock locals[comment]:
+  updateBlock:
     'update'
     BLOCK_OPEN
       block
@@ -255,20 +255,20 @@ grammar PyNESTML;
      @attribute odeEquation: A single ode equation statement, e.g., V_m' = ...
      @attribute odeShape:    A single ode shape statement, e.g., shape V_m = ....
    */
-  equationsBlock locals[comment]:
+  equationsBlock:
     'equations'
     BLOCK_OPEN
       (odeFunction|odeEquation|odeShape|NEWLINE)*
     BLOCK_CLOSE;
 
   /** ASTInputBlock represents a single input block:
-    input locals[comment]:
+    input:
       spikeBuffer   <- inhibitory excitatory spike
       currentBuffer <- current
     end
     @attribute inputLine: A list of input lines.
   */
-  inputBlock locals[comment]: 'input'
+  inputBlock: 'input'
     BLOCK_OPEN
       (inputLine | NEWLINE)*
     BLOCK_CLOSE;
@@ -282,7 +282,7 @@ grammar PyNESTML;
     @attribute isSpike: True iff the neuron is a spike.
     @attribute isCurrent: True iff. the neuron is a current.
   */
-  inputLine locals[comment]:
+  inputLine:
     name=NAME
     ('[' sizeParameter=NAME ']')?
     (datatype)?
@@ -300,7 +300,7 @@ grammar PyNESTML;
       @attribute isSpike: true iff the neuron has a spike output.
       @attribute isCurrent: true iff. the neuron is a current output.
     */
-  outputBlock locals[comment]: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
+  outputBlock: 'output' BLOCK_OPEN (isSpike='spike' | isCurrent='current') ;
 
   /** ASTFunction A single declaration of a user-defined function definition:
       function set_V_m(v mV):
@@ -311,7 +311,7 @@ grammar PyNESTML;
     @attribute returnType: An arbitrary return type, e.g. String or mV.
     @attribute block: Implementation of the function.
   */
-  function locals[comment]: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
+  function: 'function' NAME '(' (parameter (',' parameter)*)? ')' (returnType=datatype)?
            BLOCK_OPEN
              block
            BLOCK_CLOSE;

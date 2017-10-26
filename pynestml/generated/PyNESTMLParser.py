@@ -460,14 +460,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_datatype
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterDatatype"):
-                listener.enterDatatype(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitDatatype"):
-                listener.exitDatatype(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitDatatype"):
                 return visitor.visitDatatype(self)
@@ -559,14 +551,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_unitType
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterUnitType"):
-                listener.enterUnitType(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitUnitType"):
-                listener.exitUnitType(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitUnitType"):
@@ -726,14 +710,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_expression
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterExpression"):
-                listener.enterExpression(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitExpression"):
-                listener.exitExpression(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitExpression"):
@@ -968,14 +944,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_simpleExpression
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterSimpleExpression"):
-                listener.enterSimpleExpression(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitSimpleExpression"):
-                listener.exitSimpleExpression(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitSimpleExpression"):
                 return visitor.visitSimpleExpression(self)
@@ -1065,14 +1033,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_unaryOperator
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterUnaryOperator"):
-                listener.enterUnaryOperator(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitUnaryOperator"):
-                listener.exitUnaryOperator(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitUnaryOperator"):
                 return visitor.visitUnaryOperator(self)
@@ -1128,14 +1088,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_bitOperator
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterBitOperator"):
-                listener.enterBitOperator(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitBitOperator"):
-                listener.exitBitOperator(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitBitOperator"):
@@ -1202,14 +1154,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_comparisonOperator
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterComparisonOperator"):
-                listener.enterComparisonOperator(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitComparisonOperator"):
-                listener.exitComparisonOperator(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitComparisonOperator"):
@@ -1280,14 +1224,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_logicalOperator
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterLogicalOperator"):
-                listener.enterLogicalOperator(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitLogicalOperator"):
-                listener.exitLogicalOperator(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitLogicalOperator"):
                 return visitor.visitLogicalOperator(self)
@@ -1345,14 +1281,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_variable
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterVariable"):
-                listener.enterVariable(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitVariable"):
-                listener.exitVariable(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitVariable"):
                 return visitor.visitVariable(self)
@@ -1399,14 +1327,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_differentialOrder
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterDifferentialOrder"):
-                listener.enterDifferentialOrder(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitDifferentialOrder"):
-                listener.exitDifferentialOrder(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitDifferentialOrder"):
                 return visitor.visitDifferentialOrder(self)
@@ -1451,14 +1371,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_functionCall
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterFunctionCall"):
-                listener.enterFunctionCall(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitFunctionCall"):
-                listener.exitFunctionCall(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitFunctionCall"):
@@ -1515,7 +1427,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.OdeFunctionContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
             self.recordable = None # Token
             self.variableName = None # Token
 
@@ -1532,14 +1443,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_odeFunction
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterOdeFunction"):
-                listener.enterOdeFunction(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitOdeFunction"):
-                listener.exitOdeFunction(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitOdeFunction"):
@@ -1596,7 +1499,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.OdeEquationContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
             self.lhs = None # VariableContext
             self.rhs = None # ExpressionContext
 
@@ -1610,14 +1512,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_odeEquation
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterOdeEquation"):
-                listener.enterOdeEquation(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitOdeEquation"):
-                listener.exitOdeEquation(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitOdeEquation"):
@@ -1662,7 +1556,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.OdeShapeContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
             self.lhs = None # VariableContext
             self.rhs = None # ExpressionContext
 
@@ -1676,14 +1569,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_odeShape
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterOdeShape"):
-                listener.enterOdeShape(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitOdeShape"):
-                listener.exitOdeShape(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitOdeShape"):
@@ -1730,7 +1615,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.BlockContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
 
         def stmt(self, i=None):
             if i is None:
@@ -1747,14 +1631,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_block
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterBlock"):
-                listener.enterBlock(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitBlock"):
-                listener.exitBlock(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitBlock"):
@@ -1807,7 +1683,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.StmtContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
 
         def smallStmt(self):
             return self.getTypedRuleContext(PyNESTMLParser.SmallStmtContext,0)
@@ -1819,14 +1694,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_stmt
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterStmt"):
-                listener.enterStmt(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitStmt"):
-                listener.exitStmt(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitStmt"):
@@ -1886,14 +1753,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_compoundStmt
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterCompoundStmt"):
-                listener.enterCompoundStmt(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitCompoundStmt"):
-                listener.exitCompoundStmt(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitCompoundStmt"):
@@ -1962,14 +1821,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_smallStmt
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterSmallStmt"):
-                listener.enterSmallStmt(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitSmallStmt"):
-                listener.exitSmallStmt(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitSmallStmt"):
@@ -2044,14 +1895,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_assignment
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterAssignment"):
-                listener.enterAssignment(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitAssignment"):
-                listener.exitAssignment(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitAssignment"):
                 return visitor.visitAssignment(self)
@@ -2110,7 +1953,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.DeclarationContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
             self.isRecordable = None # Token
             self.isFunction = None # Token
             self.sizeParameter = None # Token
@@ -2140,14 +1982,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_declaration
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterDeclaration"):
-                listener.enterDeclaration(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitDeclaration"):
-                listener.exitDeclaration(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitDeclaration"):
@@ -2252,14 +2086,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_returnStmt
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterReturnStmt"):
-                listener.enterReturnStmt(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitReturnStmt"):
-                listener.exitReturnStmt(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitReturnStmt"):
                 return visitor.visitReturnStmt(self)
@@ -2319,14 +2145,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_ifStmt
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterIfStmt"):
-                listener.enterIfStmt(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitIfStmt"):
-                listener.exitIfStmt(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitIfStmt"):
@@ -2394,14 +2212,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_ifClause
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterIfClause"):
-                listener.enterIfClause(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitIfClause"):
-                listener.exitIfClause(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitIfClause"):
                 return visitor.visitIfClause(self)
@@ -2453,14 +2263,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_elifClause
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterElifClause"):
-                listener.enterElifClause(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitElifClause"):
-                listener.exitElifClause(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitElifClause"):
                 return visitor.visitElifClause(self)
@@ -2507,14 +2309,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_elseClause
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterElseClause"):
-                listener.enterElseClause(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitElseClause"):
-                listener.exitElseClause(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitElseClause"):
@@ -2581,14 +2375,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_forStmt
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterForStmt"):
-                listener.enterForStmt(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitForStmt"):
-                listener.exitForStmt(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitForStmt"):
@@ -2658,14 +2444,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_whileStmt
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterWhileStmt"):
-                listener.enterWhileStmt(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitWhileStmt"):
-                listener.exitWhileStmt(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitWhileStmt"):
                 return visitor.visitWhileStmt(self)
@@ -2714,14 +2492,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_signedNumericLiteral
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterSignedNumericLiteral"):
-                listener.enterSignedNumericLiteral(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitSignedNumericLiteral"):
-                listener.exitSignedNumericLiteral(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitSignedNumericLiteral"):
@@ -2787,14 +2557,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_nestmlCompilationUnit
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterNestmlCompilationUnit"):
-                listener.enterNestmlCompilationUnit(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitNestmlCompilationUnit"):
-                listener.exitNestmlCompilationUnit(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitNestmlCompilationUnit"):
                 return visitor.visitNestmlCompilationUnit(self)
@@ -2848,7 +2610,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.NeuronContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
 
         def NAME(self):
             return self.getToken(PyNESTMLParser.NAME, 0)
@@ -2859,14 +2620,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_neuron
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterNeuron"):
-                listener.enterNeuron(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitNeuron"):
-                listener.exitNeuron(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitNeuron"):
@@ -2960,14 +2713,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_body
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterBody"):
-                listener.enterBody(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitBody"):
-                listener.exitBody(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitBody"):
                 return visitor.visitBody(self)
@@ -3043,7 +2788,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.BlockWithVariablesContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
             self.blockType = None # Token
 
         def BLOCK_OPEN(self):
@@ -3067,14 +2811,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_blockWithVariables
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterBlockWithVariables"):
-                listener.enterBlockWithVariables(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitBlockWithVariables"):
-                listener.exitBlockWithVariables(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitBlockWithVariables"):
@@ -3139,7 +2875,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.UpdateBlockContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
 
         def BLOCK_OPEN(self):
             return self.getToken(PyNESTMLParser.BLOCK_OPEN, 0)
@@ -3153,14 +2888,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_updateBlock
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterUpdateBlock"):
-                listener.enterUpdateBlock(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitUpdateBlock"):
-                listener.exitUpdateBlock(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitUpdateBlock"):
@@ -3198,7 +2925,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.EquationsBlockContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
 
         def BLOCK_OPEN(self):
             return self.getToken(PyNESTMLParser.BLOCK_OPEN, 0)
@@ -3235,14 +2961,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_equationsBlock
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterEquationsBlock"):
-                listener.enterEquationsBlock(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitEquationsBlock"):
-                listener.exitEquationsBlock(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitEquationsBlock"):
@@ -3309,7 +3027,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.InputBlockContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
 
         def BLOCK_OPEN(self):
             return self.getToken(PyNESTMLParser.BLOCK_OPEN, 0)
@@ -3332,14 +3049,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_inputBlock
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterInputBlock"):
-                listener.enterInputBlock(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitInputBlock"):
-                listener.exitInputBlock(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitInputBlock"):
@@ -3398,7 +3107,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.InputLineContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
             self.name = None # Token
             self.sizeParameter = None # Token
             self.isCurrent = None # Token
@@ -3423,14 +3131,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_inputLine
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterInputLine"):
-                listener.enterInputLine(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitInputLine"):
-                listener.exitInputLine(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitInputLine"):
@@ -3516,14 +3216,6 @@ class PyNESTMLParser ( Parser ):
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_inputType
 
-        def enterRule(self, listener):
-            if hasattr(listener, "enterInputType"):
-                listener.enterInputType(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitInputType"):
-                listener.exitInputType(self)
-
         def accept(self, visitor):
             if hasattr(visitor, "visitInputType"):
                 return visitor.visitInputType(self)
@@ -3566,7 +3258,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.OutputBlockContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
             self.isSpike = None # Token
             self.isCurrent = None # Token
 
@@ -3575,14 +3266,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_outputBlock
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterOutputBlock"):
-                listener.enterOutputBlock(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitOutputBlock"):
-                listener.exitOutputBlock(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitOutputBlock"):
@@ -3630,7 +3313,6 @@ class PyNESTMLParser ( Parser ):
         def __init__(self, parser, parent=None, invokingState=-1):
             super(PyNESTMLParser.FunctionContext, self).__init__(parent, invokingState)
             self.parser = parser
-            self.comment = None
             self.returnType = None # DatatypeContext
 
         def NAME(self):
@@ -3659,14 +3341,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_function
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterFunction"):
-                listener.enterFunction(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitFunction"):
-                listener.exitFunction(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitFunction"):
@@ -3749,14 +3423,6 @@ class PyNESTMLParser ( Parser ):
 
         def getRuleIndex(self):
             return PyNESTMLParser.RULE_parameter
-
-        def enterRule(self, listener):
-            if hasattr(listener, "enterParameter"):
-                listener.enterParameter(self)
-
-        def exitRule(self, listener):
-            if hasattr(listener, "exitParameter"):
-                listener.exitParameter(self)
 
         def accept(self, visitor):
             if hasattr(visitor, "visitParameter"):

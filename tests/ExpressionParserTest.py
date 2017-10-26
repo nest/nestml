@@ -35,7 +35,6 @@ from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.PredefinedUnits import PredefinedUnits
 from pynestml.nestml.PredefinedVariables import PredefinedVariables
 from pynestml.nestml.SymbolTable import SymbolTable
-from pynestml.nestml.CommentsInsertionListener import CommentsInsertionListener
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 # setups the infrastructure
@@ -64,15 +63,9 @@ class ExpressionParsingTest(unittest.TestCase):
         stream.fill()
         # parse the file
         parser = PyNESTMLParser(stream)
-
-        # process the comments
         compilationUnit = parser.nestmlCompilationUnit()
-        commentsInsertionListener = CommentsInsertionListener(stream.tokens)
-        parseTreeWalker = ParseTreeWalker()
-        parseTreeWalker.walk(commentsInsertionListener, compilationUnit)
-
         # print('done')
-        astBuilderVisitor = ASTBuilderVisitor()
+        astBuilderVisitor = ASTBuilderVisitor(stream.tokens)
         ast = astBuilderVisitor.visit(compilationUnit)
         # print('done')
         assert isinstance(ast, ASTNESTMLCompilationUnit)

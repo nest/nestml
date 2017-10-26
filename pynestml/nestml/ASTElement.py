@@ -103,11 +103,37 @@ class ASTElement(object):
 
     def setComment(self, _comment=None):
         """
-        Updates the comment
+        Updates the comment of this element.
         :param _comment: a comment
         :type _comment: str
         """
         self.__comment = _comment
+
+    def hasComment(self):
+        """
+        Indicates whether this element stores a prefix.
+        :return: True if has comment, otherwise False.
+        :rtype: bool
+        """
+        return self.__comment is not None and len(self.__comment) > 0
+
+    def printComment(self, _prefix=None):
+        """
+        Prints the comment of this ast element.
+        :param _prefix: a prefix string
+        :type _prefix: str
+        :return: a comment
+        :rtype: str
+        """
+        ret = ''
+        if not self.hasComment():
+            return _prefix if _prefix is not None else ''
+        # in the last part, delete the new line if it is the last comment, otherwise there is an ugly gap
+        # between the comment and the element
+        for comment in self.getComment():
+            ret += (_prefix + ' ' if _prefix is not None else '') + comment + \
+                   ('\n' if self.getComment().index(comment) < len(self.getComment()) - 1 else '')
+        return ret
 
     @abstractmethod
     def getParent(self, _ast=None):

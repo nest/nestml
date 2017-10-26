@@ -1,5 +1,5 @@
 #
-# CommentsInsertionListener.py
+# CommentCollectorVisitor.py
 #
 # This file is part of NEST.
 #
@@ -17,44 +17,55 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.generated.PyNESTMLListener import PyNESTMLListener
+from pynestml.generated.PyNESTMLVisitor import PyNESTMLVisitor
 
 
-class CommentsInsertionListener(PyNESTMLListener):
-    tokens = None
-
+class CommentCollectorVisitor(PyNESTMLVisitor):
+    __tokens = None
     def __init__(self, tokens):
-        self.tokens = tokens
+        self.__tokens = tokens
 
-    def enterBlockWithVariables(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitBlockWithVariables(self, ctx):
+        return self.getComments(ctx)
 
-    def enterBlock(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitBlock(self, ctx):
+        return self.getComments(ctx)
 
-    def enterNeuron(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitNeuron(self, ctx):
+        return self.getComments(ctx)
 
-    def enterOdeEquation(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitOdeEquation(self, ctx):
+        return self.getComments(ctx)
 
-    def enterOdeFunction(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitOdeFunction(self, ctx):
+        return self.getComments(ctx)
 
-    def enterOdeShape(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitOdeShape(self, ctx):
+        return self.getComments(ctx)
 
-    def enterStmt(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitStmt(self, ctx):
+        return self.getComments(ctx)
 
-    def enterInputLine(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitInputLine(self, ctx):
+        return self.getComments(ctx)
 
-    def enterDeclaration(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitDeclaration(self, ctx):
+        return self.getComments(ctx)
 
-    def enterAssignment(self, ctx):
-        ctx.comment = self.getComments(ctx)
+    def visitAssignment(self, ctx):
+        return self.getComments(ctx)
+
+    def visitUpdateBlock(self, ctx):
+        return self.getComments(ctx)
+
+    def visitEquationsBlock(self, ctx):
+        return self.getComments(ctx)
+
+    def visitInputBlock(self, ctx):
+        return self.getComments(ctx)
+
+    def visitOutputBlock(self, ctx):
+        return self.getComments(ctx)
 
     def getComments(self, ctx):
         """
@@ -89,7 +100,7 @@ class CommentsInsertionListener(PyNESTMLListener):
         emptyBefore = self.__noDefinitionsBefore(ctx)
         eol = False
         temp = None
-        for possibleCommentToken in reversed(self.tokens[0:self.tokens.index(ctx.start)]):
+        for possibleCommentToken in reversed(self.__tokens[0:self.__tokens.index(ctx.start)]):
             # if we hit a normal token (i.e. not whitespace, not newline and not token) then stop, since we reached
             # the next previous element, thus the next comments belong to this element
             if possibleCommentToken.channel == 0:
@@ -114,6 +125,9 @@ class CommentsInsertionListener(PyNESTMLListener):
                     comments.append(temp)
                 eol = True
                 continue
+        # this last part is reuired in the case, that the very fist token is a comment
+        if emptyBefore and temp is not None:
+            comments.append(temp)
         # we reverse it in order to get the right order of comments
         return reversed(comments) if len(comments) > 0 else None
 
@@ -126,7 +140,7 @@ class CommentsInsertionListener(PyNESTMLListener):
         :return: True if nothing defined before, otherwise False.
         :rtype: bool
         """
-        for token in self.tokens[0:self.tokens.index(ctx.start)]:
+        for token in self.__tokens[0:self.__tokens.index(ctx.start)]:
             if token.channel == 0:
                 return False
         return True
@@ -139,7 +153,7 @@ class CommentsInsertionListener(PyNESTMLListener):
         :return: a comment
         :rtype: str
         """
-        for possibleComment in self.tokens[self.tokens.index(ctx.stop):]:
+        for possibleComment in self.__tokens[self.__tokens.index(ctx.stop):]:
             if possibleComment.channel == 2:
                 return self.replaceTags(possibleComment.text)
             if possibleComment.channel == 3:  # channel 3 == new line, thus the one line comment ends here
@@ -158,12 +172,12 @@ class CommentsInsertionListener(PyNESTMLListener):
         nextLineStartIndex = -1
         # first find out where the next line start, since we want to avoid to see comments, which have
         # been stated in the same line, as comments which are stated after the element
-        for possibleToken in self.tokens[self.tokens.index(ctx.stop) + 1:]:
+        for possibleToken in self.__tokens[self.__tokens.index(ctx.stop) + 1:]:
             if possibleToken.channel == 3:
-                nextLineStartIndex = self.tokens.index(possibleToken)
+                nextLineStartIndex = self.__tokens.index(possibleToken)
                 break
         firstLine = False
-        for possibleCommentToken in self.tokens[nextLineStartIndex:]:
+        for possibleCommentToken in self.__tokens[nextLineStartIndex:]:
             if possibleCommentToken.channel == 2:
                 # if it is a comment on the comment channel -> get it
                 comments.append(self.replaceTags(possibleCommentToken.text))

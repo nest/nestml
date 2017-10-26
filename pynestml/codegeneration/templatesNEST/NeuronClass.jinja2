@@ -259,7 +259,7 @@ void {{neuronName}}::calibrate(){
 * ---------------------------------------------------------------- */
 
 /*
- {{neuron.printDynamicsComment()}}
+ {{neuron.printDynamicsComment('*')}}
  */
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to){
   {% if useGSL -%}

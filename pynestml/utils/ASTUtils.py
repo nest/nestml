@@ -67,23 +67,6 @@ class ASTUtils(object):
         return isinstance(_ast, ASTCompoundStmt)
 
     @classmethod
-    def printComments(cls, _ast=None):
-        """
-        Prints all comments belonging to this node.
-        :param _ast: a single ast node.
-        :type _ast: AST_
-        :return: all comments in the node
-        :rtype: str
-        """
-        return 'test'
-        if _ast.getComment() is not None:
-            ret = ''
-            for comment in _ast.getComment():
-                ret += comment + '\n'
-            return ret
-        return ''
-
-    @classmethod
     def isIntegrate(cls, _functionCall=None):
         """
         Checks if the handed over function call is a ode integration function call.

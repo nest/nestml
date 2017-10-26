@@ -475,7 +475,7 @@ class VariableSymbol(Symbol):
         :return: True if comment is stored, otherwise False.
         :rtype: bool
         """
-        return self.getComment() is not None and self.getComment() != ''
+        return self.getComment() is not None and len(self.getComment())
 
     def printComment(self, _prefix=None):
         """

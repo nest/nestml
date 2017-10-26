@@ -606,63 +606,76 @@ class ASTNeuron(ASTElement):
     parts of the neuron definition.
     """
 
-    def printDynamicsComment(self):
+    def printDynamicsComment(self, _prefix=None):
         """
         Prints the dynamic block comment.
+        :param _prefix: a prefix string
+        :type _prefix: str
         :return: the corresponding comment.
         :rtype: str
         """
         block = self.getUpdateBlocks()
         if block is None:
-            return ''
-        return block.getComment() if block.getComment() is not None else ''
+            return _prefix if _prefix is not None else ''
+        return block.printComment(_prefix)
 
-
-    def printParameterComment(self):
+    def printParameterComment(self, _prefix=None):
         """
         Prints the update block comment.
+        :param _prefix: a prefix string
+        :type _prefix: str
         :return: the corresponding comment.
         :rtype: str
         """
         block = self.getParameterBlocks()
         if block is None:
-            return ''
-        return block.getComment() if block.getComment() is not None else ''
+            return _prefix if _prefix is not None else ''
+        return block.printComment(_prefix)
 
-    def printStateComment(self):
+    def printStateComment(self, _prefix=None):
         """
         Prints the state block comment.
+        :param _prefix: a prefix string
+        :type _prefix: str
         :return: the corresponding comment.
         :rtype: str
         """
         block = self.getStateBlocks()
         if block is None:
-            return ''
-        return block.getComment() if block.getComment() is not None else ''
+            return _prefix if _prefix is not None else ''
+        return block.printComment(_prefix)
 
-    def printInternalComment(self):
+    def printInternalComment(self, _prefix=None):
         """
         Prints the internal block comment.
+        :param _prefix: a prefix string
+        :type _prefix: str
         :return: the corresponding comment.
         :rtype: str
         """
         block = self.getInternalsBlocks()
         if block is None:
-            return ''
-        return block.getComment() if block.getComment() is not None else ''
+            return _prefix if _prefix is not None else ''
+        return block.printComment(_prefix)
 
-    def printComment(self):
+    def printComment(self, _prefix=None):
         """
         Prints the header information of this neuron.
+        :param _prefix: a prefix string
+        :type _prefix: str
         :return: the comment.
         :rtype: str
         """
         ret = ''
-        if self.getComment() is None:
-            return ret
+        if self.getComment() is None or len(self.getComment()) == 0:
+            return _prefix if _prefix is not None else ''
         for comment in self.getComment():
-            ret += comment + '\n'
+            ret += (_prefix if _prefix is not None else '') + comment + '\n'
         return ret
+
+    """
+    Mandatory methods as contained in the super class have to be extended to implement the correct behavior.
+    """
 
     def getParent(self, _ast=None):
         """
