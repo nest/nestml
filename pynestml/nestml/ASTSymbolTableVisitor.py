@@ -71,7 +71,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of neuron provided (%s)!' % type(_neuron)
         # before starting the work on the neuron, make everything which was implicit explicit
-        cls.makeImplicitOdesExplicit(_neuron.getEquationsBlocks())
+        # but if we have a model without an equations block, just skip this step
+        if _neuron.getEquationsBlocks() is not None:
+            cls.makeImplicitOdesExplicit(_neuron.getEquationsBlocks())
         scope = Scope(_scopeType=ScopeType.GLOBAL, _sourcePosition=_neuron.getSourcePosition())
         # store current global scope, it is required for resolving of symbols
         cls.__globalScope = scope
