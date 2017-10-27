@@ -263,9 +263,12 @@ private:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct State_ {
+  struct State_{
     {% if not useGSL %}{% filter indent(4,True) -%}
     {% for variable in neuron.getStateNonAliasSymbols() -%}
+    {% include "MemberDeclaration.jinja2" -%}
+    {% endfor -%}
+    {% for variable in neuron.getInitialValuesSymbols() -%}
     {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% else -%}
@@ -369,6 +372,7 @@ private:
     double __integration_step; //!< current integration time step, updated by GSL
     {% endif -%}
   };
+
   {%- for state in neuron.getStateSymbols() -%}
   {%- with variable = state -%}
   {%- include "MemberVariableGetterSetter.jinja2" -%}

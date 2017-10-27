@@ -38,7 +38,7 @@ class OdeTransformer(object):
         :type _ast: AST_
         """
         workingCopy = copy(_ast)
-        functionCalls = cls.getFunctionCalls(workingCopy, self.__functions)
+        functionCalls = cls.getFunctionCalls(workingCopy, cls.__functions)
         for call in functionCalls:
             cls.replaceFunctionCallThroughFirstArgument(workingCopy, call)
         return workingCopy
