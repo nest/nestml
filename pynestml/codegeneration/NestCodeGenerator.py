@@ -81,7 +81,7 @@ class NestCodeGenerator(object):
                                    FrontendConfiguration.getModuleName())) + '.h', 'w+') as f:
             f.write(str(self.__templateModuleHeader.render(namespace)))
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
-                                   FrontendConfiguration.getModuleName())) + '.c', 'w+') as f:
+                                   FrontendConfiguration.getModuleName())) + '.cpp', 'w+') as f:
             f.write(str(self.__templateModuleClass.render(namespace)))
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
                                    'CMakeLists')) + '.txt', 'w+') as f:

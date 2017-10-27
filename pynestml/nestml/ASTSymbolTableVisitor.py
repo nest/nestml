@@ -70,6 +70,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         from pynestml.nestml.ASTNeuron import ASTNeuron
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        # before starting the work on the neuron, make everything which was implicit explicit
+        cls.makeImplicitOdesExplicit(_neuron.getEquationsBlocks())
         scope = Scope(_scopeType=ScopeType.GLOBAL, _sourcePosition=_neuron.getSourcePosition())
         # store current global scope, it is required for resolving of symbols
         cls.__globalScope = scope
@@ -329,17 +331,17 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             var.updateScope(_declaration.getScope())
             typeSymbol = PredefinedTypes.getTypeIfExists(typeName)
             symbol = VariableSymbol(_elementReference=_declaration,
-                                                             _scope=_declaration.getScope(),
-                                                             _name=var.getCompleteName(),
-                                                             _blockType=cls.__currentBlockType,
-                                                             _declaringExpression=expression, _isPredefined=False,
-                                                             _isFunction=_declaration.isFunction(),
-                                                             _isRecordable=isRecordable,
-                                                             _typeSymbol=typeSymbol,
-                                                             _initialValue=initValue,
-                                                             _vectorParameter=vectorParameter,
-                                                             _variableType=VariableType.VARIABLE
-                                                             )
+                                    _scope=_declaration.getScope(),
+                                    _name=var.getCompleteName(),
+                                    _blockType=cls.__currentBlockType,
+                                    _declaringExpression=expression, _isPredefined=False,
+                                    _isFunction=_declaration.isFunction(),
+                                    _isRecordable=isRecordable,
+                                    _typeSymbol=typeSymbol,
+                                    _initialValue=initValue,
+                                    _vectorParameter=vectorParameter,
+                                    _variableType=VariableType.VARIABLE
+                                    )
             symbol.setComment(_declaration.getComment())
             _declaration.getScope().addSymbol(symbol)
             var.setTypeSymbol(Either.value(typeSymbol))
@@ -844,6 +846,79 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         return
 
     @classmethod
+    def makeImplicitOdesExplicit(cls, _equationsBlock=None):
+        """
+        This method inspects a handed over block of equations and makes all implicit declarations of odes elicit.
+        E.g. the declaration g_in'' implies that there have to be, either implicit or explicit, g_in' and g_in
+        stated somewhere. This method collects all non explicitly defined elements and adds them to the model.
+        :param _equationsBlock: a single equations block
+        :type _equationsBlock: ASTEquationsBlock
+        """
+        from pynestml.nestml.ASTEquationsBlock import ASTEquationsBlock
+        from pynestml.nestml.ASTOdeShape import ASTOdeShape
+        from pynestml.nestml.ASTOdeEquation import ASTOdeEquation
+        from pynestml.nestml.ASTVariable import ASTVariable
+        from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
+        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        assert (_equationsBlock is not None and isinstance(_equationsBlock, ASTEquationsBlock)), \
+            '(PyNestML.SymbolTable.Visitor) No or wrong type of equations block provided (%s)!' % type(_equationsBlock)
+        checked = list()  # used to avoid redundant checking
+        for declaration in _equationsBlock.getDeclarations():
+            if declaration in checked:
+                continue
+            if isinstance(declaration, ASTOdeShape) and declaration.getVariable().getDifferentialOrder() > 0:
+                # now we found a variable with order > 0, thus check if all previous orders have been defined
+                order = declaration.getVariable().getDifferentialOrder()
+                # check for each smaller order if it is defined
+                for i in range(1, order):
+                    found = False
+                    for shape in _equationsBlock.getOdeShapes():
+                        if shape.getVariable().getName() == declaration.getVariable().getName() and \
+                                        shape.getVariable().getDifferentialOrder() == i:
+                            found = True
+                            break
+                    # now if we did not found the corresponding declaration, we have to add it by hand
+                    if not found:
+                        lhsVariable = ASTVariable.makeASTVariable(_name=declaration.getVariable().getName(),
+                                                                  _differentialOrder=i,
+                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                        rhsVariable = ASTVariable.makeASTVariable(_name=declaration.getVariable().getName(),
+                                                                  _differentialOrder=i - 1,
+                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                        expression = ASTSimpleExpression.makeASTSimpleExpression(_variable=rhsVariable,
+                                                                                 _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                        _equationsBlock.getDeclarations().append(
+                            ASTOdeShape.makeASTOdeShape(_lhs=lhsVariable,
+                                                        _rhs=expression,
+                                                        _sourcePosition=ASTSourcePosition.getAddedSourcePosition()))
+            if isinstance(declaration, ASTOdeEquation):
+                # now we found a variable with order > 0, thus check if all previous orders have been defined
+                order = declaration.getLhs().getDifferentialOrder()
+                # check for each smaller order if it is defined
+                for i in range(1, order):
+                    found = False
+                    for ode in _equationsBlock.getOdeEquations():
+                        if ode.getLhs().getName() == declaration.getLhs().getName() and \
+                                        ode.getLhs().getDifferentialOrder() == i:
+                            found = True
+                            break
+                    # now if we did not found the corresponding declaration, we have to add it by hand
+                    if not found:
+                        lhsVariable = ASTVariable.makeASTVariable(_name=declaration.getLhs().getName(),
+                                                                  _differentialOrder=i,
+                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                        rhsVariable = ASTVariable.makeASTVariable(_name=declaration.getLhs().getName(),
+                                                                  _differentialOrder=i - 1,
+                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                        expression = ASTSimpleExpression.makeASTSimpleExpression(_variable=rhsVariable,
+                                                                                 _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                        _equationsBlock.getDeclarations().append(
+                            ASTOdeEquation.makeASTOdeEquation(_lhs=lhsVariable,
+                                                              _rhs=expression,
+                                                              _sourcePosition=ASTSourcePosition.getAddedSourcePosition()))
+            checked.append(declaration)
+
+    @classmethod
     def markConductanceBasedBuffers(cls, _odeDeclarations=None, _inputLines=None):
         """
         Inspects all handed over buffer definitions and updates them to conductance based if they occur as part of
@@ -868,7 +943,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                     from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
                     for func in expression.getFunctionCalls():
                         if (
-                                func.getName() == PredefinedFunctions.COND_SUM or
+                                        func.getName() == PredefinedFunctions.COND_SUM or
                                         func.getName() == PredefinedFunctions.CONVOLVE) and func.hasArgs() and \
                                         func.getArgs()[1].printAST() == buffer.getName():
                             symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolKind.VARIABLE)

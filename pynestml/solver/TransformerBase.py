@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.NESTMLParser import NESTMLParser
 from pynestml.nestml.ASTNeuron import ASTNeuron
+from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger

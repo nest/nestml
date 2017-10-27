@@ -67,7 +67,7 @@ class GSLReferenceConverter(IReferenceConverter):
         if symbol.isInitValues():
             return GSLNamesConverter.name(symbol)
         elif symbol.isBuffer():
-            return 'ode.B_.' + NestNamesConverter.bufferValue(symbol)
+            return 'node.B_.' + NestNamesConverter.bufferValue(symbol)
         elif variableName == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         elif symbol.isLocal() or symbol.isFunction():

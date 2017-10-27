@@ -39,7 +39,7 @@ class ASTOdeShape(ASTElement):
         :param _lhs: the variable corresponding to the shape 
         :type _lhs: ASTVariable
         :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpression
+        :type _rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
@@ -59,7 +59,7 @@ class ASTOdeShape(ASTElement):
         :param _lhs: the variable corresponding to the shape
         :type _lhs: ASTVariable
         :param _rhs: the right-hand side expression
-        :type _rhs: ASTExpression
+        :type _rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return: a new ASTShape object

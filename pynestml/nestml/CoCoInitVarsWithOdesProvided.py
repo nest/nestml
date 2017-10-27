@@ -80,7 +80,7 @@ class InitVarsVisitor(NESTMLVisitor):
                 Logger.logMessage(_errorPosition=var.getSourcePosition(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             # now check that they have been provided with an ODE
-            if symbol is not None and symbol.isInitValues() and not symbol.isOdeDefined():
+            if symbol is not None and symbol.isInitValues() and not symbol.isOdeDefined() and not symbol.isFunction():
                 code, message = Messages.getNoOde(symbol.getSymbolName())
                 Logger.logMessage(_errorPosition=var.getSourcePosition(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)

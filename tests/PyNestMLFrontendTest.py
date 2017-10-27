@@ -28,18 +28,15 @@ class PyNestMLFrontendTest(unittest.TestCase):
     """
 
     def test(self):
-        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),os.path.join('..', 'models',
-                                                                                        'iaf_chxk_2008.nestml'))))
+        path = str(os.path.realpath(os.path.join(os.path.dirname(__file__),os.path.join('..', 'models'))))
         params = list()
         params.append('-path')
         params.append(path)
         #params.append('-dry')
         params.append('-logging_level')
-        params.append('WARNING')
+        params.append('ERROR')
         params.append('-target')
         params.append('buildNest')
-        params.append('-module_name')
-        params.append('test_module')
         #params.append('-store_log')
         params.append('-dev')
         main(params)

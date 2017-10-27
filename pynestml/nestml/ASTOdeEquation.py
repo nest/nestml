@@ -44,7 +44,7 @@ class ASTOdeEquation(ASTElement):
         :param _lhs: an object of type ASTVariable
         :type _lhs: ASTVariable
         :param _rhs: an object of type ASTExpression.
-        :type _rhs: ASTExpression
+        :type _rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         """
@@ -64,7 +64,7 @@ class ASTOdeEquation(ASTElement):
         :param _lhs: an object of type ASTVariable
         :type _lhs: ASTVariable
         :param _rhs: an object of type ASTExpression
-        :type _rhs: ASTExpression
+        :type _rhs: ASTExpression or ASTSimpleExpression
         :param _sourcePosition: the position of this element in the source file.
         :type _sourcePosition: ASTSourcePosition.
         :return a new ASTOdeEquation object.

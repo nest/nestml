@@ -4,7 +4,7 @@
   @param neuron ASTNeuron The neuron containing ODE
   @result C++ Function
 #}
-extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double f[], void* pnode )
+extern "C" inline int {{neuronName}}_dynamics( double, const double ode_state[], double f[], void* pnode )
 {
   typedef {{neuronName}}::State_ State_;
   // get access to node so we can almost work as in a member function
