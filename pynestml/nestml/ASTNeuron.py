@@ -487,11 +487,23 @@ class ASTNeuron(ASTElement):
                 ret.append(symbol)
         return ret
 
+    def getFunctionInitialValuesSymbols(self):
+        """
+        Returns a list of all initial values symbols as defined in the model which are marked as functions.
+        :return: a list of symbols
+        :rtype: list(VariableSymbol)
+        """
+        ret = list()
+        for symbol in self.getInitialValuesSymbols():
+            if symbol.isFunction():
+                ret.append(symbol)
+        return ret
+
     def getNonFunctionInitialValuesSymbols(self):
         """
         Returns a list of all initial values symbols as defined in the model which are not marked as functions.
-        :return:
-        :rtype:
+        :return: a list of symbols
+        :rtype:list(VariableSymbol)
         """
         ret = list()
         for symbol in self.getInitialValuesSymbols():

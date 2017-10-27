@@ -281,8 +281,11 @@ private:
       STATE_VEC_SIZE
     };
     //! state vector, must be C-array for GSL solver
-    double ode_state[ STATE_VEC_SIZE ];{% filter indent(4,True) -%}
-    {% for variable in neuron.getStateSymbolsWithoutOde() -%}
+    double ode_state[STATE_VEC_SIZE];{% filter indent(4,True) -%}
+    {% for variable in neuron.getStateSymbols() -%}
+      {% include "MemberDeclaration.jinja2" -%}
+    {% endfor -%}
+    {% for variable in neuron.getFunctionInitialValuesSymbols() -%}
       {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% endif -%}
@@ -445,10 +448,9 @@ inline nest::port {{neuronName}}::send_test_event(
   return target.handles_test_event(e, receptor_type);
 }
 {% if isSpikeInput %}
-inline nest::port {{neuronName}}::handles_test_event(
-    nest::SpikeEvent&, nest::port receptor_type){
-  {%- if neuron.isMultisynapseSpikes() -%}
-    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.getSpikeBuffers()[0].hasVectorParameter()}}()) ) {
+inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type){
+  {% if neuron.isMultisynapseSpikes() -%}
+    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.getSpikeBuffers()[0].getVectorParameter()}}()) ) {
         // TODO refactor me. The code assumes that there is only one. Check by coco.
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
     }
