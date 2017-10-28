@@ -86,7 +86,8 @@ class NestCodeGenerator(object):
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
                                    'CMakeLists')) + '.txt', 'w+') as f:
             f.write(str(self.__templateCMakeLists.render(namespace)))
-        with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
+        os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.getTargetPath(), 'sli')))
+        with open(str(os.path.join(FrontendConfiguration.getTargetPath(), 'sli',
                                    FrontendConfiguration.getModuleName() + "-init")) + '.sli', 'w+') as f:
             f.write(str(self.__SLI_Init.render(namespace)))
         code, message = Messages.getModuleGenerated(FrontendConfiguration.getTargetPath())

@@ -36,7 +36,7 @@ class PyNestMLFrontendTest(unittest.TestCase):
         params.append('-logging_level')
         params.append('ERROR')
         params.append('-target')
-        params.append('buildNest')
+        params.append('target/models')
         #params.append('-store_log')
         params.append('-dev')
         main(params)
