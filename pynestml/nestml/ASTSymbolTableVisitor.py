@@ -91,7 +91,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         # before following checks occur, we need to ensure several simple properties
         CoCosManager.postSymbolTableBuilderChecks(_neuron)
         # the following part is done in order to mark conductance based buffers as such.
-        if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None:
+        if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None and \
+                len(_neuron.getEquationsBlocks().getDeclarations()) > 0:
             # this case should be prevented, since several input blocks result in  a incorrect model
             if isinstance(_neuron.getInputBlocks(), list):
                 buffers = (buffer for bufferA in _neuron.getInputBlocks() for buffer in bufferA.getInputLines())
@@ -100,9 +101,9 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             from pynestml.nestml.ASTOdeShape import ASTOdeShape
             odeDeclarations = (decl for decl in _neuron.getEquationsBlocks().getDeclarations() if
                                not isinstance(decl, ASTOdeShape))
-        cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
+            cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
         # now update the equations
-        if _neuron.getEquationsBlocks() is not None:
+        if _neuron.getEquationsBlocks() is not None and len(_neuron.getEquationsBlocks().getDeclarations()) > 0:
             equationBlock = _neuron.getEquationsBlocks()
             cls.assignOdeToVariables(equationBlock)
         CoCosManager.postOdeSpecificationChecks(_neuron)
@@ -959,7 +960,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         # this is the updated version, where nS buffers are marked as conductance based
         for bufferDeclaration in _inputLines:
             if bufferDeclaration.isSpike():
-                symbol = bufferDeclaration.getScope().resolveToSymbol(bufferDeclaration.getName(),SymbolKind.VARIABLE)
+                symbol = bufferDeclaration.getScope().resolveToSymbol(bufferDeclaration.getName(), SymbolKind.VARIABLE)
                 if symbol is not None and symbol.getTypeSymbol().equals(PredefinedTypes.getTypeIfExists('nS')):
                     symbol.setConductanceBased(True)
         return
