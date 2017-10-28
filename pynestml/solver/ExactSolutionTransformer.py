@@ -61,7 +61,7 @@ class ExactSolutionTransformer(object):
                                                                      stateShapeVariablesWithInitialValues)
         cls.addStateUpdates(_solverOutput, workingVersion)
 
-        workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(workingVersion,
+        workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(workingVersion,_solverOutput.const_input,
                                                                                 _solverOutput.ode_var_update_instructions)
         TransformerBase.applyIncomingSpikes(workingVersion)
         # get rid of the ODE stuff since the model is solved exactly and all ODEs are removed.

@@ -59,6 +59,6 @@ class DeltaSolutionTransformer(object):
             _solverOutput.ode_var_update_instructions.append(
                 _neuron.getEquations()[0].getLhs().getName() + '+=' + bufferName)
 
-        _neuron = TransformerBase.replaceIntegrateCallThroughPropagation(_neuron,
+        _neuron = TransformerBase.replaceIntegrateCallThroughPropagation(_neuron,_solverOutput.const_input,
                                                                          _solverOutput.ode_var_update_instructions)
         return _neuron

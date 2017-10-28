@@ -513,7 +513,7 @@ class ASTNeuron(ASTElement):
 
     def getOdeDefinedSymbols(self):
         """
-        Returns a list of all variable symbols which have been defined in th intial_values blocks
+        Returns a list of all variable symbols which have been defined in th initial_values blocks
         and are provided with an ode.
         :return: a list of initial value variables with odes
         :rtype: list(VariableSymbol)

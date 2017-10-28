@@ -278,7 +278,7 @@ class Scope(object):
     def resolveToSymbol(self, _name=None, _type=None):
         """
         Returns the first symbol corresponding to the handed over parameters, starting from this scope. Starting
-        from this, climbs recursively upwards unit the element has been located or no enclosing scope is left.
+        from this, climbs recursively upwards until the element has been located or no enclosing scope is left.
         :param _name: the name of the symbol. 
         :type _name: str
         :param _type: the type of the symbol, i.e., Variable,function or type.

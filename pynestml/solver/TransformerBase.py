@@ -81,11 +81,13 @@ class TransformerBase(object):
             raise RuntimeError('Must not fail by construction.')
 
     @classmethod
-    def replaceIntegrateCallThroughPropagation(cls, _neuron=None, _propagatorSteps=None):
+    def replaceIntegrateCallThroughPropagation(cls, _neuron=None, _constInput=None, _propagatorSteps=None):
         """
         Replaces all intergrate calls to the corresponding references to propagation.
         :param _neuron: a single neuron instance
         :type _neuron: ASTNeuron
+        :param _constInput: an initial constant value
+        :type _constInput: tuple
         :param _propagatorSteps: a list of propagator steps
         :type _propagatorSteps: list(str)
         :return: the modified neuron
@@ -109,10 +111,14 @@ class TransformerBase(object):
 
             block = _neuron.getParent(smallStatement)
             assert (block is not None and isinstance(block, ASTBlock))
-            for i in range(0, len(block.getStmts()) - 1):
+            for i in range(0, len(block.getStmts())):
                 if block.getStmts()[i].equals(smallStatement):
                     del block.getStmts()[i]
-                    block.getStmts()[i:i] = (ASTCreator.createStatement(st) for st in _propagatorSteps)
+                    constTuple = ASTUtils.getTupleFromSingleDictEntry(_constInput)
+                    updateStatements = list()
+                    updateStatements.append(ASTCreator.createStatement(constTuple[0] + " real = " + constTuple[1]))
+                    updateStatements += list((ASTCreator.createStatement(prop) for prop in _propagatorSteps))
+                    block.getStmts()[i:i] = updateStatements
                     break
         else:
             code, message = Messages.getOdeSolutionNotUsed()
@@ -185,7 +191,7 @@ class TransformerBase(object):
                 for variable in astDeclaration.getVariables():
 
                     if re.match(shape + "[\']*", variable.getCompleteName()) or re.match(shape + '__[\\d]+$',
-                                                                                        variable.getCompleteName()):
+                                                                                         variable.getCompleteName()):
                         spikesUpdates.append(ASTCreator.createAssignment(
                             variable.getCompleteName() + " += " + buffer + " * " + printer.printExpression(
                                 astDeclaration.getExpression())))
@@ -211,7 +217,7 @@ class TransformerBase(object):
             '(PyNestML.Solver.TransformerBase) No or wrong type of assignment provided (%s)!' % type(_assignment)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        smallStmt = ASTSmallStmt(_assignment=_assignment,_sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+        smallStmt = ASTSmallStmt(_assignment=_assignment, _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
         _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
         return _neuron
 
@@ -232,7 +238,7 @@ class TransformerBase(object):
             '(PyNestML.Solver.TransformerBase) No or wrong type of declaration provided (%s)!' % type(_declaration)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        smallStmt = ASTSmallStmt(_declaration=_declaration,_sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+        smallStmt = ASTSmallStmt(_declaration=_declaration, _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
         _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
         return _neuron
 

@@ -100,7 +100,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             from pynestml.nestml.ASTOdeShape import ASTOdeShape
             odeDeclarations = (decl for decl in _neuron.getEquationsBlocks().getDeclarations() if
                                not isinstance(decl, ASTOdeShape))
-            cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
+        cls.markConductanceBasedBuffers(_inputLines=buffers, _odeDeclarations=odeDeclarations)
         # now update the equations
         if _neuron.getEquationsBlocks() is not None:
             equationBlock = _neuron.getEquationsBlocks()
@@ -850,7 +850,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
     @classmethod
     def makeImplicitOdesExplicit(cls, _equationsBlock=None):
         """
-        This method inspects a handed over block of equations and makes all implicit declarations of odes elicit.
+        This method inspects a handed over block of equations and makes all implicit declarations of odes explicit.
         E.g. the declaration g_in'' implies that there have to be, either implicit or explicit, g_in' and g_in
         stated somewhere. This method collects all non explicitly defined elements and adds them to the model.
         :param _equationsBlock: a single equations block
@@ -885,7 +885,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                                   _differentialOrder=i,
                                                                   _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
                         rhsVariable = ASTVariable.makeASTVariable(_name=declaration.getVariable().getName(),
-                                                                  _differentialOrder=i - 1,
+                                                                  _differentialOrder=i,
                                                                   _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
                         expression = ASTSimpleExpression.makeASTSimpleExpression(_variable=rhsVariable,
                                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
@@ -910,7 +910,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                                                                   _differentialOrder=i,
                                                                   _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
                         rhsVariable = ASTVariable.makeASTVariable(_name=declaration.getLhs().getName(),
-                                                                  _differentialOrder=i - 1,
+                                                                  _differentialOrder=i,
                                                                   _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
                         expression = ASTSimpleExpression.makeASTSimpleExpression(_variable=rhsVariable,
                                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
@@ -930,9 +930,11 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         :param _inputLines: a set of input buffers.
         :type _inputLines: ASTInputLine
         """
-        from pynestml.nestml.ASTOdeEquation import ASTOdeEquation
+        from pynestml.nestml.PredefinedTypes import PredefinedTypes
         from pynestml.nestml.Symbol import SymbolKind
         # check for each defined buffer
+        # TODO: review this part, in the newer version actually only nS buffers are conducatnce based
+        """
         for buffer in _inputLines:
             # we only check it for spike buffers
             if buffer.isSpike():
@@ -953,7 +955,13 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                             code, message = Messages.getBufferSetToConductanceBased(buffer.getName())
                             Logger.logMessage(_code=code, _message=message, _errorPosition=buffer.getSourcePosition(),
                                               _logLevel=LOGGING_LEVEL.INFO)
-
+        """
+        # this is the updated version, where nS buffers are marked as conductance based
+        for bufferDeclaration in _inputLines:
+            if bufferDeclaration.isSpike():
+                symbol = bufferDeclaration.getScope().resolveToSymbol(bufferDeclaration.getName(),SymbolKind.VARIABLE)
+                if symbol is not None and symbol.getTypeSymbol().equals(PredefinedTypes.getTypeIfExists('nS')):
+                    symbol.setConductanceBased(True)
         return
 
     @classmethod

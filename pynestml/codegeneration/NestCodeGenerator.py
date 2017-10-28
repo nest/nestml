@@ -86,7 +86,8 @@ class NestCodeGenerator(object):
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
                                    'CMakeLists')) + '.txt', 'w+') as f:
             f.write(str(self.__templateCMakeLists.render(namespace)))
-        os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.getTargetPath(), 'sli')))
+        if not os.path.isdir(os.path.realpath(os.path.join(FrontendConfiguration.getTargetPath(), 'sli'))):
+            os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.getTargetPath(), 'sli')))
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(), 'sli',
                                    FrontendConfiguration.getModuleName() + "-init")) + '.sli', 'w+') as f:
             f.write(str(self.__SLI_Init.render(namespace)))
@@ -110,6 +111,8 @@ class NestCodeGenerator(object):
         workingVersion = self.solveOdesAndShapes(workingVersion)
         # update the symbol table
         SymbolTableASTVisitor.updateSymbolTable(workingVersion)
+        #TODO print generated here
+        print(workingVersion.printAST())
         self.generateNestCode(workingVersion)
         code, message = Messages.getCodeGenerated(_neuron.getName(), FrontendConfiguration.getTargetPath())
         Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.getSourcePosition(), _code=code, _message=message,
@@ -212,8 +215,8 @@ class NestCodeGenerator(object):
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.CodeGeneration.CodeGenerator) No or wrong type of neuron provided (%s)!' % type(_neuron)
         _namespace['useGSL'] = False
-        if _neuron.getEquationsBlocks() is not None:
-            if not self.functionShapeExists(_neuron.getEquationsBlocks().getOdeShapes()) or \
+        if _neuron.getEquationsBlocks() is not None and len(_neuron.getEquationsBlocks().getDeclarations()) > 0:
+            if (not self.functionShapeExists(_neuron.getEquationsBlocks().getOdeShapes())) or \
                             len(_neuron.getEquationsBlocks().getOdeEquations()) > 1:
                 _namespace['names'] = GSLNamesConverter()
                 _namespace['useGSL'] = True
