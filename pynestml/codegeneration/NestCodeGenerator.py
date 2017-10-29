@@ -111,8 +111,6 @@ class NestCodeGenerator(object):
         workingVersion = self.solveOdesAndShapes(workingVersion)
         # update the symbol table
         SymbolTableASTVisitor.updateSymbolTable(workingVersion)
-        #TODO print generated here
-        print(workingVersion.printAST())
         self.generateNestCode(workingVersion)
         code, message = Messages.getCodeGenerated(_neuron.getName(), FrontendConfiguration.getTargetPath())
         Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.getSourcePosition(), _code=code, _message=message,

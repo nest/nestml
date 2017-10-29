@@ -140,8 +140,7 @@ class ASTUtils(object):
         elif _dataType.isVoid():
             return 'void'
         elif _dataType.isUnitType():
-            # TODO
-            return 'TODO'
+            return str(_dataType)
         else:
             Logger.logMessage('Type could not be derived!', LOGGING_LEVEL.ERROR)
             return ''

@@ -51,5 +51,7 @@ class NESTML2NESTTypeConverter(object):
             return 'double'
         if _typeSymbol.equals(PredefinedTypes.getIntegerType()):
             return 'long'
-            # todo Time
-            # todo rest
+        if 'Time' in _typeSymbol.getSymbolName():
+            return 'nest::Time'
+        return _typeSymbol.getSymbolName().replace('.', '::')
+

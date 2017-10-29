@@ -144,7 +144,7 @@ class ExpressionTypeVisitor(NESTMLVisitor):
             # handle all bitOperators:
             if isinstance(binOp, ASTBitOperator.ASTBitOperator):
                 # Expr = left=expression bitOperator right=expression
-                self.setRealSelf(self.__noSemantics)  # TODO: implement something
+                self.setRealSelf(self.__noSemantics)  # TODO: implement something -> future work with more operators
                 return
             # handle all comparison Operators:
             if isinstance(binOp, ASTComparisonOperator.ASTComparisonOperator):

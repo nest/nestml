@@ -21,9 +21,14 @@ from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.codegeneration.NestML2NESTTypeConverter import NESTML2NESTTypeConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
-
-from pynestml.nestml.VariableSymbol import VariableSymbol
+from pynestml.nestml.ASTFunction import ASTFunction
+from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.nestml.ASTExpression import ASTExpression
+from pynestml.nestml.ASTForStmt import ASTForStmt
+from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
+from pynestml.nestml.ASTBody import ASTBody
 
 
 class NestPrinter(object):
@@ -53,8 +58,6 @@ class NestPrinter(object):
         :return: the corresponding string representation
         :rtype: str
         """
-        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.nestml.ASTExpression import ASTExpression
         assert (_ast is not None and (isinstance(_ast, ASTSimpleExpression) or isinstance(_ast, ASTExpression))), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of expression provided (%s)!' % type(_ast)
         return self.__expressionPrettyPrinter.printExpression(_ast)
@@ -79,7 +82,6 @@ class NestPrinter(object):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.nestml.ASTForStmt import ASTForStmt
         assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of for-stmt provided (%s)!' % type(_forStmt)
         step = _forStmt.getStep()
@@ -88,7 +90,7 @@ class NestPrinter(object):
         elif step > 0:
             return '<'
         else:
-            return '!='  # todo, this should not happen actually
+            return '!='
 
     def printStep(self, _forStmt=None):
         """
@@ -98,7 +100,6 @@ class NestPrinter(object):
         :return: a string representation
         :rtype: str
         """
-        from pynestml.nestml.ASTForStmt import ASTForStmt
         assert (_forStmt is not None and isinstance(_forStmt, ASTForStmt)), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of for-stmt provided (%s)!' % type(_forStmt)
         return _forStmt.getStep()
@@ -112,13 +113,12 @@ class NestPrinter(object):
         :return: the corresponding prefix
         :rtype: str
         """
-        from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
         assert (_variableSymbol is not None and isinstance(_variableSymbol, VariableSymbol)), \
             '(PyNestML.CodeGenerator.Printer) No or wrong type of variable symbol provided (%s)!' % type(
                 _variableSymbol)
         if _variableSymbol.getBlockType() == BlockType.STATE:
             return 'S_.'
-        elif _variableSymbol.getBlockType() == BlockType.INITIAL_VALUES:  # todo
+        elif _variableSymbol.getBlockType() == BlockType.INITIAL_VALUES:
             return 'S_.'
         elif _variableSymbol.getBlockType() == BlockType.EQUATION:
             return 'S_.'
@@ -141,7 +141,6 @@ class NestPrinter(object):
         :return: the corresponding representation of the event
         :rtype: str
         """
-        from pynestml.nestml.ASTBody import ASTBody
         assert (_astBody is not None and isinstance(_astBody, ASTBody)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of body provided (%s)!' % type(_astBody)
         outputs = _astBody.getOutputBlocks()
@@ -181,8 +180,8 @@ class NestPrinter(object):
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
         functionSymbol = _function.getScope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
         if functionSymbol is not None:
-            # todo printing of function comments
-            declaration = NESTML2NESTTypeConverter.convert(functionSymbol.getReturnType()).replace('.', '::')
+            declaration = _function.printComment('//') + '\n'
+            declaration += NESTML2NESTTypeConverter.convert(functionSymbol.getReturnType()).replace('.', '::')
             declaration += ' '
             declaration += _function.getName() + '('
             for typeSym in functionSymbol.getParameterTypes():
@@ -204,21 +203,18 @@ class NestPrinter(object):
         :return: the corresponding string representation.
         :rtype: str
         """
-        # todo printing of function comments
-        from pynestml.nestml.ASTFunction import ASTFunction
-        from pynestml.nestml.Symbol import SymbolKind
         assert (_function is not None and isinstance(_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
         assert (_namespace is not None and isinstance(_namespace, str)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of namespace provided (%s)!' % type(_namespace)
         functionSymbol = _function.getScope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
-        parameters = _function.getParameters()
         if functionSymbol is not None:
             # first collect all parameters
             params = list()
             for param in _function.getParameters():
                 params.append(param.getName())
-            declaration = NESTML2NESTTypeConverter.convert(functionSymbol.getReturnType()).replace('.', '::')
+            declaration = _function.printComment('//') + '\n'
+            declaration += NESTML2NESTTypeConverter.convert(functionSymbol.getReturnType()).replace('.', '::')
             declaration += ' '
             if _namespace is not None:
                 declaration += _namespace + '::'
