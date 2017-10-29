@@ -21,6 +21,11 @@ from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 
 
 class ErrorStrings(object):
+    """
+    These error strings are part of the type calculation system and are kept separated from the message class
+    for the sake of a clear and direct maintenance of type system as an individual component.
+    """
+
     SEPARATOR = " : "
 
     @classmethod
@@ -290,7 +295,7 @@ class ErrorStrings(object):
         assert _ifTrueText is not None and isinstance(_ifTrueText, str)
         assert _ifNotText is not None and isinstance(_ifNotText, str)
         assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)
-        ERROR_MSG_FORMAT = "Mismatched conditional alternatives " + _ifTrueText + " and " +\
+        ERROR_MSG_FORMAT = "Mismatched conditional alternatives " + _ifTrueText + " and " + \
                            _ifNotText + "-> Assuming real."
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + _sourcePosition.printSourcePosition() + ")"
 

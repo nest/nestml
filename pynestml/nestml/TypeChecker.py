@@ -27,7 +27,7 @@ class TypeChecker(object):
     @classmethod
     def isNumeric(cls, _type=None):
         """
-        Returns whether a typeSymbol is of a numeric type e.g. ingeter, real or unit
+        Returns whether a typeSymbol is of a numeric type e.g. integer, real or unit
         :param _type: the typeSymbol to check
         :type _type: TypeSymbol
         :return: bool

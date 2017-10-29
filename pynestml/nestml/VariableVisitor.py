@@ -19,11 +19,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-simpleexpression : variable
+simpleExpression : variable
 """
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import MessageCode
 
@@ -34,10 +35,17 @@ class VariableVisitor(NESTMLVisitor):
     """
 
     def visitSimpleExpression(self, _expr=None):
-        assert _expr.getScope() is not None, "Run symboltable creator."
+        """
+        Visits a single variable as contained in a simple expression and derives its type.
+        :param _expr: a single simple expression
+        :type _expr: ASTSimpleExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.VariableVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
+        assert (_expr.getScope() is not None), \
+            '(PyNestML.Visitor.VariableVisitor) No scope found, run symboltable creator!'
 
         scope = _expr.getScope()
-
         varName = _expr.getVariable().getName()
         varResolve = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
         # update the type of the variable according to its symbol type.
@@ -52,6 +60,14 @@ class VariableVisitor(NESTMLVisitor):
         return
 
     def visitExpression(self, _expr=None):
+        """
+        This methods
+        :param _expr:
+        :type _expr:
+        :return:
+        :rtype:
+        """
+        raise Exception("I should not be used longer, check me!")
         if _expr.isSimpleExpression():
             simpEx = _expr.getExpression()
             self.visitSimpleExpression(simpEx)

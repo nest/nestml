@@ -43,7 +43,7 @@ from pynestml.nestml.VariableVisitor import VariableVisitor
 class ExpressionTypeVisitor(NESTMLVisitor):
     """
     This is the main visitor as used to derive the type of an expression. By using different sub-visitors and
-    real-self it is possible to adapt to different types of sub-expressios.
+    real-self it is possible to adapt to different types of sub-expressions.
     """
 
     __unaryVisitor = UnaryVisitor()
@@ -70,7 +70,7 @@ class ExpressionTypeVisitor(NESTMLVisitor):
         return
 
     def traverseSimpleExpression(self, _node):
-        # handle all simpleexpressions
+        # handle all simpleExpressions
         if isinstance(_node, ASTSimpleExpression):
             # simpleExpression = functionCall
             if _node.getFunctionCall() is not None:

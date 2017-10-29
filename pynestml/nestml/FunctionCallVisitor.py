@@ -25,6 +25,8 @@ from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
 
 
 class FunctionCallVisitor(NESTMLVisitor):
@@ -33,12 +35,20 @@ class FunctionCallVisitor(NESTMLVisitor):
     """
 
     def visitSimpleExpression(self, _expr=None):
-        assert _expr.getScope() is not None, "Run symboltable creator."
+        """
+        Visits a single function call as stored in a simple expression and derives the correct type of all its parameters.
+        :param _expr: a simple expression
+        :type _expr: ASTSimpleExpression
+        :rtype void
+        """
+        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.FunctionCallVisitor) No or wrong type of simple expression provided (%s)!' % tuple(_expr)
+        assert (_expr.getScope() is not None), \
+            "(PyNestML.Visitor.FunctionCallVisitor) No scope found, run symboltable creator!"
         scope = _expr.getScope()
         functionName = _expr.getFunctionCall().getName()
-
         methodSymbol = scope.resolveToSymbol(functionName, SymbolKind.FUNCTION)
-
+        # check if this function exists
         if methodSymbol is None:
             errorMsg = ErrorStrings.messageResolveFail(self, functionName, _expr.getSourcePosition())
             _expr.setTypeEither(Either.error(errorMsg))
@@ -46,13 +56,13 @@ class FunctionCallVisitor(NESTMLVisitor):
 
         # convolve symbol does not have a return type set.
         # returns whatever type the second parameter is.
-        if functionName == "convolve":
+        if functionName == PredefinedFunctions.CONVOLVE:
             # Deviations from the assumptions made here are handled in the convolveCoco
             bufferParameter = _expr.getFunctionCall().getArgs()[1]
 
             if bufferParameter.getVariable() is not None:
                 bufferName = bufferParameter.getVariable().getName()
-                bufferSymbolResolve = scope.resolve(bufferName, SymbolKind.VARIABLE)
+                bufferSymbolResolve = scope.resolveToSymbol(bufferName, SymbolKind.VARIABLE)
                 if bufferSymbolResolve is not None:
                     _expr.setTypeEither(Either.value(bufferSymbolResolve.getTypeSymbol()))
                     return
