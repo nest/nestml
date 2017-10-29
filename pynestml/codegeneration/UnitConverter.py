@@ -17,14 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from astropy import units as u
+from astropy import units
 
 
 class UnitConverter(object):
     """
     Calculates the factor needed to convert a given unit to its
-    NEST counterpart. I.e.: potentials are expressed as mV,
-    conductances as nS etc.
+    NEST counterpart. I.e.: potentials are expressed as mV, consultancies as nS etc.
     """
 
     @classmethod
@@ -35,23 +34,22 @@ class UnitConverter(object):
         :param _unit: an astropy unit
         :return: a factor to that unit, converting it to "neuroscience" scales.
         """
-
-        assert isinstance(_unit, u.IrreducibleUnit) or isinstance(_unit, u.CompositeUnit) or isinstance(_unit, u.Unit) \
-            , "UnitConverter: given parameter is not a unit (%s)!" %type(_unit)
+        assert isinstance(_unit, units.IrreducibleUnit) or isinstance(_unit, units.CompositeUnit) or \
+               isinstance(_unit, units.Unit), "UnitConverter: given parameter is not a unit (%s)!" % type(_unit)
 
         targetUnit = None
-        if (_unit.physical_type == "electrical conductance"):
-            targetUnit = u.nS
-        if (_unit.physical_type == "electrical resistance"):
-            targetUnit = u.Gohm
-        if (_unit.physical_type == "time"):
-            targetUnit = u.ms
-        if (_unit.physical_type == "electrical capacitance"):
-            targetUnit = u.pF
-        if (_unit.physical_type == "electrical potential"):
-            targetUnit = u.mV
-        if (_unit.physical_type == "electrical current"):
-            targetUnit = u.pA
+        if _unit.physical_type == "electrical conductance":
+            targetUnit = units.nS
+        if _unit.physical_type == "electrical resistance":
+            targetUnit = units.Gohm
+        if _unit.physical_type == "time":
+            targetUnit = units.ms
+        if _unit.physical_type == "electrical capacitance":
+            targetUnit = units.pF
+        if _unit.physical_type == "electrical potential":
+            targetUnit = units.mV
+        if _unit.physical_type == "electrical current":
+            targetUnit = units.pA
 
         if targetUnit is not None:
             return (_unit / targetUnit).si.scale

@@ -118,7 +118,7 @@ class Messages(object):
         :return: a message
         :rtype:str
         """
-        message = 'Type of lhs \'%s\' does not correspond to expression type of \'%s\'! LHS=\'%s\', RHS=\'%s.\'' \
+        message = 'Type of lhs \'%s\' does not correspond to expression type of \'%s\'! LHS=\'%s\', RHS=\'%s\'.' \
                   % (
                       _lhsExpression.printAST(), _rhsExpression.printAST(), _lhsType.printSymbol(),
                       _rhsType.printSymbol())

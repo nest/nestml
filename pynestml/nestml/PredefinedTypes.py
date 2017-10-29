@@ -155,16 +155,25 @@ class PredefinedTypes(object):
 
         In Case of UNITS always return a TS with serialization as name
         :param _name: the name of the symbol. 
-        :type _name: str
+        :type _name: str or unit
         :return: a single symbol copy or none
         :rtype: TypeSymbol or None
         """
-        assert (_name is not None and (isinstance(_name, str) or isinstance(_name, CompositeUnit))
-                or isinstance(_name, Quantity)), \
+        assert (_name is not None and (isinstance(_name, str) or isinstance(_name, CompositeUnit)
+                or isinstance(_name, Quantity))), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
-        if isinstance(_name, CompositeUnit) or isinstance(_name, Quantity):
+        # this case deals with something like 1.0 if we have (1/ms) * ms
+        if isinstance(_name, Quantity) and _name.unit == '':
+            return cls.getRealType()
+        # this case deals with something like 1.0 if we have (ms/ms)
+        if isinstance(_name,CompositeUnit) and len(_name.bases) == 0:
+            return cls.getRealType()
+        if isinstance(_name, CompositeUnit):
             cls.registerUnit(_name)
             return cls.getTypeIfExists(str(_name))
+        if isinstance(_name, Quantity):
+            cls.registerUnit(_name.unit)
+            return cls.getTypeIfExists(str(_name.unit))
         if _name in cls.__name2type:
             return copy(cls.__name2type[_name])
         else:
@@ -245,7 +254,6 @@ class PredefinedTypes(object):
         typeSymbol = TypeSymbol(_name=unitType.getName(), _unit=unitType)
         PredefinedTypes.registerType(typeSymbol)
         return
-
 
 class RuntimeException(Exception):
     """
