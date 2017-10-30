@@ -26,6 +26,8 @@ from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -36,6 +38,9 @@ class ComparisonOperatorVisitor(NESTMLVisitor):
     """
 
     def visitExpression(self, _expr=None):
+        assert (_expr is not None and (isinstance(_expr, ASTExpression)
+                                       or isinstance(_expr, ASTSimpleExpression))), \
+            '(PyNestML.Visitor.ConditionVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
         lhsTypeE = _expr.getLhs().getTypeEither()
         rhsTypeE = _expr.getRhs().getTypeEither()
 
@@ -67,7 +72,7 @@ class ComparisonOperatorVisitor(NESTMLVisitor):
                               _logLevel=LOGGING_LEVEL.WARNING)
             return
         else:
-            # hard incombatibility, cannot recover in c++, ERROR
+            # hard incompatibility, cannot recover in c++, ERROR
             errorMsg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
             _expr.setTypeEither(Either.error(errorMsg))
             Logger.logMessage(_code=MessageCode.HARD_INCOMPATIBILITY,

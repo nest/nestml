@@ -686,13 +686,13 @@ class Messages(object):
         :param _vector: the vector variable
         :type _vector: str
         :param _nonVector: the non-vector lhs
-        :type _nonVector: str
+        :type _nonVector: list(str)
         :return: a message
         :rtype: (MessageCode,str)
         """
         assert (_vector is not None and isinstance(_vector, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_vector)
-        assert (_nonVector is not None and isinstance(_nonVector, str)), \
+        assert (_nonVector is not None and isinstance(_nonVector, list)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_nonVector)
         message = 'Vector value \'%s\' used in a non-vector declaration of variables \'%s\'!' % (_vector, _nonVector)
         return MessageCode.VECTOR_IN_NON_VECTOR, message

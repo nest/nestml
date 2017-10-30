@@ -21,6 +21,8 @@
 """
 expression : condition=expression '?' ifTrue=expression ':' ifNot=expression
 """
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
@@ -36,6 +38,9 @@ class ConditionVisitor(NESTMLVisitor):
     """
 
     def visitExpression(self, _expr=None):
+        assert (_expr is not None and (isinstance(_expr, ASTExpression)
+                                       or isinstance(_expr, ASTSimpleExpression))), \
+            '(PyNestML.Visitor.ConditionVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
         conditionE = _expr.getCondition().getTypeEither()
         ifTrueE = _expr.getIfTrue().getTypeEither()
         ifNotE = _expr.getIfNot().getTypeEither()
