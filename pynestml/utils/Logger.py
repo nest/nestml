@@ -85,6 +85,8 @@ class Logger(object):
         :param _logLevel: the corresponding log level.
         :type _logLevel: LOGGING_LEVEL
         """
+        if cls.__currMessage is None:
+            cls.initLogger(LOGGING_LEVEL.INFO)
         from pynestml.nestml.ASTNeuron import ASTNeuron
         from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
         assert (_message is not None and isinstance(_message, str)), \

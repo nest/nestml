@@ -163,19 +163,17 @@ neuron aeif_cond_alpha_implicit:
     V_m mV = E_L           # Membrane potential
     w pA = 0 pA            # Spike-adaptation current
     g_in nS = 0 nS         # Excitatory synaptic conductance
-    g_in' nS/ms = nS * e / tau_syn_in  # Excitatory synaptic conductance
+    g_in' nS/mS = nS * e / tau_syn_in  # Excitatory synaptic conductance
     g_ex nS = 0 nS         # Inhibitory synaptic conductance in nS
-    g_ex' nS/ms = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
+    g_ex' nS/mS = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
   end
 
   equations:
     function V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
     # alpha function for the g_in
-    shape g_in'  = g_in
     shape g_in'' = (-2/tau_syn_in) * g_in'-(1/tau_syn_in**2) * g_in
 
     # alpha function for the g_ex
-    shape g_ex'  = g_ex
     shape g_ex'' = (-2/tau_syn_ex) * g_ex'-(1/tau_syn_ex**2) * g_ex
 
     # Add aliases to simplify the equation definition of V_m

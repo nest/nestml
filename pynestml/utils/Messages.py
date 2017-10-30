@@ -855,6 +855,21 @@ class Messages(object):
         message = 'Unit does not exist (%s).' % _name
         return MessageCode.NO_UNIT, message
 
+    @classmethod
+    def getNotNeuroscienceUnitUsed(cls, _name=None):
+        """
+        Indicates that a non-neuroscientific unit, e.g., kg, has been used. Those units can not be converted to
+        a corresponding representation in the simulation and are therefore represented by the factor 1.
+        :param _name: the name of the variable
+        :type _name: str
+        :return: a nes code,message tuple
+        :rtype: (MessageCode,str)
+        """
+        assert (_name is not None and isinstance(_name, str)), \
+            '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_name)
+        message = 'Not convertable unit \'%s\' used, 1 assumed as factor!' % _name
+        return MessageCode.NOT_NEUROSCIENCE_UNIT, message
+
 
 class MessageCode(Enum):
     """
@@ -916,3 +931,4 @@ class MessageCode(Enum):
     NEURON_SOLVED_BY_GSL = 52
     NEURON_ANALYZED = 53
     NO_UNIT = 54
+    NOT_NEUROSCIENCE_UNIT = 55
