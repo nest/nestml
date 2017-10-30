@@ -251,7 +251,7 @@ class NestCodeGenerator(object):
             return _neuron
         else:
             if len(equationsBlock.getOdeEquations()) > 1 and len(equationsBlock.getOdeShapes()) == 0:
-                code, message = Messages.getNeuronSolvedBySolve(_neuron.getName())
+                code, message = Messages.getNeuronSolvedBySolver(_neuron.getName())
                 Logger.logMessage(_neuron=_neuron, _code=code, _message=message,
                                   _errorPosition=_neuron.getSourcePosition(), _logLevel=LOGGING_LEVEL.INFO)
                 return _neuron

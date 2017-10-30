@@ -160,13 +160,20 @@ class PredefinedTypes(object):
         :rtype: TypeSymbol or None
         """
         assert (_name is not None and (isinstance(_name, str) or isinstance(_name, CompositeUnit)
-                or isinstance(_name, Quantity))), \
+                                       or isinstance(_name, Quantity))), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of name provided (%s)!' % (type(_name))
         # this case deals with something like 1.0 if we have (1/ms) * ms
         if isinstance(_name, Quantity) and _name.unit == '':
-            return cls.getRealType()
+            if _name.value == 1.0 or _name.value == 1:
+                # in this case its only the factor 1, thus not a
+                # real scalar or anything, thus return the simple real type
+                return cls.getRealType()
+            else:
+                # otherwise its a prefix, store it as such
+                cls.registerUnit(_name)
+                return cls.getTypeIfExists(str(_name))
         # this case deals with something like 1.0 if we have (ms/ms)
-        if isinstance(_name,CompositeUnit) and len(_name.bases) == 0:
+        if isinstance(_name, CompositeUnit) and len(_name.bases) == 0:
             return cls.getRealType()
         if isinstance(_name, CompositeUnit):
             cls.registerUnit(_name)
@@ -254,6 +261,7 @@ class PredefinedTypes(object):
         typeSymbol = TypeSymbol(_name=unitType.getName(), _unit=unitType)
         PredefinedTypes.registerType(typeSymbol)
         return
+
 
 class RuntimeException(Exception):
     """
