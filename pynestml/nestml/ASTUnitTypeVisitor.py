@@ -118,6 +118,7 @@ class ASTUnitTypeVisitor(object):
         :return: a new type symbol
         :rtype: TypeSymbol
         """
+        from astropy import units
         from pynestml.nestml.UnitType import UnitType
         from pynestml.nestml.PredefinedTypes import PredefinedTypes
         from pynestml.nestml.PredefinedUnits import PredefinedUnits
@@ -125,17 +126,23 @@ class ASTUnitTypeVisitor(object):
         # first ensure that it does not already exists, if not create it and register it in the set of predefined units
         assert (_unitType is not None), \
             '(PyNestML.Visitor.UnitTypeVisitor) No unit-type provided (%s)!' % type(_unitType)
-        if str(_unitType) not in PredefinedUnits.getUnits().keys():
-            unitType = UnitType(_name=str(_unitType), _unit=_unitType)
+        # first clean up the unit of not required components, here it is the 1.0 in front of the unit
+        # e.g., 1.0 * 1 / ms. This step is not mandatory for correctness, but makes  reporting easier
+        if isinstance(_unitType,units.Quantity) and _unitType.value == 1.0:
+            toProcess = _unitType.unit
+        else:
+            toProcess = _unitType
+        if str(toProcess) not in PredefinedUnits.getUnits().keys():
+            unitType = UnitType(_name=str(toProcess), _unit=toProcess)
             PredefinedUnits.registerUnit(unitType)
         # now create the corresponding type symbol if it does not exists
-        if PredefinedTypes.getTypeIfExists(str(_unitType)) is None:
-            typeSymbol = TypeSymbol(_name=str(_unitType),
-                                    _unit=PredefinedUnits.getUnitIfExists(str(_unitType)),
+        if PredefinedTypes.getTypeIfExists(str(toProcess)) is None:
+            typeSymbol = TypeSymbol(_name=str(toProcess),
+                                    _unit=PredefinedUnits.getUnitIfExists(str(toProcess)),
                                     _isInteger=False, _isReal=False, _isVoid=False,
                                     _isBoolean=False, _isString=False, _isBuffer=False)
             PredefinedTypes.registerType(typeSymbol)
-        return PredefinedTypes.getTypeIfExists(_name=str(_unitType))
+        return PredefinedTypes.getTypeIfExists(_name=str(toProcess))
 
 
 class UnknownAtomicUnit(Exception):

@@ -25,6 +25,7 @@ from pynestml.nestml.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.nestml.CoCosManager import CoCosManager
 from pynestml.nestml.SymbolTable import SymbolTable
 from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
+from pynestml.nestml.ASTHigherOrderVisitor import ASTHigherOrderVisitor
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
@@ -90,7 +91,7 @@ class NESTMLParser(object):
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.expression())
-        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
         return ret
 
     @classmethod
@@ -112,7 +113,7 @@ class NESTMLParser(object):
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.declaration())
-        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        ASTHigherOrderVisitor.visit(ret,lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
         return ret
 
     @classmethod
@@ -134,7 +135,7 @@ class NESTMLParser(object):
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.stmt())
-        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
         return ret
 
     @classmethod
@@ -156,7 +157,7 @@ class NESTMLParser(object):
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.odeShape())
-        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
         return ret
 
     @classmethod
@@ -178,5 +179,5 @@ class NESTMLParser(object):
         parser = PyNESTMLParser(stream)
         builder = ASTBuilderVisitor(stream.tokens)
         ret = builder.visit(parser.assignment())
-        ret.setSourcePosition(ASTSourcePosition.getAddedSourcePosition())
+        ASTHigherOrderVisitor.visit(ret, lambda x: x.setSourcePosition(ASTSourcePosition.getAddedSourcePosition()))
         return ret

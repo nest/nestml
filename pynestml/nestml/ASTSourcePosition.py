@@ -109,6 +109,7 @@ class ASTSourcePosition(object):
         :return: a string representation
         :rtype: str
         """
+        # TODO deprecated, now __str__ has been overwritten, -> will be remove in future releases
         return '[' + str(self.getStartLine()) + ':' + str(self.getStartColumn()) + ';' + \
                str(self.getEndLine()) + ':' + str(self.getEndColumn()) + ']'
 
@@ -137,6 +138,19 @@ class ASTSourcePosition(object):
         """
         if not isinstance(_sourcePosition, ASTSourcePosition):
             return False
+        # in th case that it is artificially added or that it is predefined, the rule for before does not apply
+        # here we assume that the insertion is added at a correct point.
+        # If both are predefined, then there is no conflict
+        if self.isPredefinedSourcePosition() and _sourcePosition.isPredefinedSourcePosition():
+            return True
+        # IF both are artificial, then its also ok
+        if self.isAddedSourcePosition() and _sourcePosition.isAddedSourcePosition():
+            return True
+        # Predefined are always added at the beginning,
+        if self.isPredefinedSourcePosition():
+            return True
+        if self.isAddedSourcePosition():
+            return False
         if self.getStartLine() < _sourcePosition.getStartLine():
             return True
         elif self.getStartLine() == _sourcePosition.getStartLine() and \
@@ -161,7 +175,23 @@ class ASTSourcePosition(object):
         :return: a source position.
         :rtype: ASTSourcePosition
         """
-        return cls(-2, -2, -2, -2)
+        return cls(999, 999, 999, 999)
+
+    def isPredefinedSourcePosition(self):
+        """
+        Indicates whether this represents a predefined source position.
+        :return: True if predefined, otherwise False.
+        :rtype: bool
+        """
+        return self.equals(ASTSourcePosition.getPredefinedSourcePosition())
+
+    def isAddedSourcePosition(self):
+        """
+        Indicates whether this represents an artificially added source position..
+        :return: a source position.
+        :rtype: ASTSourcePosition
+        """
+        return self.equals(ASTSourcePosition.getAddedSourcePosition())
 
     def encloses(self, _sourcePosition=None):
         """
@@ -182,3 +212,12 @@ class ASTSourcePosition(object):
             return True
         else:
             return False
+
+    def __str__(self):
+        """
+        A string representation of this source position.
+        :return: a string representation
+        :rtype: str
+        """
+        return '[' + str(self.getStartLine()) + ':' + str(self.getStartColumn()) + ';' + \
+               str(self.getEndLine()) + ':' + str(self.getEndColumn()) + ']'

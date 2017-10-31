@@ -69,7 +69,8 @@ class CoCoAllVariablesDefined(CoCo):
                         Logger.logMessage(_neuron=_neuron, _message=message, _errorPosition=var.getSourcePosition(),
                                           _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                         # now check that they are now defined recursively, e.g. V_m mV = V_m + 1
-                    if symbol.getReferencedObject().getSourcePosition().encloses(var.getSourcePosition()):
+                    if symbol.getReferencedObject().getSourcePosition().encloses(var.getSourcePosition()) and not \
+                            symbol.getReferencedObject().getSourcePosition().isAddedSourcePosition():
                         code, message = Messages.getVariableDefinedRecursively(var.getName())
                         Logger.logMessage(_code=code, _message=message, _errorPosition=symbol.getReferencedObject().
                                           getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR, _neuron=_neuron)

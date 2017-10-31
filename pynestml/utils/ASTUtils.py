@@ -283,7 +283,13 @@ class ASTUtils(object):
         if not (_typeA.isUnit() and _typeB.isUnit()):
             return False
         # if it represents the same unit, if we disregard the prefix and simplify it
-        if _typeA.getUnit().getUnit().physical_type == _typeB.getUnit().getUnit().physical_type:
+        unitA = _typeA.getUnit().getUnit()
+        unitB = _typeB.getUnit().getUnit()
+        # if isinstance(unitA,)
+        from astropy import units
+        # TODO: consider even more complex cases which can be resolved to the same unit?
+        if isinstance(unitA, units.PrefixUnit) and isinstance(_typeB, units.PrefixUnit) \
+                and unitA.physical_type == unitB.physical_type:
             return True
         return False
 

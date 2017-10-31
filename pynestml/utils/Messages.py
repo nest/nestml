@@ -47,7 +47,7 @@ class Messages(object):
         :return: message code tuple
         :rtype: (MessageCode,str)
         """
-        message = 'New type registered \'%s\'!' % (_typeName)
+        message = 'New type registered \'%s\'!' % _typeName
         return MessageCode.TYPE_REGISTERED, message
 
     @classmethod
