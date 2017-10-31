@@ -45,10 +45,10 @@ class FrontendConfiguration(object):
         :type _args: list(str)
         """
         cls.__argumentParser = argparse.ArgumentParser(
-            description='NESTML is a domain specific language that supports the specification of neuron models in a precise'
-                        'and concise syntax, based on the syntax of Python. Model equations can either be given as a simple'
-                        ' string of mathematical notation or as an algorithm written in the built-in procedural language.'
-                        ' The equations are analyzed by NESTML to compute an exact solution'
+            description='NESTML is a domain specific language that supports the specification of neuron models in a'
+                        ' precise and concise syntax, based on the syntax of Python. Model equations can either be '
+                        ' given as a simple string of mathematical notation or as an algorithm written in the built-in '
+                        ' procedural language. The equations are analyzed by NESTML to compute an exact solution'
                         ' if possible or use an appropriate numeric solver otherwise.')
         cls.__argumentParser.add_argument('-path', type=str, nargs='+',
                                           help='Path to a single file or a directory containing the source models.')
@@ -67,7 +67,7 @@ class FrontendConfiguration(object):
         cls.__argumentParser.add_argument('-store_log', action='store_true',
                                           help='Indicates whether a log file containing all messages shall'
                                                'be stored. Standard is NO.')
-        cls.__argumentParser.add_argument('-dev',action='store_true',
+        cls.__argumentParser.add_argument('-dev', action='store_true',
                                           help='Indicates whether the dev mode should be active, i.e., the whole '
                                                'toolchain executed even though errors in models are present.'
                                                'This option is designed for debug purpose only!')
@@ -77,7 +77,9 @@ class FrontendConfiguration(object):
             # check if the mandatory path arg has been handed over, just terminate
             raise InvalidPathException()
         cls.__pathsToCompilationUnits = list()
-        if os.path.isfile(parsed_args.path[0]):
+        if parsed_args.path is None:
+            raise InvalidPathException()
+        elif os.path.isfile(parsed_args.path[0]):
             cls.__pathsToCompilationUnits.append(parsed_args.path[0])
         elif os.path.isdir(parsed_args.path[0]):
             for filename in os.listdir(parsed_args.path[0]):
@@ -87,8 +89,13 @@ class FrontendConfiguration(object):
             cls.__pathsToCompilationUnits = parsed_args.path[0]
             raise InvalidPathException()
         # initialize the logger
-        cls.__loggingLevel = parsed_args.logging_level
-        Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level[0]))
+
+        if parsed_args.logging_level is not None:
+            cls.__loggingLevel = parsed_args.logging_level
+            Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level[0]))
+        else:
+            cls.__loggingLevel = "ERROR"
+            Logger.initLogger(Logger.stringToLevel("ERROR"))
         # check if a dry run shall be preformed, i.e. without generating a target model
         cls.__dryRun = parsed_args.dry
         # check if a target has been selected, otherwise set the buildNest as target

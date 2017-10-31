@@ -8,9 +8,11 @@ an exact solution if possible or use an appropriate numeric solver otherwise.
 
 ## Directory structure
 
-`models` - Example neuron models in NESTML format
+`models` - Example neuron models in NESTML format.
 
-`pynestml` - The source code of NESTML
+`pynestml` - The source code of NESTML.
+
+`tests` - A collection of tests for testing of the toolchains behavior.
 
 ## Installing and running NESTML
 
@@ -47,27 +49,29 @@ In the case that no 'enum' package is found, additionally, enum34 has to be upda
 pip install --upgrade pip enum34
 ```
 
-After the installation, change the current directory to:
+All requirements are stored in the requirements.txt and can be installed in one step by pip
 
 ```
-/pynestml/src/main/python/org/frontend
+pip install -r requirements.txt
 ```
 
-The processing of models can then be executed by the following command:
+After the installation, the toolchain can be executed by the following command.
 
 ```
-python PyNestMLFrontend.py -ARGUMENTS
+python PyNestML.py -ARGUMENTS
 ```
 
 where arguments are:
 
 | Command       | Description |
-|---|---|
+|---            |---          |
 | -h or --help  | Print help message.|
 | -path         | Path to the source file or directory containing the model.|
 | -target       | (Optional) Path to target directory where models will be generated to. | 
-
-(TODO: preliminary version of the readme, fix and extend me!)
-
+| -dry          | (Optional) Executes the analysis of the model without generating target code. |
+| -logging_level| (Optional) Sets the logging level, i.e., which level of messages should be printed. Standard is ERROR, available are [INFO,WARNING,ERROR,NO] |
+| -module_name  | (Optional) Sets the name of the module which shall be generated. Standard is name of the directory containing the models. |
+| -store_log    | (Optional) Stores a log.txt containing all messages in Json notation. |
+| -dev          | (Optional) Executes the toolchain with in the development mode where erros in models are ignored.|
 
 
