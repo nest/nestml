@@ -26,6 +26,7 @@ from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -37,12 +38,12 @@ class LineOperatorVisitor(NESTMLVisitor):
 
     def visitExpression(self, _expr=None):
         """
-        TODO comments
-        :param _expr:
-        :type _expr:
-        :return:
-        :rtype:
+        Visits a single expression containing a plus or minus operator and updates its type.
+        :param _expr: a single expression
+        :type _expr: ASTExpression
         """
+        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
+            '(PyNestML.Visitor.LineOperatorVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
         lhsTypeE = _expr.getLhs().getTypeEither()
         rhsTypeE = _expr.getRhs().getTypeEither()
 
@@ -80,8 +81,9 @@ class LineOperatorVisitor(NESTMLVisitor):
                 return
             # Both are units, not matching -> real, WARN
             if lhsType.isUnit() and rhsType.isUnit():
-                errorMsg = ErrorStrings.messageAddSubTypeMismatch \
-                    (self, lhsType.printSymbol(), rhsType.printSymbol(), "real", _expr.getSourcePosition())
+                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
+                                                                  rhsType.printSymbol(), 'real',
+                                                                  _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH,
                                   _errorPosition=_expr.getSourcePosition(),
@@ -90,22 +92,22 @@ class LineOperatorVisitor(NESTMLVisitor):
             # one is unit and one numeric primitive and vice versa -> assume unit, WARN
             if (lhsType.isUnit() and rhsType.isNumericPrimitive()) or (
                         rhsType.isUnit() and lhsType.isNumericPrimitive()):
-                unitType = None
                 if lhsType.isUnit():
                     unitType = lhsType
                 else:
                     unitType = rhsType
-                errorMsg = ErrorStrings.messageAddSubTypeMismatch \
-                    (self, lhsType.printSymbol(), rhsType.printSymbol(), unitType.printSymbol(),
-                     _expr.getSourcePosition())
+                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
+                                                                  rhsType.printSymbol(), unitType.printSymbol(),
+                                                                  _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(unitType))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=errorMsg,
                                   _errorPosition=_expr.getSourcePosition(), _logLevel=LOGGING_LEVEL.WARNING)
                 return
 
         # if we get here, we are in a general error state
-        errorMsg = ErrorStrings.messageAddSubTypeMismatch \
-            (self, lhsType.printSymbol(), rhsType.printSymbol(), "ERROR", _expr.getSourcePosition())
+        errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
+                                                          rhsType.printSymbol(), 'ERROR',
+                                                          _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
         Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=errorMsg,
                           _errorPosition=_expr.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
