@@ -63,20 +63,11 @@ class UnitConverter(object):
             return (_unit / targetUnit).si.scale
         # this case means that we stuck in a recursive definition
         elif _unit == _unit.bases[0] and len(_unit.bases) == 1:
-            if isinstance(_unit, units.PrefixUnit):
-                prefixFactor = _unit.si.scale
-                unitFactor = cls.getFactor(_unit.represents)
-                return prefixFactor * unitFactor
-            if isinstance(_unit, units.Unit):
-                return cls.getFactor(_unit.represents)
-            if isinstance(_unit, units.IrreducibleUnit):
-                # TODO: this question is still open, what do we do with non-neuroscientific units,e.g., kg???
-                code, message = Messages.getNotNeuroscienceUnitUsed(str(_unit))
-                Logger.logMessage(_code=code, _logLevel=LOGGING_LEVEL.WARNING, _message=message)
-                return 1
+            # just return the factor 1.0
+            return 1.0
 
         # now if it is not a base unit, it has to be a combined one, e.g. s**2, decompose it
-        factor = 1
+        factor = 1.0
         for i in range(0, len(_unit.bases)):
             factor *= cls.getFactor(_unit.bases[i]) ** _unit.powers[i]
         return factor
