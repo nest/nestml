@@ -242,6 +242,7 @@ class PredefinedTypes(object):
         from pynestml.nestml.TypeSymbol import TypeSymbol
         assert (_symbol is not None and isinstance(_symbol, TypeSymbol)), \
             '(PyNestML.SymbolTable.PredefinedTypes) No or wrong type of symbol provided (%s)!' % (type(_symbol))
+        #TODO this is still a minor problem, since it avoids all the checks as contained in the getTypeIfexists part
         if not _symbol.isPrimitive() and _symbol.getUnit().getName() not in cls.__name2type.keys():
             cls.__name2type[_symbol.getUnit().getName()] = _symbol
             code, message = Messages.getNewTypeRegistered(_symbol.getUnit().getName())

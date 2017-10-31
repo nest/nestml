@@ -261,6 +261,33 @@ class ASTUtils(object):
             return False
 
     @classmethod
+    def differsInMagnitude(cls, _typeA=None, _typeB=None):
+        """
+        Indicates whether both type represent the same unit but with different magnitudes. This
+        case is still valid, e.g., mV can be assigned to volt.
+        :param _typeA: a type
+        :type _typeA:  TypeSymbol
+        :param _typeB: a type
+        :type _typeB: TypeSymbol
+        :return: True if both elements equal or differ in magnitude, otherwise False.
+        :rtype: bool
+        """
+        from pynestml.nestml.TypeSymbol import TypeSymbol
+        assert (_typeA is not None and isinstance(_typeA, TypeSymbol)), \
+            '(PyNestML.Utils) No or wrong type of source type provided (%s)!' % type(_typeA)
+        assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
+            '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_typeB)
+        if _typeA.equals(_typeB):
+            return True
+        # in the case that we don't deal with units, there are no magnitudes
+        if not (_typeA.isUnit() and _typeB.isUnit()):
+            return False
+        # if it represents the same unit, if we disregard the prefix and simplify it
+        if _typeA.getUnit().getUnit().physical_type == _typeB.getUnit().getUnit().physical_type:
+            return True
+        return False
+
+    @classmethod
     def getAll(cls, _ast=None, _type=None):
         """
         Finds all ast which are part of the tree as spanned by the handed over ast. The type has to be specified.

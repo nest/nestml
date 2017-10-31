@@ -211,25 +211,26 @@ class Logger(object):
         ret = '['
         for messageNr in cls.__log.keys():
             (artifactName, neuron, logLevel, code, errorPosition, message) = cls.__log[messageNr]
-            ret += '{' + \
-                   '"filename":"' + \
-                   artifactName + \
-                   '", ' + \
-                   '"neuronName":"' + \
-                   (neuron.getName() if neuron is not None else 'GLOBAL') + '", ' + \
-                   '"severity":"' \
-                   + str(logLevel.name) + '", ' \
-                   + '"code":"' \
-                   + code.name + \
-                   '", ' + \
-                   '"row":"' + \
-                   (str(errorPosition.getStartLine()) if errorPosition is not None else '') + \
-                   '", ' + \
-                   '"col":"' \
-                   + (str(errorPosition.getStartColumn()) if errorPosition is not None else '') + \
-                   '", ' + \
-                   '"message":"' + str(message).replace('"', "'") + '"}'
-            ret += ','
+            if cls.__loggingLevel.value <= logLevel.value:
+                ret += '{' + \
+                       '"filename":"' + \
+                       artifactName + \
+                       '", ' + \
+                       '"neuronName":"' + \
+                       (neuron.getName() if neuron is not None else 'GLOBAL') + '", ' + \
+                       '"severity":"' \
+                       + str(logLevel.name) + '", ' \
+                       + '"code":"' \
+                       + code.name + \
+                       '", ' + \
+                       '"row":"' + \
+                       (str(errorPosition.getStartLine()) if errorPosition is not None else '') + \
+                       '", ' + \
+                       '"col":"' \
+                       + (str(errorPosition.getStartColumn()) if errorPosition is not None else '') + \
+                       '", ' + \
+                       '"message":"' + str(message).replace('"', "'") + '"}'
+                ret += ','
         ret = ret[:-1]  # delete the last ","
         ret += ']'
         parsed = json.loads(ret, object_pairs_hook=OrderedDict)

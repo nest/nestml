@@ -64,6 +64,8 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                   _errorPosition=_declaration.getExpression().getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
             elif not lhsType.equals(rhsType.getValue()):
+                if ASTUtils.differsInMagnitude(rhsType.getValue(),lhsType):
+                    return
                 if ASTUtils.isCastableTo(rhsType.getValue(), lhsType):
                     code, message = Messages.getImplicitCastRhsToLhs(_declaration.getExpression(),
                                                                      _declaration.getVariables()[0],
@@ -77,7 +79,6 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                                                     _lhsType=lhsType)
                     Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-        # todo we have to consider that different magnitudes can still be combined
         return
 
     def visitAssignment(self, _assignment=None):
@@ -98,7 +99,9 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                   _errorPosition=_assignment.getExpression().getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
             elif lhsSymbolType is not None and not lhsSymbolType.getTypeSymbol().equals(rhsSymbolType.getValue()):
-                if ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
+                if ASTUtils.differsInMagnitude(rhsSymbolType.getValue(),lhsSymbolType.getTypeSymbol()):
+                    return
+                elif ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
                     code, message = Messages.getImplicitCastRhsToLhs(_assignment.getExpr(),
                                                                      _assignment.getVariable(),
                                                                      rhsSymbolType.getValue(),
@@ -128,7 +131,9 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                   _errorPosition=_assignment.getExpression().getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
             elif lhsSymbolType is not None and not lhsSymbolType.getTypeSymbol().equals(rhsSymbolType.getValue()):
-                if ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
+                if ASTUtils.differsInMagnitude(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
+                    return
+                elif ASTUtils.isCastableTo(rhsSymbolType.getValue(), lhsSymbolType.getTypeSymbol()):
                     code, message = Messages.getImplicitCastRhsToLhs(expr,
                                                                      _assignment.getVariable(),
                                                                      rhsSymbolType.getValue(),
@@ -142,6 +147,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                                                     lhsSymbolType.getTypeSymbol())
                     Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+        # todo we have to consider that different magnitudes can still be combined
         return
 
     def visitIfClause(self, _ifClause=None):
