@@ -18,19 +18,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-Objects of these class are either values or error messages
 
-"""
-
-
-class Either:
+class Either(object):
+    """
+    Objects of these class are either values or error messages.
+    Attributes:
+        __value (object): The value.
+        __error (str): An error message.
+    """
     __value = None
     __error = None
 
     def __init__(self, _value=None, _error=None):
         """
         Constructor for Either. Do not call directly! Use Either.value() or Either.error instead!
+        :param _value: a value
+        :type _value: object
+        :param _error: an error
+        :type _error: object
         """
         self.__value = _value
         self.__error = _error
@@ -45,7 +50,8 @@ class Either:
         :return: an Either object holding a valid value
         :rtype: Either
         """
-        assert (_value is not None), '(PyNestML.Utils.Either) No or wrong type of value provided (%s)!' % type(_value)
+        assert (_value is not None), \
+            '(PyNestML.Utils.Either) No or wrong type of value provided (%s)!' % type(_value)
         return Either(_value, None)
 
     @classmethod
@@ -99,4 +105,4 @@ class Either:
         :return: string representation of the object
         :rtype: str
         """
-        return "(" + self.__value + ", " + self.__error + ")"
+        return '(' + str(self.__value) + ', ' + str(self.__error) + ')'

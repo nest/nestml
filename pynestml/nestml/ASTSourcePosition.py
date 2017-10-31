@@ -52,6 +52,7 @@ class ASTSourcePosition(object):
         self.__startColumn = _startColumn
         self.__endLine = _endLine
         self.__endColumn = _endColumn
+        return
 
     @classmethod
     def makeASTSourcePosition(cls, _startLine=0, _startColumn=0, _endLine=0, _endColumn=0):
@@ -134,6 +135,8 @@ class ASTSourcePosition(object):
         :return: True if smaller, otherwise False
         :rtype: bool
         """
+        if not isinstance(_sourcePosition, ASTSourcePosition):
+            return False
         if self.getStartLine() < _sourcePosition.getStartLine():
             return True
         elif self.getStartLine() == _sourcePosition.getStartLine() and \
@@ -169,6 +172,9 @@ class ASTSourcePosition(object):
         :return: True if enclosed, otherwise False.
         :rtype: bool
         """
+        if not isinstance(_sourcePosition, ASTSourcePosition):
+            return False
+
         if self.getStartLine() <= _sourcePosition.getStartLine() and \
                         self.getEndLine() >= _sourcePosition.getEndLine() and \
                         self.getStartColumn() <= _sourcePosition.getStartColumn() and \

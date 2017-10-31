@@ -36,6 +36,16 @@ class ASTSimpleExpression(ASTElement):
                    | isInf='inf'
                    | STRING_LITERAL
                    | variable;
+    Attributes:
+        __functionCall (ASTFunctionCall): A function call reference.
+        __numericLiteral (int or float): A numeric literal.
+        __variable (ASTVariable): A variable reference.
+        __isBooleanTrue (bool): True if this is a boolean true literal.
+        __isBooleanFalse (bool): True if this is a boolean false literal.
+        __isInf (bool): True if this is a infinity literal.
+        __string (str): A string literal.
+        __typeEither (Either): The type of this expreesion.
+
     """
     __functionCall = None
     __numericLiteral = None

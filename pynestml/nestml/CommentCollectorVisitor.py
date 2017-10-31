@@ -21,7 +21,14 @@ from pynestml.generated.PyNESTMLVisitor import PyNESTMLVisitor
 
 
 class CommentCollectorVisitor(PyNESTMLVisitor):
+    """
+    This visitor iterates over a given parse tree and inspects the corresponding stream of tokens in order
+    to update all nodes by their corresponding tokens.
+    Attributes:
+        __tokens (list): A list of all tokens representing the model.
+    """
     __tokens = None
+
     def __init__(self, tokens):
         self.__tokens = tokens
 

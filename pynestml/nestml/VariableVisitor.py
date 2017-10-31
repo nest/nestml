@@ -60,16 +60,4 @@ class VariableVisitor(NESTMLVisitor):
         return
 
     def visitExpression(self, _expr=None):
-        """
-        This methods
-        :param _expr:
-        :type _expr:
-        :return:
-        :rtype:
-        """
-        raise Exception("I should not be used longer, check me!")
-        if _expr.isSimpleExpression():
-            simpEx = _expr.getExpression()
-            self.visitSimpleExpression(simpEx)
-            _expr.setTypeEither(simpEx.getTypeEither())
-        return
+        raise Exception("Deprecated method used!")

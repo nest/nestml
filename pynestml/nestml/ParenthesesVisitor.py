@@ -22,6 +22,7 @@
 expression : leftParentheses='(' term=expression rightParentheses=')'
 """
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
+from pynestml.nestml.ASTExpression import ASTExpression
 
 
 class ParenthesesVisitor(NESTMLVisitor):
@@ -30,6 +31,12 @@ class ParenthesesVisitor(NESTMLVisitor):
     """
 
     def visitExpression(self, _expr=None):
-        exprTypeE = _expr.getExpression().getTypeEither()
-        _expr.setTypeEither(exprTypeE)
+        """
+        Visits a single expression encapsulated in parenthesis and updates its type.
+        :param _expr: a single expression
+        :type _expr: ASTExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
+            '(PyNestML.Visitor.ParenthesesVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
+        _expr.setTypeEither(_expr.getExpression().getTypeEither())
         return

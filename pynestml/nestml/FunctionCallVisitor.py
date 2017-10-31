@@ -21,7 +21,6 @@
 simpleExpression : functionCall
 """
 from pynestml.nestml.Symbol import SymbolKind
-from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
@@ -72,7 +71,7 @@ class FunctionCallVisitor(NESTMLVisitor):
             _expr.setTypeEither(Either.error(errorMsg))
             return
 
-        if TypeChecker.isVoid(methodSymbol.getReturnType()):
+        if methodSymbol.getReturnType().isVoid():
             errorMsg = ErrorStrings.messageVoidFunctionOnRhs(self, functionName, _expr.getSourcePosition())
             _expr.setTypeEither(Either.error(errorMsg))
             return

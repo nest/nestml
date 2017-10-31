@@ -24,6 +24,10 @@ from pynestml.nestml.Symbol import Symbol
 class FunctionSymbol(Symbol):
     """
     This class is used to store a single function symbol, e.g. the definition of the function max.
+    Attributes:
+        __paramTypes (list(TypeSymbol)): A list of the types of parameters.
+        __returnType (TypeSymbol): The type of the returned value.
+        __isPredefined (bool): Indicates whether this function predefined or not.
     """
     __paramTypes = None
     __returnType = None

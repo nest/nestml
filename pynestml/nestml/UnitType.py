@@ -80,6 +80,8 @@ class UnitType(object):
         :param _obj: a single object
         :type _obj: object
         :return: True if equal, otherwise false.
-        :rtype: book
+        :rtype: bool
         """
-        return type(self) == type(_obj) and self.getName() == _obj.getName() and self.getUnit() is _obj.getUnit()
+        if not isinstance(_obj, UnitType):
+            return False
+        return self.getName() == _obj.getName() and self.getUnit() is _obj.getUnit()

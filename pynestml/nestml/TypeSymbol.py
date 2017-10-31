@@ -128,7 +128,7 @@ class TypeSymbol(Symbol):
         """
         return self.__unit
 
-    def hasUnit(self):
+    def isUnit(self):
         """
         Returns whether this type symbol's type is represented by a unit. 
         :return: True if unit, False otherwise.
@@ -152,6 +152,22 @@ class TypeSymbol(Symbol):
         :rtype: bool
         """
         return self.__isString or self.__isBoolean or self.__isVoid or self.__isReal or self.__isInteger
+
+    def isNumeric(self):
+        """
+        Returns whether this symbol represents a numeric type.
+        :return: True if numeric, otherwise False.
+        :rtype: bool
+        """
+        return self.isInteger() or self.isReal() or self.isUnit()
+
+    def isNumericPrimitive(self):
+        """
+        Returns whether this symbol represents a primitive numeric type, i.e., real or integer.
+        :return: True if numeric primitive, otherwise False.
+        :rtype: bool
+        """
+        return self.isInteger() or self.isReal()
 
     def isInteger(self):
         """
@@ -218,20 +234,22 @@ class TypeSymbol(Symbol):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
+        if not isinstance(_other, TypeSymbol):
+            return False
+
         # deferr comparison of units to sympy library
-        if type(self) == type(_other) and self.hasUnit() and _other.hasUnit():
+        if self.isUnit() and _other.isUnit():
             selfUnit = self.getSympyUnit()
             otherUnit = _other.getSympyUnit()
             return selfUnit == otherUnit
 
-        return type(self) == type(_other) and \
-               self.isInteger() == _other.isInteger() and \
+        return self.isInteger() == _other.isInteger() and \
                self.isReal() == _other.isReal() and \
                self.isVoid() == _other.isVoid() and \
                self.isBoolean() == _other.isBoolean() and \
                self.isString() == _other.isString() and \
                self.isBuffer() == _other.isBuffer() and \
-               (self.getUnit().equals(_other.getUnit()) if self.hasUnit() and _other.hasUnit() else True) and \
+               (self.getUnit().equals(_other.getUnit()) if self.isUnit() and _other.isUnit() else True) and \
                self.getReferencedObject() == _other.getReferencedObject() and \
                self.getSymbolName() == _other.getSymbolName() and \
                self.getCorrespondingScope() == _other.getCorrespondingScope()

@@ -48,7 +48,7 @@ class CoCoVectorVariableInNonVectorDeclaration(CoCo):
 
 class VectorInDeclarationVisitor(NESTMLVisitor):
     """
-    This visitor checks if somewhere in a declaration of a non vector value, a vector is used.
+    This visitor checks if somewhere in a declaration of a non-vector value, a vector is used.
     """
 
     def visitDeclaration(self, _declaration=None):
@@ -57,6 +57,10 @@ class VectorInDeclarationVisitor(NESTMLVisitor):
         :param _declaration: a single declaration.
         :type _declaration: ASTDeclaration
         """
+        from pynestml.nestml.ASTDeclaration import ASTDeclaration
+        assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
+            '(PyNestML.CoCo.VectorInNonVectorDeclaration) No or wrong type of declaration provided (%s)!' % type(
+                _declaration)
         if _declaration.hasExpression():
             variables = _declaration.getExpression().getVariables()
             for variable in variables:

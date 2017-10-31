@@ -58,6 +58,9 @@ class TypeOfBufferUniqueVisitor(NESTMLVisitor):
         :param _line: a single input line.
         :type _line: ASTInputLine
         """
+        from pynestml.nestml.ASTInputLine import ASTInputLine
+        assert (_line is not None and isinstance(_line, ASTInputLine)), \
+            '(PyNestML.CoCo.TypeOfBufferUnique) No or wrong type of input line provided (%s)!' % type(_line)
         if _line.isSpike():
             if _line.hasInputTypes() and len(_line.getInputTypes()) > 1:
                 inh = 0

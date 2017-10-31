@@ -26,7 +26,9 @@ class PredefinedUnits(object):
     """
     This class represents a collection of physical units. Units can be retrieved by means of getUnitIfExists(name).
     Attribute:
-        __name2unit  Dict of all predefined units, map from name to unit object. Type: str -> UnitType
+        __name2unit (dict):  Dict of all predefined units, map from name to unit object.
+        __prefixlessUnits (list): A list of all units, stored without a prefix.
+        __prefixes (list): A list of all available prefixes.
     """
     __name2unit = None
     __prefixlessUnits = None

@@ -22,10 +22,10 @@
 expression: left=expression logicalOperator right=expression
 """
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
@@ -35,7 +35,13 @@ class BinaryLogicVisitor(NESTMLVisitor):
     """
 
     def visitExpression(self, _expr=None):
-
+        """
+        Visits an expression which uses a binary logic operator and updates the type.
+        :param _expr: a single expression.
+        :type _expr: ASTExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
+            '(PyNestML.Visitor.BinaryLogicVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
         lhsType = _expr.getLhs().getTypeEither()
         rhsType = _expr.getRhs().getTypeEither()
 
@@ -46,10 +52,10 @@ class BinaryLogicVisitor(NESTMLVisitor):
             _expr.setTypeEither(rhsType)
             return
 
-        if TypeChecker.isBoolean(lhsType.getValue()) and TypeChecker.isBoolean(rhsType.getValue()):
+        if lhsType.getValue().isBoolean() and rhsType.getValue().isBoolean():
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         else:
-            errorMsg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.getSourcePosition)
+            errorMsg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.getSourcePosition())
             _expr.setTypeEither(Either.error(errorMsg))
             Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
         return

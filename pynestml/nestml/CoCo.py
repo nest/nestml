@@ -17,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-
-
 from abc import ABCMeta, abstractmethod
 
 
@@ -26,6 +24,9 @@ class CoCo:
     """
     This class represents an abstract super-class for all concrete context conditions to check. All concrete CoCos
     have to inherit from this class. Hereby, the description can be used to state the condition the CoCo checks.
+    Attributes:
+        __description (str): This field can be used to give a short description regarding the properties which
+                                are checked by this coco.
     """
     __metaclass__ = ABCMeta
     __description = None

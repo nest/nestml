@@ -24,6 +24,7 @@ simpleExpression : isInf='inf'
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
 
 
 class InfVisitor(NESTMLVisitor):
@@ -32,5 +33,12 @@ class InfVisitor(NESTMLVisitor):
     """
 
     def visitSimpleExpression(self, _expr=None):
+        """
+        Visits a single simple expression containing an inf literal and updates its type.
+        :param _expr: a simple expression
+        :type _expr: ASTSimpleExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.InvVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
         _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
         return

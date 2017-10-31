@@ -22,6 +22,7 @@ from pynestml.nestml.CoCo import CoCo
 from pynestml.nestml.ASTNeuron import ASTNeuron
 from pynestml.nestml.Symbol import SymbolKind
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
+from pynestml.nestml.TypeSymbol import TypeSymbol
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 
@@ -38,6 +39,8 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         function foo(...) bool:
             return
         end
+    Attributes:
+        __processedFunction (ASTFunction): A reference to the currently processed function.
     """
     __processedFunction = None
 
@@ -81,6 +84,11 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
         """
         from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
         from pynestml.nestml.ASTCompoundStmt import ASTCompoundStmt
+        assert (_typeSymbol is not None and isinstance(_typeSymbol, TypeSymbol)), \
+            '(PyNestML.CoCo.FunctionCorrectlyDefined) No or wrong type of type symbol provided (%s)!' % type(
+                _typeSymbol)
+        assert (isinstance(_retDefined, bool)), \
+            '(PyNestML.CoCo.FunctionCorrectlyDefined) Return defined provided incorrectly (%s)!' % type(_retDefined)
         # in order to ensure that in the sub-blocks, a return is not necessary, we check if the last one in this
         # block is a return statement, thus it is not required to have a return in the sub-blocks, but optional
         lastStatement = _stmts[len(_stmts) - 1]
@@ -100,8 +108,8 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 # now check that it corresponds to the declared type
                 if stmt.getReturnStmt().hasExpression() and _typeSymbol is PredefinedTypes.getVoidType():
                     code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
-                                                                          stmt.getReturnStmt().getTypeEither().
-                                                                          getValue())
+                                                                          stmt.getReturnStmt().getExpression().
+                                                                          getTypeEither().getValue())
                     Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 # if it is not void check if the type corresponds to the one stated

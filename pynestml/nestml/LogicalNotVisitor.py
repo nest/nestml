@@ -22,10 +22,10 @@
 expression: logicalNot='not' term=expression
 """
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -36,6 +36,13 @@ class LogicalNotVisitor(NESTMLVisitor):
     """
 
     def visitExpression(self, _expr=None):
+        """
+        Visits a single expression with a logical operator and updates the type.
+        :param _expr: a single expression
+        :type _expr: ASTExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
+            '(PyNestML.Visitor.LogicalNotVisitor) No or wrong type of visitor provided (%s)!' % type(_expr)
         exprTypeE = _expr.getExpression().getTypeEither()
 
         if exprTypeE.isError():
@@ -44,10 +51,10 @@ class LogicalNotVisitor(NESTMLVisitor):
 
         exprType = exprTypeE.getValue()
 
-        if TypeChecker.isBoolean(exprType):
+        if exprType.isBoolean():
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         else:
-            errorMsg = ErrorStrings.messageExpectedBool(self, _expr.getSourcePosition)
+            errorMsg = ErrorStrings.messageExpectedBool(self, _expr.getSourcePosition())
             _expr.setTypeEither(Either.error(errorMsg))
             Logger.logMessage(_errorPosition=_expr.getSourcePosition(),
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,

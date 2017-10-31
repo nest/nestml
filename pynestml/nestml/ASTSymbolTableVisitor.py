@@ -92,7 +92,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         CoCosManager.postSymbolTableBuilderChecks(_neuron)
         # the following part is done in order to mark conductance based buffers as such.
         if _neuron.getInputBlocks() is not None and _neuron.getEquationsBlocks() is not None and \
-                len(_neuron.getEquationsBlocks().getDeclarations()) > 0:
+                        len(_neuron.getEquationsBlocks().getDeclarations()) > 0:
             # this case should be prevented, since several input blocks result in  a incorrect model
             if isinstance(_neuron.getInputBlocks(), list):
                 buffers = (buffer for bufferA in _neuron.getInputBlocks() for buffer in bufferA.getInputLines())
@@ -884,12 +884,15 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                     if not found:
                         lhsVariable = ASTVariable.makeASTVariable(_name=declaration.getVariable().getName(),
                                                                   _differentialOrder=i,
-                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                                                                  _sourcePosition=ASTSourcePosition.
+                                                                  getAddedSourcePosition())
                         rhsVariable = ASTVariable.makeASTVariable(_name=declaration.getVariable().getName(),
                                                                   _differentialOrder=i,
-                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                                                                  _sourcePosition=ASTSourcePosition.
+                                                                  getAddedSourcePosition())
                         expression = ASTSimpleExpression.makeASTSimpleExpression(_variable=rhsVariable,
-                                                                                 _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                                                                                 _sourcePosition=ASTSourcePosition.
+                                                                                 getAddedSourcePosition())
                         _equationsBlock.getDeclarations().append(
                             ASTOdeShape.makeASTOdeShape(_lhs=lhsVariable,
                                                         _rhs=expression,
@@ -909,12 +912,15 @@ class SymbolTableASTVisitor(NESTMLVisitor):
                     if not found:
                         lhsVariable = ASTVariable.makeASTVariable(_name=declaration.getLhs().getName(),
                                                                   _differentialOrder=i,
-                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                                                                  _sourcePosition=ASTSourcePosition.
+                                                                  getAddedSourcePosition())
                         rhsVariable = ASTVariable.makeASTVariable(_name=declaration.getLhs().getName(),
                                                                   _differentialOrder=i,
-                                                                  _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                                                                  _sourcePosition=ASTSourcePosition.
+                                                                  getAddedSourcePosition())
                         expression = ASTSimpleExpression.makeASTSimpleExpression(_variable=rhsVariable,
-                                                                                 _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
+                                                                                 _sourcePosition=ASTSourcePosition.
+                                                                                 getAddedSourcePosition())
                         _equationsBlock.getDeclarations().append(
                             ASTOdeEquation.makeASTOdeEquation(_lhs=lhsVariable,
                                                               _rhs=expression,
@@ -933,30 +939,6 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         """
         from pynestml.nestml.PredefinedTypes import PredefinedTypes
         from pynestml.nestml.Symbol import SymbolKind
-        # check for each defined buffer
-        # TODO: review this part, in the newer version actually only nS buffers are conducatnce based
-        """
-        for buffer in _inputLines:
-            # we only check it for spike buffers
-            if buffer.isSpike():
-                # and each function call in each declaration if it occurs as the second arg of a cond_sum
-                for decl in _odeDeclarations:
-                    if isinstance(decl, ASTOdeEquation):
-                        expression = decl.getRhs()
-                    else:
-                        expression = decl.getExpression()
-                    from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-                    for func in expression.getFunctionCalls():
-                        if (
-                                        func.getName() == PredefinedFunctions.COND_SUM or
-                                        func.getName() == PredefinedFunctions.CONVOLVE) and func.hasArgs() and \
-                                        func.getArgs()[1].printAST() == buffer.getName():
-                            symbol = cls.__globalScope.resolveToAllSymbols(buffer.getName(), SymbolKind.VARIABLE)
-                            symbol.setConductanceBased(True)
-                            code, message = Messages.getBufferSetToConductanceBased(buffer.getName())
-                            Logger.logMessage(_code=code, _message=message, _errorPosition=buffer.getSourcePosition(),
-                                              _logLevel=LOGGING_LEVEL.INFO)
-        """
         # this is the updated version, where nS buffers are marked as conductance based
         for bufferDeclaration in _inputLines:
             if bufferDeclaration.isSpike():

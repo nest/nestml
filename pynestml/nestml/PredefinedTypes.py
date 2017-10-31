@@ -265,6 +265,6 @@ class PredefinedTypes(object):
 
 class RuntimeException(Exception):
     """
-    This exception is thrown whenever a general errors occurs at runtime.
+    This exception is thrown whenever a general error occurs at runtime.
     """
     pass

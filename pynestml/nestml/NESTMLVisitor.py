@@ -61,12 +61,15 @@ from pynestml.nestml.ASTWhileStmt import ASTWhileStmt
 class NESTMLVisitor(object):
     """
     This class represents a standard implementation of a visitor as used to create concrete instances.
-                 
+    Attributes:
+        __realSelf (NESTMLVisitor): The visitor which will be used during the visiting of a node.
     """
-
     __realSelf = None
 
     def __init__(self):
+        """
+        Standard constructor.
+        """
         self.__realSelf = self
         return
 

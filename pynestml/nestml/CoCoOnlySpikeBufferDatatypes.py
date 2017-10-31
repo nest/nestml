@@ -62,6 +62,9 @@ class BufferDatatypeVisitor(NESTMLVisitor):
         :param _line: a single input line node.
         :type _line: ASTInputLine
         """
+        from pynestml.nestml.ASTInputLine import ASTInputLine
+        assert (_line is not None and isinstance(_line, ASTInputLine)), \
+            '(PyNestML.CoCo.NoDatatypeOfCurrentBuffers) No or wrong type of input line provided (%s)!' % type(_line)
         if _line.isSpike() and not _line.hasDatatype():
             code, message = Messages.getDataTypeNotSpecified(_line.getName())
             Logger.logMessage(_errorPosition=_line.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR,

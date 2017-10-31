@@ -68,6 +68,10 @@ class ParametersAssignmentVisitor(NESTMLVisitor):
         :param _assignment: a single assignment.
         :type _assignment: ASTAssignment
         """
+        from pynestml.nestml.ASTAssignment import ASTAssignment
+        assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
+            '(PyNestML.CoCo.ParametersAssignedOutsideParametersBlock) No or wrong type of assignment provided (%s)!' \
+            % type(_assignment)
         symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getName(), SymbolKind.VARIABLE)
         if symbol is not None and symbol.getBlockType() == BlockType.PARAMETERS and \
                         _assignment.getScope().getScopeType() != ScopeType.GLOBAL:

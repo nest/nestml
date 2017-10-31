@@ -59,7 +59,7 @@ class expressionTestVisitor(NESTMLVisitor):
                   ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
                   ' Equal ? ' + str(_equals)
 
-        if _expr.getTypeEither().getValue().hasUnit():
+        if _expr.getTypeEither().getValue().isUnit():
             message += " Neuroscience Factor: " + \
             str(UnitConverter().getFactor(_expr.getTypeEither().getValue().getUnit().getUnit()))
 

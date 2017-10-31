@@ -51,8 +51,14 @@ class CoCoVariableOncePerScope(CoCo):
         :param _scope: a single scope to check.
         :type _scope: Scope
         """
+        from pynestml.nestml.ASTNeuron import ASTNeuron
+        from pynestml.nestml.Scope import Scope
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.VariableOncePerScope) No or wrong type of neuron provided (%s)!' % type(_neuron)
+        assert (_scope is not None and isinstance(_scope, Scope)), \
+            '(PyNestML.CoCo.VariableOncePerScope) No or wrong type of scope provided (%s)!' % type(_scope)
         checked = list()
-        for sym1 in _scope.getSymbolsInThisScope():  # TODO: in o(n*log(n)), maybe a better solution is possible
+        for sym1 in _scope.getSymbolsInThisScope():
             for sym2 in _scope.getSymbolsInThisScope():
                 if sym1 is not sym2 and sym1.getSymbolName() == sym2.getSymbolName() and \
                                 sym1.getSymbolKind() == sym2.getSymbolKind() and \

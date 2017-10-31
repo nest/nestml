@@ -24,7 +24,6 @@ expression : <assoc=right> left=expression powOp='**' right=expression
 from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
@@ -37,7 +36,13 @@ class PowVisitor(NESTMLVisitor):
     """
 
     def visitExpression(self, _expr=None):
-        assert _expr is not None
+        """
+        Visits a single power expression and updates the types.
+        :param _expr: a single expression.
+        :type _expr: ASTExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
+            '(PyNestML.Visitor.PowVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
         baseTypeE = _expr.getLhs().getTypeEither()
         exponentTypeE = _expr.getRhs().getTypeEither()
 
@@ -52,19 +57,20 @@ class PowVisitor(NESTMLVisitor):
         baseType = baseTypeE.getValue()
         exponentType = exponentTypeE.getValue()
 
-        if TypeChecker.isNumeric(baseType) and TypeChecker.isNumeric(exponentType):
-            if TypeChecker.isInteger(baseType) and TypeChecker.isInteger(exponentType):
+        if baseType.isNumeric() and exponentType.isNumeric():
+            if baseType.isInteger() and exponentType.isInteger():
                 _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
                 return
-            elif TypeChecker.isUnit(baseType):
+            elif baseType.isUnit():
                 # exponents to units MUST be integer and calculable at time of analysis.
                 # Otherwise resulting unit is undefined
-                if not TypeChecker.isInteger(exponentType):
+                if not exponentType.isInteger():
                     errorMsg = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
                     _expr.setTypeEither(Either.error(errorMsg))
                     Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
                     return
                 baseUnit = baseType.getSympyUnit()
+                # TODO the following part is broken @ptraeder?
                 exponentValue = self.calculateNumericValue(
                     _expr.getRhs())  # calculate exponent value if exponent composed of literals
                 if exponentValue.isValue():
@@ -85,7 +91,14 @@ class PowVisitor(NESTMLVisitor):
         Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
 
     def calculateNumericValue(self, _expr=None):
-        # TODO write tests for this
+        """
+        Calculates the numeric value of a exponent.
+        :param _expr: a single expression
+        :type _expr: ASTSimpleExpression or ASTExpression
+        :return: an Either object
+        :rtype: Either
+        """
+        # TODO write tests for this by PTraeder
         if isinstance(_expr, ASTExpression) and _expr.isEncapsulated():
             return self.calculateNumericValue(_expr.getExpr())
         elif isinstance(_expr, ASTSimpleExpression) and _expr.getNumericLiteral() is not None:

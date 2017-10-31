@@ -23,10 +23,10 @@ Expr = unaryOperator term=expression
 unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
 """
 from pynestml.nestml.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
@@ -35,8 +35,15 @@ class UnaryVisitor(NESTMLVisitor):
     Visits an expression consisting of a unary operator, e.g., -, and a sub-expression.
     """
 
-
     def visitExpression(self, _expr=None):
+        """
+        Visits a single unary operator and updates the type of the corresponding expression.
+        :param _expr: a single expression
+        :type _expr: ASTExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
+            '(PyNestML.Visitor.UnaryVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
+
         termTypeE = _expr.getExpression().getTypeEither()
 
         if termTypeE.isError():
@@ -49,7 +56,7 @@ class UnaryVisitor(NESTMLVisitor):
         assert unaryOp is not None and isinstance(unaryOp, ASTUnaryOperator)
 
         if unaryOp.isUnaryMinus() or unaryOp.isUnaryPlus():
-            if (TypeChecker.isNumeric(termType)):
+            if termType.isNumeric():
                 _expr.setTypeEither(Either.value(termType))
                 return
             else:
@@ -58,7 +65,7 @@ class UnaryVisitor(NESTMLVisitor):
                 Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
                 return
         elif unaryOp.isUnaryTilde():
-            if TypeChecker.isInteger(termType):
+            if termType.isInteger():
                 _expr.setTypeEither(Either.value(termType))
                 return
             else:
@@ -67,7 +74,7 @@ class UnaryVisitor(NESTMLVisitor):
                 Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
                 return
         # Catch-all if no case has matched
-        errorMsg = ErrorStrings.messageTypeError(self, _expr.printAST(), _expr.get_SourcePosition())
+        errorMsg = ErrorStrings.messageTypeError(self, _expr.printAST(), _expr.getSourcePosition())
         Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
         _expr.setTypeEither(Either.error(errorMsg))
         return

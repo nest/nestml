@@ -79,6 +79,7 @@ class SymbolTable(object):
         """
         Deletes all entries as stored in the symbol table.
         """
+        del cls.__name2neuronScope
         cls.__name2neuronScope = {}
         return
 

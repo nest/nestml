@@ -23,7 +23,6 @@ expression : left=expression (plusOp='+'  | minusOp='-') right=expression
 """
 from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.TypeChecker import TypeChecker
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
@@ -37,6 +36,13 @@ class LineOperatorVisitor(NESTMLVisitor):
     """
 
     def visitExpression(self, _expr=None):
+        """
+        TODO comments
+        :param _expr:
+        :type _expr:
+        :return:
+        :rtype:
+        """
         lhsTypeE = _expr.getLhs().getTypeEither()
         rhsTypeE = _expr.getRhs().getTypeEither()
 
@@ -56,24 +62,24 @@ class LineOperatorVisitor(NESTMLVisitor):
 
         # Plus-exclusive code
         if arithOp.isPlusOp():
-            # String concatenation has a prio. If one of the operands is a string, the remaining sub-expression becomes a string
-            if (TypeChecker.isString(lhsType) or TypeChecker.isString(rhsType)) \
-                    and (not TypeChecker.isVoid(rhsType) and not TypeChecker.isVoid(lhsType)):
+            # String concatenation has a prio. If one of the operands is a string,
+            # the remaining sub-expression becomes a string
+            if (lhsType.isString() or rhsType.isString()) and (not rhsType.isVoid() and not lhsType.isVoid()):
                 _expr.setTypeEither(Either.value(PredefinedTypes.getStringType()))
                 return
 
         # Common code for plus and minus ops:
-        if TypeChecker.isNumeric(lhsType) and TypeChecker.isNumeric(rhsType):
+        if lhsType.isNumeric() and rhsType.isNumeric():
             # both match exactly -> any is valid
             if lhsType.equals(rhsType):
                 _expr.setTypeEither(Either.value(lhsType))
                 return
             # both numeric primitive, not matching -> one is real one is integer -> real
-            if TypeChecker.isNumericPrimitive(lhsType) and TypeChecker.isNumericPrimitive(rhsType):
+            if lhsType.isNumericPrimitive() and rhsType.isNumericPrimitive():
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 return
             # Both are units, not matching -> real, WARN
-            if TypeChecker.isUnit(lhsType) and TypeChecker.isUnit(rhsType):
+            if lhsType.isUnit() and rhsType.isUnit():
                 errorMsg = ErrorStrings.messageAddSubTypeMismatch \
                     (self, lhsType.printSymbol(), rhsType.printSymbol(), "real", _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
@@ -82,10 +88,10 @@ class LineOperatorVisitor(NESTMLVisitor):
                                   _message=errorMsg, _logLevel=LOGGING_LEVEL.WARNING)
                 return
             # one is unit and one numeric primitive and vice versa -> assume unit, WARN
-            if (TypeChecker.isUnit(lhsType) and TypeChecker.isNumericPrimitive(rhsType)) \
-                    or (TypeChecker.isUnit(rhsType) and TypeChecker.isNumericPrimitive(lhsType)):
+            if (lhsType.isUnit() and rhsType.isNumericPrimitive()) or (
+                        rhsType.isUnit() and lhsType.isNumericPrimitive()):
                 unitType = None
-                if TypeChecker.isUnit(lhsType):
+                if lhsType.isUnit():
                     unitType = lhsType
                 else:
                     unitType = rhsType

@@ -33,6 +33,13 @@ class NumericLiteralVisitor(NESTMLVisitor):
     """
 
     def visitSimpleExpression(self, _expr=None):
+        """
+        TODO comments
+        :param _expr:
+        :type _expr:
+        :return:
+        :rtype:
+        """
         assert _expr.getScope() is not None, "Run symboltable creator."
         # if variable is also set in this expression, the var type overrides the literal
         if _expr.getVariable() is not None:

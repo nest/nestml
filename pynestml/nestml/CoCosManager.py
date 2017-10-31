@@ -49,6 +49,35 @@ from pynestml.nestml.CoCoIllegalExpression import CoCoIllegalExpression
 class CoCosManager(object):
     """
     This class is used to ensure that a handed over list of cocos holds.
+    Attributes:
+        __functionDefinedUniquely: This coco checks if each function is defined uniquely.
+        __eachBlockUniqueAndDefined: This coco checks if each block is defined correctly.
+        __functionCallDefinedAndTyped: This coco checks if all function calls are correctly defined.
+        __variablesUnique: This coco checks if all variables are uniquely defined.
+        __variablesDefinedBeforeUsage: This coco checks if all variables are defined before usage.
+        __functionsHaveRhs: This coco checks if all function declarations have a rhs.
+        __functionsHaveMaxOneLhs: This coco checks that all functions have exactly one lhs.
+        __noValuesAssignedToBuffers: This coco checks that no values are assigned to buffers.
+        __orderOfEquationsCorrect: This coco checks that orders of equations are correct.
+        __numeratorOfUnitIsOne: This coco checks that the numerator of units is 1.
+        __multipleNeuronsWithSameName: This coco checks if no two neurons with the same name are processed.
+        __nestNameSpaceCollision: This coco checks that there are no collisions with NEST namespace.
+        __bufferTypesDefinedUniquely: This coco checks if buffer keyword are not redundant.
+        __parametersNotAssignedOutsideCorrespondingBlock: This coco checks that no parameters are assigned outside
+                                                            the parameters block.
+        __currentBuffersNotSpecified: This coco checks current buffers are not specified with a type.
+        __buffersDatatypeCorrect: This coco checks that data types for buffers are correctly stated.
+        __initialValuesCorrect: This coco checks that all initial values are correctly defined.
+        __returnStmtCorrect: This coco checks tha all return statements in user defined function are correctly stated.
+        __equationsOnlyForInits: This coco checks that equitation are only given for variables in the initial values
+                                block.
+        __convolveCorrectlyBuilt: This coco checks that the convolve expression is correctly typed.
+        __noShapesExceptInConvolve: This coco checks that shapes are only used inside convolve expressions.
+        __noCollisionAcrossUnits: This coco checks that no collision of types occurs.
+        __invariantCorrectlyTyped: This coco checks that invariants are correctly typed.
+        __vectorInNonVectorDetected: This coco checks that no vectors are used in non-vector declaration.
+        __sumIsCorrect: This coco checks that sum expression are correctly used.
+        __expressionCorrect: This checks that types of expression etc. are correctly stated.
     """
     __functionDefinedUniquely = None
     __eachBlockUniqueAndDefined = None
@@ -468,6 +497,8 @@ class CoCosManager(object):
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.checkFunctionDefined(_neuron)
         cls.checkFunctionDeclaredAndCorrectlyTyped(_neuron)
         cls.checkVariablesUniqueInScope(_neuron)
@@ -500,5 +531,7 @@ class CoCosManager(object):
         :param _neuron: a single neuron object.
         :type _neuron: ASTNeuron
         """
+        assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
+            '(PyNestML.CoCo.Manager) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.checkInitVarsWithOdesProvided(_neuron)
         return

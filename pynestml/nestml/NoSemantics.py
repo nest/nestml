@@ -29,7 +29,17 @@ from pynestml.utils.Messages import MessageCode
 
 
 class NoSemantics(NESTMLVisitor):
+    """
+    A visitor which indicates that there a no semantics for the given node.
+    """
+
     def visitExpression(self, _expr=None):
+        """
+        Visits a single expression but does not execute any steps besides printing a message. This
+        visitor indicates that no functionality has been implemented for this type of nodes.
+        :param _expr: a single expression
+        :type _expr: ASTExpression or ASTSimpleExpression
+        """
         errorMsg = ErrorStrings.messageNoSemantics(self, _expr.printAST, _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
         # just warn though

@@ -401,7 +401,7 @@ class Messages(object):
         :param _name: the name of the buffer
         :type _name: str
         :param _keyword: the keyword
-        :type _keyword: str
+        :type _keyword: list(str)
         :return: a message
         :rtype: (MessageCode,str)
         """

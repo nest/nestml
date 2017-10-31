@@ -18,7 +18,7 @@ __all__ = ['ASTArithmeticOperator', 'ASTIfStmt', 'ASTWhileStmt', 'CoCoOnlySpikeB
            'ASTElseClause', 'ASTSimpleExpression', 'CoCoFunctionMaxOneLhs', 'ErrorStrings', 'Symbol',
            'ASTEquationsBlock', 'ASTSmallStmt', 'CoCoFunctionUnique', 'ExpressionTypeVisitor', 'SymbolTable',
            'ASTExpressionCollectorVisitor', 'ASTSourcePosition', 'CoCoIllegalExpression', 'FunctionCallVisitor',
-           'TypeChecker', 'ASTExpression', 'ASTSymbolTableVisitor', 'CoCoInitVarsWithOdesProvided', 'FunctionSymbol',
+           'ASTExpression', 'ASTSymbolTableVisitor', 'CoCoInitVarsWithOdesProvided', 'FunctionSymbol',
            'TypeSymbol', 'ASTForStmt', 'ASTUnaryOperator', 'CoCoInvariantIsBoolean', 'InfVisitor', 'UnaryVisitor',
            'ASTFunctionCall', 'ASTUnitType', 'CoCoNeuronNameUnique', 'UnitType', 'ASTFunction', 'ASTUnitTypeVisitor',
            'CoCoNoNestNameSpaceCollision', 'LineOperationVisitor', 'VariableSymbol', 'ASTHigherOrderVisitor',

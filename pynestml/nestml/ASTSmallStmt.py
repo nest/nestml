@@ -34,6 +34,11 @@ class ASTSmallStmt(ASTElement):
                  | functionCall
                  | declaration
                  | returnStmt;
+    Attributes:
+        __assignment (ASTAssignment): A assignment reference.
+        __functionCall (ASTFunctionCall): A function call reference.
+        __declaration (ASTDeclaration): A declaration reference.
+        __returnStmt (ASTReturnStmt): A reference to the returns statement.
     """
     __assignment = None
     __functionCall = None

@@ -58,6 +58,10 @@ class SumIsCorrectVisitor(NESTMLVisitor):
         :param _functionCall: a single function call.
         :type _functionCall: ASTFunctionCall
         """
+        from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+        assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
+            '(PyNestML.CoCo.SumHasCorrectParameter) No or wrong type of function call provided (%s)!' % type(
+                _functionCall)
         fName = _functionCall.getName()
         if fName == 'cur_sum' or fName == 'cond_sum' or fName == 'convolve':
             for arg in _functionCall.getArgs():

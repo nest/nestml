@@ -30,7 +30,9 @@ class ASTReturnStmt(ASTElement):
         @attribute minus An optional sing
         @attribute definingVariable Name of the variable
         Grammar:
-            returnStmt : 'return' expr?;       
+            returnStmt : 'return' expr?;
+    Attributes:
+          __expression (ASTSimpleExpression or ASTExpression): An expression representing the returned value.
     """
     __expression = None
 

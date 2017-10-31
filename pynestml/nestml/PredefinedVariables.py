@@ -26,9 +26,9 @@ class PredefinedVariables(object):
     This class is used to store all predefined variables as generally available. 
     
     Attributes:
-        __E_CONSTANT     The euler constant symbol, i.e. e. Type: str
-        __TIME_CONSTANT  The time variable stating the current time since start of simulation. Type: str
-        __name2VariableSymbol A list of all currently defined variables. Type: list(VariableSymbol)
+        E_CONSTANT (str): The euler constant symbol, i.e. e. Type: str
+        TIME_CONSTANT (str):  The time variable stating the current time since start of simulation. Type: str
+        __name2VariableSymbol (dict): A map from variable names to their respective symbols.
     """
     __name2VariableSymbol = {}  # a map from names to symbols
     E_CONSTANT = 'e'

@@ -57,13 +57,14 @@ def main(args):
     # check if across two files two neurons with same name have been defined
     CoCosManager.checkNotTwoNeuronsAcrossUnits(compilationUnits)
     # now exclude those which are broken, i.e. have errors.
-    for neuron in neurons:
-        if Logger.hasErrors(neuron):
-            code, message = Messages.getNeuronContainsErrors(neuron.getName())
-            Logger.logMessage(_neuron=neuron, _code=code, _message=message, _errorPosition=neuron.getSourcePosition(),
-                              _logLevel=LOGGING_LEVEL.INFO)
-            if not FrontendConfiguration.isDev():
+    if not FrontendConfiguration.isDev():
+        for neuron in neurons:
+            if Logger.hasErrors(neuron):
+                code, message = Messages.getNeuronContainsErrors(neuron.getName())
+                Logger.logMessage(_neuron=neuron, _code=code, _message=message, _errorPosition=neuron.getSourcePosition(),
+                                  _logLevel=LOGGING_LEVEL.INFO)
                 neurons.remove(neuron)
+
     if not FrontendConfiguration.isDryRun():
         nestGenerator = NestCodeGenerator()
         nestGenerator.analyseAndGenerateNeurons(neurons)

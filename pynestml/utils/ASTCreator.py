@@ -20,6 +20,7 @@
 from pynestml.nestml.NESTMLParser import NESTMLParser
 from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
 
+
 class ASTCreator(object):
     """
     This class contains a set of methods as used to create ASTs from strings.
@@ -62,7 +63,7 @@ class ASTCreator(object):
         return _neuron
 
     @classmethod
-    def createInitialValuesBlock(cls,_neuron=None):
+    def createInitialValuesBlock(cls, _neuron=None):
         """
         Creats a single initial values block in the handed over neuron.
         :param _neuron: a single neuron
@@ -122,7 +123,7 @@ class ASTCreator(object):
             raise RuntimeError('Cannot parse shape statement.')
 
     @classmethod
-    def createAssignment(cls,_assignmentAsString=None):
+    def createAssignment(cls, _assignmentAsString=None):
         """
         Creats a single assignment from the given assignment.
         :param _assignmentAsString: a single assignment as a string.

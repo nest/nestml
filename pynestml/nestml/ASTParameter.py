@@ -31,6 +31,9 @@ class ASTParameter(ASTElement):
     @attribute compartments Lists with compartments.
     Grammar:
         parameter : NAME datatype;
+    Attributes:
+        __name (str): The name of the parameter.
+        __dataType (ASTDatatype): The data type of the parameter.
     """
     __name = None
     __dataType = None

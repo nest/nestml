@@ -247,7 +247,7 @@ class ASTUtils(object):
         assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
             '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_typeB)
         # we can always cast from unit to real
-        if _typeA.hasUnit() and _typeB.isReal():
+        if _typeA.isUnit() and _typeB.isReal():
             return True
         elif _typeA.isBoolean() and _typeB.isReal():
             return True

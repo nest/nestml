@@ -24,13 +24,22 @@ simpleExpression : BOOLEAN_LITERAL // true & false;
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
 
 
 class BooleanLiteralVisitor(NESTMLVisitor):
     """
-    Visitis a single boolean literal and updates its type.
+    Visits a single boolean literal and updates its type.
     """
 
     def visitSimpleExpression(self, _expr=None):
+        """
+        Visits a single simple expression containing a boolean literal and updates its type.
+        :param _expr: a simple expression.
+        :type _expr: ASTSimpleExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.BooleanLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(
+                _expr)
         _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         return

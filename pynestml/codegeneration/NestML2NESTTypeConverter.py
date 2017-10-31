@@ -47,7 +47,7 @@ class NESTML2NESTTypeConverter(object):
             return 'bool'
         if _typeSymbol.equals(PredefinedTypes.getRealType()):
             return 'double'
-        if _typeSymbol.hasUnit():
+        if _typeSymbol.isUnit():
             return 'double'
         if _typeSymbol.equals(PredefinedTypes.getIntegerType()):
             return 'long'

@@ -18,8 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from astropy import units
-from pynestml.utils.Messages import Messages
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class UnitConverter(object):

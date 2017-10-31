@@ -24,6 +24,7 @@ simpleExpression : string=STRING_LITERAL
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
 
 
 class StringLiteralVisitor(NESTMLVisitor):
@@ -32,5 +33,12 @@ class StringLiteralVisitor(NESTMLVisitor):
     """
 
     def visitSimpleExpression(self, _expr=None):
+        """
+        Visits a singe simple expression which consists of a string literal and updates the type.
+        :param _expr: a simple expression containing a string literal
+        :type _expr: ASTSimpleExpression
+        """
+        assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
+            '(PyNestML.Visitor.StringLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
         _expr.setTypeEither(Either.value(PredefinedTypes.getStringType()))
         return

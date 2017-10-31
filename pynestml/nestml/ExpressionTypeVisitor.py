@@ -21,6 +21,8 @@
 
 from pynestml.nestml import ASTArithmeticOperator, ASTBitOperator, ASTComparisonOperator, ASTLogicalOperator
 from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.BinaryLogicVisitor import BinaryLogicVisitor
 from pynestml.nestml.BooleanLiteralVisitor import BooleanLiteralVisitor
@@ -64,12 +66,26 @@ class ExpressionTypeVisitor(NESTMLVisitor):
     __infVisitor = InfVisitor()
 
     def handle(self, _node):
+        """
+        Handles the handed over node and executes the required sub routines.
+        :param _node: a ast node.
+        :type _node: AST_
+        """
+        assert (_node is not None), \
+            '(PyNestML.Visitor.ExpressionTypeVisitor) No ast node provided (%s)!' % type(_node)
         self.traverse(_node)
         self.getRealSelf().visit(_node)
         self.getRealSelf().endvisit(_node)
         return
 
     def traverseSimpleExpression(self, _node):
+        """
+        Traverses a simple expression and invokes required subroutines.
+        :param _node: a single node.
+        :type _node: ASTSimpleExpression
+        """
+        assert (_node is not None and isinstance(_node, ASTSimpleExpression)), \
+            '(PyNestML.ExpressionTypeVisitor) No or wrong type of simple-expression provided (%s)!' % type(_node)
         # handle all simpleExpressions
         if isinstance(_node, ASTSimpleExpression):
             # simpleExpression = functionCall
@@ -101,6 +117,13 @@ class ExpressionTypeVisitor(NESTMLVisitor):
         return
 
     def traverseExpression(self, _node):
+        """
+        Traverses an expression and executes the required sub-routines.
+        :param _node: a single ast node
+        :type _node: ASTExpression
+        """
+        assert (_node is not None and isinstance(_node, ASTExpression)), \
+            '(PyNestML.ExpressionTypeVisitor) No or wrong type of expression provided (%s)!' % type(_node)
         # Expr = unaryOperator term=expression
         if _node.getExpression() is not None and _node.getUnaryOperator() is not None:
             _node.getExpression().accept(self)
