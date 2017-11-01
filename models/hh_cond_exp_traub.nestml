@@ -64,6 +64,7 @@ neuron hh_cond_exp_traub_neuron:
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
+
     V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
 
     # channel dynamics
@@ -105,6 +106,7 @@ neuron hh_cond_exp_traub_neuron:
   input:
       spikeInh nS  <- inhibitory spike
       spikeExc nS  <- excitatory spike
+
       currents <- current
   end
 
@@ -195,6 +197,7 @@ neuron hh_cond_exp_traub_implicit:
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
 
+
     V_m' =( -I_Na - I_K - I_L - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
 
     # channel dynamics
@@ -235,6 +238,7 @@ neuron hh_cond_exp_traub_implicit:
   input:
       spikeInh nS  <- inhibitory spike
       spikeExc nS  <- excitatory spike
+
       currents <- current
   end
 
@@ -254,3 +258,4 @@ neuron hh_cond_exp_traub_implicit:
   end
 
 end
+

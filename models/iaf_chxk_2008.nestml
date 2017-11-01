@@ -37,6 +37,7 @@ neuron iaf_chxk_2008_neuron:
 
     function I_syn_exc pA = convolve(g_ex, spikesExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikesInh) * ( V_m - E_in )
+
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
@@ -75,6 +76,7 @@ neuron iaf_chxk_2008_neuron:
   input:
       spikesInh nS <- inhibitory spike
       spikesExc nS <- excitatory spike
+
       currents <- current
   end
 
@@ -159,6 +161,7 @@ neuron iaf_chxk_2008_implicit:
 
     function I_syn_inh pA = convolve(g_in, spikesInh) * (V_m - E_in)
     function I_syn_exc pA = convolve(g_ex, spikesExc) * (V_m - E_ex)
+
     function I_ahp pA = G_ahp * ( V_m - E_ahp )
     function I_leak pA = g_L * ( V_m - E_L )
 
@@ -191,12 +194,14 @@ neuron iaf_chxk_2008_implicit:
     # conductance excursion.
     PSConInit_I 1/ms = e / tau_syn_in
 
+
     PSConInit_AHP real = g_ahp * e / tau_ahp * (ms/nS)
   end
 
   input:
       spikesInh nS <- inhibitory spike
       spikesExc nS <- excitatory spike
+
       currents <- current
   end
 

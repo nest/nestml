@@ -51,6 +51,7 @@ neuron aeif_cond_exp_neuron:
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_bounded - E_in )
 
+
     V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_bounded - E_L) - w)/tau_w
   end
@@ -92,6 +93,7 @@ neuron aeif_cond_exp_neuron:
   input:
       spikeInh nS <- inhibitory spike
       spikeExc nS <- excitatory spike
+
       currents <- current
   end
 
@@ -175,6 +177,7 @@ neuron aeif_cond_exp_implicit:
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_bounded - E_in )
 
+
     V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + currents ) / C_m
     w' = (a*(V_bounded - E_L) - w)/tau_w
   end
@@ -211,6 +214,7 @@ neuron aeif_cond_exp_implicit:
   input:
     spikeInh nS  <- inhibitory spike
     spikeExc nS  <- excitatory spike
+
     currents <- current
   end
 
@@ -228,6 +232,9 @@ neuron aeif_cond_exp_implicit:
       w += b
       emit_spike()
     end
+
+    g_ex += spikeExc
+    g_in += spikeInh
 
   end
 

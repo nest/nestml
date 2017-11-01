@@ -188,6 +188,7 @@ neuron ht_neuron_nestml:
       NMDA nS  <- spike
       GABA_A nS <- spike
       GABA_B nS <- spike
+
       currents <- current
   end
 
@@ -206,6 +207,7 @@ neuron ht_neuron_nestml:
     g_NMDA' += NMDAInitialValue * NMDA /ms
     g_GABAA' += GABA_AInitialValue * GABA_A /ms
     g_GABAB' += GABA_BInitialValue * GABA_B /ms
+
 
     if (not g_spike) and V_m >= Theta:
       # Set V and Theta to the sodium reversal potential.
