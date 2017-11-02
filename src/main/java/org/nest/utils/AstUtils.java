@@ -354,7 +354,7 @@ public final class AstUtils {
 
   public static String convertDevrivativeNameToSimpleName(final ASTVariable astVariable) {
     if (astVariable.getDifferentialOrder().size() > 0) {
-      return "__" + Strings.repeat("D", astVariable.getDifferentialOrder().size()) + astVariable.getName();
+      return astVariable.getName() + Strings.repeat("'", astVariable.getDifferentialOrder().size());
 
     }
     else {
