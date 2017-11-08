@@ -52,7 +52,7 @@ class VariableVisitor(NESTMLVisitor):
         if varResolve is not None:
             _expr.setTypeEither(Either.value(varResolve.getTypeSymbol()))
         else:
-            message = 'Variable ' + _expr.printAST() + ' could not be resolved!'
+            message = 'Variable ' + str(_expr) + ' could not be resolved!'
             Logger.logMessage(_code=MessageCode.SYMBOL_NOT_RESOLVED,
                               _errorPosition=_expr.getSourcePosition(),
                               _message=message, _logLevel=LOGGING_LEVEL.ERROR)

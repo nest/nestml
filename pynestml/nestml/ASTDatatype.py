@@ -20,7 +20,6 @@
 
 from pynestml.nestml.ASTUnitType import ASTUnitType
 from pynestml.nestml.ASTElement import ASTElement
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTDatatype(ASTElement):
@@ -201,7 +200,7 @@ class ASTDatatype(ASTElement):
                 return self.getUnitType().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the data type.
         :return: a string representation
@@ -218,7 +217,7 @@ class ASTDatatype(ASTElement):
         elif self.isReal():
             return 'real'
         elif self.isUnitType():
-            return self.getUnitType().printAST()
+            return str(self.getUnitType())
         else:
             raise RuntimeError('Type of datatype not specified!')
 

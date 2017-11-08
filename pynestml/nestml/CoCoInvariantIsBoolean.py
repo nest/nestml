@@ -60,7 +60,7 @@ class InvariantTypeVisitor(NESTMLVisitor):
         if _declaration.hasInvariant():
             invariantType = _declaration.getInvariant().getTypeEither()
             if invariantType is None or invariantType.isError():
-                code, message = Messages.getTypeCouldNotBeDerived(_declaration.getInvariant().printAST())
+                code, message = Messages.getTypeCouldNotBeDerived(str(_declaration.getInvariant()))
                 Logger.logMessage(_errorPosition=_declaration.getInvariant().getSourcePosition(), _code=code,
                                   _message=message, _logLevel=LOGGING_LEVEL.ERROR)
             elif not invariantType.getValue().equals(PredefinedTypes.getBooleanType()):

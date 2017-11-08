@@ -187,7 +187,7 @@ class ASTFunction(ASTElement):
             return self.getBlock().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the function definition.
         :return: a string representation.
@@ -196,11 +196,11 @@ class ASTFunction(ASTElement):
         ret = 'function ' + self.getName() + '('
         if self.hasParameters():
             for par in self.getParameters():
-                ret += par.printAST()
+                ret += str(par)
         ret += ')'
         if self.hasReturnType():
-            ret += self.getReturnType().printAST()
-        ret += ':\n' + self.getBlock().printAST() + '\nend'
+            ret += str(self.getReturnType())
+        ret += ':\n' + str(self.getBlock()) + '\nend'
         return ret
 
     def equals(self, _other=None):

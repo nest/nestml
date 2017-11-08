@@ -255,7 +255,7 @@ class ASTDeclaration(ASTElement):
                 return self.getInvariant().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the declaration.
         :return: a string representation.
@@ -267,16 +267,16 @@ class ASTDeclaration(ASTElement):
         if self.isFunction():
             ret += 'function '
         for var in self.getVariables():
-            ret += var.printAST()
+            ret += str(var)
             if self.getVariables().index(var) < len(self.getVariables()) - 1:
                 ret += ','
-        ret += ' ' + self.getDataType().printAST() + ' '
+        ret += ' ' + str(self.getDataType()) + ' '
         if self.hasSizeParameter():
             ret += '[' + self.getSizeParameter() + ']'
         if self.hasExpression():
-            ret += ' = ' + self.getExpression().printAST() + ' '
+            ret += ' = ' + str(self.getExpression()) + ' '
         if self.hasInvariant():
-            ret += ' [[' + self.getInvariant().printAST() + ']]'
+            ret += ' [[' + str(self.getInvariant()) + ']]'
         return ret
 
     def equals(self, _other=None):

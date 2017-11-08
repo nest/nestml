@@ -120,7 +120,7 @@ class ASTNESTMLCompilationUnit(ASTElement):
                 return neuron.getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the compilation unit.
         :return: a string representation.
@@ -129,7 +129,7 @@ class ASTNESTMLCompilationUnit(ASTElement):
         ret = ''
         if self.getNeuronList() is not None:
             for neuron in self.getNeuronList():
-                ret += neuron.printAST() + '\n'
+                ret += str(neuron) + '\n'
         return ret
 
     def equals(self, _other=None):

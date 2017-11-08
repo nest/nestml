@@ -77,13 +77,13 @@ class ASTElseClause(ASTElement):
             return self.getBlock().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the else clause.
         :return: a string representation of the else clause.
         :rtype: str
         """
-        return 'else:\n' + self.getBlock().printAST()
+        return 'else:\n' + str(self.getBlock())
 
     def equals(self, _other=None):
         """

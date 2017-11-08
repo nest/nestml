@@ -321,14 +321,14 @@ class ASTSimpleExpression(ASTElement):
         self.__functionCall = _functionCall
         return
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the string representation of the simple expression.
         :return: the operator as a string.
         :rtype: str
         """
         if self.isFunctionCall():
-            return self.__functionCall.printAST()
+            return str(self.__functionCall)
         elif self.isBooleanTrue():
             return 'True'
         elif self.isBooleanFalse():
@@ -337,16 +337,15 @@ class ASTSimpleExpression(ASTElement):
             return 'inf'
         elif self.isNumericLiteral():
             if self.__variable is not None:
-                return str(self.__numericLiteral) + self.__variable.printAST()
+                return str(self.__numericLiteral) + str(self.__variable)
             else:
                 return str(self.__numericLiteral)
         elif self.isVariable():
-            return self.__variable.printAST()
+            return str(self.__variable)
         elif self.isString():
             return self.getString()
         else:
-            raise RuntimeError('Simple expression at %s not specified!'
-                               % self.getSourcePosition().printSourcePosition())
+            raise RuntimeError('Simple expression at %s not specified!' % str(self.getSourcePosition()))
 
     def equals(self, _other=None):
         """
@@ -356,14 +355,6 @@ class ASTSimpleExpression(ASTElement):
         :return:True if equal, otherwise False.
         :rtype: bool
         """
-        __functionCall = None
-        __numericLiteral = None
-        __variable = None
-        __isBooleanTrue = False
-        __isBooleanFalse = False
-        __isInf = False
-        __string = None
-        __typeEither = None
         if not isinstance(_other, ASTSimpleExpression):
             return False
         if self.isFunctionCall() + _other.isFunctionCall() == 1:

@@ -109,7 +109,7 @@ class ASTSourcePosition(object):
         :return: a string representation
         :rtype: str
         """
-        # TODO deprecated, now __str__ has been overwritten, -> will be remove in future releases
+        # TODO deprecated, now __str__ has been overwritten, -> will be removed in future releases
         return '[' + str(self.getStartLine()) + ':' + str(self.getStartColumn()) + ';' + \
                str(self.getEndLine()) + ':' + str(self.getEndColumn()) + ']'
 

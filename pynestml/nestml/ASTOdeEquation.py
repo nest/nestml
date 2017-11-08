@@ -106,15 +106,15 @@ class ASTOdeEquation(ASTElement):
             return self.getRhs().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the equation.
         :return: a string representing the equation.
         :rtype: str
         """
-        return self.getLhs().printAST() + '=' + self.getRhs().printAST()
+        return str(self.getLhs()) + '=' + str(self.getRhs())
 
-    def equals(self,_other=None):
+    def equals(self, _other=None):
         """
         The equals method.
         :param _other: a different object.
@@ -122,6 +122,6 @@ class ASTOdeEquation(ASTElement):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        if not isinstance(_other,ASTOdeEquation):
+        if not isinstance(_other, ASTOdeEquation):
             return False
         return self.getLhs().equals(_other.getLhs()) and self.getRhs().equals(_other.getRhs())

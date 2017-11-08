@@ -449,7 +449,7 @@ class ASTExpression(ASTElement):
                 return self.getIfNot().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the string representation of the expression.
         :return: the expression as a string.
@@ -462,16 +462,16 @@ class ASTExpression(ASTElement):
             if self.isLogicalNot():
                 ret += 'not '
             if self.isUnaryOperator():
-                ret += self.getUnaryOperator().printAST()
-            ret += self.getExpression().printAST()
+                ret += str(self.getUnaryOperator())
+            ret += str(self.getExpression())
             if self.isEncapsulated():
                 ret += ')'
         elif self.isCompoundExpression():
-            ret += self.getLhs().printAST()
-            ret += self.getBinaryOperator().printAST()
-            ret += self.getRhs().printAST()
+            ret += str(self.getLhs())
+            ret += str(self.getBinaryOperator())
+            ret += str(self.getRhs())
         elif self.isTernaryOperator():
-            ret += self.getCondition().printAST() + '?' + self.getIfTrue().printAST() + ':' + self.getIfNot().printAST()
+            ret += str(self.getCondition()) + '?' + str(self.getIfTrue()) + ':' + str(self.getIfNot())
         return ret
 
     def equals(self, _other=None):

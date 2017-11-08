@@ -87,7 +87,7 @@ class ASTOutputBlock(ASTElement):
         """
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the output declaration.
         :return: a string representation

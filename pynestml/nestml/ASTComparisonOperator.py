@@ -176,7 +176,7 @@ class ASTComparisonOperator(ASTElement):
         """
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the string representation of the operator.
         :return: the operator as a string.

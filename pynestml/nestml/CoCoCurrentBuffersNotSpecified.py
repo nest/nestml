@@ -58,7 +58,7 @@ class CurrentTypeSpecifiedVisitor(NESTMLVisitor):
     def visitInputLine(self, _line=None):
         if _line.isCurrent() and _line.hasInputTypes() and len(_line.getInputTypes()) > 0:
             code, message = Messages.getCurrentBufferSpecified(_line.getName(),
-                                                               list((buf.printAST() for buf in _line.getInputTypes())))
+                                                               list((str(buf) for buf in _line.getInputTypes())))
             Logger.logMessage(_errorPosition=_line.getSourcePosition(),
                               _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return

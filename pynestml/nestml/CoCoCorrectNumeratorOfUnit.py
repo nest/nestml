@@ -59,7 +59,7 @@ class NumericNumeratorVisitor(NESTMLVisitor):
         :type _unitType: ASTUnitType
         """
         if _unitType.isDiv() and isinstance(_unitType.getLhs(), int) and _unitType.getLhs() != 1:
-            code, message = Messages.getWrongNumerator(_unitType.printAST())
+            code, message = Messages.getWrongNumerator(str(_unitType))
             Logger.logMessage(_code=code, _message=message, _errorPosition=_unitType.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

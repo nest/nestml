@@ -101,13 +101,13 @@ class ASTOdeShape(ASTElement):
             return self.getExpression().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the shape.
         :return: a string representation.
         :rtype: str
         """
-        return 'shape ' + self.getVariable().printAST() + ' = ' + self.getExpression().printAST()
+        return 'shape ' + str(self.getVariable()) + ' = ' + str(self.getExpression())
 
     def equals(self, _other=None):
         """

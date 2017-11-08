@@ -66,7 +66,7 @@ class SumIsCorrectVisitor(NESTMLVisitor):
         if fName == 'cur_sum' or fName == 'cond_sum' or fName == 'convolve':
             for arg in _functionCall.getArgs():
                 if not isinstance(arg, ASTSimpleExpression) or not arg.isVariable():
-                    code, message = Messages.getNotAVariable(arg.printAST())
+                    code, message = Messages.getNotAVariable(str(arg))
                     Logger.logMessage(_code=code, _message=message,
                                       _errorPosition=arg.getSourcePosition(), _logLevel=LOGGING_LEVEL.ERROR)
         return

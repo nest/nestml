@@ -410,8 +410,8 @@ class ASTNeuron(ASTElement):
         :rtype: bool
         """
         buffers = self.getSpikeBuffers()
-        for buffer in buffers:
-            if buffer.hasVectorParameter():
+        for iBuffer in buffers:
+            if iBuffer.hasVectorParameter():
                 return True
         return False
 
@@ -422,16 +422,16 @@ class ASTNeuron(ASTElement):
         :rtype: list(VariableSymbol)
         """
         ret = list()
-        for buffer in self.getSpikeBuffers():
-            if buffer.isExcitatory() and buffer.isInhibitory():
-                if buffer is not None:
-                    ret.append(buffer)
+        for iBuffer in self.getSpikeBuffers():
+            if iBuffer.isExcitatory() and iBuffer.isInhibitory():
+                if iBuffer is not None:
+                    ret.append(iBuffer)
                 else:
-                    code, message = Messages.getCouldNotResolve(buffer.getSymbolName())
+                    code, message = Messages.getCouldNotResolve(iBuffer.getSymbolName())
                     Logger.logMessage(
                         _message=message,
                         _code=code,
-                        _errorPosition=buffer.getSourcePosition(),
+                        _errorPosition=iBuffer.getSourcePosition(),
                         _logLevel=LOGGING_LEVEL.ERROR)
         return ret
 
@@ -703,13 +703,13 @@ class ASTNeuron(ASTElement):
             return self.getBody().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the neuron.
         :return: a string representation.
         :rtype: str
         """
-        return 'neuron ' + self.getName() + ':\n' + self.getBody().printAST() + '\nend'
+        return 'neuron ' + self.getName() + ':\n' + str(self.getBody()) + '\nend'
 
     def equals(self, _other=None):
         """

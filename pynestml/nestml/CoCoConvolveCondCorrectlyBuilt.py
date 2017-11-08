@@ -58,9 +58,9 @@ class ConvolveCheckerVisitor(NESTMLVisitor):
     def visitFunctionCall(self, _functionCall=None):
         funcName = _functionCall.getName()
         if funcName == 'convolve' or funcName == 'cond_sum' or funcName == 'curr_sum':
-            symbolVar = _functionCall.getScope().resolveToSymbol(_functionCall.getArgs()[0].printAST(),
+            symbolVar = _functionCall.getScope().resolveToSymbol(str(_functionCall.getArgs()[0]),
                                                                  SymbolKind.VARIABLE)
-            symbolBuffer = _functionCall.getScope().resolveToSymbol(_functionCall.getArgs()[1].printAST(),
+            symbolBuffer = _functionCall.getScope().resolveToSymbol(str(_functionCall.getArgs()[1]),
                                                                     SymbolKind.VARIABLE)
             if symbolVar is not None and not symbolVar.isShape() and not symbolVar.isInitValues():
                 code, message = Messages.getFirstArgNotShapeOrEquation(funcName)

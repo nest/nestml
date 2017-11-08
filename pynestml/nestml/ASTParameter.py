@@ -101,13 +101,13 @@ class ASTParameter(ASTElement):
             return self.getDataType().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the parameter.
         :return: a string representation.
         :rtype: str
         """
-        return self.getName() + ' ' + self.getDataType().printAST()
+        return self.getName() + ' ' + str(self.getDataType())
 
     def equals(self, _other=None):
         """

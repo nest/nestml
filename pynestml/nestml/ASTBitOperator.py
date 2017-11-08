@@ -19,7 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.nestml.ASTElement import ASTElement
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTBitOperator(ASTElement):
@@ -61,7 +60,7 @@ class ASTBitOperator(ASTElement):
             '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-left provided (%s)!' % type(_isBitShiftLeft)
         assert (_isBitShiftRight is not None and isinstance(_isBitShiftRight, bool)), \
             '(PyNestML.AST.BitOperator) No or wrong typ of is-bit-shift-right provided (%s)!' % type(_isBitShiftRight)
-        assert ((_isBitAnd + _isBitOr + _isBitXor + _isBitShiftLeft + _isBitShiftRight ) == 1),\
+        assert ((_isBitAnd + _isBitOr + _isBitXor + _isBitShiftLeft + _isBitShiftRight) == 1),\
             '(PyNestML.AST.BitOperator) Bit operator not correctly specified!'
         super(ASTBitOperator, self).__init__(_sourcePosition)
         self.__isBitShiftRight = _isBitShiftRight
@@ -143,7 +142,7 @@ class ASTBitOperator(ASTElement):
         """
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the string representation of the operator.
         :return: the operator as a string.

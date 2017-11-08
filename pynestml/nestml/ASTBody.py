@@ -218,7 +218,7 @@ class ASTBody(ASTElement):
         else:
             return ret
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the body.
         :return: a string representing the body.
@@ -226,7 +226,7 @@ class ASTBody(ASTElement):
         """
         ret = ''
         for elem in self.__bodyElements:
-            ret += elem.printAST()
+            ret += str(elem)
             ret += '\n'
         return ret
 

@@ -91,7 +91,7 @@ class ASTLogicalOperator(ASTElement):
         """
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representing the operator.
         :return: a string representing the operator

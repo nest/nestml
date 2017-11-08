@@ -138,7 +138,7 @@ class ASTOdeFunction(ASTElement):
             return self.getExpression().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the ode function.
         :return: a string representation
@@ -147,8 +147,8 @@ class ASTOdeFunction(ASTElement):
         ret = ''
         if self.isRecordable():
             ret += 'recordable'
-        ret += 'function ' + self.getVariableName() + ' ' + self.getDataType().printAST() + \
-               ' = ' + self.getExpression().printAST()
+        ret += 'function ' + str(self.getVariableName()) + ' ' + str(self.getDataType()) + \
+               ' = ' + str(self.getExpression())
         return ret
 
     def equals(self, _other=None):

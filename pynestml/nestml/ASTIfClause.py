@@ -102,13 +102,13 @@ class ASTIfClause(ASTElement):
             return self.getBlock().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the if clause.
         :return: a string representation
         :rtype: str
         """
-        return 'if ' + self.getCondition().printAST() + ':\n' + self.getBlock().printAST()
+        return 'if ' + str(self.getCondition()) + ':\n' + str(self.getBlock())
 
     def equals(self, _other=None):
         """

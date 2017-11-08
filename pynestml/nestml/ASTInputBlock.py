@@ -93,7 +93,7 @@ class ASTInputBlock(ASTElement):
                 return line.getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the input block.
         :return: a string representation.
@@ -102,7 +102,7 @@ class ASTInputBlock(ASTElement):
         ret = 'input:\n'
         if self.getInputLines() is not None:
             for inputDef in self.getInputLines():
-                ret += inputDef.printAST() + '\n'
+                ret += str(inputDef) + '\n'
         ret += 'end\n'
         return ret
 

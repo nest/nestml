@@ -114,7 +114,7 @@ class ASTFunctionCall(ASTElement):
                 return param.getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the string representation of the function call.
         :return: the function call as a string.
@@ -122,7 +122,7 @@ class ASTFunctionCall(ASTElement):
         """
         ret = str(self.__calleeName) + '('
         for i in range(0, len(self.__args)):
-            ret += self.__args[i].printAST()
+            ret += str(self.__args[i])
             if i < len(self.__args) - 1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
         ret += ')'

@@ -145,18 +145,18 @@ class ASTIfStmt(ASTElement):
                 return self.getElseClause().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the if-statement.
         :return: a string representation
         :rtype: str
         """
-        ret = self.getIfClause().printAST()
+        ret = str(self.getIfClause())
         if self.getElifClauses() is not None:
             for clause in self.getElifClauses():
-                ret += clause.printAST()
+                ret += str(clause)
         if self.getElseClause() is not None:
-            ret += self.getElseClause().printAST()
+            ret += str(self.getElseClause())
         ret += 'end'
         return ret
 

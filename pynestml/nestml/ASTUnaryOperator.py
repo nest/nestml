@@ -19,7 +19,6 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 from pynestml.nestml.ASTElement import ASTElement
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class ASTUnaryOperator(ASTElement):
@@ -73,7 +72,7 @@ class ASTUnaryOperator(ASTElement):
         :return: a new ASTUnaryOperator object.
         :rtype: ASTUnaryOperator
         """
-        return cls(_isUnaryPlus, _isUnaryMinus, _isUnaryTilde,_sourcePosition)
+        return cls(_isUnaryPlus, _isUnaryMinus, _isUnaryTilde, _sourcePosition)
 
     def isUnaryPlus(self):
         """
@@ -109,7 +108,7 @@ class ASTUnaryOperator(ASTElement):
         """
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the string representation of the operator.
         :return: the operator as a string.

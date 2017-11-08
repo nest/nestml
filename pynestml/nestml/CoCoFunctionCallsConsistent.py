@@ -70,7 +70,7 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
                               _code=code, _message=message)
         # now check if the number of arguments is the same as in the symbol
         if symbol is not None and len(_functionCall.getArgs()) != len(symbol.getParameterTypes()):
-            code, message = Messages.getWrongNumberOfArgs(_functionCall.printAST(), len(symbol.getParameterTypes()),
+            code, message = Messages.getWrongNumberOfArgs(str(_functionCall), len(symbol.getParameterTypes()),
                                                           len(_functionCall.getArgs()))
             Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
                               _errorPosition=_functionCall.getSourcePosition())
@@ -82,7 +82,7 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
                 expectedType = expectedTypes[i]
                 actualType = actualTypes[i].getTypeEither()
                 if actualType.isError():
-                    code, message = Messages.getTypeCouldNotBeDerived(actualTypes[i].printAST())
+                    code, message = Messages.getTypeCouldNotBeDerived(actualTypes[i])
                     Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
                                       _errorPosition=actualTypes[i].getSourcePosition())
                 elif not actualType.getValue().equals(expectedType):

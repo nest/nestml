@@ -279,22 +279,22 @@ class ASTUnitType(ASTElement):
                 return self.getRhs().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the unit type.
         :return: a string representation.
         :rtype: str
         """
         if self.isEncapsulated():
-            return '(' + self.getCompoundUnit().printAST() + ')'
+            return '(' + str(self.getCompoundUnit()) + ')'
         elif self.isPowerExpression():
-            return self.getBase().printAST() + '**' + str(self.getExponent())
+            return str(self.getBase()) + '**' + str(self.getExponent())
         elif self.isArithmeticExpression():
-            tLhs = (self.getLhs().printAST() if isinstance(self.getLhs(), ASTUnitType) else self.getLhs())
+            tLhs = (str(self.getLhs()) if isinstance(self.getLhs(), ASTUnitType) else self.getLhs())
             if self.isTimes():
-                return str(tLhs) + '*' + self.getRhs().printAST()
+                return str(tLhs) + '*' + str(self.getRhs())
             else:
-                return str(tLhs) + '/' + self.getRhs().printAST()
+                return str(tLhs) + '/' + str(self.getRhs())
         else:
             return self.getSimpleUnit()
 

@@ -99,13 +99,13 @@ class ASTElifClause(ASTElement):
             return self.getBlock().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the elif clause.
         :return: a string representation of the elif clause.
         :rtype: str
         """
-        return 'elif ' + self.getCondition().printAST() + ':\n' + self.getBlock().printAST()
+        return 'elif ' + str(self.getCondition()) + ':\n' + str(self.getBlock())
 
     def equals(self, _other=None):
         """

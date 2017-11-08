@@ -189,20 +189,20 @@ class ASTSmallStmt(ASTElement):
                 return self.getReturnStmt().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the small statement.
         :return: a string representation.
         :rtype: str
         """
         if self.isAssignment():
-            return self.getAssignment().printAST()
+            return str(self.getAssignment())
         elif self.isFunctionCall():
-            return self.getFunctionCall().printAST()
+            return str(self.getFunctionCall())
         elif self.isDeclaration():
-            return self.getDeclaration().printAST()
+            return str(self.getDeclaration())
         else:
-            return self.getReturnStmt().printAST()
+            return str(self.getReturnStmt())
 
     def equals(self, _other=None):
         """

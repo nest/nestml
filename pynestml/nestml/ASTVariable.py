@@ -149,7 +149,7 @@ class ASTVariable(ASTElement):
         else:
             return False
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the string representation of the variable.
         :return: the variable as a string.

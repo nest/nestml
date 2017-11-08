@@ -159,7 +159,7 @@ class ASTElement(object):
         return
 
     @abstractmethod
-    def printAST(self):
+    def __str__(self):
         """
         Prints the node to a readable format.
         :return: a string representation of the node.

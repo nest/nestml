@@ -139,7 +139,7 @@ class ASTEquationsBlock(ASTElement):
         self.__declarations = list()
         return
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the equations block.
         :return: a string representing an equations block.
@@ -147,7 +147,7 @@ class ASTEquationsBlock(ASTElement):
         """
         ret = 'equations:\n'
         for decl in self.getDeclarations():
-            ret += decl.printAST() + '\n'
+            ret += str(decl) + '\n'
         return ret + 'end'
 
     def equals(self, _other=None):

@@ -74,7 +74,7 @@ class UnaryVisitor(NESTMLVisitor):
                 Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
                 return
         # Catch-all if no case has matched
-        errorMsg = ErrorStrings.messageTypeError(self, _expr.printAST(), _expr.getSourcePosition())
+        errorMsg = ErrorStrings.messageTypeError(self, str(_expr), _expr.getSourcePosition())
         Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
         _expr.setTypeEither(Either.error(errorMsg))
         return

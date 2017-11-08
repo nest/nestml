@@ -98,7 +98,7 @@ class Messages(object):
         :rtype: (MessageCode,str)
 
         """
-        message = 'Type of \'%s\' could not be derived!' % _rhs.printAST()
+        message = 'Type of \'%s\' could not be derived!' % _rhs
         return MessageCode.TYPE_NOT_DERIVABLE, message
 
     @classmethod
@@ -120,7 +120,7 @@ class Messages(object):
         """
         message = 'Type of lhs \'%s\' does not correspond to expression type of \'%s\'! LHS=\'%s\', RHS=\'%s\'.' \
                   % (
-                      _lhsExpression.printAST(), _rhsExpression.printAST(), _lhsType.printSymbol(),
+                      _lhsExpression, _rhsExpression, _lhsType.printSymbol(),
                       _rhsType.printSymbol())
         return MessageCode.IMPLICIT_CAST, message
 
@@ -142,8 +142,8 @@ class Messages(object):
         :rtype:(MessageCode,str)
         """
         message = 'Type of lhs \'%s\' does not correspond to rhs \'%s\'! LHS: \'%s\', RHS: \'%s\'.' % (
-            _lhsExpression.printAST(),
-            _rhsExpression.printAST(),
+            _lhsExpression,
+            _rhsExpression,
             _lhsType.printSymbol(),
             _rhsType.printSymbol())
         return MessageCode.CAST_NOT_POSSIBLE, message

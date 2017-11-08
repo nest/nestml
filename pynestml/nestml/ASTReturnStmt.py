@@ -94,13 +94,13 @@ class ASTReturnStmt(ASTElement):
                 return self.getExpression().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the return statement.
         :return: a string representation
         :rtype: str
         """
-        return 'return ' + (self.getExpression().printAST() if self.getExpression() is not None else '')
+        return 'return ' + (str(self.getExpression()) if self.hasExpression() else '')
 
     def equals(self, _other=None):
         """

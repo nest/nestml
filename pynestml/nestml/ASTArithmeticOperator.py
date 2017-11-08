@@ -158,7 +158,7 @@ class ASTArithmeticOperator(ASTElement):
         """
         return self.__isPowOp
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the string representation of the operator.
         :return: the operator as a string.
@@ -197,7 +197,9 @@ class ASTArithmeticOperator(ASTElement):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        return type(self) == type(_other) and self.isTimesOp() == _other.isTimesOp() and \
+        if not isinstance(_other, ASTArithmeticOperator):
+            return False
+        return self.isTimesOp() == _other.isTimesOp() and \
                self.isDivOp() == _other.isDivOp() and self.isModuloOp() == _other.isModuloOp() and \
                self.isPlusOp() == _other.isPlusOp() and self.isMinusOp() == _other.isMinusOp() and \
                self.isPowOp() == _other.isPowOp()

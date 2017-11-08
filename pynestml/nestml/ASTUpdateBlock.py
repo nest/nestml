@@ -91,13 +91,13 @@ class ASTUpdateBlock(ASTElement):
             return self.getBlock().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of an update block.
         :return: a string representing the update block.
         :rtype: str
         """
-        return 'update:\n' + self.getBlock().printAST() + 'end'
+        return 'update:\n' + str(self.getBlock()) + 'end'
 
     def equals(self, _other=None):
         """

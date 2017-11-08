@@ -103,7 +103,7 @@ class ASTBlock(ASTElement):
                 return stmt.getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns the raw representation of the block as a string.
         :return: a string representation
@@ -111,7 +111,7 @@ class ASTBlock(ASTElement):
         """
         ret = ''
         for stmt in self.__stmts:
-            ret += stmt.printAST()
+            ret += str(stmt)
             ret += '\n'
         return ret
 

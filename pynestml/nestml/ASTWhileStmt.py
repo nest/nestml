@@ -102,13 +102,13 @@ class ASTWhileStmt(ASTElement):
             return self.getBlock().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the while statement.
         :return: a string representation.
         :rtype: str
         """
-        return 'while ' + self.getCondition().printAST() + ':\n' + self.getBlock().printAST() + '\nend'
+        return 'while ' + str(self.getCondition()) + ':\n' + str(self.getBlock()) + '\nend'
 
     def equals(self, _other=None):
         """

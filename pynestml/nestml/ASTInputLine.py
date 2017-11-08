@@ -228,7 +228,7 @@ class ASTInputLine(ASTElement):
                 return line.getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the input line.
         :return: a string representing the input line.
@@ -236,13 +236,13 @@ class ASTInputLine(ASTElement):
         """
         ret = self.getName()
         if self.hasDatatype():
-            ret += ' ' + self.getDatatype().printAST() + ' '
+            ret += ' ' + str(self.getDatatype()) + ' '
         if self.hasIndexParameter():
             ret += '[' + self.getIndexParameter() + ']'
         ret += '<-'
         if self.hasInputTypes():
             for iType in self.getInputTypes():
-                ret += iType.printAST() + ' '
+                ret += str(iType) + ' '
         if self.isSpike():
             ret += 'spike'
         else:
@@ -263,8 +263,7 @@ class ASTInputLine(ASTElement):
             return False
         if self.hasIndexParameter() + _other.hasIndexParameter() == 1:
             return False
-        if self.hasIndexParameter() and _other.hasIndexParameter() and \
-                        self.getInputTypes() != _other.getIndexParameter():
+        if self.hasIndexParameter() and _other.hasIndexParameter() and self.getInputTypes() != _other.getIndexParameter():
             return False
         if self.hasDatatype() + _other.hasDatatype() == 1:
             return False

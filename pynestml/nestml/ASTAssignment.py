@@ -196,13 +196,13 @@ class ASTAssignment(ASTElement):
             return self.getExpression().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representing the assignment.
         :return: a string representing the assignment.
         :rtype: str
         """
-        ret = self.__lhsVariable.printAST()
+        ret = str(self.__lhsVariable)
         if self.isCompoundQuotient():
             ret += '/='
         elif self.isCompoundProduct():
@@ -213,7 +213,7 @@ class ASTAssignment(ASTElement):
             ret += '+='
         else:
             ret += '='
-        ret += self.__expression.printAST()
+        ret += str(self.__expression)
         return ret
 
     def equals(self, _other=None):

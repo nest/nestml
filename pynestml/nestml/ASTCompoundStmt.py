@@ -171,17 +171,17 @@ class ASTCompoundStmt(ASTElement):
             return False
         return True
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the compound statement.
         :return: a string representing the compound statement.
         :rtype: str
         """
         if self.isIfStmt():
-            return self.getIfStmt().printAST()
+            return str(self.getIfStmt())
         elif self.isForStmt():
-            return self.getForStmt().printAST()
+            return str(self.getForStmt())
         elif self.isWhileStmt():
-            return self.getWhileStmt().printAST()
+            return str(self.getWhileStmt())
         else:
             raise RuntimeError('Type of compound statement not specified!')

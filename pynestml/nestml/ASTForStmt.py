@@ -155,14 +155,14 @@ class ASTForStmt(ASTElement):
             return self.getBlock().getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the for statement.
         :return: a string representing the for statement.
         :rtype: str
         """
-        return 'for ' + self.getVariable() + ' in ' + self.getFrom().printAST() + '...' \
-               + self.getTo().printAST() + ' step ' + str(self.getStep()) + ':\n' + self.getBlock().printAST() + '\nend'
+        return 'for ' + self.getVariable() + ' in ' + str(self.getFrom()) + '...' \
+               + str(self.getTo()) + ' step ' + str(self.getStep()) + ':\n' + str(self.getBlock()) + '\nend'
 
     def equals(self, _other=None):
         """
@@ -172,11 +172,6 @@ class ASTForStmt(ASTElement):
         :return: True if equal, otherwise False.
         :rtype: bool
         """
-        __variable = None
-        __from = None
-        __to = None
-        __step = None
-        __block = None
         if not isinstance(_other, ASTForStmt):
             return False
         if self.getVariable() != _other.getVariable():

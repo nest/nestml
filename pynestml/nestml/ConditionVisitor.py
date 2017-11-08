@@ -92,7 +92,7 @@ class ConditionVisitor(NESTMLVisitor):
                 unitType = ifTrue
             else:
                 unitType = ifNot
-            errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.printAST(), ifNot.printAST(),
+            errorMsg = ErrorStrings.messageTernaryMismatch(self, str(ifTrue), str(ifNot),
                                                            _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(unitType))
             Logger.logMessage(_message=errorMsg,
@@ -107,7 +107,7 @@ class ConditionVisitor(NESTMLVisitor):
             return
 
         # if we get here it is an error
-        errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.printAST(), ifNot.printAST(),
+        errorMsg = ErrorStrings.messageTernaryMismatch(self, str(ifTrue), str(ifNot),
                                                        _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
         Logger.logMessage(_message=errorMsg,

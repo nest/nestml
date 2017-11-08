@@ -164,7 +164,7 @@ class ASTBlockWithVariables(ASTElement):
                 return stmt.getParent(_ast)
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the variable block.
         :return: a string representation
@@ -182,7 +182,7 @@ class ASTBlockWithVariables(ASTElement):
         ret += ':\n'
         if self.getDeclarations() is not None:
             for decl in self.getDeclarations():
-                ret += decl.printAST() + '\n'
+                ret += str(decl) + '\n'
         ret += 'end'
         return ret
 

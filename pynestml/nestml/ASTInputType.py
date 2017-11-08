@@ -96,7 +96,7 @@ class ASTInputType(ASTElement):
         """
         return None
 
-    def printAST(self):
+    def __str__(self):
         """
         Returns a string representation of the input type.
         :return: a string representation.
