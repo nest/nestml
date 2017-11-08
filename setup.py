@@ -38,4 +38,5 @@ setup(
                       'Jinja2',
                       'astropy'],
     test_suite='tests',
+
 )

@@ -92,6 +92,7 @@ neuron terub_neuron_gpe:
     function I_ex_mod real = -convolve(g_ex, spikeExc) * V_m
     function I_in_mod real = convolve(g_in, spikeInh) * (V_m-E_gg)
 
+
     function tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m-g_theta_n_tau)/g_sigma_n_tau))
     function tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m-g_theta_h_tau)/g_sigma_h_tau))
     function tau_r real = g_tau_r
@@ -154,6 +155,7 @@ neuron terub_neuron_gpe:
   input:
     spikeInh nS <- inhibitory spike
     spikeExc nS <- excitatory spike
+
     currents <- current
   end
 
@@ -274,6 +276,7 @@ neuron terub_neuron_gpe_implicit:
     function I_ex_mod real = -convolve(g_ex, spikeExc) * V_m
     function I_in_mod real = convolve(g_in, spikeInh) * (V_m-E_gg)
 
+
     function tau_n real = g_tau_n_0 + g_tau_n_1 / (1. + exp(-(V_m-g_theta_n_tau)/g_sigma_n_tau))
     function tau_h real = g_tau_h_0 + g_tau_h_1 / (1. + exp(-(V_m-g_theta_h_tau)/g_sigma_h_tau))
     function tau_r real = g_tau_r
@@ -357,3 +360,4 @@ neuron terub_neuron_gpe_implicit:
   end
 
 end
+
