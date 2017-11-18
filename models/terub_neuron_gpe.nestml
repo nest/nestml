@@ -228,10 +228,10 @@ neuron terub_neuron_gpe_implicit:
     gate_r     real = 0 # gating variable r
     Ca_con     real = 0 # gating variable r
 
-    g_in pA = 0 nS                     # Excitatory synaptic conductance
-    g_in' pA/mS = nS * e / tau_syn_in  # Excitatory synaptic conductance
-    g_ex pA = 0 nS                     # Inhibitory synaptic conductance in nS
-    g_ex' pA/mS = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
+    g_in nS = 0 nS                     # Excitatory synaptic conductance in nS
+    g_in' nS/ms = nS * e / tau_syn_in  # Excitatory synaptic conductance in nS
+    g_ex nS = 0 nS                     # Inhibitory synaptic conductance in nS
+    g_ex' nS/ms = nS * e / tau_syn_ex  # Inhibitory synaptic conductance in nS
   end
 
   equations:
