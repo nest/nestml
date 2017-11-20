@@ -23,6 +23,7 @@
 lexer grammar Tokens;
 
   @lexer::members {
+    HIDDEN = 1
     COMMENT = 2
     NEW_LINE = 3
   }
@@ -36,10 +37,10 @@ lexer grammar Tokens;
 
   NEWLINE : ('\r' '\n' | '\r' | '\n' ) -> channel(3);
 
-  WS : (' ' | '\t')->channel(HIDDEN);
+  WS : (' ' | '\t')->channel(1);
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
-  LINE_ESCAPE : '\\' '\r'? '\n'->channel(HIDDEN);
+  LINE_ESCAPE : '\\' '\r'? '\n'->channel(1);
 
   BLOCK_OPEN : ':';
 
