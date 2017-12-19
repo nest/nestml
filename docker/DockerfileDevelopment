@@ -20,7 +20,7 @@ RUN python get-pip.py
 RUN pip install sympy
 
 WORKDIR /tmp
-ENV MAVEN_VERSION 3.5.0
+ENV MAVEN_VERSION 3.5.2
 RUN mkdir -p /usr/share/maven
 RUN wget http://mirror.softaculous.com/apache/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
 RUN tar -xzf apache-maven-$MAVEN_VERSION-bin.tar.gz -C /usr/share/maven
