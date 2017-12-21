@@ -213,6 +213,7 @@ class ASTExpression(ASTElement):
             '(PyNestML.AST.Expression) No or wrong type of if-not case provided (%s)!' % type(_ifNot)
         return cls(_condition=_condition, _ifTrue=_ifTrue, _ifNot=_ifNot, _sourcePosition=_sourcePosition)
 
+
     def isExpression(self):
         """
         Returns whether it is a expression, e.g. ~10mV.
@@ -292,6 +293,31 @@ class ASTExpression(ASTElement):
         :rtype: one of ASTLogicalOperator,ASTComparisonOperator,ASTBitOperator,ASTArithmeticOperator
         """
         return self.__binaryOperator
+
+    def isBinaryOperator(self):
+        """
+        Returns whether the expression is defined around a BinaryOperator
+        :return: true iff the expression is defined around a BinaryOperator
+        :rtype: bool
+        """
+        return self.__binaryOperator is not None
+
+    def isArithmeticOperator(self):
+        """
+        Returns whether the expression is defined around a BinaryOperator
+        and if that BinaryOperator is an ArithmeticOperator
+        :return: true iff the expression describes an arithmetic operation
+        :rtype: bool
+        """
+        return self.isBinaryOperator() and isinstance(self.__binaryOperator, ASTArithmeticOperator)
+
+    def isPlusOp(self):
+        """
+        Returns whether the expression defines an addition
+        :return: true iff the expression defines an addition
+        :rtype: bool
+        """
+        return self.isArithmeticOperator() and self.__binaryOperator.isPlusOp()
 
     def isTernaryOperator(self):
         """

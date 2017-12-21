@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from reportlab.lib.validators import isInstanceOf
+
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Symbol import SymbolKind
@@ -347,6 +349,56 @@ class ASTUtils(object):
         ASTHigherOrderVisitor.visit(_ast, lambda x: ret.append(x) \
             if isinstance(x, ASTFunctionCall) and x.getName() == _functionName else True)
         return ret
+
+    @classmethod
+    def getConversionExpression(cls, _targetExpr=None, _converteeExpr=None):
+        """
+        Calculates the conversion factor from _convertee to _targetUnit. Behaviour is only well-defined if both units have the same physical type
+        :param _targetUnit: the target unit for the conversion
+        :param _convertee: the unit to convert
+        :return: factor f so that: _targetUnit = f*_convertee
+        """
+        from astropy import units
+        from pynestml.nestml.ASTExpression import ASTExpression
+        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.nestml.TypeSymbol import TypeSymbol
+        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
+
+
+        assert _targetExpr is not None and (isinstance(_targetExpr,ASTExpression)
+                                            or isinstance(_targetExpr,ASTSimpleExpression))
+        assert _converteeExpr is not None and (isinstance(_converteeExpr,ASTExpression)
+                                               or isinstance(_converteeExpr,ASTSimpleExpression))
+
+        assert _targetExpr.getTypeEither().isValue()
+        assert _converteeExpr.getTypeEither().isValue()
+
+        targetType = _targetExpr.getTypeEither().getValue()
+        converteeType = _converteeExpr.getTypeEither().getValue()
+
+        assert targetType is not None and isinstance(targetType, TypeSymbol)
+        assert converteeType is not None and isinstance(converteeType,TypeSymbol)
+
+        assert converteeType.getSympyUnit() is not None
+        assert targetType.getSympyUnit() is not None
+
+        targetUnit = targetType.getSympyUnit()
+        converteeUnit = converteeType.getSympyUnit()
+
+        assert isinstance(converteeUnit,units.PrefixUnit) or isinstance(converteeUnit,units.Unit)
+        assert isinstance(targetUnit,units.PrefixUnit) or isinstance(targetUnit,units.Unit)
+
+        factor = (converteeUnit / targetUnit).si.scale
+        factorExpression = ASTSimpleExpression.makeASTSimpleExpression(_numericLiteral=factor)
+
+        timesOp = ASTArithmeticOperator.makeASTArithmeticOperator(_isTimesOp=True)
+        multiplication = ASTExpression.makeCompoundExpression(_lhs=factorExpression,
+                                                              _binaryOperator=timesOp,
+                                                              _rhs=_converteeExpr)
+        #wrap it all in parentheses to be safe
+        parents = ASTExpression.makeExpression(_isEncapsulated=True,_expression=multiplication)
+
+        return parents
 
     @classmethod
     def getTupleFromSingleDictEntry(cls, _dictEntry=None):

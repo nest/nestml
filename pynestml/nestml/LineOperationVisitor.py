@@ -21,12 +21,14 @@
 """
 expression : left=expression (plusOp='+'  | minusOp='-') right=expression
 """
+from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
 from pynestml.nestml.PredefinedTypes import PredefinedTypes
 from pynestml.nestml.ErrorStrings import ErrorStrings
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
 from pynestml.nestml.Either import Either
 from pynestml.nestml.ASTExpression import ASTExpression
+from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -79,11 +81,20 @@ class LineOperatorVisitor(NESTMLVisitor):
             if lhsType.isNumericPrimitive() and rhsType.isNumericPrimitive():
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 return
-            # Both are units, not matching -> real, WARN
+            # Both are units, not matching -> try to recover, otherwise real & WARN
             if lhsType.isUnit() and rhsType.isUnit():
-                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
-                                                                  rhsType.printSymbol(), 'real',
-                                                                  _expr.getSourcePosition())
+                #if both have the same base, we can recover.
+                if not ASTUtils.differsInMagnitude(lhsType,rhsType):
+                    #we convert the rhs unit to the magnitude of the lhs unit.
+                    _expr.getRhs().setImplicitVersion(ASTUtils.getConversionExpression(_expr.getLhs(),_expr.getRhs()))
+                    _expr.setTypeEither(Either.value(lhsType))
+                    #warn implicit conversion
+                    errorMsg = ErrorStrings.messageImplicitMagnitudeConversion(self,_expr)
+                    Logger.logMessage(_code=MessageCode.IMPLICIT_CAST,
+                                      _errorPosition=_expr.getSourcePosition(),
+                                      _message=errorMsg,_logLevel=LOGGING_LEVEL.WARNING)
+                    return
+                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, _expr)
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH,
                                   _errorPosition=_expr.getSourcePosition(),

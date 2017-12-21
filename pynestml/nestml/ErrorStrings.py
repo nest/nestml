@@ -106,6 +106,56 @@ class ErrorStrings(object):
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + _sourcePosition.printSourcePosition() + ")"
 
     @classmethod
+    def messageImplicitMagnitudeConversion(cls,_origin,_parentExpression=None):
+        """
+        construct an warning for implicit conversion from _parentExpressen.rhs to _parentExpression.lhs
+        :param _origin: the class dropping the warning
+        :param _parentExpression: the addition or substraction that requires implicit conversion
+        :type: an ASTExpression that is either an Addition or a Substraction for wich an implicit conversion has already been determined
+        :return: the warning message
+        """
+
+        from pynestml.nestml.ASTExpression import ASTExpression
+        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
+        assert _origin is not None
+        assert _parentExpression is not None and isinstance(_parentExpression,ASTExpression)
+
+        targetExpression=None
+        converteeExpression = None
+        operation=None;
+
+        # code duplication from ExpressionTypeVisitor:
+        # Rules with binary operators
+        if _parentExpression.getBinaryOperator() is not None:
+            binOp = _parentExpression.getBinaryOperator()
+            # All these rules employ left and right side expressions.
+            if _parentExpression.getLhs() is not None:
+                targetExpression = _parentExpression.getLhs()
+            if _parentExpression.getRhs() is not None:
+                converteeExpression = _parentExpression.getRhs()
+            # Handle all Arithmetic Operators:
+            if isinstance(binOp, ASTArithmeticOperator):
+                # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
+                if binOp.isPlusOp():
+                    operation = "+"
+                if binOp.isMinusOp():
+                    operation = "-"
+
+        assert targetExpression is not None and converteeExpression is not None and \
+               operation is not None, "Only call this on an addition/substraction after " \
+                                      "an implicit conversion wrt unit magnitudes has already been determined"
+
+        ERROR_MSG_FORMAT = "Non-matching unit types at '"+ str(_parentExpression)
+        ERROR_MSG_FORMAT += "'. Implicit conversion of " + str(converteeExpression) + " to " + str(targetExpression)
+        ERROR_MSG_FORMAT += " (units: " + str(converteeExpression.getTypeEither().getValue().getSympyUnit()) + " and " + \
+                            str(targetExpression.getTypeEither().getValue().getSympyUnit()) +" )"
+        ERROR_MSG_FORMAT += " implicitly replaced by '" + str(targetExpression) + operation + str(converteeExpression.getImplicitVersion())+"'"
+
+        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + _parentExpression.getSourcePosition().printSourcePosition() + ")"
+
+
+    @classmethod
     def messageUnitBase(cls, _origin=None, _sourcePosition=None):
         """
         construct an error message indicating that a non-int type was given as exponent to a unit type

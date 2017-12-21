@@ -32,6 +32,11 @@ class ASTElement(object):
     __scope = None
     __comment = None
 
+    __implicitVersion=None #saves the implicit conversion of an ASTExpression/ASTSimpleExpression. Should not be visited.
+
+
+
+
     def __init__(self, _sourcePosition=None, _scope=None):
         """
         The standard constructor.
@@ -49,6 +54,44 @@ class ASTElement(object):
         self.__sourcePosition = _sourcePosition
         self.__scope = _scope
         return
+
+    def isSubjectToImplicitConversion(self):
+        """
+        Returns whether the Expression is modified by an implicit conversion
+        :return: true iff __implicitVersion is set
+        :rtype: bool
+        """
+        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.nestml.ASTExpression import ASTExpression
+
+        assert isinstance(self,ASTExpression) or isinstance(self,ASTSimpleExpression)
+
+        return self.__implicitVersion is not None
+
+    def setImplicitVersion(self, _implicit=None):
+        """
+        Set the equivalent version of this expression as produced by an implicit conversion (Only applicable for units)
+        :param _implicit: the expression that replaces this expression during printing c++ code
+        :type _implicit: ASTExpression
+        """
+        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.nestml.ASTExpression import ASTExpression
+
+        assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
+        self.__implicitVersion = _implicit
+        return
+
+    def getImplicitVersion(self):
+        """
+        Returns the implicit version of the expression.
+        :return: The registered implicit version of the expression if exists, otherwise None
+        :rtype: ASTExpression or None
+        """
+        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.nestml.ASTExpression import ASTExpression
+
+        assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
+        return self.__implicitVersion
 
     def getSourcePosition(self):
         """
