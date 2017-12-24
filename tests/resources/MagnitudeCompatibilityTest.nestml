@@ -27,6 +27,8 @@ neuron expressionType_test:
     state:
        volts V
        milliVolts mV
+       bigComplexUnit V/C
+       smallComplelxUnit mV/nC
     end
 
     parameters:
@@ -34,7 +36,16 @@ neuron expressionType_test:
     end
 
     update:
-        volts = volts + milliVolts #implicitly convert rhs mV to V.
+        volts = volts + milliVolts                          #implicitly convert rhs mV to V.
+        volts = milliVolts + volts                          #and the other way around
+        milliVolts = volts + milliVolts                     #repeat 2 cases above with different target for assignment
+        milliVolts = milliVolts + volts
+
+        bigComplexUnit = bigComplexUnit + smallComplelxUnit
+        bigComplexUnit = smallComplelxUnit + bigComplexUnit
+        smallComplelxUnit = bigComplexUnit + smallComplelxUnit
+        smallComplelxUnit = smallComplelxUnit + bigComplexUnit
+
     end
 
     input:

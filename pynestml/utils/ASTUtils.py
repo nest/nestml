@@ -385,8 +385,8 @@ class ASTUtils(object):
         targetUnit = targetType.getSympyUnit()
         converteeUnit = converteeType.getSympyUnit()
 
-        assert isinstance(converteeUnit,units.PrefixUnit) or isinstance(converteeUnit,units.Unit)
-        assert isinstance(targetUnit,units.PrefixUnit) or isinstance(targetUnit,units.Unit)
+        assert isinstance(converteeUnit,units.PrefixUnit) or isinstance(converteeUnit,units.Unit) or isinstance(converteeUnit,units.CompositeUnit)
+        assert isinstance(targetUnit,units.PrefixUnit) or isinstance(targetUnit,units.Unit) or isinstance(targetUnit,units.CompositeUnit)
 
         factor = (converteeUnit / targetUnit).si.scale
         factorExpression = ASTSimpleExpression.makeASTSimpleExpression(_numericLiteral=factor)
