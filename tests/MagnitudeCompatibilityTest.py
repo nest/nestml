@@ -49,17 +49,6 @@ class expressionTestVisitor(NESTMLVisitor):
         return
 
     def endvisitExpression(self, _expr=None):
-        lhsTypeE = _expr.getLhs().getTypeEither()
-        rhsTypeE = _expr.getRhs().getTypeEither()
-
-        lhsType = lhsTypeE.getValue()
-        rhsType = rhsTypeE.getValue()
-
-        if _expr.isPlusOp():
-            Logger.logMessage(_message="Lhs: " + lhsType.printSymbol() + " Rhs: " + rhsType.printSymbol(),
-                          _code=MessageCode.DRY_RUN,
-                          _errorPosition=_expr.getSourcePosition(),
-                          _logLevel=LOGGING_LEVEL.INFO)
         return
 
 

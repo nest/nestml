@@ -28,7 +28,7 @@ neuron expressionType_test:
        volts V
        milliVolts mV
        bigComplexUnit V/C
-       smallComplelxUnit mV/nC
+       smallComplelxUnit mV/C
     end
 
     parameters:
@@ -45,6 +45,9 @@ neuron expressionType_test:
         bigComplexUnit = smallComplelxUnit + bigComplexUnit
         smallComplelxUnit = bigComplexUnit + smallComplelxUnit
         smallComplelxUnit = smallComplelxUnit + bigComplexUnit
+
+        #multi-layered casts:
+        volts = milliVolts + (volts + milliVolts)
 
     end
 
