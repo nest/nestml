@@ -52,7 +52,7 @@ class expressionTestVisitor(NESTMLVisitor):
         return
 
 
-class ExpressionTypeCalculationTest(unittest.TestCase):
+class MagnitudeCompatibilityTest(unittest.TestCase):
     """
     A simple test that prints all top-level expression types in a file.
     """
