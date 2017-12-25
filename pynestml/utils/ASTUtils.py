@@ -290,7 +290,8 @@ class ASTUtils(object):
         # if isinstance(unitA,)
         from astropy import units
         # TODO: consider even more complex cases which can be resolved to the same unit?
-        if isinstance(unitA, units.PrefixUnit) and isinstance(_typeB, units.PrefixUnit) \
+        if (isinstance(unitA,units.Unit) or isinstance(unitA, units.PrefixUnit) or isinstance(unitA, units.CompositeUnit))\
+                and (isinstance(unitB,units.Unit) or isinstance(unitB, units.PrefixUnit) or isinstance(unitB, units.CompositeUnit)) \
                 and unitA.physical_type == unitB.physical_type:
             return True
         return False

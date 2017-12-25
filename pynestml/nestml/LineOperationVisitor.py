@@ -84,7 +84,7 @@ class LineOperatorVisitor(NESTMLVisitor):
             # Both are units, not matching -> try to recover, otherwise real & WARN
             if lhsType.isUnit() and rhsType.isUnit():
                 #if both have the same base, we can recover.
-                if not ASTUtils.differsInMagnitude(lhsType,rhsType):
+                if ASTUtils.differsInMagnitude(lhsType,rhsType):
                     #we convert the rhs unit to the magnitude of the lhs unit.
                     _expr.getRhs().setImplicitVersion(ASTUtils.getConversionExpression(_expr.getLhs(),_expr.getRhs()))
                     _expr.setTypeEither(Either.value(lhsType))
