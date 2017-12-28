@@ -106,53 +106,69 @@ class ErrorStrings(object):
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + _sourcePosition.printSourcePosition() + ")"
 
     @classmethod
-    def messageImplicitMagnitudeConversion(cls,_origin,_parentExpression=None):
+    def messageImplicitMagnitudeConversion(cls, _origin, _parentNode=None):
         """
         construct an warning for implicit conversion from _parentExpressen.rhs to _parentExpression.lhs
         :param _origin: the class dropping the warning
-        :param _parentExpression: the addition or substraction that requires implicit conversion
+        :param _parentNode: the addition,substraction or assignment that requires implicit conversion
         :type: an ASTExpression that is either an Addition or a Substraction for wich an implicit conversion has already been determined
         :return: the warning message
         """
 
         from pynestml.nestml.ASTExpression import ASTExpression
-        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
         from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.nestml.ASTAssignment import ASTAssignment
+        from pynestml.nestml.Symbol import SymbolKind
+
         assert _origin is not None
-        assert _parentExpression is not None and isinstance(_parentExpression,ASTExpression)
+        assert _parentNode is not None and (isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
 
         targetExpression=None
+        targetUnit = None
         converteeExpression = None
+        converteeUnit = None
         operation=None;
 
-        # code duplication from ExpressionTypeVisitor:
-        # Rules with binary operators
-        if _parentExpression.getBinaryOperator() is not None:
-            binOp = _parentExpression.getBinaryOperator()
-            # All these rules employ left and right side expressions.
-            if _parentExpression.getLhs() is not None:
-                targetExpression = _parentExpression.getLhs()
-            if _parentExpression.getRhs() is not None:
-                converteeExpression = _parentExpression.getRhs()
-            # Handle all Arithmetic Operators:
-            if isinstance(binOp, ASTArithmeticOperator):
-                # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
-                if binOp.isPlusOp():
-                    operation = "+"
-                if binOp.isMinusOp():
-                    operation = "-"
+        if(isinstance(_parentNode,ASTExpression)):
+            # code duplication from ExpressionTypeVisitor:
+            # Rules with binary operators
+            if _parentNode.getBinaryOperator() is not None:
+                binOp = _parentNode.getBinaryOperator()
+                # All these rules employ left and right side expressions.
+                if _parentNode.getLhs() is not None:
+                    targetExpression = _parentNode.getLhs()
+                    targetUnit = targetExpression.getTypeEither().getValue().getSympyUnit()
+                if _parentNode.getRhs() is not None:
+                    converteeExpression = _parentNode.getRhs()
+                    converteeUnit = converteeExpression.getTypeEither().getValue().getSympyUnit()
+                # Handle all Arithmetic Operators:
+                if isinstance(binOp, ASTArithmeticOperator):
+                    # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
+                    if binOp.isPlusOp():
+                        operation = "+"
+                    if binOp.isMinusOp():
+                        operation = "-"
+
+        if(isinstance(_parentNode,ASTAssignment)):
+            lhsVariableSymbol = _parentNode.getScope().resolveToSymbol(_parentNode.getVariable().getCompleteName(),
+                                                                   SymbolKind.VARIABLE)
+            operation = "="
+            targetExpression = _parentNode.getVariable()
+            targetUnit = lhsVariableSymbol.getTypeSymbol().getSympyUnit()
+            converteeExpression = _parentNode.getExpression()
+            converteeUnit = converteeExpression.getTypeEither().getValue().getSympyUnit()
 
         assert targetExpression is not None and converteeExpression is not None and \
-               operation is not None, "Only call this on an addition/substraction after " \
+               operation is not None, "Only call this on an addition/substraction  or assignment after " \
                                       "an implicit conversion wrt unit magnitudes has already been determined"
 
-        ERROR_MSG_FORMAT = "Non-matching unit types at '"+ str(_parentExpression)
-        ERROR_MSG_FORMAT += "'. Implicit conversion of " + str(converteeExpression) + " to " + str(targetExpression)
-        ERROR_MSG_FORMAT += " (units: " + str(converteeExpression.getTypeEither().getValue().getSympyUnit()) + " and " + \
-                            str(targetExpression.getTypeEither().getValue().getSympyUnit()) +" )"
+        ERROR_MSG_FORMAT = "Non-matching unit types at '"+ str(_parentNode)
+        ERROR_MSG_FORMAT += "'. Implicit conversion of rhs to lhs" #+ str(converteeExpression) + " to " + str(targetExpression)
+        ERROR_MSG_FORMAT += " (units: " + str(converteeUnit) + " and " + \
+                            str(targetUnit) +" )"
         ERROR_MSG_FORMAT += " implicitly replaced by '" + str(targetExpression) + operation + str(converteeExpression.getImplicitVersion())+"'"
 
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + _parentExpression.getSourcePosition().printSourcePosition() + ")"
+        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + _parentNode.getSourcePosition().printSourcePosition() + ")"
 
 
     @classmethod

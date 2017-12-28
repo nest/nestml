@@ -76,9 +76,12 @@ class ASTElement(object):
         """
         from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
         from pynestml.nestml.ASTExpression import ASTExpression
+        from pynestml.nestml.ImplicitVersionPropagator import ImplicitVersionPropagator
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
         self.__implicitVersion = _implicit
+        #update the expression hierarchy:
+        ImplicitVersionPropagator.propagateImplicitVersions(self)
         return
 
     def getImplicitVersion(self):
