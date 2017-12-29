@@ -100,11 +100,12 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                 Logger.logMessage(_neuron=None, _code=code, _message=message,
                                   _errorPosition=_assignment.getExpression().getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
-            elif lhsVariableSymbol is not None and not lhsVariableSymbol.getTypeSymbol().equals(rhsTypeSymbolEither.getValue()):
+            elif lhsVariableSymbol is not None \
+                    and not lhsVariableSymbol.getTypeSymbol().equals(rhsTypeSymbolEither.getValue()):
                 if ASTUtils.differsInMagnitude(rhsTypeSymbolEither.getValue(),lhsVariableSymbol.getTypeSymbol()):
                     # we convert the rhs unit to the magnitude of the lhs unit.
-
-                    _assignment.getExpression().setImplicitVersion(ASTUtils.getConversionExpression(lhsVariableSymbol, _assignment.getExpression()))
+                    _assignment.getExpression().setImplicitConversionFactor(
+                        ASTUtils.getConversionFactor(lhsVariableSymbol, _assignment.getExpression()))
                     _assignment.getExpression().setTypeEither(Either.value(lhsVariableSymbol.getTypeSymbol()))
                     # warn implicit conversion
                     errorMsg = ErrorStrings.messageImplicitMagnitudeConversion(self, _assignment)
