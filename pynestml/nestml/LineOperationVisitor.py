@@ -86,7 +86,7 @@ class LineOperatorVisitor(NESTMLVisitor):
                 #if both have the same base, we can recover.
                 if ASTUtils.differsInMagnitude(lhsType,rhsType):
                     #we convert the rhs unit to the magnitude of the lhs unit.
-                    _expr.getRhs().setImplicitVersion(ASTUtils.getConversionExpression(_expr.getLhs(),_expr.getRhs()))
+                    _expr.getRhs().setImplicitConversionFactor(ASTUtils.getConversionFactor(_expr.getLhs(), _expr.getRhs()))
                     _expr.setTypeEither(Either.value(lhsType))
                     #warn implicit conversion
                     errorMsg = ErrorStrings.messageImplicitMagnitudeConversion(self,_expr)
