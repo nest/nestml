@@ -32,7 +32,7 @@ class ASTElement(object):
     __scope = None
     __comment = None
 
-    __implicitVersion=None #saves the implicit conversion of an ASTExpression/ASTSimpleExpression. Should not be visited.
+    __implicitConversionFactor=None #saves the implicit conversion of an ASTExpression/ASTSimpleExpression. Should not be visited.
 
 
 
@@ -57,8 +57,10 @@ class ASTElement(object):
 
     def isSubjectToImplicitConversion(self):
         """
-        Returns whether the Expression is modified by an implicit conversion
-        :return: true iff __implicitVersion is set
+        Indicates whether the expression (or any of its constituting sub-expressions) is implicitly modified by a
+        magnitude conversion for the unit system.
+        Only applicable for ASTExpression or ASTSimpleExpression
+        :return: true iff there exists a conversion factor for any of the expressions sub-expression
         :rtype: bool
         """
         from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
@@ -66,35 +68,34 @@ class ASTElement(object):
 
         assert isinstance(self,ASTExpression) or isinstance(self,ASTSimpleExpression)
 
-        return self.__implicitVersion is not None
+        return self.__implicitConversionFactor is not None
 
-    def setImplicitVersion(self, _implicit=None):
+    def setImplicitConversionFactor(self, _implicitFactor=None):
         """
-        Set the equivalent version of this expression as produced by an implicit conversion (Only applicable for units)
-        :param _implicit: the expression that replaces this expression during printing c++ code
-        :type _implicit: ASTExpression
+        Sets a factor that, when applied to the (unit-typed) expression, converts it to the magnitude of the context where
+        it is used. eg. Volt + milliVolt needs to either be 1000*Volt + milliVolt or Volt + 0.001 * milliVolt
+        :param _implicitFactor: the factor to be installed
+        :type _implicitFactor: float
+        :return: nothing
         """
         from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
         from pynestml.nestml.ASTExpression import ASTExpression
-        from pynestml.nestml.ImplicitVersionPropagator import ImplicitVersionPropagator
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
-        self.__implicitVersion = _implicit
-        #update the expression hierarchy:
-        ImplicitVersionPropagator.propagateImplicitVersions(self)
+        self.__implicitConversionFactor = _implicitFactor
         return
 
-    def getImplicitVersion(self):
+    def getImplicitConversionFactor(self):
         """
-        Returns the implicit version of the expression.
-        :return: The registered implicit version of the expression if exists, otherwise None
-        :rtype: ASTExpression or None
+        Returns the factor installed as implicitConversionFactor for this expression
+        :return: the conversion factor, if present, or None
         """
+
         from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
         from pynestml.nestml.ASTExpression import ASTExpression
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
-        return self.__implicitVersion
+        return self.__implicitConversionFactor
 
     def getSourcePosition(self):
         """
