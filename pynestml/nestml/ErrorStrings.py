@@ -159,16 +159,18 @@ class ErrorStrings(object):
             converteeUnit = converteeExpression.getTypeEither().getValue().getSympyUnit()
 
         assert targetExpression is not None and converteeExpression is not None and \
-               operation is not None, "Only call this on an addition/substraction  or assignment after " \
+               operation is not None, "Only call this on an addition/subtraction  or assignment after " \
                                       "an implicit conversion wrt unit magnitudes has already been determined"
 
         ERROR_MSG_FORMAT = "Non-matching unit types at '"+ str(_parentNode)
-        ERROR_MSG_FORMAT += "'. Implicit conversion of rhs to lhs" #+ str(converteeExpression) + " to " + str(targetExpression)
+        ERROR_MSG_FORMAT += "'. Implicit conversion of rhs to lhs"
         ERROR_MSG_FORMAT += " (units: " + str(converteeUnit) + " and " + \
-                            str(targetUnit) +" )"
-        ERROR_MSG_FORMAT += " implicitly replaced by '" + str(targetExpression) + operation + str(converteeExpression.getImplicitVersion())+"'"
+                            str(targetUnit) + " )"
+        ERROR_MSG_FORMAT += " implicitly replaced by '" + str(targetExpression) + operation \
+                            + converteeExpression.printImplicitVersion()+"'"
 
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + _parentNode.getSourcePosition().printSourcePosition() + ")"
+        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" \
+               + _parentNode.getSourcePosition().printSourcePosition() + ")"
 
 
     @classmethod

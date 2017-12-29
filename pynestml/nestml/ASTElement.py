@@ -32,10 +32,7 @@ class ASTElement(object):
     __scope = None
     __comment = None
 
-    __implicitConversionFactor=None #saves the implicit conversion of an ASTExpression/ASTSimpleExpression. Should not be visited.
-
-
-
+    _implicitConversionFactor=None
 
     def __init__(self, _sourcePosition=None, _scope=None):
         """
@@ -55,21 +52,6 @@ class ASTElement(object):
         self.__scope = _scope
         return
 
-    def isSubjectToImplicitConversion(self):
-        """
-        Indicates whether the expression (or any of its constituting sub-expressions) is implicitly modified by a
-        magnitude conversion for the unit system.
-        Only applicable for ASTExpression or ASTSimpleExpression
-        :return: true iff there exists a conversion factor for any of the expressions sub-expression
-        :rtype: bool
-        """
-        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.nestml.ASTExpression import ASTExpression
-
-        assert isinstance(self,ASTExpression) or isinstance(self,ASTSimpleExpression)
-
-        return self.__implicitConversionFactor is not None
-
     def setImplicitConversionFactor(self, _implicitFactor=None):
         """
         Sets a factor that, when applied to the (unit-typed) expression, converts it to the magnitude of the context where
@@ -82,7 +64,7 @@ class ASTElement(object):
         from pynestml.nestml.ASTExpression import ASTExpression
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
-        self.__implicitConversionFactor = _implicitFactor
+        self._implicitConversionFactor = _implicitFactor
         return
 
     def getImplicitConversionFactor(self):
@@ -95,7 +77,7 @@ class ASTElement(object):
         from pynestml.nestml.ASTExpression import ASTExpression
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
-        return self.__implicitConversionFactor
+        return self._implicitConversionFactor
 
     def getSourcePosition(self):
         """

@@ -19,6 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.nestml.ASTExpression import ASTExpression
 from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
+import copy
 
 """
 Updates the hierarchy of expressions by merging implicitVersions from sub-expressions into the implicitVersions of their parent
@@ -40,7 +41,8 @@ class ImplicitVersionPropagator(NESTMLVisitor):
         """
 
         if _expr.getImplicitVersion() is None:
-            _expr.setImplicitVersion(_expr)
+            deepcopy = copy.deepcopy(_expr)
+            _expr.setImplicitVersion(deepcopy)
         return
 
     def visitExpression(self, _expr=None):
@@ -51,7 +53,8 @@ class ImplicitVersionPropagator(NESTMLVisitor):
         """
 
         if _expr.getImplicitVersion() is None:
-            _expr.setImplicitVersion(_expr)
+            deepcopy = copy.deepcopy(_expr)
+            _expr.setImplicitVersion(deepcopy)
         return
 
 
