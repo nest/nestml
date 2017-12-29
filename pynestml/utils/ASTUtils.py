@@ -352,9 +352,10 @@ class ASTUtils(object):
         return ret
 
     @classmethod
-    def getConversionExpression(cls, _targetExpr=None, _converteeExpr=None):
+    def getConversionFactor(cls, _targetExpr=None, _converteeExpr=None):
         """
-        Calculates the conversion factor from _convertee to _targetUnit. Behaviour is only well-defined if both units have the same physical type
+        Calculates the conversion factor from _convertee to _targetUnit. Behaviour is only well-defined if both units
+        have the same physical type
         :param _targetExpr: the target for conversion
         :type _targetExpr: ASTExpression,ASTSimpleEypression or ASTVariable
         :param _converteeExpr: the expression that is to be converted
@@ -376,21 +377,13 @@ class ASTUtils(object):
 
         if isinstance(_targetExpr,ASTExpression) or isinstance(_targetExpr,ASTSimpleExpression):
             assert _targetExpr.getTypeEither().isValue()
-            if _targetExpr.getImplicitVersion() is not None:
-                realTargetExpr = _targetExpr.getImplicitVersion()
-            else:
-                realTargetExpr =_targetExpr
-            targetType = realTargetExpr.getTypeEither().getValue()
+            targetType = _targetExpr.getTypeEither().getValue()
 
         if isinstance(_targetExpr,VariableSymbol):
             targetType = _targetExpr.getTypeSymbol()
 
         assert _converteeExpr.getTypeEither().isValue()
-        if _converteeExpr.getImplicitVersion() is not None:
-            realConverteeExpr = _converteeExpr.getImplicitVersion()
-        else:
-            realConverteeExpr = _converteeExpr
-        converteeType = realConverteeExpr.getTypeEither().getValue()
+        converteeType = _converteeExpr.getTypeEither().getValue()
 
         assert targetType is not None and isinstance(targetType, TypeSymbol)
         assert converteeType is not None and isinstance(converteeType,TypeSymbol)
@@ -405,10 +398,11 @@ class ASTUtils(object):
         assert isinstance(targetUnit,units.PrefixUnit) or isinstance(targetUnit,units.Unit) or isinstance(targetUnit,units.CompositeUnit)
 
         factor = (converteeUnit / targetUnit).si.scale
+        '''
         factorExpression = ASTSimpleExpression.makeASTSimpleExpression(_numericLiteral=factor)
-
+        
         #wrap convertee in parents
-        converteeExprInParents = ASTExpression.makeExpression(_isEncapsulated=True, _expression=realConverteeExpr)
+        converteeExprInParents = ASTExpression.makeExpression(_isEncapsulated=True, _expression=_converteeExpr)
 
         timesOp = ASTArithmeticOperator.makeASTArithmeticOperator(_isTimesOp=True)
         multiplication = ASTExpression.makeCompoundExpression(_lhs=factorExpression,
@@ -416,8 +410,10 @@ class ASTUtils(object):
                                                               _rhs=converteeExprInParents)
         #wrap it all in parentheses to be safe
         parents = ASTExpression.makeExpression(_isEncapsulated=True,_expression=multiplication)
-
+        
         return parents
+        '''
+        return factor
 
     @classmethod
     def getTupleFromSingleDictEntry(cls, _dictEntry=None):
