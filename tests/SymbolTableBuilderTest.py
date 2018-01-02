@@ -23,16 +23,16 @@ import unittest
 from antlr4 import *
 from pynestml.generated.PyNESTMLLexer import PyNESTMLLexer
 from pynestml.generated.PyNESTMLParser import PyNESTMLParser
-from pynestml.nestml.ASTBuilderVisitor import ASTBuilderVisitor
-from pynestml.nestml.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
-from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
-from pynestml.nestml.ASTSymbolTableVisitor import SymbolTableASTVisitor
-from pynestml.nestml.CoCosManager import CoCosManager
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.nestml.SymbolTable import SymbolTable
+from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
+from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTSymbolTableVisitor import SymbolTableASTVisitor
+from pynestml.modelprocessor.CoCosManager import CoCosManager
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 # setups the infrastructure
@@ -42,7 +42,6 @@ PredefinedFunctions.registerPredefinedFunctions()
 PredefinedVariables.registerPredefinedVariables()
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
 Logger.initLogger(LOGGING_LEVEL.NO)
-CoCosManager.initializeCoCosManager()
 
 
 class SymbolTableBuilderTest(unittest.TestCase):

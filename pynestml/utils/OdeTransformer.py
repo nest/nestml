@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from copy import copy
 
 
@@ -66,9 +66,18 @@ class OdeTransformer(object):
         :param _toReplace: the function to replace
         :type _toReplace: ASTFunctionCall
         """
-        visitor = replaceFunctionCallThroughFirstArgumentVisitor()
-        visitor.setToReplace(_toReplace)
-        _ast.accept(visitor)
+        # we define a local collection operation
+        def replaceFunctionCallThroughFirstArgument(_expr=None):
+            if _expr.isFunctionCall() and _expr.getFunctionCall() == _toReplace:
+                firstArg = _expr.getFunctionCall().getArgs()[0].getVariable()
+                _expr.setFunctionCall(None)
+                _expr.setVariable(firstArg)
+            return
+        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        ASTHigherOrderVisitor.visit(_ast,
+                                    lambda x: replaceFunctionCallThroughFirstArgument(x)
+                                    if isinstance(x, ASTSimpleExpression) else True)
         return
 
     @classmethod
@@ -117,8 +126,21 @@ class OdeTransformer(object):
         :rtype: list(ASTFunctionCall)
         """
         collector = FunctionCollector()
+        res = list()
         collector.setTarget(_functions=list().append(PredefinedFunctions.COND_SUM))
         _astNode.accept(collector)
+        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+        ASTHigherOrderVisitor.visit(_astNode, lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and
+                                                                         x.getName() == PredefinedFunctions.COND_SUM
+        else True)
+        # TODO ER01: we need to review this part
+        from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+        from pynestml.utils.Messages import MessageCode
+        assert res == collector.result(), 'This should not happen, see ER01'
+        if not res == collector.result():
+            Logger.logMessage(_code=MessageCode.INTERNAL_WARNING, _message='This should not happen, see #ER01',
+                              _logLevel=LOGGING_LEVEL.ERROR)
         return collector.result()
 
 
@@ -161,30 +183,3 @@ class FunctionCollector(NESTMLVisitor):
         """
         if _functionCall.getName() in self.__functionsToCollect:
             self.__functionsCollected.append(_functionCall)
-
-
-class replaceFunctionCallThroughFirstArgumentVisitor(NESTMLVisitor):
-    """
-    Replaces for a handed over function call the corresponding function call by the first argument.
-    """
-    __toReplace = None
-
-    def setToReplace(self, _functionCall=None):
-        """
-        Sets the target to replace.
-        :param _functionCall: a single function call
-        :type _functionCall: ASTFunctionCall
-        """
-        self.__toReplace = _functionCall
-
-    def visitSimpleExpression(self, _expr=None):
-        """
-        Replaces the function call of contained.
-        :param _expr: a single simple expression-
-        :type _expr: ASTSimpleExpression
-        """
-        if _expr.isFunctionCall() and _expr.getFunctionCall() == self.__toReplace:
-            firstArg = _expr.getFunctionCall().getArgs()[0].getVariable()
-            _expr.setFunctionCall(None)
-            _expr.setVariable(firstArg)
-        return

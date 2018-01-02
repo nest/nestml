@@ -22,15 +22,15 @@ from __future__ import print_function
 
 import unittest
 import os
-from pynestml.nestml.NESTMLParser import NESTMLParser
+from pynestml.modelprocessor.ModelParser import NESTMLParser
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.nestml.SymbolTable import SymbolTable
-from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.CoCosManager import CoCosManager
 
 # minor setup steps required
 Logger.initLogger(LOGGING_LEVEL.INFO)
@@ -39,7 +39,6 @@ PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
 PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
-CoCosManager.initializeCoCosManager()
 
 
 class InvalidElementDefinedAfterUsage(unittest.TestCase):

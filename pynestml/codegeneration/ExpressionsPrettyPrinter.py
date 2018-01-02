@@ -18,13 +18,13 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.nestml.ASTExpression import ASTExpression
-from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.nestml.ASTBitOperator import ASTBitOperator
-from pynestml.nestml.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.nestml.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
+from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 
@@ -65,9 +65,9 @@ class ExpressionsPrettyPrinter(object):
         assert (_expr is not None and (isinstance(_expr, ASTSimpleExpression) or isinstance(_expr, ASTExpression))), \
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of expression provided (%s)!' % type(
                 _expr)
-        return self.doPrint(_expr)
+        return self.__doPrint(_expr)
 
-    def doPrint(self, _expr=None):
+    def __doPrint(self, _expr=None):
         """
         Prints a single expression.
         :param _expr: a single expression.

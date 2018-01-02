@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
-from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 
 
 class IReferenceConverter(object):

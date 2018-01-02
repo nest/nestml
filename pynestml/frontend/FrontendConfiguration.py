@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import argparse  # used for parsing of input arguments
 import os
-from pynestml.nestml.NESTMLParserExceptions import InvalidPathException
+from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
 from pynestml.utils.Logger import Logger
 
 

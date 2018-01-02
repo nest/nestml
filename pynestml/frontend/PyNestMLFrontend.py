@@ -1,5 +1,5 @@
 #
-# NestmlFrontend.py
+# PyNestMLFrontend.py
 #
 # This file is part of NEST.
 #
@@ -20,13 +20,13 @@
 
 import sys, os
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
-from pynestml.nestml.NESTMLParser import NESTMLParser
-from pynestml.nestml.NESTMLParserExceptions import InvalidPathException
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages

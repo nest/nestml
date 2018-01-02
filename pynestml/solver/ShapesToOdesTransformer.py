@@ -17,14 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.nestml.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
 from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
 from pynestml.utils.ASTCreator import ASTCreator
 
 
-class ShapesToOdesTransformer(object):
+class ShapesToOdesTransformer(TransformerBase):
     """
     This transformer replaces shapes by the corresponding set of odes.
     """
@@ -51,7 +51,7 @@ class ShapesToOdesTransformer(object):
             _solverOutput)
         workingVersion = TransformerBase.addVariablesToInitialValues(_neuron, stateShapeVariablesWithInitialValues)
         # TODO actually, only shapes that are solved must be reseted, @KP solve this by checking which shapes are now with vars
-        cls.removeShapes(workingVersion)
+        cls.__removeShapes(workingVersion)
         cls.__addStateShapeEquationsToEquationsBlock(_solverOutput.shape_state_odes,
                                                      workingVersion.getEquationsBlocks())
         TransformerBase.applyIncomingSpikes(workingVersion)
@@ -79,7 +79,7 @@ class ShapesToOdesTransformer(object):
         return
 
     @classmethod
-    def removeShapes(cls, _neuron=None):
+    def __removeShapes(cls, _neuron=None):
         """
         Removes all shapes from a given neuron.
         :param _neuron: a neuron instance

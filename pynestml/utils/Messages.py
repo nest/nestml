@@ -159,7 +159,7 @@ class Messages(object):
         :return: a message
         :rtype: (MessageCode,str)
         """
-        from pynestml.nestml.TypeSymbol import TypeSymbol
+        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
         assert (_expectedType is not None and isinstance(_expectedType, TypeSymbol)), \
             '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(_expectedType)
         assert (_gotType is not None and isinstance(_gotType, TypeSymbol)), \
@@ -221,7 +221,7 @@ class Messages(object):
         """
         assert (_bufferName is not None and isinstance(_bufferName, str)), \
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_bufferName)
-        from pynestml.nestml.PredefinedTypes import PredefinedTypes
+        from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
                   % (_bufferName, PredefinedTypes.getTypeIfExists('nS').printSymbol())
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
@@ -932,3 +932,4 @@ class MessageCode(Enum):
     NEURON_ANALYZED = 53
     NO_UNIT = 54
     NOT_NEUROSCIENCE_UNIT = 55
+    INTERNAL_WARNING = 56

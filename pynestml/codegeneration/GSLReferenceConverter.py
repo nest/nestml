@@ -20,12 +20,12 @@
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.ASTVariable import ASTVariable
-from pynestml.nestml.Symbol import SymbolKind
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.ASTVariable import ASTVariable
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.codegeneration.UnitConverter import UnitConverter
 
 

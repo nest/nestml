@@ -74,5 +74,5 @@ where arguments are:
 | -store_log    | (Optional) Stores a log.txt containing all messages in Json notation. |
 | -dev          | (Optional) Executes the toolchain with in the development mode where erros in models are ignored.|
 
-
+[![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
 

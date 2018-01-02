@@ -19,16 +19,16 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import unittest
 import os
-from pynestml.nestml.NESTMLParser import NESTMLParser
-from pynestml.nestml.Scope import ScopeType
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.nestml.SymbolTable import SymbolTable
-from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
-from pynestml.nestml.Symbol import SymbolKind
-from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.Scope import ScopeType
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 # minor setup steps required
@@ -38,7 +38,6 @@ PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
 PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
-CoCosManager.initializeCoCosManager()
 
 
 class SymbolTableResolutionTest(unittest.TestCase):

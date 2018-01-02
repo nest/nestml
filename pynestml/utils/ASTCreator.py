@@ -17,8 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.NESTMLParser import NESTMLParser
-from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 
 
 class ASTCreator(object):
@@ -35,7 +35,7 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInternalsBlocks() is None:
             internal = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=False, _isParameters=False,
                                                                        _isInternals=True, _isInitialValues=False,
@@ -53,7 +53,7 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInternalsBlocks() is None:
             state = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=True, _isParameters=False,
                                                                     _isInternals=False, _isInitialValues=False,
@@ -71,7 +71,7 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInitialBlocks() is None:
             state = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=False, _isParameters=False,
                                                                     _isInternals=False, _isInitialValues=True,

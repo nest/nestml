@@ -27,7 +27,7 @@ grammar PyNESTML{
 
     token SL_COMMENT = ('#' (~('\n' |'\r' ))*) : { self._channel=2;};
 
-    token ML_COMMENT {print("test");}= ("/*" .*? "*/" | "\"\"\"" .*? "\"\"\"") : {self._channel=2;};
+    token ML_COMMENT = ("/*" .*? "*/" | "\"\"\"" .*? "\"\"\"") : {self._channel=2;};
 
     token NEWLINE = ('\r' '\n' | '\r' | '\n' ): {self._channel=3; };
 
@@ -134,7 +134,7 @@ grammar PyNESTML{
         @attribute declaration: A list of corresponding declarations.
       */
     BlockWithVariables =
-        (isState:"state"|isParameters:"parameters"|isInternals:"internals"|isInits:"initial_values")?
+        (isState:"state"|isParameters:"parameters"|isInternals:"internals"|isInits:"initial_values")
         BLOCK_OPEN
           (Declaration | NEWLINE)*
         BLOCK_CLOSE;
