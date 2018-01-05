@@ -20,19 +20,21 @@
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
+from pynestml.codegeneration.NestReferenceConverter import NESTReferenceConverter
+from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.ASTVariable import ASTVariable
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.codegeneration.UnitConverter import UnitConverter
 
 
 class GSLReferenceConverter(IReferenceConverter):
     """
     This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
     """
+
     __isUpperBound = None
     __maximalExponent = 10.0
 
@@ -63,7 +65,8 @@ class GSLReferenceConverter(IReferenceConverter):
         symbol = _astVariable.getScope().resolveToSymbol(_astVariable.getCompleteName(), SymbolKind.VARIABLE)
 
         if PredefinedUnits.isUnit(_astVariable.getCompleteName()):
-            return str(UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.getCompleteName()).getUnit()))
+            return str(
+                UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.getCompleteName()).getUnit()))
         if symbol.isInitValues():
             return GSLNamesConverter.name(symbol)
         elif symbol.isBuffer():
@@ -149,6 +152,27 @@ class GSLReferenceConverter(IReferenceConverter):
             return 'pow(%s, %s)'
         else:
             return '(%s)' + _binaryOperator + '(%s)'
+
+    def convertLogicalNot(self):
+        return NESTReferenceConverter.convertLogicalNot()
+
+    def convertLogicalOperator(self, _op):
+        return NESTReferenceConverter.convertLogicalOperator(_op)
+
+    def convertComparisonOperator(self, _op):
+        return NESTReferenceConverter.convertComparisonOperator(_op)
+
+    def convertBitOperator(self, _op):
+        return NESTReferenceConverter.convertBitOperator(_op)
+
+    def convertEncapsulated(self):
+        return NESTReferenceConverter.convertEncapsulated()
+
+    def convertTernaryOperator(self):
+        return NESTReferenceConverter.convertTernaryOperator()
+
+    def convertArithmeticOperator(self, _op):
+        return NESTReferenceConverter.convertArithmeticOperator(_op)
 
 
 class UnsupportedOperationException(Exception):

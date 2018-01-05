@@ -46,7 +46,35 @@ class IReferenceConverter(object):
         pass
 
     @abstractmethod
-    def convertUnaryOp(self,_unaryOperator):
+    def convertUnaryOp(self, _unaryOperator):
+        pass
+
+    @abstractmethod
+    def convertEncapsulated(self):
+        pass
+
+    @abstractmethod
+    def convertLogicalNot(self):
+        pass
+
+    @abstractmethod
+    def convertArithmeticOperator(self, _op):
+        pass
+
+    @abstractmethod
+    def convertBitOperator(self, _op):
+        pass
+
+    @abstractmethod
+    def convertComparisonOperator(self, _op):
+        pass
+
+    @abstractmethod
+    def convertLogicalOperator(self, _op):
+        pass
+
+    @abstractmethod
+    def convertTernaryOperator(self):
         pass
 
     def needsArguments(self, _astFunctionCall):
