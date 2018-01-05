@@ -1,53 +1,39 @@
-/*
-  Implementation of the izhikevich neuron
-*/
 neuron izhikevich_neuron:
 
   initial_values:
     v mV = -65mV # Membrane potential in mV
-    u mV = 0mV
-    # TODO add new variable U_m with the type real
-    # NESTML syntax for variables: variable_name real = initial_value
+    u real = 0   # Membrane potential recovery variable
   end
 
   equations:
-    # TODO Add 2 ODEs for the V_m und U_m.
-    # You can use current buffer I directly in the ODE
-    v' = (0.04 *v *v/mV + 5 * v + 140mV - u + I)/ms
-     u' = (a*(b*v/mV -v))/ms
+    v' = ( 0.04 * v * v / mV + 5.0 * v + ( 140 - u ) * mV + ( I * GOhm ) ) / ms
+    u' = a*(b*v-u * mV) / (mV*ms)
   end
 
   parameters:
-    # Add 4 variables a,b,c, d of real type
-    a real = 0.02
-    b mV = 0.2mV
-    c mV = -65.0mV
-    d mV = 2mV
+    a real = 0.02   # describes time scale of recovery variable
+    b real = 0.2    # sensitivity of recovery variable
+    c mV = -65 mV   # after-spike reset value of v
+    d real = 8.0    # after-spike reset value of u
   end
 
   input:
-    # TODO add current buffer named I
-    # NESTML Syntax for current buffers: buffer_name <- current
+    spikes mV <- spike
     I <- current
-    spikes nS <- spike
   end
 
   output: spike
 
   update:
     integrate_odes()
-    # TODO: Implement threshold crossing check
+    # Add synaptic current
+    v += spikes
 
-    # use an if-conditional block. The NESTML syntax looks like:
-    # if a >= b:
-    #   a += b
-    #   b = a
-    #   emit_spike()
-    # end
-
-    if v >= 30.0mV:
-      u += d
+    # threshold crossing
+    if v >= 30mV:
       v = c
+      u += d
+      emit_spike()
     end
 
   end
