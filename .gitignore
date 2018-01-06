@@ -13,6 +13,8 @@ PyNESTML.egg-info/
 
 *.pyc
 
+!__init__.py
+
 pynestml/grammars/antlr-4.7-complete.jar
 
 
