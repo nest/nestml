@@ -227,7 +227,11 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTVariable import ASTVariable
         resTest = list()
         ASTHigherOrderVisitor.visit(_ast, lambda x: resTest.append(x) if isinstance(x, ASTVariable) else True)
-        assert variableCollector.result() == resTest, "This should not happen ER02"
+        # The following is for testing purpose and will be eliminated in future releases
+        import collections as collections
+        comp = lambda x, y: collections.Counter(x) == collections.Counter(y)
+        resTest2 = variableCollector.result()
+        assert comp(resTest2, resTest), "This should not happen ER02"
         # -------
         for var in variableCollector.result():
             if '\'' not in var.getCompleteName():
@@ -372,6 +376,19 @@ class ASTUtils(object):
                 return key, value
         else:
             return None, None
+
+    @classmethod
+    def needsArguments(cls, _astFunctionCall):
+        """
+        Indicates whether a given function call has any arguments
+        :param _astFunctionCall: a function call
+        :type _astFunctionCall: ASTFunctionCall
+        :return: True if arguments given, otherwise false
+        :rtype: bool
+        """
+        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+        assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall))
+        return len(_astFunctionCall.getArgs()) > 0
 
 
 class VariableCollector(NESTMLVisitor):

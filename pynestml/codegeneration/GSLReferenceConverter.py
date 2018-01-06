@@ -135,7 +135,7 @@ class GSLReferenceConverter(IReferenceConverter):
         :return: the same operator
         :rtype: str
         """
-        return _unaryOperator
+        return str(_unaryOperator) + '(%s)'
 
     def convertBinaryOp(self, _binaryOperator):
         """
@@ -145,13 +145,20 @@ class GSLReferenceConverter(IReferenceConverter):
         :return: a string representing the included binary operator.
         :rtype: str
         """
-        assert (_binaryOperator is not None and isinstance(_binaryOperator, str)), \
-            '(PyNestML.CodeGeneration.GSLReferenceConverter) No or wrong type of binary operator provided (%s)!' % type(
-                _binaryOperator)
-        if _binaryOperator == '**':
+        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
+        from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
+        from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
+        assert (_binaryOperator is not None and (isinstance(_binaryOperator, ASTArithmeticOperator) or
+                                                 isinstance(_binaryOperator, ASTBitOperator) or
+                                                 isinstance(_binaryOperator, ASTComparisonOperator) or
+                                                 isinstance(_binaryOperator, ASTLogicalOperator))), \
+            '(PyNestML.CodeGeneration.GSLReferenceConverter) No or wrong type of binary operator provided (%s)!' \
+            % type(_binaryOperator)
+        if isinstance(_binaryOperator, ASTArithmeticOperator) and _binaryOperator.isPowOp():
             return 'pow(%s, %s)'
         else:
-            return '(%s)' + _binaryOperator + '(%s)'
+            return '(%s)' + str(_binaryOperator) + '(%s)'
 
     def convertLogicalNot(self):
         return NESTReferenceConverter.convertLogicalNot()

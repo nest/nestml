@@ -869,7 +869,7 @@ class ASTHigherOrderVisitor(object):
         _func(_ast)
         if _ast.isFunctionCall():
             cls.visitFunctionCall(_ast.getFunctionCall(), _func)
-        elif _ast.isVariable():
+        elif _ast.isVariable() or _ast.hasUnit():
             cls.visitVariable(_ast.getVariable(), _func)
         return
 

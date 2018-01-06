@@ -18,6 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
+from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
@@ -35,7 +36,7 @@ class ExpressionsPrettyPrinter(object):
     __referenceConverter = None
     __typesPrinter = None
 
-    def __init__(self, _referenceConverter=None,_typesPrinter=None ):
+    def __init__(self, _referenceConverter=None, _typesPrinter=None):
         """
         Standard constructor.
         :param _referenceConverter: a single reference converter object.
@@ -107,7 +108,7 @@ class ExpressionsPrettyPrinter(object):
             # logical not
             elif _expr.isLogicalNot():
                 op = self.__referenceConverter.convertLogicalNot()
-                rhs = self.printExpression(_expr.getExpression)
+                rhs = self.printExpression(_expr.getExpression())
                 return op % rhs
             # compound expression with lhs + rhs
             elif _expr.isCompoundExpression():
@@ -136,7 +137,7 @@ class ExpressionsPrettyPrinter(object):
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of function call provided (%s)!' \
             % type(_functionCall)
         functionName = self.__referenceConverter.convertFunctionCall(_functionCall)
-        if self.__referenceConverter.needsArguments(_functionCall):
+        if ASTUtils.needsArguments(_functionCall):
             return functionName % self.printFunctionCallArguments(_functionCall)
         else:
             return functionName

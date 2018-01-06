@@ -76,7 +76,3 @@ class IReferenceConverter(object):
     @abstractmethod
     def convertTernaryOperator(self):
         pass
-
-    def needsArguments(self, _astFunctionCall):
-        assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall))
-        return len(_astFunctionCall.getArgs()) > 0

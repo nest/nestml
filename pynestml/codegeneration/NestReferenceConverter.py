@@ -29,7 +29,7 @@ from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
-
+from pynestml.utils.ASTUtils import ASTUtils
 
 class NESTReferenceConverter(IReferenceConverter):
     """
@@ -112,7 +112,7 @@ class NESTReferenceConverter(IReferenceConverter):
             return 'set_spiketime(nest::Time::step(origin.get_steps()+lag+1));\n' \
                    'nest::SpikeEvent se;\n' \
                    'nest::kernel().event_delivery_manager.send(*this, se, lag)'
-        elif cls.needsArguments(_astFunctionCall):
+        elif ASTUtils.needsArguments(_astFunctionCall):
             return functionName + '(%s)'
         else:
             return functionName + '()'
