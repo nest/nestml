@@ -22,7 +22,7 @@ from __future__ import print_function
 
 import unittest
 import os
-from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
@@ -52,8 +52,8 @@ class NESTMLTest(unittest.TestCase):
                                                                  os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
                 # print('Start creating AST for ' + filename + ' ...'),
-                model = NESTMLParser.parseModel(os.path.join(os.path.dirname(__file__),
-                                                             os.path.join(os.path.join('..', 'models'), filename)))
+                model = ModelParser.parseModel(os.path.join(os.path.dirname(__file__),
+                                                            os.path.join(os.path.join('..', 'models'), filename)))
                 assert (isinstance(model, ASTNESTMLCompilationUnit))
         return
 

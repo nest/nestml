@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import unittest
 import os
-from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.Scope import ScopeType
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
@@ -46,7 +46,7 @@ class SymbolTableResolutionTest(unittest.TestCase):
     """
 
     def test(self):
-        model = NESTMLParser.parseModel(
+        model = ModelParser.parseModel(
             os.path.join(
                 os.path.realpath(os.path.join(os.path.dirname(__file__), 'resources', 'ResolutionTest.nestml'))))
         scope = model.getNeuronList()[0].getScope()

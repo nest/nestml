@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 
 
@@ -90,7 +90,7 @@ class ASTCreator(object):
         :rtype: ASTSmallStmt or ASTCompoundStmt
         """
         try:
-            return NESTMLParser.parseStmt(_stmtAsString)
+            return ModelParser.parseStmt(_stmtAsString)
         except:
             raise RuntimeError('Cannot parse statement.')
 
@@ -104,7 +104,7 @@ class ASTCreator(object):
         :rtype: ASTDeclaration
         """
         try:
-            return NESTMLParser.parseDeclaration(_declarationAsString)
+            return ModelParser.parseDeclaration(_declarationAsString)
         except:
             raise RuntimeError('Cannot parse declaration statement.')
 
@@ -118,7 +118,7 @@ class ASTCreator(object):
         :rtype: ASTOdeShape
         """
         try:
-            return NESTMLParser.parseShape(_shapeAsString)
+            return ModelParser.parseShape(_shapeAsString)
         except:
             raise RuntimeError('Cannot parse shape statement.')
 
@@ -132,6 +132,6 @@ class ASTCreator(object):
         :rtype: ASTAssignment
         """
         try:
-            return NESTMLParser.parseAssignment(_assignmentAsString)
+            return ModelParser.parseAssignment(_assignmentAsString)
         except:
             raise RuntimeError('Cannot parse assignment statement.')

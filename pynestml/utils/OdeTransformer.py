@@ -66,6 +66,7 @@ class OdeTransformer(object):
         :param _toReplace: the function to replace
         :type _toReplace: ASTFunctionCall
         """
+
         # we define a local collection operation
         def replaceFunctionCallThroughFirstArgument(_expr=None):
             if _expr.isFunctionCall() and _expr.getFunctionCall() == _toReplace:
@@ -73,6 +74,7 @@ class OdeTransformer(object):
                 _expr.setFunctionCall(None)
                 _expr.setVariable(firstArg)
             return
+
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
         ASTHigherOrderVisitor.visit(_ast,
@@ -111,10 +113,13 @@ class OdeTransformer(object):
         :return: a list of all functions in the ast
         :rtype: list(ASTFunctionCall)
         """
-        collector = FunctionCollector()
-        collector.setTarget(_functions=_functionList)
-        _astNode.accept(collector)
-        return collector.result()
+        res = list()
+        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+        ASTHigherOrderVisitor.visit(_astNode, lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and
+                                                                         x.getName() in _functionList
+        else True)
+        return res
 
     @classmethod
     def getCondSumFunctionCall(cls, _astNode=None):
@@ -125,61 +130,10 @@ class OdeTransformer(object):
         :return: a list of all functions in the ast
         :rtype: list(ASTFunctionCall)
         """
-        collector = FunctionCollector()
         res = list()
-        collector.setTarget(_functions=list().append(PredefinedFunctions.COND_SUM))
-        _astNode.accept(collector)
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
         ASTHigherOrderVisitor.visit(_astNode, lambda x: res.append(x) if isinstance(x, ASTFunctionCall) and
                                                                          x.getName() == PredefinedFunctions.COND_SUM
         else True)
-        # TODO ER01: we need to review this part
-        from pynestml.utils.Logger import Logger, LOGGING_LEVEL
-        from pynestml.utils.Messages import MessageCode
-        assert res == collector.result(), 'This should not happen, see ER01'
-        if not res == collector.result():
-            Logger.logMessage(_code=MessageCode.INTERNAL_WARNING, _message='This should not happen, see #ER01',
-                              _logLevel=LOGGING_LEVEL.ERROR)
-        return collector.result()
-
-
-class FunctionCollector(NESTMLVisitor):
-    """
-    Collects all functions.
-    """
-    __functionsCollected = list()
-    __functionsToCollect = list()
-
-    def __init__(self):
-        """
-        Standard constructor.
-        """
-        super(FunctionCollector, self).__init__()
-        self.__functionsCollected = list()
-        self.__functionsToCollect = list()
-
-    def setTarget(self, _functions=list()):
-        """
-        Sets the list of function which shall be collected.
-        :param _functions: a list of functions
-        :type _functions: list(str)
-        """
-        self.__functionsToCollect = _functions
-
-    def result(self):
-        """
-        Returns the collected results.
-        :return: a list of function calls.
-        :rtype: list(ASTFunctionCall)
-        """
-        return self.__functionsCollected
-
-    def visitFunctionCall(self, _functionCall=None):
-        """
-        Collects the function.
-        :param _functionCall: a single function call.
-        :type _functionCall: ASTFunctionCall
-        """
-        if _functionCall.getName() in self.__functionsToCollect:
-            self.__functionsCollected.append(_functionCall)
+        return res

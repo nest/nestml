@@ -30,7 +30,7 @@ from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
 
-class NESTMLParser(object):
+class ModelParser(object):
     """
     This class contains several method used to parse handed over models and returns them as one or more AST trees.
     """

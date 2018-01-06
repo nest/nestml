@@ -219,21 +219,12 @@ class ASTUtils(object):
         :rtype: list(VariableSymbol)
         """
         assert (_ast is not None), '(PyNestML.Utils) No AST provided!'
-        variableCollector = VariableCollector()
-        _ast.accept(variableCollector)
         ret = list()
-        # TODO ER02: This part has to be reviewed
         from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         from pynestml.modelprocessor.ASTVariable import ASTVariable
-        resTest = list()
-        ASTHigherOrderVisitor.visit(_ast, lambda x: resTest.append(x) if isinstance(x, ASTVariable) else True)
-        # The following is for testing purpose and will be eliminated in future releases
-        import collections as collections
-        comp = lambda x, y: collections.Counter(x) == collections.Counter(y)
-        resTest2 = variableCollector.result()
-        assert comp(resTest2, resTest), "This should not happen ER02"
-        # -------
-        for var in variableCollector.result():
+        res = list()
+        ASTHigherOrderVisitor.visit(_ast, lambda x: res.append(x) if isinstance(x, ASTVariable) else True)
+        for var in res:
             if '\'' not in var.getCompleteName():
                 symbol = _ast.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
                 if symbol.isFunction():
@@ -389,33 +380,3 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
         assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall))
         return len(_astFunctionCall.getArgs()) > 0
-
-
-class VariableCollector(NESTMLVisitor):
-    """
-    Collects all variables contained in the node or one of its sub-nodes.
-    """
-    __result = None
-
-    def __init__(self):
-        super(VariableCollector, self).__init__()
-        self.__result = list()
-
-    def result(self):
-        """
-        Returns all collected variables.
-        :return: a list of variables.
-        :rtype: list(ASTVariable)
-        """
-        return self.__result
-
-    def visitVariable(self, _variable=None):
-        """
-        Visits a single node and ads it to results.
-        :param _variable:
-        :type _variable:
-        :return:
-        :rtype:
-        """
-        self.__result.append(_variable)
-        return

@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.utils.ASTUtils import ASTUtils
@@ -67,12 +67,12 @@ class TransformerBase(object):
         """
         try:
             (var, value) = ASTUtils.getTupleFromSingleDictEntry(_declaration)
-            tmp = NESTMLParser.parseExpression(value)
+            tmp = ModelParser.parseExpression(value)
             vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
             declarationString = var + ' real' + (
                 '[' + vectorVariable.getVectorParameter() + ']'
                 if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + value
-            astDeclaration = NESTMLParser.parseDeclaration(declarationString)
+            astDeclaration = ModelParser.parseDeclaration(declarationString)
             if vectorVariable is not None:
                 astDeclaration.setSizeParameter(vectorVariable.getVectorParameter())
             _neuron.addToInternalBlock(astDeclaration)
@@ -154,13 +154,13 @@ class TransformerBase(object):
         """
         try:
             (var, value) = _declaration
-            tmp = NESTMLParser.parseExpression(value)
+            tmp = ModelParser.parseExpression(value)
             vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
             declarationString = var + ' real' + (
                 '[' + vectorVariable.getVectorParameter() + ']'
                 if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + \
                                 value
-            astDeclaration = NESTMLParser.parseDeclaration(declarationString)
+            astDeclaration = ModelParser.parseDeclaration(declarationString)
             if vectorVariable is not None:
                 astDeclaration.setSizeParameter(vectorVariable.getVectorParameter())
             _neuron.addToInitialValuesBlock(astDeclaration)

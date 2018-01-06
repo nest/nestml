@@ -21,7 +21,7 @@ import unittest
 import os
 
 from pynestml.codegeneration.UnitConverter import UnitConverter
-from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
@@ -79,7 +79,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     """
     def test(self):
         Logger.initLogger(LOGGING_LEVEL.NO)
-        model = NESTMLParser.parseModel(
+        model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         Logger.setCurrentNeuron(model.getNeuronList()[0])

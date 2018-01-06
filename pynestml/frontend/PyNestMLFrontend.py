@@ -20,7 +20,7 @@
 
 import sys, os
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
-from pynestml.modelprocessor.ModelParser import NESTMLParser
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
@@ -47,7 +47,7 @@ def main(args):
     # now proceed to parse all models
     compilationUnits = list()
     for file in FrontendConfiguration.getFiles():
-        parsedUnit = NESTMLParser.parseModel(file)
+        parsedUnit = ModelParser.parseModel(file)
         if parsedUnit is not None:
             compilationUnits.append(parsedUnit)
     # generate a list of all neurons

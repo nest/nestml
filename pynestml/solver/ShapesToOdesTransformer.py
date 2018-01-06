@@ -50,7 +50,7 @@ class ShapesToOdesTransformer(TransformerBase):
         stateShapeVariablesWithInitialValues = TransformerBase.computeShapeStateVariablesWithInitialValues(
             _solverOutput)
         workingVersion = TransformerBase.addVariablesToInitialValues(_neuron, stateShapeVariablesWithInitialValues)
-        # TODO actually, only shapes that are solved must be reseted, @KP solve this by checking which shapes are now with vars
+        # TODO by KP: actually, only shapes that are solved must be reseted, @KP solve this by checking which shapes are now with vars
         cls.__removeShapes(workingVersion)
         cls.__addStateShapeEquationsToEquationsBlock(_solverOutput.shape_state_odes,
                                                      workingVersion.getEquationsBlocks())
