@@ -4,8 +4,7 @@
   @param neuron ASTNeuron The neuron containing ODE
   @result C++ Function
 #}
-extern "C" inline int {{neuronName}}_dynamics( double, const double ode_state[], double f[], void* pnode )
-{
+extern "C" inline int {{neuronName}}_dynamics(double, const double ode_state[], double f[], void* pnode){
   typedef {{neuronName}}::State_ State_;
   // get access to node so we can almost work as in a member function
   assert( pnode );
@@ -13,28 +12,27 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double ode_state[],
 
   // ode_state[] here is---and must be---the state vector supplied by the integrator,
   // not the state vector in the node, node.S_.ode_state[].
-
   {%- for ode in neuron.getEquationsBlocks().getDeclarations() -%}
     {%- set simpleOde = odeTransformer.replaceSumCalls(ode) %}
     {%- for function in utils.getAliasSymbols(ode) -%}
       {%- if not function.isEquation() -%}
         {% set declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression()) -%}
-        double {{names.name(function)}} = {{expressionsPrinterForGSL.printExpression(declaringExpression)}};
+  double {{names.name(function)}} = {{expressionsPrinterForGSL.printExpression(declaringExpression)}};
       {% endif -%}
     {% endfor -%}
   {% endfor %}
 
   {% for function in neuron.getODEAliases() -%}
     {% set declaringExpression = odeTransformer.replaceSumCalls(function.getDeclaringExpression()) -%}
-    double {{names.name(function)}} = {{printerGSL.printExpression(declaringExpression)}};
+  double {{names.name(function)}} = {{printerGSL.printExpression(declaringExpression)}};
   {% endfor -%}
 
-  {% for odeVariable in neuron.getNonFunctionInitialValuesSymbols() -%}
-    {% if odeVariable.isOdeDefined() %}
-    {% set simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDefinition()) -%}
-    f[{{names.arrayIndex(odeVariable)}}] = {{printerGSL.printExpression(simpleOde)}};
-    {% endif %}
-  {% endfor %}
+  {%- for odeVariable in neuron.getNonFunctionInitialValuesSymbols() -%}
+  {%- if odeVariable.isOdeDefined() %}
+  {% set simpleOde = odeTransformer.replaceSumCalls(odeVariable.getOdeDefinition()) -%}
+  f[{{names.arrayIndex(odeVariable)}}] = {{printerGSL.printExpression(simpleOde)}};
+  {%- endif -%}
+  {%- endfor %}
   return GSL_SUCCESS;
 }
 

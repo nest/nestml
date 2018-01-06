@@ -79,7 +79,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         :return: the same binary operator
         :rtype: str
         """
-        return '(%s)' + str(_binaryOperator) + '(%s)'
+        return '%s' + str(_binaryOperator) + '%s'
 
     def convertConstant(self, _constantName):
         """

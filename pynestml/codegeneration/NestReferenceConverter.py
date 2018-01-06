@@ -31,6 +31,7 @@ from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 from pynestml.utils.ASTUtils import ASTUtils
 
+
 class NESTReferenceConverter(IReferenceConverter):
     """
     This concrete reference converter is used to transfer internal names to counter-pieces in NEST.
@@ -192,11 +193,11 @@ class NESTReferenceConverter(IReferenceConverter):
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of unary operator provided (%s)!' \
             % type(_unaryOperator)
         if _unaryOperator.isUnaryPlus():
-            return '(' + '+' + '(' + '%s)' + ')'
+            return '(' + '+' + '%s' + ')'
         elif _unaryOperator.isUnaryMinus():
-            return '(' + '-' + '(' + '%s)' + ')'
+            return '(' + '-' + '%s' + ')'
         elif _unaryOperator.isUnaryTilde():
-            return '(' + '~' + '(' + '%s)' + ')'
+            return '(' + '~' + '%s' + ')'
         else:
             Logger.logMessage('Cannot determine unary operator!', LOGGING_LEVEL.ERROR)
             return '(' + '%s' + ')'
@@ -217,7 +218,7 @@ class NESTReferenceConverter(IReferenceConverter):
         :return: a string representation
         :rtype: str
         """
-        return '(' + '!' + '(%s)' + ')'
+        return '(' + '!' + '%s' + ')'
 
     @classmethod
     def convertLogicalOperator(cls, _op):
@@ -233,9 +234,9 @@ class NESTReferenceConverter(IReferenceConverter):
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of logical operator provided (%s)!' \
             % type(_op)
         if _op.isAnd():
-            return '(%s)' + '&&' + '(%s)'
+            return '%s' + '&&' + '%s'
         elif _op.isOr():
-            return '(%s)' + '||' + '(%s)'
+            return '%s' + '||' + '%s'
         else:
             Logger.logMessage('Cannot determine logical operator!', LOGGING_LEVEL.ERROR)
             return '(%s) ERROR  (%s)'
@@ -254,17 +255,17 @@ class NESTReferenceConverter(IReferenceConverter):
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of logical operator provided (%s)!' \
             % type(_op)
         if _op.isLt():
-            return '(%s)' + '<' + '(%s)'
+            return '%s' + '<' + '%s'
         elif _op.isLe():
-            return '(%s)' + '<=' + '(%s)'
+            return '%s' + '<=' + '%s'
         elif _op.isEq():
-            return '(%s)' + '==' + '(%s)'
+            return '%s' + '==' + '%s'
         elif _op.isNe() or _op.isNe2():
-            return '(%s)' + '!=' + '(%s)'
+            return '%s' + '!=' + '%s'
         elif _op.isGe():
-            return '(%s)' + '>=' + '(%s)'
+            return '%s' + '>=' + '%s'
         elif _op.isGt():
-            return '(%s)' + '>' + '(%s)'
+            return '%s' + '>' + '%s'
         else:
             Logger.logMessage('Cannot determine comparison operator!', LOGGING_LEVEL.ERROR)
             return '(%s) ERROR  (%s)'
@@ -283,15 +284,15 @@ class NESTReferenceConverter(IReferenceConverter):
             '(PyNestML.CodeGeneration.NestReferenceConverter) No or wrong type of bit operator provided (%s)!' \
             % type(_op)
         if _op.isBitShiftLeft():
-            return '(%s)' + '<<' '(%s)'
+            return '%s' + '<<' '%s'
         if _op.isBitShiftRight():
-            return '(%s)' + '>>' + '(%s)'
+            return '%s' + '>>' + '%s'
         if _op.isBitAnd():
-            return '(%s)' + '&' + '(%s)'
+            return '%s' + '&' + '%s'
         if _op.isBitOr():
-            return '(%s)' + '|' + '(%s)'
+            return '%s' + '|' + '%s'
         if _op.isBitXor():
-            return '(%s)' + '^' + '(%s)'
+            return '%s' + '^' + '%s'
         else:
             Logger.logMessage('Cannot determine bit operator!', LOGGING_LEVEL.ERROR)
             return '(%s) ERROR (%s)'
@@ -310,15 +311,15 @@ class NESTReferenceConverter(IReferenceConverter):
             '(PyNestML.CodeGeneration.ExpressionPrettyPrinter) No or wrong type of arithmetic operator provided (%s)!' \
             % type(_op)
         if _op.isPlusOp():
-            return '(%s)' + '+' + '(%s)'
+            return '%s' + '+' + '%s'
         if _op.isMinusOp():
-            return '(%s)' + '-' + '(%s)'
+            return '%s' + '-' + '%s'
         if _op.isTimesOp():
-            return '(%s)' + '*' + '(%s)'
+            return '%s' + '*' + '%s'
         if _op.isDivOp():
-            return '(%s)' + '/' + '(%s)'
+            return '%s' + '/' + '%s'
         if _op.isModuloOp():
-            return '(%s)' + '%' + '(%s)'
+            return '%s' + '%' + '%s'
         if _op.isPowOp():
             return 'pow' + '(%s,%s)'
         else:

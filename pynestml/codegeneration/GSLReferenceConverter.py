@@ -158,7 +158,7 @@ class GSLReferenceConverter(IReferenceConverter):
         if isinstance(_binaryOperator, ASTArithmeticOperator) and _binaryOperator.isPowOp():
             return 'pow(%s, %s)'
         else:
-            return '(%s)' + str(_binaryOperator) + '(%s)'
+            return '%s' + str(_binaryOperator) + '%s'
 
     def convertLogicalNot(self):
         return NESTReferenceConverter.convertLogicalNot()

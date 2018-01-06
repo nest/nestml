@@ -151,7 +151,6 @@ neuron iaf_cond_exp_implicit:
   input:
       spikeInh nS <- inhibitory spike
       spikeExc nS <- excitatory spike
-
       currents <- current
   end
 
@@ -167,6 +166,7 @@ neuron iaf_cond_exp_implicit:
       V_m = V_reset # clamp potential
       emit_spike()
     end
+
   end
 
 end

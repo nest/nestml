@@ -179,11 +179,11 @@ namespace nest
 
 {{neuronName}}::~{{neuronName}}(){ {% if useGSL %}
   // GSL structs may not have been allocated, so we need to protect destruction
-  if ( B_.__s )
+  if (B_.__s)
     gsl_odeiv_step_free( B_.__s );
-  if ( B_.__c )
+  if (B_.__c)
     gsl_odeiv_control_free( B_.__c );
-  if ( B_.__e )
+  if (B_.__e)
     gsl_odeiv_evolve_free( B_.__e );{% endif %}
 }
 
