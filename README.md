@@ -75,4 +75,4 @@ where arguments are:
 | -dev          | (Optional) Executes the toolchain with in the development mode where erros in models are ignored.|
 
 [![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/)
-
+[![Build Status](https://travis-ci.org/kperun/nestml.svg?branch=test)](https://travis-ci.org/kperun/nestml)
