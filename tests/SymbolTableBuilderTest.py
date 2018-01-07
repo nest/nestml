@@ -26,7 +26,7 @@ from pynestml.generated.PyNESTMLParser import PyNESTMLParser
 from pynestml.modelprocessor.ASTBuilderVisitor import ASTBuilderVisitor
 from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.ASTSymbolTableVisitor import SymbolTableASTVisitor
+from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
@@ -65,7 +65,7 @@ class SymbolTableBuilderTest(unittest.TestCase):
                 # update the corresponding symbol tables
                 SymbolTable.initializeSymbolTable(ast.getSourcePosition())
                 for neuron in ast.getNeuronList():
-                    SymbolTableASTVisitor.updateSymbolTable(neuron)
+                    ASTSymbolTableVisitor.updateSymbolTable(neuron)
                     SymbolTable.addNeuronScope(_name=neuron.getName(), _scope=neuron.getScope())
                 assert isinstance(ast, ASTNESTMLCompilationUnit)
         return

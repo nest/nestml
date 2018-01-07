@@ -31,7 +31,7 @@ from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTSymbolTableVisitor import SymbolTableASTVisitor
+from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.solver.EquationsBlockProcessor import EquationsBlockProcessor
 from copy import deepcopy
@@ -110,7 +110,7 @@ class NestCodeGenerator(object):
         # solve all equations
         workingVersion = self.solveOdesAndShapes(workingVersion)
         # update the symbol table
-        SymbolTableASTVisitor.updateSymbolTable(workingVersion)
+        ASTSymbolTableVisitor.updateSymbolTable(workingVersion)
         self.generateNestCode(workingVersion)
         code, message = Messages.getCodeGenerated(_neuron.getName(), FrontendConfiguration.getTargetPath())
         Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.getSourcePosition(), _code=code, _message=message,

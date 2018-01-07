@@ -170,7 +170,7 @@ class ASTUtils(object):
         from pynestml.modelprocessor.ASTExpression import ASTExpression
         from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
         from pynestml.modelprocessor.ASTVariable import ASTVariable
-        from pynestml.modelprocessor.ASTSymbolTableVisitor import SymbolTableASTVisitor
+        from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of lhs variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and (isinstance(_rhs, ASTSimpleExpression) or isinstance(_rhs, ASTExpression))), \
@@ -195,7 +195,7 @@ class ASTUtils(object):
                                                     _sourcePosition=_rhs.getSourcePosition())
         expr.updateScope(_lhs.getScope())
         # update the symbols
-        SymbolTableASTVisitor.visitExpression(expr)
+        ASTSymbolTableVisitor.visitExpression(expr)
         return expr
 
     @classmethod

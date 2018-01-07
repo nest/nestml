@@ -30,7 +30,7 @@ from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.CoCosManager import CoCosManager
 
 
-class SymbolTableASTVisitor(NESTMLVisitor):
+class ASTSymbolTableVisitor(NESTMLVisitor):
     """
     This class is used to create a symbol table from a handed over AST.
     
@@ -38,10 +38,8 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         __currentBlockType This variable is used to store information regarding which block with declarations is 
                             currently visited. It is used to update the BlockType of variable symbols to the correct
                             element.
-        __globalScope      Stores the current global scope as required to resolve symbols.                    
     """
     __currentBlockType = None
-    __globalScope = None
 
     @classmethod
     def updateSymbolTable(cls, _astNeuron=None):
@@ -56,7 +54,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         code, message = Messages.getStartBuildingSymbolTable()
         Logger.logMessage(_neuron=_astNeuron, _code=code, _errorPosition=_astNeuron.getSourcePosition(),
                           _message=message, _logLevel=LOGGING_LEVEL.INFO)
-        SymbolTableASTVisitor.visitNeuron(_astNeuron)
+        ASTSymbolTableVisitor.visitNeuron(_astNeuron)
         Logger.setCurrentNeuron(None)
         return
 
@@ -75,8 +73,6 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         if _neuron.getEquationsBlocks() is not None:
             cls.makeImplicitOdesExplicit(_neuron.getEquationsBlocks())
         scope = Scope(_scopeType=ScopeType.GLOBAL, _sourcePosition=_neuron.getSourcePosition())
-        # store current global scope, it is required for resolving of symbols
-        cls.__globalScope = scope
         _neuron.updateScope(scope)
         _neuron.getBody().updateScope(scope)
         # now first, we add all predefined elements to the scope
@@ -980,7 +976,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
         # the definition of a differential equations is defined by stating the derivation, thus derive the actual order
         diffOrder = _odeEquation.getLhs().getDifferentialOrder() - 1
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-        existingSymbol = cls.__globalScope.resolveToSymbol(_odeEquation.getLhs().getName() + '\'' * diffOrder,
+        existingSymbol = _odeEquation.getScope().resolveToSymbol(_odeEquation.getLhs().getName() + '\'' * diffOrder,
                                                            SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
@@ -1009,7 +1005,7 @@ class SymbolTableASTVisitor(NESTMLVisitor):
             # we only update those which define an ode
             return
         # we check if the corresponding symbol already exists, e.g. V_m' has already been declared
-        existingSymbol = cls.__globalScope.resolveToSymbol(_odeShape.getVariable().getNameOfLhs(),
+        existingSymbol = _odeShape.getScope().resolveToSymbol(_odeShape.getVariable().getNameOfLhs(),
                                                            SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeShape.getExpression())
