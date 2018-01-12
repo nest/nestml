@@ -12,7 +12,11 @@ dist/
 PyNESTML.egg-info/
 
 *.pyc
-antlr-4.7-complete.jar
+
+!__init__.py
+
+pynestml/grammars/antlr-4.7-complete.jar
+
 
 .DS_Store
 .project

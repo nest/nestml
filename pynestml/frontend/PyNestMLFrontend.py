@@ -1,5 +1,5 @@
 #
-# NestmlFrontend.py
+# PyNestMLFrontend.py
 #
 # This file is part of NEST.
 #
@@ -20,24 +20,24 @@
 
 import sys, os
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
-from pynestml.nestml.NESTMLParser import NESTMLParser
-from pynestml.nestml.NESTMLParserExceptions import InvalidPathException
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.modelprocessor.ModelParser import ModelParser
+from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.codegeneration.NestCodeGenerator import NestCodeGenerator
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import Messages
 
 
 def main(args):
-    configuration = None
     try:
         FrontendConfiguration.config(args)
     except InvalidPathException:
-        print('Invalid path provided (%s)!' % configuration.getPath())
+        print('Not a valid path to model or directory: "%s"!' % FrontendConfiguration.getPath())
+        return
     # The handed over parameters seem to be correct, proceed with the main routine
     # initialize the predefined elements
     PredefinedUnits.registerUnits()
@@ -47,7 +47,7 @@ def main(args):
     # now proceed to parse all models
     compilationUnits = list()
     for file in FrontendConfiguration.getFiles():
-        parsedUnit = NESTMLParser.parseModel(file)
+        parsedUnit = ModelParser.parseModel(file)
         if parsedUnit is not None:
             compilationUnits.append(parsedUnit)
     # generate a list of all neurons
@@ -57,19 +57,21 @@ def main(args):
     # check if across two files two neurons with same name have been defined
     CoCosManager.checkNotTwoNeuronsAcrossUnits(compilationUnits)
     # now exclude those which are broken, i.e. have errors.
-    for neuron in neurons:
-        if Logger.hasErrors(neuron):
-            code, message = Messages.getNeuronContainsErrors(neuron.getName())
-            Logger.logMessage(_neuron=neuron, _code=code, _message=message, _errorPosition=neuron.getSourcePosition(),
-                              _logLevel=LOGGING_LEVEL.INFO)
-            # neurons.remove(neuron) Todo since type errors are currently in there
+    if not FrontendConfiguration.isDev():
+        for neuron in neurons:
+            if Logger.hasErrors(neuron):
+                code, message = Messages.getNeuronContainsErrors(neuron.getName())
+                Logger.logMessage(_neuron=neuron, _code=code, _message=message, _errorPosition=neuron.getSourcePosition(),
+                                  _logLevel=LOGGING_LEVEL.INFO)
+                neurons.remove(neuron)
+
     if not FrontendConfiguration.isDryRun():
         nestGenerator = NestCodeGenerator()
         nestGenerator.analyseAndGenerateNeurons(neurons)
         nestGenerator.generateNESTModuleCode(neurons)
     else:
         code, message = Messages.getDryRun()
-        Logger.logMessage(_neuron=None,_code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
+        Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
     if FrontendConfiguration.storeLog():
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(),
                                    'log')) + '.txt', 'w+') as f:

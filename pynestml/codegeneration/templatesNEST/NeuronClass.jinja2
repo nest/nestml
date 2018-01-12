@@ -63,7 +63,7 @@
 
 #include "{{neuronName}}.h"
 
-{% set stateSize = neuron.getEquations()|length %}
+{% set stateSize = neuron.getNonFunctionInitialValuesSymbols()|length %}
 /* ----------------------------------------------------------------
 * Recordables map
 * ---------------------------------------------------------------- */
@@ -179,11 +179,11 @@ namespace nest
 
 {{neuronName}}::~{{neuronName}}(){ {% if useGSL %}
   // GSL structs may not have been allocated, so we need to protect destruction
-  if ( B_.__s )
+  if (B_.__s)
     gsl_odeiv_step_free( B_.__s );
-  if ( B_.__c )
+  if (B_.__c)
     gsl_odeiv_control_free( B_.__c );
-  if ( B_.__e )
+  if (B_.__e)
     gsl_odeiv_evolve_free( B_.__e );{% endif %}
 }
 
@@ -259,7 +259,7 @@ void {{neuronName}}::calibrate(){
 * ---------------------------------------------------------------- */
 
 /*
- {{neuron.printDynamicsComment()}}
+ {{neuron.printDynamicsComment('*')}}
  */
 void {{neuronName}}::update(nest::Time const & origin,const long from, const long to){
   {% if useGSL -%}
@@ -269,8 +269,7 @@ void {{neuronName}}::update(nest::Time const & origin,const long from, const lon
   for ( long lag = from ; lag < to ; ++lag ) {
     {% for inputLine in neuron.getInputBuffers() -%}
     {% if inputLine.hasVectorParameter() %}
-    for (long i=0; i < P_.{{inputLine.getVectorParameter()}}; i++)
-    {
+    for (long i=0; i < P_.{{inputLine.getVectorParameter()}}; i++){
       B_.{{names.bufferValue(inputLine)}}[i] = get_{{names.name(inputLine)}}()[i].get_value( lag );
     }
     {% else -%}
@@ -303,8 +302,7 @@ void {{neuronName}}::handle(nest::DataLoggingRequest& e){
 {% endfor -%}
 
 {% if isSpikeInput %}
-void {{neuronName}}::handle(nest::SpikeEvent &e)
-{
+void {{neuronName}}::handle(nest::SpikeEvent &e){
   assert(e.get_delay() > 0);
   {% if neuron.isMultisynapseSpikes() -%}
   {%- set spikeBuffer = neuron.getSpikeBuffers()[0] -%}
@@ -341,8 +339,7 @@ void {{neuronName}}::handle(nest::SpikeEvent &e)
 }
 {% endif -%}
 {% if isCurrentInput %}
-void {{neuronName}}::handle(nest::CurrentEvent& e)
-{
+void {{neuronName}}::handle(nest::CurrentEvent& e){
   assert(e.get_delay() > 0);
 
   const double current=e.get_current();

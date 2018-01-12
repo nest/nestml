@@ -196,7 +196,7 @@ grammar PyNESTML;
   /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
     @attribute neuron: A list of processed models.
   */
-  nestmlCompilationUnit : (neuron | NEWLINE )* EOF;
+  nestmlCompilationUnit: (neuron | NEWLINE )* EOF;
 
   /** ASTNeuron Represents a single neuron.
     @attribute Name:    The name of the neuron, e.g., ht_neuron.
@@ -212,8 +212,8 @@ grammar PyNESTML;
     @attribute outputBlock: A block of output declarations.
     @attribute function: A block declaring a used-defined function.
   */
-  body : BLOCK_OPEN
-         (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
+  body: BLOCK_OPEN
+         (NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)*
          BLOCK_CLOSE;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
@@ -258,7 +258,7 @@ grammar PyNESTML;
   equationsBlock:
     'equations'
     BLOCK_OPEN
-      (odeFunction|odeEquation|odeShape|NEWLINE)+
+      (odeFunction|odeEquation|odeShape|NEWLINE)*
     BLOCK_CLOSE;
 
   /** ASTInputBlock represents a single input block:
@@ -282,7 +282,7 @@ grammar PyNESTML;
     @attribute isSpike: True iff the neuron is a spike.
     @attribute isCurrent: True iff. the neuron is a current.
   */
-  inputLine :
+  inputLine:
     name=NAME
     ('[' sizeParameter=NAME ']')?
     (datatype)?

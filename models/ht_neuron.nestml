@@ -44,14 +44,16 @@
    SeeAlso: ht_synapse
 */
 neuron ht_neuron_nestml:
-
   state:
+    r_potassium integer
+    g_spike boolean = false
+  end
+
+  initial_values:
     V_m mV = ( g_NaL * E_Na + g_KL * E_K ) / ( g_NaL + g_KL ) # membrane potential
     Theta mV = Theta_eq # Threshold
     g_AMPA, g_NMDA, g_GABAA, g_GABAB, IKNa_D, IT_m, IT_h, Ih_m nS
     g_AMPA', g_NMDA', g_GABAA', g_GABAB' nS/ms
-    r_potassium integer
-    g_spike boolean = false
   end
 
   equations:
@@ -186,7 +188,6 @@ neuron ht_neuron_nestml:
       NMDA nS  <- spike
       GABA_A nS <- spike
       GABA_B nS <- spike
-
       currents <- current
   end
 
@@ -205,7 +206,6 @@ neuron ht_neuron_nestml:
     g_NMDA' += NMDAInitialValue * NMDA /ms
     g_GABAA' += GABA_AInitialValue * GABA_A /ms
     g_GABAB' += GABA_BInitialValue * GABA_B /ms
-
 
     if (not g_spike) and V_m >= Theta:
       # Set V and Theta to the sodium reversal potential.

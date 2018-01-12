@@ -22,16 +22,25 @@
 
 lexer grammar Tokens;
 
-  SL_COMMENT : ('#' (~('\n' |'\r' ))*) -> channel(HIDDEN);
+  @lexer::members {
+    HIDDEN = 1
+    COMMENT = 2
+    NEW_LINE = 3
+  }
 
-  ML_COMMENT : ('/*' .*? '*/' | '"""' .*? '"""') -> channel(HIDDEN);
 
-  NEWLINE : ('\r' '\n' | '\r' | '\n' );
+  channels {COMMENT}
 
-  WS : (' ' | '\t')->channel(HIDDEN);
+  SL_COMMENT: ('#' (~('\n' |'\r' ))*) -> channel(2);
+
+  ML_COMMENT : ('/*' .*? '*/' | '"""' .*? '"""')-> channel(2);
+
+  NEWLINE : ('\r' '\n' | '\r' | '\n' ) -> channel(3);
+
+  WS : (' ' | '\t')->channel(1);
 
   // this token enables an expression that stretches over multiple lines. The first line ends with a `\` character
-  LINE_ESCAPE : '\\' '\r'? '\n'->channel(HIDDEN);
+  LINE_ESCAPE : '\\' '\r'? '\n'->channel(1);
 
   BLOCK_OPEN : ':';
 

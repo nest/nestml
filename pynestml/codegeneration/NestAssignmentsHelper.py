@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.nestml.ASTAssignment import ASTAssignment
-from pynestml.nestml.Symbol import SymbolKind
+from pynestml.modelprocessor.ASTAssignment import ASTAssignment
+from pynestml.modelprocessor.Symbol import SymbolKind
 
 
 class NestAssignmentsHelper(object):
@@ -73,7 +73,7 @@ class NestAssignmentsHelper(object):
         :return: True if vectorized, otherwise False.
         :rtype: bool
         """
-        from pynestml.nestml.Symbol import SymbolKind
+        from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
         symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
@@ -100,7 +100,7 @@ class NestAssignmentsHelper(object):
         :return: the corresponding size parameter
         :rtype: str
         """
-        from pynestml.nestml.Symbol import SymbolKind
+        from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.CodeGeneration.Assignments) No or wrong type of assignment provided (%s)!' % type(_assignment)
         vectorVariable = None

@@ -1,8 +1,8 @@
 {#
   @grammar: Stmt = Simple_Stmt ((SL_COMMENT | NEWLINE)* | EOF) | Compound_Stmt;
   @param ast ASTSmallStmt or ASTCompoundStmt
-#}
-//{{utils.printComments(stmt)}}
+#}{% if stmt.hasComment() %}
+{{stmt.printComment('//')}}{% endif %}
 {%- if utils.isSmallStmt(stmt) %}
 {% include "SmallStatement.jinja2" -%}
 {% elif utils.isCompoundStmt(stmt) -%}

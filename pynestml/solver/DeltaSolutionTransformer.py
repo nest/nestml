@@ -19,15 +19,15 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
-from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
 from pynestml.utils.ASTCreator import ASTCreator
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 
 
-class DeltaSolutionTransformer(object):
+class DeltaSolutionTransformer(TransformerBase):
     """
     This class contains a set of methods as used to add solutions to a handed over neuron.
     """
@@ -59,6 +59,6 @@ class DeltaSolutionTransformer(object):
             _solverOutput.ode_var_update_instructions.append(
                 _neuron.getEquations()[0].getLhs().getName() + '+=' + bufferName)
 
-        _neuron = TransformerBase.replaceIntegrateCallThroughPropagation(_neuron,
+        _neuron = TransformerBase.replaceIntegrateCallThroughPropagation(_neuron,_solverOutput.const_input,
                                                                          _solverOutput.ode_var_update_instructions)
         return _neuron

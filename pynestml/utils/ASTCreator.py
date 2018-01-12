@@ -17,7 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.NESTMLParser import NESTMLParser
+from pynestml.modelprocessor.ModelParser import ModelParser
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 
 
 class ASTCreator(object):
@@ -34,12 +35,12 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInternalsBlocks() is None:
             internal = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=False, _isParameters=False,
                                                                        _isInternals=True, _isInitialValues=False,
                                                                        _declarations=list(), _sourcePosition=
-                                                                       _neuron.getSourcePosition())
+                                                                       ASTSourcePosition.getAddedSourcePosition())
             _neuron.getBody().getBodyElements().append(internal)
         return _neuron
 
@@ -52,17 +53,17 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInternalsBlocks() is None:
             state = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=True, _isParameters=False,
                                                                     _isInternals=False, _isInitialValues=False,
                                                                     _declarations=list(), _sourcePosition=
-                                                                    _neuron.getSourcePosition())
+                                                                    ASTSourcePosition.getAddedSourcePosition())
             _neuron.getBody().getBodyElements().append(state)
         return _neuron
 
     @classmethod
-    def createInitialValuesBlock(cls,_neuron=None):
+    def createInitialValuesBlock(cls, _neuron=None):
         """
         Creats a single initial values block in the handed over neuron.
         :param _neuron: a single neuron
@@ -70,12 +71,12 @@ class ASTCreator(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.ASTBlockWithVariables import ASTBlockWithVariables
+        from pynestml.modelprocessor.ASTBlockWithVariables import ASTBlockWithVariables
         if _neuron.getInitialBlocks() is None:
             state = ASTBlockWithVariables.makeASTBlockWithVariables(_isState=False, _isParameters=False,
                                                                     _isInternals=False, _isInitialValues=True,
                                                                     _declarations=list(), _sourcePosition=
-                                                                    _neuron.getSourcePosition())
+                                                                    ASTSourcePosition.getAddedSourcePosition())
             _neuron.getBody().getBodyElements().append(state)
         return _neuron
 
@@ -89,7 +90,7 @@ class ASTCreator(object):
         :rtype: ASTSmallStmt or ASTCompoundStmt
         """
         try:
-            return NESTMLParser.parseStmt(_stmtAsString)
+            return ModelParser.parseStmt(_stmtAsString)
         except:
             raise RuntimeError('Cannot parse statement.')
 
@@ -103,7 +104,7 @@ class ASTCreator(object):
         :rtype: ASTDeclaration
         """
         try:
-            return NESTMLParser.parseDeclaration(_declarationAsString)
+            return ModelParser.parseDeclaration(_declarationAsString)
         except:
             raise RuntimeError('Cannot parse declaration statement.')
 
@@ -117,12 +118,12 @@ class ASTCreator(object):
         :rtype: ASTOdeShape
         """
         try:
-            return NESTMLParser.parseShape(_shapeAsString)
+            return ModelParser.parseShape(_shapeAsString)
         except:
             raise RuntimeError('Cannot parse shape statement.')
 
     @classmethod
-    def createAssignment(cls,_assignmentAsString=None):
+    def createAssignment(cls, _assignmentAsString=None):
         """
         Creats a single assignment from the given assignment.
         :param _assignmentAsString: a single assignment as a string.
@@ -131,6 +132,6 @@ class ASTCreator(object):
         :rtype: ASTAssignment
         """
         try:
-            return NESTMLParser.parseAssignment(_assignmentAsString)
+            return ModelParser.parseAssignment(_assignmentAsString)
         except:
             raise RuntimeError('Cannot parse assignment statement.')

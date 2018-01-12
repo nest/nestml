@@ -20,17 +20,21 @@
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
 from pynestml.codegeneration.GSLNamesConverter import GSLNamesConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
-from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.ASTVariable import ASTVariable
-from pynestml.nestml.Symbol import SymbolKind
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
+from pynestml.codegeneration.NestReferenceConverter import NESTReferenceConverter
+from pynestml.codegeneration.UnitConverter import UnitConverter
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.ASTVariable import ASTVariable
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 
 
 class GSLReferenceConverter(IReferenceConverter):
     """
     This class is used to convert operators and constant to the GSL (GNU Scientific Library) processable format.
     """
+
     __isUpperBound = None
     __maximalExponent = 10.0
 
@@ -59,11 +63,14 @@ class GSLReferenceConverter(IReferenceConverter):
                 _astVariable)
         variableName = NestNamesConverter.convertToCPPName(_astVariable.getName())
         symbol = _astVariable.getScope().resolveToSymbol(_astVariable.getCompleteName(), SymbolKind.VARIABLE)
-        # todo SI stuff
+
+        if PredefinedUnits.isUnit(_astVariable.getCompleteName()):
+            return str(
+                UnitConverter.getFactor(PredefinedUnits.getUnitIfExists(_astVariable.getCompleteName()).getUnit()))
         if symbol.isInitValues():
             return GSLNamesConverter.name(symbol)
         elif symbol.isBuffer():
-            return 'ode.B_.' + NestNamesConverter.bufferValue(symbol)
+            return 'node.B_.' + NestNamesConverter.bufferValue(symbol)
         elif variableName == PredefinedVariables.E_CONSTANT:
             return 'numerics::e'
         elif symbol.isLocal() or symbol.isFunction():
@@ -128,7 +135,7 @@ class GSLReferenceConverter(IReferenceConverter):
         :return: the same operator
         :rtype: str
         """
-        return _unaryOperator
+        return str(_unaryOperator) + '(%s)'
 
     def convertBinaryOp(self, _binaryOperator):
         """
@@ -138,13 +145,41 @@ class GSLReferenceConverter(IReferenceConverter):
         :return: a string representing the included binary operator.
         :rtype: str
         """
-        assert (_binaryOperator is not None and isinstance(_binaryOperator, str)), \
-            '(PyNestML.CodeGeneration.GSLReferenceConverter) No or wrong type of binary operator provided (%s)!' % type(
-                _binaryOperator)
-        if _binaryOperator == '**':
+        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
+        from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
+        from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
+        assert (_binaryOperator is not None and (isinstance(_binaryOperator, ASTArithmeticOperator) or
+                                                 isinstance(_binaryOperator, ASTBitOperator) or
+                                                 isinstance(_binaryOperator, ASTComparisonOperator) or
+                                                 isinstance(_binaryOperator, ASTLogicalOperator))), \
+            '(PyNestML.CodeGeneration.GSLReferenceConverter) No or wrong type of binary operator provided (%s)!' \
+            % type(_binaryOperator)
+        if isinstance(_binaryOperator, ASTArithmeticOperator) and _binaryOperator.isPowOp():
             return 'pow(%s, %s)'
         else:
-            return '(%s)' + _binaryOperator + '(%s)'
+            return '%s' + str(_binaryOperator) + '%s'
+
+    def convertLogicalNot(self):
+        return NESTReferenceConverter.convertLogicalNot()
+
+    def convertLogicalOperator(self, _op):
+        return NESTReferenceConverter.convertLogicalOperator(_op)
+
+    def convertComparisonOperator(self, _op):
+        return NESTReferenceConverter.convertComparisonOperator(_op)
+
+    def convertBitOperator(self, _op):
+        return NESTReferenceConverter.convertBitOperator(_op)
+
+    def convertEncapsulated(self):
+        return NESTReferenceConverter.convertEncapsulated()
+
+    def convertTernaryOperator(self):
+        return NESTReferenceConverter.convertTernaryOperator()
+
+    def convertArithmeticOperator(self, _op):
+        return NESTReferenceConverter.convertArithmeticOperator(_op)
 
 
 class UnsupportedOperationException(Exception):

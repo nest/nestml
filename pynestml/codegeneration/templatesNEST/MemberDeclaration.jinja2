@@ -4,4 +4,6 @@
   @param variable VariableSymbol
   @result C++ declaration
 #}
-{{declarations.printVariableType(variable)}} {{names.name(variable)}}; {{variable.printComment("//! ")}}
+{% if variable.hasComment() %}
+{{variable.printComment("//! ")}}{% endif %}
+{{declarations.printVariableType(variable)}} {{names.name(variable)}};

@@ -19,12 +19,14 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.nestml.ASTExpression import ASTExpression
-from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.nestml.ASTBitOperator import ASTBitOperator
-from pynestml.nestml.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.nestml.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
+from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
 
 
@@ -33,7 +35,7 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
     An adjusted version of the pretty printer which does not print units with literals.
     """
     __referenceConverter = None
-    __typesPrinter =  None
+    __typesPrinter = None
 
     def __init__(self, _referenceConverter=None):
         """
@@ -49,7 +51,6 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
             self.__referenceConverter = IdempotentReferenceConverter()
         self.__typesPrinter = TypesPrinter()
 
-
     def doPrint(self, _expr=None):
         """
         Prints a single expression.
@@ -59,10 +60,8 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
         :rtype: str
         """
         if isinstance(_expr, ASTSimpleExpression):
-            if _expr.hasUnit():
-                return str(_expr.getNumericLiteral())
-            elif _expr.isNumericLiteral():
-                return str(_expr.getNumericLiteral())
+            if _expr.isNumericLiteral():
+                return self.__typesPrinter.prettyPrint(_expr.getNumericLiteral())
             elif _expr.isInfLiteral():
                 return self.__referenceConverter.convertConstant('inf')
             elif _expr.isString():
@@ -72,10 +71,7 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
             elif _expr.isBooleanFalse():
                 return self.__typesPrinter.prettyPrint(False)
             elif _expr.isVariable():
-                if _expr.getVariable().isUnitVariable():
-                    return '1.0'
-                else:
-                    return self.__referenceConverter.convertNameReference(_expr.getVariable())
+                return self.__referenceConverter.convertNameReference(_expr.getVariable())
             elif _expr.isFunctionCall():
                 return self.printFunctionCall(_expr.getFunctionCall())
         elif isinstance(_expr, ASTExpression):
@@ -93,7 +89,7 @@ class LegacyExpressionPrinter(ExpressionsPrettyPrinter):
                 return '(' + self.printExpression(_expr.getExpression()) + ')'
             # logical not
             elif _expr.isLogicalNot():
-                return self.__referenceConverter.convertUnaryOp('not') + ' ' +\
+                return self.__referenceConverter.convertUnaryOp('not') + ' ' + \
                        self.printExpression(_expr.getExpression())
             # compound expression with lhs + rhs
             elif _expr.isCompoundExpression():

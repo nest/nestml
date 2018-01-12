@@ -61,12 +61,16 @@
 neuron mat2_psc_exp_neuron:
 
   state:
-    V_abs mV  # Membrane potential
     V_th_alpha_1 mV # Two-timescale adaptive threshold
     V_th_alpha_2 mV # Two-timescale adaptive threshold
-    function V_m mV = V_abs + E_L    # Relative membrane potential.
-                                  # I.e. the real threshold is (V_m-E_L).
+
     r integer                               # counts number of tick during the refractory period
+  end
+
+  initial_values:
+    V_abs mV  = 0mV # Membrane potential
+    function V_m mV = V_abs + E_L    # Relative membrane potential.
+                                      # I.e. the real threshold is (V_m-E_L).
   end
 
   equations:
@@ -76,7 +80,6 @@ neuron mat2_psc_exp_neuron:
     # V_th_alpha_1' = -V_th_alpha_1/tau_1
     # V_th_alpha_2' = -V_th_alpha_2/tau_2
     function I_syn pA = (convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + currents)
-
     V_abs' = -1/tau_m * V_abs + 1/C_m * I_syn
   end
 
@@ -106,7 +109,6 @@ neuron mat2_psc_exp_neuron:
   input:
     ex_spikes nS <- excitatory spike
     in_spikes nS <- inhibitory spike
-
     currents    <- current
   end
 

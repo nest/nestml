@@ -19,12 +19,12 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.solver.SolverOutput import SolverOutput
 from pynestml.solver.TransformerBase import TransformerBase
-from pynestml.nestml.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.utils.ASTCreator import ASTCreator
 from pynestml.utils.ASTUtils import ASTUtils
 
 
-class ExactSolutionTransformer(object):
+class ExactSolutionTransformer(TransformerBase):
     """
     Takes SymPy result with the linear solution of the ODE and the source AST.
     Produces an altered AST with the the exact solution.
@@ -59,9 +59,9 @@ class ExactSolutionTransformer(object):
             _neuron.addToStateBlock(decl)
         workingVersion = TransformerBase.addVariablesToInitialValues(workingVersion,
                                                                      stateShapeVariablesWithInitialValues)
-        cls.addStateUpdates(_solverOutput, workingVersion)
+        cls.__addStateUpdates(_solverOutput, workingVersion)
 
-        workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(workingVersion,
+        workingVersion = TransformerBase.replaceIntegrateCallThroughPropagation(workingVersion,_solverOutput.const_input,
                                                                                 _solverOutput.ode_var_update_instructions)
         TransformerBase.applyIncomingSpikes(workingVersion)
         # get rid of the ODE stuff since the model is solved exactly and all ODEs are removed.
@@ -75,7 +75,7 @@ class ExactSolutionTransformer(object):
         return workingVersion
 
     @classmethod
-    def addStateUpdates(cls, _solverOutput=None, _neuron=None):
+    def __addStateUpdates(cls, _solverOutput=None, _neuron=None):
         """
         Adds all update instructions as contained in the solver output to the update block of the neuron.
         :param _solverOutput: a solver output

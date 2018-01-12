@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import argparse  # used for parsing of input arguments
 import os
-from pynestml.nestml.NESTMLParserExceptions import InvalidPathException
+from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
 from pynestml.utils.Logger import Logger
 
 
@@ -35,6 +35,7 @@ class FrontendConfiguration(object):
     __targetPath = None
     __moduleName = None
     __storeLog = False
+    __isDebug = False
 
     @classmethod
     def config(cls, _args=None):
@@ -44,11 +45,12 @@ class FrontendConfiguration(object):
         :type _args: list(str)
         """
         cls.__argumentParser = argparse.ArgumentParser(
-            description='NESTML is a domain specific language that supports the specification of neuron models in a precise'
-                        'and concise syntax, based on the syntax of Python. Model equations can either be given as a simple'
-                        ' string of mathematical notation or as an algorithm written in the built-in procedural language.'
-                        ' The equations are analyzed by NESTML to compute an exact solution'
-                        ' if possible or use an appropriate numeric solver otherwise.')
+            description='NESTML is a domain specific language that supports the specification of neuron models in a'
+                        ' precise and concise syntax, based on the syntax of Python. Model equations can either be '
+                        ' given as a simple string of mathematical notation or as an algorithm written in the built-in '
+                        ' procedural language. The equations are analyzed by NESTML to compute an exact solution'
+                        ' if possible or use an appropriate numeric solver otherwise.'
+                        ' Version 0.0.6, beta.')
         cls.__argumentParser.add_argument('-path', type=str, nargs='+',
                                           help='Path to a single file or a directory containing the source models.')
         cls.__argumentParser.add_argument('-target', metavar='Target', type=str, nargs='?',
@@ -66,24 +68,35 @@ class FrontendConfiguration(object):
         cls.__argumentParser.add_argument('-store_log', action='store_true',
                                           help='Indicates whether a log file containing all messages shall'
                                                'be stored. Standard is NO.')
-
+        cls.__argumentParser.add_argument('-dev', action='store_true',
+                                          help='Indicates whether the dev mode should be active, i.e., the whole '
+                                               'toolchain executed even though errors in models are present.'
+                                               'This option is designed for debug purpose only!')
         parsed_args = cls.__argumentParser.parse_args(_args)
         cls.__providedPath = parsed_args.path
         if cls.__providedPath is None:
             # check if the mandatory path arg has been handed over, just terminate
             raise InvalidPathException()
         cls.__pathsToCompilationUnits = list()
-        if os.path.isfile(parsed_args.path[0]):
+        if parsed_args.path is None:
+            raise InvalidPathException()
+        elif os.path.isfile(parsed_args.path[0]):
             cls.__pathsToCompilationUnits.append(parsed_args.path[0])
         elif os.path.isdir(parsed_args.path[0]):
             for filename in os.listdir(parsed_args.path[0]):
                 if filename.endswith(".nestml"):
                     cls.__pathsToCompilationUnits.append(os.path.join(parsed_args.path[0], filename))
         else:
+            cls.__pathsToCompilationUnits = parsed_args.path[0]
             raise InvalidPathException()
         # initialize the logger
-        cls.__loggingLevel = parsed_args.logging_level
-        Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level[0]))
+
+        if parsed_args.logging_level is not None:
+            cls.__loggingLevel = parsed_args.logging_level
+            Logger.initLogger(Logger.stringToLevel(parsed_args.logging_level[0]))
+        else:
+            cls.__loggingLevel = "ERROR"
+            Logger.initLogger(Logger.stringToLevel("ERROR"))
         # check if a dry run shall be preformed, i.e. without generating a target model
         cls.__dryRun = parsed_args.dry
         # check if a target has been selected, otherwise set the buildNest as target
@@ -103,6 +116,7 @@ class FrontendConfiguration(object):
         else:
             cls.__moduleName = 'module'
         cls.__storeLog = parsed_args.store_log
+        cls.__isDebug = parsed_args.dev
         return
 
     @classmethod
@@ -167,3 +181,12 @@ class FrontendConfiguration(object):
         :rtype: bool
         """
         return cls.__storeLog
+
+    @classmethod
+    def isDev(cls):
+        """
+        Returns whether the dev mode have benn set as active.
+        :return: True if dev mode is active, otherwise False.
+        :rtype: bool
+        """
+        return cls.__isDebug

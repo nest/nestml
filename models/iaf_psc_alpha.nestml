@@ -75,16 +75,18 @@ SeeAlso: iaf_psc_delta, iaf_psc_exp, iaf_cond_exp
 neuron iaf_psc_alpha_neuron:
 
   state:
-    V_abs mV
+    r integer                     # counts number of tick during the refractory period
+  end
+
+  initial_values:
+    V_abs mV = 0mV
     function V_m mV = V_abs + E_L # Membrane potential.
-    r integer                               # counts number of tick during the refractory period
   end
 
   equations:
     shape I_shape_in = pA * (e/tau_syn_in) * t * exp(-1/tau_syn_in*t)
     shape I_shape_ex = pA * (e/tau_syn_ex) * t * exp(-1/tau_syn_ex*t)
     function I pA = convolve(I_shape_in, in_spikes) + convolve(I_shape_ex, ex_spikes) + I_e + currents
-
     V_abs' = -1/Tau * V_abs + 1/C_m * I
   end
 
@@ -107,7 +109,6 @@ neuron iaf_psc_alpha_neuron:
   input:
     ex_spikes pA  <- excitatory spike
     in_spikes pA  <- inhibitory spike
-
     currents    <- current
   end
 

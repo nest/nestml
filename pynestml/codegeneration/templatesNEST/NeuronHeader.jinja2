@@ -84,22 +84,29 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
 /* BeginDocumentation
   Name: {{neuronName}}.
 
-  Description:
-  {{neuron.printComment()}}
+  Description:{% filter indent(2,True) %}
+  {{neuron.printComment()}}{% endfilter %}
 
   Parameters:
   The following parameters can be set in the status dictionary.
   {% for parameter in neuron.getParameterSymbols() -%}
   {% if parameter.hasComment() -%}
-    {{parameter.getSymbolName()}} {{parameter.printComment()}}
+    {{parameter.getSymbolName()}} [{{parameter.getTypeSymbol().printSymbol()}}] {{parameter.printComment()}}
   {% endif -%}
-  {% endfor -%}
+  {% endfor %}
 
   Dynamic state variables:
-  {% for state in neuron.getStateSymbols() %}
-  {% if state.hasComment() %}
-    {{state.getSymbolName()}} {{state.printComment()}}
-  {% endif %}
+  {% for state in neuron.getStateSymbols() -%}
+  {% if state.hasComment() -%}
+    {{state.getSymbolName()}} [{{state.getTypeSymbol().printSymbol()}}] {{state.printComment()}}
+  {% endif -%}
+  {% endfor %}
+
+  Initial values:
+  {% for init in neuron.getInitialValuesSymbols() -%}
+  {% if init.hasComment() -%}
+    {{init.getSymbolName()}} [{{init.getTypeSymbol().printSymbol()}}] {{init.printComment()}}
+  {% endif -%}
   {% endfor %}
 
   References: Empty
@@ -205,7 +212,7 @@ private:
   /**
   * Free parameters of the neuron.
   *
-  * {{ neuron.printParameterComment() }}
+  {{neuron.printParameterComment("*")}}
   *
   * These are the parameters that can be set by the user through @c SetStatus.
   * They are initialized from the model prototype when the node is created.
@@ -222,8 +229,8 @@ private:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct Parameters_
-  { {% filter indent(4,True) %}
+  struct Parameters_{
+    {% filter indent(4,True) %}
     {% for variable in neuron.getParameterNonAliasSymbols() -%}
       {% include 'MemberDeclaration.jinja2' -%}
     {% endfor -%}{% endfilter %}
@@ -239,7 +246,7 @@ private:
   /**
   * Dynamic state of the neuron.
   *
-  * {{neuron.printStateComment()}}
+  {{neuron.printStateComment('*')}}
   *
   * These are the state variables that are advanced in time by calls to
   * @c update(). In many models, some or all of them can be set by the user
@@ -256,22 +263,29 @@ private:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct State_ {
+  struct State_{
     {% if not useGSL %}{% filter indent(4,True) -%}
     {% for variable in neuron.getStateNonAliasSymbols() -%}
+    {% include "MemberDeclaration.jinja2" -%}
+    {% endfor -%}
+    {% for variable in neuron.getInitialValuesSymbols() -%}
     {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% else -%}
     //! Symbolic indices to the elements of the state vector y
     enum StateVecElems{
     {% for variable in neuron.getOdeDefinedSymbols() -%}
-      {{names.convertToCPPName(variable.getSymbolName())}}, {{variable.printComment("// ")}}
+      {{variable.printComment("// ")}}
+      {{names.convertToCPPName(variable.getSymbolName())}},
       {% endfor -%}
       STATE_VEC_SIZE
     };
     //! state vector, must be C-array for GSL solver
-    double ode_state[ STATE_VEC_SIZE ];{% filter indent(4,True) -%}
-    {% for variable in neuron.getStateSymbolsWithoutOde() -%}
+    double ode_state[STATE_VEC_SIZE];{% filter indent(4,True) -%}
+    {% for variable in neuron.getStateSymbols() -%}
+      {% include "MemberDeclaration.jinja2" -%}
+    {% endfor -%}
+    {% for variable in neuron.getFunctionInitialValuesSymbols() -%}
       {% include "MemberDeclaration.jinja2" -%}
     {% endfor -%}{% endfilter -%}
     {% endif -%}
@@ -288,7 +302,7 @@ private:
   /**
   * Internal variables of the neuron.
   *
-  * {{neuron.printInternalComment()}}
+  {{neuron.printInternalComment('*')}}
   *
   * These variables must be initialized by @c calibrate, which is called before
   * the first call to @c update() upon each call to @c Simulate.
@@ -297,7 +311,7 @@ private:
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
   struct Variables_ {
-    {% for variable in neuron.getInternalNonAliasSymbols() -%}
+    {%- for variable in neuron.getInternalNonAliasSymbols() -%}
       {% filter indent(4,True) %}{% include "MemberDeclaration.jinja2" -%}{% endfilter %}
     {% endfor %}
   };
@@ -361,6 +375,7 @@ private:
     double __integration_step; //!< current integration time step, updated by GSL
     {% endif -%}
   };
+
   {%- for state in neuron.getStateSymbols() -%}
   {%- with variable = state -%}
   {%- include "MemberVariableGetterSetter.jinja2" -%}
@@ -433,10 +448,9 @@ inline nest::port {{neuronName}}::send_test_event(
   return target.handles_test_event(e, receptor_type);
 }
 {% if isSpikeInput %}
-inline nest::port {{neuronName}}::handles_test_event(
-    nest::SpikeEvent&, nest::port receptor_type){
-  {%- if neuron.isMultisynapseSpikes() -%}
-    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.getSpikeBuffers()[0].hasVectorParameter()}}()) ) {
+inline nest::port {{neuronName}}::handles_test_event(nest::SpikeEvent&, nest::port receptor_type){
+  {% if neuron.isMultisynapseSpikes() -%}
+    if ( receptor_type <= 0 || receptor_type > static_cast< nest::port >( get_{{neuron.getSpikeBuffers()[0].getVectorParameter()}}()) ) {
         // TODO refactor me. The code assumes that there is only one. Check by coco.
         throw nest::IncompatibleReceptorType( receptor_type, get_name(), "SpikeEvent" );
     }

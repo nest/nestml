@@ -78,15 +78,17 @@ class Logger(object):
         :type _neuron: ASTNeuron
         :param _code: a single error code
         :type _code: ErrorCode
-        :param _errorPosition: the position on which the error occured.
+        :param _errorPosition: the position on which the error occurred.
         :type _errorPosition: SourcePosition
         :param _message: a message.
         :type _message: str
         :param _logLevel: the corresponding log level.
         :type _logLevel: LOGGING_LEVEL
         """
-        from pynestml.nestml.ASTNeuron import ASTNeuron
-        from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
+        if cls.__currMessage is None:
+            cls.initLogger(LOGGING_LEVEL.INFO)
+        from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+        from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
         assert (_message is not None and isinstance(_message, str)), \
             '(PyNestML.Logger) No or wrong type of message provided (%s)!' % type(_message)
         assert (_logLevel is not None and isinstance(_logLevel, LOGGING_LEVEL)), \
@@ -109,7 +111,7 @@ class Logger(object):
                   + (_neuron.getName() + ', ' if _neuron is not None else
                      cls.__currentNeuron.getName() + ', ' if cls.__currentNeuron is not None else 'GLOBAL, ')
                   + str(_logLevel.name) + ', ' + str(_code.name) +
-                  (', ' + _errorPosition.printSourcePosition() if _errorPosition is not None else '') + ']:'
+                  (', ' + str(_errorPosition) if _errorPosition is not None else '') + ']:'
                   + str(_message))
         return
 
@@ -155,7 +157,7 @@ class Logger(object):
         :param _neuron:  a single neuron instance
         :type _neuron: ASTNeuron
         """
-        from pynestml.nestml.ASTNeuron import ASTNeuron
+        from pynestml.modelprocessor.ASTNeuron import ASTNeuron
         assert (_neuron is None or isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Utils.Logger) No or wrong type of neuron provided (%s)!' % type(_neuron)
         cls.__currentNeuron = _neuron
@@ -173,7 +175,7 @@ class Logger(object):
         :return: a list of messages with their levels.
         :rtype: list((str,Logging_Level)
         """
-        from pynestml.nestml.ASTNeuron import ASTNeuron
+        from pynestml.modelprocessor.ASTNeuron import ASTNeuron
         assert (_level is None or isinstance(_level, LOGGING_LEVEL)), \
             '(PyNestML.Utils.Logger) Wrong type of logging level provided (%s)!' % (_level)
         assert (_neuron is None or isinstance(_neuron, ASTNeuron)), \
@@ -197,7 +199,7 @@ class Logger(object):
         :return: True if errors detected, otherwise False
         :rtype: bool
         """
-        return len(cls.getAllMessagesOfLevelAndOrNeuron(_neuron, LOGGING_LEVEL.ERROR)) > 0
+        return len(cls.getAllMessagesOfLevelAndOrNeuron(_neuron, LOGGING_LEVEL.ERROR)) > 1
 
     @classmethod
     def getPrintableFormat(cls):
@@ -228,9 +230,12 @@ class Logger(object):
                    '", ' + \
                    '"message":"' + str(message).replace('"', "'") + '"}'
             ret += ','
-        ret = ret[:-1]  # delete the last ","
-        ret += ']'
-        parsed = json.loads(ret, object_pairs_hook=OrderedDict)
+        if len(cls.__log.keys()) == 0:
+            parsed = json.loads('[]', object_pairs_hook=OrderedDict)
+        else:
+            ret = ret[:-1]  # delete the last ","
+            ret += ']'
+            parsed = json.loads(ret, object_pairs_hook=OrderedDict)
         return json.dumps(parsed, indent=2, sort_keys=False)
 
 

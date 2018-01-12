@@ -35,7 +35,7 @@ SeeAlso: iaf_cond_alpha, aeif_cond_exp
 */
 neuron aeif_cond_exp_neuron:
 
-  state:
+  initial_values:
     V_m mV = E_L  # Membrane potential
     w pA = 0 pA    # Spike-adaptation current
   end
@@ -50,7 +50,6 @@ neuron aeif_cond_exp_neuron:
     function I_spike pA = g_L*Delta_T*exp(exp_arg)
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_bounded - E_in )
-
 
     V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + I_stim ) / C_m
     w' = (a*(V_bounded - E_L) - w)/tau_w
@@ -93,7 +92,6 @@ neuron aeif_cond_exp_neuron:
   input:
       spikeInh nS <- inhibitory spike
       spikeExc nS <- excitatory spike
-
       currents <- current
   end
 
@@ -155,25 +153,27 @@ SeeAlso: iaf_cond_alpha, aeif_cond_exp
 neuron aeif_cond_exp_implicit:
 
   state:
+    r integer                 # counts number of tick during the refractory period
+  end
+
+  initial_values:
     V_m mV = E_L  # Membrane potential
     w pA = 0pA    # Spike-adaptation current
-    g_in nS = 0nS # Inhibitory synaptic conductance
-    g_ex nS = 0nS # Excitatory synaptic conductance
-    r integer                 # counts number of tick during the refractory period
+    g_in nS = 1nS # Inhibitory synaptic conductance
+    g_ex nS = 1nS # Excitatory synaptic conductance
   end
 
   equations:
     function V_bounded mV = min(V_m, V_peak) # prevent exponential divergence
     # exp function for the g_in, g_ex
-    g_in' = -g_in/tau_syn_in
-    g_ex' = -g_ex/tau_syn_ex
+    shape g_in' = -g_in/tau_syn_in
+    shape g_ex' = -g_ex/tau_syn_ex
 
     # Add aliases to simplify the equation definition of V_m
     function exp_arg real = (V_bounded-V_th)/Delta_T
     function I_spike pA = g_L*Delta_T*exp(exp_arg)
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_bounded - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_bounded - E_in )
-
 
     V_m' = ( -g_L*( V_bounded - E_L ) + I_spike - I_syn_exc - I_syn_inh - w + I_e + currents ) / C_m
     w' = (a*(V_bounded - E_L) - w)/tau_w
@@ -211,7 +211,6 @@ neuron aeif_cond_exp_implicit:
   input:
     spikeInh nS  <- inhibitory spike
     spikeExc nS  <- excitatory spike
-
     currents <- current
   end
 
@@ -229,9 +228,6 @@ neuron aeif_cond_exp_implicit:
       w += b
       emit_spike()
     end
-
-    g_ex += spikeExc
-    g_in += spikeInh
 
   end
 

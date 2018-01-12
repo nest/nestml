@@ -17,8 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.NESTMLParser import NESTMLParser
-from pynestml.nestml.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ModelParser import ModelParser
+from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
@@ -66,12 +67,12 @@ class TransformerBase(object):
         """
         try:
             (var, value) = ASTUtils.getTupleFromSingleDictEntry(_declaration)
-            tmp = NESTMLParser.parseExpression(value)
+            tmp = ModelParser.parseExpression(value)
             vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
             declarationString = var + ' real' + (
                 '[' + vectorVariable.getVectorParameter() + ']'
                 if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + value
-            astDeclaration = NESTMLParser.parseDeclaration(declarationString)
+            astDeclaration = ModelParser.parseDeclaration(declarationString)
             if vectorVariable is not None:
                 astDeclaration.setSizeParameter(vectorVariable.getVectorParameter())
             _neuron.addToInternalBlock(astDeclaration)
@@ -80,19 +81,21 @@ class TransformerBase(object):
             raise RuntimeError('Must not fail by construction.')
 
     @classmethod
-    def replaceIntegrateCallThroughPropagation(cls, _neuron=None, _propagatorSteps=None):
+    def replaceIntegrateCallThroughPropagation(cls, _neuron=None, _constInput=None, _propagatorSteps=None):
         """
         Replaces all intergrate calls to the corresponding references to propagation.
         :param _neuron: a single neuron instance
         :type _neuron: ASTNeuron
+        :param _constInput: an initial constant value
+        :type _constInput: tuple
         :param _propagatorSteps: a list of propagator steps
         :type _propagatorSteps: list(str)
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-        from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
-        from pynestml.nestml.ASTBlock import ASTBlock
+        from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
+        from pynestml.modelprocessor.ASTBlock import ASTBlock
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.BaseTransformer) No or wrong type of neuron provided (%s)!' % type(_neuron)
         assert (_propagatorSteps is not None and isinstance(_propagatorSteps, list)), \
@@ -108,10 +111,14 @@ class TransformerBase(object):
 
             block = _neuron.getParent(smallStatement)
             assert (block is not None and isinstance(block, ASTBlock))
-            for i in range(0, len(block.getStmts()) - 1):
+            for i in range(0, len(block.getStmts())):
                 if block.getStmts()[i].equals(smallStatement):
                     del block.getStmts()[i]
-                    block.getStmts()[i:i] = (ASTCreator.createStatement(st) for st in _propagatorSteps)
+                    constTuple = ASTUtils.getTupleFromSingleDictEntry(_constInput)
+                    updateStatements = list()
+                    updateStatements.append(ASTCreator.createStatement(constTuple[0] + " real = " + constTuple[1]))
+                    updateStatements += list((ASTCreator.createStatement(prop) for prop in _propagatorSteps))
+                    block.getStmts()[i:i] = updateStatements
                     break
         else:
             code, message = Messages.getOdeSolutionNotUsed()
@@ -147,13 +154,13 @@ class TransformerBase(object):
         """
         try:
             (var, value) = _declaration
-            tmp = NESTMLParser.parseExpression(value)
+            tmp = ModelParser.parseExpression(value)
             vectorVariable = ASTUtils.getVectorizedVariable(tmp, _neuron.getScope())
             declarationString = var + ' real' + (
                 '[' + vectorVariable.getVectorParameter() + ']'
                 if vectorVariable is not None and vectorVariable.hasVectorParameter() else '') + ' = ' + \
                                 value
-            astDeclaration = NESTMLParser.parseDeclaration(declarationString)
+            astDeclaration = ModelParser.parseDeclaration(declarationString)
             if vectorVariable is not None:
                 astDeclaration.setSizeParameter(vectorVariable.getVectorParameter())
             _neuron.addToInitialValuesBlock(astDeclaration)
@@ -182,8 +189,8 @@ class TransformerBase(object):
                              if _neuron.getInitialBlocks() is not None else list())
             for astDeclaration in initialValues:
                 for variable in astDeclaration.getVariables():
-                    if re.match(shape + "(')*", variable.getCompleteName()) or re.match(shape + "__\\d+$",
-                                                                                        variable.getCompleteName()):
+                    if re.match(shape + "[\']*", variable.getCompleteName()) or re.match(shape + '__[\\d]+$',
+                                                                                         variable.getCompleteName()):
                         spikesUpdates.append(ASTCreator.createAssignment(
                             variable.getCompleteName() + " += " + buffer + " * " + printer.printExpression(
                                 astDeclaration.getExpression())))
@@ -202,13 +209,14 @@ class TransformerBase(object):
         :return: the modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
-        from pynestml.nestml.ASTAssignment import ASTAssignment
+        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
+        from pynestml.modelprocessor.ASTAssignment import ASTAssignment
+        from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
         assert (_assignment is not None and isinstance(_assignment, ASTAssignment)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of assignment provided (%s)!' % type(_assignment)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        smallStmt = ASTSmallStmt(_assignment=_assignment)
+        smallStmt = ASTSmallStmt(_assignment=_assignment, _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
         _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
         return _neuron
 
@@ -223,20 +231,20 @@ class TransformerBase(object):
         :return: a modified neuron
         :rtype: ASTNeuron
         """
-        from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
-        from pynestml.nestml.ASTDeclaration import ASTDeclaration
+        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
+        from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
         assert (_declaration is not None and isinstance(_declaration, ASTDeclaration)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of declaration provided (%s)!' % type(_declaration)
         assert (_neuron is not None and isinstance(_neuron, ASTNeuron)), \
             '(PyNestML.Solver.TransformerBase) No or wrong type of neuron provided (%s)!' % type(_neuron)
-        smallStmt = ASTSmallStmt(_declaration=_declaration)
+        smallStmt = ASTSmallStmt(_declaration=_declaration, _sourcePosition=ASTSourcePosition.getAddedSourcePosition())
         _neuron.getUpdateBlocks().getBlock().getStmts().append(smallStmt)
         return _neuron
 
     @classmethod
     def computeShapeStateVariablesWithInitialValues(cls, _solverOutput=None):
         """
-        Computes a set of state variables with the corresponding set of initial values from the given sovler output.
+        Computes a set of state variables with the corresponding set of initial values from the given solver output.
         :param _solverOutput: a single solver output file
         :type _solverOutput: SolverOutput
         :return: a list of variable initial value tuple as strings
