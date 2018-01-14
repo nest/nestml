@@ -1,3 +1,5 @@
+[![astropy](http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat)](http://www.astropy.org/) [![Build Status](https://travis-ci.org/kperun/nestml.svg?branch=PyNestML)](https://travis-ci.org/kperun/nestml)
+
 # PyNESTML - The NEST Modelling Language @Python
 
 NESTML is a domain specific language that supports the specification of neuron models
@@ -73,5 +75,4 @@ where arguments are:
 | -module_name  | (Optional) Sets the name of the module which shall be generated. Standard is name of the directory containing the models. |
 | -store_log    | (Optional) Stores a log.txt containing all messages in Json notation. |
 | -dev          | (Optional) Executes the toolchain with in the development mode where erros in models are ignored.|
-
 

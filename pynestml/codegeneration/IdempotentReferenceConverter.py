@@ -18,22 +18,24 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.IReferenceConverter import IReferenceConverter
+from pynestml.utils.ASTUtils import ASTUtils
 
 
 class IdempotentReferenceConverter(IReferenceConverter):
     """
-    Returns the same input as output.
+    Returns the same input as output, i.e., an identity mapping of elements is preformed. This converter is used
+    whenever comments have to be printed, in order to preserve the initial PyNestML syntax.
     """
 
     def convertUnaryOp(self, _unaryOperator):
         """
         Returns the same string.
         :param _unaryOperator: a single unary operator string.
-        :type _unaryOperator: str
+        :type _unaryOperator: ASTUnaryOperator
         :return: the same string
         :rtype: str
         """
-        return _unaryOperator
+        return str(_unaryOperator) + '%s'
 
     def convertNameReference(self, _astVariable):
         """
@@ -43,7 +45,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         :return: the same string
         :rtype: str
         """
-        from pynestml.nestml.ASTVariable import ASTVariable
+        from pynestml.modelprocessor.ASTVariable import ASTVariable
         assert (_astVariable is not None and isinstance(_astVariable, ASTVariable)), \
             '(PyNestML.CodeGeneration.ReferenceConverter) No or wrong type of variable provided (%s)!' % type(
                 _astVariable)
@@ -57,13 +59,13 @@ class IdempotentReferenceConverter(IReferenceConverter):
         :return: the same sting back
         :rtype: str
         """
-        from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
         assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.ReferenceConverter) No or wrong type of function call provided (%s)!' % type(
                 _astFunctionCall)
 
         result = _astFunctionCall.getName()
-        if self.needsArguments(_astFunctionCall):
+        if ASTUtils.needsArguments(_astFunctionCall):
             result += '(%s)'
         else:
             result += '()'
@@ -77,7 +79,7 @@ class IdempotentReferenceConverter(IReferenceConverter):
         :return: the same binary operator
         :rtype: str
         """
-        return '(%s)' + _binaryOperator + '(%s)'
+        return '%s' + str(_binaryOperator) + '%s'
 
     def convertConstant(self, _constantName):
         """
@@ -88,3 +90,29 @@ class IdempotentReferenceConverter(IReferenceConverter):
         :rtype: str
         """
         return _constantName
+
+    def convertTernaryOperator(self):
+        """
+        Converts the ternary operator to its initial shape.
+        :return: a string representation
+        :rtype: str
+        """
+        return '(' + '%s' + ')?(' + '%s' + '):(' + '%s' + ')'
+
+    def convertLogicalOperator(self, _op):
+        return str(_op)
+
+    def convertArithmeticOperator(self, _op):
+        return str(_op)
+
+    def convertEncapsulated(self):
+        return '(%s)'
+
+    def convertComparisonOperator(self, _op):
+        return str(_op)
+
+    def convertLogicalNot(self):
+        return 'not'
+
+    def convertBitOperator(self, _op):
+        return str(_op)

@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 import argparse  # used for parsing of input arguments
 import os
-from pynestml.nestml.NESTMLParserExceptions import InvalidPathException
+from pynestml.modelprocessor.ModelParserExceptions import InvalidPathException
 from pynestml.utils.Logger import Logger
 
 
@@ -49,7 +49,8 @@ class FrontendConfiguration(object):
                         ' precise and concise syntax, based on the syntax of Python. Model equations can either be '
                         ' given as a simple string of mathematical notation or as an algorithm written in the built-in '
                         ' procedural language. The equations are analyzed by NESTML to compute an exact solution'
-                        ' if possible or use an appropriate numeric solver otherwise.')
+                        ' if possible or use an appropriate numeric solver otherwise.'
+                        ' Version 0.0.6, beta.')
         cls.__argumentParser.add_argument('-path', type=str, nargs='+',
                                           help='Path to a single file or a directory containing the source models.')
         cls.__argumentParser.add_argument('-target', metavar='Target', type=str, nargs='?',

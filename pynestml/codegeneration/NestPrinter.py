@@ -18,17 +18,17 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.codegeneration.NestML2NESTTypeConverter import NESTML2NESTTypeConverter
+from pynestml.codegeneration.PyNestMl2NESTTypeConverter import NESTML2NESTTypeConverter
 from pynestml.codegeneration.NestNamesConverter import NestNamesConverter
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
-from pynestml.nestml.ASTFunction import ASTFunction
-from pynestml.nestml.Symbol import SymbolKind
-from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
-from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.nestml.ASTExpression import ASTExpression
-from pynestml.nestml.ASTForStmt import ASTForStmt
-from pynestml.nestml.VariableSymbol import VariableSymbol, BlockType
-from pynestml.nestml.ASTBody import ASTBody
+from pynestml.modelprocessor.ASTFunction import ASTFunction
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ASTForStmt import ASTForStmt
+from pynestml.modelprocessor.VariableSymbol import VariableSymbol, BlockType
+from pynestml.modelprocessor.ASTBody import ASTBody
 
 
 class NestPrinter(object):
@@ -174,8 +174,8 @@ class NestPrinter(object):
         :return: the corresponding string representation.
         :rtype: str
         """
-        from pynestml.nestml.ASTFunction import ASTFunction
-        from pynestml.nestml.Symbol import SymbolKind
+        from pynestml.modelprocessor.ASTFunction import ASTFunction
+        from pynestml.modelprocessor.Symbol import SymbolKind
         assert (_function is not None and isinstance(_function, ASTFunction)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of function provided (%s)!' % type(_function)
         functionSymbol = _function.getScope().resolveToSymbol(_function.getName(), SymbolKind.FUNCTION)
@@ -288,7 +288,7 @@ class NestPrinter(object):
         assert (_buffer is not None and isinstance(_buffer, VariableSymbol)), \
             '(PyNestML.CodeGeneration.Printer) No or wrong type of buffer symbol provided (%s)!' % type(_buffer)
         if _buffer.hasVectorParameter():
-            return 'std::vector< double > ' + NestNamesConverter.bufferValue(_buffer)
+            return 'std::vector<double> ' + NestNamesConverter.bufferValue(_buffer)
         else:
             return 'double ' + NestNamesConverter.bufferValue(_buffer)
 

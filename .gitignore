@@ -5,18 +5,20 @@ target/
 venv/
 
 build/
+buildNest/
 
 __*
-!__init__.py
 
 dist/
 
 PyNESTML.egg-info/
 
 *.pyc
-buildNest/
+
+!__init__.py
 
 pynestml/grammars/antlr-4.7-complete.jar
+
 
 .DS_Store
 .project

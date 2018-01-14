@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.solver.SymPySolver import SymPySolver
 from pynestml.solver.DeltaSolutionTransformer import DeltaSolutionTransformer
 from pynestml.solver.ShapesToOdesTransformer import ShapesToOdesTransformer
@@ -49,7 +49,7 @@ class EquationsBlockProcessor(object):
         if workingVersion.getEquationsBlocks() is not None:
             deepCopy = deepcopy(_neuron)
             if len(workingVersion.getEquationsBlocks().getOdeShapes()) > 0 and \
-                    not cls.odeShapeExists(workingVersion.getEquationsBlocks().getOdeShapes()) and \
+                    not cls.__odeShapeExists(workingVersion.getEquationsBlocks().getOdeShapes()) and \
                             len(workingVersion.getEquationsBlocks().getOdeEquations()) == 1:
                 output = SymPySolver.solveOdeWithShapes(deepCopy.getEquationsBlocks())
                 if not output.status == 'success':
@@ -84,20 +84,20 @@ class EquationsBlockProcessor(object):
                                       _logLevel=LOGGING_LEVEL.INFO)
                     return workingVersion
             elif len(workingVersion.getEquationsBlocks().getOdeShapes()) > 0 and \
-                    not cls.odeShapeExists(workingVersion.getEquationsBlocks().getOdeShapes()):
+                    not cls.__odeShapeExists(workingVersion.getEquationsBlocks().getOdeShapes()):
                 code, message = Messages.getEquationsSolvedByGLS()
                 Logger.logMessage(_neuron=_neuron,
                                   _message=message, _code=code,
                                   _errorPosition=_neuron.getEquationsBlocks().getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.INFO)
                 solverOutput = SymPySolver.solveShapes(deepCopy.getEquationsBlocks().getOdeShapes())
-                workingVersion = ShapesToOdesTransformer.transformShapesToOdeForm(_neuron,solverOutput)
+                workingVersion = ShapesToOdesTransformer.transformShapesToOdeForm(_neuron, solverOutput)
             else:
                 TransformerBase.applyIncomingSpikes(workingVersion)
         return workingVersion
 
     @classmethod
-    def odeShapeExists(cls, _shapes):
+    def __odeShapeExists(cls, _shapes):
         """
         Checks if there exists a shape with differential order > 0.
         :param _shapes: a list of shapes
@@ -105,7 +105,7 @@ class EquationsBlockProcessor(object):
         :return: True if an ode shape exits, otherwise False.
         :rtype: bool
         """
-        from pynestml.nestml.ASTOdeShape import ASTOdeShape
+        from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
         for shape in _shapes:
             if isinstance(shape, ASTOdeShape) and shape.getVariable().getDifferentialOrder() > 0:
                 return True

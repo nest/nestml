@@ -17,7 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.nestml.ASTEquationsBlock import ASTEquationsBlock
+from pynestml.modelprocessor.ASTEquationsBlock import ASTEquationsBlock
 from pynestml.solver.SolverInput import SolverInput
 from pynestml.solver.OdeAnalyzer import OdeAnalyzer
 from pynestml.solver.SolverOutput import SolverOutput

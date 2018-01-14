@@ -18,8 +18,8 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
-from pynestml.nestml.Symbol import SymbolKind
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.Symbol import SymbolKind
 
 
 class ASTUtils(object):
@@ -51,7 +51,7 @@ class ASTUtils(object):
         :return: True if small stmt, otherwise False.
         :rtype: bool
         """
-        from pynestml.nestml.ASTSmallStmt import ASTSmallStmt
+        from pynestml.modelprocessor.ASTSmallStmt import ASTSmallStmt
         return isinstance(_ast, ASTSmallStmt)
 
     @classmethod
@@ -63,7 +63,7 @@ class ASTUtils(object):
         :return: True if compound stmt, otherwise False.
         :rtype: bool
         """
-        from pynestml.nestml.ASTCompoundStmt import ASTCompoundStmt
+        from pynestml.modelprocessor.ASTCompoundStmt import ASTCompoundStmt
         return isinstance(_ast, ASTCompoundStmt)
 
     @classmethod
@@ -75,8 +75,8 @@ class ASTUtils(object):
         :return: True if ode integration call, otherwise False.
         :rtype: bool
         """
-        from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
-        from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
+        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+        from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
         assert (_functionCall is not None and isinstance(_functionCall, ASTFunctionCall)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of function-call provided (%s)!' % type(_functionCall)
         return _functionCall.getName() == PredefinedFunctions.INTEGRATE_ODES
@@ -90,7 +90,7 @@ class ASTUtils(object):
         :return: True if spike buffer is contained, otherwise false.
         :rtype: bool
         """
-        from pynestml.nestml.ASTBody import ASTBody
+        from pynestml.modelprocessor.ASTBody import ASTBody
         assert (_body is not None and isinstance(_body, ASTBody)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of body provided (%s)!' % type(_body)
         inputs = (inputL for block in _body.getInputBlocks() for inputL in block.getInputLines())
@@ -108,7 +108,7 @@ class ASTUtils(object):
         :return: True if current buffer is contained, otherwise false.
         :rtype: bool
         """
-        from pynestml.nestml.ASTBody import ASTBody
+        from pynestml.modelprocessor.ASTBody import ASTBody
         assert (_body is not None and isinstance(_body, ASTBody)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of body provided (%s)!' % type(_body)
         inputs = (inputL for block in _body.getInputBlocks() for inputL in block.getInputLines())
@@ -126,7 +126,7 @@ class ASTUtils(object):
         :return: the corresponding representation.
         :rtype: str
         """
-        from pynestml.nestml.ASTDatatype import ASTDatatype
+        from pynestml.modelprocessor.ASTDatatype import ASTDatatype
         assert (_dataType is not None and isinstance(_dataType, ASTDatatype)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of data type provided (%s)!' % type(_dataType)
         if _dataType.isBoolean():
@@ -166,11 +166,11 @@ class ASTUtils(object):
         :return: a new direct assignment expression.
         :rtype: ASTExpression
         """
-        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.nestml.ASTExpression import ASTExpression
-        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.nestml.ASTVariable import ASTVariable
-        from pynestml.nestml.ASTSymbolTableVisitor import SymbolTableASTVisitor
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
+        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.modelprocessor.ASTVariable import ASTVariable
+        from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
         assert (_lhs is not None and isinstance(_lhs, ASTVariable)), \
             '(PyNestML.CodeGeneration.Utils) No or wrong type of lhs variable provided (%s)!' % type(_lhs)
         assert (_rhs is not None and (isinstance(_rhs, ASTSimpleExpression) or isinstance(_rhs, ASTExpression))), \
@@ -195,7 +195,7 @@ class ASTUtils(object):
                                                     _sourcePosition=_rhs.getSourcePosition())
         expr.updateScope(_lhs.getScope())
         # update the symbols
-        SymbolTableASTVisitor.visitExpression(expr)
+        ASTSymbolTableVisitor.visitExpression(expr)
         return expr
 
     @classmethod
@@ -219,10 +219,12 @@ class ASTUtils(object):
         :rtype: list(VariableSymbol)
         """
         assert (_ast is not None), '(PyNestML.Utils) No AST provided!'
-        variableCollector = VariableCollector()
-        _ast.accept(variableCollector)
         ret = list()
-        for var in variableCollector.result():
+        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.modelprocessor.ASTVariable import ASTVariable
+        res = list()
+        ASTHigherOrderVisitor.visit(_ast, lambda x: res.append(x) if isinstance(x, ASTVariable) else True)
+        for var in res:
             if '\'' not in var.getCompleteName():
                 symbol = _ast.getScope().resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE)
                 if symbol.isFunction():
@@ -241,7 +243,7 @@ class ASTUtils(object):
         :return: True if castable, otherwise False
         :rtype: bool
         """
-        from pynestml.nestml.TypeSymbol import TypeSymbol
+        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
         assert (_typeA is not None and isinstance(_typeA, TypeSymbol)), \
             '(PyNestML.Utils) No or wrong type of source type provided (%s)!' % type(_typeA)
         assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
@@ -272,7 +274,7 @@ class ASTUtils(object):
         :return: True if both elements equal or differ in magnitude, otherwise False.
         :rtype: bool
         """
-        from pynestml.nestml.TypeSymbol import TypeSymbol
+        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
         assert (_typeA is not None and isinstance(_typeA, TypeSymbol)), \
             '(PyNestML.Utils) No or wrong type of source type provided (%s)!' % type(_typeA)
         assert (_typeB is not None and isinstance(_typeB, TypeSymbol)), \
@@ -304,7 +306,7 @@ class ASTUtils(object):
         :return: a list of all ast of the specified type
         :rtype: list(AST_)
         """
-        from pynestml.nestml.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
         ret = list()
         ASTHigherOrderVisitor.visit(_ast, lambda x: ret.append(x) if isinstance(x, _type) else True)
         return ret
@@ -320,8 +322,8 @@ class ASTUtils(object):
         :return: the first element with the size parameter
         :rtype: VariableSymbol
         """
-        from pynestml.nestml.ASTVariable import ASTVariable
-        from pynestml.nestml.Symbol import SymbolKind
+        from pynestml.modelprocessor.ASTVariable import ASTVariable
+        from pynestml.modelprocessor.Symbol import SymbolKind
         variables = (var for var in cls.getAll(_ast, ASTVariable) if
                      _scope.resolveToSymbol(var.getCompleteName(), SymbolKind.VARIABLE))
         for var in variables:
@@ -341,8 +343,8 @@ class ASTUtils(object):
         :return: a list of all function calls contained in _ast
         :rtype: list(ASTFunctionCall)
         """
-        from pynestml.nestml.ASTHigherOrderVisitor import ASTHigherOrderVisitor
-        from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+        from pynestml.modelprocessor.ASTHigherOrderVisitor import ASTHigherOrderVisitor
+        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
         ret = list()
         ASTHigherOrderVisitor.visit(_ast, lambda x: ret.append(x) \
             if isinstance(x, ASTFunctionCall) and x.getName() == _functionName else True)
@@ -366,32 +368,15 @@ class ASTUtils(object):
         else:
             return None, None
 
-
-class VariableCollector(NESTMLVisitor):
-    """
-    Collects all variables contained in the node or one of its sub-nodes.
-    """
-    __result = None
-
-    def __init__(self):
-        super(VariableCollector, self).__init__()
-        self.__result = list()
-
-    def result(self):
+    @classmethod
+    def needsArguments(cls, _astFunctionCall):
         """
-        Returns all collected variables.
-        :return: a list of variables.
-        :rtype: list(ASTVariable)
+        Indicates whether a given function call has any arguments
+        :param _astFunctionCall: a function call
+        :type _astFunctionCall: ASTFunctionCall
+        :return: True if arguments given, otherwise false
+        :rtype: bool
         """
-        return self.__result
-
-    def visitVariable(self, _variable=None):
-        """
-        Visits a single node and ads it to results.
-        :param _variable:
-        :type _variable:
-        :return:
-        :rtype:
-        """
-        self.__result.append(_variable)
-        return
+        from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
+        assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall))
+        return len(_astFunctionCall.getArgs()) > 0

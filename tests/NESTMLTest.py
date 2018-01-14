@@ -22,15 +22,14 @@ from __future__ import print_function
 
 import unittest
 import os
-from pynestml.nestml.NESTMLParser import NESTMLParser
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.nestml.CoCosManager import CoCosManager
-from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
-from pynestml.nestml.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
-from pynestml.nestml.SymbolTable import SymbolTable
+from pynestml.modelprocessor.ModelParser import ModelParser
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.ASTNESTMLCompilationUnit import ASTNESTMLCompilationUnit
+from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 # setups the infrastructure
@@ -40,7 +39,6 @@ PredefinedFunctions.registerPredefinedFunctions()
 PredefinedVariables.registerPredefinedVariables()
 SymbolTable.initializeSymbolTable(ASTSourcePosition(_startLine=0, _startColumn=0, _endLine=0, _endColumn=0))
 Logger.initLogger(LOGGING_LEVEL.NO)
-CoCosManager.initializeCoCosManager()
 
 
 class NESTMLTest(unittest.TestCase):
@@ -53,8 +51,8 @@ class NESTMLTest(unittest.TestCase):
                                                                  os.path.join('..', 'models')))):
             if filename.endswith(".nestml"):
                 # print('Start creating AST for ' + filename + ' ...'),
-                model = NESTMLParser.parseModel(os.path.join(os.path.dirname(__file__),
-                                                             os.path.join(os.path.join('..', 'models'), filename)))
+                model = ModelParser.parseModel(os.path.join(os.path.dirname(__file__),
+                                                            os.path.join(os.path.join('..', 'models'), filename)))
                 assert (isinstance(model, ASTNESTMLCompilationUnit))
         return
 

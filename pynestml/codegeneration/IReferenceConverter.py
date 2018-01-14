@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
-from pynestml.nestml.ASTFunctionCall import ASTFunctionCall
+from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 
 
 class IReferenceConverter(object):
@@ -46,9 +46,33 @@ class IReferenceConverter(object):
         pass
 
     @abstractmethod
-    def convertUnaryOp(self,_unaryOperator):
+    def convertUnaryOp(self, _unaryOperator):
         pass
 
-    def needsArguments(self, _astFunctionCall):
-        assert (_astFunctionCall is not None and isinstance(_astFunctionCall, ASTFunctionCall))
-        return len(_astFunctionCall.getArgs()) > 0
+    @abstractmethod
+    def convertEncapsulated(self):
+        pass
+
+    @abstractmethod
+    def convertLogicalNot(self):
+        pass
+
+    @abstractmethod
+    def convertArithmeticOperator(self, _op):
+        pass
+
+    @abstractmethod
+    def convertBitOperator(self, _op):
+        pass
+
+    @abstractmethod
+    def convertComparisonOperator(self, _op):
+        pass
+
+    @abstractmethod
+    def convertLogicalOperator(self, _op):
+        pass
+
+    @abstractmethod
+    def convertTernaryOperator(self):
+        pass
