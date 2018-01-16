@@ -9,7 +9,7 @@ python:
 
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-  - sudo python setup.py install
+  - python setup.py install
 
 install:
   - pip install --upgrade pip enum34
