@@ -9,13 +9,13 @@ python:
 
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-  - python setup.py install
+  - python setup.py install --user
 
 install:
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
 
-sudo: true
+sudo: false
 
 script:
   - python tests/LexerParserTest.py
