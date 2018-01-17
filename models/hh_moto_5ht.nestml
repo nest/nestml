@@ -1,0 +1,165 @@
+/* BeginDocumentation
+Name: hh_moto_5ht_nestml - a motor neuron model in HH formalism with 5HT modulation.
+Repo: https://github.com/research-team/hh-moto-5ht
+
+Description:
+
+ hh_moto_5ht is an implementation of a spiking motor neuron using the Hodkin-Huxley
+ formalism according to the article by Booth V. Basically this model is an implementation
+ of the existing NEURON model by Moraud EM and Capogrosso M.
+
+ The parameter that represents 5HT modulation is `g_K_Ca_5ht`. When it equals `1.0`,
+ no modulation happens. An application of 5HT corresponds to its decrease. The default
+ value for it is `0.6`. This value was used in the Neuron simulator model. The range of
+ this parameter is `(0, 1]` but you are free to play with any value.
+
+ Post-synaptic currents and Spike Detection are the same as in hh_psc_alpha.
+
+References:
+
+ Muscle spindle feedback circuit by Moraud EM and Capogrosso M.
+ https://senselab.med.yale.edu/ModelDB/showmodel.cshtml?model=189786
+
+ Compartmental model of vertebrate motoneurons for Ca2+-dependent spiking and plateau potentials under pharmacological treatment.
+ Booth V1, Rinzel J, Kiehn O.
+ http://refhub.elsevier.com/S0896-6273(16)00010-6/sref4
+
+Sends: SpikeEvent
+
+Receives: SpikeEvent, CurrentEvent
+
+Authors: Aleksei Sanin (https://github.com/vogdb)
+SeeAlso: hh_psc_alpha
+
+*/
+neuron hh_moto_5ht:
+  state:
+    r integer # number of steps in the current refractory phase
+  end
+
+  initial_values:
+    V_m mV = -65. mV # Membrane potential
+    Ca_in mmol = Ca_in_init  # Inside Calcium concentration
+
+    function alpha_m_init 1/ms = (0.4 * (V_m + 66.)) / (1. - exp(-(V_m + 66.)/5.))/ms
+    function beta_m_init 1/ms = (0.4 * (-(V_m + 32.))) / (1. - exp((V_m + 32.)/5.))/ms
+    Act_m real =  alpha_m_init / ( alpha_m_init + beta_m_init )
+
+    function h_inf_init real = 1. / (1. + exp((V_m + 65.)/7.))
+    Act_h real = h_inf_init
+
+    function n_inf_init real = 1. / (1. + exp(-(V_m + 38.)/15.))
+    Inact_n real = n_inf_init
+
+    function p_inf_init real = 1. / (1. + exp(-(V_m + 55.8)/3.7))
+    Act_p real = p_inf_init
+
+    function mc_inf_init real = 1. / (1. + exp(-(V_m + 32.)/5.))
+    Act_mc real = mc_inf_init
+
+    function hc_inf_init real = 1. / (1. + exp((V_m + 50.)/5.))
+    Act_hc real = hc_inf_init
+  end
+
+  equations:
+    # synapses: alpha functions
+    shape I_syn_in = (e/tau_syn_in) * t * exp(-t/tau_syn_in)
+    shape I_syn_ex = (e/tau_syn_ex) * t * exp(-t/tau_syn_ex)
+    function I_syn_exc pA = convolve(I_syn_ex, spikeExc)
+    function I_syn_inh pA = convolve(I_syn_in, spikeInh)
+
+    function E_Ca mV = ((1000.0 * R_const * T_current)/(2. * F_const))*log(Ca_out/Ca_in)
+
+    function I_Na  pA = g_Na * Act_m * Act_m * Act_m * Act_h * ( V_m - E_Na )
+    function I_K   pA  = g_K_rect * Inact_n * Inact_n * Inact_n * Inact_n * ( V_m - E_K )
+    function I_L   pA = g_L * ( V_m - E_L )
+    function I_Ca_N pA = g_Ca_N *  Act_mc * Act_mc * Act_hc * (V_m - E_Ca)
+    function I_Ca_L pA = g_Ca_L * Act_p * (V_m - E_Ca)
+    function I_K_Ca pA = g_K_Ca_5ht * g_K_Ca * ((Ca_in * Ca_in)/(Ca_in * Ca_in + 0.014 * 0.014))*(V_m - E_K)
+
+    V_m' =( -( I_Na + I_K + I_L + I_Ca_N + I_Ca_L + I_K_Ca ) + currents + I_e + I_syn_inh + I_syn_exc ) / C_m
+
+
+    function n_inf real = 1. / (1. + exp(-(V_m + 38.)/15.))
+    function n_tau ms = (5. * ms) / (exp((V_m + 50.)/40.) + exp(-(V_m + 50.)/50.))
+    Inact_n' = (n_inf - Inact_n) / n_tau
+
+    function alpha_m 1/ms = (0.4 * (V_m + 66.)) / (1. - exp(-(V_m + 66.)/5.))/ms
+    function beta_m 1/ms = (0.4 * (-(V_m + 32.))) / (1. - exp((V_m + 32.)/5.))/ms
+    Act_m' = alpha_m * (1. - Act_m) - beta_m * Act_m
+
+    function h_inf real = 1. / (1. + exp((V_m + 65.)/7.))
+    function h_tau ms = (30. * ms) / (exp((V_m + 60.)/15.) + exp(-(V_m + 60.)/16.))
+    Act_h' = (h_inf - Act_h) / h_tau
+
+    function p_inf real = 1. / (1. + exp(-(V_m + 55.8)/3.7))
+    function p_tau ms = 400.0ms
+    Act_p' = (p_inf - Act_p) / p_tau
+
+    function mc_inf real = 1. / (1. + exp(-(V_m + 32.)/5.))
+    function mc_tau ms = 15.0ms
+    Act_mc' = (mc_inf - Act_mc) / mc_tau
+
+    function hc_inf real = 1. / (1. + exp((V_m + 50.)/5.))
+    function hc_tau ms = 50.0ms
+    Act_hc' = (hc_inf - Act_hc) / hc_tau
+
+    Ca_in'= 0.01 * (-1 * (0.00001) * (I_Ca_N + I_Ca_L) - 4.*Ca_in)
+
+  end
+
+  parameters:
+    t_ref ms = 2.0ms         # Refractory period
+
+    g_Na nS = 5000.0nS       # Sodium peak conductance
+    g_L nS = 200.0nS         # Leak conductance
+    g_K_rect nS = 30000.0nS  # Delayed Rectifier Potassium peak conductance
+    g_Ca_N nS = 5000.0nS
+    g_Ca_L nS = 10.0nS
+    g_K_Ca nS = 30000.0nS
+    g_K_Ca_5ht real = 0.6    # modulation of K-Ca channels by 5HT. Its value 1.0 == no modulation.
+
+    Ca_in_init mmol = 0.0001mmol  # Initial inside Calcium concentration
+    Ca_out mmol = 2.0mmol         # Outside Calcium concentration. Remains constant during simulation.
+
+    C_m pF = 200.0pF         # Membrane capacitance
+    E_Na mV = 50.0mV
+    E_K mV = -80.0mV
+    E_L mV = -70.0mV
+
+    # Nernst equation constants
+    R_const real = 8.314472
+    F_const real = 96485.34
+    T_current real = 309.15 # 36 Celcius
+
+    tau_syn_ex ms = 0.2ms  # Rise time of the excitatory synaptic alpha function i
+    tau_syn_in ms = 2.0ms  # Rise time of the inhibitory synaptic alpha function
+    I_e pA = 0pA           # Constant Current in pA
+  end
+
+  internals:
+    RefractoryCounts integer = steps(t_ref) # refractory time in steps
+  end
+
+  input:
+      spikeInh pA <- inhibitory spike
+      spikeExc pA <- excitatory spike
+      currents <- current
+  end
+
+  output: spike
+
+  update:
+    U_old mV = V_m
+    integrate_odes()
+    # sending spikes: crossing 0 mV, pseudo-refractoriness and local maximum...
+    if r > 0: # is refractory?
+      r -= 1
+    elif V_m > 0 mV and U_old > V_m: # threshold && maximum
+      r = RefractoryCounts
+      emit_spike()
+    end
+
+  end
+
+end
