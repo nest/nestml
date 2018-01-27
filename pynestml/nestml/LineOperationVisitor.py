@@ -94,6 +94,7 @@ class LineOperatorVisitor(NESTMLVisitor):
                                       _errorPosition=_expr.getSourcePosition(),
                                       _message=errorMsg,_logLevel=LOGGING_LEVEL.WARNING)
                     return
+                #TODO: fix this when unifying error systems
                 errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
                                                                   rhsType.printSymbol(), "placeHolder",
                                                                   _expr.getSourcePosition())
