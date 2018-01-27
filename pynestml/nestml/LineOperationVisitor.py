@@ -94,7 +94,9 @@ class LineOperatorVisitor(NESTMLVisitor):
                                       _errorPosition=_expr.getSourcePosition(),
                                       _message=errorMsg,_logLevel=LOGGING_LEVEL.WARNING)
                     return
-                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, _expr)
+                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
+                                                                  rhsType.printSymbol(), "placeHolder",
+                                                                  _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH,
                                   _errorPosition=_expr.getSourcePosition(),
