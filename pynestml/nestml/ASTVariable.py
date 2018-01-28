@@ -72,6 +72,12 @@ class ASTVariable(ASTElement):
         """
         return cls(_name, _differentialOrder, _sourcePosition)
 
+    def resolveInOwnScope(self):
+        from pynestml.nestml.Symbol import SymbolKind
+        assert self.getScope() is not None
+
+        return self.getScope().resolveToSymbol(self.getCompleteName(), SymbolKind.VARIABLE)
+
     def getName(self):
         """
         Returns the name of the variable.

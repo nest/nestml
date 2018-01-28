@@ -80,23 +80,25 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
             actualTypes = _functionCall.getArgs()
             for i in range(0, len(actualTypes)):
                 expectedType = expectedTypes[i]
-                actualType = actualTypes[i].getTypeEither()
-                if actualType.isError():
+                actualTypeEither = actualTypes[i].getTypeEither()
+                if actualTypeEither.isError():
                     code, message = Messages.getTypeCouldNotBeDerived(actualTypes[i])
                     Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
                                       _errorPosition=actualTypes[i].getSourcePosition())
-                elif not actualType.getValue().equals(expectedType):
-                    if ASTUtils.isCastableTo(actualType.getValue(), expectedType):
+                    return
+                actualType = actualTypeEither.getValue()
+                if not actualTypeEither.getValue().equals(expectedType):
+                    if actualType.isCastableTo(expectedType):
                         code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
                                                                              _expectedType=expectedType,
-                                                                             _gotType=actualType, _castable=True)
+                                                                             _gotType=actualTypeEither, _castable=True)
 
                         Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
                     else:
                         code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
                                                                              _expectedType=expectedType,
-                                                                             _gotType=actualType, _castable=False)
+                                                                             _gotType=actualTypeEither, _castable=False)
 
                         Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)

@@ -293,3 +293,6 @@ class ASTAssignment(ASTElement):
                                                       _sourcePosition=self.getSourcePosition())
         result.updateScope(self.getScope())
         return result
+
+    def resolveLhsVariable(self):
+        return self.getVariable().resolveInOwnScope()

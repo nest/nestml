@@ -253,3 +253,57 @@ class TypeSymbol(Symbol):
                self.getReferencedObject() == _other.getReferencedObject() and \
                self.getSymbolName() == _other.getSymbolName() and \
                self.getCorrespondingScope() == _other.getCorrespondingScope()
+
+    def differsOnlyInMagnitudeOrIsEqualTo(self, _otherType=None):
+        """
+        Indicates whether both type represent the same unit but with different magnitudes. This
+        case is still valid, e.g., mV can be assigned to volt.
+        :param _typeA: a type
+        :type _typeA:  TypeSymbol
+        :param _otherType: a type
+        :type _otherType: TypeSymbol
+        :return: True if both elements equal or differ in magnitude, otherwise False.
+        :rtype: bool
+        """
+        assert (_otherType is not None and isinstance(_otherType, TypeSymbol)), \
+            '(NESTML.TypeSymbol) No or wrong type of target type provided (%s)!' % type(_otherType)
+
+        if self.equals(_otherType):
+            return True
+        # in the case that we don't deal with units, there are no magnitudes
+        if not (self.isUnit() and _otherType.isUnit()):
+            return False
+        # if it represents the same unit, if we disregard the prefix and simplify it
+        unitA = self.getUnit().getUnit()
+        unitB = _otherType.getUnit().getUnit()
+        # if isinstance(unitA,)
+        from astropy import units
+        # TODO: consider even more complex cases which can be resolved to the same unit?
+        if (isinstance(unitA, units.Unit) or isinstance(unitA, units.PrefixUnit) or isinstance(unitA, units.CompositeUnit))\
+                and (isinstance(unitB, units.Unit) or isinstance(unitB, units.PrefixUnit) or isinstance(unitB, units.CompositeUnit)) \
+                and unitA.physical_type == unitB.physical_type:
+            return True
+        return False
+
+    def isCastableTo(self, _otherType=None):
+        """
+        Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
+        a unit where unit is expected is allowed.
+        :return: True if castable, otherwise False
+        :rtype: bool
+        """
+        assert (_otherType is not None and isinstance(_otherType, TypeSymbol)), \
+            '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_otherType)
+        # we can always cast from unit to real
+        if self.isUnit() and _otherType.isReal():
+            return True
+        elif self.isBoolean() and _otherType.isReal():
+            return True
+        elif self.isReal() and _otherType.isBoolean():
+            return True
+        elif self.isInteger() and _otherType.isReal():
+            return True
+        elif self.isReal() and _otherType.isInteger():
+            return True
+        else:
+            return False

@@ -57,25 +57,27 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         """
         if _declaration.hasExpression():
             lhsType = _declaration.getDataType().getTypeSymbol()
-            rhsType = _declaration.getExpression().getTypeEither()
-            if rhsType.isError():
+            rhsTypeEither = _declaration.getExpression().getTypeEither()
+            if rhsTypeEither.isError():
                 code, message = Messages.getTypeCouldNotBeDerived(_declaration.getExpression())
                 Logger.logMessage(_neuron=None, _code=code, _message=message,
                                   _errorPosition=_declaration.getExpression().getSourcePosition(),
                                   _logLevel=LOGGING_LEVEL.ERROR)
-            elif not lhsType.equals(rhsType.getValue()):
-                if ASTUtils.differsInMagnitude(rhsType.getValue(), lhsType):
+                return
+            rhsType = rhsTypeEither.getValue()
+            if not lhsType.equals(rhsTypeEither.getValue()):
+                if rhsType.differsOnlyInMagnitudeOrIsEqualTo(lhsType):
                     return
-                if ASTUtils.isCastableTo(rhsType.getValue(), lhsType):
+                if rhsType.isCastableTo(lhsType):
                     code, message = Messages.getImplicitCastRhsToLhs(_declaration.getExpression(),
                                                                      _declaration.getVariables()[0],
-                                                                     rhsType.getValue(), lhsType)
+                                                                     rhsTypeEither.getValue(), lhsType)
                     Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
                 else:
                     code, message = Messages.getDifferentTypeRhsLhs(_rhsExpression=_declaration.getExpression(),
                                                                     _lhsExpression=_declaration.getVariables()[0],
-                                                                    _rhsType=rhsType.getValue(),
+                                                                    _rhsType=rhsTypeEither.getValue(),
                                                                     _lhsType=lhsType)
                     Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
@@ -95,37 +97,40 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         return
 
     def handleComplexAssignment(self, _assignment):
-        from pynestml.nestml.Symbol import SymbolKind
-        expr = _assignment.deconstructCompoundAssignment()
+        implicitRhsExpr = _assignment.deconstructCompoundAssignment()
+        lhsVariableSymbol = _assignment.resolveLhsVariable()
+        rhsTypeSymbolEither = implicitRhsExpr.getTypeEither()
 
-        lhsVariableSymbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
-                                                                   SymbolKind.VARIABLE)
-        rhsTypeSymbolEither = expr.getTypeEither()
         if rhsTypeSymbolEither.isError():
             code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
                               _errorPosition=_assignment.getExpression().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif lhsVariableSymbol is not None and not lhsVariableSymbol.getTypeSymbol().equals(
-                rhsTypeSymbolEither.getValue()):
-            if ASTUtils.differsInMagnitude(rhsTypeSymbolEither.getValue(), lhsVariableSymbol.getTypeSymbol()):
+            return
+        rhsTypeSymbol = rhsTypeSymbolEither.getValue()
+
+        if self.typesDoNotMatch(lhsVariableSymbol, rhsTypeSymbolEither):
+            if rhsTypeSymbol.differsOnlyInMagnitudeOrIsEqualTo(lhsVariableSymbol.getTypeSymbol()):
                 # TODO: Implement
-                omgpython = "beschwerdichnicht"
-            elif ASTUtils.isCastableTo(rhsTypeSymbolEither.getValue(), lhsVariableSymbol.getTypeSymbol()):
-                code, message = Messages.getImplicitCastRhsToLhs(expr,
+                pass
+            elif rhsTypeSymbol.isCastableTo(lhsVariableSymbol.getTypeSymbol()):
+                code, message = Messages.getImplicitCastRhsToLhs(implicitRhsExpr,
                                                                  _assignment.getVariable(),
                                                                  rhsTypeSymbolEither.getValue(),
                                                                  lhsVariableSymbol.getTypeSymbol())
                 Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
                                   _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
             else:
-                code, message = Messages.getDifferentTypeRhsLhs(expr,
+                code, message = Messages.getDifferentTypeRhsLhs(implicitRhsExpr,
                                                                 _assignment.getVariable(),
                                                                 rhsTypeSymbolEither.getValue(),
                                                                 lhsVariableSymbol.getTypeSymbol())
                 Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
                                   _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return
+
+    def typesDoNotMatch(self, lhsVariableSymbol, rhsTypeSymbolEither):
+        return not lhsVariableSymbol.getTypeSymbol().equals(rhsTypeSymbolEither.getValue())
 
     def handleSimpleAssignment(self, _assignment):
         from pynestml.nestml.ErrorStrings import ErrorStrings
@@ -139,9 +144,11 @@ class CorrectExpressionVisitor(NESTMLVisitor):
             Logger.logMessage(_neuron=None, _code=code, _message=message,
                               _errorPosition=_assignment.getExpression().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif lhsVariableSymbol is not None \
-                and not lhsVariableSymbol.getTypeSymbol().equals(rhsTypeSymbolEither.getValue()):
-            if ASTUtils.differsInMagnitude(rhsTypeSymbolEither.getValue(), lhsVariableSymbol.getTypeSymbol()):
+            return
+        rhsTypeSymbol = rhsTypeSymbolEither.getValue()
+        if lhsVariableSymbol is not None \
+                and self.typesDoNotMatch(lhsVariableSymbol, rhsTypeSymbolEither):
+            if rhsTypeSymbol.differsOnlyInMagnitudeOrIsEqualTo(lhsVariableSymbol.getTypeSymbol()):
                 # we convert the rhs unit to the magnitude of the lhs unit.
                 _assignment.getExpression().setImplicitConversionFactor(
                     ASTUtils.getConversionFactor(lhsVariableSymbol, _assignment.getExpression()))
@@ -151,7 +158,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                 Logger.logMessage(_code=MessageCode.IMPLICIT_CAST,
                                   _errorPosition=_assignment.getSourcePosition(),
                                   _message=errorMsg, _logLevel=LOGGING_LEVEL.WARNING)
-            elif ASTUtils.isCastableTo(rhsTypeSymbolEither.getValue(), lhsVariableSymbol.getTypeSymbol()):
+            elif rhsTypeSymbol.isCastableTo(lhsVariableSymbol.getTypeSymbol()):
                 code, message = Messages.getImplicitCastRhsToLhs(_assignment.getExpr(),
                                                                  _assignment.getVariable(),
                                                                  rhsTypeSymbolEither.getValue(),
