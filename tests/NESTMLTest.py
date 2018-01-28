@@ -43,6 +43,7 @@ Logger.initLogger(LOGGING_LEVEL.NO)
 CoCosManager.initializeCoCosManager()
 
 
+# TODO: this is not a unit test. Don't run it with unittests or use mocks to hide filesystem, solver etc
 class NESTMLTest(unittest.TestCase):
     """
     Tests if the overall model processing frontend works as intended.

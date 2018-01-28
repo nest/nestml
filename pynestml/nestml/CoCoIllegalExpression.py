@@ -59,10 +59,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
             lhsType = _declaration.getDataType().getTypeSymbol()
             rhsTypeEither = _declaration.getExpression().getTypeEither()
             if rhsTypeEither.isError():
-                code, message = Messages.getTypeCouldNotBeDerived(_declaration.getExpression())
-                Logger.logMessage(_neuron=None, _code=code, _message=message,
-                                  _errorPosition=_declaration.getExpression().getSourcePosition(),
-                                  _logLevel=LOGGING_LEVEL.ERROR)
+                self.__dropMissingTypeError(_declaration)
                 return
             rhsType = rhsTypeEither.getValue()
             if not lhsType.equals(rhsTypeEither.getValue()):
@@ -98,38 +95,56 @@ class CorrectExpressionVisitor(NESTMLVisitor):
 
     def handleComplexAssignment(self, _assignment):
         implicitRhsExpr = _assignment.deconstructCompoundAssignment()
-        lhsVariableSymbol = _assignment.resolveLhsVariable()
+        lhsVariableSymbol = _assignment.resolveLhsVariableSymbol()
         rhsTypeSymbolEither = implicitRhsExpr.getTypeEither()
 
         if rhsTypeSymbolEither.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_assignment.getExpression().getSourcePosition(),
-                              _logLevel=LOGGING_LEVEL.ERROR)
+            self.__dropMissingTypeError(_assignment)
             return
+
         rhsTypeSymbol = rhsTypeSymbolEither.getValue()
 
-        if self.typesDoNotMatch(lhsVariableSymbol, rhsTypeSymbolEither):
-            if rhsTypeSymbol.differsOnlyInMagnitudeOrIsEqualTo(lhsVariableSymbol.getTypeSymbol()):
-                # TODO: Implement
-                pass
-            elif rhsTypeSymbol.isCastableTo(lhsVariableSymbol.getTypeSymbol()):
-                code, message = Messages.getImplicitCastRhsToLhs(implicitRhsExpr,
-                                                                 _assignment.getVariable(),
-                                                                 rhsTypeSymbolEither.getValue(),
-                                                                 lhsVariableSymbol.getTypeSymbol())
-                Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                                  _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
-            else:
-                code, message = Messages.getDifferentTypeRhsLhs(implicitRhsExpr,
-                                                                _assignment.getVariable(),
-                                                                rhsTypeSymbolEither.getValue(),
-                                                                lhsVariableSymbol.getTypeSymbol())
-                Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                                  _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+        if self.__typesDoNotMatch(lhsVariableSymbol, rhsTypeSymbolEither):
+            self.tryToRecoverOrError(_assignment, implicitRhsExpr, lhsVariableSymbol, rhsTypeSymbol,
+                                     rhsTypeSymbolEither)
         return
 
-    def typesDoNotMatch(self, lhsVariableSymbol, rhsTypeSymbolEither):
+    def tryToRecoverOrError(self, _assignment, implicitRhsExpr, lhsVariableSymbol, rhsTypeSymbol, rhsTypeSymbolEither):
+        if rhsTypeSymbol.differsOnlyInMagnitudeOrIsEqualTo(lhsVariableSymbol.getTypeSymbol()):
+            # TODO: Implement
+            pass
+        elif rhsTypeSymbol.isCastableTo(lhsVariableSymbol.getTypeSymbol()):
+            self.__dropImplicitCastWarning(_assignment, implicitRhsExpr, lhsVariableSymbol, rhsTypeSymbolEither)
+        else:
+            self.__dropIncompatibleTypesError(_assignment, implicitRhsExpr, lhsVariableSymbol, rhsTypeSymbolEither)
+
+    @staticmethod
+    def __dropIncompatibleTypesError(_assignment, implicitRhsExpr, lhsVariableSymbol, rhsTypeSymbolEither):
+        code, message = Messages.getDifferentTypeRhsLhs(implicitRhsExpr,
+                                                        _assignment.getVariable(),
+                                                        rhsTypeSymbolEither.getValue(),
+                                                        lhsVariableSymbol.getTypeSymbol())
+        Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
+                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+
+    @staticmethod
+    def __dropImplicitCastWarning(_assignment, implicitRhsExpr, lhsVariableSymbol, rhsTypeSymbolEither):
+        code, message = Messages.getImplicitCastRhsToLhs(implicitRhsExpr,
+                                                         _assignment.getVariable(),
+                                                         rhsTypeSymbolEither.getValue(),
+                                                         lhsVariableSymbol.getTypeSymbol())
+        Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
+                          _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+
+    @staticmethod
+    def __dropMissingTypeError(_assignment):
+        code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
+        Logger.logMessage(_neuron=None, _code=code, _message=message,
+                          _errorPosition=_assignment.getExpression().getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.ERROR)
+
+    @staticmethod
+    def __typesDoNotMatch(lhsVariableSymbol, rhsTypeSymbolEither):
         return not lhsVariableSymbol.getTypeSymbol().equals(rhsTypeSymbolEither.getValue())
 
     def handleSimpleAssignment(self, _assignment):
@@ -140,14 +155,11 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                                                    SymbolKind.VARIABLE)
         rhsTypeSymbolEither = _assignment.getExpression().getTypeEither()
         if rhsTypeSymbolEither.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_assignment.getExpression().getSourcePosition(),
-                              _logLevel=LOGGING_LEVEL.ERROR)
+            self.__dropMissingTypeError(_assignment)
             return
         rhsTypeSymbol = rhsTypeSymbolEither.getValue()
         if lhsVariableSymbol is not None \
-                and self.typesDoNotMatch(lhsVariableSymbol, rhsTypeSymbolEither):
+                and self.__typesDoNotMatch(lhsVariableSymbol, rhsTypeSymbolEither):
             if rhsTypeSymbol.differsOnlyInMagnitudeOrIsEqualTo(lhsVariableSymbol.getTypeSymbol()):
                 # we convert the rhs unit to the magnitude of the lhs unit.
                 _assignment.getExpression().setImplicitConversionFactor(
@@ -159,19 +171,11 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                   _errorPosition=_assignment.getSourcePosition(),
                                   _message=errorMsg, _logLevel=LOGGING_LEVEL.WARNING)
             elif rhsTypeSymbol.isCastableTo(lhsVariableSymbol.getTypeSymbol()):
-                code, message = Messages.getImplicitCastRhsToLhs(_assignment.getExpr(),
-                                                                 _assignment.getVariable(),
-                                                                 rhsTypeSymbolEither.getValue(),
-                                                                 lhsVariableSymbol.getTypeSymbol())
-                Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                                  _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
+                self.__dropImplicitCastWarning(_assignment, _assignment.getExpr(), lhsVariableSymbol,
+                                               rhsTypeSymbolEither)
             else:
-                code, message = Messages.getDifferentTypeRhsLhs(_assignment.getExpression(),
-                                                                _assignment.getVariable(),
-                                                                rhsTypeSymbolEither.getValue(),
-                                                                lhsVariableSymbol.getTypeSymbol())
-                Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
-                                  _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
+                self.__dropIncompatibleTypesError(_assignment, _assignment.getExpression(), lhsVariableSymbol,
+                                                  rhsTypeSymbolEither)
         return
 
     def visitIfClause(self, _ifClause=None):

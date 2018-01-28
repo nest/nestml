@@ -294,5 +294,5 @@ class ASTAssignment(ASTElement):
         result.updateScope(self.getScope())
         return result
 
-    def resolveLhsVariable(self):
+    def resolveLhsVariableSymbol(self):
         return self.getVariable().resolveInOwnScope()
