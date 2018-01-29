@@ -19,13 +19,13 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.codegeneration.ExpressionsPrettyPrinter import ExpressionsPrettyPrinter
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-from pynestml.nestml.ASTExpression import ASTExpression
-from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.nestml.ASTBitOperator import ASTBitOperator
-from pynestml.nestml.ASTComparisonOperator import ASTComparisonOperator
-from pynestml.nestml.ASTLogicalOperator import ASTLogicalOperator
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+from pynestml.modelprocessor.ASTBitOperator import ASTBitOperator
+from pynestml.modelprocessor.ASTComparisonOperator import ASTComparisonOperator
+from pynestml.modelprocessor.ASTLogicalOperator import ASTLogicalOperator
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.codegeneration.UnitConverter import UnitConverter
 from pynestml.codegeneration.IdempotentReferenceConverter import IdempotentReferenceConverter
 

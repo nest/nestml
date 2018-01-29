@@ -229,8 +229,8 @@ private:
   *         as C-style arrays, you need to define the copy constructor and
   *         assignment operator to copy those members.
   */
-  struct Parameters_
-  { {% filter indent(4,True) %}
+  struct Parameters_{
+    {% filter indent(4,True) %}
     {% for variable in neuron.getParameterNonAliasSymbols() -%}
       {% include 'MemberDeclaration.jinja2' -%}
     {% endfor -%}{% endfilter %}
@@ -311,7 +311,7 @@ private:
   *       cannot destroy themselves, Variables_ will need a destructor.
   */
   struct Variables_ {
-    {% for variable in neuron.getInternalNonAliasSymbols() -%}
+    {%- for variable in neuron.getInternalNonAliasSymbols() -%}
       {% filter indent(4,True) %}{% include "MemberDeclaration.jinja2" -%}{% endfilter %}
     {% endfor %}
   };

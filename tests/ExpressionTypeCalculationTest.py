@@ -21,16 +21,16 @@ import unittest
 import os
 
 from pynestml.codegeneration.UnitConverter import UnitConverter
-from pynestml.nestml.NESTMLParser import NESTMLParser
-from pynestml.nestml.Symbol import SymbolKind
-from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.nestml.SymbolTable import SymbolTable
-from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
-from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.modelprocessor.ModelParser import ModelParser
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -40,7 +40,6 @@ PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
 PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
-CoCosManager.initializeCoCosManager()
 
 
 class expressionTestVisitor(NESTMLVisitor):
@@ -54,7 +53,7 @@ class expressionTestVisitor(NESTMLVisitor):
 
         _equals = varSymbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
 
-        message = 'line ' + _expr.getSourcePosition().printSourcePosition() + ' : LHS = ' + \
+        message = 'line ' + str(_expr.getSourcePosition()) + ' : LHS = ' + \
                   varSymbol.getTypeSymbol().getSymbolName() + \
                   ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
                   ' Equal ? ' + str(_equals)
@@ -79,8 +78,8 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     A simple test that prints all top-level expression types in a file.
     """
     def test(self):
-        Logger.initLogger(LOGGING_LEVEL.INFO)
-        model = NESTMLParser.parseModel(
+        Logger.initLogger(LOGGING_LEVEL.NO)
+        model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'ExpressionTypeTest.nestml'))))
         Logger.setCurrentNeuron(model.getNeuronList()[0])

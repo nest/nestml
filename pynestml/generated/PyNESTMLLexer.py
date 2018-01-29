@@ -427,6 +427,7 @@ class PyNESTMLLexer(Lexer):
         self._predicates = None
 
 
+        HIDDEN = 1
         COMMENT = 2
         NEW_LINE = 3
       

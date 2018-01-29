@@ -30,8 +30,8 @@ from pynestml.utils.OdeTransformer import OdeTransformer
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
-from pynestml.nestml.ASTNeuron import ASTNeuron
-from pynestml.nestml.ASTSymbolTableVisitor import SymbolTableASTVisitor
+from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
 from pynestml.frontend.FrontendConfiguration import FrontendConfiguration
 from pynestml.solver.EquationsBlockProcessor import EquationsBlockProcessor
 from copy import deepcopy
@@ -46,7 +46,7 @@ class NestCodeGenerator(object):
     __templateCMakeLists = None
     __templateModuleClass = None
     __templateModuleHeader = None
-    __SLI_Init = None
+    __templateSLIInit = None
     __templateNeuronHeader = None
     __templateNeuronImplementation = None
 
@@ -63,7 +63,7 @@ class NestCodeGenerator(object):
         # setup the module header
         self.__templateModuleHeader = env.get_template('ModuleHeader.jinja2')
         # setup the SLI_Init file
-        self.__SLI_Init = env.get_template('SLI_Init.jinja2')
+        self.__templateSLIInit = env.get_template('SLI_Init.jinja2')
         # setup the neuron header template
         self.__templateNeuronHeader = env.get_template('NeuronHeader.jinja2')
         # setup the neuron implementation template
@@ -90,7 +90,7 @@ class NestCodeGenerator(object):
             os.makedirs(os.path.realpath(os.path.join(FrontendConfiguration.getTargetPath(), 'sli')))
         with open(str(os.path.join(FrontendConfiguration.getTargetPath(), 'sli',
                                    FrontendConfiguration.getModuleName() + "-init")) + '.sli', 'w+') as f:
-            f.write(str(self.__SLI_Init.render(namespace)))
+            f.write(str(self.__templateSLIInit.render(namespace)))
         code, message = Messages.getModuleGenerated(FrontendConfiguration.getTargetPath())
         Logger.logMessage(_neuron=None, _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
         return
@@ -110,7 +110,7 @@ class NestCodeGenerator(object):
         # solve all equations
         workingVersion = self.solveOdesAndShapes(workingVersion)
         # update the symbol table
-        SymbolTableASTVisitor.updateSymbolTable(workingVersion)
+        ASTSymbolTableVisitor.updateSymbolTable(workingVersion)
         self.generateNestCode(workingVersion)
         code, message = Messages.getCodeGenerated(_neuron.getName(), FrontendConfiguration.getTargetPath())
         Logger.logMessage(_neuron=_neuron, _errorPosition=_neuron.getSourcePosition(), _code=code, _message=message,
@@ -127,7 +127,7 @@ class NestCodeGenerator(object):
             self.analyseAndGenerateNeuron(neuron)
         return
 
-    def generateHeader(self, _neuron=None):
+    def generateModelHeader(self, _neuron=None):
         """
         For a handed over neuron, this method generates the corresponding header file.
         :param _neuron: a single neuron object.
@@ -141,7 +141,7 @@ class NestCodeGenerator(object):
             f.write(str(outputNeuronHeader))
         return
 
-    def generateClassImplementation(self, _neuron=None):
+    def generateModelImplementation(self, _neuron=None):
         """
         For a handed over neuron, this method generates the corresponding implementation file.
         :param _neuron: a single neuron object.
@@ -163,8 +163,8 @@ class NestCodeGenerator(object):
         """
         if not os.path.isdir(FrontendConfiguration.getTargetPath()):
             os.makedirs(FrontendConfiguration.getTargetPath())
-        self.generateHeader(_neuron)
-        self.generateClassImplementation(_neuron)
+        self.generateModelHeader(_neuron)
+        self.generateModelImplementation(_neuron)
         return
 
     def setupStandardNamespace(self, _neuron=None):
@@ -223,7 +223,8 @@ class NestCodeGenerator(object):
                 _namespace['printer'] = NestPrinter(_expressionPrettyPrinter=legacyPrettyPrinter)
         return
 
-    def functionShapeExists(self, _shapes=list()):
+    @classmethod
+    def functionShapeExists(cls, _shapes=list()):
         """
         For a handed over list of shapes this method checks if a single shape exits with differential order of 0.
         :param _shapes: a list of shapes
@@ -231,13 +232,14 @@ class NestCodeGenerator(object):
         :return: True if at leas one shape with diff. order of 0 exits, otherwise False.
         :rtype: bool
         """
-        from pynestml.nestml.ASTOdeShape import ASTOdeShape
+        from pynestml.modelprocessor.ASTOdeShape import ASTOdeShape
         for shape in _shapes:
             if isinstance(shape, ASTOdeShape) and shape.getVariable().getDifferentialOrder() == 0:
                 return True
         return False
 
-    def solveOdesAndShapes(self, _neuron=None):
+    @classmethod
+    def solveOdesAndShapes(cls, _neuron=None):
         """
         Solves all odes and equations in the handed over neuron.
         :param _neuron: a single neuron instance.

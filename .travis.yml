@@ -9,11 +9,11 @@ python:
 
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-  - sudo python setup.py install
-
-install:
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
+
+install:
+  - python setup.py install
 
 sudo: true
 

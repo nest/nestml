@@ -213,7 +213,7 @@ grammar PyNESTML;
     @attribute function: A block declaring a used-defined function.
   */
   body: BLOCK_OPEN
-         (NEWLINE | blockWithVariables | updateBlock | equationsBlock | inputBlock | outputBlock | function)*
+         (NEWLINE | blockWithVariables | equationsBlock | inputBlock | outputBlock | updateBlock | function)*
          BLOCK_CLOSE;
 
   /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:

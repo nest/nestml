@@ -47,7 +47,6 @@ neuron iaf_cond_alpha_neuron:
 
     function I_syn_exc pA = convolve(g_ex, spikeExc)  * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh)  * ( V_m - E_in )
-
     function I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
@@ -74,7 +73,6 @@ neuron iaf_cond_alpha_neuron:
   input:
       spikeInh nS <- inhibitory spike
       spikeExc nS <- excitatory spike
-
       currents <- current
   end
 
@@ -139,7 +137,6 @@ neuron iaf_cond_alpha_implicit:
     g_in' nS/ms = nS * e / tau_syn_in
     g_ex nS = 0nS
     g_ex' nS/ms = nS * e / tau_syn_ex
-
   end
 
   equations:
@@ -148,7 +145,6 @@ neuron iaf_cond_alpha_implicit:
 
     function I_syn_exc pA = convolve(g_ex, spikeExc) * ( V_m - E_ex )
     function I_syn_inh pA = convolve(g_in, spikeInh) * ( V_m - E_in )
-
     function I_leak pA = g_L * ( V_m - E_L )
 
     V_m' = ( -I_leak - I_syn_exc - I_syn_inh + currents + I_e ) / C_m
@@ -191,6 +187,7 @@ neuron iaf_cond_alpha_implicit:
       V_m = V_reset # clamp potential
       emit_spike()
     end
+
   end
 
 end

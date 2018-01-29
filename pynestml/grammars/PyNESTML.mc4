@@ -25,11 +25,11 @@ package de.monticore;
 
 grammar PyNESTML{
 
-    token SL_COMMENT = ('#' (~('\n' |'\r' ))*) : { self._channel=2;};
+    token SL_COMMENT = ('#' (~('\n' |'\r'))*) : { self._channel=2;};
 
-    token ML_COMMENT {print("test");}= ("/*" .*? "*/" | "\"\"\"" .*? "\"\"\"") : {self._channel=2;};
+    token ML_COMMENT = ("/*" .*? "*/" | "\"\"\"" .*? "\"\"\"") : {self._channel=2;};
 
-    token NEWLINE = ('\r' '\n' | '\r' | '\n' ): {self._channel=3; };
+    token NEWLINE = ('\r' '\n' | '\r' | '\n'): {self._channel=3; };
 
     token WS =  (' ' | '\t') :{ self._channel=1; };
 
@@ -51,9 +51,9 @@ grammar PyNESTML{
     * String literals are always enclosed in "...".
     */
 
-    token STRING_LITERAL = '"' ( 'a'..'z'| 'A'..'Z' | '_' | '$' )( 'a'..'z'| 'A'..'Z' | '_' | '0'..'9' | '$' )* '"';
+    token STRING_LITERAL = '"' ('a'..'z'| 'A'..'Z' | '_' | '$')('a'..'z'| 'A'..'Z' | '_' | '0'..'9' | '$')* '"';
 
-    token NAME = ( 'a'..'z'|'A'..'Z' | '_' | '$' )( 'a'..'z'|'A'..'Z' | '_' | '0'..'9' | '$' )*;
+    token NAME = ('a'..'z'|'A'..'Z' | '_' | '$')('a'..'z'|'A'..'Z' | '_' | '0'..'9' | '$')*;
 
     /**
     * Numeric literals. We allow integers as well as floats. Moreover, we ensure that values are either == 0 or
@@ -63,8 +63,7 @@ grammar PyNESTML{
     *  (2) 3.14 -> float
     *  (3) 10E10 -> float with exponent
     */
-    token INTEGER = NON_ZERO_INTEGER
-            | '0';
+    token INTEGER = NON_ZERO_INTEGER | '0';
 
     fragment token NON_ZERO_INTEGER = '1'..'9' ('0'..'9')*;
 
@@ -82,12 +81,12 @@ grammar PyNESTML{
                          | (NON_ZERO_INTEGER |'0') '.'
                          ;
 
-    fragment token EXPONENT_FLOAT = ( NON_ZERO_INTEGER | POINT_FLOAT ) EXPONENT ;
+    fragment token EXPONENT_FLOAT = (NON_ZERO_INTEGER | POINT_FLOAT) EXPONENT ;
 
     /**
     * The exponent is introduced by e or E, the signum and an integer.
     */
-    fragment token EXPONENT = ('e'|'E') ('+'|'-')? (NON_ZERO_INTEGER |'0');
+    fragment token EXPONENT = ('e'|'E') ('+'|'-')? (NON_ZERO_INTEGER | '0');
 
     fragment token FRACTION = '.' ('0'..'9')+;
 
@@ -103,7 +102,7 @@ grammar PyNESTML{
     /** ASTNESTMLCompilationUnit represents a collection of neurons as stored in a model.
       *@attribute neuron: A list of processed models.
       */
-    NestmlCompilationUnit = (Neuron | NEWLINE )* EOF;
+    NestmlCompilationUnit = (Neuron | NEWLINE)* EOF;
 
     /** ASTNeuron Represents a single neuron.
       @attribute Name:    The name of the neuron, e.g., ht_neuron.
@@ -120,7 +119,7 @@ grammar PyNESTML{
       @attribute function: A block declaring a used-defined function.
       */
     Body = BLOCK_OPEN
-             (NEWLINE | BlockWithVariables | UpdateBlock | EquationsBlock | InputBlock | OutputBlock | Function)*
+             (NEWLINE | BlockWithVariables | EquationsBlock | InputBlock | OutputBlock | UpdateBlock | Function)*
              BLOCK_CLOSE;
 
     /** ASTBlockWithVariables Represent a block with variables and constants, e.g.:
@@ -134,7 +133,7 @@ grammar PyNESTML{
         @attribute declaration: A list of corresponding declarations.
       */
     BlockWithVariables =
-        (isState:"state"|isParameters:"parameters"|isInternals:"internals"|isInits:"initial_values")?
+        (isState:"state"|isParameters:"parameters"|isInternals:"internals"|isInits:"initial_values")
         BLOCK_OPEN
           (Declaration | NEWLINE)*
         BLOCK_CLOSE;
@@ -165,7 +164,7 @@ grammar PyNESTML{
     EquationsBlock =
         "equations"
         BLOCK_OPEN
-          (OdeFunction|OdeEquation|OdeShape|NEWLINE)+
+          (OdeFunction|OdeEquation|OdeShape|NEWLINE)*
         BLOCK_CLOSE;
 
       /** ASTInputBlock represents a single input block:
@@ -302,7 +301,7 @@ grammar PyNESTML{
 
   ComparisonOperator = (lt:"<" | le:"<=" | eq:"==" | ne:"!=" | ne2:"<>" | ge:">=" | gt:">");
 
-  LogicalOperator = (logicalAnd:"and" | logicalOr:"or" );
+  LogicalOperator = (logicalAnd:"and" | logicalOr:"or");
 
   /**
     ASTVariable Provides a 'marker' AST node to identify variables used in expressions.
@@ -334,7 +333,7 @@ grammar PyNESTML{
   * Procedural-Language
   *********************************************************************************************************************/
 
-  Block = ( Stmt | NEWLINE )*;
+  Block = (Stmt | NEWLINE)*;
 
   Stmt = SmallStmt | CompoundStmt;
 
@@ -369,7 +368,7 @@ grammar PyNESTML{
     Variable ("," Variable)*
     Datatype
     ("[" sizeParameter:NAME "]")?
-    ( "=" rhs:Expression)?
+    ("=" rhs:Expression)?
     ("[[" invariant:Expression "]]")?;
 
   /** ATReturnStmt Models the return statement in a function.
