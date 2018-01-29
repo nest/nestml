@@ -60,8 +60,8 @@ class ASTElement(object):
         :type _implicitFactor: float
         :return: nothing
         """
-        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.nestml.ASTExpression import ASTExpression
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
         self._implicitConversionFactor = _implicitFactor
@@ -73,8 +73,8 @@ class ASTElement(object):
         :return: the conversion factor, if present, or None
         """
 
-        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.nestml.ASTExpression import ASTExpression
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
 
         assert isinstance(self, ASTExpression) or isinstance(self, ASTSimpleExpression)
         return self._implicitConversionFactor

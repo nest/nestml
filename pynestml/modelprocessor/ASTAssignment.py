@@ -242,7 +242,7 @@ class ASTAssignment(ASTElement):
         :return: the rhs for an equivalent direct assignment.
         :rtype: ASTExpression
         """
-        from pynestml.nestml.ASTSymbolTableVisitor import SymbolTableASTVisitor
+        from pynestml.modelprocessor.ASTSymbolTableVisitor import ASTSymbolTableVisitor
         # TODO: get rid of this through polymorphism?
         assert not self.isDirectAssignment(), "Can only be invoked on a compound assignment."
 
@@ -251,11 +251,11 @@ class ASTAssignment(ASTElement):
         rhsInBrackets = self.getBracketedRhsExpression()
         result = self.constructEquivalentDirectAssignmentRhs(operator, lhsVariable, rhsInBrackets)
         # create symbols for the new Expression:
-        SymbolTableASTVisitor.visitExpression(result)
+        ASTSymbolTableVisitor.visitExpression(result)
         return result
 
     def getLhsVariableAsExpression(self):
-        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
         # TODO: maybe calculate new source positions exactly?
         result = ASTSimpleExpression.makeASTSimpleExpression(_variable=self.getVariable(),
                                                              _sourcePosition=self.getVariable().getSourcePosition())
@@ -263,7 +263,7 @@ class ASTAssignment(ASTElement):
         return result
 
     def extractOperatorFromCompoundAssignment(self):
-        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
         assert not self.isDirectAssignment()
         # TODO: maybe calculate new source positions exactly?
         if self.isCompoundMinus():
@@ -278,7 +278,7 @@ class ASTAssignment(ASTElement):
         return result
 
     def getBracketedRhsExpression(self):
-        from pynestml.nestml.ASTExpression import ASTExpression
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
         # TODO: maybe calculate new source positions exactly?
         result = ASTExpression.makeExpression(_isEncapsulated=True,
                                               _expression=self.getExpression(),
@@ -287,7 +287,7 @@ class ASTAssignment(ASTElement):
         return result
 
     def constructEquivalentDirectAssignmentRhs(self, _operator, _lhsVariable, _rhsInBrackets):
-        from pynestml.nestml.ASTExpression import ASTExpression
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
         # TODO: maybe calculate new source positions exactly?
         result = ASTExpression.makeCompoundExpression(_lhs=_lhsVariable, _binaryOperator=_operator, _rhs=_rhsInBrackets,
                                                       _sourcePosition=self.getSourcePosition())

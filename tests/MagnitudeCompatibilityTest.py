@@ -20,17 +20,21 @@
 import unittest
 import os
 
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+
+from pynestml.modelprocessor.ModelParser import ModelParser
+
 from pynestml.codegeneration.UnitConverter import UnitConverter
-from pynestml.nestml.NESTMLParser import NESTMLParser
-from pynestml.nestml.Symbol import SymbolKind
-from pynestml.nestml.NESTMLVisitor import NESTMLVisitor
-from pynestml.nestml.PredefinedTypes import PredefinedTypes
-from pynestml.nestml.PredefinedFunctions import PredefinedFunctions
-from pynestml.nestml.PredefinedUnits import PredefinedUnits
-from pynestml.nestml.PredefinedVariables import PredefinedVariables
-from pynestml.nestml.SymbolTable import SymbolTable
-from pynestml.nestml.ASTSourcePosition import ASTSourcePosition
-from pynestml.nestml.CoCosManager import CoCosManager
+from pynestml.generated.PyNESTMLParser import PyNESTMLParser
+from pynestml.generated.PyNESTMLVisitor import PyNESTMLVisitor
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
+from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -40,10 +44,10 @@ PredefinedUnits.registerUnits()
 PredefinedTypes.registerTypes()
 PredefinedVariables.registerPredefinedVariables()
 PredefinedFunctions.registerPredefinedFunctions()
-CoCosManager.initializeCoCosManager()
 
 
-class expressionTestVisitor(NESTMLVisitor):
+
+class ExpressionTestVisitor(NESTMLVisitor):
     def endvisitAssignment(self, _assignment=None):
 
         return
@@ -58,13 +62,13 @@ class MagnitudeCompatibilityTest(unittest.TestCase):
     """
     def test(self):
         Logger.initLogger(LOGGING_LEVEL.INFO)
-        model = NESTMLParser.parseModel(
+        model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'MagnitudeCompatibilityTest.nestml'))))
         Logger.setCurrentNeuron(model.getNeuronList()[0])
-        expressionTestVisitor().handle(model)
+        ExpressionTestVisitor().handle(model)
         Logger.setCurrentNeuron(None)
-        #assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        #assert (len(Logger.getAll°MessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
 if __name__ == '__main__':

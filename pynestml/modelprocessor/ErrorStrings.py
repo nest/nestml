@@ -115,10 +115,10 @@ class ErrorStrings(object):
         :return: the warning message
         """
 
-        from pynestml.nestml.ASTExpression import ASTExpression
-        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.nestml.ASTAssignment import ASTAssignment
-        from pynestml.nestml.Symbol import SymbolKind
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
+        from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
+        from pynestml.modelprocessor.ASTAssignment import ASTAssignment
+        from pynestml.modelprocessor.Symbol import SymbolKind
 
         assert _origin is not None
         assert _parentNode is not None and (isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
@@ -137,10 +137,10 @@ class ErrorStrings(object):
                 # All these rules employ left and right side expressions.
                 if _parentNode.getLhs() is not None:
                     targetExpression = _parentNode.getLhs()
-                    targetUnit = targetExpression.getTypeEither().getValue().getSympyUnit()
+                    targetUnit = targetExpression.getTypeEither().getValue().getEncapsulatedUnit()
                 if _parentNode.getRhs() is not None:
                     converteeExpression = _parentNode.getRhs()
-                    converteeUnit = converteeExpression.getTypeEither().getValue().getSympyUnit()
+                    converteeUnit = converteeExpression.getTypeEither().getValue().getEncapsulatedUnit()
                 # Handle all Arithmetic Operators:
                 if isinstance(binOp, ASTArithmeticOperator):
                     # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
@@ -154,9 +154,9 @@ class ErrorStrings(object):
                                                                    SymbolKind.VARIABLE)
             operation = "="
             targetExpression = _parentNode.getVariable()
-            targetUnit = lhsVariableSymbol.getTypeSymbol().getSympyUnit()
+            targetUnit = lhsVariableSymbol.getTypeSymbol().getEncapsulatedUnit()
             converteeExpression = _parentNode.getExpression()
-            converteeUnit = converteeExpression.getTypeEither().getValue().getSympyUnit()
+            converteeUnit = converteeExpression.getTypeEither().getValue().getEncapsulatedUnit()
 
         assert targetExpression is not None and converteeExpression is not None and \
                operation is not None, "Only call this on an addition/subtraction  or assignment after " \
@@ -170,7 +170,7 @@ class ErrorStrings(object):
                             + converteeExpression.printImplicitVersion()+"'"
 
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" \
-               + _parentNode.getSourcePosition().printSourcePosition() + ")"
+               + str(_parentNode.getSourcePosition()) + ")"
 
 
     @classmethod

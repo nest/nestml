@@ -27,6 +27,7 @@ from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 

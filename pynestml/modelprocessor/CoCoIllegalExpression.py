@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Messages import Messages
+from pynestml.utils.Messages import Messages, MessageCode
 from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
@@ -68,13 +68,13 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                 if rhsType.isCastableTo(lhsType):
                     code, message = Messages.getImplicitCastRhsToLhs(_declaration.getExpression(),
                                                                      _declaration.getVariables()[0],
-                                                                     rhsType.getValue(), lhsType)
+                                                                     rhsType, lhsType)
                     Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
                 else:
                     code, message = Messages.getDifferentTypeRhsLhs(_rhsExpression=_declaration.getExpression(),
                                                                     _lhsExpression=_declaration.getVariables()[0],
-                                                                    _rhsType=rhsType.getValue(),
+                                                                    _rhsType=rhsType,
                                                                     _lhsType=lhsType)
                     Logger.logMessage(_errorPosition=_declaration.getSourcePosition(),
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
@@ -147,9 +147,9 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         return not lhsVariableSymbol.getTypeSymbol().equals(rhsTypeSymbol)
 
     def handleSimpleAssignment(self, _assignment):
-        from pynestml.nestml.ErrorStrings import ErrorStrings
-        from pynestml.nestml.Symbol import SymbolKind
-        from pynestml.nestml.Either import Either
+        from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+        from pynestml.modelprocessor.Symbol import SymbolKind
+        from pynestml.modelprocessor.Either import Either
         lhsVariableSymbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
                                                                    SymbolKind.VARIABLE)
         rhsTypeSymbolEither = _assignment.getExpression().getTypeEither()

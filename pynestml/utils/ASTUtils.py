@@ -245,11 +245,10 @@ class ASTUtils(object):
         :return: factor f so that: _targetExpr = f*_converteeExpr
         """
         from astropy import units
-        from pynestml.nestml.ASTExpression import ASTExpression
-        from pynestml.nestml.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.nestml.TypeSymbol import TypeSymbol
-        from pynestml.nestml.ASTArithmeticOperator import ASTArithmeticOperator
-        from pynestml.nestml.VariableSymbol import VariableSymbol
+        from pynestml.modelprocessor.ASTExpression import ASTExpression
+        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
+        from pynestml.modelprocessor.VariableSymbol import VariableSymbol
 
         assert _targetExpr is not None and (isinstance(_targetExpr,ASTExpression)
                                             or isinstance(_targetExpr,ASTSimpleExpression)
@@ -270,11 +269,11 @@ class ASTUtils(object):
         assert targetType is not None and isinstance(targetType, TypeSymbol)
         assert converteeType is not None and isinstance(converteeType,TypeSymbol)
 
-        assert converteeType.getSympyUnit() is not None
-        assert targetType.getSympyUnit() is not None
+        assert converteeType.getEncapsulatedUnit() is not None
+        assert targetType.getEncapsulatedUnit() is not None
 
-        targetUnit = targetType.getSympyUnit()
-        converteeUnit = converteeType.getSympyUnit()
+        targetUnit = targetType.getEncapsulatedUnit()
+        converteeUnit = converteeType.getEncapsulatedUnit()
 
         assert isinstance(converteeUnit,units.PrefixUnit) or isinstance(converteeUnit,units.Unit) or isinstance(converteeUnit,units.CompositeUnit)
         assert isinstance(targetUnit,units.PrefixUnit) or isinstance(targetUnit,units.Unit) or isinstance(targetUnit,units.CompositeUnit)
