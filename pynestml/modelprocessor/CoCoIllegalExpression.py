@@ -177,78 +177,78 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                                      rhs_type_symbol)
         return
 
-    def visit_if_clause(self, _ifClause=None):
+    def visit_if_clause(self, _if_clause=None):
         """
         Visits a single if clause and checks that its condition is boolean.
-        :param _ifClause: a single elif clause.
-        :type _ifClause: ASTIfClause
+        :param _if_clause: a single elif clause.
+        :type _if_clause: ASTIfClause
         """
-        cond_type = _ifClause.getCondition().getTypeEither()
+        cond_type = _if_clause.getCondition().getTypeEither()
         if cond_type.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_ifClause.getCondition())
+            code, message = Messages.getTypeCouldNotBeDerived(_if_clause.getCondition())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_ifClause.getCondition().getSourcePosition(),
+                              _errorPosition=_if_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                   cond_type.getValue())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_ifClause.getCondition().getSourcePosition(),
+                              _errorPosition=_if_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visit_elif_clause(self, _elifClause=None):
+    def visit_elif_clause(self, _elif_clause=None):
         """
         Visits a single elif clause and checks that its condition is boolean.
-        :param _elifClause: a single elif clause.
-        :type _elifClause: ASTElifClause
+        :param _elif_clause: a single elif clause.
+        :type _elif_clause: ASTElifClause
         """
-        cond_type = _elifClause.getCondition().getTypeEither()
+        cond_type = _elif_clause.getCondition().getTypeEither()
         if cond_type.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_elifClause.getCondition())
+            code, message = Messages.getTypeCouldNotBeDerived(_elif_clause.getCondition())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_elifClause.getCondition().getSourcePosition(),
+                              _errorPosition=_elif_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                   cond_type.getValue())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_elifClause.getCondition().getSourcePosition(),
+                              _errorPosition=_elif_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visit_while_stmt(self, _whileStmt=None):
+    def visit_while_stmt(self, _while_stmt=None):
         """
         Visits a single while stmt and checks that its condition is of boolean type.
-        :param _whileStmt: a single while stmt
-        :type _whileStmt: ASTWhileStmt
+        :param _while_stmt: a single while stmt
+        :type _while_stmt: ASTWhileStmt
         """
-        cond_type = _whileStmt.getCondition().getTypeEither()
+        cond_type = _while_stmt.getCondition().getTypeEither()
         if cond_type.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_whileStmt.getCondition())
+            code, message = Messages.getTypeCouldNotBeDerived(_while_stmt.getCondition())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_whileStmt.getCondition().getSourcePosition(),
+                              _errorPosition=_while_stmt.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                   cond_type.getValue())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_whileStmt.getCondition().getSourcePosition(),
+                              _errorPosition=_while_stmt.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visit_for_stmt(self, _forStmt=None):
+    def visit_for_stmt(self, _for_stmt=None):
         """
         Visits a single for stmt and checks that all it parts are correctly defined.
-        :param _forStmt: a single for stmt
-        :type _forStmt: ASTForStmt
+        :param _for_stmt: a single for stmt
+        :type _for_stmt: ASTForStmt
         """
         # check that the from stmt is an integer or real
-        from_type = _forStmt.getFrom().getTypeEither()
+        from_type = _for_stmt.getFrom().getTypeEither()
         if from_type.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_forStmt.getFrom())
+            code, message = Messages.getTypeCouldNotBeDerived(_for_stmt.getFrom())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_forStmt.getFrom().getSourcePosition(),
+                              _errorPosition=_for_stmt.getFrom().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not (from_type.getValue().equals(PredefinedTypes.getIntegerType())
                   or from_type.getValue().equals(
@@ -256,19 +256,19 @@ class CorrectExpressionVisitor(NESTMLVisitor):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(),
                                                                   from_type.getValue())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_forStmt.getFrom().getSourcePosition(),
+                              _errorPosition=_for_stmt.getFrom().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         # check that the to stmt is an integer or real
-        to_type = _forStmt.getTo().getTypeEither()
+        to_type = _for_stmt.getTo().getTypeEither()
         if to_type.isError():
-            code, message = Messages.getTypeCouldNotBeDerived(_forStmt.getTo())
+            code, message = Messages.getTypeCouldNotBeDerived(_for_stmt.getTo())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_forStmt.getTo().getSourcePosition(),
+                              _errorPosition=_for_stmt.getTo().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not (to_type.getValue().equals(PredefinedTypes.getIntegerType())
                   or to_type.getValue().equals(PredefinedTypes.getRealType())):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), to_type.getValue())
             Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_forStmt.getTo().getSourcePosition(),
+                              _errorPosition=_for_stmt.getTo().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
