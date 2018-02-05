@@ -32,7 +32,7 @@ class ASTElement(object):
     __scope = None
     __comment = None
 
-    _implicitConversionFactor=None
+    _implicitConversionFactor = None
 
     def __init__(self, _sourcePosition=None, _scope=None):
         """
@@ -164,6 +164,7 @@ class ASTElement(object):
                    ('\n' if self.getComment().index(comment) < len(self.getComment()) - 1 else '')
         return ret
 
+    # todo: we can do this with a visitor instead of hard coding grammar traversals all over the place
     @abstractmethod
     def getParent(self, _ast=None):
         """
