@@ -52,7 +52,7 @@ class NumericNumeratorVisitor(NESTMLVisitor):
     Visits a numeric numerator and checks if the value is 1.
     """
 
-    def visitUnitType(self, _unitType=None):
+    def visit_unit_type(self, _unitType=None):
         """
         Check if the coco applies,
         :param _unitType: a single unit type object.

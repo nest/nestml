@@ -74,11 +74,11 @@ class ExpressionTypeVisitor(NESTMLVisitor):
         assert (_node is not None), \
             '(PyNestML.Visitor.ExpressionTypeVisitor) No ast node provided (%s)!' % type(_node)
         self.traverse(_node)
-        self.getRealSelf().visit(_node)
-        self.getRealSelf().endvisit(_node)
+        self.get_real_self().visit(_node)
+        self.get_real_self().endvisit(_node)
         return
 
-    def traverseSimpleExpression(self, _node):
+    def traverse_simple_expression(self, _node):
         """
         Traverses a simple expression and invokes required subroutines.
         :param _node: a single node.
@@ -90,33 +90,33 @@ class ExpressionTypeVisitor(NESTMLVisitor):
         if isinstance(_node, ASTSimpleExpression):
             # simpleExpression = functionCall
             if _node.getFunctionCall() is not None:
-                self.setRealSelf(self.__functionCallVisitor)
+                self.set_real_self(self.__functionCallVisitor)
                 return
             # simpleExpression =  (INTEGER|FLOAT) (variable)?
             if _node.getNumericLiteral() is not None or \
                     (_node.getNumericLiteral() is not None and _node.getVariable() is not None):
-                self.setRealSelf(self.__numericLiteralVisitor)
+                self.set_real_self(self.__numericLiteralVisitor)
                 return
             # simpleExpression =  variable
             if _node.getVariable() is not None:
-                self.setRealSelf(self.__variableVisitor)
+                self.set_real_self(self.__variableVisitor)
                 return
             # simpleExpression = BOOLEAN_LITERAL
             if _node.isBooleanTrue() or _node.isBooleanFalse():
-                self.setRealSelf(self.__booleanLiteralVisitor)
+                self.set_real_self(self.__booleanLiteralVisitor)
                 return
             # simpleExpression = isInf='inf'
             if _node.isInfLiteral():
-                self.setRealSelf(self.__infVisitor)
+                self.set_real_self(self.__infVisitor)
                 return
             # simpleExpression = string=STRING_LITERAL
             if _node.isString():
-                self.setRealSelf(self.__stringLiteralVisitor)
+                self.set_real_self(self.__stringLiteralVisitor)
                 return
 
         return
 
-    def traverseExpression(self, _node):
+    def traverse_expression(self, _node):
         """
         Traverses an expression and executes the required sub-routines.
         :param _node: a single ast node
@@ -127,7 +127,7 @@ class ExpressionTypeVisitor(NESTMLVisitor):
         # Expr = unaryOperator term=expression
         if _node.getExpression() is not None and _node.getUnaryOperator() is not None:
             _node.getExpression().accept(self)
-            self.setRealSelf(self.__unaryVisitor)
+            self.set_real_self(self.__unaryVisitor)
             return
 
         # Parentheses and logicalNot
@@ -135,11 +135,11 @@ class ExpressionTypeVisitor(NESTMLVisitor):
             _node.getExpression().accept(self)
             # Expr = leftParentheses='(' term=expression rightParentheses=')'
             if _node.isEncapsulated():
-                self.setRealSelf(self.__parenthesesVisitor)
+                self.set_real_self(self.__parenthesesVisitor)
                 return
             # Expr = logicalNot='not' term=expression
             if _node.isLogicalNot():
-                self.setRealSelf(self.__logicalNotVisitor)
+                self.set_real_self(self.__logicalNotVisitor)
                 return
 
         # Rules with binary operators
@@ -154,30 +154,30 @@ class ExpressionTypeVisitor(NESTMLVisitor):
             if isinstance(binOp, ASTArithmeticOperator.ASTArithmeticOperator):
                 # Expr = <assoc=right> left=expression powOp='**' right=expression
                 if binOp.isPowOp():
-                    self.setRealSelf(self.__powVisitor)
+                    self.set_real_self(self.__powVisitor)
                     return
                 # Expr = left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
                 if binOp.isTimesOp() or binOp.isDivOp() or binOp.isModuloOp():
-                    self.setRealSelf(self.__dotOperatorVisitor)
+                    self.set_real_self(self.__dotOperatorVisitor)
                     return
                 # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
                 if binOp.isPlusOp() or binOp.isMinusOp():
-                    self.setRealSelf(self.__lineOperatorVisitor)
+                    self.set_real_self(self.__lineOperatorVisitor)
                     return
             # handle all bitOperators:
             if isinstance(binOp, ASTBitOperator.ASTBitOperator):
                 # Expr = left=expression bitOperator right=expression
-                self.setRealSelf(self.__noSemantics)  # TODO: implement something -> future work with more operators
+                self.set_real_self(self.__noSemantics)  # TODO: implement something -> future work with more operators
                 return
             # handle all comparison Operators:
             if isinstance(binOp, ASTComparisonOperator.ASTComparisonOperator):
                 # Expr = left=expression comparisonOperator right=expression
-                self.setRealSelf(self.__comparisonOperatorVisitor)
+                self.set_real_self(self.__comparisonOperatorVisitor)
                 return
             # handle all logical Operators
             if isinstance(binOp, ASTLogicalOperator.ASTLogicalOperator):
                 # Expr = left=expression logicalOperator right=expression
-                self.setRealSelf(self.__binaryLogicVisitor)
+                self.set_real_self(self.__binaryLogicVisitor)
                 return
 
         # Expr = condition=expression '?' ifTrue=expression ':' ifNot=expression
@@ -185,5 +185,5 @@ class ExpressionTypeVisitor(NESTMLVisitor):
             _node.getCondition().accept(self)
             _node.getIfTrue().accept(self)
             _node.getIfNot().accept(self)
-            self.setRealSelf(self.__conditionVisitor)
+            self.set_real_self(self.__conditionVisitor)
             return

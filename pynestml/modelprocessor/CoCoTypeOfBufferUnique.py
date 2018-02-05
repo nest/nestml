@@ -52,7 +52,7 @@ class TypeOfBufferUniqueVisitor(NESTMLVisitor):
     This visitor ensures that all buffers are specified uniquely by keywords.
     """
 
-    def visitInputLine(self, _line=None):
+    def visit_input_line(self, _line=None):
         """
         Checks the coco on the current node.
         :param _line: a single input line.

@@ -37,7 +37,7 @@ class LineOperatorVisitor(NESTMLVisitor):
     Visits a single binary operation consisting of + or - and updates the type accordingly.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single expression containing a plus or minus operator and updates its type.
         :param _expr: a single expression

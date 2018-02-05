@@ -33,7 +33,7 @@ class FunctionCallVisitor(NESTMLVisitor):
     Visits a single function call and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, _expr=None):
         """
         Visits a single function call as stored in a simple expression and derives the correct type of all its parameters.
         :param _expr: a simple expression

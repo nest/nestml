@@ -35,7 +35,7 @@ class PowVisitor(NESTMLVisitor):
     Visits a single power expression and updates its types accordingly.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single power expression and updates the types.
         :param _expr: a single expression.

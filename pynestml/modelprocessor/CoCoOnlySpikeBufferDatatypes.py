@@ -56,7 +56,7 @@ class BufferDatatypeVisitor(NESTMLVisitor):
     This visitor checks if each buffer has a datatype selected according to the coco.
     """
 
-    def visitInputLine(self, _line=None):
+    def visit_input_line(self, _line=None):
         """
         Checks the coco on the current node.
         :param _line: a single input line node.

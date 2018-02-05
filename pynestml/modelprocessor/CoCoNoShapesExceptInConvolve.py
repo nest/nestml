@@ -76,7 +76,7 @@ class ShapeUsageVisitor(NESTMLVisitor):
         _neuron.accept(self)
         return
 
-    def visitVariable(self, _variable=None):
+    def visit_variable(self, _variable=None):
         """
         Visits each shape and checks if it is used correctly.
         :param _variable: a single node.
@@ -121,7 +121,7 @@ class ShapeCollectingVisitor(NESTMLVisitor):
         _neuron.accept(self)
         return self.__shapeNames
 
-    def visitOdeShape(self, _odeShape=None):
+    def visit_ode_shape(self, _odeShape=None):
         """
         Collects the shape.
         :param _odeShape: a single shape node.

@@ -43,7 +43,7 @@ PredefinedFunctions.registerPredefinedFunctions()
 
 
 class expressionTestVisitor(NESTMLVisitor):
-    def endvisitAssignment(self, _assignment=None):
+    def end_visit_assignment(self, _assignment=None):
         scope = _assignment.getScope()
         varName = _assignment.getVariable().getName()
 

@@ -251,7 +251,7 @@ class ASTAssignment(ASTElement):
         rhsInBrackets = self.getBracketedRhsExpression()
         result = self.constructEquivalentDirectAssignmentRhs(operator, lhsVariable, rhsInBrackets)
         # create symbols for the new Expression:
-        ASTSymbolTableVisitor.visitExpression(result)
+        ASTSymbolTableVisitor.visit_expression(result)
         return result
 
     def getLhsVariableAsExpression(self):

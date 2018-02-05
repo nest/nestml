@@ -35,7 +35,7 @@ class LogicalNotVisitor(NESTMLVisitor):
     Visits a single expression and updates the type of the sub-expression.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single expression with a logical operator and updates the type.
         :param _expr: a single expression

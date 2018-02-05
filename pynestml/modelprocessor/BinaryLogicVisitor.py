@@ -34,7 +34,7 @@ class BinaryLogicVisitor(NESTMLVisitor):
     Visits a single binary logical operator expression and updates its types.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits an expression which uses a binary logic operator and updates the type.
         :param _expr: a single expression.

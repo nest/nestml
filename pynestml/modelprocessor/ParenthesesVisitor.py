@@ -30,7 +30,7 @@ class ParenthesesVisitor(NESTMLVisitor):
     Visits a single expression encapsulated in brackets and updates its type.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single expression encapsulated in parenthesis and updates its type.
         :param _expr: a single expression

@@ -36,7 +36,7 @@ class DotOperatorVisitor(NESTMLVisitor):
     This visitor is used to derive the correct type of expressions which use a binary dot operator.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single expression and updates the type.
         :param _expr: a single expression

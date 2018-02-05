@@ -32,7 +32,7 @@ class NumericLiteralVisitor(NESTMLVisitor):
     Visits a single numeric literal and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, _expr=None):
         """
         TODO comments
         :param _expr:

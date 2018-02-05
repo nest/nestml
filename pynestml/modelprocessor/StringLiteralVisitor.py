@@ -32,7 +32,7 @@ class StringLiteralVisitor(NESTMLVisitor):
     Visits a string literal and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, _expr=None):
         """
         Visits a singe simple expression which consists of a string literal and updates the type.
         :param _expr: a simple expression containing a string literal

@@ -35,7 +35,7 @@ class UnaryVisitor(NESTMLVisitor):
     Visits an expression consisting of a unary operator, e.g., -, and a sub-expression.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single unary operator and updates the type of the corresponding expression.
         :param _expr: a single expression

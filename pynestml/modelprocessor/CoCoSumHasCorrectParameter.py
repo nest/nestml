@@ -52,7 +52,7 @@ class SumIsCorrectVisitor(NESTMLVisitor):
     This visitor ensures that sums/convolve are provided with a correct expression.
     """
 
-    def visitFunctionCall(self, _functionCall=None):
+    def visit_function_call(self, _functionCall=None):
         """
         Checks the coco on the current function call.
         :param _functionCall: a single function call.

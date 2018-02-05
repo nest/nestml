@@ -35,7 +35,7 @@ class ConditionVisitor(NESTMLVisitor):
     This visitor is used to derive the correct type of a ternary operator, i.e., of all its subexpressions.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits an expression consisting of the ternary operator and updates its type.
         :param _expr: a single expression

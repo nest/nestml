@@ -49,7 +49,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
     This visitor checks that all expression correspond to the expected type.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, _declaration=None):
         """
         Visits a single declaration and asserts that type of lhs is equal to type of rhs.
         :param _declaration: a single declaration.
@@ -80,7 +80,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                       _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visitAssignment(self, _assignment=None):
+    def visit_assignment(self, _assignment=None):
         """
         Visits a single expression and assures that type(lhs) == type(rhs).
         :param _assignment: a single assignment.
@@ -177,7 +177,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                                                      rhs_type_symbol)
         return
 
-    def visitIfClause(self, _ifClause=None):
+    def visit_if_clause(self, _ifClause=None):
         """
         Visits a single if clause and checks that its condition is boolean.
         :param _ifClause: a single elif clause.
@@ -197,7 +197,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visitElifClause(self, _elifClause=None):
+    def visit_elif_clause(self, _elifClause=None):
         """
         Visits a single elif clause and checks that its condition is boolean.
         :param _elifClause: a single elif clause.
@@ -217,7 +217,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visitWhileStmt(self, _whileStmt=None):
+    def visit_while_stmt(self, _whileStmt=None):
         """
         Visits a single while stmt and checks that its condition is of boolean type.
         :param _whileStmt: a single while stmt
@@ -237,7 +237,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
 
-    def visitForStmt(self, _forStmt=None):
+    def visit_for_stmt(self, _forStmt=None):
         """
         Visits a single for stmt and checks that all it parts are correctly defined.
         :param _forStmt: a single for stmt

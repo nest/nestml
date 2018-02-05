@@ -34,7 +34,7 @@ class VariableVisitor(NESTMLVisitor):
     This visitor visits a single variable and updates its type.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, _expr=None):
         """
         Visits a single variable as contained in a simple expression and derives its type.
         :param _expr: a single simple expression
@@ -59,5 +59,5 @@ class VariableVisitor(NESTMLVisitor):
             _expr.setTypeEither(Either.error('Variable could not be resolved!'))
         return
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         raise Exception("Deprecated method used!")

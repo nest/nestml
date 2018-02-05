@@ -52,7 +52,7 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
     This visitor ensures that all function calls are consistent.
     """
 
-    def visitFunctionCall(self, _functionCall=None):
+    def visit_function_call(self, _functionCall=None):
         """
         Checks the coco.
         :param _functionCall: a single function call.

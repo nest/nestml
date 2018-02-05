@@ -33,7 +33,7 @@ class NoSemantics(NESTMLVisitor):
     A visitor which indicates that there a no semantics for the given node.
     """
 
-    def visitExpression(self, _expr=None):
+    def visit_expression(self, _expr=None):
         """
         Visits a single expression but does not execute any steps besides printing a message. This
         visitor indicates that no functionality has been implemented for this type of nodes.

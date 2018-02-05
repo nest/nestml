@@ -66,7 +66,7 @@ class InitVarsVisitor(NESTMLVisitor):
     This visitor checks that all variables as provided in the init block have been provided with an ode.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, _declaration=None):
         """
         Checks the coco on the current node.
         :param _declaration: a single declaration.

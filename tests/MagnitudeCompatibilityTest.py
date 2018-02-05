@@ -48,11 +48,11 @@ PredefinedFunctions.registerPredefinedFunctions()
 
 
 class ExpressionTestVisitor(NESTMLVisitor):
-    def endvisitAssignment(self, _assignment=None):
+    def end_visit_assignment(self, _assignment=None):
 
         return
 
-    def endvisitExpression(self, _expr=None):
+    def end_visit_expression(self, _expr=None):
         return
 
 

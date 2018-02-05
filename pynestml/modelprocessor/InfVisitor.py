@@ -32,7 +32,7 @@ class InfVisitor(NESTMLVisitor):
     Visits a inf expression and updates the type accordingly.
     """
 
-    def visitSimpleExpression(self, _expr=None):
+    def visit_simple_expression(self, _expr=None):
         """
         Visits a single simple expression containing an inf literal and updates its type.
         :param _expr: a simple expression

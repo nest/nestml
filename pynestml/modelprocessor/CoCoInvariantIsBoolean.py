@@ -51,7 +51,7 @@ class InvariantTypeVisitor(NESTMLVisitor):
     Checks if for each invariant, the type is boolean.
     """
 
-    def visitDeclaration(self, _declaration=None):
+    def visit_declaration(self, _declaration=None):
         """
         Checks the coco for a declaration.
         :param _declaration: a single declaration.

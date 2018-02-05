@@ -63,7 +63,7 @@ class EquationsOnlyForInitValues(NESTMLVisitor):
     This visitor ensures that for all ode equations exists an initial value.
     """
 
-    def visitOdeEquation(self, _equation=None):
+    def visit_ode_equation(self, _equation=None):
         """
         Ensures the coco.
         :param _equation: a single equation object.
