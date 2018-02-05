@@ -61,13 +61,13 @@ class MagnitudeCompatibilityTest(unittest.TestCase):
     A simple test that prints all top-level expression types in a file.
     """
     def test(self):
-        Logger.initLogger(LOGGING_LEVEL.INFO)
+        #Logger.initLogger(LOGGING_LEVEL.INFO)
         model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__),
                                                        'resources', 'MagnitudeCompatibilityTest.nestml'))))
-        Logger.setCurrentNeuron(model.getNeuronList()[0])
+        #Logger.setCurrentNeuron(model.getNeuronList()[0])
         ExpressionTestVisitor().handle(model)
-        Logger.setCurrentNeuron(None)
+        #Logger.setCurrentNeuron(None)
         #assert (len(Logger.getAll°MessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
 
 
