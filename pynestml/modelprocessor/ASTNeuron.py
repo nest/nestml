@@ -21,7 +21,7 @@
 
 from pynestml.modelprocessor.ASTBody import ASTBody
 from pynestml.modelprocessor.VariableSymbol import VariableSymbol
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTElement import ASTElement
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 

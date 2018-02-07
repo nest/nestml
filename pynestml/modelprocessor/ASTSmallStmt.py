@@ -23,7 +23,7 @@ from pynestml.modelprocessor.ASTAssignment import ASTAssignment
 from pynestml.modelprocessor.ASTFunctionCall import ASTFunctionCall
 from pynestml.modelprocessor.ASTReturnStmt import ASTReturnStmt
 from pynestml.modelprocessor.ASTDeclaration import ASTDeclaration
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTElement import ASTElement
 
 
 class ASTSmallStmt(ASTElement):

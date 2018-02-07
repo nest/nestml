@@ -20,7 +20,7 @@
 
 
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTElement import ASTElement
 
 
 class ASTNESTMLCompilationUnit(ASTElement):

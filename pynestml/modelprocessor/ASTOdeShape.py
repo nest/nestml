@@ -21,7 +21,7 @@
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.ASTVariable import ASTVariable
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTElement import ASTElement
 
 
 class ASTOdeShape(ASTElement):

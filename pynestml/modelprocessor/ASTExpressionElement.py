@@ -19,7 +19,7 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
 
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTElement import ASTElement
 from pynestml.modelprocessor.Either import Either
 
 

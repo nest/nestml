@@ -1,5 +1,5 @@
 #
-# ASTNode.py
+# ASTElement.py
 #
 # This file is part of NEST.
 #
@@ -34,9 +34,10 @@ class ASTElement(object):
 
     _implicitConversionFactor = None
 
-    def __init__(self, _sourcePosition=None, _scope=None):
+    def __init__(self, _sourcePosition = None, _scope = None):
         """
         The standard constructor.
+        :rtype: None
         :param _sourcePosition: a source position element.
         :type _sourcePosition: ASTSourcePosition
         :param _scope: the scope in which this element is embedded in.

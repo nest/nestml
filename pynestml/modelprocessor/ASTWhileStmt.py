@@ -20,7 +20,7 @@
 
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTBlock import ASTBlock
-from pynestml.modelprocessor.ASTNode import ASTElement
+from pynestml.modelprocessor.ASTElement import ASTElement
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 
 
