@@ -16,7 +16,7 @@ install:
 sudo: false
 
 script:
-  - python3 /usr/local/bin/mypy pynestml/ --ignore-missing-imports --follow-imports=silent
+  - 'if [[ ! $TRAVIS_PYTHON_VERSION < 3.0 ]]; then mypy pynestml/ --ignore-missing-imports --follow-imports=silent;fi'
   - python tests/LexerParserTest.py
   - python tests/SpecialBlockParserBuilderTest.py
   - python tests/ExpressionParserTest.py
