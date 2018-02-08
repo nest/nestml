@@ -66,17 +66,17 @@ class FunctionSymbol(Symbol):
         self.__isPredefined = _isPredefined
         return
 
-    def printSymbol(self):
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         """
         ret = 'FunctionSymbol[' + self.getSymbolName() + ', Parameters = {'
         for arg in self.__paramTypes:
-            ret += arg.printSymbol()
+            ret += arg.print_symbol()
             if self.__paramTypes.index(arg) < len(
                     self.__paramTypes) - 1:  # in the case that it is not the last arg, print also a comma
                 ret += ','
-        ret += '}, return type = ' + (self.getReturnType().printSymbol())
+        ret += '}, return type = ' + (self.getReturnType().print_symbol())
         ret += ', @' + (str(self.getReferencedObject().getSourcePosition())
                         if self.getReferencedObject() is not None else 'predefined') + ']'
         return ret

@@ -79,13 +79,13 @@ class Messages(object):
         """
         if not _castable:
             message = str(_argNr) + '. argument of function-call \'%s\' at is wrongly typed! Expected \'%s\',' \
-                                    ' found \'%s\'.' % (_functionCall.getName(), _gotType.getValue().printSymbol(),
-                                                        _expectedType.printSymbol())
+                                    ' found \'%s\'.' % (_functionCall.getName(), _gotType.getValue().print_symbol(),
+                                                        _expectedType.print_symbol())
         else:
             message = str(_argNr) + '. argument of function-call \'%s\' is wrongly typed! ' \
                                     'Implicit cast from \'%s\' to \'%s\'.' % (_functionCall.getName(),
-                                                                              _gotType.getValue().printSymbol(),
-                                                                              _expectedType.printSymbol())
+                                                                              _gotType.getValue().print_symbol(),
+                                                                              _expectedType.print_symbol())
         return MessageCode.FUNCTION_CALL_TYPE_ERROR, message
 
     @classmethod
@@ -120,8 +120,8 @@ class Messages(object):
         """
         message = 'Type of lhs \'%s\' does not correspond to expression type of \'%s\'! LHS=\'%s\', RHS=\'%s\'.' \
                   % (
-                      _lhsExpression, _rhsExpression, _lhsType.printSymbol(),
-                      _rhsType.printSymbol())
+                      _lhsExpression, _rhsExpression, _lhsType.print_symbol(),
+                      _rhsType.print_symbol())
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -144,8 +144,8 @@ class Messages(object):
         message = 'Type of lhs \'%s\' does not correspond to rhs \'%s\'! LHS: \'%s\', RHS: \'%s\'.' % (
             _lhsExpression,
             _rhsExpression,
-            _lhsType.printSymbol(),
-            _rhsType.printSymbol())
+            _lhsType.print_symbol(),
+            _rhsType.print_symbol())
         return MessageCode.CAST_NOT_POSSIBLE, message
 
     @classmethod
@@ -165,7 +165,7 @@ class Messages(object):
         assert (_gotType is not None and isinstance(_gotType, TypeSymbol)), \
             '(PyNestML.Utils.Message) Not a type symbol provided (%s)!' % type(_gotType)
         message = 'Actual type different from expected. Expected: \'%s\', got: \'%s\'!' % (
-            _expectedType.printSymbol(), _gotType.printSymbol())
+            _expectedType.print_symbol(), _gotType.print_symbol())
         return MessageCode.TYPE_DIFFERENT_FROM_EXPECTED, message
 
     @classmethod
@@ -223,7 +223,7 @@ class Messages(object):
             '(PyNestML.Utils.Message) Not a string provided (%s)!' % type(_bufferName)
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         message = 'No buffer type declared of \'%s\', \'%s\' is assumed!' \
-                  % (_bufferName, PredefinedTypes.getTypeIfExists('nS').printSymbol())
+                  % (_bufferName, PredefinedTypes.getTypeIfExists('nS').print_symbol())
         return MessageCode.SPIKE_BUFFER_TYPE_NOT_DEFINED, message
 
     @classmethod

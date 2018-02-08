@@ -137,7 +137,7 @@ class Symbol(object):
         return
 
     @abstractmethod
-    def printSymbol(self):
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         """

@@ -94,8 +94,8 @@ class LineOperatorVisitor(NESTMLVisitor):
                                       _message=errorMsg,_logLevel=LOGGING_LEVEL.WARNING)
                     return
                 #TODO: fix this when unifying error systems
-                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
-                                                                  rhsType.printSymbol(), 'real',
+                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.print_symbol(),
+                                                                  rhsType.print_symbol(), 'real',
                                                                   _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH,
@@ -109,8 +109,8 @@ class LineOperatorVisitor(NESTMLVisitor):
                     unitType = lhsType
                 else:
                     unitType = rhsType
-                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
-                                                                  rhsType.printSymbol(), unitType.printSymbol(),
+                errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.print_symbol(),
+                                                                  rhsType.print_symbol(), unitType.print_symbol(),
                                                                   _expr.getSourcePosition())
                 _expr.setTypeEither(Either.value(unitType))
                 Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=errorMsg,
@@ -118,8 +118,8 @@ class LineOperatorVisitor(NESTMLVisitor):
                 return
 
         # if we get here, we are in a general error state
-        errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.printSymbol(),
-                                                          rhsType.printSymbol(), 'ERROR',
+        errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.print_symbol(),
+                                                          rhsType.print_symbol(), 'ERROR',
                                                           _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
         Logger.logMessage(_code=MessageCode.ADD_SUB_TYPE_MISMATCH, _message=errorMsg,

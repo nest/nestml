@@ -111,7 +111,7 @@ class DotOperatorVisitor(NESTMLVisitor):
                     _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
                     return
         # Catch-all if no case has matched
-        typeMismatch = lhsType.printSymbol() + " / " if arithOp.isDivOp() else " * " + rhsType.printSymbol()
+        typeMismatch = lhsType.print_symbol() + " / " if arithOp.isDivOp() else " * " + rhsType.print_symbol()
         errorMsg = ErrorStrings.messageTypeMismatch(self, typeMismatch, _expr.getSourcePosition())
         _expr.setTypeEither(Either.error(errorMsg))
         Logger.logMessage(_message=errorMsg,

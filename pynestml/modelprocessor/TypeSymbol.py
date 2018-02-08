@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from abc import ABCMeta, abstractmethod
+
 from pynestml.modelprocessor.Symbol import Symbol
 
 
@@ -34,6 +36,7 @@ class TypeSymbol(Symbol):
         __isBuffer          Indicates whether it is a buffer symbol.
     
     """
+    __metaclass__ = ABCMeta
     __unit = None
     __isInteger = False
     __isReal = False
@@ -98,7 +101,19 @@ class TypeSymbol(Symbol):
         self.is_buffer = _isBuffer
         return
 
-    def printSymbol(self):
+    @property
+    def nest_type(self):
+        if self.is_buffer:
+            return 'nest::RingBuffer'
+        else:
+            return self.__get_concrete_nest_type()
+
+    @abstractmethod
+    def __get_concrete_nest_type(self):
+        pass
+
+    @abstractmethod
+    def print_symbol(self):
         """
         Returns a string representation of this symbol.
         :return: a string representation.

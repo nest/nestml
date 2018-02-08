@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 
 
 class ASTUnitTypeVisitor(object):
@@ -122,13 +123,12 @@ class ASTUnitTypeVisitor(object):
         from pynestml.modelprocessor.UnitType import UnitType
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
         from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
         # first ensure that it does not already exists, if not create it and register it in the set of predefined units
         assert (_unitType is not None), \
             '(PyNestML.Visitor.UnitTypeVisitor) No unit-type provided (%s)!' % type(_unitType)
         # first clean up the unit of not required components, here it is the 1.0 in front of the unit
         # e.g., 1.0 * 1 / ms. This step is not mandatory for correctness, but makes  reporting easier
-        if isinstance(_unitType,units.Quantity) and _unitType.value == 1.0:
+        if isinstance(_unitType, units.Quantity) and _unitType.value == 1.0:
             toProcess = _unitType.unit
         else:
             toProcess = _unitType
@@ -137,10 +137,10 @@ class ASTUnitTypeVisitor(object):
             PredefinedUnits.registerUnit(unitType)
         # now create the corresponding type symbol if it does not exists
         if PredefinedTypes.getTypeIfExists(str(toProcess)) is None:
-            typeSymbol = TypeSymbol(_name=str(toProcess),
-                                    _unit=PredefinedUnits.getUnitIfExists(str(toProcess)),
-                                    _isInteger=False, _isReal=False, _isVoid=False,
-                                    _isBoolean=False, _isString=False, _isBuffer=False)
+            typeSymbol = UnitTypeSymbol(_name=str(toProcess),
+                                        _unit=PredefinedUnits.getUnitIfExists(str(toProcess)),
+                                        _isInteger=False, _isReal=False, _isVoid=False,
+                                        _isBoolean=False, _isString=False, _isBuffer=False)
             PredefinedTypes.registerType(typeSymbol)
         return PredefinedTypes.getTypeIfExists(_name=str(toProcess))
 

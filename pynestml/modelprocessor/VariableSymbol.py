@@ -30,7 +30,7 @@ class VariableSymbol(Symbol):
     Attributes:
         __blockType           The type of block in which this symbol has been declared. Type: BlockType
         __vectorParameter     The parameter indicating the position in an array. Type: str
-        __declaringExpression The expression defining the value of this symbol. Type: ASTExpression  
+           __declaringExpression The expression defining the value of this symbol. Type: ASTExpression
         __isPredefined        Indicates whether this symbol is predefined, e.g., t or e. Type: bool
         __isFunction          Indicates whether this symbol belongs to a function. Type: bool
         __isRecordable        Indicates whether this symbol belongs to a recordable element. Type: bool
@@ -320,13 +320,13 @@ class VariableSymbol(Symbol):
         """
         return self.getBlockType() == BlockType.INITIAL_VALUES
 
-    def printSymbol(self):
+    def print_symbol(self):
         if self.getReferencedObject() is not None:
             sourcePosition = str(self.getReferencedObject().getSourcePosition())
         else:
             sourcePosition = 'predefined'
         vectorValue = self.getVectorParameter() if self.hasVectorParameter() else 'none'
-        typE = self.getTypeSymbol().printSymbol()
+        typE = self.getTypeSymbol().print_symbol()
         recordable = 'recordable, ' if self.isRecordable() else ''
         func = 'function, ' if self.isFunction() else ''
         conductanceBased = 'conductance based, ' if self.isConductanceBased() else ''

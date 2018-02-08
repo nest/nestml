@@ -60,7 +60,7 @@ class UnaryVisitor(NESTMLVisitor):
                 _expr.setTypeEither(Either.value(termType))
                 return
             else:
-                errorMsg = ErrorStrings.messageNonNumericType(self, termType.printSymbol(), _expr.getSourcePosition())
+                errorMsg = ErrorStrings.messageNonNumericType(self, termType.print_symbol(), _expr.getSourcePosition())
                 _expr.setTypeEither(Either.error(errorMsg))
                 Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
                 return
@@ -69,7 +69,7 @@ class UnaryVisitor(NESTMLVisitor):
                 _expr.setTypeEither(Either.value(termType))
                 return
             else:
-                errorMsg = ErrorStrings.messageNonNumericType(self, termType.printSymbol(), _expr.getSourcePosition())
+                errorMsg = ErrorStrings.messageNonNumericType(self, termType.print_symbol(), _expr.getSourcePosition())
                 _expr.setTypeEither(Either.error(errorMsg))
                 Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
                 return
