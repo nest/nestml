@@ -3,21 +3,20 @@ language: python
 python:
   - "2.7"
   - "3.5"
-  - "3.5-dev"
   - "3.6"
-  - "3.6-dev"
 
 before_install:
   - export PYTHONPATH=$PYTHONPATH:$(pwd)
-  - python setup.py install --user
+  - sudo python setup.py install
 
 install:
   - pip install --upgrade pip enum34
   - pip install -r requirements.txt
 
-sudo: false
+sudo: true
 
 script:
+  - mypy pynestml/ --ignore-missing-imports --follow-imports=silent
   - python tests/LexerParserTest.py
   - python tests/SpecialBlockParserBuilderTest.py
   - python tests/ExpressionParserTest.py
