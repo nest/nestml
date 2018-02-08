@@ -807,7 +807,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
             typeSymbol = PredefinedTypes.getTypeIfExists('nS')
         else:
             typeSymbol = PredefinedTypes.getTypeIfExists('pA')
-        typeSymbol.setBuffer(True)  # set it as a buffer
+        typeSymbol.is_buffer = True # set it as a buffer
         symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName(),
                                 _blockType=bufferType, _vectorParameter=_line.getIndexParameter(),
                                 _isPredefined=False, _isFunction=False, _isRecordable=False,

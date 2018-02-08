@@ -40,7 +40,7 @@ class TypeSymbol(Symbol):
     __isVoid = False
     __isBoolean = False
     __isString = False
-    __isBuffer = False
+    is_buffer = False
 
     def __init__(self, _elementReference=None, _scope=None, _name=None,
                  _unit=None, _isInteger=False, _isReal=False, _isVoid=False,
@@ -95,7 +95,7 @@ class TypeSymbol(Symbol):
         self.__isVoid = _isVoid
         self.__isBoolean = _isBoolean
         self.__isString = _isString
-        self.__isBuffer = _isBuffer
+        self.is_buffer = _isBuffer
         return
 
     def printSymbol(self):
@@ -116,7 +116,7 @@ class TypeSymbol(Symbol):
             elemType = 'string'
         else:
             elemType = self.getUnit().printUnit()
-        if self.isBuffer():
+        if self.is_buffer:
             elemType += ' buffer'
         return elemType
 
@@ -209,23 +209,6 @@ class TypeSymbol(Symbol):
         """
         return self.__isString
 
-    def isBuffer(self):
-        """
-        Indicates whether this is a buffer symbol.
-        :return: True if buffer, otherwise False.
-        :rtype: bool
-        """
-        return self.__isBuffer
-
-    def setBuffer(self, _isBuffer=None):
-        """
-        Indicates whether this is a buffer object or not.
-        :param _isBuffer: True if object shall be buffer, otherwise False.
-        :type _isBuffer: bool
-        """
-        self.__isBuffer = _isBuffer
-        return
-
     def equals(self, _other=None):
         """
         Checks if the handed over type symbol object is equal to this (value-wise).
@@ -248,7 +231,7 @@ class TypeSymbol(Symbol):
                self.isVoid() == _other.isVoid() and \
                self.isBoolean() == _other.isBoolean() and \
                self.isString() == _other.isString() and \
-               self.isBuffer() == _other.isBuffer() and \
+               self.is_buffer == _other.is_buffer and \
                (self.getUnit().equals(_other.getUnit()) if self.isUnit() and _other.isUnit() else True) and \
                self.getReferencedObject() == _other.getReferencedObject() and \
                self.getSymbolName() == _other.getSymbolName() and \
