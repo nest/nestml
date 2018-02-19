@@ -1,5 +1,5 @@
 #
-# StringTypeSymbol.py
+# NESTTimeTypeSymbol.py
 #
 # This file is part of NEST.
 #
@@ -20,21 +20,21 @@
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
-class StringTypeSymbol(TypeSymbol):
+class NESTTimeTypeSymbol(TypeSymbol):
     def isNumeric(self):
         return False
 
     def isPrimitive(self):
-        return True
+        return False
 
-    def __init__(self):
-        super().__init__(_name='string')
+    def __init__(self, _name=None):
+        super().__init__(_name='time')
 
     def print_symbol(self):
-        result = 'string'
+        result = 'time'
         if self.is_buffer:
             result += ' buffer'
         return result
 
     def _get_concrete_nest_type(self):
-        return 'std::string'
+        return 'nest::Time'

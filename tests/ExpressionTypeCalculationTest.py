@@ -31,6 +31,7 @@ from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
 from pynestml.modelprocessor.SymbolTable import SymbolTable
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.CoCosManager import CoCosManager
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -58,9 +59,9 @@ class expressionTestVisitor(NESTMLVisitor):
                   ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
                   ' Equal ? ' + str(_equals)
 
-        if _expr.getTypeEither().getValue().isUnit():
+        if isinstance(_expr.getTypeEither().getValue(),UnitTypeSymbol):
             message += " Neuroscience Factor: " + \
-            str(UnitConverter().getFactor(_expr.getTypeEither().getValue().getUnit().getUnit()))
+            str(UnitConverter().getFactor(_expr.getTypeEither().getValue().unit.getUnit()))
 
         Logger.logMessage(_errorPosition=_assignment.getSourcePosition(), _code=MessageCode.TYPE_MISMATCH,
                           _message=message, _logLevel=LOGGING_LEVEL.INFO)
@@ -85,7 +86,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
         Logger.setCurrentNeuron(model.getNeuronList()[0])
         expressionTestVisitor().handle(model)
         Logger.setCurrentNeuron(None)
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        self.assertEqual(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)), 2)
 
 
 if __name__ == '__main__':

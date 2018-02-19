@@ -22,11 +22,14 @@
 expression : left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
 """
 from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.Either import Either
+from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.IntegerTypeSymbol import IntegerTypeSymbol
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -77,9 +80,9 @@ class DotOperatorVisitor(NESTMLVisitor):
         if arithOp.isDivOp() or arithOp.isTimesOp():
             if lhsType.isNumeric() and rhsType.isNumeric():
                 # If both are units, calculate resulting Type
-                if lhsType.isUnit() and rhsType.isUnit():
-                    leftUnit = lhsType.getEncapsulatedUnit()
-                    rightUnit = rhsType.getEncapsulatedUnit()
+                if isinstance(lhsType, UnitTypeSymbol) and isinstance(rhsType, UnitTypeSymbol):
+                    leftUnit = lhsType.unit.getUnit()
+                    rightUnit = rhsType.unit.getUnit()
                     if arithOp.isTimesOp():
                         returnType = PredefinedTypes.getTypeIfExists(leftUnit * rightUnit)
                         _expr.setTypeEither(Either.value(returnType))
@@ -89,25 +92,25 @@ class DotOperatorVisitor(NESTMLVisitor):
                         _expr.setTypeEither(Either.value(returnType))
                         return
                 # if lhs is Unit, and rhs real or integer, return same Unit
-                if lhsType.isUnit():
+                if isinstance(lhsType, UnitTypeSymbol):
                     _expr.setTypeEither(Either.value(lhsType))
                     return
                 # if lhs is real or integer and rhs a unit, return unit for timesOP and inverse(unit) for divOp
-                if rhsType.isUnit():
+                if isinstance(rhsType, UnitTypeSymbol):
                     if arithOp.isTimesOp():
                         _expr.setTypeEither(Either.value(rhsType))
                         return
                     elif arithOp.isDivOp():
-                        rightUnit = rhsType.getEncapsulatedUnit()
+                        rightUnit = rhsType.unit.getUnit()
                         returnType = PredefinedTypes.getTypeIfExists(1 / rightUnit)
                         _expr.setTypeEither(Either.value(returnType))
                         return
                 # if no Units are involved, Real takes priority
-                if lhsType.isReal() or rhsType.isReal():
+                if isinstance(lhsType, RealTypeSymbol) or isinstance(rhsType, RealTypeSymbol):
                     _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                     return
                 # here, both are integers, but check to be sure
-                if lhsType.isInteger() and rhsType.isInteger():
+                if isinstance(lhsType, IntegerTypeSymbol) and isinstance(rhsType, IntegerTypeSymbol):
                     _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
                     return
         # Catch-all if no case has matched

@@ -26,6 +26,7 @@ from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.VoidTypeSymbol import VoidTypeSymbol
 
 
 class FunctionCallVisitor(NESTMLVisitor):
@@ -71,7 +72,7 @@ class FunctionCallVisitor(NESTMLVisitor):
             _expr.setTypeEither(Either.error(errorMsg))
             return
 
-        if methodSymbol.getReturnType().isVoid():
+        if isinstance(methodSymbol.getReturnType(),VoidTypeSymbol):
             errorMsg = ErrorStrings.messageVoidFunctionOnRhs(self, functionName, _expr.getSourcePosition())
             _expr.setTypeEither(Either.error(errorMsg))
             return

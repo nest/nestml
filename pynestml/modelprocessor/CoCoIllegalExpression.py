@@ -138,8 +138,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
     @staticmethod
     def __drop_missing_type_error(_assignment):
         code, message = Messages.getTypeCouldNotBeDerived(_assignment.getExpression())
-        Logger.logMessage(_neuron=None, _code=code, _message=message,
-                          _errorPosition=_assignment.getExpression().getSourcePosition(),
+        Logger.logMessage(_code=code, _message=message, _errorPosition=_assignment.getExpression().getSourcePosition(),
                           _logLevel=LOGGING_LEVEL.ERROR)
 
     @staticmethod
@@ -186,13 +185,13 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         cond_type = _if_clause.getCondition().getTypeEither()
         if cond_type.isError():
             code, message = Messages.getTypeCouldNotBeDerived(_if_clause.getCondition())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
+            Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_if_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                   cond_type.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
+            Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_if_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
@@ -206,13 +205,13 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         cond_type = _elif_clause.getCondition().getTypeEither()
         if cond_type.isError():
             code, message = Messages.getTypeCouldNotBeDerived(_elif_clause.getCondition())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
+            Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_elif_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                   cond_type.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
+            Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_elif_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
@@ -226,13 +225,13 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         cond_type = _while_stmt.getCondition().getTypeEither()
         if cond_type.isError():
             code, message = Messages.getTypeCouldNotBeDerived(_while_stmt.getCondition())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
+            Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_while_stmt.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
                                                                   cond_type.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
+            Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_while_stmt.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return
@@ -247,28 +246,24 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         from_type = _for_stmt.getFrom().getTypeEither()
         if from_type.isError():
             code, message = Messages.getTypeCouldNotBeDerived(_for_stmt.getFrom())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_for_stmt.getFrom().getSourcePosition(),
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getFrom().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not (from_type.getValue().equals(PredefinedTypes.getIntegerType())
                   or from_type.getValue().equals(
                 PredefinedTypes.getRealType())):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(),
                                                                   from_type.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_for_stmt.getFrom().getSourcePosition(),
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getFrom().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         # check that the to stmt is an integer or real
         to_type = _for_stmt.getTo().getTypeEither()
         if to_type.isError():
             code, message = Messages.getTypeCouldNotBeDerived(_for_stmt.getTo())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_for_stmt.getTo().getSourcePosition(),
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getTo().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         elif not (to_type.getValue().equals(PredefinedTypes.getIntegerType())
                   or to_type.getValue().equals(PredefinedTypes.getRealType())):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), to_type.getValue())
-            Logger.logMessage(_neuron=None, _code=code, _message=message,
-                              _errorPosition=_for_stmt.getTo().getSourcePosition(),
+            Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getTo().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

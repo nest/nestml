@@ -22,11 +22,14 @@
 expression : left=expression (plusOp='+'  | minusOp='-') right=expression
 """
 from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+from pynestml.modelprocessor.VoidTypeSymbol import VoidTypeSymbol
 from pynestml.utils.ASTUtils import ASTUtils
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
@@ -66,7 +69,11 @@ class LineOperatorVisitor(NESTMLVisitor):
         if arithOp.isPlusOp():
             # String concatenation has a prio. If one of the operands is a string,
             # the remaining sub-expression becomes a string
-            if (lhsType.isString() or rhsType.isString()) and (not rhsType.isVoid() and not lhsType.isVoid()):
+
+            # TODO: this should be (eventually) done like so: _expr.setType(lhsType + rhsType)
+
+            if (isinstance(lhsType, StringTypeSymbol) or isinstance(rhsType, StringTypeSymbol)) and (
+                not isinstance(rhsType,VoidTypeSymbol) and not isinstance(lhsType,VoidTypeSymbol)):
                 _expr.setTypeEither(Either.value(PredefinedTypes.getStringType()))
                 return
 
@@ -81,19 +88,20 @@ class LineOperatorVisitor(NESTMLVisitor):
                 _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
                 return
             # Both are units, not matching -> try to recover, otherwise real & WARN
-            if lhsType.isUnit() and rhsType.isUnit():
-                #if both have the same base, we can recover.
+            if isinstance(lhsType,UnitTypeSymbol) and isinstance(rhsType,UnitTypeSymbol):
+                # if both have the same base, we can recover.
                 if rhsType.differsOnlyInMagnitudeOrIsEqualTo(lhsType):
-                    #we convert the rhs unit to the magnitude of the lhs unit.
-                    _expr.getRhs().setImplicitConversionFactor(ASTUtils.getConversionFactor(_expr.getLhs(), _expr.getRhs()))
+                    # we convert the rhs unit to the magnitude of the lhs unit.
+                    _expr.getRhs().setImplicitConversionFactor(
+                        ASTUtils.getConversionFactor(_expr.getLhs(), _expr.getRhs()))
                     _expr.setTypeEither(Either.value(lhsType))
-                    #warn implicit conversion
-                    errorMsg = ErrorStrings.messageImplicitMagnitudeConversion(self,_expr)
+                    # warn implicit conversion
+                    errorMsg = ErrorStrings.messageImplicitMagnitudeConversion(self, _expr)
                     Logger.logMessage(_code=MessageCode.IMPLICIT_CAST,
                                       _errorPosition=_expr.getSourcePosition(),
-                                      _message=errorMsg,_logLevel=LOGGING_LEVEL.WARNING)
+                                      _message=errorMsg, _logLevel=LOGGING_LEVEL.WARNING)
                     return
-                #TODO: fix this when unifying error systems
+                # TODO: fix this when unifying error systems
                 errorMsg = ErrorStrings.messageAddSubTypeMismatch(self, lhsType.print_symbol(),
                                                                   rhsType.print_symbol(), 'real',
                                                                   _expr.getSourcePosition())
@@ -103,9 +111,9 @@ class LineOperatorVisitor(NESTMLVisitor):
                                   _message=errorMsg, _logLevel=LOGGING_LEVEL.WARNING)
                 return
             # one is unit and one numeric primitive and vice versa -> assume unit, WARN
-            if (lhsType.isUnit() and rhsType.isNumericPrimitive()) or (
-                        rhsType.isUnit() and lhsType.isNumericPrimitive()):
-                if lhsType.isUnit():
+            if (isinstance(lhsType,UnitTypeSymbol) and rhsType.isNumericPrimitive()) or (
+                        isinstance(rhsType,UnitTypeSymbol) and lhsType.isNumericPrimitive()):
+                if isinstance(lhsType,UnitTypeSymbol):
                     unitType = lhsType
                 else:
                     unitType = rhsType

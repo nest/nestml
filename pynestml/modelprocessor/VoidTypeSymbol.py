@@ -21,11 +21,20 @@ from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
 class VoidTypeSymbol(TypeSymbol):
+    def isNumeric(self):
+        return False
+
+    def isPrimitive(self):
+        return True
+
+    def __init__(self):
+        super().__init__(_name='void')
+
     def print_symbol(self):
         result = 'void'
         if self.is_buffer:
             result += ' buffer'
         return result
 
-    def __get_concrete_nest_type(self):
+    def _get_concrete_nest_type(self):
         return 'void'

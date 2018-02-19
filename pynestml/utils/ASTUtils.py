@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Symbol import SymbolKind
@@ -266,14 +267,17 @@ class ASTUtils(object):
         assert _converteeExpr.getTypeEither().isValue()
         converteeType = _converteeExpr.getTypeEither().getValue()
 
+        assert isinstance(converteeType,UnitTypeSymbol)
+        assert isinstance(targetType, UnitTypeSymbol)
+
         assert targetType is not None and isinstance(targetType, TypeSymbol)
         assert converteeType is not None and isinstance(converteeType,TypeSymbol)
 
-        assert converteeType.getEncapsulatedUnit() is not None
-        assert targetType.getEncapsulatedUnit() is not None
+        assert converteeType.unit.getUnit() is not None
+        assert targetType.unit.getUnit() is not None
 
-        targetUnit = targetType.getEncapsulatedUnit()
-        converteeUnit = converteeType.getEncapsulatedUnit()
+        targetUnit = targetType.unit.getUnit()
+        converteeUnit = converteeType.unit.getUnit()
 
         assert isinstance(converteeUnit,units.PrefixUnit) or isinstance(converteeUnit,units.Unit) or isinstance(converteeUnit,units.CompositeUnit)
         assert isinstance(targetUnit,units.PrefixUnit) or isinstance(targetUnit,units.Unit) or isinstance(targetUnit,units.CompositeUnit)

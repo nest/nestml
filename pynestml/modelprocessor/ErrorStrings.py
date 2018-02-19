@@ -121,15 +121,16 @@ class ErrorStrings(object):
         from pynestml.modelprocessor.Symbol import SymbolKind
 
         assert _origin is not None
-        assert _parentNode is not None and (isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
+        assert _parentNode is not None and (
+        isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
 
-        targetExpression=None
+        targetExpression = None
         targetUnit = None
         converteeExpression = None
         converteeUnit = None
-        operation=None;
+        operation = None;
 
-        if(isinstance(_parentNode,ASTExpression)):
+        if (isinstance(_parentNode, ASTExpression)):
             # code duplication from ExpressionTypeVisitor:
             # Rules with binary operators
             if _parentNode.getBinaryOperator() is not None:
@@ -137,10 +138,10 @@ class ErrorStrings(object):
                 # All these rules employ left and right side expressions.
                 if _parentNode.getLhs() is not None:
                     targetExpression = _parentNode.getLhs()
-                    targetUnit = targetExpression.getTypeEither().getValue().getEncapsulatedUnit()
+                    targetUnit = targetExpression.getTypeEither().getValue().unit.getUnit()
                 if _parentNode.getRhs() is not None:
                     converteeExpression = _parentNode.getRhs()
-                    converteeUnit = converteeExpression.getTypeEither().getValue().getEncapsulatedUnit()
+                    converteeUnit = converteeExpression.getTypeEither().getValue().unit.getUnit()
                 # Handle all Arithmetic Operators:
                 if isinstance(binOp, ASTArithmeticOperator):
                     # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
@@ -149,29 +150,28 @@ class ErrorStrings(object):
                     if binOp.isMinusOp():
                         operation = "-"
 
-        if(isinstance(_parentNode,ASTAssignment)):
+        if (isinstance(_parentNode, ASTAssignment)):
             lhsVariableSymbol = _parentNode.getScope().resolveToSymbol(_parentNode.getVariable().getCompleteName(),
-                                                                   SymbolKind.VARIABLE)
+                                                                       SymbolKind.VARIABLE)
             operation = "="
             targetExpression = _parentNode.getVariable()
-            targetUnit = lhsVariableSymbol.getTypeSymbol().getEncapsulatedUnit()
+            targetUnit = lhsVariableSymbol.getTypeSymbol().unit.getUnit()
             converteeExpression = _parentNode.getExpression()
-            converteeUnit = converteeExpression.getTypeEither().getValue().getEncapsulatedUnit()
+            converteeUnit = converteeExpression.getTypeEither().getValue().unit.getUnit()
 
         assert targetExpression is not None and converteeExpression is not None and \
                operation is not None, "Only call this on an addition/subtraction  or assignment after " \
                                       "an implicit conversion wrt unit magnitudes has already been determined"
 
-        ERROR_MSG_FORMAT = "Non-matching unit types at '"+ str(_parentNode)
+        ERROR_MSG_FORMAT = "Non-matching unit types at '" + str(_parentNode)
         ERROR_MSG_FORMAT += "'. Implicit conversion of rhs to lhs"
         ERROR_MSG_FORMAT += " (units: " + str(converteeUnit) + " and " + \
                             str(targetUnit) + " )"
         ERROR_MSG_FORMAT += " implicitly replaced by '" + str(targetExpression) + operation \
-                            + converteeExpression.printImplicitVersion()+"'"
+                            + converteeExpression.printImplicitVersion() + "'"
 
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" \
                + str(_parentNode.getSourcePosition()) + ")"
-
 
     @classmethod
     def messageUnitBase(cls, _origin=None, _sourcePosition=None):

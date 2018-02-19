@@ -21,6 +21,7 @@
 """
 expression: logicalNot='not' term=expression
 """
+from pynestml.modelprocessor.BooleanTypeSymbol import BooleanTypeSymbol
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
@@ -51,7 +52,7 @@ class LogicalNotVisitor(NESTMLVisitor):
 
         exprType = exprTypeE.getValue()
 
-        if exprType.isBoolean():
+        if isinstance(exprType,BooleanTypeSymbol):
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         else:
             errorMsg = ErrorStrings.messageExpectedBool(self, _expr.getSourcePosition())

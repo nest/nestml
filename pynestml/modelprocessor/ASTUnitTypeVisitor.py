@@ -72,7 +72,7 @@ class ASTUnitTypeVisitor(object):
         :param _unitType: a single unit type ast.
         :type _unitType: ASTUnitType
         :return: a new type symbol representing this unit type.
-        :rtype: TypeSymbol
+        :rtype: UnitTypeSymbol
         """
         from pynestml.modelprocessor.ASTUnitType import ASTUnitType
         from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
@@ -81,24 +81,24 @@ class ASTUnitTypeVisitor(object):
         if _unitType.isPowerExpression():
             baseSymbol = cls.visitUnitType(_unitType.getBase())
             exponent = _unitType.getExponent()
-            sympyUnit = baseSymbol.getEncapsulatedUnit() ** exponent
+            sympyUnit = baseSymbol.unit.getUnit() ** exponent
             return cls.__handleUnit(sympyUnit)
         elif _unitType.isEncapsulated():
             return cls.visitUnitType(_unitType.getCompoundUnit())
         elif _unitType.isDiv():
             if isinstance(_unitType.getLhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
-                lhs = cls.visitUnitType(_unitType.getLhs()).getEncapsulatedUnit()
+                lhs = cls.visitUnitType(_unitType.getLhs()).unit.getUnit()
             else:
                 lhs = _unitType.getLhs()
-            rhs = cls.visitUnitType(_unitType.getRhs()).getEncapsulatedUnit()
+            rhs = cls.visitUnitType(_unitType.getRhs()).unit.getUnit()
             res = lhs / rhs
             return cls.__handleUnit(res)
         elif _unitType.isTimes():
             if isinstance(_unitType.getLhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
-                lhs = cls.visitUnitType(_unitType.getLhs()).getEncapsulatedUnit()
+                lhs = cls.visitUnitType(_unitType.getLhs()).unit.getUnit()
             else:
                 lhs = _unitType.getLhs()
-            rhs = cls.visitUnitType(_unitType.getRhs()).getEncapsulatedUnit()
+            rhs = cls.visitUnitType(_unitType.getRhs()).unit.getUnit()
             res = lhs * rhs
             return cls.__handleUnit(res)
         elif _unitType.isSimpleUnit():
@@ -137,10 +137,7 @@ class ASTUnitTypeVisitor(object):
             PredefinedUnits.registerUnit(unitType)
         # now create the corresponding type symbol if it does not exists
         if PredefinedTypes.getTypeIfExists(str(toProcess)) is None:
-            typeSymbol = UnitTypeSymbol(_name=str(toProcess),
-                                        _unit=PredefinedUnits.getUnitIfExists(str(toProcess)),
-                                        _isInteger=False, _isReal=False, _isVoid=False,
-                                        _isBoolean=False, _isString=False, _isBuffer=False)
+            typeSymbol = UnitTypeSymbol(_unit=PredefinedUnits.getUnitIfExists(str(toProcess)))
             PredefinedTypes.registerType(typeSymbol)
         return PredefinedTypes.getTypeIfExists(_name=str(toProcess))
 

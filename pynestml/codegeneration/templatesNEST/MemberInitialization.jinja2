@@ -7,14 +7,14 @@
 #}
 {%- if variable.hasDeclaringExpression() and not variable.isShape() %}
   {%- if variable.hasVectorParameter() %}
-  {{printer.printOrigin(variable)}}{{names.name(variable)}}.resize(P_.{{variable.getVectorParameter()}}, {{printer.printExpression(variable.getDeclaringExpression())}}); // as {{variable.getTypeSymbol().printSymbol()}}
+  {{printer.printOrigin(variable)}}{{names.name(variable)}}.resize(P_.{{variable.getVectorParameter()}}, {{printer.printExpression(variable.getDeclaringExpression())}}); // as {{variable.getTypeSymbol().print_symbol()}}
   {%- else %}
-  {{printer.printOrigin(variable)}}{{names.name(variable)}} = {{printer.printExpression(variable.getDeclaringExpression())}}; // as {{variable.getTypeSymbol().printSymbol()}}
+  {{printer.printOrigin(variable)}}{{names.name(variable)}} = {{printer.printExpression(variable.getDeclaringExpression())}}; // as {{variable.getTypeSymbol().print_symbol()}}
   {%- endif %}
 {%- else %}
   {%- if variable.hasVectorParameter() %}
-  {{printer.printOrigin(variable)}}{{names.name(variable)}}.resize(0); // as {{variable.getTypeSymbol().printSymbol()}}
+  {{printer.printOrigin(variable)}}{{names.name(variable)}}.resize(0); // as {{variable.getTypeSymbol().print_symbol()}}
   {%- else %}
-  {{printer.printOrigin(variable)}}{{names.name(variable)}} = 0; // as {{variable.getTypeSymbol().printSymbol()}}
+  {{printer.printOrigin(variable)}}{{names.name(variable)}} = 0; // as {{variable.getTypeSymbol().print_symbol()}}
   {%- endif -%}
 {%- endif -%}

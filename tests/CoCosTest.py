@@ -20,17 +20,17 @@
 
 from __future__ import print_function
 
-import unittest
 import os
-from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.modelprocessor.SymbolTable import SymbolTable
+import unittest
+
 from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.ModelParser import ModelParser
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
-from pynestml.modelprocessor.CoCosManager import CoCosManager
+from pynestml.modelprocessor.SymbolTable import SymbolTable
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 # minor setup steps required
 Logger.initLogger(LOGGING_LEVEL.INFO)
@@ -227,7 +227,7 @@ class InvalidNumeratorOfUnitOne(unittest.TestCase):
         model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoUnitNumeratorNotOne.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 2)
+        self.assertEquals (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)), 2)
 
 
 class ValidNumeratorOfUnitOne(unittest.TestCase):
@@ -497,7 +497,8 @@ class InvalidExpressionCorrectlyTyped(unittest.TestCase):
         model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoIllegalExpression.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 6)
+        self.assertEquals(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)),
+                          6)
 
 
 class ValidExpressionCorrectlyTyped(unittest.TestCase):

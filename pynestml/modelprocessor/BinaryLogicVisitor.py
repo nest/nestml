@@ -21,11 +21,12 @@
 """
 expression: left=expression logicalOperator right=expression
 """
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.BooleanTypeSymbol import BooleanTypeSymbol
+from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
@@ -52,7 +53,7 @@ class BinaryLogicVisitor(NESTMLVisitor):
             _expr.setTypeEither(rhsType)
             return
 
-        if lhsType.getValue().isBoolean() and rhsType.getValue().isBoolean():
+        if isinstance(lhsType.getValue(), BooleanTypeSymbol) and isinstance(rhsType.getValue(), BooleanTypeSymbol):
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
         else:
             errorMsg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.getSourcePosition())

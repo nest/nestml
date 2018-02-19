@@ -22,11 +22,11 @@
 Expr = unaryOperator term=expression
 unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
 """
+from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
+from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
@@ -60,6 +60,7 @@ class UnaryVisitor(NESTMLVisitor):
                 _expr.setTypeEither(Either.value(termType))
                 return
             else:
+                # TODO: Seems like this doesnt actually work and isnt covered by any tests
                 errorMsg = ErrorStrings.messageNonNumericType(self, termType.print_symbol(), _expr.getSourcePosition())
                 _expr.setTypeEither(Either.error(errorMsg))
                 Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)

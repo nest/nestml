@@ -23,10 +23,12 @@ expression : <assoc=right> left=expression powOp='**' right=expression
 """
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
+from pynestml.modelprocessor.IntegerTypeSymbol import IntegerTypeSymbol
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Either import Either
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
@@ -58,18 +60,18 @@ class PowVisitor(NESTMLVisitor):
         exponentType = exponentTypeE.getValue()
 
         if baseType.isNumeric() and exponentType.isNumeric():
-            if baseType.isInteger() and exponentType.isInteger():
+            if isinstance(baseType,IntegerTypeSymbol) and isinstance(exponentType,IntegerTypeSymbol):
                 _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
                 return
-            elif baseType.isUnit():
+            elif isinstance(baseType,UnitTypeSymbol):
                 # exponents to units MUST be integer and calculable at time of analysis.
                 # Otherwise resulting unit is undefined
-                if not exponentType.isInteger():
+                if not isinstance(exponentType,IntegerTypeSymbol):
                     errorMsg = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
                     _expr.setTypeEither(Either.error(errorMsg))
                     Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
                     return
-                baseUnit = baseType.getEncapsulatedUnit()
+                baseUnit = baseType.unit.getUnit()
                 # TODO the following part is broken @ptraeder?
                 exponentValue = self.calculateNumericValue(
                     _expr.getRhs())  # calculate exponent value if exponent composed of literals
@@ -109,9 +111,9 @@ class PowVisitor(NESTMLVisitor):
                 errorMessage = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
                 return Either.error(errorMessage)
         elif _expr.isUnaryOperator() and _expr.getUnaryOperator().isUnaryMinus():
-            term = self.calculateNumericValue(_expr.getExpression)
+            term = self.calculateNumericValue(_expr.getExpression())
             if term.isError():
                 return term
             return Either.value(-term.getValue())
-        errorMessage = ErrorStrings.messageNonConstantExponent(self, _expr.getSourcePosition)
+        errorMessage = ErrorStrings.messageNonConstantExponent(self, _expr.getSourcePosition())
         return Either.error(errorMessage)

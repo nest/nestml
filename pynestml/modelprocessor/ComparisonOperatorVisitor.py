@@ -21,11 +21,13 @@
 """
 expression : left=expression comparisonOperator right=expression
 """
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.BooleanTypeSymbol import BooleanTypeSymbol
+from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -56,13 +58,15 @@ class ComparisonOperatorVisitor(NESTMLVisitor):
         lhsType = lhsTypeE.getValue()
         rhsType = rhsTypeE.getValue()
 
-        if ((lhsType.isReal() or lhsType.isInteger()) and (rhsType.isReal() or rhsType.isInteger())) \
-                or (lhsType.equals(rhsType) and lhsType.isNumeric()) or (lhsType.isBoolean() and rhsType.isBoolean()):
+        if (lhsType.isNumericPrimitive() and rhsType.isNumericPrimitive()) \
+                or (lhsType.equals(rhsType) and lhsType.isNumeric()) or (
+                    isinstance(lhsType, BooleanTypeSymbol) and isinstance(rhsType, BooleanTypeSymbol)):
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
             return
 
         # Error message for any other operation
-        if (lhsType.isUnit() and rhsType.isNumeric()) or (rhsType.isUnit() and lhsType.isNumeric()):
+        if (isinstance(lhsType, UnitTypeSymbol) and rhsType.isNumeric()) or (
+                    isinstance(rhsType, UnitTypeSymbol) and lhsType.isNumeric()):
             # if the incompatibility exists between a unit and a numeric, the c++ will still be fine, just WARN
             errorMsg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))

@@ -21,14 +21,23 @@ from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
 class UnitTypeSymbol(TypeSymbol):
+    def isNumeric(self):
+        return True
 
-    def __init__(self,_name=None,_unit=None):
+    def isPrimitive(self):
+        return False
+
+    unit = None
+
+    def __init__(self,_unit):
+        self.unit = _unit
+        super().__init__(_name=str(_unit.getUnit()))
 
     def print_symbol(self):
-        result = self.getUnit().printUnit()
+        result = self.unit.printUnit()
         if self.is_buffer:
             result += ' buffer'
         return result
 
-    def __get_concrete_nest_type(self):
+    def _get_concrete_nest_type(self):
         return 'double'

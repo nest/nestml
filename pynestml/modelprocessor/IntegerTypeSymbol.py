@@ -21,11 +21,20 @@ from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
 class IntegerTypeSymbol(TypeSymbol):
+    def isNumeric(self):
+        return True
+
+    def isPrimitive(self):
+        return True
+
+    def __init__(self):
+        super().__init__(_name='integer')
+
     def print_symbol(self):
         result = 'integer'
         if self.is_buffer:
             result += ' buffer'
         return result
 
-    def __get_concrete_nest_type(self):
+    def _get_concrete_nest_type(self):
         return 'long'

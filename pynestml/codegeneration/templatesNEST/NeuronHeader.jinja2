@@ -91,21 +91,21 @@ extern "C" inline int {{neuronName}}_dynamics( double, const double y[], double 
   The following parameters can be set in the status dictionary.
   {% for parameter in neuron.getParameterSymbols() -%}
   {% if parameter.hasComment() -%}
-    {{parameter.getSymbolName()}} [{{parameter.getTypeSymbol().printSymbol()}}] {{parameter.printComment()}}
+    {{parameter.getSymbolName()}} [{{parameter.getTypeSymbol().print_symbol()}}] {{parameter.printComment()}}
   {% endif -%}
   {% endfor %}
 
   Dynamic state variables:
   {% for state in neuron.getStateSymbols() -%}
   {% if state.hasComment() -%}
-    {{state.getSymbolName()}} [{{state.getTypeSymbol().printSymbol()}}] {{state.printComment()}}
+    {{state.getSymbolName()}} [{{state.getTypeSymbol().print_symbol()}}] {{state.printComment()}}
   {% endif -%}
   {% endfor %}
 
   Initial values:
   {% for init in neuron.getInitialValuesSymbols() -%}
   {% if init.hasComment() -%}
-    {{init.getSymbolName()}} [{{init.getTypeSymbol().printSymbol()}}] {{init.printComment()}}
+    {{init.getSymbolName()}} [{{init.getTypeSymbol().print_symbol()}}] {{init.printComment()}}
   {% endif -%}
   {% endfor %}
 
