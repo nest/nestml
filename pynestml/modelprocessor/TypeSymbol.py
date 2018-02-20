@@ -19,7 +19,9 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
 
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.Symbol import Symbol
+from pynestml.utils.Messages import Messages
 
 
 class TypeSymbol(Symbol):
@@ -32,6 +34,9 @@ class TypeSymbol(Symbol):
     """
     __metaclass__ = ABCMeta
     is_buffer = False
+
+    def is_instance_of(self, _other):
+        return isinstance(self, _other)
 
     @abstractmethod
     def __init__(self, _name=None):
@@ -91,6 +96,18 @@ class TypeSymbol(Symbol):
         :rtype: bool
         """
         # return self.isInteger() or self.isReal() or self.isUnit()
+        pass
+
+    @abstractmethod
+    def __mul__(self, other):
+        pass
+
+    @abstractmethod
+    def __truediv__(self, other):
+        pass
+
+    @abstractmethod
+    def __mod__(self, other):
         pass
 
     def isNumericPrimitive(self):
@@ -174,3 +191,19 @@ class TypeSymbol(Symbol):
             return True
         else:
             return False
+
+    def operation_not_defined_error(self, _operator, _other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        code, message = Messages.get_operation_not_defined(self.print_symbol(),
+                                                           _operator,
+                                                           _other.print_symbol())
+        return ErrorTypeSymbol(code, message)
+
+    def inverse_of_unit(self, other):
+        """
+        :param other: the unit to invert
+        :type other: UnitTypeSymbol
+        :return: UnitTypeSymbol
+        """
+        other_unit = other.unit.getUnit()
+        return PredefinedTypes.getTypeIfExists(1 / other_unit)

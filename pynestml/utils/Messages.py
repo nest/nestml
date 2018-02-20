@@ -51,6 +51,10 @@ class Messages(object):
         return MessageCode.TYPE_REGISTERED, message
 
     @classmethod
+    def get_operation_not_defined(cls, _lhs, _operator, _rhs):
+        message = 'Operation %s %s %s is not defined' % (_lhs, _operator, _rhs)
+
+    @classmethod
     def getStartBuildingSymbolTable(cls):
         """
         Returns a message that the building for a neuron has been started.
@@ -933,3 +937,4 @@ class MessageCode(Enum):
     NO_UNIT = 54
     NOT_NEUROSCIENCE_UNIT = 55
     INTERNAL_WARNING = 56
+    OPERATION_NOT_DEFINED = 57

@@ -21,6 +21,7 @@ from abc import ABCMeta, abstractmethod
 
 from pynestml.modelprocessor.ASTElement import ASTElement
 from pynestml.modelprocessor.Either import Either
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class ASTExpressionElement(ASTElement):
@@ -28,6 +29,7 @@ class ASTExpressionElement(ASTElement):
     This class is not a part of the grammar but is used to store commonalities of all possible ast classes, e.g.,
     the source position. This class is abstract, thus no instances can be created.
     """
+    __type = None
     __typeEither = None
     __metaclass__ = ABCMeta
 
@@ -45,6 +47,19 @@ class ASTExpressionElement(ASTElement):
     @abstractmethod
     def __str__(self):
         pass
+
+    @property
+    def type(self):
+        return self.__type
+
+    @type.setter
+    def type(self, _value):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if _value.is_instance_of(ErrorTypeSymbol):
+            Logger.logMessage(_code=_value.code, _message=_value.message, _errorPosition=self.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
+        self.setTypeEither(Either.value(_value))
+        __type = _value
 
     def setTypeEither(self, _typeEither=None):
         """

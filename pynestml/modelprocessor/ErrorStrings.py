@@ -234,7 +234,7 @@ class ErrorStrings(object):
         return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
 
     @classmethod
-    def messageTypeMismatch(cls, _origin=None, _mismatchText=None, _sourcePosition=None):
+    def messageTypeMismatch(cls, _origin=None, _mismatchText=None):
         """
         construct an error message indicating that an expected int value was not found
         :param _origin: the class reporting the error
@@ -247,9 +247,8 @@ class ErrorStrings(object):
         """
         assert _origin is not None
         assert _mismatchText is not None and isinstance(_mismatchText, str)
-        assert _sourcePosition is not None and isinstance(_sourcePosition, ASTSourcePosition)
         ERROR_MSG_FORMAT = "Operation not defined: " + _mismatchText
-        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT + "(" + str(_sourcePosition) + ")"
+        return cls.code(_origin) + cls.SEPARATOR + ERROR_MSG_FORMAT
 
     @classmethod
     def messageAddSubTypeMismatch(cls, _origin=None, _lhsTypeText=None, _rhsTypeText=None, _resultTypeText=None,

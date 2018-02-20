@@ -17,7 +17,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
 
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
@@ -54,3 +56,38 @@ class UnitTypeSymbol(TypeSymbol):
             return self_unit == other_unit
 
         return False
+
+    def __mul__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(UnitTypeSymbol):
+            return self.multiply_by(other)
+        if other.isNumericPrimitive():
+            return copy(self)
+        return self.operation_not_defined_error('*', other)
+
+    def __mod__(self, other):
+        return self.operation_not_defined_error('%', other)
+
+    def __truediv__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(UnitTypeSymbol):
+            return self.divide_by(other)
+        if other.isNumericPrimitive():
+            return copy(self)
+        return self.operation_not_defined_error('*', other)
+
+    def divide_by(self, other):
+        self_unit = self.unit.getUnit()
+        other_unit = other.unit.getUnit()
+        return PredefinedTypes.getTypeIfExists(self_unit / other_unit)
+
+    def multiply_by(self, other):
+        self_unit = self.unit.getUnit()
+        other_unit = other.unit.getUnit()
+        return PredefinedTypes.getTypeIfExists(self_unit * other_unit)

@@ -21,18 +21,9 @@
 """
 expression : left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
 """
-from pynestml.modelprocessor.ASTArithmeticOperator import ASTArithmeticOperator
-from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
-from pynestml.modelprocessor.IntegerTypeSymbol import IntegerTypeSymbol
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
-from pynestml.utils.Messages import MessageCode
 
+from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 
 class DotOperatorVisitor(NESTMLVisitor):
     """
@@ -62,62 +53,12 @@ class DotOperatorVisitor(NESTMLVisitor):
         rhsType = rhsTypeE.getValue()
 
         arithOp = _expr.getBinaryOperator()
-        # arithOp exists if we get into this visitor, but make sure:
-        assert arithOp is not None and isinstance(arithOp, ASTArithmeticOperator)
-
         if arithOp.isModuloOp():
-            if lhsType.isInteger() and rhsType.isInteger():
-                _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
-                return
-            else:
-                errorMsg = ErrorStrings.messageExpectedInt(self, _expr.getSourcePosition())
-                _expr.setTypeEither(Either.error(errorMsg))
-                Logger.logMessage(_code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                                  _message=errorMsg,
-                                  _errorPosition=_expr.getSourcePosition(),
-                                  _logLevel=LOGGING_LEVEL.ERROR)
-                return
-        if arithOp.isDivOp() or arithOp.isTimesOp():
-            if lhsType.isNumeric() and rhsType.isNumeric():
-                # If both are units, calculate resulting Type
-                if isinstance(lhsType, UnitTypeSymbol) and isinstance(rhsType, UnitTypeSymbol):
-                    leftUnit = lhsType.unit.getUnit()
-                    rightUnit = rhsType.unit.getUnit()
-                    if arithOp.isTimesOp():
-                        returnType = PredefinedTypes.getTypeIfExists(leftUnit * rightUnit)
-                        _expr.setTypeEither(Either.value(returnType))
-                        return
-                    elif arithOp.isDivOp():
-                        returnType = PredefinedTypes.getTypeIfExists(leftUnit / rightUnit)
-                        _expr.setTypeEither(Either.value(returnType))
-                        return
-                # if lhs is Unit, and rhs real or integer, return same Unit
-                if isinstance(lhsType, UnitTypeSymbol):
-                    _expr.setTypeEither(Either.value(lhsType))
-                    return
-                # if lhs is real or integer and rhs a unit, return unit for timesOP and inverse(unit) for divOp
-                if isinstance(rhsType, UnitTypeSymbol):
-                    if arithOp.isTimesOp():
-                        _expr.setTypeEither(Either.value(rhsType))
-                        return
-                    elif arithOp.isDivOp():
-                        rightUnit = rhsType.unit.getUnit()
-                        returnType = PredefinedTypes.getTypeIfExists(1 / rightUnit)
-                        _expr.setTypeEither(Either.value(returnType))
-                        return
-                # if no Units are involved, Real takes priority
-                if isinstance(lhsType, RealTypeSymbol) or isinstance(rhsType, RealTypeSymbol):
-                    _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
-                    return
-                # here, both are integers, but check to be sure
-                if isinstance(lhsType, IntegerTypeSymbol) and isinstance(rhsType, IntegerTypeSymbol):
-                    _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
-                    return
-        # Catch-all if no case has matched
-        typeMismatch = lhsType.print_symbol() + " / " if arithOp.isDivOp() else " * " + rhsType.print_symbol()
-        errorMsg = ErrorStrings.messageTypeMismatch(self, typeMismatch, _expr.getSourcePosition())
-        _expr.setTypeEither(Either.error(errorMsg))
-        Logger.logMessage(_message=errorMsg,
-                          _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
-                          _errorPosition=_expr.getSourcePosition(),
-                          _logLevel=LOGGING_LEVEL.ERROR)
+            _expr.type = lhsType % rhsType
+            return
+        if arithOp.isDivOp():
+            _expr.type = lhsType / rhsType
+            return
+        if arithOp.isTimesOp():
+            _expr.type = lhsType * rhsType
+            return

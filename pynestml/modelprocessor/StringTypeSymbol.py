@@ -38,3 +38,12 @@ class StringTypeSymbol(TypeSymbol):
 
     def _get_concrete_nest_type(self):
         return 'std::string'
+
+    def __mul__(self, other):
+        return self.operation_not_defined_error('*', other)
+
+    def __mod__(self, other):
+        return self.operation_not_defined_error('%', other)
+
+    def __truediv__(self, other):
+        return self.operation_not_defined_error('/', other)

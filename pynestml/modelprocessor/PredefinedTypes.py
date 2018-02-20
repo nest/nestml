@@ -20,13 +20,6 @@
 from astropy.units.core import CompositeUnit
 from astropy.units.quantity import Quantity
 
-from pynestml.modelprocessor.BooleanTypeSymbol import BooleanTypeSymbol
-from pynestml.modelprocessor.IntegerTypeSymbol import IntegerTypeSymbol
-from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
-from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
-from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.modelprocessor.VoidTypeSymbol import VoidTypeSymbol
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.modelprocessor.UnitType import UnitType
 from copy import copy
@@ -72,6 +65,7 @@ class PredefinedTypes(object):
         Adds all units as predefined type symbols to the list of available types.
         """
         from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+        from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
         units = PredefinedUnits.getUnits()
         for unitName in units.keys():
             tSymbol = UnitTypeSymbol(_unit=units[unitName])
@@ -83,6 +77,7 @@ class PredefinedTypes(object):
         """
         Adds the real type symbol to the dict of predefined types.
         """
+        from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
         symbol = RealTypeSymbol()
         cls.__name2type[symbol.getSymbolName()] = symbol
         return
@@ -92,6 +87,7 @@ class PredefinedTypes(object):
         """
         Adds the void type to the dict of predefined types.
         """
+        from pynestml.modelprocessor.VoidTypeSymbol import VoidTypeSymbol
         symbol = VoidTypeSymbol()
         cls.__name2type[symbol.getSymbolName()] = symbol
         return
@@ -101,6 +97,7 @@ class PredefinedTypes(object):
         """
         Adds the boolean type to the dict of predefined types.
         """
+        from pynestml.modelprocessor.BooleanTypeSymbol import BooleanTypeSymbol
         symbol = BooleanTypeSymbol()
         cls.__name2type[symbol.getSymbolName()] = symbol
         return
@@ -110,6 +107,7 @@ class PredefinedTypes(object):
         """
         Adds the string type to the dict of predefined types.
         """
+        from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
         symbol = StringTypeSymbol()
         cls.__name2type[symbol.getSymbolName()] = symbol
         return
@@ -119,6 +117,7 @@ class PredefinedTypes(object):
         """
         Adds the integer type to the dict of predefined types.
         """
+        from pynestml.modelprocessor.IntegerTypeSymbol import IntegerTypeSymbol
         symbol = IntegerTypeSymbol()
         cls.__name2type[symbol.getSymbolName()] = symbol
         return
@@ -261,6 +260,7 @@ class PredefinedTypes(object):
         :type _unit: SympyUnit
         """
         from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
+        from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
         unitType = UnitType(str(_unit), _unit)
         PredefinedUnits.registerUnit(unitType)
         typeSymbol = UnitTypeSymbol(_unit=unitType)
