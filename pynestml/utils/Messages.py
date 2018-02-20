@@ -51,9 +51,15 @@ class Messages(object):
         return MessageCode.TYPE_REGISTERED, message
 
     @classmethod
-    def get_operation_not_defined(cls, _lhs, _operator, _rhs):
+    def get_binary_operation_not_defined(cls, _lhs, _operator, _rhs):
         message = 'Operation %s %s %s is not defined' % (_lhs, _operator, _rhs)
+        return MessageCode.OPERATION_NOT_DEFINED, message
 
+    @classmethod
+    def get_unary_operation_not_defined(cls, _operator, _term):
+        message = 'Operation %s%s is not defined' % (_operator, _term)
+        return MessageCode.OPERATION_NOT_DEFINED, message
+    
     @classmethod
     def getStartBuildingSymbolTable(cls):
         """

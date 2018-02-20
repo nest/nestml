@@ -98,17 +98,23 @@ class TypeSymbol(Symbol):
         # return self.isInteger() or self.isReal() or self.isUnit()
         pass
 
-    @abstractmethod
     def __mul__(self, other):
-        pass
+        return self.binary_operation_not_defined_error('*', other)
 
-    @abstractmethod
-    def __truediv__(self, other):
-        pass
-
-    @abstractmethod
     def __mod__(self, other):
-        pass
+        return self.binary_operation_not_defined_error('%', other)
+
+    def __truediv__(self, other):
+        return self.binary_operation_not_defined_error('/', other)
+
+    def __neg__(self):
+        return self.unary_operation_not_defined_error('-', self)
+
+    def __pos__(self):
+        return self.unary_operation_not_defined_error('+', self)
+
+    def __invert__(self):
+        return self.unary_operation_not_defined_error('~', self)
 
     def isNumericPrimitive(self):
         """
@@ -192,11 +198,17 @@ class TypeSymbol(Symbol):
         else:
             return False
 
-    def operation_not_defined_error(self, _operator, _other):
+    def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
-        code, message = Messages.get_operation_not_defined(self.print_symbol(),
-                                                           _operator,
-                                                           _other.print_symbol())
+        code, message = Messages.get_binary_operation_not_defined(self.print_symbol(),
+                                                                  _operator,
+                                                                  _other.print_symbol())
+        return ErrorTypeSymbol(code, message)
+
+    def unary_operation_not_defined_error(self, _operator):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        code, message = Messages.get_unary_operation_not_defined(_operator,
+                                                                 self.print_symbol())
         return ErrorTypeSymbol(code, message)
 
     def inverse_of_unit(self, other):

@@ -51,3 +51,11 @@ class ErrorTypeSymbol(TypeSymbol):
     def __truediv__(self, other):
         return copy(self)
 
+    def __neg__(self):
+        return copy(self)
+
+    def __pos__(self):
+        return copy(self)
+
+    def __invert__(self):
+        return copy(self)

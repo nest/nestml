@@ -52,30 +52,13 @@ class UnaryVisitor(NESTMLVisitor):
 
         termType = termTypeE.getValue()
         unaryOp = _expr.getUnaryOperator()
-        # unaryOp exists if we get into this visitor but make sure:
-        assert unaryOp is not None and isinstance(unaryOp, ASTUnaryOperator)
 
-        if unaryOp.isUnaryMinus() or unaryOp.isUnaryPlus():
-            if termType.isNumeric():
-                _expr.setTypeEither(Either.value(termType))
-                return
-            else:
-                # TODO: Seems like this doesnt actually work and isnt covered by any tests
-                errorMsg = ErrorStrings.messageNonNumericType(self, termType.print_symbol(), _expr.getSourcePosition())
-                _expr.setTypeEither(Either.error(errorMsg))
-                Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-                return
-        elif unaryOp.isUnaryTilde():
-            if termType.isInteger():
-                _expr.setTypeEither(Either.value(termType))
-                return
-            else:
-                errorMsg = ErrorStrings.messageNonNumericType(self, termType.print_symbol(), _expr.getSourcePosition())
-                _expr.setTypeEither(Either.error(errorMsg))
-                Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-                return
-        # Catch-all if no case has matched
-        errorMsg = ErrorStrings.messageTypeError(self, str(_expr), _expr.getSourcePosition())
-        Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
-        _expr.setTypeEither(Either.error(errorMsg))
-        return
+        if unaryOp.isUnaryMinus():
+            _expr.type = -termType
+            return
+        if unaryOp.isUnaryPlus():
+            _expr.type = +termType
+            return
+        if unaryOp.isUnaryTilde():
+            _expr.type = ~termType
+            return

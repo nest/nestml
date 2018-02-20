@@ -66,10 +66,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.multiply_by(other)
         if other.isNumericPrimitive():
             return copy(self)
-        return self.operation_not_defined_error('*', other)
-
-    def __mod__(self, other):
-        return self.operation_not_defined_error('%', other)
+        return self.binary_operation_not_defined_error('*', other)
 
     def __truediv__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
@@ -80,7 +77,7 @@ class UnitTypeSymbol(TypeSymbol):
             return self.divide_by(other)
         if other.isNumericPrimitive():
             return copy(self)
-        return self.operation_not_defined_error('*', other)
+        return self.binary_operation_not_defined_error('*', other)
 
     def divide_by(self, other):
         self_unit = self.unit.getUnit()
@@ -91,3 +88,12 @@ class UnitTypeSymbol(TypeSymbol):
         self_unit = self.unit.getUnit()
         other_unit = other.unit.getUnit()
         return PredefinedTypes.getTypeIfExists(self_unit * other_unit)
+
+    def __neg__(self):
+        return copy(self)
+
+    def __pos__(self):
+        return copy(self)
+
+    def __invert__(self):
+        return self.unary_operation_not_defined_error('~')

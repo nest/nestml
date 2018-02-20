@@ -51,10 +51,7 @@ class RealTypeSymbol(TypeSymbol):
             return copy(other)
         if other.isNumericPrimitive():
             return copy(self)
-        return self.operation_not_defined_error('*', other)
-
-    def __mod__(self, other):
-        return self.operation_not_defined_error('%', other)
+        return self.binary_operation_not_defined_error('*', other)
 
     def __truediv__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
@@ -66,4 +63,13 @@ class RealTypeSymbol(TypeSymbol):
             return self.inverse_of_unit(other)
         if other.isNumericPrimitive():
             return copy(self)
-        return self.operation_not_defined_error('/', other)
+        return self.binary_operation_not_defined_error('/', other)
+
+    def __neg__(self):
+        return copy(self)
+
+    def __pos__(self):
+        return copy(self)
+
+    def __invert__(self):
+        return self.unary_operation_not_defined_error('~')

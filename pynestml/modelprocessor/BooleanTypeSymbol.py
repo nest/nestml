@@ -21,15 +21,6 @@ from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
 class BooleanTypeSymbol(TypeSymbol):
-    def __mul__(self, other):
-        return self.operation_not_defined_error('*', other)
-
-    def __mod__(self, other):
-        return self.operation_not_defined_error('%', other)
-
-    def __truediv__(self, other):
-        return self.operation_not_defined_error('/', other)
-
     def isNumeric(self):
         return False
 
