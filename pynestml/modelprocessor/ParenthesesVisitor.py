@@ -38,5 +38,5 @@ class ParenthesesVisitor(NESTMLVisitor):
         """
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
             '(PyNestML.Visitor.ParenthesesVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        _expr.setTypeEither(_expr.getExpression().getTypeEither())
+        _expr.type = _expr.getExpression().getTypeEither()
         return
