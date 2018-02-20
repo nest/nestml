@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
+
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
@@ -38,3 +40,6 @@ class BooleanTypeSymbol(TypeSymbol):
 
     def _get_concrete_nest_type(self):
         return 'bool'
+
+    def negate(self):
+        return copy(self)

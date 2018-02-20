@@ -108,16 +108,19 @@ class TypeSymbol(Symbol):
         return self.binary_operation_not_defined_error('/', other)
 
     def __neg__(self):
-        return self.unary_operation_not_defined_error('-', self)
+        return self.unary_operation_not_defined_error('-')
 
     def __pos__(self):
-        return self.unary_operation_not_defined_error('+', self)
+        return self.unary_operation_not_defined_error('+')
 
     def __invert__(self):
-        return self.unary_operation_not_defined_error('~', self)
+        return self.unary_operation_not_defined_error('~')
 
     def __pow__(self, power, modulo=None):
         return self.binary_operation_not_defined_error('**', power)
+
+    def negate(self):
+        return self.unary_operation_not_defined_error('not ')
 
     def isNumericPrimitive(self):
         """
