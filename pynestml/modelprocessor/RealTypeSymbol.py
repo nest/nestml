@@ -73,3 +73,12 @@ class RealTypeSymbol(TypeSymbol):
 
     def __invert__(self):
         return self.unary_operation_not_defined_error('~')
+
+    def __pow__(self, power, modulo=None):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+
+        if power.is_instance_of(ErrorTypeSymbol):
+            return copy(power)
+        if power.isNumericPrimitive():
+            return copy(self)
+        return self.binary_operation_not_defined_error('**', power)

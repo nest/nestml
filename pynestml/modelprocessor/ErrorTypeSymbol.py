@@ -59,3 +59,6 @@ class ErrorTypeSymbol(TypeSymbol):
 
     def __invert__(self):
         return copy(self)
+
+    def __pow__(self, power, modulo=None):
+        return copy(self)

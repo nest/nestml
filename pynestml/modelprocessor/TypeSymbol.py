@@ -116,6 +116,9 @@ class TypeSymbol(Symbol):
     def __invert__(self):
         return self.unary_operation_not_defined_error('~', self)
 
+    def __pow__(self, power, modulo=None):
+        return self.binary_operation_not_defined_error('**', power)
+
     def isNumericPrimitive(self):
         """
         Returns whether this symbol represents a primitive numeric type, i.e., real or integer.

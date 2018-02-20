@@ -47,7 +47,6 @@ class UnitTypeSymbol(TypeSymbol):
 
     def equals(self, _other=None):
         basic_equals = super().equals(_other)
-
         # defer comparison of units to sympy library
         if basic_equals is True:
             self_unit = self.unit.getUnit()
@@ -59,7 +58,6 @@ class UnitTypeSymbol(TypeSymbol):
 
     def __mul__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
-
         if other.is_instance_of(ErrorTypeSymbol):
             return copy(other)
         if other.is_instance_of(UnitTypeSymbol):
@@ -70,7 +68,6 @@ class UnitTypeSymbol(TypeSymbol):
 
     def __truediv__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
-
         if other.is_instance_of(ErrorTypeSymbol):
             return copy(other)
         if other.is_instance_of(UnitTypeSymbol):
@@ -97,3 +94,12 @@ class UnitTypeSymbol(TypeSymbol):
 
     def __invert__(self):
         return self.unary_operation_not_defined_error('~')
+
+    def __pow__(self, power, modulo=None):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if isinstance(power, ErrorTypeSymbol):
+            return copy(power)
+        if isinstance(power, int):
+            self_unit = self.unit.getUnit()
+            return PredefinedTypes.getTypeIfExists(self_unit ** power)
+        return self.binary_operation_not_defined_error('**', power)
