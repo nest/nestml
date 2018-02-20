@@ -27,13 +27,7 @@ class TypeSymbol(Symbol):
     This class is used to represent a single type symbol which represents the type of a element, e.g., a variable.
     
         Attributes:
-        __unit              Stores an optional unit used to represent the type of this type symbol.
-        __isInteger         Indicates whether it is an integer typed type symbol.
-        __isReal            Indicates whether it is a real typed type symbol.
-        __isVoid            Indicates whether it is a void typed type symbol.
-        __isBoolean         Indicates whether it is a boolean typed type symbol.
-        __isString          Indicates whether it is a string typed type symbol.
-        __isBuffer          Indicates whether it is a buffer symbol.
+        is_buffer          Indicates whether it is a buffer symbol.
     
     """
     __metaclass__ = ABCMeta
