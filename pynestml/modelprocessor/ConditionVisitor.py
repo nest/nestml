@@ -22,10 +22,11 @@
 expression : condition=expression '?' ifTrue=expression ':' ifNot=expression
 """
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.Either import Either
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
 
@@ -75,7 +76,8 @@ class ConditionVisitor(NESTMLVisitor):
             return
 
         # Both are units but not matching-> real WARN
-        if ifTrue.isUnit() and ifNot.isUnit():
+        if isinstance(ifTrue, UnitTypeSymbol) and isinstance(ifNot, UnitTypeSymbol):
+            # TODO: This is not covered by our tests, and it doesnt work
             errorMsg = ErrorStrings.messageTernaryMismatch(self, ifTrue.print_symbol(), ifNot.print_symbol(),
                                                            _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
@@ -86,9 +88,10 @@ class ConditionVisitor(NESTMLVisitor):
             return
 
         # one Unit and one numeric primitive and vice versa -> assume unit, WARN
-        if (ifTrue.isUnit() and ifNot.isNumericPrimitive()) or (ifNot.isUnit() and ifTrue.isNumericPrimitive()):
+        if (isinstance(ifTrue, UnitTypeSymbol) and ifNot.isNumericPrimitive()) or (
+            isinstance(ifNot,UnitTypeSymbol) and ifTrue.isNumericPrimitive()):
             unitType = None
-            if ifTrue.isUnit():
+            if isinstance(ifTrue,UnitTypeSymbol):
                 unitType = ifTrue
             else:
                 unitType = ifNot

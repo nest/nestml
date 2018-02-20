@@ -17,19 +17,20 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
 class UnitTypeSymbol(TypeSymbol):
+    unit = None
+
     def isNumeric(self):
         return True
 
     def isPrimitive(self):
         return False
 
-    unit = None
-
-    def __init__(self,_unit):
+    def __init__(self, _unit):
         self.unit = _unit
         super().__init__(_name=str(_unit.getUnit()))
 
@@ -41,3 +42,15 @@ class UnitTypeSymbol(TypeSymbol):
 
     def _get_concrete_nest_type(self):
         return 'double'
+
+    def equals(self, _other=None):
+        basic_equals = super().equals(_other)
+
+        # defer comparison of units to sympy library
+        if basic_equals is True:
+            self_unit = self.unit.getUnit()
+            other_unit = _other.unit.getUnit()
+            # TODO: astropy complains this is deprecated
+            return self_unit == other_unit
+
+        return False

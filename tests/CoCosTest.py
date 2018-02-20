@@ -227,7 +227,7 @@ class InvalidNumeratorOfUnitOne(unittest.TestCase):
         model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoUnitNumeratorNotOne.nestml'))
-        self.assertEquals (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)), 2)
+        self.assertEqual(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)), 2)
 
 
 class ValidNumeratorOfUnitOne(unittest.TestCase):
@@ -497,7 +497,7 @@ class InvalidExpressionCorrectlyTyped(unittest.TestCase):
         model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoIllegalExpression.nestml'))
-        self.assertEquals(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)),
+        self.assertEqual(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)),
                           6)
 
 
