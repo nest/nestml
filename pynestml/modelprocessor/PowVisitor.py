@@ -53,8 +53,13 @@ class PowVisitor(NESTMLVisitor):
             _expr.setTypeEither(exponentTypeE)
             return
 
+
+
         baseType = baseTypeE.getValue()
         exponentType = exponentTypeE.getValue()
+
+        baseType.referenced_object = _expr.getLhs()
+        exponentType.referenced_object = _expr.getRhs()
 
         if baseType.is_instance_of(UnitTypeSymbol):
             _expr.type = self.try_to_calculate_resulting_unit(_expr)

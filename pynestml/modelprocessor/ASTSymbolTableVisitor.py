@@ -146,7 +146,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         assert (_block is not None and isinstance(_block, ASTFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of function block provided (%s)!' % type(_block)
         cls.__currentBlockType = BlockType.LOCAL  # before entering, update the current block type
-        symbol = FunctionSymbol(_scope=_block.getScope(), _elementReference=_block, _paramTypes=list(),
+        symbol = FunctionSymbol(_scope=_block.getScope(), _referenced_object=_block, _paramTypes=list(),
                                 _name=_block.getName(), _isPredefined=False)
         symbol.setComment(_block.getComment())
         _block.getScope().addSymbol(symbol)
@@ -165,17 +165,17 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
             # update the scope of the arg
             arg.updateScope(scope)
             # create the corresponding variable symbol representing the parameter
-            varSymbol = VariableSymbol(_elementReference=arg, _scope=scope, _name=arg.getName(),
+            varSymbol = VariableSymbol(_referenced_object=arg, _scope=scope, _name=arg.getName(),
                                        _blockType=BlockType.LOCAL, _isPredefined=False, _isFunction=False,
                                        _isRecordable=False,
                                        _typeSymbol=PredefinedTypes.getTypeIfExists(typeName),
                                        _variableType=VariableType.VARIABLE)
             scope.addSymbol(varSymbol)
         if _block.hasReturnType():
-            _block.getReturnType().updateScope(scope)
-            cls.visitDataType(_block.getReturnType())
+            _block.get_return_data_type().updateScope(scope)
+            cls.visitDataType(_block.get_return_data_type())
             symbol.setReturnType(
-                PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_block.getReturnType())))
+                PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_block.get_return_data_type())))
         else:
             symbol.setReturnType(PredefinedTypes.getVoidType())
         _block.getBlock().updateScope(scope)
@@ -329,7 +329,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         for var in _declaration.getVariables():  # for all variables declared create a new symbol
             var.updateScope(_declaration.getScope())
             typeSymbol = PredefinedTypes.getTypeIfExists(typeName)
-            symbol = VariableSymbol(_elementReference=_declaration,
+            symbol = VariableSymbol(_referenced_object=_declaration,
                                     _scope=_declaration.getScope(),
                                     _name=var.getCompleteName(),
                                     _blockType=cls.__currentBlockType,
@@ -652,7 +652,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         assert (_odeFunction is not None and isinstance(_odeFunction, ASTOdeFunction)), \
             '(PyNestML.SymbolTable.Visitor) No or wrong type of ode-function provided (%s)!' % type(_odeFunction)
         typeSymbol = PredefinedTypes.getTypeIfExists(ASTUnitTypeVisitor.visitDatatype(_odeFunction.getDataType()))
-        symbol = VariableSymbol(_elementReference=_odeFunction, _scope=_odeFunction.getScope(),
+        symbol = VariableSymbol(_referenced_object=_odeFunction, _scope=_odeFunction.getScope(),
                                 _name=_odeFunction.getVariableName(),
                                 _blockType=BlockType.EQUATION,
                                 _declaringExpression=_odeFunction.getExpression(),
@@ -683,7 +683,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         if _odeShape.getVariable().getDifferentialOrder() == 0 and \
                         _odeShape.getScope().resolveToSymbol(_odeShape.getVariable().getCompleteName(),
                                                              SymbolKind.VARIABLE) is None:
-            symbol = VariableSymbol(_elementReference=_odeShape, _scope=_odeShape.getScope(),
+            symbol = VariableSymbol(_referenced_object=_odeShape, _scope=_odeShape.getScope(),
                                     _name=_odeShape.getVariable().getName(),
                                     _blockType=BlockType.EQUATION,
                                     _declaringExpression=_odeShape.getExpression(),
@@ -808,7 +808,7 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         else:
             typeSymbol = PredefinedTypes.getTypeIfExists('pA')
         typeSymbol.is_buffer = True # set it as a buffer
-        symbol = VariableSymbol(_elementReference=_line, _scope=_line.getScope(), _name=_line.getName(),
+        symbol = VariableSymbol(_referenced_object=_line, _scope=_line.getScope(), _name=_line.getName(),
                                 _blockType=bufferType, _vectorParameter=_line.getIndexParameter(),
                                 _isPredefined=False, _isFunction=False, _isRecordable=False,
                                 _typeSymbol=typeSymbol, _variableType=VariableType.BUFFER)
@@ -980,8 +980,9 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
                                                            SymbolKind.VARIABLE)
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeEquation.getRhs())
+            _odeEquation.getScope().updateVariableSymbol(existingSymbol)
             code, message = Messages.getOdeUpdated(_odeEquation.getLhs().getNameOfLhs())
-            Logger.logMessage(_errorPosition=existingSymbol.getReferencedObject().getSourcePosition(),
+            Logger.logMessage(_errorPosition=existingSymbol.referenced_object.getSourcePosition(),
                               _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
         else:
             code, message = Messages.getNoVariableFound(_odeEquation.getLhs().getNameOfLhs())
@@ -1010,8 +1011,9 @@ class ASTSymbolTableVisitor(NESTMLVisitor):
         if existingSymbol is not None:
             existingSymbol.setOdeDefinition(_odeShape.getExpression())
             existingSymbol.setVariableType(VariableType.SHAPE)
+            _odeShape.getScope().updateVariableSymbol(existingSymbol)
             code, message = Messages.getOdeUpdated(_odeShape.getVariable().getNameOfLhs())
-            Logger.logMessage(_errorPosition=existingSymbol.getReferencedObject().getSourcePosition(),
+            Logger.logMessage(_errorPosition=existingSymbol.referenced_object.getSourcePosition(),
                               _code=code, _message=message, _logLevel=LOGGING_LEVEL.INFO)
         else:
             code, message = Messages.getNoVariableFound(_odeShape.getVariable().getNameOfLhs())

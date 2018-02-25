@@ -1,5 +1,5 @@
 #
-# DotOperatorVisitor.py
+# LineOperatorVisitor.py
 #
 # This file is part of NEST.
 #
@@ -19,32 +19,36 @@
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-expression : left=expression (timesOp='*' | divOp='/' | moduloOp='%') right=expression
+expression : left=expression (plusOp='+'  | minusOp='-') right=expression
 """
-
+from pynestml.modelprocessor.ImplicitMagnitudeCastException import ImplicitMagnitudeCastException
 from pynestml.modelprocessor.ASTExpression import ASTExpression
+from pynestml.modelprocessor.DeferredLoggingException import DeferredLoggingException
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+from pynestml.modelprocessor.ImplicitCastException import ImplicitCastException
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
-class DotOperatorVisitor(NESTMLVisitor):
+
+class LineOperatorVisitor(NESTMLVisitor):
     """
-    This visitor is used to derive the correct type of expressions which use a binary dot operator.
+    Visits a single binary operation consisting of + or - and updates the type accordingly.
     """
 
     def visit_expression(self, _expr=None):
         """
-        Visits a single expression and updates the type.
+        Visits a single expression containing a plus or minus operator and updates its type.
         :param _expr: a single expression
         :type _expr: ASTExpression
         """
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.DotOperatorVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
+            '(PyNestML.Visitor.LineOperatorVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
         lhsTypeE = _expr.getLhs().getTypeEither()
         rhsTypeE = _expr.getRhs().getTypeEither()
 
         if lhsTypeE.isError():
             _expr.setTypeEither(lhsTypeE)
             return
-
         if rhsTypeE.isError():
             _expr.setTypeEither(rhsTypeE)
             return
@@ -57,12 +61,9 @@ class DotOperatorVisitor(NESTMLVisitor):
         lhsType.referenced_object = _expr.getLhs()
         rhsType.referenced_object = _expr.getRhs()
 
-        if arithOp.isModuloOp():
-            _expr.type = lhsType % rhsType
+        if arithOp.isPlusOp():
+            _expr.type = lhsType + rhsType
             return
-        if arithOp.isDivOp():
-            _expr.type = lhsType / rhsType
-            return
-        if arithOp.isTimesOp():
-            _expr.type = lhsType * rhsType
+        elif arithOp.isMinusOp():
+            _expr.type = lhsType - rhsType
             return

@@ -40,5 +40,6 @@ class StringLiteralVisitor(NESTMLVisitor):
         """
         assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
             '(PyNestML.Visitor.StringLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
-        _expr.setTypeEither(Either.value(PredefinedTypes.getStringType()))
+        _expr.type = PredefinedTypes.getStringType()
+        _expr.type.referenced_object = _expr
         return

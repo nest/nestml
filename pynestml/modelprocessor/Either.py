@@ -75,6 +75,7 @@ class Either(object):
         """
         return self.__value
 
+
     def getError(self):
         """
         Get the error message saved in the Either object

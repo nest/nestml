@@ -43,3 +43,17 @@ class BooleanTypeSymbol(TypeSymbol):
 
     def negate(self):
         return copy(self)
+
+    def __add__(self, other):
+        from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
+        if other.is_instance_of(StringTypeSymbol):
+            return copy(other)
+        return self.binary_operation_not_defined_error('+', other)
+
+    def is_castable_to(self, _other_type):
+        from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
+
+        if _other_type.is_instance_of(RealTypeSymbol):
+            return True
+        else:
+            return False

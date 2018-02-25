@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
+
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
@@ -38,3 +40,15 @@ class StringTypeSymbol(TypeSymbol):
 
     def _get_concrete_nest_type(self):
         return 'std::string'
+
+    def __add__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.modelprocessor.VoidTypeSymbol import VoidTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        if not other.is_instance_of(VoidTypeSymbol):
+            return copy(self)
+        return self.binary_operation_not_defined_error('+', other)
+
+    def is_castable_to(self, _other_type):
+        return False

@@ -50,6 +50,9 @@ class LogicalNotVisitor(NESTMLVisitor):
             _expr.setTypeEither(exprTypeE)
             return
 
+
         exprType = exprTypeE.getValue()
+
+        exprType.referenced_object = _expr.getExpression()
 
         _expr.type = exprType.negate()

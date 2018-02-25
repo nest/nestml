@@ -40,5 +40,6 @@ class InfVisitor(NESTMLVisitor):
         """
         assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
             '(PyNestML.Visitor.InvVisitor) No or wrong type of simple expression provided (%s)!' % type(_expr)
-        _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
+        _expr.type = PredefinedTypes.getRealType()
+        _expr.type.referenced_object = _expr
         return

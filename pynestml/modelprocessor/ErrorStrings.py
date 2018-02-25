@@ -49,7 +49,7 @@ class ErrorStrings(object):
         from pynestml.modelprocessor.DotOperatorVisitor import DotOperatorVisitor
         if isinstance(_origin, DotOperatorVisitor):
             return "SPL_DOT_OPERATOR_VISITOR"
-        from pynestml.modelprocessor.LineOperationVisitor import LineOperatorVisitor
+        from pynestml.modelprocessor.LineOperatorVisitor import LineOperatorVisitor
         if isinstance(_origin, LineOperatorVisitor):
             return "SPL_LINE_OPERATOR_VISITOR"
         from pynestml.modelprocessor.NoSemantics import NoSemantics
@@ -138,10 +138,10 @@ class ErrorStrings(object):
                 # All these rules employ left and right side expressions.
                 if _parentNode.getLhs() is not None:
                     targetExpression = _parentNode.getLhs()
-                    targetUnit = targetExpression.getTypeEither().getValue().unit.getUnit()
+                    targetUnit = targetExpression.getTypeEither().getValue().astropy_unit
                 if _parentNode.getRhs() is not None:
                     converteeExpression = _parentNode.getRhs()
-                    converteeUnit = converteeExpression.getTypeEither().getValue().unit.getUnit()
+                    converteeUnit = converteeExpression.getTypeEither().getValue().astropy_unit
                 # Handle all Arithmetic Operators:
                 if isinstance(binOp, ASTArithmeticOperator):
                     # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
@@ -155,9 +155,9 @@ class ErrorStrings(object):
                                                                        SymbolKind.VARIABLE)
             operation = "="
             targetExpression = _parentNode.getVariable()
-            targetUnit = lhsVariableSymbol.getTypeSymbol().unit.getUnit()
+            targetUnit = lhsVariableSymbol.getTypeSymbol().astropy_unit
             converteeExpression = _parentNode.getExpression()
-            converteeUnit = converteeExpression.getTypeEither().getValue().unit.getUnit()
+            converteeUnit = converteeExpression.getTypeEither().getValue().astropy_unit
 
         assert targetExpression is not None and converteeExpression is not None and \
                operation is not None, "Only call this on an addition/subtraction  or assignment after " \

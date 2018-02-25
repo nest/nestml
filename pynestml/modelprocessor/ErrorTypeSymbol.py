@@ -20,12 +20,23 @@
 from copy import copy
 
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
+from pynestml.utils.Logger import LOGGING_LEVEL
 
 
 class ErrorTypeSymbol(TypeSymbol):
-    code = None
-    message = None
+    """
+    Originally intended to only be a 'Null type' for the TypeSymbol hierarchy,
+    it is now also a device to communicate errors and warnings back to a place where they can
+    be properly logged (we cant do that here because we dont know t
+    he sourceposition)
+    Thought about using Exceptions but that would lead to loads of code duplication in the
+    visitors responsible for expression typing.
+    In the end a little bit of ugliness here saves us a lot throughout the project -ptraeder
 
+    p.s. could possibly resolve this by associating typesymbol objects with expressions they belong to.
+    The field for that is already present from Symbol and we already instantiate types for every expression
+    anyways
+    """
     def isNumeric(self):
         return False
 
@@ -35,9 +46,8 @@ class ErrorTypeSymbol(TypeSymbol):
     def isPrimitive(self):
         return False
 
-    def __init__(self, _code, _message):
-        super().__init__(name='error')
-        self.message = _message
+    def __init__(self):
+        super().__init__(_name='error')
 
     def _get_concrete_nest_type(self):
         return 'ERROR'
@@ -62,3 +72,15 @@ class ErrorTypeSymbol(TypeSymbol):
 
     def __pow__(self, power, modulo=None):
         return copy(self)
+
+    def negate(self):
+        return copy(self)
+
+    def __add__(self, other):
+        return copy(self)
+
+    def __sub__(self, other):
+        return copy(self)
+
+    def is_castable_to(self, _other_type):
+        return False

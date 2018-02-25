@@ -1,5 +1,5 @@
 #
-# VoidTypeSymbol.py
+# ImplicitCastException.py
 #
 # This file is part of NEST.
 #
@@ -17,27 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
-class VoidTypeSymbol(TypeSymbol):
-    def isNumeric(self):
-        return False
+class ImplicitCastException(Exception):
+    code = None
+    message = None
+    resulting_type = None
 
-    def isPrimitive(self):
-        return True
-
-    def __init__(self):
-        super().__init__(_name='void')
-
-    def print_symbol(self):
-        result = 'void'
-        if self.is_buffer:
-            result += ' buffer'
-        return result
-
-    def _get_concrete_nest_type(self):
-        return 'void'
-
-    def is_castable_to(self, _other_type):
-        return False
+    def __init__(self, _code, _message, _resulting_type):
+        self.code = _code
+        self.message = _message
+        self.resulting_type = _resulting_type

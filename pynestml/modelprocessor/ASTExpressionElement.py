@@ -54,12 +54,9 @@ class ASTExpressionElement(ASTElement):
 
     @type.setter
     def type(self, _value):
-        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
-        if _value.is_instance_of(ErrorTypeSymbol):
-            Logger.logMessage(_code=_value.code, _message=_value.message, _errorPosition=self.getSourcePosition(),
-                              _logLevel=LOGGING_LEVEL.ERROR)
         self.setTypeEither(Either.value(_value))
-        __type = _value
+        self.__type = _value
+        return
 
     def setTypeEither(self, _typeEither=None):
         """

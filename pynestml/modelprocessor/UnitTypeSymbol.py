@@ -21,10 +21,16 @@ from copy import copy
 
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class UnitTypeSymbol(TypeSymbol):
     unit = None
+
+    @property
+    def astropy_unit(self):
+        return self.unit.getUnit()
 
     def isNumeric(self):
         return True
@@ -49,8 +55,8 @@ class UnitTypeSymbol(TypeSymbol):
         basic_equals = super().equals(_other)
         # defer comparison of units to sympy library
         if basic_equals is True:
-            self_unit = self.unit.getUnit()
-            other_unit = _other.unit.getUnit()
+            self_unit = self.astropy_unit
+            other_unit = _other.astropy_unit
             # TODO: astropy complains this is deprecated
             return self_unit == other_unit
 
@@ -66,6 +72,9 @@ class UnitTypeSymbol(TypeSymbol):
             return copy(self)
         return self.binary_operation_not_defined_error('*', other)
 
+    def multiply_by(self, other):
+        return PredefinedTypes.getTypeIfExists(self.astropy_unit * other.astropy_unit)
+
     def __truediv__(self, other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
         if other.is_instance_of(ErrorTypeSymbol):
@@ -77,14 +86,7 @@ class UnitTypeSymbol(TypeSymbol):
         return self.binary_operation_not_defined_error('*', other)
 
     def divide_by(self, other):
-        self_unit = self.unit.getUnit()
-        other_unit = other.unit.getUnit()
-        return PredefinedTypes.getTypeIfExists(self_unit / other_unit)
-
-    def multiply_by(self, other):
-        self_unit = self.unit.getUnit()
-        other_unit = other.unit.getUnit()
-        return PredefinedTypes.getTypeIfExists(self_unit * other_unit)
+        return PredefinedTypes.getTypeIfExists(self.astropy_unit / other.astropy_unit)
 
     def __neg__(self):
         return copy(self)
@@ -100,6 +102,66 @@ class UnitTypeSymbol(TypeSymbol):
         if isinstance(power, ErrorTypeSymbol):
             return copy(power)
         if isinstance(power, int):
-            self_unit = self.unit.getUnit()
-            return PredefinedTypes.getTypeIfExists(self_unit ** power)
+            return self.to_the_power_of(power)
         return self.binary_operation_not_defined_error('**', power)
+
+    def to_the_power_of(self, power):
+        return PredefinedTypes.getTypeIfExists(self.astropy_unit ** power)
+
+    def __add__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(StringTypeSymbol):
+            return copy(other)
+        if other.isNumericPrimitive():
+            return self.warn_implicit_cast_from_to(other, self)
+        if other.is_instance_of(UnitTypeSymbol):
+            return self.add_or_sub_another_unit(other)
+        return self.binary_operation_not_defined_error('+', other)
+
+    def __sub__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        if other.isNumericPrimitive():
+            return self.warn_implicit_cast_from_to(other, self)
+        if other.is_instance_of(UnitTypeSymbol):
+            return self.add_or_sub_another_unit(other)
+        return self.binary_operation_not_defined_error('-', other)
+
+    def add_or_sub_another_unit(self, other):
+        if self.equals(other):
+            return copy(other)
+        else:
+            return self.attempt_magnitude_cast(other)
+
+    def attempt_magnitude_cast(self, _other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if self.differs_only_in_magnitude_or_is_equal_to(_other):
+            result = ErrorTypeSymbol()
+            factor = UnitTypeSymbol.get_conversion_factor(self.astropy_unit, _other.astropy_unit)
+            code, message = Messages.get_implicit_magnitude_conversion(self, _other, factor)
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=self.referenced_object.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.WARNING)
+            return result
+        else:
+            return self.binary_operation_not_defined_error('+/-', _other)
+
+    @classmethod
+    def get_conversion_factor(cls, _target_unit, _convertee_unit):
+        """
+        Calculates the conversion factor from _convertee_unit to _targe_unit.
+        Behaviour is only well-defined if both units have the same physical base type
+        """
+        factor = (_convertee_unit / _target_unit).si.scale
+        return factor
+
+    def is_castable_to(self, _other_type):
+        from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
+        if _other_type.is_instance_of(RealTypeSymbol):
+            return True
+        else:
+            return False

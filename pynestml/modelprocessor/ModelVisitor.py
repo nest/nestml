@@ -1171,8 +1171,8 @@ class NESTMLVisitor(object):
         if _node.getParameters() is not None:
             for subnode in _node.getParameters():
                 subnode.accept(self.get_real_self())
-        if _node.getReturnType() is not None:
-            _node.getReturnType().accept(self.get_real_self())
+        if _node.get_return_data_type() is not None:
+            _node.get_return_data_type().accept(self.get_real_self())
         if _node.getBlock() is not None:
             _node.getBlock().accept(self.get_real_self())
         return

@@ -18,9 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 from abc import ABCMeta, abstractmethod
+from copy import copy
 
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.Symbol import Symbol
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
 
 
@@ -36,12 +38,19 @@ class TypeSymbol(Symbol):
     is_buffer = False
 
     def is_instance_of(self, _other):
+        """
+        wrapper around isinstance to make things more readable/intuitive.
+        instance checks abound for all members of the TypeSymbol hierarchy,
+        (specifically the operator functions) though i have tried to
+        limit them to situations that would otherwise have been covered
+        by function overloading in e.g. Java -ptraeder
+        """
         return isinstance(self, _other)
 
     @abstractmethod
     def __init__(self, _name=None):
         from pynestml.modelprocessor.Symbol import SymbolKind
-        super().__init__(_elementReference=None, _scope=None,
+        super().__init__(_referenced_object=None, _scope=None,
                          _name=_name, _symbolKind=SymbolKind.TYPE)
         return
 
@@ -99,28 +108,52 @@ class TypeSymbol(Symbol):
         pass
 
     def __mul__(self, other):
-        return self.binary_operation_not_defined_error('*', other)
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        self.binary_operation_not_defined_error('*', other)
 
     def __mod__(self, other):
-        return self.binary_operation_not_defined_error('%', other)
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        self.binary_operation_not_defined_error('%', other)
 
     def __truediv__(self, other):
-        return self.binary_operation_not_defined_error('/', other)
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        self.binary_operation_not_defined_error('/', other)
 
     def __neg__(self):
-        return self.unary_operation_not_defined_error('-')
+        self.unary_operation_not_defined_error('-')
 
     def __pos__(self):
-        return self.unary_operation_not_defined_error('+')
+        self.unary_operation_not_defined_error('+')
 
     def __invert__(self):
-        return self.unary_operation_not_defined_error('~')
+        self.unary_operation_not_defined_error('~')
 
     def __pow__(self, power, modulo=None):
-        return self.binary_operation_not_defined_error('**', power)
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if isinstance(power, ErrorTypeSymbol):
+            return copy(power)
+        self.binary_operation_not_defined_error('**', power)
 
     def negate(self):
-        return self.unary_operation_not_defined_error('not ')
+        self.unary_operation_not_defined_error('not ')
+
+    def __add__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        self.binary_operation_not_defined_error('+', other)
+
+    def __sub__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        self.binary_operation_not_defined_error('-', other)
 
     def isNumericPrimitive(self):
         """
@@ -143,7 +176,7 @@ class TypeSymbol(Symbol):
 
         return False
 
-    def differsOnlyInMagnitudeOrIsEqualTo(self, _otherType=None):
+    def differs_only_in_magnitude_or_is_equal_to(self, _otherType=None):
         """
         Indicates whether both type represent the same unit but with different magnitudes. This
         case is still valid, e.g., mV can be assigned to volt.
@@ -164,8 +197,8 @@ class TypeSymbol(Symbol):
         if not (isinstance(self, UnitTypeSymbol) and isinstance(_otherType, UnitTypeSymbol)):
             return False
         # if it represents the same unit, if we disregard the prefix and simplify it
-        unitA = self.unit.getUnit()
-        unitB = _otherType.unit.getUnit()
+        unitA = self.astropy_unit
+        unitB = _otherType.astropy_unit
         # if isinstance(unitA,)
         from astropy import units
         # TODO: consider even more complex cases which can be resolved to the same unit?
@@ -177,51 +210,44 @@ class TypeSymbol(Symbol):
             return True
         return False
 
-    def isCastableTo(self, _otherType=None):
+    @abstractmethod
+    def is_castable_to(self, _other_type):
         """
         Indicates whether typeA can be casted to type b. E.g., in Nest, a unit is always casted down to real, thus
         a unit where unit is expected is allowed.
         :return: True if castable, otherwise False
         :rtype: bool
         """
-        assert (_otherType is not None and isinstance(_otherType, TypeSymbol)), \
-            '(PyNestML.Utils) No or wrong type of target type provided (%s)!' % type(_otherType)
-        # we can always cast from unit to real
-        from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
-        from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
-        from pynestml.modelprocessor.BooleanTypeSymbol import BooleanTypeSymbol
-        from pynestml.modelprocessor.IntegerTypeSymbol import IntegerTypeSymbol
-        if isinstance(self, UnitTypeSymbol) and isinstance(_otherType, RealTypeSymbol):
-            return True
-        elif isinstance(self, BooleanTypeSymbol) and isinstance(_otherType, RealTypeSymbol):
-            return True
-        elif isinstance(self, RealTypeSymbol) and isinstance(_otherType, BooleanTypeSymbol):
-            return True
-        elif isinstance(self, IntegerTypeSymbol) and isinstance(_otherType, RealTypeSymbol):
-            return True
-        elif isinstance(self, RealTypeSymbol) and isinstance(_otherType, IntegerTypeSymbol):
-            return True
-        else:
-            return False
+        pass
 
     def binary_operation_not_defined_error(self, _operator, _other):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
-        code, message = Messages.get_binary_operation_not_defined(self.print_symbol(),
-                                                                  _operator,
-                                                                  _other.print_symbol())
-        return ErrorTypeSymbol(code, message)
+        result = ErrorTypeSymbol()
+        code, message = Messages.get_binary_operation_not_defined(_lhs=self, _operator=_operator, _rhs=_other)
+        Logger.logMessage(_code=code, _message=message, _errorPosition=self.referenced_object.getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.ERROR)
+        return result
 
     def unary_operation_not_defined_error(self, _operator):
         from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        result = ErrorTypeSymbol()
         code, message = Messages.get_unary_operation_not_defined(_operator,
                                                                  self.print_symbol())
-        return ErrorTypeSymbol(code, message)
+        Logger.logMessage(_code=code, _message=message, _errorPosition=self.referenced_object.getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.ERROR)
+        return result
 
-    def inverse_of_unit(self, other):
+    def inverse_of_unit(self, _other):
         """
         :param other: the unit to invert
         :type other: UnitTypeSymbol
         :return: UnitTypeSymbol
         """
-        other_unit = other.unit.getUnit()
-        return PredefinedTypes.getTypeIfExists(1 / other_unit)
+        result = PredefinedTypes.getTypeIfExists(1 / _other.astropy_unit)
+        return result
+
+    def warn_implicit_cast_from_to(self, _from, _to):
+        code, message = Messages.getImplicitCastRhsToLhs(_to.print_symbol(), _from.print_symbol())
+        Logger.logMessage(_code=code, _message=message, _errorPosition=self.referenced_object.getSourcePosition(),
+                          _logLevel=LOGGING_LEVEL.WARNING)
+        return copy(_to)

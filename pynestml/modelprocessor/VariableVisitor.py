@@ -21,6 +21,8 @@
 """
 simpleExpression : variable
 """
+from copy import copy
+
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Either import Either
@@ -48,9 +50,11 @@ class VariableVisitor(NESTMLVisitor):
         scope = _expr.getScope()
         varName = _expr.getVariable().getName()
         varResolve = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
+
         # update the type of the variable according to its symbol type.
         if varResolve is not None:
-            _expr.setTypeEither(Either.value(varResolve.getTypeSymbol()))
+            _expr.type = varResolve.getTypeSymbol()
+            _expr.type.referenced_object = _expr
         else:
             message = 'Variable ' + str(_expr) + ' could not be resolved!'
             Logger.logMessage(_code=MessageCode.SYMBOL_NOT_RESOLVED,

@@ -31,7 +31,7 @@ from pynestml.modelprocessor.ConditionVisitor import ConditionVisitor
 from pynestml.modelprocessor.DotOperatorVisitor import DotOperatorVisitor
 from pynestml.modelprocessor.FunctionCallVisitor import FunctionCallVisitor
 from pynestml.modelprocessor.InfVisitor import InfVisitor
-from pynestml.modelprocessor.LineOperationVisitor import LineOperatorVisitor
+from pynestml.modelprocessor.LineOperatorVisitor import LineOperatorVisitor
 from pynestml.modelprocessor.LogicalNotVisitor import LogicalNotVisitor
 from pynestml.modelprocessor.NoSemantics import NoSemantics
 from pynestml.modelprocessor.NumericLiteralVisitor import NumericLiteralVisitor

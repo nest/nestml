@@ -23,11 +23,11 @@ expression: left=expression logicalOperator right=expression
 """
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.BooleanTypeSymbol import BooleanTypeSymbol
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class BinaryLogicVisitor(NESTMLVisitor):
@@ -43,20 +43,32 @@ class BinaryLogicVisitor(NESTMLVisitor):
         """
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
             '(PyNestML.Visitor.BinaryLogicVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhsType = _expr.getLhs().getTypeEither()
-        rhsType = _expr.getRhs().getTypeEither()
+        lhs_type_e = _expr.getLhs().getTypeEither()
+        rhs_type_e = _expr.getRhs().getTypeEither()
 
-        if lhsType.isError():
-            _expr.setTypeEither(lhsType)
+        if lhs_type_e.isError():
+            _expr.setTypeEither(lhs_type_e)
             return
-        if rhsType.isError():
-            _expr.setTypeEither(rhsType)
+        if rhs_type_e.isError():
+            _expr.setTypeEither(rhs_type_e)
             return
 
-        if isinstance(lhsType.getValue(), BooleanTypeSymbol) and isinstance(rhsType.getValue(), BooleanTypeSymbol):
-            _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
+        lhs_type = lhs_type_e.getValue()
+        rhs_type = rhs_type_e.getValue()
+
+        lhs_type.referenced_object = _expr.getLhs()
+        rhs_type.referenced_object = _expr.getRhs()
+
+        if isinstance(lhs_type, BooleanTypeSymbol) and isinstance(rhs_type, BooleanTypeSymbol):
+            _expr.type = PredefinedTypes.getBooleanType()
         else:
-            errorMsg = ErrorStrings.messageLogicOperandsNotBool(self, _expr.getSourcePosition())
-            _expr.setTypeEither(Either.error(errorMsg))
-            Logger.logMessage(errorMsg, LOGGING_LEVEL.ERROR)
+            if (isinstance(lhs_type, BooleanTypeSymbol)):
+                offending_type = lhs_type
+            else:
+                offending_type = rhs_type
+            code, message = Messages.getTypeDifferentFromExpected(BooleanTypeSymbol(), offending_type)
+            Logger.logMessage(_code=code, _message=message,
+                              _errorPosition=lhs_type.referenced_object.getSourcePosition(),
+                              _logLevel=LOGGING_LEVEL.ERROR)
+            _expr.type = ErrorTypeSymbol()
         return

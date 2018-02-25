@@ -88,7 +88,7 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
                     return
                 actualType = actualTypeEither.getValue()
                 if not actualTypeEither.getValue().equals(expectedType):
-                    if actualType.isCastableTo(expectedType):
+                    if actualType.is_castable_to(expectedType):
                         code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
                                                                              _expectedType=expectedType,
                                                                              _gotType=actualTypeEither, _castable=True)

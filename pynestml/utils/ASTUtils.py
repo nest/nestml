@@ -17,10 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
-from pynestml.utils.Logger import LOGGING_LEVEL, Logger
-from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 
 
 class ASTUtils(object):
@@ -233,72 +231,6 @@ class ASTUtils(object):
         ASTHigherOrderVisitor.visit(_ast, lambda x: ret.append(x) \
             if isinstance(x, ASTFunctionCall) and x.getName() == _functionName else True)
         return ret
-
-    @classmethod
-    def getConversionFactor(cls, _targetExpr=None, _converteeExpr=None):
-        """
-        Calculates the conversion factor from _convertee to _targetUnit. Behaviour is only well-defined if both units
-        have the same physical type
-        :param _targetExpr: the target for conversion
-        :type _targetExpr: ASTExpression,ASTSimpleEypression or ASTVariable
-        :param _converteeExpr: the expression that is to be converted
-        :type _converteeExpr: ASTExpression or ASTSimpleExpression
-        :return: factor f so that: _targetExpr = f*_converteeExpr
-        """
-        from astropy import units
-        from pynestml.modelprocessor.ASTExpression import ASTExpression
-        from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
-        from pynestml.modelprocessor.TypeSymbol import TypeSymbol
-        from pynestml.modelprocessor.VariableSymbol import VariableSymbol
-
-        assert _targetExpr is not None and (isinstance(_targetExpr,ASTExpression)
-                                            or isinstance(_targetExpr,ASTSimpleExpression)
-                                            or isinstance(_targetExpr,VariableSymbol))
-        assert _converteeExpr is not None and (isinstance(_converteeExpr,ASTExpression)
-                                               or isinstance(_converteeExpr,ASTSimpleExpression))
-
-        if isinstance(_targetExpr,ASTExpression) or isinstance(_targetExpr,ASTSimpleExpression):
-            assert _targetExpr.getTypeEither().isValue()
-            targetType = _targetExpr.getTypeEither().getValue()
-
-        if isinstance(_targetExpr,VariableSymbol):
-            targetType = _targetExpr.getTypeSymbol()
-
-        assert _converteeExpr.getTypeEither().isValue()
-        converteeType = _converteeExpr.getTypeEither().getValue()
-
-        assert isinstance(converteeType,UnitTypeSymbol)
-        assert isinstance(targetType, UnitTypeSymbol)
-
-        assert targetType is not None and isinstance(targetType, TypeSymbol)
-        assert converteeType is not None and isinstance(converteeType,TypeSymbol)
-
-        assert converteeType.unit.getUnit() is not None
-        assert targetType.unit.getUnit() is not None
-
-        targetUnit = targetType.unit.getUnit()
-        converteeUnit = converteeType.unit.getUnit()
-
-        assert isinstance(converteeUnit,units.PrefixUnit) or isinstance(converteeUnit,units.Unit) or isinstance(converteeUnit,units.CompositeUnit)
-        assert isinstance(targetUnit,units.PrefixUnit) or isinstance(targetUnit,units.Unit) or isinstance(targetUnit,units.CompositeUnit)
-
-        factor = (converteeUnit / targetUnit).si.scale
-        '''
-        factorExpression = ASTSimpleExpression.makeASTSimpleExpression(_numericLiteral=factor)
-        
-        #wrap convertee in parents
-        converteeExprInParents = ASTExpression.makeExpression(_isEncapsulated=True, _expression=_converteeExpr)
-
-        timesOp = ASTArithmeticOperator.makeASTArithmeticOperator(_isTimesOp=True)
-        multiplication = ASTExpression.makeCompoundExpression(_lhs=factorExpression,
-                                                              _binaryOperator=timesOp,
-                                                              _rhs=converteeExprInParents)
-        #wrap it all in parentheses to be safe
-        parents = ASTExpression.makeExpression(_isEncapsulated=True,_expression=multiplication)
-        
-        return parents
-        '''
-        return factor
 
     @classmethod
     def getTupleFromSingleDictEntry(cls, _dictEntry=None):

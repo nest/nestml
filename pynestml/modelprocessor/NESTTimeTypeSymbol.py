@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
+
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 
 
@@ -38,3 +40,12 @@ class NESTTimeTypeSymbol(TypeSymbol):
 
     def _get_concrete_nest_type(self):
         return 'nest::Time'
+
+    def __add__(self, other):
+        from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
+        if other.is_instance_of(StringTypeSymbol):
+            return copy(other)
+        return self.binary_operation_not_defined_error('+', other)
+
+    def is_castable_to(self, _other_type):
+        return False

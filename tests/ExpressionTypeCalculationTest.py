@@ -61,7 +61,7 @@ class expressionTestVisitor(NESTMLVisitor):
 
         if isinstance(_expr.getTypeEither().getValue(),UnitTypeSymbol):
             message += " Neuroscience Factor: " + \
-            str(UnitConverter().getFactor(_expr.getTypeEither().getValue().unit.getUnit()))
+            str(UnitConverter().getFactor(_expr.getTypeEither().getValue().astropy_unit))
 
         Logger.logMessage(_errorPosition=_assignment.getSourcePosition(), _code=MessageCode.TYPE_MISMATCH,
                           _message=message, _logLevel=LOGGING_LEVEL.INFO)

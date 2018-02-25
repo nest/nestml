@@ -41,5 +41,6 @@ class BooleanLiteralVisitor(NESTMLVisitor):
         assert (_expr is not None and isinstance(_expr, ASTSimpleExpression)), \
             '(PyNestML.Visitor.BooleanLiteralVisitor) No or wrong type of simple expression provided (%s)!' % type(
                 _expr)
-        _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
+        _expr.type = PredefinedTypes.getBooleanType()
+        _expr.type.referenced_object = _expr
         return

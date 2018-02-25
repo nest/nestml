@@ -17,6 +17,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
+
 from pynestml.modelprocessor.Symbol import Symbol
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.ASTSimpleExpression import ASTSimpleExpression
@@ -52,13 +54,13 @@ class VariableSymbol(Symbol):
     __initialValue = None
     __variableType = None
 
-    def __init__(self, _elementReference=None, _scope=None, _name=None, _blockType=None, _vectorParameter=None,
+    def __init__(self, _referenced_object=None, _scope=None, _name=None, _blockType=None, _vectorParameter=None,
                  _declaringExpression=None, _isPredefined=False, _isFunction=False, _isRecordable=False,
                  _typeSymbol=None, _initialValue=None, _variableType=None):
         """
         Standard constructor.
-        :param _elementReference: a reference to the first element where this type has been used/defined
-        :type _elementReference: Object (or None, if predefined) 
+        :param _referenced_object: a reference to the first element where this type has been used/defined
+        :type _referenced_object: Object (or None, if predefined)
         :param _scope: the scope in which this type is defined in 
         :type _scope: Scope
         :param _name: the name of the type symbol
@@ -108,7 +110,7 @@ class VariableSymbol(Symbol):
         assert (_variableType is not None and isinstance(_variableType, VariableType)), \
             '(PyNestML.SymbolTable.VariableSymbol) No or wrong type of variable-type provided (%s)!' % type(
                 _variableType)
-        super(VariableSymbol, self).__init__(_elementReference=_elementReference, _scope=_scope,
+        super(VariableSymbol, self).__init__(_referenced_object=_referenced_object, _scope=_scope,
                                              _name=_name, _symbolKind=SymbolKind.VARIABLE)
         self.__blockType = _blockType
         self.__vectorParameter = _vectorParameter
@@ -203,7 +205,7 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        return isinstance(self.getReferencedObject(), ASTInputLine) and self.getReferencedObject().isSpike()
+        return isinstance(self.referenced_object, ASTInputLine) and self.referenced_object.isSpike()
 
     def isCurrentBuffer(self):
         """
@@ -212,7 +214,7 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        return isinstance(self.getReferencedObject(), ASTInputLine) and self.getReferencedObject().isCurrent()
+        return isinstance(self.referenced_object, ASTInputLine) and self.referenced_object.isCurrent()
 
     def isExcitatory(self):
         """
@@ -221,7 +223,7 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        return isinstance(self.getReferencedObject(), ASTInputLine) and self.getReferencedObject().isExcitatory()
+        return isinstance(self.referenced_object, ASTInputLine) and self.referenced_object.isExcitatory()
 
     def isInhibitory(self):
         """
@@ -230,7 +232,7 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         from pynestml.modelprocessor.ASTInputLine import ASTInputLine
-        return isinstance(self.getReferencedObject(), ASTInputLine) and self.getReferencedObject().isInhibitory()
+        return isinstance(self.referenced_object, ASTInputLine) and self.referenced_object.isInhibitory()
 
     def isState(self):
         """
@@ -321,8 +323,8 @@ class VariableSymbol(Symbol):
         return self.getBlockType() == BlockType.INITIAL_VALUES
 
     def print_symbol(self):
-        if self.getReferencedObject() is not None:
-            sourcePosition = str(self.getReferencedObject().getSourcePosition())
+        if self.referenced_object is not None:
+            sourcePosition = str(self.referenced_object.getSourcePosition())
         else:
             sourcePosition = 'predefined'
         vectorValue = self.getVectorParameter() if self.hasVectorParameter() else 'none'
@@ -339,7 +341,7 @@ class VariableSymbol(Symbol):
         :return: the current type symbol.
         :rtype: TypeSymbol
         """
-        return self.__typeSymbol
+        return copy(self.__typeSymbol)
 
     def setTypeSymbol(self, _typeSymbol=None):
         """
@@ -459,7 +461,7 @@ class VariableSymbol(Symbol):
         :rtype: bool
         """
         return type(self) != type(_other) and \
-               self.getReferencedObject() == _other.getReferencedObject() and \
+               self.referenced_object == _other.referenced_object and \
                self.getSymbolName() == _other.getSymbolName() and \
                self.getCorrespondingScope() == _other.getCorrespondingScope() and \
                self.getBlockType() == _other.getBlockType() and \

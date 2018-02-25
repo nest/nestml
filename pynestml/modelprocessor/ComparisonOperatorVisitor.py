@@ -45,40 +45,43 @@ class ComparisonOperatorVisitor(NESTMLVisitor):
         """
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
             '(PyNestML.Visitor.ConditionVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhsTypeE = _expr.getLhs().getTypeEither()
-        rhsTypeE = _expr.getRhs().getTypeEither()
+        lhs_type_e = _expr.getLhs().getTypeEither()
+        rhs_type_e = _expr.getRhs().getTypeEither()
 
-        if lhsTypeE.isError():
-            _expr.setTypeEither(lhsTypeE)
+        if lhs_type_e.isError():
+            _expr.setTypeEither(lhs_type_e)
             return
-        if rhsTypeE.isError():
-            _expr.setTypeEither(rhsTypeE)
+        if rhs_type_e.isError():
+            _expr.setTypeEither(rhs_type_e)
             return
 
-        lhsType = lhsTypeE.getValue()
-        rhsType = rhsTypeE.getValue()
+        lhs_type = lhs_type_e.getValue()
+        rhs_type = rhs_type_e.getValue()
 
-        if (lhsType.isNumericPrimitive() and rhsType.isNumericPrimitive()) \
-                or (lhsType.equals(rhsType) and lhsType.isNumeric()) or (
-                    isinstance(lhsType, BooleanTypeSymbol) and isinstance(rhsType, BooleanTypeSymbol)):
+        lhs_type.referenced_object = _expr.getLhs()
+        rhs_type.referenced_object = _expr.getRhs()
+
+        if (lhs_type.isNumericPrimitive() and rhs_type.isNumericPrimitive()) \
+                or (lhs_type.equals(rhs_type) and lhs_type.isNumeric()) or (
+                    isinstance(lhs_type, BooleanTypeSymbol) and isinstance(rhs_type, BooleanTypeSymbol)):
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
             return
 
         # Error message for any other operation
-        if (isinstance(lhsType, UnitTypeSymbol) and rhsType.isNumeric()) or (
-                    isinstance(rhsType, UnitTypeSymbol) and lhsType.isNumeric()):
+        if (isinstance(lhs_type, UnitTypeSymbol) and rhs_type.isNumeric()) or (
+                    isinstance(rhs_type, UnitTypeSymbol) and lhs_type.isNumeric()):
             # if the incompatibility exists between a unit and a numeric, the c++ will still be fine, just WARN
-            errorMsg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
+            error_msg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
             _expr.setTypeEither(Either.value(PredefinedTypes.getBooleanType()))
-            Logger.logMessage(_message=errorMsg, _code=MessageCode.SOFT_INCOMPATIBILITY,
+            Logger.logMessage(_message=error_msg, _code=MessageCode.SOFT_INCOMPATIBILITY,
                               _errorPosition=_expr.getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.WARNING)
             return
         else:
             # hard incompatibility, cannot recover in c++, ERROR
-            errorMsg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
-            _expr.setTypeEither(Either.error(errorMsg))
+            error_msg = ErrorStrings.messageComparison(self, _expr.getSourcePosition())
+            _expr.setTypeEither(Either.error(error_msg))
             Logger.logMessage(_code=MessageCode.HARD_INCOMPATIBILITY,
                               _errorPosition=_expr.getSourcePosition(),
-                              _message=errorMsg, _logLevel=LOGGING_LEVEL.ERROR)
+                              _message=error_msg, _logLevel=LOGGING_LEVEL.ERROR)
             return

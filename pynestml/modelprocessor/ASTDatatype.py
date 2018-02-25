@@ -17,6 +17,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+from copy import copy
 
 from pynestml.modelprocessor.ASTUnitType import ASTUnitType
 from pynestml.modelprocessor.ASTElement import ASTElement
@@ -171,7 +172,7 @@ class ASTDatatype(ASTElement):
         :return: a single type symbol element.
         :rtype: TypeSymbol
         """
-        return self.__typeSymbol
+        return copy(self.__typeSymbol)
 
     def setTypeSymbol(self, _typeSymbol=None):
         """

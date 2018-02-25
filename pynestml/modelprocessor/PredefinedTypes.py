@@ -184,9 +184,11 @@ class PredefinedTypes(object):
             return cls.getTypeIfExists(str(_name))
         if isinstance(_name, Quantity):
             cls.registerUnit(_name.unit)
-            return cls.getTypeIfExists(str(_name.unit))
+            result = cls.getTypeIfExists(str(_name.unit))
+            return result
         if _name in cls.__name2type:
-            return copy(cls.__name2type[_name])
+            result = copy(cls.__name2type[_name])
+            return result
         else:
             return
 

@@ -91,3 +91,41 @@ class IntegerTypeSymbol(TypeSymbol):
         if power.is_instance_of(RealTypeSymbol):
             return copy(power)
         return self.binary_operation_not_defined_error('**', power)
+
+    def __add__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
+        from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
+        from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(StringTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(IntegerTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(RealTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(UnitTypeSymbol):
+            return self.warn_implicit_cast_from_to(other, self)
+        return self.binary_operation_not_defined_error('+', other)
+
+    def __sub__(self, other):
+        from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
+        from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
+        from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
+        if other.is_instance_of(ErrorTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(IntegerTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(RealTypeSymbol):
+            return copy(other)
+        if other.is_instance_of(UnitTypeSymbol):
+            return self.warn_implicit_cast_from_to(self, other)
+        return self.binary_operation_not_defined_error('-', other)
+
+    def is_castable_to(self, _other_type):
+        from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
+        if _other_type.is_instance_of(RealTypeSymbol):
+            return True
+        else:
+            return False

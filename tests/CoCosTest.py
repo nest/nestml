@@ -425,7 +425,7 @@ class InvalidConvolveCorrectlyDefined(unittest.TestCase):
         model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoConvolveNotCorrectlyProvided.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 3)
+        self.assertEqual(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)), 3)
 
 
 class ValidConvolveCorrectlyDefined(unittest.TestCase):
@@ -466,11 +466,11 @@ class InvalidSumCorrectlyParametrized(unittest.TestCase):
 
 class ValidSumCorrectlyParametrized(unittest.TestCase):
     def test(self):
-        Logger.setLoggingLevel(LOGGING_LEVEL.NO)
+        Logger.setLoggingLevel(LOGGING_LEVEL.ERROR)
         model = ModelParser.parseModel(
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'valid')),
                          'CoCoSumNotCorrectlyParametrized.nestml'))
-        assert (len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)) == 0)
+        self.assertEqual(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)), 0)
 
 
 class InvalidInvariantCorrectlyTyped(unittest.TestCase):
@@ -498,7 +498,7 @@ class InvalidExpressionCorrectlyTyped(unittest.TestCase):
             os.path.join(os.path.realpath(os.path.join(os.path.dirname(__file__), 'invalid')),
                          'CoCoIllegalExpression.nestml'))
         self.assertEqual(len(Logger.getAllMessagesOfLevelAndOrNeuron(model.getNeuronList()[0], LOGGING_LEVEL.ERROR)),
-                          6)
+                         6)
 
 
 class ValidExpressionCorrectlyTyped(unittest.TestCase):

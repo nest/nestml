@@ -53,6 +53,8 @@ class UnaryVisitor(NESTMLVisitor):
         termType = termTypeE.getValue()
         unaryOp = _expr.getUnaryOperator()
 
+        termType.referenced_object = _expr.getExpression();
+
         if unaryOp.isUnaryMinus():
             _expr.type = -termType
             return

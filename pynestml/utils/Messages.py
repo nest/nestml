@@ -59,7 +59,19 @@ class Messages(object):
     def get_unary_operation_not_defined(cls, _operator, _term):
         message = 'Operation %s%s is not defined' % (_operator, _term)
         return MessageCode.OPERATION_NOT_DEFINED, message
-    
+
+    @classmethod
+    def get_convolve_needs_buffer_parameter(cls):
+        message = 'Convolve needs a buffer as its second parameter'
+        return MessageCode.CONVOLVE_NEEDS_BUFFER_PARAMETER, message
+
+    @classmethod
+    def get_implicit_magnitude_conversion(cls, _lhs, _rhs, _conversion_factor):
+        message = 'Non-matching unit types at %s +/- %s! ' \
+                  'Implicitly replaced by %s +/- %s * %s' % (
+                      _lhs, _rhs, _lhs, _conversion_factor, _rhs)
+        return MessageCode.IMPLICIT_CAST, message
+
     @classmethod
     def getStartBuildingSymbolTable(cls):
         """
@@ -112,26 +124,18 @@ class Messages(object):
         return MessageCode.TYPE_NOT_DERIVABLE, message
 
     @classmethod
-    def getImplicitCastRhsToLhs(cls, _rhsExpression=None, _lhsExpression=None,
-                                _rhsType=None, _lhsType=None):
+    def getImplicitCastRhsToLhs(cls, _rhsType=None, _lhsType=None):
         """
         Returns a message indicating that the type of the lhs does not correspond to the one of the rhs, but the rhs
         can be cast down to lhs type.
-        :param _rhsExpression: the rhs expression
-        :type _rhsExpression: ASTExpression or ASTSimpleExpression
-        :param _lhsExpression: the lhs expression
-        :type _lhsExpression: ASTExpression or ASTSimpleExpression
         :param _rhsType: the type of the rhs
-        :type _rhsType: TypeSymbol
+        :type _rhsType: str
         :param _lhsType: the type of the lhs
-        :type _lhsType: TypeSymbol
+        :type _lhsType: str
         :return: a message
         :rtype:(MessageCode,str)
         """
-        message = 'Type of lhs \'%s\' does not correspond to expression type of \'%s\'! LHS=\'%s\', RHS=\'%s\'.' \
-                  % (
-                      _lhsExpression, _rhsExpression, _lhsType.print_symbol(),
-                      _rhsType.print_symbol())
+        message = 'Implicitly casting %s to %s' % (_rhsType, _lhsType)
         return MessageCode.IMPLICIT_CAST, message
 
     @classmethod
@@ -944,3 +948,4 @@ class MessageCode(Enum):
     NOT_NEUROSCIENCE_UNIT = 55
     INTERNAL_WARNING = 56
     OPERATION_NOT_DEFINED = 57
+    CONVOLVE_NEEDS_BUFFER_PARAMETER = 58

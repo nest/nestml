@@ -21,6 +21,8 @@
 """
 simpleExpression : (INTEGER|FLOAT) (variable)?
 """
+from copy import copy
+
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
@@ -46,13 +48,16 @@ class NumericLiteralVisitor(NESTMLVisitor):
             scope = _expr.getScope()
             varName = _expr.getVariable().getName()
             variableSymbolResolve = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
-            _expr.setTypeEither(Either.value(variableSymbolResolve.getTypeSymbol()))
+            _expr.type = variableSymbolResolve.getTypeSymbol()
+            _expr.type.referenced_object = _expr
             return
 
         if _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral(), float):
-            _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
+            _expr.type = PredefinedTypes.getRealType()
+            _expr.type.referenced_object = _expr
             return
 
         elif _expr.getNumericLiteral() is not None and isinstance(_expr.getNumericLiteral(), int):
-            _expr.setTypeEither(Either.value(PredefinedTypes.getIntegerType()))
+            _expr.type = PredefinedTypes.getIntegerType()
+            _expr.type.referenced_object = _expr
             return

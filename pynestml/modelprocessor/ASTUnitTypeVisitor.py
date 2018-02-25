@@ -81,24 +81,24 @@ class ASTUnitTypeVisitor(object):
         if _unitType.isPowerExpression():
             baseSymbol = cls.visitUnitType(_unitType.getBase())
             exponent = _unitType.getExponent()
-            sympyUnit = baseSymbol.unit.getUnit() ** exponent
+            sympyUnit = baseSymbol.astropy_unit ** exponent
             return cls.__handleUnit(sympyUnit)
         elif _unitType.isEncapsulated():
             return cls.visitUnitType(_unitType.getCompoundUnit())
         elif _unitType.isDiv():
             if isinstance(_unitType.getLhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
-                lhs = cls.visitUnitType(_unitType.getLhs()).unit.getUnit()
+                lhs = cls.visitUnitType(_unitType.getLhs()).astropy_unit
             else:
                 lhs = _unitType.getLhs()
-            rhs = cls.visitUnitType(_unitType.getRhs()).unit.getUnit()
+            rhs = cls.visitUnitType(_unitType.getRhs()).astropy_unit
             res = lhs / rhs
             return cls.__handleUnit(res)
         elif _unitType.isTimes():
             if isinstance(_unitType.getLhs(), ASTUnitType):  # regard that lhs can be a numeric or a unit-type
-                lhs = cls.visitUnitType(_unitType.getLhs()).unit.getUnit()
+                lhs = cls.visitUnitType(_unitType.getLhs()).astropy_unit
             else:
                 lhs = _unitType.getLhs()
-            rhs = cls.visitUnitType(_unitType.getRhs()).unit.getUnit()
+            rhs = cls.visitUnitType(_unitType.getRhs()).astropy_unit
             res = lhs * rhs
             return cls.__handleUnit(res)
         elif _unitType.isSimpleUnit():
