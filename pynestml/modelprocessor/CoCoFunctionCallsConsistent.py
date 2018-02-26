@@ -17,13 +17,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
-from pynestml.utils.ASTUtils import ASTUtils
-from pynestml.utils.Messages import Messages
-from pynestml.modelprocessor.CoCo import CoCo
-from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
+from pynestml.modelprocessor.CoCo import CoCo
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
+from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.utils.Logger import Logger, LOGGING_LEVEL
+from pynestml.utils.Messages import Messages
 
 
 class CoCoFunctionCallsConsistent(CoCo):
@@ -80,25 +80,24 @@ class FunctionCallConsistencyVisitor(NESTMLVisitor):
             actualTypes = _functionCall.getArgs()
             for i in range(0, len(actualTypes)):
                 expectedType = expectedTypes[i]
-                actualTypeEither = actualTypes[i].getTypeEither()
-                if actualTypeEither.isError():
+                actual_type = actualTypes[i].type
+                if isinstance(actual_type, ErrorTypeSymbol):
                     code, message = Messages.getTypeCouldNotBeDerived(actualTypes[i])
                     Logger.logMessage(_code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR,
                                       _errorPosition=actualTypes[i].getSourcePosition())
                     return
-                actualType = actualTypeEither.getValue()
-                if not actualTypeEither.getValue().equals(expectedType):
-                    if actualType.is_castable_to(expectedType):
+                if not actual_type.equals(expectedType):
+                    if actual_type.is_castable_to(expectedType):
                         code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
                                                                              _expectedType=expectedType,
-                                                                             _gotType=actualTypeEither, _castable=True)
+                                                                             _gotType=actual_type, _castable=True)
 
                         Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)
                     else:
                         code, message = Messages.getFunctionCallImplicitCast(_argNr=i + 1, _functionCall=_functionCall,
                                                                              _expectedType=expectedType,
-                                                                             _gotType=actualTypeEither, _castable=False)
+                                                                             _gotType=actual_type, _castable=False)
 
                         Logger.logMessage(_errorPosition=_functionCall.getArgs()[i].getSourcePosition(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.WARNING)

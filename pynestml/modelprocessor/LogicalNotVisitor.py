@@ -22,13 +22,7 @@
 expression: logicalNot='not' term=expression
 """
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.BooleanTypeSymbol import BooleanTypeSymbol
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
-from pynestml.utils.Messages import MessageCode
 
 
 class LogicalNotVisitor(NESTMLVisitor):
@@ -42,17 +36,8 @@ class LogicalNotVisitor(NESTMLVisitor):
         :param _expr: a single expression
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.LogicalNotVisitor) No or wrong type of visitor provided (%s)!' % type(_expr)
-        exprTypeE = _expr.getExpression().getTypeEither()
+        expr_type = _expr.getExpression().type
 
-        if exprTypeE.isError():
-            _expr.setTypeEither(exprTypeE)
-            return
+        expr_type.referenced_object = _expr.getExpression()
 
-
-        exprType = exprTypeE.getValue()
-
-        exprType.referenced_object = _expr.getExpression()
-
-        _expr.type = exprType.negate()
+        _expr.type = expr_type.negate()

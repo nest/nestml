@@ -40,44 +40,28 @@ class PowVisitor(NESTMLVisitor):
         :param _expr: a single expression.
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.PowVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        baseTypeE = _expr.getLhs().getTypeEither()
-        exponentTypeE = _expr.getRhs().getTypeEither()
+        base_type = _expr.getLhs().type
+        exponent_type = _expr.getRhs().type
 
-        if baseTypeE.isError():
-            _expr.setTypeEither(baseTypeE)
-            return
+        base_type.referenced_object = _expr.getLhs()
+        exponent_type.referenced_object = _expr.getRhs()
 
-        if exponentTypeE.isError():
-            _expr.setTypeEither(exponentTypeE)
-            return
-
-
-
-        baseType = baseTypeE.getValue()
-        exponentType = exponentTypeE.getValue()
-
-        baseType.referenced_object = _expr.getLhs()
-        exponentType.referenced_object = _expr.getRhs()
-
-        if baseType.is_instance_of(UnitTypeSymbol):
+        if base_type.is_instance_of(UnitTypeSymbol):
             _expr.type = self.try_to_calculate_resulting_unit(_expr)
             return
         else:
-            _expr.type = baseType ** exponentType
+            _expr.type = base_type ** exponent_type
             return
 
     def try_to_calculate_resulting_unit(self, _expr):
-        base_type = _expr.getLhs().getTypeEither().getValue()
-        exponent_numeric_value_either = self.calculateNumericValue(_expr.getRhs())
+        base_type = _expr.getLhs().type
+        exponent_numeric_value_either = self.calculate_numeric_value(_expr.getRhs())
         if exponent_numeric_value_either.isValue():
             return base_type ** exponent_numeric_value_either.getValue()
         else:
             return base_type ** None
 
-
-    def calculateNumericValue(self, _expr=None):
+    def calculate_numeric_value(self, _expr=None):
         """
         Calculates the numeric value of a exponent.
         :param _expr: a single expression
@@ -87,18 +71,18 @@ class PowVisitor(NESTMLVisitor):
         """
         # TODO write tests for this by PTraeder
         if isinstance(_expr, ASTExpression) and _expr.isEncapsulated():
-            return self.calculateNumericValue(_expr.getExpr())
+            return self.calculate_numeric_value(_expr.getExpression())
         elif isinstance(_expr, ASTSimpleExpression) and _expr.getNumericLiteral() is not None:
             if isinstance(_expr.getNumericLiteral(), int):
                 literal = _expr.getNumericLiteral()
                 return Either.value(literal)
             else:
-                errorMessage = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
-                return Either.error(errorMessage)
+                error_message = ErrorStrings.messageUnitBase(self, _expr.getSourcePosition())
+                return Either.error(error_message)
         elif _expr.isUnaryOperator() and _expr.getUnaryOperator().isUnaryMinus():
-            term = self.calculateNumericValue(_expr.getExpression())
+            term = self.calculate_numeric_value(_expr.getExpression())
             if term.isError():
                 return term
             return Either.value(-term.getValue())
-        errorMessage = ErrorStrings.messageNonConstantExponent(self, _expr.getSourcePosition())
-        return Either.error(errorMessage)
+        error_message = ErrorStrings.messageNonConstantExponent(self, _expr.getSourcePosition())
+        return Either.error(error_message)

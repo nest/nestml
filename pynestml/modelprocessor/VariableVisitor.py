@@ -23,6 +23,7 @@ simpleExpression : variable
 """
 from copy import copy
 
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.Either import Either
@@ -60,7 +61,7 @@ class VariableVisitor(NESTMLVisitor):
             Logger.logMessage(_code=MessageCode.SYMBOL_NOT_RESOLVED,
                               _errorPosition=_expr.getSourcePosition(),
                               _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-            _expr.setTypeEither(Either.error('Variable could not be resolved!'))
+            _expr.type = ErrorTypeSymbol()
         return
 
     def visit_expression(self, _expr=None):

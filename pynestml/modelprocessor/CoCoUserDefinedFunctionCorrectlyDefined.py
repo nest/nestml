@@ -18,10 +18,11 @@
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
 
-from pynestml.modelprocessor.CoCo import CoCo
 from pynestml.modelprocessor.ASTNeuron import ASTNeuron
-from pynestml.modelprocessor.Symbol import SymbolKind
+from pynestml.modelprocessor.CoCo import CoCo
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
+from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 from pynestml.utils.Logger import LOGGING_LEVEL, Logger
 from pynestml.utils.Messages import Messages
@@ -108,8 +109,7 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                 # now check that it corresponds to the declared type
                 if stmt.getReturnStmt().hasExpression() and _typeSymbol is PredefinedTypes.getVoidType():
                     code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getVoidType(),
-                                                                          stmt.getReturnStmt().getExpression().
-                                                                          getTypeEither().getValue())
+                                                                          stmt.getReturnStmt().getExpression().type)
                     Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 # if it is not void check if the type corresponds to the one stated
@@ -119,14 +119,13 @@ class CoCoUserDefinedFunctionCorrectlyDefined(CoCo):
                     Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                       _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
                 if stmt.getReturnStmt().hasExpression():
-                    typeOfReturn = stmt.getReturnStmt().getExpression().getTypeEither()
-                    if typeOfReturn.isError():
+                    type_of_return = stmt.getReturnStmt().getExpression().type
+                    if isinstance(type_of_return, ErrorTypeSymbol):
                         code, message = Messages.getTypeCouldNotBeDerived(cls.__processedFunction.getName())
                         Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
-                    elif not typeOfReturn.getValue().equals(_typeSymbol):
-                        code, message = Messages.getTypeDifferentFromExpected(typeOfReturn.getValue(),
-                                                                              _typeSymbol)
+                    elif not type_of_return.equals(_typeSymbol):
+                        code, message = Messages.getTypeDifferentFromExpected(type_of_return, _typeSymbol)
                         Logger.logMessage(_errorPosition=stmt.getSourcePosition(),
                                           _message=message, _code=code, _logLevel=LOGGING_LEVEL.ERROR)
             elif isinstance(stmt, ASTCompoundStmt):

@@ -106,7 +106,7 @@ class Messages(object):
         else:
             message = str(_argNr) + '. argument of function-call \'%s\' is wrongly typed! ' \
                                     'Implicit cast from \'%s\' to \'%s\'.' % (_functionCall.getName(),
-                                                                              _gotType.getValue().print_symbol(),
+                                                                              _gotType.print_symbol(),
                                                                               _expectedType.print_symbol())
         return MessageCode.FUNCTION_CALL_TYPE_ERROR, message
 

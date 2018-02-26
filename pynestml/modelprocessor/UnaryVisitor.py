@@ -22,12 +22,9 @@
 Expr = unaryOperator term=expression
 unaryOperator : (unaryPlus='+' | unaryMinus='-' | unaryTilde='~');
 """
+
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.ASTUnaryOperator import ASTUnaryOperator
-from pynestml.modelprocessor.Either import Either
-from pynestml.modelprocessor.ErrorStrings import ErrorStrings
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class UnaryVisitor(NESTMLVisitor):
@@ -44,23 +41,18 @@ class UnaryVisitor(NESTMLVisitor):
         assert (_expr is not None and isinstance(_expr, ASTExpression)), \
             '(PyNestML.Visitor.UnaryVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
 
-        termTypeE = _expr.getExpression().getTypeEither()
+        term_type = _expr.getExpression().type
 
-        if termTypeE.isError():
-            _expr.setTypeEither(termTypeE)
+        unary_op = _expr.getUnaryOperator()
+
+        term_type.referenced_object = _expr.getExpression()
+
+        if unary_op.isUnaryMinus():
+            _expr.type = -term_type
             return
-
-        termType = termTypeE.getValue()
-        unaryOp = _expr.getUnaryOperator()
-
-        termType.referenced_object = _expr.getExpression();
-
-        if unaryOp.isUnaryMinus():
-            _expr.type = -termType
+        if unary_op.isUnaryPlus():
+            _expr.type = +term_type
             return
-        if unaryOp.isUnaryPlus():
-            _expr.type = +termType
-            return
-        if unaryOp.isUnaryTilde():
-            _expr.type = ~termType
+        if unary_op.isUnaryTilde():
+            _expr.type = ~term_type
             return

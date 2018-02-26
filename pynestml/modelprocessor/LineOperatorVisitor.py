@@ -21,13 +21,8 @@
 """
 expression : left=expression (plusOp='+'  | minusOp='-') right=expression
 """
-from pynestml.modelprocessor.ImplicitMagnitudeCastException import ImplicitMagnitudeCastException
 from pynestml.modelprocessor.ASTExpression import ASTExpression
-from pynestml.modelprocessor.DeferredLoggingException import DeferredLoggingException
-from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
-from pynestml.modelprocessor.ImplicitCastException import ImplicitCastException
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 
 
 class LineOperatorVisitor(NESTMLVisitor):
@@ -41,29 +36,17 @@ class LineOperatorVisitor(NESTMLVisitor):
         :param _expr: a single expression
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.LineOperatorVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhsTypeE = _expr.getLhs().getTypeEither()
-        rhsTypeE = _expr.getRhs().getTypeEither()
+        lhs_type = _expr.getLhs().type
+        rhs_type = _expr.getRhs().type
 
-        if lhsTypeE.isError():
-            _expr.setTypeEither(lhsTypeE)
+        arith_op = _expr.getBinaryOperator()
+
+        lhs_type.referenced_object = _expr.getLhs()
+        rhs_type.referenced_object = _expr.getRhs()
+
+        if arith_op.isPlusOp():
+            _expr.type = lhs_type + rhs_type
             return
-        if rhsTypeE.isError():
-            _expr.setTypeEither(rhsTypeE)
-            return
-
-        lhsType = lhsTypeE.getValue()
-        rhsType = rhsTypeE.getValue()
-
-        arithOp = _expr.getBinaryOperator()
-
-        lhsType.referenced_object = _expr.getLhs()
-        rhsType.referenced_object = _expr.getRhs()
-
-        if arithOp.isPlusOp():
-            _expr.type = lhsType + rhsType
-            return
-        elif arithOp.isMinusOp():
-            _expr.type = lhsType - rhsType
+        elif arith_op.isMinusOp():
+            _expr.type = lhs_type - rhs_type
             return

@@ -50,34 +50,12 @@ class ASTExpressionElement(ASTElement):
 
     @property
     def type(self):
+        from pynestml.modelprocessor.ExpressionTypeVisitor import ExpressionTypeVisitor
+        if self.__type is None:
+            self.accept(ExpressionTypeVisitor())
         return self.__type
 
     @type.setter
     def type(self, _value):
-        self.setTypeEither(Either.value(_value))
         self.__type = _value
         return
-
-    def setTypeEither(self, _typeEither=None):
-        """
-        Updates the current type symbol to the handed over one.
-        :param _typeEither: a single type symbol object.
-        :type _typeEither: TypeSymbol
-        """
-        assert (_typeEither is not None and isinstance(_typeEither, Either)), \
-            '(PyNestML.AST.Expression) No or wrong type of type symbol provided (%s)!' % type(_typeEither)
-        self.__typeEither = _typeEither
-        return
-
-    def getTypeEither(self):
-        """
-        Returns an Either object holding either the type symbol of
-        this expression or the corresponding error message
-        If it does not exist, run the ExpressionTypeVisitor on it to calculate it
-        :return: Either a valid type or an error message
-        :rtype: Either
-        """
-        if self.__typeEither is None:
-            from pynestml.modelprocessor.ExpressionTypeVisitor import ExpressionTypeVisitor
-            self.accept(ExpressionTypeVisitor())
-        return self.__typeEither

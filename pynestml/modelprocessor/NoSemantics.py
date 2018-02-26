@@ -41,7 +41,7 @@ class NoSemantics(NESTMLVisitor):
         :type _expr: ASTExpression or ASTSimpleExpression
         """
         error_msg = ErrorStrings.messageNoSemantics(self, str(_expr), _expr.getSourcePosition())
-        _expr.setTypeEither(ErrorTypeSymbol())
+        _expr.type = ErrorTypeSymbol()
         # just warn though
         Logger.logMessage(_message=error_msg,
                           _code=MessageCode.NO_SEMANTICS,

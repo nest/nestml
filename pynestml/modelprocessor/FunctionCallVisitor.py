@@ -81,7 +81,7 @@ class FunctionCallVisitor(NESTMLVisitor):
 
         if isinstance(method_symbol.getReturnType(), VoidTypeSymbol):
             error_msg = ErrorStrings.messageVoidFunctionOnRhs(self, function_name, _expr.getSourcePosition())
-            _expr.setTypeEither(Either.error(error_msg))
+            _expr.type = ErrorTypeSymbol()
             return
 
         # if nothing special is handled, just get the expression type from the return type of the function

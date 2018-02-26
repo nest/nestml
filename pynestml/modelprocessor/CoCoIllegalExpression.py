@@ -58,11 +58,10 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         """
         if _declaration.hasExpression():
             lhs_type = _declaration.getDataType().getTypeSymbol()
-            rhs_type_either = _declaration.getExpression().getTypeEither()
-            if rhs_type_either.isError():
+            rhs_type = _declaration.getExpression().type
+            if isinstance(rhs_type, ErrorTypeSymbol):
                 self.__drop_missing_type_error(_declaration)
                 return
-            rhs_type = rhs_type_either.getValue()
             if not lhs_type.equals(rhs_type):
                 if rhs_type.differs_only_in_magnitude_or_is_equal_to(lhs_type):
                     return
@@ -94,13 +93,11 @@ class CorrectExpressionVisitor(NESTMLVisitor):
     def handle_complex_assignment(self, _assignment):
         implicit_rhs_expr = _assignment.deconstructCompoundAssignment()
         lhs_variable_symbol = _assignment.resolveLhsVariableSymbol()
-        rhs_type_symbol_either = implicit_rhs_expr.getTypeEither()
+        rhs_type_symbol = implicit_rhs_expr.type
 
-        if rhs_type_symbol_either.isError():
+        if isinstance(rhs_type_symbol, ErrorTypeSymbol):
             self.__drop_missing_type_error(_assignment)
             return
-
-        rhs_type_symbol = rhs_type_symbol_either.getValue()
 
         if self.__types_do_not_match(lhs_variable_symbol, rhs_type_symbol):
             self.try_to_recover_or_error(_assignment, implicit_rhs_expr, lhs_variable_symbol, rhs_type_symbol)
@@ -111,7 +108,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
             # TODO: Implement
             pass
         elif rhs_type_symbol.is_castable_to(lhs_variable_symbol.getTypeSymbol()):
-            self.__drop_implicit_cast_warning(_assignment, implicit_rhs_expr, lhs_variable_symbol, rhs_type_symbol)
+            self.__drop_implicit_cast_warning(_assignment, lhs_variable_symbol, rhs_type_symbol)
         else:
             self.__drop_incompatible_types_error(_assignment, implicit_rhs_expr, lhs_variable_symbol, rhs_type_symbol)
 
@@ -125,7 +122,7 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                           _code=code, _message=message, _logLevel=LOGGING_LEVEL.ERROR)
 
     @staticmethod
-    def __drop_implicit_cast_warning(_assignment, implicit_rhs_expr, lhs_variable_symbol, rhs_type_symbol):
+    def __drop_implicit_cast_warning(_assignment, lhs_variable_symbol, rhs_type_symbol):
         code, message = Messages.getImplicitCastRhsToLhs(rhs_type_symbol.print_symbol(),
                                                          lhs_variable_symbol.getTypeSymbol().print_symbol())
         Logger.logMessage(_errorPosition=_assignment.getSourcePosition(),
@@ -144,15 +141,13 @@ class CorrectExpressionVisitor(NESTMLVisitor):
     def handle_simple_assignment(self, _assignment):
         from pynestml.modelprocessor.ErrorStrings import ErrorStrings
         from pynestml.modelprocessor.Symbol import SymbolKind
-        from pynestml.modelprocessor.Either import Either
         lhs_variable_symbol = _assignment.getScope().resolveToSymbol(_assignment.getVariable().getCompleteName(),
                                                                      SymbolKind.VARIABLE)
-        rhs_type_symbol_either = _assignment.getExpression().getTypeEither()
-        if rhs_type_symbol_either.isError():
+
+        rhs_type_symbol = _assignment.getExpression().type
+        if isinstance(rhs_type_symbol, ErrorTypeSymbol):
             self.__drop_missing_type_error(_assignment)
             return
-
-        rhs_type_symbol = rhs_type_symbol_either.getValue()
 
         if lhs_variable_symbol is not None and self.__types_do_not_match(lhs_variable_symbol, rhs_type_symbol):
             if rhs_type_symbol.differs_only_in_magnitude_or_is_equal_to(lhs_variable_symbol.getTypeSymbol()):
@@ -160,14 +155,14 @@ class CorrectExpressionVisitor(NESTMLVisitor):
                 _assignment.getExpression().setImplicitConversionFactor(
                     UnitTypeSymbol.get_conversion_factor(lhs_variable_symbol.getTypeSymbol().astropy_unit,
                                                          rhs_type_symbol.astropy_unit))
-                _assignment.getExpression().setTypeEither(Either.value(lhs_variable_symbol.getTypeSymbol()))
+                _assignment.getExpression().type = lhs_variable_symbol.getTypeSymbol()
                 # warn implicit conversion
                 error_msg = ErrorStrings.messageImplicitMagnitudeConversion(self, _assignment)
                 Logger.logMessage(_code=MessageCode.IMPLICIT_CAST,
                                   _errorPosition=_assignment.getSourcePosition(),
                                   _message=error_msg, _logLevel=LOGGING_LEVEL.WARNING)
             elif rhs_type_symbol.is_castable_to(lhs_variable_symbol.getTypeSymbol()):
-                self.__drop_implicit_cast_warning(_assignment, _assignment.getExpr(), lhs_variable_symbol,
+                self.__drop_implicit_cast_warning(_assignment, lhs_variable_symbol,
                                                   rhs_type_symbol)
             else:
                 self.__drop_incompatible_types_error(_assignment, _assignment.getExpression(), lhs_variable_symbol,
@@ -180,15 +175,15 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         :param _if_clause: a single elif clause.
         :type _if_clause: ASTIfClause
         """
-        cond_type = _if_clause.getCondition().getTypeEither()
-        if cond_type.isError():
+        cond_type = _if_clause.getCondition().type
+        if isinstance(cond_type, ErrorTypeSymbol):
             code, message = Messages.getTypeCouldNotBeDerived(_if_clause.getCondition())
             Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_if_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
+        elif not cond_type.equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
-                                                                  cond_type.getValue())
+                                                                  cond_type)
             Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_if_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
@@ -200,15 +195,15 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         :param _elif_clause: a single elif clause.
         :type _elif_clause: ASTElifClause
         """
-        cond_type = _elif_clause.getCondition().getTypeEither()
-        if cond_type.isError():
+        cond_type = _elif_clause.getCondition().type
+        if isinstance(cond_type, ErrorTypeSymbol):
             code, message = Messages.getTypeCouldNotBeDerived(_elif_clause.getCondition())
             Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_elif_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
+        elif not cond_type.equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
-                                                                  cond_type.getValue())
+                                                                  cond_type)
             Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_elif_clause.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
@@ -220,15 +215,15 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         :param _while_stmt: a single while stmt
         :type _while_stmt: ASTWhileStmt
         """
-        cond_type = _while_stmt.getCondition().getTypeEither()
-        if cond_type.isError():
+        cond_type = _while_stmt.getCondition().type
+        if isinstance(cond_type, ErrorTypeSymbol):
             code, message = Messages.getTypeCouldNotBeDerived(_while_stmt.getCondition())
             Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_while_stmt.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not cond_type.getValue().equals(PredefinedTypes.getBooleanType()):
+        elif not cond_type.equals(PredefinedTypes.getBooleanType()):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getBooleanType(),
-                                                                  cond_type.getValue())
+                                                                  cond_type)
             Logger.logMessage(_code=code, _message=message,
                               _errorPosition=_while_stmt.getCondition().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
@@ -241,27 +236,27 @@ class CorrectExpressionVisitor(NESTMLVisitor):
         :type _for_stmt: ASTForStmt
         """
         # check that the from stmt is an integer or real
-        from_type = _for_stmt.getFrom().getTypeEither()
-        if from_type.isError():
+        from_type = _for_stmt.getFrom().type
+        if isinstance(from_type, ErrorTypeSymbol):
             code, message = Messages.getTypeCouldNotBeDerived(_for_stmt.getFrom())
             Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getFrom().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not (from_type.getValue().equals(PredefinedTypes.getIntegerType())
-                  or from_type.getValue().equals(
+        elif not (from_type.equals(PredefinedTypes.getIntegerType())
+                  or from_type.equals(
                 PredefinedTypes.getRealType())):
             code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(),
-                                                                  from_type.getValue())
+                                                                  from_type)
             Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getFrom().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         # check that the to stmt is an integer or real
-        to_type = _for_stmt.getTo().getTypeEither()
-        if to_type.isError():
+        to_type = _for_stmt.getTo().type
+        if isinstance(to_type, ErrorTypeSymbol):
             code, message = Messages.getTypeCouldNotBeDerived(_for_stmt.getTo())
             Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getTo().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
-        elif not (to_type.getValue().equals(PredefinedTypes.getIntegerType())
-                  or to_type.getValue().equals(PredefinedTypes.getRealType())):
-            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), to_type.getValue())
+        elif not (to_type.equals(PredefinedTypes.getIntegerType())
+                  or to_type.equals(PredefinedTypes.getRealType())):
+            code, message = Messages.getTypeDifferentFromExpected(PredefinedTypes.getIntegerType(), to_type)
             Logger.logMessage(_code=code, _message=message, _errorPosition=_for_stmt.getTo().getSourcePosition(),
                               _logLevel=LOGGING_LEVEL.ERROR)
         return

@@ -21,9 +21,12 @@
 """
 expression : condition=expression '?' ifTrue=expression ':' ifNot=expression
 """
+from copy import copy
+
 from pynestml.modelprocessor.ASTExpression import ASTExpression
 from pynestml.modelprocessor.Either import Either
 from pynestml.modelprocessor.ErrorStrings import ErrorStrings
+from pynestml.modelprocessor.ErrorTypeSymbol import ErrorTypeSymbol
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
 from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
@@ -42,34 +45,18 @@ class ConditionVisitor(NESTMLVisitor):
         :param _expr: a single expression
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and (isinstance(_expr, ASTExpression))), \
-            '(PyNestML.Visitor.ConditionVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        condition_e = _expr.getCondition().getTypeEither()
-        if_true_e = _expr.getIfTrue().getTypeEither()
-        if_not_e = _expr.getIfNot().getTypeEither()
-
-        if condition_e.isError():
-            _expr.setTypeEither(condition_e)
-            return
-        if if_true_e.isError():
-            _expr.setTypeEither(if_true_e)
-            return
-        if if_not_e.isError():
-            _expr.setTypeEither(if_not_e)
-            return
-
-        if_true = if_true_e.getValue()
-        if_not = if_not_e.getValue()
-        condition = condition_e.getValue()
+        if_true = _expr.getIfTrue().type
+        if_not = _expr.getIfNot().type
+        condition = _expr.getCondition().type
 
         condition.referenced_object = _expr.getCondition()
         if_true.referenced_object = _expr.getIfTrue()
         if_not.referenced_object = _expr.getIfNot()
 
         # Condition must be a bool
-        if not condition_e.getValue().equals(PredefinedTypes.getBooleanType()):
+        if not condition.equals(PredefinedTypes.getBooleanType()):
             error_msg = ErrorStrings.messageTernary(self, _expr.getSourcePosition())
-            _expr.setTypeEither(Either.error(error_msg))
+            _expr.type = ErrorTypeSymbol()
             Logger.logMessage(_message=error_msg, _errorPosition=_expr.getSourcePosition(),
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                               _logLevel=LOGGING_LEVEL.ERROR)
@@ -77,7 +64,7 @@ class ConditionVisitor(NESTMLVisitor):
 
         # Alternatives match exactly -> any is valid
         if if_true.equals(if_not):
-            _expr.setTypeEither(Either.value(if_true))
+            _expr.type = copy(if_true)
             return
 
         # Both are units but not matching-> real WARN
@@ -85,7 +72,7 @@ class ConditionVisitor(NESTMLVisitor):
             # TODO: This is not covered by our tests, and it doesnt work
             error_msg = ErrorStrings.messageTernaryMismatch(self, if_true.print_symbol(), if_not.print_symbol(),
                                                             _expr.getSourcePosition())
-            _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
+            _expr.type = PredefinedTypes.getRealType()
             Logger.logMessage(_message=error_msg,
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                               _errorPosition=_expr.getIfTrue().getSourcePosition(),
@@ -102,7 +89,7 @@ class ConditionVisitor(NESTMLVisitor):
                 unit_type = if_not
             error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
                                                             _expr.getSourcePosition())
-            _expr.setTypeEither(Either.value(unit_type))
+            _expr.type = copy(unit_type)
             Logger.logMessage(_message=error_msg,
                               _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,
                               _errorPosition=_expr.getIfTrue().getSourcePosition(),
@@ -111,13 +98,13 @@ class ConditionVisitor(NESTMLVisitor):
 
         # both are numeric primitives (and not equal) ergo one is real and one is integer -> real
         if if_true.isNumericPrimitive() and if_not.isNumericPrimitive():
-            _expr.setTypeEither(Either.value(PredefinedTypes.getRealType()))
+            _expr.type = PredefinedTypes.getRealType()
             return
 
         # if we get here it is an error
         error_msg = ErrorStrings.messageTernaryMismatch(self, str(if_true), str(if_not),
                                                         _expr.getSourcePosition())
-        _expr.setTypeEither(Either.error(error_msg))
+        _expr.type = ErrorTypeSymbol()
         Logger.logMessage(_message=error_msg,
                           _errorPosition=_expr.getSourcePosition(),
                           _code=MessageCode.TYPE_DIFFERENT_FROM_EXPECTED,

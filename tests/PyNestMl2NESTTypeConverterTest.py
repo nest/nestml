@@ -10,7 +10,6 @@ from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.RealTypeSymbol import RealTypeSymbol
 from pynestml.modelprocessor.StringTypeSymbol import StringTypeSymbol
-from pynestml.modelprocessor.TypeSymbol import TypeSymbol
 from pynestml.modelprocessor.UnitType import UnitType
 from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.modelprocessor.VoidTypeSymbol import VoidTypeSymbol

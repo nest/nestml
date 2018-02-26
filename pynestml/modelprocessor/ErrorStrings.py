@@ -122,12 +122,12 @@ class ErrorStrings(object):
 
         assert _origin is not None
         assert _parentNode is not None and (
-        isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
+            isinstance(_parentNode, ASTExpression) or isinstance(_parentNode, ASTAssignment))
 
         targetExpression = None
         targetUnit = None
         converteeExpression = None
-        converteeUnit = None
+        convertee_unit = None
         operation = None;
 
         if (isinstance(_parentNode, ASTExpression)):
@@ -138,10 +138,10 @@ class ErrorStrings(object):
                 # All these rules employ left and right side expressions.
                 if _parentNode.getLhs() is not None:
                     targetExpression = _parentNode.getLhs()
-                    targetUnit = targetExpression.getTypeEither().getValue().astropy_unit
+                    targetUnit = targetExpression.type.astropy_unit
                 if _parentNode.getRhs() is not None:
                     converteeExpression = _parentNode.getRhs()
-                    converteeUnit = converteeExpression.getTypeEither().getValue().astropy_unit
+                    convertee_unit = converteeExpression.type.astropy_unit
                 # Handle all Arithmetic Operators:
                 if isinstance(binOp, ASTArithmeticOperator):
                     # Expr = left=expression (plusOp='+'  | minusOp='-') right=expression
@@ -157,7 +157,7 @@ class ErrorStrings(object):
             targetExpression = _parentNode.getVariable()
             targetUnit = lhsVariableSymbol.getTypeSymbol().astropy_unit
             converteeExpression = _parentNode.getExpression()
-            converteeUnit = converteeExpression.getTypeEither().getValue().astropy_unit
+            convertee_unit = converteeExpression.type.astropy_unit
 
         assert targetExpression is not None and converteeExpression is not None and \
                operation is not None, "Only call this on an addition/subtraction  or assignment after " \
@@ -165,7 +165,7 @@ class ErrorStrings(object):
 
         ERROR_MSG_FORMAT = "Non-matching unit types at '" + str(_parentNode)
         ERROR_MSG_FORMAT += "'. Implicit conversion of rhs to lhs"
-        ERROR_MSG_FORMAT += " (units: " + str(converteeUnit) + " and " + \
+        ERROR_MSG_FORMAT += " (units: " + str(convertee_unit) + " and " + \
                             str(targetUnit) + " )"
         ERROR_MSG_FORMAT += " implicitly replaced by '" + str(targetExpression) + operation \
                             + converteeExpression.printImplicitVersion() + "'"

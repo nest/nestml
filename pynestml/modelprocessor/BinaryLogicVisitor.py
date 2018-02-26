@@ -41,20 +41,8 @@ class BinaryLogicVisitor(NESTMLVisitor):
         :param _expr: a single expression.
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.BinaryLogicVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhs_type_e = _expr.getLhs().getTypeEither()
-        rhs_type_e = _expr.getRhs().getTypeEither()
-
-        if lhs_type_e.isError():
-            _expr.setTypeEither(lhs_type_e)
-            return
-        if rhs_type_e.isError():
-            _expr.setTypeEither(rhs_type_e)
-            return
-
-        lhs_type = lhs_type_e.getValue()
-        rhs_type = rhs_type_e.getValue()
+        lhs_type = _expr.getLhs().type
+        rhs_type = _expr.getRhs().type
 
         lhs_type.referenced_object = _expr.getLhs()
         rhs_type.referenced_object = _expr.getRhs()

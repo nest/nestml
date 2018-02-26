@@ -17,20 +17,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with NEST.  If not, see <http://www.gnu.org/licenses/>.
-import unittest
 import os
+import unittest
 
 from pynestml.codegeneration.UnitConverter import UnitConverter
+from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
 from pynestml.modelprocessor.ModelParser import ModelParser
-from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.ModelVisitor import NESTMLVisitor
-from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedFunctions import PredefinedFunctions
+from pynestml.modelprocessor.PredefinedTypes import PredefinedTypes
 from pynestml.modelprocessor.PredefinedUnits import PredefinedUnits
 from pynestml.modelprocessor.PredefinedVariables import PredefinedVariables
+from pynestml.modelprocessor.Symbol import SymbolKind
 from pynestml.modelprocessor.SymbolTable import SymbolTable
-from pynestml.modelprocessor.ASTSourcePosition import ASTSourcePosition
-from pynestml.modelprocessor.CoCosManager import CoCosManager
 from pynestml.modelprocessor.UnitTypeSymbol import UnitTypeSymbol
 from pynestml.utils.Logger import Logger, LOGGING_LEVEL
 from pynestml.utils.Messages import MessageCode
@@ -52,16 +51,16 @@ class expressionTestVisitor(NESTMLVisitor):
 
         varSymbol = scope.resolveToSymbol(varName, SymbolKind.VARIABLE)
 
-        _equals = varSymbol.getTypeSymbol().equals(_expr.getTypeEither().getValue())
+        _equals = varSymbol.getTypeSymbol().equals(_expr.type)
 
         message = 'line ' + str(_expr.getSourcePosition()) + ' : LHS = ' + \
                   varSymbol.getTypeSymbol().getSymbolName() + \
-                  ' RHS = ' + _expr.getTypeEither().getValue().getSymbolName() + \
+                  ' RHS = ' + _expr.type.getSymbolName() + \
                   ' Equal ? ' + str(_equals)
 
-        if isinstance(_expr.getTypeEither().getValue(),UnitTypeSymbol):
+        if isinstance(_expr.type, UnitTypeSymbol):
             message += " Neuroscience Factor: " + \
-            str(UnitConverter().getFactor(_expr.getTypeEither().getValue().astropy_unit))
+                       str(UnitConverter().getFactor(_expr.type.astropy_unit))
 
         Logger.logMessage(_errorPosition=_assignment.getSourcePosition(), _code=MessageCode.TYPE_MISMATCH,
                           _message=message, _logLevel=LOGGING_LEVEL.INFO)
@@ -78,6 +77,7 @@ class ExpressionTypeCalculationTest(unittest.TestCase):
     """
     A simple test that prints all top-level expression types in a file.
     """
+
     def test(self):
         Logger.initLogger(LOGGING_LEVEL.NO)
         model = ModelParser.parseModel(

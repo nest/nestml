@@ -36,21 +36,8 @@ class DotOperatorVisitor(NESTMLVisitor):
         :param _expr: a single expression
         :type _expr: ASTExpression
         """
-        assert (_expr is not None and isinstance(_expr, ASTExpression)), \
-            '(PyNestML.Visitor.DotOperatorVisitor) No or wrong type of expression provided (%s)!' % type(_expr)
-        lhsTypeE = _expr.getLhs().getTypeEither()
-        rhsTypeE = _expr.getRhs().getTypeEither()
-
-        if lhsTypeE.isError():
-            _expr.setTypeEither(lhsTypeE)
-            return
-
-        if rhsTypeE.isError():
-            _expr.setTypeEither(rhsTypeE)
-            return
-
-        lhsType = lhsTypeE.getValue()
-        rhsType = rhsTypeE.getValue()
+        lhsType = _expr.getLhs().type
+        rhsType = _expr.getRhs().type
 
         arithOp = _expr.getBinaryOperator()
 
